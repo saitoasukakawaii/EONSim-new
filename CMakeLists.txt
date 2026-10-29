@@ -20,6 +20,13 @@ if(NOT EONSIM_HAVE_PETSC)
 endif()
 find_package(MPI REQUIRED COMPONENTS C CXX)
 find_package(yaml-cpp CONFIG REQUIRED)
+find_path(EONSIM_METIS_INCLUDE_DIR metis.h HINTS "${EONSIM_PETSC_ROOT}/${EONSIM_PETSC_ARCH}/include" REQUIRED)
+find_library(EONSIM_METIS_LIBRARY metis HINTS ${EONSIM_PETSC_LIBRARY_DIRS} "${EONSIM_PETSC_ROOT}/${EONSIM_PETSC_ARCH}/lib" REQUIRED)
+find_path(EONSIM_HDF5_INCLUDE_DIR hdf5.h HINTS "${EONSIM_PETSC_ROOT}/${EONSIM_PETSC_ARCH}/include" PATH_SUFFIXES hdf5/serial hdf5/openmpi REQUIRED)
+find_library(EONSIM_HDF5_LIBRARY hdf5 HINTS ${EONSIM_PETSC_LIBRARY_DIRS} "${EONSIM_PETSC_ROOT}/${EONSIM_PETSC_ARCH}/lib" PATH_SUFFIXES hdf5/serial hdf5/openmpi REQUIRED)
+add_library(EONSimPartitionDeps INTERFACE)
+target_include_directories(EONSimPartitionDeps INTERFACE "${EONSIM_METIS_INCLUDE_DIR}" "${EONSIM_HDF5_INCLUDE_DIR}")
+target_link_libraries(EONSimPartitionDeps INTERFACE "${EONSIM_METIS_LIBRARY}" "${EONSIM_HDF5_LIBRARY}")
 
 add_library(eonsim_build_options INTERFACE)
 target_compile_definitions(eonsim_build_options INTERFACE
@@ -30,7 +37,9 @@ target_compile_definitions(eonsim_build_options INTERFACE
 add_library(eonsim_core
     src/core/config.cpp
     src/mesh/gmsh.cpp
+    src/mesh/partition.cpp
     src/fem/tet4.cpp
+    src/fem/field_layout.cpp
     src/algebra/linear_system.cpp
     src/physics/poisson.cpp
     src/io/vtu.cpp
@@ -38,7 +47,7 @@ add_library(eonsim_core
 target_include_directories(eonsim_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(eonsim_core
     PUBLIC eonsim_build_options PETSc::PETSc MPI::MPI_CXX
-    PRIVATE EONSimBLAS::BLASLAPACK yaml-cpp::yaml-cpp
+    PRIVATE EONSimBLAS::BLASLAPACK yaml-cpp::yaml-cpp EONSimPartitionDeps
 )
 
 add_executable(eonsim src/main.cpp)
@@ -59,4 +68,11 @@ if(BUILD_TESTING)
             --work "${CMAKE_CURRENT_BINARY_DIR}/verification")
     set_tests_properties(poisson_verification PROPERTIES
         TIMEOUT 90 ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME poisson_parallel
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_parallel.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --case "${CMAKE_CURRENT_SOURCE_DIR}/cases/poisson/case.yaml"
+            --work "${CMAKE_CURRENT_BINARY_DIR}/parallel_verification")
+    set_tests_properties(poisson_parallel PROPERTIES
+        TIMEOUT 120 ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
 endif()

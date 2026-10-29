@@ -1,5 +1,6 @@
 #include "eonsim/poisson.hpp"
 #include "eonsim/tet4.hpp"
+#include "eonsim/field_layout.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -27,31 +28,30 @@ Point exact_gradient(ExactSolution solution, const Point& x)
     return {1.0, 2.0, 3.0};
 }
 
-ScalarDofMap make_dofs(const MeshPartition& mesh, const Config& config)
+ScalarDofMap make_dofs(MPI_Comm comm, const MeshPartition& mesh, const Config& config)
 {
     if (mesh.nodes.size() > static_cast<std::size_t>(std::numeric_limits<PetscInt>::max()))
         throw std::runtime_error("Mesh exceeds the index range of this PETSc build");
     ScalarDofMap dofs;
-    dofs.local_to_algebra.resize(mesh.nodes.size());
-    std::iota(dofs.local_to_algebra.begin(), dofs.local_to_algebra.end(), GlobalId{0});
-    std::set<int> available;
+    dofs.local_to_algebra = mesh.algebra_ids;
     std::set<int> requested(config.dirichlet_tags.begin(), config.dirichlet_tags.end());
-    std::vector<bool> constrained(mesh.nodes.size(), false);
-    for (const auto& face : mesh.boundary) {
-        available.insert(face.physical_tag);
-        if (!requested.count(face.physical_tag))
-            throw std::runtime_error("P0 manufactured cases require Dirichlet data on every exterior face");
-        for (auto node : face.nodes) constrained[node] = true;
-    }
-    for (int tag : requested)
-        if (!available.count(tag)) throw std::runtime_error("Dirichlet physical tag absent from mesh: " + std::to_string(tag));
-    for (std::size_t i = 0; i < constrained.size(); ++i) {
-        if (constrained[i]) {
+    std::vector<int> available(config.dirichlet_tags.size(), 0), global(available.size());
+    for (std::size_t i = 0; i < mesh.nodes.size(); ++i) {
+        const auto& tags = mesh.node_boundary_tags[i];
+        for (int tag : tags) {
+            if (!requested.count(tag)) throw std::runtime_error("Manufactured Poisson requires Dirichlet data on every exterior face");
+            auto it = std::find(config.dirichlet_tags.begin(), config.dirichlet_tags.end(), tag);
+            available[it-config.dirichlet_tags.begin()] = 1;
+        }
+        if (i < mesh.owned_nodes && !tags.empty()) {
             dofs.dirichlet_nodes.push_back(static_cast<LocalId>(i));
             dofs.dirichlet_values.push_back(exact_value(config.exact_solution, mesh.nodes[i].position));
             if (!std::isfinite(dofs.dirichlet_values.back())) throw std::runtime_error("Non-finite boundary value");
         }
     }
+    if (MPI_Allreduce(available.data(), global.data(), global.size(), MPI_INT, MPI_MAX, comm) != MPI_SUCCESS)
+        throw std::runtime_error("Boundary tag reduction failed");
+    if (std::find(global.begin(), global.end(), 0) != global.end()) throw std::runtime_error("Dirichlet physical tag absent from mesh");
     return dofs;
 }
 
@@ -104,9 +104,8 @@ PoissonResult solve_poisson(MPI_Comm communicator, const MeshPartition& mesh,
 {
     PoissonResult result;
     auto start = Clock::now();
-    const auto dofs = make_dofs(mesh, config);
+    const auto dofs = make_dofs(communicator, mesh, config);
     result.constrained_dofs = dofs.dirichlet_nodes.size();
-    std::vector<std::vector<LocalId>> graph(mesh.nodes.size());
     std::vector<Tet4Geometry> geometry;
     geometry.reserve(mesh.cells.size());
     for (const auto& cell : mesh.cells) {
@@ -117,21 +116,14 @@ PoissonResult solve_poisson(MPI_Comm communicator, const MeshPartition& mesh,
             assert(local >= 0 && static_cast<std::size_t>(local) < mesh.nodes.size());
 #endif
             coordinates[a] = mesh.nodes[local].position;
-            graph[local].insert(graph[local].end(), cell.nodes.begin(), cell.nodes.end());
         }
         try { geometry.push_back(tet4_geometry(coordinates)); }
         catch (const std::exception& error) {
             throw std::runtime_error("Tet4 " + std::to_string(cell.global_id) + ": " + error.what());
         }
     }
-    std::vector<PetscInt> row_nonzeros;
-    row_nonzeros.reserve(graph.size());
-    for (auto& row : graph) {
-        std::sort(row.begin(), row.end());
-        row.erase(std::unique(row.begin(), row.end()), row.end());
-        row_nonzeros.push_back(static_cast<PetscInt>(row.size()));
-    }
-    LinearSystem system(communicator, row_nonzeros);
+    const auto layout = make_field_layout(mesh, 1, {{"scalar", {0}}});
+    LinearSystem system(communicator, layout);
     result.prepare_seconds = seconds(start);
     start = Clock::now();
     const double source = config.exact_solution == ExactSolution::quadratic ? -12.0 * config.diffusivity : 0.0;
@@ -160,6 +152,17 @@ PoissonResult solve_poisson(MPI_Comm communicator, const MeshPartition& mesh,
         result.boundary_max_error = std::max(result.boundary_max_error,
             std::abs(result.linear.values[dofs.dirichlet_nodes[i]] - dofs.dirichlet_values[i]));
     evaluate_errors(mesh, geometry, config.exact_solution, result);
+    double local[] = {result.volume, result.solution_integral, result.l2_error*result.l2_error,
+                      result.h1_seminorm_error*result.h1_seminorm_error, static_cast<double>(result.constrained_dofs)};
+    double global[5]{};
+    if (MPI_Allreduce(local, global, 5, MPI_DOUBLE, MPI_SUM, communicator) != MPI_SUCCESS)
+        throw std::runtime_error("Poisson metric reduction failed");
+    result.volume = global[0]; result.solution_integral = global[1];
+    result.l2_error = std::sqrt(global[2]); result.h1_seminorm_error = std::sqrt(global[3]);
+    result.constrained_dofs = static_cast<std::size_t>(global[4]);
+    double maximum = 0.0;
+    MPI_Allreduce(&result.boundary_max_error, &maximum, 1, MPI_DOUBLE, MPI_MAX, communicator);
+    result.boundary_max_error = maximum;
     result.error_seconds = seconds(start);
     return result;
 }

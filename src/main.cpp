@@ -49,11 +49,14 @@ int main(int argc, char* argv[])
     }
     try {
         EONSIM_PETSC(PetscPushErrorHandler(PetscReturnErrorHandler, nullptr));
-        // Reject before reading input: no full-grid replication masquerading as MPI support.
-        if (size != 1) throw std::runtime_error("P0 currently supports exactly one MPI rank; P1 distributed input and assembly are not implemented");
+        const auto partition = option("-partition");
+        const auto prepare = option("-prepare");
+        if (size != 1 && (!partition || prepare))
+            throw std::runtime_error("Multi-rank solve requires -partition; offline -prepare requires one rank");
         const auto case_file = option("-case");
         if (!case_file) {
             std::cout << "Usage: eonsim -case case.yaml [-mesh mesh.msh] [-output result.vtu]\n"
+                         "       [-partition directory] [-prepare directory -parts N]\n"
                          "       [-diagnostics basic|full] [PETSc -ksp_* / -pc_* options]\n";
         } else {
             using Clock = std::chrono::steady_clock;
@@ -64,11 +67,40 @@ int main(int argc, char* argv[])
             if (config.output.extension() != ".vtu") throw std::runtime_error("output must have a .vtu extension");
             const auto diagnostics = option("-diagnostics").value_or("basic");
             if (diagnostics != "basic" && diagnostics != "full") throw std::runtime_error("diagnostics must be basic or full");
-            const auto mesh = eonsim::read_gmsh22(config.mesh);
+            if (prepare) {
+                PetscInt parts = 1;
+                EONSIM_PETSC(PetscOptionsGetInt(nullptr, nullptr, "-parts", &parts, nullptr));
+                if (parts < 1 || parts > 1000000) throw std::runtime_error("Invalid -parts");
+                eonsim::prepare_partitions(eonsim::read_gmsh22(config.mesh), static_cast<int>(parts), *prepare);
+                std::cout << "Prepared " << parts << " HDF5 partitions in " << *prepare << "\nstatus=success\n";
+            } else {
+            const auto mesh = partition ? eonsim::read_partition(*partition, rank, size) : eonsim::read_gmsh22(config.mesh);
+            std::vector<eonsim::GlobalId> counts(size);
+            const eonsim::GlobalId owned = mesh.owned_nodes;
+            MPI_Allgather(&owned, 1, MPI_INT64_T, counts.data(), 1, MPI_INT64_T, PETSC_COMM_WORLD);
+            eonsim::GlobalId owned_start = 0, total = 0;
+            for (int r = 0; r < size; ++r) { if (r < rank) owned_start += counts[r]; total += counts[r]; }
+            const eonsim::GlobalId local_cells = mesh.cells.size();
+            eonsim::GlobalId total_cells = 0;
+            MPI_Allreduce(&local_cells, &total_cells, 1, MPI_INT64_T, MPI_SUM, PETSC_COMM_WORLD);
+            if (total_cells != mesh.global_cells) throw std::runtime_error("Incomplete cell partition");
+            std::uint64_t min_hash = 0, max_hash = 0;
+            MPI_Allreduce(&mesh.fingerprint, &min_hash, 1, MPI_UINT64_T, MPI_MIN, PETSC_COMM_WORLD);
+            MPI_Allreduce(&mesh.fingerprint, &max_hash, 1, MPI_UINT64_T, MPI_MAX, PETSC_COMM_WORLD);
+            if (owned_start != mesh.owned_begin || total != mesh.global_nodes || min_hash != max_hash)
+                throw std::runtime_error("Inconsistent partition set");
+            for (std::size_t n = 0; n < mesh.nodes.size(); ++n) {
+                eonsim::GlobalId owner_begin = 0;
+                for (int r = 0; r < mesh.owners[n]; ++r) owner_begin += counts[r];
+                if (mesh.algebra_ids[n] < owner_begin || mesh.algebra_ids[n] >= owner_begin+counts[mesh.owners[n]])
+                    throw std::runtime_error("Ghost ID does not belong to its declared owner");
+            }
             const double input_seconds = std::chrono::duration<double>(Clock::now()-begin).count();
             const auto result = eonsim::solve_poisson(PETSC_COMM_WORLD, mesh, config, diagnostics == "full");
             const auto output_begin = Clock::now();
             eonsim::write_vtu(config.output, mesh, result.linear.values, result.exact_values);
+            MPI_Barrier(PETSC_COMM_WORLD);
+            if (rank == 0) eonsim::write_pvtu(config.output, size);
             const double output_seconds = std::chrono::duration<double>(Clock::now()-output_begin).count();
             char version[256]{};
             EONSIM_PETSC(PetscGetVersion(version, sizeof(version)));
@@ -76,16 +108,24 @@ int main(int argc, char* argv[])
             int mpi_length = 0;
             if (MPI_Get_library_version(mpi_version.data(), &mpi_length) != MPI_SUCCESS)
                 throw std::runtime_error("MPI_Get_library_version failed");
-            std::cout << std::setprecision(16)
-                << "EONSim P0 | build=" << EONSIM_BUILD_TYPE << " MHPC_DEBUG=" << MHPC_DEBUG << " ranks=" << size << '\n'
+            EONSIM_PETSC(PetscSynchronizedPrintf(PETSC_COMM_WORLD, "rank=%d local_nodes=%zu local_cells=%zu owned=%zu ghost=%zu\n",
+                rank, mesh.nodes.size(), mesh.cells.size(), mesh.owned_nodes, mesh.nodes.size()-mesh.owned_nodes));
+            EONSIM_PETSC(PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT));
+            eonsim::GlobalId boundary_faces = mesh.boundary.size(), total_faces = 0;
+            MPI_Allreduce(&boundary_faces, &total_faces, 1, MPI_INT64_T, MPI_SUM, PETSC_COMM_WORLD);
+            double local_times[] = {input_seconds, result.prepare_seconds, result.assembly_seconds, result.solve_seconds, result.error_seconds, output_seconds};
+            double max_times[6]{};
+            MPI_Allreduce(local_times, max_times, 6, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD);
+            if (rank == 0) std::cout << std::setprecision(16)
+                << "EONSim P1 | build=" << EONSIM_BUILD_TYPE << " MHPC_DEBUG=" << MHPC_DEBUG << " ranks=" << size << '\n'
                 << version << '\n' << mpi_version.data() << '\n'
                 << "PETSc scalar=real-double index_bits=" << 8*sizeof(PetscInt)
                 << " mesh_id_bits=" << 8*sizeof(eonsim::GlobalId) << '\n'
                 << "thread_limits OMP=" << std::getenv("OMP_NUM_THREADS")
                 << " OPENBLAS=" << std::getenv("OPENBLAS_NUM_THREADS") << " MKL=" << std::getenv("MKL_NUM_THREADS") << '\n'
                 << "case=" << std::filesystem::absolute(*case_file) << " mesh=" << config.mesh << '\n'
-                << "nodes=" << mesh.nodes.size() << " cells=" << mesh.cells.size() << " boundary_faces=" << mesh.boundary.size()
-                << " owned=" << mesh.nodes.size() << " ghost=0 constrained=" << result.constrained_dofs
+                << "nodes=" << mesh.global_nodes << " cells=" << mesh.global_cells << " boundary_faces=" << total_faces
+                << " owned=" << mesh.global_nodes << " constrained=" << result.constrained_dofs
                 << " nnz=" << result.linear.nonzeros << '\n'
                 << "ksp=" << result.linear.ksp_type << " pc=" << result.linear.pc_type
                 << " reason=" << result.linear.reason << " iterations=" << result.linear.iterations << '\n'
@@ -94,16 +134,18 @@ int main(int argc, char* argv[])
                 << "volume=" << result.volume << " solution_integral=" << result.solution_integral
                 << " l2_error=" << result.l2_error << " h1_seminorm_error=" << result.h1_seminorm_error
                 << " boundary_max_error=" << result.boundary_max_error << '\n'
-                << "seconds input=" << input_seconds << " prepare=" << result.prepare_seconds
-                << " assembly=" << result.assembly_seconds << " solve=" << result.solve_seconds
-                << " error=" << result.error_seconds << " output=" << output_seconds << '\n'
+                << "seconds(max_rank) input=" << max_times[0] << " prepare=" << max_times[1]
+                << " assembly=" << max_times[2] << " solve=" << max_times[3]
+                << " error=" << max_times[4] << " output=" << max_times[5] << '\n'
                 << "output=" << config.output << "\nstatus=success\n";
+            }
         }
     } catch (const std::exception& error) {
-        if (rank == 0) std::cerr << "EONSim: " << error.what() << "\nstatus=failed\n";
+        std::cerr << "EONSim rank " << rank << ": " << error.what() << "\nstatus=failed\n";
         status = 1;
+        if (size > 1) MPI_Abort(PETSC_COMM_WORLD, status);
     }
-    // All ranks take the same early rejection path; the solver only runs at size=1.
+    // Successful ranks finalize together; unrecoverable distributed failures abort the job.
     if (PetscFinalize()) status = 1;
     return status;
 }

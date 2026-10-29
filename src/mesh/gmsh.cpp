@@ -168,6 +168,7 @@ MeshPartition read_gmsh22(const std::filesystem::path& path)
     }
     if (!have_elements) throw std::runtime_error("Missing Gmsh Elements section");
     validate_topology(mesh);
+    initialize_serial_partition(mesh);
     return mesh;
 }
 } // namespace eonsim

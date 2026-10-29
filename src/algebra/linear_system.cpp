@@ -15,19 +15,16 @@ void check_petsc(PetscErrorCode error, const char* operation)
     throw std::runtime_error(std::string(operation) + ": " + (message ? message : "PETSc failure"));
 }
 
-LinearSystem::LinearSystem(MPI_Comm communicator, const std::vector<PetscInt>& row_nonzeros)
-    : communicator_(communicator)
+LinearSystem::LinearSystem(MPI_Comm communicator, const AlgebraLayout& layout)
+    : communicator_(communicator), layout_(layout)
 {
-    int size = 0;
-    if (MPI_Comm_size(communicator, &size) != MPI_SUCCESS) throw std::runtime_error("MPI_Comm_size failed");
-    if (size != 1) throw std::runtime_error("P0 algebra requires one rank; distributed assembly is not implemented");
-    if (row_nonzeros.empty() || row_nonzeros.size() > static_cast<std::size_t>(std::numeric_limits<PetscInt>::max()))
-        throw std::runtime_error("DoF count exceeds the current PETSc index range");
-    const auto n = static_cast<PetscInt>(row_nonzeros.size());
-    EONSIM_PETSC(MatCreateSeqAIJ(communicator_, n, n, 0, row_nonzeros.data(), matrix_.put()));
+    EONSIM_PETSC(MatCreateAIJ(communicator_, layout.owned, layout.owned, layout.global, layout.global,
+                            0, layout.diagonal.data(), 0, layout.off_diagonal.data(), matrix_.put()));
     EONSIM_PETSC(MatSetOption(matrix_.get(), MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE));
-    EONSIM_PETSC(VecCreateSeq(communicator_, n, rhs_.put()));
-    EONSIM_PETSC(VecDuplicate(rhs_.get(), solution_.put()));
+    const auto ghosts = static_cast<PetscInt>(layout.local_to_global.size())-layout.owned;
+    EONSIM_PETSC(VecCreateGhost(communicator_, layout.owned, layout.global, ghosts,
+                              ghosts ? layout.local_to_global.data()+layout.owned : nullptr, solution_.put()));
+    EONSIM_PETSC(VecDuplicate(solution_.get(), rhs_.put()));
     EONSIM_PETSC(VecDuplicate(rhs_.get(), work_.put()));
     EONSIM_PETSC(VecSet(rhs_.get(), 0.0));
     EONSIM_PETSC(VecSet(solution_.get(), 0.0));
@@ -41,7 +38,7 @@ void LinearSystem::add(PetscInt count, const PetscInt* dofs, const double* stiff
 
 void LinearSystem::constrain(const std::vector<PetscInt>& dofs, const std::vector<double>& values)
 {
-    if (dofs.size() != values.size() || dofs.empty()) throw std::runtime_error("Invalid Dirichlet data");
+    if (dofs.size() != values.size()) throw std::runtime_error("Invalid Dirichlet data");
     EONSIM_PETSC(MatAssemblyBegin(matrix_.get(), MAT_FINAL_ASSEMBLY));
     EONSIM_PETSC(MatAssemblyEnd(matrix_.get(), MAT_FINAL_ASSEMBLY));
     EONSIM_PETSC(VecAssemblyBegin(rhs_.get()));
@@ -72,6 +69,15 @@ LinearResult LinearSystem::solve(const SolverConfig& config, bool full_diagnosti
     EONSIM_PETSC(KSPSetTolerances(solver_.get(), config.relative_tolerance, config.absolute_tolerance,
                                 PETSC_DEFAULT, config.maximum_iterations));
     EONSIM_PETSC(KSPSetFromOptions(solver_.get()));
+    const char* selected_pc = nullptr;
+    EONSIM_PETSC(PCGetType(preconditioner, &selected_pc));
+    if (std::string(selected_pc) == PCFIELDSPLIT) {
+        for (const auto& field : layout_.fields) {
+            PetscOwner<IS, ISDestroy> indices;
+            EONSIM_PETSC(ISCreateGeneral(communicator_, field.second.size(), field.second.data(), PETSC_COPY_VALUES, indices.put()));
+            EONSIM_PETSC(PCFieldSplitSetIS(preconditioner, field.first.c_str(), indices.get()));
+        }
+    }
     EONSIM_PETSC(KSPSolve(solver_.get(), rhs_.get(), solution_.get()));
     KSPConvergedReason reason;
     EONSIM_PETSC(KSPGetConvergedReason(solver_.get(), &reason));
@@ -93,15 +99,19 @@ LinearResult LinearSystem::solve(const SolverConfig& config, bool full_diagnosti
     result.ksp_type = ksp;
     result.pc_type = pc;
     MatInfo info{};
-    EONSIM_PETSC(MatGetInfo(matrix_.get(), MAT_LOCAL, &info));
+    EONSIM_PETSC(MatGetInfo(matrix_.get(), MAT_GLOBAL_SUM, &info));
     result.nonzeros = info.nz_used;
-    PetscInt n = 0;
-    EONSIM_PETSC(VecGetSize(solution_.get(), &n));
+    EONSIM_PETSC(VecGhostUpdateBegin(solution_.get(), INSERT_VALUES, SCATTER_FORWARD));
+    EONSIM_PETSC(VecGhostUpdateEnd(solution_.get(), INSERT_VALUES, SCATTER_FORWARD));
+    Vec local = nullptr;
+    EONSIM_PETSC(VecGhostGetLocalForm(solution_.get(), &local));
+    const PetscInt n = layout_.local_to_global.size();
     result.values.resize(static_cast<std::size_t>(n));
     const PetscScalar* data = nullptr;
-    EONSIM_PETSC(VecGetArrayRead(solution_.get(), &data));
+    EONSIM_PETSC(VecGetArrayRead(local, &data));
     std::copy(data, data+n, result.values.begin());
-    EONSIM_PETSC(VecRestoreArrayRead(solution_.get(), &data));
+    EONSIM_PETSC(VecRestoreArrayRead(local, &data));
+    EONSIM_PETSC(VecGhostRestoreLocalForm(solution_.get(), &local));
     for (double value : result.values)
         if (!std::isfinite(value)) throw std::runtime_error("Non-finite solution");
     return result;

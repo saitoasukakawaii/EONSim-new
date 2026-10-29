@@ -1,11 +1,10 @@
 # EONSim
 
-C++17 / PETSc 多物理场求解器。当前完成 **P0 单 rank 标量 Poisson 闭环**：
+C++17 / PETSc 多物理场求解器。当前完成 **P0 标量 Poisson 与 P1 分布式基础**：
 YAML 配置 → Gmsh Tet4 网格 → 几何/积分 → 稀疏装配 → 非零 Dirichlet lifting →
 PETSc KSP → 误差摘要与 VTU。后续路线是分布式基础、独立流体/固体、单体刚体/弹性体 FSI。
 
-当前不支持多 rank 求解、一般源项/边界表达式、流体、固体或 FSI；请求多 rank
-会在读取网格前明确失败。首个标量算例服务离散与求解链验证。
+分布式求解使用预处理后的本地分区；当前尚未实现一般源项/边界表达式、流体、固体或 FSI。首个标量算例服务离散与求解链验证。
 
 ## 环境与构建
 
@@ -94,7 +93,7 @@ Release 同理使用 `release` preset。可选验证仅使用 Python 标准库�
 | 畸变网格仿射解，4 等分 | 384 | 1.06e-11 | 1.80e-10 |
 
 默认算例真实残量约 `1.67e-14`，7 次 CG 迭代。验证日志、VTU 和 `metrics.json`
-保存在对应构建目录的 `verification/`。两 rank 启动的明确拒绝也已验证，**不是并行求解通过**。
+保存在对应构建目录的 `verification/`。P1 另验证真实的 1/2 rank 分布式对照，见下节。
 
 重新生成加密网格：
 
@@ -103,6 +102,23 @@ python3 cases/poisson/generate_mesh.py --subdivisions 8 --output results/cube8.m
 ./build/release/eonsim -case cases/poisson/case.yaml \
   -mesh results/cube8.msh -output results/poisson8/solution.vtu
 ```
+
+## P1 分布式运行
+
+预处理是单进程离线操作；METIS 按四面体共享面分区，每个 HDF5 文件保存本 rank 单元、
+owned/ghost 节点、边界标签和 owned 行完整邻接。求解时不读取原始 Gmsh 文件，不收集全局场。
+
+```bash
+./build/release/eonsim -case cases/poisson/case.yaml -prepare results/partition2 -parts 2
+/usr/bin/mpiexec -n 2 ./build/release/eonsim -case cases/poisson/case.yaml \
+  -partition results/partition2 -output results/poisson2/solution.vtu
+```
+
+`solution.pvtu` 引用各 rank 的 VTU；边界有独立 `solution_boundary.pvtu`。
+本机两个分区含 188/196 个单元，owned 节点 74/51，ghost 节点 0/25，全局仅 125 个节点。
+标量仍采用相同局部核；PETSc 完成远程装配累加及解的 owner→ghost 同步。
+`poisson_parallel` 自动检查 1/2 rank 解与积分（容差 1e-10）、PVTU、field IS 和分区缺失的失败退出。
+预处理新增依赖 METIS/HDF5，优先复用当前 PETSc 安装中的头文件和库，避免混合 HDF5 ABI。
 
 ## 依赖与代码结构
 
@@ -123,7 +139,7 @@ BLAS 可显式设置 `-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS|SYSTEM|MKL|BLIS_FLA
 此选项控制 EONSim 直接依赖，已安装 PETSc 自身使用的 BLAS 不会随之改变。
 机器路径用本地命令或忽略的 `CMakeUserPresets.json` 设置。当前机器 PATH 中的 ParaView
 带有 MPICH 启动器，而本项目使用 OpenMPI；可通过 `-DMPIEXEC_EXECUTABLE=/usr/bin/mpiexec`
-设置匹配的启动器，但 P0 仍只接受一个 rank。
+设置匹配的启动器，多 rank 求解必须传入匹配的分区目录。
 
 ```text
 include/eonsim/       具体配置、网格、Tet4、线性系统与结果类型
@@ -138,5 +154,5 @@ cases/poisson/       可运行 YAML、网格及生成器
 ```
 
 一个 `eonsim_core` library 和一个 `eonsim` 应用。下一步按
-[开发路线](docs/development/ROADMAP.md) 实现 P1：离线分区、本地 owned/ghost 输入和 1/2 rank 一致性。
+[开发路线](docs/development/ROADMAP.md) 继续 P2 独立流体。
 设计约束入口为 [AGENTS.md](AGENTS.md) 与 [总原则](MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md)。
