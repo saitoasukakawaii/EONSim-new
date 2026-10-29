@@ -45,6 +45,7 @@ target_compile_definitions(eonsim_build_options INTERFACE
 add_library(eonsim_core
     src/core/config.cpp
     src/mesh/gmsh.cpp
+    src/mesh/fsi_domains.cpp
     src/mesh/partition.cpp
     src/fem/tet4.cpp
     src/fem/boundary_geometry.cpp
@@ -101,6 +102,11 @@ if(BUILD_TESTING)
     target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
     add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME domains_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_domains.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/domains_verification")
+    set_tests_properties(domains_verification PROPERTIES TIMEOUT 240 ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME regions_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_regions.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"

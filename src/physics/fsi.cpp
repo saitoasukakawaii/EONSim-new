@@ -1,4 +1,5 @@
 #include "eonsim/fsi.hpp"
+#include "eonsim/fsi_domains.hpp"
 #include "eonsim/checkpoint.hpp"
 #include "eonsim/fsi_element.hpp"
 #include "eonsim/reduced_layout.hpp"
@@ -15,7 +16,8 @@ template<bool Elastic>
 FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& config)
 {
     const auto& f=config.fsi;
-    const auto reduced=Elastic?make_elastic_fsi_layout(comm,mesh):make_rigid_fsi_layout(comm,mesh);
+    const bool dual=!f.domains.solid_mesh.empty();
+    const auto reduced=dual?make_dual_fsi_layout(comm,mesh,f.domains):Elastic?make_elastic_fsi_layout(comm,mesh):make_rigid_fsi_layout(comm,mesh);
     using Layout=CoupledLayout<Tet4Topology,Elastic>;
     constexpr int nc=Layout::components;
     const auto& layout=reduced.algebra;
@@ -23,35 +25,38 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     for(const auto& face:mesh.boundary) {
         auto key=face.nodes; std::sort(key.begin(),key.end()); boundary[key]=face.physical_tag;
         const int tag=face.physical_tag;
-        if(tag<1||tag>6) throw std::runtime_error("FSI requires unit-cube fluid tags 1..6");
-        for(auto n:face.nodes) if(std::abs(mesh.nodes[n].position[(tag-1)/2]-(tag-1)%2)>1e-12)
+        if(!dual&&(tag<1||tag>6)) throw std::runtime_error("FSI requires unit-cube fluid tags 1..6");
+        if(!dual) for(auto n:face.nodes) if(std::abs(mesh.nodes[n].position[(tag-1)/2]-(tag-1)%2)>1e-12)
             throw std::runtime_error("FSI reference boundary mismatch");
     }
     std::vector<bool> interface(mesh.nodes.size());
     for(std::size_t n=0;n<mesh.nodes.size();++n) {
         const auto& tags=mesh.node_boundary_tags[n];
-        interface[n]=std::find(tags.begin(),tags.end(),2)!=tags.end();
+        interface[n]=dual?(node_in_region(mesh,n,f.domains.fluid_region)&&node_in_region(mesh,n,f.domains.solid_region)):(std::find(tags.begin(),tags.end(),2)!=tags.end());
     }
+    std::vector<bool> fluid_cell,solid_cell;
     std::vector<FsiElementData> data;
     std::vector<Tet4Geometry> solid_geometry;
     for(const auto& cell:mesh.cells) {
+        fluid_cell.push_back(!dual||cell.physical_tag==f.domains.fluid_region);
+        solid_cell.push_back(Elastic&&(!dual||cell.physical_tag==f.domains.solid_region));
         FsiElementData e;
         Tet4Topology::Nodal<Point> solid_xyz;
         for(int a=0;a<Tet4Topology::nodes;++a) {
             e.reference[a]=mesh.nodes[cell.nodes[a]].position;
-            solid_xyz[a]=e.reference[a]; solid_xyz[a][0]=1+f.thickness*(1-solid_xyz[a][0]);
+            solid_xyz[a]=e.reference[a]; if(!dual) solid_xyz[a][0]=1+f.thickness*(1-solid_xyz[a][0]);
         }
         // 两网格拥有同一逻辑拓扑；固体位于 [1,1+thickness]，界面逻辑 x=1 共形。
         // x 反射改变定向，交换两个顶点求几何后恢复原局部梯度顺序。
-        if(Elastic) {
-            std::swap(solid_xyz[1],solid_xyz[2]);
-            auto g=tet4_geometry(solid_xyz); std::swap(g.gradients[1],g.gradients[2]); solid_geometry.push_back(g);
-        }
+        if(solid_cell.back()) {
+            if(!dual) std::swap(solid_xyz[1],solid_xyz[2]);
+            auto g=tet4_geometry(solid_xyz); if(!dual) std::swap(g.gradients[1],g.gradients[2]); solid_geometry.push_back(g);
+        } else solid_geometry.push_back({});
         for(int skip=0;skip<Tet4Topology::nodes;++skip) {
             Tri3Topology::Nodal<int> face; Tri3Topology::Nodal<LocalId> key; int i=0;
             for(int a=0;a<Tet4Topology::nodes;++a) if(a!=skip) { face[i]=a; key[i++]=cell.nodes[a]; }
             std::sort(key.begin(),key.end());
-            if(boundary.count(key)&&boundary.at(key)==1) e.inlet_faces.push_back(face);
+            if(fluid_cell.back()&&boundary.count(key)&&(dual?std::find(f.domains.pressure_tags.begin(),f.domains.pressure_tags.end(),boundary.at(key))!=f.domains.pressure_tags.end():boundary.at(key)==1)) e.inlet_faces.push_back(face);
         }
         e.inlet_pressure=f.pressure; data.push_back(e);
     }
@@ -59,8 +64,17 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     std::vector<double> solid_d(mesh.nodes.size()*Tet4Vector::components,0);
     RigidState body;
     FsiResult result; result.current_mesh=mesh;
-    const auto signature=state_signature(mesh,"fsi",{double(Elastic),double(f.neo_hookean),f.dt,f.mass,f.damping,
-        f.stiffness,f.pressure,f.density,f.viscosity,f.young,f.poisson,f.solid_density,f.thickness});
+    std::vector<double> signature_values{double(Elastic),double(f.neo_hookean),f.dt,f.mass,f.damping,
+        f.stiffness,f.pressure,f.density,f.viscosity,f.young,f.poisson,f.solid_density,f.thickness};
+    if(dual) {
+        signature_values.insert(signature_values.end(),{double(f.domains.fluid_region),double(f.domains.solid_region)});
+        for(int t:f.domains.pressure_tags) signature_values.push_back(t);
+        for(const auto* list:{&f.domains.fluid_constraints,&f.domains.mesh_constraints,&f.domains.solid_constraints}) {
+            signature_values.push_back(list->size());
+            for(const auto& bc:*list) { signature_values.push_back(bc.tag); signature_values.push_back(bc.components.size()); for(int c:bc.components) signature_values.push_back(c); }
+        }
+    }
+    const auto signature=state_signature(mesh,dual?"fsi_dual":"fsi",signature_values);
     int first=1;
     const int last=config.stop_after?std::min(config.stop_after,f.steps):f.steps;
     if(!config.restart.empty()) {
@@ -84,6 +98,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     };
     for(int step=first;step<=last;++step) {
         for(std::size_t e=0;e<data.size();++e) {
+            if(!fluid_cell[e]) continue;
             double speed2=0;
             for(int a=0;a<Tet4Topology::nodes;++a) {
                 const auto n=mesh.cells[e].nodes[a];
@@ -109,13 +124,15 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     vs[Tet4Vector::components*a+c]=full[Layout::dof(n,Layout::structure_offset+c)]; dn[Tet4Vector::components*a+c]=solid_d[Tet4Vector::components*n+c]; vn[Tet4Vector::components*a+c]=physical[Layout::dof(n,Layout::structure_offset+c)];
                 }
             }
+            if(fluid_cell[e]) {
             const auto fr=fsi_element_residual(data[e],state);
             for(int i=0;i<Tet4Ale::dofs;++i) r[Layout::dof(Tet4Ale::node(i),Tet4Ale::component(i))]=fr[i];
             if(tangent) {
                 const auto fj=fsi_element_tangent(data[e],state);
                 for(int i=0;i<Tet4Ale::dofs;++i) for(int k=0;k<Tet4Ale::dofs;++k) j[(Layout::dof(Tet4Ale::node(i),Tet4Ale::component(i)))*nd+Layout::dof(Tet4Ale::node(k),Tet4Ale::component(k))]=fj[Tet4Ale::matrix(i,k)];
             }
-            if(Elastic) {
+            }
+            if(solid_cell[e]) {
                 const auto sr=solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,f.dt,f.neo_hookean},vs,dn,vn);
                 for(int i=0;i<Tet4Vector::dofs;++i) r[Layout::dof(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i))]=sr.residual[i];
                 if(tangent) for(int i=0;i<Tet4Vector::dofs;++i) for(int k=0;k<Tet4Vector::dofs;++k)
@@ -192,12 +209,19 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             result.current_mesh.nodes[n].position[c]+=physical[Layout::dof(n,Layout::mesh_offset+c)];
             if(Elastic) {
                 result.solid_fields[0].values.push_back(physical[Layout::dof(n,Layout::structure_offset+c)]);
-                result.solid_mesh.nodes[n].position[c]=(c==0?1+f.thickness*(1-mesh.nodes[n].position[0]):mesh.nodes[n].position[c])+solid_d[Tet4Vector::components*n+c];
+                result.solid_mesh.nodes[n].position[c]=(!dual&&c==0?1+f.thickness*(1-mesh.nodes[n].position[0]):mesh.nodes[n].position[c])+solid_d[Tet4Vector::components*n+c];
             }
         }
         result.fields[1].values.push_back(physical[Layout::dof(n,Layout::pressure)]);
     }
-    if(Elastic) for(auto& cell:result.solid_mesh.cells) std::swap(cell.nodes[1],cell.nodes[2]);
+    if(Elastic&&!dual) for(auto& cell:result.solid_mesh.cells) std::swap(cell.nodes[1],cell.nodes[2]);
+    if(dual) {
+        auto filter=[&](MeshPartition& output,int region) {
+            output.cells.erase(std::remove_if(output.cells.begin(),output.cells.end(),[&](const auto& c){return c.physical_tag!=region;}),output.cells.end());
+            output.boundary.erase(std::remove_if(output.boundary.begin(),output.boundary.end(),[&](const auto& face){ for(auto n:face.nodes) if(!node_in_region(mesh,n,region)) return true; return false; }),output.boundary.end());
+        };
+        filter(result.current_mesh,f.domains.fluid_region); filter(result.solid_mesh,f.domains.solid_region);
+    }
     return result;
 }
 FsiResult solve_fsi(MPI_Comm comm,const MeshPartition& mesh,const Config& config)

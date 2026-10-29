@@ -36,7 +36,7 @@ struct MeshPartition {
     std::uint64_t fingerprint = 0;
     std::vector<GlobalId> algebra_ids;
     std::vector<int> owners;
-    std::vector<std::vector<int>> node_boundary_tags;
+    std::vector<std::vector<int>> node_boundary_tags, node_cell_tags;
     std::vector<GlobalId> row_offsets, row_columns;
 };
 

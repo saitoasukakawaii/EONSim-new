@@ -220,7 +220,7 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains"},"fsi");
         auto& v=config.fsi;
         if(f["material"]) {
             const auto material=f["material"].as<std::string>();
@@ -231,6 +231,30 @@ Config read_config(const std::filesystem::path& path)
             const auto body=f["body"].as<std::string>();
             if(body!="rigid" && body!="elastic") throw std::runtime_error("FSI body must be rigid or elastic");
             v.elastic=body=="elastic";
+        }
+        if(const auto d=f["domains"]) {
+            keys(d,{"solid_mesh","fluid_region","solid_region","fluid_interface","solid_interface","match_tolerance","pressure_tags","fluid_constraints","mesh_constraints","solid_constraints"},"fsi.domains");
+            auto& domain=v.domains;
+            domain.solid_mesh=(directory/d["solid_mesh"].as<std::string>()).lexically_normal();
+            domain.fluid_region=d["fluid_region"].as<int>(); domain.solid_region=d["solid_region"].as<int>();
+            domain.fluid_interface=d["fluid_interface"].as<int>(); domain.solid_interface=d["solid_interface"].as<int>();
+            if(d["match_tolerance"]) domain.match_tolerance=d["match_tolerance"].as<double>();
+            if(!v.elastic||domain.fluid_region<=0||domain.solid_region<=0||domain.fluid_region==domain.solid_region||domain.fluid_interface<=0||domain.solid_interface<=0||!(domain.match_tolerance>0)||!std::isfinite(domain.match_tolerance)) throw std::runtime_error("Invalid independent FSI domains");
+            domain.pressure_tags=d["pressure_tags"].as<std::vector<int>>();
+            std::set<int> pressure_seen;
+            for(int tag:domain.pressure_tags) if(tag<=0||!pressure_seen.insert(tag).second||tag==domain.fluid_interface) throw std::runtime_error("Invalid FSI pressure tags");
+            if(domain.pressure_tags.empty()) throw std::runtime_error("FSI needs pressure boundary");
+            auto constraints=[&](const char* key,std::vector<ComponentConstraint>& output) {
+                const auto entries=d[key]; if(!entries.IsSequence()) throw std::runtime_error(std::string(key)+" must be a sequence");
+                std::set<int> seen;
+                for(const auto& entry:entries) {
+                    keys(entry,{"tag","components"},key); ComponentConstraint c{entry["tag"].as<int>(),entry["components"].as<std::vector<int>>()};
+                    if(c.tag<=0||!seen.insert(c.tag).second||c.components.empty()) throw std::runtime_error("Invalid FSI constraint tag");
+                    std::set<int> components; for(int i:c.components) if(i<0||i>=Space3::dimension||!components.insert(i).second) throw std::runtime_error("Invalid FSI constraint component");
+                    output.push_back(c);
+                }
+            };
+            constraints("fluid_constraints",domain.fluid_constraints); constraints("mesh_constraints",domain.mesh_constraints); constraints("solid_constraints",domain.solid_constraints);
         }
         if(v.neo_hookean && !v.elastic) throw std::runtime_error("Neo-Hookean FSI requires an elastic body");
         if(f["young"]) v.young=f["young"].as<double>();

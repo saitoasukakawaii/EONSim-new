@@ -5,6 +5,7 @@
 #include "eonsim/ale.hpp"
 #include "eonsim/motion.hpp"
 #include "eonsim/fsi.hpp"
+#include "eonsim/fsi_domains.hpp"
 #include "eonsim/vtu.hpp"
 
 #include <array>
@@ -83,14 +84,15 @@ int main(int argc, char* argv[])
             if (config.output.extension() != ".vtu") throw std::runtime_error("output must have a .vtu extension");
             const auto diagnostics = option("-diagnostics").value_or("basic");
             if (diagnostics != "basic" && diagnostics != "full") throw std::runtime_error("diagnostics must be basic or full");
+            const auto read_mesh=[&] { return config.fsi_problem&&!config.fsi.domains.solid_mesh.empty()?eonsim::read_fsi_domains(config.mesh,config.fsi.domains):eonsim::read_gmsh22(config.mesh); };
             if (prepare) {
                 PetscInt parts = 1;
                 EONSIM_PETSC(PetscOptionsGetInt(nullptr, nullptr, "-parts", &parts, nullptr));
                 if (parts < 1 || parts > 1000000) throw std::runtime_error("Invalid -parts");
-                eonsim::prepare_partitions(eonsim::read_gmsh22(config.mesh), static_cast<int>(parts), *prepare);
+                eonsim::prepare_partitions(read_mesh(), static_cast<int>(parts), *prepare);
                 std::cout << "Prepared " << parts << " HDF5 partitions in " << *prepare << "\nstatus=success\n";
             } else {
-            const auto mesh = partition ? eonsim::read_partition(*partition, rank, size) : eonsim::read_gmsh22(config.mesh);
+            const auto mesh = partition ? eonsim::read_partition(*partition, rank, size) : read_mesh();
             std::vector<eonsim::GlobalId> counts(size);
             const eonsim::GlobalId owned = mesh.owned_nodes;
             MPI_Allgather(&owned, 1, MPI_INT64_T, counts.data(), 1, MPI_INT64_T, PETSC_COMM_WORLD);

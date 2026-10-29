@@ -17,4 +17,6 @@ struct ReducedLayout {
 ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh);
 /// 共形弹性块：额外节点分量 [vs_x,vs_y,vs_z]，界面流体/网格映射到同节点结构速度。
 ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh);
+/// 独立双域联合网格，inactive 分量消元，界面共享结构速度。
+ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains);
 }

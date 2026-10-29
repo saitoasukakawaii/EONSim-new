@@ -65,7 +65,7 @@ std::uint64_t fingerprint(const MeshPartition& mesh, int ranks) {
 }
 void save(const MeshPartition& mesh, const std::filesystem::path& path) {
     H5Owner<H5Fclose> file(H5Fcreate(path.string().c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT));
-    write<GlobalId>(file.id, "meta", {1, mesh.rank, mesh.ranks, static_cast<GlobalId>(mesh.owned_nodes), mesh.owned_begin, mesh.global_nodes, mesh.global_cells});
+    write<GlobalId>(file.id, "meta", {2, mesh.rank, mesh.ranks, static_cast<GlobalId>(mesh.owned_nodes), mesh.owned_begin, mesh.global_nodes, mesh.global_cells});
     write<std::uint64_t>(file.id, "fingerprint", {mesh.fingerprint});
     std::vector<GlobalId> ids;
     std::vector<double> coordinates;
@@ -82,6 +82,9 @@ void save(const MeshPartition& mesh, const std::filesystem::path& path) {
     std::vector<GlobalId> offsets{0}; tags.clear();
     for (const auto& list : mesh.node_boundary_tags) { tags.insert(tags.end(), list.begin(), list.end()); offsets.push_back(tags.size()); }
     write(file.id, "boundary_offsets", offsets); write(file.id, "boundary_tags", tags);
+    offsets={0}; tags.clear();
+    for(const auto& list:mesh.node_cell_tags) { tags.insert(tags.end(),list.begin(),list.end()); offsets.push_back(tags.size()); }
+    write(file.id,"region_offsets",offsets); write(file.id,"region_tags",tags);
     write(file.id, "row_offsets", mesh.row_offsets); write(file.id, "row_columns", mesh.row_columns);
 }
 } // namespace
@@ -91,7 +94,10 @@ void initialize_serial_partition(MeshPartition& mesh) {
     mesh.algebra_ids.resize(mesh.nodes.size());
     std::iota(mesh.algebra_ids.begin(), mesh.algebra_ids.end(), GlobalId{0});
     mesh.owners.assign(mesh.nodes.size(), 0);
-    mesh.node_boundary_tags.resize(mesh.nodes.size());
+    mesh.node_boundary_tags.assign(mesh.nodes.size(),{});
+    mesh.node_cell_tags.assign(mesh.nodes.size(),{});
+    for(const auto& cell:mesh.cells) for(auto n:cell.nodes) mesh.node_cell_tags[n].push_back(cell.physical_tag);
+    for(auto& tags:mesh.node_cell_tags) { std::sort(tags.begin(),tags.end()); tags.erase(std::unique(tags.begin(),tags.end()),tags.end()); }
     for (const auto& face : mesh.boundary) for (auto node : face.nodes) mesh.node_boundary_tags[node].push_back(face.physical_tag);
     for (auto& tags : mesh.node_boundary_tags) { std::sort(tags.begin(), tags.end()); tags.erase(std::unique(tags.begin(), tags.end()), tags.end()); }
     mesh.row_offsets = {0}; mesh.row_columns.clear();
@@ -145,7 +151,7 @@ void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesys
         std::unordered_map<LocalId,LocalId> lookup;
         for (auto n : order) {
             lookup[n] = local.nodes.size(); local.nodes.push_back(mesh.nodes[n]);
-            local.algebra_ids.push_back(algebra[n]); local.owners.push_back(owners[n]); local.node_boundary_tags.push_back(mesh.node_boundary_tags[n]);
+            local.algebra_ids.push_back(algebra[n]); local.owners.push_back(owners[n]); local.node_boundary_tags.push_back(mesh.node_boundary_tags[n]); local.node_cell_tags.push_back(mesh.node_cell_tags[n]);
         }
         for (idx_t c = 0; c < ne; ++c) if (cell_part[c] == rank) {
             auto cell = mesh.cells[c]; for (auto& node : cell.nodes) node = lookup.at(node); local.cells.push_back(cell);
@@ -172,7 +178,7 @@ MeshPartition read_partition(const std::filesystem::path& directory, int rank, i
     if (!std::filesystem::exists(directory / "manifest.yaml")) throw std::runtime_error("Incomplete partition directory: no manifest");
     H5Owner<H5Fclose> file(H5Fopen(filename(directory, rank).string().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT));
     const auto meta = read<GlobalId>(file.id, "meta");
-    if (meta.size() != 7 || meta[0] != 1 || meta[1] != rank || meta[2] != ranks || meta[3] < 0 || meta[4] < 0 || meta[5] < 1 || meta[6] < 1)
+    if (meta.size() != 7 || meta[0] != 2 || meta[1] != rank || meta[2] != ranks || meta[3] < 0 || meta[4] < 0 || meta[5] < 1 || meta[6] < 1)
         throw std::runtime_error("Partition metadata does not match this MPI job");
     MeshPartition mesh;
     mesh.rank = rank; mesh.ranks = ranks; mesh.owned_nodes = meta[3]; mesh.owned_begin = meta[4]; mesh.global_nodes = meta[5]; mesh.global_cells = meta[6];
@@ -215,6 +221,9 @@ MeshPartition read_partition(const std::filesystem::path& directory, int rank, i
     };
     if (!valid_csr(offsets, mesh.nodes.size(), tags.size())) throw std::runtime_error("Invalid boundary tag offsets");
     for (std::size_t i = 0; i < mesh.nodes.size(); ++i) mesh.node_boundary_tags.emplace_back(tags.begin()+offsets[i], tags.begin()+offsets[i+1]);
+    const auto region_offsets=read<GlobalId>(file.id,"region_offsets"); const auto region_tags=read<int>(file.id,"region_tags");
+    if(!valid_csr(region_offsets,mesh.nodes.size(),region_tags.size())) throw std::runtime_error("Invalid node region CSR");
+    for(std::size_t i=0;i<mesh.nodes.size();++i) mesh.node_cell_tags.emplace_back(region_tags.begin()+region_offsets[i],region_tags.begin()+region_offsets[i+1]);
     mesh.row_offsets = read<GlobalId>(file.id, "row_offsets"); mesh.row_columns = read<GlobalId>(file.id, "row_columns");
     if (!valid_csr(mesh.row_offsets, mesh.owned_nodes, mesh.row_columns.size())) throw std::runtime_error("Invalid adjacency offsets");
     for (auto col : mesh.row_columns) if (col < 0 || col >= mesh.global_nodes) throw std::runtime_error("Invalid adjacency column");

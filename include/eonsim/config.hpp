@@ -64,7 +64,16 @@ struct MotionConfig {
     int steps=5;
 };
 
+struct ComponentConstraint { int tag; std::vector<int> components; };
+struct FsiDomains {
+    std::filesystem::path solid_mesh;
+    int fluid_region=10,solid_region=20,fluid_interface=2,solid_interface=12;
+    double match_tolerance=1e-10;
+    std::vector<int> pressure_tags;
+    std::vector<ComponentConstraint> fluid_constraints,mesh_constraints,solid_constraints;
+};
 struct FsiConfig {
+    FsiDomains domains;
     bool elastic=false, neo_hookean=false;
     double young=100, poisson=.3, solid_density=1, thickness=.25;
     double dt=.02, mass=2, damping=.3, stiffness=5, pressure=1, density=1, viscosity=1;

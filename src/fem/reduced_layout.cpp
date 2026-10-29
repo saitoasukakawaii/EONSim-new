@@ -1,4 +1,5 @@
 #include "eonsim/reduced_layout.hpp"
+#include "eonsim/fsi_domains.hpp"
 #include "eonsim/field_layout.hpp"
 #include <algorithm>
 #include <set>
@@ -9,7 +10,7 @@
 namespace eonsim {
 namespace {
 template<bool Elastic>
-ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh)
+ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains* domains=nullptr)
 {
     using Layout=CoupledLayout<Tet4Topology,Elastic>;
     constexpr int nc=Layout::components;
@@ -19,6 +20,20 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh)
     for(std::size_t n=0;n<mesh.nodes.size();++n) {
         const auto& tags=mesh.node_boundary_tags[n];
         auto has=[&](int t){return std::find(tags.begin(),tags.end(),t)!=tags.end();};
+        if(domains) {
+            const bool fluid=node_in_region(mesh,n,domains->fluid_region),solid=node_in_region(mesh,n,domains->solid_region);
+            if(!fluid) for(int c=0;c<Layout::structure_offset;++c) alias[nc*n+c]=-1;
+            if(!solid) for(int c=Layout::structure_offset;c<nc;++c) alias[nc*n+c]=-1;
+            auto constrain=[&](const auto& entries,int offset) { for(const auto& bc:entries) if(has(bc.tag)) for(int c:bc.components) alias[nc*n+offset+c]=-1; };
+            if(fluid) { constrain(domains->fluid_constraints,0); constrain(domains->mesh_constraints,Layout::mesh_offset); }
+            if(solid) constrain(domains->solid_constraints,Layout::structure_offset);
+            if(fluid&&solid) for(int c=0;c<Space3::dimension;++c) {
+                const auto master=alias[nc*n+Layout::structure_offset+c];
+                if(master>=0&&(alias[nc*n+c]<0||alias[nc*n+Layout::mesh_offset+c]<0)) throw std::runtime_error("Interface constraints conflict with free structure component");
+                alias[nc*n+c]=alias[nc*n+Layout::mesh_offset+c]=master;
+            }
+            continue;
+        }
         if(Elastic) {
             if(has(1)) for(int c=Layout::structure_offset;c<Layout::components;++c) alias[nc*n+c]=-1;
             if(has(3)||has(4)) alias[nc*n+Layout::structure_offset+1]=-1;
@@ -113,4 +128,23 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh)
 } // namespace
 ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh) { return build_layout<false>(comm,mesh); }
 ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh) { return build_layout<true>(comm,mesh); }
+ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains) {
+    int counts[3]{},all[3]{};
+    for(const auto& c:mesh.cells) {
+        if(c.physical_tag==domains.fluid_region) ++counts[0];
+        else if(c.physical_tag==domains.solid_region) ++counts[1];
+        else throw std::runtime_error("Unexpected FSI partition region");
+    }
+    for(std::size_t n=0;n<mesh.owned_nodes;++n) if(node_in_region(mesh,n,domains.fluid_region)&&node_in_region(mesh,n,domains.solid_region)) ++counts[2];
+    MPI_Allreduce(counts,all,3,MPI_INT,MPI_SUM,comm);
+    for(int n:all) if(n==0) throw std::runtime_error("FSI partition missing domain or shared interface");
+    std::set<int> required(domains.pressure_tags.begin(),domains.pressure_tags.end());
+    for(const auto* list:{&domains.fluid_constraints,&domains.mesh_constraints,&domains.solid_constraints}) for(const auto& c:*list) required.insert(c.tag);
+    for(int tag:required) {
+        int local=0,global=0; for(const auto& face:mesh.boundary) if(face.physical_tag==tag) local=1;
+        MPI_Allreduce(&local,&global,1,MPI_INT,MPI_MAX,comm);
+        if(!global) throw std::runtime_error("FSI partition boundary tag missing");
+    }
+    return build_layout<true>(comm,mesh,&domains);
+}
 }
