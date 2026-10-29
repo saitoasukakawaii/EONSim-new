@@ -43,6 +43,9 @@ add_library(eonsim_core
     src/algebra/linear_system.cpp
     src/algebra/nonlinear_system.cpp
     src/physics/fluid_element.cpp
+    src/fem/reduced_layout.cpp
+    src/physics/fsi.cpp
+    src/physics/fsi_element.cpp
     src/physics/motion.cpp
     src/physics/ale.cpp
     src/physics/solid.cpp
@@ -67,6 +70,9 @@ endif()
 
 if(BUILD_TESTING)
     enable_testing()
+    add_executable(verify_fsi_element tests/verify_fsi_element.cpp)
+    target_link_libraries(verify_fsi_element PRIVATE eonsim_core)
+    add_test(NAME fsi_element_jacobian COMMAND verify_fsi_element)
     add_executable(verify_solid_element tests/verify_solid_element.cpp)
     target_link_libraries(verify_solid_element PRIVATE eonsim_core)
     add_test(NAME solid_element_jacobian COMMAND verify_solid_element)
@@ -74,6 +80,13 @@ if(BUILD_TESTING)
     target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
     add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME rigid_fsi_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --case "${CMAKE_CURRENT_SOURCE_DIR}/cases/fsi/rigid.yaml"
+            --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_verification")
+    set_tests_properties(rigid_fsi_verification PROPERTIES TIMEOUT 240
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME motion_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_motion.py"
             --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"

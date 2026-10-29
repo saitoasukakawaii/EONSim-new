@@ -27,6 +27,7 @@ struct Context {
     std::string error;
     void evaluate(Vec x, Vec r, Mat j, bool constrain) {
         const auto values=local_values(x);
+        EONSIM_PETSC(VecSetOption(r,VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
         EONSIM_PETSC(VecSet(r,0));
         if(j) EONSIM_PETSC(MatZeroEntries(j));
         int failed=0, any_failed=0;
@@ -70,6 +71,8 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
     const auto ghosts=l.local_to_global.size()-l.owned;
     EONSIM_PETSC(VecCreateGhost(comm,l.owned,l.global,ghosts,l.local_to_global.data()+l.owned,x.put()));
     EONSIM_PETSC(VecDuplicate(x.get(),r.put())); EONSIM_PETSC(VecDuplicate(x.get(),scratch.put()));
+    EONSIM_PETSC(VecSetOption(r.get(),VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
+    EONSIM_PETSC(VecSetOption(scratch.get(),VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
     PetscScalar* a;
     EONSIM_PETSC(VecGetArray(x.get(),&a));
     for(PetscInt i=0;i<l.owned;++i) a[i]=initial[i];

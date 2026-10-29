@@ -4,6 +4,7 @@
 #include "eonsim/solid.hpp"
 #include "eonsim/ale.hpp"
 #include "eonsim/motion.hpp"
+#include "eonsim/fsi.hpp"
 #include "eonsim/vtu.hpp"
 
 #include <array>
@@ -100,7 +101,12 @@ int main(int argc, char* argv[])
                     throw std::runtime_error("Ghost ID does not belong to its declared owner");
             }
             const double input_seconds = std::chrono::duration<double>(Clock::now()-begin).count();
-            if(config.motion_problem) {
+            if(config.fsi_problem) {
+                const auto fsi=eonsim::solve_rigid_fsi(PETSC_COMM_WORLD,mesh,config);
+                eonsim::write_fields(config.output,fsi.current_mesh,fsi.fields);
+                MPI_Barrier(PETSC_COMM_WORLD);
+                if(rank==0) { eonsim::write_field_index(config.output,size,fsi.fields); std::cout << "status=success\n"; }
+            } else if(config.motion_problem) {
                 if(config.motion.mode==eonsim::MotionConfig::Mode::rigid) {
                     const auto& m=config.motion;
                     eonsim::RigidState state;

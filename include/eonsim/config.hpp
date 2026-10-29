@@ -34,7 +34,14 @@ struct MotionConfig {
     int steps=5;
 };
 
+struct FsiConfig {
+    double dt=.02, mass=2, damping=.3, stiffness=5, pressure=1, density=1, viscosity=1;
+    int steps=5;
+};
+
 struct Config {
+    bool fsi_problem=false;
+    FsiConfig fsi;
     bool motion_problem=false;
     MotionConfig motion;
     bool solid_problem=false;

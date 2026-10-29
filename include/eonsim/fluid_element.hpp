@@ -16,5 +16,5 @@ struct FluidElement {
  */
 FluidElement fluid_element(const Tet4Geometry& geometry, const FluidParameters& parameters,
     const std::array<double,16>& state, const std::array<double,16>& previous,
-    const std::array<Point,4>& mesh_velocity);
+    const std::array<Point,4>& mesh_velocity, bool compute_tangent=true);
 }

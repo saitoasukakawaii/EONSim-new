@@ -1,0 +1,15 @@
+mesh: cube.msh
+output: ../../results/fsi/rigid.vtu
+fsi:
+  dt: 0.02
+  steps: 5
+  mass: 2
+  damping: 0.3
+  stiffness: 5
+  pressure: 1
+  density: 1
+  viscosity: 1
+solver:
+  relative_tolerance: 1.e-10
+  absolute_tolerance: 1.e-12
+  maximum_iterations: 20

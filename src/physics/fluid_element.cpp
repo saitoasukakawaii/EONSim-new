@@ -5,7 +5,7 @@
 namespace eonsim {
 FluidElement fluid_element(const Tet4Geometry& g, const FluidParameters& p,
     const std::array<double,16>& x, const std::array<double,16>& old,
-    const std::array<Point,4>& w)
+    const std::array<Point,4>& w, bool compute_tangent)
 {
     if (!(p.density>0 && p.viscosity>0 && p.dt>=0 && p.tau>=0) ||
         !std::isfinite(p.density+p.viscosity+p.dt+p.tau))
@@ -45,7 +45,7 @@ FluidElement fluid_element(const Tet4Geometry& g, const FluidParameters& p,
             double rp=N[a]*divergence;
             for(int i=0;i<3;++i) rp+=p.tau*g.gradients[a][i]*rm[i];
             e.residual[4*a+3]+=weight*rp;
-            for(int b=0;b<4;++b) for(int k=0;k<4;++k) {
+            if(compute_tangent) for(int b=0;b<4;++b) for(int k=0;k<4;++k) {
                 double drm[3]{};
                 for(int i=0;i<3;++i) {
                     if(k==3) drm[i]=g.gradients[b][i];
