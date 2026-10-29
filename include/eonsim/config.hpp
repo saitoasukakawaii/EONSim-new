@@ -27,7 +27,16 @@ struct SolidConfig {
     int steps=20;
 };
 
+struct MotionConfig {
+    enum class Mode { uniform, shear, rigid };
+    Mode mode=Mode::uniform;
+    double dt=.02, speed=.1, amplitude=.02, mass=1, damping=.1, stiffness=10, force=1;
+    int steps=5;
+};
+
 struct Config {
+    bool motion_problem=false;
+    MotionConfig motion;
     bool solid_problem=false;
     SolidConfig solid;
     bool fluid_problem=false;

@@ -43,6 +43,8 @@ add_library(eonsim_core
     src/algebra/linear_system.cpp
     src/algebra/nonlinear_system.cpp
     src/physics/fluid_element.cpp
+    src/physics/motion.cpp
+    src/physics/ale.cpp
     src/physics/solid.cpp
     src/physics/solid_element.cpp
     src/physics/fluid.cpp
@@ -72,6 +74,13 @@ if(BUILD_TESTING)
     target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
     add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME motion_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_motion.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --case "${CMAKE_CURRENT_SOURCE_DIR}/cases/motion"
+            --work "${CMAKE_CURRENT_BINARY_DIR}/motion_verification")
+    set_tests_properties(motion_verification PROPERTIES TIMEOUT 120
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME solid_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_solid.py"
             --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"

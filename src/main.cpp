@@ -2,6 +2,8 @@
 #include "eonsim/poisson.hpp"
 #include "eonsim/fluid.hpp"
 #include "eonsim/solid.hpp"
+#include "eonsim/ale.hpp"
+#include "eonsim/motion.hpp"
 #include "eonsim/vtu.hpp"
 
 #include <array>
@@ -98,7 +100,23 @@ int main(int argc, char* argv[])
                     throw std::runtime_error("Ghost ID does not belong to its declared owner");
             }
             const double input_seconds = std::chrono::duration<double>(Clock::now()-begin).count();
-            if(config.solid_problem) {
+            if(config.motion_problem) {
+                if(config.motion.mode==eonsim::MotionConfig::Mode::rigid) {
+                    const auto& m=config.motion;
+                    eonsim::RigidState state;
+                    for(int step=1;step<=m.steps;++step) {
+                        state=eonsim::rigid_step({m.mass,m.damping,m.stiffness},state,m.dt,m.force);
+                        if(rank==0) std::cout << std::setprecision(16) << "rigid_step=" << step
+                            << " time=" << step*m.dt << " position=" << state.position << " velocity=" << state.velocity << '\n';
+                    }
+                    if(rank==0) std::cout << "status=success\n";
+                } else {
+                    const auto ale=eonsim::solve_ale(PETSC_COMM_WORLD,mesh,config);
+                    eonsim::write_fields(config.output,ale.current_mesh,ale.fields);
+                    MPI_Barrier(PETSC_COMM_WORLD);
+                    if(rank==0) { eonsim::write_field_index(config.output,size,ale.fields); std::cout << "status=success\n"; }
+                }
+            } else if(config.solid_problem) {
                 const auto solid=eonsim::solve_solid(PETSC_COMM_WORLD,mesh,config);
                 eonsim::write_fields(config.output,mesh,solid.fields);
                 MPI_Barrier(PETSC_COMM_WORLD);

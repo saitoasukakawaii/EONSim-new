@@ -1,0 +1,10 @@
+mesh: ../poisson/cube.msh
+output: ../../results/motion/rigid.vtu
+motion:
+  mode: rigid
+  mass: 2
+  damping: 0.3
+  stiffness: 5
+  force: 1
+  dt: 0.02
+  steps: 20

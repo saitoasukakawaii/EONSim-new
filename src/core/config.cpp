@@ -26,7 +26,7 @@ void keys(const YAML::Node& node, std::initializer_list<const char*> allowed,
 Config read_config(const std::filesystem::path& path)
 {
     const auto root = YAML::LoadFile(path.string());
-    keys(root, {"mesh", "output", "poisson", "fluid", "solid", "solver"}, "case");
+    keys(root, {"mesh", "output", "poisson", "fluid", "solid", "motion", "solver"}, "case");
     const auto physics = root["poisson"];
 
     Config config;
@@ -37,10 +37,11 @@ Config read_config(const std::filesystem::path& path)
     config.mesh = (directory / mesh).lexically_normal();
     config.output = (directory / output).lexically_normal();
     if (config.output.extension() != ".vtu") throw std::runtime_error("output must have a .vtu extension");
-    if (int(bool(root["fluid"])) + int(bool(root["solid"])) + int(bool(root["poisson"])) != 1) throw std::runtime_error("Select exactly one physics block");
+    if (int(bool(root["fluid"])) + int(bool(root["solid"])) + int(bool(root["poisson"])) + int(bool(root["motion"])) != 1) throw std::runtime_error("Select exactly one physics block");
     config.fluid_problem=static_cast<bool>(root["fluid"]);
     config.solid_problem=static_cast<bool>(root["solid"]);
-    if (!config.fluid_problem && !config.solid_problem) {
+    config.motion_problem=static_cast<bool>(root["motion"]);
+    if (!config.fluid_problem && !config.solid_problem && !config.motion_problem) {
     keys(physics, {"diffusivity", "exact_solution", "dirichlet_tags"}, "poisson");
     config.diffusivity = physics["diffusivity"].as<double>();
     if (!std::isfinite(config.diffusivity) || config.diffusivity <= 0.0)
@@ -95,6 +96,27 @@ Config read_config(const std::filesystem::path& path)
         if(s["steps"]) v.steps=s["steps"].as<int>();
         if(!(v.young>0 && v.poisson>-1 && v.poisson<.5 && v.density>0 && v.dt>0 && v.steps>0) ||
             !std::isfinite(v.young+v.poisson+v.density+v.dt+v.traction)) throw std::runtime_error("Invalid solid parameters");
+    }
+    if(config.motion_problem) {
+        const auto m=root["motion"];
+        keys(m,{"mode","dt","steps","speed","amplitude","mass","damping","stiffness","force"},"motion");
+        auto& v=config.motion;
+        const auto mode=m["mode"].as<std::string>();
+        if(mode=="uniform") v.mode=MotionConfig::Mode::uniform;
+        else if(mode=="shear") v.mode=MotionConfig::Mode::shear;
+        else if(mode=="rigid") v.mode=MotionConfig::Mode::rigid;
+        else throw std::runtime_error("Invalid motion mode");
+        if(m["dt"]) v.dt=m["dt"].as<double>();
+        if(m["steps"]) v.steps=m["steps"].as<int>();
+        if(m["speed"]) v.speed=m["speed"].as<double>();
+        if(m["amplitude"]) v.amplitude=m["amplitude"].as<double>();
+        if(m["mass"]) v.mass=m["mass"].as<double>();
+        if(m["damping"]) v.damping=m["damping"].as<double>();
+        if(m["stiffness"]) v.stiffness=m["stiffness"].as<double>();
+        if(m["force"]) v.force=m["force"].as<double>();
+        if(!(v.dt>0 && v.steps>0 && v.mass>0 && v.damping>=0 && v.stiffness>=0) ||
+            !std::isfinite(v.dt+v.speed+v.amplitude+v.mass+v.damping+v.stiffness+v.force))
+            throw std::runtime_error("Invalid motion parameters");
     }
     if (const auto solver = root["solver"]) {
         keys(solver, {"relative_tolerance", "absolute_tolerance", "maximum_iterations"}, "solver");
