@@ -41,6 +41,9 @@ add_library(eonsim_core
     src/fem/tet4.cpp
     src/fem/field_layout.cpp
     src/algebra/linear_system.cpp
+    src/algebra/nonlinear_system.cpp
+    src/physics/fluid_element.cpp
+    src/physics/fluid.cpp
     src/physics/poisson.cpp
     src/io/vtu.cpp
 )
@@ -60,7 +63,16 @@ endif()
 
 if(BUILD_TESTING)
     enable_testing()
+    add_executable(verify_fluid_element tests/verify_fluid_element.cpp)
+    target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
+    add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME fluid_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fluid.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_verification")
+    set_tests_properties(fluid_verification PROPERTIES TIMEOUT 180
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME poisson_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_poisson.py"
             --executable $<TARGET_FILE:eonsim>

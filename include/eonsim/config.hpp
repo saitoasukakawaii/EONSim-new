@@ -13,7 +13,17 @@ struct SolverConfig {
     int maximum_iterations = 1000;
 };
 
+struct FluidConfig {
+    enum class Mode { stokes, steady, transient };
+    Mode mode = Mode::stokes;
+    bool traction_outlet=false;
+    double density=1, viscosity=1, pressure_drop=1, dt=.05, ramp_time=.1;
+    int steps=10;
+};
+
 struct Config {
+    bool fluid_problem=false;
+    FluidConfig fluid;
     std::filesystem::path mesh;
     std::filesystem::path output;
     double diffusivity = 1.0;

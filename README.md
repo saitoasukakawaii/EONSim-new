@@ -156,3 +156,26 @@ cases/poisson/       可运行 YAML、网格及生成器
 一个 `eonsim_core` library 和一个 `eonsim` 应用。下一步按
 [开发路线](docs/development/ROADMAP.md) 继续 P2 独立流体。
 设计约束入口为 [AGENTS.md](AGENTS.md) 与 [总原则](MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md)。
+
+## P2 独立流体
+
+`cases/fluid/{stokes,steady,transient,traction}.yaml` 可直接通过 `-case` 运行；
+MPI 运行复用 P1 的 `-prepare` / `-partition`。速度/压力节点交错，
+SNES + SuperLU_DIST 为当前小算例基线，PETSc `-snes_*`、`-ksp_*`、`-pc_*` 可覆盖默认值。
+
+单位立方体的平面 Poiseuille 基准：x 方向流动、y 无滑移、z 对称。
+默认两端给定抛物线速度并在原点固定压力；`outlet: traction` 改用出口解析牵引并取消压力点约束。
+参考解 `u_x=pressure_drop*y*(1-y)/(2*viscosity)`。
+四点 Tet4 积分用于 SUPG/PSPG 残量与解析切线；tau 由上一步 accepted 速度与当前 dt 冻结，
+整个 Newton 求解中保持不变，稳态初值为零。BE 每步收敛后才提交速度历史。
+
+VTU 包含 velocity、pressure 和约束替换前的 momentum_residual；后者为离散节点动量残量，
+不是逐点 Cauchy 应力，只有受约束分量应解释为支座/壁面反力。
+固定几何核接收独立网格速度输入；尚未把这一步报告为 ALE 或 FSI。
+
+实际验证：Debug/Release 三模式 1/2 rank 节点结果差小于 2e-10；
+局部解析 Jv 相对误差小于 5e-11；强制 SNES 不收敛正确失败退出。
+4³→8³ 网格 Stokes 速度 L2 四点积分估计 0.01421→0.004598，散度 0.03225→0.01260，
+压降 0.5022→0.7641（参考值 1）。粗网格压降仍偏低，不能作为高精度流动基准。
+瞬态 tau 含 dt，因此其长时间离散平衡与稳态 tau 的平衡并不完全相同；
+测试将 BE 第 10/20 步相比较，不把这种空间稳定化差异误报为时间推进失败。

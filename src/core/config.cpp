@@ -26,9 +26,9 @@ void keys(const YAML::Node& node, std::initializer_list<const char*> allowed,
 Config read_config(const std::filesystem::path& path)
 {
     const auto root = YAML::LoadFile(path.string());
-    keys(root, {"mesh", "output", "poisson", "solver"}, "case");
+    keys(root, {"mesh", "output", "poisson", "fluid", "solver"}, "case");
     const auto physics = root["poisson"];
-    keys(physics, {"diffusivity", "exact_solution", "dirichlet_tags"}, "poisson");
+
     Config config;
     const auto directory = std::filesystem::absolute(path).parent_path();
     const auto mesh = root["mesh"].as<std::string>();
@@ -37,6 +37,10 @@ Config read_config(const std::filesystem::path& path)
     config.mesh = (directory / mesh).lexically_normal();
     config.output = (directory / output).lexically_normal();
     if (config.output.extension() != ".vtu") throw std::runtime_error("output must have a .vtu extension");
+    if (root["fluid"] && root["poisson"]) throw std::runtime_error("Select exactly one physics block");
+    config.fluid_problem=static_cast<bool>(root["fluid"]);
+    if (!config.fluid_problem) {
+    keys(physics, {"diffusivity", "exact_solution", "dirichlet_tags"}, "poisson");
     config.diffusivity = physics["diffusivity"].as<double>();
     if (!std::isfinite(config.diffusivity) || config.diffusivity <= 0.0)
         throw std::runtime_error("poisson.diffusivity must be finite and positive");
@@ -51,6 +55,30 @@ Config read_config(const std::filesystem::path& path)
             throw std::runtime_error("dirichlet_tags must contain distinct positive physical tags");
     }
     if (tags.empty()) throw std::runtime_error("At least one Dirichlet physical tag is required");
+    } else {
+        const auto f=root["fluid"];
+        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet"},"fluid");
+        const auto mode=f["mode"].as<std::string>();
+        if(mode=="stokes") config.fluid.mode=FluidConfig::Mode::stokes;
+        else if(mode=="steady") config.fluid.mode=FluidConfig::Mode::steady;
+        else if(mode=="transient") config.fluid.mode=FluidConfig::Mode::transient;
+        else throw std::runtime_error("Unknown fluid mode");
+        auto& v=config.fluid;
+        if(f["outlet"]) {
+            const auto outlet=f["outlet"].as<std::string>();
+            if(outlet!="velocity" && outlet!="traction") throw std::runtime_error("Invalid fluid outlet");
+            v.traction_outlet=outlet=="traction";
+        }
+        if(f["density"]) v.density=f["density"].as<double>();
+        if(f["viscosity"]) v.viscosity=f["viscosity"].as<double>();
+        if(f["pressure_drop"]) v.pressure_drop=f["pressure_drop"].as<double>();
+        if(f["dt"]) v.dt=f["dt"].as<double>();
+        if(f["ramp_time"]) v.ramp_time=f["ramp_time"].as<double>();
+        if(f["steps"]) v.steps=f["steps"].as<int>();
+        if(!(v.density>0 && v.viscosity>0 && v.dt>0 && v.ramp_time>0 && v.steps>0) ||
+            !std::isfinite(v.density+v.viscosity+v.pressure_drop+v.dt+v.ramp_time))
+            throw std::runtime_error("Invalid fluid material/time configuration");
+    }
     if (const auto solver = root["solver"]) {
         keys(solver, {"relative_tolerance", "absolute_tolerance", "maximum_iterations"}, "solver");
         if (solver["relative_tolerance"]) config.solver.relative_tolerance = solver["relative_tolerance"].as<double>();

@@ -1,5 +1,6 @@
 #include "eonsim/config.hpp"
 #include "eonsim/poisson.hpp"
+#include "eonsim/fluid.hpp"
 #include "eonsim/vtu.hpp"
 
 #include <array>
@@ -96,6 +97,18 @@ int main(int argc, char* argv[])
                     throw std::runtime_error("Ghost ID does not belong to its declared owner");
             }
             const double input_seconds = std::chrono::duration<double>(Clock::now()-begin).count();
+            if(config.fluid_problem) {
+                const auto fluid=eonsim::solve_fluid(PETSC_COMM_WORLD,mesh,config);
+                eonsim::write_fields(config.output,mesh,fluid.fields);
+                MPI_Barrier(PETSC_COMM_WORLD);
+                if(rank==0) {
+                    eonsim::write_field_index(config.output,size,fluid.fields);
+                    std::cout << std::setprecision(16) << "inlet_flow=" << fluid.inlet_flow
+                        << " outlet_flow=" << fluid.outlet_flow << " pressure_drop=" << fluid.pressure_drop
+                        << " velocity_l2_error=" << fluid.velocity_error << " divergence_l2=" << fluid.divergence
+                        << "\nstatus=success\n";
+                }
+            } else {
             const auto result = eonsim::solve_poisson(PETSC_COMM_WORLD, mesh, config, diagnostics == "full");
             const auto output_begin = Clock::now();
             eonsim::write_vtu(config.output, mesh, result.linear.values, result.exact_values);
@@ -138,6 +151,7 @@ int main(int argc, char* argv[])
                 << " assembly=" << max_times[2] << " solve=" << max_times[3]
                 << " error=" << max_times[4] << " output=" << max_times[5] << '\n'
                 << "output=" << config.output << "\nstatus=success\n";
+            }
             }
         }
     } catch (const std::exception& error) {

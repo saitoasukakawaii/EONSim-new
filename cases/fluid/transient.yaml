@@ -1,0 +1,14 @@
+mesh: ../poisson/cube.msh
+output: ../../results/fluid/transient.vtu
+fluid:
+  mode: transient
+  dt: 0.05
+  steps: 10
+  ramp_time: 0.1
+  density: 1
+  viscosity: 1
+  pressure_drop: 1
+solver:
+  relative_tolerance: 1.e-10
+  absolute_tolerance: 1.e-12
+  maximum_iterations: 30

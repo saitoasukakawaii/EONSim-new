@@ -7,7 +7,7 @@
 namespace eonsim {
 namespace {
 void write_piece(const std::filesystem::path& path, const MeshPartition& mesh,
-                 const std::vector<double>& values, const std::vector<double>& exact, bool boundary)
+                 const std::vector<PointField>& fields, bool boundary)
 {
     std::ofstream out;
     out.exceptions(std::ios::badbit | std::ios::failbit);
@@ -28,14 +28,14 @@ void write_piece(const std::filesystem::path& path, const MeshPartition& mesh,
     for (std::size_t i = 1; i <= count; ++i) out << arity*i << '\n';
     out << "</DataArray><DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">\n";
     for (std::size_t i = 0; i < count; ++i) out << (boundary ? 5 : 10) << '\n';
-    out << "</DataArray></Cells>\n<PointData Scalars=\"u\">\n"
-        << "<DataArray type=\"Float64\" Name=\"u\" format=\"ascii\">\n";
-    for (double value : values) out << value << '\n';
-    out << "</DataArray><DataArray type=\"Float64\" Name=\"u_exact\" format=\"ascii\">\n";
-    for (double value : exact) out << value << '\n';
-    out << "</DataArray><DataArray type=\"Float64\" Name=\"nodal_error\" format=\"ascii\">\n";
-    for (std::size_t i = 0; i < values.size(); ++i) out << values[i]-exact[i] << '\n';
-    out << "</DataArray><DataArray type=\"Int64\" Name=\"mesh_node_id\" format=\"ascii\">\n";
+    out << "</DataArray></Cells>\n<PointData>\n";
+    for(const auto& field : fields) {
+        out << "<DataArray type=\"Float64\" Name=\"" << field.name
+            << "\" NumberOfComponents=\"" << field.components << "\" format=\"ascii\">\n";
+        for(double value : field.values) out << value << '\n';
+        out << "</DataArray>";
+    }
+    out << "<DataArray type=\"Int64\" Name=\"mesh_node_id\" format=\"ascii\">\n";
     for (const auto& node : mesh.nodes) out << node.global_id << '\n';
     out << "</DataArray><DataArray type=\"Int32\" Name=\"owner\" format=\"ascii\">\n";
     for (int owner : mesh.owners) out << owner << '\n';
@@ -50,19 +50,22 @@ void write_piece(const std::filesystem::path& path, const MeshPartition& mesh,
 }
 } // namespace
 
-void write_vtu(const std::filesystem::path& path, const MeshPartition& mesh,
-               const std::vector<double>& values, const std::vector<double>& exact)
+void write_fields(const std::filesystem::path& path, const MeshPartition& mesh,
+                  const std::vector<PointField>& fields)
 {
-    if (values.size() != mesh.nodes.size() || exact.size() != mesh.nodes.size())
-        throw std::runtime_error("VTU field size does not match the mesh");
+    for(const auto& f : fields) {
+        if(f.components<1 || f.values.size()!=mesh.nodes.size()*f.components ||
+           f.name.empty() || f.name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_")!=std::string::npos)
+            throw std::runtime_error("Invalid VTU field");
+    }
     if (!path.parent_path().empty()) std::filesystem::create_directories(path.parent_path());
     const auto actual = mesh.ranks == 1 ? path : path.parent_path() / (path.stem().string()+"_rank"+std::to_string(mesh.rank)+".vtu");
-    write_piece(actual, mesh, values, exact, false);
+    write_piece(actual, mesh, fields, false);
     const auto boundary = actual.parent_path() / (actual.stem().string() + "_boundary.vtu");
-    write_piece(boundary, mesh, values, exact, true);
+    write_piece(boundary, mesh, fields, true);
 }
 
-void write_pvtu(const std::filesystem::path& path, int ranks)
+void write_field_index(const std::filesystem::path& path, int ranks, const std::vector<PointField>& fields)
 {
     if (ranks == 1) return;
     for (bool boundary : {false, true}) {
@@ -73,7 +76,7 @@ void write_pvtu(const std::filesystem::path& path, int ranks)
         out << "<?xml version=\"1.0\"?>\n<VTKFile type=\"PUnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">\n"
                "<PUnstructuredGrid GhostLevel=\"0\"><PPoints><PDataArray type=\"Float64\" NumberOfComponents=\"3\"/></PPoints>\n"
                "<PPointData Scalars=\"u\">";
-        for (const char* field : {"u", "u_exact", "nodal_error"}) out << "<PDataArray type=\"Float64\" Name=\"" << field << "\"/>";
+        for (const auto& field : fields) out << "<PDataArray type=\"Float64\" Name=\"" << field.name << "\" NumberOfComponents=\"" << field.components << "\"/>";
         out << "<PDataArray type=\"Int64\" Name=\"mesh_node_id\"/><PDataArray type=\"Int32\" Name=\"owner\"/>"
                "<PDataArray type=\"Int64\" Name=\"algebra_node_id\"/></PPointData>\n"
                "<PCellData><PDataArray type=\"Int32\" Name=\"physical_tag\"/><PDataArray type=\"Int64\" Name=\"mesh_element_id\"/></PCellData>\n";
@@ -82,5 +85,17 @@ void write_pvtu(const std::filesystem::path& path, int ranks)
         out << "</PUnstructuredGrid></VTKFile>\n";
         out.close();
     }
+}
+void write_vtu(const std::filesystem::path& path,const MeshPartition& mesh,
+               const std::vector<double>& values,const std::vector<double>& exact)
+{
+    if(values.size()!=exact.size()) throw std::runtime_error("Invalid exact field size");
+    std::vector<double> error(values.size());
+    for(std::size_t i=0;i<error.size();++i) error[i]=values[i]-exact[i];
+    write_fields(path,mesh,{{"u",1,values},{"u_exact",1,exact},{"nodal_error",1,error}});
+}
+void write_pvtu(const std::filesystem::path& path,int ranks)
+{
+    write_field_index(path,ranks,{{"u",1,{}},{"u_exact",1,{}},{"nodal_error",1,{}}});
 }
 } // namespace eonsim
