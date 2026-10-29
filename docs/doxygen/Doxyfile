@@ -1,0 +1,51 @@
+# Run from the repository root:
+#   cmake -E make_directory build/docs
+#   doxygen docs/doxygen/Doxyfile
+# Append existing source directories to INPUT when P0 creates them.
+DOXYFILE_ENCODING       = UTF-8
+PROJECT_NAME            = "MultiPhysicsHPC"
+PROJECT_BRIEF           = "Numerical API contracts and monolithic FSI development"
+OUTPUT_DIRECTORY        = build/docs
+OUTPUT_LANGUAGE         = English
+INPUT_ENCODING          = UTF-8
+INPUT                   = docs/doxygen/index.md \
+                          docs/doxygen/groups.dox \
+                          docs/development/DOCUMENTATION_AND_COMMENTS.md
+FILE_PATTERNS           = *.h *.hpp *.cpp *.cc *.dox *.md
+RECURSIVE               = YES
+EXCLUDE_PATTERNS        = */build/* */external/* */third_party/* \
+                          */docs/skill-templates/*
+USE_MDFILE_AS_MAINPAGE  = docs/doxygen/index.md
+MARKDOWN_SUPPORT        = YES
+EXTRACT_ALL             = NO
+EXTRACT_PRIVATE         = NO
+EXTRACT_STATIC          = NO
+EXTRACT_LOCAL_CLASSES   = NO
+SOURCE_BROWSER          = YES
+INLINE_SOURCES          = NO
+QUIET                   = YES
+WARNINGS                = YES
+WARN_IF_UNDOCUMENTED    = NO
+WARN_IF_DOC_ERROR       = YES
+WARN_IF_INCOMPLETE_DOC  = NO
+WARN_NO_PARAMDOC        = NO
+WARN_AS_ERROR           = NO
+GENERATE_HTML           = YES
+HTML_OUTPUT             = html
+GENERATE_LATEX          = NO
+GENERATE_XML            = NO
+GENERATE_MAN            = NO
+GENERATE_RTF            = NO
+GENERATE_DOCBOOK        = NO
+HAVE_DOT                = NO
+CALL_GRAPH              = NO
+CALLER_GRAPH            = NO
+CLASS_GRAPH             = NO
+COLLABORATION_GRAPH     = NO
+USE_MATHJAX             = YES
+MATHJAX_VERSION         = MathJax_3
+MATHJAX_FORMAT          = chtml
+ENABLE_PREPROCESSING    = YES
+MACRO_EXPANSION         = NO
+PREDEFINED             = MHPC_DEBUG=0 NDEBUG
+

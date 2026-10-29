@@ -1,0 +1,10 @@
+mesh: cube.msh
+output: ../../results/poisson/solution.vtu
+poisson:
+  diffusivity: 2.0
+  exact_solution: quadratic
+  dirichlet_tags: [1, 2, 3, 4, 5, 6]
+solver:
+  relative_tolerance: 1.0e-11
+  absolute_tolerance: 1.0e-12
+  maximum_iterations: 1000

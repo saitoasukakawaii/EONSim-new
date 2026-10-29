@@ -1,0 +1,142 @@
+# EONSim
+
+C++17 / PETSc 多物理场求解器。当前完成 **P0 单 rank 标量 Poisson 闭环**：
+YAML 配置 → Gmsh Tet4 网格 → 几何/积分 → 稀疏装配 → 非零 Dirichlet lifting →
+PETSc KSP → 误差摘要与 VTU。后续路线是分布式基础、独立流体/固体、单体刚体/弹性体 FSI。
+
+当前不支持多 rank 求解、一般源项/边界表达式、流体、固体或 FSI；请求多 rank
+会在读取网格前明确失败。首个标量算例服务离散与求解链验证。
+
+## 环境与构建
+
+需要 CMake ≥ 3.21、Ninja、C/C++17 编译器、实数双精度 PETSc、匹配的 MPI、
+BLAS/LAPACK 和 yaml-cpp（当前验证版本 0.8.0）。运行已保存的算例不需要 Gmsh 或 Python；
+重新生成网格及可选验证脚本需要 Python 3。
+
+```bash
+cmake --preset debug
+cmake --build --preset debug --parallel
+cmake --preset release
+cmake --build --preset release --parallel
+./build/release/eonsim -case cases/poisson/case.yaml
+```
+
+预设生成 `build/debug` 和 `build/release`。Debug 设置 `MHPC_DEBUG=1`，Release 设置为 `0`；
+两者使用相同方程、约束和停止准则。输入/几何有效性、非有限值、KSP 不收敛和真实残量检查
+在 Release 中保留。应用默认将尚未设置的 `OMP_NUM_THREADS`、`OPENBLAS_NUM_THREADS`、
+`MKL_NUM_THREADS` 设为 `1`，已有环境设置会保留并在摘要中显示。
+
+这台机器验证使用 GCC 13.3、PETSc 3.23.2（优化构建、实数双精度、32 位 PetscInt）、
+OpenMPI 4.1.6、OpenBLAS 0.3.26。应用网格 ID 使用 64 位，进入 PETSc 前检查代数编号范围。
+Debug 应用当前也链接这套优化 PETSc；它不等同于 PETSc 自身的调试构建。
+
+## 算例与运行
+
+`cases/poisson/case.yaml` 配置单位立方体上的问题：
+
+```text
+-div(k grad u) = f,   k = 2
+u_exact = 1 + x + 2y + 3z + x² + 2y² + 3z²
+f = -12k
+全部外边界：u = u_exact
+```
+
+`exact_solution: affine` 可选择 `u_exact = 1+x+2y+3z`、`f=0`，用于 patch test。
+这两种制造解是明确支持的配置，不提供运行时表达式语言。坐标采用 SI 单位，标量场为本阶段验证量。
+
+默认网格包含 125 个节点、384 个正定向 Tet4、192 个边界三角形，存在 27 个自由内部未知量。
+边界 physical tags `1..6` 分别为 `x_min/x_max/y_min/y_max/z_min/z_max`，体区域 tag 为 `10`。
+支持 Gmsh **2.2 ASCII**，Tet4（type 4）和边界三角形（type 2）；一阶点/线实体可读但不参与体积分。
+高阶单元、其他体单元、Gmsh 4.x/binary 会明确拒绝。每个外表面必须有标签三角形，
+当前制造解要求所有外表面均施加 Dirichlet 条件。
+
+YAML 中的路径相对 YAML 文件；命令行覆盖路径相对当前目录：
+
+```bash
+./build/debug/eonsim -case cases/poisson/case.yaml -diagnostics full
+./build/release/eonsim -case cases/poisson/case.yaml \
+  -output results/custom/solution.vtu -ksp_rtol 1e-12
+```
+
+`-diagnostics full` 额外检查约束后矩阵的对称性。默认求解器为 CG/Jacobi；
+`-ksp_*`、`-pc_*` 通过 PETSc options 覆盖默认设置。摘要显示实际求解器、容差、停止原因、
+迭代数和真实残量 `||Au-b||₂`。收敛失败返回非零退出码，不输出新的结果文件。
+
+输出文件可直接在 ParaView 打开：
+
+- `results/poisson/solution.vtu`：Tet4 网格、`u`、`u_exact`、节点误差、原始 64 位 mesh ID 和体标签。
+- `results/poisson/solution_boundary.vtu`：带 physical tags 的边界三角形及相同节点场。
+
+节点误差与 FEM 场的 L2 误差不同：二次函数在 P1 单元内部仍有插值误差，即使某些节点值精确。
+L2 和 H1 半范误差使用单元内积分计算；摘要还包含体积、解的积分以及输入、准备、装配、
+求解、误差评价和输出耗时。该小算例的耗时不代表 HPC 性能结果。
+
+## 验证与网格加密
+
+```bash
+cmake --preset debug -DBUILD_TESTING=ON
+cmake --build --preset debug --parallel
+ctest --preset debug
+```
+
+Release 同理使用 `release` preset。可选验证仅使用 Python 标准库，包含：
+
+- 同一二次制造解的 `4³` / `8³` 立方网格，每个小立方体分成 6 个 Tet4；检查 L2 二阶、H1 半范一阶。
+- 内部节点扰动后的仿射 patch test，检查非零 lifting、体积和解积分，以及大于 32 位的原始网格 ID。
+- VTU 场和 physical tags；KSP 达到迭代上限、倒置单元的明确失败。
+
+本机 Debug/Release 均通过，三种成功算例的节点解模式间最大差为 `0`：
+
+| 算例 | Tet4 数 | L2 误差 | H1 半范误差 |
+| --- | ---: | ---: | ---: |
+| 二次制造解，4 等分 | 384 | 0.06488504793 | 0.5400617249 |
+| 二次制造解，8 等分 | 3072 | 0.01622126198 | 0.2700308624 |
+| 畸变网格仿射解，4 等分 | 384 | 1.06e-11 | 1.80e-10 |
+
+默认算例真实残量约 `1.67e-14`，7 次 CG 迭代。验证日志、VTU 和 `metrics.json`
+保存在对应构建目录的 `verification/`。两 rank 启动的明确拒绝也已验证，**不是并行求解通过**。
+
+重新生成加密网格：
+
+```bash
+python3 cases/poisson/generate_mesh.py --subdivisions 8 --output results/cube8.msh
+./build/release/eonsim -case cases/poisson/case.yaml \
+  -mesh results/cube8.msh -output results/poisson8/solution.vtu
+```
+
+## 依赖与代码结构
+
+项目继续使用现有 `cmake` 模块：
+
+| 模块 | 用途 | 目标 |
+| --- | --- | --- |
+| `EONSimBlasLapackProvider.cmake` | 选择 BLAS/LAPACK，默认 AUTO | `EONSimBLAS::BLASLAPACK` |
+| `EONSimPETScProvider.cmake` | 使用 CMake 配置包或 pkg-config 查找 PETSc | `PETSc::PETSc` |
+| `FindMPI.cmake` | MPI C/C++ 探测；Linux 转交 CMake 实现 | `MPI::MPI_C`、`MPI::MPI_CXX` |
+
+Poisson 应用现在必须有 PETSc；`OFF` 或 `AUTO` 未找到时配置失败，不再构建无求解能力的 Hello 程序。
+Provider 自动读取 `PETSC_DIR`、`PETSC_ARCH`；也可用 `EONSIM_PETSC_ROOT`、
+`EONSIM_PETSC_ARCH`、`EONSIM_PETSC_PKG_CONFIG_PATH` 覆盖提示。环境中的 `PETSC_ARCH`
+在显式架构为空时仍会被 Provider 采用；切换到无架构安装前缀时，需同时取消该环境变量。
+
+BLAS 可显式设置 `-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS|SYSTEM|MKL|BLIS_FLAME|ACCELERATE`。
+此选项控制 EONSim 直接依赖，已安装 PETSc 自身使用的 BLAS 不会随之改变。
+机器路径用本地命令或忽略的 `CMakeUserPresets.json` 设置。当前机器 PATH 中的 ParaView
+带有 MPICH 启动器，而本项目使用 OpenMPI；可通过 `-DMPIEXEC_EXECUTABLE=/usr/bin/mpiexec`
+设置匹配的启动器，但 P0 仍只接受一个 rank。
+
+```text
+include/eonsim/       具体配置、网格、Tet4、线性系统与结果类型
+src/core/            YAML 解析与强类型配置
+src/mesh/            Gmsh 输入、拓扑/标签检查
+src/fem/             不依赖 MPI/PETSc 的 Tet4 几何与局部扩散核
+src/algebra/         PETSc 生命周期、装配入口、约束与线性求解
+src/physics/         Poisson 算例组装、制造解与积分误差
+src/io/              VTU 输出
+src/main.cpp         初始化、配置、运行与摘要
+cases/poisson/       可运行 YAML、网格及生成器
+```
+
+一个 `eonsim_core` library 和一个 `eonsim` 应用。下一步按
+[开发路线](docs/development/ROADMAP.md) 实现 P1：离线分区、本地 owned/ghost 输入和 1/2 rank 一致性。
+设计约束入口为 [AGENTS.md](AGENTS.md) 与 [总原则](MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md)。
