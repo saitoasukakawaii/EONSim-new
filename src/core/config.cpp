@@ -2,6 +2,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <cmath>
+#include <algorithm>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -20,6 +21,61 @@ void keys(const YAML::Node& node, std::initializer_list<const char*> allowed,
         if (!names.count(key)) throw std::runtime_error("Unknown key: " + location + "." + key);
         if (!seen.insert(key).second) throw std::runtime_error("Duplicate key: " + location + "." + key);
     }
+}
+Space3::Vector<double> vector3(const YAML::Node& node,const std::string& location)
+{
+    if(!node.IsSequence()||node.size()!=Space3::dimension) throw std::runtime_error(location+" requires three components");
+    Space3::Vector<double> v{};
+    for(int d=0;d<Space3::dimension;++d) {
+        v[d]=node[d].as<double>();
+        if(!std::isfinite(v[d])) throw std::runtime_error(location+" must be finite");
+    }
+    return v;
+}
+void fluid_boundaries(const YAML::Node& f,FluidConfig& config)
+{
+    const auto boundaries=f["boundaries"];
+    if(!boundaries.IsSequence()||boundaries.size()==0) throw std::runtime_error("fluid.boundaries must be a nonempty sequence");
+    if(f["pressure_drop"]||f["outlet"]||f["ramp_time"]) throw std::runtime_error("Tagged boundaries cannot use benchmark pressure_drop/outlet/ramp_time");
+    std::set<int> tags; bool natural=false,velocity=false;
+    for(const auto& entry:boundaries) {
+        const auto type=entry["type"].as<std::string>();
+        FluidBoundary b;
+        if(type=="pressure") {
+            keys(entry,{"tag","type","value","ramp_time"},"fluid.boundaries.pressure");
+            b.type=FluidBoundary::Type::pressure; b.pressure=entry["value"].as<double>();
+            if(!std::isfinite(b.pressure)) throw std::runtime_error("Boundary pressure must be finite");
+        } else {
+            keys(entry,{"tag","type","value","origin","gradient","ramp_time"},"fluid.boundaries");
+            if(type=="velocity") b.type=FluidBoundary::Type::velocity;
+            else if(type=="traction") b.type=FluidBoundary::Type::traction;
+            else throw std::runtime_error("Boundary type must be velocity, traction or pressure");
+            b.value=vector3(entry["value"],"boundary value");
+            if(entry["origin"]) b.origin=vector3(entry["origin"],"boundary origin");
+            if(const auto g=entry["gradient"]) {
+                if(!g.IsSequence()||g.size()!=Space3::dimension) throw std::runtime_error("Boundary gradient requires three rows");
+                for(int i=0;i<Space3::dimension;++i) {
+                    const auto row=vector3(g[i],"boundary gradient row");
+                    for(int j=0;j<Space3::dimension;++j) b.gradient[Space3::index(i,j)]=row[j];
+                }
+            }
+        }
+        b.tag=entry["tag"].as<int>();
+        if(b.tag<=0||!tags.insert(b.tag).second) throw std::runtime_error("Boundary tags must be distinct and positive");
+        if(entry["ramp_time"]) b.ramp_time=entry["ramp_time"].as<double>();
+        if(!std::isfinite(b.ramp_time)||b.ramp_time<0) throw std::runtime_error("Boundary ramp_time must be finite and nonnegative");
+        natural|=b.type!=FluidBoundary::Type::velocity; velocity|=b.type==FluidBoundary::Type::velocity;
+        config.boundaries.push_back(b);
+    }
+    if(!velocity) throw std::runtime_error("At least one velocity boundary is required");
+    if(const auto gauge=f["pressure_gauge"]) {
+        keys(gauge,{"node","value"},"fluid.pressure_gauge");
+        config.pressure_gauge=PressureGauge{gauge["node"].as<std::int64_t>(),gauge["value"].as<double>()};
+        if(config.pressure_gauge->node<=0||!std::isfinite(config.pressure_gauge->value)) throw std::runtime_error("Invalid pressure gauge");
+    }
+    if(natural&&config.pressure_gauge) throw std::runtime_error("Pressure gauge cannot accompany traction or pressure boundaries");
+    if(!natural&&!config.pressure_gauge) throw std::runtime_error("All-velocity boundaries require pressure_gauge");
+    std::sort(config.boundaries.begin(),config.boundaries.end(),[](const auto& a,const auto& b){return a.tag<b.tag;});
 }
 } // namespace
 
@@ -60,13 +116,15 @@ Config read_config(const std::filesystem::path& path)
     if (tags.empty()) throw std::runtime_error("At least one Dirichlet physical tag is required");
     } else if(config.fluid_problem) {
         const auto f=root["fluid"];
-        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet"},"fluid");
+        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet","boundaries","pressure_gauge"},"fluid");
         const auto mode=f["mode"].as<std::string>();
         if(mode=="stokes") config.fluid.mode=FluidConfig::Mode::stokes;
         else if(mode=="steady") config.fluid.mode=FluidConfig::Mode::steady;
         else if(mode=="transient") config.fluid.mode=FluidConfig::Mode::transient;
         else throw std::runtime_error("Unknown fluid mode");
         auto& v=config.fluid;
+        if(f["boundaries"]) fluid_boundaries(f,v);
+        else if(f["pressure_gauge"]) throw std::runtime_error("pressure_gauge requires tagged boundaries");
         if(f["outlet"]) {
             const auto outlet=f["outlet"].as<std::string>();
             if(outlet!="velocity" && outlet!="traction") throw std::runtime_error("Invalid fluid outlet");

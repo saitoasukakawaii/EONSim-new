@@ -4,7 +4,7 @@ C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体
 使用 Tet4、BE、MPI owned/ghost 分区、METIS/HDF5 预处理和 PETSc KSP/SNES。
 有限变形固体支持可压缩 Neo-Hookean；耦合流体、结构/刚体和 ALE 同时收敛后提交状态。
 
-当前验证限于随仓库提供的立方体通道、弹性块和活塞算例；不包含任意边界表达式、非匹配界面、重网格或大规模扩展性保证。
+当前验证包括随仓库提供的立方体/旋转通道、弹性块和活塞算例；固定网格流体支持标签边界及常量/仿射数据。尚不包含通用表达式、非匹配界面、重网格或大规模扩展性保证。
 各阶段的实际结果与限制见下文及 [开发路线](docs/development/ROADMAP.md)。
 
 ## 环境与构建
@@ -296,3 +296,37 @@ Debug/Release 的 13 项 CTest 全部通过，包含五类 transient/FSI 配置�
 `cmake --build build/debug --target docs`；入口为 `build/docs/html/index.html`。
 
 结构常量由 [discretization.hpp](include/eonsim/discretization.hpp) 的拓扑/场布局模板推导；高斯积分点与权重由独立的 [quadrature.hpp](include/eonsim/quadrature.hpp) 静态模板维护。当前物理求解仍为三维 Tet4；模板定义和积分规则选择见 [离散算子说明](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md#编译期拓扑布局与积分规则)。
+
+## 基础完善：几何与标签边界
+
+推进顺序和阶段验收见 [基础完善路线 B0–B5](docs/development/ROADMAP.md)。
+B0 统一了外表面与相邻 Tet4 的关系、三维面积/外法向和静态三角形积分规则，并接入流体、固体和 FSI。
+
+B1 固定网格流体现在可使用任意正 physical tag 配置边界；不需要单位立方体坐标。运行：
+
+```bash
+./build/release/eonsim -case cases/fluid/rotated_channel.yaml
+./build/release/eonsim -case cases/fluid/rotated_channel.yaml -prepare results/rotated2 -parts 2
+/usr/bin/mpiexec -n 2 ./build/release/eonsim -case cases/fluid/rotated_channel.yaml -partition results/rotated2
+```
+
+该案例是旋转、平移后的 2×1.5×0.7 m 通道：线性剪切速度、出口牵引、常压力 2 Pa。
+入口/出口外向流量应分别为 -0.105/+0.105 m³/s，所有边界净通量应接近零。
+如需重新生成网格：`python3 cases/fluid/generate_rotated_channel.py`。
+
+`fluid.boundaries` 是条件列表，每条包含 `tag`、`type`、`value`。支持：
+
+- `type: velocity`：三分量速度，`value: [ux,uy,uz]`。
+- `type: traction`：三分量牵引 `sigma*n`，`value: [tx,ty,tz]`。
+- `type: pressure`：法向压力载荷，标量 `value: p`，按外法向施加 `-p*n`。
+
+前两类可增加 `origin: [x0,y0,z0]` 和三行 `gradient`，表示 `value + gradient*(x-origin)`。
+瞬态可在每条条件中配置 `ramp_time`，全局 `dt/steps` 用法不变。标签模式不接受旧通道专用的
+`pressure_drop/outlet/ramp_time` 顶层参数；省略 `boundaries` 时继续运行原有通道基准。
+全速度边界需要 `fluid.pressure_gauge: {node: 原始网格ID, value: 压力}`；与自然边界并用会报错。
+重复/缺失/多余标签、矛盾速度约束和不相容的全速度边界净通量在求解前失败。
+
+每个标签输出 `area`、`outward_flow` 和 `mean_pressure`，另输出整体 `net_outward_flow` 与 `divergence_l2`。
+通用边界模式没有预设解析解，因此不打印旧通道的速度误差。`tagged_fluid_verification` 验证旋转通道
+的三种边界配置、仿射牵引、1/2 rank、瞬态 ramp、同分区重启和错误输入。
+当前每个标签只支持一种完整向量条件，材料仍为空间常量；组件约束、多材料和独立流固网格按 B2/B3 推进。

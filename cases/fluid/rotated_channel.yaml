@@ -1,0 +1,26 @@
+# Linear Couette patch: u = 0.2 * eta / 1.5 * (0.6,0.8,0), p = 2 Pa.
+# eta = (-0.8,0.6,0) dot (x-origin); outlet normal = (0.6,0.8,0).
+mesh: rotated_channel.msh
+output: ../../results/fluid/rotated_channel.vtu
+fluid:
+  mode: stokes
+  density: 1
+  viscosity: 1
+  boundaries:
+    -
+      tag: 11
+      type: velocity
+      value: [0, 0, 0]
+      origin: [2, -1, 0.3]
+      gradient: [[-0.064, 0.048, 0], [-0.08533333333333333, 0.064, 0], [0, 0, 0]]
+    - tag: 22
+      type: traction
+      value: [-1.3066666666666666, -1.52, 0]
+    - {tag: 33, type: velocity, value: [0, 0, 0], origin: [2, -1, 0.3], gradient: [[-0.064, 0.048, 0], [-0.08533333333333333, 0.064, 0], [0, 0, 0]]}
+    - {tag: 44, type: velocity, value: [0, 0, 0], origin: [2, -1, 0.3], gradient: [[-0.064, 0.048, 0], [-0.08533333333333333, 0.064, 0], [0, 0, 0]]}
+    - {tag: 55, type: velocity, value: [0, 0, 0], origin: [2, -1, 0.3], gradient: [[-0.064, 0.048, 0], [-0.08533333333333333, 0.064, 0], [0, 0, 0]]}
+    - {tag: 66, type: velocity, value: [0, 0, 0], origin: [2, -1, 0.3], gradient: [[-0.064, 0.048, 0], [-0.08533333333333333, 0.064, 0], [0, 0, 0]]}
+solver:
+  relative_tolerance: 1.e-10
+  absolute_tolerance: 1.e-12
+  maximum_iterations: 30

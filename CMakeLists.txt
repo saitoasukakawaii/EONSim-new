@@ -61,6 +61,7 @@ add_library(eonsim_core
     src/physics/hyperelastic.cpp
     src/physics/solid_element.cpp
     src/physics/fluid.cpp
+    src/physics/fluid_boundary.cpp
     src/physics/poisson.cpp
     src/io/checkpoint.cpp
     src/io/vtu.cpp
@@ -100,6 +101,12 @@ if(BUILD_TESTING)
     target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
     add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME tagged_fluid_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_tagged_fluid.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --work "${CMAKE_CURRENT_BINARY_DIR}/tagged_fluid_verification")
+    set_tests_properties(tagged_fluid_verification PROPERTIES TIMEOUT 180
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME restart_block_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_restart.py"
             --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"

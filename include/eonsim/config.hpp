@@ -2,6 +2,9 @@
 /** @file
  * @brief YAML 物理参数与命令行覆盖的运行控制；每个算例只选择一种入口。 */
 
+#include "eonsim/discretization.hpp"
+#include <cstdint>
+#include <optional>
 #include <filesystem>
 #include <vector>
 
@@ -15,9 +18,25 @@ struct SolverConfig {
     int maximum_iterations = 1000;
 };
 
+/** @brief 按 physical tag 的固定网格流体边界。
+ * velocity/traction: value + gradient*(x-origin)，gradient 按行存储；pressure: t=-pressure*n。
+ * ramp_time=0 表示立即施加，否则乘 min(t/ramp_time,1)；稳态忽略 ramp。
+ */
+struct FluidBoundary {
+    enum class Type { velocity, traction, pressure };
+    int tag=0;
+    Type type=Type::velocity;
+    Space3::Vector<double> value{},origin{};
+    Space3::Tensor<double> gradient{};
+    double pressure=0,ramp_time=0;
+};
+struct PressureGauge { std::int64_t node; double value; }; // 原始网格 ID，非 PETSc 编号
+
 struct FluidConfig {
     enum class Mode { stokes, steady, transient };
     Mode mode = Mode::stokes;
+    std::vector<FluidBoundary> boundaries; // 空时保留内置单位通道基准
+    std::optional<PressureGauge> pressure_gauge;
     bool traction_outlet=false;
     double density=1, viscosity=1, pressure_drop=1, dt=.05, ramp_time=.1;
     int steps=10;

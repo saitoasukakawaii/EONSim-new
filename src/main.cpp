@@ -156,10 +156,21 @@ int main(int argc, char* argv[])
                 MPI_Barrier(PETSC_COMM_WORLD);
                 if(rank==0) {
                     eonsim::write_field_index(config.output,size,fluid.fields);
-                    std::cout << std::setprecision(16) << "inlet_flow=" << fluid.inlet_flow
-                        << " outlet_flow=" << fluid.outlet_flow << " pressure_drop=" << fluid.pressure_drop
-                        << " velocity_l2_error=" << fluid.velocity_error << " divergence_l2=" << fluid.divergence
-                        << "\nstatus=success\n";
+                    std::cout << std::setprecision(16);
+                    if(config.fluid.boundaries.empty()) {
+                        std::cout << std::setprecision(16) << "inlet_flow=" << fluid.inlet_flow
+                            << " outlet_flow=" << fluid.outlet_flow << " pressure_drop=" << fluid.pressure_drop
+                            << " velocity_l2_error=" << fluid.velocity_error << " divergence_l2=" << fluid.divergence
+                            << "\nstatus=success\n";
+                    } else {
+                        double net=0;
+                        for(const auto& b:fluid.boundaries) {
+                            net+=b.flow;
+                            std::cout << "boundary_tag=" << b.tag << " area=" << b.area << " outward_flow=" << b.flow
+                                << " mean_pressure=" << b.pressure << '\n';
+                        }
+                        std::cout << "net_outward_flow=" << net << " divergence_l2=" << fluid.divergence << "\nstatus=success\n";
+                    }
                 }
             } else {
             const auto result = eonsim::solve_poisson(PETSC_COMM_WORLD, mesh, config, diagnostics == "full");
