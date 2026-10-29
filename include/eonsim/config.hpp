@@ -21,7 +21,15 @@ struct FluidConfig {
     int steps=10;
 };
 
+struct SolidConfig {
+    bool transient=false;
+    double young=100, poisson=.3, density=1, traction=1, dt=.01;
+    int steps=20;
+};
+
 struct Config {
+    bool solid_problem=false;
+    SolidConfig solid;
     bool fluid_problem=false;
     FluidConfig fluid;
     std::filesystem::path mesh;

@@ -1,0 +1,8 @@
+mesh: ../poisson/cube.msh
+output: ../../results/solid/static.vtu
+solid:
+  mode: static
+  young: 100
+  poisson: 0.3
+  density: 1
+  traction: 1

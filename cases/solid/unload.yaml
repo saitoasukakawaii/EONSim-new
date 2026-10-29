@@ -1,0 +1,10 @@
+mesh: ../poisson/cube.msh
+output: ../../results/solid/unload.vtu
+solid:
+  mode: unload
+  dt: 0.01
+  steps: 20
+  young: 100
+  poisson: 0.3
+  density: 1
+  traction: 1

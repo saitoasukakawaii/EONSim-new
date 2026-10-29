@@ -1,6 +1,7 @@
 #include "eonsim/config.hpp"
 #include "eonsim/poisson.hpp"
 #include "eonsim/fluid.hpp"
+#include "eonsim/solid.hpp"
 #include "eonsim/vtu.hpp"
 
 #include <array>
@@ -97,7 +98,18 @@ int main(int argc, char* argv[])
                     throw std::runtime_error("Ghost ID does not belong to its declared owner");
             }
             const double input_seconds = std::chrono::duration<double>(Clock::now()-begin).count();
-            if(config.fluid_problem) {
+            if(config.solid_problem) {
+                const auto solid=eonsim::solve_solid(PETSC_COMM_WORLD,mesh,config);
+                eonsim::write_fields(config.output,mesh,solid.fields);
+                MPI_Barrier(PETSC_COMM_WORLD);
+                if(rank==0) {
+                    eonsim::write_field_index(config.output,size,solid.fields);
+                    std::cout << std::setprecision(16) << "tip_displacement=" << solid.tip_displacement
+                        << " reaction_x=" << solid.reaction_x;
+                    if(!config.solid.transient) std::cout << " displacement_max_error=" << solid.displacement_error;
+                    std::cout << "\nstatus=success\n";
+                }
+            } else if(config.fluid_problem) {
                 const auto fluid=eonsim::solve_fluid(PETSC_COMM_WORLD,mesh,config);
                 eonsim::write_fields(config.output,mesh,fluid.fields);
                 MPI_Barrier(PETSC_COMM_WORLD);
