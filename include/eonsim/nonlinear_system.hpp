@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 通用 assembled SNES 驱动；不依赖物理与网格。 */
+/** @file
+ * @brief 通用 assembled SNES 驱动；不依赖物理与网格。 */
 #include "eonsim/linear_system.hpp"
 #include <petscsnes.h>
 #include <functional>

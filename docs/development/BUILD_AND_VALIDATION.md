@@ -1,6 +1,6 @@
 # L3：构建模式与最小验证
 
-状态：采用。适用范围：构建、诊断、错误传播和验证。P0/P1 已实现；实际 presets、目标和验证见 README，下方代码片段仍为约定示意。
+状态：采用。适用范围：构建、诊断、错误传播和验证。P0–P8 小算例基线已实现；实际 presets、目标和验证见 README，下方代码片段仍为约定示意。
 
 ## Debug / Release 的明确设计
 
@@ -122,3 +122,12 @@ Doxygen 是可选开发工具，单独生成 HTML；不加入默认 build，也�
 
 目前已提供可运行的 Doxyfile；顶层 CMake 的可选 docs target 待 P0 建工程时接入。具体命令、配置和源码契约写法见 [文档与注释规范](DOCUMENTATION_AND_COMMENTS.md)。Debug/Release 共享 API 文档，诊断差异在契约中说明。
 
+
+## 已执行的阶段交付验证
+
+2026-10-29：Debug 和 Release 均通过 13 项 CTest，涵盖 Poisson、分布式布局、
+流体/固体/ALE、刚体/弹性/超弹性 FSI 的局部与总系统导数、接受状态、失败退出和重启。
+重启检查使用 1/2 rank；有限变形 FSI 的直接解/FGMRES 块解使用 1/2/4 rank。
+`-solver_report` 输出有效 DoF、非零元、线性迭代、SNES 内部总耗时、装配和 ghost 更新时间。
+Linux 下 `peak_rss_*` 使用 getrusage 的进程高水位值；`rss_*` 是求解后的驻留内存采样。
+这些是诊断数据，不增加日常测试门禁。性能范围与限制见 PERFORMANCE_BASELINE.md。

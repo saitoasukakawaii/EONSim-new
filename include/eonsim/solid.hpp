@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 弹性单位块静载及 BE 撤载响应。 */
+/** @file
+ * @brief 弹性单位块静载及 BE 撤载响应。 */
 #include "eonsim/nonlinear_system.hpp"
 #include "eonsim/mesh.hpp"
 #include "eonsim/vtu.hpp"

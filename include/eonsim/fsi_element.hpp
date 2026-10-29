@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 活塞 FSI 的局部流体/ALE 残量，参考网格扩展不产生物理界面力。 */
+/** @file
+ * @brief 活塞 FSI 的局部流体/ALE 残量，参考网格扩展不产生物理界面力。 */
 #include "eonsim/fluid_element.hpp"
 namespace eonsim {
 struct FsiElementData {

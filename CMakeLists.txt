@@ -10,13 +10,21 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-option(BUILD_TESTING "Build focused P0 verification" OFF)
+option(BUILD_TESTING "Build numerical and distributed verification" OFF)
+option(MHPC_BUILD_DOCS "Enable the optional Doxygen target" OFF)
+if(MHPC_BUILD_DOCS)
+    find_package(Doxygen REQUIRED COMPONENTS doxygen)
+    add_custom_target(docs
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/build/docs"
+        COMMAND Doxygen::doxygen "${CMAKE_CURRENT_SOURCE_DIR}/docs/doxygen/Doxyfile"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" VERBATIM)
+endif()
 
 set(EONSIM_ENABLE_PETSC ON CACHE STRING "PETSc runtime: AUTO, ON, or OFF")
 include(EONSimBlasLapackProvider)
 include(EONSimPETScProvider)
 if(NOT EONSIM_HAVE_PETSC)
-    message(FATAL_ERROR "The P0 solver requires PETSc; configure with EONSIM_ENABLE_PETSC=ON and a real-double PETSc installation.")
+    message(FATAL_ERROR "EONSim requires PETSc; configure with EONSIM_ENABLE_PETSC=ON and a real-double PETSc installation.")
 endif()
 find_package(MPI REQUIRED COMPONENTS C CXX)
 find_package(yaml-cpp CONFIG REQUIRED)
@@ -53,6 +61,7 @@ add_library(eonsim_core
     src/physics/solid_element.cpp
     src/physics/fluid.cpp
     src/physics/poisson.cpp
+    src/io/checkpoint.cpp
     src/io/vtu.cpp
 )
 target_include_directories(eonsim_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -84,6 +93,12 @@ if(BUILD_TESTING)
     target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
     add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME restart_block_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_restart.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --root "${CMAKE_CURRENT_SOURCE_DIR}" --work "${CMAKE_CURRENT_BINARY_DIR}/restart_verification")
+    set_tests_properties(restart_block_verification PROPERTIES TIMEOUT 300 PROCESSORS 4
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME hyperelastic_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_hyperelastic.py"
             --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"

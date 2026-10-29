@@ -14,7 +14,7 @@
 
 长推导留在架构文档。API 注释指出对应文件/章节，写清当前函数的必要约定；不把整套 FSI 理论复制到每个 kernel。Doxygen 输入只纳入需要展示的源码和页面，历史审查、skill 和生成目录不整仓递归导入。
 
-当前仓库尚无求解器代码。下面所有 C++ 声明都是**注释示例，不是已实现 API**；Doxygen 的模块列表是分类方案，不代表相应能力已经完成。
+当前仓库已有求解器实现；下面所有规范性 C++ 声明片段仍是**注释示例，不是已实现 API**；Doxygen 的模块列表是分类方案，不代表相应能力已经完成。
 
 ## 注释写到什么程度
 
@@ -174,7 +174,7 @@ assemble_boundary_cells();
 - 采用同一份文档，预处理默认按 `MHPC_DEBUG=0`、`NDEBUG` 看公开 API。Debug 额外断言/诊断在行为说明中指出，不维护两份数学语义。
 - 公式使用 MathJax，生成 HTML 无需本机 LaTeX；当前浏览公式使用 CDN。离线部署时再将 MathJax 随站点提供并调整路径，HTML 生成成功不代表离线公式渲染已经验证。
 
-这些选择和告警含义对应 [Doxygen 配置文档](https://www.doxygen.nl/manual/config.html)。当前配置已在本机 Doxygen 1.14.0 生成验证；换用其他版本时以该版本支持的配置项为准。
+这些选择和告警含义对应 [Doxygen 配置文档](https://www.doxygen.nl/manual/config.html)。当前配置已在本机 Doxygen 1.9.8 生成验证；换用其他版本时以该版本支持的配置项为准。
 
 在仓库根目录运行：
 
@@ -185,9 +185,9 @@ doxygen docs/doxygen/Doxyfile
 
 输出为 `build/docs/html/index.html`；生成物不纳入 Git。第一条命令准备输出目录，重复执行无妨；也可用操作系统的目录创建命令完成。两条命令的工作目录都是仓库根目录，不是 Doxyfile 所在目录。
 
-## P0 的可选 CMake 接线
+## 可选 CMake 接线
 
-以下片段在真正建立顶层 CMake 工程时加入；当前尚无顶层 CMakeLists.txt，不能把它当作已经存在的构建目标：
+顶层 CMakeLists.txt 已按以下方式提供可选 docs 目标；默认关闭：
 
 ```cmake
 option(MHPC_BUILD_DOCS "Enable the optional documentation target" OFF)

@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 网格节点所有权到分量/field IS 的映射。 */
+/** @file
+ * @brief 网格节点所有权到分量/field IS 的映射。 */
 #include "eonsim/mesh.hpp"
 #include "eonsim/linear_system.hpp"
 

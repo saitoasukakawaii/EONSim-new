@@ -1,6 +1,6 @@
 # 开发路线：独立求解器 → 单体刚体 FSI → 单体弹性体 FSI
 
-状态：2026-10-29 更新；P0–P7 已实现并验证，P8 尚未验收。用户已确定单体 FSI 为主线，**分离式耦合在该主线交付后再做**。当前阶段安排以本文件为准。
+状态：2026-10-29 更新；P0–P8 小算例基线已实现并验证，最大并行验收为 4 rank。用户已确定单体 FSI 为主线，**分离式耦合在该主线交付后再做**。当前阶段安排以本文件为准。
 
 ## 已交付证据
 
@@ -184,6 +184,14 @@ Debug/Release 的能量/应力导数、有限旋转客观性、BE 切线、Nanso
 
 ## P8：完成 HPC 可用交付
 
+已完成：FGMRES 乘法 field-split（flow/mesh/rigid 或 structure，ASM＋局部 ILU）、
+完整耦合 operator、同 rank/同分区 accepted HDF5 checkpoint、四种应用入口与运行命令。
+Debug/Release 各 13 项 CTest 通过；五类 transient/FSI 的 1/2 rank 继续运行一致，
+有限变形 FSI 的直接解/块解在 1/2/4 rank 一致，错误分区/参数/缺失文件正确失败。
+Release 的 125 节点/384 Tet4 每域、511/730 有效 DoF 已记录 1/2/4 rank 时间、峰值 RSS 和迭代数，
+详见 [性能基线](PERFORMANCE_BASELINE.md)。当前规模很小，不宣称大规模或网格无关迭代收敛。
+本机多个 SuperLU_DIST 子因子销毁问题已通过默认 ASM 路径避开，并记录复现证据。
+
 只在已运行的 P5/P7 案例上改善规模能力：
 
 - 小型直接解基线 → GMRES/FGMRES＋field-split/block 预条件；用当前现象决定流体 Schur、结构求解和耦合近似，避免同时尝试所有组合。
@@ -229,5 +237,5 @@ Debug 用于索引/尺寸/布局和按需数值诊断；Release 使用同一方�
 | 热输运/CHT | 新业务需求，不占当前 FSI 关键路径 |
 | 非匹配、AMR、重网格、GPU、高阶 | 正确性需求或测得的瓶颈，不为路线图名称建空模块 |
 
-接口、未知量和切线的唯一详细规范见 [单体 FSI 实现契约](../architecture/L2_MONOLITHIC_FSI.md)。**下一项实际开发任务是 P8 分块求解、checkpoint 与并行性能基线。**
+接口、未知量和切线的唯一详细规范见 [单体 FSI 实现契约](../architecture/L2_MONOLITHIC_FSI.md)。**P0–P8 主线已交付。后续按具体算例需求选择精度、规模和边界能力改进；分离式 FSI 不属于本次主线验收。**
 

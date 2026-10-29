@@ -1,4 +1,6 @@
 #pragma once
+/** @file
+ * @brief YAML 物理参数与命令行覆盖的运行控制；每个算例只选择一种入口。 */
 
 #include <filesystem>
 #include <vector>
@@ -42,6 +44,8 @@ struct FsiConfig {
 };
 
 struct Config {
+    std::filesystem::path checkpoint, restart;
+    int stop_after=0;
     bool fsi_problem=false;
     FsiConfig fsi;
     bool motion_problem=false;

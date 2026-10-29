@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 参考构形 Tet4 小应变线弹性与一致质量矩阵。 */
+/** @file
+ * @brief 参考构形 Tet4 线弹性/Neo-Hookean 与一致质量矩阵。 */
 #include "eonsim/tet4.hpp"
 namespace eonsim {
 struct SolidParameters { double young=100, poisson=.3, density=1, dt=0; bool neo_hookean=false; };

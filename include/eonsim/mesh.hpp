@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief Tet4 网格、稳定 ID 和本地 owned/ghost 数据。 */
+/** @file
+ * @brief Tet4 网格、稳定 ID 和本地 owned/ghost 数据。 */
 
 #include <array>
 #include <cstdint>

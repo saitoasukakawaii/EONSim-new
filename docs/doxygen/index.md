@@ -1,6 +1,6 @@
 # MultiPhysicsHPC 文档入口
 
-当前仓库包含架构设计、开发流程和注释规范，尚无生产求解器 API。下面的模块是未来 API 的分类；规范中的代码均为注释示例。
+当前仓库包含 Tet4 Poisson、独立流体/固体、刚体/弹性体单体 FSI 的小算例实现。实际 API 从 include/eonsim 与 src 生成；开发规范中的声明片段仍为注释示例。阶段证据与适用范围见 README 和 ROADMAP。
 
 ## 阅读入口
 

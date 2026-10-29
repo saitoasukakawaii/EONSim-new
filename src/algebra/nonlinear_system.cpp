@@ -2,6 +2,12 @@
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
+#include <chrono>
+#include <cstring>
+#include <algorithm>
+#if defined(__linux__)
+#include <sys/resource.h>
+#endif
 namespace eonsim {
 namespace {
 std::vector<double> local_values(Vec x)
@@ -25,8 +31,11 @@ struct Context {
     const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble;
     Vec scratch;
     std::string error;
+    double assembly_seconds=0,ghost_seconds=0;
     void evaluate(Vec x, Vec r, Mat j, bool constrain) {
+        const auto begin=std::chrono::steady_clock::now();
         const auto values=local_values(x);
+        ghost_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
         EONSIM_PETSC(VecSetOption(r,VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
         EONSIM_PETSC(VecSet(r,0));
         if(j) EONSIM_PETSC(MatZeroEntries(j));
@@ -44,6 +53,7 @@ struct Context {
             EONSIM_PETSC(VecAssemblyBegin(r)); EONSIM_PETSC(VecAssemblyEnd(r));
             if(j) EONSIM_PETSC(MatZeroRows(j,constraints.size(),constraints.data(),1,nullptr,nullptr));
         }
+        assembly_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
     }
 };
 PetscErrorCode function(SNES,Vec x,Vec r,void* pointer)
@@ -93,8 +103,50 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
     EONSIM_PETSC(SNESGetKSP(snes.get(),&ksp)); EONSIM_PETSC(KSPGetPC(ksp,&pc));
     EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCLU));
     EONSIM_PETSC(PCFactorSetMatSolverType(pc,MATSOLVERSUPERLU_DIST));
+    PetscBool block=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-block_pc",&block,nullptr));
+    if(block) {
+        EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
+        EONSIM_PETSC(KSPSetTolerances(ksp,1e-9,1e-13,PETSC_DEFAULT,500));
+        EONSIM_PETSC(PCSetType(pc,PCFIELDSPLIT));
+        EONSIM_PETSC(PCFieldSplitSetType(pc,PC_COMPOSITE_MULTIPLICATIVE));
+    }
     EONSIM_PETSC(SNESSetFromOptions(snes.get()));
+    PCType type; EONSIM_PETSC(PCGetType(pc,&type));
+    if(std::strcmp(type,PCFIELDSPLIT)==0) {
+        auto fields=l.fields;
+        if(fields.count("velocity")&&fields.count("pressure")) {
+            fields["flow"]=fields.at("velocity");
+            fields["flow"].insert(fields["flow"].end(),fields.at("pressure").begin(),fields.at("pressure").end());
+            std::sort(fields["flow"].begin(),fields["flow"].end());
+            fields.erase("velocity"); fields.erase("pressure");
+        }
+        for(const auto& field:fields) {
+            PetscOwner<IS,ISDestroy> is;
+            EONSIM_PETSC(ISCreateGeneral(comm,field.second.size(),field.second.data(),PETSC_COPY_VALUES,is.put()));
+            EONSIM_PETSC(PCFieldSplitSetIS(pc,field.first.c_str(),is.get()));
+            if(block) {
+                auto option_default=[&](const std::string& suffix,const char* value) {
+                    const auto name="-fieldsplit_"+field.first+"_"+suffix;
+                    PetscBool found=PETSC_FALSE;
+                    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,name.c_str(),&found));
+                    if(!found) EONSIM_PETSC(PetscOptionsSetValue(nullptr,name.c_str(),value));
+                };
+                option_default("ksp_type","preonly");
+                // 本机 PETSc/SuperLU_DIST 多个同时存活的 LU 因子在析构时出现 communicator
+                // use-after-free；分块基线采用 ASM + 局部 ILU，整体直接解仍单独可用。
+                option_default("pc_type",field.first=="rigid"?"jacobi":"asm");
+                if(field.first!="rigid") {
+                    option_default("sub_ksp_type","preonly");
+                    option_default("sub_pc_type","ilu");
+                }
+            }
+        }
+    }
+    const auto solve_begin=std::chrono::steady_clock::now();
     const auto error=SNESSolve(snes.get(),nullptr,x.get());
+    const double solve_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-solve_begin).count();
+    const double assembly_seconds=context.assembly_seconds,ghost_seconds=context.ghost_seconds;
     if(error && !context.error.empty()) throw std::runtime_error(context.error);
     EONSIM_PETSC(error);
     SNESConvergedReason reason; EONSIM_PETSC(SNESGetConvergedReason(snes.get(),&reason));
@@ -108,6 +160,29 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
     result.raw_residual=local_values(r.get());
     EONSIM_PETSC(SNESGetIterationNumber(snes.get(),&result.iterations));
     EONSIM_PETSC(SNESGetLinearSolveIterations(snes.get(),&result.linear_iterations));
+    PetscBool report=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-solver_report",&report,nullptr));
+    if(report) {
+        MatInfo info; EONSIM_PETSC(MatGetInfo(j.get(),MAT_GLOBAL_SUM,&info));
+        PetscLogDouble memory=0; EONSIM_PETSC(PetscMemoryGetCurrentUsage(&memory));
+        double peak=memory;
+#if defined(__linux__)
+        struct rusage usage{};
+        if(getrusage(RUSAGE_SELF,&usage)!=0) throw std::runtime_error("Cannot read peak RSS");
+        peak=1024.0*usage.ru_maxrss;
+#endif
+        double local[]={solve_seconds,assembly_seconds,ghost_seconds,memory,peak},maxima[5]{};
+        MPI_Allreduce(local,maxima,5,MPI_DOUBLE,MPI_MAX,comm);
+        double memory_sum=0; MPI_Allreduce(&memory,&memory_sum,1,MPI_DOUBLE,MPI_SUM,comm);
+        double peak_sum=0; MPI_Allreduce(&peak,&peak_sum,1,MPI_DOUBLE,MPI_SUM,comm);
+        int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
+        KSPType kt; EONSIM_PETSC(KSPGetType(ksp,&kt));
+        if(rank==0) std::cout << "solver_report ranks=" << ranks << " dofs=" << l.global << " nnz=" << info.nz_used
+            << " ksp=" << kt << " pc=" << type << " linear_iterations=" << result.linear_iterations
+            << " solve_seconds=" << maxima[0] << " assembly_seconds=" << maxima[1] << " ghost_seconds=" << maxima[2]
+            << " rss_max_bytes=" << maxima[3] << " rss_sum_bytes=" << memory_sum
+            << " peak_rss_max_bytes=" << maxima[4] << " peak_rss_sum_bytes=" << peak_sum << '\n';
+    }
     return result;
 }
 }

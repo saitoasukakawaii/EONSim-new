@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
         return 1;
     }
     if (PetscInitialize(&argc, &argv, nullptr,
-        "EONSim P0: eonsim -case case.yaml [-mesh mesh.msh] [-output result.vtu] [-diagnostics basic|full]\n")) return 1;
+        "EONSim: eonsim -case case.yaml [-mesh mesh.msh] [-output result.vtu] [-diagnostics basic|full]\n")) return 1;
     int status = 0, rank = 0, size = 0;
     if (MPI_Comm_rank(PETSC_COMM_WORLD, &rank) != MPI_SUCCESS || MPI_Comm_size(PETSC_COMM_WORLD, &size) != MPI_SUCCESS) {
         MPI_Abort(PETSC_COMM_WORLD, 1);
@@ -62,11 +62,22 @@ int main(int argc, char* argv[])
         if (!case_file) {
             std::cout << "Usage: eonsim -case case.yaml [-mesh mesh.msh] [-output result.vtu]\n"
                          "       [-partition directory] [-prepare directory -parts N]\n"
-                         "       [-diagnostics basic|full] [PETSc -ksp_* / -pc_* options]\n";
+                         "       [-diagnostics basic|full] [-block_pc] [-solver_report]\n"
+                         "       [-checkpoint dir] [-restart dir] [-stop_after N] [PETSc options]\n";
         } else {
             using Clock = std::chrono::steady_clock;
             const auto begin = Clock::now();
             auto config = eonsim::read_config(*case_file);
+            if(auto path=option("-checkpoint")) config.checkpoint=std::filesystem::absolute(*path);
+            if(auto path=option("-restart")) config.restart=std::filesystem::absolute(*path);
+            PetscInt stop=0;
+            EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-stop_after",&stop,nullptr));
+            if(stop<0 || stop>1000000000) throw std::runtime_error("Invalid -stop_after");
+            config.stop_after=static_cast<int>(stop);
+            if((!config.checkpoint.empty()||!config.restart.empty()||stop) &&
+               !(config.fsi_problem || (config.solid_problem&&config.solid.transient) ||
+                 (config.fluid_problem&&config.fluid.mode==eonsim::FluidConfig::Mode::transient)))
+                throw std::runtime_error("Checkpoint/restart/stop_after require transient fluid/solid or FSI");
             if (auto mesh = option("-mesh")) config.mesh = std::filesystem::absolute(*mesh);
             if (auto output = option("-output")) config.output = std::filesystem::absolute(*output);
             if (config.output.extension() != ".vtu") throw std::runtime_error("output must have a .vtu extension");

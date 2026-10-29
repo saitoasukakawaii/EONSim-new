@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 单轴刚体 BE 和给定位移的参考网格向量 Laplace 扩展。 */
+/** @file
+ * @brief 单轴刚体 BE 和给定位移的参考网格向量 Laplace 扩展。 */
 #include "eonsim/mesh.hpp"
 #include "eonsim/linear_system.hpp"
 namespace eonsim {

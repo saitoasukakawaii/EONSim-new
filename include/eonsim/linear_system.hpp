@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 分布式 PETSc 代数对象、装配和线性求解。 */
+/** @file
+ * @brief 分布式 PETSc 代数对象、装配和线性求解。 */
 
 #include "eonsim/config.hpp"
 #include <petscksp.h>

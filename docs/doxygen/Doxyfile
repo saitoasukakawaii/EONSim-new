@@ -1,16 +1,18 @@
 # Run from the repository root:
 #   cmake -E make_directory build/docs
 #   doxygen docs/doxygen/Doxyfile
-# Append existing source directories to INPUT when P0 creates them.
+# Source API contracts are generated together with the documentation guide.
 DOXYFILE_ENCODING       = UTF-8
-PROJECT_NAME            = "MultiPhysicsHPC"
+PROJECT_NAME            = "EONSim"
 PROJECT_BRIEF           = "Numerical API contracts and monolithic FSI development"
 OUTPUT_DIRECTORY        = build/docs
 OUTPUT_LANGUAGE         = English
 INPUT_ENCODING          = UTF-8
 INPUT                   = docs/doxygen/index.md \
                           docs/doxygen/groups.dox \
-                          docs/development/DOCUMENTATION_AND_COMMENTS.md
+                          docs/development/DOCUMENTATION_AND_COMMENTS.md \
+                          include/eonsim \
+                          src
 FILE_PATTERNS           = *.h *.hpp *.cpp *.cc *.dox *.md
 RECURSIVE               = YES
 EXCLUDE_PATTERNS        = */build/* */external/* */third_party/* \

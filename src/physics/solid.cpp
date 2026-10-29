@@ -1,4 +1,5 @@
 #include "eonsim/solid.hpp"
+#include "eonsim/checkpoint.hpp"
 #include "eonsim/solid_element.hpp"
 #include "eonsim/field_layout.hpp"
 #include <algorithm>
@@ -35,7 +36,17 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     for(int v:global_tags) if(!v) throw std::runtime_error("Solid boundary missing");
     SolidResult result;
     double previous_energy=0;
-    for(int step=0;step<=(s.transient?s.steps:0);++step) {
+    const auto signature=state_signature(mesh,"solid",{double(s.neo_hookean),s.young,s.poisson,s.density,s.traction,s.dt});
+    int first=0;
+    const int last=s.transient?(config.stop_after?std::min(config.stop_after,s.steps):s.steps):0;
+    if(!config.restart.empty()) {
+        const auto saved=read_checkpoint(config.restart,mesh,signature,{{"displacement",displacement.size()},
+            {"velocity",velocity.size()},{"acceleration",acceleration.size()},{"energy",1}});
+        displacement=saved.fields.at("displacement"); velocity=saved.fields.at("velocity");
+        acceleration=saved.fields.at("acceleration"); previous_energy=saved.fields.at("energy")[0]; first=saved.step+1;
+        if(first>last) throw std::runtime_error("Restart must precede requested final step");
+    }
+    for(int step=first;step<=last;++step) {
         const double dt=step?s.dt:0;
         const SolidParameters parameters{s.young,s.poisson,s.density,dt,s.neo_hookean};
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
@@ -87,6 +98,8 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         if(step && total>previous_energy+1e-9*std::max(1.,previous_energy))
             throw std::runtime_error("Unloaded BE solid gained energy");
         previous_energy=total;
+        if(!config.checkpoint.empty()) write_checkpoint(comm,config.checkpoint,mesh,signature,{step,
+            {{"displacement",displacement},{"velocity",velocity},{"acceleration",acceleration},{"energy",{total}}}});
         if(mesh.rank==0) std::cout << std::setprecision(16) << "solid_step=" << step << " time=" << step*s.dt
             << " strain_energy=" << energy[0] << " kinetic_energy=" << energy[1]
             << " total_energy=" << total << " residual=" << result.nonlinear.residual_norm << '\n';

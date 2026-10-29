@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 压力驱动单轴活塞、流体、ALE 的单体 SNES 驱动。 */
+/** @file
+ * @brief 压力驱动刚体/弹性块、流体、ALE 的单体 SNES 驱动。 */
 #include "eonsim/ale.hpp"
 namespace eonsim {
 struct FsiResult { MeshPartition current_mesh,solid_mesh; std::vector<PointField> fields,solid_fields; double position=0,velocity=0,fluid_force=0,balance=0; };

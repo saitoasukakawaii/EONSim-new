@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 单位立方体平面通道流：入口/出口速度、y 无滑移、z 对称边界。 */
+/** @file
+ * @brief 单位立方体平面通道流：入口/出口速度、y 无滑移、z 对称边界。 */
 #include "eonsim/nonlinear_system.hpp"
 #include "eonsim/mesh.hpp"
 #include "eonsim/vtu.hpp"

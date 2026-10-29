@@ -1,16 +1,22 @@
 # EONSim
 
-C++17 / PETSc 多物理场求解器。当前完成 **P0 标量 Poisson 与 P1 分布式基础**：
-YAML 配置 → Gmsh Tet4 网格 → 几何/积分 → 稀疏装配 → 非零 Dirichlet lifting →
-PETSc KSP → 误差摘要与 VTU。后续路线是分布式基础、独立流体/固体、单体刚体/弹性体 FSI。
+C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体刚体 FSI 和单体弹性 FSI 的可运行基线。
+使用 Tet4、BE、MPI owned/ghost 分区、METIS/HDF5 预处理和 PETSc KSP/SNES。
+有限变形固体支持可压缩 Neo-Hookean；耦合流体、结构/刚体和 ALE 同时收敛后提交状态。
 
-分布式求解使用预处理后的本地分区；当前尚未实现一般源项/边界表达式、流体、固体或 FSI。首个标量算例服务离散与求解链验证。
+当前验证限于随仓库提供的立方体通道、弹性块和活塞算例；不包含任意边界表达式、非匹配界面、重网格或大规模扩展性保证。
+各阶段的实际结果与限制见下文及 [开发路线](docs/development/ROADMAP.md)。
 
 ## 环境与构建
 
 需要 CMake ≥ 3.21、Ninja、C/C++17 编译器、实数双精度 PETSc、匹配的 MPI、
-BLAS/LAPACK 和 yaml-cpp（当前验证版本 0.8.0）。运行已保存的算例不需要 Gmsh 或 Python；
+BLAS/LAPACK、METIS、HDF5 和 yaml-cpp（当前验证版本 0.8.0）。运行已保存的算例不需要 Gmsh 或 Python；
 重新生成网格及可选验证脚本需要 Python 3。
+
+当前 `EONSimPETScProvider.cmake` 找到的 PETSc 3.23.2 已配置 HYPRE、SuperLU_DIST、
+MUMPS、METIS 和 HPDDM，未配置 AMGX。依据为安装目录的 petscconf.h、petscvariables
+及此前 PetscHasExternalPackage 检查；“已配置”不等于本项目已测试每个求解器。
+本轮实际运行了 METIS 分区、SuperLU_DIST 整体直接解与 PETSc ASM/ILU 分块解。
 
 ```bash
 cmake --preset debug
@@ -145,16 +151,15 @@ BLAS 可显式设置 `-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS|SYSTEM|MKL|BLIS_FLA
 include/eonsim/       具体配置、网格、Tet4、线性系统与结果类型
 src/core/            YAML 解析与强类型配置
 src/mesh/            Gmsh 输入、拓扑/标签检查
-src/fem/             不依赖 MPI/PETSc 的 Tet4 几何与局部扩散核
-src/algebra/         PETSc 生命周期、装配入口、约束与线性求解
-src/physics/         Poisson 算例组装、制造解与积分误差
-src/io/              VTU 输出
+src/fem/             Tet4 几何、场布局、分布式有效编号与界面消元
+src/algebra/         PETSc 生命周期、装配、约束、KSP/SNES 与分块求解
+src/physics/         Poisson、流体、固体、刚体、ALE 与单体 FSI 核/驱动
+src/io/              VTU/PVTU 输出、accepted 状态 HDF5 checkpoint
 src/main.cpp         初始化、配置、运行与摘要
-cases/poisson/       可运行 YAML、网格及生成器
+cases/               poisson/fluid/solid/motion/fsi 可运行 YAML 和网格
 ```
 
-一个 `eonsim_core` library 和一个 `eonsim` 应用。下一步按
-[开发路线](docs/development/ROADMAP.md) 继续 P2 独立流体。
+一个 `eonsim_core` library 和一个 `eonsim` 应用；所有模式通过 `-case` 选择。
 设计约束入口为 [AGENTS.md](AGENTS.md) 与 [总原则](MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md)。
 
 ## P2 独立流体
@@ -251,3 +256,41 @@ FSI 流体几何块仍采用 P5 的局部中心差分；材料切线为解析。
 dt=.01 为 0.02840273；同载荷线弹性为 0.04579049。
 网格差异小，但时间步影响仍明显，当前结果不能称为时间步收敛解。
 Debug/Release、1/2 rank、全局 Jacobian 和界面力平衡检查通过。
+
+## P8 分块求解与 checkpoint
+
+四种入口分别为 `cases/fluid/transient.yaml`、`cases/solid/unload.yaml`、
+`cases/fsi/rigid.yaml`、`cases/fsi/elastic.yaml`（有限变形用 `hyperelastic.yaml`）。
+增加 `-block_pc` 使用 FGMRES 和乘法 field-split：速度/压力合为 flow，
+内部网格为 mesh，刚体或结构为 rigid/structure。各分布式块用 ASM＋局部 ILU，
+单自由度刚体块用 Jacobi。保留完整耦合 Jacobian，未改变物理方程和 SNES 容差。
+不加该选项仍使用单个 SuperLU_DIST 直接解作为小算例基线。
+
+```bash
+./build/release/eonsim -case cases/fsi/hyperelastic.yaml -prepare results/part2 -parts 2
+/usr/bin/mpiexec -n 2 ./build/release/eonsim -case cases/fsi/hyperelastic.yaml \
+  -partition results/part2 -block_pc -solver_report \
+  -checkpoint results/checkpoint2 -stop_after 3 -output results/partial.vtu
+/usr/bin/mpiexec -n 2 ./build/release/eonsim -case cases/fsi/hyperelastic.yaml \
+  -partition results/part2 -block_pc -restart results/checkpoint2 -output results/resumed.vtu
+```
+
+每步整体接受后写本 rank HDF5，全部文件完成后发布 manifest。
+恢复要求相同 rank 数、网格/分区、物理参数和 dt；可以延长总步数或更换求解器选项。
+流体保存 accepted 场；固体保存位移/速度/加速度与能量；FSI 还保存有效未知量、
+原始物理场、固体位移、刚体位置/速度和网格历史。当前仅 BE，无额外不可逆材料内部变量。
+缺失文件、参数/分区不匹配或非有限字段会失败退出；不支持跨 rank 重分区恢复。
+`-stop_after N` 是主动保存后结束本次运行，恢复步必须早于所请求的结束步。
+
+本机 PETSc 3.23.2 / SuperLU_DIST 9.1.0 的多个 LU 子块同时存在时，
+销毁路径出现 communicator 重复释放，Valgrind 已复现；因此分块默认不使用多个 SuperLU_DIST 子因子。
+单个整体直接解保持可用。修复外部依赖前，不建议手动把各分块同时改回该 LU 后端。
+ASM 路径在 CPU 下的针对性 Valgrind 检查报告 0 个内存访问错误；此结果不代表全依赖库无内存泄漏。
+
+Debug/Release 的 13 项 CTest 全部通过，包含五类 transient/FSI 配置的 1/2 rank 重启对照，
+以及有限变形 FSI 的直接解与分块解 1/2/4 rank 对照。
+性能复现脚本为 `scripts/benchmark_fsi.py`；实际规模和数字见
+[性能基线](docs/development/PERFORMANCE_BASELINE.md)，不把这些小网格运行解释为大规模扩展性证明。
+
+可选 API 文档：`cmake --preset debug -DMHPC_BUILD_DOCS=ON`，随后
+`cmake --build build/debug --target docs`；入口为 `build/docs/html/index.html`。

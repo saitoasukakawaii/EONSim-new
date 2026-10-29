@@ -1,4 +1,5 @@
 #include "eonsim/fluid.hpp"
+#include "eonsim/checkpoint.hpp"
 #include "eonsim/fluid_element.hpp"
 #include "eonsim/field_layout.hpp"
 #include <algorithm>
@@ -34,7 +35,15 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     FluidResult result;
     const bool transient=f.mode==FluidConfig::Mode::transient;
     const int steps=transient ? f.steps : 1;
-    for(int step=1;step<=steps;++step) {
+    const auto signature=state_signature(mesh,"fluid",{double(f.mode),f.density,f.viscosity,f.pressure_drop,f.dt,f.ramp_time,double(f.traction_outlet)});
+    int first=1;
+    const int last=config.stop_after?std::min(config.stop_after,steps):steps;
+    if(!config.restart.empty()) {
+        const auto saved=read_checkpoint(config.restart,mesh,signature,{{"fluid",accepted.size()}});
+        accepted=saved.fields.at("fluid"); first=saved.step+1;
+        if(first>last) throw std::runtime_error("Restart must precede requested final step");
+    }
+    for(int step=first;step<=last;++step) {
         const double scale=transient ? std::min(step*f.dt/f.ramp_time,1.0) : 1;
         std::vector<PetscInt> bc;
         std::vector<double> prescribed;
@@ -95,6 +104,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         };
         result.nonlinear=solve_nonlinear(comm,layout,config.solver,accepted,bc,prescribed,assemble);
         accepted=result.nonlinear.values;
+        if(!config.checkpoint.empty()) write_checkpoint(comm,config.checkpoint,mesh,signature,{step,{{"fluid",accepted}}});
         if(mesh.rank==0) std::cout << std::setprecision(16) << "fluid_step=" << step << " time=" << (transient?step*f.dt:0)
             << " snes_iterations=" << result.nonlinear.iterations << " residual=" << result.nonlinear.residual_norm << '\n';
     }

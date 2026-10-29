@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 可压缩 Neo-Hookean 的参考构形应力与一致材料切线。 */
+/** @file
+ * @brief 可压缩 Neo-Hookean 的参考构形应力与一致材料切线。 */
 #include <array>
 namespace eonsim {
 struct HyperelasticResponse {

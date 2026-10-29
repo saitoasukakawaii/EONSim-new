@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 固定几何 Tet4/P1-P1 SUPG/PSPG 流体核，无通信或历史提交。 */
+/** @file
+ * @brief 固定几何 Tet4/P1-P1 SUPG/PSPG 流体核，无通信或历史提交。 */
 #include "eonsim/tet4.hpp"
 namespace eonsim {
 struct FluidParameters {

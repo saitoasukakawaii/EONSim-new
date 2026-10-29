@@ -1,4 +1,5 @@
 #include "eonsim/fsi.hpp"
+#include "eonsim/checkpoint.hpp"
 #include "eonsim/fsi_element.hpp"
 #include "eonsim/reduced_layout.hpp"
 #include "eonsim/motion.hpp"
@@ -56,6 +57,17 @@ FsiResult solve_fsi(MPI_Comm comm,const MeshPartition& mesh,const Config& config
     std::vector<double> solid_d(mesh.nodes.size()*3,0);
     RigidState body;
     FsiResult result; result.current_mesh=mesh;
+    const auto signature=state_signature(mesh,"fsi",{double(f.elastic),double(f.neo_hookean),f.dt,f.mass,f.damping,
+        f.stiffness,f.pressure,f.density,f.viscosity,f.young,f.poisson,f.solid_density,f.thickness});
+    int first=1;
+    const int last=config.stop_after?std::min(config.stop_after,f.steps):f.steps;
+    if(!config.restart.empty()) {
+        const auto saved=read_checkpoint(config.restart,mesh,signature,{{"reduced",accepted.size()},
+            {"physical",physical.size()},{"solid_displacement",solid_d.size()},{"rigid",2}});
+        accepted=saved.fields.at("reduced"); physical=saved.fields.at("physical"); solid_d=saved.fields.at("solid_displacement");
+        body={saved.fields.at("rigid")[0],saved.fields.at("rigid")[1]}; first=saved.step+1;
+        if(first>last) throw std::runtime_error("Restart must precede requested final step");
+    }
     const auto expand=[&](const std::vector<double>& x) {
         std::vector<double> full(mesh.nodes.size()*nc,0);
         for(std::size_t i=0;i<full.size();++i) {
@@ -68,7 +80,7 @@ FsiResult solve_fsi(MPI_Comm comm,const MeshPartition& mesh,const Config& config
         }
         return full;
     };
-    for(int step=1;step<=f.steps;++step) {
+    for(int step=first;step<=last;++step) {
         for(std::size_t e=0;e<data.size();++e) {
             double speed2=0;
             for(int a=0;a<4;++a) {
@@ -163,6 +175,8 @@ FsiResult solve_fsi(MPI_Comm comm,const MeshPartition& mesh,const Config& config
             body={body.position+f.dt*v,v}; result.position=body.position; result.velocity=body.velocity;
         }
         accepted=solved.values; physical=next;
+        if(!config.checkpoint.empty()) write_checkpoint(comm,config.checkpoint,mesh,signature,{step,
+            {{"reduced",accepted},{"physical",physical},{"solid_displacement",solid_d},{"rigid",{body.position,body.velocity}}}});
         if(mesh.rank==0) std::cout << std::setprecision(16) << "fsi_step=" << step << " time=" << step*f.dt
             << " position=" << result.position << " velocity=" << result.velocity << " fluid_force=" << result.fluid_force
             << " body_balance=" << result.balance << " snes_iterations=" << solved.iterations

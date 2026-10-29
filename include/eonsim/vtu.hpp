@@ -1,5 +1,6 @@
 #pragma once
-/** @file @brief 本地 VTU 结果与 PVTU 汇总索引。 */
+/** @file
+ * @brief 本地 VTU 结果与 PVTU 汇总索引。 */
 
 #include "eonsim/mesh.hpp"
 
