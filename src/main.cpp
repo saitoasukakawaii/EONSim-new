@@ -102,10 +102,16 @@ int main(int argc, char* argv[])
             }
             const double input_seconds = std::chrono::duration<double>(Clock::now()-begin).count();
             if(config.fsi_problem) {
-                const auto fsi=eonsim::solve_rigid_fsi(PETSC_COMM_WORLD,mesh,config);
+                const auto fsi=eonsim::solve_fsi(PETSC_COMM_WORLD,mesh,config);
                 eonsim::write_fields(config.output,fsi.current_mesh,fsi.fields);
+                const auto solid_path=config.output.parent_path()/(config.output.stem().string()+"_solid.vtu");
+                if(config.fsi.elastic) eonsim::write_fields(solid_path,fsi.solid_mesh,fsi.solid_fields);
                 MPI_Barrier(PETSC_COMM_WORLD);
-                if(rank==0) { eonsim::write_field_index(config.output,size,fsi.fields); std::cout << "status=success\n"; }
+                if(rank==0) {
+                    eonsim::write_field_index(config.output,size,fsi.fields);
+                    if(config.fsi.elastic) eonsim::write_field_index(solid_path,size,fsi.solid_fields);
+                    std::cout << "status=success\n";
+                }
             } else if(config.motion_problem) {
                 if(config.motion.mode==eonsim::MotionConfig::Mode::rigid) {
                     const auto& m=config.motion;

@@ -121,8 +121,19 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness"},"fsi");
         auto& v=config.fsi;
+        if(f["body"]) {
+            const auto body=f["body"].as<std::string>();
+            if(body!="rigid" && body!="elastic") throw std::runtime_error("FSI body must be rigid or elastic");
+            v.elastic=body=="elastic";
+        }
+        if(f["young"]) v.young=f["young"].as<double>();
+        if(f["poisson"]) v.poisson=f["poisson"].as<double>();
+        if(f["solid_density"]) v.solid_density=f["solid_density"].as<double>();
+        if(f["thickness"]) v.thickness=f["thickness"].as<double>();
+        if(!(v.young>0 && v.poisson>-1 && v.poisson<.5 && v.solid_density>0 && v.thickness>0) ||
+           !std::isfinite(v.young+v.poisson+v.solid_density+v.thickness)) throw std::runtime_error("Invalid FSI solid parameters");
         if(f["dt"]) v.dt=f["dt"].as<double>();
         if(f["steps"]) v.steps=f["steps"].as<int>();
         if(f["mass"]) v.mass=f["mass"].as<double>();
