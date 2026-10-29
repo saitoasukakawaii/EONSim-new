@@ -1,4 +1,5 @@
 #include "eonsim/nonlinear_system.hpp"
+#include "eonsim/time_step.hpp"
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
@@ -31,6 +32,7 @@ struct Context {
     const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble;
     Vec scratch;
     std::string error;
+    bool recoverable=false;
     double assembly_seconds=0,ghost_seconds=0;
     void evaluate(Vec x, Vec r, Mat j, bool constrain) {
         const auto begin=std::chrono::steady_clock::now();
@@ -40,9 +42,12 @@ struct Context {
         EONSIM_PETSC(VecSet(r,0));
         if(j) EONSIM_PETSC(MatZeroEntries(j));
         int failed=0, any_failed=0;
+        error.clear(); recoverable=false;
         try { assemble(values,r,j); }
-        catch(const std::exception& e) { error=e.what(); failed=1; }
+        catch(const StepRejected& e) { error=e.what(); failed=1; }
+        catch(const std::exception& e) { error=e.what(); failed=2; }
         MPI_Allreduce(&failed,&any_failed,1,MPI_INT,MPI_MAX,comm);
+        if(any_failed==1) { recoverable=true; throw StepRejected(error.empty()?"Trial state rejected on another rank":error); }
         if(any_failed) throw std::runtime_error(error.empty() ? "Assembly failed on another rank" : error);
         EONSIM_PETSC(VecAssemblyBegin(r)); EONSIM_PETSC(VecAssemblyEnd(r));
         if(j) { EONSIM_PETSC(MatAssemblyBegin(j,MAT_FINAL_ASSEMBLY)); EONSIM_PETSC(MatAssemblyEnd(j,MAT_FINAL_ASSEMBLY)); }
@@ -147,10 +152,11 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
     const auto error=SNESSolve(snes.get(),nullptr,x.get());
     const double solve_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-solve_begin).count();
     const double assembly_seconds=context.assembly_seconds,ghost_seconds=context.ghost_seconds;
+    if(error&&context.recoverable) throw StepRejected(context.error);
     if(error && !context.error.empty()) throw std::runtime_error(context.error);
     EONSIM_PETSC(error);
     SNESConvergedReason reason; EONSIM_PETSC(SNESGetConvergedReason(snes.get(),&reason));
-    if(reason<=0) throw std::runtime_error("SNES did not converge: reason="+std::to_string(reason));
+    if(reason<=0) throw StepRejected("SNES did not converge: reason="+std::to_string(reason));
     NonlinearResult result;
     context.evaluate(x.get(),r.get(),nullptr,true);
     EONSIM_PETSC(VecNorm(r.get(),NORM_2,&result.residual_norm));

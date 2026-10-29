@@ -1,4 +1,5 @@
 #include "eonsim/fsi.hpp"
+#include "eonsim/time_step.hpp"
 #include "eonsim/fsi_domains.hpp"
 #include "eonsim/checkpoint.hpp"
 #include "eonsim/fsi_element.hpp"
@@ -75,14 +76,14 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         }
     }
     const auto signature=state_signature(mesh,dual?"fsi_dual":"fsi",signature_values);
-    int first=1;
-    const int last=config.stop_after?std::min(config.stop_after,f.steps):f.steps;
+    TimeStepper clock(f.dt,f.steps,config.time_control);
+    double current_dt=f.dt;
     if(!config.restart.empty()) {
         const auto saved=read_checkpoint(config.restart,mesh,signature,{{"reduced",accepted.size()},
             {"physical",physical.size()},{"solid_displacement",solid_d.size()},{"rigid",2}});
         accepted=saved.fields.at("reduced"); physical=saved.fields.at("physical"); solid_d=saved.fields.at("solid_displacement");
-        body={saved.fields.at("rigid")[0],saved.fields.at("rigid")[1]}; first=saved.step+1;
-        if(first>last) throw std::runtime_error("Restart must precede requested final step");
+        body={saved.fields.at("rigid")[0],saved.fields.at("rigid")[1]}; clock.restore(saved.step,saved.time,saved.next_dt);
+        if(!clock.active(config.stop_after)) throw std::runtime_error("Restart must precede requested final step");
     }
     const auto expand=[&](const std::vector<double>& x) {
         std::vector<double> full(mesh.nodes.size()*nc,0);
@@ -90,13 +91,15 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             const auto n=i/nc,c=i%nc;
             if(reduced.local[i]>=0) full[i]=x[reduced.local[i]];
             if(interface[n] && Layout::is_mesh(c)) {
-                if(Elastic) full[i]=solid_d[Tet4Vector::components*n+c-Layout::mesh_offset]+f.dt*full[i];
-                else if(c==Layout::mesh_offset) full[i]=body.position+f.dt*full[i];
+                if(Elastic) full[i]=solid_d[Tet4Vector::components*n+c-Layout::mesh_offset]+current_dt*full[i];
+                else if(c==Layout::mesh_offset) full[i]=body.position+current_dt*full[i];
             }
         }
         return full;
     };
-    for(int step=first;step<=last;++step) {
+    while(clock.active(config.stop_after)) {
+        const int step=clock.step+1; const double dt=clock.dt(),time=clock.time+dt; current_dt=dt;
+        try {
         for(std::size_t e=0;e<data.size();++e) {
             if(!fluid_cell[e]) continue;
             double speed2=0;
@@ -107,8 +110,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 for(int c=0;c<Space3::dimension;++c) speed2+=physical[nc*n+c]*physical[nc*n+c]*Tet4Topology::mean_weight;
             }
             const double h=std::cbrt(Tet4Topology::jacobian_scale*tet4_geometry(data[e].reference).volume);
-            const double tau=1/std::sqrt(4*f.density*f.density/(f.dt*f.dt)+4*f.density*f.density*speed2/(h*h)+16*f.viscosity*f.viscosity/(h*h*h*h));
-            data[e].fluid={f.density,f.viscosity,f.dt,tau,true};
+            const double tau=1/std::sqrt(4*f.density*f.density/(dt*dt)+4*f.density*f.density*speed2/(h*h)+16*f.viscosity*f.viscosity/(h*h*h*h));
+            data[e].fluid={f.density,f.viscosity,dt,tau,true};
         }
         // 相同局部残量同时用于 SNES 装配和收敛后界面力检查。
         const auto local_residual=[&](std::size_t e,const std::vector<double>& full,bool tangent,
@@ -133,7 +136,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             }
             }
             if(solid_cell[e]) {
-                const auto sr=solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,f.dt,f.neo_hookean},vs,dn,vn);
+                const auto sr=solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,dt,f.neo_hookean},vs,dn,vn);
                 for(int i=0;i<Tet4Vector::dofs;++i) r[Layout::dof(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i))]=sr.residual[i];
                 if(tangent) for(int i=0;i<Tet4Vector::dofs;++i) for(int k=0;k<Tet4Vector::dofs;++k)
                     j[(Layout::dof(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i)))*nd+Layout::dof(Tet4Vector::node(k),Layout::structure_offset+Tet4Vector::component(k))]=sr.tangent[Tet4Vector::matrix(i,k)];
@@ -149,7 +152,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     const auto n=mesh.cells[e].nodes[a],i=nc*n+c;
                     rows[nc*a+c]=cols[nc*a+c]=reduced.global[i]; chain[nc*a+c]=1;
                     if(interface[n] && Layout::is_mesh(c)) {
-                        chain[nc*a+c]=f.dt;
+                        chain[nc*a+c]=dt;
                         rows[nc*a+c]=-1; // 人工网格界面力不属于刚体或结构动量。
                     }
                 }
@@ -162,9 +165,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             }
             if(!Elastic && mesh.rank==mesh.ranks-1) {
                 const double v=x[reduced.body_local];
-                const double rbody=rigid_residual({f.mass,f.damping,f.stiffness},body,f.dt,v,0);
+                const double rbody=rigid_residual({f.mass,f.damping,f.stiffness},body,dt,v,0);
                 EONSIM_PETSC(VecSetValue(r,reduced.body,rbody,ADD_VALUES));
-                if(j) EONSIM_PETSC(MatSetValue(j,reduced.body,reduced.body,f.mass/f.dt+f.damping+f.dt*f.stiffness,ADD_VALUES));
+                if(j) EONSIM_PETSC(MatSetValue(j,reduced.body,reduced.body,f.mass/dt+f.damping+dt*f.stiffness,ADD_VALUES));
             }
         };
         const auto solved=solve_nonlinear(comm,layout,config.solver,accepted,{}, {},assemble);
@@ -182,7 +185,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         result.fluid_force=global[0];
         if(Elastic) {
             double average[3]{},sum[3]{};
-            for(std::size_t n=0;n<mesh.nodes.size();++n) for(int c=0;c<Space3::dimension;++c) solid_d[Tet4Vector::components*n+c]+=f.dt*next[Layout::dof(n,Layout::structure_offset+c)];
+            for(std::size_t n=0;n<mesh.nodes.size();++n) for(int c=0;c<Space3::dimension;++c) solid_d[Tet4Vector::components*n+c]+=dt*next[Layout::dof(n,Layout::structure_offset+c)];
             for(std::size_t n=0;n<mesh.owned_nodes;++n) if(interface[n]) {
                 average[0]+=solid_d[Tet4Vector::components*n]; average[1]+=next[Layout::dof(n,Layout::structure_offset)]; average[2]+=1;
             }
@@ -190,16 +193,21 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             result.position=sum[0]/sum[2]; result.velocity=sum[1]/sum[2]; result.balance=global[1];
         } else {
             const double v=solved.values[reduced.body_local];
-            result.balance=rigid_residual({f.mass,f.damping,f.stiffness},body,f.dt,v,result.fluid_force);
-            body={body.position+f.dt*v,v}; result.position=body.position; result.velocity=body.velocity;
+            result.balance=rigid_residual({f.mass,f.damping,f.stiffness},body,dt,v,result.fluid_force);
+            body={body.position+dt*v,v}; result.position=body.position; result.velocity=body.velocity;
         }
         accepted=solved.values; physical=next;
+        clock.accept();
         if(!config.checkpoint.empty()) write_checkpoint(comm,config.checkpoint,mesh,signature,{step,
-            {{"reduced",accepted},{"physical",physical},{"solid_displacement",solid_d},{"rigid",{body.position,body.velocity}}}});
-        if(mesh.rank==0) std::cout << std::setprecision(16) << "fsi_step=" << step << " time=" << step*f.dt
+            {{"reduced",accepted},{"physical",physical},{"solid_displacement",solid_d},{"rigid",{body.position,body.velocity}}},clock.time,clock.next_dt});
+        if(mesh.rank==0) std::cout << std::setprecision(16) << "fsi_step=" << step << " time=" << time
             << " position=" << result.position << " velocity=" << result.velocity << " fluid_force=" << result.fluid_force
             << " body_balance=" << result.balance << " snes_iterations=" << solved.iterations
             << " residual=" << solved.residual_norm << '\n';
+        } catch(const StepRejected& error) {
+            clock.reject(error.what());
+            if(mesh.rank==0) std::cout << "step_retry=" << clock.retries << " time=" << clock.time << " next_dt=" << clock.next_dt << '\n';
+        }
     }
     result.fields={{"velocity",Space3::dimension,{}},{"pressure",1,{}},{"mesh_displacement",Space3::dimension,{}}};
     if(Elastic) { result.solid_mesh=mesh; result.solid_fields={{"velocity",Space3::dimension,{}},{"displacement",Space3::dimension,solid_d}}; }

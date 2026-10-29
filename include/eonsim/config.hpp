@@ -80,7 +80,10 @@ struct FsiConfig {
     int steps=5;
 };
 
+struct TimeControl { int max_retries=0; double minimum_dt=1e-10,reduction=.5; };
+
 struct Config {
+    TimeControl time_control;
     std::filesystem::path checkpoint, restart;
     int stop_after=0;
     bool fsi_problem=false;

@@ -9,6 +9,7 @@ namespace eonsim {
 struct Checkpoint {
     int step=0;
     std::map<std::string,std::vector<double>> fields;
+    double time=0,next_dt=0;
 };
 /// 本地网格/参数签名；包含节点、单元、所有权与物理参数，不绑定求解器选项。
 std::uint64_t state_signature(const MeshPartition& mesh,const std::string& physics,const std::vector<double>& parameters);

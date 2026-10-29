@@ -1,4 +1,5 @@
 #include "eonsim/ale.hpp"
+#include "eonsim/time_step.hpp"
 #include "eonsim/motion.hpp"
 #include "eonsim/fluid_element.hpp"
 #include "eonsim/field_layout.hpp"
@@ -19,7 +20,10 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
     std::vector<double> accepted(layout.local_to_global.size(),0),dn(mesh.nodes.size()*Tet4Vector::components,0),w(dn);
     for(std::size_t n=0;n<mesh.nodes.size();++n) accepted[Tet4Flow::components*n]=m.speed*(shear?mesh.nodes[n].position[1]:1);
     AleResult result; result.current_mesh=mesh;
-    for(int step=1;step<=m.steps;++step) {
+    TimeStepper clock(m.dt,m.steps,config.time_control);
+    while(clock.active()) {
+        const int step=clock.step+1; const double dt=clock.dt(),time=clock.time+dt;
+        try {
         std::vector<PetscInt> mesh_bc,fluid_bc;
         std::vector<double> mesh_values,fluid_values;
         int anchor=0,all_anchor=0,gauge=0,all_gauge=0;
@@ -30,7 +34,7 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
             if(center) ++anchor;
             if(boundary||(!shear&&center)) for(int c=0;c<Space3::dimension;++c) {
                 mesh_bc.push_back(ml.local_to_global[Tet4Vector::components*n+c]);
-                const double dx=shear?m.speed*step*m.dt*xyz[1]:(center?m.amplitude*std::sin(step*m.dt):0);
+                const double dx=shear?m.speed*time*xyz[1]:(center?m.amplitude*std::sin(time):0);
                 mesh_values.push_back(c==0?dx:0);
             }
             if(boundary) for(int c=0;c<Space3::dimension;++c) {
@@ -48,13 +52,17 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
         std::vector<Tet4Geometry> geometry;
         for(std::size_t n=0;n<mesh.nodes.size();++n) for(int c=0;c<Space3::dimension;++c) {
             result.current_mesh.nodes[n].position[c]=mesh.nodes[n].position[c]+d[Tet4Vector::components*n+c];
-            w[Tet4Vector::components*n+c]=(d[Tet4Vector::components*n+c]-dn[Tet4Vector::components*n+c])/m.dt;
+            w[Tet4Vector::components*n+c]=(d[Tet4Vector::components*n+c]-dn[Tet4Vector::components*n+c])/dt;
         }
-        for(const auto& cell:mesh.cells) {
+        int invalid=0,any_invalid=0;
+        try { for(const auto& cell:mesh.cells) {
             Tet4Topology::Nodal<Point> xyz;
             for(int a=0;a<Tet4Topology::nodes;++a) xyz[a]=result.current_mesh.nodes[cell.nodes[a]].position;
             geometry.push_back(tet4_geometry(xyz));
         }
+        } catch(const StepRejected&) { invalid=1; }
+        MPI_Allreduce(&invalid,&any_invalid,1,MPI_INT,MPI_MAX,comm);
+        if(any_invalid) throw StepRejected("Invalid trial ALE geometry");
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
             for(std::size_t e=0;e<mesh.cells.size();++e) {
                 Tet4Flow::State<double> state,old; Tet4Topology::Nodal<Point> mesh_velocity;
@@ -65,26 +73,30 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
                     for(int c=0;c<Space3::dimension;++c) mesh_velocity[a][c]=w[Tet4Vector::components*n+c];
                 }
                 const double h=std::cbrt(Tet4Topology::jacobian_scale*geometry[e].volume);
-                const double tau=1/std::sqrt(4/(m.dt*m.dt)+16/(h*h*h*h)+4*m.speed*m.speed/(h*h));
-                const auto element=fluid_element(geometry[e],{1,1,m.dt,tau,true},state,old,mesh_velocity);
+                const double tau=1/std::sqrt(4/(dt*dt)+16/(h*h*h*h)+4*m.speed*m.speed/(h*h));
+                const auto element=fluid_element(geometry[e],{1,1,dt,tau,true},state,old,mesh_velocity);
                 EONSIM_PETSC(VecSetValues(r,Tet4Flow::dofs,ids.data(),element.residual.data(),ADD_VALUES));
                 if(j) EONSIM_PETSC(MatSetValues(j,Tet4Flow::dofs,ids.data(),Tet4Flow::dofs,ids.data(),element.tangent.data(),ADD_VALUES));
             }
         };
         auto solved=solve_nonlinear(comm,layout,config.solver,accepted,fluid_bc,fluid_values,assemble);
-        accepted=std::move(solved.values); dn=d;
+        accepted=std::move(solved.values); dn=d; clock.accept();
         double error=0,mesh_error=0,min_volume=std::numeric_limits<double>::max();
         for(std::size_t n=0;n<mesh.owned_nodes;++n) {
             for(int c=0;c<Space3::dimension;++c) error=std::max(error,std::abs(accepted[Tet4Flow::components*n+c]-(c==0?m.speed*(shear?mesh.nodes[n].position[1]:1):0)));
-            if(shear) mesh_error=std::max(mesh_error,std::abs(dn[Tet4Vector::components*n]-m.speed*step*m.dt*mesh.nodes[n].position[1]));
+            if(shear) mesh_error=std::max(mesh_error,std::abs(dn[Tet4Vector::components*n]-m.speed*time*mesh.nodes[n].position[1]));
         }
         for(const auto& g:geometry) min_volume=std::min(min_volume,g.volume);
         MPI_Allreduce(&error,&result.velocity_error,1,MPI_DOUBLE,MPI_MAX,comm);
         MPI_Allreduce(&mesh_error,&result.mesh_error,1,MPI_DOUBLE,MPI_MAX,comm);
         MPI_Allreduce(&min_volume,&result.min_volume,1,MPI_DOUBLE,MPI_MIN,comm);
-        if(mesh.rank==0) std::cout << std::setprecision(16) << "ale_step=" << step << " time=" << step*m.dt
+        if(mesh.rank==0) std::cout << std::setprecision(16) << "ale_step=" << step << " time=" << time
             << " velocity_max_error=" << result.velocity_error << " mesh_max_error=" << result.mesh_error
             << " min_volume=" << result.min_volume << '\n';
+        } catch(const StepRejected& error) {
+            clock.reject(error.what());
+            if(mesh.rank==0) std::cout << "step_retry=" << clock.retries << " time=" << clock.time << " next_dt=" << clock.next_dt << '\n';
+        }
     }
     result.fields={{"velocity",Space3::dimension,{}},{"pressure",1,{}},{"mesh_displacement",Space3::dimension,dn},{"mesh_velocity",Space3::dimension,w}};
     for(std::size_t n=0;n<mesh.nodes.size();++n) {

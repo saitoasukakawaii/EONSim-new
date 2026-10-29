@@ -41,16 +41,17 @@ std::uint64_t state_signature(const MeshPartition& mesh,const std::string& physi
 void write_checkpoint(MPI_Comm comm,const std::filesystem::path& dir,const MeshPartition& mesh,
                       std::uint64_t signature,const Checkpoint& state)
 {
-    if(state.step<0) throw std::runtime_error("Negative checkpoint step");
+    if(state.step<0||state.time<0||!(state.next_dt>0)||!std::isfinite(state.time+state.next_dt)) throw std::runtime_error("Negative checkpoint step");
     if(mesh.rank==0) { std::filesystem::create_directories(dir); std::filesystem::remove(dir/"manifest"); }
     MPI_Barrier(comm);
     const auto path=rank_path(dir,mesh.rank),temporary=std::filesystem::path(path.string()+".tmp");
     {
         Handle file(H5Fcreate(temporary.c_str(),H5F_ACC_TRUNC,H5P_DEFAULT,H5P_DEFAULT),H5Fclose);
-        const std::uint64_t meta[]={1,static_cast<std::uint64_t>(mesh.rank),static_cast<std::uint64_t>(mesh.ranks),
+        const std::uint64_t meta[]={2,static_cast<std::uint64_t>(mesh.rank),static_cast<std::uint64_t>(mesh.ranks),
             mesh.owned_nodes,static_cast<std::uint64_t>(mesh.owned_begin),static_cast<std::uint64_t>(mesh.global_nodes),
             static_cast<std::uint64_t>(mesh.global_cells),signature,static_cast<std::uint64_t>(state.step)};
         write(file.id,"metadata",H5T_NATIVE_UINT64,9,meta);
+        const double clock[]={state.time,state.next_dt}; write(file.id,"clock",H5T_NATIVE_DOUBLE,2,clock);
         for(const auto& field:state.fields) {
             for(double x:field.second) if(!std::isfinite(x)) throw std::runtime_error("Nonfinite accepted checkpoint field");
             write(file.id,field.first.c_str(),H5T_NATIVE_DOUBLE,field.second.size(),field.second.data());
@@ -61,7 +62,7 @@ void write_checkpoint(MPI_Comm comm,const std::filesystem::path& dir,const MeshP
     MPI_Barrier(comm);
     if(mesh.rank==0) {
         std::ofstream out; out.exceptions(std::ios::failbit|std::ios::badbit);
-        out.open(dir/"manifest.tmp"); out << "EONSim_checkpoint_v1 " << mesh.ranks << ' ' << state.step << '\n'; out.close();
+        out.open(dir/"manifest.tmp"); out << "EONSim_checkpoint_v2 " << mesh.ranks << ' ' << state.step << '\n'; out.close();
         std::filesystem::rename(dir/"manifest.tmp",dir/"manifest");
     }
     MPI_Barrier(comm);
@@ -70,18 +71,20 @@ Checkpoint read_checkpoint(const std::filesystem::path& dir,const MeshPartition&
                            const std::map<std::string,std::size_t>& sizes)
 {
     std::ifstream manifest(dir/"manifest"); std::string format; int ranks=0,step=-1;
-    if(!(manifest>>format>>ranks>>step) || format!="EONSim_checkpoint_v1" || ranks!=mesh.ranks || step<0)
+    if(!(manifest>>format>>ranks>>step) || format!="EONSim_checkpoint_v2" || ranks!=mesh.ranks || step<0)
         throw std::runtime_error("Incomplete checkpoint or incompatible rank count");
     const auto path=rank_path(dir,mesh.rank);
     if(!std::filesystem::exists(path)) throw std::runtime_error("Missing checkpoint rank file");
     Handle file(H5Fopen(path.c_str(),H5F_ACC_RDONLY,H5P_DEFAULT),H5Fclose);
     std::uint64_t meta[9]{}; read(file.id,"metadata",H5T_NATIVE_UINT64,9,meta);
-    if(meta[0]!=1 || meta[1]!=static_cast<std::uint64_t>(mesh.rank) || meta[2]!=static_cast<std::uint64_t>(mesh.ranks)
+    if(meta[0]!=2 || meta[1]!=static_cast<std::uint64_t>(mesh.rank) || meta[2]!=static_cast<std::uint64_t>(mesh.ranks)
        || meta[3]!=mesh.owned_nodes || meta[4]!=static_cast<std::uint64_t>(mesh.owned_begin)
        || meta[5]!=static_cast<std::uint64_t>(mesh.global_nodes) || meta[6]!=static_cast<std::uint64_t>(mesh.global_cells)
        || meta[7]!=signature || meta[8]!=static_cast<std::uint64_t>(step))
         throw std::runtime_error("Checkpoint mesh/partition/physics mismatch");
     Checkpoint state; state.step=step;
+    double clock[2]; read(file.id,"clock",H5T_NATIVE_DOUBLE,2,clock); state.time=clock[0]; state.next_dt=clock[1];
+    if(state.time<0||!(state.next_dt>0)||!std::isfinite(state.time+state.next_dt)) throw std::runtime_error("Invalid checkpoint clock");
     for(const auto& field:sizes) {
         auto& values=state.fields[field.first]; values.resize(field.second);
         read(file.id,field.first.c_str(),H5T_NATIVE_DOUBLE,values.size(),values.data());

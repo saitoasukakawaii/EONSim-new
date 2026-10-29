@@ -1,4 +1,5 @@
 #include "eonsim/solid.hpp"
+#include "eonsim/time_step.hpp"
 #include "eonsim/regions.hpp"
 #include "eonsim/fluid_boundary.hpp"
 #include "eonsim/boundary_geometry.hpp"
@@ -53,16 +54,19 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     if(tagged) { FluidConfig f; f.boundaries=s.boundaries; const auto values=fluid_boundary_signature(f); signature_parameters.insert(signature_parameters.end(),values.begin(),values.end()); }
     const auto signature=state_signature(mesh,tagged?"solid_tagged":"solid",signature_parameters);
     int first=0;
-    const int last=s.transient?(config.stop_after?std::min(config.stop_after,s.steps):s.steps):0;
+    TimeStepper clock(s.dt,s.steps,config.time_control);
     if(!config.restart.empty()) {
         const auto saved=read_checkpoint(config.restart,mesh,signature,{{"displacement",displacement.size()},
             {"velocity",velocity.size()},{"acceleration",acceleration.size()},{"energy",1}});
         displacement=saved.fields.at("displacement"); velocity=saved.fields.at("velocity");
         acceleration=saved.fields.at("acceleration"); previous_energy=saved.fields.at("energy")[0]; first=saved.step+1;
-        if(first>last) throw std::runtime_error("Restart must precede requested final step");
+        clock.restore(saved.step,saved.time,saved.next_dt);
+        if(!clock.active(config.stop_after)) throw std::runtime_error("Restart must precede requested final step");
     }
-    for(int step=first;step<=last;++step) {
-        const double dt=step?s.dt:0;
+    int step=first;
+    while(step==0 || (s.transient&&clock.active(config.stop_after))) {
+        const double dt=step?clock.dt():0,time=clock.time+dt;
+        try {
         const auto parameters=[&](std::size_t e) { const auto& m=materials[e]; return SolidParameters{m.young,m.poisson,m.density,dt,m.neo_hookean}; };
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
             for(std::size_t e=0;e<mesh.cells.size();++e) {
@@ -89,35 +93,45 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         const auto step_values=step?std::vector<double>(prescribed.size(),0):prescribed;
         result.nonlinear=solve_nonlinear(comm,layout,config.solver,step?velocity:displacement,bc,step_values,assemble);
         // 所有未知量收敛后统一接受；回调从不修改这些历史。
+        auto next_d=displacement,next_v=velocity,next_a=acceleration;
         if(step) {
             for(std::size_t n=0;n<displacement.size();++n) {
-                acceleration[n]=(result.nonlinear.values[n]-velocity[n])/dt;
-                displacement[n]+=dt*result.nonlinear.values[n];
+                next_a[n]=(result.nonlinear.values[n]-velocity[n])/dt;
+                next_d[n]+=dt*result.nonlinear.values[n];
             }
-            velocity=result.nonlinear.values;
-        } else displacement=result.nonlinear.values;
+            next_v=result.nonlinear.values;
+        } else next_d=result.nonlinear.values;
         double local[2]{},energy[2]{};
         for(std::size_t e=0;e<mesh.cells.size();++e) {
             Tet4Vector::State<double> d,v;
             for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) {
                 const auto n=Tet4Vector::components*mesh.cells[e].nodes[a]+c;
-                d[Tet4Vector::components*a+c]=displacement[n]; v[Tet4Vector::components*a+c]=velocity[n];
+                d[Tet4Vector::components*a+c]=next_d[n]; v[Tet4Vector::components*a+c]=next_v[n];
             }
-            local[0]+=solid_element(geometry[e],{s.young,s.poisson,s.density,0,s.neo_hookean},d,{},{}).strain_energy;
+            const auto& m=materials[e];
+            local[0]+=solid_element(geometry[e],{m.young,m.poisson,m.density,0,m.neo_hookean},d,{},{}).strain_energy;
             // kinetic energy depends only on velocity; dt is irrelevant to that term.
-            local[1]+=solid_element(geometry[e],{s.young,s.poisson,s.density,1},v,{},{}).kinetic_energy;
+            local[1]+=solid_element(geometry[e],{m.young,m.poisson,m.density,1},v,{},{}).kinetic_energy;
         }
         MPI_Allreduce(local,energy,2,MPI_DOUBLE,MPI_SUM,comm);
         result.strain_energy=energy[0]; result.kinetic_energy=energy[1];
         const double total=energy[0]+energy[1];
         if(step && total>previous_energy+1e-9*std::max(1.,previous_energy))
-            throw std::runtime_error("Unloaded BE solid gained energy");
+            throw StepRejected("Unloaded BE solid gained energy");
+        displacement=std::move(next_d); velocity=std::move(next_v); acceleration=std::move(next_a);
         previous_energy=total;
+        if(step) clock.accept();
         if(!config.checkpoint.empty()) write_checkpoint(comm,config.checkpoint,mesh,signature,{step,
-            {{"displacement",displacement},{"velocity",velocity},{"acceleration",acceleration},{"energy",{total}}}});
-        if(mesh.rank==0) std::cout << std::setprecision(16) << "solid_step=" << step << " time=" << step*s.dt
+            {{"displacement",displacement},{"velocity",velocity},{"acceleration",acceleration},{"energy",{total}}},clock.time,clock.next_dt});
+        if(mesh.rank==0) std::cout << std::setprecision(16) << "solid_step=" << step << " time=" << time
             << " strain_energy=" << energy[0] << " kinetic_energy=" << energy[1]
             << " total_energy=" << total << " residual=" << result.nonlinear.residual_norm << '\n';
+        step=clock.step+1;
+        } catch(const StepRejected& error) {
+            if(step==0) throw;
+            clock.reject(error.what());
+            if(mesh.rank==0) std::cout << "step_retry=" << clock.retries << " time=" << clock.time << " next_dt=" << clock.next_dt << '\n';
+        }
     }
     double local[3]{},global[3]{};
     double tip=0,global_tip=0;

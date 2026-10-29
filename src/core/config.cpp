@@ -94,10 +94,18 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
 Config read_config(const std::filesystem::path& path)
 {
     const auto root = YAML::LoadFile(path.string());
-    keys(root, {"mesh", "output", "poisson", "fluid", "solid", "motion", "fsi", "solver"}, "case");
+    keys(root, {"mesh", "output", "poisson", "fluid", "solid", "motion", "fsi", "solver", "time_control"}, "case");
     const auto physics = root["poisson"];
 
     Config config;
+    if(const auto t=root["time_control"]) {
+        keys(t,{"max_retries","minimum_dt","reduction"},"time_control");
+        auto& c=config.time_control;
+        if(t["max_retries"]) c.max_retries=t["max_retries"].as<int>();
+        if(t["minimum_dt"]) c.minimum_dt=t["minimum_dt"].as<double>();
+        if(t["reduction"]) c.reduction=t["reduction"].as<double>();
+        if(c.max_retries<0||c.max_retries>30||!(c.minimum_dt>0&&c.reduction>0&&c.reduction<1)||!std::isfinite(c.minimum_dt+c.reduction)) throw std::runtime_error("Invalid time_control");
+    }
     const auto directory = std::filesystem::absolute(path).parent_path();
     const auto mesh = root["mesh"].as<std::string>();
     const auto output = root["output"].as<std::string>();

@@ -73,3 +73,15 @@
 
 依据：[Kratos、MOOSE、4C、LifeV、svMultiPhysics](../research/UPSTREAM_ARCHITECTURE_REVIEW.md)。节点内内存快照的语义见 [并行与内存](L2_PARALLEL_MEMORY_AND_BACKENDS.md)。
 
+
+## B4：实际时间、回滚与缩步
+
+`TimeStepper` 统一流体、固体、ALE、单体 FSI 与刚体 BE 的时间推进。`dt*steps` 定义终止物理时间；缩步后 accepted 步数可以多于配置 steps，`-stop_after` 仍表示 accepted 步数。默认 max_retries=0 保持失败即终止；可在 YAML 根节点设置 `time_control: {max_retries: 6, minimum_dt: 0.0005, reduction: 0.5}`。
+
+只对 `StepRejected`（SNES 未收敛、非法 trial 几何/形变、固体撤载能量检查）缩步。参数、通信和 I/O 失败不重试。每个 accepted 步重置重试次数；失败从相同 accepted 历史重算，包括 tau、BE 链式系数和时变边界。当前策略在成功后保持缩小的步长，不自动增长，也不是误差估计式自适应。
+
+局部装配失败在全 communicator 汇总后才返回数值失败；ALE 在进入求解前同样汇总几何拒绝。固体在临时位移/速度/加速度上检查能量后才提交。流体/FSI 收敛前不改 accepted 状态。
+
+checkpoint v2 同时保存 accepted step、实际 time、next_dt；恢复不再以 step*初始dt 猜测时间。旧 v1 检查点明确拒绝，需重新计算；同 rank/分区限制继续有效。重试次数上限属于运行策略，允许恢复时调整，物理参数仍要求匹配。
+
+`time_retry_verification` 以独立双域 Neo-Hookean FSI、P=20、dt=.04、SNES 最多两次 Newton 触发真实不收敛。缩步轨迹与直接使用最终小步长的参考轨迹对照，检查 1/2 rank、部分保存后的恢复及重试耗尽；不靠测试专用失败开关。

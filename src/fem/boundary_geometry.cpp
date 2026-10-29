@@ -1,3 +1,4 @@
+#include "eonsim/time_step.hpp"
 #include "eonsim/boundary_geometry.hpp"
 #include <algorithm>
 #include <cmath>
@@ -46,7 +47,7 @@ TriangleGeometry triangle_geometry(const Tri3Topology::Nodal<Point>& face,const 
     for(int d=0;d<Space3::dimension;++d) { norm+=normal[d]*normal[d]; orientation+=normal[d]*inside[d]; }
     norm=std::sqrt(norm);
     const double tolerance=128*std::numeric_limits<double>::epsilon();
-    if(!(norm>tolerance)||!(std::abs(orientation)>tolerance*norm)) throw std::runtime_error("Degenerate boundary face or cell");
+    if(!(norm>tolerance)||!(std::abs(orientation)>tolerance*norm)) throw StepRejected("Degenerate boundary face or cell");
     const double area=(norm/2)*scale*scale;
     if(!(area>0)||!std::isfinite(area)) throw std::runtime_error("Boundary area is not representable");
     for(double& x:normal) x*=(orientation>0?-1:1)/norm;

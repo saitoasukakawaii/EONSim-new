@@ -1,4 +1,5 @@
 #include "eonsim/config.hpp"
+#include "eonsim/time_step.hpp"
 #include "eonsim/poisson.hpp"
 #include "eonsim/fluid.hpp"
 #include "eonsim/solid.hpp"
@@ -129,10 +130,12 @@ int main(int argc, char* argv[])
                 if(config.motion.mode==eonsim::MotionConfig::Mode::rigid) {
                     const auto& m=config.motion;
                     eonsim::RigidState state;
-                    for(int step=1;step<=m.steps;++step) {
-                        state=eonsim::rigid_step({m.mass,m.damping,m.stiffness},state,m.dt,m.force);
+                    eonsim::TimeStepper clock(m.dt,m.steps,config.time_control);
+                    while(clock.active()) {
+                        state=eonsim::rigid_step({m.mass,m.damping,m.stiffness},state,clock.dt(),m.force); clock.accept();
+                        const int step=clock.step;
                         if(rank==0) std::cout << std::setprecision(16) << "rigid_step=" << step
-                            << " time=" << step*m.dt << " position=" << state.position << " velocity=" << state.velocity << '\n';
+                            << " time=" << clock.time << " position=" << state.position << " velocity=" << state.velocity << '\n';
                     }
                     if(rank==0) std::cout << "status=success\n";
                 } else {

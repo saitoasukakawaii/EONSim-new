@@ -1,3 +1,4 @@
+#include "eonsim/time_step.hpp"
 #include "eonsim/tet4.hpp"
 
 #include <algorithm>
@@ -32,7 +33,7 @@ Tet4Geometry tet4_geometry(const Tet4Topology::Nodal<Point>& x)
     const auto c12 = cross(edges[1], edges[2]);
     const double determinant = dot(edges[0], c12);
     if (!std::isfinite(determinant) || determinant <= 128.0 * std::numeric_limits<double>::epsilon())
-        throw std::runtime_error("Inverted or degenerate Tet4: positive Jacobian required");
+        throw StepRejected("Inverted or degenerate Tet4: positive Jacobian required");
     Tet4Geometry geometry{};
     geometry.volume = determinant * scale * scale * scale / Tet4Topology::jacobian_scale;
     if (!std::isfinite(geometry.volume) || geometry.volume <= 0.0)

@@ -1,3 +1,4 @@
+#include "eonsim/time_step.hpp"
 #include "eonsim/hyperelastic.hpp"
 #include <cmath>
 #include <stdexcept>
@@ -9,7 +10,7 @@ HyperelasticResponse neo_hookean(const Space3::Tensor<double>& F,double E,double
     const double mu=E/(2*(1+nu)),lambda=E*nu/((1+nu)*(1-2*nu));
     HyperelasticResponse r;
     r.jacobian=F[Space3::index(0,0)]*(F[Space3::index(1,1)]*F[Space3::index(2,2)]-F[Space3::index(1,2)]*F[Space3::index(2,1)])-F[Space3::index(0,1)]*(F[Space3::index(1,0)]*F[Space3::index(2,2)]-F[Space3::index(1,2)]*F[Space3::index(2,0)])+F[Space3::index(0,2)]*(F[Space3::index(1,0)]*F[Space3::index(2,1)]-F[Space3::index(1,1)]*F[Space3::index(2,0)]);
-    if(!(r.jacobian>0) || !std::isfinite(r.jacobian)) throw std::runtime_error("Nonpositive solid deformation Jacobian");
+    if(!(r.jacobian>0) || !std::isfinite(r.jacobian)) throw StepRejected("Nonpositive solid deformation Jacobian");
     Space3::Tensor<double> inverse_transpose;
     for(int i=0;i<Space3::dimension;++i) for(int J=0;J<Space3::dimension;++J)
         inverse_transpose[Space3::index(i,J)]=(F[Space3::index((i+1)%Space3::dimension,(J+1)%Space3::dimension)]*F[Space3::index((i+2)%Space3::dimension,(J+2)%Space3::dimension)]

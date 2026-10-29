@@ -1,4 +1,5 @@
 #include "eonsim/fluid.hpp"
+#include "eonsim/time_step.hpp"
 #include "eonsim/regions.hpp"
 #include "eonsim/fluid_boundary.hpp"
 #include "eonsim/boundary_geometry.hpp"
@@ -54,20 +55,21 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     }
     for(const auto& r:f.regions) signature_parameters.insert(signature_parameters.end(),{double(r.first),r.second.density,r.second.viscosity});
     const auto signature=state_signature(mesh,tagged?"fluid_tagged":"fluid",signature_parameters);
-    int first=1;
-    const int last=config.stop_after?std::min(config.stop_after,steps):steps;
+    TimeStepper clock(f.dt,steps,config.time_control);
     if(!config.restart.empty()) {
         const auto saved=read_checkpoint(config.restart,mesh,signature,{{"fluid",accepted.size()}});
-        accepted=saved.fields.at("fluid"); first=saved.step+1;
-        if(first>last) throw std::runtime_error("Restart must precede requested final step");
+        accepted=saved.fields.at("fluid"); clock.restore(saved.step,saved.time,saved.next_dt);
+        if(!clock.active(config.stop_after)) throw std::runtime_error("Restart must precede requested final step");
     }
-    for(int step=first;step<=last;++step) {
-        const double scale=transient ? std::min(step*f.dt/f.ramp_time,1.0) : 1;
+    while(clock.active(config.stop_after)) {
+        const int step=clock.step+1; const double dt=clock.dt(),time=clock.time+dt;
+        try {
+        const double scale=transient ? std::min(time/f.ramp_time,1.0) : 1;
         std::vector<PetscInt> bc;
         std::vector<double> prescribed;
         if(tagged) {
             for(const auto& c:boundary_plan.constraints) {
-                bc.push_back(c.id); prescribed.push_back(c.value*boundary_scale(c.ramp_time,step*f.dt,transient));
+                bc.push_back(c.id); prescribed.push_back(c.value*boundary_scale(c.ramp_time,time,transient));
             }
         } else {
             int gauge=0,total_gauge=0;
@@ -92,10 +94,10 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
             double speed2=0;
             for(int c=0;c<Space3::dimension;++c) { double u=0; for(auto n:mesh.cells[e].nodes) u+=accepted[Tet4Flow::components*n+c]*Tet4Topology::mean_weight; speed2+=u*u; }
             const double h=std::cbrt(Tet4Topology::jacobian_scale*geometry[e].volume);
-            const double time=transient ? 2*material.density/f.dt : 0;
+            const double time=transient ? 2*material.density/dt : 0;
             const double adv=f.mode==FluidConfig::Mode::stokes ? 0 : 2*material.density*std::sqrt(speed2)/h;
             const double visc=4*material.viscosity/(h*h);
-            parameters.push_back({material.density,material.viscosity,transient?f.dt:0,
+            parameters.push_back({material.density,material.viscosity,transient?dt:0,
                 1/std::sqrt(time*time+adv*adv+visc*visc),f.mode!=FluidConfig::Mode::stokes});
         }
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
@@ -125,7 +127,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
             }
             for(const auto& load:boundary_plan.loads) {
                 auto residual=load.residual;
-                for(double& value:residual) value*=boundary_scale(load.ramp_time,step*f.dt,transient);
+                for(double& value:residual) value*=boundary_scale(load.ramp_time,time,transient);
                 EONSIM_PETSC(VecSetValues(r,TriangleVector::dofs,load.ids.data(),residual.data(),ADD_VALUES));
             }
         };
@@ -140,9 +142,15 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
             MPI_Allreduce(local,global,2,MPI_DOUBLE,MPI_SUM,comm);
             for(std::size_t n=0;n<mesh.nodes.size();++n) accepted[Tet4Flow::dof(n,Tet4Flow::pressure)]-=global[0]/global[1];
         }
-        if(!config.checkpoint.empty()) write_checkpoint(comm,config.checkpoint,mesh,signature,{step,{{"fluid",accepted}}});
-        if(mesh.rank==0) std::cout << std::setprecision(16) << "fluid_step=" << step << " time=" << (transient?step*f.dt:0)
+        clock.accept();
+        if(!config.checkpoint.empty()) write_checkpoint(comm,config.checkpoint,mesh,signature,{step,{{"fluid",accepted}},clock.time,clock.next_dt});
+        if(mesh.rank==0) std::cout << std::setprecision(16) << "fluid_step=" << step << " time=" << (transient?time:0)
             << " snes_iterations=" << result.nonlinear.iterations << " residual=" << result.nonlinear.residual_norm << '\n';
+        } catch(const StepRejected& error) {
+            if(!transient) throw;
+            clock.reject(error.what());
+            if(mesh.rank==0) std::cout << "step_retry=" << clock.retries << " time=" << clock.time << " next_dt=" << clock.next_dt << '\n';
+        }
     }
     result.fields={{"velocity",Space3::dimension,{}},{"pressure",1,{}},{"momentum_residual",Space3::dimension,{}}};
     for(std::size_t n=0;n<mesh.nodes.size();++n) {
