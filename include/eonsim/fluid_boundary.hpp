@@ -21,6 +21,10 @@ struct FluidBoundaryPlan {
  */
 FluidBoundaryPlan prepare_fluid_boundaries(MPI_Comm comm,const MeshPartition& mesh,
     const AlgebraLayout& layout,const FluidConfig& config,const std::vector<TriangleGeometry>& surfaces);
+/// collective；流体/固体共用的分量约束与载荷准备。stride 为节点全场分量数。
+FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& mesh,
+    const AlgebraLayout& layout,const std::vector<FluidBoundary>& boundaries,const std::vector<TriangleGeometry>& surfaces,
+    int stride,bool transient,std::optional<PressureGauge> gauge=std::nullopt);
 /// t 是当前求解时间；稳态不应用时间 ramp。
 double boundary_scale(double ramp_time,double t,bool transient);
 /// 将所有边界物理参数纳入重启签名；64 位规范点 ID 分为两个精确可表示的整数。

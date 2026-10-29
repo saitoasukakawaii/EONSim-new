@@ -32,7 +32,7 @@ Space3::Vector<double> vector3(const YAML::Node& node,const std::string& locatio
     }
     return v;
 }
-void fluid_boundaries(const YAML::Node& f,FluidConfig& config)
+void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
 {
     const auto boundaries=f["boundaries"];
     if(!boundaries.IsSequence()||boundaries.size()==0) throw std::runtime_error("fluid.boundaries must be a nonempty sequence");
@@ -46,8 +46,8 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config)
             b.type=FluidBoundary::Type::pressure; b.pressure=entry["value"].as<double>();
             if(!std::isfinite(b.pressure)) throw std::runtime_error("Boundary pressure must be finite");
         } else {
-            keys(entry,{"tag","type","value","origin","gradient","ramp_time"},"fluid.boundaries");
-            if(type=="velocity") b.type=FluidBoundary::Type::velocity;
+            keys(entry,{"tag","type","value","origin","gradient","ramp_time","components"},"fluid.boundaries");
+            if(type=="velocity"|| (solid&&type=="displacement")) b.type=FluidBoundary::Type::velocity;
             else if(type=="traction") b.type=FluidBoundary::Type::traction;
             else throw std::runtime_error("Boundary type must be velocity, traction or pressure");
             b.value=vector3(entry["value"],"boundary value");
@@ -59,6 +59,12 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config)
                     for(int j=0;j<Space3::dimension;++j) b.gradient[Space3::index(i,j)]=row[j];
                 }
             }
+        }
+        if(entry["components"]) {
+            b.components=entry["components"].as<std::vector<int>>();
+            std::set<int> unique;
+            for(int c:b.components) if(c<0||c>=Space3::dimension||!unique.insert(c).second) throw std::runtime_error("Invalid or repeated boundary component");
+            if(b.components.empty()) throw std::runtime_error("Boundary components cannot be empty");
         }
         b.tag=entry["tag"].as<int>();
         if(b.tag<=0||!tags.insert(b.tag).second) throw std::runtime_error("Boundary tags must be distinct and positive");
@@ -73,8 +79,14 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config)
         config.pressure_gauge=PressureGauge{gauge["node"].as<std::int64_t>(),gauge["value"].as<double>()};
         if(config.pressure_gauge->node<=0||!std::isfinite(config.pressure_gauge->value)) throw std::runtime_error("Invalid pressure gauge");
     }
-    if(natural&&config.pressure_gauge) throw std::runtime_error("Pressure gauge cannot accompany traction or pressure boundaries");
-    if(!natural&&!config.pressure_gauge) throw std::runtime_error("All-velocity boundaries require pressure_gauge");
+    if(f["pressure_normalization"]) {
+        if(f["pressure_normalization"].as<std::string>()!="mean") throw std::runtime_error("pressure_normalization must be mean");
+        config.mean_pressure=true;
+    }
+    if(config.mean_pressure&&config.pressure_gauge) throw std::runtime_error("Choose pressure gauge or mean normalization");
+    if(!solid&&natural&&(config.pressure_gauge||config.mean_pressure)) throw std::runtime_error("Pressure gauge cannot accompany traction or pressure boundaries");
+    const bool complete=std::all_of(config.boundaries.begin(),config.boundaries.end(),[](const auto& b){return b.components.size()==Space3::dimension;});
+    if(!solid&&!natural&&complete&&!config.pressure_gauge&&!config.mean_pressure) throw std::runtime_error("All-velocity boundaries require pressure_gauge or mean normalization");
     std::sort(config.boundaries.begin(),config.boundaries.end(),[](const auto& a,const auto& b){return a.tag<b.tag;});
 }
 } // namespace
@@ -116,7 +128,7 @@ Config read_config(const std::filesystem::path& path)
     if (tags.empty()) throw std::runtime_error("At least one Dirichlet physical tag is required");
     } else if(config.fluid_problem) {
         const auto f=root["fluid"];
-        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet","boundaries","pressure_gauge"},"fluid");
+        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet","boundaries","pressure_gauge","pressure_normalization","regions"},"fluid");
         const auto mode=f["mode"].as<std::string>();
         if(mode=="stokes") config.fluid.mode=FluidConfig::Mode::stokes;
         else if(mode=="steady") config.fluid.mode=FluidConfig::Mode::steady;
@@ -130,6 +142,15 @@ Config read_config(const std::filesystem::path& path)
             if(outlet!="velocity" && outlet!="traction") throw std::runtime_error("Invalid fluid outlet");
             v.traction_outlet=outlet=="traction";
         }
+        if(const auto regions=f["regions"]) {
+            if(!regions.IsSequence()||regions.size()==0) throw std::runtime_error("fluid.regions must be nonempty");
+            for(const auto& r:regions) {
+                keys(r,{"tag","density","viscosity"},"fluid.regions");
+                FluidMaterial m{r["density"].as<double>(),r["viscosity"].as<double>()};
+                const int tag=r["tag"].as<int>();
+                if(tag<=0||!(m.density>0&&m.viscosity>0)||!std::isfinite(m.density+m.viscosity)||!v.regions.emplace(tag,m).second) throw std::runtime_error("Invalid fluid region material");
+            }
+        }
         if(f["density"]) v.density=f["density"].as<double>();
         if(f["viscosity"]) v.viscosity=f["viscosity"].as<double>();
         if(f["pressure_drop"]) v.pressure_drop=f["pressure_drop"].as<double>();
@@ -142,8 +163,23 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.solid_problem) {
         const auto s=root["solid"];
-        keys(s,{"mode","young","poisson","density","traction","dt","steps","material"},"solid");
+        keys(s,{"mode","young","poisson","density","traction","dt","steps","material","boundaries","regions"},"solid");
         auto& v=config.solid;
+        if(s["boundaries"]) {
+            FluidConfig boundary_config; fluid_boundaries(s,boundary_config,true); v.boundaries=boundary_config.boundaries;
+            for(const auto& b:v.boundaries) if(b.ramp_time!=0)
+                throw std::runtime_error("Solid static/unload requires constant-in-time displacement and load");
+        }
+        if(const auto regions=s["regions"]) {
+            if(!regions.IsSequence()||regions.size()==0) throw std::runtime_error("solid.regions must be nonempty");
+            for(const auto& r:regions) {
+                keys(r,{"tag","young","poisson","density","material"},"solid.regions");
+                SolidMaterial m{r["young"].as<double>(),r["poisson"].as<double>(),r["density"].as<double>(),false};
+                if(r["material"]) { const auto type=r["material"].as<std::string>(); if(type!="linear"&&type!="neo_hookean") throw std::runtime_error("Invalid region material law"); m.neo_hookean=type=="neo_hookean"; }
+                const int tag=r["tag"].as<int>();
+                if(tag<=0||!(m.young>0&&m.poisson>-1&&m.poisson<.5&&m.density>0)||!std::isfinite(m.young+m.poisson+m.density)||!v.regions.emplace(tag,m).second) throw std::runtime_error("Invalid solid region material");
+            }
+        }
         if(s["material"]) {
             const auto material=s["material"].as<std::string>();
             if(material!="linear" && material!="neo_hookean") throw std::runtime_error("Unknown solid material");

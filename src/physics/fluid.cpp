@@ -1,4 +1,5 @@
 #include "eonsim/fluid.hpp"
+#include "eonsim/regions.hpp"
 #include "eonsim/fluid_boundary.hpp"
 #include "eonsim/boundary_geometry.hpp"
 #include "eonsim/quadrature.hpp"
@@ -15,6 +16,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
 {
     const auto& f=config.fluid;
     const bool tagged=!f.boundaries.empty();
+    const auto materials=cell_materials(comm,mesh,f.regions,FluidMaterial{f.density,f.viscosity});
     const auto layout=make_field_layout(mesh,Tet4Flow::components,{{"velocity",{0,1,2}},{"pressure",{Tet4Flow::pressure}}});
     const auto facets=build_boundary_facets(mesh);
     std::vector<TriangleGeometry> surfaces;
@@ -50,6 +52,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         const auto boundary_parameters=fluid_boundary_signature(f);
         signature_parameters.insert(signature_parameters.end(),boundary_parameters.begin(),boundary_parameters.end());
     }
+    for(const auto& r:f.regions) signature_parameters.insert(signature_parameters.end(),{double(r.first),r.second.density,r.second.viscosity});
     const auto signature=state_signature(mesh,tagged?"fluid_tagged":"fluid",signature_parameters);
     int first=1;
     const int last=config.stop_after?std::min(config.stop_after,steps):steps;
@@ -85,13 +88,14 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         }
         std::vector<FluidParameters> parameters;
         for(std::size_t e=0;e<mesh.cells.size();++e) {
+            const auto& material=materials[e];
             double speed2=0;
             for(int c=0;c<Space3::dimension;++c) { double u=0; for(auto n:mesh.cells[e].nodes) u+=accepted[Tet4Flow::components*n+c]*Tet4Topology::mean_weight; speed2+=u*u; }
             const double h=std::cbrt(Tet4Topology::jacobian_scale*geometry[e].volume);
-            const double time=transient ? 2*f.density/f.dt : 0;
-            const double adv=f.mode==FluidConfig::Mode::stokes ? 0 : 2*f.density*std::sqrt(speed2)/h;
-            const double visc=4*f.viscosity/(h*h);
-            parameters.push_back({f.density,f.viscosity,transient?f.dt:0,
+            const double time=transient ? 2*material.density/f.dt : 0;
+            const double adv=f.mode==FluidConfig::Mode::stokes ? 0 : 2*material.density*std::sqrt(speed2)/h;
+            const double visc=4*material.viscosity/(h*h);
+            parameters.push_back({material.density,material.viscosity,transient?f.dt:0,
                 1/std::sqrt(time*time+adv*adv+visc*visc),f.mode!=FluidConfig::Mode::stokes});
         }
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
@@ -127,6 +131,15 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         };
         result.nonlinear=solve_nonlinear(comm,layout,config.solver,accepted,bc,prescribed,assemble);
         accepted=result.nonlinear.values;
+        if(f.mean_pressure) {
+            double local[2]{},global[2]{};
+            for(std::size_t e=0;e<mesh.cells.size();++e) {
+                local[1]+=geometry[e].volume;
+                for(auto n:mesh.cells[e].nodes) local[0]+=geometry[e].volume*Tet4Topology::mean_weight*accepted[Tet4Flow::dof(n,Tet4Flow::pressure)];
+            }
+            MPI_Allreduce(local,global,2,MPI_DOUBLE,MPI_SUM,comm);
+            for(std::size_t n=0;n<mesh.nodes.size();++n) accepted[Tet4Flow::dof(n,Tet4Flow::pressure)]-=global[0]/global[1];
+        }
         if(!config.checkpoint.empty()) write_checkpoint(comm,config.checkpoint,mesh,signature,{step,{{"fluid",accepted}}});
         if(mesh.rank==0) std::cout << std::setprecision(16) << "fluid_step=" << step << " time=" << (transient?step*f.dt:0)
             << " snes_iterations=" << result.nonlinear.iterations << " residual=" << result.nonlinear.residual_norm << '\n';

@@ -95,3 +95,13 @@ FSI 阶段必须增加已明确需要的接口运动学映射：弹性界面速�
 `prepare_fluid_boundaries` 在求解前准备约束和固定几何面载荷，时间步只缩放载荷；牵引不依赖 trial，无额外 Jacobian 项。`summarize_fluid_boundaries` 规约每个标签的面积、外向体积流量和面积平均压力，不收集全局场。边界的完整物理配置参与 checkpoint 签名；64 位规范点 ID 分段编码，避免转 double 丢失低位。
 
 代表案例是 `cases/fluid/rotated_channel.yaml`：2×1.5×0.7 m 的旋转平移通道，标签 11/22/33/44/55/66，线性 Couette 速度及常压力。它检查坐标变换后的精确 patch，不替代非线性一般流动的网格收敛研究。
+
+### 区域与分量约束（B2）
+
+`fluid.regions` / `solid.regions` 是按体 `tag` 的材料列表；配置后要求双向完整覆盖，未配置则使用原有全域材料。流体每区域含 `density/viscosity`；固体含 `young/poisson/density/material`，单元内核不查标签。
+
+边界 `components` 指定全局笛卡尔分量，省略为三个分量。未约束分量为零自然牵引；相交边界逐分量检查冲突。固体 `solid.boundaries` 使用 `type: displacement/traction/pressure`，静载和撤载复用同一约束/载荷准备；恒定位移在动态阶段对应零速度，目前不支持固体时间变化位移。
+
+`fluid.pressure_normalization: mean` 在法向速度封闭的连通流体域中以最小原始节点 ID 临时定标，求解后减去体积平均压力；该策略是消元再归一化，未声称使用 PETSc 奇异直接解或自动多连通分量零空间。具有自由法向速度的自然边界不能同时指定压力规范。区域、分量和压力策略均加入重启签名。
+
+`regions_verification` 使用两区域 E=100/200、nu=0 的分段精确杆，以及黏度 1/2、法向分量约束和零均压的均匀流，检查 1/2 rank 解及区域配置缺失。

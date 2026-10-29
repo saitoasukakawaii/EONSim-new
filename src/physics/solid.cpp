@@ -1,4 +1,6 @@
 #include "eonsim/solid.hpp"
+#include "eonsim/regions.hpp"
+#include "eonsim/fluid_boundary.hpp"
 #include "eonsim/boundary_geometry.hpp"
 #include "eonsim/checkpoint.hpp"
 #include "eonsim/solid_element.hpp"
@@ -12,6 +14,8 @@ namespace eonsim {
 SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& config)
 {
     const auto& s=config.solid;
+    const bool tagged=!s.boundaries.empty();
+    const auto materials=cell_materials(comm,mesh,s.regions,SolidMaterial{s.young,s.poisson,s.density,s.neo_hookean});
     const auto layout=make_field_layout(mesh,Tet4Vector::components,{{"structure",{0,1,2}}});
     const auto facets=build_boundary_facets(mesh);
     std::vector<TriangleGeometry> surfaces;
@@ -22,11 +26,14 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         for(int a=0;a<Tet4Topology::nodes;++a) xyz[a]=mesh.nodes[cell.nodes[a]].position;
         geometry.push_back(tet4_geometry(xyz));
     }
+    const auto boundary_plan=tagged?prepare_vector_boundaries(comm,mesh,layout,s.boundaries,surfaces,Tet4Vector::components,false):FluidBoundaryPlan{};
     std::vector<PetscInt> bc;
-    for(std::size_t n=0;n<mesh.owned_nodes;++n) for(int c=0;c<Space3::dimension;++c) {
+    if(!tagged) for(std::size_t n=0;n<mesh.owned_nodes;++n) for(int c=0;c<Space3::dimension;++c) {
         if(std::abs(mesh.nodes[n].position[c])<1e-12) bc.push_back(layout.local_to_global[Tet4Vector::components*n+c]);
     }
     std::vector<double> prescribed(bc.size(),0),displacement(layout.local_to_global.size(),0),velocity(displacement),acceleration(displacement);
+    if(tagged) { for(const auto& c:boundary_plan.constraints) { bc.push_back(c.id); prescribed.push_back(c.value); } }
+    if(!tagged) {
     // 仅接受单位立方体标签，外力沿参考面积积分；后续材料扩展仍使用该参考网格。
     int tags[6]{},global_tags[6]{};
     for(const auto& face:mesh.boundary) {
@@ -38,9 +45,13 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     }
     MPI_Allreduce(tags,global_tags,6,MPI_INT,MPI_MAX,comm);
     for(int v:global_tags) if(!v) throw std::runtime_error("Solid boundary missing");
+    }
     SolidResult result;
     double previous_energy=0;
-    const auto signature=state_signature(mesh,"solid",{double(s.neo_hookean),s.young,s.poisson,s.density,s.traction,s.dt});
+    std::vector<double> signature_parameters{double(s.neo_hookean),s.young,s.poisson,s.density,s.traction,s.dt};
+    for(const auto& r:s.regions) signature_parameters.insert(signature_parameters.end(),{double(r.first),r.second.young,r.second.poisson,r.second.density,double(r.second.neo_hookean)});
+    if(tagged) { FluidConfig f; f.boundaries=s.boundaries; const auto values=fluid_boundary_signature(f); signature_parameters.insert(signature_parameters.end(),values.begin(),values.end()); }
+    const auto signature=state_signature(mesh,tagged?"solid_tagged":"solid",signature_parameters);
     int first=0;
     const int last=s.transient?(config.stop_after?std::min(config.stop_after,s.steps):s.steps):0;
     if(!config.restart.empty()) {
@@ -52,7 +63,7 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     }
     for(int step=first;step<=last;++step) {
         const double dt=step?s.dt:0;
-        const SolidParameters parameters{s.young,s.poisson,s.density,dt,s.neo_hookean};
+        const auto parameters=[&](std::size_t e) { const auto& m=materials[e]; return SolidParameters{m.young,m.poisson,m.density,dt,m.neo_hookean}; };
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
             for(std::size_t e=0;e<mesh.cells.size();++e) {
                 Tet4Vector::State<double> state,dn,vn;
@@ -61,19 +72,22 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
                     const auto n=Tet4Vector::components*mesh.cells[e].nodes[a]+c;
                     state[Tet4Vector::components*a+c]=x[n]; dn[Tet4Vector::components*a+c]=displacement[n]; vn[Tet4Vector::components*a+c]=velocity[n]; ids[Tet4Vector::components*a+c]=layout.local_to_global[n];
                 }
-                const auto local=solid_element(geometry[e],parameters,state,dn,vn);
+                const auto local=solid_element(geometry[e],parameters(e),state,dn,vn);
                 EONSIM_PETSC(VecSetValues(r,Tet4Vector::dofs,ids.data(),local.residual.data(),ADD_VALUES));
                 if(j) EONSIM_PETSC(MatSetValues(j,Tet4Vector::dofs,ids.data(),Tet4Vector::dofs,ids.data(),local.tangent.data(),ADD_VALUES));
             }
-            if(step==0) for(const auto& face:mesh.boundary) if(face.physical_tag==2) {
+            if(step==0&&!tagged) for(const auto& face:mesh.boundary) if(face.physical_tag==2) {
                 const double load=-s.traction*surfaces[&face-mesh.boundary.data()].area*Tri3Topology::mean_weight;
                 for(auto n:face.nodes) {
                     const PetscInt id=layout.local_to_global[Tet4Vector::components*n];
                     EONSIM_PETSC(VecSetValues(r,1,&id,&load,ADD_VALUES));
                 }
             }
+            if(step==0) for(const auto& load:boundary_plan.loads)
+                EONSIM_PETSC(VecSetValues(r,TriangleVector::dofs,load.ids.data(),load.residual.data(),ADD_VALUES));
         };
-        result.nonlinear=solve_nonlinear(comm,layout,config.solver,step?velocity:displacement,bc,prescribed,assemble);
+        const auto step_values=step?std::vector<double>(prescribed.size(),0):prescribed;
+        result.nonlinear=solve_nonlinear(comm,layout,config.solver,step?velocity:displacement,bc,step_values,assemble);
         // 所有未知量收敛后统一接受；回调从不修改这些历史。
         if(step) {
             for(std::size_t n=0;n<displacement.size();++n) {
@@ -118,7 +132,7 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     MPI_Allreduce(local,global,1,MPI_DOUBLE,MPI_MAX,comm);
     MPI_Allreduce(local+1,global+1,2,MPI_DOUBLE,MPI_SUM,comm);
     MPI_Allreduce(&tip,&global_tip,1,MPI_DOUBLE,MPI_SUM,comm);
-    result.displacement_error=global[0]; result.reaction_x=global[1]; result.tip_displacement=global_tip/global[2];
+    result.displacement_error=global[0]; result.reaction_x=global[1]; result.tip_displacement=global[2]>0?global_tip/global[2]:0;
     result.fields={{"displacement",Space3::dimension,displacement},{"velocity",Space3::dimension,velocity},{"acceleration",Space3::dimension,acceleration},
                    {"momentum_residual",Space3::dimension,result.nonlinear.raw_residual}};
     return result;

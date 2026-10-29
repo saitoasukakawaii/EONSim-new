@@ -5,6 +5,7 @@
 #include "eonsim/discretization.hpp"
 #include <cstdint>
 #include <optional>
+#include <map>
 #include <filesystem>
 #include <vector>
 
@@ -24,6 +25,7 @@ struct SolverConfig {
  */
 struct FluidBoundary {
     enum class Type { velocity, traction, pressure };
+    std::vector<int> components{0,1,2}; // 全局笛卡尔分量；未指定分量为零自然牵引
     int tag=0;
     Type type=Type::velocity;
     Space3::Vector<double> value{},origin{};
@@ -32,17 +34,24 @@ struct FluidBoundary {
 };
 struct PressureGauge { std::int64_t node; double value; }; // 原始网格 ID，非 PETSc 编号
 
+struct FluidMaterial { double density=1,viscosity=1; };
+struct SolidMaterial { double young=100,poisson=.3,density=1; bool neo_hookean=false; };
+
 struct FluidConfig {
     enum class Mode { stokes, steady, transient };
     Mode mode = Mode::stokes;
     std::vector<FluidBoundary> boundaries; // 空时保留内置单位通道基准
     std::optional<PressureGauge> pressure_gauge;
+    bool mean_pressure=false;
+    std::map<int,FluidMaterial> regions;
     bool traction_outlet=false;
     double density=1, viscosity=1, pressure_drop=1, dt=.05, ramp_time=.1;
     int steps=10;
 };
 
 struct SolidConfig {
+    std::vector<FluidBoundary> boundaries; // velocity 类型在此表示位移 Dirichlet
+    std::map<int,SolidMaterial> regions;
     bool transient=false, neo_hookean=false;
     double young=100, poisson=.3, density=1, traction=1, dt=.01;
     int steps=20;

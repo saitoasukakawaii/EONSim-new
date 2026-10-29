@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
                     eonsim::write_field_index(config.output,size,solid.fields);
                     std::cout << std::setprecision(16) << "tip_displacement=" << solid.tip_displacement
                         << " reaction_x=" << solid.reaction_x;
-                    if(!config.solid.transient && !config.solid.neo_hookean) std::cout << " displacement_max_error=" << solid.displacement_error;
+                    if(!config.solid.transient && !config.solid.neo_hookean && config.solid.boundaries.empty() && config.solid.regions.empty()) std::cout << " displacement_max_error=" << solid.displacement_error;
                     std::cout << "\nstatus=success\n";
                 }
             } else if(config.fluid_problem) {
