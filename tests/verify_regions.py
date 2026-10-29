@@ -22,7 +22,7 @@ def fields(path,ranks):
   root=ET.parse(path if ranks==1 else path.with_name(f'{path.stem}_rank{rank}.vtu'))
   data={x.attrib['Name']:x.text.split() for x in root.findall('.//PointData/DataArray')}
   for i,n in enumerate(data['mesh_node_id']):
-   if int(data['owner'][i])==rank:result[int(n)]={key:list(map(float,v[3*i:3*i+3])) if key!='pressure' else [float(v[i])] for key,v in data.items() if key in ('displacement','velocity','pressure')}
+   if int(data['owner'][i])==rank:result[int(n)]={key:list(map(float,v[3*i:3*i+3])) if key!='pressure' else [float(v[i])] for key,v in data.items() if key in ('displacement','velocity','pressure','momentum_residual')}
  return result
 solid=dict(mode='static',boundaries=[dict(tag=1,type='displacement',components=[0],value=[0,0,0]),dict(tag=2,type='traction',value=[1,0,0]),dict(tag=3,type='displacement',components=[1],value=[0,0,0]),dict(tag=4,type='traction',value=[0,0,0]),dict(tag=5,type='displacement',components=[2],value=[0,0,0]),dict(tag=6,type='traction',value=[0,0,0])],regions=[dict(tag=tag,young=E,poisson=0,density=1) for tag,E in ((10,100),(20,200))])
 fluid=dict(mode='stokes',pressure_normalization='mean',boundaries=[dict(tag=t,type='velocity',components=[(t-1)//2],value=[.2,0,0]) for t in range(1,7)],regions=[dict(tag=t,density=1,viscosity=mu) for t,mu in ((10,1),(20,2))])
@@ -43,4 +43,20 @@ for physics,cfg in (('solid',solid),('fluid',fluid)):
  for n in solutions[0]:
   for field in solutions[0][n]:assert max(abs(x-y) for x,y in zip(solutions[0][n][field],solutions[1][n][field]))<2e-10
  base[physics]['regions'].pop();case.write_text(json.dumps(base));run([a.executable,'-case',case],'Missing material for region')
-print('regions and component constraints passed')
+# Pressure normalization must shift constrained reactions as well as the pressure field.
+# Extensional inflow has a nonconstant pressure; choosing its normalized nodal pressure
+# as a point gauge must reproduce every field, including wall reactions.
+cfg=dict(mode='steady',pressure_normalization='mean',boundaries=[dict(tag=t,type='velocity',value=[0,0,0],gradient=[[.2,0,0],[0,-.2,0],[0,0,0]]) for t in range(1,7)])
+base=dict(mesh=str(mesh.resolve()),output=str((a.work/'normalization.vtu').resolve()),fluid=cfg)
+case=a.work/'normalization.yaml';part=a.work/'normalization_parts'
+case.write_text(json.dumps(base));run([a.executable,'-case',case,'-prepare',part,'-parts',2])
+for ranks in (1,2):
+ prefix=([a.mpiexec,'-n',2] if ranks==2 else [])+[a.executable,'-case',case]
+ if ranks==2:prefix+=['-partition',part]
+ cfg.pop('pressure_gauge',None);cfg['pressure_normalization']='mean';case.write_text(json.dumps(base))
+ out=a.work/f'mean{ranks}.vtu';run(prefix+['-output',out]);mean=fields(out,ranks)
+ pressure=mean[min(mean)]['pressure'][0];assert abs(pressure)>1e-4
+ cfg.pop('pressure_normalization');cfg['pressure_gauge']=dict(node=min(mean),value=pressure);case.write_text(json.dumps(base))
+ out=a.work/f'gauge{ranks}.vtu';run(prefix+['-output',out]);gauge=fields(out,ranks)
+ assert max(abs(x-y) for n in mean for key in mean[n] for x,y in zip(mean[n][key],gauge[n][key]))<2e-9
+print('regions, component constraints and normalized reactions passed')

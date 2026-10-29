@@ -144,7 +144,7 @@ Config read_config(const std::filesystem::path& path)
         else throw std::runtime_error("Unknown fluid mode");
         auto& v=config.fluid;
         if(f["boundaries"]) fluid_boundaries(f,v);
-        else if(f["pressure_gauge"]) throw std::runtime_error("pressure_gauge requires tagged boundaries");
+        else if(f["pressure_gauge"]||f["pressure_normalization"]) throw std::runtime_error("Pressure normalization requires tagged boundaries");
         if(f["outlet"]) {
             const auto outlet=f["outlet"].as<std::string>();
             if(outlet!="velocity" && outlet!="traction") throw std::runtime_error("Invalid fluid outlet");

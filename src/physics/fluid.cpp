@@ -140,7 +140,29 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
                 for(auto n:mesh.cells[e].nodes) local[0]+=geometry[e].volume*Tet4Topology::mean_weight*accepted[Tet4Flow::dof(n,Tet4Flow::pressure)];
             }
             MPI_Allreduce(local,global,2,MPI_DOUBLE,MPI_SUM,comm);
-            for(std::size_t n=0;n<mesh.nodes.size();++n) accepted[Tet4Flow::dof(n,Tet4Flow::pressure)]-=global[0]/global[1];
+            const double mean=global[0]/global[1];
+            for(std::size_t n=0;n<mesh.nodes.size();++n) accepted[Tet4Flow::dof(n,Tet4Flow::pressure)]-=mean;
+            // 压力平移也改变受约束动量行的反力：ΔR_ai = mean * ∫ grad(Na)_i。
+            // 远程单元贡献先装配到 owner，再同步 ghost，使反力与输出压力基准一致。
+            PetscOwner<Vec,VecDestroy> reaction;
+            const auto ghosts=layout.local_to_global.size()-layout.owned;
+            EONSIM_PETSC(VecCreateGhost(comm,layout.owned,layout.global,ghosts,layout.local_to_global.data()+layout.owned,reaction.put()));
+            PetscScalar* values;
+            EONSIM_PETSC(VecGetArray(reaction.get(),&values));
+            std::copy_n(result.nonlinear.raw_residual.begin(),layout.owned,values);
+            EONSIM_PETSC(VecRestoreArray(reaction.get(),&values));
+            for(std::size_t e=0;e<mesh.cells.size();++e) for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) {
+                const auto id=layout.local_to_global[Tet4Flow::dof(mesh.cells[e].nodes[a],c)];
+                const double delta=mean*geometry[e].volume*geometry[e].gradients[a][c];
+                EONSIM_PETSC(VecSetValue(reaction.get(),id,delta,ADD_VALUES));
+            }
+            EONSIM_PETSC(VecAssemblyBegin(reaction.get())); EONSIM_PETSC(VecAssemblyEnd(reaction.get()));
+            EONSIM_PETSC(VecGhostUpdateBegin(reaction.get(),INSERT_VALUES,SCATTER_FORWARD)); EONSIM_PETSC(VecGhostUpdateEnd(reaction.get(),INSERT_VALUES,SCATTER_FORWARD));
+            Vec local_reaction; const PetscScalar* raw;
+            EONSIM_PETSC(VecGhostGetLocalForm(reaction.get(),&local_reaction)); EONSIM_PETSC(VecGetArrayRead(local_reaction,&raw));
+            result.nonlinear.raw_residual.assign(raw,raw+layout.local_to_global.size());
+            EONSIM_PETSC(VecRestoreArrayRead(local_reaction,&raw)); EONSIM_PETSC(VecGhostRestoreLocalForm(reaction.get(),&local_reaction));
+            result.nonlinear.values=accepted;
         }
         clock.accept();
         if(!config.checkpoint.empty()) write_checkpoint(comm,config.checkpoint,mesh,signature,{step,{{"fluid",accepted}},clock.time,clock.next_dt});
