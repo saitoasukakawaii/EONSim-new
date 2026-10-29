@@ -1,4 +1,5 @@
 #include "eonsim/poisson.hpp"
+#include "eonsim/quadrature.hpp"
 #include "eonsim/tet4.hpp"
 #include "eonsim/field_layout.hpp"
 
@@ -60,35 +61,32 @@ void evaluate_errors(const MeshPartition& mesh, const std::vector<Tet4Geometry>&
 {
     // Tensor Gauss-4 under a Duffy map to the reference tetrahedron. This
     // integrates the squared quadratic error exactly (including the Jacobian).
-    constexpr double q[] = {0.06943184420297371, 0.33000947820757187, 0.6699905217924281, 0.9305681557970262};
-    constexpr double w[] = {0.17392742256872692, 0.32607257743127307, 0.32607257743127307, 0.17392742256872692};
     double l2_squared = 0.0, h1_squared = 0.0;
     for (std::size_t cell_index = 0; cell_index < mesh.cells.size(); ++cell_index) {
         const auto& cell = mesh.cells[cell_index];
         const auto& geo = geometry[cell_index];
         Point gradient{};
         double average = 0.0;
-        for (int a = 0; a < 4; ++a) {
+        for (int a = 0; a<Tet4Topology::nodes; ++a) {
             const double value = result.linear.values[cell.nodes[a]];
-            average += value / 4.0;
-            for (int d = 0; d < 3; ++d) gradient[d] += value * geo.gradients[a][d];
+            average += value*Tet4Topology::mean_weight;
+            for (int d = 0; d<Space3::dimension; ++d) gradient[d] += value * geo.gradients[a][d];
         }
         result.volume += geo.volume;
         result.solution_integral += geo.volume * average;
-        for (int i = 0; i < 4; ++i) for (int j = 0; j < 4; ++j) for (int k = 0; k < 4; ++k) {
-            const double r = q[i], s = q[j], t = q[k];
-            const double shape[] = {(1-r)*(1-s)*(1-t), r, (1-r)*s, (1-r)*(1-s)*t};
+        for (const auto& point:ErrorQuadrature::points) {
+            const auto& shape=point.shape;
             Point x{};
             double value = 0.0;
-            for (int a = 0; a < 4; ++a) {
+            for (int a = 0; a<Tet4Topology::nodes; ++a) {
                 value += shape[a] * result.linear.values[cell.nodes[a]];
-                for (int d = 0; d < 3; ++d) x[d] += shape[a] * mesh.nodes[cell.nodes[a]].position[d];
+                for (int d = 0; d<Space3::dimension; ++d) x[d] += shape[a] * mesh.nodes[cell.nodes[a]].position[d];
             }
-            const double weight = 6.0 * geo.volume * w[i]*w[j]*w[k] * (1-r)*(1-r)*(1-s);
+            const double weight = geo.volume*point.weight;
             const double error = value - exact_value(solution, x);
             l2_squared += weight * error * error;
             const auto exact_grad = exact_gradient(solution, x);
-            for (int d = 0; d < 3; ++d) h1_squared += weight * (gradient[d]-exact_grad[d])*(gradient[d]-exact_grad[d]);
+            for (int d = 0; d<Space3::dimension; ++d) h1_squared += weight * (gradient[d]-exact_grad[d])*(gradient[d]-exact_grad[d]);
         }
     }
     result.l2_error = std::sqrt(l2_squared);
@@ -109,8 +107,8 @@ PoissonResult solve_poisson(MPI_Comm communicator, const MeshPartition& mesh,
     std::vector<Tet4Geometry> geometry;
     geometry.reserve(mesh.cells.size());
     for (const auto& cell : mesh.cells) {
-        std::array<Point, 4> coordinates{};
-        for (int a = 0; a < 4; ++a) {
+        Tet4Topology::Nodal<Point> coordinates{};
+        for (int a = 0; a<Tet4Topology::nodes; ++a) {
             const auto local = cell.nodes[a];
 #if MHPC_DEBUG
             assert(local >= 0 && static_cast<std::size_t>(local) < mesh.nodes.size());
@@ -129,14 +127,14 @@ PoissonResult solve_poisson(MPI_Comm communicator, const MeshPartition& mesh,
     const double source = config.exact_solution == ExactSolution::quadratic ? -12.0 * config.diffusivity : 0.0;
     if (!std::isfinite(source)) throw std::runtime_error("Non-finite Poisson source");
     for (std::size_t c = 0; c < mesh.cells.size(); ++c) {
-        std::array<PetscInt, 4> indices{};
-        for (int a = 0; a < 4; ++a) indices[a] = static_cast<PetscInt>(dofs.local_to_algebra[mesh.cells[c].nodes[a]]);
+        Tet4Scalar::State<PetscInt> indices{};
+        for (int a = 0; a<Tet4Topology::nodes; ++a) indices[a] = static_cast<PetscInt>(dofs.local_to_algebra[mesh.cells[c].nodes[a]]);
         const auto element = poisson_element(geometry[c], config.diffusivity, source);
         for (double value : element.stiffness)
             if (!std::isfinite(value)) throw std::runtime_error("Non-finite element stiffness");
         for (double value : element.load)
             if (!std::isfinite(value)) throw std::runtime_error("Non-finite element load");
-        system.add(4, indices.data(), element.stiffness.data(), element.load.data());
+        system.add(Tet4Scalar::dofs, indices.data(), element.stiffness.data(), element.load.data());
     }
     std::vector<PetscInt> boundary_ids;
     for (auto local : dofs.dirichlet_nodes) boundary_ids.push_back(static_cast<PetscInt>(dofs.local_to_algebra[local]));

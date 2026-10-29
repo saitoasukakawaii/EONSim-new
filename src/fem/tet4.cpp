@@ -17,12 +17,12 @@ double dot(const Point& a, const Point& b)
 }
 } // namespace
 
-Tet4Geometry tet4_geometry(const std::array<Point, 4>& x)
+Tet4Geometry tet4_geometry(const Tet4Topology::Nodal<Point>& x)
 {
-    std::array<Point, 3> edges{};
+    Space3::Vector<Point> edges{};
     double scale = 0.0;
-    for (int i = 0; i < 3; ++i) {
-        for (int d = 0; d < 3; ++d) {
+    for (int i = 0; i<Space3::dimension; ++i) {
+        for (int d = 0; d<Space3::dimension; ++d) {
             edges[i][d] = x[i+1][d] - x[0][d];
             scale = std::max(scale, std::abs(edges[i][d]));
         }
@@ -34,14 +34,14 @@ Tet4Geometry tet4_geometry(const std::array<Point, 4>& x)
     if (!std::isfinite(determinant) || determinant <= 128.0 * std::numeric_limits<double>::epsilon())
         throw std::runtime_error("Inverted or degenerate Tet4: positive Jacobian required");
     Tet4Geometry geometry{};
-    geometry.volume = determinant * scale * scale * scale / 6.0;
+    geometry.volume = determinant * scale * scale * scale / Tet4Topology::jacobian_scale;
     if (!std::isfinite(geometry.volume) || geometry.volume <= 0.0)
         throw std::runtime_error("Tet4 volume is not representable");
     geometry.gradients[1] = c12;
     geometry.gradients[2] = cross(edges[2], edges[0]);
     geometry.gradients[3] = cross(edges[0], edges[1]);
-    for (int i = 1; i < 4; ++i) {
-        for (int d = 0; d < 3; ++d) {
+    for (int i = 1; i<Tet4Topology::nodes; ++i) {
+        for (int d = 0; d<Space3::dimension; ++d) {
             geometry.gradients[i][d] /= determinant * scale;
             if (!std::isfinite(geometry.gradients[i][d])) throw std::runtime_error("Invalid Tet4 gradient");
             geometry.gradients[0][d] -= geometry.gradients[i][d];
@@ -53,10 +53,10 @@ Tet4Geometry tet4_geometry(const std::array<Point, 4>& x)
 ElementSystem poisson_element(const Tet4Geometry& geometry, double diffusivity, double source)
 {
     ElementSystem result{};
-    for (int i = 0; i < 4; ++i) {
-        result.load[i] = source * geometry.volume / 4.0;
-        for (int j = 0; j < 4; ++j)
-            result.stiffness[4*i+j] = diffusivity * geometry.volume * dot(geometry.gradients[i], geometry.gradients[j]);
+    for (int i = 0; i<Tet4Topology::nodes; ++i) {
+        result.load[i] = source * geometry.volume * Tet4Topology::mean_weight;
+        for (int j = 0; j<Tet4Topology::nodes; ++j)
+            result.stiffness[Tet4Scalar::matrix(i,j)] = diffusivity * geometry.volume * dot(geometry.gradients[i], geometry.gradients[j]);
     }
     return result;
 }

@@ -103,9 +103,9 @@ void initialize_serial_partition(MeshPartition& mesh) {
 
 void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesystem::path& directory) {
     if (ranks < 1 || static_cast<std::size_t>(ranks) > mesh.cells.size()) throw std::runtime_error("Invalid partition count");
-    if (mesh.cells.size() > static_cast<std::size_t>(std::numeric_limits<idx_t>::max()/4) ||
+    if (mesh.cells.size() > static_cast<std::size_t>(std::numeric_limits<idx_t>::max()/Tet4Topology::nodes) ||
         mesh.nodes.size() > static_cast<std::size_t>(std::numeric_limits<idx_t>::max())) throw std::runtime_error("Mesh exceeds METIS index range");
-    idx_t ne = mesh.cells.size(), nn = mesh.nodes.size(), parts = ranks, common = 3, objective = 0;
+    idx_t ne = mesh.cells.size(), nn = mesh.nodes.size(), parts = ranks, common = Tet4Topology::face_nodes, objective = 0;
     std::vector<idx_t> pointer(ne+1), connectivity, cell_part(ne, 0), node_part(nn);
     for (idx_t i = 0; i < ne; ++i) {
         connectivity.insert(connectivity.end(), mesh.cells[i].nodes.begin(), mesh.cells[i].nodes.end()); pointer[i+1] = connectivity.size();
@@ -124,10 +124,10 @@ void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesys
         for (idx_t n = 0; n < nn; ++n) if (owners[n] == r) algebra[n] = begins[r+1]++;
     }
     const auto rows = adjacency(mesh);
-    std::map<std::array<LocalId,3>, int> face_owner;
-    for (idx_t c = 0; c < ne; ++c) for (int omit = 0; omit < 4; ++omit) {
-        std::array<LocalId,3> key{}; int j = 0;
-        for (int a = 0; a < 4; ++a) if (a != omit) key[j++] = mesh.cells[c].nodes[a];
+    std::map<Tri3Topology::Nodal<LocalId>, int> face_owner;
+    for (idx_t c = 0; c < ne; ++c) for (int omit = 0; omit < Tet4Topology::faces; ++omit) {
+        Tri3Topology::Nodal<LocalId> key{}; int j = 0;
+        for (int a = 0; a < Tet4Topology::nodes; ++a) if (a != omit) key[j++] = mesh.cells[c].nodes[a];
         std::sort(key.begin(), key.end()); face_owner[key] = cell_part[c];
     }
     std::filesystem::create_directories(directory);
@@ -182,23 +182,33 @@ MeshPartition read_partition(const std::filesystem::path& directory, int rank, i
     auto ids = read<GlobalId>(file.id, "node_ids");
     const auto coordinates = read<double>(file.id, "coordinates");
     mesh.algebra_ids = read<GlobalId>(file.id, "algebra_ids"); mesh.owners = read<int>(file.id, "owners");
-    if (coordinates.size() != 3*ids.size() || mesh.algebra_ids.size() != ids.size() || mesh.owners.size() != ids.size() || mesh.owned_nodes > ids.size())
+    if (coordinates.size() != Space3::dimension*ids.size() || mesh.algebra_ids.size() != ids.size() || mesh.owners.size() != ids.size() || mesh.owned_nodes > ids.size())
         throw std::runtime_error("Inconsistent partition node arrays");
     for (std::size_t i = 0; i < ids.size(); ++i) {
         if (mesh.algebra_ids[i] < 0 || mesh.algebra_ids[i] >= mesh.global_nodes || mesh.owners[i] < 0 || mesh.owners[i] >= ranks ||
             (i < mesh.owned_nodes && (mesh.owners[i] != rank || mesh.algebra_ids[i] != mesh.owned_begin+static_cast<GlobalId>(i))) ||
             (i >= mesh.owned_nodes && mesh.owners[i] == rank)) throw std::runtime_error("Invalid owned/ghost numbering");
-        mesh.nodes.push_back({ids[i], {coordinates[3*i], coordinates[3*i+1], coordinates[3*i+2]}});
+        Point point{};
+        std::copy_n(coordinates.begin()+Space3::dimension*i, point.size(), point.begin());
+        mesh.nodes.push_back({ids[i], point});
     }
     ids = read<GlobalId>(file.id, "cell_ids"); auto nodes = read<int>(file.id, "cell_nodes"); auto tags = read<int>(file.id, "cell_tags");
     const auto check_nodes = [&] { for (int n : nodes) if (n < 0 || static_cast<std::size_t>(n) >= mesh.nodes.size()) throw std::runtime_error("Invalid local connectivity"); };
-    if (nodes.size() != 4*ids.size() || tags.size() != ids.size()) throw std::runtime_error("Invalid cell arrays");
+    if (nodes.size() != Tet4Topology::nodes*ids.size() || tags.size() != ids.size()) throw std::runtime_error("Invalid cell arrays");
     check_nodes();
-    for (std::size_t i = 0; i < ids.size(); ++i) mesh.cells.push_back({ids[i], {nodes[4*i],nodes[4*i+1],nodes[4*i+2],nodes[4*i+3]}, tags[i]});
+    for (std::size_t i = 0; i < ids.size(); ++i) {
+        Tet4Topology::Nodal<LocalId> connectivity{};
+        std::copy_n(nodes.begin()+Tet4Topology::nodes*i, connectivity.size(), connectivity.begin());
+        mesh.cells.push_back({ids[i], connectivity, tags[i]});
+    }
     ids = read<GlobalId>(file.id, "face_ids"); nodes = read<int>(file.id, "face_nodes"); tags = read<int>(file.id, "face_tags");
-    if (nodes.size() != 3*ids.size() || tags.size() != ids.size()) throw std::runtime_error("Invalid boundary arrays");
+    if (nodes.size() != Tri3Topology::nodes*ids.size() || tags.size() != ids.size()) throw std::runtime_error("Invalid boundary arrays");
     check_nodes();
-    for (std::size_t i = 0; i < ids.size(); ++i) mesh.boundary.push_back({ids[i], {nodes[3*i],nodes[3*i+1],nodes[3*i+2]}, tags[i]});
+    for (std::size_t i = 0; i < ids.size(); ++i) {
+        Tri3Topology::Nodal<LocalId> connectivity{};
+        std::copy_n(nodes.begin()+Tri3Topology::nodes*i, connectivity.size(), connectivity.begin());
+        mesh.boundary.push_back({ids[i], connectivity, tags[i]});
+    }
     const auto offsets = read<GlobalId>(file.id, "boundary_offsets"); tags = read<int>(file.id, "boundary_tags");
     const auto valid_csr = [](const std::vector<GlobalId>& ptr, std::size_t rows, std::size_t entries) {
         return ptr.size() == rows+1 && ptr.front() == 0 && ptr.back() == static_cast<GlobalId>(entries) && std::is_sorted(ptr.begin(),ptr.end());

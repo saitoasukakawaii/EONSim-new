@@ -47,8 +47,8 @@ std::size_t count(std::istream& input)
 void validate_topology(const MeshPartition& mesh)
 {
     if (mesh.nodes.empty() || mesh.cells.empty()) throw std::runtime_error("Mesh must contain nodes and Tet4 cells");
-    std::map<std::array<LocalId, 3>, int> faces;
-    std::set<std::array<LocalId, 4>> cells;
+    std::map<Tri3Topology::Nodal<LocalId>, int> faces;
+    std::set<Tet4Topology::Nodal<LocalId>> cells;
     std::vector<bool> used(mesh.nodes.size(), false);
     for (const auto& cell : mesh.cells) {
         auto key = cell.nodes;
@@ -56,17 +56,17 @@ void validate_topology(const MeshPartition& mesh)
         if (std::adjacent_find(key.begin(), key.end()) != key.end() || !cells.insert(key).second)
             throw std::runtime_error("Repeated node or duplicate Tet4 cell");
         for (auto node : cell.nodes) used[node] = true;
-        for (int omitted = 0; omitted < 4; ++omitted) {
-            std::array<LocalId, 3> face{};
+        for (int omitted = 0; omitted < Tet4Topology::faces; ++omitted) {
+            Tri3Topology::Nodal<LocalId> face{};
             int j = 0;
-            for (int i = 0; i < 4; ++i) if (i != omitted) face[j++] = cell.nodes[i];
+            for (int i = 0; i < Tet4Topology::nodes; ++i) if (i != omitted) face[j++] = cell.nodes[i];
             std::sort(face.begin(), face.end());
             if (++faces[face] > 2) throw std::runtime_error("Non-manifold tetrahedral face");
         }
     }
     if (std::find(used.begin(), used.end(), false) != used.end())
         throw std::runtime_error("Mesh contains nodes not used by any Tet4");
-    std::set<std::array<LocalId, 3>> boundary;
+    std::set<Tri3Topology::Nodal<LocalId>> boundary;
     for (const auto& triangle : mesh.boundary) {
         auto face = triangle.nodes;
         std::sort(face.begin(), face.end());
@@ -108,7 +108,7 @@ MeshPartition read_gmsh22(const std::filesystem::path& path)
                 std::string name;
                 record >> dimension >> tag >> std::quoted(name);
                 end_record(record);
-                if (dimension < 0 || dimension > 3 || tag <= 0 ||
+                if (dimension < 0 || dimension > Space3::dimension || tag <= 0 ||
                     !mesh.physical_names.emplace(std::make_pair(dimension, tag), name).second)
                     throw std::runtime_error("Invalid or duplicate physical name");
             }
@@ -149,9 +149,9 @@ MeshPartition read_gmsh22(const std::filesystem::path& path)
                     if (j == 0) physical = tag;
                 }
                 // First-order points/lines may accompany a 3D Gmsh mesh; they carry no volume contribution.
-                const int arity = type == 4 ? 4 : type == 2 ? 3 : type == 1 ? 2 : type == 15 ? 1 : 0;
+                const int arity = type == 4 ? Tet4Topology::nodes : type == 2 ? Tri3Topology::nodes : type == 1 ? 2 : type == 15 ? 1 : 0;
                 if (!arity) throw std::runtime_error("Unsupported Gmsh element type " + std::to_string(type));
-                std::array<LocalId, 4> connectivity{};
+                Tet4Topology::Nodal<LocalId> connectivity{};
                 for (int j = 0; j < arity; ++j) {
                     GlobalId node = 0;
                     if (!(record >> node) || !local_ids.count(node)) throw std::runtime_error("Unknown Gmsh node reference");

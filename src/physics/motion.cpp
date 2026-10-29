@@ -23,18 +23,18 @@ RigidState rigid_step(const RigidParameters& p,const RigidState& old,double dt,d
 std::vector<double> extend_mesh(MPI_Comm comm,const MeshPartition& mesh,
     const std::vector<PetscInt>& dofs,const std::vector<double>& prescribed,const SolverConfig& solver)
 {
-    const auto layout=make_field_layout(mesh,3,{{"mesh",{0,1,2}}});
+    const auto layout=make_field_layout(mesh,Tet4Vector::components,{{"mesh",{0,1,2}}});
     LinearSystem system(comm,layout);
     for(const auto& cell:mesh.cells) {
-        std::array<Point,4> xyz; std::array<PetscInt,12> ids;
-        for(int a=0;a<4;++a) {
+        Tet4Topology::Nodal<Point> xyz; Tet4Vector::State<PetscInt> ids;
+        for(int a=0;a<Tet4Topology::nodes;++a) {
             xyz[a]=mesh.nodes[cell.nodes[a]].position;
-            for(int c=0;c<3;++c) ids[3*a+c]=layout.local_to_global[3*cell.nodes[a]+c];
+            for(int c=0;c<Space3::dimension;++c) ids[Tet4Vector::components*a+c]=layout.local_to_global[Tet4Vector::components*cell.nodes[a]+c];
         }
         const auto scalar=poisson_element(tet4_geometry(xyz),1,0);
-        std::array<double,144> k{}; std::array<double,12> load{};
-        for(int a=0;a<4;++a) for(int b=0;b<4;++b) for(int c=0;c<3;++c) k[(3*a+c)*12+3*b+c]=scalar.stiffness[4*a+b];
-        system.add(12,ids.data(),k.data(),load.data());
+        Tet4Vector::Matrix<double> k{}; Tet4Vector::State<double> load{};
+        for(int a=0;a<Tet4Topology::nodes;++a) for(int b=0;b<Tet4Topology::nodes;++b) for(int c=0;c<Space3::dimension;++c) k[Tet4Vector::matrix(Tet4Vector::dof(a,c),Tet4Vector::dof(b,c))]=scalar.stiffness[Tet4Scalar::matrix(a,b)];
+        system.add(Tet4Vector::dofs,ids.data(),k.data(),load.data());
     }
     system.constrain(dofs,prescribed);
     return system.solve(solver,false).values;

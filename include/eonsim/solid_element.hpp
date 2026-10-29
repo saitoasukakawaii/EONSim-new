@@ -4,12 +4,18 @@
 #include "eonsim/tet4.hpp"
 namespace eonsim {
 struct SolidParameters { double young=100, poisson=.3, density=1, dt=0; bool neo_hookean=false; };
-struct SolidElement { std::array<double,12> residual{}; std::array<double,144> tangent{}; double strain_energy=0,kinetic_energy=0; };
+template<class Element> struct SolidElementResult {
+    using Layout=NodalLayout<Element,Element::dimension>;
+    typename Layout::template State<double> residual{};
+    typename Layout::template Matrix<double> tangent{};
+    double strain_energy=0,kinetic_energy=0;
+};
+using SolidElement=SolidElementResult<Tet4Topology>;
 /** 节点优先 xyz。静力 dt=0 时 state 为位移；动态为速度，d=d_n+dt*v。
  * old_displacement/old_velocity 只读 accepted；返回原始动量残量及对 state 的导数。
  * 参考几何、SI 一致单位；无载荷、通信或历史写入。
  */
 SolidElement solid_element(const Tet4Geometry& geometry,const SolidParameters& p,
-    const std::array<double,12>& state,const std::array<double,12>& old_displacement,
-    const std::array<double,12>& old_velocity);
+    const Tet4Vector::State<double>& state,const Tet4Vector::State<double>& old_displacement,
+    const Tet4Vector::State<double>& old_velocity);
 }

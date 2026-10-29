@@ -8,36 +8,38 @@
 #include <stdexcept>
 namespace eonsim {
 namespace {
-ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,bool elastic)
+template<bool Elastic>
+ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh)
 {
-    const int nc=elastic?10:7;
+    using Layout=CoupledLayout<Tet4Topology,Elastic>;
+    constexpr int nc=Layout::components;
     // alias 为同一 rank 的节点主分量索引；-1 固定，-2 为唯一刚体速度。
     std::vector<PetscInt> alias(mesh.nodes.size()*nc);
     std::iota(alias.begin(),alias.end(),0);
     for(std::size_t n=0;n<mesh.nodes.size();++n) {
         const auto& tags=mesh.node_boundary_tags[n];
         auto has=[&](int t){return std::find(tags.begin(),tags.end(),t)!=tags.end();};
-        if(elastic) {
-            if(has(1)) for(int c=7;c<10;++c) alias[nc*n+c]=-1;
-            if(has(3)||has(4)) alias[nc*n+8]=-1;
-            if(has(5)||has(6)) alias[nc*n+9]=-1;
+        if(Elastic) {
+            if(has(1)) for(int c=Layout::structure_offset;c<Layout::components;++c) alias[nc*n+c]=-1;
+            if(has(3)||has(4)) alias[nc*n+Layout::structure_offset+1]=-1;
+            if(has(5)||has(6)) alias[nc*n+Layout::structure_offset+2]=-1;
         }
         if(has(1)||has(2)||has(3)||has(4)) alias[nc*n+1]=-1;
         if(has(1)||has(2)||has(5)||has(6)) alias[nc*n+2]=-1;
-        if(has(1)) alias[nc*n+4]=-1;
-        if(has(3)||has(4)) alias[nc*n+5]=-1;
-        if(has(5)||has(6)) alias[nc*n+6]=-1;
+        if(has(1)) alias[nc*n+Layout::mesh_offset]=-1;
+        if(has(3)||has(4)) alias[nc*n+Layout::mesh_offset+1]=-1;
+        if(has(5)||has(6)) alias[nc*n+Layout::mesh_offset+2]=-1;
         if(has(2)) {
-            if(elastic) for(int c=0;c<3;++c) {
-                alias[nc*n+c]=alias[nc*n+7+c];
-                alias[nc*n+4+c]=alias[nc*n+7+c];
-            } else { alias[nc*n]=-2; alias[nc*n+4]=-2; alias[nc*n+5]=-1; alias[nc*n+6]=-1; }
+            if(Elastic) for(int c=0;c<Layout::dimension;++c) {
+                alias[nc*n+c]=alias[nc*n+Layout::structure_offset+c];
+                alias[nc*n+Layout::mesh_offset+c]=alias[nc*n+Layout::structure_offset+c];
+            } else { alias[nc*n]=-2; alias[nc*n+Layout::mesh_offset]=-2; alias[nc*n+Layout::mesh_offset+1]=-1; alias[nc*n+Layout::mesh_offset+2]=-1; }
         }
     }
     ReducedLayout reduced;
     reduced.components=nc;
     auto& l=reduced.algebra;
-    const bool body_owner=!elastic && mesh.rank==mesh.ranks-1;
+    const bool body_owner=!Elastic && mesh.rank==mesh.ranks-1;
     GlobalId owned=body_owner?1:0;
     for(std::size_t i=0;i<nc*mesh.owned_nodes;++i) if(alias[i]==static_cast<PetscInt>(i)) ++owned;
     std::vector<GlobalId> counts(mesh.ranks);
@@ -46,7 +48,7 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,bool elastic)
     if(global>std::numeric_limits<PetscInt>::max()) throw std::runtime_error("Reduced layout exceeds PetscInt");
     l.owned=owned; l.global=global;
     l.begin=std::accumulate(counts.begin(),counts.begin()+mesh.rank,GlobalId{0});
-    reduced.body=elastic?-1:l.global-1;
+    reduced.body=Elastic?-1:l.global-1;
     std::vector<int> components(nc); std::iota(components.begin(),components.end(),0);
     const auto nodal=make_field_layout(mesh,nc,{{"node",components}});
     PetscOwner<Vec,VecDestroy> ids;
@@ -59,13 +61,13 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,bool elastic)
     for(std::size_t i=0;i<independent.size();++i) if(alias[i]==static_cast<PetscInt>(i)) {
         independent[i]=next++;
         const int c=i%nc;
-        l.fields[c<3?"velocity":(c==3?"pressure":(c<7?"mesh":"structure"))].push_back(independent[i]);
+        l.fields[c<Layout::dimension?"velocity":(c==Layout::pressure?"pressure":(c<Layout::structure_offset?"mesh":"structure"))].push_back(independent[i]);
     }
     for(std::size_t i=0;i<independent.size();++i)
         data[i]=alias[i]==-1?-1:(alias[i]==-2?reduced.body:independent.at(alias[i]));
     if(body_owner) l.fields["rigid"].push_back(reduced.body);
     for(const auto* name:{"velocity","pressure","mesh"}) (void)l.fields[name];
-    (void)l.fields[elastic?"structure":"rigid"];
+    (void)l.fields[Elastic?"structure":"rigid"];
     EONSIM_PETSC(VecRestoreArray(ids.get(),&data));
     EONSIM_PETSC(VecGhostUpdateBegin(ids.get(),INSERT_VALUES,SCATTER_FORWARD));
     EONSIM_PETSC(VecGhostUpdateEnd(ids.get(),INSERT_VALUES,SCATTER_FORWARD));
@@ -76,13 +78,13 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,bool elastic)
     EONSIM_PETSC(VecRestoreArrayRead(local,&read)); EONSIM_PETSC(VecGhostRestoreLocalForm(ids.get(),&local));
     std::set<PetscInt> ghosts;
     for(auto id:reduced.global) if(id>=0 && (id<l.begin||id>=l.begin+l.owned)) ghosts.insert(id);
-    if(!elastic&&!body_owner) ghosts.insert(reduced.body);
+    if(!Elastic&&!body_owner) ghosts.insert(reduced.body);
     for(PetscInt i=0;i<l.owned;++i) l.local_to_global.push_back(l.begin+i);
     l.local_to_global.insert(l.local_to_global.end(),ghosts.begin(),ghosts.end());
     std::map<PetscInt,PetscInt> lookup;
     for(std::size_t i=0;i<l.local_to_global.size();++i) lookup[l.local_to_global[i]]=i;
     for(auto id:reduced.global) reduced.local.push_back(id<0?-1:lookup.at(id));
-    if(!elastic) reduced.body_local=lookup.at(reduced.body);
+    if(!Elastic) reduced.body_local=lookup.at(reduced.body);
     // 单元列并集允许保守的块稀疏图；body 行的远程贡献也送到 owner。
     PetscOwner<Mat,MatDestroy> graph,pattern;
     EONSIM_PETSC(MatCreate(comm,graph.put()));
@@ -109,6 +111,6 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,bool elastic)
     return reduced;
 }
 } // namespace
-ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh) { return build_layout(comm,mesh,false); }
-ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh) { return build_layout(comm,mesh,true); }
+ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh) { return build_layout<false>(comm,mesh); }
+ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh) { return build_layout<true>(comm,mesh); }
 }

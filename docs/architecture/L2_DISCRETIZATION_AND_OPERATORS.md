@@ -58,3 +58,20 @@ FSI 阶段必须增加已明确需要的接口运动学映射：弹性界面速�
 
 依据：[libCEED、MFEM、deal.II、MOOSE 的研究](../research/UPSTREAM_ARCHITECTURE_REVIEW.md)。验证频率只按 [最小验证](../development/BUILD_AND_VALIDATION.md) 执行。
 
+
+## 编译期拓扑、布局与积分规则
+
+`include/eonsim/discretization.hpp` 统一维护结构常量：
+
+- `CartesianSpace<Dimension>` 给出向量、二阶/四阶张量尺寸及索引。
+- `Simplex<Dimension>` 给出 P1 单纯形节点、面节点、Jacobian 体积因子和解析质量权重。
+- `NodalLayout<Element, Components>` 推导单元自由度和矩阵尺寸，提供节点优先的 `dof` 与行优先的 `matrix` 索引。
+- `FluidLayout<Element>` 定义速度—压力布局；`CoupledLayout<Element, Elastic>` 定义流体、网格及可选弹性结构的偏移。刚体/弹性 FSI 分别实例化，运行时配置选择入口。
+
+现有内核通过 `Tet4Scalar`、`Tet4Vector`、`Tet4Flow`、`Tet4Ale` 等别名使用这些定义；全局节点索引保留调用者整数宽度。模板表达存储与布局，并不意味着已经提供二维物理内核或其他单元类型。
+
+`include/eonsim/quadrature.hpp` 独立维护积分数值：`GaussLegendre<N>` 提供区间 `[0,1]` 的 1–4 点规则，`SimplexGauss<Tet4Topology,4>` 提供二阶精确的四面体对称四点规则，`TetDuffyGauss<N>` 将每轴 Gauss 点映射到四面体，支持 N=2–4。点、重心坐标和权重全部采用 `inline static constexpr` 数组，不在装配过程中生成。四面体权重之和为 1，积分时乘物理体积。
+
+当前 `FluidQuadrature` 选择对称四点规则，`ErrorQuadrature` 选择每轴四点的 Duffy 规则。改变积分策略应修改这些编译期别名并重新验证。`quadrature_moments` 测试按解析单项式积分检查各规则宣称的精确阶数、权重和与质量矩；既有单元导数和 MPI 算例检查装配行为。
+
+数学系数、坐标轴索引、边界物理标签及外部文件格式类型码保留其原有含义，不作为节点数或自由度尺寸处理。

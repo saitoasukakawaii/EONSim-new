@@ -6,7 +6,7 @@
 namespace eonsim {
 struct ReducedLayout {
     AlgebraLayout algebra;
-    int components=7;
+    int components=Tet4Ale::components;
     // 每个节点前七分量 [u,v,w,p,dm_x,dm_y,dm_z]；弹性模式另加三个结构速度分量。
     // global/local 给出有效全局/本地编号，界面别名共享对应编号。
     // -1 表示恒定零；刚体界面自由度共享 body，dm_x 的链式系数由时间步给出。

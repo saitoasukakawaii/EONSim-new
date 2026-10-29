@@ -294,3 +294,5 @@ Debug/Release 的 13 项 CTest 全部通过，包含五类 transient/FSI 配置�
 
 可选 API 文档：`cmake --preset debug -DMHPC_BUILD_DOCS=ON`，随后
 `cmake --build build/debug --target docs`；入口为 `build/docs/html/index.html`。
+
+结构常量由 [discretization.hpp](include/eonsim/discretization.hpp) 的拓扑/场布局模板推导；高斯积分点与权重由独立的 [quadrature.hpp](include/eonsim/quadrature.hpp) 静态模板维护。当前物理求解仍为三维 Tet4；模板定义和积分规则选择见 [离散算子说明](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md#编译期拓扑布局与积分规则)。

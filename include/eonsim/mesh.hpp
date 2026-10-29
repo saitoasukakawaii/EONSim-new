@@ -2,6 +2,7 @@
 /** @file
  * @brief Tet4 网格、稳定 ID 和本地 owned/ghost 数据。 */
 
+#include "eonsim/discretization.hpp"
 #include <array>
 #include <cstdint>
 #include <filesystem>
@@ -13,11 +14,11 @@ namespace eonsim {
 
 using GlobalId = std::int64_t;
 using LocalId = std::int32_t;
-using Point = std::array<double, 3>;
+using Point = Space3::Vector<double>;
 
 struct Node { GlobalId global_id; Point position; };
-struct Tet4 { GlobalId global_id; std::array<LocalId, 4> nodes; int physical_tag; };
-struct BoundaryTriangle { GlobalId global_id; std::array<LocalId, 3> nodes; int physical_tag; };
+struct Tet4 { GlobalId global_id; Tet4Topology::Nodal<LocalId> nodes; int physical_tag; };
+struct BoundaryTriangle { GlobalId global_id; Tri3Topology::Nodal<LocalId> nodes; int physical_tag; };
 
 /** @brief 一个 rank 持有的单元与节点；节点按 owned 在前、ghost 在后存储。
  * @ingroup mhpc_parallel

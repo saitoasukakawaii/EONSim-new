@@ -14,7 +14,7 @@ void write_piece(const std::filesystem::path& path, const MeshPartition& mesh,
     out.open(path);
     out << std::setprecision(17);
     const auto count = boundary ? mesh.boundary.size() : mesh.cells.size();
-    const int arity = boundary ? 3 : 4;
+    const int arity = boundary ? Tri3Topology::nodes : Tet4Topology::nodes;
     out << "<?xml version=\"1.0\"?>\n<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">\n"
         << "<UnstructuredGrid><Piece NumberOfPoints=\"" << mesh.nodes.size() << "\" NumberOfCells=\"" << count << "\">\n"
         << "<Points><DataArray type=\"Float64\" NumberOfComponents=\"3\" format=\"ascii\">\n";

@@ -31,9 +31,9 @@ std::uint64_t state_signature(const MeshPartition& mesh,const std::string& physi
     std::uint64_t hash=1469598103934665603ULL;
     auto bytes=[&](const void* data,std::size_t size) { const auto* p=static_cast<const unsigned char*>(data); for(std::size_t i=0;i<size;++i) { hash^=p[i]; hash*=1099511628211ULL; } };
     bytes(physics.data(),physics.size()); bytes(parameters.data(),parameters.size()*sizeof(double));
-    for(const auto& n:mesh.nodes) { bytes(&n.global_id,sizeof(n.global_id)); bytes(n.position.data(),3*sizeof(double)); }
-    for(const auto& c:mesh.cells) { bytes(&c.global_id,sizeof(c.global_id)); bytes(c.nodes.data(),4*sizeof(LocalId)); }
-    for(const auto& f:mesh.boundary) { bytes(f.nodes.data(),3*sizeof(LocalId)); bytes(&f.physical_tag,sizeof(f.physical_tag)); }
+    for(const auto& n:mesh.nodes) { bytes(&n.global_id,sizeof(n.global_id)); bytes(n.position.data(),n.position.size()*sizeof(double)); }
+    for(const auto& c:mesh.cells) { bytes(&c.global_id,sizeof(c.global_id)); bytes(c.nodes.data(),c.nodes.size()*sizeof(LocalId)); }
+    for(const auto& f:mesh.boundary) { bytes(f.nodes.data(),f.nodes.size()*sizeof(LocalId)); bytes(&f.physical_tag,sizeof(f.physical_tag)); }
     bytes(mesh.algebra_ids.data(),mesh.algebra_ids.size()*sizeof(GlobalId));
     bytes(mesh.owners.data(),mesh.owners.size()*sizeof(int));
     return hash;
