@@ -1,4 +1,5 @@
 #include "eonsim/fsi_element.hpp"
+#include "eonsim/boundary_geometry.hpp"
 #include <cmath>
 namespace eonsim {
 Tet4Ale::State<double> fsi_element_residual(const FsiElementData& data,const Tet4Ale::State<double>& x)
@@ -20,14 +21,12 @@ Tet4Ale::State<double> fsi_element_residual(const FsiElementData& data,const Tet
         for(int c=0;c<Space3::dimension;++c) for(int b=0;b<Tet4Topology::nodes;++b) result[Tet4Ale::components*a+Tet4Ale::mesh_offset+c]+=k.stiffness[Tet4Scalar::matrix(a,b)]*x[Tet4Ale::components*b+Tet4Ale::mesh_offset+c];
     }
     for(const auto& face:data.inlet_faces) {
-        const auto& a=current[face[0]]; const auto& b=current[face[1]]; const auto& c=current[face[2]];
-        Point ab,ac,n;
-        for(int i=0;i<Space3::dimension;++i) { ab[i]=b[i]-a[i]; ac[i]=c[i]-a[i]; }
-        for(int i=0;i<Space3::dimension;++i) n[i]=(ab[(i+1)%Space3::dimension]*ac[(i+2)%Space3::dimension]-ab[(i+2)%Space3::dimension]*ac[(i+1)%Space3::dimension])/2;
+        Tri3Topology::Nodal<Point> coordinates;
+        for(int a=0;a<Tri3Topology::nodes;++a) coordinates[a]=current[face[a]];
         int opposite=0; while(opposite==face[0]||opposite==face[1]||opposite==face[2]) ++opposite;
-        double dot=0; for(int i=0;i<Space3::dimension;++i) dot+=n[i]*(current[opposite][i]-a[i]);
-        if(dot>0) for(double& v:n) v=-v;
-        for(int node:face) for(int i=0;i<Space3::dimension;++i) result[Tet4Ale::dof(node,i)]+=data.inlet_pressure*n[i]*Tri3Topology::mean_weight;
+        const auto surface=triangle_geometry(coordinates,current[opposite]);
+        for(int node:face) for(int i=0;i<Space3::dimension;++i)
+            result[Tet4Ale::dof(node,i)]+=data.inlet_pressure*surface.area*surface.normal[i]*Tri3Topology::mean_weight;
     }
     return result;
 }

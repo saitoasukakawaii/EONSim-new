@@ -47,6 +47,7 @@ add_library(eonsim_core
     src/mesh/gmsh.cpp
     src/mesh/partition.cpp
     src/fem/tet4.cpp
+    src/fem/boundary_geometry.cpp
     src/fem/field_layout.cpp
     src/algebra/linear_system.cpp
     src/algebra/nonlinear_system.cpp
@@ -80,6 +81,9 @@ endif()
 
 if(BUILD_TESTING)
     enable_testing()
+    add_executable(verify_boundary_geometry tests/verify_boundary_geometry.cpp)
+    target_link_libraries(verify_boundary_geometry PRIVATE eonsim_core)
+    add_test(NAME boundary_geometry COMMAND verify_boundary_geometry)
     add_executable(verify_quadrature tests/verify_quadrature.cpp)
     target_link_libraries(verify_quadrature PRIVATE eonsim_core)
     add_test(NAME quadrature_moments COMMAND verify_quadrature)

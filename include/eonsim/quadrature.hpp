@@ -27,6 +27,18 @@ template<class Element> struct QuadraturePoint {
 };
 /// 对称单纯形积分：当前提供 Tet4 的四点二阶精确规则。
 template<class Element,int Points> struct SimplexGauss;
+template<> struct SimplexGauss<Tri3Topology,3> {
+    using Element=Tri3Topology;
+    static constexpr int size=3, exact_degree=2;
+    inline static constexpr auto points=[] {
+        std::array<QuadraturePoint<Element>,size> rule{};
+        for(int q=0;q<size;++q) {
+            for(int a=0;a<Element::nodes;++a) rule[q].shape[a]=a==q?2./3:1./6;
+            rule[q].weight=1.0/size;
+        }
+        return rule;
+    }();
+};
 template<> struct SimplexGauss<Tet4Topology,4> {
     using Element=Tet4Topology;
     static constexpr int size=4, exact_degree=2;
@@ -57,6 +69,7 @@ template<int PointsPerAxis> struct TetDuffyGauss {
         return rule;
     }();
 };
+using BoundaryQuadrature=SimplexGauss<Tri3Topology,3>;
 using FluidQuadrature=SimplexGauss<Tet4Topology,4>;
 using ErrorQuadrature=TetDuffyGauss<4>;
 }

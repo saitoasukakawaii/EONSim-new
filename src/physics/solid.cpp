@@ -1,4 +1,5 @@
 #include "eonsim/solid.hpp"
+#include "eonsim/boundary_geometry.hpp"
 #include "eonsim/checkpoint.hpp"
 #include "eonsim/solid_element.hpp"
 #include "eonsim/field_layout.hpp"
@@ -12,6 +13,9 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
 {
     const auto& s=config.solid;
     const auto layout=make_field_layout(mesh,Tet4Vector::components,{{"structure",{0,1,2}}});
+    const auto facets=build_boundary_facets(mesh);
+    std::vector<TriangleGeometry> surfaces;
+    for(std::size_t f=0;f<facets.size();++f) surfaces.push_back(boundary_geometry(mesh,f,facets[f]));
     std::vector<Tet4Geometry> geometry;
     for(const auto& cell:mesh.cells) {
         Tet4Topology::Nodal<Point> xyz;
@@ -62,10 +66,7 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
                 if(j) EONSIM_PETSC(MatSetValues(j,Tet4Vector::dofs,ids.data(),Tet4Vector::dofs,ids.data(),local.tangent.data(),ADD_VALUES));
             }
             if(step==0) for(const auto& face:mesh.boundary) if(face.physical_tag==2) {
-                const auto& a=mesh.nodes[face.nodes[0]].position;
-                const auto& b=mesh.nodes[face.nodes[1]].position;
-                const auto& c=mesh.nodes[face.nodes[2]].position;
-                const double load=-s.traction*std::abs((b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]))/6;
+                const double load=-s.traction*surfaces[&face-mesh.boundary.data()].area*Tri3Topology::mean_weight;
                 for(auto n:face.nodes) {
                     const PetscInt id=layout.local_to_global[Tet4Vector::components*n];
                     EONSIM_PETSC(VecSetValues(r,1,&id,&load,ADD_VALUES));

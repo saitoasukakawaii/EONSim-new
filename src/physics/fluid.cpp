@@ -1,4 +1,5 @@
 #include "eonsim/fluid.hpp"
+#include "eonsim/boundary_geometry.hpp"
 #include "eonsim/quadrature.hpp"
 #include "eonsim/checkpoint.hpp"
 #include "eonsim/fluid_element.hpp"
@@ -13,6 +14,9 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
 {
     const auto& f=config.fluid;
     const auto layout=make_field_layout(mesh,Tet4Flow::components,{{"velocity",{0,1,2}},{"pressure",{Tet4Flow::pressure}}});
+    const auto facets=build_boundary_facets(mesh);
+    std::vector<TriangleGeometry> surfaces;
+    for(std::size_t f=0;f<facets.size();++f) surfaces.push_back(boundary_geometry(mesh,f,facets[f]));
     std::vector<Tet4Geometry> geometry;
     for(const auto& cell:mesh.cells) {
         Tet4Topology::Nodal<Point> coordinates;
@@ -89,10 +93,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
             // x=1 处解析通道牵引 sigma*n=(0, mu*du_x/dy, 0)，压力基准由此确定。
             // 一致三角形质量矩阵积分线性牵引，独立于 trial，无额外切线。
             if(f.traction_outlet) for(const auto& face:mesh.boundary) if(face.physical_tag==2) {
-                const auto& a=mesh.nodes[face.nodes[0]].position;
-                const auto& b=mesh.nodes[face.nodes[1]].position;
-                const auto& c=mesh.nodes[face.nodes[2]].position;
-                const double area=std::abs((b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]))/2;
+                const double area=surfaces[&face-mesh.boundary.data()].area;
                 for(int i=0;i<Space3::dimension;++i) {
                     double load=0;
                     for(int k=0;k<Space3::dimension;++k) load+=area*Tri3Topology::mass_weight(i,k)*scale*f.pressure_drop/2
@@ -119,10 +120,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     }
     double metrics[8]{},global[8]{};
     for(const auto& face:mesh.boundary) if(face.physical_tag<=2) {
-        const auto& a=mesh.nodes[face.nodes[0]].position;
-        const auto& b=mesh.nodes[face.nodes[1]].position;
-        const auto& c=mesh.nodes[face.nodes[2]].position;
-        const double area=std::abs((b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]))/2;
+        const double area=surfaces[&face-mesh.boundary.data()].area;
         const int side=face.physical_tag-1;
         metrics[4+side]+=area;
         for(auto n:face.nodes) { metrics[side]+=area*accepted[Tet4Flow::components*n]*Tri3Topology::mean_weight; metrics[2+side]+=area*accepted[Tet4Flow::dof(n,Tet4Flow::pressure)]*Tri3Topology::mean_weight; }
