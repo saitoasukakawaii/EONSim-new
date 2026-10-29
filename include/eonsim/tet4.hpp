@@ -4,9 +4,9 @@
 
 namespace eonsim {
 
-template<class Element> struct SimplexGeometry {
-    double volume;
-    typename Element::template Nodal<typename Element::Space::template Vector<double>> gradients;
+template<class Element,class Scalar=double> struct SimplexGeometry {
+    Scalar volume;
+    typename Element::template Nodal<typename Element::Space::template Vector<Scalar>> gradients;
 };
 using Tet4Geometry=SimplexGeometry<Tet4Topology>;
 

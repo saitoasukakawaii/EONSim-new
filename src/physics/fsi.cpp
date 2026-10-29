@@ -17,6 +17,8 @@ template<bool Elastic>
 FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& config)
 {
     const auto& f=config.fsi;
+    PetscBool finite_difference=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_fd_tangent",&finite_difference,nullptr));
     const bool dual=!f.domains.solid_mesh.empty();
     const auto reduced=dual?make_dual_fsi_layout(comm,mesh,f.domains):Elastic?make_elastic_fsi_layout(comm,mesh):make_rigid_fsi_layout(comm,mesh);
     using Layout=CoupledLayout<Tet4Topology,Elastic>;
@@ -131,7 +133,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             const auto fr=fsi_element_residual(data[e],state);
             for(int i=0;i<Tet4Ale::dofs;++i) r[Layout::dof(Tet4Ale::node(i),Tet4Ale::component(i))]=fr[i];
             if(tangent) {
-                const auto fj=fsi_element_tangent(data[e],state);
+                const auto fj=finite_difference?fsi_element_tangent_fd(data[e],state):fsi_element_tangent(data[e],state);
                 for(int i=0;i<Tet4Ale::dofs;++i) for(int k=0;k<Tet4Ale::dofs;++k) j[(Layout::dof(Tet4Ale::node(i),Tet4Ale::component(i)))*nd+Layout::dof(Tet4Ale::node(k),Tet4Ale::component(k))]=fj[Tet4Ale::matrix(i,k)];
             }
             }

@@ -1,4 +1,5 @@
 #include "eonsim/fluid_element.hpp"
+#include "eonsim/fluid_residual.hpp"
 #include "eonsim/quadrature.hpp"
 #include <cmath>
 #include <stdexcept>
@@ -12,13 +13,13 @@ FluidElement fluid_element(const Tet4Geometry& g, const FluidParameters& p,
         !std::isfinite(p.density+p.viscosity+p.dt+p.tau))
         throw std::runtime_error("Invalid fluid material/time/stabilization");
     FluidElement e;
+    e.residual=fluid_residual(g,p,x,old,w);
+    if(!compute_tangent) return e;
     double grad[Space3::dimension][Space3::dimension]{}, gradp[Space3::dimension]{};
     for (int a=0;a<Tet4Topology::nodes;++a) for (int j=0;j<Space3::dimension;++j) {
         gradp[j] += x[Tet4Flow::dof(a,Tet4Flow::pressure)]*g.gradients[a][j];
         for (int i=0;i<Space3::dimension;++i) grad[i][j] += x[Tet4Flow::dof(a,i)]*g.gradients[a][j];
     }
-    double divergence=0;
-    for(int i=0;i<Space3::dimension;++i) divergence+=grad[i][i];
     const double mass=p.dt>0 ? p.density/p.dt : 0;
     // 对称四点积分精确积分本核固定 tau 下的三次以下被积项中的二次项；
     // SUPG 的三次对流项用四点规则近似，残量与切线使用完全相同规则。
@@ -34,19 +35,9 @@ FluidElement fluid_element(const Tet4Geometry& g, const FluidParameters& p,
             for(int j=0;j<Space3::dimension;++j) rm[i]+=p.density*c[j]*grad[i][j];
         }
         const double weight=g.volume*point.weight;
-        double pressure=0;
-        for(int a=0;a<Tet4Topology::nodes;++a) pressure+=N[a]*x[Tet4Flow::dof(a,Tet4Flow::pressure)];
         for(int a=0;a<Tet4Topology::nodes;++a) {
             double streamline=0;
             for(int j=0;j<Space3::dimension;++j) streamline+=p.density*c[j]*g.gradients[a][j];
-            for(int i=0;i<Space3::dimension;++i) {
-                double r=N[a]*(rm[i]-gradp[i])-pressure*g.gradients[a][i]+p.tau*streamline*rm[i];
-                for(int j=0;j<Space3::dimension;++j) r+=p.viscosity*(grad[i][j]+grad[j][i])*g.gradients[a][j];
-                e.residual[Tet4Flow::dof(a,i)]+=weight*r;
-            }
-            double rp=N[a]*divergence;
-            for(int i=0;i<Space3::dimension;++i) rp+=p.tau*g.gradients[a][i]*rm[i];
-            e.residual[Tet4Flow::dof(a,Tet4Flow::pressure)]+=weight*rp;
             if(compute_tangent) for(int b=0;b<Tet4Topology::nodes;++b) for(int k=0;k<Tet4Flow::components;++k) {
                 double drm[Space3::dimension]{};
                 for(int i=0;i<Space3::dimension;++i) {

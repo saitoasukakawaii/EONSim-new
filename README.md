@@ -4,7 +4,7 @@ C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体
 使用 Tet4、BE、MPI owned/ghost 分区、METIS/HDF5 预处理和 PETSc KSP/SNES。
 有限变形固体支持可压缩 Neo-Hookean；耦合流体、结构/刚体和 ALE 同时收敛后提交状态。
 
-当前验证包括随仓库提供的立方体/旋转通道、弹性块和活塞算例；固定网格流体支持标签边界及常量/仿射数据。尚不包含通用表达式、非匹配界面、重网格或大规模扩展性保证。
+当前验证包括随仓库提供的立方体/旋转通道、弹性块和活塞算例；流体/固体支持区域材料与分量约束，弹性 FSI 支持独立共形双网格。尚不包含通用表达式、非匹配界面、重网格或大规模扩展性保证。
 各阶段的实际结果与限制见下文及 [开发路线](docs/development/ROADMAP.md)。
 
 ## 环境与构建
@@ -16,7 +16,7 @@ BLAS/LAPACK、METIS、HDF5 和 yaml-cpp（当前验证版本 0.8.0）。运行�
 当前 `EONSimPETScProvider.cmake` 找到的 PETSc 3.23.2 已配置 HYPRE、SuperLU_DIST、
 MUMPS、METIS 和 HPDDM，未配置 AMGX。依据为安装目录的 petscconf.h、petscvariables
 及此前 PetscHasExternalPackage 检查；“已配置”不等于本项目已测试每个求解器。
-本轮实际运行了 METIS 分区、SuperLU_DIST 整体直接解与 PETSc ASM/ILU 分块解。
+本轮实际运行了 METIS 分区、SuperLU_DIST 整体直接解、PETSc ASM/ILU 分块解及 Schur/GAMG。
 
 ```bash
 cmake --preset debug
@@ -220,8 +220,8 @@ y/z 壁面无穿透、切向自由。活塞速度和位置由流体力驱动，�
 网格界面位移为 `q_n+dt*V`，压力规范来自入口牵引。
 网格平滑残量不进入刚体动量；流体力使用施加约束前的界面动量残量。
 
-首版完整耦合切线通过局部中心差分形成，包括几何、当前面积、网格速度及全部跨场块；
-这是小规模正确性基线，不是高性能解析 FSI 切线。
+首版用局部中心差分验证了完整耦合切线；B5 已改为解析几何导数与固定宽度前向链式传播，
+包括几何、当前面积、网格速度及全部跨场块。`-fsi_fd_tangent` 保留原差分对照路径。
 27 节点/48 四面体，dt=0.02，5 步后位移 0.00198413352、速度 0.03297023486、
 流体力 0.67283868180。独立参考 `(m+rho*(1+q))*a+c*V+k*q=P` 与离散结果吻合。
 Debug/Release 的 1/2 rank、局部/总系统导数、零压力无运动和动量平衡检查通过。
@@ -230,7 +230,8 @@ Debug/Release 的 1/2 rank、局部/总系统导数、零压力无运动和动�
 
 `cases/fsi/elastic.yaml` 在流体 x=1 处连接厚 0.25 的弹性块，固体背面固定、
 y/z 侧面滚动约束。两域采用匹配的逻辑网格，固体物理参考 x=1+thickness*(1-X)，
-因此界面共形；这不是任意双网格导入器。独立固体单元直接复用于同一 FSI SNES。
+因此界面共形；此旧入口保留作回归。B3 的 `fsi.domains` 可导入独立共形双网格，见下文。
+独立固体单元直接复用于同一 FSI SNES。
 界面流体速度与结构速度共享有效编号，网格界面位移由结构 BE 位移恢复。
 输出主 VTU 为流体当前网格，伴随 `_solid.vtu` 为固体当前网格，均包含位移/速度。
 
@@ -247,7 +248,7 @@ Debug/Release 的共享界面几何/速度、全局 Jacobian、1/2 rank、零压
 `W=mu/2*(tr(F^T*F)-3)-mu*ln(J)+lambda/2*ln(J)^2`；
 局部 P、dP/dF 为解析公式，BE 切线包括位移对速度的 dt 系数。
 Cauchy 应力按 `sigma=P*F^T/J` 映射，测试同时核对 Nanson 面积牵引关系。
-FSI 流体几何块仍采用 P5 的局部中心差分；材料切线为解析。
+材料切线为解析；FSI 流体几何块现采用 B5 的解析几何与前向链式切线。
 
 独立牵引 20、E=100、nu=.3 时，轴向/横向伸长比 1.2329893744/0.9376077659，
 反力 -20；静态与撤载、刚体旋转、能量导数、材料/BE 切线均验证。
@@ -280,14 +281,14 @@ Debug/Release、1/2 rank、全局 Jacobian 和界面力平衡检查通过。
 流体保存 accepted 场；固体保存位移/速度/加速度与能量；FSI 还保存有效未知量、
 原始物理场、固体位移、刚体位置/速度和网格历史。当前仅 BE，无额外不可逆材料内部变量。
 缺失文件、参数/分区不匹配或非有限字段会失败退出；不支持跨 rank 重分区恢复。
-`-stop_after N` 是主动保存后结束本次运行，恢复步必须早于所请求的结束步。
+`-stop_after N` 按累计 accepted 步数主动结束本次运行，恢复的物理时间必须早于请求的结束时间。
 
 本机 PETSc 3.23.2 / SuperLU_DIST 9.1.0 的多个 LU 子块同时存在时，
 销毁路径出现 communicator 重复释放，Valgrind 已复现；因此分块默认不使用多个 SuperLU_DIST 子因子。
 单个整体直接解保持可用。修复外部依赖前，不建议手动把各分块同时改回该 LU 后端。
 ASM 路径在 CPU 下的针对性 Valgrind 检查报告 0 个内存访问错误；此结果不代表全依赖库无内存泄漏。
 
-Debug/Release 的 13 项 CTest 全部通过，包含五类 transient/FSI 配置的 1/2 rank 重启对照，
+P8 交付时 Debug/Release 的 13 项 CTest 全部通过，包含五类 transient/FSI 配置的 1/2 rank 重启对照，
 以及有限变形 FSI 的直接解与分块解 1/2/4 rank 对照。
 性能复现脚本为 `scripts/benchmark_fsi.py`；实际规模和数字见
 [性能基线](docs/development/PERFORMANCE_BASELINE.md)，不把这些小网格运行解释为大规模扩展性证明。
@@ -323,10 +324,81 @@ B1 固定网格流体现在可使用任意正 physical tag 配置边界；不需
 前两类可增加 `origin: [x0,y0,z0]` 和三行 `gradient`，表示 `value + gradient*(x-origin)`。
 瞬态可在每条条件中配置 `ramp_time`，全局 `dt/steps` 用法不变。标签模式不接受旧通道专用的
 `pressure_drop/outlet/ramp_time` 顶层参数；省略 `boundaries` 时继续运行原有通道基准。
-全速度边界需要 `fluid.pressure_gauge: {node: 原始网格ID, value: 压力}`；与自然边界并用会报错。
+法向速度封闭时需要 `fluid.pressure_gauge: {node: 原始网格ID, value: 压力}` 或零均压策略；
+压力规范与存在自由法向速度的边界并用会报错。
 重复/缺失/多余标签、矛盾速度约束和不相容的全速度边界净通量在求解前失败。
 
 每个标签输出 `area`、`outward_flow` 和 `mean_pressure`，另输出整体 `net_outward_flow` 与 `divergence_l2`。
 通用边界模式没有预设解析解，因此不打印旧通道的速度误差。`tagged_fluid_verification` 验证旋转通道
 的三种边界配置、仿射牵引、1/2 rank、瞬态 ramp、同分区重启和错误输入。
-当前每个标签只支持一种完整向量条件，材料仍为空间常量；组件约束、多材料和独立流固网格按 B2/B3 推进。
+
+## B2 区域材料与分量约束
+
+`fluid.regions` 按体标签指定 `density/viscosity`，`solid.regions` 指定 `young/poisson/density/material`；
+设置后必须覆盖所有实际体标签，遗漏、多余、重复和非法材料参数会报错。省略时沿用全域材料。例如：
+
+```yaml
+solid:
+  mode: static
+  regions:
+    - {tag: 10, young: 100, poisson: 0, density: 1, material: linear}
+    - {tag: 20, young: 200, poisson: 0, density: 1, material: linear}
+```
+
+速度/位移边界可加 `components: [0, 2]`，仅约束全局笛卡尔 x/z 分量；默认约束全部分量。
+固体用 `type: displacement` 和三分量 `value`，牵引用 `type: traction`。每个标签仍只有一条条件；
+共享节点按分量合并，冲突报错。未约束的分量为自然条件；不提供任意方向的多点约束。
+固体当前支持静载与撤载，边界不接受时间 ramp。通用固体场可在 VTU 查看，旧 `tip_displacement/reaction_x`
+摘要仍按 x=1/x=0 单位块基准定义。
+
+`fluid.pressure_normalization: mean` 在一个连通的法向速度封闭流体域中先临时点定标，再减去体积平均压力；
+输出压力及约束反力使用相同基准。它与 `pressure_gauge` 互斥，不是自动多连通域零空间探测。
+双材料精确杆、混合分量约束流体及压力归一化见 `tests/verify_regions.py`。
+
+## B3 独立共形流固网格
+
+```bash
+./build/release/eonsim -case cases/fsi/domains/case.yaml -prepare results/domains2 -parts 2
+/usr/bin/mpiexec -n 2 ./build/release/eonsim -case cases/fsi/domains/case.yaml \
+  -partition results/domains2 -schur_pc -output results/domains.vtu
+```
+
+该算例实际读取 48 个流体单元和 51 个固体单元，两域节点编号、顺序和内部划分不同，共享 9 个界面节点。
+`fsi.domains` 指定 `solid_mesh`、两域体标签、界面标签、`match_tolerance`、压力入口标签及三组齐次分量约束。
+界面节点和三角面必须一一匹配，两侧外法向相反；外边界标签须跨域互不重复。
+当前每个 FSI 域仍使用一套材料参数；B2 的多材料列表用于独立流体/固体。
+
+预处理合并界面节点后统一 METIS 分区；求解阶段各 rank 只读自己的 HDF5。
+两域输出分别为主文件和 `_solid` 文件，共用本地点表；未被该域单元引用的点没有该域物理场含义。
+分区格式升级为 v2，旧分区必须重新 `-prepare`。非匹配界面、重网格和在线重分区尚未实现。
+
+## B4 时间步失败恢复
+
+在 YAML 根节点添加：
+
+```yaml
+time_control: {max_retries: 6, minimum_dt: 0.0005, reduction: 0.5}
+```
+
+`dt*steps` 定义终止物理时间。数值不收敛或非法 trial 几何会丢弃本次试算，从上一 accepted 状态缩步重算；
+输入、通信和 I/O 错误不重试。成功后保持缩小的步长，不自动增长；默认 `max_retries: 0`。
+这是失败恢复策略，尚无局部截断误差估计。缩步后 accepted 步数可能多于配置 `steps`。
+
+checkpoint v2 保存实际 `time/next_dt`；同 rank、同分区恢复可继续缩步后的时间轨迹。
+旧 v1 checkpoint 明确拒绝。测试使用真实 Neo-Hookean FSI Newton 失败触发 dt=0.04→0.0025，
+验证与从头使用小步长的计算及 1/2 rank 重启结果一致。
+
+## B5 导数、Schur 与精度记录
+
+`-schur_pc` 启用速度—压力 Schur/GAMG，可用于独立流体与单体 FSI；与 `-block_pc` 互斥。
+FSI 外层仍按 flow/mesh/structure（或 rigid）分块，flow 内部再分速度/压力。
+近似 Schur 为 `D−C diag(A)⁻¹B`；速度、压力、网格和弹性块采用 GAMG，刚体块用 Jacobi。
+默认粗层为 GMRES/Jacobi，避免多个 SuperLU_DIST 子因子；完整耦合算子和非线性容差保持一致。
+子块 PETSc 选项可通过 `-fieldsplit_velocity_*`、`-fieldsplit_pressure_*` 覆盖；FSI 流体子块再加 `fieldsplit_flow_` 前缀。
+
+默认 FSI 切线使用解析体积/形函数梯度导数与固定宽度前向链式传播；积分仍由静态模板维护。
+`-fsi_fd_tangent` 只用于差分参考。单元导数、1/2/4 rank 的完整场及整体直接解对照均有自动检查。
+
+[实际精度与性能记录](docs/development/B5_ACCURACY_AND_PERFORMANCE.md) 包含 4³/8³/12³ 通道压力和速度收敛、
+5 组 FSI 时间步、703/2299 有效未知量的直接解/Schur/差分切线耗时及内存。
+当前测试覆盖低 Re 小规模问题；尚未证明网格无关迭代、高 Re 或大规模生产性能。

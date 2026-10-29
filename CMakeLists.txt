@@ -52,6 +52,7 @@ add_library(eonsim_core
     src/fem/field_layout.cpp
     src/algebra/linear_system.cpp
     src/algebra/nonlinear_system.cpp
+    src/algebra/schur_solver.cpp
     src/physics/fluid_element.cpp
     src/fem/reduced_layout.cpp
     src/physics/fsi.cpp
@@ -102,6 +103,12 @@ if(BUILD_TESTING)
     target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
     add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME schur_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_schur.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/schur_verification")
+    set_tests_properties(schur_verification PROPERTIES TIMEOUT 300 PROCESSORS 4
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME time_retry_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_time_retry.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"

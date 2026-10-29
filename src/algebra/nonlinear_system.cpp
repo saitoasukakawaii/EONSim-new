@@ -1,4 +1,5 @@
 #include "eonsim/nonlinear_system.hpp"
+#include "eonsim/schur_solver.hpp"
 #include "eonsim/time_step.hpp"
 #include <cmath>
 #include <stdexcept>
@@ -108,9 +109,11 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
     EONSIM_PETSC(SNESGetKSP(snes.get(),&ksp)); EONSIM_PETSC(KSPGetPC(ksp,&pc));
     EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCLU));
     EONSIM_PETSC(PCFactorSetMatSolverType(pc,MATSOLVERSUPERLU_DIST));
-    PetscBool block=PETSC_FALSE;
+    PetscBool block=PETSC_FALSE,schur=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-schur_pc",&schur,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-block_pc",&block,nullptr));
-    if(block) {
+    if(block&&schur) throw std::runtime_error("Choose block_pc or schur_pc");
+    if(block||schur) {
         EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
         EONSIM_PETSC(KSPSetTolerances(ksp,1e-9,1e-13,PETSC_DEFAULT,500));
         EONSIM_PETSC(PCSetType(pc,PCFIELDSPLIT));
@@ -118,7 +121,7 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
     }
     EONSIM_PETSC(SNESSetFromOptions(snes.get()));
     PCType type; EONSIM_PETSC(PCGetType(pc,&type));
-    if(std::strcmp(type,PCFIELDSPLIT)==0) {
+    if(!schur&&std::strcmp(type,PCFIELDSPLIT)==0) {
         auto fields=l.fields;
         if(fields.count("velocity")&&fields.count("pressure")) {
             fields["flow"]=fields.at("velocity");
@@ -149,6 +152,10 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
         }
     }
     const auto solve_begin=std::chrono::steady_clock::now();
+    if(schur) {
+        context.evaluate(x.get(),r.get(),j.get(),true);
+        configure_schur_solver(comm,ksp,l,j.get());
+    }
     const auto error=SNESSolve(snes.get(),nullptr,x.get());
     const double solve_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-solve_begin).count();
     const double assembly_seconds=context.assembly_seconds,ghost_seconds=context.ghost_seconds;
@@ -183,6 +190,7 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
         double peak_sum=0; MPI_Allreduce(&peak,&peak_sum,1,MPI_DOUBLE,MPI_SUM,comm);
         int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
         KSPType kt; EONSIM_PETSC(KSPGetType(ksp,&kt));
+        EONSIM_PETSC(PCGetType(pc,&type));
         if(rank==0) std::cout << "solver_report ranks=" << ranks << " dofs=" << l.global << " nnz=" << info.nz_used
             << " ksp=" << kt << " pc=" << type << " linear_iterations=" << result.linear_iterations
             << " solve_seconds=" << maxima[0] << " assembly_seconds=" << maxima[1] << " ghost_seconds=" << maxima[2]

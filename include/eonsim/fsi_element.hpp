@@ -13,6 +13,9 @@ struct FsiElementData {
 };
 /// 节点优先 [ux,uy,uz,p,dmx,dmy,dmz]，无约束投影，无通信或历史写入。
 Tet4Ale::State<double> fsi_element_residual(const FsiElementData& data,const Tet4Ale::State<double>& state);
-/// 小算例基线：完整局部中心差分，包括几何/网格速度/压力面积导数；不是解析切线。
+/// 解析体积/梯度导数与固定宽度前向链式传播；包含几何、网格速度和压力面积。
 Tet4Ale::Matrix<double> fsi_element_tangent(const FsiElementData& data,const Tet4Ale::State<double>& state);
+/// 中心差分参考，仅用于导数/性能对照；默认求解使用解析几何与前向链式导数。
+Tet4Ale::Matrix<double> fsi_element_tangent_fd(const FsiElementData&,const Tet4Ale::State<double>&);
+
 }

@@ -84,7 +84,7 @@ FSI 阶段必须增加已明确需要的接口运动学映射：弹性界面速�
 
 ### 固定网格的标签流体边界（B1）
 
-`fluid.boundaries` 启用显式标签路径。每个外表面标签恰好配置一次，已配置但网格中不存在的标签同样报错；省略该字段时保留既有单位立方体通道基准。当前标签路径支持全部三分量速度 Dirichlet、给定牵引与法向压力载荷；分量/滑移约束属于 B2。
+`fluid.boundaries` 启用显式标签路径。每个外表面标签恰好配置一次，已配置但网格中不存在的标签同样报错；省略该字段时保留既有单位立方体通道基准。标签路径支持三分量或指定笛卡尔分量的速度 Dirichlet、给定牵引与法向压力载荷；分量合并规则见 B2。
 
 - `velocity` / `traction` 使用 `value + gradient*(x-origin)`，坐标为物理坐标，`gradient` 为行优先三行矩阵。速度单位 m/s、牵引单位 Pa，梯度相应除以 m。
 - `pressure` 的标量 `value` 表示外加压强 Pa，外法向 n 下 `t=-p*n`，装配残量贡献为 `-integral N*t dA`。它不等同于直接指定节点压力，也不包括黏性切向牵引。
@@ -105,3 +105,12 @@ FSI 阶段必须增加已明确需要的接口运动学映射：弹性界面速�
 `fluid.pressure_normalization: mean` 在法向速度封闭的连通流体域中以最小原始节点 ID 临时定标，求解后减去体积平均压力；该策略是消元再归一化，未声称使用 PETSc 奇异直接解或自动多连通分量零空间。具有自由法向速度的自然边界不能同时指定压力规范。区域、分量和压力策略均加入重启签名。
 
 `regions_verification` 使用两区域 E=100/200、nu=0 的分段精确杆，以及黏度 1/2、法向分量约束和零均压的均匀流，检查 1/2 rank 解及区域配置缺失。
+
+
+### Schur/GAMG 与一致 ALE 导数（B5）
+
+`-schur_pc` 使用 FGMRES；独立流体分速度/压力，FSI 使用外层乘法 flow/mesh/structure（或 rigid）分裂，flow 内嵌速度/压力 Schur。全局 operator 始终为完整 Jacobian。PETSc FULL Schur 分解配 SELFP 近似 `D−C diag(A)⁻¹B`，不形成 A 的显式逆；速度/压力与网格/弹性块采用 GAMG，刚体块 Jacobi。GAMG 粗层默认 GMRES/Jacobi 并显式启用残差范数；主物理容差未改变。
+
+`fsi_element_tangent` 用解析 `dV/dx`、`d grad(N)/dx` 初始化固定宽度 Dual，前向传播同一个 SUPG/PSPG 残量、网格速度和压力面积项。参考 Laplace 块与接口 BE 链式系数保留。局部状态大小由 Tet4Ale 模板推导，积分规则不包含运行时维护的数据。旧中心差分函数保留用于独立 Jv/轨迹/性能对照。
+
+GAMG 当前只有低 Re 小算例运行证据，不宣称针对高 Re、近不可压结构或网格无关迭代调优完成。实际误差、迭代及 RSS 见 [B5 记录](../development/B5_ACCURACY_AND_PERFORMANCE.md)。
