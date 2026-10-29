@@ -22,7 +22,7 @@ struct FluidConfig {
 };
 
 struct SolidConfig {
-    bool transient=false;
+    bool transient=false, neo_hookean=false;
     double young=100, poisson=.3, density=1, traction=1, dt=.01;
     int steps=20;
 };
@@ -35,7 +35,7 @@ struct MotionConfig {
 };
 
 struct FsiConfig {
-    bool elastic=false;
+    bool elastic=false, neo_hookean=false;
     double young=100, poisson=.3, solid_density=1, thickness=.25;
     double dt=.02, mass=2, damping=.3, stiffness=5, pressure=1, density=1, viscosity=1;
     int steps=5;

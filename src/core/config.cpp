@@ -84,8 +84,13 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.solid_problem) {
         const auto s=root["solid"];
-        keys(s,{"mode","young","poisson","density","traction","dt","steps"},"solid");
+        keys(s,{"mode","young","poisson","density","traction","dt","steps","material"},"solid");
         auto& v=config.solid;
+        if(s["material"]) {
+            const auto material=s["material"].as<std::string>();
+            if(material!="linear" && material!="neo_hookean") throw std::runtime_error("Unknown solid material");
+            v.neo_hookean=material=="neo_hookean";
+        }
         const auto mode=s["mode"].as<std::string>();
         if(mode!="static" && mode!="unload") throw std::runtime_error("Solid mode must be static or unload");
         v.transient=mode=="unload";
@@ -121,13 +126,19 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material"},"fsi");
         auto& v=config.fsi;
+        if(f["material"]) {
+            const auto material=f["material"].as<std::string>();
+            if(material!="linear" && material!="neo_hookean") throw std::runtime_error("Unknown FSI material");
+            v.neo_hookean=material=="neo_hookean";
+        }
         if(f["body"]) {
             const auto body=f["body"].as<std::string>();
             if(body!="rigid" && body!="elastic") throw std::runtime_error("FSI body must be rigid or elastic");
             v.elastic=body=="elastic";
         }
+        if(v.neo_hookean && !v.elastic) throw std::runtime_error("Neo-Hookean FSI requires an elastic body");
         if(f["young"]) v.young=f["young"].as<double>();
         if(f["poisson"]) v.poisson=f["poisson"].as<double>();
         if(f["solid_density"]) v.solid_density=f["solid_density"].as<double>();

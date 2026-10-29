@@ -102,7 +102,7 @@ FsiResult solve_fsi(MPI_Comm comm,const MeshPartition& mesh,const Config& config
                 for(int i=0;i<28;++i) for(int k=0;k<28;++k) j[(nc*(i/7)+i%7)*nd+nc*(k/7)+k%7]=fj[28*i+k];
             }
             if(f.elastic) {
-                const auto sr=solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,f.dt},vs,dn,vn);
+                const auto sr=solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,f.dt,f.neo_hookean},vs,dn,vn);
                 for(int i=0;i<12;++i) r[nc*(i/3)+7+i%3]=sr.residual[i];
                 if(tangent) for(int i=0;i<12;++i) for(int k=0;k<12;++k)
                     j[(nc*(i/3)+7+i%3)*nd+nc*(k/3)+7+k%3]=sr.tangent[12*i+k];

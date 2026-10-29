@@ -37,7 +37,7 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     double previous_energy=0;
     for(int step=0;step<=(s.transient?s.steps:0);++step) {
         const double dt=step?s.dt:0;
-        const SolidParameters parameters{s.young,s.poisson,s.density,dt};
+        const SolidParameters parameters{s.young,s.poisson,s.density,dt,s.neo_hookean};
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
             for(std::size_t e=0;e<mesh.cells.size();++e) {
                 std::array<double,12> state,dn,vn;
@@ -77,7 +77,7 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
                 const auto n=3*mesh.cells[e].nodes[a]+c;
                 d[3*a+c]=displacement[n]; v[3*a+c]=velocity[n];
             }
-            local[0]+=solid_element(geometry[e],{s.young,s.poisson,s.density,0},d,{},{}).strain_energy;
+            local[0]+=solid_element(geometry[e],{s.young,s.poisson,s.density,0,s.neo_hookean},d,{},{}).strain_energy;
             // kinetic energy depends only on velocity; dt is irrelevant to that term.
             local[1]+=solid_element(geometry[e],{s.young,s.poisson,s.density,1},v,{},{}).kinetic_energy;
         }

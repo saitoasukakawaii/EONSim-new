@@ -49,6 +49,7 @@ add_library(eonsim_core
     src/physics/motion.cpp
     src/physics/ale.cpp
     src/physics/solid.cpp
+    src/physics/hyperelastic.cpp
     src/physics/solid_element.cpp
     src/physics/fluid.cpp
     src/physics/poisson.cpp
@@ -70,6 +71,9 @@ endif()
 
 if(BUILD_TESTING)
     enable_testing()
+    add_executable(verify_hyperelastic_element tests/verify_hyperelastic_element.cpp)
+    target_link_libraries(verify_hyperelastic_element PRIVATE eonsim_core)
+    add_test(NAME hyperelastic_element_jacobian COMMAND verify_hyperelastic_element)
     add_executable(verify_fsi_element tests/verify_fsi_element.cpp)
     target_link_libraries(verify_fsi_element PRIVATE eonsim_core)
     add_test(NAME fsi_element_jacobian COMMAND verify_fsi_element)
@@ -80,6 +84,12 @@ if(BUILD_TESTING)
     target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
     add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME hyperelastic_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_hyperelastic.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --root "${CMAKE_CURRENT_SOURCE_DIR}" --work "${CMAKE_CURRENT_BINARY_DIR}/hyperelastic_verification")
+    set_tests_properties(hyperelastic_verification PROPERTIES TIMEOUT 300
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME elastic_fsi_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_elastic_fsi.py"
             --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"

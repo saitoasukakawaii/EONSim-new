@@ -1,4 +1,5 @@
 #include "eonsim/solid_element.hpp"
+#include "eonsim/hyperelastic.hpp"
 #include <cmath>
 #include <stdexcept>
 namespace eonsim {
@@ -20,6 +21,14 @@ SolidElement solid_element(const Tet4Geometry& g,const SolidParameters& p,
         stress[i][j]=mu*(grad[i][j]+grad[j][i])+(i==j?lambda*tr:0);
         e.strain_energy+=.5*g.volume*stress[i][j]*grad[i][j];
     }
+    HyperelasticResponse material;
+    if(p.neo_hookean) {
+        std::array<double,9> F;
+        for(int i=0;i<3;++i) for(int j=0;j<3;++j) F[3*i+j]=grad[i][j]+(i==j?1:0);
+        material=neo_hookean(F,p.young,p.poisson);
+        e.strain_energy=g.volume*material.energy;
+        for(int i=0;i<3;++i) for(int j=0;j<3;++j) stress[i][j]=material.first_piola[3*i+j];
+    }
     for(int a=0;a<4;++a) for(int i=0;i<3;++i) {
         for(int j=0;j<3;++j) e.residual[3*a+i]+=g.volume*stress[i][j]*g.gradients[a][j];
         for(int b=0;b<4;++b) {
@@ -30,9 +39,14 @@ SolidElement solid_element(const Tet4Geometry& g,const SolidParameters& p,
             }
             for(int k=0;k<3;++k) {
                 double dot=0; for(int j=0;j<3;++j) dot+=g.gradients[a][j]*g.gradients[b][j];
-                e.tangent[(3*a+i)*12+3*b+k]=chain*g.volume*(lambda*g.gradients[a][i]*g.gradients[b][k]
-                    +mu*g.gradients[a][k]*g.gradients[b][i]+(i==k?mu*dot:0))
-                    +(p.dt>0&&i==k?mass/p.dt:0);
+                double stiffness=lambda*g.gradients[a][i]*g.gradients[b][k]
+                    +mu*g.gradients[a][k]*g.gradients[b][i]+(i==k?mu*dot:0);
+                if(p.neo_hookean) {
+                    stiffness=0;
+                    for(int J=0;J<3;++J) for(int L=0;L<3;++L)
+                        stiffness+=g.gradients[a][J]*material.tangent[(3*i+J)*9+3*k+L]*g.gradients[b][L];
+                }
+                e.tangent[(3*a+i)*12+3*b+k]=chain*g.volume*stiffness+(p.dt>0&&i==k?mass/p.dt:0);
             }
         }
     }

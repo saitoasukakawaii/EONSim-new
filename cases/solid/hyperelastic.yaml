@@ -1,0 +1,9 @@
+mesh: ../poisson/cube.msh
+output: ../../results/solid/hyperelastic.vtu
+solid:
+  mode: static
+  material: neo_hookean
+  young: 100
+  poisson: 0.3
+  density: 1
+  traction: 20
