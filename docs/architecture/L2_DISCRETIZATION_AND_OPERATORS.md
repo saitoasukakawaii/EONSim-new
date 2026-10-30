@@ -72,6 +72,9 @@ FSI 阶段必须增加已明确需要的接口运动学映射：弹性界面速�
 
 计时输出均取 rank 最大值：`setup_seconds` 为本次 solve 的初始化，不包含 NonlinearSystem 构造；`solve_seconds` 包含初始装配、Schur 配置与 SNESSolve；`schur_setup_seconds` 单独记录显式 Schur 配置；`linear_seconds` 累计顶层 KSP pre/post 回调之间的耗时，包含其中 PC setup 和内层求解；`linear_diagnostic_seconds` 为额外残量测量与输出耗时；`finalize_seconds` 包含最终验收、字段报告及原始反力提取。`linear_started/completed` 统计顶层调用。计时有嵌套关系，且各项最大值可能来自不同 rank，不能相加解释为总耗时；ghost 时间包含在 assembly 时间中。尚无逐子层累计时间或独立 PC setup 计时。
 
+装配细分字段与 `assembly_seconds` 一样，只累计正常完成的 `Context::evaluate`，并在 SNESSolve 返回时冻结，不包含最终验收/原始反力重装配：`callback_seconds` 为物理 assemble 回调（包含 kernel 与 Mat/Vec 插入，不能解释为纯 kernel）；`failure_sync_seconds` 为正常评价路径上的错误状态 MPI_Allreduce 等待；`assembly_finalize_seconds` 为原始 VecAssembly 与 MatAssembly Begin/End；`constraint_seconds` 为约束值替换、约束 VecAssembly 和 MatZeroRows。它们均是 assembly 的子区间，不覆盖清零等全部工作。每项独立取 rank 最大，不能相加还原总时间。失败评价的细分耗时被排除；已有 `ghost_seconds` 在评价开头累计，可能包含后来被拒绝的评价，不能用它与这些字段做严格分解。`assembly_finalize_seconds` 包括本地整理和通信等待，不是纯网络时间；远程插入的准备仍在 callback 内。本增量不提供 kernel/插入各自计时或拒绝评价成本。
+
+
 跨场材料依赖必须进入导数：例如黏度依赖温度时，一致单体 Newton 需要对应跨场导数。若先用滞后系数或 Picard，明确标记并按完整残量验收。AD 的引入不改变此义务。
 
 依据：[libCEED、MFEM、deal.II、MOOSE 的研究](../research/UPSTREAM_ARCHITECTURE_REVIEW.md)。验证频率只按 [最小验证](../development/BUILD_AND_VALIDATION.md) 执行。
