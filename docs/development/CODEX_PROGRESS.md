@@ -5,7 +5,7 @@
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 当前主分支基线：f1e9594（PR #11 合并）
+- 当前主分支基线：615af36（PR #12 合并）
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -23,7 +23,7 @@
 
 ## 当前焦点
 
-PR #11 已合并，SOLVER-04 测量完成。SOLVER-04B 已补齐层级 A 算子全局/本地行列数，相关测试通过，等待 PR 审核。
+PR #12 已合并，SOLVER-04B 完成。HPC-01A 已增加成功评价的回调/错误同步/最终装配/约束计时，相关测试通过，等待 PR 审核。完整 HPC-01 profiling 仍未完成。
 
 ## 最近完成
 
@@ -34,7 +34,7 @@ PR #11 已合并，SOLVER-04 测量完成。SOLVER-04B 已补齐层级 A 算子�
 
 ## 当前检查点
 
-基线 f1e9594；分支 feat/solver-level-dimensions；实现提交 124bed3。Release 三项、Debug 两项针对性测试通过，Schur 覆盖 1/2/4 rank。下一 Task 先检查本 PR，再依据具体测量需求推进；累计子层成本仍未提供。
+基线 615af36；分支 feat/assembly-phase-timers；实现提交 fff4895。Release 三项、Debug 两项针对性测试通过，Schur 覆盖 1/2/4 rank。下一 Task 先检查本 PR；如开展测量需使用新字段的成功评价与嵌套计时口径。
 
 ## 恢复规则
 
