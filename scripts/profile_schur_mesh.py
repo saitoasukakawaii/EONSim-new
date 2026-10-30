@@ -1,0 +1,134 @@
+"""Bounded SOLVER-04 study: steady flow, 3 meshes, 1/2 ranks, direct reference."""
+import argparse
+import hashlib
+import json
+import math
+import os
+from pathlib import Path
+import re
+import statistics
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'cases/poisson'))
+sys.path.insert(0, str(ROOT / 'tests'))
+from generate_mesh import write_mesh
+from verify_schur import fields
+
+
+def records(text, prefix):
+    return [dict(re.findall(r'(\w+)=([^\s]+)', line)) for line in text.splitlines()
+            if line.startswith(prefix + ' ')]
+
+
+def parse(text, ranks):
+    reports, nodes = records(text, 'solver_report'), records(text, 'solver_node')
+    if len(reports) != 1 or 'solver_node_unavailable' in text:
+        raise RuntimeError('Expected one complete steady solver report')
+    report = reports[0]
+    for key in ('snes_reason', 'ksp_reason'):
+        if int(report[key]) <= 0:
+            raise RuntimeError('Unconverged solve')
+    for key, value in report.items():
+        if key.endswith(('_seconds', '_bytes')) and (not math.isfinite(float(value)) or float(value) < 0):
+            raise RuntimeError('Invalid timing/memory measurement')
+    if {int(n['rank']) for n in nodes} != set(range(ranks)):
+        raise RuntimeError('Missing rank hierarchy')
+    if not any(n['path'].endswith('/coarse') for n in nodes):
+        raise RuntimeError('Missing GAMG coarse hierarchy')
+    if any(int(n['ksp_reason']) <= 0 for n in nodes if n['path'] == 'root'):
+        raise RuntimeError('Unconverged root hierarchy')
+    return report, nodes
+
+
+def delta(reference, current):
+    if reference.keys() != current.keys():
+        raise RuntimeError('Output node sets differ')
+    error = 0.
+    for node in reference:
+        a, b = reference[node], current[node]
+        if len(a) != len(b) or not all(math.isfinite(v) for v in a+b):
+            raise RuntimeError('Invalid output fields')
+        error = max(error, max(abs(x-y) for x, y in zip(a, b)))
+    if error > 2e-8:
+        raise RuntimeError(f'Direct/Schur or rank mismatch: {error}')
+    return error
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--executable', type=Path, required=True)
+    p.add_argument('--mpiexec', required=True)
+    p.add_argument('--work', type=Path, required=True)
+    args = p.parse_args()
+    exe, work = args.executable.resolve(), args.work.resolve()
+    work.mkdir(parents=True, exist_ok=False)
+    env = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
+    commands, runs, cases = [], [], []
+
+    def run(cmd, stem):
+        commands.append(cmd)
+        start = time.perf_counter()
+        with (work / (stem+'.log')).open('w') as stream:
+            subprocess.run(cmd, cwd=ROOT, env=env, stdout=stream, stderr=subprocess.STDOUT,
+                           check=True, timeout=180)
+        return time.perf_counter()-start, (work / (stem+'.log')).read_text()
+
+    for n in (2, 4, 6):
+        mesh, case = work/f'mesh{n}.msh', work/f'case{n}.yaml'
+        write_mesh(mesh, n)
+        yaml = (ROOT/'cases/fluid/steady.yaml').read_text()
+        yaml = yaml.replace('../poisson/cube.msh', mesh.name)
+        case.write_text(yaml)
+        cases.append(dict(subdivisions=n, nodes=(n+1)**3, tetrahedra=6*n**3,
+                          yaml=yaml, mesh_sha256=hashlib.sha256(mesh.read_bytes()).hexdigest()))
+        single_reference = None
+        for ranks in (1, 2):
+            stem = f'n{n}-r{ranks}'
+            part = work/(stem+'-part')
+            run([str(exe), '-case', str(case), '-prepare', str(part), '-parts', str(ranks)], stem+'-prepare')
+            base = [args.mpiexec, '-n', str(ranks), str(exe), '-case', str(case), '-partition', str(part)]
+            direct = work/(stem+'-direct.vtu')
+            wall, text = run(base+['-output', str(direct), '-solver_report'], stem+'-direct')
+            direct_report = records(text, 'solver_report')
+            if len(direct_report) != 1 or any(int(direct_report[0][k]) <= 0 for k in ('snes_reason','ksp_reason')):
+                raise RuntimeError('Invalid direct reference')
+            reference = fields(direct, ranks)
+            if single_reference is None:
+                single_reference = reference
+            rank_delta = delta(single_reference, reference)
+            runs.append(dict(n=n, ranks=ranks, mode='direct', wall_seconds=wall,
+                             rank_delta=rank_delta, report=direct_report[0]))
+            for repeat in range(3):
+                label = stem+f'-schur{repeat}'
+                output = work/(label+'.vtu')
+                wall, text = run(base+['-output',str(output),'-schur_pc','-solver_report'], label)
+                report, nodes = parse(text, ranks)
+                error = delta(reference, fields(output, ranks))
+                runs.append(dict(n=n,ranks=ranks,mode='schur',repeat=repeat,wall_seconds=wall,
+                                 max_delta=error,report=report,hierarchy=nodes))
+                (work/'partial.json').write_text(json.dumps(runs,indent=2)+'\n')
+            print(stem, 'passed', flush=True)
+    summary = []
+    for n in (2,4,6):
+        for ranks in (1,2):
+            group = [r for r in runs if r['n']==n and r['ranks']==ranks and r['mode']=='schur']
+            metrics = {}
+            for key in ('solve_seconds','schur_setup_seconds','linear_seconds','rss_max_bytes','linear_iterations'):
+                values = [float(r['report'][key]) for r in group]
+                metrics[key] = dict(median=statistics.median(values),minimum=min(values),maximum=max(values))
+            summary.append(dict(n=n,ranks=ranks,dofs=int(group[0]['report']['dofs']),metrics=metrics,
+                                max_delta=max(r['max_delta'] for r in group)))
+    result = dict(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+                  executable_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),cases=cases,commands=commands,
+                  cpu_max=Path('/sys/fs/cgroup/cpu.max').read_text().strip(),
+                  memory_max=Path('/sys/fs/cgroup/memory.max').read_text().strip(),threads_per_rank=1,
+                  runs=runs,summary=summary)
+    (work/'results.json').write_text(json.dumps(result,indent=2)+'\n')
+    print('PASS: 6 direct references and 18 Schur runs; results.json')
+
+
+if __name__ == '__main__':
+    main()

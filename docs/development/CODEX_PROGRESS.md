@@ -5,7 +5,7 @@
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 当前主分支基线：717b25b（PR #9 合并）
+- 当前主分支基线：a4957e0（PR #10 合并）
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -23,7 +23,7 @@
 
 ## 当前焦点
 
-PR #9 已合并，SOLVER-05 完成。SOLVER-03 已完成现有实现审查、一致缩放候选规格与精确代数验证，等待 PR 审核；实际求解器缩放仍未实现。
+PR #10 已合并，SOLVER-03 规格完成。SOLVER-04 已完成三网格、1/2 rank 的 Schur/GAMG 测量与直接解对照，等待 PR 审核；当前无网格无关收敛或并行加速证据。
 
 ## 最近完成
 
@@ -34,7 +34,7 @@ PR #9 已合并，SOLVER-05 完成。SOLVER-03 已完成现有实现审查、一
 
 ## 当前检查点
 
-基线 717b25b；分支 docs/newton-scaling-spec；规格与验证提交 6dc2baf。脚本验证两组尺度及两个负对照通过。下一 Task 先检查本分支 PR；SOLVER-03B 实现任务需由具体算例需求及规格审核触发。
+基线 a4957e0；分支 perf/schur-mesh-profile；测量脚本提交 79eb826。6 个直接参考和 18 个 Schur 样本通过；原始证据见 docs/research/data/schur-mesh-2026-10-30。下一 Task 先检查 PR 状态，根据精度/规模需求决定后续测量；SOLVER-03B 仍延期。
 
 ## 恢复规则
 
