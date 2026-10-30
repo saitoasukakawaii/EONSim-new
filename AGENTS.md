@@ -26,6 +26,7 @@
 | MPI、owned/ghost、缓存、线程、GPU | [L2 并行与内存](docs/architecture/L2_PARALLEL_MEMORY_AND_BACKENDS.md) |
 | CMake、Debug/Release、错误传播、检查 | [L3 构建与验证](docs/development/BUILD_AND_VALIDATION.md) |
 | API 注释、数值代码说明、Doxygen | [L3 文档与注释](docs/development/DOCUMENTATION_AND_COMMENTS.md) |
+| 文献到数学/软件规格、整体研发阶段与 Codex 工作流 | [EONSim 工程研发总纲](docs/development/EONSim_ENGINEERING_PROGRAM.md) |
 | 下一步功能或里程碑 | [开发路线](docs/development/ROADMAP.md) |
 
 研究文件提供来源；无需每次重读所有上游项目。处理某子目录时，如该目录存在 AGENTS.md，读取其局部增量规则。
@@ -45,4 +46,3 @@
 按构建与验证文档选择相关检查：普通代码改动编译受影响目标并运行一个相关小算例；通信改动补 1/2 rank 对照；数值公式改动补一个针对性数值检查。文档改动只阅读和检查链接。通过后不无理由重复测试，不要求测试先行或覆盖率指标。
 
 交付说明改动、实际执行的验证与尚未实现的能力。只有真实改变架构决策时才更新对应主题文档；不要求每次改动新增记录。用户本次明确要求优先于这些项目默认值。
-
