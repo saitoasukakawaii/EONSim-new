@@ -17,7 +17,13 @@ if [[ "$version" == 3.19.6 ]]; then
     export HWLOC_COMPONENTS=-x86
     # Kernel-restricted containers may not implement process_vm_readv (CMA).
     export OMPI_MCA_btl_vader_single_copy_mechanism=none
+    export OMPI_MCA_btl=self,vader,tcp
+else
+    export OMPI_MCA_btl=self,sm,tcp
 fi
+# These are single-node correctness runs. Hosted Azure MANA devices may be
+# visible but reject UCX UD queue creation; do not auto-select an RDMA PML.
+export OMPI_MCA_pml=ob1
 unset PETSC_ARCH PYTHONOPTIMIZE
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 # CTest runs one test at a time; some existing tests explicitly need four ranks.

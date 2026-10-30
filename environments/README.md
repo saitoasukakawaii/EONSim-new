@@ -25,3 +25,5 @@ conda-forge显式包URL与SHA256。恢复不重新求解依赖，不使用系统
 旧OpenMPI 4.1.6内置hwloc的x86 CPUID探测在当前Xeon云机上除零，入口对旧环境禁用该探测组件，保留Linux/sysfs拓扑；同时禁用旧vader CMA单拷贝，避免受限容器不支持process_vm_readv。两项均不改变PETSc或MPI ABI，也不修复/掩盖应用的局部PC失败；其超时在相同环境中仍被复现。
 
 完整恢复、验证和证据命令见[构建说明](../docs/development/BUILD_AND_VALIDATION.md)。锁升级应重新完成干净恢复、ABI预检和相应数值测试，不手改版本号后沿用旧证据。
+
+单机验证入口固定OpenMPI `ob1` PML和self/shared-memory/TCP BTL（5.x为sm，4.x为vader），不自动选择UCX/RDMA。PR后CI的Azure MANA设备曾在MPI_Init阶段拒绝UCX UD队列创建；这是runner传输能力差异，发生在数值测试之前。此入口不用于宣称RDMA或多节点性能。

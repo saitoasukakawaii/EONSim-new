@@ -103,3 +103,5 @@ CI适配补充：OpenMPI5的PRRTE不读取旧 `OMPI_MCA_rmaps_base_oversubscribe
 本机显式 `--host localhost:2 -n 4 /bin/hostname` 在旧变量下退出1并报告槽位不足，
 使用 `PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe` 后4进程正常返回。
 入口保留4.x变量并增加5.x变量及4rank预检，不减少任何测试的rank数。
+
+PR后1497137的[Release作业](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41064780711/job/124093224914)在两rank runtime-preflight失败：UCX `ud_verbs/mana_0` 创建UD QP返回Operation not supported，继而MPI_Init失败，尚未执行数值测试。固定单机入口为ob1+self/shared-memory/TCP（OpenMPI5使用sm、4使用vader），避免探测到但不可用的Azure RDMA设备。该适配不改变MPI ABI、rank数或数值断言；后续提交需重新通过完整CI。

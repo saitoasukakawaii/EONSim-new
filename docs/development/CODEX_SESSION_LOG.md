@@ -203,3 +203,5 @@
 - 使用eonsim-knowledge-capture新增未发布草稿，更新README/L2契约/BUILD_AND_VALIDATION/进度队列/知识登记。Markdown八文件解析及链接、网站构建3.94秒、草稿排除检查通过。精简机器证据见INFRA-01报告旁data目录；任务状态已更新review；PR创建后的状态记录提交仍由核心CI和网站CI复验。
 
 - 交付前云端执行服务曾断连；恢复后确认仓库干净并继续核验，没有回退到本地。最终Markdown解析11份通过，网站构建3.63秒，草稿/模板排除通过。独立增量复核无阻塞。GitHub runner实际4CPU、约16GiB，编译4并行；核心CI执行1/2/4rank。
+- PR后1497137的Release作业在MPI预检暴露Azure MANA/UCX UD设备不支持，不属于求解失败；单机入口固定ob1与self/shared-memory/TCP，继续完整CI复验，未通过简单重跑隐藏失败。
+- ob1传输适配后，云端两套锁针对性回归各7/7及主环境4rank runtime探针通过；独立增量复核无阻塞。最终head完整CI仍以PR检查为准。
