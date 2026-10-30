@@ -21,18 +21,18 @@
 对常密度牛顿流体：
 
 $$
-\\rho\\left(\\frac{\\partial \\boldsymbol u}{\\partial t}
-+ (\\boldsymbol u\\cdot\\nabla)\\boldsymbol u\\right)
--\\nabla\\cdot\\boldsymbol\\sigma=\\boldsymbol f,
-\\qquad \\nabla\\cdot\\boldsymbol u=0.
+\rho\left(\frac{\partial \boldsymbol u}{\partial t}
++ (\boldsymbol u\cdot\nabla)\boldsymbol u\right)
+-\nabla\cdot\boldsymbol\sigma=\boldsymbol f,
+\qquad \nabla\cdot\boldsymbol u=0.
 $$
 
 其中
 
 $$
-\\boldsymbol\\sigma=-p\\boldsymbol I+2\\mu\\boldsymbol\\varepsilon(\\boldsymbol u),
-\\qquad
-\\boldsymbol\\varepsilon(\\boldsymbol u)=\\frac12(\\nabla\\boldsymbol u+\\nabla\\boldsymbol u^T).
+\boldsymbol\sigma=-p\boldsymbol I+2\mu\boldsymbol\varepsilon(\boldsymbol u),
+\qquad
+\boldsymbol\varepsilon(\boldsymbol u)=\frac12(\nabla\boldsymbol u+\nabla\boldsymbol u^T).
 $$
 
 ## EONSim 对应代码
