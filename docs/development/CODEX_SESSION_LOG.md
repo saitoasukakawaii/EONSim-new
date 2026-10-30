@@ -32,3 +32,13 @@
 - Knowledge draft: 本次新增的是模板和工作流，不将其伪装成已验证的数值研究文章。
 - Limitations / unresolved issues: 尚未实现自动从测试日志提取数据或自动发布；Codex 需按 Skill 和 AGENTS 规则执行草稿生成。
 - Next task: SOLVER-01 PETSc NonlinearSession 生命周期审计。
+
+## 2026-10-30 / SOLVER-01
+
+- 基线：0828f41（PR #3 已合并）；分支 docs/solver-baseline-audit。
+- 变更：新增 docs/research/PETSC_LIFECYCLE_AUDIT_2026-10-30.md、website/drafts/petsc-object-lifetime.md；更新 CODEX_PROGRESS、CODEX_TASK_QUEUE、本日志和 KNOWLEDGE_LOG。
+- 审计：读取 linear_system/nonlinear_system/schur_solver、PetscOwner 及 fluid/solid/fsi 调用链；主 Vec/Mat 跨步保留，SNES 每次 solve 创建；Context 为借用栈引用；计时不完整覆盖构造析构。结论为需要额外测量，SOLVER-02 保持阻塞。
+- 实际验证：仓库根目录 `git diff --check` 通过；`git diff origin/main -- src include CMakeLists.txt CMakePresets.json` 为空；website 目录 `npm run docs:build` 成功；仓库根目录 `test ! -d website/.vitepress/dist/drafts` 成功。
+- 数值测试/性能实验：未运行；本任务为静态审计，不能据此声明性能收益。
+- 知识沉淀：有，已按 eonsim-knowledge-capture 形成草稿并登记；证据为源码分析，数值与性能仍待测量。
+- 下一步：人工审核审计报告，再开展固定 transient case 的重复 profiling。
