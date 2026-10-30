@@ -80,6 +80,16 @@ FSI 阶段必须增加已明确需要的接口运动学映射：弹性界面速�
 依据：[libCEED、MFEM、deal.II、MOOSE 的研究](../research/UPSTREAM_ARCHITECTURE_REVIEW.md)。验证频率只按 [最小验证](../development/BUILD_AND_VALIDATION.md) 执行。
 
 
+### 独立流体单元级诊断
+
+`-fluid_element_report` 默认关闭，只作用于 `solve_fluid`，不覆盖 FSI/ALE 驱动。启用后每次成功返回的非线性 solve 输出每 rank 的 `rank`、`step`、`local_cells`、`residual_elements`、`jacobian_elements`、`kernel_seconds` 和 `insert_seconds`。两项计数分别是无切线/有切线的已完成单元计算及插入次数；有切线调用同样计算残量，不能把 residual_elements 当作所有残量调用总数。
+
+kernel 区间仅包围 `fluid_element` 调用；insert 区间包围对应体单元 VecSetValues 与可选 MatSetValues，包含本地插入及远程 stash 准备，未拆分 owned/remote 成本。排除状态/编号 gather、参数/几何准备、面载荷计算及插入、最终 Vec/MatAssembly、约束、压力归一化后的反力修正与 I/O。计时在物理驱动层，不向 kernel 引入 MPI/PETSc 或输出。
+
+统计在每个时间步尝试前重置，覆盖该次 solve 中的全部已完成单元调用，**包含最终物理验收和原始反力重装配**；因此不能与 `callback_seconds` 直接相减。若同次 solve 有被拒绝的试探评价，已完成单元工作仍计入；整个 solve 抛错时不输出该次计数，重试重新计数。输出表示非线性 solve 成功，不代替随后时间提交/checkpoint 的成功状态。
+
+时间是 rank-local，未取最大值或求和；使用 PetscSynchronizedPrintf/Flush 按 rank 输出。关闭时不执行单元级时钟读取、计数更新和报告同步；开启时每单元增加时钟读取，开销未量化，不能用本诊断直接证明加速或零开销。
+
 ## 编译期拓扑、布局与积分规则
 
 `include/eonsim/discretization.hpp` 统一维护结构常量：

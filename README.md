@@ -192,6 +192,8 @@ solver:
 独立流体为 velocity/pressure，独立固体为 structure，FSI 再含 mesh 和 structure 或 rigid。
 显式配置会输出每字段的行数、初始/最终范数、阈值和接受状态；默认配置可用 `-solver_report` 查看。
 
+独立流体入口可显式启用 `-fluid_element_report`，按 rank/步输出单元 kernel 与 Vec/Mat 插入时间及残量/Jacobian 单元计数；默认关闭。它包含最终验收/反力回调，与 `solver_report` 的累计区间不同，不能直接相减。详见[计时契约](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md)。
+
 `-linear_report` 额外重新计算每次顶层线性求解的 `A*x-b`，输出原始 L2 范数、逐字段缩放 RMS 和约束最大值，并启用 `-solver_report`。该诊断增加 MatMult 和全局规约，不改变收敛条件；未收敛或开启 PETSc 对角缩放时明确报告不可用。阶段计时区分初始化、显式 Schur 配置、顶层 KSP、额外线性诊断和最终验收；计时存在嵌套，不能相加作为总耗时。
 
 `-solver_report` 还输出按 rank 排列的 `solver_node`：可定位 FieldSplit、ASM/BJacobi 和 GAMG 粗层/下平滑器的 options prefix、KSP/PC 原因及最后一次迭代数。主 KSP 未收敛时先共同输出各 rank 的树，再抛出带本 rank 层级的异常；即使只有一个 rank 的局部 LU 零主元，也保留具体原因。`reported_norm` 是 PETSc 记录值，`norm_type=0` 时没有范数判据，不能把零值当作物理块残量已收敛；完整含义与遍历范围见[离散与算子契约](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md#求解-operator-与预条件器各有职责)。
