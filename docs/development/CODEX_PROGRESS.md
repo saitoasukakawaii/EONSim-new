@@ -17,19 +17,13 @@
 |---|---|---|
 | EONSim 核心求解器 P0–P8 | 已交付基线 | 当前已验证最多 4 MPI ranks，不等于大规模生产验证 |
 | 网站框架与初始知识栏目 | 已合并 | VitePress 构建由 CI 验证 |
-| Codex 跨 Task 状态管理 | 已合并（PR #3） | CODEX_PROGRESS、CODEX_TASK_QUEUE、CODEX_SESSION_LOG |
-| 知识文章模板与采集 Skill | 已合并（PR #3） | 草稿需人工审核，不自动发布 |
-| PETSc 对象生命周期审计 | 已合并（PR #4） | 主 Vec/Mat 图跨时间步复用；SNES/KSP/PC 每次 solve 重建 |
-| NonlinearSession 持久化 | 未实施 | 先完成 SOLVER-02 性能基线，依据证据决策 |
+| Codex 跨任务进度管理 | 已合并（PR #3） | 通过本文件、任务队列和会话日志恢复 |
+| 知识文章模板与采集流程 | 已合并（PR #3） | Codex 只生成公开草稿，人工审核后发布 |
+| PETSc NonlinearSession 优化 | 已审计、待细分测量 | 先确认对象生命周期和实际性能瓶颈，再决定是否实现 |
 
 ## 当前焦点
 
-**SOLVER-02：建立多时间步 solver setup 性能基线。**
-
-SOLVER-01 审计报告：
-- docs/research/PETSC_LIFECYCLE_AUDIT_2026-10-30.md
-- 审计结论：需要额外测量，暂不直接重构持久化 NonlinearSession。
-- 知识草稿：website/drafts/petsc-object-lifetime.md。
+SOLVER-01 审计已合并；SOLVER-01B 提交诊断开销重复测量基线。下一步根据测量缺口补充构造/析构与 PC setup 分离计时，暂不改写求解器。
 
 ## 最近完成
 
@@ -56,7 +50,7 @@ SOLVER-01 审计报告：
 5. 重要改动 commit/push 到独立分支；通过 PR 审核，不直接修改 main。
 6. 有复用价值的知识写入 website/drafts/，人工审核后才发布。
 
-Goal 使用说明见 [CODEX_GOAL_WORKFLOW.md](CODEX_GOAL_WORKFLOW.md)。Goal 负责当前线程内的连续多轮执行；GitHub 状态文件负责跨 Task 接续。
+PR #4 已合并，主线 c1c7508。SOLVER-01 完成；SOLVER-01B 在 perf/nonlinear-setup-baseline 分支完成固定案例重复测量，等待 PR 审核。细节见 docs/research/NONLINEAR_SETUP_BASELINE_2026-10-30.md；下一步为细分构造析构/PC setup 测量，SOLVER-02 尚不满足实现前提。
 
 ## 更新规则
 
