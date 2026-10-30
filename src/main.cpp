@@ -64,12 +64,16 @@ int main(int argc, char* argv[])
         if (!case_file) {
             std::cout << "Usage: eonsim -case case.yaml [-mesh mesh.msh] [-output result.vtu]\n"
                          "       [-partition directory] [-prepare directory -parts N]\n"
-                         "       [-diagnostics basic|full] [-block_pc] [-solver_report]\n"
+                         "       [-diagnostics basic|full] [-block_pc] [-solver_report] [-fluid_coo]\n"
                          "       [-checkpoint dir] [-restart dir] [-stop_after N] [PETSc options]\n";
         } else {
             using Clock = std::chrono::steady_clock;
             const auto begin = Clock::now();
             auto config = eonsim::read_config(*case_file);
+            PetscBool fluid_coo=PETSC_FALSE;
+            EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_coo",&fluid_coo,nullptr));
+            if(fluid_coo&&(!config.fluid_problem||config.fsi_problem||config.motion_problem))
+                throw std::runtime_error("-fluid_coo requires the standalone fixed-mesh fluid problem");
             if(auto path=option("-checkpoint")) config.checkpoint=std::filesystem::absolute(*path);
             if(auto path=option("-restart")) config.restart=std::filesystem::absolute(*path);
             PetscInt stop=0;

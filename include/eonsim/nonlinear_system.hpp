@@ -26,6 +26,21 @@ struct NonlinearResult {
 class NonlinearSystem {
 public:
     NonlinearSystem(MPI_Comm communicator,const AlgebraLayout& layout);
+    /** Opt in to a fixed COO Jacobian before the first solve (collective, once).
+     * rows/columns are global indices in contribution order, including duplicates and remote rows.
+     * Each rank may supply no entries. Invalid indices/sizes fail collectively before changing the matrix.
+     * Owned diagonal slots are added internally so constraint-only rows remain representable.
+     * The pattern, layout and partition are immutable for this system's lifetime.
+     */
+    void set_jacobian_coo(const std::vector<PetscInt>& rows,const std::vector<PetscInt>& columns);
+    /** Borrowed, fixed-size buffer in the original COO contribution order (nullptr when disabled).
+     * During a callback with non-null Mat, fill these values instead of calling MatSetValues.
+     * The driver zeros the buffer each evaluation and performs the collective COO update only
+     * after all local callbacks succeed. Do not insert matrix values or call collective COO APIs
+     * inside the callback. Residual Vec insertion and final constraint/reaction semantics are unchanged.
+     * The pointer stays valid until destruction; callers must not write past their pattern size.
+     */
+    PetscScalar* jacobian_coo_values() noexcept { return coo_enabled_?coo_values_.data():nullptr; }
     /** 回调只插入本 rank 单元的原始贡献，不做最终装配或提交历史。
  * 输入是 owned+ghost；Mat 为 nullptr 时仅计算残量。所有方法 collective。
  * constraints 只包含 owned 行；约束替换残量行，保留其它行对约束列的导数。
@@ -47,5 +62,7 @@ private:
     PetscOwner<Vec,VecDestroy> solution_,residual_,scratch_;
     PetscOwner<Mat,MatDestroy> matrix_;
     std::vector<double> local_trial_;
+    bool coo_enabled_=false,solve_started_=false;
+    std::vector<PetscScalar> coo_values_;
 };
 }
