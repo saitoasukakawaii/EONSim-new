@@ -26,8 +26,11 @@
 | MPI、owned/ghost、缓存、线程、GPU | [L2 并行与内存](docs/architecture/L2_PARALLEL_MEMORY_AND_BACKENDS.md) |
 | CMake、Debug/Release、错误传播、检查 | [L3 构建与验证](docs/development/BUILD_AND_VALIDATION.md) |
 | API 注释、数值代码说明、Doxygen | [L3 文档与注释](docs/development/DOCUMENTATION_AND_COMMENTS.md) |
+| 公开知识网站、教学文章、网站预览和发布 | [网站贡献规范](website/development/contribution.md) 与 [网站说明](website/README.md) |
 | 文献到数学/软件规格、整体研发阶段与 Codex 工作流 | [EONSim 工程研发总纲](docs/development/EONSim_ENGINEERING_PROGRAM.md) |
 | 下一步功能或里程碑 | [开发路线](docs/development/ROADMAP.md) |
+
+公开网站内容默认先写入 website/drafts/，并按网站贡献规范标注理论、实现和验证状态；未经人工审查及合并到 main，不得视为已发布。网站草稿目录被生产构建排除，但仓库公开，禁止放入秘密或敏感资料。
 
 研究文件提供来源；无需每次重读所有上游项目。处理某子目录时，如该目录存在 AGENTS.md，读取其局部增量规则。
 
