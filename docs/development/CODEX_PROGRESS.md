@@ -5,7 +5,7 @@
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 当前主分支基线：c1c7508b1b7287084a6e3fcbbb3fd3666f9e84b0
+- 当前主分支基线：8c8a4af7448908dc7756f6ea7f9b4676d1d6af00
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -23,7 +23,7 @@
 
 ## 当前焦点
 
-SOLVER-01 审计已合并；SOLVER-01B 提交诊断开销重复测量基线。下一步根据测量缺口补充构造/析构与 PC setup 分离计时，暂不改写求解器。
+PR #7 已合并；SOLVER-02 完成fluid/elastic多时间步测量，等待审核。结论为暂缓持久化原型；当前没有继续重构的性能依据。
 
 ## 最近完成
 
@@ -34,11 +34,7 @@ SOLVER-01 审计已合并；SOLVER-01B 提交诊断开销重复测量基线。�
 
 ## 当前检查点
 
-- 当前 main：c1c7508b1b7287084a6e3fcbbb3fd3666f9e84b0。
-- 下一任务：SOLVER-02 多时间步 solver setup profiling。
-- 推荐顺序：先 transient fluid，再 elastic FSI；必要时再测 Schur 配置。
-- 使用 -solver_report；首轮不启用 -linear_report。
-- 不直接实现持久化 SNES/KSP/PC，除非性能证据支持。
+基线8c8a4af；分支perf/multistep-setup-profile；报告docs/research/MULTISTEP_SETUP_PROFILE_2026-10-30.md。下一任务需在本PR合并后依据需求选择，不自动实施NonlinearSession。
 
 ## 恢复规则
 
@@ -50,7 +46,6 @@ SOLVER-01 审计已合并；SOLVER-01B 提交诊断开销重复测量基线。�
 5. 重要改动 commit/push 到独立分支；通过 PR 审核，不直接修改 main。
 6. 有复用价值的知识写入 website/drafts/，人工审核后才发布。
 
-PR #4 已合并，主线 c1c7508。SOLVER-01 完成；SOLVER-01B 在 perf/nonlinear-setup-baseline 分支完成固定案例重复测量，等待 PR 审核。细节见 docs/research/NONLINEAR_SETUP_BASELINE_2026-10-30.md；下一步为细分构造析构/PC setup 测量，SOLVER-02 尚不满足实现前提。
 
 ## 更新规则
 
