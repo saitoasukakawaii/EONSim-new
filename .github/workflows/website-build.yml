@@ -37,6 +37,16 @@ jobs:
         working-directory: website
         run: npm install --no-audit --no-fund
 
+      - name: Add draft isolation sentinel
+        working-directory: website
+        run: |
+          mkdir -p drafts
+          printf "# EONSIM_PRIVATE_DRAFT_SENTINEL_20261030\n" > drafts/ci-isolation-probe.md
+
       - name: Build public website
         working-directory: website
         run: npm run docs:build
+
+      - name: Check Markdown and unpublished content isolation
+        working-directory: website
+        run: npm run docs:check

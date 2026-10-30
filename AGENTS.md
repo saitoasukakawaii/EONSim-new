@@ -10,7 +10,7 @@
 
 ## 每次工作
 
-1. 先读 [总原则与决策入口](MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md)，再按下表只读本次相关约束。
+1. 开始时先读取 [研发进度](docs/development/CODEX_PROGRESS.md) 和 [任务队列](docs/development/CODEX_TASK_QUEUE.md)，按进度文件中的持续开发协议恢复、选取任务并交付独立 PR。再读 [总原则与决策入口](MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md)，再按下表只读本次相关约束。
 2. 沿现有实现完成一个具体算例或一个明确修复；没有代码时按开发路线从 P0 建立最小纵向闭环。
 3. 优先具体类型、普通函数和单一可用后端；第二个真实使用者出现后再抽象。
 4. 不为普通工作新增审批、计划文档、全量检查、兼容层或未使用的扩展点。

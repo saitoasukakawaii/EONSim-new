@@ -6,7 +6,7 @@ export default defineConfig({
   title: 'EONSim Research & Learning',
   description: 'High-performance multiphysics computing: mathematics, numerical methods, software engineering, HPC and EONSim development.',
   cleanUrls: true,
-  srcExclude: ['drafts/**'],
+  srcExclude: ['drafts/**', 'templates/**'],
   markdown: {
     config: (md) => md.use(mathjax3, {
       tex: { tags: 'ams', inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }

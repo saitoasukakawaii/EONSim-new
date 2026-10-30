@@ -43,3 +43,9 @@ No Cloudflare API token or account secret is stored in this repository.
 - Promote reviewed drafts through a pull request to main.
 
 The GitHub Actions workflow validates the VitePress production build on pull requests that change website files.
+
+## Authoring workflow
+
+Use templates/ to create drafts/. Both directories are excluded from production.
+Run `npm run docs:check` for Markdown and output isolation checks after `npm run docs:build`.
+Task recovery starts with docs/development/CODEX_PROGRESS.md in the repository.
