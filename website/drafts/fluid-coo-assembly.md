@@ -3,7 +3,7 @@ title: "EONSim 开发记录：固定 COO 图与安全并行装配"
 description: "独立流体的可选 COO Jacobian、错误同步和配对测量。"
 contentStatus: draft
 taskId: "HPC-02"
-pullRequest: ""
+pullRequest: "https://github.com/saitoasukakawaii/EONSim-new/pull/21"
 baseCommit: "24eae624ee93b3e1989312e1b1b273217571310f"
 resultCommit: "ceea57d568db08c5181122cea66f5b9458c6200c"
 date: "2026-10-30"

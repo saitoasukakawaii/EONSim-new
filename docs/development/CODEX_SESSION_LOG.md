@@ -198,5 +198,5 @@
 - `benchmark_fluid_coo.py` 完成两档网格、1/2/4 rank、36 次计量及12次预热；所有18对迭代轨迹一致，字段最大差 6.661338147750939e-16。装配中位变化约 -45% 至 -62%，solve 约 -8% 至 -44%，wall 约 -11% 至 0%；多组 wall 范围跨零，明确记录准备和内存成本。
 - 原始测量使用 `ceea57d`；后续仅修正跨 Windows/WSL Git status 的 CRLF 元数据噪声。58 个编译源文件归一化哈希与提交相符，可执行哈希与测量一致；原始 JSON 未改写。
 - 独立 deep review 对 `ceea57d` 为 PASS，无阻塞发现。报告、原始日志、字段证据、审查记录及 source provenance 已归档；按 eonsim-knowledge-capture 添加 website/drafts/fluid-coo-assembly.md 并登记知识日志，未发布网站。
-- 当前代码及验证完成，下一步创建交付 PR，人工决定是否合并；无新增 ready 任务。此任务不提供 FSI/ALE/残量 COO、GPU、多节点或大规模扩展证明。
+- 代码、验证、性能测量和评审完成后创建 [PR #21](https://github.com/saitoasukakawaii/EONSim-new/pull/21)，人工决定是否合并；无新增 ready 任务。创建后的提交仅登记 PR 链接与 review 状态。此任务不提供 FSI/ALE/残量 COO、GPU、多节点或大规模扩展证明。
 - 交付前代码/文档的 `git diff --check`（排除原样归档的日志）、8 份 Markdown 围栏/相对文件及站点路由链接检查、JSON 证据解析、测量脚本语法检查通过。两份构建日志保留 CMake 原始输出中 8 行尾空白，完整 diff 检查因此会报告这些空白；不改写原始证据。后续文档/元数据修改未改变已审查的 src/include/CMake/tests；未重复运行数值测试，未构建或发布网站。
