@@ -13,3 +13,6 @@
 - 过程记录：首次辅助脚本因工作目录错误未找到 website/package.json，已纠正路径并重新执行成功，无残留嵌套目录。GitHub 用户与 GraphQL 查询接口均返回 Forbidden，仍将尝试仓库 REST 创建 PR。
 - 知识判断：无新的数值算法或实验知识；本次交付的是可复用工作流和模板，不生成重复说明性草稿。草稿隔离以临时哨兵验证。
 - 下一步：完成检查并创建 PR；人工合并后领取 AUD-001。
+
+- 交付：实现提交 `23aed47` 已推送到 `docs/codex-research-workflow`。`gh api --method POST repos/saitoasukakawaii/EONSim-new/pulls` 创建请求返回 Forbidden（退出 1）；没有 PR URL，未合并。
+- 恢复：允许并授权 api.github.com 的仓库 PR API 后，使用该分支对 main 创建 PR；或人工访问 [创建 PR](https://github.com/saitoasukakawaii/EONSim-new/compare/main...docs/codex-research-workflow?expand=1)。创建成功后补 PR URL 并转 review。远端 main 未修改。

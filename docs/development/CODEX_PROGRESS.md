@@ -12,7 +12,7 @@ P0–P8、B0–B5 已完成小算例主线，进入工程总纲 A（基线审计
 | 云端开发环境检查 | [归档报告](CLOUD_ENVIRONMENT_DIAGNOSTICS_2026-10-30.md) | 29df3e2 上 Debug/Release 各 26 项通过，不能移用于新提交 |
 | 求解器层级与真实残量报告 | a2dfb60 | 已合入；当前会话未重新验证数值测试 |
 | 知识网站 | e40599b | 已合入；本次构建证据见会话日志 |
-| WF-001 持续研发基础设施 | 当前 PR | 已实现，等待人工审核；验证见会话日志 |
+| WF-001 持续研发基础设施 | 分支 docs/codex-research-workflow | 已实现；PR API 被拒绝，等待创建后人工审核；验证见会话日志 |
 
 ## 持续开发协议
 
@@ -27,4 +27,4 @@ P0–P8、B0–B5 已完成小算例主线，进入工程总纲 A（基线审计
 
 ## 恢复入口
 
-当前分支：`docs/codex-research-workflow`。先核对 WF-001 的 PR，再选择 AUD-001。状态文件只记录进度与证据索引；Git commit、PR 和测试日志是最终事实来源。临时日志不保证跨任务保留，关键摘要必须入 Git，较大证据用可访问的 CI artifact 并注明有效期。
+当前分支：`docs/codex-research-workflow`。WF-001 已推送（实现提交 23aed47），PR REST API 返回 Forbidden，尚未创建 PR。恢复时先恢复 GitHub PR API 访问并创建 PR，再等待人工合并；也可由人工打开 GitHub 的 compare 页面创建。再选择 AUD-001。状态文件只记录进度与证据索引；Git commit、PR 和测试日志是最终事实来源。临时日志不保证跨任务保留，关键摘要必须入 Git，较大证据用可访问的 CI artifact 并注明有效期。
