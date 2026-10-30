@@ -94,7 +94,7 @@ COO collective。驱动在每次 Jacobian 评价前清零整个缓冲；所有 r
 
 `solver_node` 同时报告 `operator_set` 与 `operator_rows/columns`、`operator_local_rows/columns`，对应此 KSP 的 A 算子（不是可能不同的 P 预条件矩阵）。全局尺寸相对于该算子自身 communicator；local 尺寸是当前 rank 的布局，可为 0。未设置 A 时尺寸为 -1；先用 KSPGetOperatorsSet 判断存在，再读取元数据，不为诊断创建矩阵、装配或做规约。子层 global 尺寸不能按 world rank 相加；这些尺寸不代表非零元、内存或累计工作量。
 
-当前遍历 FieldSplit、ASM/BJacobi 本地块和 MG/GAMG 的粗层/下平滑器；默认共用的上平滑器不重复输出。用户另设的独立上平滑器、额外 Schur A00 求解器和其他 PC 类型的子对象尚未枚举。诊断不调用 PCSetUp 或会创建上平滑器的 getter；未建立或不可读的子树输出 `solver_node_unavailable`，不覆盖原求解结论。识别到顶层 KSP 未收敛或 SNES 线性失败时，先共同刷出所有 rank 的树，再抛出带本 rank 层级的异常，避免后续 MPI_Abort 抢先掩盖远程局部 PC 原因。初始化/配置阶段的 PETSc 错误仍沿原路径报告。
+当前遍历 FieldSplit、ASM/BJacobi 本地块和 MG/GAMG 的粗层/下平滑器；默认共用的上平滑器不重复输出。用户另设的独立上平滑器、额外 Schur A00 求解器和其他 PC 类型的子对象尚未枚举。诊断不调用 PCSetUp 或会创建上平滑器的 getter；未建立或不可读的子树输出 `solver_node_unavailable`，不覆盖原求解结论。识别到顶层 KSP 未收敛或 SNES 线性失败时，本地输出层级并抛出带rank、phase、PETSc返回码与原始reason的异常；失败诊断不引入collective。PETSc <3.20的顶层KSP postsolve独立于诊断开关归约PC失败布尔标志，阻止旧PREONLY局部原因码分叉进入SNES或残量诊断；负PC枚举也表示失败，不能对原始枚举作MAX推断。3.19.6/3.23.7的实证与边界见[INFRA-01](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md)。初始化/配置阶段的 PETSc 错误仍沿原路径报告。
 
 `-linear_report` 同时开启 `-solver_report`，并在每次顶层 KSP 正常收敛后，使用该次实际算子、解与右端项重新计算 `A*x-b`。`linear_residual` 输出原始 L2 范数及右端项范数；`linear_field_residual` 使用与非线性验收相同的 owned 字段划分和尺度，输出方程 RMS 与约束最大值。其独立存储不改变非线性验收基线、解或右端项。这是顶层线性方程的字段残量，不是各子 KSP 的残量，也不作为新的接受条件。KSP 未收敛或开启 PETSc 对角缩放时输出 `linear_residual_unavailable`，避免把不一致的缩放坐标误报为真实残量。
 

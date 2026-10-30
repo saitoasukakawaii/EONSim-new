@@ -107,3 +107,8 @@
 ## QA-01 / 2026-10-30
 
 [profiling日志校验草稿](../../website/drafts/profile-log-validation.md)：实现7b91030，11项回归覆盖72份归档日志与损坏日志负对照；说明NaN比较、整数原因码与根节点完整性。没有新增数值或性能测量；待人工审查协议范围，未发布。
+
+
+## INFRA-01 / 2026-10-30
+
+[MPI失败与云端恢复草稿](../../website/drafts/mpi-failure-cloud-reproducibility.md)：d3f69d1实现、旧版最小复现和两环境针对性回归；分开控制流理论、源代码、数值/状态与性能未测量。完整套件和CI以INFRA-01报告为准，尚未发布。
