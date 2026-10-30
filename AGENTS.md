@@ -13,7 +13,8 @@
 1. 先读 [总原则与决策入口](MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md)，再按下表只读本次相关约束。
 2. 沿现有实现完成一个具体算例或一个明确修复；没有代码时按开发路线从 P0 建立最小纵向闭环。
 3. 优先具体类型、普通函数和单一可用后端；第二个真实使用者出现后再抽象。
-4. 不为普通工作新增审批、计划文档、全量检查、兼容层或未使用的扩展点。\n5. 对跨多个阶段或需要跨 Task 接续的实质任务，开始时读取 CODEX_PROGRESS.md 和 CODEX_TASK_QUEUE.md；领取一个可独立验收的任务。结束时按实际结果更新进度和会话日志。普通小修复不必写会话日志。
+4. 不为普通工作新增审批、计划文档、全量检查、兼容层或未使用的扩展点。
+5. 对跨多个阶段或需要跨 Task 接续的实质任务，开始时读取 CODEX_PROGRESS.md 和 CODEX_TASK_QUEUE.md；领取一个可独立验收的任务。结束时按实际结果更新进度和会话日志。普通小修复不必写会话日志。
 
 ## 按任务读取
 
@@ -27,12 +28,21 @@
 | CMake、Debug/Release、错误传播、检查 | [L3 构建与验证](docs/development/BUILD_AND_VALIDATION.md) |
 | API 注释、数值代码说明、Doxygen | [L3 文档与注释](docs/development/DOCUMENTATION_AND_COMMENTS.md) |
 | 公开知识网站、教学文章、网站预览和发布 | [网站贡献规范](website/development/contribution.md) 与 [网站说明](website/README.md) |
-| 文献到数学/软件规格、整体研发阶段与 Codex 工作流 | [EONSim 工程研发总纲](docs/development/EONSim_ENGINEERING_PROGRAM.md) |\n| 跨 Task 进度恢复与任务队列 | [CODEX_PROGRESS](docs/development/CODEX_PROGRESS.md)、[CODEX_TASK_QUEUE](docs/development/CODEX_TASK_QUEUE.md)、[CODEX_SESSION_LOG](docs/development/CODEX_SESSION_LOG.md) |\n| 将实质研发成果整理为公开知识草稿 | [eonsim-knowledge-capture Skill](.agents/skills/eonsim-knowledge-capture/SKILL.md) |
+| 文献到数学/软件规格、整体研发阶段与 Codex 工作流 | [EONSim 工程研发总纲](docs/development/EONSim_ENGINEERING_PROGRAM.md) |
+| Codex Goal 驱动的多轮持续研发 | [CODEX_GOAL_WORKFLOW](docs/development/CODEX_GOAL_WORKFLOW.md) |
+| 跨 Task 进度恢复与任务队列 | [CODEX_PROGRESS](docs/development/CODEX_PROGRESS.md)、[CODEX_TASK_QUEUE](docs/development/CODEX_TASK_QUEUE.md)、[CODEX_SESSION_LOG](docs/development/CODEX_SESSION_LOG.md) |
+| 将实质研发成果整理为公开知识草稿 | [eonsim-knowledge-capture Skill](.agents/skills/eonsim-knowledge-capture/SKILL.md) |
 | 下一步功能或里程碑 | [开发路线](docs/development/ROADMAP.md) |
 
 公开网站内容默认先写入 website/drafts/，并按网站贡献规范标注理论、实现和验证状态；未经人工审查及合并到 main，不得视为已发布。网站草稿目录被生产构建排除，但仓库公开，禁止放入秘密或敏感资料。
 
-对有复用价值的算法、架构、验证或性能任务，使用 eonsim-knowledge-capture Skill 生成 website/drafts/ 草稿，并登记 docs/research/KNOWLEDGE_LOG.md。草稿不得自动发布。\n\n研究文件提供来源；无需每次重读所有上游项目。处理某子目录时，如该目录存在 AGENTS.md，读取其局部增量规则。
+对有复用价值的算法、架构、验证或性能任务，使用 eonsim-knowledge-capture Skill 生成 website/drafts/ 草稿，并登记 docs/research/KNOWLEDGE_LOG.md。草稿不得自动发布。
+
+研究文件提供来源；无需每次重读所有上游项目。处理某子目录时，如该目录存在 AGENTS.md，读取其局部增量规则。
+
+## Codex Goals 与跨 Task 接续
+
+复杂且需要多轮调查、修改、测试的里程碑，可在 Codex Cloud 当前 thread 中由用户启动 Codex Goal。一个 Goal 只对应一个有证据验收条件的里程碑，不要设置“无限优化整个项目”这类无边界目标。Goal 的具体写法、生命周期和停止条件见 [CODEX_GOAL_WORKFLOW.md](docs/development/CODEX_GOAL_WORKFLOW.md)。Goal 只保存当前 thread 的目标状态；跨 Task 的唯一持久化事实来源是 Git 中的 CODEX_PROGRESS.md、CODEX_TASK_QUEUE.md、CODEX_SESSION_LOG.md 和已提交代码。新 Task 开始前必须重新读取这些文件和最新 main。
 
 ## 不随优化改变的规则
 

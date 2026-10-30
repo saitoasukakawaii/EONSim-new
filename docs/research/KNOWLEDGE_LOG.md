@@ -23,12 +23,13 @@
 
 ## 候选知识主题
 
-| Topic | 状态 | 主题 | 预期证据 |
+| Topic | 状态 | 主题 | 文章/预期证据 |
 |---|---|---|---|
-| HUB-K007 | idea | PETSc NonlinearSession 与对象生命周期 | 源码调用链、对象复用边界、setup/solve 计时 |
+| HUB-K007 | draft | PETSc 非线性求解器对象生命周期 | [PETSc object lifetime](../../website/drafts/petsc-object-lifetime.md)；源码审计已完成，性能尚未测量 |
 | HUB-K008 | idea | Newton 变量/残量一致缩放 | 数学推导、Jacobian 变换、Jv 与线搜索验证 |
 | HUB-K009 | idea | Schur/GAMG 网格规模行为 | 多网格规模迭代数、内存和耗时 |
 | HUB-K010 | idea | MPIAIJ 对角/非对角预分配和装配成本 | d_nnz/o_nnz、远程插入、MatAssembly 计时 |
+| HUB-K011 | idea | PETSc SNES/KSP/PC setup profiling | 多时间步日志、重复运行统计和环境信息 |
 
 ## 登记规则
 
@@ -37,7 +38,3 @@
 - 没有运行数据时不得填写性能数值；没有测试时不得标记为已验证。
 - 草稿位于公开仓库，不能存放私密研究笔记、凭据、受限数据或未授权论文全文。
 - 发布状态只有在文章进入正式栏目并合并到 main 后才改为 published。
-
-## SOLVER-01 / 2026-10-30
-
-草稿：[PETSc 对象生命周期](../../website/drafts/petsc-object-lifetime.md)。证据：固定提交源码审计；无新增数值/性能实测。待人工核对上下文生命周期与计时边界，未发布。
