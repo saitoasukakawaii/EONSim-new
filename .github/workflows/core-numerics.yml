@@ -1,0 +1,70 @@
+name: Core numerical validation
+
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  numerics:
+    name: PETSc ${{ matrix.petsc }} / ${{ matrix.mode }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - petsc: 3.23.7
+            mode: debug
+            selection: all
+            compiler: gcc-15.3.0
+            abi: openmpi-5-real-double-int32-v3
+          - petsc: 3.23.7
+            mode: release
+            selection: all
+            compiler: gcc-15.3.0
+            abi: openmpi-5-real-double-int32-v3
+          - petsc: 3.19.6
+            mode: release
+            selection: mpi-failure
+            compiler: gcc-12.4.0
+            abi: openmpi-4-real-double-int32
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency package cache
+        uses: actions/cache@v4
+        with:
+          path: .cloud/mamba/pkgs
+          key: deps-${{ runner.os }}-${{ runner.arch }}-${{ matrix.compiler }}-${{ matrix.abi }}-${{ hashFiles(format('environments/petsc-{0}-linux-64.lock', matrix.petsc)) }}
+      - name: Restore locked environment
+        shell: bash
+        run: |
+          mkdir -p build/restore-evidence
+          set -o pipefail
+          scripts/cloud/restore.sh '${{ matrix.petsc }}' 2>&1 | tee build/restore-evidence/restore.log
+      - name: Build and verify existing numerical contracts
+        run: scripts/cloud/run.sh '${{ matrix.petsc }}' '${{ matrix.mode }}' '${{ matrix.selection }}'
+      - name: Preserve evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numerics-${{ matrix.petsc }}-${{ matrix.mode }}-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            build/restore-evidence/
+            build/cloud-*/evidence/
+            build/cloud-*/CMakeCache.txt
+            build/cloud-*/CMakeFiles/CMakeConfigureLog.yaml
+            build/cloud-*/Testing/
+            build/cloud-*/**/*.log
+            build/cloud-*/**/results.json

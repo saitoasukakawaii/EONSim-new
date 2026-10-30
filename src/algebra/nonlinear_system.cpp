@@ -193,6 +193,8 @@ struct LinearDiagnostics {
     std::chrono::steady_clock::time_point begin;
     double solve_seconds=0,diagnostic_seconds=0;
     PetscInt started=0,completed=0;
+    bool enabled=false;
+    int collective_pc_failure=0;
 };
 PetscErrorCode linear_begin(KSP,Vec,Vec,void* pointer)
 {
@@ -244,6 +246,27 @@ PetscErrorCode linear_end(KSP ksp,Vec b,Vec x,void* pointer)
     d.diagnostic_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-end).count();
     return PETSC_SUCCESS;
 }
+// PETSc 3.19 PREONLY can return success on one rank and PC_FAILED on another
+// (src/ksp/ksp/impls/preonly/preonly.c). Protect solver control flow BEFORE
+// diagnostics or SNES branch on that rank-local reason. This safety check is
+// independent of reporting; it neither sets up a PC nor changes a reason code.
+PetscErrorCode linear_complete(KSP ksp,Vec b,Vec x,void* pointer)
+{
+    auto& d=*static_cast<LinearDiagnostics*>(pointer);
+#if PETSC_VERSION_LT(3,20,0)
+    PC pc; PCFailedReason failure;
+    PetscCall(KSPGetPC(ksp,&pc));
+    PetscCall(PCGetFailedReasonRank(pc,&failure));
+    // PC_SETUP_ERROR is negative in 3.19: reduce a flag, not the enum value.
+    const int local=failure!=PC_NOERROR;
+    PetscCallMPI(MPI_Allreduce(&local,&d.collective_pc_failure,1,MPI_INT,MPI_MAX,
+                              PetscObjectComm(reinterpret_cast<PetscObject>(ksp))));
+    if(d.collective_pc_failure) return PETSC_ERR_NOT_CONVERGED;
+#endif
+    if(d.enabled) return linear_end(ksp,b,x,pointer);
+    return PETSC_SUCCESS;
+}
+
 void local_values(Vec x,std::vector<double>& values)
 {
     EONSIM_PETSC(VecGhostUpdateBegin(x,INSERT_VALUES,SCATTER_FORWARD));
@@ -317,6 +340,8 @@ struct Context {
             MPI_Allreduce(&source,&origin,1,MPI_INT,MPI_MIN,comm);
             int length=static_cast<int>(error.size()); MPI_Bcast(&length,1,MPI_INT,origin,comm);
             error.resize(length); MPI_Bcast(error.data(),length,MPI_CHAR,origin,comm);
+            error="callback phase="+std::string(j?"jacobian":"residual")+
+                  " origin_rank="+std::to_string(origin)+": "+error;
             if(any_failed==1) { recoverable=true; throw StepRejected(error); }
             throw std::runtime_error(error);
         }
@@ -483,9 +508,10 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         diagnostics.fields.emplace(acceptance);
         EONSIM_PETSC(VecDuplicate(r.get(),diagnostics.residual.put()));
     }
+    diagnostics.enabled=report;
+    EONSIM_PETSC(KSPSetPostSolve(ksp,linear_complete,&diagnostics));
     if(report) {
         EONSIM_PETSC(KSPSetPreSolve(ksp,linear_begin,&diagnostics));
-        EONSIM_PETSC(KSPSetPostSolve(ksp,linear_end,&diagnostics));
     }
     const auto solve_begin=std::chrono::steady_clock::now();
     const double setup_seconds=std::chrono::duration<double>(solve_begin-setup_begin).count();
@@ -506,16 +532,17 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     if(error && !context.error.empty()) throw std::runtime_error(context.error);
     SNESConvergedReason reason; EONSIM_PETSC(SNESGetConvergedReason(snes.get(),&reason));
     KSPConvergedReason linear_reason; EONSIM_PETSC(KSPGetConvergedReason(ksp,&linear_reason));
-    if((error||reason<=0)&&(linear_reason<0||reason==SNES_DIVERGED_LINEAR_SOLVE)) {
+    if(diagnostics.collective_pc_failure||
+       ((error||reason<=0)&&(linear_reason<0||reason==SNES_DIVERGED_LINEAR_SOLVE))) {
         PCFailedReason local_failure; EONSIM_PETSC(PCGetFailedReason(pc,&local_failure));
-        int local_code=local_failure,global_code=0; MPI_Allreduce(&local_code,&global_code,1,MPI_INT,MPI_MAX,comm);
         int rank; MPI_Comm_rank(comm,&rank);
         const auto tree=local_solver_report(ksp,rank);
-        // 作业入口随后可能 MPI_Abort；先共同刷出所有 rank 的树，避免先退出的 rank 隐藏远程故障。
-        EONSIM_PETSC(PetscSynchronizedPrintf(comm,"%s",tree.c_str()));
-        EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
-        throw std::runtime_error("Linear solver failure: snes_reason="+std::to_string(reason)+
-            " ksp_reason="+std::to_string(linear_reason)+" pc_reason="+std::to_string(global_code)+"\n"+tree);
+        // Failure diagnostics are rank-local: never add a collective or force PC setup.
+        std::cerr<<tree<<std::flush;
+        throw std::runtime_error("Linear solver failure: phase=linear_solve rank="+std::to_string(rank)+
+            " petsc_error="+std::to_string(error)+" snes_reason="+std::to_string(reason)+
+            " ksp_reason="+std::to_string(linear_reason)+" pc_reason="+std::to_string(local_failure)+
+            " collective_pc_failure="+std::to_string(diagnostics.collective_pc_failure)+"\n"+tree);
     }
     EONSIM_PETSC(error);
     if(reason==SNES_DIVERGED_INNER||reason==SNES_CONVERGED_ITERATING)

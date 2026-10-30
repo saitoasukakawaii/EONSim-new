@@ -29,6 +29,7 @@ void verify() {
         if(rank==ranks-1) {
             EONSIM_PETSC(VecSetValue(r,0,7,ADD_VALUES));
             if(failure_mode==1&&j) throw StepRejected("Jacobian outside constitutive domain");
+            if(failure_mode==3&&j) throw std::runtime_error("Invalid Jacobian input");
             if(failure_mode==2) throw std::runtime_error("Invalid constitutive input");
             if(x[uindex]<=0) { ++invalid_trials; throw StepRejected("Logarithm requires positive stretch"); }
         }
@@ -72,7 +73,24 @@ void verify() {
     catch(const StepRejected&) { throw std::runtime_error("Invalid input was classified as retryable"); }
     catch(const std::runtime_error& e) { fatal=std::string(e.what()).find("Invalid constitutive input")!=std::string::npos; }
     require(fatal,"Fatal callback error was not propagated");
+    failure_mode=3; fatal=false;
+    EONSIM_PETSC(PetscPushErrorHandler(PetscReturnErrorHandler,nullptr));
+    try { system.solve(config,initial,{}, {},assemble); }
+    catch(const StepRejected&) { throw std::runtime_error("Fatal Jacobian input was classified as retryable"); }
+    catch(const std::runtime_error& e) {
+        const std::string message=e.what();
+        fatal=message.find("Invalid Jacobian input")!=std::string::npos&&
+              message.find("phase=jacobian")!=std::string::npos&&
+              message.find("origin_rank="+std::to_string(ranks-1))!=std::string::npos;
+    }
+    EONSIM_PETSC(PetscPopErrorHandler());
+    require(fatal,"Fatal Jacobian callback error lost its origin or phase");
+    require(initial==std::vector<double>(2,2),"Fatal callback mutated accepted input");
     failure_mode=0;
+    const auto after_fatal=system.solve(config,initial,{}, {},assemble);
+    require(std::abs(after_fatal.values[uindex]-.1)<1e-10&&std::abs(after_fatal.values[vindex]-.1)<1e-10,
+            "Fatal callback contaminated subsequent solve");
+    std::cout<<"expected_failure category=callback rank="<<rank<<" caught=1 accepted_unchanged=1 recovery_passed=1\n";
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-snes_max_it","0"));
     rejected=false;
     try { system.solve(config,initial,{}, {},assemble); } catch(const StepRejected&) { rejected=true; }
@@ -100,32 +118,53 @@ void verify() {
             if(j) EONSIM_PETSC(MatSetValue(j,row,row,row==1?0:1,ADD_VALUES));
         }
     };
-    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_type","bjacobi"));
-    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-sub_ksp_type","preonly"));
-    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-sub_pc_type","lu"));
-    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-sub_pc_factor_mat_solver_type","petsc"));
-    EONSIM_PETSC(PetscPushErrorHandler(PetscReturnErrorHandler,nullptr));
-    fatal=false;
-    try { system.solve(config,initial,{}, {},singular); }
-    catch(const StepRejected&) { throw std::runtime_error("PC failure was classified as retryable"); }
-    catch(const std::runtime_error& e) {
-        const std::string message=e.what();
-        fatal=message.find("Linear solver failure:")!=std::string::npos;
-        require(message.find("path=root/local0")!=std::string::npos,"Missing local PC diagnostic");
-        require(message.find("rank="+std::to_string(rank))!=std::string::npos,"Missing diagnostic rank");
-        if(rank==ranks-1) {
-            require(message.find("FACTOR_NUMERIC_ZEROPIVOT")!=std::string::npos,"Missing zero-pivot cause in child PC");
+    // The compatibility guard must work with diagnostics off, summary only,
+    // and true-residual reporting. Each mode also exercises no-setup success.
+    for(int reporting=0;reporting<3;++reporting) {
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-linear_report"));
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-solver_report"));
+        if(reporting==1) EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-solver_report","true"));
+        if(reporting==2) EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_report","true"));
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_type","bjacobi"));
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-sub_ksp_type","preonly"));
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-sub_pc_type","lu"));
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-sub_pc_factor_mat_solver_type","petsc"));
+        EONSIM_PETSC(PetscPushErrorHandler(PetscReturnErrorHandler,nullptr));
+        fatal=false;
+        try { system.solve(config,initial,{}, {},singular); }
+        catch(const StepRejected&) { throw std::runtime_error("PC failure was classified as retryable"); }
+        catch(const std::runtime_error& e) {
+            const std::string message=e.what();
+            fatal=message.find("Linear solver failure:")!=std::string::npos&&
+                  message.find("phase=linear_solve")!=std::string::npos;
+            require(message.find("path=root/local0")!=std::string::npos,"Missing local PC diagnostic");
+            require(message.find("rank="+std::to_string(rank))!=std::string::npos,"Missing diagnostic rank");
+            if(rank==ranks-1) {
+                require(message.find("FACTOR_NUMERIC_ZEROPIVOT")!=std::string::npos,"Missing zero-pivot cause in child PC");
+            }
         }
+        EONSIM_PETSC(PetscPopErrorHandler());
+        require(fatal,"PC failure did not provide linear solver diagnostics");
+        // 初态已满足方程时 PC 尚未 setup；报告必须保留成功结果，不能为诊断额外 setup。
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-solver_report","true"));
+        const auto zero=[](const std::vector<double>&,Vec,Mat) {};
+        const auto unchanged=system.solve(config,initial,{}, {},zero);
+        require(unchanged.iterations==0&&unchanged.values==initial,"Diagnostics changed an initially converged solve");
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-solver_report"));
+
+        require(initial==std::vector<double>(2,2),"PC failure mutated accepted state");
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_type"));
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-sub_ksp_type"));
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-sub_pc_type"));
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-sub_pc_factor_mat_solver_type"));
+        const auto after_pc=system.solve(config,initial,{}, {},assemble);
+        require(std::abs(after_pc.values[uindex]-.1)<1e-10&&std::abs(after_pc.values[vindex]-.1)<1e-10,
+                "PC failure contaminated subsequent solve");
+        std::cout<<"expected_failure category=pc rank="<<rank<<" reporting="<<reporting
+                 <<" caught=1 accepted_unchanged=1 recovery_passed=1\n";
     }
-    EONSIM_PETSC(PetscPopErrorHandler());
-    require(fatal,"PC failure did not provide linear solver diagnostics");
-    // 初态已满足方程时 PC 尚未 setup；报告必须保留成功结果，不能为诊断额外 setup。
-    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-solver_report","true"));
-    const auto zero=[](const std::vector<double>&,Vec,Mat) {};
-    const auto unchanged=system.solve(config,initial,{}, {},zero);
-    require(unchanged.iterations==0&&unchanged.values==initial,"Diagnostics changed an initially converged solve");
-    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-solver_report"));
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-linear_report"));
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-solver_report"));
     if(rank==0) std::cout<<"trial backtracking, partial assembly and failure classification passed on "<<ranks<<" ranks\n";
 }
 }
