@@ -5,7 +5,7 @@
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 当前主分支基线：8c8a4af7448908dc7756f6ea7f9b4676d1d6af00
+- 当前主分支基线：a48de95（PR #8 合并）
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -19,11 +19,11 @@
 | 网站框架与初始知识栏目 | 已合并 | VitePress 构建由 CI 验证 |
 | Codex 跨任务进度管理 | 已合并（PR #3） | 通过本文件、任务队列和会话日志恢复 |
 | 知识文章模板与采集流程 | 已合并（PR #3） | Codex 只生成公开草稿，人工审核后发布 |
-| PETSc NonlinearSession 优化 | 已审计、待细分测量 | 先确认对象生命周期和实际性能瓶颈，再决定是否实现 |
+| PETSc NonlinearSession 优化 | 已审计及测量、暂缓实现 | SOLVER-02 暂无持久化重构的性能依据 |
 
 ## 当前焦点
 
-PR #7 已合并；SOLVER-02 完成fluid/elastic多时间步测量，等待审核。结论为暂缓持久化原型；当前没有继续重构的性能依据。
+PR #8 已合并，SOLVER-02 完成。SOLVER-05 修复重复线性求解覆盖 KSP 所有权的问题；代码与针对性验证已完成，等待独立 PR 审核。
 
 ## 最近完成
 
@@ -34,7 +34,7 @@ PR #7 已合并；SOLVER-02 完成fluid/elastic多时间步测量，等待审核
 
 ## 当前检查点
 
-基线8c8a4af；分支perf/multistep-setup-profile；报告docs/research/MULTISTEP_SETUP_PROFILE_2026-10-30.md。下一任务需在本PR合并后依据需求选择，不自动实施NonlinearSession。
+基线 a48de95；分支 fix/linear-solve-ksp-lifetime；修复提交 c47f00d。Release 四项及 Debug 两项针对性测试通过。下一 Task 先检查本分支 PR 状态；不自动实施 NonlinearSession。
 
 ## 恢复规则
 
