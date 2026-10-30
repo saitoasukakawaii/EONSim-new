@@ -8,6 +8,7 @@
 #include "eonsim/fluid_element.hpp"
 #include "eonsim/field_layout.hpp"
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
@@ -16,6 +17,8 @@ namespace eonsim {
 FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& config)
 {
     const auto& f=config.fluid;
+    PetscBool element_report=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_element_report",&element_report,nullptr));
     const bool tagged=!f.boundaries.empty();
     const auto materials=cell_materials(comm,mesh,f.regions,FluidMaterial{f.density,f.viscosity});
     const auto layout=make_field_layout(mesh,Tet4Flow::components,{{"velocity",{0,1,2}},{"pressure",{Tet4Flow::pressure}}});
@@ -101,6 +104,9 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
             parameters.push_back({material.density,material.viscosity,transient?dt:0,
                 1/std::sqrt(time*time+adv*adv+visc*visc),f.mode!=FluidConfig::Mode::stokes});
         }
+        using Timer=std::chrono::steady_clock;
+        double kernel_seconds=0,insert_seconds=0;
+        PetscInt residual_elements=0,jacobian_elements=0;
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
             for(std::size_t e=0;e<mesh.cells.size();++e) {
                 Tet4Flow::State<double> state,old;
@@ -109,9 +115,17 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
                     const auto local=Tet4Flow::components*mesh.cells[e].nodes[a]+c;
                     state[Tet4Flow::components*a+c]=x[local]; old[Tet4Flow::components*a+c]=accepted[local]; ids[Tet4Flow::components*a+c]=layout.local_to_global[local];
                 }
+                const auto kernel_begin=element_report?Timer::now():Timer::time_point{};
                 const auto element=fluid_element(geometry[e],parameters[e],state,old,{},j!=nullptr);
+                const auto insert_begin=element_report?Timer::now():Timer::time_point{};
                 EONSIM_PETSC(VecSetValues(r,Tet4Flow::dofs,ids.data(),element.residual.data(),ADD_VALUES));
                 if(j) EONSIM_PETSC(MatSetValues(j,Tet4Flow::dofs,ids.data(),Tet4Flow::dofs,ids.data(),element.tangent.data(),ADD_VALUES));
+                if(element_report) {
+                    const auto insert_end=Timer::now();
+                    kernel_seconds+=std::chrono::duration<double>(insert_begin-kernel_begin).count();
+                    insert_seconds+=std::chrono::duration<double>(insert_end-insert_begin).count();
+                    if(j) ++jacobian_elements; else ++residual_elements;
+                }
             }
             // x=1 处解析通道牵引 sigma*n=(0, mu*du_x/dy, 0)，压力基准由此确定。
             // 一致三角形质量矩阵积分线性牵引，独立于 trial，无额外切线。
@@ -133,6 +147,14 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
             }
         };
         result.nonlinear=system.solve(config.solver,accepted,bc,prescribed,assemble);
+        if(element_report) {
+            // Rank-local totals for this completed solve, including final acceptance/reaction callbacks.
+            EONSIM_PETSC(PetscSynchronizedPrintf(comm,
+                "fluid_element_report rank=%d step=%d local_cells=%zu residual_elements=%" PetscInt_FMT
+                " jacobian_elements=%" PetscInt_FMT " kernel_seconds=%.17g insert_seconds=%.17g\n",
+                mesh.rank,step,mesh.cells.size(),residual_elements,jacobian_elements,kernel_seconds,insert_seconds));
+            EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
+        }
         accepted=result.nonlinear.values;
         if(f.mean_pressure) {
             double local[2]{},global[2]{};
