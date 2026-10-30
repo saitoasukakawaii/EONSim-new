@@ -5,7 +5,7 @@
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 当前主分支基线：28c60da（PR #16 合并）
+- 当前主分支基线：2e7e9a9（PR #17 合并）
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -25,7 +25,7 @@
 
 ## 当前焦点
 
-PR #16 已合并，HPC-01B 完成。按用户继续上一轮候选任务的指示，HPC-01C 已完成 fluid/elastic 1/2/4 rank 多时间步装配测量，等待 PR 审核。纯 kernel/插入分离仍未完成。
+PR #17 已合并，HPC-01C 完成。用户要求继续上一轮 kernel/插入分离建议，HPC-01D 已实现独立流体显式单元计时并通过开关对照，等待 PR 审核。FSI/ALE 和 owned/remote 插入尚未分离。
 
 ## 最近完成
 
@@ -41,7 +41,7 @@ PR #16 已合并，HPC-01B 完成。按用户继续上一轮候选任务的指�
 
 ## 当前检查点
 
-基线 28c60da；分支 perf/transient-assembly-profile。18次运行、180步通过；最终流体/网格及独立固体场均作跨rank检查。测量/验证/统计版本分别记录于 docs/research/data/transient-assembly-2026-10-30/results.json。下一 Task 先检查 PR；当前无新增 ready 任务，需由用户选择后续目标。
+基线 2e7e9a9；分支 feat/fluid-element-timers；实现提交 1722265。Release/Debug 的 fluid_element_report 均通过，覆盖 steady/transient/tagged、1/2 rank 开关对照。下一 Task 先检查 PR；当前无新增 ready 任务，计时扰动或目标规模测量需用户选择。
 
 ## 恢复规则
 
