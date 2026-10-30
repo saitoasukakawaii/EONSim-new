@@ -33,28 +33,22 @@
 
 ### 目标
 
-量化每个时间步的 SNES/KSP/PC setup 成本，判断是否值得进一步设计持久化 NonlinearSession。此任务只测量和分析，不修改求解器。
+使用 PR #13 新增的阶段计时字段，建立可复现的 MPI 装配测量基线。此任务只运行测量、解析日志和分析，不修改求解器代码。
 
-### 算例顺序
+### 执行要求
 
-1. cases/fluid/transient.yaml（10 steps）。
-2. cases/fsi/elastic.yaml（10 steps）。
-3. 若前两项能稳定运行且确有需要，再增加 Schur PC 对照。
-
-### 测量要求
-
-1. 固定 commit、Release 构建、CPU/内存、MPI/PETSc 版本、网格、rank、容差和 PETSc options。
-2. 先检查 README、case runner 和 CLI，确定真实可执行命令；不得猜测命令或参数。
-3. 每个案例至少 3 次重复运行；报告首步与后续步，给出中位数和离散程度。
-4. 使用 -solver_report；首轮不启用 -linear_report。
-5. 记录 setup_seconds、schur_setup_seconds、solve_seconds、assembly_seconds、ghost_seconds、linear_seconds、finalize_seconds、RSS、SNES/KSP 迭代数和最终残量。
-6. 解释计时区间的包含关系；不得把嵌套时间简单相加。
-7. 不放宽容差、不改物理模型；数值结果不一致时先调查，不以速度作为唯一指标。
-8. 如果 Cloud 环境不能稳定运行 MPI/FSI，保存失败输出和环境限制，不能伪造性能数据。
+1. 读取 L2 离散算子计时契约及 PR #13 的实现，准确解释 callback_seconds、failure_sync_seconds、assembly_finalize_seconds、constraint_seconds、assembly_seconds、ghost_seconds 和 linear_seconds。
+2. 从现有案例中选择至少一个装配成本足够稳定的代表算例；如资源允许，再增加 transient fluid 或 FSI。
+3. 固定 main commit、Release 构建、CPU/内存、编译器、PETSc/MPI 版本、网格、DOF、容差和 PETSc options。
+4. 在可用资源范围内运行 1/2/4 rank；每个配置至少 3 次重复，保存原始日志。
+5. 报告每步与每次运行的中位数、离散程度和 rank-max 口径；区分首步与稳定步骤。
+6. 阶段时间有包含关系且 rank 最大值可能来自不同 rank，不得直接相加或将 callback/assembly_finalize 解释为纯 kernel/纯网络时间。
+7. 同时检查 SNES/KSP 迭代数、最终残量和物理解差；不放宽容差。
+8. 不将单节点多 rank 结果写成多节点强扩展结论。若 Cloud VM 资源不足，记录阻塞并提供在 HPC 上复现的命令。
 
 ### 完成标准
 
-提交可复现命令、环境信息、原始日志、逐步数据、重复运行统计和结论：实施 NonlinearSession 原型、暂缓，或需要更大 HPC 环境补测。
+提交可复现命令、环境信息、逐 rank 原始日志、统计表、阶段边界解释和瓶颈结论；明确下一步是优化、需要更细计时，还是暂缓。知识草稿保留在 website/drafts/。
 
 ## 任务领取规则
 
