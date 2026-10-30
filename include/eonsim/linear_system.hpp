@@ -70,7 +70,6 @@ private:
     AlgebraLayout layout_;
     PetscOwner<Mat, MatDestroy> matrix_;
     PetscOwner<Vec, VecDestroy> rhs_, solution_, work_;
-    PetscOwner<KSP, KSPDestroy> solver_;
 };
 
 } // namespace eonsim

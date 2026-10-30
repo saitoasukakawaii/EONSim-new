@@ -59,16 +59,18 @@ LinearResult LinearSystem::solve(const SolverConfig& config, bool full_diagnosti
         EONSIM_PETSC(MatIsSymmetric(matrix_.get(), 1e-12, &symmetric));
         if (!symmetric) throw std::runtime_error("Constrained Poisson operator is not symmetric");
     }
-    EONSIM_PETSC(KSPCreate(communicator_, solver_.put()));
-    EONSIM_PETSC(KSPSetOperators(solver_.get(), matrix_.get(), matrix_.get()));
-    EONSIM_PETSC(KSPSetType(solver_.get(), KSPCG));
-    EONSIM_PETSC(KSPSetNormType(solver_.get(), KSP_NORM_UNPRECONDITIONED));
+    // Each call owns its solver, including cleanup when convergence checks throw.
+    PetscOwner<KSP, KSPDestroy> solver;
+    EONSIM_PETSC(KSPCreate(communicator_, solver.put()));
+    EONSIM_PETSC(KSPSetOperators(solver.get(), matrix_.get(), matrix_.get()));
+    EONSIM_PETSC(KSPSetType(solver.get(), KSPCG));
+    EONSIM_PETSC(KSPSetNormType(solver.get(), KSP_NORM_UNPRECONDITIONED));
     PC preconditioner = nullptr;
-    EONSIM_PETSC(KSPGetPC(solver_.get(), &preconditioner));
+    EONSIM_PETSC(KSPGetPC(solver.get(), &preconditioner));
     EONSIM_PETSC(PCSetType(preconditioner, PCJACOBI));
-    EONSIM_PETSC(KSPSetTolerances(solver_.get(), config.relative_tolerance, config.absolute_tolerance,
+    EONSIM_PETSC(KSPSetTolerances(solver.get(), config.relative_tolerance, config.absolute_tolerance,
                                 PETSC_DEFAULT, config.maximum_iterations));
-    EONSIM_PETSC(KSPSetFromOptions(solver_.get()));
+    EONSIM_PETSC(KSPSetFromOptions(solver.get()));
     const char* selected_pc = nullptr;
     EONSIM_PETSC(PCGetType(preconditioner, &selected_pc));
     if (std::string(selected_pc) == PCFIELDSPLIT) {
@@ -78,14 +80,14 @@ LinearResult LinearSystem::solve(const SolverConfig& config, bool full_diagnosti
             EONSIM_PETSC(PCFieldSplitSetIS(preconditioner, field.first.c_str(), indices.get()));
         }
     }
-    EONSIM_PETSC(KSPSolve(solver_.get(), rhs_.get(), solution_.get()));
+    EONSIM_PETSC(KSPSolve(solver.get(), rhs_.get(), solution_.get()));
     KSPConvergedReason reason;
-    EONSIM_PETSC(KSPGetConvergedReason(solver_.get(), &reason));
+    EONSIM_PETSC(KSPGetConvergedReason(solver.get(), &reason));
     if (reason <= 0) throw std::runtime_error(std::string("Linear solve did not converge: ") + KSPConvergedReasons[reason]);
     LinearResult result;
     result.reason = KSPConvergedReasons[reason];
-    EONSIM_PETSC(KSPGetIterationNumber(solver_.get(), &result.iterations));
-    EONSIM_PETSC(KSPGetTolerances(solver_.get(), &result.relative_tolerance, &result.absolute_tolerance, nullptr, nullptr));
+    EONSIM_PETSC(KSPGetIterationNumber(solver.get(), &result.iterations));
+    EONSIM_PETSC(KSPGetTolerances(solver.get(), &result.relative_tolerance, &result.absolute_tolerance, nullptr, nullptr));
     EONSIM_PETSC(MatMult(matrix_.get(), solution_.get(), work_.get()));
     EONSIM_PETSC(VecAXPY(work_.get(), -1.0, rhs_.get()));
     EONSIM_PETSC(VecNorm(work_.get(), NORM_2, &result.true_residual));
@@ -94,7 +96,7 @@ LinearResult LinearSystem::solve(const SolverConfig& config, bool full_diagnosti
     if (!std::isfinite(result.true_residual) || !std::isfinite(result.rhs_norm) || result.true_residual > tolerance)
         throw std::runtime_error("True residual does not satisfy the configured linear solve tolerance");
     const char *ksp = nullptr, *pc = nullptr;
-    EONSIM_PETSC(KSPGetType(solver_.get(), &ksp));
+    EONSIM_PETSC(KSPGetType(solver.get(), &ksp));
     EONSIM_PETSC(PCGetType(preconditioner, &pc));
     result.ksp_type = ksp;
     result.pc_type = pc;

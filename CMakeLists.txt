@@ -84,6 +84,13 @@ endif()
 
 if(BUILD_TESTING)
     enable_testing()
+    add_executable(verify_linear_lifetime tests/verify_linear_lifetime.cpp)
+    target_link_libraries(verify_linear_lifetime PRIVATE eonsim_core)
+    add_test(NAME linear_lifetime COMMAND verify_linear_lifetime)
+    add_test(NAME linear_lifetime_mpi COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" 2
+        ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_linear_lifetime> ${MPIEXEC_POSTFLAGS})
+    set_tests_properties(linear_lifetime linear_lifetime_mpi PROPERTIES TIMEOUT 60
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_executable(verify_solver_failures tests/verify_solver_failures.cpp)
     target_link_libraries(verify_solver_failures PRIVATE eonsim_core)
     add_test(NAME solver_failures COMMAND verify_solver_failures)
