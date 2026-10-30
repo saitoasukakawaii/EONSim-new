@@ -34,6 +34,8 @@ def generate(directory,n=2):
   mesh_constraints=[constraint(1,[0,1,2]),constraint(3,[1]),constraint(4,[1]),constraint(5,[2]),constraint(6,[2])],
   solid_constraints=[constraint(12,[0,1,2]),constraint(13,[1]),constraint(14,[1]),constraint(15,[2]),constraint(16,[2])])
  case=dict(mesh='fluid.msh',output='solution.vtu',fsi=dict(body='elastic',domains=domains,young=100,poisson=.3,dt=.02,steps=5,pressure=1),solver=dict(relative_tolerance=1e-10,absolute_tolerance=1e-12,maximum_iterations=30))
+ # 本小算例的已装配方程尺度：动量 1 N，连续性 0.01 m³/s，人工网格 0.01 m²。
+ case['solver']['fields']={name:dict(residual_scale=scale) for name,scale in (('velocity',1),('pressure',.01),('mesh',.01),('structure',1))}
  (directory/'case.yaml').write_text(json.dumps(case,indent=2)+'\n')
  return directory/'case.yaml'
 if __name__=='__main__':

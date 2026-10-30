@@ -284,10 +284,35 @@ Config read_config(const std::filesystem::path& path)
             throw std::runtime_error("Invalid FSI parameters");
     }
     if (const auto solver = root["solver"]) {
-        keys(solver, {"relative_tolerance", "absolute_tolerance", "maximum_iterations"}, "solver");
+        keys(solver, {"relative_tolerance", "absolute_tolerance", "maximum_iterations", "fields"}, "solver");
         if (solver["relative_tolerance"]) config.solver.relative_tolerance = solver["relative_tolerance"].as<double>();
         if (solver["absolute_tolerance"]) config.solver.absolute_tolerance = solver["absolute_tolerance"].as<double>();
         if (solver["maximum_iterations"]) config.solver.maximum_iterations = solver["maximum_iterations"].as<int>();
+        if(const auto fields=solver["fields"]) {
+            if(!fields.IsMap()||fields.size()==0) throw std::runtime_error("solver.fields must be a nonempty mapping");
+            if(!(config.fluid_problem||config.solid_problem||config.fsi_problem||
+                (config.motion_problem&&config.motion.mode!=MotionConfig::Mode::rigid)))
+                throw std::runtime_error("solver.fields requires a nonlinear solver entry");
+            for(const auto& entry:fields) {
+                const auto name=entry.first.as<std::string>(); const auto& f=entry.second;
+                keys(f,{"residual_scale","absolute_tolerance","relative_tolerance","constraint_scale","constraint_tolerance"},"solver.fields."+name);
+                FieldTolerance t;
+                t.absolute_tolerance=t.constraint_tolerance=config.solver.absolute_tolerance;
+                t.relative_tolerance=config.solver.relative_tolerance;
+                if(!f["residual_scale"]) throw std::runtime_error("Missing residual_scale for field "+name);
+                t.residual_scale=f["residual_scale"].as<double>();
+                if(f["absolute_tolerance"]) t.absolute_tolerance=f["absolute_tolerance"].as<double>();
+                if(f["relative_tolerance"]) t.relative_tolerance=f["relative_tolerance"].as<double>();
+                if(f["constraint_scale"]) t.constraint_scale=f["constraint_scale"].as<double>();
+                if(f["constraint_tolerance"]) t.constraint_tolerance=f["constraint_tolerance"].as<double>();
+                if(!(t.residual_scale>0&&t.absolute_tolerance>0&&t.relative_tolerance>=0&&t.relative_tolerance<1&&
+                    t.constraint_scale>0&&t.constraint_tolerance>0)||
+                    !std::isfinite(t.residual_scale)||!std::isfinite(t.absolute_tolerance)||!std::isfinite(t.relative_tolerance)||
+                    !std::isfinite(t.constraint_scale)||!std::isfinite(t.constraint_tolerance))
+                    throw std::runtime_error("Invalid field tolerance or scale: "+name);
+                if(!config.solver.fields.emplace(name,t).second) throw std::runtime_error("Duplicate solver field: "+name);
+            }
+        }
     }
     const auto& solver = config.solver;
     if (!std::isfinite(solver.relative_tolerance) || solver.relative_tolerance <= 0.0 || solver.relative_tolerance >= 1.0 ||

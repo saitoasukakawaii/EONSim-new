@@ -150,10 +150,28 @@ int main(int argc, char* argv[])
                 MPI_Barrier(PETSC_COMM_WORLD);
                 if(rank==0) {
                     eonsim::write_field_index(config.output,size,solid.fields);
-                    std::cout << std::setprecision(16) << "tip_displacement=" << solid.tip_displacement
-                        << " reaction_x=" << solid.reaction_x;
-                    if(!config.solid.transient && !config.solid.neo_hookean && config.solid.boundaries.empty() && config.solid.regions.empty()) std::cout << " displacement_max_error=" << solid.displacement_error;
-                    std::cout << "\nstatus=success\n";
+                    std::cout << std::setprecision(16);
+                    if(config.solid.boundaries.empty()) {
+                        std::cout << "tip_displacement=" << solid.tip_displacement << " reaction_x=" << solid.reaction_x;
+                        if(!config.solid.transient && !config.solid.neo_hookean && config.solid.regions.empty())
+                            std::cout << " displacement_max_error=" << solid.displacement_error;
+                        std::cout << '\n';
+                    } else {
+                        constexpr char axes[]="xyz";
+                        for(const auto& b:solid.boundaries) {
+                            std::cout << "solid_boundary_tag=" << b.tag << " reference_area=" << b.reference_area;
+                            for(int c=0;c<eonsim::Space3::dimension;++c)
+                                std::cout << " mean_displacement_" << axes[c] << '=' << b.mean_displacement[c]
+                                    << " mean_velocity_" << axes[c] << '=' << b.mean_velocity[c];
+                            for(int c=0;c<eonsim::Space3::dimension;++c) if(b.constrained[c])
+                                std::cout << " reaction_" << axes[c] << '=' << b.reaction[c];
+                            std::cout << '\n';
+                        }
+                        for(int c=0;c<eonsim::Space3::dimension;++c)
+                            std::cout << (c?" ":"") << "support_reaction_" << axes[c] << '=' << solid.support_reaction[c];
+                        std::cout << '\n';
+                    }
+                    std::cout << "status=success\n";
                 }
             } else if(config.fluid_problem) {
                 const auto fluid=eonsim::solve_fluid(PETSC_COMM_WORLD,mesh,config);

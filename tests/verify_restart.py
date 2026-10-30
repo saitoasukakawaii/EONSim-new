@@ -33,7 +33,8 @@ for name in cases:
         compare(full,resumed,ranks,name in ('fsi/elastic','fsi/hyperelastic'))
         assert not re.search(r'^(fluid|solid|fsi)_step=[123]\s',text,re.MULTILINE)
         if name=='fsi/rigid' and ranks==2:
-            rankfile=checkpoint/'state_rank1.h5'; missing=checkpoint/'state_rank1.hidden'
+            generation=checkpoint/(checkpoint/'current').read_text().split()[1]
+            rankfile=generation/'state_rank1.h5'; missing=generation/'state_rank1.hidden'
             rankfile.rename(missing)
             run(prefix+['-restart',checkpoint],False)
             missing.rename(rankfile)

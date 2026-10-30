@@ -162,6 +162,40 @@ cases/               poisson/fluid/solid/motion/fsi 可运行 YAML 和网格
 一个 `eonsim_core` library 和一个 `eonsim` 应用；所有模式通过 `-case` 选择。
 设计约束入口为 [AGENTS.md](AGENTS.md) 与 [总原则](MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md)。
 
+## 非线性字段验收
+
+独立流体/固体、ALE 流体及单体 FSI 在返回接受状态前，逐字段检查非约束方程行的残量，
+并单独检查 Dirichlet 替换行的约束误差。显式配置示例见 `cases/fsi/domains/case.yaml`：
+
+```yaml
+solver:
+  relative_tolerance: 1e-10
+  absolute_tolerance: 1e-12
+  maximum_iterations: 30
+  fields:
+    velocity:  {residual_scale: 1}
+    pressure:  {residual_scale: 0.01}
+    mesh:      {residual_scale: 0.01}
+    structure: {residual_scale: 1}
+```
+
+`residual_scale` 是**已装配方程行**的尺度：本双域例的动量取 1 N、连续性取 0.01 m³/s、
+人工网格取 0.01 m²；`pressure` 的尺度不是压力未知量的 Pa。尺度由算例确定，不自动推断。
+每字段还可指定 `absolute_tolerance`、`relative_tolerance`、`constraint_scale` 和 `constraint_tolerance`。
+物理方程按 `rms(R/residual_scale) <= atol + rtol*initial_rms` 接受；约束按
+`max(abs(x-prescribed)/constraint_scale) <= constraint_tolerance` 接受，原始反力不参与这两个范数。
+初始范数取本次求解施加边界值后的状态；缩步、重启后的新求解重新计算。
+
+`solver.fields` 非空时必须覆盖实际非线性字段，遗漏或未知名称报错；省略时各尺度为 1，
+物理容差及约束绝对容差继承外层 solver。字段内未写的物理容差也继承外层；
+`constraint_scale` 默认 1，`constraint_tolerance` 默认外层绝对容差，`relative_tolerance` 可为 0。
+独立流体为 velocity/pressure，独立固体为 structure，FSI 再含 mesh 和 structure 或 rigid。
+显式配置会输出每字段的行数、初始/最终范数、阈值和接受状态；默认配置可用 `-solver_report` 查看。
+
+默认 SNES 收敛回调要求 PETSc 默认停止条件和字段条件均通过。PETSc options 可以替换回调，
+但任何正停止原因仍须通过最终重新装配后的字段验收；失败进入既有有限缩步流程，不能提交状态。
+当前尺度用于接受检查，尚未对 Newton 方程、未知量或线搜索实施对角缩放，也不保证网格无关误差。
+
 ## P2 独立流体
 
 `cases/fluid/{stokes,steady,transient,traction}.yaml` 可直接通过 `-case` 运行；
@@ -276,7 +310,12 @@ Debug/Release、1/2 rank、全局 Jacobian 和界面力平衡检查通过。
   -partition results/part2 -block_pc -restart results/checkpoint2 -output results/resumed.vtu
 ```
 
-每步整体接受后写本 rank HDF5，全部文件完成后发布 manifest。
+每步整体接受后写独立 `generation_*` 目录中的本 rank HDF5，全部文件 flush/close 成功后
+写该代 manifest，最后以同目录 rename 替换根目录 `current` 指针。发布失败保留上一完整代；
+不扫描或自动选用未发布目录。`-restart` 可以指定检查点根目录，也可以指定某个完整 generation。
+当前格式为 v3，旧 v1/v2 文件明确拒绝。保留全部历史代及失败遗留目录，暂不自动清理；
+同一根目录只允许一个写入作业，重启时需读取稳定指针或显式代目录。
+这里保证进程/I/O 失败下的发布顺序，尚未实现文件系统断电持久性协议。
 恢复要求相同 rank 数、网格/分区、物理参数和 dt；可以延长总步数或更换求解器选项。
 流体保存 accepted 场；固体保存位移/速度/加速度与能量；FSI 还保存有效未知量、
 原始物理场、固体位移、刚体位置/速度和网格历史。当前仅 BE，无额外不可逆材料内部变量。
@@ -348,12 +387,27 @@ solid:
 速度/位移边界可加 `components: [0, 2]`，仅约束全局笛卡尔 x/z 分量；默认约束全部分量。
 固体用 `type: displacement` 和三分量 `value`，牵引用 `type: traction`。每个标签仍只有一条条件；
 共享节点按分量合并，冲突报错。未约束的分量为自然条件；不提供任意方向的多点约束。
-固体当前支持静载与撤载，边界不接受时间 ramp。通用固体场可在 VTU 查看，旧 `tip_displacement/reaction_x`
-摘要仍按 x=1/x=0 单位块基准定义。
+固体当前支持静载与撤载，边界不接受时间 ramp。显式标签模式为每个标签输出
+`solid_boundary_tag`、`reference_area`、`mean_displacement_x/y/z` 和 `mean_velocity_x/y/z`。
+均值按参考面积积分，单位依次为 m²、m、m/s；每个面的贡献只由相邻单元 owner 积分。
+位移边界仅对其指定分量输出 `reaction_x/y/z`，从节点 owner 的约束前残量求和，表示支座对固体的力 (N)。
+相交标签可能重复包含同一约束自由度的反力，不能直接把各标签反力相加；
+`support_reaction_x/y/z` 使用已合并的约束，每个自由度只计一次。
+旧 `tip_displacement/reaction_x` 摘要仅在省略标签边界的单位块基准中输出。
 
 `fluid.pressure_normalization: mean` 在一个连通的法向速度封闭流体域中先临时点定标，再减去体积平均压力；
 输出压力及约束反力使用相同基准。它与 `pressure_gauge` 互斥，不是自动多连通域零空间探测。
-双材料精确杆、混合分量约束流体及压力归一化见 `tests/verify_regions.py`。
+双材料精确杆、平移/旋转标签观测、重叠约束反力、混合分量流体及压力归一化见 `tests/verify_regions.py`。
+
+两层 Couette 案例使黏度跳跃直接参与速度梯度和界面牵引：下/上层黏度为 1/4 Pa·s，
+顶部速度 1 m/s，压力 2 Pa，解析剪应力 1.6 Pa，出口流量 0.65 m³/s。
+`verify_regions.py` 另交换两层黏度，流量变为 0.35 m³/s；两组均检查 1/2 rank 的场、剪应力与壁面反力。
+这是共形 P1 分段线性精确例，不是一般流动的网格收敛研究。
+
+```bash
+python3 cases/fluid/generate_layered_channel.py
+./build/release/eonsim -case cases/fluid/layered_channel.yaml
+```
 
 ## B3 独立共形流固网格
 
@@ -380,12 +434,14 @@ solid:
 time_control: {max_retries: 6, minimum_dt: 0.0005, reduction: 0.5}
 ```
 
-`dt*steps` 定义终止物理时间。数值不收敛或非法 trial 几何会丢弃本次试算，从上一 accepted 状态缩步重算；
-输入、通信和 I/O 错误不重试。成功后保持缩小的步长，不自动增长；默认 `max_retries: 0`。
+`dt*steps` 定义终止物理时间。Newton trial 越出几何/材料定义域时使用 PETSc domain-error 协议，
+默认回溯线搜索先尝试较小 Newton 步；最终非线性不收敛才从上一 accepted 状态缩 dt 重算。
+输入、线性求解/PC、通信和 I/O 错误不重试；线性失败报告 SNES/KSP/PC reason。
+成功后保持缩小的步长，不自动增长；默认 `max_retries: 0`。
 这是失败恢复策略，尚无局部截断误差估计。缩步后 accepted 步数可能多于配置 `steps`。
 
-checkpoint v2 保存实际 `time/next_dt`；同 rank、同分区恢复可继续缩步后的时间轨迹。
-旧 v1 checkpoint 明确拒绝。测试使用真实 Neo-Hookean FSI Newton 失败触发 dt=0.04→0.0025，
+checkpoint v3 按 generation 保存实际 `time/next_dt`；同 rank、同分区恢复可继续缩步后的时间轨迹。
+旧 v1/v2 checkpoint 明确拒绝。当前字段验收下，测试使用真实 Neo-Hookean FSI Newton 失败触发 dt=0.04→0.00125，
 验证与从头使用小步长的计算及 1/2 rank 重启结果一致。
 
 ## B5 导数、Schur 与精度记录

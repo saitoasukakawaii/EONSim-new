@@ -16,6 +16,7 @@ using FluidElement=FluidElementResult<Tet4Topology>;
 /** 节点优先 [ux,uy,uz,p]；previous 是已接受速度/压力，mesh_velocity 是当前几何速度。
  * dt=0 表示稳态；tau 在一次 Newton 求解中固定。返回 dR/dx，几何与历史保持不变。
  * 使用 SI 一致单位，压力正值表示压缩；残量为惯性+内力，无体力。
+ * compute_tangent=false 跳过切线计算并返回零 tangent；残量及有效性检查不变。
  */
 FluidElement fluid_element(const Tet4Geometry& geometry, const FluidParameters& parameters,
     const Tet4Flow::State<double>& state, const Tet4Flow::State<double>& previous,

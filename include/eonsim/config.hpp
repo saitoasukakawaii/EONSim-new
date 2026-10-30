@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <optional>
 #include <map>
+#include <string>
 #include <filesystem>
 #include <vector>
 
@@ -13,10 +14,19 @@ namespace eonsim {
 
 enum class ExactSolution { affine, quadratic };
 
+/** @brief 非线性方程字段的接受尺度；在一次 NonlinearSystem::solve 内固定。
+ * residual_scale 与已装配物理方程行同单位；constraint_scale 与该字段未知量同单位。
+ * 非约束行按无量纲 RMS 验收，约束替换行按无量纲最大误差单独验收。
+ */
+struct FieldTolerance {
+    double residual_scale=1,absolute_tolerance=1e-12,relative_tolerance=1e-10;
+    double constraint_scale=1,constraint_tolerance=1e-12;
+};
 struct SolverConfig {
     double relative_tolerance = 1e-10;
     double absolute_tolerance = 1e-12;
     int maximum_iterations = 1000;
+    std::map<std::string,FieldTolerance> fields; ///< 非空时须覆盖该非线性布局的全部字段。
 };
 
 /** @brief 按 physical tag 的固定网格流体边界。

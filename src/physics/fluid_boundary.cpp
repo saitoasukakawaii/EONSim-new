@@ -14,6 +14,25 @@ Point evaluate(const FluidBoundary& b,const Point& x) {
     return v;
 }
 bool equal(double a,double b) { return std::abs(a-b)<=1e-12*std::max({1.,std::abs(a),std::abs(b)}); }
+struct NodalBoundary {
+    Space3::Vector<bool> fixed{};
+    Point value{},ramp{};
+};
+NodalBoundary merged_boundary(const MeshPartition& mesh,std::size_t node,const std::vector<FluidBoundary>& boundaries,
+                              const std::map<int,std::size_t>& lookup,bool transient) {
+    NodalBoundary result;
+    for(int tag:mesh.node_boundary_tags[node]) {
+        const auto& b=boundaries.at(lookup.at(tag));
+        if(b.type!=FluidBoundary::Type::velocity) continue;
+        const auto value=evaluate(b,mesh.nodes[node].position);
+        for(int c:b.components) {
+            if(result.fixed[c]&&(!equal(value[c],result.value[c])||(transient&&value[c]!=0&&result.ramp[c]!=b.ramp_time)))
+                throw std::runtime_error("Conflicting velocity/displacement conditions at mesh node "+std::to_string(mesh.nodes[node].global_id));
+            result.fixed[c]=true; result.value[c]=value[c]; result.ramp[c]=b.ramp_time;
+        }
+    }
+    return result;
+}
 }
 double boundary_scale(double ramp_time,double t,bool transient) { return transient&&ramp_time>0?std::min(t/ramp_time,1.):1.; }
 FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& mesh,
@@ -34,12 +53,8 @@ FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& m
     if(stride==Tet4Flow::components) {
         double free_normal=0,total_free=0;
         for(std::size_t f=0;f<mesh.boundary.size();++f) for(auto n:mesh.boundary[f].nodes) {
-            Space3::Vector<bool> fixed{};
-            for(int tag:mesh.node_boundary_tags[n]) {
-                const auto& b=boundaries.at(lookup.at(tag));
-                if(b.type==FluidBoundary::Type::velocity) for(int c:b.components) fixed[c]=true;
-            }
-            for(int c=0;c<Space3::dimension;++c) if(!fixed[c]) free_normal+=surfaces[f].area*surfaces[f].normal[c]*surfaces[f].normal[c];
+            const auto b=merged_boundary(mesh,n,boundaries,lookup,transient);
+            for(int c=0;c<Space3::dimension;++c) if(!b.fixed[c]) free_normal+=surfaces[f].area*surfaces[f].normal[c]*surfaces[f].normal[c];
         }
         MPI_Allreduce(&free_normal,&total_free,1,MPI_DOUBLE,MPI_SUM,comm);
         if(total_free<1e-20&&!gauge) throw std::runtime_error("Closed normal-velocity boundary requires pressure_gauge or mean normalization");
@@ -52,14 +67,14 @@ FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& m
         for(const auto& b:boundaries) ramps.emplace(transient?b.ramp_time:0,ramps.size());
         std::vector<double> local(2*ramps.size(),0),global(local.size());
         for(std::size_t f=0;f<mesh.boundary.size();++f) {
-            const auto& b=boundaries[lookup.at(mesh.boundary[f].physical_tag)];
-            const auto offset=2*ramps.at(transient?b.ramp_time:0);
             for(auto n:mesh.boundary[f].nodes) {
-                const auto v=evaluate(b,mesh.nodes[n].position);
-                double flux=0;
-                for(int c=0;c<Space3::dimension;++c) flux+=surfaces[f].normal[c]*v[c];
-                flux*=surfaces[f].area*Tri3Topology::mean_weight;
-                local[offset]+=flux; local[offset+1]+=std::abs(flux);
+                // 面节点的最终速度可能由相交标签共同约束；只能使用已合并的分量及各自 ramp。
+                const auto b=merged_boundary(mesh,n,boundaries,lookup,transient);
+                for(int c=0;c<Space3::dimension;++c) if(b.fixed[c]) {
+                    const auto offset=2*ramps.at(transient?b.ramp[c]:0);
+                    const double flux=surfaces[f].area*Tri3Topology::mean_weight*surfaces[f].normal[c]*b.value[c];
+                    local[offset]+=flux; local[offset+1]+=std::abs(flux);
+                }
             }
         }
         MPI_Allreduce(local.data(),global.data(),static_cast<int>(global.size()),MPI_DOUBLE,MPI_SUM,comm);
@@ -68,19 +83,9 @@ FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& m
     }
     int gauge_count=0,gauge_total=0;
     for(std::size_t n=0;n<mesh.owned_nodes;++n) {
-        Space3::Vector<bool> constrained{}; Point value{},ramp{};
-        for(int tag:mesh.node_boundary_tags[n]) {
-            const auto& b=boundaries.at(lookup.at(tag));
-            if(b.type!=FluidBoundary::Type::velocity) continue;
-            const auto v=evaluate(b,mesh.nodes[n].position);
-            for(int c:b.components) {
-                if(constrained[c]&&(!equal(v[c],value[c])||(transient&&v[c]!=0&&ramp[c]!=b.ramp_time)))
-                    throw std::runtime_error("Conflicting velocity/displacement conditions at mesh node "+std::to_string(mesh.nodes[n].global_id));
-                constrained[c]=true; value[c]=v[c]; ramp[c]=b.ramp_time;
-            }
-        }
-        for(int c=0;c<Space3::dimension;++c) if(constrained[c])
-            plan.constraints.push_back({layout.local_to_global[stride*n+c],value[c],ramp[c]});
+        const auto b=merged_boundary(mesh,n,boundaries,lookup,transient);
+        for(int c=0;c<Space3::dimension;++c) if(b.fixed[c])
+            plan.constraints.push_back({layout.local_to_global[stride*n+c],b.value[c],b.ramp[c]});
         if(gauge&&mesh.nodes[n].global_id==gauge->node) {
             ++gauge_count;
             plan.constraints.push_back({layout.local_to_global[Tet4Flow::dof(n,Tet4Flow::pressure)],gauge->value,0});

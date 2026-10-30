@@ -5,8 +5,7 @@
 #include <stdexcept>
 int main() {
     using namespace eonsim;
-    FsiElementData data;
-    data.reference={Point{0,0,0},Point{1.1,.1,0},Point{.2,.9,.1},Point{.1,.2,1.2}};
+    FsiElementData data({Point{0,0,0},Point{1.1,.1,0},Point{.2,.9,.1},Point{.1,.2,1.2}});
     data.inlet_faces={{0,2,3}}; data.fluid={1.3,.6,.07,.02,true}; data.inlet_pressure=.8;
     Tet4Ale::State<double> x{},direction{};
     for(int i=0;i<Tet4Ale::dofs;++i) { x[i]=.015*std::sin(i+1); direction[i]=std::sin(3*i+.7); }

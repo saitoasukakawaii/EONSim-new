@@ -4,7 +4,7 @@
 #include <stdexcept>
 namespace eonsim {
 SolidElement solid_element(const Tet4Geometry& g,const SolidParameters& p,
-    const Tet4Vector::State<double>& x,const Tet4Vector::State<double>& dn,const Tet4Vector::State<double>& vn)
+    const Tet4Vector::State<double>& x,const Tet4Vector::State<double>& dn,const Tet4Vector::State<double>& vn,bool compute_tangent)
 {
     if(!(p.young>0 && p.poisson>-1 && p.poisson<.5 && p.density>0 && p.dt>=0) ||
         !std::isfinite(p.young+p.poisson+p.density+p.dt)) throw std::runtime_error("Invalid solid material/time parameters");
@@ -26,7 +26,7 @@ SolidElement solid_element(const Tet4Geometry& g,const SolidParameters& p,
     if(p.neo_hookean) {
         Space3::Tensor<double> F;
         for(int i=0;i<Space3::dimension;++i) for(int j=0;j<Space3::dimension;++j) F[Space3::index(i,j)]=grad[i][j]+(i==j?1:0);
-        material=neo_hookean(F,p.young,p.poisson);
+        material=neo_hookean(F,p.young,p.poisson,compute_tangent);
         e.strain_energy=g.volume*material.energy;
         for(int i=0;i<Space3::dimension;++i) for(int j=0;j<Space3::dimension;++j) stress[i][j]=material.first_piola[Space3::index(i,j)];
     }
@@ -38,7 +38,7 @@ SolidElement solid_element(const Tet4Geometry& g,const SolidParameters& p,
                 e.residual[Tet4Vector::components*a+i]+=mass*(x[Tet4Vector::components*b+i]-vn[Tet4Vector::components*b+i])/p.dt;
                 e.kinetic_energy+=.5*mass*x[Tet4Vector::components*a+i]*x[Tet4Vector::components*b+i];
             }
-            for(int k=0;k<Space3::dimension;++k) {
+            if(compute_tangent) for(int k=0;k<Space3::dimension;++k) {
                 double dot=0; for(int j=0;j<Space3::dimension;++j) dot+=g.gradients[a][j]*g.gradients[b][j];
                 double stiffness=lambda*g.gradients[a][i]*g.gradients[b][k]
                     +mu*g.gradients[a][k]*g.gradients[b][i]+(i==k?mu*dot:0);

@@ -84,6 +84,27 @@ endif()
 
 if(BUILD_TESTING)
     enable_testing()
+    add_executable(verify_solver_failures tests/verify_solver_failures.cpp)
+    target_link_libraries(verify_solver_failures PRIVATE eonsim_core)
+    add_test(NAME solver_failures COMMAND verify_solver_failures)
+    add_test(NAME solver_failures_mpi COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" 2
+        ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_solver_failures> ${MPIEXEC_POSTFLAGS})
+    set_tests_properties(solver_failures solver_failures_mpi PROPERTIES TIMEOUT 60
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_executable(verify_checkpoint tests/verify_checkpoint.cpp)
+    target_link_libraries(verify_checkpoint PRIVATE eonsim_core)
+    add_test(NAME checkpoint_publication COMMAND verify_checkpoint "${CMAKE_CURRENT_BINARY_DIR}/checkpoint_publication")
+    add_test(NAME checkpoint_publication_mpi COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" 2
+        ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_checkpoint> ${MPIEXEC_POSTFLAGS} "${CMAKE_CURRENT_BINARY_DIR}/checkpoint_publication_mpi")
+    set_tests_properties(checkpoint_publication checkpoint_publication_mpi PROPERTIES TIMEOUT 60
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_executable(verify_nonlinear_acceptance tests/verify_nonlinear_acceptance.cpp)
+    target_link_libraries(verify_nonlinear_acceptance PRIVATE eonsim_core)
+    add_test(NAME nonlinear_acceptance COMMAND verify_nonlinear_acceptance)
+    add_test(NAME nonlinear_acceptance_mpi COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" 2
+        ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_nonlinear_acceptance> ${MPIEXEC_POSTFLAGS})
+    set_tests_properties(nonlinear_acceptance nonlinear_acceptance_mpi PROPERTIES TIMEOUT 60
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_executable(verify_boundary_geometry tests/verify_boundary_geometry.cpp)
     target_link_libraries(verify_boundary_geometry PRIVATE eonsim_core)
     add_test(NAME boundary_geometry COMMAND verify_boundary_geometry)

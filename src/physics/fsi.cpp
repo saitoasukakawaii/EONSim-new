@@ -43,12 +43,12 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     for(const auto& cell:mesh.cells) {
         fluid_cell.push_back(!dual||cell.physical_tag==f.domains.fluid_region);
         solid_cell.push_back(Elastic&&(!dual||cell.physical_tag==f.domains.solid_region));
-        FsiElementData e;
-        Tet4Topology::Nodal<Point> solid_xyz;
+        Tet4Topology::Nodal<Point> reference,solid_xyz;
         for(int a=0;a<Tet4Topology::nodes;++a) {
-            e.reference[a]=mesh.nodes[cell.nodes[a]].position;
-            solid_xyz[a]=e.reference[a]; if(!dual) solid_xyz[a][0]=1+f.thickness*(1-solid_xyz[a][0]);
+            reference[a]=mesh.nodes[cell.nodes[a]].position;
+            solid_xyz[a]=reference[a]; if(!dual) solid_xyz[a][0]=1+f.thickness*(1-solid_xyz[a][0]);
         }
+        FsiElementData e(reference);
         // 两网格拥有同一逻辑拓扑；固体位于 [1,1+thickness]，界面逻辑 x=1 共形。
         // x 反射改变定向，交换两个顶点求几何后恢复原局部梯度顺序。
         if(solid_cell.back()) {
@@ -99,6 +99,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         }
         return full;
     };
+    NonlinearSystem system(comm,layout);
     while(clock.active(config.stop_after)) {
         const int step=clock.step+1; const double dt=clock.dt(),time=clock.time+dt; current_dt=dt;
         try {
@@ -111,7 +112,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 for(int c=0;c<Space3::dimension;++c) data[e].previous_mesh[a][c]=physical[Layout::dof(n,Layout::mesh_offset+c)];
                 for(int c=0;c<Space3::dimension;++c) speed2+=physical[nc*n+c]*physical[nc*n+c]*Tet4Topology::mean_weight;
             }
-            const double h=std::cbrt(Tet4Topology::jacobian_scale*tet4_geometry(data[e].reference).volume);
+            const double h=std::cbrt(Tet4Topology::jacobian_scale*data[e].reference_geometry.volume);
             const double tau=1/std::sqrt(4*f.density*f.density/(dt*dt)+4*f.density*f.density*speed2/(h*h)+16*f.viscosity*f.viscosity/(h*h*h*h));
             data[e].fluid={f.density,f.viscosity,dt,tau,true};
         }
@@ -138,7 +139,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             }
             }
             if(solid_cell[e]) {
-                const auto sr=solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,dt,f.neo_hookean},vs,dn,vn);
+                const auto sr=solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,dt,f.neo_hookean},vs,dn,vn,tangent);
                 for(int i=0;i<Tet4Vector::dofs;++i) r[Layout::dof(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i))]=sr.residual[i];
                 if(tangent) for(int i=0;i<Tet4Vector::dofs;++i) for(int k=0;k<Tet4Vector::dofs;++k)
                     j[(Layout::dof(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i)))*nd+Layout::dof(Tet4Vector::node(k),Layout::structure_offset+Tet4Vector::component(k))]=sr.tangent[Tet4Vector::matrix(i,k)];
@@ -172,7 +173,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 if(j) EONSIM_PETSC(MatSetValue(j,reduced.body,reduced.body,f.mass/dt+f.damping+dt*f.stiffness,ADD_VALUES));
             }
         };
-        const auto solved=solve_nonlinear(comm,layout,config.solver,accepted,{}, {},assemble);
+        const auto solved=system.solve(config.solver,accepted,{}, {},assemble);
         const auto next=expand(solved.values);
         double local[2]{},global[2]{};
         for(std::size_t e=0;e<data.size();++e) {

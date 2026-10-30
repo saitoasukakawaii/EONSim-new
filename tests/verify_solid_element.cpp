@@ -11,10 +11,14 @@ int main() {
     for(double dt:{0.,.03}) {
         const SolidParameters p{120,.28,1.3,dt};
         const auto e=solid_element(g,p,x,dn,vn);
+        const auto residual_only=solid_element(g,p,x,dn,vn,false);
+        if(residual_only.residual!=e.residual || residual_only.strain_energy!=e.strain_energy || residual_only.kinetic_energy!=e.kinetic_energy)
+            throw std::runtime_error("Residual-only solid response changed");
+        for(double value:residual_only.tangent) if(value!=0) throw std::runtime_error("Residual-only solid computed a tangent");
         auto plus=x,minus=x;
         const double eps=1e-6;
         for(int i=0;i<12;++i) { plus[i]+=eps*direction[i]; minus[i]-=eps*direction[i]; }
-        const auto rp=solid_element(g,p,plus,dn,vn),rm=solid_element(g,p,minus,dn,vn);
+        const auto rp=solid_element(g,p,plus,dn,vn,false),rm=solid_element(g,p,minus,dn,vn,false);
         double error=0,norm=0;
         for(int i=0;i<12;++i) {
             double jv=0; for(int j=0;j<12;++j) jv+=e.tangent[i*12+j]*direction[j];

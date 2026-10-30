@@ -61,6 +61,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         accepted=saved.fields.at("fluid"); clock.restore(saved.step,saved.time,saved.next_dt);
         if(!clock.active(config.stop_after)) throw std::runtime_error("Restart must precede requested final step");
     }
+    NonlinearSystem system(comm,layout);
     while(clock.active(config.stop_after)) {
         const int step=clock.step+1; const double dt=clock.dt(),time=clock.time+dt;
         try {
@@ -108,7 +109,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
                     const auto local=Tet4Flow::components*mesh.cells[e].nodes[a]+c;
                     state[Tet4Flow::components*a+c]=x[local]; old[Tet4Flow::components*a+c]=accepted[local]; ids[Tet4Flow::components*a+c]=layout.local_to_global[local];
                 }
-                const auto element=fluid_element(geometry[e],parameters[e],state,old,{});
+                const auto element=fluid_element(geometry[e],parameters[e],state,old,{},j!=nullptr);
                 EONSIM_PETSC(VecSetValues(r,Tet4Flow::dofs,ids.data(),element.residual.data(),ADD_VALUES));
                 if(j) EONSIM_PETSC(MatSetValues(j,Tet4Flow::dofs,ids.data(),Tet4Flow::dofs,ids.data(),element.tangent.data(),ADD_VALUES));
             }
@@ -131,7 +132,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
                 EONSIM_PETSC(VecSetValues(r,TriangleVector::dofs,load.ids.data(),residual.data(),ADD_VALUES));
             }
         };
-        result.nonlinear=solve_nonlinear(comm,layout,config.solver,accepted,bc,prescribed,assemble);
+        result.nonlinear=system.solve(config.solver,accepted,bc,prescribed,assemble);
         accepted=result.nonlinear.values;
         if(f.mean_pressure) {
             double local[2]{},global[2]{};

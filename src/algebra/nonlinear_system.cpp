@@ -7,12 +7,117 @@
 #include <chrono>
 #include <cstring>
 #include <algorithm>
+#include <iomanip>
+#include <limits>
+#include <sstream>
 #if defined(__linux__)
 #include <sys/resource.h>
 #endif
 namespace eonsim {
 namespace {
-std::vector<double> local_values(Vec x)
+bool accepted(const FieldResidual& f)
+{
+    return std::isfinite(f.rms)&&std::isfinite(f.limit)&&std::isfinite(f.constraint_max)&&
+        f.rms<=f.limit&&f.constraint_max<=f.tolerance.constraint_tolerance;
+}
+struct FieldAcceptance {
+    MPI_Comm comm;
+    std::vector<FieldResidual> values;
+    std::vector<std::vector<PetscInt>> equations,constraints;
+
+    FieldAcceptance(MPI_Comm communicator,const AlgebraLayout& l,const SolverConfig& config,
+                    const std::vector<PetscInt>& bc):comm(communicator) {
+        if(!config.fields.empty()) {
+            for(const auto& f:config.fields) if(!l.fields.count(f.first))
+                throw std::runtime_error("Unknown solver field for this layout: "+f.first);
+            for(const auto& f:l.fields) if(!config.fields.count(f.first))
+                throw std::runtime_error("Missing solver field: "+f.first);
+        }
+        std::vector<bool> fixed(l.owned,false),seen(l.owned,false);
+        int invalid=l.fields.empty(),any_invalid=0;
+        for(auto id:bc) {
+            if(id<l.begin||id>=l.begin+l.owned) { invalid=1; continue; }
+            if(fixed[id-l.begin]) invalid=1;
+            fixed[id-l.begin]=true;
+        }
+        for(const auto& f:l.fields) {
+            FieldResidual entry; entry.name=f.first;
+            if(config.fields.empty()) {
+                entry.tolerance.absolute_tolerance=entry.tolerance.constraint_tolerance=config.absolute_tolerance;
+                entry.tolerance.relative_tolerance=config.relative_tolerance;
+            } else entry.tolerance=config.fields.at(f.first);
+            values.push_back(entry); equations.emplace_back(); constraints.emplace_back();
+            for(auto id:f.second) {
+                if(id<l.begin||id>=l.begin+l.owned) { invalid=1; continue; }
+                const auto row=id-l.begin;
+                if(seen[row]) invalid=1;
+                seen[row]=true;
+                (fixed[row]?constraints.back():equations.back()).push_back(row);
+            }
+        }
+        for(bool present:seen) if(!present) invalid=1;
+        MPI_Allreduce(&invalid,&any_invalid,1,MPI_INT,MPI_MAX,comm);
+        if(any_invalid) throw std::runtime_error("Nonlinear fields must partition owned rows and constraints must be unique/owned");
+        std::vector<PetscInt> local(2*values.size()),global(local.size());
+        for(std::size_t i=0;i<values.size();++i) {
+            local[2*i]=equations[i].size(); local[2*i+1]=constraints[i].size();
+        }
+        MPI_Allreduce(local.data(),global.data(),static_cast<int>(global.size()),MPIU_INT,MPI_SUM,comm);
+        for(std::size_t i=0;i<values.size();++i) {
+            values[i].equation_rows=global[2*i]; values[i].constraint_rows=global[2*i+1];
+        }
+    }
+    void measure(Vec r,bool initial=false) {
+        const PetscScalar* a;
+        EONSIM_PETSC(VecGetArrayRead(r,&a));
+        std::vector<double> squares(values.size(),0),sums(squares.size()),peaks(2*values.size(),0),maxima(peaks.size());
+        for(std::size_t i=0;i<values.size();++i) {
+            const auto& t=values[i].tolerance;
+            for(auto row:equations[i]) {
+                const double v=std::abs(a[row]/t.residual_scale);
+                peaks[2*i]=std::isfinite(v)?std::max(peaks[2*i],v):std::numeric_limits<double>::infinity();
+            }
+            for(auto row:constraints[i]) {
+                const double v=std::abs(a[row]/t.constraint_scale);
+                peaks[2*i+1]=std::isfinite(v)?std::max(peaks[2*i+1],v):std::numeric_limits<double>::infinity();
+            }
+        }
+        MPI_Allreduce(peaks.data(),maxima.data(),static_cast<int>(maxima.size()),MPI_DOUBLE,MPI_MAX,comm);
+        // 先归一化再平方，避免极小/极大残量的平方下溢/上溢改变接受结论。
+        for(std::size_t i=0;i<values.size();++i) if(maxima[2*i]>0&&std::isfinite(maxima[2*i]))
+            for(auto row:equations[i]) {
+                const double v=(a[row]/values[i].tolerance.residual_scale)/maxima[2*i];
+                squares[i]+=v*v;
+            }
+        EONSIM_PETSC(VecRestoreArrayRead(r,&a));
+        // 各字段合并规约；物理方程用 RMS，约束用最大误差，避免局部违约被大量零行稀释。
+        MPI_Allreduce(squares.data(),sums.data(),static_cast<int>(sums.size()),MPI_DOUBLE,MPI_SUM,comm);
+        for(std::size_t i=0;i<values.size();++i) {
+            auto& f=values[i];
+            f.rms=std::isfinite(maxima[2*i])?(f.equation_rows?maxima[2*i]*std::sqrt(sums[i]/f.equation_rows):0):maxima[2*i];
+            f.constraint_max=maxima[2*i+1];
+            if(initial) {
+                f.initial_rms=f.rms;
+                f.limit=f.tolerance.absolute_tolerance+f.tolerance.relative_tolerance*f.initial_rms;
+                if(!std::isfinite(f.initial_rms)||!std::isfinite(f.limit))
+                    throw StepRejected("Nonfinite initial field residual or limit: "+f.name);
+            }
+        }
+    }
+    bool passes() const { return std::all_of(values.begin(),values.end(),accepted); }
+    void report() const {
+        int rank; MPI_Comm_rank(comm,&rank);
+        if(rank) return;
+        std::ostringstream out; out<<std::setprecision(16);
+        for(const auto& f:values) out<<"field_residual name="<<f.name<<" equation_rows="<<f.equation_rows
+            <<" constraint_rows="<<f.constraint_rows<<" residual_scale="<<f.tolerance.residual_scale
+            <<" initial_rms="<<f.initial_rms<<" rms="<<f.rms<<" limit="<<f.limit
+            <<" constraint_scale="<<f.tolerance.constraint_scale<<" constraint_max="<<f.constraint_max
+            <<" constraint_limit="<<f.tolerance.constraint_tolerance<<" accepted="<<accepted(f)<<'\n';
+        std::cout<<out.str();
+    }
+};
+void local_values(Vec x,std::vector<double>& values)
 {
     EONSIM_PETSC(VecGhostUpdateBegin(x,INSERT_VALUES,SCATTER_FORWARD));
     EONSIM_PETSC(VecGhostUpdateEnd(x,INSERT_VALUES,SCATTER_FORWARD));
@@ -20,10 +125,9 @@ std::vector<double> local_values(Vec x)
     EONSIM_PETSC(VecGhostGetLocalForm(x,&local));
     EONSIM_PETSC(VecGetLocalSize(local,&n));
     EONSIM_PETSC(VecGetArrayRead(local,&a));
-    std::vector<double> values(a,a+n);
+    values.assign(a,a+n);
     EONSIM_PETSC(VecRestoreArrayRead(local,&a));
     EONSIM_PETSC(VecGhostRestoreLocalForm(x,&local));
-    return values;
 }
 struct Context {
     MPI_Comm comm;
@@ -31,16 +135,24 @@ struct Context {
     const std::vector<PetscInt>& constraints;
     const std::vector<double>& prescribed;
     const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble;
+    FieldAcceptance& acceptance;
     Vec scratch;
+    std::vector<double>& values;
     std::string error;
     bool recoverable=false;
+    PetscInt domain_rejections=0;
     double assembly_seconds=0,ghost_seconds=0;
     void evaluate(Vec x, Vec r, Mat j, bool constrain) {
         const auto begin=std::chrono::steady_clock::now();
-        const auto values=local_values(x);
+        local_values(x,values);
         ghost_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
         EONSIM_PETSC(VecSetOption(r,VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
-        EONSIM_PETSC(VecSet(r,0));
+        // 极小残量的 PETSc NORM_2 可能下溢并缓存为零，VecSet(0) 会据此跳过清零。
+        // 始终覆盖 owned 数据，保证重复评价不累加旧残量；最终 raw_residual 的 ghost 由 local_values 同步。
+        PetscScalar* residual;
+        EONSIM_PETSC(VecGetArrayWrite(r,&residual));
+        std::fill_n(residual,layout.owned,0.);
+        EONSIM_PETSC(VecRestoreArrayWrite(r,&residual));
         if(j) EONSIM_PETSC(MatZeroEntries(j));
         int failed=0, any_failed=0;
         error.clear(); recoverable=false;
@@ -48,10 +160,18 @@ struct Context {
         catch(const StepRejected& e) { error=e.what(); failed=1; }
         catch(const std::exception& e) { error=e.what(); failed=2; }
         MPI_Allreduce(&failed,&any_failed,1,MPI_INT,MPI_MAX,comm);
-        if(any_failed==1) { recoverable=true; throw StepRejected(error.empty()?"Trial state rejected on another rank":error); }
-        if(any_failed) throw std::runtime_error(error.empty() ? "Assembly failed on another rank" : error);
+        // 被拒试探点可能已留下远程插入；先共同完成部分装配，清空 stash，下一次评价才能重新开始。
         EONSIM_PETSC(VecAssemblyBegin(r)); EONSIM_PETSC(VecAssemblyEnd(r));
         if(j) { EONSIM_PETSC(MatAssemblyBegin(j,MAT_FINAL_ASSEMBLY)); EONSIM_PETSC(MatAssemblyEnd(j,MAT_FINAL_ASSEMBLY)); }
+        if(any_failed) {
+            int rank,origin; MPI_Comm_rank(comm,&rank);
+            const int source=failed==any_failed?rank:std::numeric_limits<int>::max();
+            MPI_Allreduce(&source,&origin,1,MPI_INT,MPI_MIN,comm);
+            int length=static_cast<int>(error.size()); MPI_Bcast(&length,1,MPI_INT,origin,comm);
+            error.resize(length); MPI_Bcast(error.data(),length,MPI_CHAR,origin,comm);
+            if(any_failed==1) { recoverable=true; throw StepRejected(error); }
+            throw std::runtime_error(error);
+        }
         if(constrain) {
             std::vector<double> bc(constraints.size());
             for(std::size_t i=0;i<bc.size();++i) bc[i]=values.at(constraints[i]-layout.begin)-prescribed[i];
@@ -62,33 +182,59 @@ struct Context {
         assembly_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
     }
 };
-PetscErrorCode function(SNES,Vec x,Vec r,void* pointer)
+PetscErrorCode function(SNES snes,Vec x,Vec r,void* pointer)
 {
     auto& c=*static_cast<Context*>(pointer);
     try { c.evaluate(x,r,nullptr,true); return PETSC_SUCCESS; }
+    catch(const StepRejected& e) { c.error=e.what(); ++c.domain_rejections; return SNESSetFunctionDomainError(snes); }
     catch(const std::exception& e) { c.error=e.what(); return PETSC_ERR_LIB; }
 }
-PetscErrorCode jacobian(SNES,Vec x,Mat j,Mat,void* pointer)
+PetscErrorCode jacobian(SNES snes,Vec x,Mat j,Mat,void* pointer)
 {
     auto& c=*static_cast<Context*>(pointer);
     try { c.evaluate(x,c.scratch,j,true); return PETSC_SUCCESS; }
+    catch(const StepRejected& e) { c.error=e.what(); ++c.domain_rejections; return SNESSetJacobianDomainError(snes); }
     catch(const std::exception& e) { c.error=e.what(); return PETSC_ERR_LIB; }
 }
+PetscErrorCode convergence(SNES snes,PetscInt iteration,PetscReal xnorm,PetscReal stepnorm,
+                          PetscReal fnorm,SNESConvergedReason* reason,void* pointer)
+{
+    auto& c=*static_cast<Context*>(pointer);
+    try {
+        EONSIM_PETSC(SNESConvergedDefault(snes,iteration,xnorm,stepnorm,fnorm,reason,nullptr));
+        if(*reason>0) {
+            Vec r; EONSIM_PETSC(SNESGetFunction(snes,&r,nullptr,nullptr));
+            c.acceptance.measure(r);
+            if(!c.acceptance.passes()) *reason=SNES_CONVERGED_ITERATING;
+        }
+        return PETSC_SUCCESS;
+    } catch(const std::exception& e) { c.error=e.what(); return PETSC_ERR_LIB; }
 }
-NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const SolverConfig& config,
+}
+NonlinearSystem::NonlinearSystem(MPI_Comm comm,const AlgebraLayout& l)
+    :communicator_(comm),layout_(l),local_trial_(l.local_to_global.size())
+{
+    const auto ghosts=l.local_to_global.size()-l.owned;
+    EONSIM_PETSC(VecCreateGhost(comm,l.owned,l.global,ghosts,l.local_to_global.data()+l.owned,solution_.put()));
+    EONSIM_PETSC(VecDuplicate(solution_.get(),residual_.put()));
+    EONSIM_PETSC(VecDuplicate(solution_.get(),scratch_.put()));
+    EONSIM_PETSC(VecSetOption(residual_.get(),VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
+    EONSIM_PETSC(VecSetOption(scratch_.get(),VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
+    EONSIM_PETSC(MatCreateAIJ(comm,l.owned,l.owned,l.global,l.global,0,l.diagonal.data(),0,l.off_diagonal.data(),matrix_.put()));
+    EONSIM_PETSC(MatSetOption(matrix_.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE));
+    EONSIM_PETSC(MatSetOption(matrix_.get(),MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE));
+}
+NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     const std::vector<double>& initial,const std::vector<PetscInt>& constraints,
     const std::vector<double>& prescribed,const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble)
 {
+    const auto comm=communicator_;
+    const auto& l=layout_;
+    auto& x=solution_; auto& r=residual_; auto& scratch=scratch_; auto& j=matrix_;
     if(initial.size()!=l.local_to_global.size() || constraints.size()!=prescribed.size())
         throw std::runtime_error("Invalid nonlinear state/constraint layout");
-    PetscOwner<Vec,VecDestroy> x,r,scratch;
-    PetscOwner<Mat,MatDestroy> j;
+    FieldAcceptance acceptance(comm,l,config,constraints);
     PetscOwner<SNES,SNESDestroy> snes;
-    const auto ghosts=l.local_to_global.size()-l.owned;
-    EONSIM_PETSC(VecCreateGhost(comm,l.owned,l.global,ghosts,l.local_to_global.data()+l.owned,x.put()));
-    EONSIM_PETSC(VecDuplicate(x.get(),r.put())); EONSIM_PETSC(VecDuplicate(x.get(),scratch.put()));
-    EONSIM_PETSC(VecSetOption(r.get(),VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
-    EONSIM_PETSC(VecSetOption(scratch.get(),VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
     PetscScalar* a;
     EONSIM_PETSC(VecGetArray(x.get(),&a));
     for(PetscInt i=0;i<l.owned;++i) a[i]=initial[i];
@@ -97,14 +243,12 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
         a[constraints[i]-l.begin]=prescribed[i];
     }
     EONSIM_PETSC(VecRestoreArray(x.get(),&a));
-    EONSIM_PETSC(MatCreateAIJ(comm,l.owned,l.owned,l.global,l.global,0,l.diagonal.data(),0,l.off_diagonal.data(),j.put()));
-    EONSIM_PETSC(MatSetOption(j.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE));
-    EONSIM_PETSC(MatSetOption(j.get(),MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE));
-    Context context{comm,l,constraints,prescribed,assemble,scratch.get(),{}};
+    Context context{comm,l,constraints,prescribed,assemble,acceptance,scratch.get(),local_trial_,{}};
     EONSIM_PETSC(SNESCreate(comm,snes.put()));
     EONSIM_PETSC(SNESSetFunction(snes.get(),r.get(),function,&context));
     EONSIM_PETSC(SNESSetJacobian(snes.get(),j.get(),j.get(),jacobian,&context));
     EONSIM_PETSC(SNESSetTolerances(snes.get(),config.absolute_tolerance,config.relative_tolerance,0,config.maximum_iterations,10000));
+    EONSIM_PETSC(SNESSetConvergenceTest(snes.get(),convergence,&context,nullptr));
     KSP ksp; PC pc;
     EONSIM_PETSC(SNESGetKSP(snes.get(),&ksp)); EONSIM_PETSC(KSPGetPC(ksp,&pc));
     EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCLU));
@@ -120,6 +264,8 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
         EONSIM_PETSC(PCFieldSplitSetType(pc,PC_COMPOSITE_MULTIPLICATIVE));
     }
     EONSIM_PETSC(SNESSetFromOptions(snes.get()));
+    // PETSc 优化构建默认可能不检查 Jacobian domain error；结果有效性检查在两种构建都启用。
+    EONSIM_PETSC(SNESSetCheckJacobianDomainError(snes.get(),PETSC_TRUE));
     PCType type; EONSIM_PETSC(PCGetType(pc,&type));
     if(!schur&&std::strcmp(type,PCFIELDSPLIT)==0) {
         auto fields=l.fields;
@@ -152,29 +298,46 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
         }
     }
     const auto solve_begin=std::chrono::steady_clock::now();
-    if(schur) {
-        context.evaluate(x.get(),r.get(),j.get(),true);
-        configure_schur_solver(comm,ksp,l,j.get());
-    }
+    context.evaluate(x.get(),r.get(),schur?j.get():nullptr,true);
+    acceptance.measure(r.get(),true);
+    EONSIM_PETSC(SNESSetInitialFunction(snes.get(),r.get()));
+    if(schur) configure_schur_solver(comm,ksp,l,j.get());
     const auto error=SNESSolve(snes.get(),nullptr,x.get());
     const double solve_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-solve_begin).count();
     const double assembly_seconds=context.assembly_seconds,ghost_seconds=context.ghost_seconds;
     if(error&&context.recoverable) throw StepRejected(context.error);
     if(error && !context.error.empty()) throw std::runtime_error(context.error);
-    EONSIM_PETSC(error);
     SNESConvergedReason reason; EONSIM_PETSC(SNESGetConvergedReason(snes.get(),&reason));
-    if(reason<=0) throw StepRejected("SNES did not converge: reason="+std::to_string(reason));
+    KSPConvergedReason linear_reason; EONSIM_PETSC(KSPGetConvergedReason(ksp,&linear_reason));
+    if((error||reason<=0)&&(linear_reason<0||reason==SNES_DIVERGED_LINEAR_SOLVE)) {
+        PCFailedReason local_failure; EONSIM_PETSC(PCGetFailedReason(pc,&local_failure));
+        int local_code=local_failure,global_code=0; MPI_Allreduce(&local_code,&global_code,1,MPI_INT,MPI_MAX,comm);
+        throw std::runtime_error("Linear solver failure: snes_reason="+std::to_string(reason)+
+            " ksp_reason="+std::to_string(linear_reason)+" pc_reason="+std::to_string(global_code));
+    }
+    EONSIM_PETSC(error);
+    if(reason==SNES_DIVERGED_INNER||reason==SNES_CONVERGED_ITERATING)
+        throw std::runtime_error("SNES solver failure: reason="+std::to_string(reason));
+    if(reason<0) throw StepRejected("SNES did not converge: reason="+std::to_string(reason)+(context.error.empty()?"":": "+context.error));
     NonlinearResult result;
+    result.domain_rejections=context.domain_rejections;
     context.evaluate(x.get(),r.get(),nullptr,true);
     EONSIM_PETSC(VecNorm(r.get(),NORM_2,&result.residual_norm));
     if(!std::isfinite(result.residual_norm)) throw std::runtime_error("Nonfinite nonlinear residual");
-    result.values=local_values(x.get());
-    context.evaluate(x.get(),r.get(),nullptr,false);
-    result.raw_residual=local_values(r.get());
-    EONSIM_PETSC(SNESGetIterationNumber(snes.get(),&result.iterations));
-    EONSIM_PETSC(SNESGetLinearSolveIterations(snes.get(),&result.linear_iterations));
+    acceptance.measure(r.get());
     PetscBool report=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-solver_report",&report,nullptr));
+    if(report||!config.fields.empty()||!acceptance.passes()) acceptance.report();
+    if(!acceptance.passes()) {
+        const auto& failed=*std::find_if(acceptance.values.begin(),acceptance.values.end(),[](const auto& f){return !accepted(f);});
+        throw StepRejected("Field acceptance failed: "+failed.name+" (SNES reason="+std::to_string(reason)+")");
+    }
+    result.field_residuals=acceptance.values;
+    local_values(x.get(),result.values);
+    context.evaluate(x.get(),r.get(),nullptr,false);
+    local_values(r.get(),result.raw_residual);
+    EONSIM_PETSC(SNESGetIterationNumber(snes.get(),&result.iterations));
+    EONSIM_PETSC(SNESGetLinearSolveIterations(snes.get(),&result.linear_iterations));
     if(report) {
         MatInfo info; EONSIM_PETSC(MatGetInfo(j.get(),MAT_GLOBAL_SUM,&info));
         PetscLogDouble memory=0; EONSIM_PETSC(PetscMemoryGetCurrentUsage(&memory));
@@ -193,6 +356,7 @@ NonlinearResult solve_nonlinear(MPI_Comm comm,const AlgebraLayout& l,const Solve
         EONSIM_PETSC(PCGetType(pc,&type));
         if(rank==0) std::cout << "solver_report ranks=" << ranks << " dofs=" << l.global << " nnz=" << info.nz_used
             << " ksp=" << kt << " pc=" << type << " linear_iterations=" << result.linear_iterations
+            << " snes_reason=" << reason << " ksp_reason=" << linear_reason << " domain_rejections=" << result.domain_rejections
             << " solve_seconds=" << maxima[0] << " assembly_seconds=" << maxima[1] << " ghost_seconds=" << maxima[2]
             << " rss_max_bytes=" << maxima[3] << " rss_sum_bytes=" << memory_sum
             << " peak_rss_max_bytes=" << maxima[4] << " peak_rss_sum_bytes=" << peak_sum << '\n';

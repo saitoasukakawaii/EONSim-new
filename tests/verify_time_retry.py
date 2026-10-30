@@ -28,5 +28,7 @@ for ranks in (1,2):
  resumed=a.work/f'resumed{ranks}.vtu';tail=run(prefix+['-restart',checkpoint,'-output',resumed]);compare(full,resumed,ranks)
  assert float(re.findall(r'fsi_step=\d+ time=(\S+)',tail)[0])>3*dt
  failure=run(prefix+['-snes_max_it',0],False);assert 'retries exhausted' in failure
+ invalid=run(prefix+['-pc_type','eonsim_invalid_pc'],False)
+ assert 'Unknown type' in invalid and 'step_retry=' not in invalid and 'status=success' not in invalid
  print('retry rollback/restart',ranks,'accepted dt',dt,'steps',steps)
 print('time retry verification passed')

@@ -54,6 +54,14 @@ FSI 阶段必须增加已明确需要的接口运动学映射：弹性界面速�
 
 多物理残量按字段报告缩放后的收敛量；温度、速度、压力、位移的原始数值不能直接混成一个无量纲意义不明的总范数。首版在 case 中明确各字段特征尺度或绝对/相对容差，不开发通用单位推理器。
 
+当前 `NonlinearSystem::solve` 从 `AlgebraLayout::fields` 建立 owned 行分组，并检查字段覆盖且互不重叠。剔除 Dirichlet 替换行后，物理方程按 `sqrt(sum((R_i/residual_scale)^2)/N) <= atol + rtol*initial_rms` 接受；约束替换行按 `max(abs(x_i-g_i)/constraint_scale) <= constraint_tolerance` 接受。只有约束而没有物理方程的字段 RMS 为 0；本地空字段仍参与规约。每次检查将所有字段合并为一次平方和规约与一次约束最大值规约，不收集全局向量。原始反力在验收之后单独装配，不进入约束误差范数。
+
+`solver.fields` 非空时要求完整列出实际字段，并显式提供每字段的 `residual_scale`；物理 atol/rtol 默认继承外层 solver，允许字段 rtol=0。约束尺度默认 1，约束绝对容差默认外层 absolute_tolerance。省略整个映射时使用尺度 1 及外层容差，仍执行逐字段检查；这只是原数值单位下的默认值，不是自动无量纲化。每次非线性调用在施加 prescribed 后计算初始范数，尺度与阈值冻结到该调用结束；重试时重新计算初始范数。固体静载的未知量为位移、撤载为速度，约束尺度应按当前求解阶段理解。
+
+默认自定义收敛回调先调用 `SNESConvergedDefault`，其返回正停止原因时再检查字段条件；字段未达标则继续迭代。PETSc options 可以覆盖该回调，最终的重新装配检查始终保留，未达标抛 `StepRejected`，共同状态提交发生在成功返回之后。字段配置错误属于输入错误，不进入缩步。显式字段配置或 `-solver_report` 输出逐字段诊断；最终验收失败总会输出诊断。[PETSc 自定义收敛接口](https://petsc.org/release/manualpages/SNES/SNESSetConvergenceTest/)、[默认收敛测试](https://petsc.org/release/manualpages/SNES/SNESConvergedDefault/)。
+
+当前实现仅缩放接受范数，不改变 J、R 或未知量的求解表示，也未缩放线搜索。`cases/fsi/domains/case.yaml` 给出动量 1 N、连续性 0.01 m³/s、人工网格 0.01 m² 的具体小算例尺度。`nonlinear_acceptance` 的 1/2 rank 检查覆盖 10⁻⁸/10⁸ 方程系数、空本地字段、全约束字段、非零反力及正 SNES reason 的最终拒绝；双域例检查逐块达标、失败不提交及重启。
+
 跨场材料依赖必须进入导数：例如黏度依赖温度时，一致单体 Newton 需要对应跨场导数。若先用滞后系数或 Picard，明确标记并按完整残量验收。AD 的引入不改变此义务。
 
 依据：[libCEED、MFEM、deal.II、MOOSE 的研究](../research/UPSTREAM_ARCHITECTURE_REVIEW.md)。验证频率只按 [最小验证](../development/BUILD_AND_VALIDATION.md) 执行。
@@ -102,9 +110,13 @@ FSI 阶段必须增加已明确需要的接口运动学映射：弹性界面速�
 
 边界 `components` 指定全局笛卡尔分量，省略为三个分量。未约束分量为零自然牵引；相交边界逐分量检查冲突。固体 `solid.boundaries` 使用 `type: displacement/traction/pressure`，静载和撤载复用同一约束/载荷准备；恒定位移在动态阶段对应零速度，目前不支持固体时间变化位移。
 
+流体闭面净通量预检查使用与约束装配相同的合并节点值，逐分量按其 ramp 分组后积分。相交标签提供的法向分量必须参与检查，未选分量的占位值不得参与；固定 P1 三角形面采用节点均值精确积分。八顶点立方体的相交分量约束覆盖稳态/独立 ramp、未选分量扰动及真实不相容通量，1/2 rank 验证一致。
+
+固体标签摘要使用参考面积平均位移/速度，P1 面积分为 `area/3 * sum(nodal_value)`，与节点算术平均区分。支座反力为边界替换前的离散残量，正号表示支座对固体的力；只在 owned 节点的实际约束分量求和，不乘面积。每标签只统计该标签位移条件指定的分量，自然载荷标签不输出反力；共享同一受约束 DoF 的标签反力有重叠，独立输出的总支座反力使用合并约束去重。面由相邻单元 owner 唯一积分，节点归属使用完整 `node_boundary_tags`，全部摘要仅规约小数组。未配置标签时保留单位块基准摘要。
+
 `fluid.pressure_normalization: mean` 在法向速度封闭的连通流体域中以最小原始节点 ID 临时定标，求解后减去体积平均压力；该策略是消元再归一化，未声称使用 PETSc 奇异直接解或自动多连通分量零空间。具有自由法向速度的自然边界不能同时指定压力规范。区域、分量和压力策略均加入重启签名。
 
-`regions_verification` 使用两区域 E=100/200、nu=0 的分段精确杆，以及黏度 1/2、法向分量约束和零均压的均匀流，检查 1/2 rank 解及区域配置缺失。
+`regions_verification` 使用两区域 E=100/200、nu=0 的分段精确杆，以及黏度 1/2、法向分量约束和零均压的均匀流，检查 1/2 rank 解及区域配置缺失；固体还包含平移双材料杆的面积平均与反力、旋转非单位几何和相交标签重复约束的总反力检查。
 
 
 ### Schur/GAMG 与一致 ALE 导数（B5）

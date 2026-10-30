@@ -64,6 +64,7 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         if(!clock.active(config.stop_after)) throw std::runtime_error("Restart must precede requested final step");
     }
     int step=first;
+    NonlinearSystem system(comm,layout);
     while(step==0 || (s.transient&&clock.active(config.stop_after))) {
         const double dt=step?clock.dt():0,time=clock.time+dt;
         try {
@@ -76,7 +77,7 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
                     const auto n=Tet4Vector::components*mesh.cells[e].nodes[a]+c;
                     state[Tet4Vector::components*a+c]=x[n]; dn[Tet4Vector::components*a+c]=displacement[n]; vn[Tet4Vector::components*a+c]=velocity[n]; ids[Tet4Vector::components*a+c]=layout.local_to_global[n];
                 }
-                const auto local=solid_element(geometry[e],parameters(e),state,dn,vn);
+                const auto local=solid_element(geometry[e],parameters(e),state,dn,vn,j!=nullptr);
                 EONSIM_PETSC(VecSetValues(r,Tet4Vector::dofs,ids.data(),local.residual.data(),ADD_VALUES));
                 if(j) EONSIM_PETSC(MatSetValues(j,Tet4Vector::dofs,ids.data(),Tet4Vector::dofs,ids.data(),local.tangent.data(),ADD_VALUES));
             }
@@ -91,7 +92,7 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
                 EONSIM_PETSC(VecSetValues(r,TriangleVector::dofs,load.ids.data(),load.residual.data(),ADD_VALUES));
         };
         const auto step_values=step?std::vector<double>(prescribed.size(),0):prescribed;
-        result.nonlinear=solve_nonlinear(comm,layout,config.solver,step?velocity:displacement,bc,step_values,assemble);
+        result.nonlinear=system.solve(config.solver,step?velocity:displacement,bc,step_values,assemble);
         // 所有未知量收敛后统一接受；回调从不修改这些历史。
         auto next_d=displacement,next_v=velocity,next_a=acceleration;
         if(step) {
@@ -109,9 +110,9 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
                 d[Tet4Vector::components*a+c]=next_d[n]; v[Tet4Vector::components*a+c]=next_v[n];
             }
             const auto& m=materials[e];
-            local[0]+=solid_element(geometry[e],{m.young,m.poisson,m.density,0,m.neo_hookean},d,{},{}).strain_energy;
+            local[0]+=solid_element(geometry[e],{m.young,m.poisson,m.density,0,m.neo_hookean},d,{},{},false).strain_energy;
             // kinetic energy depends only on velocity; dt is irrelevant to that term.
-            local[1]+=solid_element(geometry[e],{m.young,m.poisson,m.density,1},v,{},{}).kinetic_energy;
+            local[1]+=solid_element(geometry[e],{m.young,m.poisson,m.density,1},v,{},{},false).kinetic_energy;
         }
         MPI_Allreduce(local,energy,2,MPI_DOUBLE,MPI_SUM,comm);
         result.strain_energy=energy[0]; result.kinetic_energy=energy[1];
@@ -133,6 +134,50 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
             if(mesh.rank==0) std::cout << "step_retry=" << clock.retries << " time=" << clock.time << " next_dt=" << clock.next_dt << '\n';
         }
     }
+    if(tagged) {
+        // 每标签依次存面积、位移积分、速度积分、反力；尾部为去重后的总支座反力。
+        constexpr int width=1+3*Space3::dimension;
+        const auto total_offset=width*s.boundaries.size();
+        std::vector<double> local(total_offset+Space3::dimension,0),global(local.size());
+        for(std::size_t i=0;i<s.boundaries.size();++i) {
+            const auto& b=s.boundaries[i];
+            auto* sum=local.data()+width*i;
+            for(std::size_t f=0;f<mesh.boundary.size();++f) if(mesh.boundary[f].physical_tag==b.tag) {
+                const double area=surfaces[f].area;
+                sum[0]+=area;
+                for(auto n:mesh.boundary[f].nodes) for(int c=0;c<Space3::dimension;++c) {
+                    const auto dof=Tet4Vector::dof(n,c);
+                    sum[1+c]+=area*Tri3Topology::mean_weight*displacement[dof];
+                    sum[1+Space3::dimension+c]+=area*Tri3Topology::mean_weight*velocity[dof];
+                }
+            }
+            // 面由单元 owner 积分；反力由节点 owner 求和，不能沿面遍历重复计边缘节点。
+            if(b.type==FluidBoundary::Type::velocity) for(std::size_t n=0;n<mesh.owned_nodes;++n) {
+                const auto& tags=mesh.node_boundary_tags[n];
+                if(std::find(tags.begin(),tags.end(),b.tag)!=tags.end()) for(int c:b.components)
+                    sum[1+2*Space3::dimension+c]+=result.nonlinear.raw_residual[Tet4Vector::dof(n,c)];
+            }
+        }
+        for(const auto& c:boundary_plan.constraints) {
+            const auto dof=c.id-layout.begin;
+            local[total_offset+dof%Space3::dimension]+=result.nonlinear.raw_residual[dof];
+        }
+        MPI_Allreduce(local.data(),global.data(),static_cast<int>(global.size()),MPI_DOUBLE,MPI_SUM,comm);
+        for(std::size_t i=0;i<s.boundaries.size();++i) {
+            const auto& b=s.boundaries[i];
+            const auto* sum=global.data()+width*i;
+            SolidBoundarySummary summary;
+            summary.tag=b.tag; summary.reference_area=sum[0];
+            for(int c=0;c<Space3::dimension;++c) {
+                summary.mean_displacement[c]=sum[1+c]/sum[0];
+                summary.mean_velocity[c]=sum[1+Space3::dimension+c]/sum[0];
+                summary.reaction[c]=sum[1+2*Space3::dimension+c];
+            }
+            if(b.type==FluidBoundary::Type::velocity) for(int c:b.components) summary.constrained[c]=true;
+            result.boundaries.push_back(summary);
+        }
+        for(int c=0;c<Space3::dimension;++c) result.support_reaction[c]=global[total_offset+c];
+    } else {
     double local[3]{},global[3]{};
     double tip=0,global_tip=0;
     for(std::size_t n=0;n<mesh.owned_nodes;++n) {
@@ -147,6 +192,7 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     MPI_Allreduce(local+1,global+1,2,MPI_DOUBLE,MPI_SUM,comm);
     MPI_Allreduce(&tip,&global_tip,1,MPI_DOUBLE,MPI_SUM,comm);
     result.displacement_error=global[0]; result.reaction_x=global[1]; result.tip_displacement=global[2]>0?global_tip/global[2]:0;
+    }
     result.fields={{"displacement",Space3::dimension,displacement},{"velocity",Space3::dimension,velocity},{"acceleration",Space3::dimension,acceleration},
                    {"momentum_residual",Space3::dimension,result.nonlinear.raw_residual}};
     return result;

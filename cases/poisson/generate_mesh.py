@@ -7,8 +7,8 @@ from pathlib import Path
 
 
 def write_mesh(path, subdivisions=4, warp=False, id_offset=101):
-    if subdivisions < 2:
-        raise ValueError("Use at least two subdivisions to retain interior unknowns")
+    if subdivisions < 1:
+        raise ValueError("Use at least one subdivision")
     n = subdivisions
     points = []
     indices = {}

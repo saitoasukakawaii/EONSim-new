@@ -4,7 +4,11 @@
 #include "eonsim/fluid_element.hpp"
 namespace eonsim {
 struct FsiElementData {
-    Tet4Topology::Nodal<Point> reference;
+    /// 固定参考坐标、几何与 Laplace 矩阵一次构造；trial ALE 坐标不修改这些缓存。
+    explicit FsiElementData(const Tet4Topology::Nodal<Point>& coordinates);
+    const Tet4Topology::Nodal<Point> reference;
+    const Tet4Geometry reference_geometry;
+    const Tet4Scalar::Matrix<double> mesh_stiffness;
     Tet4Flow::State<double> previous_fluid{};
     Tet4Topology::Nodal<Point> previous_mesh{};
     std::vector<Tri3Topology::Nodal<int>> inlet_faces;

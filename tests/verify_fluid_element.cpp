@@ -13,10 +13,13 @@ int main() {
     for(bool convection:{false,true}) for(double dt:{0.,.07}) {
         const FluidParameters p{1.3,.6,dt,.02,convection};
         const auto e=fluid_element(g,p,x,old,w);
+        const auto residual_only=fluid_element(g,p,x,old,w,false);
+        if(residual_only.residual!=e.residual) throw std::runtime_error("Residual-only fluid response changed");
+        for(double value:residual_only.tangent) if(value!=0) throw std::runtime_error("Residual-only fluid computed a tangent");
         auto plus=x,minus=x;
         const double eps=1e-6;
         for(int i=0;i<16;++i) { plus[i]+=eps*direction[i]; minus[i]-=eps*direction[i]; }
-        const auto rp=fluid_element(g,p,plus,old,w),rm=fluid_element(g,p,minus,old,w);
+        const auto rp=fluid_element(g,p,plus,old,w,false),rm=fluid_element(g,p,minus,old,w,false);
         double error=0,norm=0;
         for(int i=0;i<16;++i) {
             double jv=0; for(int j=0;j<16;++j) jv+=e.tangent[i*16+j]*direction[j];

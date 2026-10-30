@@ -4,6 +4,9 @@
 #include "eonsim/dual.hpp"
 #include <cmath>
 namespace eonsim {
+FsiElementData::FsiElementData(const Tet4Topology::Nodal<Point>& coordinates)
+    :reference(coordinates),reference_geometry(tet4_geometry(reference)),
+     mesh_stiffness(poisson_element(reference_geometry,1,0).stiffness) {}
 namespace {
 template<class S>
 Tet4Ale::State<S> residual(const FsiElementData& data,const Tet4Ale::State<S>& x,const SimplexGeometry<Tet4Topology,S>& geometry)
@@ -18,12 +21,11 @@ Tet4Ale::State<S> residual(const FsiElementData& data,const Tet4Ale::State<S>& x
         for(int c=0;c<Tet4Flow::components;++c) fluid[Tet4Flow::dof(a,c)]=x[Tet4Ale::dof(a,c)];
     }
     const auto r=fluid_residual(geometry,data.fluid,fluid,data.previous_fluid,velocity);
-    const auto k=poisson_element(tet4_geometry(data.reference),1,0);
     Tet4Ale::State<S> result{};
     for(int a=0;a<Tet4Topology::nodes;++a) {
         for(int c=0;c<Tet4Flow::components;++c) result[Tet4Ale::dof(a,c)]=r[Tet4Flow::dof(a,c)];
         for(int c=0;c<Space3::dimension;++c) for(int b=0;b<Tet4Topology::nodes;++b)
-            result[Tet4Ale::dof(a,Tet4Ale::mesh_offset+c)]+=k.stiffness[Tet4Scalar::matrix(a,b)]*x[Tet4Ale::dof(b,Tet4Ale::mesh_offset+c)];
+            result[Tet4Ale::dof(a,Tet4Ale::mesh_offset+c)]+=data.mesh_stiffness[Tet4Scalar::matrix(a,b)]*x[Tet4Ale::dof(b,Tet4Ale::mesh_offset+c)];
     }
     for(const auto& face:data.inlet_faces) {
         int opposite=0; while(opposite==face[0]||opposite==face[1]||opposite==face[2]) ++opposite;

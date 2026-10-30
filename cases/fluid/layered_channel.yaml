@@ -1,0 +1,21 @@
+# Two-layer Couette flow: mu=1/4 Pa s, U_top=1 m/s, p=2 Pa.
+# tau=1/(0.5/1+0.5/4)=1.6 Pa; u_x(0.5)=0.8 m/s; Q=0.65 m^3/s.
+# Generate the conforming mesh with generate_layered_channel.py before running.
+mesh: layered_channel.msh
+output: ../../results/fluid/layered_channel.vtu
+fluid:
+  mode: stokes
+  regions:
+    - {tag: 10, density: 1, viscosity: 1}
+    - {tag: 20, density: 1, viscosity: 4}
+  boundaries:
+    - {tag: 1, type: traction, value: [2, -1.6, 0]}
+    - {tag: 2, type: traction, value: [-2, 1.6, 0]}
+    - {tag: 3, type: velocity, value: [0, 0, 0]}
+    - {tag: 4, type: velocity, value: [1, 0, 0]}
+    - {tag: 5, type: velocity, components: [2], value: [0, 0, 0]}
+    - {tag: 6, type: velocity, components: [2], value: [0, 0, 0]}
+solver:
+  relative_tolerance: 1.e-10
+  absolute_tolerance: 1.e-12
+  maximum_iterations: 30

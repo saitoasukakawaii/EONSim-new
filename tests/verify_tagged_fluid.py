@@ -9,6 +9,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'cases/fluid'))
 from generate_rotated_channel import rotated_mesh, ORIGIN, EX, EY, LENGTHS, TAGS
+from generate_mesh import write_mesh
 p = argparse.ArgumentParser()
 p.add_argument('--executable', type=Path, required=True)
 p.add_argument('--mpiexec', required=True)
@@ -148,4 +149,43 @@ for i, (config, error) in enumerate(bad):
     run([a.executable, '-case', case], error)
     # Cross-rank failures must terminate, including a conflict found only by its owner.
     if i < 3: run([a.mpiexec, '-n', 2, a.executable, '-case', case, '-partition', partition], error)
+# On the eight-vertex cube, intersections supply the normal component of other faces.
+# Unselected placeholders must not change compatibility, while a selected divergent
+# field must be rejected even when its component is tangential on the supplying tag.
+corner_mesh = a.work/'corner.msh'; write_mesh(corner_mesh, 1)
+corner = dict(mesh=str(corner_mesh.resolve()), output=str((a.work/'corner.vtu').resolve()),
+    fluid=dict(mode='stokes', pressure_normalization='mean', boundaries=[
+        dict(tag=t, type='velocity', components=[c], value=[.2 if c==0 else 0, .1 if c==1 else 0, .3 if c==2 else 0])
+        for t,c in ((1,1),(2,1),(3,0),(4,0),(5,2),(6,2))]))
+corner_case = case_file('corner', corner); corner_parts = a.work/'corner_parts'
+run([a.executable, '-case', corner_case, '-prepare', corner_parts, '-parts', 2])
+for transient in (False, True):
+    config = copy.deepcopy(corner)
+    if transient:
+        config['fluid'].update(mode='transient', dt=.02, steps=2)
+        for b in config['fluid']['boundaries']: b['ramp_time'] = (.1,.2,.3)[b['components'][0]]
+    solutions = []
+    for ranks in (1,2):
+        pair = []
+        for unused in (False,True):
+            variant = copy.deepcopy(config)
+            if unused: variant['fluid']['boundaries'][0]['value'][0] = 9
+            case = case_file(f'corner_{transient}_{unused}', variant)
+            out = a.work/f'corner_{transient}_{unused}_{ranks}.vtu'
+            prefix = ([a.mpiexec, '-n', ranks] if ranks>1 else []) + [a.executable, '-case', case]
+            if ranks>1: prefix += ['-partition', corner_parts]
+            log = run(prefix+['-output', out]); state = values(out,ranks); pair.append(state)
+            exact = [.08,.02,.04] if transient else [.2,.1,.3]
+            assert max(abs(v[c]-exact[c]) for v,_ in state.values() for c in range(3)) < 2e-10
+            assert abs(float(re.search(r'net_outward_flow=(\S+)',log)[1])) < 2e-10
+        compare(*pair); solutions.append(pair[0])
+    compare(*solutions)
+    print('merged component flux', 'transient' if transient else 'static', '1/2 ranks passed')
+divergent = copy.deepcopy(corner)
+for b in divergent['fluid']['boundaries'][2:4]: b['gradient'] = [[.5,0,0],[0,0,0],[0,0,0]]
+case = case_file('corner_divergent', divergent)
+for ranks in (1,2):
+    prefix = ([a.mpiexec, '-n', ranks] if ranks>1 else []) + [a.executable, '-case', case]
+    if ranks>1: prefix += ['-partition', corner_parts]
+    run(prefix, 'Incompatible prescribed net boundary flux')
 print('tagged fluid verification passed')

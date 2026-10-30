@@ -38,6 +38,8 @@
 | 工具使用 | [AGENTS 与 skills](docs/development/AGENTS_AND_SKILLS.md) | 放置、编辑、发现规则与可选模板 |
 | 依据 | [EONSim/PERIGEE 审查](docs/research/EONSIM_PERIGEE_REVIEW.md) | 本地已读取源码和局限 |
 | 依据 | [九个上游项目研究](docs/research/UPSTREAM_ARCHITECTURE_REVIEW.md) | 固定源码引用、采用/延期理由 |
+| 审查 | [当前实现审查](docs/research/EONSIM_ARCHITECTURE_AUDIT_2026-10-29.md) | 实现与验证边界、问题复现、共享工作区更新后的复核 |
+| 后续设计 | [下一阶段详细设计](docs/architecture/EONSIM_NEXT_STAGE_DESIGN.md) | 十四个参考的职责边界、求解/状态/观测改造与验收；未来接口明确标识 |
 
 文档中的“必须”只用于结果有效性、明确数据契约和必要构建行为；“默认”允许随当前任务修订；“延期/触发条件”不构成当前开发门禁。研究文件和 skill 模板不增加强制流程。分层用于职责划分，不改变 Codex 的实际指令优先级。
 

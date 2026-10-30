@@ -21,6 +21,7 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
     for(std::size_t n=0;n<mesh.nodes.size();++n) accepted[Tet4Flow::components*n]=m.speed*(shear?mesh.nodes[n].position[1]:1);
     AleResult result; result.current_mesh=mesh;
     TimeStepper clock(m.dt,m.steps,config.time_control);
+    NonlinearSystem system(comm,layout);
     while(clock.active()) {
         const int step=clock.step+1; const double dt=clock.dt(),time=clock.time+dt;
         try {
@@ -74,12 +75,12 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
                 }
                 const double h=std::cbrt(Tet4Topology::jacobian_scale*geometry[e].volume);
                 const double tau=1/std::sqrt(4/(dt*dt)+16/(h*h*h*h)+4*m.speed*m.speed/(h*h));
-                const auto element=fluid_element(geometry[e],{1,1,dt,tau,true},state,old,mesh_velocity);
+                const auto element=fluid_element(geometry[e],{1,1,dt,tau,true},state,old,mesh_velocity,j!=nullptr);
                 EONSIM_PETSC(VecSetValues(r,Tet4Flow::dofs,ids.data(),element.residual.data(),ADD_VALUES));
                 if(j) EONSIM_PETSC(MatSetValues(j,Tet4Flow::dofs,ids.data(),Tet4Flow::dofs,ids.data(),element.tangent.data(),ADD_VALUES));
             }
         };
-        auto solved=solve_nonlinear(comm,layout,config.solver,accepted,fluid_bc,fluid_values,assemble);
+        auto solved=system.solve(config.solver,accepted,fluid_bc,fluid_values,assemble);
         accepted=std::move(solved.values); dn=d; clock.accept();
         double error=0,mesh_error=0,min_volume=std::numeric_limits<double>::max();
         for(std::size_t n=0;n<mesh.owned_nodes;++n) {

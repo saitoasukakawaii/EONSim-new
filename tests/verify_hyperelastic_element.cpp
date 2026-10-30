@@ -10,10 +10,15 @@ int main() {
     std::array<double,9> F={1.2,.1,.03,.02,.9,.04,.01,.03,1.1},D;
     for(int i=0;i<9;++i) D[i]=std::sin(i+.4);
     const auto response=neo_hookean(F,120,.28);
+    const auto residual_only=neo_hookean(F,120,.28,false);
+    if(residual_only.energy!=response.energy || residual_only.jacobian!=response.jacobian ||
+       residual_only.first_piola!=response.first_piola || residual_only.cauchy!=response.cauchy)
+        throw std::runtime_error("Residual-only material response changed");
+    for(double value:residual_only.tangent) if(value!=0) throw std::runtime_error("Residual-only material computed a tangent");
     auto plus=F,minus=F;
     const double eps=1e-6;
     for(int i=0;i<9;++i) { plus[i]+=eps*D[i]; minus[i]-=eps*D[i]; }
-    const auto rp=neo_hookean(plus,120,.28),rm=neo_hookean(minus,120,.28);
+    const auto rp=neo_hookean(plus,120,.28,false),rm=neo_hookean(minus,120,.28,false);
     double energy=0,error=0,norm=0;
     for(int i=0;i<9;++i) {
         energy+=response.first_piola[i]*D[i];
@@ -42,9 +47,13 @@ int main() {
     for(double dt:{0.,.03}) {
         const SolidParameters p{120,.28,1.3,dt,true};
         const auto e=solid_element(g,p,x,dn,vn);
+        const auto only=solid_element(g,p,x,dn,vn,false);
+        if(only.residual!=e.residual || only.strain_energy!=e.strain_energy || only.kinetic_energy!=e.kinetic_energy)
+            throw std::runtime_error("Residual-only hyperelastic element changed");
+        for(double value:only.tangent) if(value!=0) throw std::runtime_error("Residual-only hyperelastic element computed a tangent");
         auto xp=x,xm=x;
         for(int i=0;i<12;++i) { xp[i]+=eps*direction[i]; xm[i]-=eps*direction[i]; }
-        const auto ep=solid_element(g,p,xp,dn,vn),em=solid_element(g,p,xm,dn,vn);
+        const auto ep=solid_element(g,p,xp,dn,vn,false),em=solid_element(g,p,xm,dn,vn,false);
         error=norm=0;
         for(int i=0;i<12;++i) {
             double jv=0; for(int j=0;j<12;++j) jv+=e.tangent[12*i+j]*direction[j];
@@ -53,8 +62,10 @@ int main() {
         }
         if(std::sqrt(error/norm)>1e-8) throw std::runtime_error("Neo-Hookean BE element tangent mismatch");
     }
-    bool rejected=false;
-    try { (void)neo_hookean({-1,0,0,0,1,0,0,0,1},120,.28); } catch(const std::runtime_error&) { rejected=true; }
-    if(!rejected) throw std::runtime_error("Inverted deformation accepted");
+    for(bool tangent:{false,true}) {
+        bool rejected=false;
+        try { (void)neo_hookean({-1,0,0,0,1,0,0,0,1},120,.28,tangent); } catch(const std::runtime_error&) { rejected=true; }
+        if(!rejected) throw std::runtime_error("Inverted deformation accepted");
+    }
     std::cout << "Neo-Hookean energy, objectivity, tangents and traction mapping passed\n";
 }
