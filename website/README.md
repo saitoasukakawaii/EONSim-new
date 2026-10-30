@@ -43,3 +43,11 @@ No Cloudflare API token or account secret is stored in this repository.
 - Promote reviewed drafts through a pull request to main.
 
 The GitHub Actions workflow validates the VitePress production build on pull requests that change website files.
+
+
+## Templates and drafts
+
+- Article templates are stored in `templates/` and are excluded from the generated site.
+- Codex-generated drafts are stored in `drafts/` and are excluded from the generated site.
+- Both directories remain visible in this public GitHub repository. Never store secrets, private notes, restricted datasets, or unauthorized full-text papers there.
+- Reusable knowledge capture instructions are maintained in the repository skill at `.agents/skills/eonsim-knowledge-capture/SKILL.md`.
