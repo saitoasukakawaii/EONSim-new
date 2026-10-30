@@ -84,7 +84,7 @@ manifest v3 记录 rank 数、accepted step/time/next_dt，各 rank 元数据与
 
 只对 `StepRejected`（非线性迭代未收敛、最终字段验收未达标、非法 trial 几何/形变、固体撤载能量检查）缩步。参数、线性求解/PC、通信和 I/O 失败不重试。每个 accepted 步重置重试次数；失败从相同 accepted 历史重算，包括 tau、BE 链式系数、各字段初始残量和时变边界。当前策略在成功后保持缩小的步长，不自动增长，也不是误差估计式自适应。
 
-局部装配失败在全 communicator 汇总后，仍先完成部分 Vec/Mat 装配以排空远程插入，避免污染下一试探点。SNES 残量/Jacobian 回调中的 `StepRejected` 分别使用 PETSc function/Jacobian domain-error 协议，Release 同样显式开启 Jacobian 域检查。默认 Newton 回溯线搜索可在同一 dt 内恢复，最终非线性失败才交给时间驱动；其他 SNES 类型的恢复行为由所选算法决定。线性/PC 失败抛普通异常并报告顶层 SNES/KSP/PC reason；尚无递归子块诊断树。ALE 在进入求解前同样汇总几何拒绝。固体在临时位移/速度/加速度上检查能量后才提交。流体/FSI 收敛前不改 accepted 状态。
+局部装配失败在全 communicator 汇总后，仍先完成部分 Vec/Mat 装配以排空远程插入，避免污染下一试探点。SNES 残量/Jacobian 回调中的 `StepRejected` 分别使用 PETSc function/Jacobian domain-error 协议，Release 同样显式开启 Jacobian 域检查。默认 Newton 回溯线搜索可在同一 dt 内恢复，最终非线性失败才交给时间驱动；其他 SNES 类型的恢复行为由所选算法决定。线性/PC 失败抛普通异常，报告顶层 SNES/KSP/PC reason，并附本 rank 的子求解器层级；当前覆盖 FieldSplit、ASM/BJacobi 和 MG/GAMG 粗层/下平滑器，范围见离散与算子契约。ALE 在进入求解前同样汇总几何拒绝。固体在临时位移/速度/加速度上检查能量后才提交。流体/FSI 收敛前不改 accepted 状态。
 
 checkpoint v3 在保留 accepted step、实际 time、next_dt 的基础上增加 generation 发布；恢复不以 step*初始dt 猜测时间。旧 v1/v2 检查点明确拒绝，需重新生成；同 rank/分区限制继续有效。重试次数上限属于运行策略，允许恢复时调整，物理参数仍要求匹配。
 

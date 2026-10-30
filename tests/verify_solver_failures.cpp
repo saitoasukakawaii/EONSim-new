@@ -78,10 +78,26 @@ void verify() {
     try { system.solve(config,initial,{}, {},assemble); } catch(const StepRejected&) { rejected=true; }
     require(rejected,"Nonlinear iteration limit should reject the time step");
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-snes_max_it"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_report","true"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-ksp_type","gmres"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_type","none"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-ksp_max_it","0"));
+    fatal=false;
+    try { system.solve(config,initial,{}, {},assemble); }
+    catch(const StepRejected&) { throw std::runtime_error("Linear iteration exhaustion was classified as retryable"); }
+    catch(const std::runtime_error& e) {
+        const std::string message=e.what();
+        fatal=message.find("ksp_reason_name=DIVERGED_ITS")!=std::string::npos&&
+              message.find("pc_reason_name=FACTOR_NOERROR")!=std::string::npos;
+    }
+    require(fatal,"Linear exhaustion was not distinguished from PC failure");
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-ksp_type"));
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_type"));
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-ksp_max_it"));
     const auto singular=[&](const std::vector<double>&,Vec r,Mat j) {
         for(PetscInt row=l.begin;row<l.begin+l.owned;++row) {
             EONSIM_PETSC(VecSetValue(r,row,1,ADD_VALUES));
-            if(j) EONSIM_PETSC(MatSetValue(j,row,row,0,ADD_VALUES));
+            if(j) EONSIM_PETSC(MatSetValue(j,row,row,row==1?0:1,ADD_VALUES));
         }
     };
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_type","bjacobi"));
@@ -92,9 +108,24 @@ void verify() {
     fatal=false;
     try { system.solve(config,initial,{}, {},singular); }
     catch(const StepRejected&) { throw std::runtime_error("PC failure was classified as retryable"); }
-    catch(const std::runtime_error& e) { fatal=std::string(e.what()).find("Linear solver failure:")!=std::string::npos; }
+    catch(const std::runtime_error& e) {
+        const std::string message=e.what();
+        fatal=message.find("Linear solver failure:")!=std::string::npos;
+        require(message.find("path=root/local0")!=std::string::npos,"Missing local PC diagnostic");
+        require(message.find("rank="+std::to_string(rank))!=std::string::npos,"Missing diagnostic rank");
+        if(rank==ranks-1) {
+            require(message.find("FACTOR_NUMERIC_ZEROPIVOT")!=std::string::npos,"Missing zero-pivot cause in child PC");
+        }
+    }
     EONSIM_PETSC(PetscPopErrorHandler());
     require(fatal,"PC failure did not provide linear solver diagnostics");
+    // 初态已满足方程时 PC 尚未 setup；报告必须保留成功结果，不能为诊断额外 setup。
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-solver_report","true"));
+    const auto zero=[](const std::vector<double>&,Vec,Mat) {};
+    const auto unchanged=system.solve(config,initial,{}, {},zero);
+    require(unchanged.iterations==0&&unchanged.values==initial,"Diagnostics changed an initially converged solve");
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-solver_report"));
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-linear_report"));
     if(rank==0) std::cout<<"trial backtracking, partial assembly and failure classification passed on "<<ranks<<" ranks\n";
 }
 }

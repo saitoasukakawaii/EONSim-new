@@ -62,6 +62,14 @@ FSI 阶段必须增加已明确需要的接口运动学映射：弹性界面速�
 
 当前实现仅缩放接受范数，不改变 J、R 或未知量的求解表示，也未缩放线搜索。`cases/fsi/domains/case.yaml` 给出动量 1 N、连续性 0.01 m³/s、人工网格 0.01 m² 的具体小算例尺度。`nonlinear_acceptance` 的 1/2 rank 检查覆盖 10⁻⁸/10⁸ 方程系数、空本地字段、全约束字段、非零反力及正 SNES reason 的最终拒绝；双域例检查逐块达标、失败不提交及重启。
 
+`-solver_report` 在成功求解后按 rank 顺序输出 `solver_node` 层级：路径、PETSc options prefix、KSP/PC 类型、停止原因数值及名称、该层最后一次迭代数、PETSc 记录的范数及 norm_type。顶层 `linear_iterations` 仍是 SNES 本次调用的累计线性迭代数，子层 `last_iterations` 不作累计解释。`reported_norm` 不是重新计算的物理块残量；`norm_type=0` 表示未计算范数，零值不能作为收敛证据。reason=0 表示没有完成该层求解。
+
+当前遍历 FieldSplit、ASM/BJacobi 本地块和 MG/GAMG 的粗层/下平滑器；默认共用的上平滑器不重复输出。用户另设的独立上平滑器、额外 Schur A00 求解器和其他 PC 类型的子对象尚未枚举。诊断不调用 PCSetUp 或会创建上平滑器的 getter；未建立或不可读的子树输出 `solver_node_unavailable`，不覆盖原求解结论。识别到顶层 KSP 未收敛或 SNES 线性失败时，先共同刷出所有 rank 的树，再抛出带本 rank 层级的异常，避免后续 MPI_Abort 抢先掩盖远程局部 PC 原因。初始化/配置阶段的 PETSc 错误仍沿原路径报告。
+
+`-linear_report` 同时开启 `-solver_report`，并在每次顶层 KSP 正常收敛后，使用该次实际算子、解与右端项重新计算 `A*x-b`。`linear_residual` 输出原始 L2 范数及右端项范数；`linear_field_residual` 使用与非线性验收相同的 owned 字段划分和尺度，输出方程 RMS 与约束最大值。其独立存储不改变非线性验收基线、解或右端项。这是顶层线性方程的字段残量，不是各子 KSP 的残量，也不作为新的接受条件。KSP 未收敛或开启 PETSc 对角缩放时输出 `linear_residual_unavailable`，避免把不一致的缩放坐标误报为真实残量。
+
+计时输出均取 rank 最大值：`setup_seconds` 为本次 solve 的初始化，不包含 NonlinearSystem 构造；`solve_seconds` 包含初始装配、Schur 配置与 SNESSolve；`schur_setup_seconds` 单独记录显式 Schur 配置；`linear_seconds` 累计顶层 KSP pre/post 回调之间的耗时，包含其中 PC setup 和内层求解；`linear_diagnostic_seconds` 为额外残量测量与输出耗时；`finalize_seconds` 包含最终验收、字段报告及原始反力提取。`linear_started/completed` 统计顶层调用。计时有嵌套关系，且各项最大值可能来自不同 rank，不能相加解释为总耗时；ghost 时间包含在 assembly 时间中。尚无逐子层累计时间或独立 PC setup 计时。
+
 跨场材料依赖必须进入导数：例如黏度依赖温度时，一致单体 Newton 需要对应跨场导数。若先用滞后系数或 Picard，明确标记并按完整残量验收。AD 的引入不改变此义务。
 
 依据：[libCEED、MFEM、deal.II、MOOSE 的研究](../research/UPSTREAM_ARCHITECTURE_REVIEW.md)。验证频率只按 [最小验证](../development/BUILD_AND_VALIDATION.md) 执行。

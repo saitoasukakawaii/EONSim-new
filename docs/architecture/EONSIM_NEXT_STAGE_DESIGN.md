@@ -229,7 +229,7 @@ stateDiagram-v2
 
 当前 B4 已保存 actual time/next_dt，必须保留。下一阶段不把“收敛了”当成时间误差足够小：误差自适应需要独立估计器、接受准则、增长限制和历史处理；二阶格式需要统一修改固体位移恢复、ALE 速度、接口映射、材料链式系数和 checkpoint 历史。
 
-已实现的失败分类：局部域失败集体传播并排空部分装配，通过 PETSc domain-error 协议交给 SNES；默认 Newton 回溯在同一 dt 内恢复已通过 1/2 rank 检查。线性/PC 故障终止且输出顶层 SNES/KSP/PC reason，普通输入故障不缩步。上表的递归子块原因报告仍是目标；当前还没有子求解器诊断树。`solver_failures` 另覆盖单 rank 域拒绝前的远程残量插入、Jacobian 域拒绝、迭代耗尽和真实零主元 PC 失败。
+已实现的失败分类：局部域失败集体传播并排空部分装配，通过 PETSc domain-error 协议交给 SNES；默认 Newton 回溯在同一 dt 内恢复已通过 1/2 rank 检查。线性/PC 故障终止且输出顶层 SNES/KSP/PC reason，普通输入故障不缩步。递归原因报告已覆盖当前 FieldSplit、ASM/BJacobi、MG/GAMG 粗层和下平滑器，并保留 rank 与选项前缀；已补充顶层 KSP 累计耗时及按物理字段重新计算的线性残量；子层累计时间、独立 PC setup 时间和子 KSP 真实残量仍未实现。`solver_failures` 另覆盖单 rank 域拒绝前的远程残量插入、Jacobian 域拒绝、迭代耗尽和真实零主元 PC 失败。
 
 ### 检查点 generation 设计
 

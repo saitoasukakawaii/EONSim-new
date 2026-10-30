@@ -1,5 +1,6 @@
 """Schur/GAMG versus direct solves and reference FSI tangent on 1/2/4 ranks."""
 import argparse
+import math
 import re
 import subprocess
 import sys
@@ -65,8 +66,40 @@ def main():
             output = a.work / f'{name}_schur{ranks}.vtu'
             command = ([a.mpiexec, '-n', ranks] if ranks > 1 else []) + [
                 a.executable, '-case', case, '-partition', part, '-output', output,
-                '-schur_pc', '-solver_report']
+                '-schur_pc', '-linear_report']
             text = run(command)
+            (a.work / f'{name}_schur{ranks}.log').write_text(text)
+            residuals = [dict(item.split('=',1) for item in line.split()[1:])
+                         for line in text.splitlines() if line.startswith('linear_residual ')]
+            assert residuals and 'linear_residual_unavailable' not in text, text
+            for residual in residuals:
+                norm, rhs = float(residual['norm']), float(residual['rhs_norm'])
+                assert math.isfinite(norm) and norm <= 1e-8 + 1e-7 * rhs, residual
+            field_residuals = [dict(item.split('=',1) for item in line.split()[1:])
+                               for line in text.splitlines() if line.startswith('linear_field_residual ')]
+            expected_fields = {'velocity', 'pressure'}
+            if name != 'flow':
+                expected_fields |= {'mesh', 'rigid' if name == 'rigid' else 'structure'}
+            assert {f['name'] for f in field_residuals} == expected_fields, text
+            assert len(field_residuals) == len(residuals) * len(expected_fields), text
+            for field in field_residuals:
+                assert math.isfinite(float(field['rms'])) and float(field['rms']) >= 0, field
+                assert float(field['constraint_max']) < 1e-8, field
+            reports = [dict(item.split('=',1) for item in line.split()[1:])
+                       for line in text.splitlines() if line.startswith('solver_report ')]
+            assert sum(int(r['linear_completed']) for r in reports) == len(residuals), text
+            for report in reports:
+                assert report['linear_started'] == report['linear_completed'], report
+                for key in ('setup_seconds', 'schur_setup_seconds', 'linear_seconds',
+                            'linear_diagnostic_seconds', 'finalize_seconds'):
+                    assert math.isfinite(float(report[key])) and float(report[key]) >= 0, report
+            nodes = [dict(item.split('=',1) for item in line.split()[1:])
+                     for line in text.splitlines() if line.startswith('solver_node ')]
+            assert {int(node['rank']) for node in nodes} == set(range(ranks)), text
+            assert any('fieldsplit_pressure_' in node['prefix'] for node in nodes), text
+            assert any(node['path'].endswith('/coarse') for node in nodes), text
+            assert all(int(node['ksp_reason']) > 0 for node in nodes if node['path']=='root'), text
+            assert 'solver_node_unavailable' not in text, text
             error = compare(expected, fields(output, ranks))
             if solid:
                 compare(expected_solid, fields(output.with_stem(output.stem + '_solid'), ranks))

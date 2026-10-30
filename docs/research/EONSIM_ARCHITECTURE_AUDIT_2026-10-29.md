@@ -89,9 +89,15 @@ Release 构建及 `regions_verification`、`solid_verification` 均通过。新�
 
 建议区分：输入/通信/I/O 失败、非法 trial、迭代不收敛、线性/PC 配置失败。当前接受几何有效而新 trial 越界时，用所选 SNES 支持的 domain-error/线搜索路径；该路径失败后才缩 dt。不是每种 SNES 都会自动缩 Newton 步，需按实际版本和求解器验证。[PETSc domain-error 接口](https://petsc.org/release/manualpages/SNES/SNESSetFunctionDomainError/)
 
-后续实现：残量/Jacobian 的域失败分别转为 PETSc domain-error，Release 显式启用 Jacobian 域检查。集体传播最严重失败的首个消息，失败前已产生的远程 Vec/Mat 插入完成装配并排空；下一候选点重新清零。最终线性/PC 故障抛普通异常，输出顶层 SNES/KSP/PC reason，非线性未收敛与最终字段验收仍可缩步；没有递归子块原因树。
+后续实现：残量/Jacobian 的域失败分别转为 PETSc domain-error，Release 显式启用 Jacobian 域检查。集体传播最严重失败的首个消息，失败前已产生的远程 Vec/Mat 插入完成装配并排空；下一候选点重新清零。最终线性/PC 故障抛普通异常，输出顶层 SNES/KSP/PC reason，非线性未收敛与最终字段验收仍可缩步。2026-10-30 后续增量已增加本 rank 的子层原因树，覆盖 FieldSplit、ASM/BJacobi 和 MG/GAMG 粗层/下平滑器；未建子树明确标记不可读取，不为诊断调用 setup。
 
 `solver_failures` 在 1/2 rank 下以 log 定义域构造真实越界 Newton 步，默认回溯在同一 dt 恢复；最后一个 rank 在拒绝前向 row 0 插入贡献，验证下一评价不受残留 stash 污染。另检查 Jacobian 域拒绝、普通输入错误、迭代耗尽及真实零主元 PC 故障。Release 单元两项及字段验收、Schur、缩步、双域等五项通过；Debug 单元、字段验收各两项与双域共五项通过。实际 FSI 的非法 PC 配置不发生 step_retry。日志为 `build/release/solver_failure_unit.log` 与 `build/{release,debug}/solver_failure_validation.log`。
+
+2026-10-30 层级诊断验收：Debug/Release 均通过 `solver_failures`、`solver_failures_mpi` 与 `schur_verification`。故障例只让最后一个 rank 的局部 LU 出现数值零主元，异常保留 `FACTOR_NUMERIC_ZEROPIVOT`；另检查无 PC 故障的 KSP 迭代耗尽，以及初态已收敛而 PC 尚未 setup 时诊断不改变成功结果。失败退出前按 rank 共同刷出诊断，避免 MPI_Abort 截断远程原因。四类 Schur 算例在 1/2/4 rank 检查压力子块/粗层前缀及物理解；补充双域 ASM 的 2 rank 对照，最大字段差 7.574e-13。日志 `build/{release,debug}/solver_tree_{schur,failure}_validation.log` 和 `build/release/schur_verification/domains_block_tree2.log`。此增量没有新增真实块残量、PC 时间或完整任意 PC 遍历。
+
+同日后续增量：新增 `-linear_report`，每次顶层 KSP 收敛后重新计算 `A*x-b` 并按物理字段测量，约束单列；对角缩放或未收敛明确标记不可用。新增阶段计时，区分显式 Schur 配置、顶层 KSP 和额外诊断；计时嵌套，尚不能独立归因 PC setup。Debug/Release 的 `nonlinear_acceptance` 和 `solver_failures` 均通过 1/2 rank；专门用 preonly/Jacobi 的已知非零缺陷验证首个速度/网格字段 RMS 均为 1.5、约束为零，并检查尺度变化时诊断不污染验收基线。四类 Schur 的 1/2/4 rank 对照增加线性真实残量、字段覆盖和计时有效性断言，日志保存在 `build/{release,debug}/schur_verification/*_schur*.log`。Release 旋转通道额外启用 PETSc 对角缩放，成功求解且正确报告诊断不可用，日志 `build/release/linear_scaled_probe.log`。
+
+阶段采样：`generate_domains(...,6)` 生成 2299 DoF、144177 非零元的双域例；单机 1/2/4 rank 各运行两次首个时间步，采用 Schur 和 `-solver_report`，线程数固定为 1。solve 时间范围分别为 0.135–0.156 / 0.151–0.159 / 0.125–0.134 s，顶层线性迭代数分别为 56/59/56；装配和线性阶段均占明显比例。物理解跨 rank 最大差约 1.31e-12，固体最大差约 8.24e-14。此样本未证明稳定强扩展，更不代表多节点能力；需要更细 PC setup/迭代计时才能选择优化对象。采样使用与构建一致的 `/usr/bin/mpiexec`；PATH 中另一 launcher 会被分区元数据校验拒绝。原始日志、计时及字段差保存在 `build/release/linear_stage_probe/`。
 
 ### A6：热路径仍有可直接消除的重复工作〔局部计算与代数存储已复用，SNES/PC 复用待做〕
 

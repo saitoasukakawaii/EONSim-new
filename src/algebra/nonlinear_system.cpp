@@ -10,11 +10,68 @@
 #include <iomanip>
 #include <limits>
 #include <sstream>
+#include <set>
+#include <optional>
 #if defined(__linux__)
 #include <sys/resource.h>
 #endif
 namespace eonsim {
 namespace {
+// 只读取已存在的求解器；尤其不调用 PCSetUp 或会创建新对象的 PCMGGetSmootherUp。
+PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
+                               std::set<KSP>& visited,std::ostringstream& out)
+{
+    if(!ksp||!visited.insert(ksp).second) return PETSC_SUCCESS;
+    PC pc; KSPType kt; PCType pt; const char* prefix=nullptr;
+    KSPConvergedReason reason; PCFailedReason failure;
+    PetscInt iterations; PetscReal norm; KSPNormType norm_type;
+    PetscCall(KSPGetType(ksp,&kt)); PetscCall(KSPGetPC(ksp,&pc)); PetscCall(PCGetType(pc,&pt));
+    PetscCall(KSPGetOptionsPrefix(ksp,&prefix)); PetscCall(KSPGetConvergedReason(ksp,&reason));
+    PetscCall(PCGetFailedReason(pc,&failure)); PetscCall(KSPGetIterationNumber(ksp,&iterations));
+    PetscCall(KSPGetResidualNorm(ksp,&norm)); PetscCall(KSPGetNormType(ksp,&norm_type));
+    out<<"solver_node rank="<<rank<<" path="<<path<<" prefix="<<(prefix&&*prefix?prefix:"-")
+       <<" ksp="<<(kt?kt:"unset")<<" pc="<<(pt?pt:"unset")
+       <<" ksp_reason="<<reason<<" ksp_reason_name="<<KSPConvergedReasons[reason]
+       <<" pc_reason="<<failure<<" pc_reason_name="<<PCFailedReasons[failure]
+       <<" last_iterations="<<iterations<<" reported_norm="<<norm<<" norm_type="<<norm_type<<'\n';
+    if(!pt) return PETSC_SUCCESS;
+    std::vector<std::pair<std::string,KSP>> children;
+    PetscInt count=0; KSP* sub=nullptr;
+    if(std::strcmp(pt,PCFIELDSPLIT)==0) {
+        PetscCall(PCFieldSplitGetSubKSP(pc,&count,&sub));
+        for(PetscInt i=0;i<count;++i) children.emplace_back("field"+std::to_string(i),sub[i]);
+        PetscCall(PetscFree(sub)); // FieldSplit 返回的数组归调用者，子 KSP 本身为借用。
+    } else if(std::strcmp(pt,PCASM)==0||std::strcmp(pt,PCBJACOBI)==0) {
+        if(std::strcmp(pt,PCASM)==0) { PetscCall(PCASMGetSubKSP(pc,&count,nullptr,&sub)); }
+        else { PetscCall(PCBJacobiGetSubKSP(pc,&count,nullptr,&sub)); }
+        for(PetscInt i=0;i<count;++i) children.emplace_back("local"+std::to_string(i),sub[i]);
+        // ASM/BJacobi 的数组也为借用，不能释放。
+    } else if(std::strcmp(pt,PCMG)==0||std::strcmp(pt,PCGAMG)==0) {
+        PetscCall(PCMGGetLevels(pc,&count));
+        for(PetscInt level=0;level<count;++level) {
+            KSP smoother; PetscCall(PCMGGetSmoother(pc,level,&smoother));
+            children.emplace_back(level?"down"+std::to_string(level):"coarse",smoother);
+        }
+    }
+    for(const auto& child:children) {
+        const auto child_path=path+"/"+child.first;
+        const auto error=describe_solver(child.second,rank,child_path,visited,out);
+        if(error) out<<"solver_node_unavailable rank="<<rank<<" path="<<child_path<<" petsc_error="<<error<<'\n';
+    }
+    return PETSC_SUCCESS;
+}
+std::string local_solver_report(KSP ksp,int rank)
+{
+    std::ostringstream out; out<<std::setprecision(16);
+    std::set<KSP> visited;
+    // 部分 setup 失败时子求解器可能尚不存在；诊断失败不能覆盖原求解失败。
+    const auto handler_error=PetscPushErrorHandler(PetscReturnErrorHandler,nullptr);
+    if(handler_error) return "solver_node_unavailable rank="+std::to_string(rank)+" error=handler\n";
+    const auto error=describe_solver(ksp,rank,"root",visited,out);
+    const auto pop_error=PetscPopErrorHandler();
+    if(error||pop_error) out<<"solver_node_unavailable rank="<<rank<<" path=root petsc_error="<<(error?error:pop_error)<<'\n';
+    return out.str();
+}
 bool accepted(const FieldResidual& f)
 {
     return std::isfinite(f.rms)&&std::isfinite(f.limit)&&std::isfinite(f.constraint_max)&&
@@ -117,6 +174,63 @@ struct FieldAcceptance {
         std::cout<<out.str();
     }
 };
+struct LinearDiagnostics {
+    std::optional<FieldAcceptance> fields;
+    PetscOwner<Vec,VecDestroy> residual;
+    std::chrono::steady_clock::time_point begin;
+    double solve_seconds=0,diagnostic_seconds=0;
+    PetscInt started=0,completed=0;
+};
+PetscErrorCode linear_begin(KSP,Vec,Vec,void* pointer)
+{
+    auto& d=*static_cast<LinearDiagnostics*>(pointer);
+    ++d.started; d.begin=std::chrono::steady_clock::now();
+    return PETSC_SUCCESS;
+}
+PetscErrorCode linear_end(KSP ksp,Vec b,Vec x,void* pointer)
+{
+    auto& d=*static_cast<LinearDiagnostics*>(pointer);
+    const auto end=std::chrono::steady_clock::now();
+    d.solve_seconds+=std::chrono::duration<double>(end-d.begin).count();
+    ++d.completed;
+    if(!d.fields) return PETSC_SUCCESS;
+    // 使用实际 KSP 算子和右端项；独立副本不改变非线性验收基线。
+    // 失败或对角缩放后的坐标含义不确定时明确跳过，不输出伪真实残量。
+    try {
+        KSPConvergedReason reason; PetscBool scaled;
+        EONSIM_PETSC(KSPGetConvergedReason(ksp,&reason));
+        EONSIM_PETSC(KSPGetDiagonalScale(ksp,&scaled));
+        int rank; MPI_Comm_rank(d.fields->comm,&rank);
+        if(reason<=0||scaled) {
+            if(rank==0) std::cout<<"linear_residual_unavailable solve="<<d.completed
+                <<" reason="<<(scaled?"diagonal_scaling":"unconverged")<<'\n';
+        } else {
+            Mat a; EONSIM_PETSC(KSPGetOperators(ksp,&a,nullptr));
+            EONSIM_PETSC(MatMult(a,x,d.residual.get()));
+            EONSIM_PETSC(VecAXPY(d.residual.get(),-1.,b));
+            PetscReal norm,rhs;
+            EONSIM_PETSC(VecNorm(d.residual.get(),NORM_2,&norm));
+            EONSIM_PETSC(VecNorm(b,NORM_2,&rhs));
+            d.fields->measure(d.residual.get());
+            if(rank==0) {
+                std::ostringstream out; out<<std::setprecision(16);
+                out<<"linear_residual solve="<<d.completed<<" norm="<<norm<<" rhs_norm="<<rhs<<'\n';
+                for(const auto& f:d.fields->values)
+                    out<<"linear_field_residual solve="<<d.completed<<" name="<<f.name
+                       <<" rms="<<f.rms<<" constraint_max="<<f.constraint_max
+                       <<" residual_scale="<<f.tolerance.residual_scale
+                       <<" constraint_scale="<<f.tolerance.constraint_scale<<'\n';
+                std::cout<<out.str();
+            }
+        }
+    } catch(const std::exception& e) {
+        // C++ 异常不能穿越 PETSc 回调；诊断不改变原有求解失败分类。
+        int rank; MPI_Comm_rank(d.fields->comm,&rank);
+        if(rank==0) std::cout<<"linear_residual_unavailable solve="<<d.completed<<" detail="<<e.what()<<'\n';
+    }
+    d.diagnostic_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-end).count();
+    return PETSC_SUCCESS;
+}
 void local_values(Vec x,std::vector<double>& values)
 {
     EONSIM_PETSC(VecGhostUpdateBegin(x,INSERT_VALUES,SCATTER_FORWARD));
@@ -228,12 +342,14 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     const std::vector<double>& initial,const std::vector<PetscInt>& constraints,
     const std::vector<double>& prescribed,const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble)
 {
+    const auto setup_begin=std::chrono::steady_clock::now();
     const auto comm=communicator_;
     const auto& l=layout_;
     auto& x=solution_; auto& r=residual_; auto& scratch=scratch_; auto& j=matrix_;
     if(initial.size()!=l.local_to_global.size() || constraints.size()!=prescribed.size())
         throw std::runtime_error("Invalid nonlinear state/constraint layout");
     FieldAcceptance acceptance(comm,l,config,constraints);
+    LinearDiagnostics diagnostics;
     PetscOwner<SNES,SNESDestroy> snes;
     PetscScalar* a;
     EONSIM_PETSC(VecGetArray(x.get(),&a));
@@ -297,13 +413,29 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             }
         }
     }
+    PetscBool report=PETSC_FALSE,linear_report=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-solver_report",&report,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-linear_report",&linear_report,nullptr));
+    if(linear_report) {
+        report=PETSC_TRUE;
+        diagnostics.fields.emplace(acceptance);
+        EONSIM_PETSC(VecDuplicate(r.get(),diagnostics.residual.put()));
+    }
+    if(report) {
+        EONSIM_PETSC(KSPSetPreSolve(ksp,linear_begin,&diagnostics));
+        EONSIM_PETSC(KSPSetPostSolve(ksp,linear_end,&diagnostics));
+    }
     const auto solve_begin=std::chrono::steady_clock::now();
+    const double setup_seconds=std::chrono::duration<double>(solve_begin-setup_begin).count();
     context.evaluate(x.get(),r.get(),schur?j.get():nullptr,true);
     acceptance.measure(r.get(),true);
     EONSIM_PETSC(SNESSetInitialFunction(snes.get(),r.get()));
+    const auto schur_begin=std::chrono::steady_clock::now();
     if(schur) configure_schur_solver(comm,ksp,l,j.get());
+    const double schur_setup_seconds=schur?std::chrono::duration<double>(std::chrono::steady_clock::now()-schur_begin).count():0.;
     const auto error=SNESSolve(snes.get(),nullptr,x.get());
-    const double solve_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-solve_begin).count();
+    const auto finalize_begin=std::chrono::steady_clock::now();
+    const double solve_seconds=std::chrono::duration<double>(finalize_begin-solve_begin).count();
     const double assembly_seconds=context.assembly_seconds,ghost_seconds=context.ghost_seconds;
     if(error&&context.recoverable) throw StepRejected(context.error);
     if(error && !context.error.empty()) throw std::runtime_error(context.error);
@@ -312,8 +444,13 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     if((error||reason<=0)&&(linear_reason<0||reason==SNES_DIVERGED_LINEAR_SOLVE)) {
         PCFailedReason local_failure; EONSIM_PETSC(PCGetFailedReason(pc,&local_failure));
         int local_code=local_failure,global_code=0; MPI_Allreduce(&local_code,&global_code,1,MPI_INT,MPI_MAX,comm);
+        int rank; MPI_Comm_rank(comm,&rank);
+        const auto tree=local_solver_report(ksp,rank);
+        // 作业入口随后可能 MPI_Abort；先共同刷出所有 rank 的树，避免先退出的 rank 隐藏远程故障。
+        EONSIM_PETSC(PetscSynchronizedPrintf(comm,"%s",tree.c_str()));
+        EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
         throw std::runtime_error("Linear solver failure: snes_reason="+std::to_string(reason)+
-            " ksp_reason="+std::to_string(linear_reason)+" pc_reason="+std::to_string(global_code));
+            " ksp_reason="+std::to_string(linear_reason)+" pc_reason="+std::to_string(global_code)+"\n"+tree);
     }
     EONSIM_PETSC(error);
     if(reason==SNES_DIVERGED_INNER||reason==SNES_CONVERGED_ITERATING)
@@ -325,8 +462,6 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     EONSIM_PETSC(VecNorm(r.get(),NORM_2,&result.residual_norm));
     if(!std::isfinite(result.residual_norm)) throw std::runtime_error("Nonfinite nonlinear residual");
     acceptance.measure(r.get());
-    PetscBool report=PETSC_FALSE;
-    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-solver_report",&report,nullptr));
     if(report||!config.fields.empty()||!acceptance.passes()) acceptance.report();
     if(!acceptance.passes()) {
         const auto& failed=*std::find_if(acceptance.values.begin(),acceptance.values.end(),[](const auto& f){return !accepted(f);});
@@ -338,6 +473,7 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     local_values(r.get(),result.raw_residual);
     EONSIM_PETSC(SNESGetIterationNumber(snes.get(),&result.iterations));
     EONSIM_PETSC(SNESGetLinearSolveIterations(snes.get(),&result.linear_iterations));
+    const double finalize_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-finalize_begin).count();
     if(report) {
         MatInfo info; EONSIM_PETSC(MatGetInfo(j.get(),MAT_GLOBAL_SUM,&info));
         PetscLogDouble memory=0; EONSIM_PETSC(PetscMemoryGetCurrentUsage(&memory));
@@ -347,8 +483,9 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         if(getrusage(RUSAGE_SELF,&usage)!=0) throw std::runtime_error("Cannot read peak RSS");
         peak=1024.0*usage.ru_maxrss;
 #endif
-        double local[]={solve_seconds,assembly_seconds,ghost_seconds,memory,peak},maxima[5]{};
-        MPI_Allreduce(local,maxima,5,MPI_DOUBLE,MPI_MAX,comm);
+        double local[]={solve_seconds,assembly_seconds,ghost_seconds,memory,peak,setup_seconds,
+            schur_setup_seconds,diagnostics.solve_seconds,diagnostics.diagnostic_seconds,finalize_seconds},maxima[10]{};
+        MPI_Allreduce(local,maxima,10,MPI_DOUBLE,MPI_MAX,comm);
         double memory_sum=0; MPI_Allreduce(&memory,&memory_sum,1,MPI_DOUBLE,MPI_SUM,comm);
         double peak_sum=0; MPI_Allreduce(&peak,&peak_sum,1,MPI_DOUBLE,MPI_SUM,comm);
         int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
@@ -358,8 +495,15 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             << " ksp=" << kt << " pc=" << type << " linear_iterations=" << result.linear_iterations
             << " snes_reason=" << reason << " ksp_reason=" << linear_reason << " domain_rejections=" << result.domain_rejections
             << " solve_seconds=" << maxima[0] << " assembly_seconds=" << maxima[1] << " ghost_seconds=" << maxima[2]
+            << " setup_seconds=" << maxima[5] << " schur_setup_seconds=" << maxima[6]
+            << " linear_seconds=" << maxima[7] << " linear_diagnostic_seconds=" << maxima[8]
+            << " finalize_seconds=" << maxima[9] << " linear_started=" << diagnostics.started
+            << " linear_completed=" << diagnostics.completed
             << " rss_max_bytes=" << maxima[3] << " rss_sum_bytes=" << memory_sum
             << " peak_rss_max_bytes=" << maxima[4] << " peak_rss_sum_bytes=" << peak_sum << '\n';
+        const auto tree=local_solver_report(ksp,rank);
+        EONSIM_PETSC(PetscSynchronizedPrintf(comm,"%s",tree.c_str()));
+        EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
     }
     return result;
 }

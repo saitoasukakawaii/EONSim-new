@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <sstream>
 
 using namespace eonsim;
 namespace {
@@ -40,6 +41,8 @@ void verify(MPI_Comm comm)
     PetscObjectId matrix_id=0;
     const double* trial_buffer=nullptr;
     for(double alpha:{1e-8,1e8}) {
+        // 第二组启用额外 MatMult/字段诊断，验收基线与反力必须仍保持正确。
+        if(alpha==1e8) EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_report","true"));
         config.fields.at("mesh").residual_scale=alpha;
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
             if(trial_buffer) require(trial_buffer==x.data(),"Local trial storage was reallocated");
@@ -85,6 +88,7 @@ void verify(MPI_Comm comm)
         EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-snes_convergence_test"));
         EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-snes_max_it"));
     }
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-linear_report"));
     // 1e-200 的平方会下溢，但它仍高于 1e-210；另两块已满足条件，不能由总范数放行。
     config.fields.at("mesh").residual_scale=1;
     // 旧约束行不能污染下一次求解；重新装配还须清掉前一个非对角算子的贡献。
@@ -99,6 +103,39 @@ void verify(MPI_Comm comm)
     require(constrained.values[index[2]]==7,"Updated constraint value was lost");
     const auto released=system.solve(config,initial,{}, {},diagonal);
     for(int row=0;row<3;++row) require(std::abs(released.values[index[row]]-(row+1))<1e-11,"Old constraints or matrix values survived reassembly");
+    // preonly/Jacobi 报告范数为零，但首个近似线性解的实际缺陷是 (-1.5,-1.5,0)。
+    // 直接检查非零诊断，避免仅用精确 LU 的近零结果掩盖错误算子或字段映射。
+    const auto coupled=[&](const std::vector<double>& x,Vec r,Mat j) {
+        const double residual[]={2*x[index[0]]+x[index[1]]-3,x[index[0]]+2*x[index[1]]-3,x[index[2]]-3};
+        const double tangent[3][3]={{2,1,0},{1,2,0},{0,0,1}};
+        const PetscInt columns[]={0,1,2};
+        for(PetscInt row=l.begin;row<l.begin+l.owned;++row) {
+            EONSIM_PETSC(VecSetValue(r,row,residual[row],ADD_VALUES));
+            if(j) EONSIM_PETSC(MatSetValues(j,1,&row,3,columns,tangent[row],ADD_VALUES));
+        }
+    };
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_type","jacobi"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_report","true"));
+    config.maximum_iterations=100;
+    std::ostringstream diagnostic_output;
+    auto* saved=std::cout.rdbuf(diagnostic_output.rdbuf());
+    NonlinearResult approximate;
+    try { approximate=system.solve(config,std::vector<double>(3,0),bc,prescribed,coupled); }
+    catch(...) { std::cout.rdbuf(saved); throw; }
+    std::cout.rdbuf(saved);
+    require(std::abs(approximate.values[index[0]]-1)<1e-11&&std::abs(approximate.values[index[1]]-1)<1e-11,
+            "Diagnostic changed inexact Newton convergence");
+    if(rank==0) {
+        const auto output=diagnostic_output.str();
+        require(output.find("linear_field_residual solve=1 name=velocity rms=1.5 ")!=std::string::npos,
+                "True linear velocity residual differs from known Jacobi defect");
+        require(output.find("linear_field_residual solve=1 name=mesh rms=1.5 ")!=std::string::npos,
+                "True linear mesh residual differs from known Jacobi defect");
+        require(output.find("linear_field_residual solve=1 name=structure rms=0 constraint_max=0 ")!=std::string::npos,
+                "Linear constraints were mixed into physical equations");
+    }
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_type"));
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-linear_report"));
     config.fields.at("mesh").absolute_tolerance=1e-210;
     const auto tiny_residual=[&](const std::vector<double>&,Vec r,Mat) {
         const PetscScalar* previous;
