@@ -162,3 +162,15 @@
 - 单rank配对solve变化中位数+3.56%，范围-0.10%至+27.68%；2/4rank范围跨零。详细耗时/统计口径见报告；不将负值称为加速，不作纯时钟成本归因。
 - 未修改C++/CMake/案例，未跑全套CTest；仅小规模独立流体，完整HPC-01未完成。下一步人工审核，无新增ready任务。
 - `git diff --check`、六份Markdown解析/围栏/相对链接检查通过；`npm run docs:build --prefix website`成功，草稿未进入dist；src/include/CMake/cases相对origin/main无差异。
+
+
+## 2026-10-30 / QA-01
+
+- 同步origin/main至25e49af，PR #19已合并；HPC-01E标记done。用户继续上一轮日志校验候选，分支fix/profile-log-validation。
+- 实现7b91030修改scripts/profile_multistep_setup.py、scripts/profile_schur_mesh.py，新增tests/test_profile_validation.py与CMake注册。原因/计数严格整数校验、计时和残量有限非负、报告/步顺序配对、稳态必需统计字段及逐rank根节点/重复层级校验。
+- 修复前负对照发现NaN原因、非法迭代计数及缺失根节点等误接受；修复后 `python3 tests/test_profile_validation.py` 与 `python3 -O tests/test_profile_validation.py` 均11项通过。真实数据覆盖18份瞬态、18份稳态、36份开关测量/预热日志，共72份。
+- 激活/workspace/.eonsim-tools/activate.sh后，`cmake --build --preset release --target eonsim --parallel 4` 与Debug同命令均成功；CMake重新生成，C++无需重编译。
+- `ctest --preset release -R '^profile_log_validation$' --output-on-failure` 与Debug同命令均1/1通过（各0.09秒）。未执行全套CTest或新MPI/性能实验，测试读取已提交证据，不重新证明数值正确性。
+- 更新进度/队列/本日志/知识登记；使用eonsim-knowledge-capture新增website/drafts/profile-log-validation.md，区分浮点语义、实际实现、解析器验证与性能未测量。
+- 待人工审核；无新增ready任务。此解析协议限于现有固定十步、零拒绝评价的测量，不作为任意PETSc运行的通用成功判据。
+- `git diff --check`、五份Markdown解析/围栏/相对链接检查通过；`npm run docs:build --prefix website`成功（3.37秒），dist未包含草稿或模板；未修改src/include/cases。

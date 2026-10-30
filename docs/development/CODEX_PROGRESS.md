@@ -5,7 +5,7 @@
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 当前主分支基线：f232b07（PR #18 合并）
+- 当前主分支基线：25e49af（PR #19 合并）
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -25,7 +25,7 @@
 
 ## 当前焦点
 
-PR #18 已合并，HPC-01D 完成。按用户继续上一轮建议，HPC-01E 已完成流体单元计时1/2/4 rank开关配对测量，等待 PR 审核。观测扰动范围较宽，不支持固定开销百分比或重构收益结论。
+PR #19 已合并，HPC-01E 完成。按用户继续上一轮候选，QA-01 已加固 profiling 日志校验并加入自动回归，等待独立 PR 审核。未修改 C++ 求解器或新增性能结论。
 
 ## 最近完成
 
@@ -41,7 +41,7 @@ PR #18 已合并，HPC-01D 完成。按用户继续上一轮建议，HPC-01E 已
 
 ## 当前检查点
 
-基线 f232b07；分支 perf/fluid-element-overhead；脚本提交1423b99。30个计量样本和6次预热通过，证据见docs/research/data/fluid-element-overhead-2026-10-30。下一Task先检查PR；无新增ready任务，后续目标由用户选择。
+基线25e49af；分支fix/profile-log-validation；实现提交7b91030。11项Python测试通过，包含72份真实归档日志；Debug/Release新增CTest均1/1通过，eonsim构建成功。下一Task先检查PR；无新增ready任务，后续目标由用户选择。
 
 ## 恢复规则
 
