@@ -21,17 +21,40 @@ def resources():
     cpus = len(os.sched_getaffinity(0))
     memory = os.sysconf('SC_PHYS_PAGES') * os.sysconf('SC_PAGE_SIZE')
     limits = {}
-    # Container cgroup v2 mount plus any visible ancestor constraints.
-    for directory in [Path('/sys/fs/cgroup')]:
+    # Locate this process in each visible cgroup-v2 mount, then honor ancestors.
+    group = next((line.split(':', 2)[2] for line in Path('/proc/self/cgroup').read_text().splitlines()
+                  if line.startswith('0::')), None)
+    directories = set()
+    if group is not None:
+        for line in Path('/proc/self/mountinfo').read_text().splitlines():
+            before, after = line.split(' - ', 1)
+            if after.split()[0] != 'cgroup2':
+                continue
+            fields = before.split()
+            mount = Path(fields[4])
+            directories.add(mount)
+            try:
+                relative = Path(group).relative_to(fields[3])
+            except ValueError:
+                continue
+            current = mount / relative
+            while current.is_relative_to(mount):
+                directories.add(current)
+                if current == mount:
+                    break
+                current = current.parent
+    for directory in sorted(directories):
+        values = {}
         for key in ('cpu.max', 'memory.max'):
-            p = directory / key
-            if p.exists():
-                limits[key] = p.read_text().strip()
-        quota = limits.get('cpu.max', 'max 100000').split()
+            path = directory / key
+            if path.exists():
+                values[key] = path.read_text().strip()
+        limits[str(directory)] = values
+        quota = values.get('cpu.max', 'max 100000').split()
         if quota[0] != 'max':
             cpus = min(cpus, max(1, math.floor(int(quota[0]) / int(quota[1]))))
-        if limits.get('memory.max', 'max') != 'max':
-            memory = min(memory, int(limits['memory.max']))
+        if values.get('memory.max', 'max') != 'max':
+            memory = min(memory, int(values['memory.max']))
     return dict(cpu_budget=cpus, memory_bytes=memory, cgroup=limits,
                 build_jobs=max(1, min(4, cpus, memory // (2 * 1024**3))))
 
@@ -44,27 +67,27 @@ def enable_child_reaping():
 
 def reap_children():
     """Only descendants of this validator; never kill unrelated MPI jobs."""
-    live = []
-    for stat in Path('/proc').glob('[0-9]*/stat'):
-        try:
-            fields = stat.read_text().rsplit(')', 1)[1].split()
-            if int(fields[1]) == os.getpid() and fields[0] != 'Z':
-                live.append(int(stat.parent.name))
-        except (FileNotFoundError, ProcessLookupError):
-            pass
-    for pid in live:
-        try:
-            os.kill(pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+    killed = []
+    deadline = time.monotonic() + 5
     while True:
+        for stat in Path('/proc').glob('[0-9]*/stat'):
+            try:
+                fields = stat.read_text().rsplit(')', 1)[1].split()
+                if int(fields[1]) == os.getpid() and fields[0] != 'Z':
+                    pid = int(stat.parent.name)
+                    os.kill(pid, signal.SIGKILL)
+                    killed.append(pid)
+            except (FileNotFoundError, ProcessLookupError):
+                pass
         try:
-            pid, _ = os.waitpid(-1, 0 if live else os.WNOHANG)
-            if pid == 0:
-                break
+            # A killed adopted parent may leave its own children: scan again.
+            while os.waitpid(-1, os.WNOHANG)[0]:
+                pass
         except ChildProcessError:
-            break
-    return live
+            return killed
+        if time.monotonic() > deadline:
+            raise RuntimeError('Could not reap all validation descendants')
+        time.sleep(0.01)
 
 
 def main():
@@ -96,12 +119,20 @@ def main():
                 code = process.wait(timeout=timeout)
             except (subprocess.TimeoutExpired, KeyboardInterrupt):
                 timed_out = True
-                os.killpg(process.pid, signal.SIGTERM)
+                try:
+                    os.killpg(process.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
                 try:
                     process.wait(timeout=5)
                 except subprocess.TimeoutExpired:
+                    pass
+                # The leader may exit before a descendant that ignores TERM.
+                try:
                     os.killpg(process.pid, signal.SIGKILL)
-                    process.wait()
+                except ProcessLookupError:
+                    pass
+                process.wait()
                 code = 124
         leftovers = reap_children()
         if leftovers and code == 0:
@@ -109,11 +140,17 @@ def main():
         summary['commands'].append(dict(cleaned_live_descendants=leftovers, command=cmd, exit_code=code, timeout=timed_out,
                                         seconds=time.monotonic()-start, log=str(log.relative_to(build))))
         print(f'{name}: exit={code}, log={log}', flush=True)
+        if code and os.environ.get('GITHUB_ACTIONS') == 'true':
+            detail = '\n'.join(log.read_text(errors='replace').splitlines()[-35:])
+            detail = detail.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+            print(f'::error title=EONSim {name}::{detail}', flush=True)
         if check and code:
             raise RuntimeError(f'{name} failed; see {log}')
         return code, log
 
     try:
+        if sys.flags.optimize:
+            raise RuntimeError('Python optimization disables numerical assertions; unset PYTHONOPTIMIZE')
         lock = ROOT / 'environments' / f'petsc-{a.version}-linux-64.lock'
         summary['lock_sha256'] = hashlib.sha256(lock.read_bytes()).hexdigest()
         packages = [json.loads(p.read_text()) for p in (prefix / 'conda-meta').glob('*.json')]

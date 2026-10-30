@@ -528,8 +528,17 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     // Freeze before final physical acceptance/reaction assembly, matching existing assembly timers.
     const double callback_seconds=context.callback_seconds,failure_sync_seconds=context.failure_sync_seconds;
     const double assembly_finalize_seconds=context.assembly_finalize_seconds,constraint_seconds=context.constraint_seconds;
-    if(error&&context.recoverable) throw StepRejected(context.error);
-    if(error && !context.error.empty()) throw std::runtime_error(context.error);
+    if(error&&!context.error.empty()) {
+        // SNESComputeJacobian/Function can return from a failing callback before
+        // VecLockReadPop (PETSc 3.23.7). Retire that trial Vec rather than editing
+        // PETSc's lock stack. SNES retains its reference until normal destruction;
+        // the next solve overwrites the fresh owned data and updates its ghosts.
+        PetscOwner<Vec,VecDestroy> fresh;
+        EONSIM_PETSC(VecDuplicate(x.get(),fresh.put()));
+        std::swap(*x.put(),*fresh.put());
+        if(context.recoverable) throw StepRejected(context.error);
+        throw std::runtime_error(context.error);
+    }
     SNESConvergedReason reason; EONSIM_PETSC(SNESGetConvergedReason(snes.get(),&reason));
     KSPConvergedReason linear_reason; EONSIM_PETSC(KSPGetConvergedReason(ksp,&linear_reason));
     if(diagnostics.collective_pc_failure||

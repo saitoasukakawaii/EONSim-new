@@ -18,7 +18,7 @@ if [[ "$version" == 3.19.6 ]]; then
     # Kernel-restricted containers may not implement process_vm_readv (CMA).
     export OMPI_MCA_btl_vader_single_copy_mechanism=none
 fi
-unset PETSC_ARCH
+unset PETSC_ARCH PYTHONOPTIMIZE
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 # CTest runs one test at a time; some existing tests explicitly need four ranks.
 export OMPI_MCA_rmaps_base_oversubscribe=1
