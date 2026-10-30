@@ -14,7 +14,9 @@
 
 注意：草稿目录不进入网站构建，但仓库是公开的，因此草稿文件本身仍然可以被 GitHub 访客读取。不要将私密信息、凭据、未授权论文全文或敏感数据放入该目录。
 
-## 2. 文章模板\n\n从 website/templates/ 选择知识文章、算法说明、开发记录或 benchmark 报告模板。模板目录仅供复制，不作为网站页面发布；VitePress 构建会排除该目录。
+## 2. 文章模板
+
+从 website/templates/ 选择知识文章、算法说明、开发记录或 benchmark 报告模板。模板目录仅供复制，不作为网站页面发布；VitePress 构建会排除该目录。
 
 每篇知识文章至少包含：
 
@@ -38,7 +40,9 @@
 
 不能把计划写成已经实现，也不能把小规模测试描述成大规模 HPC 扩展证明。
 
-## 4. Codex 任务交付\n\n对有复用价值的实质任务，按仓库根目录 .agents/skills/eonsim-knowledge-capture/SKILL.md 整理知识草稿，并更新 docs/research/KNOWLEDGE_LOG.md。跨 Task 工作使用 docs/development/CODEX_PROGRESS.md 和 CODEX_TASK_QUEUE.md 接续。
+## 4. Codex 任务交付
+
+对有复用价值的实质任务，按仓库根目录 .agents/skills/eonsim-knowledge-capture/SKILL.md 整理知识草稿，并更新 docs/research/KNOWLEDGE_LOG.md。跨 Task 工作使用 docs/development/CODEX_PROGRESS.md 和 CODEX_TASK_QUEUE.md 接续。
 
 每项开发任务结束时，Codex 应给出：
 - 变更文件和 commit；
@@ -49,3 +53,13 @@
 - 尚未验证的假设和下一步任务。
 
 Codex 生成内容默认是草稿。只有经过人工审查并合并到 main 的内容才会进入正式网站。
+
+## 5. 持续知识生产
+
+每个有实质技术内容的任务结束后，在会话日志中记录是否值得沉淀及理由。有则从 website/templates/ 选择 knowledge-article、development-log、benchmark-report 或 algorithm-note 模板，写入 website/drafts/。模板中的占位内容须替换；无对应证据时明确不适用或未验证。
+
+每条重要结论分别标记理论推导、代码实现、数值验证或性能证据。源码链接尽量固定完整 commit，并核对路径与符号；本次尚未提交的实现先写分支，提交后补固定链接。不得虚构论文、实验结果和性能数据。
+
+Codex 不得自动将草稿移入正式栏目。人工审核后通过单独发布 PR 提升内容；生产部署由 main 的合并结果触发。公开仓库的草稿和模板同样禁止密钥、隐私、敏感数据和未授权论文全文。
+
+研发状态恢复与分支交付协议见 Git 仓库中的 docs/development/CODEX_PROGRESS.md；进度、队列、日志分别记录状态摘要、可验收任务和实际执行证据，不重复架构契约。

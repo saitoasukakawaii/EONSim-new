@@ -51,3 +51,8 @@ The GitHub Actions workflow validates the VitePress production build on pull req
 - Codex-generated drafts are stored in `drafts/` and are excluded from the generated site.
 - Both directories remain visible in this public GitHub repository. Never store secrets, private notes, restricted datasets, or unauthorized full-text papers there.
 - Reusable knowledge capture instructions are maintained in the repository skill at `.agents/skills/eonsim-knowledge-capture/SKILL.md`.
+
+Run `npm run docs:check -- --source-only` to check authoring sources without building.
+After `npm run docs:build`, run `npm run docs:check` to also inspect output isolation.
+CI injects draft and template sentinels before its build; neither may appear in the generated site.
+The source-only check does not verify output isolation.
