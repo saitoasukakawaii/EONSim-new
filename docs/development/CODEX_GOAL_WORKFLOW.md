@@ -40,12 +40,20 @@ Codex Goal 是 thread-scoped，不是仓库级全局任务队列，也不会替�
 - `/goal resume`：恢复；
 - `/goal clear`：清除当前 Goal。
 
-Goals 从 Codex 0.128.0 起提供，并支持 Codex Cloud。若命令不可用，先更新 Codex 或确认当前 Cloud 界面已获得该功能。
+Goal mode 从 Codex 0.128.0 起提供。OpenAI 公开发布说明列出的界面包括 Codex app、IDE extension 和 CLI；Codex Cloud 文档说明 Cloud Task 可从 web 启动和继续，但没有明确保证每个网页版 Codex Cloud composer 都提供 /goal。
+
+因此，在 ChatGPT 网页版 Codex Cloud 中，先在输入框输入 /，检查命令菜单是否实际提供 Goal。只有当前界面提供该命令时，才使用 /goal 启动目标。若网页 composer 不提供 /goal，不要把普通提示词误认为已激活自动 Goal；可以在支持 Goal mode 的 Codex app、IDE extension 或 CLI 中使用。若坚持使用网页版 Cloud，则继续同一个 Cloud Task，并在每轮结束后明确要求继续，直到本里程碑验收完成。跨 Task 状态由 GitHub 状态文件和已提交代码恢复。
+
+生命周期命令（仅在当前界面支持 Goal mode 时使用）：
+- /goal：查看当前 Goal；
+- /goal pause：暂停；
+- /goal resume：恢复；
+- /goal clear：清除当前 Goal。
 
 ## 4. 每轮执行循环
 
 1. **Reconcile**：读取 AGENTS.md、CODEX_PROGRESS.md、CODEX_TASK_QUEUE.md，核对 main、当前分支、未合并 PR 和工作区状态。
-2. **Select**：只领取最高优先级、依赖已满足的一个 ready 任务。
+2. **Select**：只领取最高优先级、依赖已满足的一个 ready 任务；若没有 ready 任务，列出候选并等待用户决定，不得擅自把 deferred 改成 ready。
 3. **Plan briefly**：确定最小变更、相关数学/架构契约和验收命令；不要停留在计划阶段。
 4. **Execute**：检查源码，修改代码或文档，保持单一职责。
 5. **Verify**：运行相关构建、测试、解析解/MMS、MPI 对照或 benchmark。不能运行时明确记录原因。
