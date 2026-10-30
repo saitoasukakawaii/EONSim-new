@@ -215,3 +215,15 @@
 - 首轮主环境全套暴露COO Vec锁与checkpoint竞态并修复；CI四rank失败进一步定位OpenMPI5忽略旧映射变量，模拟两槽位前后验证后加入PRRTE设置及四rank预检。
 - 独立审查指出负PC枚举、嵌套cgroup和超时残留，均修正并复核无源码阻塞；真实MPI超时清理与多层后代终止/reap通过。数值Python优化明确禁用。
 - 使用eonsim-knowledge-capture新增未发布草稿，更新README/L2契约/BUILD_AND_VALIDATION/进度队列/知识登记。Markdown八文件解析及链接、网站构建3.94秒、草稿排除检查通过。精简机器证据见INFRA-01报告旁data目录；正式PR状态待验收后更新。
+
+
+## 2026-10-30 / BRANCH-01 — 已合并分支清理与主线整合
+
+- 用户明确授权删除已完全合并的 18 个远程分支，并审查剩余 6 个、优先架构与 CI、合入 main；明确禁止编译。以 38a5e51 为起点，在 integration/review-branches-2026-10-30 逐次整合。
+- 18 个 tip 均为原 main 祖先，保存 SHA 后按精确旧值保护原子删除，复核只剩 main 与 6 个待整合分支；没有删除未审查引用或强制改写 main。
+- 架构 16 份文档完整保留。CI 审查到 d3f69d1 后，推送前发现远程新增 c07f94a/5745fd3，继续审查并保留环境恢复与证据增量。其余旧分支按整合报告保留有效补充、维护主线状态，不复活过时任务。
+- 新修正：锁定 ABI 的 runtime 探针改为云端显式启用；JUnit 解析按名称严格匹配并识别 error；文档检查支持 source-only 与 CRLF；网站 CI 增加模板哨兵；修正文档与真实 CMake target 的不一致。
+- 工作目录为 EONSim-new checkout。执行 python -B tests/test_cloud_evidence.py（6 项通过）、node website/scripts/check-content.mjs --source-only（10 文件通过）、Python AST、bash -n、YAML/JSON/锁结构检查、Markdown 围栏和本地链接检查、git diff --check 及祖先关系核验。
+- 本轮没有 CMake 配置/编译、CTest、MPI、数值/性能或网站构建；没有启动 GitHub 数值 CI。读取的历史成功状态只对应原分支 d3f69d1。最终推送含 [skip ci]，不把已有证据当作最终集成通过。
+- 使用 eonsim-knowledge-capture 更新原 INFRA-01 草稿和知识登记，分开原分支执行记录与本次脚本验证；没有新性能证据，草稿未发布。
+- 完整源提交、删除清单、冲突取舍和验证边界见 BRANCH_INTEGRATION_2026-10-30.md。INFRA-01 最终集成验收待执行，G0–G8 均 deferred；不自动开始新开发或构建。

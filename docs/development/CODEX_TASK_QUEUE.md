@@ -8,13 +8,14 @@
 - in_progress：当前有一个 Goal/Task 正在执行。
 - blocked：存在明确阻塞，必须记录原因。
 - review：已提交，等待审核或剩余验收；合并不自动代表全部测试通过。
-- done：验收证据已记录且 PR 已合并到 main。
+- done：验收证据已记录且已合入 main；通常走 PR，本次按用户明确授权直接整合。
 - deferred：暂缓，需由需求或性能证据重新触发。
 
 ## 当前队列
 
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
+| BRANCH-01 | P1 | done | 清理 18 个已合并分支并整合其余 6 个 | [源提交、取舍和检查](BRANCH_INTEGRATION_2026-10-30.md)；不编译，数值验收不随合并自动完成 |
 | HPC-02 | P2 | done | 独立流体固定图 COO Jacobian 装配（PR #21 合并） | 证据见 FLUID_COO_ASSEMBLY_2026-10-30；保留默认路径，Release 既有超时等局限按报告记录 |
 | FEM-G0 | P1 | deferred | DoF 语义、排列与物理场/物理量/混合 PC 树 | 现有 Tet4 结果与置换等价、叶子覆盖互斥、空本地块；本轮只规划 |
 | FEM-G1 | P2 | deferred | 规范化 reader、Gmsh4.1、Tri3/Quad4 二维标量闭环 | G0 后；方向/标签/边界/MMS，禁止将读入等同求解 |
@@ -101,6 +102,8 @@ HPC-01E 已完成1/2/4 rank、每配置5对测量及6次预热，见 [报告](..
 ## INFRA-01 阶段记录
 
 基线为 PR #21 合并后的 38a5e51。原分支 d3f69d1 的 [GitHub Actions run 41060786421](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41060786421) 已完成且成功：PETSc 3.23.7 Debug / Release 与 3.19.6 Release 三个 job。本轮只读取历史结果，不重新触发工作流。
+
+源分支后续至 5745fd3 的恢复说明、精简证据、资源检测与包缓存隔离也已纳入。原分支完整记录见 [INFRA-01](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md)；其云端执行属于先前开发会话。
 
 依赖锁、恢复脚本、MPI 失败处理和测试已随分支集成；合并审查额外把 OpenMPI/int32 检查限定为云端显式启用，并使 JUnit 解析拒绝重复、缺失与错误结果。6 项纯 Python 解析器回归通过。
 
