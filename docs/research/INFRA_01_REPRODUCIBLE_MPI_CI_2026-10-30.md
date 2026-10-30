@@ -89,7 +89,8 @@ HWLOC_COMPONENTS=-x86 OMPI_MCA_btl_vader_single_copy_mechanism=none \
 CI仅缓存包，键含锁/平台/编译器/ABI。JUnit和summary检查非预期skip、空测试集和不完整结果，Python优化被拒绝。
 失败仍上传日志；当前云代理不允许GitHub artifact重定向的Azure Blob域，下载受限不等于CI未产生artifact。
 [分支CI 41060786421](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41060786421)在d3f69d1三个任务全部成功，Debug/Release及兼容环境均产生artifact。
-[精简机器证据](data/infra-01-2026-10-30/validation-summary.json)保留本机提交/工作区状态、资源和逐测试结果；完整原始日志由CI artifact提供，保留14天。最后入口/文档提交仍须通过head CI，当前未创建PR。
+[精简机器证据](data/infra-01-2026-10-30/validation-summary.json)保留本机提交/工作区状态、资源和逐测试结果；完整原始日志由CI artifact提供，保留14天。最终实现/文档提交5745fd3的[CI 41063030121](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41063030121)全部成功，机器摘要35/35、35/35、7/7，无失败/跳过；runner实际4CPU、约16GiB，编译并行4、每rank线程1。
+全部验收后创建正式[PR #22](https://github.com/saitoasukakawaii/EONSim-new/pull/22)，等待人工审核，未合并。PR后仅更新状态/证据记录，其最新head检查结果以PR页面为准。
 
 ## 审查与边界
 

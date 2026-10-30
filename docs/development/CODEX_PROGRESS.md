@@ -27,7 +27,7 @@
 
 PR #21 已合并，HPC-02已完成，旧状态已纠正。本轮用户指定INFRA-01，分支
 `codex/infra-reproducible-mpi-ci`：锁定云环境、3.19.6 PC失败传播、fatal callback trial恢复、
-checkpoint测试同步及核心CI已实现。独立源码审查无剩余阻塞；主环境Debug/Release各35/35、兼容环境7/7及分支CI已通过，尚未创建PR。
+checkpoint测试同步及核心CI已实现。独立源码审查无剩余阻塞；主环境Debug/Release各35/35、兼容环境7/7及分支CI已通过，正式[PR #22](https://github.com/saitoasukakawaii/EONSim-new/pull/22)已创建，状态review，未合并。
 
 ## 最近完成
 
@@ -44,8 +44,8 @@ checkpoint测试同步及核心CI已实现。独立源码审查无剩余阻塞�
 ## 当前检查点
 
 基线38a5e51。两套PETSc针对性检查各7/7；主环境Debug/Release完整各35/35。
-独立空缓存恢复和复用复验通过；d3f69d1分支CI三任务通过（运行41060786421）。最终文档/缓存隔离提交仍须通过head CI，随后才创建正式PR。沿[INFRA-01报告](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md)
-继续，不重复COO开发，不在全部验收前创建PR。
+独立空缓存恢复和复用复验通过；最终实现/文档提交5745fd3的[CI 41063030121](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41063030121)三任务通过，机器摘要为35/35、35/35、7/7。正式[PR #22](https://github.com/saitoasukakawaii/EONSim-new/pull/22)已创建；人工审核前保持review。沿[INFRA-01报告](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md)
+恢复工作：查看PR最新head检查与人工意见，不重复COO开发；仅合并后标记done。
 
 ## 恢复规则
 

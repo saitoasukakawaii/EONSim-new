@@ -16,7 +16,7 @@
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
 | HPC-02 | P2 | done | 独立流体固定图 COO Jacobian 装配（用户授权设计并完成 5 小时以上任务） | 保留默认逐单元路径；重复/远程贡献、约束和拒绝恢复；Debug/Release、1/2/4 rank、直接/Schur、重启对照及配对耗时；完成后才提交 PR |
-| INFRA-01 | P1 | in_progress | 可复现云端构建、MPI故障修复与核心数值CI | 干净恢复及缓存复用；3.19.6超时根因/修复及两环境回归；主环境Debug/Release全短套件；分支CI成功、独立审查后正式PR |
+| INFRA-01 | P1 | review | 可复现云端构建、MPI故障修复与核心数值CI | 干净恢复及缓存复用；3.19.6超时根因/修复及两环境回归；主环境Debug/Release全短套件；分支CI成功、独立审查后正式PR |
 | HUB-01 | P0 | done | 持续研发状态文件、文章模板和知识采集 Skill | 本 PR；文件可用、链接有效、网站构建通过 |
 | SOLVER-01 | P1 | done | PETSc NonlinearSession 对象生命周期审计 | 源码调用链、对象生命周期表、setup/assemble/solve 计时方案、复用风险和是否实施的建议；本任务不改求解器 |
 | SOLVER-01B | P1 | done | 固定 transient 案例的诊断开销基线（依赖 SOLVER-01 已合并） | 1/2 rank、每组至少 3 次、保存命令与原始日志；固定 rank 输出一致；明确计时边界，不将差异当作持久化收益 |
@@ -94,5 +94,5 @@ HPC-01E 已完成1/2/4 rank、每配置5对测量及6次预热，见 [报告](..
 1. 现状核对：完成；现有presets/provider/测试复用，当前配额4CPU/32GiB。用户指定的docs/architecture/MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md不存在，采用根目录同名入口。
 2. 依赖锁与干净恢复：完成；主锁空缓存恢复及重复包缓存复用，real/double/int32与同前缀MPI运行预检。
 3. PETSc3.19.6复现、根因与修复：完成原60秒超时复现及两环境各7/7针对性回归；另修复3.23.7 fatal callback trial锁恢复和checkpoint测试竞态。
-4. 完整短套件：主环境Debug/Release各35/35通过，d3f69d1分支CI三任务成功；最终入口/文档提交仍检查head CI。
-5. 文档、知识草稿已形成；独立源码/文档复核无剩余阻塞。运行验收全部通过后才创建正式PR。
+4. 完整短套件：主环境Debug/Release各35/35通过，最终实现/文档提交5745fd3的[CI 41063030121](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41063030121)三任务全部成功，零失败/跳过。
+5. 文档、知识草稿已形成；独立源码/文档复核无剩余阻塞。全部验收完成后创建正式[PR #22](https://github.com/saitoasukakawaii/EONSim-new/pull/22)；等待人工审核，未合并。PR后状态记录提交由同一CI继续检查。
