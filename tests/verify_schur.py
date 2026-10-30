@@ -100,6 +100,20 @@ def main():
             assert any(node['path'].endswith('/coarse') for node in nodes), text
             assert all(int(node['ksp_reason']) > 0 for node in nodes if node['path']=='root'), text
             assert 'solver_node_unavailable' not in text, text
+            # Matrix dimensions are local metadata reads, including coarse subcommunicators.
+            dofs = int(reports[-1]['dofs'])
+            for node in nodes:
+                assert int(node['operator_set']) == 1, node
+                rows, cols = int(node['operator_rows']), int(node['operator_columns'])
+                assert 0 < rows <= dofs and rows == cols, node
+                assert 0 <= int(node['operator_local_rows']) <= rows, node
+                assert 0 <= int(node['operator_local_columns']) <= cols, node
+                if node['path'] == 'root':
+                    assert rows == dofs, node
+            # Each steady/time-step report includes one root per world rank.
+            roots = [node for node in nodes if node['path'] == 'root']
+            assert len(roots) == len(reports) * ranks, roots
+            assert sum(int(node['operator_local_rows']) for node in roots) == len(reports) * dofs
             error = compare(expected, fields(output, ranks))
             if solid:
                 compare(expected_solid, fields(output.with_stem(output.stem + '_solid'), ranks))
