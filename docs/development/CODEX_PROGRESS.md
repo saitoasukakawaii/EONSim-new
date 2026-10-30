@@ -27,7 +27,7 @@
 
 PR #20 已合并，QA-01 完成。按用户“设计 5 小时以上任务并完成后才提交 PR”的要求，
 HPC-02 已实现独立流体可选固定 COO Jacobian，并完成针对性验证、配对测量和独立 deep review。
-交付 PR 尚待创建；不扩大为 FSI/ALE COO 或大规模扩展性声明。
+[PR #21](https://github.com/saitoasukakawaii/EONSim-new/pull/21) 已在完成后创建，等待人工审核；不扩大为 FSI/ALE COO 或大规模扩展性声明。
 
 ## 最近完成
 

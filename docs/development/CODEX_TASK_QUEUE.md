@@ -15,7 +15,7 @@
 
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
-| HPC-02 | P2 | in_progress | 独立流体固定图 COO Jacobian 装配（用户授权设计并完成 5 小时以上任务） | 保留默认逐单元路径；重复/远程贡献、约束和拒绝恢复；Debug/Release、1/2/4 rank、直接/Schur、重启对照及配对耗时；完成后才提交 PR |
+| HPC-02 | P2 | review | 独立流体固定图 COO Jacobian 装配（[PR #21](https://github.com/saitoasukakawaii/EONSim-new/pull/21)） | 实现、Debug/Release、1/2/4 rank、直接/Schur、重启与配对测量完成；deep review PASS；原有 MPI 超时已独立复现并记录，待人工合并 |
 | HUB-01 | P0 | done | 持续研发状态文件、文章模板和知识采集 Skill | 本 PR；文件可用、链接有效、网站构建通过 |
 | SOLVER-01 | P1 | done | PETSc NonlinearSession 对象生命周期审计 | 源码调用链、对象生命周期表、setup/assemble/solve 计时方案、复用风险和是否实施的建议；本任务不改求解器 |
 | SOLVER-01B | P1 | done | 固定 transient 案例的诊断开销基线（依赖 SOLVER-01 已合并） | 1/2 rank、每组至少 3 次、保存命令与原始日志；固定 rank 输出一致；明确计时边界，不将差异当作持久化收益 |
