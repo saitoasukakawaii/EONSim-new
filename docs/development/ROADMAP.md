@@ -275,3 +275,8 @@ Debug 用于索引/尺寸/布局和按需数值诊断；Release 使用同一方�
 文献阅读到数学规格、算法规格、软件接口契约的转化方法，以及 P0–P8 之后的 A–F 阶段建议，统一见 [EONSim 工程研发总纲](EONSim_ENGINEERING_PROGRAM.md)。
 
 该总纲是研发导航，不改变 P0–P8、B0–B5 已完成状态。A–F 是后续候选方向，按实际精度、可靠性和性能瓶颈选择，不将计划描述为已实现能力。具体算法仍以对应 L1/L2 主题契约为准。
+
+
+## Codex 持续研发状态
+
+跨 Task 的当前进度、任务领取顺序和会话记录分别维护在 [CODEX_PROGRESS.md](CODEX_PROGRESS.md)、[CODEX_TASK_QUEUE.md](CODEX_TASK_QUEUE.md) 和 [CODEX_SESSION_LOG.md](CODEX_SESSION_LOG.md)。这些文件用于恢复工作，不取代本路线中各阶段的数学与数值验收标准。

@@ -14,7 +14,7 @@
 
 注意：草稿目录不进入网站构建，但仓库是公开的，因此草稿文件本身仍然可以被 GitHub 访客读取。不要将私密信息、凭据、未授权论文全文或敏感数据放入该目录。
 
-## 2. 文章模板
+## 2. 文章模板\n\n从 website/templates/ 选择知识文章、算法说明、开发记录或 benchmark 报告模板。模板目录仅供复制，不作为网站页面发布；VitePress 构建会排除该目录。
 
 每篇知识文章至少包含：
 
@@ -38,7 +38,7 @@
 
 不能把计划写成已经实现，也不能把小规模测试描述成大规模 HPC 扩展证明。
 
-## 4. Codex 任务交付
+## 4. Codex 任务交付\n\n对有复用价值的实质任务，按仓库根目录 .agents/skills/eonsim-knowledge-capture/SKILL.md 整理知识草稿，并更新 docs/research/KNOWLEDGE_LOG.md。跨 Task 工作使用 docs/development/CODEX_PROGRESS.md 和 CODEX_TASK_QUEUE.md 接续。
 
 每项开发任务结束时，Codex 应给出：
 - 变更文件和 commit；
