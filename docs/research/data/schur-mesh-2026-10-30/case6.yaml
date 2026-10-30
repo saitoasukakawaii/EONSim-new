@@ -1,0 +1,11 @@
+mesh: mesh6.msh
+output: ../../results/fluid/steady.vtu
+fluid:
+  mode: steady
+  density: 1
+  viscosity: 1
+  pressure_drop: 1
+solver:
+  relative_tolerance: 1.e-10
+  absolute_tolerance: 1.e-12
+  maximum_iterations: 30

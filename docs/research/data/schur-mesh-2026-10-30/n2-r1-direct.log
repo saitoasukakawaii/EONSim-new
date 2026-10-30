@@ -1,0 +1,7 @@
+field_residual name=pressure equation_rows=26 constraint_rows=1 residual_scale=1 initial_rms=0.006183665329487842 rms=1.726067898061611e-18 limit=1.618366532948784e-12 constraint_scale=1 constraint_max=0 constraint_limit=1e-12 accepted=1
+field_residual name=velocity equation_rows=7 constraint_rows=74 residual_scale=1 initial_rms=0.1258574986214358 rms=1.539823112619725e-17 limit=1.358574986214358e-11 constraint_scale=1 constraint_max=0 constraint_limit=1e-12 accepted=1
+solver_report ranks=1 dofs=108 nnz=3568 ksp=preonly pc=lu linear_iterations=3 snes_reason=2 ksp_reason=4 domain_rejections=0 solve_seconds=0.00351469 assembly_seconds=0.001135 ghost_seconds=9.2816e-05 setup_seconds=0.000784104 schur_setup_seconds=0 linear_seconds=0.00223765 linear_diagnostic_seconds=0 finalize_seconds=0.000149833 linear_started=3 linear_completed=3 rss_max_bytes=2.83853e+07 rss_sum_bytes=2.83853e+07 peak_rss_max_bytes=2.81272e+07 peak_rss_sum_bytes=2.81272e+07
+solver_node rank=0 path=root prefix=- ksp=preonly pc=lu ksp_reason=4 ksp_reason_name=CONVERGED_ITS pc_reason=0 pc_reason_name=FACTOR_NOERROR last_iterations=1 reported_norm=0 norm_type=0
+fluid_step=1 time=0 snes_iterations=3 residual=4.167973995620915e-17
+inlet_flow=0.0625 outlet_flow=0.0625 pressure_drop=0.1422761136402702 velocity_l2_error=0.03170437136801289 divergence_l2=0.04683256742596337
+status=success
