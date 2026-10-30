@@ -2,6 +2,8 @@
 
 状态：采用。MPI/CPU 为首版路径；libCEED、Kokkos、GPU 只在满足触发条件后接入。
 
+2026-10-30 扩展设计见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) §7–8、§10–11：rank 内排列与任意字段 IS 分开；通用图考虑面项/约束支撑；VTU 继续 rank 分片并在完整写入后发布索引；runtime 批次选择 native 模板核。高阶/线程/GPU 路径仍待需求与测量触发，本轮没有性能实验。
+
 ## HPC 的必做项与延后项
 
 ### 首版必须正确的部分

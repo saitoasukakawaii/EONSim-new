@@ -7,6 +7,9 @@ C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体
 当前验证包括随仓库提供的立方体/旋转通道、弹性块和活塞算例；流体/固体支持区域材料与分量约束，弹性 FSI 支持独立共形双网格。尚不包含通用表达式、非匹配界面、重网格或大规模扩展性保证。
 各阶段的实际结果与限制见下文及 [开发路线](docs/development/ROADMAP.md)。
 
+2026-10-30 新增 [通用 FEM 架构规划](docs/architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) 与
+[20 组上游学习矩阵](docs/research/FEM_FRAMEWORK_LEARNING_2026-10-30.md)，覆盖多拓扑/空间、边界与非匹配接口、时间格式、DoF/预条件及并行输出。它们是待实现设计，不扩大当前 Tet4/BE 能力；本轮仅改文档。
+
 ## 环境与构建
 
 需要 CMake ≥ 3.21、Ninja、C/C++17 编译器、实数双精度 PETSc、匹配的 MPI、

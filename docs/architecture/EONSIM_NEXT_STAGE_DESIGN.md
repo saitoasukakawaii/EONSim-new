@@ -1,6 +1,8 @@
 # EONSim 下一阶段详细设计
 
-日期：2026-10-29。范围：在现有 C++17、Tet4、MPI、PETSc、单体 FSI 主线上提高可靠性、精度和规模能力。
+日期：2026-10-29；2026-10-30 同步至 `38a5e51`（PR #21）。范围：在现有 C++17、Tet4、MPI、PETSc、单体 FSI 主线上提高可靠性、精度和规模能力。
+
+**最新扩展规划：** [通用 FEM 架构规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) 集中规定多拓扑/多格式、有限元空间、一般边界、非一致界面、DoF 排列与预条件树、稀疏图、时间积分及并行输出；[20 组上游学习矩阵](../research/FEM_FRAMEWORK_LEARNING_2026-10-30.md) 给出逐项目取舍。新增 G0–G8 均只完成设计、实现 deferred；本轮不开发、不编译。本文保留已有可靠性主线，不将新方案写成已实现能力。
 
 本文是用户要求的深入设计方案，**不是下列接口已经实现的声明，也不新增日常审批或全量验证门禁**。实际代码状态、复现结果和优先级依据见 [架构审查](../research/EONSIM_ARCHITECTURE_AUDIT_2026-10-29.md)。沿用现行 L1/L2 决策；新增方案在对应功能落地时归并到所属主题文件，避免长期维护两份规范。
 
@@ -43,7 +45,7 @@ flowchart TD
     App --> IO[分区、checkpoint、结果输出]
     Problem --> Time[BE 步控制与共同接受]
     Problem --> Assembly[编号、约束、装配计划]
-    Problem --> Solver[持久 PETSc 求解会话]
+    Problem --> Solver[PETSc 求解对象与代数存储]
     Assembly --> Kernel[局部残量、材料、几何]
     Assembly --> Solver
     Assembly --> Mesh[局部网格与区域视图]
@@ -57,7 +59,7 @@ flowchart TD
 | `src/main.cpp`、`src/core/config.cpp` | 分离公共运行摘要与各应用执行；为有歧义的边界种类建立具体类型 | 不引入插件加载器、脚本解释器或服务容器 |
 | `mesh.hpp`、`fsi_domains.cpp` | 保留局部网格；新增外部映射需求时保留源域/源 ID | 不为每个物理场复制整张 mesh |
 | `field_layout.cpp`、`reduced_layout.cpp` | 分清自由变量、展开、行投影与 field IS | 不先实现任意约束图引擎 |
-| `nonlinear_system.cpp` | 从逐步函数构造转为具体持久会话；各字段接受、错误分类 | 不封装第二套 SNES |
+| `nonlinear_system.cpp` | 保留已有 Vec/Mat 复用、字段验收和错误分类；按具体需求扩展图/布局 | 持久 SNES/PC 根据测量暂缓，不封装第二套 SNES |
 | `fluid/solid/fsi.cpp` | 准备数据、数值评价、候选检查、提交、观测分段 | 不靠目录拆分掩盖状态依赖 |
 | `checkpoint.cpp` | generation 发布、失败保留旧代、模式版本 | 不把可视化文件当作可恢复状态 |
 
@@ -145,7 +147,7 @@ AD 只能微分实际被表达的依赖，不能补出未进入残量的几何/�
 
 ### 生命周期与算子
 
-将现有函数逐步改为具体 `NonlinearSession`，由一次问题运行持有；名字是建议，尚未实现。会话拥有 Vec、Mat、SNES、field IS、回调上下文与本地暂存；上下文借用的模型/accepted 状态必须长于会话使用期。
+当前 `NonlinearSystem` 已跨 solve 持有 Vec、Mat 与本地暂存，SNES/KSP/PC 仍逐次创建。SOLVER-01/02 的审计与多步测量已使进一步持久化 `NonlinearSession` 暂缓，见 [多步 setup 研究](../research/MULTISTEP_SETUP_PROFILE_2026-10-30.md)。不再把该重构列为当前必做项；未来由目标规模证据触发时，才扩大会话所有权，并证明回调上下文/accepted 状态的生命周期相容。
 
 拓扑和约束结构不变时复用分配、图和通信计划。每次 Newton 更新必要矩阵数值；PC 数值重建、AMG 插值复用、Jacobian 滞后分别计时和控制。ALE 坐标或 dt 改变只使相关数值缓存失效，不强制重分区。
 
@@ -269,7 +271,7 @@ FSI 增加有方向的界面力和必要的功率检查。若交换的是结点�
 | 冻结 tau、时间链式系数 | 同一求解时间步 | 缩 dt 或接受下一步 |
 | Jacobian 数值/PC 数值/AMG 插值 | 各自明确策略 | 状态、dt、系数及迭代表现；三者不共用一个 valid 标记 |
 
-成本优化按现有问题选择：先修求解器，再复用对象/参考数据和 residual-only，接着研究批量 COO 与通信重叠。COO 坐标映射一次准备、重复贡献允许，但它可能增加中间值存储，要与现有 MatSetValues 的端到端时间和峰值内存比较。[PETSc COO](https://petsc.org/release/manualpages/Mat/MatSetPreallocationCOO/)
+成本优化按现有问题选择：先改善有证据的求解瓶颈，复用对象/参考数据和 residual-only。PR #21 已交付独立固定网格流体的可选 COO Jacobian，见 [HPC-02 实测范围](../research/FLUID_COO_ASSEMBLY_2026-10-30.md)；FSI/ALE/残量 COO 与通信重叠仍未实现。COO 坐标映射一次准备、重复贡献允许，但可能增加中间值存储，扩展前须比较端到端时间和峰值内存。[PETSc COO](https://petsc.org/release/manualpages/Mat/MatSetPreallocationCOO/)
 
 Release 规模研究以能够占据足够求解时间的网格为对象。先 1/2/4 rank；后续硬件可用再增加 rank/节点，不承诺未经测量的效率。报告强扩展和弱扩展时分别说明固定总问题/固定每 rank 工作量，同时给出迭代数、setup/solve/I/O、最慢 rank 时间、owned/ghost、nnz 与峰值内存。总作业还要计入串行预处理。
 
@@ -313,4 +315,4 @@ MFEM/libCEED 若已拥有设备存储，不在外层复制另一套 Kokkos owner
 
 空间研究尽量压低时间误差；时间研究使用足够细空间网格，在相同物理时刻对比观测历程。BE 预期一阶，但只有进入渐近区后才能从数据判断阶数。若采用公开 FSI benchmark，先对齐维数、材料、边界、单位、时间格式和观测定义，不把 3D 挤出例与二维表值直接对照。
 
-二阶时间、非匹配界面、六自由度、近不可压缩材料、跨 rank 恢复、分离式 preCICE、高阶/AMR/GPU 保持业务触发。它们各自需要明确算例与新契约，均不包含在本次文档交付或当前 B5 的实现声明中。
+二阶时间、非匹配界面、多拓扑与高阶的设计现已进入 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)，实现仍 deferred。六自由度、近不可压缩材料、跨 rank 恢复、分离式 preCICE、AMR/GPU 保持具体业务触发。各扩展需要独立算例和证据，均不属于当前 B5 或 PR #21 的实现声明。

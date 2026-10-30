@@ -2,6 +2,20 @@
 
 本文件记录有实质代码、算法、验证或知识产出的开发会话。只记录事实，不写无法复现的“已优化”“性能显著提升”等结论。
 
+## 2026-10-30 — ARCH-01 — 通用 FEM 架构与上游学习规划
+
+- 用户要求审查 EONSim-new，并进一步规划多网格/空间、边界、非一致界面、DoF/预条件、时间格式与高性能执行；明确暂不开发、不编译。本轮遵守此范围。
+- 独立本地 checkout 从旧审查基线同步 main 至 `38a5e516ffe129d1b70c7c1bd8365deb5ded101a`，确认 PR #21 已合并；建立 `docs/general-fem-architecture-plan`。未修改只读 sources/。
+- 静态阅读当前拓扑、Gmsh、DoF、FSI、COO、VTU 及 L1/L2；确认 Tri3 只是 Tet4 边界、体域仅 Tet4，BE/共形接口仍为实现边界；现有独立流体 COO 与分片 VTU 不重复安排为全新功能。
+- 新增 `docs/architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md`：明确拓扑/几何/空间分离、一般 BC、K/W 与非匹配传递、三类 DoF/PC 排列、约束后图、两类 generalized-α 与变步长 BDF2、输出和 native 批次执行；提供 G0–G8 依赖和验收候选。
+- 新增 `docs/research/FEM_FRAMEWORK_LEARNING_2026-10-30.md`：访问官方文档和作者论文，覆盖用户列出的 20 组项目（Elmer 与 oomph-lib 分列）；给出具体迁移产物和不照搬部分，没有逐库源码全审或性能横评。
+- 同步 L0/L1/L2、下一阶段设计、README、ROADMAP、进度与任务队列；纠正旧文档中持久 SNES/PC 的优先级，保留根据已有测量暂缓的决定。HPC-02 按 PR #21 标 done；所有新增实现任务 deferred，无新增 ready。
+- 使用仓库 eonsim-knowledge-capture 技能，新增未发布草稿 `website/drafts/general-fem-dof-architecture.md` 与知识登记。证据为理论/设计和静态实现对应；lastVerifiedCommit 留空。非匹配稳定性、stage 相容性及 PC 语义为后续审阅重点。
+- 文档检查：`git diff --check`；以 Python 标准库检查所有变更/新增文件仅为 Markdown、UTF-8、围栏闭合、相对文件/站点路径存在及新文件尾空白；通过。此为文档结构检查，未构建网站或声称渲染验证。
+- 未运行 CMake、编译、CTest、MPI、求解器、性能实验、上游原型或网站发布。没有修改 src/include/tests/cases/scripts/CMake 等实现；历史数值与性能记录保持原有证据范围。
+- 初次交付为本地文档草案，当时未创建 PR、未推送、未发布。下一步开发需用户另行启动；本轮不擅自领取候选。
+- 用户后续明确要求将上述 16 份 Markdown 文档推送远程；交付目标为 origin 的 `docs/general-fem-architecture-plan` 分支，提交范围仍限这 16 份文档。保持不编译、不创建 PR、不合并 main、不发布网站；提交标识及交付结果以 Git 远程引用为准。
+
 ## 记录模板
 
 ~~~markdown
