@@ -1,0 +1,241 @@
+{
+  "measured_commit": "ceea57d568db08c5181122cea66f5b9458c6200c",
+  "normalization": "CRLF -> LF",
+  "note": "Original results.json records Linux Git without CRLF normalization. All compiled src/include/cmake/CMakeLists.txt contents match the measured commit after normalization. Later benchmark script changes only Git status metadata.",
+  "source_files": [
+    {
+      "path": "CMakeLists.txt",
+      "lf_sha256": "d5c2d3e9b3fea6baf4892de008a5939a19ccdde06b41f2068d23ce5d2d021626"
+    },
+    {
+      "path": "cmake/EONSimBlasLapackProvider.cmake",
+      "lf_sha256": "afbf71c2fb878fea357a83d146329903bc55221ddb04e2edcaff66bdf65c41bd"
+    },
+    {
+      "path": "cmake/EONSimPETScProvider.cmake",
+      "lf_sha256": "a4616ae83a62a51b79dca5cbc7c4380d88943dafd79ce760652e842bedc3f1f4"
+    },
+    {
+      "path": "cmake/FindMPI.cmake",
+      "lf_sha256": "d20c251830f7884c640cc00e5b85fc6d7a78537e6c0dc2fc20319d074cb3d6bb"
+    },
+    {
+      "path": "include/eonsim/ale.hpp",
+      "lf_sha256": "9d7de8d8a82a1032395aaccc9ed7b37c838a8a683eca4704399978ebee6c1ee6"
+    },
+    {
+      "path": "include/eonsim/boundary_geometry.hpp",
+      "lf_sha256": "676185f62e269227d3f9a41f712e5487bc320f5209ab769583356fca92908264"
+    },
+    {
+      "path": "include/eonsim/checkpoint.hpp",
+      "lf_sha256": "4df8665a91c50d756cfea7f01972de0edef4a520b3c901c7961e043111740199"
+    },
+    {
+      "path": "include/eonsim/config.hpp",
+      "lf_sha256": "9d6e2c4113c22944c2b234b623794c453bf375cd7762d173834317909cd01273"
+    },
+    {
+      "path": "include/eonsim/discretization.hpp",
+      "lf_sha256": "40356e1019a23dd66bda37290e060f0ff6a90851f9d862ea5f1f0a8bfd1054e2"
+    },
+    {
+      "path": "include/eonsim/dual.hpp",
+      "lf_sha256": "1c918f59bd01e48f1d7e561323d7f57ee4b6a5726734de857ff0eb1783577e4d"
+    },
+    {
+      "path": "include/eonsim/field_layout.hpp",
+      "lf_sha256": "831714fc83f497cab5d1e8e002e7aad05c46316a8640b85c4108cd8138da4607"
+    },
+    {
+      "path": "include/eonsim/fluid.hpp",
+      "lf_sha256": "adda7989c3e364b607dd71f7239e2928171ce7a364b14178e3bcdd2f9e021c7f"
+    },
+    {
+      "path": "include/eonsim/fluid_boundary.hpp",
+      "lf_sha256": "583fec7e4563c1b232eb8f8c3052540e2782fb9def71012020043354b9565e31"
+    },
+    {
+      "path": "include/eonsim/fluid_element.hpp",
+      "lf_sha256": "5340d2a100bde9bd18c1d20f9af439bc04259e73fe308d6e5092b7be64251394"
+    },
+    {
+      "path": "include/eonsim/fluid_residual.hpp",
+      "lf_sha256": "2a2534995fc0df069992f7f1e38f4ca7bedfcd2cd4657c03c5f08db6c2461530"
+    },
+    {
+      "path": "include/eonsim/fsi.hpp",
+      "lf_sha256": "624222620c1e012a6985130c3ea910c6fb65960e0de329215d27934fdca3ec86"
+    },
+    {
+      "path": "include/eonsim/fsi_domains.hpp",
+      "lf_sha256": "dc24a7c91dec2632ef67a6c53ee828d7cdfaf96f056dcbca8cd7b8077cd25287"
+    },
+    {
+      "path": "include/eonsim/fsi_element.hpp",
+      "lf_sha256": "a2a5ad5b1f4edeccc45dcee9fc3aa3d3fe0133fe46cc7ee0517844a0526da6fb"
+    },
+    {
+      "path": "include/eonsim/hyperelastic.hpp",
+      "lf_sha256": "03c5ae56b99e7b31d3f01953235399cf47d8be5faf85e8ad1dd17430ce7ffc38"
+    },
+    {
+      "path": "include/eonsim/linear_system.hpp",
+      "lf_sha256": "27a521b50e7c2f4962a9f83ac497b1672f4573e6d97c5c2ef78398ab804bb1d6"
+    },
+    {
+      "path": "include/eonsim/mesh.hpp",
+      "lf_sha256": "dde8226f61163ec6dcb6e58e1d989e7aae346524ffd3e2fee4f155b7b1968dfc"
+    },
+    {
+      "path": "include/eonsim/motion.hpp",
+      "lf_sha256": "10c88d1820cf56241620bf1ef38dedca90c3d75b2cdbe25c5c969d93ac2edea3"
+    },
+    {
+      "path": "include/eonsim/nonlinear_system.hpp",
+      "lf_sha256": "68a8a61847bf4b3ce2c09972423fc8887de0379e28502965e8168110d7b1734a"
+    },
+    {
+      "path": "include/eonsim/poisson.hpp",
+      "lf_sha256": "e08b08f88af7a9edda9405cd0d54e4cdd424d6b129b7c65df865ea9dcb1c6082"
+    },
+    {
+      "path": "include/eonsim/quadrature.hpp",
+      "lf_sha256": "a9d7cf1c4b0b608dd9d714cc8a20abf09aa1f661338e720889b08468b1eda39f"
+    },
+    {
+      "path": "include/eonsim/reduced_layout.hpp",
+      "lf_sha256": "c8968a4d017a2f56aef6dfa412e57c98d218139d07fb4b0c71fae7e263f5f5f8"
+    },
+    {
+      "path": "include/eonsim/regions.hpp",
+      "lf_sha256": "e87c98bb826c40a71610ae6edb490268b6244b54775de070cd4638603d02e9c4"
+    },
+    {
+      "path": "include/eonsim/schur_solver.hpp",
+      "lf_sha256": "b29d10bdf8f33f7f65b9d83c9d6e5eb72f11bb22d40698d1df5633e52f6c84b2"
+    },
+    {
+      "path": "include/eonsim/solid.hpp",
+      "lf_sha256": "dfcd73497d3c8d931e7c9be21cf3ef5207d17a34cd60b59bd386821d2caa7136"
+    },
+    {
+      "path": "include/eonsim/solid_element.hpp",
+      "lf_sha256": "cc33f8ba0ff7b57b15731fa502ad01e3baca9cd58760628ae53ec04dde6049f0"
+    },
+    {
+      "path": "include/eonsim/tet4.hpp",
+      "lf_sha256": "930b9d5c4ace1dce1dd8a771388025b09013bc7676ab5846b811b9c680ed489c"
+    },
+    {
+      "path": "include/eonsim/time_step.hpp",
+      "lf_sha256": "fe1ad661fe7c9ece7aaf0d8c5b885ce284c8092e7818ae62150b7e42b36d4076"
+    },
+    {
+      "path": "include/eonsim/vtu.hpp",
+      "lf_sha256": "7ffb55cfeaeb5bc3a430b76bbc48464aad593c5810c11252991bb899514f3c12"
+    },
+    {
+      "path": "src/algebra/linear_system.cpp",
+      "lf_sha256": "87807a0bec5663aa69324d13bc669f5ae6dd89a9b9f94929392eaa3442fa74d5"
+    },
+    {
+      "path": "src/algebra/nonlinear_system.cpp",
+      "lf_sha256": "394a8fc63fcf06f0335717b2ba91999a06fd0e9e93d3de195fdf43616664807f"
+    },
+    {
+      "path": "src/algebra/schur_solver.cpp",
+      "lf_sha256": "25c94386a4ca2a15a4e8aa00165069af8e7c76853c0a8f9e0bfae145b343d101"
+    },
+    {
+      "path": "src/core/config.cpp",
+      "lf_sha256": "4c640bb1c90064586f788b931d596e6ace7d406bfb12571315839b8614bd9a35"
+    },
+    {
+      "path": "src/fem/boundary_geometry.cpp",
+      "lf_sha256": "43cc8e41e715c7c3fea570e5346ff16108d30d355e96db33e6a1c5b6a6450aca"
+    },
+    {
+      "path": "src/fem/field_layout.cpp",
+      "lf_sha256": "f3d1649086b348e7cb547ed49f56a671b27835a46894c022174f488c6bad6d48"
+    },
+    {
+      "path": "src/fem/reduced_layout.cpp",
+      "lf_sha256": "debccfb933008d33a779ec95cb3eddd7a4dc9e62774aca86e0a0a8802861dc47"
+    },
+    {
+      "path": "src/fem/tet4.cpp",
+      "lf_sha256": "3f7832113dffb709d7cc618b8f3ab746bd5e0e2278a48ff5c46ad24457fcd914"
+    },
+    {
+      "path": "src/io/checkpoint.cpp",
+      "lf_sha256": "cfed31381947e6ccf9ed8ddb37063202687d430d464a037e40f7129ce452a6b4"
+    },
+    {
+      "path": "src/io/vtu.cpp",
+      "lf_sha256": "4d88b718aaa5ac7301c420f109b62835ec13c46bfb66c595e78081555b7448a7"
+    },
+    {
+      "path": "src/main.cpp",
+      "lf_sha256": "55dea2d0c8a2831f05e24a0fdbc3d4139425edad90c5d200e3977d6591c6f817"
+    },
+    {
+      "path": "src/mesh/fsi_domains.cpp",
+      "lf_sha256": "483557c1bf5f8c7dabc8fc9ba42415e5f3d28a5bc045acb99ef7ffc3364b496e"
+    },
+    {
+      "path": "src/mesh/gmsh.cpp",
+      "lf_sha256": "36894fbbff4a61e6825165727a763871316f7c14a31d05435fe2d9494631295a"
+    },
+    {
+      "path": "src/mesh/partition.cpp",
+      "lf_sha256": "aaa08d64e2a4a02d59f879fe6503a240458ec3e1a7cdfa8a377c08818c252796"
+    },
+    {
+      "path": "src/physics/ale.cpp",
+      "lf_sha256": "6b0b4492d814e6b2b35b9a211aab870e5063f30b6a857273f50297bce4a65a36"
+    },
+    {
+      "path": "src/physics/fluid.cpp",
+      "lf_sha256": "c0a5d5a4cdf98bcc78ebd2853b7423384f91b8d2b93f4a7b393bb18b52467192"
+    },
+    {
+      "path": "src/physics/fluid_boundary.cpp",
+      "lf_sha256": "f22ee5d9423067c90e4a7d706508c88c06492509ee8cd5844b3140bea46ab4f0"
+    },
+    {
+      "path": "src/physics/fluid_element.cpp",
+      "lf_sha256": "ef6320bb68817861d5f8941c9423fae49f4308d1640b408e69bd7af244a497fc"
+    },
+    {
+      "path": "src/physics/fsi.cpp",
+      "lf_sha256": "3168e6f3207a03cf3bd1e3fae1eee024189e206d5d7203f96245e69d927533bf"
+    },
+    {
+      "path": "src/physics/fsi_element.cpp",
+      "lf_sha256": "d02b8930f51fda8946881af91932e00e614bfbaf974194a66f8767d47fd87a94"
+    },
+    {
+      "path": "src/physics/hyperelastic.cpp",
+      "lf_sha256": "d26fca9698d54037d45ac84bb893bc9be1e80a21919b0d5d43c412ae703fac77"
+    },
+    {
+      "path": "src/physics/motion.cpp",
+      "lf_sha256": "5c270616f7902896f99299486d4982682ea1e58dd49feb0e7d0a67d960b210c2"
+    },
+    {
+      "path": "src/physics/poisson.cpp",
+      "lf_sha256": "436c5cf6d0e2197b0499e6eb3398d18827c53144225a9aa946e6337173028e52"
+    },
+    {
+      "path": "src/physics/solid.cpp",
+      "lf_sha256": "e334745c107c4764036fe3cdb5aa94d121ab3124d67d27ddbeda84b355dfe16a"
+    },
+    {
+      "path": "src/physics/solid_element.cpp",
+      "lf_sha256": "f9ed2ea962fed1623164dedafab3951ca6d88723b6b1494a10527c9791c872ad"
+    }
+  ],
+  "windows_git_status": " M README.md\n M docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md\n M scripts/benchmark_fluid_coo.py\n?? docs/research/data/fluid-coo-2026-10-30/\n",
+  "executable_sha256": "87c3264b18715ce2aff8f821bc15ac441c1d69971fbc7137fd0c78445d644817"
+}

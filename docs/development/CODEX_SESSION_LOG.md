@@ -174,3 +174,15 @@
 - 更新进度/队列/本日志/知识登记；使用eonsim-knowledge-capture新增website/drafts/profile-log-validation.md，区分浮点语义、实际实现、解析器验证与性能未测量。
 - 待人工审核；无新增ready任务。此解析协议限于现有固定十步、零拒绝评价的测量，不作为任意PETSc运行的通用成功判据。
 - `git diff --check`、五份Markdown解析/围栏/相对链接检查通过；`npm run docs:build --prefix website`成功（3.37秒），dist未包含草稿或模板；未修改src/include/cases。
+
+## 2026-10-30 / HPC-02
+
+- 用户要求依据规划设计并完成预计 5 小时以上任务，然后创建 PR。核对指定 EONSim-new 与旧 EONSim 是不同仓库，在独立 checkout 从 `24eae62`（PR #20）建立 `codex/fluid-cached-coo`；旧工作区及未提交修改未改动。
+- 任务队列登记 7–9 小时工程工作量估计及具体验收；实现 `ceea57d` 增加独立固定网格流体 `-fluid_coo`，一次准备图、复用数值缓冲，在错误同步后调用 collective COO 更新。默认装配、物理公式、停止条件、残量/反力与 FSI 路径保留。
+- WSL Ubuntu24.04/GCC13.3/PETSc3.19.6/OpenMPI4.1.6 下 Release 和 Debug 完整构建成功。新增 COO 代数测试 1/2/4 rank 通过；真实流体每构建 87 个命令，最大字段差 5.190625707029994e-12。
+- Debug 6/6 通过；Release 首轮 7/8 通过，`solver_failures_mpi` 60 秒超时在独立未修改基线构建中相同复现。共享求解器的 Schur/FSI、真实缩步、计时及日志回归额外 4/4 通过。不宣称整个 CTest 通过。
+- `benchmark_fluid_coo.py` 完成两档网格、1/2/4 rank、36 次计量及12次预热；所有18对迭代轨迹一致，字段最大差 6.661338147750939e-16。装配中位变化约 -45% 至 -62%，solve 约 -8% 至 -44%，wall 约 -11% 至 0%；多组 wall 范围跨零，明确记录准备和内存成本。
+- 原始测量使用 `ceea57d`；后续仅修正跨 Windows/WSL Git status 的 CRLF 元数据噪声。58 个编译源文件归一化哈希与提交相符，可执行哈希与测量一致；原始 JSON 未改写。
+- 独立 deep review 对 `ceea57d` 为 PASS，无阻塞发现。报告、原始日志、字段证据、审查记录及 source provenance 已归档；按 eonsim-knowledge-capture 添加 website/drafts/fluid-coo-assembly.md 并登记知识日志，未发布网站。
+- 当前代码及验证完成，下一步创建交付 PR，人工决定是否合并；无新增 ready 任务。此任务不提供 FSI/ALE/残量 COO、GPU、多节点或大规模扩展证明。
+- 交付前代码/文档的 `git diff --check`（排除原样归档的日志）、8 份 Markdown 围栏/相对文件及站点路由链接检查、JSON 证据解析、测量脚本语法检查通过。两份构建日志保留 CMake 原始输出中 8 行尾空白，完整 diff 检查因此会报告这些空白；不改写原始证据。后续文档/元数据修改未改变已审查的 src/include/CMake/tests；未重复运行数值测试，未构建或发布网站。

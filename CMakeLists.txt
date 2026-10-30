@@ -84,6 +84,16 @@ endif()
 
 if(BUILD_TESTING)
     enable_testing()
+    add_executable(verify_coo_jacobian tests/verify_coo_jacobian.cpp)
+    target_link_libraries(verify_coo_jacobian PRIVATE eonsim_core)
+    add_test(NAME coo_jacobian COMMAND verify_coo_jacobian)
+    foreach(ranks IN ITEMS 2 4)
+        add_test(NAME coo_jacobian_mpi${ranks} COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" ${ranks}
+            ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_coo_jacobian> ${MPIEXEC_POSTFLAGS})
+        set_tests_properties(coo_jacobian_mpi${ranks} PROPERTIES PROCESSORS ${ranks})
+    endforeach()
+    set_tests_properties(coo_jacobian coo_jacobian_mpi2 coo_jacobian_mpi4 PROPERTIES TIMEOUT 60
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_executable(verify_linear_lifetime tests/verify_linear_lifetime.cpp)
     target_link_libraries(verify_linear_lifetime PRIVATE eonsim_core)
     add_test(NAME linear_lifetime COMMAND verify_linear_lifetime)
@@ -131,6 +141,12 @@ if(BUILD_TESTING)
     target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
     add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME fluid_coo_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fluid_coo.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_coo_verification")
+    set_tests_properties(fluid_coo_verification PROPERTIES TIMEOUT 300 PROCESSORS 4
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME profile_log_validation
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_profile_validation.py")
     set_tests_properties(profile_log_validation PROPERTIES TIMEOUT 30)

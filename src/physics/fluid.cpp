@@ -17,8 +17,9 @@ namespace eonsim {
 FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& config)
 {
     const auto& f=config.fluid;
-    PetscBool element_report=PETSC_FALSE;
+    PetscBool element_report=PETSC_FALSE,coo=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_element_report",&element_report,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_coo",&coo,nullptr));
     const bool tagged=!f.boundaries.empty();
     const auto materials=cell_materials(comm,mesh,f.regions,FluidMaterial{f.density,f.viscosity});
     const auto layout=make_field_layout(mesh,Tet4Flow::components,{{"velocity",{0,1,2}},{"pressure",{Tet4Flow::pressure}}});
@@ -65,6 +66,24 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         if(!clock.active(config.stop_after)) throw std::runtime_error("Restart must precede requested final step");
     }
     NonlinearSystem system(comm,layout);
+    if(coo) {
+        const auto begin=std::chrono::steady_clock::now();
+        std::vector<PetscInt> rows,columns;
+        // One immutable local-cell contribution order, reused across Newton steps and retries.
+        // Duplicate and off-process row contributions are summed by PETSc's COO plan.
+        for(const auto& cell:mesh.cells) {
+            Tet4Flow::State<PetscInt> ids;
+            for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Tet4Flow::components;++c)
+                ids[Tet4Flow::dof(a,c)]=layout.local_to_global[Tet4Flow::dof(cell.nodes[a],c)];
+            for(auto row:ids) for(auto column:ids) { rows.push_back(row); columns.push_back(column); }
+        }
+        system.set_jacobian_coo(rows,columns);
+        const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
+        EONSIM_PETSC(PetscSynchronizedPrintf(comm,
+            "fluid_coo_plan rank=%d local_cells=%zu entries=%zu value_bytes=%zu setup_seconds=%.17g\n",
+            mesh.rank,mesh.cells.size(),rows.size(),(rows.size()+static_cast<std::size_t>(layout.owned))*sizeof(PetscScalar),seconds));
+        EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
+    }
     while(clock.active(config.stop_after)) {
         const int step=clock.step+1; const double dt=clock.dt(),time=clock.time+dt;
         try {
@@ -119,7 +138,11 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
                 const auto element=fluid_element(geometry[e],parameters[e],state,old,{},j!=nullptr);
                 const auto insert_begin=element_report?Timer::now():Timer::time_point{};
                 EONSIM_PETSC(VecSetValues(r,Tet4Flow::dofs,ids.data(),element.residual.data(),ADD_VALUES));
-                if(j) EONSIM_PETSC(MatSetValues(j,Tet4Flow::dofs,ids.data(),Tet4Flow::dofs,ids.data(),element.tangent.data(),ADD_VALUES));
+                if(j) {
+                    if(coo) std::copy(element.tangent.begin(),element.tangent.end(),
+                        system.jacobian_coo_values()+e*Tet4Flow::dofs*Tet4Flow::dofs);
+                    else EONSIM_PETSC(MatSetValues(j,Tet4Flow::dofs,ids.data(),Tet4Flow::dofs,ids.data(),element.tangent.data(),ADD_VALUES));
+                }
                 if(element_report) {
                     const auto insert_end=Timer::now();
                     kernel_seconds+=std::chrono::duration<double>(insert_begin-kernel_begin).count();

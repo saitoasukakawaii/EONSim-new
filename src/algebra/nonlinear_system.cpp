@@ -1,4 +1,5 @@
 #include "eonsim/nonlinear_system.hpp"
+#include <cstdint>
 #include "eonsim/schur_solver.hpp"
 #include "eonsim/time_step.hpp"
 #include <cmath>
@@ -264,6 +265,7 @@ struct Context {
     FieldAcceptance& acceptance;
     Vec scratch;
     std::vector<double>& values;
+    std::vector<PetscScalar>* coo_values;
     std::string error;
     bool recoverable=false;
     PetscInt domain_rejections=0;
@@ -280,7 +282,10 @@ struct Context {
         EONSIM_PETSC(VecGetArrayWrite(r,&residual));
         std::fill_n(residual,layout.owned,0.);
         EONSIM_PETSC(VecRestoreArrayWrite(r,&residual));
-        if(j) EONSIM_PETSC(MatZeroEntries(j));
+        if(j) {
+            if(coo_values) std::fill(coo_values->begin(),coo_values->end(),0.);
+            else EONSIM_PETSC(MatZeroEntries(j));
+        }
         int failed=0, any_failed=0;
         error.clear(); recoverable=false;
         const auto callback_begin=std::chrono::steady_clock::now();
@@ -294,7 +299,16 @@ struct Context {
         const double sync_time=std::chrono::duration<double>(assembly_begin-sync_begin).count();
         // 被拒试探点可能已留下远程插入；先共同完成部分装配，清空 stash，下一次评价才能重新开始。
         EONSIM_PETSC(VecAssemblyBegin(r)); EONSIM_PETSC(VecAssemblyEnd(r));
-        if(j) { EONSIM_PETSC(MatAssemblyBegin(j,MAT_FINAL_ASSEMBLY)); EONSIM_PETSC(MatAssemblyEnd(j,MAT_FINAL_ASSEMBLY)); }
+        if(j) {
+            if(coo_values) {
+                // COO is collective. A rank-local domain error must be synchronized first;
+                // a rejected callback never publishes its partial matrix buffer.
+                if(!any_failed) EONSIM_PETSC(MatSetValuesCOO(j,coo_values->data(),INSERT_VALUES));
+            } else {
+                EONSIM_PETSC(MatAssemblyBegin(j,MAT_FINAL_ASSEMBLY));
+                EONSIM_PETSC(MatAssemblyEnd(j,MAT_FINAL_ASSEMBLY));
+            }
+        }
         const auto constraint_begin=std::chrono::steady_clock::now();
         const double assembly_time=std::chrono::duration<double>(constraint_begin-assembly_begin).count();
         if(any_failed) {
@@ -364,11 +378,33 @@ NonlinearSystem::NonlinearSystem(MPI_Comm comm,const AlgebraLayout& l)
     EONSIM_PETSC(MatSetOption(matrix_.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE));
     EONSIM_PETSC(MatSetOption(matrix_.get(),MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE));
 }
+void NonlinearSystem::set_jacobian_coo(const std::vector<PetscInt>& rows,const std::vector<PetscInt>& columns)
+{
+    int invalid=coo_enabled_||solve_started_||rows.size()!=columns.size(),any_invalid=0;
+    const auto limit=static_cast<std::uintmax_t>(std::numeric_limits<PetscCount>::max());
+    if(rows.size()>limit-static_cast<std::uintmax_t>(layout_.owned) ||
+       rows.size()>coo_values_.max_size()-static_cast<std::size_t>(layout_.owned)) invalid=1;
+    for(auto row:rows) if(row<0||row>=layout_.global) invalid=1;
+    for(auto column:columns) if(column<0||column>=layout_.global) invalid=1;
+    MPI_Allreduce(&invalid,&any_invalid,1,MPI_INT,MPI_MAX,communicator_);
+    if(any_invalid) throw std::runtime_error("Invalid COO Jacobian pattern or configuration after first solve");
+    // PETSc may reorder the index arrays. Never expose those mutated arrays to the callback.
+    auto i=rows,j=columns;
+    for(PetscInt row=layout_.begin;row<layout_.begin+layout_.owned;++row) {
+        i.push_back(row); j.push_back(row);
+    }
+    coo_values_.assign(i.size(),0.);
+    EONSIM_PETSC(MatSetPreallocationCOO(matrix_.get(),static_cast<PetscCount>(i.size()),i.data(),j.data()));
+    EONSIM_PETSC(MatSetOption(matrix_.get(),MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE));
+    EONSIM_PETSC(MatSetOption(matrix_.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE));
+    coo_enabled_=true;
+}
 NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     const std::vector<double>& initial,const std::vector<PetscInt>& constraints,
     const std::vector<double>& prescribed,const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble)
 {
     const auto setup_begin=std::chrono::steady_clock::now();
+    solve_started_=true;
     const auto comm=communicator_;
     const auto& l=layout_;
     auto& x=solution_; auto& r=residual_; auto& scratch=scratch_; auto& j=matrix_;
@@ -385,7 +421,7 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         a[constraints[i]-l.begin]=prescribed[i];
     }
     EONSIM_PETSC(VecRestoreArray(x.get(),&a));
-    Context context{comm,l,constraints,prescribed,assemble,acceptance,scratch.get(),local_trial_,{}};
+    Context context{comm,l,constraints,prescribed,assemble,acceptance,scratch.get(),local_trial_,coo_enabled_?&coo_values_:nullptr,{}};
     EONSIM_PETSC(SNESCreate(comm,snes.put()));
     EONSIM_PETSC(SNESSetFunction(snes.get(),r.get(),function,&context));
     EONSIM_PETSC(SNESSetJacobian(snes.get(),j.get(),j.get(),jacobian,&context));

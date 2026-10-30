@@ -204,6 +204,22 @@ solver:
 
 ## P2 独立流体
 
+固定网格独立流体可用 `-fluid_coo` 选择缓存 COO Jacobian 装配：
+
+```bash
+./build/release/eonsim -case cases/fluid/transient.yaml -fluid_coo -solver_report
+```
+
+默认仍逐单元调用 `MatSetValues`。COO 在每个 `NonlinearSystem` 生命周期开始时准备一次
+本地单元贡献图，后续 Newton、时间步及重试只更新数值；PETSc 汇总重复坐标和远程行贡献。
+残量、边界载荷、约束、字段验收及原始反力使用原路径。此选项仅用于独立固定网格流体，
+FSI、给定运动 ALE 和其它物理入口会明确拒绝。两种装配方式可交换同分区 checkpoint。
+
+每 rank 的 `fluid_coo_plan` 报告贡献条目、持久数值缓冲字节数及一次性准备耗时；
+`value_bytes` 不含 PETSc 内部图/通信缓存及准备阶段的临时索引数组。该路径需要额外内存，
+是否更快取决于规模、分区和后端；[HPC-02 记录](docs/research/FLUID_COO_ASSEMBLY_2026-10-30.md)
+给出实际验证、配对测量与限制，不承诺 GPU 或大规模扩展性。
+
 `cases/fluid/{stokes,steady,transient,traction}.yaml` 可直接通过 `-case` 运行；
 MPI 运行复用 P1 的 `-prepare` / `-partition`。速度/压力节点交错，
 SNES + SuperLU_DIST 为当前小算例基线，PETSc `-snes_*`、`-ksp_*`、`-pc_*` 可覆盖默认值。

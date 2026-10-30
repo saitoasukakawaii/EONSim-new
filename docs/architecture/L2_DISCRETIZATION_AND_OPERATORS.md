@@ -50,6 +50,32 @@ FSI 阶段必须增加已明确需要的接口运动学映射：弹性界面速�
 
 ## 求解 operator 与预条件器各有职责
 
+### 独立流体的可选固定 COO Jacobian
+
+`-fluid_coo` 只在固定网格独立流体中启用。`NonlinearSystem::set_jacobian_coo` 在首次
+solve 前 collective 调用一次，接收本 rank 的全局行/列贡献序列，允许重复项、远程行和空序列。
+索引范围及行列长度在准备阶段共同检查；系统额外保留 owned 对角项，以支持仅有约束的行。
+PETSc 可以重排准备数组，因此驱动向其传入副本，回调始终使用原始贡献次序。
+拓扑、分区或代数编号变化必须重建系统；当前选项不涉及 FSI/ALE、在线重分区或动态稀疏图。
+
+COO 回调看到非空 Mat 时只填借用的 `jacobian_coo_values()` 数值区，不调用矩阵插入或
+COO collective。驱动在每次 Jacobian 评价前清零整个缓冲；所有 rank 完成局部评价并汇总
+错误后，才用 `MatSetValuesCOO(..., INSERT_VALUES)` 共同覆盖矩阵。该操作仍对重复项求和，
+同时恢复上次约束替换前的物理矩阵数值，然后再执行同一 `MatZeroRows`。
+失败评价先排空残量 Vec stash，不发布部分 COO 矩阵；原有 domain-error、重试和共同状态
+提交规则保持不变。回调不得保存/提交历史，残量-only 评价不触碰 COO 数值。
+
+普通路径的 `assembly_finalize_seconds` 包含 Vec/Mat 最终装配；COO 路径改为包含 Vec
+最终装配及集体 COO 数值更新。`callback_seconds` 仍包括局部物理计算和残量插入，COO
+下还包含切线缓冲写入。`fluid_element_report.insert_seconds` 在 COO 下测量 Vec 插入及
+局部切线复制，**不包含**后续 COO collective。这些指标不可称为纯通信成本，也不可通过
+两种路径的 insert 时间直接推导总加速。一次性图准备在 solve/这些阶段计时之外，单独记录
+在 `fluid_coo_plan.setup_seconds`，端到端墙钟包括该准备成本。
+
+此扩展采用 PETSc 的[固定 COO 图](https://petsc.org/release/manualpages/Mat/MatSetPreallocationCOO/)
+和[批量数值更新](https://petsc.org/release/manualpages/Mat/MatSetValuesCOO/)，不新增另一套 MPI
+贡献累加逻辑。数值/恢复验收及实测范围见 [HPC-02](../research/FLUID_COO_ASSEMBLY_2026-10-30.md)。
+
 在接口语义上区分 `J_op`（Krylov 使用的 Jacobian 作用）和 `P_mat`（构造预条件的矩阵）；首版二者可就是同一个 Mat。后续采用 matrix-free 时，可保留低阶/简化系数 assembled 预条件矩阵，无需强求完整 Jacobian 存储。近似矩阵仍须满足布局、约束、压力规范和尺度的一致性。
 
 多物理残量按字段报告缩放后的收敛量；温度、速度、压力、位移的原始数值不能直接混成一个无量纲意义不明的总范数。首版在 case 中明确各字段特征尺度或绝对/相对容差，不开发通用单位推理器。
