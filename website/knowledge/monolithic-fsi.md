@@ -7,8 +7,8 @@
 $$
 \boldsymbol R(\boldsymbol x)=
 \begin{bmatrix}
-\boldsymbol R_f(\boldsymbol u,p,\boldsymbol d)\\
-\boldsymbol R_s(\boldsymbol d,\boldsymbol u)\\
+\boldsymbol R_f(\boldsymbol u,p,\boldsymbol d)\
+\boldsymbol R_s(\boldsymbol d,\boldsymbol u)\
 \boldsymbol R_\Gamma(\boldsymbol u,\boldsymbol d)
 \end{bmatrix}
 =\boldsymbol 0.
