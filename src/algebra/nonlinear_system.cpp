@@ -29,10 +29,22 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
     PetscCall(KSPGetOptionsPrefix(ksp,&prefix)); PetscCall(KSPGetConvergedReason(ksp,&reason));
     PetscCall(PCGetFailedReason(pc,&failure)); PetscCall(KSPGetIterationNumber(ksp,&iterations));
     PetscCall(KSPGetResidualNorm(ksp,&norm)); PetscCall(KSPGetNormType(ksp,&norm_type));
+    // KSPGetOperators can create an absent matrix: inspect presence before borrowing it.
+    PetscBool operator_set=PETSC_FALSE;
+    PetscInt rows=-1,columns=-1,local_rows=-1,local_columns=-1;
+    PetscCall(KSPGetOperatorsSet(ksp,&operator_set,nullptr));
+    if(operator_set) {
+        Mat matrix=nullptr;
+        PetscCall(KSPGetOperators(ksp,&matrix,nullptr));
+        PetscCall(MatGetSize(matrix,&rows,&columns));
+        PetscCall(MatGetLocalSize(matrix,&local_rows,&local_columns));
+    }
     out<<"solver_node rank="<<rank<<" path="<<path<<" prefix="<<(prefix&&*prefix?prefix:"-")
        <<" ksp="<<(kt?kt:"unset")<<" pc="<<(pt?pt:"unset")
        <<" ksp_reason="<<reason<<" ksp_reason_name="<<KSPConvergedReasons[reason]
        <<" pc_reason="<<failure<<" pc_reason_name="<<PCFailedReasons[failure]
+       <<" operator_set="<<operator_set<<" operator_rows="<<rows<<" operator_columns="<<columns
+       <<" operator_local_rows="<<local_rows<<" operator_local_columns="<<local_columns
        <<" last_iterations="<<iterations<<" reported_norm="<<norm<<" norm_type="<<norm_type<<'\n';
     if(!pt) return PETSC_SUCCESS;
     std::vector<std::pair<std::string,KSP>> children;
