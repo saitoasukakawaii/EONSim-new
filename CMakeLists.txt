@@ -131,6 +131,9 @@ if(BUILD_TESTING)
     target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
     add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME profile_log_validation
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_profile_validation.py")
+    set_tests_properties(profile_log_validation PROPERTIES TIMEOUT 30)
     add_test(NAME fluid_element_report
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fluid_element_report.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
