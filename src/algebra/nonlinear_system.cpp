@@ -268,6 +268,7 @@ struct Context {
     bool recoverable=false;
     PetscInt domain_rejections=0;
     double assembly_seconds=0,ghost_seconds=0;
+    double callback_seconds=0,failure_sync_seconds=0,assembly_finalize_seconds=0,constraint_seconds=0;
     void evaluate(Vec x, Vec r, Mat j, bool constrain) {
         const auto begin=std::chrono::steady_clock::now();
         local_values(x,values);
@@ -282,13 +283,20 @@ struct Context {
         if(j) EONSIM_PETSC(MatZeroEntries(j));
         int failed=0, any_failed=0;
         error.clear(); recoverable=false;
+        const auto callback_begin=std::chrono::steady_clock::now();
         try { assemble(values,r,j); }
         catch(const StepRejected& e) { error=e.what(); failed=1; }
         catch(const std::exception& e) { error=e.what(); failed=2; }
+        const auto sync_begin=std::chrono::steady_clock::now();
+        const double callback_time=std::chrono::duration<double>(sync_begin-callback_begin).count();
         MPI_Allreduce(&failed,&any_failed,1,MPI_INT,MPI_MAX,comm);
+        const auto assembly_begin=std::chrono::steady_clock::now();
+        const double sync_time=std::chrono::duration<double>(assembly_begin-sync_begin).count();
         // 被拒试探点可能已留下远程插入；先共同完成部分装配，清空 stash，下一次评价才能重新开始。
         EONSIM_PETSC(VecAssemblyBegin(r)); EONSIM_PETSC(VecAssemblyEnd(r));
         if(j) { EONSIM_PETSC(MatAssemblyBegin(j,MAT_FINAL_ASSEMBLY)); EONSIM_PETSC(MatAssemblyEnd(j,MAT_FINAL_ASSEMBLY)); }
+        const auto constraint_begin=std::chrono::steady_clock::now();
+        const double assembly_time=std::chrono::duration<double>(constraint_begin-assembly_begin).count();
         if(any_failed) {
             int rank,origin; MPI_Comm_rank(comm,&rank);
             const int source=failed==any_failed?rank:std::numeric_limits<int>::max();
@@ -305,7 +313,13 @@ struct Context {
             EONSIM_PETSC(VecAssemblyBegin(r)); EONSIM_PETSC(VecAssemblyEnd(r));
             if(j) EONSIM_PETSC(MatZeroRows(j,constraints.size(),constraints.data(),1,nullptr,nullptr));
         }
-        assembly_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
+        const auto end=std::chrono::steady_clock::now();
+        // These phase totals cover only evaluations that completed successfully, like assembly_seconds.
+        callback_seconds+=callback_time;
+        failure_sync_seconds+=sync_time;
+        assembly_finalize_seconds+=assembly_time;
+        constraint_seconds+=std::chrono::duration<double>(end-constraint_begin).count();
+        assembly_seconds+=std::chrono::duration<double>(end-begin).count();
     }
 };
 PetscErrorCode function(SNES snes,Vec x,Vec r,void* pointer)
@@ -449,6 +463,9 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     const auto finalize_begin=std::chrono::steady_clock::now();
     const double solve_seconds=std::chrono::duration<double>(finalize_begin-solve_begin).count();
     const double assembly_seconds=context.assembly_seconds,ghost_seconds=context.ghost_seconds;
+    // Freeze before final physical acceptance/reaction assembly, matching existing assembly timers.
+    const double callback_seconds=context.callback_seconds,failure_sync_seconds=context.failure_sync_seconds;
+    const double assembly_finalize_seconds=context.assembly_finalize_seconds,constraint_seconds=context.constraint_seconds;
     if(error&&context.recoverable) throw StepRejected(context.error);
     if(error && !context.error.empty()) throw std::runtime_error(context.error);
     SNESConvergedReason reason; EONSIM_PETSC(SNESGetConvergedReason(snes.get(),&reason));
@@ -496,8 +513,9 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         peak=1024.0*usage.ru_maxrss;
 #endif
         double local[]={solve_seconds,assembly_seconds,ghost_seconds,memory,peak,setup_seconds,
-            schur_setup_seconds,diagnostics.solve_seconds,diagnostics.diagnostic_seconds,finalize_seconds},maxima[10]{};
-        MPI_Allreduce(local,maxima,10,MPI_DOUBLE,MPI_MAX,comm);
+            schur_setup_seconds,diagnostics.solve_seconds,diagnostics.diagnostic_seconds,finalize_seconds,
+            callback_seconds,failure_sync_seconds,assembly_finalize_seconds,constraint_seconds},maxima[14]{};
+        MPI_Allreduce(local,maxima,14,MPI_DOUBLE,MPI_MAX,comm);
         double memory_sum=0; MPI_Allreduce(&memory,&memory_sum,1,MPI_DOUBLE,MPI_SUM,comm);
         double peak_sum=0; MPI_Allreduce(&peak,&peak_sum,1,MPI_DOUBLE,MPI_SUM,comm);
         int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
@@ -509,6 +527,8 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             << " solve_seconds=" << maxima[0] << " assembly_seconds=" << maxima[1] << " ghost_seconds=" << maxima[2]
             << " setup_seconds=" << maxima[5] << " schur_setup_seconds=" << maxima[6]
             << " linear_seconds=" << maxima[7] << " linear_diagnostic_seconds=" << maxima[8]
+            << " callback_seconds=" << maxima[10] << " failure_sync_seconds=" << maxima[11]
+            << " assembly_finalize_seconds=" << maxima[12] << " constraint_seconds=" << maxima[13]
             << " finalize_seconds=" << maxima[9] << " linear_started=" << diagnostics.started
             << " linear_completed=" << diagnostics.completed
             << " rss_max_bytes=" << maxima[3] << " rss_sum_bytes=" << memory_sum

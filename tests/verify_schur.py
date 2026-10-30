@@ -91,8 +91,13 @@ def main():
             for report in reports:
                 assert report['linear_started'] == report['linear_completed'], report
                 for key in ('setup_seconds', 'schur_setup_seconds', 'linear_seconds',
-                            'linear_diagnostic_seconds', 'finalize_seconds'):
+                            'linear_diagnostic_seconds', 'finalize_seconds', 'callback_seconds',
+                            'failure_sync_seconds', 'assembly_finalize_seconds', 'constraint_seconds'):
                     assert math.isfinite(float(report[key])) and float(report[key]) >= 0, report
+                # Each phase maximum is bounded by the maximum enclosing successful assembly time.
+                # Do not sum rank maxima: they can come from different ranks.
+                for key in ('callback_seconds', 'failure_sync_seconds', 'assembly_finalize_seconds', 'constraint_seconds'):
+                    assert float(report[key]) <= float(report['assembly_seconds']) * 1.0001 + 1e-9, report
             nodes = [dict(item.split('=',1) for item in line.split()[1:])
                      for line in text.splitlines() if line.startswith('solver_node ')]
             assert {int(node['rank']) for node in nodes} == set(range(ranks)), text
