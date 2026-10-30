@@ -1,0 +1,29 @@
+Test project /mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/release
+    Start  1: coo_jacobian
+1/8 Test  #1: coo_jacobian .....................   Passed    0.33 sec
+    Start  2: coo_jacobian_mpi2
+2/8 Test  #2: coo_jacobian_mpi2 ................   Passed    0.35 sec
+    Start  3: coo_jacobian_mpi4
+3/8 Test  #3: coo_jacobian_mpi4 ................   Passed    0.38 sec
+    Start  6: solver_failures
+4/8 Test  #6: solver_failures ..................   Passed    0.33 sec
+    Start  7: solver_failures_mpi
+5/8 Test  #7: solver_failures_mpi ..............***Timeout  60.06 sec
+linear_residual_unavailable solve=1 reason=unconverged
+solver_node rank=0 path=root prefix=- ksp=gmres pc=none ksp_reason=-3 ksp_reason_name=DIVERGED_ITS pc_reason=0 pc_reason_name=FACTOR_NOERROR operator_set=1 operator_rows=2 operator_columns=2 operator_local_rows=1 operator_local_columns=1 last_iterations=0 reported_norm=2.99573227355399 norm_type=1
+solver_node rank=1 path=root prefix=- ksp=gmres pc=none ksp_reason=-3 ksp_reason_name=DIVERGED_ITS pc_reason=0 pc_reason_name=FACTOR_NOERROR operator_set=1 operator_rows=2 operator_columns=2 operator_local_rows=1 operator_local_columns=1 last_iterations=0 reported_norm=2.99573227355399 norm_type=1
+
+    Start 10: nonlinear_acceptance
+6/8 Test #10: nonlinear_acceptance .............   Passed    0.34 sec
+    Start 11: nonlinear_acceptance_mpi
+7/8 Test #11: nonlinear_acceptance_mpi .........   Passed    0.34 sec
+    Start 18: fluid_coo_verification
+8/8 Test #18: fluid_coo_verification ...........   Passed   36.50 sec
+
+88% tests passed, 1 tests failed out of 8
+
+Total Test time (real) =  98.68 sec
+
+The following tests FAILED:
+	  7 - solver_failures_mpi (Timeout)
+Errors while running CTest

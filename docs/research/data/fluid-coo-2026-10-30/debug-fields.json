@@ -1,0 +1,1448 @@
+{
+  "max_field_delta": 5.190625707029994e-12,
+  "runs": [
+    {
+      "label": "stokes-r1-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/stokes.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r1-partition",
+        "-parts",
+        "1"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "stokes-r1-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/stokes.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r1-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "stokes-r1-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/stokes.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r1-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "stokes-r2-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/stokes.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r2-partition",
+        "-parts",
+        "2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "stokes-r2-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/stokes.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r2-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "stokes-r2-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/stokes.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r2-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "stokes-r4-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/stokes.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r4-partition",
+        "-parts",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "stokes-r4-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/stokes.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r4-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "stokes-r4-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/stokes.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/stokes-r4-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "steady-r1-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/steady.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r1-partition",
+        "-parts",
+        "1"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "steady-r1-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/steady.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r1-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "steady-r1-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/steady.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r1-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "steady-r2-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/steady.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r2-partition",
+        "-parts",
+        "2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "steady-r2-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/steady.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r2-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "steady-r2-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/steady.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r2-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "steady-r4-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/steady.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r4-partition",
+        "-parts",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "steady-r4-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/steady.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r4-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "steady-r4-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/steady.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/steady-r4-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r1-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-partition",
+        "-parts",
+        "1"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r1-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r1-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r1-schur",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-partition",
+        "-fluid_coo",
+        "-schur_pc",
+        "-linear_report",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-schur.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r1-restart0-save",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-partition",
+        "-checkpoint",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-restart0-checkpoint",
+        "-stop_after",
+        "3",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-restart0-partial.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r1-restart0",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-partition",
+        "-fluid_coo",
+        "-restart",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-restart0-checkpoint",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-restart0.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r1-restart1-save",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-partition",
+        "-fluid_coo",
+        "-checkpoint",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-restart1-checkpoint",
+        "-stop_after",
+        "3",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-restart1-partial.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r1-restart1",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-partition",
+        "-restart",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-restart1-checkpoint",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-restart1.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r1-failure",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-partition",
+        "-fluid_coo",
+        "-snes_max_it",
+        "0",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r1-failed.vtu"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "transient-r2-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-partition",
+        "-parts",
+        "2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r2-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r2-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r2-schur",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-partition",
+        "-fluid_coo",
+        "-schur_pc",
+        "-linear_report",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-schur.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r2-restart0-save",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-partition",
+        "-checkpoint",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-restart0-checkpoint",
+        "-stop_after",
+        "3",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-restart0-partial.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r2-restart0",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-partition",
+        "-fluid_coo",
+        "-restart",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-restart0-checkpoint",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-restart0.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r2-restart1-save",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-partition",
+        "-fluid_coo",
+        "-checkpoint",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-restart1-checkpoint",
+        "-stop_after",
+        "3",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-restart1-partial.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r2-restart1",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-partition",
+        "-restart",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-restart1-checkpoint",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-restart1.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r2-failure",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-partition",
+        "-fluid_coo",
+        "-snes_max_it",
+        "0",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r2-failed.vtu"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "transient-r4-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-partition",
+        "-parts",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r4-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r4-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r4-schur",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-partition",
+        "-fluid_coo",
+        "-schur_pc",
+        "-linear_report",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-schur.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r4-restart0-save",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-partition",
+        "-checkpoint",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-restart0-checkpoint",
+        "-stop_after",
+        "3",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-restart0-partial.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r4-restart0",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-partition",
+        "-fluid_coo",
+        "-restart",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-restart0-checkpoint",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-restart0.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r4-restart1-save",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-partition",
+        "-fluid_coo",
+        "-checkpoint",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-restart1-checkpoint",
+        "-stop_after",
+        "3",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-restart1-partial.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r4-restart1",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-partition",
+        "-restart",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-restart1-checkpoint",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-restart1.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "transient-r4-failure",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/transient.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-partition",
+        "-fluid_coo",
+        "-snes_max_it",
+        "0",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/transient-r4-failed.vtu"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "rotated_channel-r1-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r1-partition",
+        "-parts",
+        "1"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rotated_channel-r1-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r1-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rotated_channel-r1-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r1-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rotated_channel-r1-schur",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r1-partition",
+        "-fluid_coo",
+        "-schur_pc",
+        "-linear_report",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r1-schur.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rotated_channel-r2-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r2-partition",
+        "-parts",
+        "2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rotated_channel-r2-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r2-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rotated_channel-r2-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r2-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rotated_channel-r2-schur",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r2-partition",
+        "-fluid_coo",
+        "-schur_pc",
+        "-linear_report",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r2-schur.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rotated_channel-r4-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r4-partition",
+        "-parts",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rotated_channel-r4-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r4-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rotated_channel-r4-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r4-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rotated_channel-r4-schur",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/rotated_channel.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r4-partition",
+        "-fluid_coo",
+        "-schur_pc",
+        "-linear_report",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/rotated_channel-r4-schur.vtu"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "traction-r1-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/traction.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r1-partition",
+        "-parts",
+        "1"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "traction-r1-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/traction.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r1-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "traction-r1-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/traction.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r1-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "traction-r2-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/traction.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r2-partition",
+        "-parts",
+        "2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "traction-r2-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/traction.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r2-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "traction-r2-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/traction.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r2-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "traction-r4-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/traction.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r4-partition",
+        "-parts",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "traction-r4-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/traction.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r4-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "traction-r4-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fluid/traction.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/traction-r4-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "layered-r1-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r1-partition",
+        "-parts",
+        "1"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "layered-r1-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r1-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "layered-r1-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r1-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "layered-r2-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r2-partition",
+        "-parts",
+        "2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "layered-r2-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r2-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "layered-r2-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r2-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "layered-r4-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered.yaml",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r4-partition",
+        "-parts",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "layered-r4-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r4-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "layered-r4-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered.yaml",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/layered-r4-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "mean-r1-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean.json",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r1-partition",
+        "-parts",
+        "1"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "mean-r1-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean.json",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r1-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "mean-r1-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "1",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean.json",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r1-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r1-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "mean-r2-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean.json",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r2-partition",
+        "-parts",
+        "2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "mean-r2-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean.json",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r2-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "mean-r2-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "2",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean.json",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r2-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r2-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "mean-r4-prepare",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean.json",
+        "-prepare",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r4-partition",
+        "-parts",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "mean-r4-values",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean.json",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r4-values.vtu",
+        "-solver_report"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "mean-r4-coo",
+      "command": [
+        "/usr/bin/mpiexec",
+        "-n",
+        "4",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean.json",
+        "-partition",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r4-partition",
+        "-output",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/fluid_coo_verification/mean-r4-coo.vtu",
+        "-solver_report",
+        "-fluid_coo"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "poisson-unsupported",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/poisson/case.yaml",
+        "-fluid_coo"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "fsi-unsupported",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/fsi/rigid.yaml",
+        "-fluid_coo"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "ale-unsupported",
+      "command": [
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/debug/eonsim",
+        "-case",
+        "/mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/cases/motion/shear.yaml",
+        "-fluid_coo"
+      ],
+      "returncode": 1
+    }
+  ]
+}

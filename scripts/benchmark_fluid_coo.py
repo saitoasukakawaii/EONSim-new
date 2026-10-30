@@ -107,7 +107,10 @@ def main():
         result = subprocess.run(command, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         return dict(command=command, returncode=result.returncode, output=result.stdout)
     result = dict(source_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
-        source_status=metadata(['git', 'status', '--short']), executable_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),
+        # A Windows checkout used from WSL can otherwise report every CRLF file as modified.
+        # This command-local normalization does not alter repository or global Git settings.
+        source_status=metadata(['git', '-c', 'core.autocrlf=true', 'status', '--short']),
+        executable_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),
         environment=[metadata(c) for c in (['uname', '-a'], ['lscpu'], ['free', '-b'], ['c++', '--version'],
                      [args.mpiexec, '--version'], ['pkg-config', '--modversion', 'PETSc'], ['cmake', '--version'])],
         cmake_cache=(exe.parent/'CMakeCache.txt').read_text(), threads=1, cases=cases, commands=commands,

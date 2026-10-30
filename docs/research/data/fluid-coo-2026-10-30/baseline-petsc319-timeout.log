@@ -1,0 +1,67 @@
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test EONSIM_SELECTED_CBLAS_WORKS
+-- Performing Test EONSIM_SELECTED_CBLAS_WORKS - Success
+-- EONSim BLAS/LAPACK provider: OPENBLAS
+-- EONSim Level-1 kernels: GENERIC_CBLAS
+-- EONSim PETSc runtime: ON (pkg-config); root='', arch=''
+-- Found MPI_C: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so (found version "3.1") 
+-- Found MPI_CXX: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so (found version "3.1") 
+-- Found MPI: TRUE (found version "3.1") found components: C CXX 
+-- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+-- Configuring done (10.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/baseline-linux-check
+[1/27] Building CXX object CMakeFiles/eonsim_core.dir/src/mesh/fsi_domains.cpp.o
+[2/27] Building CXX object CMakeFiles/eonsim_core.dir/src/mesh/gmsh.cpp.o
+[3/27] Building CXX object CMakeFiles/eonsim_core.dir/src/fem/tet4.cpp.o
+[4/27] Building CXX object CMakeFiles/eonsim_core.dir/src/fem/boundary_geometry.cpp.o
+[5/27] Building CXX object CMakeFiles/eonsim_core.dir/src/mesh/partition.cpp.o
+[6/27] Building CXX object CMakeFiles/eonsim_core.dir/src/fem/field_layout.cpp.o
+[7/27] Building CXX object CMakeFiles/eonsim_core.dir/src/algebra/linear_system.cpp.o
+[8/27] Building CXX object CMakeFiles/eonsim_core.dir/src/core/config.cpp.o
+[9/27] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/fluid_element.cpp.o
+[10/27] Building CXX object CMakeFiles/eonsim_core.dir/src/algebra/schur_solver.cpp.o
+[11/27] Building CXX object CMakeFiles/eonsim_core.dir/src/algebra/nonlinear_system.cpp.o
+[12/27] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/fsi_element.cpp.o
+[13/27] Building CXX object CMakeFiles/eonsim_core.dir/src/fem/reduced_layout.cpp.o
+[14/27] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/motion.cpp.o
+[15/27] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/hyperelastic.cpp.o
+[16/27] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/solid_element.cpp.o
+[17/27] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/ale.cpp.o
+[18/27] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/fsi.cpp.o
+[19/27] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/solid.cpp.o
+[20/27] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/fluid_boundary.cpp.o
+[21/27] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/poisson.cpp.o
+[22/27] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/fluid.cpp.o
+[23/27] Building CXX object CMakeFiles/eonsim_core.dir/src/io/vtu.cpp.o
+[24/27] Building CXX object CMakeFiles/eonsim_core.dir/src/io/checkpoint.cpp.o
+[25/27] Building CXX object CMakeFiles/verify_solver_failures.dir/tests/verify_solver_failures.cpp.o
+[26/27] Linking CXX static library libeonsim_core.a
+[27/27] Linking CXX executable verify_solver_failures
+Internal ctest changing into directory: /mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/baseline-linux-check
+Test project /mnt/c/Users/tfblab633/.codex/visualizations/2026/10/30/01a18c9f-d5b2-7363-b7c2-0ba9692b8b9b/EONSim-new/build/baseline-linux-check
+    Start 4: solver_failures_mpi
+1/1 Test #4: solver_failures_mpi ..............***Timeout  60.06 sec
+linear_residual_unavailable solve=1 reason=unconverged
+solver_node rank=0 path=root prefix=- ksp=gmres pc=none ksp_reason=-3 ksp_reason_name=DIVERGED_ITS pc_reason=0 pc_reason_name=FACTOR_NOERROR operator_set=1 operator_rows=2 operator_columns=2 operator_local_rows=1 operator_local_columns=1 last_iterations=0 reported_norm=2.99573227355399 norm_type=1
+solver_node rank=1 path=root prefix=- ksp=gmres pc=none ksp_reason=-3 ksp_reason_name=DIVERGED_ITS pc_reason=0 pc_reason_name=FACTOR_NOERROR operator_set=1 operator_rows=2 operator_columns=2 operator_local_rows=1 operator_local_columns=1 last_iterations=0 reported_norm=2.99573227355399 norm_type=1
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =  60.07 sec
+
+The following tests FAILED:
+	  4 - solver_failures_mpi (Timeout)
+Errors while running CTest
