@@ -50,7 +50,8 @@ public:
  * 所有正 SNES reason 都需通过最终重新装配的字段验收，否则抛 StepRejected，不返回 trial。
  * assemble 抛 StepRejected 时先完成部分装配以排空远程插入，再用 SNES domain-error 协议拒绝试探点。
  * 默认 Newton 回溯线搜索可尝试较小步；最终未收敛才交给时间驱动缩步。线性/PC 故障抛普通异常。
- * StepRejected 后可用相同布局重新 solve；每次覆盖 trial、重算初始范数和矩阵数值。
+ * 已共同传播的callback错误或StepRejected后可用相同布局重新solve；每次覆盖trial、重算初始范数和矩阵数值。
+ * fatal callback引起PETSc提前返回时更换trial Vec以隔离遗留只读锁；COO矩阵/图不重建。
  * config、约束值及回调只借用到本次调用结束；约束行可变化，但必须包含在既有图中。
  */
     NonlinearResult solve(const SolverConfig& config, const std::vector<double>& initial,

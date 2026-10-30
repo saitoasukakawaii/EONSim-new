@@ -181,6 +181,8 @@ def main():
             if len(matches) != 1 or str(prefix/'lib') not in matches[0]:
                 raise RuntimeError(f'MPI/PETSc linkage outside locked prefix: {name}')
         run([str(prefix/'bin/mpiexec'), '-n', '2', str(build/'verify_runtime')], 'runtime-preflight', 30)
+        if a.selection != 'mpi-failure':
+            run([str(prefix/'bin/mpiexec'), '-n', '4', str(build/'verify_runtime')], 'runtime-preflight-4', 30)
         select = [] if a.selection == 'all' else ['-L', '^'+a.selection+'$']
         _, inventory = run(['ctest', '--test-dir', str(build), '--show-only=json-v1', *select], 'test-inventory', 30)
         tests = json.loads(inventory.read_text())['tests']
@@ -200,6 +202,10 @@ def main():
             failed = case.find('failure') is not None
             skipped = case.find('skipped') is not None or case.get('status') in ('notrun', 'disabled')
             status = 'skipped' if skipped else 'failed' if failed else 'passed'
+            if status != 'passed' and os.environ.get('GITHUB_ACTIONS') == 'true':
+                detail = '\n'.join((case.findtext('system-out') or ET.tostring(case, encoding='unicode')).splitlines()[-45:])
+                detail = detail.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+                print(f'::error title=EONSim test {name}::{detail}', flush=True)
             summary['tests'].append(dict(name=name, status=status,
                 ranks=[int(x.removeprefix('rank-')) for x in props.get('LABELS', []) if x.startswith('rank-')],
                 exit_code=0 if status=='passed' else None,

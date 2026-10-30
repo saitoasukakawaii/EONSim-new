@@ -22,6 +22,8 @@ unset PETSC_ARCH PYTHONOPTIMIZE
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 # CTest runs one test at a time; some existing tests explicitly need four ranks.
 export OMPI_MCA_rmaps_base_oversubscribe=1
+# OpenMPI 5 delegates mapping to PRRTE; the old OMPI variable is ignored there.
+export PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe
 # Compiler activation supplies optimized CXXFLAGS: let existing presets choose flags.
 unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
 exec python3 "$root/scripts/cloud/validate.py" --mode "$mode" --selection "$selection" --version "$version"
