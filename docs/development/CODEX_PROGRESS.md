@@ -49,8 +49,8 @@
 
 ## 最近一次检查点
 
-- 当前焦点：Milestone 1 持续研发与知识生产基础设施。
-- 下一任务：PETSc NonlinearSession 生命周期审计。
+- 当前焦点：Milestone 1 持续研发与知识生产基础设施；PR #3 已创建，等待人工审查和合并。
+- 下一任务：PR #3 合并后领取 SOLVER-01，进行 PETSc NonlinearSession 生命周期审计。
 - 下一任务边界：先分析 src/algebra/linear_system.cpp、src/algebra/nonlinear_system.cpp 及调用链，记录 Vec/Mat/SNES/KSP/PC 的创建、更新和销毁时机；不在审计任务中修改求解器实现。
 - 验收：提供源码位置、对象生命周期表、每时间步/每 Newton 迭代的分配与装配路径、可能的复用边界、正确性风险和是否值得优化的结论。
 
