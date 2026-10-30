@@ -36,6 +36,22 @@ def parse(text, marker):
     return reports
 
 
+def verify_solid_outputs(work, ranks_list):
+    """Validate the separate elastic FSI solid output, including repeat and rank agreement."""
+    baseline=None
+    checks=[]
+    for ranks in ranks_list:
+        repeat_reference=None
+        for repeat in range(3):
+            output=work/f'elastic-r{ranks}-n{repeat}_solid.vtu'
+            current=owned_fields(output,ranks)
+            if baseline is None:baseline=current
+            if repeat_reference is None:repeat_reference=current
+            checks.append(dict(ranks=ranks,repeat=repeat,rank_delta=delta(baseline,current),
+                               repeat_delta=delta(repeat_reference,current)))
+    return checks
+
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--executable', type=Path, required=True)
@@ -83,7 +99,8 @@ def main():
                     samples=[statistics.mean(s[key] for s in (r['steps'][:1] if phase=='first' else r['steps'][1:])) for r in group]
                     metrics[key]=dict(median=statistics.median(samples),minimum=min(samples),maximum=max(samples))
                 summary.append(dict(case=name,ranks=ranks,phase=phase,metrics=metrics))
-    result=dict(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),executable_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),cases=cases,commands=commands,runs=runs,summary=summary,cpu_max=Path('/sys/fs/cgroup/cpu.max').read_text().strip(),memory_max=Path('/sys/fs/cgroup/memory.max').read_text().strip(),threads=1)
+    solid_checks=verify_solid_outputs(work,a.ranks)
+    result=dict(solid_checks=solid_checks,source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),executable_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),cases=cases,commands=commands,runs=runs,summary=summary,cpu_max=Path('/sys/fs/cgroup/cpu.max').read_text().strip(),memory_max=Path('/sys/fs/cgroup/memory.max').read_text().strip(),threads=1)
     (work/'results.json').write_text(json.dumps(result,indent=2)+'\n');print(f'PASS: {len(runs)} runs, {10*len(runs)} accepted steps; summaries in results.json')
 
 
