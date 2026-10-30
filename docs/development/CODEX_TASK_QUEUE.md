@@ -59,4 +59,3 @@
 5. 新增任务必须有目标、依赖和可观察验收标准。
 
 SOLVER-01：审计报告位于 docs/research/PETSC_LIFECYCLE_AUDIT_2026-10-30.md。结论为需要额外测量；SOLVER-02 保持 blocked，尚无重复 setup 为瓶颈的性能证据。
-
