@@ -16,7 +16,8 @@
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
 | HUB-01 | P0 | done | 持续研发状态文件、文章模板和知识采集 Skill | 本 PR；文件可用、链接有效、网站构建通过 |
-| SOLVER-01 | P1 | review | PETSc NonlinearSession 对象生命周期审计 | 源码调用链、对象生命周期表、setup/assemble/solve 计时方案、复用风险和是否实施的建议；本任务不改求解器 |
+| SOLVER-01 | P1 | done | PETSc NonlinearSession 对象生命周期审计 | 源码调用链、对象生命周期表、setup/assemble/solve 计时方案、复用风险和是否实施的建议；本任务不改求解器 |
+| SOLVER-01B | P1 | review | 固定 transient 案例的诊断开销基线（依赖 SOLVER-01 已合并） | 1/2 rank、每组至少 3 次、保存命令与原始日志；固定 rank 输出一致；明确计时边界，不将差异当作持久化收益 |
 | SOLVER-02 | P1 | blocked | 若 SOLVER-01 证明存在重复分配且可安全复用，再设计 NonlinearSession 最小实现 | 明确 Vec/Mat/SNES/KSP/PC/IS/context 生命周期；保持数值结果一致；提供性能基线 |
 | SOLVER-03 | P2 | deferred | Newton 变量/方程一致缩放审查与规格 | 推导缩放后的未知量、残量、Jacobian、约束、线搜索和预条件器变换；先形成规格再实现 |
 | SOLVER-04 | P2 | deferred | Schur/GAMG 网格规模行为分析 | 记录网格、DOF、块迭代数、粗层、内存和耗时；不预设网格无关性 |
@@ -58,3 +59,4 @@
 5. 新增任务必须有目标、依赖和可观察验收标准。
 
 SOLVER-01：审计报告位于 docs/research/PETSC_LIFECYCLE_AUDIT_2026-10-30.md。结论为需要额外测量；SOLVER-02 保持 blocked，尚无重复 setup 为瓶颈的性能证据。
+

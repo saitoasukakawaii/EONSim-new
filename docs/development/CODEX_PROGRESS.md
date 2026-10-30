@@ -21,13 +21,11 @@
 | 网站框架与初始知识栏目 | 已合并 | VitePress 构建由 CI 验证 |
 | Codex 跨任务进度管理 | 已合并（PR #3） | 通过本文件、任务队列和会话日志恢复 |
 | 知识文章模板与采集流程 | 已合并（PR #3） | Codex 只生成公开草稿，人工审核后发布 |
-| PETSc NonlinearSession 优化 | 待审计 | 先确认对象生命周期和实际性能瓶颈，再决定是否实现 |
+| PETSc NonlinearSession 优化 | 已审计、待细分测量 | 先确认对象生命周期和实际性能瓶颈，再决定是否实现 |
 
 ## 当前焦点
 
-**Milestone 1：建立持续研发与知识生产工作流。**
-
-本 PR 为该工作流建立状态文件、文章模板和 Codex Skill。合并后，下一项软件研发任务是审计 PETSc 非线性求解对象的生命周期，不直接预设需要重构。
+SOLVER-01 审计已合并；SOLVER-01B 提交诊断开销重复测量基线。下一步根据测量缺口补充构造/析构与 PC setup 分离计时，暂不改写求解器。
 
 ## 最近完成
 
@@ -49,10 +47,7 @@
 
 ## 最近一次检查点
 
-- 当前焦点：Milestone 1 持续研发与知识生产基础设施；PR #3 已创建，等待人工审查和合并。
-- 下一任务：PR #3 合并后领取 SOLVER-01，进行 PETSc NonlinearSession 生命周期审计。
-- 下一任务边界：先分析 src/algebra/linear_system.cpp、src/algebra/nonlinear_system.cpp 及调用链，记录 Vec/Mat/SNES/KSP/PC 的创建、更新和销毁时机；不在审计任务中修改求解器实现。
-- 验收：提供源码位置、对象生命周期表、每时间步/每 Newton 迭代的分配与装配路径、可能的复用边界、正确性风险和是否值得优化的结论。
+PR #4 已合并，主线 c1c7508。SOLVER-01 完成；SOLVER-01B 在 perf/nonlinear-setup-baseline 分支完成固定案例重复测量，等待 PR 审核。细节见 docs/research/NONLINEAR_SETUP_BASELINE_2026-10-30.md；下一步为细分构造析构/PC setup 测量，SOLVER-02 尚不满足实现前提。
 
 ## 更新规则
 
