@@ -52,6 +52,20 @@ def verify_solid_outputs(work, ranks_list):
     return checks
 
 
+def detailed_statistics(runs):
+    def stats(values):
+        return dict(median=statistics.median(values),minimum=min(values),maximum=max(values))
+    per_run=[dict(case=r['case'],ranks=r['ranks'],repeat=r['repeat'],
+                  metrics={k:stats([s[k] for s in r['steps']]) for k in TIMERS}) for r in runs]
+    per_step=[]
+    for case,ranks in sorted({(r['case'],r['ranks']) for r in runs}):
+        group=[r for r in runs if r['case']==case and r['ranks']==ranks]
+        for step in range(10):
+            per_step.append(dict(case=case,ranks=ranks,step=step+1,
+                                 metrics={k:stats([r['steps'][step][k] for r in group]) for k in TIMERS}))
+    return dict(per_run=per_run,per_step=per_step)
+
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--executable', type=Path, required=True)
@@ -100,7 +114,7 @@ def main():
                     metrics[key]=dict(median=statistics.median(samples),minimum=min(samples),maximum=max(samples))
                 summary.append(dict(case=name,ranks=ranks,phase=phase,metrics=metrics))
     solid_checks=verify_solid_outputs(work,a.ranks)
-    result=dict(solid_checks=solid_checks,source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),executable_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),cases=cases,commands=commands,runs=runs,summary=summary,cpu_max=Path('/sys/fs/cgroup/cpu.max').read_text().strip(),memory_max=Path('/sys/fs/cgroup/memory.max').read_text().strip(),threads=1)
+    result=dict(detailed_statistics=detailed_statistics(runs),solid_checks=solid_checks,source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),executable_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),cases=cases,commands=commands,runs=runs,summary=summary,cpu_max=Path('/sys/fs/cgroup/cpu.max').read_text().strip(),memory_max=Path('/sys/fs/cgroup/memory.max').read_text().strip(),threads=1)
     (work/'results.json').write_text(json.dumps(result,indent=2)+'\n');print(f'PASS: {len(runs)} runs, {10*len(runs)} accepted steps; summaries in results.json')
 
 
