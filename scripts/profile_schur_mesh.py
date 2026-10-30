@@ -18,6 +18,10 @@ from generate_mesh import write_mesh
 from verify_schur import fields
 
 
+PHASES = ('callback_seconds', 'failure_sync_seconds',
+          'assembly_finalize_seconds', 'constraint_seconds')
+
+
 def records(text, prefix):
     return [dict(re.findall(r'(\w+)=([^\s]+)', line)) for line in text.splitlines()
             if line.startswith(prefix + ' ')]
@@ -28,12 +32,20 @@ def parse(text, ranks):
     if len(reports) != 1 or 'solver_node_unavailable' in text:
         raise RuntimeError('Expected one complete steady solver report')
     report = reports[0]
+    required = set(PHASES) | {'assembly_seconds', 'ghost_seconds', 'domain_rejections'}
+    if not required <= report.keys():
+        raise RuntimeError('Missing assembly phase fields; rebuild the current solver')
+    if int(report['domain_rejections']) != 0:
+        raise RuntimeError('Rejected evaluations require a separate profiling study')
     for key in ('snes_reason', 'ksp_reason'):
         if int(report[key]) <= 0:
             raise RuntimeError('Unconverged solve')
     for key, value in report.items():
         if key.endswith(('_seconds', '_bytes')) and (not math.isfinite(float(value)) or float(value) < 0):
             raise RuntimeError('Invalid timing/memory measurement')
+    for key in PHASES:
+        if float(report[key]) > float(report['assembly_seconds']) * 1.0001 + 1e-9:
+            raise RuntimeError('Phase exceeds enclosing assembly time')
     if {int(n['rank']) for n in nodes} != set(range(ranks)):
         raise RuntimeError('Missing rank hierarchy')
     if not any(n['path'].endswith('/coarse') for n in nodes):
@@ -116,7 +128,8 @@ def main():
         for ranks in (1,2):
             group = [r for r in runs if r['n']==n and r['ranks']==ranks and r['mode']=='schur']
             metrics = {}
-            for key in ('solve_seconds','schur_setup_seconds','linear_seconds','rss_max_bytes','linear_iterations'):
+            for key in ('solve_seconds','schur_setup_seconds','linear_seconds','rss_max_bytes','linear_iterations',
+                        'assembly_seconds','ghost_seconds') + PHASES:
                 values = [float(r['report'][key]) for r in group]
                 metrics[key] = dict(median=statistics.median(values),minimum=min(values),maximum=max(values))
             summary.append(dict(n=n,ranks=ranks,dofs=int(group[0]['report']['dofs']),metrics=metrics,
