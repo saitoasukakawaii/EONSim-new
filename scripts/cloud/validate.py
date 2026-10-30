@@ -24,6 +24,8 @@ def resources():
     # Locate this process in each visible cgroup-v2 mount, then honor ancestors.
     group = next((line.split(':', 2)[2] for line in Path('/proc/self/cgroup').read_text().splitlines()
                   if line.startswith('0::')), None)
+    if group is None:
+        raise RuntimeError("Automatic quota detection requires cgroup v2")
     directories = set()
     if group is not None:
         for line in Path('/proc/self/mountinfo').read_text().splitlines():
@@ -107,7 +109,7 @@ def main():
     summary = dict(commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
                    dirty=bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT)),
                    mode=a.mode, selection=a.selection, petsc=a.version, platform=platform.platform(),
-                   resources=resources(), commands=[], tests=[], status='running')
+                   resources={}, commands=[], tests=[], status='running')
 
     def run(cmd, name, timeout=1800, check=True):
         start = time.monotonic()
@@ -149,6 +151,7 @@ def main():
         return code, log
 
     try:
+        summary['resources'] = resources()
         if sys.flags.optimize:
             raise RuntimeError('Python optimization disables numerical assertions; unset PYTHONOPTIMIZE')
         lock = ROOT / 'environments' / f'petsc-{a.version}-linux-64.lock'
@@ -232,6 +235,11 @@ def main():
         print(str(error), file=sys.stderr)
     finally:
         (evidence/'summary.json').write_text(json.dumps(summary, indent=2)+'\n')
+        if os.environ.get('GITHUB_ACTIONS') == 'true':
+            notice = {k: summary[k] for k in ('commit', 'mode', 'selection', 'petsc', 'status', 'resources')}
+            notice['test_counts'] = {state: sum(t['status'] == state for t in summary['tests'])
+                                     for state in ('passed', 'failed', 'skipped')}
+            print('::notice title=EONSim validation::'+json.dumps(notice).replace('%', '%25'))
     return 0 if summary['status'] == 'passed' else 1
 
 

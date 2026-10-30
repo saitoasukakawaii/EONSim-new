@@ -26,6 +26,7 @@ fi
 printf '%s  %s\n' "$sha" "$mamba" | sha256sum --check
 chmod +x "$mamba"
 export MAMBA_ROOT_PREFIX="$state/mamba"
+export CONDA_PKGS_DIRS="$state/mamba/pkgs"
 # Explicit packages include hashes. Re-running verifies the lock, then uses the cache.
 prefix="$state/petsc-$version"
 action=create
