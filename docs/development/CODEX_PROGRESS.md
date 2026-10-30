@@ -5,7 +5,7 @@
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 当前主分支基线：7f2bc51（PR #13 合并）
+- 当前主分支基线：28c60da（PR #16 合并）
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -21,11 +21,11 @@
 | Newton 缩放规格 | 已完成审查 | PR #10；可选完整坐标缩放仍 deferred |
 | Schur/GAMG 网格测量 | 已完成 | PR #11；小规模结果不外推大规模性能 |
 | 求解器层级算子尺寸 | 已实现并合并 | PR #12；Release/Debug 针对性测试通过 |
-| 非线性装配阶段计时 | 已实现并合并 | PR #13；增加 callback、错误同步、最终装配和约束阶段计时；尚无重复性能测量 |
+| 非线性装配阶段计时 | 已实现并合并 | PR #13；增加 callback、错误同步、最终装配和约束阶段计时；已有 HPC-01B/C 重复测量 |
 
 ## 当前焦点
 
-PR #13 已合并，HPC-01A 完成。HPC-01B 已完成三网格、1/2 rank 装配阶段重复测量和直接解对照，等待 PR 审核。完整 HPC-01 仍缺纯 kernel/插入分离与目标规模证据。
+PR #16 已合并，HPC-01B 完成。按用户继续上一轮候选任务的指示，HPC-01C 已完成 fluid/elastic 1/2/4 rank 多时间步装配测量，等待 PR 审核。纯 kernel/插入分离仍未完成。
 
 ## 最近完成
 
@@ -41,7 +41,7 @@ PR #13 已合并，HPC-01A 完成。HPC-01B 已完成三网格、1/2 rank 装配
 
 ## 当前检查点
 
-基线 7f2bc51；分支 perf/assembly-phase-baseline；脚本提交 d1708e1。6 个直接参考、18 个 Schur 样本均通过；原始日志及结果在 docs/research/data/assembly-phase-2026-10-30。下一 Task 先检查 PR 状态，再按目标规模决定是否补装配事件测量；不从本轮小样本直接调参。
+基线 28c60da；分支 perf/transient-assembly-profile。18次运行、180步通过；最终流体/网格及独立固体场均作跨rank检查。测量/验证/统计版本分别记录于 docs/research/data/transient-assembly-2026-10-30/results.json。下一 Task 先检查 PR；当前无新增 ready 任务，需由用户选择后续目标。
 
 ## 恢复规则
 
