@@ -5,7 +5,7 @@
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 当前主分支基线：a48de95（PR #8 合并）
+- 当前主分支基线：717b25b（PR #9 合并）
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -23,7 +23,7 @@
 
 ## 当前焦点
 
-PR #8 已合并，SOLVER-02 完成。SOLVER-05 修复重复线性求解覆盖 KSP 所有权的问题；代码与针对性验证已完成，等待独立 PR 审核。
+PR #9 已合并，SOLVER-05 完成。SOLVER-03 已完成现有实现审查、一致缩放候选规格与精确代数验证，等待 PR 审核；实际求解器缩放仍未实现。
 
 ## 最近完成
 
@@ -34,7 +34,7 @@ PR #8 已合并，SOLVER-02 完成。SOLVER-05 修复重复线性求解覆盖 KS
 
 ## 当前检查点
 
-基线 a48de95；分支 fix/linear-solve-ksp-lifetime；修复提交 c47f00d。Release 四项及 Debug 两项针对性测试通过。下一 Task 先检查本分支 PR 状态；不自动实施 NonlinearSession。
+基线 717b25b；分支 docs/newton-scaling-spec；规格与验证提交 6dc2baf。脚本验证两组尺度及两个负对照通过。下一 Task 先检查本分支 PR；SOLVER-03B 实现任务需由具体算例需求及规格审核触发。
 
 ## 恢复规则
 
