@@ -117,3 +117,15 @@
 - `cmake --build --preset debug --target verify_solver_failures --parallel 4` 成功；`ctest --preset debug -R '^solver_failures(_mpi)?$' --output-on-failure` 2/2 通过（2.28 秒）。
 - 未修改物理方程/容差/CMake/案例；未跑全套 CTest 或性能实验；新增时钟读取开销未知。失败评价的细分成本未纳入，详见契约。下一步人工审核，不能将计时接线报告为完整瓶颈结论。
 - `git diff --check`、六份 Markdown 解析/围栏/相对链接检查通过；`npm run docs:build --prefix website` 成功；草稿未进入 dist。
+
+
+## 2026-10-30 / GOAL-LOOP-04 — PR #13 后的状态同步
+
+- Base commit: 7f2bc51c5796503b8350e9a83f989b796c45729b（PR #13 merge）。
+- Objective: 将任务队列与最新主分支同步，并明确网页 Codex Cloud 的 Goal mode 可用性边界。
+- Reconciled work: PR #13 已合并；HPC-01A 阶段计时实现和 Release/Debug 针对性测试已完成。HPC-01B 设为下一项 ready 任务，执行重复 MPI 装配阶段测量。
+- Changed files: CODEX_PROGRESS.md、CODEX_TASK_QUEUE.md、CODEX_GOAL_WORKFLOW.md。
+- Implementation: 记录当前 main 基线 7f2bc51；区分 thread-scoped Goal 与 GitHub 跨 Task 状态；说明网页 composer 是否提供 /goal 需以实际命令菜单为准。
+- Tests and results: 本次仅文档状态同步；未运行 C++/PETSc/MPI 测试。PR #13 已有 Release 3 项和 Debug 2 项针对性测试结果，未运行重复性能基准。
+- Performance evidence: HPC-01B 尚未测量；PR #13 的计时接线不等于瓶颈测量。
+- Next task: HPC-01B，使用新增阶段计时对代表算例进行 1/2/4 rank 重复运行。
