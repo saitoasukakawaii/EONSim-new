@@ -5,7 +5,7 @@
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 当前主分支基线：615af36（PR #12 合并）
+- 当前主分支基线：7f2bc51（PR #13 合并）
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -23,7 +23,7 @@
 
 ## 当前焦点
 
-PR #12 已合并，SOLVER-04B 完成。HPC-01A 已增加成功评价的回调/错误同步/最终装配/约束计时，相关测试通过，等待 PR 审核。完整 HPC-01 profiling 仍未完成。
+PR #13 已合并，HPC-01A 完成。HPC-01B 已完成三网格、1/2 rank 装配阶段重复测量和直接解对照，等待 PR 审核。完整 HPC-01 仍缺纯 kernel/插入分离与目标规模证据。
 
 ## 最近完成
 
@@ -34,7 +34,7 @@ PR #12 已合并，SOLVER-04B 完成。HPC-01A 已增加成功评价的回调/�
 
 ## 当前检查点
 
-基线 615af36；分支 feat/assembly-phase-timers；实现提交 fff4895。Release 三项、Debug 两项针对性测试通过，Schur 覆盖 1/2/4 rank。下一 Task 先检查本 PR；如开展测量需使用新字段的成功评价与嵌套计时口径。
+基线 7f2bc51；分支 perf/assembly-phase-baseline；脚本提交 d1708e1。6 个直接参考、18 个 Schur 样本均通过；原始日志及结果在 docs/research/data/assembly-phase-2026-10-30。下一 Task 先检查 PR 状态，再按目标规模决定是否补装配事件测量；不从本轮小样本直接调参。
 
 ## 恢复规则
 
