@@ -107,3 +107,15 @@
 - `cmake --build --preset debug --target verify_solver_failures --parallel 4` 成功；`ctest --preset debug -R '^solver_failures(_mpi)?$' --output-on-failure` 2/2 通过（2.36 秒），包含初态收敛和故障路径。
 - 未跑全套 CTest、性能基准；不宣称诊断零开销。尚无 P 尺寸/逐层非零元或累计成本；未设置 A 的哨兵分支未单独构造测试。下一步人工审核，本次不调参。
 - `git diff --check`、六份 Markdown 解析/围栏/相对链接检查通过；`npm run docs:build --prefix website` 成功；草稿未进入 dist。CMake 和 case 未更改。
+
+
+## 2026-10-30 / GOAL-LOOP-03 — PR #12 后的循环状态同步
+
+- Base commit: 615af365c8df1f92f66e316a31a19c518d40dc0c（PR #12 merge）。
+- Objective: 让跨 Task 队列反映真实 GitHub 状态，并明确网页版 Codex 对 /goal 的功能边界。
+- Reconciled work: PR #3–#12 已合并；PR #5 为重复项并已关闭；当前没有未合并 PR。SOLVER-04B 标记 done；HPC-01 从 deferred 调整为 ready，作为下一项 profiling 任务。
+- Changed files: CODEX_PROGRESS.md、CODEX_TASK_QUEUE.md、CODEX_GOAL_WORKFLOW.md。
+- Implementation: 明确 Goal 只负责 thread 内多轮目标，GitHub 文件负责跨 Task 接续；没有 ready 任务时应提出候选并等待用户决定。修正 Goal mode 在 ChatGPT 网页版 Codex Cloud 中的可用性表述：需以当前 composer 是否实际提供 /goal 为准。
+- Tests and results: 本次仅文档更新；由本 PR 检查 Markdown/链接并验证相关网站构建（如触发）。未运行 C++/PETSc/MPI 测试。
+- Performance evidence: 无。
+- Next task: HPC-01 MPI 稀疏装配与通信 profiling；用户在 Codex Cloud 中启动一个有界 Goal/Task。
