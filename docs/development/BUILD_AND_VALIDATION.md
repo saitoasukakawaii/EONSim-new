@@ -1,6 +1,6 @@
 # L3：构建模式与最小验证
 
-状态：采用。适用范围：构建、诊断、错误传播和验证。P0–P8 小算例基线已实现；实际 presets、目标和验证见 README，下方代码片段仍为约定示意。
+状态：采用。适用范围：构建、诊断、错误传播和验证。实际入口为现有debug/release presets、eonsim及CTest目标；INFRA-01新增锁定云环境入口，复用原provider与测试。
 
 ## Debug / Release 的明确设计
 
@@ -19,28 +19,9 @@
 
 `-diagnostics basic|full` 是运行期开关，不改变编译模式。Release 开启详细日志不会自动变成 Debug；`RelWithDebInfo` 也不能代替 Debug。`NDEBUG` 与自定义宏统一由构建设置，禁止在不同源文件各自定义。
 
-**CMake 接线示意**（后续建工程时采用；不是当前工作区已有目标）：
-
-```cmake
-cmake_minimum_required(VERSION 3.23)
-project(MultiPhysicsHPC LANGUAGES C CXX)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
-endif()
-option(BUILD_TESTING "Build focused verification tools" OFF)
-
-add_library(mhpc_build_options INTERFACE)
-target_compile_definitions(mhpc_build_options INTERFACE
-  MHPC_DEBUG=$<IF:$<CONFIG:Debug>,1,0>)
-# 所有包含相关实现/头文件的工程 target 继承同一配置。
-# 不在这里覆盖 CMAKE_CXX_FLAGS_RELEASE 或 CMAKE_CXX_FLAGS_DEBUG。
-# target_link_libraries(mhpc_core PUBLIC mhpc_build_options)
-# target_link_libraries(mhpc PRIVATE mhpc_core)
-```
+实际CMake目标为 `eonsim_build_options`、`eonsim_core`、`eonsim` 和 `verify_*`；
+`BUILD_TESTING=ON` 才注册验证。Debug/Release presets分别使用Ninja独立目录，
+`MHPC_DEBUG` 由配置生成，不覆盖两种构建的数学模型。
 
 ```cpp
 // 只把无副作用的内部不变量放在 Debug 断言中。
@@ -60,20 +41,63 @@ PetscCall(KSPGetConvergedReason(ksp, &reason));
 
 ### 构建与依赖配置
 
-建议后续建立 `debug`、`release` 两个 CMake preset，分别指向 `build/debug`、`build/release`。它们创建之前，可使用以下等价命令：
+仓库已提供 `debug`、`release` presets，手工环境可执行：
 
 ```sh
-cmake -S . -B build/debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
-cmake --build build/debug --parallel
-cmake -S . -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build/release --parallel
+cmake --preset debug -DBUILD_TESTING=ON
+cmake --build --preset debug --parallel 2
+ctest --preset debug -R 'solver_failures|nonlinear_acceptance' --output-on-failure
 ```
 
-这些是目标工程建立后的命令。Visual Studio/Ninja Multi-Config 使用 `cmake --build <dir> --config Debug` 或 `--config Release`，不能只设置 `CMAKE_BUILD_TYPE`。[CMake 构建类型](https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html)
+手工并行度需按机器配额调整；云端优先使用下节自动配额入口。Release将preset换为release。
 
 PETSc 调试构建与优化构建分别记录。应用 Debug 可在 ABI 相容时使用优化依赖以降低环境成本；排查 PETSc 内部问题再切换其调试构建。正式性能数据使用优化 PETSc，不能只把应用设为 Release。[PETSc 性能文档](https://petsc.org/release/manual/performance/)
 
-尤其在 Windows，确认编译器、CRT/迭代器 ABI、MPI 和 PETSc 相容；应用宏不能修复依赖 ABI 不匹配。借鉴 EONSim 的环境启动入口，但不把其完整 provider/预检体系照搬为首版前置流程。审查发现其主 preset 是 `RelWithDebInfo`，并对 Fortran 指定了 `/Od`，因此不能仅凭 preset 名称判断整套程序已优化。[本地构建审查](../research/EONSIM_PERIGEE_REVIEW.md)
+### 从干净云机恢复与验证
+
+需要Linux x86_64云端主机、bash、curl、sha256sum、Git、系统CA，以及GitHub release和conda-forge下载权限。主锁要求x86-64-v3 CPU；建议至少4CPU、8GiB内存及12GiB可用磁盘。不要使用用户本地Windows/WSL作为本任务验证环境。
+
+```bash
+git clone https://github.com/saitoasukakawaii/EONSim-new.git
+cd EONSim-new
+# 可指定任意可写的云端前缀；不依赖/workspace/.eonsim-tools。
+scripts/cloud/restore.sh 3.23.7 /opt/eonsim-cloud
+scripts/cloud/run.sh 3.23.7 debug core /opt/eonsim-cloud
+scripts/cloud/run.sh 3.23.7 release core /opt/eonsim-cloud
+# 公共基础设施交付：一次完整现有短套件
+scripts/cloud/run.sh 3.23.7 debug all /opt/eonsim-cloud
+scripts/cloud/run.sh 3.23.7 release all /opt/eonsim-cloud
+# 旧版只做本次相关故障/状态/COO检查
+scripts/cloud/restore.sh 3.19.6 /opt/eonsim-cloud
+scripts/cloud/run.sh 3.19.6 release mpi-failure /opt/eonsim-cloud
+```
+
+`/opt/eonsim-cloud`必须由执行用户可写；省略最后参数使用仓库忽略的 `.cloud/`。
+干净恢复验证使用新的空目录；再次执行同一restore命令验证包缓存复用，再实际执行run。
+缓存不包含编译产物或测试结果。锁及来源见[依赖清单](../../environments/README.md)。
+
+入口复用原preset但以 `-B build/cloud-版本-模式` 隔离ABI，显式开启原PETSc provider及OpenBLAS。
+清除编译器激活脚本的优化flags，让Debug/Release采用自身CMake标志；清除PYTHONOPTIMIZE以保留数值断言。
+编译线程取CPU affinity、可见cgroup v2当前组/祖先配额、内存每任务2GiB预算及上限4的最小值。
+当前未实现cgroup v1探测；这类部署应先迁移到v2或手工受控构建，不宣称已自动识别其配额。
+CTest串行调度测试，各MPI rank的OMP/OpenBLAS/MKL线程均1；既有4rank小测试允许在较少CPU上oversubscribe，仅用于正确性，不作性能结论。
+
+证据保存在 `build/cloud-版本-模式/evidence/`：
+
+- `summary.json`：SHA/dirty、平台/配额、依赖版本/包源/锁哈希、构建模式、选择、命令退出码/超时、逐测试rank/通过/失败/跳过及日志位置。
+- `junit.xml`：CTest实际结果及测试输出；`ctest.log`保留成功与失败的数值验证输出。
+- `configure.log`、`build.log`、工具版本、runtime-preflight/linkage日志、petscconf.h与petscvariables。
+- `Testing/`、CMakeCache及测试生成的原始日志随CI artifacts保留14天；长期引用需另归档精简结论。
+
+```bash
+cat build/cloud-3.23.7-release/evidence/summary.json
+cat build/cloud-3.23.7-release/evidence/ctest.log
+```
+
+任何非预期跳过、空选择、不完整JUnit或非零CTest退出都判失败；预期错误由既有测试断言错误原因、状态和恢复后正常返回，与应用异常退出/超时区分。CTest沿用原超时；外层Linux子进程收养及进程组清理仅处理本次验证后代，不杀无关作业。
+
+GitHub Actions `core-numerics.yml` 在main、codex分支push及PR运行主环境Debug/Release全短套件，旧版仅mpi-failure。仅依赖包缓存，键含锁、平台、编译器和ABI；失败仍上传证据。网站构建不是数值CI替代品。
+
 
 ## 精简测试与不过度防御的执行规则
 
@@ -120,7 +144,7 @@ PETSc 调试构建与优化构建分别记录。应用 Debug 可在 ABI 相容�
 
 Doxygen 是可选开发工具，单独生成 HTML；不加入默认 build，也不挂接数值测试。首次配置、文档语法批量变更或交接时生成一次，修正实际错误；普通注释变更按阅读和必要链接检查处理。没有注释覆盖率门禁，文档 warning 不默认阻断开发。
 
-目前已提供可运行的 Doxyfile；顶层 CMake 的可选 docs target 待 P0 建工程时接入。具体命令、配置和源码契约写法见 [文档与注释规范](DOCUMENTATION_AND_COMMENTS.md)。Debug/Release 共享 API 文档，诊断差异在契约中说明。
+目前已提供可运行的 Doxyfile；顶层 CMake 未注册 docs target，需要时直接调用Doxygen。具体命令、配置和源码契约写法见 [文档与注释规范](DOCUMENTATION_AND_COMMENTS.md)。Debug/Release 共享 API 文档，诊断差异在契约中说明。
 
 
 ## 已执行的阶段交付验证

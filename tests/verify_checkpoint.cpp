@@ -57,6 +57,8 @@ void verify(const std::filesystem::path& dir) {
     require(get(old).fields==first.fields,"Explicit previous generation cannot be recovered");
     put(next); require(current(dir)!=second,"Repeated accepted step overwrote a generation");
     require(bytes(rankfile)==contents,"Successful publication overwrote prior rank data");
+    // All readers must finish before rank 0 deliberately corrupts the pointer.
+    MPI_Barrier(MPI_COMM_WORLD);
     if(mesh.rank==0) { std::ofstream out(dir/"current"); out<<"EONSim_checkpoint_v3 ../escape\n"; }
     MPI_Barrier(MPI_COMM_WORLD); failed=false;
     try { get(dir); } catch(const std::runtime_error& e) { failed=std::string(e.what()).find("current pointer")!=std::string::npos; }
