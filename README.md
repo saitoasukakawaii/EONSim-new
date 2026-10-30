@@ -13,16 +13,22 @@ C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体
 BLAS/LAPACK、METIS、HDF5 和 yaml-cpp（当前验证版本 0.8.0）。运行已保存的算例不需要 Gmsh 或 Python；
 重新生成网格及可选验证脚本需要 Python 3。
 
-当前 `EONSimPETScProvider.cmake` 找到的 PETSc 3.23.2 已配置 HYPRE、SuperLU_DIST、
-MUMPS、METIS 和 HPDDM，未配置 AMGX。依据为安装目录的 petscconf.h、petscvariables
-及此前 PetscHasExternalPackage 检查；“已配置”不等于本项目已测试每个求解器。
-本轮实际运行了 METIS 分区、SuperLU_DIST 整体直接解、PETSc ASM/ILU 分块解及 Schur/GAMG。
+云端主验证环境固定PETSc 3.23.7、OpenMPI 5.0.8及GCC15.3，另保留PETSc3.19.6故障兼容检查。
+完整版本/来源见[依赖锁](environments/README.md)，干净恢复及证据查看见[构建与验证](docs/development/BUILD_AND_VALIDATION.md)。
+
+```bash
+scripts/cloud/restore.sh 3.23.7
+scripts/cloud/run.sh 3.23.7 debug core
+scripts/cloud/run.sh 3.23.7 release core
+```
+
+已有匹配依赖的手工环境仍可使用原presets（编译并行度按实际CPU/内存配额设置）：
 
 ```bash
 cmake --preset debug
-cmake --build --preset debug --parallel
+cmake --build --preset debug --parallel 2
 cmake --preset release
-cmake --build --preset release --parallel
+cmake --build --preset release --parallel 2
 ./build/release/eonsim -case cases/poisson/case.yaml
 ```
 
@@ -80,7 +86,7 @@ L2 和 H1 半范误差使用单元内积分计算；摘要还包含体积、解�
 
 ```bash
 cmake --preset debug -DBUILD_TESTING=ON
-cmake --build --preset debug --parallel
+cmake --build --preset debug --parallel 2
 ctest --preset debug
 ```
 

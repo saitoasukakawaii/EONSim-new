@@ -17,7 +17,7 @@
 
 不要每次 Newton 迭代重新分区、重新编号或创建 KSP/Mat。首次实现可以每步重算矩阵数值和预条件；观测到开销后，再加 Jacobian 滞后或预条件复用。图结构只在网格拓扑、DoF、约束结构或耦合连接改变时重建；ALE 坐标改变通常只更新几何及矩阵数值。
 
-当前 `NonlinearSystem` 在流体、固体、ALE 和单体 FSI 的时间循环外创建，跨 accepted 步及缩步重试保留三个 ghost Vec、AIJ 矩阵及本地 trial 缓冲。每次 `solve` 都从调用者的 accepted 状态覆盖 trial，重建字段初始范数，并在 Jacobian 评价时清零和更新矩阵数值；旧约束行不会沿用为新方程。它复制本地布局，布局/图改变时需重新构造。SNES/KSP/PC 目前仍每次求解创建，不承诺预条件数值、AMG 层级或因子复用；回调只在本次调用期间借用。
+当前 `NonlinearSystem` 在流体、固体、ALE 和单体 FSI 的时间循环外创建，跨 accepted 步及缩步重试保留三个 ghost Vec、AIJ 矩阵及本地 trial 缓冲。每次 `solve` 都从调用者的 accepted 状态覆盖 trial，重建字段初始范数，并在 Jacobian 评价时清零和更新矩阵数值；旧约束行不会沿用为新方程。它复制本地布局，布局/图改变时需重新构造。SNES/KSP/PC 目前仍每次求解创建，不承诺预条件数值、AMG 层级或因子复用；回调只在本次调用期间借用。fatal回调导致PETSc提前返回且已共同传播错误时，替换持久trial Vec，避免PETSc遗留只读锁污染下次调用；不手动解库内部锁。旧Vec按PETSc引用计数释放（SNES及Jacobian可能暂时持有），矩阵/COO图与数值缓冲保持，下一次solve仍从accepted数据覆盖并更新ghost。
 
 ### 当前主线：独立场到单体 FSI
 

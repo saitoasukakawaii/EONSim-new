@@ -1,0 +1,1159 @@
+{
+  "baseline": "38a5e516ffe129d1b70c7c1bd8365deb5ded101a",
+  "scope": "remote Linux only; small meshes; 1/2/4 ranks",
+  "runs": [
+    {
+      "commit": "b4d7c5a7bf21ad7d37e43990047af2bdc17e2961",
+      "dirty": false,
+      "mode": "debug",
+      "selection": "all",
+      "petsc": "3.23.7",
+      "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+      "resources": {
+        "cpu_budget": 4,
+        "memory_bytes": 34359738368,
+        "cgroup": {
+          "/sys/fs/cgroup": {
+            "cpu.max": "400000 100000",
+            "memory.max": "34359738368"
+          }
+        },
+        "build_jobs": 4
+      },
+      "tests": [
+        {
+          "name": "runtime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.18069,
+          "log": "evidence/junit.xml#runtime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.11495,
+          "log": "evidence/junit.xml#coo_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.1761,
+          "log": "evidence/junit.xml#coo_jacobian_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi4",
+          "status": "passed",
+          "ranks": [
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.20503,
+          "log": "evidence/junit.xml#coo_jacobian_mpi4",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "linear_lifetime",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.1062,
+          "log": "evidence/junit.xml#linear_lifetime",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "linear_lifetime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.1572,
+          "log": "evidence/junit.xml#linear_lifetime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.10697,
+          "log": "evidence/junit.xml#solver_failures",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.22111,
+          "log": "evidence/junit.xml#solver_failures_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "checkpoint_publication",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.13051,
+          "log": "evidence/junit.xml#checkpoint_publication",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "checkpoint_publication_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.18183,
+          "log": "evidence/junit.xml#checkpoint_publication_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.19751,
+          "log": "evidence/junit.xml#nonlinear_acceptance",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.18532,
+          "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "boundary_geometry",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0669601,
+          "log": "evidence/junit.xml#boundary_geometry",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "quadrature_moments",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0641639,
+          "log": "evidence/junit.xml#quadrature_moments",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "hyperelastic_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0645731,
+          "log": "evidence/junit.xml#hyperelastic_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fsi_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0664384,
+          "log": "evidence/junit.xml#fsi_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solid_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0644419,
+          "log": "evidence/junit.xml#solid_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0626893,
+          "log": "evidence/junit.xml#fluid_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_coo_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 108.467,
+          "log": "evidence/junit.xml#fluid_coo_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "profile_log_validation",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.114278,
+          "log": "evidence/junit.xml#profile_log_validation",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_element_report",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 22.7025,
+          "log": "evidence/junit.xml#fluid_element_report",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "schur_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 43.9732,
+          "log": "evidence/junit.xml#schur_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "time_retry_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 28.39,
+          "log": "evidence/junit.xml#time_retry_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "domains_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 20.9069,
+          "log": "evidence/junit.xml#domains_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "regions_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 27.9022,
+          "log": "evidence/junit.xml#regions_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "tagged_fluid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 47.4681,
+          "log": "evidence/junit.xml#tagged_fluid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "restart_block_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 69.5841,
+          "log": "evidence/junit.xml#restart_block_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "hyperelastic_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 24.1018,
+          "log": "evidence/junit.xml#hyperelastic_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "elastic_fsi_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 16.9725,
+          "log": "evidence/junit.xml#elastic_fsi_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "rigid_fsi_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 6.58295,
+          "log": "evidence/junit.xml#rigid_fsi_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "motion_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 8.04489,
+          "log": "evidence/junit.xml#motion_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 6.11995,
+          "log": "evidence/junit.xml#solid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 17.0082,
+          "log": "evidence/junit.xml#fluid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "poisson_verification",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.70588,
+          "log": "evidence/junit.xml#poisson_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "poisson_parallel",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.76503,
+          "log": "evidence/junit.xml#poisson_parallel",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "status": "passed",
+      "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+      "label": "full Debug"
+    },
+    {
+      "commit": "d3f69d149ca43602c2ce780c25d6f72634eb3976",
+      "dirty": true,
+      "mode": "release",
+      "selection": "all",
+      "petsc": "3.23.7",
+      "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+      "resources": {
+        "cpu_budget": 4,
+        "memory_bytes": 34359738368,
+        "cgroup": {
+          "/sys/fs/cgroup": {
+            "cpu.max": "400000 100000",
+            "memory.max": "34359738368"
+          }
+        },
+        "build_jobs": 4
+      },
+      "tests": [
+        {
+          "name": "runtime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.20153,
+          "log": "evidence/junit.xml#runtime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.12798,
+          "log": "evidence/junit.xml#coo_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.17835,
+          "log": "evidence/junit.xml#coo_jacobian_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi4",
+          "status": "passed",
+          "ranks": [
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.19888,
+          "log": "evidence/junit.xml#coo_jacobian_mpi4",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "linear_lifetime",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.10695,
+          "log": "evidence/junit.xml#linear_lifetime",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "linear_lifetime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.18609,
+          "log": "evidence/junit.xml#linear_lifetime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.1396,
+          "log": "evidence/junit.xml#solver_failures",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.26014,
+          "log": "evidence/junit.xml#solver_failures_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "checkpoint_publication",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.12319,
+          "log": "evidence/junit.xml#checkpoint_publication",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "checkpoint_publication_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.20963,
+          "log": "evidence/junit.xml#checkpoint_publication_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.13948,
+          "log": "evidence/junit.xml#nonlinear_acceptance",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.19224,
+          "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "boundary_geometry",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0701516,
+          "log": "evidence/junit.xml#boundary_geometry",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "quadrature_moments",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0660129,
+          "log": "evidence/junit.xml#quadrature_moments",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "hyperelastic_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0646644,
+          "log": "evidence/junit.xml#hyperelastic_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fsi_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0676714,
+          "log": "evidence/junit.xml#fsi_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solid_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0618442,
+          "log": "evidence/junit.xml#solid_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0625763,
+          "log": "evidence/junit.xml#fluid_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_coo_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 104.199,
+          "log": "evidence/junit.xml#fluid_coo_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "profile_log_validation",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.117094,
+          "log": "evidence/junit.xml#profile_log_validation",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_element_report",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 21.2502,
+          "log": "evidence/junit.xml#fluid_element_report",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "schur_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 34.6297,
+          "log": "evidence/junit.xml#schur_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "time_retry_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 16.9907,
+          "log": "evidence/junit.xml#time_retry_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "domains_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 18.3987,
+          "log": "evidence/junit.xml#domains_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "regions_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 27.3794,
+          "log": "evidence/junit.xml#regions_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "tagged_fluid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 46.9562,
+          "log": "evidence/junit.xml#tagged_fluid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "restart_block_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 61.0523,
+          "log": "evidence/junit.xml#restart_block_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "hyperelastic_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 11.4336,
+          "log": "evidence/junit.xml#hyperelastic_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "elastic_fsi_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 7.54147,
+          "log": "evidence/junit.xml#elastic_fsi_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "rigid_fsi_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.71498,
+          "log": "evidence/junit.xml#rigid_fsi_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "motion_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 7.93936,
+          "log": "evidence/junit.xml#motion_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.91413,
+          "log": "evidence/junit.xml#solid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 13.6783,
+          "log": "evidence/junit.xml#fluid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "poisson_verification",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.68983,
+          "log": "evidence/junit.xml#poisson_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "poisson_parallel",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.72734,
+          "log": "evidence/junit.xml#poisson_parallel",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "status": "passed",
+      "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+      "label": "full Release"
+    },
+    {
+      "commit": "00886cf10d0bdd0eca83048f0c1b648aa047679d",
+      "dirty": true,
+      "mode": "release",
+      "selection": "mpi-failure",
+      "petsc": "3.19.6",
+      "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+      "resources": {
+        "cpu_budget": 4,
+        "memory_bytes": 34359738368,
+        "cgroup": {
+          "/sys/fs/cgroup": {
+            "cpu.max": "400000 100000",
+            "memory.max": "34359738368"
+          }
+        },
+        "build_jobs": 4
+      },
+      "tests": [
+        {
+          "name": "runtime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0977623,
+          "log": "evidence/junit.xml#runtime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.108029,
+          "log": "evidence/junit.xml#coo_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.111624,
+          "log": "evidence/junit.xml#coo_jacobian_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.107333,
+          "log": "evidence/junit.xml#solver_failures",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.11218,
+          "log": "evidence/junit.xml#solver_failures_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.108047,
+          "log": "evidence/junit.xml#nonlinear_acceptance",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.107375,
+          "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "status": "passed",
+      "lock_sha256": "ca6f133b45ab2c22a3d34445be5b1f0c6469dcf41364ad300c0a9315e4d8191a",
+      "label": "compatibility"
+    },
+    {
+      "commit": "c07f94a683a60b501d9f466f0a4fb60fa9908a0b",
+      "dirty": false,
+      "mode": "release",
+      "selection": "mpi-failure",
+      "petsc": "3.23.7",
+      "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+      "resources": {
+        "cpu_budget": 4,
+        "memory_bytes": 34359738368,
+        "cgroup": {
+          "/sys/fs/cgroup": {
+            "cpu.max": "400000 100000",
+            "memory.max": "34359738368"
+          }
+        },
+        "build_jobs": 4
+      },
+      "tests": [
+        {
+          "name": "runtime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.17182,
+          "log": "evidence/junit.xml#runtime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.11239,
+          "log": "evidence/junit.xml#coo_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.17506,
+          "log": "evidence/junit.xml#coo_jacobian_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.10686,
+          "log": "evidence/junit.xml#solver_failures",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.17591,
+          "log": "evidence/junit.xml#solver_failures_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.10422,
+          "log": "evidence/junit.xml#nonlinear_acceptance",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.19376,
+          "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "status": "passed",
+      "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+      "label": "isolated cold restore then cache reuse"
+    }
+  ],
+  "ci": {
+    "head": "d3f69d149ca43602c2ce780c25d6f72634eb3976",
+    "url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41060786421",
+    "conclusion": "success",
+    "jobs": 3,
+    "artifacts": 3
+  },
+  "negative_timeout_probe": {
+    "expected_failure": true,
+    "timeout_seconds": 2,
+    "ctest_exit_code": 8,
+    "descendants_reaped": true
+  }
+}

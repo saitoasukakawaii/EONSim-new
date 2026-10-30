@@ -5,7 +5,7 @@
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 当前主分支基线：24eae62（PR #20 合并）
+- 当前主分支基线：38a5e51（PR #21 合并）
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -25,9 +25,9 @@
 
 ## 当前焦点
 
-PR #20 已合并，QA-01 完成。按用户“设计 5 小时以上任务并完成后才提交 PR”的要求，
-HPC-02 已实现独立流体可选固定 COO Jacobian，并完成针对性验证、配对测量和独立 deep review。
-交付 PR 尚待创建；不扩大为 FSI/ALE COO 或大规模扩展性声明。
+PR #21 已合并，HPC-02已完成，旧状态已纠正。本轮用户指定INFRA-01，分支
+`codex/infra-reproducible-mpi-ci`：锁定云环境、3.19.6 PC失败传播、fatal callback trial恢复、
+checkpoint测试同步及核心CI已实现。独立源码审查无剩余阻塞；主环境Debug/Release各35/35、兼容环境7/7及分支CI已通过，尚未创建PR。
 
 ## 最近完成
 
@@ -43,11 +43,9 @@ HPC-02 已实现独立流体可选固定 COO Jacobian，并完成针对性验证
 
 ## 当前检查点
 
-基线 `24eae62`；分支 `codex/fluid-cached-coo`；实现/测量提交 `ceea57d`。
-Debug 6/6 通过；Release 核心选择 7/8 通过，既有 `solver_failures_mpi` 超时在未修改基线独立复现；
-额外共享求解器回归 4/4 通过。新真实流体每构建 87 命令，最大字段差约 5.19e-12。
-36 次计量＋12 次预热、两档网格、1/2/4 rank 数据已归档，deep review 为 PASS。
-报告见 [HPC-02](../research/FLUID_COO_ASSEMBLY_2026-10-30.md)；无新增 ready 任务。
+基线38a5e51。两套PETSc针对性检查各7/7；主环境Debug/Release完整各35/35。
+独立空缓存恢复和复用复验通过；d3f69d1分支CI三任务通过（运行41060786421）。最终文档/缓存隔离提交仍须通过head CI，随后才创建正式PR。沿[INFRA-01报告](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md)
+继续，不重复COO开发，不在全部验收前创建PR。
 
 ## 恢复规则
 

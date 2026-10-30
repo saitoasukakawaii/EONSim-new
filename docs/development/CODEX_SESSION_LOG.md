@@ -186,3 +186,18 @@
 - 独立 deep review 对 `ceea57d` 为 PASS，无阻塞发现。报告、原始日志、字段证据、审查记录及 source provenance 已归档；按 eonsim-knowledge-capture 添加 website/drafts/fluid-coo-assembly.md 并登记知识日志，未发布网站。
 - 当前代码及验证完成，下一步创建交付 PR，人工决定是否合并；无新增 ready 任务。此任务不提供 FSI/ALE/残量 COO、GPU、多节点或大规模扩展证明。
 - 交付前代码/文档的 `git diff --check`（排除原样归档的日志）、8 份 Markdown 围栏/相对文件及站点路由链接检查、JSON 证据解析、测量脚本语法检查通过。两份构建日志保留 CMake 原始输出中 8 行尾空白，完整 diff 检查因此会报告这些空白；不改写原始证据。后续文档/元数据修改未改变已审查的 src/include/CMake/tests；未重复运行数值测试，未构建或发布网站。
+
+
+## 2026-10-30 / INFRA-01
+
+- 用户明确授权14–18小时估计工程量的云端基础设施任务；未将估计写实际耗时。仅远程Linux，main基线38a5e51，PR #21已核实合并，纠正HPC-02状态。独立分支codex/infra-reproducible-mpi-ci。
+- 读取根AGENTS/L0、工程总纲/路线/构建/进度队列、并行/状态/求解契约及两份历史报告。用户指定architecture下L0路径不存在，实际入口在根目录。
+- 新增environments两份SHA256显式锁及版本说明，scripts/cloud恢复/运行/证据入口、核心GitHub Actions、runtime探针；复用presets/provider和34项原测试（新增后35项），添加选择/rank标签。
+- src/algebra/nonlinear_system.cpp修复旧PREONLY局部PC失败，在诊断前统一布尔失败标志，保留负枚举原因；本地失败树不额外collective。已共同传播的fatal callback早退后更换trial Vec，隔离PETSc残留读锁，COO图/矩阵保持。
+- tests/verify_solver_failures.cpp覆盖三个诊断模式、fatal Jacobian、accepted不变及恢复；tests/verify_checkpoint.cpp补破坏指针前读者同步；tests/verify_runtime.cpp验证real/double/int32及实际MPI运行。
+- 未改main隔离构建在PETSc3.19.6下原60秒超时（60.07秒），最小纯PETSc复现rank0 reason4、rank1 reason-11；上游3.20.0已加入归约。保留最小复现源码，详细归因见INFRA-01报告。
+- 最终锁在/tmp/infra-pristine恢复；随后在/tmp/eonsim-cold-I3bOY2显式隔离所有包缓存、独立检出c07f94a，完成干净恢复/构建/7项故障回归，再重复restore与7项测试通过；云机4CPU/32GiB。旧hwloc CPUID启动问题及容器CMA限制分别适配，不混同应用死锁。
+- 两套环境mpi-failure各7/7通过；主环境Debug全35/35通过474.17秒、Release全35/35通过409.08秒。d3f69d1分支CI三任务全部成功（41060786421），均上传诊断产物。最终入口/文档提交仍须head CI通过，尚无正式PR。
+- 首轮主环境全套暴露COO Vec锁与checkpoint竞态并修复；CI四rank失败进一步定位OpenMPI5忽略旧映射变量，模拟两槽位前后验证后加入PRRTE设置及四rank预检。
+- 独立审查指出负PC枚举、嵌套cgroup和超时残留，均修正并复核无源码阻塞；真实MPI超时清理与多层后代终止/reap通过。数值Python优化明确禁用。
+- 使用eonsim-knowledge-capture新增未发布草稿，更新README/L2契约/BUILD_AND_VALIDATION/进度队列/知识登记。Markdown八文件解析及链接、网站构建3.94秒、草稿排除检查通过。精简机器证据见INFRA-01报告旁data目录；正式PR状态待验收后更新。
