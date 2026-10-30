@@ -46,3 +46,7 @@
 ## SOLVER-01B / 2026-10-30
 
 [诊断开销测量草稿](../../website/drafts/nonlinear-setup-baseline.md)：已运行1/2 rank重复测量，具有源码/输出一致性/性能样本证据；无持久化优化收益证据。待人工审核。
+
+## SOLVER-02 / 2026-10-30
+
+[多时间步setup草稿](../../website/drafts/multistep-setup-profile.md)：源码/重复输出/性能证据已归档；无持久化收益证据，等待人工审核。
