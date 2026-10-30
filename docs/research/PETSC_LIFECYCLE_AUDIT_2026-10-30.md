@@ -58,3 +58,9 @@ finalize_seconds 在返回前求值，不含函数返回时 SNES 的 RAII 销毁
 - [Schur setup](https://github.com/saitoasukakawaii/EONSim-new/blob/0828f41b62391239b14a05e57a161defae1c8866/src/algebra/schur_solver.cpp)
 
 数学与接受契约沿用 docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md。本次证据为源码审查；数值测试和性能实验未执行，不对最新提交补造通过记录。
+
+## 分支整合补记（2026-10-30）
+
+旧分支 `audit/petsc-nonlinear-lifecycle` 的 [独立审计](https://github.com/saitoasukakawaii/EONSim-new/blob/51ef2e50b70c5906aa80cdd526a51cac1f142572/docs/development/NONLINEAR_SESSION_LIFECYCLE_AUDIT.md) 使用同一源码基线，确认了相同的持久化风险。补充调用方为 [ALE 驱动](https://github.com/saitoasukakawaii/EONSim-new/blob/0828f41b62391239b14a05e57a161defae1c8866/src/physics/ale.cpp)：同样在时间循环外持有 NonlinearSystem。保留本报告作为唯一审计入口，旧稿可从固定提交追溯，不再维护第二套状态表和同题草稿。
+
+上述行号和生命周期说明均针对历史基线。后续 [多步测量](MULTISTEP_SETUP_PROFILE_2026-10-30.md) 已完成；本轮集成的 CI 分支还会在 fatal callback 后更换 trial Vec 以隔离遗留只读锁，这属于异常恢复，不能据此把正常时间步说成每步重建全部 Vec。旧分支的“下一步建立基线”及 SOLVER-02 ready 状态不恢复到当前任务队列。
