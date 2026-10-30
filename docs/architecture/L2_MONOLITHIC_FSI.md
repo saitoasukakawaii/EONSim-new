@@ -4,6 +4,8 @@
 
 ## 目标和首版范围
 
+后续共形 trace 与非一致界面、K/W 映射、力/功传递及嵌套预条件详见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) §6–7；BDF2/generalized-α 见 §9。实现前保持本文件的 Tet4/BE 约定。坐标匹配不自动意味着不同空间可共享 DoF，人工 ALE 界面残量不作为结构力；共享 DoF 在普通 PC 分区树中只能有一个代数代表。
+
 主线为独立流体、独立固体、**monolithic 刚体 FSI、monolithic 弹性体 FSI**。分离式 Dirichlet–Neumann、Aitken/IQN 等在主线交付后再做。“网格分区”指 MPI 数据分布，与“分离式耦合算法”不同。
 
 第一刚体版本是单个、由流体力参与驱动的运动刚体，先启用一个平动自由度。固定刚壁只是 CFD 边界；预先指定轨迹只是 ALE 准备案例，二者均不记作双向刚体 FSI。6-DoF 是该版本之后按需求扩展的能力，不阻塞弹性体路线。

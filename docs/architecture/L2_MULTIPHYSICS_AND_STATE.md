@@ -4,6 +4,8 @@
 
 ### 一次准备、多次数值更新
 
+扩展方案见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) §6、§9、§10：时间控制与时间格式分开，积分器负责 stage/导数映射与切线系数；BDF2 历史和 generalized-α 的速度/加速度必须纳入 accepted/trial 与 checkpoint。非匹配界面映射和并行输出分别有更新/发布责任。这些要求用于未来实现，不表示当前 BE 已支持这些格式。
+
 ```text
 读配置/分区 → 建 DoF 与约束 → 建稀疏图/ghost 计划 → 建 solver
 每个时间步：

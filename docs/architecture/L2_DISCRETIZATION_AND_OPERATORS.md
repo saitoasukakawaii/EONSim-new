@@ -2,6 +2,8 @@
 
 状态：采用。首版以 assembled 低阶 FEM 为执行路径；高阶、partial assembly 和 matrix-free 为需求触发的扩展。
 
+2026-10-30 的扩展契约集中于 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)：§4 区分空间/基/DoF 泛函，§5 规定一般边界与 lifting，§7 分离排列和 PC 树，§8 从形式项及约束支撑生成图，§11 规定批次模板分派。均是待实现方案，不扩大下文固定节点布局与独立流体 COO 的支持范围。
+
 ### 物理场的实现顺序
 
 - **标量基础：** 先用 Poisson 贯通 mesh/DoF/装配/求解，并为 ALE 网格扩展复用。热输运和 CHT 是后续业务扩展，不先做完整热求解产品。

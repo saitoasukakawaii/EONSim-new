@@ -2,6 +2,15 @@
 
 本文件是知识资产索引，不代替文章正文、文献阅读笔记或实验原始数据。
 
+## ARCH-01 / 2026-10-30
+
+[通用 FEM / DoF 分层草稿](../../website/drafts/general-fem-dof-architecture.md)：源码阅读基线
+`38a5e516ffe129d1b70c7c1bd8365deb5ded101a`。证据类别为理论/设计与静态实现对应；
+没有新数值验证或性能实验，lastVerifiedCommit 留空。配套
+[架构规划](../architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) 与
+[20 组上游学习矩阵](FEM_FRAMEWORK_LEARNING_2026-10-30.md)。
+待审核非匹配接口的稳定性选择、时间 stage 相容性、DoF 语义与 PC 分组边界；保持未发布。
+
 ## HPC-02 / 2026-10-30
 
 [固定 COO 装配草稿](../../website/drafts/fluid-coo-assembly.md)：实现/测量提交 `ceea57d`，
