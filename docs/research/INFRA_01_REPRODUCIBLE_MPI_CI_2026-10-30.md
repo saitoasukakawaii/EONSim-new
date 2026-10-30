@@ -91,7 +91,7 @@ HWLOC_COMPONENTS=-x86 OMPI_MCA_btl_vader_single_copy_mechanism=none \
 CI仅缓存包，键含锁/平台/编译器/ABI。JUnit和summary检查非预期skip、空测试集和不完整结果，Python优化被拒绝。
 失败仍上传日志；当前云代理不允许GitHub artifact重定向的Azure Blob域，下载受限不等于CI未产生artifact。
 [分支CI 41060786421](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41060786421)在d3f69d1三个任务全部成功，Debug/Release及兼容环境均产生artifact。
-[精简机器证据](data/infra-01-2026-10-30/validation-summary.json)保留本机提交/工作区状态、资源和逐测试结果；完整原始日志由CI artifact提供，保留14天。最后入口/文档提交仍须通过head CI，当前未创建PR。
+[精简机器证据](data/infra-01-2026-10-30/validation-summary.json)保留本机提交/工作区状态、资源和逐测试结果；完整原始日志由CI artifact提供，保留14天。5745fd3 的 [CI 41063030121](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41063030121) 随后三个 job 全部成功，详见精简证据中的 final_pre_pr_ci。本分支曾创建 [PR #22](https://github.com/saitoasukakawaii/EONSim-new/pull/22)；本次依用户要求整合，合并提交的验证范围见文末。
 
 ## 审查与边界
 
@@ -105,9 +105,11 @@ CI适配补充：OpenMPI5的PRRTE不读取旧 `OMPI_MCA_rmaps_base_oversubscribe
 使用 `PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe` 后4进程正常返回。
 入口保留4.x变量并增加5.x变量及4rank预检，不减少任何测试的rank数。
 
+PR 后 1497137 的 [Release 作业](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41064780711/job/124093224914) 在 MPI 预检发生 UCX/Azure MANA 的 UD 队列创建错误；787372e 将单机入口固定为 ob1 与 self/shared-memory/TCP。OpenMPI 4 使用 vader，5 使用 sm，符合 [上游组件命名与选择说明](https://docs.open-mpi.org/en/v5.0.x/tuning-apps/networking/shared-memory.html)。该修复只限定云端单机验证入口，不声明 RDMA/多节点性能；本次没有重新执行 MPI，不能把 5745fd3 的成功结果覆盖到该增量。
+
 ## 后续合并审查（不编译）
 
-集成范围包括源分支 `5745fd3912151fd895fbad89138795092c1b99bc` 的环境隔离及证据补充。以下修正新增于合并审查，不在上文原分支 CI 的验证范围内：
+集成范围包括源分支 `787372e746a3523194a8139bc36c70cee9e21f13` 的环境隔离、单机传输适配及证据补充。以下修正新增于合并审查，不在上文原分支 CI 的验证范围内：
 
 - `verify_runtime` 检查固定 OpenMPI/int32 ABI，不能随普通 BUILD_TESTING 无条件启用。新增默认 OFF 的 `EONSIM_VERIFY_LOCKED_RUNTIME`；仅云入口显式开启，保留原锁定环境的探针和数值测试。
 - JUnit 必须与 CTest inventory 的测试名逐一对应；拒绝重复、未知、缺失结果及无效时长，将 `error` 与 `failure` 均归为失败，跳过不能算成功。6 项纯 Python 合成证据回归通过；没有运行 CTest 或 MPI。

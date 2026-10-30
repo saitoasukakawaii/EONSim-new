@@ -6,14 +6,14 @@
 
 整合前 main 为 `38a5e516ffe129d1b70c7c1bd8365deb5ded101a`。先逐分支验证 tip 是该主线的祖先，再使用精确旧 SHA 保护和原子推送删除 18 个远程引用；没有改写提交历史。删除后复核远程只剩 main 与下面 6 个分支。
 
-使用本地整合分支逐次审查和解决冲突，再正常快进推送 main，不强制覆盖 main。用户已明确授权本次合并，因此无需另建等待审批的 PR。内容有选择地保留，六个源分支的受审查 tip 均通过 merge commit 纳入历史；这不表示采纳了所有旧文件版本。原六个远程分支引用保留，不扩大本次指定的 18 个删除范围。
+使用本地整合分支逐次审查和解决冲突，再正常快进推送 main，不强制覆盖 main。用户已明确授权本次合并；沿用来源分支已创建的 PR #22 记录，本会话不另建 PR。内容有选择地保留，六个源分支的受审查 tip 均通过 merge commit 纳入历史；这不表示采纳了所有旧文件版本。原六个远程分支引用保留，不扩大本次指定的 18 个删除范围。
 
 ## 六个分支的审查决定
 
 | 分支 | 受审查 tip | 决定 |
 |---|---|---|
 | `docs/general-fem-architecture-plan` | [1585585](https://github.com/saitoasukakawaii/EONSim-new/commit/1585585f8b6ef52d9e52ad12df0eaa5d207cdd6f) | 完整保留 16 份架构/规划 Markdown；G0–G8 仍 deferred，不代表功能实现。 |
-| `codex/infra-reproducible-mpi-ci` | [5745fd3](https://github.com/saitoasukakawaii/EONSim-new/commit/5745fd3912151fd895fbad89138795092c1b99bc) | 保留依赖锁、CI、失败恢复和证据；修正固定 ABI 检查范围及 JUnit 证据解析。审查期间新增两次提交，复核后纳入。 |
+| `codex/infra-reproducible-mpi-ci` | [787372e](https://github.com/saitoasukakawaii/EONSim-new/commit/787372e746a3523194a8139bc36c70cee9e21f13) | 保留依赖锁、CI、失败恢复和证据；修正固定 ABI 检查范围及 JUnit 证据解析。审查期间新增至 787372e，复核后纳入；含 PR #22 证据与单机 MPI 传输适配。 |
 | `codex/fluid-cached-coo` | [c1fef03](https://github.com/saitoasukakawaii/EONSim-new/commit/c1fef032f32b0da9c76b8db3d61427beebdfb737) | 实现已在 PR #21 合并；补齐 PR 链接及历史交付日志，舍弃会把 done 退回 review 的旧状态。 |
 | `audit/petsc-nonlinear-lifecycle` | [51ef2e5](https://github.com/saitoasukakawaii/EONSim-new/commit/51ef2e50b70c5906aa80cdd526a51cac1f142572) | 保留 ALE 调用方与原稿追溯链接，补入现有 PETSc 生命周期报告；不新增重复报告/草稿，不恢复旧任务队列。 |
 | `docs/codex-research-workflow` | [45a324f](https://github.com/saitoasukakawaii/EONSim-new/commit/45a324f905eb2569cf4332c3aefb3d5bf85ab7e1) | 保留网站源码/产物检查、CI 隔离哨兵及贡献补充；沿用主线更完整的模板、AGENTS 和队列，舍弃过时 PR API 阻塞记录。 |
@@ -24,7 +24,8 @@
 1. **锁定 ABI 的探针范围。** 原 CI 分支在所有 BUILD_TESTING 配置中强制 OpenMPI/int32 检查。新增默认关闭的 `EONSIM_VERIFY_LOCKED_RUNTIME`，仅云入口开启；普通测试配置不被锁定环境的假设误拒绝。
 2. **成功证据必须完整。** JUnit 按测试名与 inventory 一一对应，重复不能顶替缺失；未知、缺失、无效时长拒绝，`error`/`failure` 均算失败，跳过不能算成功。6 项纯 Python 回归覆盖有效结果和负例。
 3. **文档检查可独立运行。** 保留旧工作流的内容检查工具，增加 `--source-only` 并明确不证明产物隔离；支持 Windows CRLF 检出。CI 同时放置 draft/template 哨兵，默认检查仍要求已有网站构建产物。
-4. **状态与契约一致。** 不回退已完成的 COO、生命周期审计和 profiling 任务；更正构建文档中的 Doxygen target、锁定探针开关及上游 SNES 行号。原分支的运行记录与本次整合检查分开。
+4. **单机 CI 传输。** 保留 787372e 的 ob1 与 self/shared-memory/TCP 选择，仅约束云端正确性入口，避免不可用 Azure RDMA 设备触发 MPI_Init 失败；OpenMPI 4 使用 vader、5 使用 sm。核对官方说明，未在本次执行 MPI。
+5. **状态与契约一致。** 不回退已完成的 COO、生命周期审计和 profiling 任务；更正构建文档中的 Doxygen target、锁定探针开关及上游 SNES 行号。原分支的运行记录与本次整合检查分开。
 
 ## 实际验证与未验证范围
 
@@ -32,7 +33,7 @@
 - `node website/scripts/check-content.mjs --source-only`：10 份作者工作流 Markdown 的结构与本地链接通过；未检查生成网站。
 - Python AST、两份 Bash 脚本的 `bash -n`、两份 GitHub 工作流 YAML、JSON 证据与依赖锁结构检查；两锁分别有 96 和 101 个带 SHA256 的固定包 URL。没有安装依赖或执行恢复入口。
 - 整合差异的空白/冲突检查、25 份变更 Markdown 的围栏及 156 个本地文件链接检查通过；Git 祖先关系验证六个受审查 tip 已纳入整合历史。
-- 原分支 d3f69d1 的 [CI 41060786421](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41060786421) 三个数值 job 已成功；本次只读取历史状态。完整历史证据见 [INFRA-01](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md)。后续分支运行不由本会话启动。
+- 原分支 d3f69d1 的 [CI 41060786421](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41060786421) 三个数值 job 已成功；本次只读取历史状态。完整历史证据见 [INFRA-01](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md)。另核实 5745fd3 的 [CI 41063030121](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41063030121) 三个 job 成功。后续分支运行不由本会话启动，也不能替代本次最终集成验收。
 - **本次未运行 CMake 配置、项目编译、CTest、MPI、数值算例、性能实验、网站构建。** 推送提交包含 `[skip ci]`，避免 push 启动构建。最终集成的数值验证尚未执行，INFRA-01 保留 review；架构 G0–G8 仍 deferred。
 
 ## 已删除的 18 个分支

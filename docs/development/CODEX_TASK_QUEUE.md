@@ -103,7 +103,7 @@ HPC-01E 已完成1/2/4 rank、每配置5对测量及6次预热，见 [报告](..
 
 基线为 PR #21 合并后的 38a5e51。原分支 d3f69d1 的 [GitHub Actions run 41060786421](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41060786421) 已完成且成功：PETSc 3.23.7 Debug / Release 与 3.19.6 Release 三个 job。本轮只读取历史结果，不重新触发工作流。
 
-源分支后续至 5745fd3 的恢复说明、精简证据、资源检测与包缓存隔离也已纳入。原分支完整记录见 [INFRA-01](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md)；其云端执行属于先前开发会话。
+源分支后续至 787372e 的恢复说明、精简证据、资源检测、包缓存隔离与单机 MPI 传输适配也已纳入。5745fd3 的 CI 41063030121 三个 job 成功；来源分支已创建 PR #22，本次按用户要求整合。原分支完整记录见 [INFRA-01](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md)；其云端执行属于先前开发会话。
 
 依赖锁、恢复脚本、MPI 失败处理和测试已随分支集成；合并审查额外把 OpenMPI/int32 检查限定为云端显式启用，并使 JUnit 解析拒绝重复、缺失与错误结果。6 项纯 Python 解析器回归通过。
 

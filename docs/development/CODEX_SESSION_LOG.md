@@ -227,3 +227,5 @@
 - 本轮没有 CMake 配置/编译、CTest、MPI、数值/性能或网站构建；没有启动 GitHub 数值 CI。读取的历史成功状态只对应原分支 d3f69d1。最终推送含 [skip ci]，不把已有证据当作最终集成通过。
 - 使用 eonsim-knowledge-capture 更新原 INFRA-01 草稿和知识登记，分开原分支执行记录与本次脚本验证；没有新性能证据，草稿未发布。
 - 完整源提交、删除清单、冲突取舍和验证边界见 BRANCH_INTEGRATION_2026-10-30.md。INFRA-01 最终集成验收待执行，G0–G8 均 deferred；不自动开始新开发或构建。
+
+- 推送前又检测到源 CI 分支新增 1497137/787372e：保留 PR #22 与 5745fd3 成功 CI 的证据、以及 ob1 单机传输适配。只读 GitHub 确认 CI 41063030121 三个 job 成功；核对 OpenMPI 官方 sm/vader 命名并检查脚本语法，未执行 MPI。最终整合范围以 branches.json 中的六个 tip 为准，INFRA-01 保留最终集成验收待完成。
