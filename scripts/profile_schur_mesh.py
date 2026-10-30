@@ -27,31 +27,63 @@ def records(text, prefix):
             if line.startswith(prefix + ' ')]
 
 
+def integer(record, key, minimum=0):
+    """Require an integer token, rather than accepting NaN or fractional counters."""
+    try:
+        value = int(record[key])
+    except (KeyError, ValueError) as exc:
+        raise RuntimeError(f'Missing or invalid integer field: {key}') from exc
+    if value < minimum:
+        raise RuntimeError(f'{key} must be >= {minimum}')
+    return value
+
+
+def measurement(record, key):
+    try:
+        value = float(record[key])
+    except (KeyError, ValueError) as exc:
+        raise RuntimeError(f'Missing or invalid measurement: {key}') from exc
+    if not math.isfinite(value) or value < 0:
+        raise RuntimeError(f'{key} must be finite and nonnegative')
+    return value
+
+
 def parse(text, ranks):
     reports, nodes = records(text, 'solver_report'), records(text, 'solver_node')
     if len(reports) != 1 or 'solver_node_unavailable' in text:
         raise RuntimeError('Expected one complete steady solver report')
     report = reports[0]
-    required = set(PHASES) | {'assembly_seconds', 'ghost_seconds', 'domain_rejections'}
+    required = set(PHASES) | {'assembly_seconds', 'ghost_seconds', 'domain_rejections',
+                              'solve_seconds', 'schur_setup_seconds', 'linear_seconds',
+                              'rss_max_bytes', 'linear_iterations', 'dofs', 'ranks'}
     if not required <= report.keys():
         raise RuntimeError('Missing assembly phase fields; rebuild the current solver')
-    if int(report['domain_rejections']) != 0:
+    if integer(report, 'domain_rejections') != 0:
         raise RuntimeError('Rejected evaluations require a separate profiling study')
     for key in ('snes_reason', 'ksp_reason'):
-        if int(report[key]) <= 0:
-            raise RuntimeError('Unconverged solve')
-    for key, value in report.items():
-        if key.endswith(('_seconds', '_bytes')) and (not math.isfinite(float(value)) or float(value) < 0):
-            raise RuntimeError('Invalid timing/memory measurement')
+        integer(report, key, 1)
+    integer(report, 'linear_iterations')
+    integer(report, 'dofs', 1)
+    if integer(report, 'ranks', 1) != ranks:
+        raise RuntimeError('Report rank count differs from requested run')
+    for key in report:
+        if key.endswith(('_seconds', '_bytes')):
+            measurement(report, key)
     for key in PHASES:
         if float(report[key]) > float(report['assembly_seconds']) * 1.0001 + 1e-9:
             raise RuntimeError('Phase exceeds enclosing assembly time')
-    if {int(n['rank']) for n in nodes} != set(range(ranks)):
+    identities = [(integer(n, 'rank'), n.get('path')) for n in nodes]
+    if any(not path for _, path in identities) or len(set(identities)) != len(identities):
+        raise RuntimeError('Missing path or duplicate hierarchy node')
+    if {rank for rank, _ in identities} != set(range(ranks)):
         raise RuntimeError('Missing rank hierarchy')
-    if not any(n['path'].endswith('/coarse') for n in nodes):
+    if {rank for rank, path in identities if path == 'root'} != set(range(ranks)):
+        raise RuntimeError('Missing root hierarchy')
+    if not any(path.endswith('/coarse') for _, path in identities):
         raise RuntimeError('Missing GAMG coarse hierarchy')
-    if any(int(n['ksp_reason']) <= 0 for n in nodes if n['path'] == 'root'):
-        raise RuntimeError('Unconverged root hierarchy')
+    for node in nodes:
+        if node['path'] == 'root':
+            integer(node, 'ksp_reason', 1)
     return report, nodes
 
 

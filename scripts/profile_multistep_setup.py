@@ -2,7 +2,6 @@
 import argparse
 import hashlib
 import json
-import math
 import os
 from pathlib import Path
 import re
@@ -10,7 +9,7 @@ import statistics
 import subprocess
 import time
 from benchmark_nonlinear_setup import fields, ROOT
-from profile_schur_mesh import PHASES, fields as owned_fields, delta
+from profile_schur_mesh import PHASES, fields as owned_fields, delta, integer, measurement
 
 TIMERS = ['setup_seconds', 'schur_setup_seconds', 'solve_seconds', 'assembly_seconds',
           'ghost_seconds', 'linear_seconds', 'finalize_seconds', 'rss_max_bytes'] + list(PHASES)
@@ -19,18 +18,24 @@ TIMERS = ['setup_seconds', 'schur_setup_seconds', 'solve_seconds', 'assembly_sec
 def parse(text, marker):
     reports = [dict(re.findall(r'(\w+)=([^\s]+)', line)) for line in text.splitlines() if line.startswith('solver_report ')]
     steps = [dict(re.findall(r'(\w+)=([^\s]+)', line)) for line in text.splitlines() if line.startswith(marker+'=')]
-    if len(reports) != 10 or len(steps) != 10 or [int(s[marker]) for s in steps] != list(range(1,11)):
+    if len(reports) != 10 or len(steps) != 10 or [integer(s, marker, 1) for s in steps] != list(range(1,11)):
         raise RuntimeError('Expected exactly 10 accepted steps/reports; investigate retries or missing output')
+    # Counts alone cannot associate a report with its accepted step.
+    events = ['report' if line.startswith('solver_report ') else 'step'
+              for line in text.splitlines()
+              if line.startswith('solver_report ') or line.startswith(marker+'=')]
+    if events != ['report', 'step'] * 10:
+        raise RuntimeError('Expected a solver report before each accepted step')
     for report, step in zip(reports, steps):
-        if not set(TIMERS) <= report.keys() or int(report.get('domain_rejections', -1)) != 0:
-            raise RuntimeError('Missing phase data or rejected evaluation')
-        for key in TIMERS + ['linear_iterations', 'snes_reason', 'ksp_reason']:
-            report[key] = float(report[key])
-        if report['snes_reason'] <= 0 or report['ksp_reason'] <= 0:
-            raise RuntimeError('Unconverged solve')
-        report.update(step=int(step[marker]), residual=float(step['residual']), snes_iterations=int(step['snes_iterations']))
-        if any(not math.isfinite(report[k]) or report[k] < 0 for k in TIMERS+['residual']):
-            raise RuntimeError('Nonfinite measurement')
+        if integer(report, 'domain_rejections') != 0:
+            raise RuntimeError('Rejected evaluation')
+        for key in TIMERS:
+            report[key] = measurement(report, key)
+        for key in ('snes_reason', 'ksp_reason'):
+            report[key] = integer(report, key, 1)
+        report['linear_iterations'] = integer(report, 'linear_iterations')
+        report.update(step=integer(step, marker, 1), residual=measurement(step, 'residual'),
+                      snes_iterations=integer(step, 'snes_iterations'))
         if any(report[k] > report['assembly_seconds']*1.0001+1e-9 for k in PHASES):
             raise RuntimeError('Phase exceeds enclosing assembly time')
     return reports
