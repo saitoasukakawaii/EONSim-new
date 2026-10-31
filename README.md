@@ -11,7 +11,7 @@ C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体
 2026-10-30 新增 [通用 FEM 架构规划](docs/architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) 与
 [20 组上游学习矩阵](docs/research/FEM_FRAMEWORK_LEARNING_2026-10-30.md)，覆盖多拓扑/空间、边界与非匹配接口、时间格式、DoF/预条件及并行输出。它们提供总体路线；本次G0/G5/G1实现范围见[集成验证](docs/development/FEM_INTEGRATION_VALIDATION.md)，其他阶段不随之完成。
 
-2026-10-31：G0B/G0/G5/G1 已通过 PR #23 合入 main；主锁 Debug/Release 各 60 项及旧锁专项 13 项是该检查点的通过记录，后续运行应读取实际 inventory。PR #24 已将日常 CI 固定为 PETSc 3.23.7 Debug/Release。下文 P/B 阶段数值与环境保留历史口径，不代表本次重新测试。
+2026-10-31：G0B/G0/G5/G1 已通过 PR #23 合入 main；主锁 Debug/Release 各 60 项及旧锁专项 13 项是该检查点的通过记录，后续运行应读取实际 inventory。PR #24 已将日常 CI 固定为 PETSc 3.23.7 Debug/Release；后续增量 CI 按 PR 改动选测、复用同 PR 成功证据，数值 Push 触发移除，详见[构建与验证](docs/development/BUILD_AND_VALIDATION.md)。下文 P/B 阶段数值与环境保留历史口径，不代表本次重新测试。
 
 ## 新增能力与说明
 

@@ -5,6 +5,7 @@ version=${1:-3.23.7}
 mode=${2:-release}
 selection=${3:-core}
 state=${4:-"$root/.cloud"}
+tests_file=${5:-}
 state=$(cd "$state" && pwd)
 export MAMBA_ROOT_PREFIX="$state/mamba"
 eval "$("$state/micromamba" shell hook -s bash)"
@@ -38,4 +39,8 @@ export OMPI_MCA_rmaps_base_oversubscribe=1
 export PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe
 # Compiler activation supplies optimized CXXFLAGS: let existing presets choose flags.
 unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
-exec python3 "$root/scripts/cloud/validate.py" --mode "$mode" --selection "$selection" --version "$version"
+args=(--mode "$mode" --selection "$selection" --version "$version")
+if [[ -n "$tests_file" ]]; then
+    args+=(--tests-file "$tests_file")
+fi
+exec python3 "$root/scripts/cloud/validate.py" "${args[@]}"

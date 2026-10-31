@@ -389,3 +389,39 @@
 - [PR 数值 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41207324586) 实际日志确认：PETSc 3.23.7 Debug/Release 各 60 passed、0 failed、0 skipped；测试对象为合并预览 `8e835ecb5b9475e2e70f802b9944554e13f4e2cb`。PETSc 3.19.6 手动兼容 job 本次 skipped，不计为通过。
 - [网站 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41207324560) 的生产构建与草稿/模板隔离均成功。此为远程补验，前序本地缺少 Node 的记录仍成立。没有新增性能结论，也没有将草稿转为正式栏目。
 - 本地 main 已快进至合并提交；仅补记任务完成状态和上述证据链接。本补记不改源码/网站，静态复核后使用 `[skip ci]` 提交，避免重复数值套件；不把前述结果标记为补记提交的新运行。
+
+
+## 2026-10-31 / TEST-POLICY-01 — 增量验证与历史证据复用
+
+- 用户明确要求仅改约束，不开发和编译项目，并停止每次开发结束后的全量测试及无关历史测试重跑。源码基线 `3df1c31f8f3b6c995e00368782a94971a92371c3`；本次变更仅为 Markdown；用户随后授权本地提交，分支 `codex/incremental-validation-policy`，未推送。
+- 静态检查发现旧规则虽写“最小验证”，仍在基础设施交付、公共接口和最终集成处要求 `all`，且“代码继续变化”重跑条件未限定影响范围。已统一 AGENTS、L0、构建与验证、路线及 Goal 流程：只检查新增/受影响行为，复用未受影响的历史通过证据，全量仅在用户明确要求时运行。
+- 历史证据保留原提交、命令/环境/结果或归档链接；本次未运行须明确标注，不计作当前提交新通过。受影响路径不能仅用改动前的通过记录代替必要检查。
+- `.github/workflows/core-numerics.yml` 仍配置 Push/PR 的主锁 Debug/Release `selection: all`；本次按“仅改约束”限定未修改工作流、测试或脚本，没有实现 CI 自动选测，也没有触发远程验证。
+- 验证仅限文档阅读、`git diff --check`、改动 Markdown 本地链接目标检查和差异范围核对；没有运行 CMake 配置、编译、CTest、MPI、性能实验或网站构建。无数值结果或性能结论，未生成知识文章。
+- 进度、队列及知识索引同步；任务为 review（本地分支交付，未推送、未合入 main），不改写历史交付记录。
+
+
+## 2026-10-31 / CI-INCREMENTAL-01 — PR 增量执行（进行中）
+
+- 用户选择并批准：仅 PR 自动增量检查，分支 Push/main 不重复数值 CI；脚本验证加一次小型云端验收；不改生产求解器、不跑全量、不自动合并。基线 ef20e03，分支 codex/pr-incremental-ci。
+- 原入口只有 core/all/mpi-failure，先编译所有目标且重复做 2/4 rank 预检。新增显式路径/测试/目标映射、精确 JSON 清单执行、同 PR 成功 receipt；保留原必需检查名称与手动全量/旧锁专项。
+- 复用前检查 workflow 成功、repo/PR/base/规则及依赖指纹、head 祖先关系、完整双模式来源；找不到有效证据只重新计算 PR 相关项，不能落回 all。artifact 下载跨域时去除 Authorization；ZIP 只读取单个有界 receipt.json，不解压到工作区。
+- 首轮选测脚本测试发现 include/eonsim/fsi_element.hpp 未映射；补齐后 24 项 Python 测试通过。共享 reader、流体边界对固体的使用者及 profile 日志输入也纳入显式规则。
+- 已执行 python3 tests/test_ci_selection.py（24 项通过）、python3 tests/test_cloud_evidence.py（6 项通过）、bash -n scripts/cloud/run.sh、actionlint 1.7.7 的 core-numerics.yml 语法检查及 git diff --check；尚未运行本次生产构建/数值测试，云端 smoke 待 PR 验收。旧数值记录不计为本次通过。
+- 使用 eonsim-knowledge-capture 记录 CI 选测/证据复用草稿，不发布；后续补充真实云端证据及文档提交的复用结果。
+
+### CI-INCREMENTAL-01：首轮云端精确清单验收
+
+- 实现提交 `8f695cc6ed17fcbbd2736cceba38e7984de2b67e` 已推送并创建 [PR #26](https://github.com/saitoasukakawaii/EONSim-new/pull/26)，未合并。主数值 [run 41214961025](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41214961025) 成功，实际测试 merge preview `9ce31f9f869770e5672b01a1dfa39b4788710c6f`，tree 与功能提交相同。
+- PETSc 3.23.7、OpenMPI 5、GCC 15.3，云端 4 CPU/约 16 GiB；Debug/Release 仅运行 poisson_verification，各 1 passed、0 failed、0 skipped，rank=1。构建 targets 仅 eonsim、verify_runtime；锁定运行时探针 rank=1 另计，不冒充数值测试数。JUnit 与清单一致，receipt 已生成。
+- 实际入口：`scripts/cloud/run.sh 3.23.7 <debug|release> explicit .cloud build/ci/plan.json`；CTest 使用 `-R '^(poisson_verification)$'`。完整命令、退出码及精简结果见 [initial.json](../research/data/ci-incremental-2026-10-31/initial.json)。本地未编译或运行求解器，主锁全量及旧锁未执行；旧锁 job 为 skipped。
+- 网站 run 41214961032 成功，草稿隔离通过。GitHub runs 查询确认该提交只有两个 pull_request 事件，没有 Push run。
+- 下一笔仅补记文档/证据，将用于实际验证同 PR receipt 复用；复用结果尚未计为完成。
+
+### CI-INCREMENTAL-01：历史证据复用验收与交付
+
+- 文档/证据提交 `00722958b64df7cb65821269a08e510c5214834b` 的 [run 41215264515](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41215264515) 全部成功；selection 明确 `tests=[]`、`python=[]`、`reused=[poisson_verification]`。Debug/Release 的依赖缓存、restore、checkout、build/test 和数值 artifact 上传步骤均 skipped，不是重新通过一次数值测试。
+- 新 receipt 指向 previous_run_id=41214961025，每个模式的原始来源仍为首次 merge preview `9ce31f9f869770e5672b01a1dfa39b4788710c6f`。精简证据见 [reuse.json](../research/data/ci-incremental-2026-10-31/reuse.json)。网站 run 41215264596 也通过；旧锁专项未运行。
+- 补充两个标准库测试验证手动 all/explicit 清单生成及 PR 禁止请求手动全量，执行 `python3 tests/test_ci_selection.py SelectionTests.test_manual_all_and_explicit_cli_only_plan_requested_names SelectionTests.test_pr_cannot_request_manual_full_suite`，2 项通过；没有执行任何全量数值测试。选测/receipt 测试文件现共 26 项。
+- 本地直接查询 api.github.com 曾超时；改用已连接 GitHub 的只读 fetch/log/artifact 接口取得证据，没有修改网络策略或把查询失败计为测试失败。
+- 交付为 PR #26 review，未自动合并。代码、规则、状态及知识索引同步，文章保持 draft。已验证范围为新 CI 路径；不扩大为现有 60 项套件的新通过记录。最后补记只涉及状态/证据及上述脚本测试，数值执行链与规则指纹保持不变。

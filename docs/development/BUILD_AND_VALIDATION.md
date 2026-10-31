@@ -64,7 +64,7 @@ cd EONSim-new
 scripts/cloud/restore.sh 3.23.7 /opt/eonsim-cloud
 scripts/cloud/run.sh 3.23.7 debug core /opt/eonsim-cloud
 scripts/cloud/run.sh 3.23.7 release core /opt/eonsim-cloud
-# 公共基础设施交付：一次完整现有短套件
+# 以下全量命令仅在用户明确要求全量验证时运行，不是基础设施交付的默认步骤
 scripts/cloud/run.sh 3.23.7 debug all /opt/eonsim-cloud
 scripts/cloud/run.sh 3.23.7 release all /opt/eonsim-cloud
 # 仅当本次修改涉及 PETSc 3.19.6 兼容路径时，才按需运行旧版专项检查
@@ -98,24 +98,53 @@ cat build/cloud-3.23.7-release/evidence/ctest.log
 
 任何非预期跳过、空选择、不完整JUnit或非零CTest退出都判失败；预期错误由既有测试断言错误原因、状态和恢复后正常返回，与应用异常退出/超时区分。CTest沿用原超时；外层Linux子进程收养及进程组清理仅处理本次验证后代，不杀无关作业。
 
-GitHub Actions `core-numerics.yml` 在 main、codex 分支 Push 及 PR 上只运行 PETSc 3.23.7 的 Debug/Release 主力矩阵。PETSc 3.19.6 不参与日常 CI；仅在手动触发 workflow_dispatch 并显式勾选 `run_legacy_petsc` 时，运行 Release 的 `mpi-failure` 专项检查。仅依赖包缓存，键含锁、平台、编译器和 ABI；失败仍上传证据。网站构建不是数值 CI 替代品。
+### PR 增量 CI 与精确清单
+
+GitHub Actions `core-numerics.yml` 仅在面向 main 的 PR 自动运行；分支 Push 与合入 main 不重复触发数值 CI。保留 PETSc 3.23.7 Debug/Release 的原检查名称。纯文档/网站改动仍生成选测结果，但不恢复 PETSc、不编译、不执行数值检查；网站工作流独立且未修改。
+
+`scripts/cloud/selection.json` 记录路径到 CTest 名称、构建目标及 rank 的显式映射。共享代码映射到受影响入口的代表性检查，不代表完整下游验证。新增生产文件、测试或 CMake 注册项须同步映射；未知非文档路径直接失败，禁止自动回退 `all`。重命名按旧路径删除和新路径新增分别判断。旧版锁变化不启动主锁数值检查，仍需开发者按兼容策略选择手动旧版专项。
+
+首次按 PR base 与实际合并预览的差异选测。后续只复用同仓库、同 PR、相同 base SHA、相同规则/构建/依赖指纹、且旧 head 为当前 head 祖先的成功 workflow receipt。查询最近最多 90 个成功 PR runs；无可用凭据、artifact 缺失/过期、非祖先历史或基线变化时，重新选择当前完整 PR 差异涉及的项，仍不运行全量。当前不跨 PR 复用，也不缓存编译产物。
+
+复用证据保留每项 Debug/Release 的原 run/提交；新 head 的文档改动不会重跑这些数值项。受影响项重新运行，其他项标为历史证据复用；失败、取消、未知或不完整记录不参与复用。选测、实际运行、继承来源分别保存在 `incremental-plan`、`numerics-*`、`incremental-receipt` artifacts，保留 14 天；长期验收另存精简记录。
+
+云入口支持第五参数传入 JSON 清单，形如 `{"tests": ["poisson_verification"]}`：
+
+```bash
+scripts/cloud/run.sh 3.23.7 debug explicit .cloud build/ci/plan.json
+```
+
+执行器配置后读取真实 CTest inventory，核对映射完整性、名称唯一性及清单非空；只构建所选测试对应的目标和锁定运行时探针。`eonsim_core` 仍是一个库，构建 eonsim 会编译整个核心库，不声称已有逐源增量构建缓存。运行时探针按所选最大 rank 检查一次；若已选中 runtime_mpi，不额外执行同一探针。JUnit 必须与选择清单完全对应，缺失、重复、意外跳过或失败均拒绝通过。
+
+`workflow_dispatch` 的 `selection` 提供 `incremental`（默认，比较 `base_ref`）、`explicit`（逗号/空白分隔的精确 `tests` 名称）、`all`（用户显式全量）。PR 不允许切换为 explicit/all。手动全量仍经过精确 inventory 与结果核对；只有勾选 `run_legacy_petsc` 才运行 3.19.6 Release 的 mpi-failure 专项。手动运行不作为 PR 历史复用基线。
+
+工作流不使用顶层 paths-ignore 跳过必需检查；选测失败时原 Debug/Release 检查也失败，不能以依赖 job 被跳过掩盖错误。不修改仓库保护规则，不用 `[skip ci]` 作为跳过数值测试的实现。改造尚未合入 main 时，远程默认分支仍使用旧配置；实际 PR/验收状态见 CODEX_PROGRESS。
+
 
 
 ## 精简测试与不过度防御的执行规则
 
-### 日常验证只有必要的两三步
+### 按影响范围选测，复用历史通过证据
+
+默认不在每次开发结束、提交、PR、阶段交付或跨 Task 接续时运行全部测试。先用 diff 和调用/依赖关系确定受影响行为，再选择下面的最小检查。历史已通过且相关代码路径、依赖、配置和测试输入未受本次改动影响的测试，不重新运行；提交号变化或无关文件变化不使其证据自动失效。
 
 | 改动类型 | 默认动作 |
 |---|---|
-| 文档、注释、排版 | 阅读/链接检查，不跑求解测试 |
+| 文档、注释、排版 | 阅读/链接检查，不编译、不跑数值测试 |
 | 普通功能、边界参数或 I/O | 编译受影响目标＋一个相关小算例 |
 | 通信、编号、装配所有权 | 上述动作＋同算例 1/2 rank 对照 |
 | 材料、稳定化、残量/切线公式 | 一个局部方向导数或解析/制造解检查＋相关算例 |
 | 性能改动 | 同一代表算例在 Release 下对比耗时、迭代数和结果 |
 
-不强制测试先行、全量 CTest、覆盖率指标、全平台矩阵或重复验收。普通小改动不新增只复述实现的单元测试。已通过的检查仅在代码继续变化、失败或出现具体疑点时重跑。
+不强制测试先行、全量 CTest、覆盖率指标、全平台矩阵或重复验收。普通小改动不新增只复述实现的单元测试。已通过的检查仅在后续修改实际影响该检查、出现失败或有具体回归疑点时重跑相关项，不能因为其他模块继续开发就重跑整套。
 
-长期案例随当前路线逐个增加：标量基础、低 Re 通道、独立弹性体、给定运动 ALE、单轴刚体 FSI、弹性 FSI。同一几何的静态/动态或材料变化优先作为配置变体；案例兼作示例与回归，不另建几乎相同的三套数据。完整短套件只在版本交付或共同基础设施大改时运行。
+共享基础设施、公共接口或构建配置变更也只选择实际受影响的使用者、模式及兼容路径；不能仅以“基础设施大改”“版本交付”或“保险起见”为由运行全量。全量套件仅在用户明确要求全量验证时运行。不删除既有测试，不将历史通过视为被改动路径的当前验证。
+
+复用证据时在现有任务记录中注明原提交、原命令/环境/结果（或其归档链接）、本次不受影响的理由，并写明“复用历史通过证据，本次未运行”。本次实际执行、历史证据复用、未验证、跳过、取消和失败分别报告；不能把未运行项计入当前提交通过数。不为选测新建审批流程或独立计划文档。
+
+选测使用现有 `ctest -R` 或标签入口；执行前以 `ctest -N -R '<测试正则>'` 核对选中项，避免无过滤 CTest 或 `run.sh ... all` 意外扩大范围。相关检查通过后结束验证，不在本地、PR 和 main 之间主动重复相同检查；若后续合并实际改变了相关代码或配置，只补受影响项。
+
+长期案例随当前路线逐个增加：标量基础、低 Re 通道、独立弹性体、给定运动 ALE、单轴刚体 FSI、弹性 FSI。同一几何的静态/动态或材料变化优先作为配置变体；案例兼作示例与回归，不另建几乎相同的三套数据。
 
 ### 少而有价值的数值检查
 
@@ -170,6 +199,6 @@ Linux 下 `peak_rss_*` 使用 getrusage 的进程高水位值；`rss_*` 是求�
 针对索引/故障的快速检查：激活仓库锁定环境后执行
 `ctest --test-dir build/cloud-3.23.7-debug -R '^pc_plan_' --output-on-failure`。
 真实算例选择 `-R '^pc_recipe_'`，包含三recipe对直接解、COO/重启以及hybrid真实缩步。
-公共接口与最终集成仍使用 `scripts/cloud/run.sh 3.23.7 debug all` 和release对应命令，
-不能用索引测试代替数值验收。索引/故障测试同时标记mpi-failure以覆盖旧锁定环境。
+公共接口与最终集成只选择受影响的真实算例，不能用索引测试代替必要的数值验收，
+也不因此默认运行 `all` 或双模式全套。索引/故障测试同时标记mpi-failure以供旧锁按需专项验证。
 实现边界与证据见 [整体实施记录](FEM_INTEGRATION_VALIDATION.md)。

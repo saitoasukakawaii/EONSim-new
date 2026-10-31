@@ -15,6 +15,8 @@
 
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
+| CI-INCREMENTAL-01 | P1 | review | PR 增量 CI、精确执行与同 PR 成功证据复用 | [PR #26](https://github.com/saitoasukakawaii/EONSim-new/pull/26) 待审；首次主锁 Debug/Release 各仅 Poisson 1/1 通过，文档后续提交实际零构建/零数值测试并继承原证据；保留手动全量，未合并 |
+| TEST-POLICY-01 | P1 | review | 固化增量验证与历史通过证据复用约束 | 基线 3df1c31；仅文档，ef20e03 随 PR #26 推送待审，未合入 main；检查文档差异及链接，该阶段不开发、不编译、不跑数值测试；自动 CI 改造由 CI-INCREMENTAL-01 承接 |
 | FEM-INTEGRATION | P1 | done | G0B → G0 → G5 → G1 连续主线交付 | 基线及每阶段真实数值/MPI验证、独立审查、最终CI/PR与允许时合并；PR #23已合入main；本地与云端60/60/13通过，见集成验证记录 |
 | DOCS-01 | P1 | done | 全仓 Markdown 进度与链接审查 | 88 份既有 Markdown 已审查，修订及静态验证见 [审查记录](MARKDOWN_AUDIT_2026-10-31.md)；[PR #25](https://github.com/saitoasukakawaii/EONSim-new/pull/25) 已合入 be21882；本地静态检查、远程 Debug/Release 各60/60及网站/草稿隔离通过 |
 | DEV-PROCESS-POLICY | P1 | done | 固化 PETSc 主力 CI 策略与持续知识积累要求 | [PR #24](https://github.com/saitoasukakawaii/EONSim-new/pull/24)；3.23.7 Debug/Release 为日常矩阵，3.19.6 手动专项；AGENTS、进度、队列、会话日志与知识索引同步更新；已合入 main（a508e3d），本次未复查远程 Checks |

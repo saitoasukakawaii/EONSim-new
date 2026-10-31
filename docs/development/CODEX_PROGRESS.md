@@ -51,10 +51,14 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 
 ## 当前焦点
 
-DOCS-01 已通过 PR #25 合入，合并提交 `be21882`；G0B/G0/G5/G1 与 PR #24 工程策略保持已交付。当前 main tip 以 Git 为准。
-日常 CI 为 PETSc 3.23.7 Debug/Release；3.19.6 仅手动兼容专项。合并状态由本地 Git 历史确认，本次未查询 PR #24 的远程 Checks，不能据合并推断其逐项测试结果。
+CI-INCREMENTAL-01 已实现并在 [PR #26](https://github.com/saitoasukakawaii/EONSim-new/pull/26) 待审（review，未合并）；分支 `codex/pr-incremental-ci`，实现提交 `8f695cc`，含约束提交 `ef20e03`。自动数值 CI 仅 PR 选测，文档/证据后续提交可复用同 PR 成功记录；全量仅手动显式选择。云端首次 Debug/Release 各仅 poisson_verification 1/1 通过；文档提交 `0072295` 的第二次运行实际零构建、零数值测试，完整继承原来源，见 [首次验收](../research/data/ci-incremental-2026-10-31/initial.json)与[复用验收](../research/data/ci-incremental-2026-10-31/reuse.json)。本地 24 项选测/receipt 测试与 6 项证据解析通过，另补 2 项手动入口测试通过；未运行全量、旧锁数值测试或本地求解器构建。默认 main 行为要在 PR 合并后才改变。
 
-用户本次授权 DOCS-01：审查全部项目 Markdown 并按当前进度同步。开发分支 `codex/markdown-progress-audit` 已合并；只修改文档，未启动 deferred 数值阶段。范围、逐文件处理与静态验证见 [文档审查记录](MARKDOWN_AUDIT_2026-10-31.md)。
+DOCS-01 已通过 PR #25 合入，合并提交 `be21882`；G0B/G0/G5/G1 与 PR #24 工程策略保持已交付。当前 main tip 以 Git 为准。
+CI-INCREMENTAL-01 将日常数值 CI 改为 PR 选测的 PETSc 3.23.7 Debug/Release；3.19.6 仍仅手动兼容专项，main 上生效以合并为准。合并状态由本地 Git 历史确认，本次未查询 PR #24 的远程 Checks，不能据合并推断其逐项测试结果。
+
+DOCS-01 的开发分支 `codex/markdown-progress-audit` 已合并；范围、逐文件处理与静态验证见 [文档审查记录](MARKDOWN_AUDIT_2026-10-31.md)。
+
+此前 TEST-POLICY-01：仅修改验证约束，不开发、不编译项目。基线 `3df1c31`；约束提交 `ef20e03` 已随 PR #26 推送待审（review，未合入 main）。默认仅检查新增或受影响行为，历史已通过且未受影响的测试不重跑；全量仅在用户明确要求时运行。规则见 [构建与验证](BUILD_AND_VALIDATION.md)。该文档任务未运行构建、数值测试或 CI，也未修改工作流；后续 CI-INCREMENTAL-01 承接自动选测实现。
 
 ## 最近完成
 
