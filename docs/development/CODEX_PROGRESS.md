@@ -30,6 +30,12 @@
 
 ## 当前焦点
 
+2026-10-31 接续：已 fetch 核实最新 main 为 `47b5bd46c992fcf64cf163361053ceb0091fa5a5`，无开放 PR；工作分支 `codex/fem-time-mesh`。
+该 SHA 的云端数值 CI 已成功（主锁 Debug/Release 各43项，兼容锁Release 10项，无失败/跳过），见 [主线CI证据](../research/data/fem-integration-2026-10-31/main-ci.json)。
+独立只读审查确认 g0.json 的100份源码哈希与该SHA一致；完整G0仍需补强真实装配置换、逐recipe物理观测和受控性能证据。
+本轮用户明确授权 WSL2 开发/验证并由云端CI复验；锁定依赖恢复中，不复用PATH中的ParaView MPI。
+以下旧检查点保留为历史；当前总任务仍 in_progress，G5/G1未完成。
+
 从最新main `72a3356` 开展用户授权的G0B→G0→G5→G1整体任务。G0A已合入，未重复开发。
 G0检查点已有生产实现、真实数值/MPI验收与独立审查；下一步推送验证检查点并进入G5。
 G5/G1尚未实现，整体任务仍in_progress。正式PR在全部阶段验证/审查完成后创建，不直接推送main。

@@ -3,6 +3,37 @@
 状态：in_progress。基线 main `72a335604a50c1ae27516b8bde15e05564b5748b`。
 工程量估计与依赖在现有 [队列](CODEX_TASK_QUEUE.md) 维护；本文仅记录实现和验证事实。
 
+## 47b5bd4 后的 G0 验收补强
+
+接续源SHA：`47b5bd46c992fcf64cf163361053ceb0091fa5a5`，分支 `codex/fem-time-mesh`。
+该主线SHA的 [云端CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41178465248)
+主锁Debug/Release各43项、兼容锁Release 10项成功，无失败/跳过；本轮实际读取作业日志，
+摘要见 [main-ci.json](../research/data/fem-integration-2026-10-31/main-ci.json)。
+独立审查逐一核对原g0.json的100份源码哈希，与该主线完全一致。
+
+本轮用户明确允许WSL2开发验证，并要求云端CI复验。两套锁定依赖恢复到仓库`.cloud/`；
+默认PATH中的ParaView MPI不参与验证。首次沙箱MPI启动因PMIx socket被禁止（errno=1）失败，
+获准在沙箱外重跑后2/4 rank预检成功。这是执行环境失败，不是数值失败。
+
+新增显式 `-verify_operator_permutation` 仅用于具有可逆约束切线的小型诊断：
+对真实初始装配的J/R作跨rank全局反序，通过分布式scatter验证矩阵作用和残量往返，
+对J*v已知解求解，再以真实R为右端求解并逆映射检查原方程缺陷。
+该诊断使用额外直接分解，关闭时不执行，不构成生产存储重排或不同布局重新装配。
+不适用于初态收敛但Jacobian奇异的无需求解路径；诊断耗时不能纳入PC性能比较。
+PETSc VecPermute不支持跨rank非本地置换，因此这里使用scatter；参见
+[官方说明](https://petsc.org/release/manualpages/Vec/VecPermute/)。
+
+三recipe测试新增逐步流体力、位置/速度、动量平衡和边界通量/压力对照，
+增加同一仿射流的规范点定压及零均压；输出长度和有限值也明确检查。
+新增性能脚本`benchmark_pc_recipes.py`固定两小算例、1/2/4rank，每模式预热一次、
+三次重复轮换顺序，逐次保存直接解偏差、物理量对照及setup/solve/迭代/RSS。
+总阶段时间包含嵌套，不能相加；不预设新recipe更快。
+
+当前实际检查：主锁Debug/Release各43项通过；新增辅助求解奇异失败/恢复负例随后在主锁Debug及旧锁Release的10项故障选择中通过，旧锁三recipe补验3项通过。受控性能72个样本全部满足物理对照，最大场差3.307e-12；新提交CI待执行。
+[本轮证据](../research/data/fem-integration-2026-10-31/g0-supplement.json) 与 [性能原始报告](../research/data/fem-integration-2026-10-31/pc-recipes-benchmark.json)。
+小型问题上直接解solve中位数均更低，不由此推断大规模结果。
+G0完整验收仍in_progress，G5/G1尚未实施；后文为前序检查点记录。
+
 ## 当前基线
 
 PETSc 3.23.7 real/double/int32 + OpenMPI 5.0.8 + GCC 15.3.0，Linux x86_64，cgroup 4 CPU/32 GiB，4编译任务、CTest串行、每rank BLAS/OpenMP单线程。

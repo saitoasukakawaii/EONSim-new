@@ -9,6 +9,12 @@ state=$(cd "$state" && pwd)
 export MAMBA_ROOT_PREFIX="$state/mamba"
 eval "$("$state/micromamba" shell hook -s bash)"
 micromamba activate "$state/petsc-$version"
+# A developer shell may already expose another PETSc/MPI/MKL installation.
+# Keep both direct and transitive link/runtime lookup inside this explicit lock.
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib"
+export LIBRARY_PATH="$CONDA_PREFIX/lib"
+export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig"
+unset CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH CMAKE_PREFIX_PATH
 export PETSC_DIR="$CONDA_PREFIX"
 export CC="$CONDA_PREFIX/bin/gcc" CXX="$CONDA_PREFIX/bin/g++"
 # OpenMPI 4.1.6 bundles hwloc 2.0: its x86 CPUID scanner faults on newer CPUs.

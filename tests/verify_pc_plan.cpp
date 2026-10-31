@@ -142,6 +142,24 @@ void run(MPI_Comm comm) {
         const auto unchanged=system.solve(config,initial,{}, {},zero);
         check(comm,unchanged.iterations==0&&unchanged.values==initial,"Initially converged solve changed state");
     }
+    // Optional permutation diagnostics must also fail collectively and leave
+    // the same nonlinear object usable, including the empty-owned fourth rank.
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-verify_operator_permutation","true"));
+    failure=3;
+    bool diagnostic_failed=false;
+    EONSIM_PETSC(PetscPushErrorHandler(PetscReturnErrorHandler,nullptr));
+    try { system.solve(SolverConfig{},initial,{}, {},assemble); }
+    catch(const std::runtime_error& error) {
+        diagnostic_failed=std::string(error.what()).find("permutation reference solve failed")!=std::string::npos;
+    }
+    EONSIM_PETSC(PetscPopErrorHandler());
+    failure=0;
+    const auto diagnostic_recovered=system.solve(SolverConfig{},initial,{}, {},assemble);
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-verify_operator_permutation"));
+    bool diagnostic_exact=initial==std::vector<double>(l.owned,0);
+    for(PetscInt i=0;i<l.owned;++i)
+        diagnostic_exact=diagnostic_exact&&std::abs(diagnostic_recovered.values[i]-(l.begin+i+1))<1e-10;
+    check(comm,diagnostic_failed&&diagnostic_exact,"Permutation diagnostic failure/recovery contract failed");
     PetscOwner<Mat,MatDestroy> matrix;
     EONSIM_PETSC(MatCreateAIJ(comm,l.owned,l.owned,14,14,l.owned,nullptr,14-l.owned,nullptr,matrix.put()));
     for(PetscInt row=l.begin;row<l.begin+l.owned;++row) for(PetscInt col=0;col<14;++col)
