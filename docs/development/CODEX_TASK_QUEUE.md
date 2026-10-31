@@ -16,7 +16,7 @@
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
 | FEM-INTEGRATION | P1 | done | G0B → G0 → G5 → G1 连续主线交付 | 基线及每阶段真实数值/MPI验证、独立审查、最终CI/PR与允许时合并；PR #23已合入main；本地与云端60/60/13通过，见集成验证记录 |
-| DOCS-01 | P1 | review | 全仓 Markdown 进度与链接审查 | 88 份既有 Markdown 已审查，修订及静态验证见 [审查记录](MARKDOWN_AUDIT_2026-10-31.md)；本地静态验收通过，用户已授权推送及合并；PR 交付中，合入后转 done |
+| DOCS-01 | P1 | done | 全仓 Markdown 进度与链接审查 | 88 份既有 Markdown 已审查，修订及静态验证见 [审查记录](MARKDOWN_AUDIT_2026-10-31.md)；[PR #25](https://github.com/saitoasukakawaii/EONSim-new/pull/25) 已合入 be21882；本地静态检查、远程 Debug/Release 各60/60及网站/草稿隔离通过 |
 | DEV-PROCESS-POLICY | P1 | done | 固化 PETSc 主力 CI 策略与持续知识积累要求 | [PR #24](https://github.com/saitoasukakawaii/EONSim-new/pull/24)；3.23.7 Debug/Release 为日常矩阵，3.19.6 手动专项；AGENTS、进度、队列、会话日志与知识索引同步更新；已合入 main（a508e3d），本次未复查远程 Checks |
 | FEM-G0B | P1 | done | 旧存储上的语义与 physics/quantity/hybrid PC 接入 | 依赖基线；独立验收字段、父编号、唯一界面代表、刚体、空本地块及真实求解 |
 | BRANCH-02 | P1 | done | 合入新增 G0A 并清理全部 7 个非主分支 | [源提交与检查](BRANCH_CLEANUP_2026-10-31.md)；保留 main，无生产求解器改动 |

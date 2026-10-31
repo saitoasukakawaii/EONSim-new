@@ -51,10 +51,10 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 
 ## 当前焦点
 
-截至本次同步，main/origin/main 为 `a508e3d`（PR #24 合并），G0B/G0/G5/G1 已交付。
+DOCS-01 已通过 PR #25 合入，合并提交 `be21882`；G0B/G0/G5/G1 与 PR #24 工程策略保持已交付。当前 main tip 以 Git 为准。
 日常 CI 为 PETSc 3.23.7 Debug/Release；3.19.6 仅手动兼容专项。合并状态由本地 Git 历史确认，本次未查询 PR #24 的远程 Checks，不能据合并推断其逐项测试结果。
 
-用户本次授权 DOCS-01：审查全部项目 Markdown 并按当前进度同步。开发分支 `codex/markdown-progress-audit`；只修改文档，未启动 deferred 数值阶段。范围、逐文件处理与静态验证见 [文档审查记录](MARKDOWN_AUDIT_2026-10-31.md)。
+用户本次授权 DOCS-01：审查全部项目 Markdown 并按当前进度同步。开发分支 `codex/markdown-progress-audit` 已合并；只修改文档，未启动 deferred 数值阶段。范围、逐文件处理与静态验证见 [文档审查记录](MARKDOWN_AUDIT_2026-10-31.md)。
 
 ## 最近完成
 
@@ -80,8 +80,9 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 ## 当前检查点
 
 - 源码基线：`a508e3d`；PR #24 已合入，旧 `codex/primary-petsc-ci-policy` 不再是当前待交付任务。
-- DOCS-01 文档修订在 `codex/markdown-progress-audit` 静态验收通过；用户已追加授权推送及合并，正在通过 PR 交付，尚不标记已合入。
-- 本次只做 Markdown 状态、路径、围栏及 diff 检查；没有 C++ 编译、CTest、MPI 或性能运行。
+- DOCS-01 已通过 [PR #25](https://github.com/saitoasukakawaii/EONSim-new/pull/25) 合入 main（`be21882`）。
+- 本地只做 Markdown 静态检查；远程 [PR 数值 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41207324586) 的 3.23.7 Debug/Release 各 60/60 通过，无失败/跳过；3.19.6 job 按策略 skipped。
+- [网站构建与草稿/模板隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41207324560) 通过；草稿仍未提升为正式文章。无新性能实验。
 - PR #23 的 60/60/13 为归档验证，不作为本次新运行结果；实际测试 inventory 随源码/构建配置读取。
 
 ## 恢复规则

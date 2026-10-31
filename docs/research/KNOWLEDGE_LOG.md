@@ -163,3 +163,5 @@
 ## DOCS-01 / 2026-10-31
 
 基线 `a508e3d`，本地分支 `codex/markdown-progress-audit`。全仓 [Markdown 审查](../development/MARKDOWN_AUDIT_2026-10-31.md) 同步现行状态与历史证据边界，并按 eonsim-knowledge-capture 更新已有 DoF、BDF2、alpha、COO、生命周期草稿；原模板与理论/实现/验证/性能分级保留，没有新数值或性能数据。静态检查命令和未验证项见审查记录。没有新技术成果需要独立文章，所有草稿仍为 draft，未发布。
+
+DOCS-01 交付补记：已通过 [PR #25](https://github.com/saitoasukakawaii/EONSim-new/pull/25) 合入 main（be21882）；远程主锁 Debug/Release 各60/60、网站构建及草稿隔离通过，旧锁专项 skipped。命令与运行链接见 [审查补记](../development/MARKDOWN_AUDIT_2026-10-31.md#远程交付补记)。仍无新算法/性能文章，草稿未发布。

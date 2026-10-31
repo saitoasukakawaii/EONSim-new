@@ -128,3 +128,10 @@
 ## 最终静态检查结果
 
 `python3 /tmp/eonsim_md_audit.py` 退出 0：89 份 Markdown、530 个本地目标、5 个 Markdown 锚点、71 个固定 Git 目标，错误 0。240 个外部链接未请求网络验证。`git diff --check` 退出 0；47 份既有修改均为 Markdown，改动的知识草稿全部保留 draft。新增本文后共 48 个变更文件；未执行网站构建和数值测试。
+
+## 远程交付补记
+
+- 功能提交 `40f87c0989cde56d085f3b05eea31b90116dc9e9` 已推送，并通过 [PR #25](https://github.com/saitoasukakawaii/EONSim-new/pull/25) 合并为 `be21882b589735ff449b472e8efc76555cffb9fb`；没有强推。合并 tree 与功能提交一致，已用 `git diff --exit-code 40f87c0 be21882` 核对。
+- [PR 数值 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41207324586) 实际日志确认：PETSc 3.23.7 Debug/Release 各 60 passed、0 failed、0 skipped；测试对象为合并预览 `8e835ecb5b9475e2e70f802b9944554e13f4e2cb`。PETSc 3.19.6 手动兼容 job 本次 skipped，不计为通过。
+- [网站 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41207324560) 的生产构建与草稿/模板隔离均成功。此为远程补验，前序本地缺少 Node 的记录仍成立。没有新增性能结论，也没有将草稿转为正式栏目。
+- 本地 main 已快进至合并提交；仅补记任务完成状态和上述证据链接。本补记不改源码/网站，静态复核后使用 `[skip ci]` 提交，避免重复数值套件；不把前述结果标记为补记提交的新运行。

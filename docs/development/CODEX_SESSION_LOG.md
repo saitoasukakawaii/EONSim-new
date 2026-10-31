@@ -382,3 +382,10 @@
 ## 2026-10-31 / DOCS-01 远程交付授权
 
 用户追加要求推送并合并到远程。再次 fetch 后 origin/main 仍为 a508e3d；89 份 Markdown 的静态检查与 git diff --check 通过。准备提交并通过 PR 合并；远程检查结果待实际完成后记录，草稿不转正式栏目。
+
+## 2026-10-31 / DOCS-01 远程交付完成
+
+- 功能提交 `40f87c0989cde56d085f3b05eea31b90116dc9e9` 已推送，并通过 [PR #25](https://github.com/saitoasukakawaii/EONSim-new/pull/25) 合并为 `be21882b589735ff449b472e8efc76555cffb9fb`；没有强推。合并 tree 与功能提交一致，已用 `git diff --exit-code 40f87c0 be21882` 核对。
+- [PR 数值 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41207324586) 实际日志确认：PETSc 3.23.7 Debug/Release 各 60 passed、0 failed、0 skipped；测试对象为合并预览 `8e835ecb5b9475e2e70f802b9944554e13f4e2cb`。PETSc 3.19.6 手动兼容 job 本次 skipped，不计为通过。
+- [网站 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41207324560) 的生产构建与草稿/模板隔离均成功。此为远程补验，前序本地缺少 Node 的记录仍成立。没有新增性能结论，也没有将草稿转为正式栏目。
+- 本地 main 已快进至合并提交；仅补记任务完成状态和上述证据链接。本补记不改源码/网站，静态复核后使用 `[skip ci]` 提交，避免重复数值套件；不把前述结果标记为补记提交的新运行。
