@@ -18,9 +18,10 @@ def main():
     p.add_argument('--executable', required=True)
     p.add_argument('--mpiexec', required=True)
     p.add_argument('--work', type=Path, required=True)
+    p.add_argument('--alpha',action='store_true')
     a = p.parse_args(); a.work.mkdir(parents=True, exist_ok=True)
     mesh = a.work / 'cube.msh'; write_mesh(mesh, 2)
-    def solve(scheme, h, label, ranks=1, extra=(), schedule=None, events=None, retries=0, failure=None):
+    def solve(scheme, h, label, ranks=1, extra=(), schedule=None, events=None, retries=0, failure=None, rho=.5):
         case = a.work / f'{label}.json'; output = a.work / f'{label}.vtu'
         config = dict(mesh=str(mesh.resolve()), output=str(output.resolve()),
                       fluid=dict(mode='transient', density=10, viscosity=1, dt=h, stabilization_tau=.05,
@@ -31,6 +32,7 @@ def main():
                                      *[dict(tag=tag,type='velocity',value=[0,0,0],components=[2]) for tag in (5,6)]]),
                       solver=dict(relative_tolerance=1e-11, absolute_tolerance=1e-13, maximum_iterations=50),
                       time=dict(scheme=scheme))
+        if scheme=='generalized_alpha':config['time']['rho_infinity']=rho
         config['time_control']={}
         if retries: config['time_control'].update(max_retries=retries,minimum_dt=1e-6,reduction=.5)
         if schedule is not None: config['time_control']['step_sizes']=schedule
@@ -61,20 +63,59 @@ def main():
     def error(first,second,name):
         assert first.keys()==second.keys()
         return math.sqrt(sum((x-y)**2 for node in first for x,y in zip(first[node][name],second[node][name]))/len(first))
-    for scheme in ('be','bdf2'):
+    methods=[('generalized_alpha',rho) for rho in (0.,.5,1.)] if a.alpha else [('be',.5),('bdf2',.5)]
+    for scheme,rho in methods:
         previous={}
         for h in (.02,.01,.005):
-            actual,_=solve(scheme,h,f'{scheme}-{h}')
-            row=dict(scheme=scheme,h=h)
+            actual,_=solve(scheme,h,f'{scheme}-{rho}-{h}',rho=rho)
+            row=dict(scheme=scheme,rho=rho,h=h)
             for name in ('velocity','pressure'):
                 value=error(actual,reference,name)
                 assert math.isfinite(value) and value>0
                 row[name]=value
                 if name in previous:
                     order=math.log(previous[name]/value,2); row[name+'_order']=order
-                    assert order>(1.7 if scheme=='bdf2' else .8), row
+                    assert order>(.8 if scheme=='be' else 1.7), row
                 previous[name]=value
             evidence.append(row); print(row,flush=True)
+    if a.alpha:
+        early_reference,_=solve('bdf2',.0003125,'early-reference',extra=['-stop_after',64])
+        for rho in (0.,.5,1.):
+            previous={}
+            for h in (.005,.0025,.00125):
+                actual,_=solve('generalized_alpha',h,f'early-{rho}-{h}',rho=rho,extra=['-stop_after',round(.02/h)])
+                row=dict(scheme='generalized_alpha',rho=rho,h=h,time=.02)
+                for name in ('velocity','pressure'):
+                    value=error(actual,early_reference,name);row[name]=value
+                    if name in previous:
+                        row[name+'_order']=math.log(previous[name]/value,2)
+                        assert row[name+'_order']>1.7,row
+                    previous[name]=value
+                evidence.append(row);print(row,flush=True)
+            schedule=[.008,.012]*10
+            baseline,_=solve('generalized_alpha',.01,f'alpha-{rho}-base',rho=rho,schedule=schedule)
+            for ranks in (1,2,4):
+                checkpoint=a.work/f'alpha-checkpoint-{rho}-{ranks}'
+                solve('generalized_alpha',.01,f'alpha-{rho}-partial-{ranks}',rho=rho,ranks=ranks,schedule=schedule,extra=['-checkpoint',checkpoint,'-stop_after',5])
+                resumed,_=solve('generalized_alpha',.01,f'alpha-{rho}-resumed-{ranks}',rho=rho,ranks=ranks,schedule=schedule,extra=['-restart',checkpoint])
+                for name in ('velocity','pressure'):assert error(baseline,resumed,name)<2e-9
+        event_result,event_log=solve('generalized_alpha',.01,'alpha-event',events=[.055])
+        checkpoint=a.work/'alpha-event-checkpoint'
+        solve('generalized_alpha',.01,'alpha-event-partial',events=[.055],extra=['-checkpoint',checkpoint,'-stop_after',6])
+        resumed,tail=solve('generalized_alpha',.01,'alpha-event-resumed',events=[.055],extra=['-restart',checkpoint])
+        assert re.findall(r'time_order=(\d+)',tail)[0]=='1'
+        for name in ('velocity','pressure'):assert error(event_result,resumed,name)<2e-10
+        checkpoint=a.work/'alpha-retry-checkpoint'
+        solve('generalized_alpha',.01,'alpha-retry-start',extra=['-checkpoint',checkpoint,'-stop_after',2])
+        retried,log=solve('generalized_alpha',.01,'alpha-retried',extra=['-restart',checkpoint,'-snes_max_it',2],retries=10)
+        rejected_times=list(map(float,re.findall(r'step_retry=\d+ time=(\S+)',log)))
+        assert rejected_times and min(rejected_times)>=.02
+        times=[.02]+list(map(float,re.findall(r'fluid_step=\d+ time=(\S+)',log)))
+        schedule=[.01,.01]+[b-a for a,b in zip(times,times[1:])]
+        direct,_=solve('generalized_alpha',.01,'alpha-retry-trajectory',schedule=schedule)
+        for name in ('velocity','pressure'):assert error(retried,direct,name)<2e-9
+        (a.work/'results.json').write_text(json.dumps(evidence,indent=2)+'\n')
+        return
     baseline,_=solve('bdf2',.01,'variable',schedule=[.008,.012]*10)
     checkpoint=a.work/'checkpoint'
     solve('bdf2',.01,'partial',extra=['-checkpoint',checkpoint,'-stop_after',5],schedule=[.008,.012]*10)

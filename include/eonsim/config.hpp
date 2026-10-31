@@ -100,8 +100,8 @@ struct TimeControl {
     std::vector<double> step_sizes; ///< 候选步长按accepted步号选取，末值延续；拒绝优先缩步。
     std::vector<double> events; ///< 必须命中的不连续时刻；新格式在事件后重新启动历史。
 };
-enum class TimeScheme { backward_euler, bdf2 };
-struct TimeIntegration { TimeScheme scheme=TimeScheme::backward_euler; };
+enum class TimeScheme { backward_euler, bdf2, generalized_alpha };
+struct TimeIntegration { TimeScheme scheme=TimeScheme::backward_euler; double rho_infinity=.5; };
 
 struct Config {
     TimeIntegration time_integration;

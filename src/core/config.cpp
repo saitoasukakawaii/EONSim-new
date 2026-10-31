@@ -99,11 +99,18 @@ Config read_config(const std::filesystem::path& path)
 
     Config config;
     if(const auto t=root["time"]) {
-        keys(t,{"scheme"},"time");
+        keys(t,{"scheme","rho_infinity"},"time");
         const auto scheme=t["scheme"].as<std::string>();
         if(scheme=="be") config.time_integration.scheme=TimeScheme::backward_euler;
         else if(scheme=="bdf2") config.time_integration.scheme=TimeScheme::bdf2;
+        else if(scheme=="generalized_alpha") config.time_integration.scheme=TimeScheme::generalized_alpha;
         else throw std::runtime_error("Unsupported time scheme: "+scheme);
+        if(t["rho_infinity"]) {
+            if(config.time_integration.scheme!=TimeScheme::generalized_alpha) throw std::runtime_error("rho_infinity requires generalized_alpha");
+            config.time_integration.rho_infinity=t["rho_infinity"].as<double>();
+        }
+        if(!std::isfinite(config.time_integration.rho_infinity)||config.time_integration.rho_infinity<0||config.time_integration.rho_infinity>1)
+            throw std::runtime_error("rho_infinity must be in [0,1]");
     }
     if(const auto t=root["time_control"]) {
         keys(t,{"max_retries","minimum_dt","reduction","step_sizes","events"},"time_control");
@@ -349,7 +356,10 @@ Config read_config(const std::filesystem::path& path)
     if (!std::isfinite(solver.relative_tolerance) || solver.relative_tolerance <= 0.0 || solver.relative_tolerance >= 1.0 ||
         !std::isfinite(solver.absolute_tolerance) || solver.absolute_tolerance <= 0.0 || solver.maximum_iterations <= 0)
         throw std::runtime_error("Invalid solver tolerances or maximum_iterations");
-    if(config.time_integration.scheme!=TimeScheme::backward_euler &&
+    if(config.time_integration.scheme==TimeScheme::generalized_alpha&&
+       !((config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)))
+        throw std::runtime_error("generalized_alpha currently requires standalone transient fluid or solid");
+    if(config.time_integration.scheme==TimeScheme::bdf2 &&
        !((config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)||config.fsi_problem||
          (config.motion_problem&&config.motion.mode!=MotionConfig::Mode::rigid)))
         throw std::runtime_error("BDF2 requires transient standalone fluid, solid, ALE or FSI");

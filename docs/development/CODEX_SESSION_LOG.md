@@ -2,6 +2,16 @@
 
 本文件记录有实质代码、算法、验证或知识产出的开发会话。只记录事实，不写无法复现的“已优化”“性能显著提升”等结论。
 
+## 2026-10-31 / G5 — 独立场generalized-alpha
+
+- BDF2耦合检查点`bab4fda`云端CI三环境成功（run41192856614）。
+- 核对PETSc3.23.7 alpha1/alpha2版本源码、一阶原始预印本§3–4与压力评价论文。Chung1993出版社全文403，仅核实出版信息，不声称读过全文。
+- 新时刻权重参数分别实现一阶流体与二阶结构；独立stage速度/压力、端点恢复、完整算法历史及rho checkpoint。接受一个BE启动步的策略明确不同于PETSc探测启动。
+- 结构惯性q与位移beta*h/gamma分离；局部线弹性/Neo-Hookean方向导数通过。物理端点加速度由卸载模型一致质量方程恢复，算法加速度独立输出/保存。
+- 独立审查发现stage残量与端点输出混用风险，已将流体字段命名stage_momentum_residual，结构保留stage字段但端点反力/残量使用质量恢复方程，日志标记evaluation_time。
+- 主锁Debug7项针对性CTest全部通过，26.82秒CTest墙钟；包括rho=0/0.5/1的真实流体早期/终点速度与压力阶、结构位移/速度/物理加速度阶、rho=1启动后能量保持、阻尼、1/2/4rank、事件checkpoint、算法历史和真实拒绝。
+- [alpha-standalone.json](../research/data/fem-integration-2026-10-31/alpha-standalone.json)保留实际源码/二进制、命令、退出码和结果。alpha ALE/FSI尚未接入并明确拒绝；G5不关闭，继续下一增量。
+
 ## 2026-10-31 / G5 — BDF2 ALE与单体FSI
 
 - 独立场提交`c923387`的云端CI三环境成功（run41181938354）。

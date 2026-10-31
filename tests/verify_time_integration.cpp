@@ -39,4 +39,28 @@ int main() {
     try { (void)time_derivative(TimeScheme::bdf2,.3,.1); }
     catch(const std::runtime_error&) { rejected=true; }
     if(!rejected) throw std::runtime_error("Unstable BDF2 growth ratio accepted");
+    for(double rho:{0.,.5,1.}) for(bool second:{false,true}) {
+        double previous_error=0;
+        for(int n:{40,80,160}) {
+            const double h=1./n;
+            double y=1,v=second?0:-1,a=-1;
+            for(int step=0;step<n;++step) {
+                const AlphaStep map(h,rho,second);
+                if(second) {
+                    const double vr=map.reference(v,a),dr=map.displacement_reference(y,v,a);
+                    const double vf=(vr/map.effective_dt()-dr)/(1/map.effective_dt()+map.displacement_dt());
+                    const double df=dr+map.displacement_dt()*vf;
+                    a=map.endpoint_rate(v,a,vf); v=map.endpoint(v,vf); y=map.endpoint(y,df);
+                } else {
+                    const double stage=map.reference(y,v)/(1+map.effective_dt());
+                    v=map.endpoint_rate(y,v,stage); y=map.endpoint(y,stage);
+                }
+            }
+            const double error=second?std::hypot(y-std::cos(1.),v+std::sin(1.)):std::abs(y-std::exp(-1.));
+            const double order=previous_error?std::log(previous_error/error)/std::log(2.):0;
+            std::cout << "alpha second=" << second << " rho=" << rho << " n=" << n << " error=" << error << " order=" << order << '\n';
+            if(previous_error&&order<1.9) throw std::runtime_error("generalized-alpha analytic order failed");
+            previous_error=error;
+        }
+    }
 }

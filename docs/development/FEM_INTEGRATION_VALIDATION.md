@@ -18,6 +18,11 @@ ALE/FSI BDF2增量：主锁Debug6项针对性CTest全部通过，138.35秒CTest�
 均匀流保持及1/2/4rank完整历史恢复通过。整体J差分相对误差约1.4e-9。
 新增全分量离散接口功率对照，不将其解释为总能量守恒。真实BDF2启动后拒绝恢复与同轨迹对照通过。
 
+独立流体一阶/结构二阶generalized-alpha：主锁Debug7项针对性CTest全部通过，26.82秒CTest墙钟，
+[证据](../research/data/fem-integration-2026-10-31/alpha-standalone.json)。rho=0/0.5/1的早期/终点压力、
+速度与结构位移/物理加速度近二阶；算法历史与物理加速度区分，rho=1在线弹性BE启动后保持能量。
+事件重置、真实拒绝恢复与最多4rank重启通过。alpha ALE/FSI仍未实施，G5未完成。
+
 ## 47b5bd4 后的 G0 验收补强
 
 接续源SHA：`47b5bd46c992fcf64cf163361053ceb0091fa5a5`，分支 `codex/fem-time-mesh`。

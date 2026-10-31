@@ -2,6 +2,13 @@
 
 本文件是知识资产索引，不代替文章正文、文献阅读笔记或实验原始数据。
 
+## G5 独立场generalized-alpha / 2026-10-31
+
+[stage与物理输出草稿](../../website/drafts/generalized-alpha-stage-and-physical-output.md)：
+新时刻权重、分离惯性/位移链、算法加速度与端点物理加速度、压力stage及启动。
+来源[alpha-standalone.json](data/fem-integration-2026-10-31/alpha-standalone.json)，
+理论/实现/真实数值分开，无性能声明。待审核：输出时间语义、启动压力与质量恢复的卸载模型限定；保持draft。
+
 ## G5 独立场BDF2 / 2026-10-31
 
 [时间误差与稳定化草稿](../../website/drafts/bdf2-time-error-and-stabilization.md)：

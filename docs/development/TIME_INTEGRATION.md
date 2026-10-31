@@ -1,7 +1,8 @@
 # 时间离散实施状态
 
 G5仍在实施。当前支持独立瞬态流体、独立卸载固体、给定位移ALE及单体刚体/弹性FSI的BE与变步BDF2；
-generalized-alpha尚未接入，配置明确拒绝该格式。独立刚体ODE演示仍仅支持BE，单体刚体FSI已支持BDF2。
+独立瞬态流体支持一阶generalized-alpha，独立结构支持二阶generalized-alpha；
+该格式的ALE/FSI尚未接入并明确拒绝。独立刚体ODE演示仍仅支持BE，单体刚体FSI已支持BDF2。
 本表随真实验证更新，不能将这一增量解释为G5完成。
 
 ```yaml
@@ -57,8 +58,49 @@ FSI可使用同义的`fsi.stabilization_tau`；ALE解析均匀流保持测试的
 测试包括真实Newton拒绝后的历史恢复、事件处重启、末步、变步长和最多4rank对照。
 事件测试只证明控制器命中与历史降阶，没有引入真实跳跃载荷；结构时间阶证据目前仅针对线弹性。
 
-后续generalized-alpha将明确采用PETSc式新时刻权重约定，分别核对一阶/二阶参数，
-并共同处理FSI界面评价时刻；当前尚无该实现或数值证据。
+## 独立场generalized-alpha
+
+```yaml
+time:
+  scheme: generalized_alpha
+  rho_infinity: 0.5 # [0,1]，默认0.5
+```
+
+采用新时刻权重`x_f=(1-af)*x_n+af*x_(n+1)`。两类格式共有`af=1/(1+rho)`，
+一阶`am=(3-rho)/(2*(1+rho))`，二阶`am=(2-rho)/(1+rho)`；
+`gamma=1/2+am-af`，二阶还取`beta=(1+am-af)^2/4`。
+这与项目使用版本的[PETSc3.23.7 alpha1](https://raw.githubusercontent.com/petsc/petsc/v3.23.7/src/ts/impls/implicit/alpha/alpha1.c)
+及[alpha2](https://raw.githubusercontent.com/petsc/petsc/v3.23.7/src/ts/impls/implicit/alpha/alpha2.c)一致，
+不能直接代入采用旧时刻权重的公式。
+
+流体stage速度和压力为未知量；惯性系数`q=af*gamma*h/am`，
+速度参考`v_ref=v_n+af*h*(1-gamma/am)*a_n`。
+结构stage位移为`d_ref+(beta*h/gamma)*v_f`，其中
+`d_ref=d_n+h*(af-beta/gamma)*v_n+af*h²*(1/2-beta/gamma)*a_n`。
+质量链系数为1/q，材料刚度链系数为beta*h/gamma，两者显式分离。
+端点状态由stage反解，算法导数按当前gamma更新；checkpoint保存这些算法历史及rho。
+
+流体Dirichlet使用端点边界值的af插值，保证恢复出的端点满足边界；自然载荷在`t_n+af*h`评价。
+压力与速度均在共同stage进入残量，输出为端点压力；均压归一化的stage反力修正同时乘af。
+所有物理残量验收针对该格式的stage方程。流体输出`stage_momentum_residual`明确标记stage量，
+不能当作端点瞬时反力；日志同时记录`time`和`evaluation_time`。
+
+首次及声明事件之后接受一个BE启动步，随后采用alpha。此启动策略与PETSc的两次半步
+导数探测不同，不声称直接复用了TS启动实现。对于实际固定tau流体测试，rho=0/0.5/1的
+早期与终点速度、端点压力均验证近二阶；rho=1的无衰减压力误差模态不能靠耗散掩盖。
+
+结构checkpoint的acceleration保存算法历史；VTU额外输出`algorithmic_acceleration`。
+VTU的`acceleration`则在当前卸载模型的最终accepted端点通过一致质量方程`M*a+f_int(d)=0`恢复，
+因此不把算法加速度的一阶时间偏移解释为物理加速度。该恢复多一次质量求解，未作性能收益声明。
+结构`momentum_residual`及反力摘要使用此端点方程残量，另外保留`stage_momentum_residual`；
+不得将无外载恢复公式直接用于未来任意时变载荷模型。
+无载线弹性振动中rho=1在BE启动后保持能量；rho较小的粗步测试显示更强数值阻尼。
+
+原始一阶文献：[Jansen、Whiting、Hulbert 2000预印本](https://www.lncc.br/~alm/lncc/jmac/turbulencia/genalf.pdf)
+§3式(23)、§4式(24)–(27)。原始二阶文献[Chung、Hulbert 1993](https://doi.org/10.1115/1.2900803)
+的出版社全文本轮访问返回403，仅核实出版信息；参数实现以上述版本化官方源码和独立代数核对为据。
+压力stage选择另核对[Liu等2020](https://arxiv.org/abs/2002.01098)的两种压力评价比较；
+其高阶稳定空间的结果不能替代本项目P1稳定化与启动的实际验收。
 
 ## BDF2 的单体FSI与ALE
 
