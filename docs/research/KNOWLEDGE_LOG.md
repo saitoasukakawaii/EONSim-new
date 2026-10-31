@@ -174,4 +174,4 @@ DOCS-01 交付补记：已通过 [PR #25](https://github.com/saitoasukakawaii/EO
 
 ## CI-INCREMENTAL-01 / 2026-10-31
 
-[PR 增量 CI 与证据复用草稿](../../website/drafts/incremental-ci-and-evidence-reuse.md)：基线 ef20e03，开发分支 codex/pr-incremental-ci。说明路径映射、精确测试清单、同 PR 成功证据与必需检查状态的边界；本地脚本检查已执行，云端验收随后记录在会话日志。无性能结论，不发布。
+[PR 增量 CI 与证据复用草稿](../../website/drafts/incremental-ci-and-evidence-reuse.md)：基线 ef20e03，开发分支 codex/pr-incremental-ci。说明路径映射、精确测试清单、同 PR 成功证据与必需检查状态的边界；PR #26 待审；本地脚本检查、云端 Debug/Release 各一项 Poisson 和后续文档提交的零构建/零数值运行复用均已验证，见 [initial.json](data/ci-incremental-2026-10-31/initial.json)及[reuse.json](data/ci-incremental-2026-10-31/reuse.json)。无性能结论，不发布。

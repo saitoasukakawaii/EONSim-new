@@ -417,3 +417,11 @@
 - 实际入口：`scripts/cloud/run.sh 3.23.7 <debug|release> explicit .cloud build/ci/plan.json`；CTest 使用 `-R '^(poisson_verification)$'`。完整命令、退出码及精简结果见 [initial.json](../research/data/ci-incremental-2026-10-31/initial.json)。本地未编译或运行求解器，主锁全量及旧锁未执行；旧锁 job 为 skipped。
 - 网站 run 41214961032 成功，草稿隔离通过。GitHub runs 查询确认该提交只有两个 pull_request 事件，没有 Push run。
 - 下一笔仅补记文档/证据，将用于实际验证同 PR receipt 复用；复用结果尚未计为完成。
+
+### CI-INCREMENTAL-01：历史证据复用验收与交付
+
+- 文档/证据提交 `00722958b64df7cb65821269a08e510c5214834b` 的 [run 41215264515](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41215264515) 全部成功；selection 明确 `tests=[]`、`python=[]`、`reused=[poisson_verification]`。Debug/Release 的依赖缓存、restore、checkout、build/test 和数值 artifact 上传步骤均 skipped，不是重新通过一次数值测试。
+- 新 receipt 指向 previous_run_id=41214961025，每个模式的原始来源仍为首次 merge preview `9ce31f9f869770e5672b01a1dfa39b4788710c6f`。精简证据见 [reuse.json](../research/data/ci-incremental-2026-10-31/reuse.json)。网站 run 41215264596 也通过；旧锁专项未运行。
+- 补充两个标准库测试验证手动 all/explicit 清单生成及 PR 禁止请求手动全量，执行 `python3 tests/test_ci_selection.py SelectionTests.test_manual_all_and_explicit_cli_only_plan_requested_names SelectionTests.test_pr_cannot_request_manual_full_suite`，2 项通过；没有执行任何全量数值测试。选测/receipt 测试文件现共 26 项。
+- 本地直接查询 api.github.com 曾超时；改用已连接 GitHub 的只读 fetch/log/artifact 接口取得证据，没有修改网络策略或把查询失败计为测试失败。
+- 交付为 PR #26 review，未自动合并。代码、规则、状态及知识索引同步，文章保持 draft。已验证范围为新 CI 路径；不扩大为现有 60 项套件的新通过记录。最后补记只涉及状态/证据及上述脚本测试，数值执行链与规则指纹保持不变。

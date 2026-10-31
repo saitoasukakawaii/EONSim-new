@@ -1,5 +1,5 @@
 """Incremental CI selection/receipts: standard library only, no numerical builds."""
-import copy
+import contextlib
 import io
 import json
 import os
@@ -114,6 +114,26 @@ class SelectionTests(unittest.TestCase):
         plan=s.make_plan(CONTEXT,POLICY,['scripts/cloud/validate.py'])
         self.assertEqual(plan['tests'],['poisson_verification'])
         self.assertEqual(plan['reused'],[])
+
+    def test_manual_all_and_explicit_cli_only_plan_requested_names(self):
+        for kind, names in (('all', sorted(POLICY['tests'])), ('explicit', ['poisson_verification'])):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as tmp:
+                output=Path(tmp)/'plan.json'
+                args=['selection.py','--selection',kind,'--tests','poisson_verification','--output',str(output),'--offline']
+                with patch.dict(os.environ,{},clear=True),patch.object(sys,'argv',args),patch.object(s,'git',return_value='a'*40),patch.object(s,'fingerprint',return_value='policy'),patch.object(s.subprocess,'run') as checks,contextlib.redirect_stdout(io.StringIO()):
+                    s.main()
+                plan=json.loads(output.read_text())
+                self.assertEqual(plan['tests'],names)
+                self.assertEqual(plan['requested'],kind)
+                self.assertEqual(checks.call_count,2)
+                self.assertTrue(all(call.args[0][0]==sys.executable for call in checks.call_args_list))
+
+    def test_pr_cannot_request_manual_full_suite(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            event=Path(tmp)/'event.json';event.write_text(json.dumps(dict(pull_request={'base':{'sha':'a'*40},'head':{'sha':'b'*40}},number=1)))
+            args=['selection.py','--selection','all','--output',str(Path(tmp)/'plan.json')]
+            with patch.dict(os.environ,{'GITHUB_EVENT_PATH':str(event)},clear=True),patch.object(sys,'argv',args):
+                with self.assertRaisesRegex(ValueError,'PRs only permit incremental'):s.main()
 
     def test_rename_classifies_deleted_and_added_paths(self):
         with tempfile.TemporaryDirectory() as tmp:

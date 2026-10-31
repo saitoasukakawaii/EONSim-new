@@ -1,0 +1,57 @@
+{
+  "source_commit": "00722958b64df7cb65821269a08e510c5214834b",
+  "workflow_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41215264515",
+  "receipt": {
+    "schema": 1,
+    "repository": "saitoasukakawaii/EONSim-new",
+    "pr": 26,
+    "base": "3df1c31f8f3b6c995e00368782a94971a92371c3",
+    "head": "00722958b64df7cb65821269a08e510c5214834b",
+    "commit": "7ecde804b116ecb435c7a49b7afcfdd3b44faf83",
+    "tree": "68b5f1e1f7fe55619119f21a322eb412507cab57",
+    "fingerprint": "9a98d316184ee3c95b66d93a2e25489985c19eda3e641dd3f422de425d381df6",
+    "run_id": 41215264515,
+    "status": "passed",
+    "covered": [
+      "poisson_verification"
+    ],
+    "executed": [],
+    "reused": [
+      "poisson_verification"
+    ],
+    "origins": {
+      "poisson_verification": {
+        "debug": {
+          "run_id": 41214961025,
+          "commit": "9ce31f9f869770e5672b01a1dfa39b4788710c6f"
+        },
+        "release": {
+          "run_id": 41214961025,
+          "commit": "9ce31f9f869770e5672b01a1dfa39b4788710c6f"
+        }
+      }
+    },
+    "previous_run_id": 41214961025,
+    "disposition": "reused"
+  },
+  "selection_job": 124578358742,
+  "jobs": {
+    "debug": {
+      "job_id": 124578390312,
+      "status": "success",
+      "restore": "skipped",
+      "build_and_test": "skipped"
+    },
+    "release": {
+      "job_id": 124578390395,
+      "status": "success",
+      "restore": "skipped",
+      "build_and_test": "skipped"
+    }
+  },
+  "numerical_tests_executed": 0,
+  "python_tests_executed": 0,
+  "legacy": "skipped",
+  "website_run": 41215264596,
+  "website_status": "success"
+}

@@ -42,9 +42,9 @@ artifact 缺失、过期或 API 不可用时，没有有效复用基线；应重
 
 ## 验证与限制
 
-初次提交前执行：`python3 tests/test_ci_selection.py`（24 项通过）、`python3 tests/test_cloud_evidence.py`（6 项通过）、`bash -n scripts/cloud/run.sh`、actionlint 1.7.7 与 `git diff --check`。这些是 CI 逻辑证据，不是求解器数值验收。
+初次提交前执行：`python3 tests/test_ci_selection.py`（24 项通过）、`python3 tests/test_cloud_evidence.py`（6 项通过）、`bash -n scripts/cloud/run.sh`、actionlint 1.7.7 与 `git diff --check`。随后补充手动 all/explicit 入口与 PR 禁止全量的 2 项测试并通过；选测测试现共 26 项。这些是 CI 逻辑证据，不是求解器数值验收。
 
-[首轮云端证据](../../docs/research/data/ci-incremental-2026-10-31/initial.json)确认 Debug/Release 各只运行 `poisson_verification` 一项并通过，构建目标仅 eonsim 与 verify_runtime。后续文档提交的 receipt 复用结果以会话日志为准；此阶段尚未完成该项实际验收。没有运行全量套件或旧锁数值测试。
+[首轮云端证据](../../docs/research/data/ci-incremental-2026-10-31/initial.json)确认 Debug/Release 各只运行 `poisson_verification` 一项并通过，构建目标仅 eonsim 与 verify_runtime。[后续文档提交](../../docs/research/data/ci-incremental-2026-10-31/reuse.json)已验证两种模式均跳过恢复、构建和数值执行，新的 receipt 保留首次数值 run/提交来源。没有运行全量套件或旧锁数值测试。
 
 当前只在同一 PR、相同 base 与指纹下复用，最多查询最近 90 个成功 PR runs；不跨 PR 缓存测试结果。artifact 保留 14 天，过期会失去可复用证据。没有测量节省百分比，不作性能承诺。网站工作流保持独立。
 
