@@ -231,3 +231,25 @@
 - 推送前又检测到源 CI 分支新增 1497137/787372e：保留 PR #22 与 5745fd3 成功 CI 的证据、以及 ob1 单机传输适配。只读 GitHub 确认 CI 41063030121 三个 job 成功；核对 OpenMPI 官方 sm/vader 命名并检查脚本语法，未执行 MPI。最终整合范围以 branches.json 中的六个 tip 为准，INFRA-01 保留最终集成验收待完成。
 
 - 第一次推送前置检查发现 main 已并发合入 PR #22（281699c2e86eb4eb0f9d0db7ca1bc891892c90dd），因此未执行推送；复核其唯一新增提交为已审查 CI tip 的 merge commit，纳入主线历史后树内容不变。继续采用正常快进推送与 [skip ci]，未覆盖并发提交。
+
+
+## 2026-10-30 / FEM-G0A — DoF 与 FSI 分块详细设计（本地 review）
+
+- 用户授权预计 10 小时工程量的有界设计/参考验证任务；预算不作实际耗时。开始 fetch origin/main 后 HEAD 与远程均为 `f44c3e0e81f090637f6f21a7b63a9d12d3e30424`，工作区干净；GitHub 开放 PR 查询为空。新建本地分支 `docs/fem-g0a-dof-design`，队列单独登记 in_progress。
+- 阅读当前 AGENTS/L0、进度/队列/分支整合、通用 FEM 规划、L1/L2 离散/FSI/状态/并行、INFRA-01/HPC-02 证据边界；逐项审计 DoF/constraint/fields/嵌套 Schur、checkpoint/输出和既有测试源码，未执行既有数值检查。
+- 新增 [专题设计](../architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md)，固定提交源码映射、六项契约、三种配置/14 行示例、父编号公式、PETSc 3.19.6/3.23.7 官方 tag 静态核对、容量复杂度与 C++ 切片。总纲只加链接和 G0A 范围说明。
+- 新增 docs/research/fem_g0a/ 下参考模型、unittest 与只读文档/语法检查器。模型没有求解器/进程调用，全部标准库；Fraction 手算 oracle 含非对称矩阵、非零 lifting、K/W 不同、置换与 dt 更新，另覆盖三树/刚体/1/2/4 模拟分区/空 local block/错误编号。
+- 实际执行 `python3 -B docs/research/fem_g0a/test_reference_model.py`：首轮 18/18；交叉审查新增真实语义 alias 键、三层子矩阵元素 oracle 和单孩子拒绝后，最终 20/20 通过。原始输出及源码哈希见 [证据目录](../research/data/fem-g0a-2026-10-30)。这是分区索引逻辑验证，不能称 MPI 测试。
+- 同一作者交叉核对源码/契约/手算/反例，修正普通保留行 Dirichlet 与 FSI 消元的区别、结构内部 BE 系数避免双乘、joined ID 和含 rank 的 fingerprint、checkpoint 缺失 reduced 排列版本、旧 PETSc prefix 长度与 Schur 内部 KSP 的接线范围；不冒称独立多人审查。
+- 官方源码直接临时下载超时，改用浏览工具读取版本 tag 源码；未安装依赖。`check_artifacts.py` 首次把既有站点路由误当文件路径，补上源码路由解析后通过；没有修改旧文章链接来规避检查。
+- 实际执行 `python3 -B docs/research/fem_g0a/check_artifacts.py`（Python AST、7 份 Markdown 围栏/本地文件与站点路由、固定 EONSim SHA/路径/行号、14 份审计源码哈希）、`git diff --check`，并检查新文件空白和生产路径零差异。最终输出见 [checks.txt](../research/data/fem-g0a-2026-10-30/checks.txt)。检查不证明远程链接存活或网站渲染。
+- 使用 eonsim-knowledge-capture 的 algorithm-note 模板新增 [未发布草稿](../../website/drafts/dof-semantics-and-nested-fsi-blocks.md)，登记 KNOWLEDGE_LOG；分开理论、基线实现、独立参考验证与性能未测量。值得沉淀的知识是 K/W 区别、共享代表唯一归属与父编号空间，待人工审查。
+- 未执行配置/编译器/编译、CTest、MPI、EONSim、性能基准或网站构建；未修改生产 C++、CMake、既有数值测试/算例、CI 或 sources/；未 commit、push、创建 PR、合并或发布。FEM-G0A 转 review（本地交付），FEM-G0 整体和其它阶段仍 deferred，INFRA-01 review 与其真实数值验收状态不变。
+- 未解决事项为人工审查、真实 PETSc/MPI 接入及物理验收；下一最小候选 G0-B1 仅将现有语义适配到 IS、保持 root 编号与默认行为，未启动。
+
+## 2026-10-31 / FEM-G0A — 后续提交推送授权
+
+- 用户明确要求将改动推送到远程；提交目标为 `docs/fem-g0a-dof-design`，保持 FEM-G0A review、FEM-G0 deferred 和 INFRA-01 原验收状态。
+- 提交前 fetch 确认 origin/main 仍为 `f44c3e0e81f090637f6f21a7b63a9d12d3e30424`，远程目标分支尚不存在；工作区仅含此前 FEM-G0A 交付文件。
+- 核对两个工作流：数值工作流 push 仅匹配 main/codex/**，网站工作流 push 仅匹配 main，均不匹配本设计分支；提交另加 `[skip ci]`。不创建 PR、不合并、不运行或重跑构建。
+- 更新当前状态中的“本地未提交”说明，保留 2026-10-30 的基线、检查证据与会话历史；不改变参考模型、生产代码或知识草稿的未发布状态。

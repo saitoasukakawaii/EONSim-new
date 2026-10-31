@@ -167,6 +167,8 @@ J    = Wᵀ J_local K + J_global      （K、W 对 x 固定）
 
 ## 7. DoF 语义、存储排列与预条件树
 
+FEM-G0A 的源码映射、最小接口、三种分组编号、PETSc 双版本核对、标准库参考验证与迁移切片见 [专题设计](FEM_G0A_DOF_AND_BLOCK_DESIGN.md)。该子任务为本地 review 交付；G0 的 C++ 接入及真实数值验收尚未执行，G0 整体仍 deferred。具体契约在专题维护，不在本总纲重复。
+
 ### 7.1 三个独立层次
 
 1. **语义身份：** `(domain, space, entity kind/id, local mode, component)`；附加 physics、quantity、region、interface 标签。mesh 原 ID、DoF 身份与 PETSc global index 分开。跨 repartition 可保留语义；换 basis/网格需显式传递，不能声称 ID 永远不变。
@@ -345,7 +347,7 @@ Python 以后可用于配置、参数扫描和工作流，native 层承担整个
 
 ## 13. 分阶段实施候选与验收
 
-所有阶段当前均为 **deferred：只完成设计，等待用户另行启动开发**。顺序表示依赖，不是工期承诺；每阶段以可求解垂直切片交付，保留现有 Tet4 基线，不先创建一批空接口。
+所有阶段的 C++ 实现当前均为 **deferred：等待用户另行启动开发**。用户单独授权的 G0A 设计与独立代数参考验证已形成本地 review 交付，不能据此将 G0 标记完成。顺序表示依赖，不是工期承诺；每阶段以可求解垂直切片交付，保留现有 Tet4 基线，不先创建一批空接口。
 
 | 阶段 | 最小交付 | 依赖 / 未来验收 |
 |---|---|---|

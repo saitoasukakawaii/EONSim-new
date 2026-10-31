@@ -1,6 +1,6 @@
 # EONSim Codex Development Progress
 
-更新时间：2026-10-30（Asia/Shanghai）
+更新时间：2026-10-31（Asia/Shanghai）
 
 ## 项目基线
 
@@ -24,14 +24,15 @@
 | 非线性装配阶段计时 | 已实现并合并 | PR #13；增加 callback、错误同步、最终装配和约束阶段计时；已有 HPC-01B/C 重复测量 |
 | 独立流体缓存 COO Jacobian | 已实现并合并 | PR #21；范围及验证局限见 HPC-02 报告 |
 | 通用 FEM 与 20 组上游学习规划 | 文档已集成 | 16 份 Markdown 随设计分支合入；G0–G8 实现均 deferred |
+| FEM-G0A DoF/FSI 分块详细设计 | review（待人工审查） | [专题](../architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md)、标准库参考模型及 20 项测试交付；无 C++ 接入或数值验收 |
 | 可复现云环境与 MPI 故障 CI | 实现已集成，最终验收待执行 | 原分支 CI 有通过记录；本次合并只做静态与纯脚本检查，未编译 |
 
 ## 当前焦点
 
-按用户明确要求清理 18 个完全合并的远程分支，并审查、整合余下 6 个分支。
-保留架构规划、CI 与恢复证据、网站内容检查和 COO 交付记录；合并旧审计的有效补充，
-不恢复已过时的任务状态。具体源提交、取舍和删除清单见 [分支整合记录](BRANCH_INTEGRATION_2026-10-30.md)。
-本轮不编译，推送提交使用 `[skip ci]`。G0–G8 仍全部 deferred，无新增 ready 开发任务。
+FEM-G0A `review`：用户单独授权的 DoF 语义、存储排列与 FSI 分块预条件详细设计及独立代数参考验证已交付，待人工审查。
+源码基线为 `f44c3e0e81f090637f6f21a7b63a9d12d3e30424`；2026-10-30 开始时 fetch 确认本地 main 与 origin/main 一致，工作区干净，GitHub 开放 PR 查询为空。
+10 小时是工程量预算，不是实际耗时。设计阶段仅做本地文档和 Python 标准库参考验证；2026-10-31 用户追加授权提交并推送设计分支，使用 `[skip ci]`，仍不编译、不运行求解器或触发 CI。
+FEM-G0 整体及其他 G 阶段仍 deferred；INFRA-01 保持 review，其最终集成数值验收不由本任务替代。
 
 ## 最近完成
 
@@ -52,11 +53,12 @@
 
 ## 当前检查点
 
-整合分支 `integration/review-branches-2026-10-30`；源分支和提交见整合记录。
-本轮执行纯 Python 解析器回归、源文件/脚本语法、依赖锁、Markdown 链接和 Git 差异检查。
-未运行 CMake 配置、编译、CTest、MPI、性能实验或网站构建，未触发数值 CI。
-原 [INFRA-01](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md) 与 [HPC-02](../research/FLUID_COO_ASSEMBLY_2026-10-30.md)
-的测试对应各自记录的提交；不能用其通过结果替代最终集成验收。所有知识草稿保持未发布。
+交付分支 `docs/fem-g0a-dof-design`，基线 `f44c3e0e81f090637f6f21a7b63a9d12d3e30424`。
+交付 [FEM-G0A 专题](../architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md)、三种分组与两/三层父编号示例、标准库参考模型、测试和未发布知识草稿。
+`python3 -B docs/research/fem_g0a/test_reference_model.py`：20/20 通过；仅合成精确代数与 1/2/4 模拟分区索引逻辑。
+Python AST、7 份 Markdown 围栏/本地链接、固定源码 SHA/行号、14 份审计源码哈希及 Git 差异检查见 [检查记录](../research/data/fem-g0a-2026-10-30/checks.txt)。
+没有配置/编译、CTest、MPI、求解器、性能或网站构建；后续提交推送授权仅限上述分支，不创建 PR、不合并、不触发 CI。生产源码/数值测试/算例/CI 和 sources/ 保持只读。
+INFRA-01 仍 review，FEM-G0 整体和其它阶段仍 deferred。下一最小候选为保持原存储/默认行为的语义→IS 适配 G0-B1，尚未启动。
 
 ## 恢复规则
 
