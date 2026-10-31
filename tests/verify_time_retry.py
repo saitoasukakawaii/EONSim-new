@@ -3,8 +3,10 @@ import argparse,copy,json,re,subprocess,sys,xml.etree.ElementTree as ET
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'cases/fsi'))
 from generate_domains import generate
-p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',type=Path,required=True);a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
-case=generate(a.work);config=json.loads(case.read_text());config['fsi'].update(material='neo_hookean',pressure=20,dt=.04,steps=1);config['time_control']=dict(max_retries=6,minimum_dt=.0005,reduction=.5);case.write_text(json.dumps(config))
+p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',type=Path,required=True);p.add_argument('--recipe',choices=['physics','quantity','hybrid']);a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
+case=generate(a.work);config=json.loads(case.read_text());config['fsi'].update(material='neo_hookean',pressure=20,dt=.04,steps=1);config['time_control']=dict(max_retries=6,minimum_dt=.0005,reduction=.5);
+if a.recipe: config.setdefault('solver',{})['pc_recipe']=a.recipe
+case.write_text(json.dumps(config))
 def run(args,ok=True):
  r=subprocess.run([str(x) for x in args],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=100)
  if (r.returncode==0)!=ok:raise RuntimeError(r.stdout)
@@ -22,6 +24,7 @@ for ranks in (1,2):
  assert retries and all(float(time)==0 for time,dt in retries)
  dt=float(retries[-1][1]);steps=round(.04/dt);assert abs(steps*dt-.04)<1e-12
  reference=copy.deepcopy(config);reference['fsi'].update(dt=dt,steps=steps);reference['time_control']['max_retries']=0
+ if a.recipe: reference['solver'].pop('pc_recipe',None)
  fixed=a.work/'fixed.yaml';fixed.write_text(json.dumps(reference));ref=a.work/f'reference{ranks}.vtu'
  run(launcher+[a.executable,'-case',fixed,'-partition',part,'-snes_max_it',2,'-output',ref]);compare(full,ref,ranks)
  checkpoint=a.work/f'checkpoint{ranks}';run(prefix+['-checkpoint',checkpoint,'-stop_after',3,'-output',a.work/'partial.vtu'])

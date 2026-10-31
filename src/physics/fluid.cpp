@@ -22,7 +22,9 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_coo",&coo,nullptr));
     const bool tagged=!f.boundaries.empty();
     const auto materials=cell_materials(comm,mesh,f.regions,FluidMaterial{f.density,f.viscosity});
-    const auto layout=make_field_layout(mesh,Tet4Flow::components,{{"velocity",{0,1,2}},{"pressure",{Tet4Flow::pressure}}});
+    const auto layout=make_field_layout(mesh,Tet4Flow::components,{{"velocity",{0,1,2}},{"pressure",{Tet4Flow::pressure}}},
+        {{DofDomain::fluid,DofQuantity::velocity,0},{DofDomain::fluid,DofQuantity::velocity,1},
+         {DofDomain::fluid,DofQuantity::velocity,2},{DofDomain::fluid,DofQuantity::pressure,0}});
     const auto facets=build_boundary_facets(mesh);
     std::vector<TriangleGeometry> surfaces;
     for(std::size_t f=0;f<facets.size();++f) surfaces.push_back(boundary_geometry(mesh,f,facets[f]));

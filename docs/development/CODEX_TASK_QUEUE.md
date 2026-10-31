@@ -15,20 +15,22 @@
 
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
+| FEM-INTEGRATION | P1 | in_progress | G0B → G0 → G5 → G1 连续主线交付 | 基线及每阶段真实数值/MPI验证、独立审查、最终CI/PR与允许时合并；当前基线恢复 |
+| FEM-G0B | P1 | review | 旧存储上的语义与 physics/quantity/hybrid PC 接入 | 依赖基线；独立验收字段、父编号、唯一界面代表、刚体、空本地块及真实求解 |
 | BRANCH-02 | P1 | done | 合入新增 G0A 并清理全部 7 个非主分支 | [源提交与检查](BRANCH_CLEANUP_2026-10-31.md)；保留 main，无生产求解器改动 |
 | BRANCH-01 | P1 | done | 清理 18 个已合并分支并整合其余 6 个 | [源提交、取舍和检查](BRANCH_INTEGRATION_2026-10-30.md)；不编译，数值验收不随合并自动完成 |
 | HPC-02 | P2 | done | 独立流体固定图 COO Jacobian 装配（PR #21 合并） | 证据见 FLUID_COO_ASSEMBLY_2026-10-30；保留默认路径，Release 既有超时等局限按报告记录 |
-| FEM-G0A | P1 | done | DoF 语义、存储排列与 FSI 分块预条件详细设计及独立代数参考验证 | [专题与迁移切片](../architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md)；20 项标准库测试通过，设计分支已审查合入；无 C++/MPI/PETSc 数值验收，G0 整体仍 deferred |
-| FEM-G0 | P1 | deferred | DoF 语义、排列与物理场/物理量/混合 PC 树 | 现有 Tet4 结果与置换等价、叶子覆盖互斥、空本地块；本轮只规划 |
-| FEM-G1 | P2 | deferred | 规范化 reader、Gmsh4.1、Tri3/Quad4 二维标量闭环 | G0 后；方向/标签/边界/MMS，禁止将读入等同求解 |
+| FEM-G0A | P1 | done | DoF 语义、存储排列与 FSI 分块预条件详细设计及独立代数参考验证 | [专题与迁移切片](../architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md)；20 项标准库测试通过，设计分支已审查合入；无 C++/MPI/PETSc 数值验收，G0已按后续授权实施验收 |
+| FEM-G0 | P1 | review | DoF 语义、排列与物理场/物理量/混合 PC 树 | 现有 Tet4 结果与置换等价、叶子覆盖互斥、空本地块；依赖 G0B 及真实 1/2/4 rank 验收 |
+| FEM-G1 | P2 | ready | 规范化 reader、Gmsh4.1、Tri3/Quad4 二维标量闭环 | G0/G5 后；方向/标签/边界/MMS，禁止将读入等同求解 |
 | FEM-G2 | P2 | deferred | entity DoF、不同阶空间与通用 Dirichlet/Neumann/Robin | G0/G1 后；trace、lifting、纯 Neumann、modal/nodal 与混合稳定性 |
 | FEM-G3 | P2 | deferred | Hex8 及相容混合体网格 | G1/G2 后；过渡面、真实混合 patch、MPI 与几何验证 |
 | FEM-G4 | P2 | deferred | form/约束驱动稀疏图与通用并行 VTU | 随 G2/G3 增量交付；远程/面项连接、字段采样、失败不发布 |
-| FEM-G5 | P2 | deferred | BE 映射、变步长 BDF2、两类 generalized-α | 独立场到 FSI；时间收敛、压力/界面功、拒绝和完整历史重启 |
+| FEM-G5 | P2 | ready | BE 映射、变步长 BDF2、两类 generalized-α | 独立场到 FSI；时间收敛、压力/界面功、拒绝和完整历史重启 |
 | FEM-G6 | P3 | deferred | 非一致界面投影/mortar 到移动单体 FSI | G2/G4/G5 后；重现、力/功、搜索覆盖、Jv 与分布式对照 |
 | FEM-G7 | P3 | deferred | 高阶批次、partial assembly/matrix-free 与预条件 | 目标业务触发；同精度算子对照、总耗时/内存，不只测 kernel |
 | FEM-G8 | P3 | deferred | 配置 schema、inspect、recipe；按需 Python/DSL | 易用性随每阶段交付，native 热循环；暂不建设完整编译器 |
-| INFRA-01 | P1 | review | 可复现云端构建、MPI 故障修复与核心数值 CI | 原分支 3 个 CI job 成功；合并时修正 ABI 检查范围与证据解析；最终集成的数值验证未运行 |
+| INFRA-01 | P1 | review | 可复现云端构建、MPI 故障修复与核心数值 CI | 原分支 3 个 CI job 成功；合并时修正 ABI 检查范围与证据解析；72a3356 本次主环境 Debug/Release 35/35、旧版针对性7/7通过；新集成 head CI仍待完成 |
 | HUB-01 | P0 | done | 持续研发状态文件、文章模板和知识采集 Skill | 本 PR；文件可用、链接有效、网站构建通过 |
 | SOLVER-01 | P1 | done | PETSc NonlinearSession 对象生命周期审计 | 源码调用链、对象生命周期表、setup/assemble/solve 计时方案、复用风险和是否实施的建议；本任务不改求解器 |
 | SOLVER-01B | P1 | done | 固定 transient 案例的诊断开销基线（依赖 SOLVER-01 已合并） | 1/2 rank、每组至少 3 次、保存命令与原始日志；固定 rank 输出一致；明确计时边界，不将差异当作持久化收益 |
@@ -122,3 +124,20 @@ HPC-01E 已完成1/2/4 rank、每配置5对测量及6次预热，见 [报告](..
 ## BRANCH-02 / 2026-10-31
 
 用户追加授权合并并清理远程分支，替代上面 FEM-G0A 原交付阶段的“不合并”限制。已审查 G0A 源提交并复验 20 项参考测试；检查工具的 UTF-8/CRLF 修复通过正反例。FEM-G0A 为设计子任务完成，FEM-G0 整体及 G0B/G5/G1 的生产开发尚未执行，INFRA-01 的最终集成数值验收仍 review。分支及提交清单见合并清理记录。
+
+## FEM-INTEGRATION：2026-10-31 授权与检查点
+
+用户已明确授权 G0B/G0/G5/G1 实现、依赖恢复、真实构建/MPI验证、阶段提交推送、审查后PR和受保护规则约束的主线合并。其它 deferred 阶段仅实施本闭环必需子集。ready 表示已授权，仍须遵守行内依赖，不代表可并行跳过前置验收。
+
+- 基线 main：`72a335604a50c1ae27516b8bde15e05564b5748b`；开始时无未合并 PR。分支 `codex/fem-g0-g5-g1`。G0A 已合入，复用现有20项参考验证，不重复开发。
+- 快照旧未提交 G0A 文件已保护至 git stash（`preserve restored FEM-G0A work before integrated implementation`）及 `/workspace/recovery/fem-g0a-20261031/`，不混入本实现。
+- 工程量估计（不是实际耗时）：基线3–5h，G0B/G0 16–24h，G5 35–55h，G1 25–40h，最终集成6–10h。
+- 资源：cgroup 4 CPU、32 GiB；使用仓库锁恢复 PETSc3.23.7 于 `/workspace/eonsim-cloud`，命令退出0。基线首次配置发现快照旧缓存引用已消失的 `/tmp/infra-pristine` Ninja；旧目录移至证据区保留，正在从空构建目录重跑。
+- 当前没有新增生产能力或完成数值验收；INFRA-01 保持 review。证据临时目录 `/workspace/engineering-evidence/`，完成后提交精简可复现结论。
+- 后续顺序：主环境 Debug/Release all → 3.19.6 failure/state → G0B生产适配及G0验收 → G5 → G1 → 完整回归与审查/CI/主线交付。
+
+### 基线验收更新
+
+锁定主环境从新的依赖前缀恢复，清空（移走保护）快照中的旧构建产物后运行 Debug/Release `all`，实际各35项全部通过。3.19.6 Debug `mpi-failure` 7项全部通过。运行时链接及2/4 rank主环境预检通过；恢复命令再次执行成功。精简机器可读清单见 [baseline.json](../research/data/fem-integration-2026-10-31/baseline.json)。Release/legacy 的 dirty 标记包括任务文档及尚未接入构建的新头文件；当时生产代码仍为72a3356。
+
+G0B/G0当前生产实现、独立审查与主环境43/43各模式通过；兼容环境10项失败状态、7项分组重启、最新4项补验通过。状态review，待整体CI/PR/main；G5/G1尚未实现。

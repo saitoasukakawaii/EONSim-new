@@ -177,3 +177,9 @@ kernel 区间仅包围 `fluid_element` 调用；insert 区间包围对应体单�
 `fsi_element_tangent` 用解析 `dV/dx`、`d grad(N)/dx` 初始化固定宽度 Dual，前向传播同一个 SUPG/PSPG 残量、网格速度和压力面积项。参考 Laplace 块与接口 BE 链式系数保留。局部状态大小由 Tet4Ale 模板推导，积分规则不包含运行时维护的数据。旧中心差分函数保留用于独立 Jv/轨迹/性能对照。
 
 GAMG 当前只有低 Re 小算例运行证据，不宣称针对高 Re、近不可压结构或网格无关迭代调优完成。实际误差、迭代及 RSS 见 [B5 记录](../development/B5_ACCURACY_AND_PERFORMANCE.md)。
+
+### G0B：语义分组接入
+
+`AlgebraLayout::owned_semantics` 为 owned 存储行提供布局内的实体/域/量身份，`fields` 仍唯一负责物理验收。
+`pc_recipe` 的三种树使用独立 `PcBlock`，递归保存根provenance与直接父算子全局编号；不改变root存储、图、残量或停止条件。
+索引计划在solve准备阶段生成，Newton内仅更新数值。默认旧PC路径保持不变；配置与证据、空块/选项边界见 [实施记录](../development/FEM_INTEGRATION_VALIDATION.md)。

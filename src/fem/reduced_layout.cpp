@@ -15,6 +15,8 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     using Layout=CoupledLayout<Tet4Topology,Elastic>;
     constexpr int nc=Layout::components;
     // alias 为同一 rank 的节点主分量索引；-1 固定，-2 为唯一刚体速度。
+    int conflict=0,any_conflict=0;
+    std::vector<bool> interface_nodes(mesh.nodes.size());
     std::vector<PetscInt> alias(mesh.nodes.size()*nc);
     std::iota(alias.begin(),alias.end(),0);
     for(std::size_t n=0;n<mesh.nodes.size();++n) {
@@ -22,6 +24,7 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
         auto has=[&](int t){return std::find(tags.begin(),tags.end(),t)!=tags.end();};
         if(domains) {
             const bool fluid=node_in_region(mesh,n,domains->fluid_region),solid=node_in_region(mesh,n,domains->solid_region);
+            interface_nodes[n]=fluid&&solid;
             if(!fluid) for(int c=0;c<Layout::structure_offset;++c) alias[nc*n+c]=-1;
             if(!solid) for(int c=Layout::structure_offset;c<nc;++c) alias[nc*n+c]=-1;
             auto constrain=[&](const auto& entries,int offset) { for(const auto& bc:entries) if(has(bc.tag)) for(int c:bc.components) alias[nc*n+offset+c]=-1; };
@@ -29,11 +32,12 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
             if(solid) constrain(domains->solid_constraints,Layout::structure_offset);
             if(fluid&&solid) for(int c=0;c<Space3::dimension;++c) {
                 const auto master=alias[nc*n+Layout::structure_offset+c];
-                if(master>=0&&(alias[nc*n+c]<0||alias[nc*n+Layout::mesh_offset+c]<0)) throw std::runtime_error("Interface constraints conflict with free structure component");
+                if(master>=0&&(alias[nc*n+c]<0||alias[nc*n+Layout::mesh_offset+c]<0)) conflict=1;
                 alias[nc*n+c]=alias[nc*n+Layout::mesh_offset+c]=master;
             }
             continue;
         }
+        interface_nodes[n]=has(2);
         if(Elastic) {
             if(has(1)) for(int c=Layout::structure_offset;c<Layout::components;++c) alias[nc*n+c]=-1;
             if(has(3)||has(4)) alias[nc*n+Layout::structure_offset+1]=-1;
@@ -51,8 +55,11 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
             } else { alias[nc*n]=-2; alias[nc*n+Layout::mesh_offset]=-2; alias[nc*n+Layout::mesh_offset+1]=-1; alias[nc*n+Layout::mesh_offset+2]=-1; }
         }
     }
+    MPI_Allreduce(&conflict,&any_conflict,1,MPI_INT,MPI_MAX,comm);
+    if(any_conflict) throw std::runtime_error("Interface constraints conflict with free structure component");
     ReducedLayout reduced;
     reduced.components=nc;
+    reduced.interface_nodes=std::move(interface_nodes);
     auto& l=reduced.algebra;
     const bool body_owner=!Elastic && mesh.rank==mesh.ranks-1;
     GlobalId owned=body_owner?1:0;
@@ -76,11 +83,22 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     for(std::size_t i=0;i<independent.size();++i) if(alias[i]==static_cast<PetscInt>(i)) {
         independent[i]=next++;
         const int c=i%nc;
+        const auto domain=c<Layout::mesh_offset?DofDomain::fluid:
+            (c<Layout::structure_offset?DofDomain::mesh:DofDomain::solid);
+        const auto quantity=c==Layout::pressure?DofQuantity::pressure:
+            (domain==DofDomain::mesh?DofQuantity::displacement:DofQuantity::velocity);
+        const auto component=static_cast<std::uint16_t>(c==Layout::pressure?0:
+            (domain==DofDomain::mesh?c-Layout::mesh_offset:
+             (domain==DofDomain::solid?c-Layout::structure_offset:c)));
+        l.owned_semantics.push_back({mesh.nodes[i/nc].global_id,domain,quantity,DofEntity::vertex,component,0,1});
         l.fields[c<Layout::dimension?"velocity":(c==Layout::pressure?"pressure":(c<Layout::structure_offset?"mesh":"structure"))].push_back(independent[i]);
     }
     for(std::size_t i=0;i<independent.size();++i)
         data[i]=alias[i]==-1?-1:(alias[i]==-2?reduced.body:independent.at(alias[i]));
-    if(body_owner) l.fields["rigid"].push_back(reduced.body);
+    if(body_owner) {
+        l.fields["rigid"].push_back(reduced.body);
+        l.owned_semantics.push_back({0,DofDomain::solid,DofQuantity::velocity,DofEntity::body,0,0,0});
+    }
     for(const auto* name:{"velocity","pressure","mesh"}) (void)l.fields[name];
     (void)l.fields[Elastic?"structure":"rigid"];
     EONSIM_PETSC(VecRestoreArray(ids.get(),&data));
@@ -129,15 +147,16 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
 ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh) { return build_layout<false>(comm,mesh); }
 ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh) { return build_layout<true>(comm,mesh); }
 ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains) {
-    int counts[3]{},all[3]{};
+    int counts[4]{},all[4]{};
     for(const auto& c:mesh.cells) {
         if(c.physical_tag==domains.fluid_region) ++counts[0];
         else if(c.physical_tag==domains.solid_region) ++counts[1];
-        else throw std::runtime_error("Unexpected FSI partition region");
+        else counts[3]=1;
     }
     for(std::size_t n=0;n<mesh.owned_nodes;++n) if(node_in_region(mesh,n,domains.fluid_region)&&node_in_region(mesh,n,domains.solid_region)) ++counts[2];
-    MPI_Allreduce(counts,all,3,MPI_INT,MPI_SUM,comm);
-    for(int n:all) if(n==0) throw std::runtime_error("FSI partition missing domain or shared interface");
+    MPI_Allreduce(counts,all,4,MPI_INT,MPI_SUM,comm);
+    if(all[3]) throw std::runtime_error("Unexpected FSI partition region");
+    for(int i=0;i<3;++i) if(all[i]==0) throw std::runtime_error("FSI partition missing domain or shared interface");
     std::set<int> required(domains.pressure_tags.begin(),domains.pressure_tags.end());
     for(const auto* list:{&domains.fluid_constraints,&domains.mesh_constraints,&domains.solid_constraints}) for(const auto& c:*list) required.insert(c.tag);
     for(int tag:required) {

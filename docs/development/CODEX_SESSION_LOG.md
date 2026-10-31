@@ -263,3 +263,13 @@
 - 更新 G0A 的设计交付状态和本轮合并清理清单；G0 生产实现及 G0B/G5/G1 未执行，INFRA-01 最终集成验收仍 review。此次是维护已有知识成果，不新增重复知识文章，原草稿未发布。
 - 实际检查：20 项参考测试、AST/Markdown/固定源码引用/14 份哈希、LF/CRLF 与修改负例、Git 差异和祖先关系；结果见 BRANCH_CLEANUP_2026-10-31.md 与对应 checks.txt。
 - 远程更新采用原子正常快进 main 加 7 个精确 SHA 保护的分支删除；推送前再次核对各 tip，保留 main 与完整可追溯历史。提交使用 [skip ci]，本轮未配置或编译项目、未运行 CTest/MPI/性能/网站构建。
+
+## 2026-10-31 / FEM-INTEGRATION — 基线恢复与G0检查点
+
+- 用户已明确解除纯设计限制，授权G0B→G0→G5→G1整体实现/测试/推送及按规则主线交付。main复核为72a3356，无开放PR；分支codex/fem-g0-g5-g1。旧快照未提交G0A工作已stash与归档保护。
+- 在4CPU/32GiB云环境复用锁恢复3.23.7与3.19.6；移走引用失效临时路径的旧构建目录，从空产物重建。基线主环境35/35各模式、兼容7/7通过。
+- 实际修改：DoF语义头、field/reduced布局、显式slot K/W映射、PC树与SNES接入、配置/CMake；新增pc_plan及pc_restart测试，复用schur/time_retry脚本；文档/队列/知识草稿同步。没有G5/G1能力。
+- 当前G0主环境 `scripts/cloud/run.sh 3.23.7 {debug,release} all /workspace/eonsim-cloud` 分别43/43通过；兼容mpi-failure 10/10及三recipe/重启7项通过。最后补验状态见实施记录。精简结果、来源清单和原始日志位置见FEM_INTEGRATION_VALIDATION.md。
+- quantity首次失败定位为原始压力块AMG粗层问题，固定使用Jacobi后通过；没有改变物理方程、精度门槛或超时。独立审查指出并修正rank局部输入错误、子KSP数组生命周期、Schur命名options漏检、零初态配置绕过与PC负例假通过条件。
+- 权限：仓库API报告push可用，main保护规则读取403（integration缺少该端点权限）；尚未尝试合并或绕过规则。正式PR等待全部阶段完成。
+- 下一步：保存并推送经验证G0检查点，检查CI，随后统一时间映射/accepted历史，从BE迁移进入G5。预计工程量不是实际耗时。

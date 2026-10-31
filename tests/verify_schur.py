@@ -48,6 +48,7 @@ def main():
     parser.add_argument('--executable', required=True)
     parser.add_argument('--mpiexec', required=True)
     parser.add_argument('--work', type=Path, required=True)
+    parser.add_argument('--recipe', choices=['physics', 'quantity', 'hybrid'])
     a = parser.parse_args()
     a.work.mkdir(parents=True, exist_ok=True)
     cases = [('flow', ROOT / 'cases/fluid/rotated_channel.yaml'),
@@ -66,7 +67,7 @@ def main():
             output = a.work / f'{name}_schur{ranks}.vtu'
             command = ([a.mpiexec, '-n', ranks] if ranks > 1 else []) + [
                 a.executable, '-case', case, '-partition', part, '-output', output,
-                '-schur_pc', '-linear_report']
+                '-linear_report'] + (['-pc_recipe', a.recipe] if a.recipe else ['-schur_pc'])
             text = run(command)
             (a.work / f'{name}_schur{ranks}.log').write_text(text)
             residuals = [dict(item.split('=',1) for item in line.split()[1:])

@@ -32,11 +32,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         if(!dual) for(auto n:face.nodes) if(std::abs(mesh.nodes[n].position[(tag-1)/2]-(tag-1)%2)>1e-12)
             throw std::runtime_error("FSI reference boundary mismatch");
     }
-    std::vector<bool> interface(mesh.nodes.size());
-    for(std::size_t n=0;n<mesh.nodes.size();++n) {
-        const auto& tags=mesh.node_boundary_tags[n];
-        interface[n]=dual?(node_in_region(mesh,n,f.domains.fluid_region)&&node_in_region(mesh,n,f.domains.solid_region)):(std::find(tags.begin(),tags.end(),2)!=tags.end());
-    }
+    const auto& interface=reduced.interface_nodes;
     std::vector<bool> fluid_cell,solid_cell;
     std::vector<FsiElementData> data;
     std::vector<Tet4Geometry> solid_geometry;
@@ -91,11 +87,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         std::vector<double> full(mesh.nodes.size()*nc,0);
         for(std::size_t i=0;i<full.size();++i) {
             const auto n=i/nc,c=i%nc;
-            if(reduced.local[i]>=0) full[i]=x[reduced.local[i]];
-            if(interface[n] && Layout::is_mesh(c)) {
-                if(Elastic) full[i]=solid_d[Tet4Vector::components*n+c-Layout::mesh_offset]+current_dt*full[i];
-                else if(c==Layout::mesh_offset) full[i]=body.position+current_dt*full[i];
-            }
+            const double lifting=Layout::is_mesh(c)?
+                (Elastic?solid_d[Tet4Vector::components*n+c-Layout::mesh_offset]:
+                 (c==Layout::mesh_offset?body.position:0)):0;
+            full[i]=reduced.slot(i,current_dt,lifting).expand(x);
         }
         return full;
     };
@@ -153,11 +148,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             for(std::size_t e=0;e<data.size();++e) {
                 for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<nc;++c) {
                     const auto n=mesh.cells[e].nodes[a],i=nc*n+c;
-                    rows[nc*a+c]=cols[nc*a+c]=reduced.global[i]; chain[nc*a+c]=1;
-                    if(interface[n] && Layout::is_mesh(c)) {
-                        chain[nc*a+c]=dt;
-                        rows[nc*a+c]=-1; // 人工网格界面力不属于刚体或结构动量。
-                    }
+                    const auto mapping=reduced.slot(i,dt);
+                    rows[nc*a+c]=mapping.test_row; cols[nc*a+c]=mapping.column;
+                    chain[nc*a+c]=mapping.trial_weight;
                 }
                 local_residual(e,full,j!=nullptr,residual,tangent);
                 EONSIM_PETSC(VecSetValues(r,nd,rows.data(),residual.data(),ADD_VALUES));

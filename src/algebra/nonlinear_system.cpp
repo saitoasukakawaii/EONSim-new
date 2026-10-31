@@ -1,6 +1,7 @@
 #include "eonsim/nonlinear_system.hpp"
 #include <cstdint>
 #include "eonsim/schur_solver.hpp"
+#include "eonsim/pc_plan.hpp"
 #include "eonsim/time_step.hpp"
 #include <cmath>
 #include <stdexcept>
@@ -459,18 +460,31 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     PetscBool block=PETSC_FALSE,schur=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-schur_pc",&schur,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-block_pc",&block,nullptr));
-    if(block&&schur) throw std::runtime_error("Choose block_pc or schur_pc");
-    if(block||schur) {
+    char recipe_option[32]{}; PetscBool recipe_set=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_recipe",recipe_option,sizeof(recipe_option),&recipe_set));
+    const std::string recipe=recipe_set?recipe_option:config.pc_recipe;
+    const bool semantic=!recipe.empty();
+    int enabled=semantic,enabled_min=0,enabled_max=0;
+    MPI_Allreduce(&enabled,&enabled_min,1,MPI_INT,MPI_MIN,comm);
+    MPI_Allreduce(&enabled,&enabled_max,1,MPI_INT,MPI_MAX,comm);
+    if(enabled_min!=enabled_max) throw std::runtime_error("PC recipe enablement differs between ranks");
+    int conflict=(block&&schur)||(semantic&&(block||schur)),any_conflict=0;
+    MPI_Allreduce(&conflict,&any_conflict,1,MPI_INT,MPI_MAX,comm);
+    if(any_conflict) throw std::runtime_error("Choose only one PC recipe, block_pc or schur_pc");
+    PcBlock plan;
+    if(semantic) plan=make_pc_plan(comm,l,recipe);
+    if(block||schur||semantic) {
         EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
         EONSIM_PETSC(KSPSetTolerances(ksp,1e-9,1e-13,PETSC_DEFAULT,500));
         EONSIM_PETSC(PCSetType(pc,PCFIELDSPLIT));
         EONSIM_PETSC(PCFieldSplitSetType(pc,PC_COMPOSITE_MULTIPLICATIVE));
     }
     EONSIM_PETSC(SNESSetFromOptions(snes.get()));
+    if(semantic) validate_pc_plan_options(comm,ksp,plan);
     // PETSc 优化构建默认可能不检查 Jacobian domain error；结果有效性检查在两种构建都启用。
     EONSIM_PETSC(SNESSetCheckJacobianDomainError(snes.get(),PETSC_TRUE));
     PCType type; EONSIM_PETSC(PCGetType(pc,&type));
-    if(!schur&&std::strcmp(type,PCFIELDSPLIT)==0) {
+    if(!schur&&!semantic&&std::strcmp(type,PCFIELDSPLIT)==0) {
         auto fields=l.fields;
         if(fields.count("velocity")&&fields.count("pressure")) {
             fields["flow"]=fields.at("velocity");
@@ -515,12 +529,16 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     }
     const auto solve_begin=std::chrono::steady_clock::now();
     const double setup_seconds=std::chrono::duration<double>(solve_begin-setup_begin).count();
-    context.evaluate(x.get(),r.get(),schur?j.get():nullptr,true);
+    context.evaluate(x.get(),r.get(),(schur||semantic)?j.get():nullptr,true);
     acceptance.measure(r.get(),true);
     EONSIM_PETSC(SNESSetInitialFunction(snes.get(),r.get()));
     const auto schur_begin=std::chrono::steady_clock::now();
     if(schur) configure_schur_solver(comm,ksp,l,j.get());
-    const double schur_setup_seconds=schur?std::chrono::duration<double>(std::chrono::steady_clock::now()-schur_begin).count():0.;
+    PetscReal initial_norm=0;
+    if(semantic) EONSIM_PETSC(VecNorm(r.get(),NORM_2,&initial_norm));
+    // An exactly converged initial state must not factor an unused/singular PC.
+    if(semantic&&initial_norm>0) configure_pc_plan(comm,ksp,j.get(),plan);
+    const double schur_setup_seconds=(schur||semantic)?std::chrono::duration<double>(std::chrono::steady_clock::now()-schur_begin).count():0.;
     const auto error=SNESSolve(snes.get(),nullptr,x.get());
     const auto finalize_begin=std::chrono::steady_clock::now();
     const double solve_seconds=std::chrono::duration<double>(finalize_begin-solve_begin).count();
