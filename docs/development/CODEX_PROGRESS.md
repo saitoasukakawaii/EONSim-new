@@ -51,12 +51,14 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 
 ## 当前焦点
 
+CI-INCREMENTAL-01 正在本地分支 `codex/pr-incremental-ci` 实施；基线 `ef20e03`。用户已选择仅 PR 自动增量检查，并授权脚本验证加一次小型云端验收。没有授权全量数值验证或自动合并。
+
 DOCS-01 已通过 PR #25 合入，合并提交 `be21882`；G0B/G0/G5/G1 与 PR #24 工程策略保持已交付。当前 main tip 以 Git 为准。
-日常 CI 为 PETSc 3.23.7 Debug/Release；3.19.6 仅手动兼容专项。合并状态由本地 Git 历史确认，本次未查询 PR #24 的远程 Checks，不能据合并推断其逐项测试结果。
+CI-INCREMENTAL-01 将日常数值 CI 改为 PR 选测的 PETSc 3.23.7 Debug/Release；3.19.6 仍仅手动兼容专项，main 上生效以合并为准。合并状态由本地 Git 历史确认，本次未查询 PR #24 的远程 Checks，不能据合并推断其逐项测试结果。
 
 DOCS-01 的开发分支 `codex/markdown-progress-audit` 已合并；范围、逐文件处理与静态验证见 [文档审查记录](MARKDOWN_AUDIT_2026-10-31.md)。
 
-用户本次授权 TEST-POLICY-01：仅修改验证约束，不开发、不编译项目。基线 `3df1c31`；约束由本地分支 `codex/incremental-validation-policy` 交付（review，未推送、未合入 main）。默认仅检查新增或受影响行为，历史已通过且未受影响的测试不重跑；全量仅在用户明确要求时运行。规则见 [构建与验证](BUILD_AND_VALIDATION.md)。本次未运行构建、数值测试或 CI；现有 GitHub Actions 的 `selection: all` 未修改，远程自动全量行为仍存在。
+此前 TEST-POLICY-01：仅修改验证约束，不开发、不编译项目。基线 `3df1c31`；约束由本地分支 `codex/incremental-validation-policy` 交付（review，未推送、未合入 main）。默认仅检查新增或受影响行为，历史已通过且未受影响的测试不重跑；全量仅在用户明确要求时运行。规则见 [构建与验证](BUILD_AND_VALIDATION.md)。该文档任务未运行构建、数值测试或 CI，也未修改工作流；后续 CI-INCREMENTAL-01 承接自动选测实现。
 
 ## 最近完成
 

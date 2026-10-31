@@ -170,3 +170,8 @@ DOCS-01 交付补记：已通过 [PR #25](https://github.com/saitoasukakawaii/EO
 ## TEST-POLICY-01 / 2026-10-31
 
 验证约束更新，基线 `3df1c31`，由本地分支 `codex/incremental-validation-policy` 交付，未推送、未合入 main：采用[增量验证与历史证据复用](../development/BUILD_AND_VALIDATION.md)，仅检查新增或受影响行为，已通过且未受影响的测试不重跑，全量仅在用户明确要求时运行。核查旧约束与工作流后，明确现有 CI 的 `selection: all` 尚未修改。仅做文档静态检查，未开发、编译或执行数值测试；无新算法/性能结论，不生成文章草稿。过程及验证范围见[会话日志](../development/CODEX_SESSION_LOG.md)。
+
+
+## CI-INCREMENTAL-01 / 2026-10-31
+
+[PR 增量 CI 与证据复用草稿](../../website/drafts/incremental-ci-and-evidence-reuse.md)：基线 ef20e03，开发分支 codex/pr-incremental-ci。说明路径映射、精确测试清单、同 PR 成功证据与必需检查状态的边界；本地脚本检查已执行，云端验收随后记录在会话日志。无性能结论，不发布。

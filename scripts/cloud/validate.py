@@ -15,6 +15,8 @@ import time
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from selection import checked_names, load_policy, targets_for, test_filter, validate_inventory
 
 
 def resources():
@@ -127,9 +129,17 @@ def read_test_results(junit, tests):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--mode', choices=['debug', 'release'], required=True)
-    ap.add_argument('--selection', choices=['core', 'all', 'mpi-failure'], required=True)
+    ap.add_argument('--selection', choices=['core', 'all', 'mpi-failure', 'explicit'], required=True)
+    ap.add_argument('--tests-file', type=Path, help='JSON selection plan containing an exact tests list')
     ap.add_argument('--version', choices=['3.23.7', '3.19.6'], required=True)
     a = ap.parse_args()
+    catalog = load_policy()['tests']
+    if a.selection == 'explicit':
+        if a.tests_file is None:
+            ap.error('explicit selection requires --tests-file')
+        requested = checked_names(json.loads(a.tests_file.read_text())['tests'], catalog)
+    elif a.tests_file is not None:
+        ap.error('--tests-file is only valid with explicit selection')
     enable_child_reaping()
     def terminated(signum, frame):
         raise KeyboardInterrupt
@@ -186,7 +196,6 @@ def main():
         summary['resources'] = resources()
         if sys.flags.optimize:
             raise RuntimeError('Python optimization disables numerical assertions; unset PYTHONOPTIMIZE')
-        run([sys.executable, str(ROOT/'tests/test_cloud_evidence.py')], 'evidence-parser', 30)
         lock = ROOT / 'environments' / f'petsc-{a.version}-linux-64.lock'
         summary['lock_sha256'] = hashlib.sha256(lock.read_bytes()).hexdigest()
         packages = [json.loads(p.read_text()) for p in (prefix / 'conda-meta').glob('*.json')]
@@ -210,21 +219,36 @@ def main():
              '-DEONSIM_VERIFY_LOCKED_RUNTIME=ON',
              '-DCMAKE_PREFIX_PATH='+str(prefix), '-DMPIEXEC_EXECUTABLE='+str(prefix/'bin/mpiexec'),
              '-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS'], 'configure', 180)
-        run(['cmake', '--build', str(build), '--parallel', str(summary['resources']['build_jobs'])], 'build')
-        _, linkage = run(['ldd', str(build/'eonsim')], 'runtime-linkage', 30)
+        # Discover names before building. Missing executables are expected in a
+        # fresh tree; CTest still exposes registered names and properties.
+        select = (test_filter(requested) if a.selection == 'explicit' else
+                  ([] if a.selection == 'all' else ['-L', '^'+a.selection+'$']))
+        _, inventory = run(['ctest', '--test-dir', str(build), '--show-only=json-v1'], 'full-test-inventory', 30)
+        all_tests = json.loads(inventory.read_text())['tests']
+        if a.selection == 'explicit':
+            tests = validate_inventory(all_tests, catalog, requested)
+        else:
+            _, inventory = run(['ctest', '--test-dir', str(build), '--show-only=json-v1', *select], 'test-inventory', 30)
+            tests = json.loads(inventory.read_text())['tests']
+        if not tests:
+            raise RuntimeError('Empty test selection')
+        names = [t['name'] for t in tests]
+        targets = sorted(set(targets_for(names, catalog)) | {'verify_runtime'})
+        summary['selected_tests'] = names
+        summary['build_targets'] = targets
+        (evidence/'selected-inventory.json').write_text(json.dumps(tests, indent=2)+'\n')
+        run(['cmake', '--build', str(build), '--parallel', str(summary['resources']['build_jobs']),
+             '--target', *targets], 'build')
+        linkage_target = 'eonsim' if 'eonsim' in targets else 'verify_runtime'
+        _, linkage = run(['ldd', str(build/linkage_target)], 'runtime-linkage', 30)
         libs = linkage.read_text().splitlines()
         for name in ('libmpi.so', 'libpetsc'):
             matches = [line for line in libs if name in line]
             if len(matches) != 1 or str(prefix/'lib') not in matches[0]:
                 raise RuntimeError(f'MPI/PETSc linkage outside locked prefix: {name}')
-        run([str(prefix/'bin/mpiexec'), '-n', '2', str(build/'verify_runtime')], 'runtime-preflight', 30)
-        if a.selection != 'mpi-failure':
-            run([str(prefix/'bin/mpiexec'), '-n', '4', str(build/'verify_runtime')], 'runtime-preflight-4', 30)
-        select = [] if a.selection == 'all' else ['-L', '^'+a.selection+'$']
-        _, inventory = run(['ctest', '--test-dir', str(build), '--show-only=json-v1', *select], 'test-inventory', 30)
-        tests = json.loads(inventory.read_text())['tests']
-        if not tests:
-            raise RuntimeError('Empty test selection')
+        if 'runtime_mpi' not in names:
+            ranks = max(r for name in names for r in catalog[name]['ranks'])
+            run([str(prefix/'bin/mpiexec'), '-n', str(ranks), str(build/'verify_runtime')], 'runtime-preflight', 30)
         # Remove prior results so a failed invocation cannot reuse stale evidence.
         junit = evidence/'junit.xml'
         junit.unlink(missing_ok=True)

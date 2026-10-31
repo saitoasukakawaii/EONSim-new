@@ -98,7 +98,28 @@ cat build/cloud-3.23.7-release/evidence/ctest.log
 
 任何非预期跳过、空选择、不完整JUnit或非零CTest退出都判失败；预期错误由既有测试断言错误原因、状态和恢复后正常返回，与应用异常退出/超时区分。CTest沿用原超时；外层Linux子进程收养及进程组清理仅处理本次验证后代，不杀无关作业。
 
-GitHub Actions `core-numerics.yml` 当前在 main、codex 分支 Push 及 PR 上运行 PETSc 3.23.7 的 Debug/Release 主力矩阵，两项仍为 `selection: all`。本次增量验证约束仅修改文档，未修改工作流或实现自动选测，因此不能声称远程 CI 已停止全量运行。agent 不因这些配置在本地或手动触发端再跑一遍完整套件，也不绕过远程必需检查。PETSc 3.19.6 不参与日常 CI；仅在手动触发 workflow_dispatch 并显式勾选 `run_legacy_petsc` 时，运行 Release 的 `mpi-failure` 专项检查。仅依赖包缓存，键含锁、平台、编译器和 ABI；失败仍上传证据。网站构建不是数值 CI 替代品。
+### PR 增量 CI 与精确清单
+
+GitHub Actions `core-numerics.yml` 仅在面向 main 的 PR 自动运行；分支 Push 与合入 main 不重复触发数值 CI。保留 PETSc 3.23.7 Debug/Release 的原检查名称。纯文档/网站改动仍生成选测结果，但不恢复 PETSc、不编译、不执行数值检查；网站工作流独立且未修改。
+
+`scripts/cloud/selection.json` 记录路径到 CTest 名称、构建目标及 rank 的显式映射。共享代码映射到受影响入口的代表性检查，不代表完整下游验证。新增生产文件、测试或 CMake 注册项须同步映射；未知非文档路径直接失败，禁止自动回退 `all`。重命名按旧路径删除和新路径新增分别判断。旧版锁变化不启动主锁数值检查，仍需开发者按兼容策略选择手动旧版专项。
+
+首次按 PR base 与实际合并预览的差异选测。后续只复用同仓库、同 PR、相同 base SHA、相同规则/构建/依赖指纹、且旧 head 为当前 head 祖先的成功 workflow receipt。查询最近最多 90 个成功 PR runs；无可用凭据、artifact 缺失/过期、非祖先历史或基线变化时，重新选择当前完整 PR 差异涉及的项，仍不运行全量。当前不跨 PR 复用，也不缓存编译产物。
+
+复用证据保留每项 Debug/Release 的原 run/提交；新 head 的文档改动不会重跑这些数值项。受影响项重新运行，其他项标为历史证据复用；失败、取消、未知或不完整记录不参与复用。选测、实际运行、继承来源分别保存在 `incremental-plan`、`numerics-*`、`incremental-receipt` artifacts，保留 14 天；长期验收另存精简记录。
+
+云入口支持第五参数传入 JSON 清单，形如 `{"tests": ["poisson_verification"]}`：
+
+```bash
+scripts/cloud/run.sh 3.23.7 debug explicit .cloud build/ci/plan.json
+```
+
+执行器配置后读取真实 CTest inventory，核对映射完整性、名称唯一性及清单非空；只构建所选测试对应的目标和锁定运行时探针。`eonsim_core` 仍是一个库，构建 eonsim 会编译整个核心库，不声称已有逐源增量构建缓存。运行时探针按所选最大 rank 检查一次；若已选中 runtime_mpi，不额外执行同一探针。JUnit 必须与选择清单完全对应，缺失、重复、意外跳过或失败均拒绝通过。
+
+`workflow_dispatch` 的 `selection` 提供 `incremental`（默认，比较 `base_ref`）、`explicit`（逗号/空白分隔的精确 `tests` 名称）、`all`（用户显式全量）。PR 不允许切换为 explicit/all。手动全量仍经过精确 inventory 与结果核对；只有勾选 `run_legacy_petsc` 才运行 3.19.6 Release 的 mpi-failure 专项。手动运行不作为 PR 历史复用基线。
+
+工作流不使用顶层 paths-ignore 跳过必需检查；选测失败时原 Debug/Release 检查也失败，不能以依赖 job 被跳过掩盖错误。不修改仓库保护规则，不用 `[skip ci]` 作为跳过数值测试的实现。改造尚未合入 main 时，远程默认分支仍使用旧配置；实际 PR/验收状态见 CODEX_PROGRESS。
+
 
 
 ## 精简测试与不过度防御的执行规则

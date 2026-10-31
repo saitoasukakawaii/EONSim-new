@@ -399,3 +399,13 @@
 - `.github/workflows/core-numerics.yml` 仍配置 Push/PR 的主锁 Debug/Release `selection: all`；本次按“仅改约束”限定未修改工作流、测试或脚本，没有实现 CI 自动选测，也没有触发远程验证。
 - 验证仅限文档阅读、`git diff --check`、改动 Markdown 本地链接目标检查和差异范围核对；没有运行 CMake 配置、编译、CTest、MPI、性能实验或网站构建。无数值结果或性能结论，未生成知识文章。
 - 进度、队列及知识索引同步；任务为 review（本地分支交付，未推送、未合入 main），不改写历史交付记录。
+
+
+## 2026-10-31 / CI-INCREMENTAL-01 — PR 增量执行（进行中）
+
+- 用户选择并批准：仅 PR 自动增量检查，分支 Push/main 不重复数值 CI；脚本验证加一次小型云端验收；不改生产求解器、不跑全量、不自动合并。基线 ef20e03，分支 codex/pr-incremental-ci。
+- 原入口只有 core/all/mpi-failure，先编译所有目标且重复做 2/4 rank 预检。新增显式路径/测试/目标映射、精确 JSON 清单执行、同 PR 成功 receipt；保留原必需检查名称与手动全量/旧锁专项。
+- 复用前检查 workflow 成功、repo/PR/base/规则及依赖指纹、head 祖先关系、完整双模式来源；找不到有效证据只重新计算 PR 相关项，不能落回 all。artifact 下载跨域时去除 Authorization；ZIP 只读取单个有界 receipt.json，不解压到工作区。
+- 首轮选测脚本测试发现 include/eonsim/fsi_element.hpp 未映射；补齐后 24 项 Python 测试通过。共享 reader、流体边界对固体的使用者及 profile 日志输入也纳入显式规则。
+- 已执行 python3 tests/test_ci_selection.py（24 项通过）、python3 tests/test_cloud_evidence.py（6 项通过）、bash -n scripts/cloud/run.sh、actionlint 1.7.7 的 core-numerics.yml 语法检查及 git diff --check；尚未运行本次生产构建/数值测试，云端 smoke 待 PR 验收。旧数值记录不计为本次通过。
+- 使用 eonsim-knowledge-capture 记录 CI 选测/证据复用草稿，不发布；后续补充真实云端证据及文档提交的复用结果。

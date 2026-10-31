@@ -1,28 +1,71 @@
 name: Core numerical validation
 
 on:
-  push:
-    branches: [main, 'codex/**']
   pull_request:
     branches: [main]
   workflow_dispatch:
     inputs:
+      selection:
+        description: "incremental diff, explicit test names, or deliberately run all tests"
+        type: choice
+        options: [incremental, explicit, all]
+        default: incremental
+      tests:
+        description: "Exact CTest names separated by commas or whitespace (explicit only)"
+        type: string
+        default: ""
+      base_ref:
+        description: "Comparison ref for manual incremental selection"
+        type: string
+        default: origin/main
       run_legacy_petsc:
         description: "Run PETSc 3.19.6 compatibility build and MPI-failure tests when relevant"
-        required: false
         type: boolean
         default: false
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: core-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  selection:
+    name: Select affected checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      run_numerics: ${{ steps.plan.outputs.run_numerics }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Select tests and check changed CI scripts
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_SELECTION: ${{ inputs.selection || 'incremental' }}
+          CI_TESTS: ${{ inputs.tests }}
+          CI_BASE: ${{ inputs.base_ref || 'origin/main' }}
+        run: >-
+          python3 scripts/cloud/selection.py --output build/ci/plan.json
+          --selection "$CI_SELECTION" --tests "$CI_TESTS" --base "$CI_BASE"
+      - name: Preserve selection evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: incremental-plan
+          path: build/ci/plan.json
+          if-no-files-found: warn
+          retention-days: 14
+
   numerics:
     name: PETSc 3.23.7 / ${{ matrix.mode }}
+    needs: selection
+    if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     strategy:
@@ -30,30 +73,48 @@ jobs:
       matrix:
         include:
           - mode: debug
-            selection: all
             compiler: gcc-15.3.0
             abi: openmpi-5-real-double-int32-v3
           - mode: release
-            selection: all
             compiler: gcc-15.3.0
             abi: openmpi-5-real-double-int32-v3
     steps:
+      # Keep the required check names even when nothing numerical is selected.
+      # A failed selector must fail these checks, never become a green skipped job.
+      - name: Require successful selection
+        env:
+          SELECTION_RESULT: ${{ needs.selection.result }}
+        run: test "$SELECTION_RESULT" = success
+      - name: No new numerical tests required
+        if: needs.selection.outputs.run_numerics != 'true'
+        run: echo 'No new numerical tests required; see selection evidence for reuse or unaffected paths.'
       - uses: actions/checkout@v4
+        if: needs.selection.outputs.run_numerics == 'true'
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        if: needs.selection.outputs.run_numerics == 'true'
+        with:
+          name: incremental-plan
+          path: build/ci
       - name: Dependency package cache
+        if: needs.selection.outputs.run_numerics == 'true'
         uses: actions/cache@v4
         with:
           path: .cloud/mamba/pkgs
           key: deps-${{ runner.os }}-${{ runner.arch }}-${{ matrix.compiler }}-${{ matrix.abi }}-${{ hashFiles('environments/petsc-3.23.7-linux-64.lock') }}
       - name: Restore locked environment
+        if: needs.selection.outputs.run_numerics == 'true'
         shell: bash
         run: |
           mkdir -p build/restore-evidence
           set -o pipefail
           scripts/cloud/restore.sh '3.23.7' 2>&1 | tee build/restore-evidence/restore.log
-      - name: Build and verify existing numerical contracts
-        run: scripts/cloud/run.sh '3.23.7' '${{ matrix.mode }}' '${{ matrix.selection }}'
+      - name: Build and verify selected numerical contracts
+        if: needs.selection.outputs.run_numerics == 'true'
+        run: scripts/cloud/run.sh '3.23.7' '${{ matrix.mode }}' explicit .cloud build/ci/plan.json
       - name: Preserve evidence even on failure
-        if: always()
+        if: always() && needs.selection.outputs.run_numerics == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: numerics-3.23.7-${{ matrix.mode }}-${{ github.sha }}
@@ -67,6 +128,35 @@ jobs:
             build/cloud-*/Testing/
             build/cloud-*/**/*.log
             build/cloud-*/**/results.json
+
+  receipt:
+    name: Record incremental evidence
+    needs: [selection, numerics]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: incremental-plan
+          path: build/ci
+      - uses: actions/download-artifact@v4
+        if: needs.selection.outputs.run_numerics == 'true'
+        with:
+          pattern: numerics-3.23.7-*
+          path: build/ci/results
+      - name: Verify results and record historical origins
+        run: >-
+          python3 scripts/cloud/receipt.py --plan build/ci/plan.json
+          --evidence build/ci/results --output build/ci/receipt.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: incremental-receipt
+          path: build/ci/receipt.json
+          if-no-files-found: error
+          retention-days: 14
 
   legacy-compat:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_legacy_petsc }}
