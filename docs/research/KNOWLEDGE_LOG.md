@@ -165,3 +165,8 @@
 基线 `a508e3d`，本地分支 `codex/markdown-progress-audit`。全仓 [Markdown 审查](../development/MARKDOWN_AUDIT_2026-10-31.md) 同步现行状态与历史证据边界，并按 eonsim-knowledge-capture 更新已有 DoF、BDF2、alpha、COO、生命周期草稿；原模板与理论/实现/验证/性能分级保留，没有新数值或性能数据。静态检查命令和未验证项见审查记录。没有新技术成果需要独立文章，所有草稿仍为 draft，未发布。
 
 DOCS-01 交付补记：已通过 [PR #25](https://github.com/saitoasukakawaii/EONSim-new/pull/25) 合入 main（be21882）；远程主锁 Debug/Release 各60/60、网站构建及草稿隔离通过，旧锁专项 skipped。命令与运行链接见 [审查补记](../development/MARKDOWN_AUDIT_2026-10-31.md#远程交付补记)。仍无新算法/性能文章，草稿未发布。
+
+
+## TEST-POLICY-01 / 2026-10-31
+
+验证约束更新，基线 `3df1c31`，由本地分支 `codex/incremental-validation-policy` 交付，未推送、未合入 main：采用[增量验证与历史证据复用](../development/BUILD_AND_VALIDATION.md)，仅检查新增或受影响行为，已通过且未受影响的测试不重跑，全量仅在用户明确要求时运行。核查旧约束与工作流后，明确现有 CI 的 `selection: all` 尚未修改。仅做文档静态检查，未开发、编译或执行数值测试；无新算法/性能结论，不生成文章草稿。过程及验证范围见[会话日志](../development/CODEX_SESSION_LOG.md)。

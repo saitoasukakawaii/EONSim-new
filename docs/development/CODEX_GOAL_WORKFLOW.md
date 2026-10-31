@@ -56,7 +56,7 @@ Goal mode 从 Codex 0.128.0 起提供。OpenAI 公开发布说明列出的界面
 2. **Select**：只领取最高优先级、依赖已满足的一个 ready 任务；若没有 ready 任务，列出候选并等待用户决定，不得擅自把 deferred 改成 ready。
 3. **Plan briefly**：确定最小变更、相关数学/架构契约和验收命令；不要停留在计划阶段。
 4. **Execute**：检查源码，修改代码或文档，保持单一职责。
-5. **Verify**：运行相关构建、测试、解析解/MMS、MPI 对照或 benchmark。不能运行时明确记录原因。
+5. **Verify**：按 [增量验证规则](BUILD_AND_VALIDATION.md) 只运行新增或受影响行为的必要检查；已通过且未受影响的测试复用历史证据，不因新一轮 Goal、提交或交付重跑。文档改动不编译、不跑数值测试；全量仅在用户明确要求时运行。不能运行的必要检查明确记录原因。
 6. **Capture**：更新 CODEX_PROGRESS、CODEX_TASK_QUEUE、CODEX_SESSION_LOG；有可复用知识时使用 eonsim-knowledge-capture Skill，生成 website/drafts 草稿。
 7. **Persist**：在独立分支 commit/push；创建或更新 PR。不要直接推送 main。
 8. **Audit**：核对 diff、测试日志、数值结果、性能数据和公开文章中的主张。
@@ -79,7 +79,7 @@ Cloud Task 工作区彼此隔离。跨 Task 恢复依赖 GitHub 中已提交的�
 - [ ] 一个独立任务 ID 和明确验收条件；
 - [ ] 对应源码/数学契约已阅读；
 - [ ] 代码变更位于独立分支；
-- [ ] 相关测试已运行并记录真实输出；
+- [ ] 新增或受影响行为的必要检查已记录真实结果；未受影响项引用历史通过证据并标明本次未运行，文档任务仅做静态检查；
 - [ ] 性能数据附硬件、软件版本、网格/DOF、MPI rank、容差和重复次数；
 - [ ] CODEX_PROGRESS、CODEX_TASK_QUEUE、CODEX_SESSION_LOG 已更新；
 - [ ] 知识草稿已生成（如有），但没有自动发布；

@@ -389,3 +389,13 @@
 - [PR 数值 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41207324586) 实际日志确认：PETSc 3.23.7 Debug/Release 各 60 passed、0 failed、0 skipped；测试对象为合并预览 `8e835ecb5b9475e2e70f802b9944554e13f4e2cb`。PETSc 3.19.6 手动兼容 job 本次 skipped，不计为通过。
 - [网站 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41207324560) 的生产构建与草稿/模板隔离均成功。此为远程补验，前序本地缺少 Node 的记录仍成立。没有新增性能结论，也没有将草稿转为正式栏目。
 - 本地 main 已快进至合并提交；仅补记任务完成状态和上述证据链接。本补记不改源码/网站，静态复核后使用 `[skip ci]` 提交，避免重复数值套件；不把前述结果标记为补记提交的新运行。
+
+
+## 2026-10-31 / TEST-POLICY-01 — 增量验证与历史证据复用
+
+- 用户明确要求仅改约束，不开发和编译项目，并停止每次开发结束后的全量测试及无关历史测试重跑。源码基线 `3df1c31f8f3b6c995e00368782a94971a92371c3`；本次变更仅为 Markdown；用户随后授权本地提交，分支 `codex/incremental-validation-policy`，未推送。
+- 静态检查发现旧规则虽写“最小验证”，仍在基础设施交付、公共接口和最终集成处要求 `all`，且“代码继续变化”重跑条件未限定影响范围。已统一 AGENTS、L0、构建与验证、路线及 Goal 流程：只检查新增/受影响行为，复用未受影响的历史通过证据，全量仅在用户明确要求时运行。
+- 历史证据保留原提交、命令/环境/结果或归档链接；本次未运行须明确标注，不计作当前提交新通过。受影响路径不能仅用改动前的通过记录代替必要检查。
+- `.github/workflows/core-numerics.yml` 仍配置 Push/PR 的主锁 Debug/Release `selection: all`；本次按“仅改约束”限定未修改工作流、测试或脚本，没有实现 CI 自动选测，也没有触发远程验证。
+- 验证仅限文档阅读、`git diff --check`、改动 Markdown 本地链接目标检查和差异范围核对；没有运行 CMake 配置、编译、CTest、MPI、性能实验或网站构建。无数值结果或性能结论，未生成知识文章。
+- 进度、队列及知识索引同步；任务为 review（本地分支交付，未推送、未合入 main），不改写历史交付记录。

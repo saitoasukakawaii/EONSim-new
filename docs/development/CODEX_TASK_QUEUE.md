@@ -15,6 +15,7 @@
 
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
+| TEST-POLICY-01 | P1 | review | 固化增量验证与历史通过证据复用约束 | 基线 3df1c31；仅文档，本地分支 codex/incremental-validation-policy 交付，未推送、未合入 main；检查文档差异及链接，不开发、不编译、不跑数值测试；GitHub Actions 全量配置未修改 |
 | FEM-INTEGRATION | P1 | done | G0B → G0 → G5 → G1 连续主线交付 | 基线及每阶段真实数值/MPI验证、独立审查、最终CI/PR与允许时合并；PR #23已合入main；本地与云端60/60/13通过，见集成验证记录 |
 | DOCS-01 | P1 | done | 全仓 Markdown 进度与链接审查 | 88 份既有 Markdown 已审查，修订及静态验证见 [审查记录](MARKDOWN_AUDIT_2026-10-31.md)；[PR #25](https://github.com/saitoasukakawaii/EONSim-new/pull/25) 已合入 be21882；本地静态检查、远程 Debug/Release 各60/60及网站/草稿隔离通过 |
 | DEV-PROCESS-POLICY | P1 | done | 固化 PETSc 主力 CI 策略与持续知识积累要求 | [PR #24](https://github.com/saitoasukakawaii/EONSim-new/pull/24)；3.23.7 Debug/Release 为日常矩阵，3.19.6 手动专项；AGENTS、进度、队列、会话日志与知识索引同步更新；已合入 main（a508e3d），本次未复查远程 Checks |
