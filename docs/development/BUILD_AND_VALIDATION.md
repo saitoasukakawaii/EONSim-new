@@ -67,7 +67,7 @@ scripts/cloud/run.sh 3.23.7 release core /opt/eonsim-cloud
 # 公共基础设施交付：一次完整现有短套件
 scripts/cloud/run.sh 3.23.7 debug all /opt/eonsim-cloud
 scripts/cloud/run.sh 3.23.7 release all /opt/eonsim-cloud
-# 旧版只做本次相关故障/状态/COO检查
+# 仅当本次修改涉及 PETSc 3.19.6 兼容路径时，才按需运行旧版专项检查
 scripts/cloud/restore.sh 3.19.6 /opt/eonsim-cloud
 scripts/cloud/run.sh 3.19.6 release mpi-failure /opt/eonsim-cloud
 ```
@@ -98,7 +98,7 @@ cat build/cloud-3.23.7-release/evidence/ctest.log
 
 任何非预期跳过、空选择、不完整JUnit或非零CTest退出都判失败；预期错误由既有测试断言错误原因、状态和恢复后正常返回，与应用异常退出/超时区分。CTest沿用原超时；外层Linux子进程收养及进程组清理仅处理本次验证后代，不杀无关作业。
 
-GitHub Actions `core-numerics.yml` 在main、codex分支push及PR运行主环境Debug/Release全短套件，旧版仅mpi-failure。仅依赖包缓存，键含锁、平台、编译器和ABI；失败仍上传证据。网站构建不是数值CI替代品。
+GitHub Actions `core-numerics.yml` 在 main、codex 分支 Push 及 PR 上只运行 PETSc 3.23.7 的 Debug/Release 主力矩阵。PETSc 3.19.6 不参与日常 CI；仅在手动触发 workflow_dispatch 并显式勾选 `run_legacy_petsc` 时，运行 Release 的 `mpi-failure` 专项检查。仅依赖包缓存，键含锁、平台、编译器和 ABI；失败仍上传证据。网站构建不是数值 CI 替代品。
 
 
 ## 精简测试与不过度防御的执行规则
