@@ -45,8 +45,9 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 | 独立流体缓存 COO Jacobian | 已实现并合并 | PR #21；范围及验证局限见 HPC-02 报告 |
 | 通用 FEM 与 20 组上游学习规划 | 文档已集成 | 16 份 Markdown 随设计分支合入；本次已授权G0/G5/G1；其它阶段仍deferred，按需依赖子集除外 |
 | FEM-G0A DoF/FSI 分块详细设计 | 已审查合入 | [专题](../architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md)、标准库参考模型及 20 项测试交付；无 C++ 接入或数值验收 |
-| 可复现云环境与 MPI 故障 CI | 基线数值验收通过，review | 72a3356主环境Debug/Release各35/35，旧版7/7；新分支CI待检查 |
-| G0B/G0语义DoF与三recipe | 实现及数值验收通过，review | 主环境Debug/Release各43/43；3.19.6相关检查通过，待整体PR/合并 |
+| 可复现云环境与 MPI 故障 CI | 已随 PR #23 完成集成验收 | 最终主锁 Debug/Release 各60/60、兼容专项13/13；证据见 FEM_INTEGRATION_VALIDATION.md |
+| G0B/G0语义DoF与三recipe | 已合入 main（PR #23） | DoF语义、物理验收与三种PC树已完成集成验证；不代表生产内存重排 |
+| PETSc CI 与持续知识积累规则 | PR #24 review | 日常仅 PETSc 3.23.7 Debug/Release；3.19.6 手动专项；AGENTS 与状态/知识文件同步更新 |
 
 ## 当前焦点
 
@@ -77,6 +78,7 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 - PR #11：Schur/GAMG 小规模网格测量。
 - PR #12：求解器层级 A 算子 global/local 行列数报告。
 - PR #13：非线性装配阶段计时。Release 3 项、Debug 2 项针对性测试通过；未运行重复性能基准。
+- PR #24（review）：PETSc 3.19.6 从日常矩阵移出；新增持续知识积累项目级规则，等待 PR 检查和人工审核。
 
 ## 当前检查点
 
