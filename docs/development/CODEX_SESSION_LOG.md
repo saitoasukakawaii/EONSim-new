@@ -327,3 +327,16 @@
 
 - 接续验证：主锁Release完整43项通过；旧锁三recipe补验3项通过。主锁Debug及旧锁Release新增奇异诊断失败/恢复10项均通过。性能两算例/1、2、4rank/四模式/三重复共72样本，最大场差3.307e-12，直接解在此小问题中solve中位数较低。证据入g0-supplement.json及pc-recipes-benchmark.json。
 - 使用知识采集Skill生成真实装配置换与PC验收草稿并登记；尚未发布。当前准备提交推送检查点并进行新提交云端CI，之后进入G5。
+
+## 2026-10-31 / FEM-INTEGRATION — G5与G1最终集成
+
+- 用户明确授权WSL2真实构建/MPI，并由云端CI复验；继续使用两套Linux显式依赖锁、原presets与恢复入口，没有另建构建系统。实际资源24逻辑CPU、约32GiB，编译并发4、每rank数学库单线程。
+- G5依次推送c923387（独立BDF2）、bab4fda（ALE/FSI BDF2）、25e0945（独立一阶/二阶alpha）、2fcd2fd（共同stage ALE/FSI alpha）；四个检查点云端三环境CI均成功。局部/整体切线、速度/压力/结构与网格时间阶、能量/阻尼、接口运动与功、事件/拒绝/完整历史重启见阶段JSON，不能将BE启动或参考ODE单独当作FSI精度证据。
+- G1增加独立规范化导入层、Gmsh4.1 ASCII子集、Tri3/P1与Quad4/Q1相容混合二维标量Poisson/扩散；贯通命名材料和D/N/Robin、纯Neumann、METIS/owned/ghost/AIJ、G5时间与checkpoint、VTU/PVTU/PVD。二维分区版本3，三维保留版本2及旧Tet4读取。
+- 独立审查发现并修复导入partition tags静默丢弃、名称维数检查、线性PC局部失败集体传播、不连通域零空间和restart输出时间片覆盖。新布局配置独立声明固定语义/存储策略；不把PC树变化或诊断MatPermute称为生产排列。
+- 数值检查包括独立解析Q1质量/刚度、角点反转、外部编号/方向、三拓扑patch/MMS/畸变/边界法向通量、双材料、纯Neumann、空间与时间加密、1/2/4rank重启和真实失败恢复。对称矩阵成对计算消除极小步长舍入导致的假非对称；未降低rank、放宽容差或延长失败超时。
+- 配置补充前主锁Debug/Release各59项及兼容13项通过；这份中间证据保留于build/pre-layout-policy-evidence。配置补充后的最终清单为主锁各60项、兼容13项，运行结束结果与源码哈希归档fem-final.json；不将中间结果冒充最终通过。
+- 使用eonsim-knowledge-capture生成二维规范化/双线性单元草稿并登记，所有文章仍在website/drafts。当前环境没有node，本地网站命令未运行成功；网站构建及草稿隔离交由PR云端检查。Markdown本地链接检查通过。
+- 最终主线与PR状态以后续交付记录为准；G2/G4仅实施必要子集，其余阶段不关闭。未测二维性能，也未把G0原检查点72样本性能结果归到新源码。
+
+- 最终配置补充后Debug60/60、Release60/60、兼容13/13全通过；CTest墙钟574.87/213.11/18.50秒。fem-final.json保存109份源码哈希和实际清单，独立审查无确定源码阻塞；准备最终G1提交、PR及云端验证。

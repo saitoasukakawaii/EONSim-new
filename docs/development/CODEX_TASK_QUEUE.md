@@ -15,18 +15,18 @@
 
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
-| FEM-INTEGRATION | P1 | in_progress | G0B → G0 → G5 → G1 连续主线交付 | 基线及每阶段真实数值/MPI验证、独立审查、最终CI/PR与允许时合并；当前基线恢复 |
+| FEM-INTEGRATION | P1 | in_progress | G0B → G0 → G5 → G1 连续主线交付 | 基线及每阶段真实数值/MPI验证、独立审查、最终CI/PR与允许时合并；当前G1完成针对性验证，最终集成验收中 |
 | FEM-G0B | P1 | review | 旧存储上的语义与 physics/quantity/hybrid PC 接入 | 依赖基线；独立验收字段、父编号、唯一界面代表、刚体、空本地块及真实求解 |
 | BRANCH-02 | P1 | done | 合入新增 G0A 并清理全部 7 个非主分支 | [源提交与检查](BRANCH_CLEANUP_2026-10-31.md)；保留 main，无生产求解器改动 |
 | BRANCH-01 | P1 | done | 清理 18 个已合并分支并整合其余 6 个 | [源提交、取舍和检查](BRANCH_INTEGRATION_2026-10-30.md)；不编译，数值验收不随合并自动完成 |
 | HPC-02 | P2 | done | 独立流体固定图 COO Jacobian 装配（PR #21 合并） | 证据见 FLUID_COO_ASSEMBLY_2026-10-30；保留默认路径，Release 既有超时等局限按报告记录 |
 | FEM-G0A | P1 | done | DoF 语义、存储排列与 FSI 分块预条件详细设计及独立代数参考验证 | [专题与迁移切片](../architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md)；20 项标准库测试通过，设计分支已审查合入；无 C++/MPI/PETSc 数值验收，G0已按后续授权实施验收 |
 | FEM-G0 | P1 | review | DoF 语义、排列与物理场/物理量/混合 PC 树 | 现有 Tet4 结果与置换等价、叶子覆盖互斥、空本地块；依赖 G0B 及真实 1/2/4 rank 验收 |
-| FEM-G1 | P2 | ready | 规范化 reader、Gmsh4.1、Tri3/Quad4 二维标量闭环 | G0/G5 后；方向/标签/边界/MMS，禁止将读入等同求解 |
+| FEM-G1 | P2 | review | 规范化 reader、Gmsh4.1、Tri3/Quad4 二维标量闭环 | G0/G5 后；方向/标签/边界/MMS，禁止将读入等同求解 |
 | FEM-G2 | P2 | deferred | entity DoF、不同阶空间与通用 Dirichlet/Neumann/Robin | G0/G1 后；trace、lifting、纯 Neumann、modal/nodal 与混合稳定性 |
 | FEM-G3 | P2 | deferred | Hex8 及相容混合体网格 | G1/G2 后；过渡面、真实混合 patch、MPI 与几何验证 |
 | FEM-G4 | P2 | deferred | form/约束驱动稀疏图与通用并行 VTU | 随 G2/G3 增量交付；远程/面项连接、字段采样、失败不发布 |
-| FEM-G5 | P2 | in_progress | BE 映射、变步长 BDF2、两类 generalized-α | BE/BDF2及共同stage alpha已接入独立场/ALE/单体FSI；待最终完整集成回归，继续G1 |
+| FEM-G5 | P2 | review | BE 映射、变步长 BDF2、两类 generalized-α | BE/BDF2及共同stage alpha已接入独立场/ALE/单体FSI；最终主锁各60项及兼容13项通过；待整体主线交付 |
 | FEM-G6 | P3 | deferred | 非一致界面投影/mortar 到移动单体 FSI | G2/G4/G5 后；重现、力/功、搜索覆盖、Jv 与分布式对照 |
 | FEM-G7 | P3 | deferred | 高阶批次、partial assembly/matrix-free 与预条件 | 目标业务触发；同精度算子对照、总耗时/内存，不只测 kernel |
 | FEM-G8 | P3 | deferred | 配置 schema、inspect、recipe；按需 Python/DSL | 易用性随每阶段交付，native 热循环；暂不建设完整编译器 |
@@ -49,7 +49,7 @@
 | HPC-01 | P2 | deferred | MPI 稀疏装配与通信 profiling | 分离本地 kernel、远程插入、MatAssembly、halo exchange 和 KSP 时间 |
 | HUB-02 | P3 | deferred | 将 PETSc 生命周期审计整理成正式教学文章 | 结合性能数据更新草稿；人工审核后发布 |
 
-新增 FEM-G0–G8 的详细设计、依赖与验收唯一入口是 [通用 FEM 规划](../architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) §13。ARCH-01 的规划文档已随 BRANCH-01 集成，不能解释为 G0–G8 实现完成。FEM-G0A 设计与参考验证已按用户后续授权审查合入，子任务 done；本轮只做分支整合，不执行其它阶段。
+新增 FEM-G0–G8 的详细设计、依赖与验收唯一入口是 [通用 FEM 规划](../architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) §13。ARCH-01 的规划文档已随 BRANCH-01 集成，不能解释为 G0–G8 实现完成。FEM-G0A 设计与参考验证已按用户后续授权审查合入，子任务 done；该分支整合记录为历史；当前已按用户授权执行G0B/G0/G5/G1。
 
 ## HPC-01C：多时间步装配阶段测量
 

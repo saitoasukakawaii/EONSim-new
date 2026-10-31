@@ -32,6 +32,20 @@ Space3::Vector<double> vector3(const YAML::Node& node,const std::string& locatio
     }
     return v;
 }
+ScalarFunction scalar_function(const YAML::Node& node,const std::string& location) {
+    ScalarFunction f;
+    if(node.IsScalar()) f.polynomial[0]=node.as<double>();
+    else {
+        keys(node,{"polynomial","rate"},location);
+        const auto p=node["polynomial"];
+        if(!p.IsSequence()||p.size()!=6) throw std::runtime_error(location+" requires six polynomial coefficients");
+        for(int i=0;i<6;++i) f.polynomial[i]=p[i].as<double>();
+        if(node["rate"])f.rate=node["rate"].as<double>();
+    }
+    for(double c:f.polynomial)if(!std::isfinite(c))throw std::runtime_error(location+" must be finite");
+    if(!std::isfinite(f.rate))throw std::runtime_error(location+" rate must be finite");
+    return f;
+}
 void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
 {
     const auto boundaries=f["boundaries"];
@@ -94,10 +108,17 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
 Config read_config(const std::filesystem::path& path)
 {
     const auto root = YAML::LoadFile(path.string());
-    keys(root, {"mesh", "output", "poisson", "fluid", "solid", "motion", "fsi", "solver", "time_control", "time"}, "case");
+    keys(root, {"mesh", "output", "poisson", "fluid", "solid", "motion", "fsi", "solver", "time_control", "time", "scalar2d", "layout"}, "case");
     const auto physics = root["poisson"];
 
     Config config;
+    if(const auto layout=root["layout"]) {
+        keys(layout,{"semantic_order","storage_order"},"layout");
+        if(layout["semantic_order"])config.semantic_order=layout["semantic_order"].as<std::string>();
+        if(layout["storage_order"])config.storage_order=layout["storage_order"].as<std::string>();
+        if(config.semantic_order!="entity_first")throw std::runtime_error("Unsupported layout.semantic_order; current canonical policy is entity_first");
+        if(config.storage_order!="owner_node")throw std::runtime_error("Unsupported layout.storage_order; current fixed policy is owner_node (no storage permutation)");
+    }
     if(const auto t=root["time"]) {
         keys(t,{"scheme","rho_infinity"},"time");
         const auto scheme=t["scheme"].as<std::string>();
@@ -135,12 +156,13 @@ Config read_config(const std::filesystem::path& path)
     config.mesh = (directory / mesh).lexically_normal();
     config.output = (directory / output).lexically_normal();
     if (config.output.extension() != ".vtu") throw std::runtime_error("output must have a .vtu extension");
-    if (int(bool(root["fluid"])) + int(bool(root["solid"])) + int(bool(root["poisson"])) + int(bool(root["motion"])) + int(bool(root["fsi"])) != 1) throw std::runtime_error("Select exactly one physics block");
+    if (int(bool(root["fluid"])) + int(bool(root["solid"])) + int(bool(root["poisson"])) + int(bool(root["motion"])) + int(bool(root["fsi"])) + int(bool(root["scalar2d"])) != 1) throw std::runtime_error("Select exactly one physics block");
+    config.scalar2d_problem=static_cast<bool>(root["scalar2d"]);
     config.fluid_problem=static_cast<bool>(root["fluid"]);
     config.solid_problem=static_cast<bool>(root["solid"]);
     config.motion_problem=static_cast<bool>(root["motion"]);
     config.fsi_problem=static_cast<bool>(root["fsi"]);
-    if (!config.fluid_problem && !config.solid_problem && !config.motion_problem && !config.fsi_problem) {
+    if (!config.fluid_problem && !config.solid_problem && !config.motion_problem && !config.fsi_problem && !config.scalar2d_problem) {
     keys(physics, {"diffusivity", "exact_solution", "dirichlet_tags"}, "poisson");
     config.diffusivity = physics["diffusivity"].as<double>();
     if (!std::isfinite(config.diffusivity) || config.diffusivity <= 0.0)
@@ -315,6 +337,48 @@ Config read_config(const std::filesystem::path& path)
             !std::isfinite(v.dt+v.mass+v.damping+v.stiffness+v.pressure+v.density+v.viscosity))
             throw std::runtime_error("Invalid FSI parameters");
     }
+    if(const auto f=root["scalar2d"]) {
+        keys(f,{"mode","diffusivity","capacity","dt","steps","manufactured","manufactured_rate","source","initial","boundaries","regions"},"scalar2d");
+        auto& c=config.scalar2d;
+        const auto mode=f["mode"].as<std::string>();
+        if(mode=="diffusion")c.transient=true;
+        else if(mode!="poisson")throw std::runtime_error("scalar2d.mode must be poisson or diffusion");
+        if(f["diffusivity"])c.diffusivity=f["diffusivity"].as<double>();
+        if(f["capacity"])c.capacity=f["capacity"].as<double>();
+        if(f["dt"])c.dt=f["dt"].as<double>();
+        if(f["steps"])c.steps=f["steps"].as<int>();
+        if(!(c.diffusivity>0&&c.capacity>0&&c.dt>0&&c.steps>0)||!std::isfinite(c.diffusivity+c.capacity+c.dt))throw std::runtime_error("Invalid scalar2d coefficients/time");
+        if(f["manufactured"])c.manufactured=f["manufactured"].as<std::string>();
+        if(!c.manufactured.empty()&&c.manufactured!="affine"&&c.manufactured!="quadratic"&&c.manufactured!="sine")throw std::runtime_error("Unknown scalar2d manufactured solution");
+        if(f["manufactured_rate"])c.manufactured_rate=f["manufactured_rate"].as<double>();
+        if(!std::isfinite(c.manufactured_rate)||(!c.transient&&c.manufactured_rate!=0))throw std::runtime_error("Invalid manufactured time rate");
+        if(!c.manufactured.empty()&&(f["source"]||f["initial"]||f["regions"]))throw std::runtime_error("Manufactured scalar2d selects its own forcing/initial state and uniform material");
+        if(f["source"])c.source=scalar_function(f["source"],"scalar2d.source");
+        if(f["initial"])c.initial=scalar_function(f["initial"],"scalar2d.initial");
+        if(f["regions"]) {
+            if(!f["regions"].IsMap())throw std::runtime_error("scalar2d.regions must map tags/names to diffusivity");
+            for(const auto& entry:f["regions"]) {
+                const auto name=entry.first.as<std::string>();const double k=entry.second.as<double>();
+                if(!(k>0)||!std::isfinite(k)||!c.regions.emplace(name,k).second)throw std::runtime_error("Invalid scalar2d material region");
+            }
+        }
+        if(!f["boundaries"].IsSequence()||f["boundaries"].size()==0)throw std::runtime_error("scalar2d.boundaries must be nonempty");
+        for(const auto& b:f["boundaries"]) {
+            keys(b,{"region","type","value","coefficient"},"scalar2d.boundaries");
+            ScalarBoundary bc; bc.region=b["region"].as<std::string>();
+            const auto type=b["type"].as<std::string>();
+            if(type=="neumann")bc.type=ScalarBoundary::Type::neumann;
+            else if(type=="robin")bc.type=ScalarBoundary::Type::robin;
+            else if(type!="dirichlet")throw std::runtime_error("Unknown scalar2d boundary type");
+            if(bc.type==ScalarBoundary::Type::robin) {
+                bc.robin_coefficient=b["coefficient"].as<double>();
+                if(!(bc.robin_coefficient>0)||!std::isfinite(bc.robin_coefficient))throw std::runtime_error("Robin coefficient must be positive");
+            } else if(b["coefficient"])throw std::runtime_error("coefficient requires Robin boundary");
+            if(c.manufactured.empty())bc.value=scalar_function(b["value"],"scalar2d boundary value");
+            else if(b["value"])throw std::runtime_error("Manufactured boundary values are generated from the exact solution");
+            c.boundaries.push_back(bc);
+        }
+    }
     if (const auto solver = root["solver"]) {
         keys(solver, {"relative_tolerance", "absolute_tolerance", "maximum_iterations", "fields", "pc_recipe"}, "solver");
         if (solver["pc_recipe"]) config.solver.pc_recipe = solver["pc_recipe"].as<std::string>();
@@ -357,11 +421,11 @@ Config read_config(const std::filesystem::path& path)
         !std::isfinite(solver.absolute_tolerance) || solver.absolute_tolerance <= 0.0 || solver.maximum_iterations <= 0)
         throw std::runtime_error("Invalid solver tolerances or maximum_iterations");
     if(config.time_integration.scheme==TimeScheme::generalized_alpha&&
-       !((config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)||config.fsi_problem||
+       !((config.scalar2d_problem&&config.scalar2d.transient)||(config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)||config.fsi_problem||
          (config.motion_problem&&config.motion.mode!=MotionConfig::Mode::rigid)))
         throw std::runtime_error("generalized_alpha requires transient fluid, solid, ALE or FSI");
     if(config.time_integration.scheme==TimeScheme::bdf2 &&
-       !((config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)||config.fsi_problem||
+       !((config.scalar2d_problem&&config.scalar2d.transient)||(config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)||config.fsi_problem||
          (config.motion_problem&&config.motion.mode!=MotionConfig::Mode::rigid)))
         throw std::runtime_error("BDF2 requires transient standalone fluid, solid, ALE or FSI");
     return config;

@@ -19,6 +19,12 @@ using Point = Space3::Vector<double>;
 struct Node { GlobalId global_id; Point position; };
 struct Tet4 { GlobalId global_id; Tet4Topology::Nodal<LocalId> nodes; int physical_tag; };
 struct BoundaryTriangle { GlobalId global_id; Tri3Topology::Nodal<LocalId> nodes; int physical_tag; };
+struct Cell2D {
+    GlobalId global_id;
+    std::array<LocalId,4> nodes{}; ///< Only the first vertices entries participate.
+    int physical_tag=0,vertices=3; ///< Tri3=3 or Quad4=4; no subdivision.
+};
+struct BoundaryEdge { GlobalId global_id; std::array<LocalId,2> nodes; int physical_tag; };
 
 /** @brief 一个 rank 持有的单元与节点；节点按 owned 在前、ghost 在后存储。
  * @ingroup mhpc_parallel
@@ -29,6 +35,9 @@ struct MeshPartition {
     std::vector<Node> nodes;
     std::vector<Tet4> cells;
     std::vector<BoundaryTriangle> boundary;
+    int topological_dimension=3; ///< Coordinates remain 3D; scalar 2D uses an XY plane.
+    std::vector<Cell2D> cells2;
+    std::vector<BoundaryEdge> edges;
     std::map<std::pair<int, int>, std::string> physical_names;
     int rank = 0, ranks = 1;
     GlobalId global_nodes = 0, global_cells = 0, owned_begin = 0;
@@ -41,6 +50,8 @@ struct MeshPartition {
 };
 
 MeshPartition read_gmsh22(const std::filesystem::path& path);
+/// Gmsh 2.2/4.1 normalized first-order XY scalar mesh; validates conforming edges.
+MeshPartition read_gmsh2d(const std::filesystem::path& path);
 
 /// 为已读入的完整串行网格建立单 rank 所有权、边界节点标签和精确稀疏邻接。
 void initialize_serial_partition(MeshPartition& mesh);

@@ -43,9 +43,34 @@ template<class T> std::vector<T> read(hid_t file, const char* name) {
 std::filesystem::path filename(const std::filesystem::path& directory, int rank) {
     return directory / ("rank_" + std::to_string(rank) + ".h5");
 }
+// Preparation/I/O records only: kernels retain their fixed local cell types.
+struct PartitionCell { GlobalId global_id; std::vector<LocalId> nodes; int physical_tag; };
+std::vector<PartitionCell> cells_of(const MeshPartition& mesh) {
+    std::vector<PartitionCell> result;
+    if(mesh.topological_dimension==2) for(const auto& c:mesh.cells2)
+        result.push_back({c.global_id,{c.nodes.begin(),c.nodes.begin()+c.vertices},c.physical_tag});
+    else for(const auto& c:mesh.cells) result.push_back({c.global_id,{c.nodes.begin(),c.nodes.end()},c.physical_tag});
+    return result;
+}
+std::vector<PartitionCell> faces_of(const MeshPartition& mesh) {
+    std::vector<PartitionCell> result;
+    if(mesh.topological_dimension==2) for(const auto& c:mesh.edges)
+        result.push_back({c.global_id,{c.nodes.begin(),c.nodes.end()},c.physical_tag});
+    else for(const auto& c:mesh.boundary) result.push_back({c.global_id,{c.nodes.begin(),c.nodes.end()},c.physical_tag});
+    return result;
+}
+void append_cell(MeshPartition& mesh,const PartitionCell& c) {
+    std::array<LocalId,4> nodes{}; std::copy(c.nodes.begin(),c.nodes.end(),nodes.begin());
+    if(mesh.topological_dimension==2) mesh.cells2.push_back({c.global_id,nodes,c.physical_tag,static_cast<int>(c.nodes.size())});
+    else mesh.cells.push_back({c.global_id,nodes,c.physical_tag});
+}
+void append_face(MeshPartition& mesh,const PartitionCell& c) {
+    if(mesh.topological_dimension==2) mesh.edges.push_back({c.global_id,{c.nodes[0],c.nodes[1]},c.physical_tag});
+    else mesh.boundary.push_back({c.global_id,{c.nodes[0],c.nodes[1],c.nodes[2]},c.physical_tag});
+}
 std::vector<std::set<GlobalId>> adjacency(const MeshPartition& mesh) {
     std::vector<std::set<GlobalId>> rows(mesh.nodes.size());
-    for (const auto& cell : mesh.cells) for (auto row : cell.nodes)
+    for (const auto& cell : cells_of(mesh)) for (auto row : cell.nodes)
         for (auto col : cell.nodes) rows[row].insert(col);
     return rows;
 }
@@ -56,17 +81,27 @@ std::uint64_t fingerprint(const MeshPartition& mesh, int ranks) {
         for (std::size_t i = 0; i < n; ++i) { hash ^= data[i]; hash *= 1099511628211ULL; }
     };
     append(&ranks, sizeof(ranks));
+    if(mesh.topological_dimension==2) append(&mesh.topological_dimension,sizeof(int));
     for (const auto& node : mesh.nodes) { append(&node.global_id, sizeof(node.global_id)); append(node.position.data(), sizeof(Point)); }
-    for (const auto& cell : mesh.cells) {
-        append(&cell.global_id, sizeof(cell.global_id)); append(cell.nodes.data(), sizeof(cell.nodes)); append(&cell.physical_tag, sizeof(int));
+    for (const auto& cell : cells_of(mesh)) {
+        if(mesh.topological_dimension==2) {const int n=cell.nodes.size();append(&n,sizeof(n));}
+        append(&cell.global_id, sizeof(cell.global_id)); append(cell.nodes.data(), cell.nodes.size()*sizeof(LocalId)); append(&cell.physical_tag, sizeof(int));
     }
-    for (const auto& face : mesh.boundary) { append(face.nodes.data(), sizeof(face.nodes)); append(&face.physical_tag, sizeof(int)); }
+    for (const auto& face : faces_of(mesh)) { append(face.nodes.data(), face.nodes.size()*sizeof(LocalId)); append(&face.physical_tag, sizeof(int)); }
     return hash;
 }
 void save(const MeshPartition& mesh, const std::filesystem::path& path) {
     H5Owner<H5Fclose> file(H5Fcreate(path.string().c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT));
-    write<GlobalId>(file.id, "meta", {2, mesh.rank, mesh.ranks, static_cast<GlobalId>(mesh.owned_nodes), mesh.owned_begin, mesh.global_nodes, mesh.global_cells});
+    write<GlobalId>(file.id, "meta", {mesh.topological_dimension==2?3:2, mesh.rank, mesh.ranks, static_cast<GlobalId>(mesh.owned_nodes), mesh.owned_begin, mesh.global_nodes, mesh.global_cells});
     write<std::uint64_t>(file.id, "fingerprint", {mesh.fingerprint});
+    write<int>(file.id,"topological_dimension",{mesh.topological_dimension});
+    std::vector<int> name_keys,name_bytes,name_offsets{0};
+    for(const auto& entry:mesh.physical_names) {
+        name_keys.insert(name_keys.end(),{entry.first.first,entry.first.second});
+        for(unsigned char c:entry.second) name_bytes.push_back(c);
+        name_offsets.push_back(name_bytes.size());
+    }
+    write(file.id,"name_keys",name_keys); write(file.id,"name_bytes",name_bytes); write(file.id,"name_offsets",name_offsets);
     std::vector<GlobalId> ids;
     std::vector<double> coordinates;
     for (const auto& node : mesh.nodes) { ids.push_back(node.global_id); coordinates.insert(coordinates.end(), node.position.begin(), node.position.end()); }
@@ -74,10 +109,12 @@ void save(const MeshPartition& mesh, const std::filesystem::path& path) {
     write(file.id, "algebra_ids", mesh.algebra_ids); write(file.id, "owners", mesh.owners);
     std::vector<int> nodes, tags;
     ids.clear();
-    for (const auto& cell : mesh.cells) { ids.push_back(cell.global_id); nodes.insert(nodes.end(), cell.nodes.begin(), cell.nodes.end()); tags.push_back(cell.physical_tag); }
+    std::vector<int> cell_offsets{0};
+    for (const auto& cell : cells_of(mesh)) { ids.push_back(cell.global_id); nodes.insert(nodes.end(), cell.nodes.begin(), cell.nodes.end()); tags.push_back(cell.physical_tag); cell_offsets.push_back(nodes.size()); }
+    write(file.id,"cell_offsets",cell_offsets);
     write(file.id, "cell_ids", ids); write(file.id, "cell_nodes", nodes); write(file.id, "cell_tags", tags);
     ids.clear(); nodes.clear(); tags.clear();
-    for (const auto& face : mesh.boundary) { ids.push_back(face.global_id); nodes.insert(nodes.end(), face.nodes.begin(), face.nodes.end()); tags.push_back(face.physical_tag); }
+    for (const auto& face : faces_of(mesh)) { ids.push_back(face.global_id); nodes.insert(nodes.end(), face.nodes.begin(), face.nodes.end()); tags.push_back(face.physical_tag); }
     write(file.id, "face_ids", ids); write(file.id, "face_nodes", nodes); write(file.id, "face_tags", tags);
     std::vector<GlobalId> offsets{0}; tags.clear();
     for (const auto& list : mesh.node_boundary_tags) { tags.insert(tags.end(), list.begin(), list.end()); offsets.push_back(tags.size()); }
@@ -90,15 +127,15 @@ void save(const MeshPartition& mesh, const std::filesystem::path& path) {
 } // namespace
 
 void initialize_serial_partition(MeshPartition& mesh) {
-    mesh.global_nodes = mesh.nodes.size(); mesh.global_cells = mesh.cells.size(); mesh.owned_nodes = mesh.nodes.size();
+    mesh.global_nodes = mesh.nodes.size(); mesh.global_cells = cells_of(mesh).size(); mesh.owned_nodes = mesh.nodes.size();
     mesh.algebra_ids.resize(mesh.nodes.size());
     std::iota(mesh.algebra_ids.begin(), mesh.algebra_ids.end(), GlobalId{0});
     mesh.owners.assign(mesh.nodes.size(), 0);
     mesh.node_boundary_tags.assign(mesh.nodes.size(),{});
     mesh.node_cell_tags.assign(mesh.nodes.size(),{});
-    for(const auto& cell:mesh.cells) for(auto n:cell.nodes) mesh.node_cell_tags[n].push_back(cell.physical_tag);
+    for(const auto& cell:cells_of(mesh)) for(auto n:cell.nodes) mesh.node_cell_tags[n].push_back(cell.physical_tag);
     for(auto& tags:mesh.node_cell_tags) { std::sort(tags.begin(),tags.end()); tags.erase(std::unique(tags.begin(),tags.end()),tags.end()); }
-    for (const auto& face : mesh.boundary) for (auto node : face.nodes) mesh.node_boundary_tags[node].push_back(face.physical_tag);
+    for (const auto& face : faces_of(mesh)) for (auto node : face.nodes) mesh.node_boundary_tags[node].push_back(face.physical_tag);
     for (auto& tags : mesh.node_boundary_tags) { std::sort(tags.begin(), tags.end()); tags.erase(std::unique(tags.begin(), tags.end()), tags.end()); }
     mesh.row_offsets = {0}; mesh.row_columns.clear();
     for (const auto& row : adjacency(mesh)) {
@@ -108,13 +145,14 @@ void initialize_serial_partition(MeshPartition& mesh) {
 }
 
 void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesystem::path& directory) {
-    if (ranks < 1 || static_cast<std::size_t>(ranks) > mesh.cells.size()) throw std::runtime_error("Invalid partition count");
-    if (mesh.cells.size() > static_cast<std::size_t>(std::numeric_limits<idx_t>::max()/Tet4Topology::nodes) ||
+    const auto cells=cells_of(mesh),faces=faces_of(mesh);
+    if (ranks < 1 || static_cast<std::size_t>(ranks) > cells.size()) throw std::runtime_error("Invalid partition count");
+    if (cells.size() > static_cast<std::size_t>(std::numeric_limits<idx_t>::max()/Tet4Topology::nodes) ||
         mesh.nodes.size() > static_cast<std::size_t>(std::numeric_limits<idx_t>::max())) throw std::runtime_error("Mesh exceeds METIS index range");
-    idx_t ne = mesh.cells.size(), nn = mesh.nodes.size(), parts = ranks, common = Tet4Topology::face_nodes, objective = 0;
+    idx_t ne = cells.size(), nn = mesh.nodes.size(), parts = ranks, common = mesh.topological_dimension==2?2:Tet4Topology::face_nodes, objective = 0;
     std::vector<idx_t> pointer(ne+1), connectivity, cell_part(ne, 0), node_part(nn);
     for (idx_t i = 0; i < ne; ++i) {
-        connectivity.insert(connectivity.end(), mesh.cells[i].nodes.begin(), mesh.cells[i].nodes.end()); pointer[i+1] = connectivity.size();
+        connectivity.insert(connectivity.end(), cells[i].nodes.begin(), cells[i].nodes.end()); pointer[i+1] = connectivity.size();
     }
     if (ranks > 1) {
         idx_t options[METIS_NOPTIONS]; METIS_SetDefaultOptions(options); options[METIS_OPTION_SEED] = 0;
@@ -123,28 +161,35 @@ void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesys
             throw std::runtime_error("METIS_PartMeshDual failed");
     }
     std::vector<int> owners(nn, ranks);
-    for (idx_t c = 0; c < ne; ++c) for (auto node : mesh.cells[c].nodes) owners[node] = std::min(owners[node], static_cast<int>(cell_part[c]));
+    for (idx_t c = 0; c < ne; ++c) for (auto node : cells[c].nodes) owners[node] = std::min(owners[node], static_cast<int>(cell_part[c]));
     std::vector<GlobalId> algebra(nn), begins(ranks+1, 0);
     for (int r = 0; r < ranks; ++r) {
         begins[r+1] = begins[r];
         for (idx_t n = 0; n < nn; ++n) if (owners[n] == r) algebra[n] = begins[r+1]++;
     }
     const auto rows = adjacency(mesh);
-    std::map<Tri3Topology::Nodal<LocalId>, int> face_owner;
-    for (idx_t c = 0; c < ne; ++c) for (int omit = 0; omit < Tet4Topology::faces; ++omit) {
-        Tri3Topology::Nodal<LocalId> key{}; int j = 0;
-        for (int a = 0; a < Tet4Topology::nodes; ++a) if (a != omit) key[j++] = mesh.cells[c].nodes[a];
-        std::sort(key.begin(), key.end()); face_owner[key] = cell_part[c];
+    std::map<std::vector<LocalId>,int> face_owner;
+    for(idx_t c=0;c<ne;++c) {
+        if(mesh.topological_dimension==2) {
+            for(std::size_t i=0;i<cells[c].nodes.size();++i) {
+                std::vector<LocalId> key{cells[c].nodes[i],cells[c].nodes[(i+1)%cells[c].nodes.size()]};
+                std::sort(key.begin(),key.end()); face_owner[key]=cell_part[c];
+            }
+        } else for(int omit=0;omit<4;++omit) {
+            std::vector<LocalId> key;
+            for(int a=0;a<4;++a) if(a!=omit)key.push_back(cells[c].nodes[a]);
+            std::sort(key.begin(),key.end());face_owner[key]=cell_part[c];
+        }
     }
     std::filesystem::create_directories(directory);
     // Remove an old completion marker before replacing any partition files.
     std::filesystem::remove(directory / "manifest.yaml");
     for (int rank = 0; rank < ranks; ++rank) {
-        MeshPartition local;
+        MeshPartition local; local.topological_dimension=mesh.topological_dimension; local.physical_names=mesh.physical_names;
         local.rank = rank; local.ranks = ranks; local.global_nodes = nn; local.global_cells = ne;
         local.owned_begin = begins[rank]; local.owned_nodes = begins[rank+1]-begins[rank]; local.fingerprint = fingerprint(mesh, ranks);
         std::set<LocalId> needed;
-        for (idx_t c = 0; c < ne; ++c) if (cell_part[c] == rank) needed.insert(mesh.cells[c].nodes.begin(), mesh.cells[c].nodes.end());
+        for (idx_t c = 0; c < ne; ++c) if (cell_part[c] == rank) needed.insert(cells[c].nodes.begin(), cells[c].nodes.end());
         std::vector<LocalId> order;
         for (auto n : needed) if (owners[n] == rank) order.push_back(n);
         for (auto n : needed) if (owners[n] != rank) order.push_back(n);
@@ -154,11 +199,11 @@ void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesys
             local.algebra_ids.push_back(algebra[n]); local.owners.push_back(owners[n]); local.node_boundary_tags.push_back(mesh.node_boundary_tags[n]); local.node_cell_tags.push_back(mesh.node_cell_tags[n]);
         }
         for (idx_t c = 0; c < ne; ++c) if (cell_part[c] == rank) {
-            auto cell = mesh.cells[c]; for (auto& node : cell.nodes) node = lookup.at(node); local.cells.push_back(cell);
+            auto cell = cells[c]; for (auto& node : cell.nodes) node = lookup.at(node); append_cell(local,cell);
         }
-        for (auto face : mesh.boundary) {
+        for (auto face : faces) {
             auto key = face.nodes; std::sort(key.begin(), key.end());
-            if (face_owner.at(key) == rank) { for (auto& node : face.nodes) node = lookup.at(node); local.boundary.push_back(face); }
+            if (face_owner.at(key) == rank) { for (auto& node : face.nodes) node = lookup.at(node); append_face(local,face); }
         }
         local.row_offsets = {0};
         for (std::size_t i = 0; i < local.owned_nodes; ++i) {
@@ -178,10 +223,24 @@ MeshPartition read_partition(const std::filesystem::path& directory, int rank, i
     if (!std::filesystem::exists(directory / "manifest.yaml")) throw std::runtime_error("Incomplete partition directory: no manifest");
     H5Owner<H5Fclose> file(H5Fopen(filename(directory, rank).string().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT));
     const auto meta = read<GlobalId>(file.id, "meta");
-    if (meta.size() != 7 || meta[0] != 2 || meta[1] != rank || meta[2] != ranks || meta[3] < 0 || meta[4] < 0 || meta[5] < 1 || meta[6] < 1)
+    if (meta.size() != 7 || (meta[0] != 2&&meta[0]!=3) || meta[1] != rank || meta[2] != ranks || meta[3] < 0 || meta[4] < 0 || meta[5] < 1 || meta[6] < 1)
         throw std::runtime_error("Partition metadata does not match this MPI job");
     MeshPartition mesh;
     mesh.rank = rank; mesh.ranks = ranks; mesh.owned_nodes = meta[3]; mesh.owned_begin = meta[4]; mesh.global_nodes = meta[5]; mesh.global_cells = meta[6];
+    if(H5Lexists(file.id,"topological_dimension",H5P_DEFAULT)>0) {
+        const auto dim=read<int>(file.id,"topological_dimension");
+        if(dim.size()!=1||(dim[0]!=2&&dim[0]!=3)) throw std::runtime_error("Invalid topology dimension");
+        mesh.topological_dimension=dim[0];
+    }
+    if((meta[0]==3)!=(mesh.topological_dimension==2))throw std::runtime_error("Partition version/topology mismatch");
+    if(H5Lexists(file.id,"name_keys",H5P_DEFAULT)>0) {
+        const auto keys=read<int>(file.id,"name_keys"),bytes=read<int>(file.id,"name_bytes"),offsets=read<int>(file.id,"name_offsets");
+        if(keys.size()%2||offsets.size()!=keys.size()/2+1||offsets.front()!=0||offsets.back()!=static_cast<int>(bytes.size())||!std::is_sorted(offsets.begin(),offsets.end())) throw std::runtime_error("Invalid physical names");
+        for(std::size_t i=0;i<keys.size()/2;++i) {
+            std::string name; for(int k=offsets[i];k<offsets[i+1];++k) { if(bytes[k]<0||bytes[k]>255)throw std::runtime_error("Invalid name bytes"); name+=static_cast<char>(bytes[k]); }
+            if(keys[2*i]<0||keys[2*i]>3||keys[2*i+1]<=0||name.empty()||!mesh.physical_names.emplace(std::make_pair(keys[2*i],keys[2*i+1]),name).second) throw std::runtime_error("Invalid physical name key");
+        }
+    }
     const auto hash = read<std::uint64_t>(file.id, "fingerprint");
     if (hash.size() != 1) throw std::runtime_error("Invalid partition fingerprint");
     mesh.fingerprint = hash[0];
@@ -200,21 +259,21 @@ MeshPartition read_partition(const std::filesystem::path& directory, int rank, i
     }
     ids = read<GlobalId>(file.id, "cell_ids"); auto nodes = read<int>(file.id, "cell_nodes"); auto tags = read<int>(file.id, "cell_tags");
     const auto check_nodes = [&] { for (int n : nodes) if (n < 0 || static_cast<std::size_t>(n) >= mesh.nodes.size()) throw std::runtime_error("Invalid local connectivity"); };
-    if (nodes.size() != Tet4Topology::nodes*ids.size() || tags.size() != ids.size()) throw std::runtime_error("Invalid cell arrays");
+    std::vector<int> cell_offsets;
+    if(H5Lexists(file.id,"cell_offsets",H5P_DEFAULT)>0) cell_offsets=read<int>(file.id,"cell_offsets");
+    else { for(std::size_t i=0;i<=ids.size();++i)cell_offsets.push_back(4*i); }
+    if(cell_offsets.size()!=ids.size()+1||cell_offsets.front()!=0||cell_offsets.back()!=static_cast<int>(nodes.size())||!std::is_sorted(cell_offsets.begin(),cell_offsets.end())||tags.size()!=ids.size()) throw std::runtime_error("Invalid cell arrays");
     check_nodes();
-    for (std::size_t i = 0; i < ids.size(); ++i) {
-        Tet4Topology::Nodal<LocalId> connectivity{};
-        std::copy_n(nodes.begin()+Tet4Topology::nodes*i, connectivity.size(), connectivity.begin());
-        mesh.cells.push_back({ids[i], connectivity, tags[i]});
+    for(std::size_t i=0;i<ids.size();++i) {
+        const int n=cell_offsets[i+1]-cell_offsets[i];
+        if((mesh.topological_dimension==3&&n!=4)||(mesh.topological_dimension==2&&n!=3&&n!=4)) throw std::runtime_error("Invalid partition cell topology");
+        append_cell(mesh,{ids[i],{nodes.begin()+cell_offsets[i],nodes.begin()+cell_offsets[i+1]},tags[i]});
     }
-    ids = read<GlobalId>(file.id, "face_ids"); nodes = read<int>(file.id, "face_nodes"); tags = read<int>(file.id, "face_tags");
-    if (nodes.size() != Tri3Topology::nodes*ids.size() || tags.size() != ids.size()) throw std::runtime_error("Invalid boundary arrays");
+    ids=read<GlobalId>(file.id,"face_ids"); nodes=read<int>(file.id,"face_nodes"); tags=read<int>(file.id,"face_tags");
+    const int arity=mesh.topological_dimension==2?2:3;
+    if(nodes.size()!=arity*ids.size()||tags.size()!=ids.size()) throw std::runtime_error("Invalid boundary arrays");
     check_nodes();
-    for (std::size_t i = 0; i < ids.size(); ++i) {
-        Tri3Topology::Nodal<LocalId> connectivity{};
-        std::copy_n(nodes.begin()+Tri3Topology::nodes*i, connectivity.size(), connectivity.begin());
-        mesh.boundary.push_back({ids[i], connectivity, tags[i]});
-    }
+    for(std::size_t i=0;i<ids.size();++i) append_face(mesh,{ids[i],{nodes.begin()+arity*i,nodes.begin()+arity*(i+1)},tags[i]});
     const auto offsets = read<GlobalId>(file.id, "boundary_offsets"); tags = read<int>(file.id, "boundary_tags");
     const auto valid_csr = [](const std::vector<GlobalId>& ptr, std::size_t rows, std::size_t entries) {
         return ptr.size() == rows+1 && ptr.front() == 0 && ptr.back() == static_cast<GlobalId>(entries) && std::is_sorted(ptr.begin(),ptr.end());

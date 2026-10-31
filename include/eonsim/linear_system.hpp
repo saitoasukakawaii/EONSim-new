@@ -9,8 +9,11 @@
 #include <map>
 #include <type_traits>
 #include <vector>
+#include <stdexcept>
 
 namespace eonsim {
+/// Collective numerical failure; input/setup API errors retain runtime_error.
+struct LinearSolveFailure : std::runtime_error { using std::runtime_error::runtime_error; };
 
 static_assert(std::is_same<PetscScalar, double>::value,
               "EONSim currently requires a real, double-precision PETSc build");
@@ -66,6 +69,9 @@ public:
     LinearSystem(MPI_Comm communicator, const AlgebraLayout& layout);
     void add(PetscInt count, const PetscInt* dofs, const double* stiffness, const double* load);
     void constrain(const std::vector<PetscInt>& dofs, const std::vector<double>& values);
+    /// Collective, after constrain({},{}). Verify compatibility, attach a
+    /// constant nullspace and remove roundoff only; never repair incompatible loads.
+    void constant_nullspace(double compatibility_tolerance);
     LinearResult solve(const SolverConfig& config, bool full_diagnostics);
 private:
     MPI_Comm communicator_;

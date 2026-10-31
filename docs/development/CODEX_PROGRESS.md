@@ -2,7 +2,7 @@
 
 更新时间：2026-10-31（Asia/Shanghai）
 
-## 最新接续：G5 耦合 generalized-alpha
+## 最新接续：G0/G5/G1 最终集成验收
 
 当前分支`codex/fem-time-mesh`，已推送G0检查点`e9e4d30`。
 [该提交云端CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41180022722)
@@ -20,6 +20,12 @@ BDF2耦合检查点`bab4fda`已推送并通过[云端CI](https://github.com/sait
 alpha ALE/单体FSI已接入：共同af、独立算法历史、完整运动学链及端点几何拒绝；
 真实速度/压力/位移时间阶趋近2，事件/重启/接口运动及负例验收见当前证据。
 继续G1规范化网格和二维标量闭环；G5仍待最终完整集成验收，不关闭整体任务。
+G5耦合检查点`2fcd2fd`已推送并通过云端三环境CI（41195474887）。
+G1已实现规范化Gmsh2.2/4.1、原生Tri3/Quad4及混合二维Poisson/扩散、命名边界/材料、
+纯Neumann、完整分区/输出/时间历史；空间、时间、1/2/4rank及真实失败恢复针对性验证通过。
+独立审查修复了额外分区tags、物理名称、集体线性失败、不连通零空间和restart数据文件覆盖问题。
+最终主锁Debug/Release各60/60、PETSc3.19.6相关13/13通过；109份源码哈希及完整测试清单见fem-final.json。
+独立审查无剩余源码阻塞；当前等待最终提交CI及PR/主线交付。
 以下早期检查点保留为历史，不覆盖本段当前状态。
 
 ## 项目基线

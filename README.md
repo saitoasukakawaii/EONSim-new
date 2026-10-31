@@ -1,14 +1,21 @@
 # EONSim
 
 C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体刚体 FSI 和单体弹性 FSI 的可运行基线。
-使用 Tet4、BE、MPI owned/ghost 分区、METIS/HDF5 预处理和 PETSc KSP/SNES。
+使用 Tet4 多物理场、Tri3/Quad4 二维标量、MPI owned/ghost 分区、METIS/HDF5 预处理和 PETSc KSP/SNES。
+时间格式包含BE、变步BDF2及适用的一阶/二阶generalized-alpha；具体支持矩阵见[时间离散](docs/development/TIME_INTEGRATION.md)。
 有限变形固体支持可压缩 Neo-Hookean；耦合流体、结构/刚体和 ALE 同时收敛后提交状态。
 
 当前验证包括随仓库提供的立方体/旋转通道、弹性块和活塞算例；流体/固体支持区域材料与分量约束，弹性 FSI 支持独立共形双网格。尚不包含通用表达式、非匹配界面、重网格或大规模扩展性保证。
 各阶段的实际结果与限制见下文及 [开发路线](docs/development/ROADMAP.md)。
 
 2026-10-30 新增 [通用 FEM 架构规划](docs/architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) 与
-[20 组上游学习矩阵](docs/research/FEM_FRAMEWORK_LEARNING_2026-10-30.md)，覆盖多拓扑/空间、边界与非匹配接口、时间格式、DoF/预条件及并行输出。它们是待实现设计，不扩大当前 Tet4/BE 能力；本轮仅改文档。
+[20 组上游学习矩阵](docs/research/FEM_FRAMEWORK_LEARNING_2026-10-30.md)，覆盖多拓扑/空间、边界与非匹配接口、时间格式、DoF/预条件及并行输出。它们提供总体路线；本次G0/G5/G1实现范围见[集成验证](docs/development/FEM_INTEGRATION_VALIDATION.md)，其他阶段不随之完成。
+
+## 新增能力与说明
+
+- [DoF语义与三种预条件分组](docs/development/DOF_AND_PC_GROUPING.md)：物理验收字段与PC分组分开，默认存储不变。
+- [时间离散、支持矩阵与checkpoint迁移](docs/development/TIME_INTEGRATION.md)：共同stage的单体FSI、完整accepted历史、失败重试。
+- [二维Poisson/扩散](docs/development/SCALAR_2D.md)：Tri3、原生Quad4、相容混合网格，命名边界/材料、Neumann零空间、MPI与PVD输出。
 
 ## 环境与构建
 
@@ -60,8 +67,8 @@ f = -12k
 
 默认网格包含 125 个节点、384 个正定向 Tet4、192 个边界三角形，存在 27 个自由内部未知量。
 边界 physical tags `1..6` 分别为 `x_min/x_max/y_min/y_max/z_min/z_max`，体区域 tag 为 `10`。
-支持 Gmsh **2.2 ASCII**，Tet4（type 4）和边界三角形（type 2）；一阶点/线实体可读但不参与体积分。
-高阶单元、其他体单元、Gmsh 4.x/binary 会明确拒绝。每个外表面必须有标签三角形，
+支持 Gmsh **2.2/4.1 ASCII** 的明确子集，Tet4（type 4）和边界三角形（type 2）；一阶点/线实体可读但不参与体积分。
+高阶单元、其他三维体单元、4.0/binary、参数化和分区Gmsh输入会明确拒绝。每个外表面必须有标签三角形，
 当前制造解要求所有外表面均施加 Dirichlet 条件。
 
 YAML 中的路径相对 YAML 文件；命令行覆盖路径相对当前目录：
@@ -297,7 +304,7 @@ Debug/Release 的 1/2 rank、局部/总系统导数、零压力无运动和动�
 y/z 侧面滚动约束。两域采用匹配的逻辑网格，固体物理参考 x=1+thickness*(1-X)，
 因此界面共形；此旧入口保留作回归。B3 的 `fsi.domains` 可导入独立共形双网格，见下文。
 独立固体单元直接复用于同一 FSI SNES。
-界面流体速度与结构速度共享有效编号，网格界面位移由结构 BE 位移恢复。
+界面流体速度与结构速度共享有效编号，网格界面位移按当前积分格式从结构运动学恢复，默认BE。
 输出主 VTU 为流体当前网格，伴随 `_solid.vtu` 为固体当前网格，均包含位移/速度。
 
 E=100、nu=.3、入口压力 1：dt=.02 的 10 步后界面平均位移 0.00223293，
@@ -349,7 +356,8 @@ Debug/Release、1/2 rank、全局 Jacobian 和界面力平衡检查通过。
 这里保证进程/I/O 失败下的发布顺序，尚未实现文件系统断电持久性协议。
 恢复要求相同 rank 数、网格/分区、物理参数和 dt；可以延长总步数或更换求解器选项。
 流体保存 accepted 场；固体保存位移/速度/加速度与能量；FSI 还保存有效未知量、
-原始物理场、固体位移、刚体位置/速度和网格历史。当前仅 BE，无额外不可逆材料内部变量。
+原始物理场、固体位移、刚体位置/速度和网格历史；BDF2与generalized-alpha保存各自完整历史，
+格式/启动/事件及兼容规则见[时间离散](docs/development/TIME_INTEGRATION.md)。无额外不可逆材料内部变量。
 缺失文件、参数/分区不匹配或非有限字段会失败退出；不支持跨 rank 重分区恢复。
 `-stop_after N` 按累计 accepted 步数主动结束本次运行，恢复的物理时间必须早于请求的结束时间。
 

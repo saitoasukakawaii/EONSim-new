@@ -127,7 +127,7 @@ kernel 区间仅包围 `fluid_element` 调用；insert 区间包围对应体单�
 - `NodalLayout<Element, Components>` 推导单元自由度和矩阵尺寸，提供节点优先的 `dof` 与行优先的 `matrix` 索引。
 - `FluidLayout<Element>` 定义速度—压力布局；`CoupledLayout<Element, Elastic>` 定义流体、网格及可选弹性结构的偏移。刚体/弹性 FSI 分别实例化，运行时配置选择入口。
 
-现有内核通过 `Tet4Scalar`、`Tet4Vector`、`Tet4Flow`、`Tet4Ale` 等别名使用这些定义；全局节点索引保留调用者整数宽度。模板表达存储与布局，并不意味着已经提供二维物理内核或其他单元类型。
+现有内核通过 `Tet4Scalar`、`Tet4Vector`、`Tet4Flow`、`Tet4Ale` 等别名使用这些定义；全局节点索引保留调用者整数宽度。这些模板本身不提供新增物理能力；G1另实现原生Tri3/P1与Quad4/Q1二维标量，具体支持范围见[二维契约](../development/SCALAR_2D.md)。
 
 `include/eonsim/quadrature.hpp` 独立维护积分数值：`GaussLegendre<N>` 提供区间 `[0,1]` 的 1–4 点规则，`SimplexGauss<Tet4Topology,4>` 提供二阶精确的四面体对称四点规则，`TetDuffyGauss<N>` 将每轴 Gauss 点映射到四面体，支持 N=2–4。点、重心坐标和权重全部采用 `inline static constexpr` 数组，不在装配过程中生成。四面体权重之和为 1，积分时乘物理体积。
 
@@ -183,3 +183,11 @@ GAMG 当前只有低 Re 小算例运行证据，不宣称针对高 Re、近不�
 `AlgebraLayout::owned_semantics` 为 owned 存储行提供布局内的实体/域/量身份，`fields` 仍唯一负责物理验收。
 `pc_recipe` 的三种树使用独立 `PcBlock`，递归保存根provenance与直接父算子全局编号；不改变root存储、图、残量或停止条件。
 索引计划在solve准备阶段生成，Newton内仅更新数值。默认旧PC路径保持不变；配置与证据、空块/选项边界见 [实施记录](../development/FEM_INTEGRATION_VALIDATION.md)。
+
+## G1二维标量依赖子集
+
+MeshImportData先表达来源ID、拓扑、实体及physical groups，再适配到有所有权的MeshPartition。
+二维P1/Q1共边节点空间使用独立语义space=2，单元核按实际类型评价映射，Quad4不拆分。
+标量Dirichlet/Neumann/Robin及纯Neumann零空间仅服务该模型；不因此宣称完整G2已完成。
+分区连接偏移、混合VTU/PVTU/PVD属于当前闭环必需的G4子集。
+数学、边界符号、积分及运行时支持范围统一维护于[SCALAR_2D](../development/SCALAR_2D.md)。

@@ -103,7 +103,32 @@ struct TimeControl {
 enum class TimeScheme { backward_euler, bdf2, generalized_alpha };
 struct TimeIntegration { TimeScheme scheme=TimeScheme::backward_euler; double rho_infinity=.5; };
 
+/// (c0+c1*x+c2*y+c3*x*x+c4*x*y+c5*y*y)*exp(rate*t).
+struct ScalarFunction { std::array<double,6> polynomial{}; double rate=0; };
+struct ScalarBoundary {
+    enum class Type { dirichlet,neumann,robin };
+    std::string region; ///< Numeric physical tag or unique physical name, dimension 1.
+    Type type=Type::dirichlet;
+    ScalarFunction value;
+    double robin_coefficient=0; ///< k grad(u).n + coefficient*u = value.
+};
+struct Scalar2DConfig {
+    bool transient=false;
+    double diffusivity=1,capacity=1,dt=.01;
+    int steps=10;
+    std::string manufactured; ///< Empty: user forcing; affine/quadratic/sine: analytical oracle.
+    double manufactured_rate=0;
+    ScalarFunction source,initial;
+    std::vector<ScalarBoundary> boundaries;
+    std::map<std::string,double> regions; ///< Diffusivity by dimension-2 name/tag.
+};
+
 struct Config {
+    // Independent policy declarations. Only the current policies are supported;
+    // neither option requests or implies a storage permutation.
+    std::string semantic_order="entity_first",storage_order="owner_node";
+    bool scalar2d_problem=false;
+    Scalar2DConfig scalar2d;
     TimeIntegration time_integration;
     TimeControl time_control;
     std::filesystem::path checkpoint, restart;
