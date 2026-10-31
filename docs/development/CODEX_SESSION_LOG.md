@@ -357,3 +357,13 @@
 - 更新 `.github/workflows/core-numerics.yml`：日常矩阵保留 PETSc 3.23.7 Debug/Release；3.19.6 仅在手动触发并勾选 `run_legacy_petsc` 时执行 Release `mpi-failure` 专项检查。
 - 更新 `docs/development/BUILD_AND_VALIDATION.md`，使构建说明与工作流一致。保留 3.19.6 锁文件和运行脚本，未删除历史环境。
 - 在工作流文件完成调整前，首个内容提交曾短暂触发旧矩阵的一次过渡 Push CI，其中 PETSc 3.19.6 Release 专项 job 已通过；随后最终工作流改为独立可选 job，当前 PR CI 中 3.19.6 job 明确 skipped，不执行编译/链接。最终 3.23.7 Debug/Release CI 正在验收；不将过渡运行解释为未来日常策略。
+
+## 2026-10-31 / DEV-PROCESS-POLICY — 长期知识积累规则
+
+- 用户明确提供“EONSim 持续知识积累要求”，将其固化为根目录 `AGENTS.md` 的项目级规则；Codex 新 Task 应读取该文件执行，不要求用户每次重复粘贴。
+- 规则要求每项实质任务记录重要错误与根因、真实测试证据，更新 `CODEX_SESSION_LOG.md`、`CODEX_PROGRESS.md`、`CODEX_TASK_QUEUE.md` 和 `KNOWLEDGE_LOG.md`；有复用价值的技术成果使用 `eonsim-knowledge-capture` Skill 形成 `website/drafts/` 草稿。
+- 明确边界：普通 typo/纯格式/机械小改动不强制生成文章；没有复用技术成果时不制造草稿；文章未经人工审核和 PR 合并不得发布。
+- 同步更新进度和任务队列，将本项记为 review，并更新知识索引。相关文档提交：AGENTS `54cba2e`、进度 `04b334a`、队列 `389fc5b`；后续会话日志和知识索引提交由本条记录的 Git 历史追溯。
+- 验证范围：通过 GitHub 仓库内容接口复读并检查目标文件，确认规则文本和链接路径存在；本任务没有修改 C++/CMake/数值测试，没有运行编译、CTest、MPI 或性能测试。PR #24 的 GitHub Actions 结果以实时 Checks 为准；未完成项目不标记为通过。
+- 未生成技术文章草稿：本次交付是研发流程规范，不是新的算法、数值方法或可复用技术错误分析；该决定已登记在 `KNOWLEDGE_LOG.md`。
+
