@@ -94,16 +94,31 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
 Config read_config(const std::filesystem::path& path)
 {
     const auto root = YAML::LoadFile(path.string());
-    keys(root, {"mesh", "output", "poisson", "fluid", "solid", "motion", "fsi", "solver", "time_control"}, "case");
+    keys(root, {"mesh", "output", "poisson", "fluid", "solid", "motion", "fsi", "solver", "time_control", "time"}, "case");
     const auto physics = root["poisson"];
 
     Config config;
+    if(const auto t=root["time"]) {
+        keys(t,{"scheme"},"time");
+        const auto scheme=t["scheme"].as<std::string>();
+        if(scheme=="be") config.time_integration.scheme=TimeScheme::backward_euler;
+        else if(scheme=="bdf2") config.time_integration.scheme=TimeScheme::bdf2;
+        else throw std::runtime_error("Unsupported time scheme: "+scheme);
+    }
     if(const auto t=root["time_control"]) {
-        keys(t,{"max_retries","minimum_dt","reduction"},"time_control");
+        keys(t,{"max_retries","minimum_dt","reduction","step_sizes","events"},"time_control");
         auto& c=config.time_control;
         if(t["max_retries"]) c.max_retries=t["max_retries"].as<int>();
         if(t["minimum_dt"]) c.minimum_dt=t["minimum_dt"].as<double>();
         if(t["reduction"]) c.reduction=t["reduction"].as<double>();
+        if(t["step_sizes"]) c.step_sizes=t["step_sizes"].as<std::vector<double>>();
+        if(t["events"]) c.events=t["events"].as<std::vector<double>>();
+        for(double h:c.step_sizes) if(!(h>0)||!std::isfinite(h)) throw std::runtime_error("Invalid scheduled step size");
+        double previous_event=0;
+        for(double event:c.events) {
+            if(!(event>previous_event)||!std::isfinite(event)) throw std::runtime_error("Time events must be finite, positive and strictly increasing");
+            previous_event=event;
+        }
         if(c.max_retries<0||c.max_retries>30||!(c.minimum_dt>0&&c.reduction>0&&c.reduction<1)||!std::isfinite(c.minimum_dt+c.reduction)) throw std::runtime_error("Invalid time_control");
     }
     const auto directory = std::filesystem::absolute(path).parent_path();
@@ -136,13 +151,18 @@ Config read_config(const std::filesystem::path& path)
     if (tags.empty()) throw std::runtime_error("At least one Dirichlet physical tag is required");
     } else if(config.fluid_problem) {
         const auto f=root["fluid"];
-        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet","boundaries","pressure_gauge","pressure_normalization","regions"},"fluid");
+        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet","boundaries","pressure_gauge","pressure_normalization","regions","stabilization_tau"},"fluid");
         const auto mode=f["mode"].as<std::string>();
         if(mode=="stokes") config.fluid.mode=FluidConfig::Mode::stokes;
         else if(mode=="steady") config.fluid.mode=FluidConfig::Mode::steady;
         else if(mode=="transient") config.fluid.mode=FluidConfig::Mode::transient;
         else throw std::runtime_error("Unknown fluid mode");
         auto& v=config.fluid;
+        if(f["stabilization_tau"]) {
+            v.stabilization_tau=f["stabilization_tau"].as<double>();
+            if(!(*v.stabilization_tau>0)||!std::isfinite(*v.stabilization_tau))
+                throw std::runtime_error("fluid.stabilization_tau must be finite and positive");
+        }
         if(f["boundaries"]) fluid_boundaries(f,v);
         else if(f["pressure_gauge"]||f["pressure_normalization"]) throw std::runtime_error("Pressure normalization requires tagged boundaries");
         if(f["outlet"]) {
@@ -324,6 +344,9 @@ Config read_config(const std::filesystem::path& path)
     if (!std::isfinite(solver.relative_tolerance) || solver.relative_tolerance <= 0.0 || solver.relative_tolerance >= 1.0 ||
         !std::isfinite(solver.absolute_tolerance) || solver.absolute_tolerance <= 0.0 || solver.maximum_iterations <= 0)
         throw std::runtime_error("Invalid solver tolerances or maximum_iterations");
+    if(config.time_integration.scheme!=TimeScheme::backward_euler &&
+       !((config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)))
+        throw std::runtime_error("BDF2 currently requires transient standalone fluid or solid");
     return config;
 }
 } // namespace eonsim

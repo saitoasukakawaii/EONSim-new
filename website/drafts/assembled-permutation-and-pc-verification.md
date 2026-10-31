@@ -4,7 +4,7 @@ description: "区分编号等价、物理验收和固定问题性能对照。"
 contentStatus: draft
 benchmark: "G0 supplemental verification"
 sourceReference: "PETSc MatPermute and VecScatter"
-eonsimCommit: "codex/fem-time-mesh (implementation checkpoint pending commit)"
+eonsimCommit: "e9e4d301ff8b423c16e5eaf4fe3d0237b1e4bedf"
 ---
 
 # 真实装配置换与预条件分组验收

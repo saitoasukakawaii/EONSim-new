@@ -26,7 +26,7 @@
 | FEM-G2 | P2 | deferred | entity DoF、不同阶空间与通用 Dirichlet/Neumann/Robin | G0/G1 后；trace、lifting、纯 Neumann、modal/nodal 与混合稳定性 |
 | FEM-G3 | P2 | deferred | Hex8 及相容混合体网格 | G1/G2 后；过渡面、真实混合 patch、MPI 与几何验证 |
 | FEM-G4 | P2 | deferred | form/约束驱动稀疏图与通用并行 VTU | 随 G2/G3 增量交付；远程/面项连接、字段采样、失败不发布 |
-| FEM-G5 | P2 | ready | BE 映射、变步长 BDF2、两类 generalized-α | 独立场到 FSI；时间收敛、压力/界面功、拒绝和完整历史重启 |
+| FEM-G5 | P2 | in_progress | BE 映射、变步长 BDF2、两类 generalized-α | 独立流体/固体BDF2已接入并验证；继续ALE/FSI和两类alpha；完整目标未关闭 |
 | FEM-G6 | P3 | deferred | 非一致界面投影/mortar 到移动单体 FSI | G2/G4/G5 后；重现、力/功、搜索覆盖、Jv 与分布式对照 |
 | FEM-G7 | P3 | deferred | 高阶批次、partial assembly/matrix-free 与预条件 | 目标业务触发；同精度算子对照、总耗时/内存，不只测 kernel |
 | FEM-G8 | P3 | deferred | 配置 schema、inspect、recipe；按需 Python/DSL | 易用性随每阶段交付，native 热循环；暂不建设完整编译器 |

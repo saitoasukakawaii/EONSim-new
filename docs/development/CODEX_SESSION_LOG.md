@@ -2,6 +2,18 @@
 
 本文件记录有实质代码、算法、验证或知识产出的开发会话。只记录事实，不写无法复现的“已优化”“性能显著提升”等结论。
 
+## 2026-10-31 / G5 — 独立流体和固体BDF2增量
+
+- 从`e9e4d30`继续；该G0补强提交云端三环境CI成功（run41180022722）。
+- 统一BE/BDF2导数映射、实际历史步长、比率上限2、事件后启动、两层accepted checkpoint；独立固体位移重建同步使用当前格式。
+- 真实流体首次320步测试暴露累计舍入制造极短末步，时间控制器补偿求和修复，320/10000步oracle通过。
+- 独立审查指出步长相关tau使时间加密同时改变空间离散；新增显式固定tau并保持旧BE默认。压力驱动实测速度/压力BDF2阶约2；不是Python参考替代生产验证。
+- 固体粗步未进入渐近区，保持问题和门槛继续细化，位移/速度/加速度BDF2阶接近2。没有声称非线性材料阶数或BDF2逐步物理能量单调。
+- 主锁Debug编译退出0；针对性CTest9项全部通过，42.23秒CTest墙钟。选择包含time_integration、fluid/solid_time_verification、fluid/solid_element_jacobian、time_retry_verification、restart_block_verification、fluid/solid_verification。
+- 新测试覆盖变步长、1/2/4rank、事件处重启、最后短步、BDF2启动后的真实Newton拒绝与同轨迹对照；签名拒绝更换积分器/候选步计划。独立审查公式与状态无阻塞缺陷，建议的schedule签名已补齐。
+- [证据清单](../research/data/fem-integration-2026-10-31/bdf-standalone.json)记录实际dirty源码哈希、基线SHA、二进制哈希、命令、退出码及结果；不是把新结果归给旧提交。新增知识草稿保持draft。
+- G5未关闭，后续继续ALE/FSI及两类generalized-alpha，G1尚未实施；此处只记录可复现增量。
+
 ## 2026-10-31 / FEM-INTEGRATION — 从已合入的G0检查点接续
 
 - fetch核实main为47b5bd46c992fcf64cf163361053ceb0091fa5a5，工作区起始干净，无开放PR；建立codex/fem-time-mesh。

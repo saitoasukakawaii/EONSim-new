@@ -2,6 +2,14 @@
 
 本文件是知识资产索引，不代替文章正文、文献阅读笔记或实验原始数据。
 
+## G5 独立场BDF2 / 2026-10-31
+
+[时间误差与稳定化草稿](../../website/drafts/bdf2-time-error-and-stabilization.md)：
+不等距BDF2公式、结构速度未知量重建、固定tau的真实速度/压力时间阶，
+卸载结构高频模态进入渐近区的验证。理论、实现、数值证据分开；没有性能结论。
+源码与测试来源为[bdf-standalone.json](data/fem-integration-2026-10-31/bdf-standalone.json)。
+待审核：稳定化限定、非线性结构/跳跃载荷的未验证边界；保持draft。
+
 ## ARCH-01 / 2026-10-30
 
 [通用 FEM / DoF 分层草稿](../../website/drafts/general-fem-dof-architecture.md)：源码阅读基线

@@ -151,6 +151,10 @@ if(BUILD_TESTING)
     add_executable(verify_fsi_element tests/verify_fsi_element.cpp)
     target_link_libraries(verify_fsi_element PRIVATE eonsim_core)
     add_test(NAME fsi_element_jacobian COMMAND verify_fsi_element)
+    add_executable(verify_time_integration tests/verify_time_integration.cpp)
+    target_link_libraries(verify_time_integration PRIVATE eonsim_core)
+    add_test(NAME time_integration COMMAND verify_time_integration)
+    set_tests_properties(time_integration PROPERTIES LABELS "core;rank-1")
     add_executable(verify_solid_element tests/verify_solid_element.cpp)
     target_link_libraries(verify_solid_element PRIVATE eonsim_core)
     add_test(NAME solid_element_jacobian COMMAND verify_solid_element)
@@ -158,6 +162,18 @@ if(BUILD_TESTING)
     target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
     add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME solid_time_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_solid_time.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/solid_time_verification")
+    set_tests_properties(solid_time_verification PROPERTIES TIMEOUT 300 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME fluid_time_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fluid_time.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_time_verification")
+    set_tests_properties(fluid_time_verification PROPERTIES TIMEOUT 300 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME fluid_coo_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fluid_coo.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"

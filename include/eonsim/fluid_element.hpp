@@ -13,8 +13,9 @@ template<class Element> struct FluidElementResult {
     typename Layout::template Matrix<double> tangent{};
 };
 using FluidElement=FluidElementResult<Tet4Topology>;
-/** 节点优先 [ux,uy,uz,p]；previous 是已接受速度/压力，mesh_velocity 是当前几何速度。
- * dt=0 表示稳态；tau 在一次 Newton 求解中固定。返回 dR/dx，几何与历史保持不变。
+/** 节点优先 [ux,uy,uz,p]；previous 是时间积分器生成的速度参考，mesh_velocity 是当前几何速度。
+ * 惯性导数=(state-previous)/dt；BE时previous=accepted、dt=实际步长；BDF2由两层历史重建。
+ * dt=0 表示稳态；tau 在一次 Newton 求解中固定。返回 dR/dx，几何与参考保持不变。
  * 使用 SI 一致单位，压力正值表示压缩；残量为惯性+内力，无体力。
  * compute_tangent=false 跳过切线计算并返回零 tangent；残量及有效性检查不变。
  */

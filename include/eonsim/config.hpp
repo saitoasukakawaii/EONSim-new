@@ -56,6 +56,9 @@ struct FluidConfig {
     bool mean_pressure=false;
     std::map<int,FluidMaterial> regions;
     bool traction_outlet=false;
+    // Fixed SUPG/PSPG coefficient (units time/density) for a time-step-independent
+    // spatial discretization. Unset preserves the original transient estimate.
+    std::optional<double> stabilization_tau;
     double density=1, viscosity=1, pressure_drop=1, dt=.05, ramp_time=.1;
     int steps=10;
 };
@@ -91,9 +94,16 @@ struct FsiConfig {
     int steps=5;
 };
 
-struct TimeControl { int max_retries=0; double minimum_dt=1e-10,reduction=.5; };
+struct TimeControl {
+    int max_retries=0; double minimum_dt=1e-10,reduction=.5;
+    std::vector<double> step_sizes; ///< 候选步长按accepted步号选取，末值延续；拒绝优先缩步。
+    std::vector<double> events; ///< 必须命中的不连续时刻；新格式在事件后重新启动历史。
+};
+enum class TimeScheme { backward_euler, bdf2 };
+struct TimeIntegration { TimeScheme scheme=TimeScheme::backward_euler; };
 
 struct Config {
+    TimeIntegration time_integration;
     TimeControl time_control;
     std::filesystem::path checkpoint, restart;
     int stop_after=0;

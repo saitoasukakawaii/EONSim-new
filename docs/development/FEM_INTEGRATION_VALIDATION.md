@@ -3,6 +3,15 @@
 状态：in_progress。基线 main `72a335604a50c1ae27516b8bde15e05564b5748b`。
 工程量估计与依赖在现有 [队列](CODEX_TASK_QUEUE.md) 维护；本文仅记录实现和验证事实。
 
+## G5 独立场BDF2增量
+
+实现与支持范围见[TIME_INTEGRATION](TIME_INTEGRATION.md)。主锁Debug新9项针对性检查全部通过，
+42.23秒CTest墙钟；[逐项结果与源码清单](../research/data/fem-integration-2026-10-31/bdf-standalone.json)。
+流体固定稳定化下BE速度阶约0.995–0.998、压力1.04–1.07；BDF2速度2.01–2.02、压力2.13–2.26。
+线弹性卸载固体BDF2位移/速度约1.99–2.02、加速度1.95–2.00。
+变步长、最多4rank、重启、真实拒绝及末步通过；事件测试仅验证控制器与历史，不是真实跳跃载荷。
+独立审查指出并修正schedule签名缺失；稳定化限定已明示。G5整体仍未完成。
+
 ## 47b5bd4 后的 G0 验收补强
 
 接续源SHA：`47b5bd46c992fcf64cf163361053ceb0091fa5a5`，分支 `codex/fem-time-mesh`。
@@ -29,10 +38,10 @@ PETSc VecPermute不支持跨rank非本地置换，因此这里使用scatter；�
 三次重复轮换顺序，逐次保存直接解偏差、物理量对照及setup/solve/迭代/RSS。
 总阶段时间包含嵌套，不能相加；不预设新recipe更快。
 
-当前实际检查：主锁Debug/Release各43项通过；新增辅助求解奇异失败/恢复负例随后在主锁Debug及旧锁Release的10项故障选择中通过，旧锁三recipe补验3项通过。受控性能72个样本全部满足物理对照，最大场差3.307e-12；新提交CI待执行。
+当前实际检查：主锁Debug/Release各43项通过；新增辅助求解奇异失败/恢复负例随后在主锁Debug及旧锁Release的10项故障选择中通过，旧锁三recipe补验3项通过。受控性能72个样本全部满足物理对照，最大场差3.307e-12；补强提交`e9e4d30`的[云端三环境CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41180022722)均成功。
 [本轮证据](../research/data/fem-integration-2026-10-31/g0-supplement.json) 与 [性能原始报告](../research/data/fem-integration-2026-10-31/pc-recipes-benchmark.json)。
 小型问题上直接解solve中位数均更低，不由此推断大规模结果。
-G0完整验收仍in_progress，G5/G1尚未实施；后文为前序检查点记录。
+G0补强验收通过，整体主线交付仍in_progress；G5独立场BDF2已实施，G1尚未实施。后文为前序检查点记录。
 
 ## 当前基线
 
