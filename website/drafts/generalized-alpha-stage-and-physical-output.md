@@ -47,8 +47,7 @@ stage动量残量另以明确名称输出。这一恢复依赖当前卸载模型
 
 [源码、命令、退出码和结果清单](../../docs/research/data/fem-integration-2026-10-31/alpha-standalone.json)；
 CTest：`time_integration`、`fluid_alpha_verification`、`solid_alpha_verification`及相关局部导数/旧BE回归。
-主锁Debug7项针对性检查全部通过；这些结果不替代未来混合单体FSI的整体压力阶与稳定性验证。
-当前alpha ALE/FSI尚未接入，非线性材料只覆盖方向导数与拒绝恢复，不声称其全部时间阶。
+独立场检查点主锁 Debug 7 项通过；这些结果不替代单体 FSI 验收。后续 alpha ALE/FSI 已接入并随 PR #23 交付，耦合证据见下节。非线性材料只覆盖方向导数与拒绝恢复，不声称其全部时间阶。
 
 关键原始/官方来源：[Jansen等预印本](https://www.lncc.br/~alm/lncc/jmac/turbulencia/genalf.pdf)§3–4，
 [PETSc3.23.7一阶](https://raw.githubusercontent.com/petsc/petsc/v3.23.7/src/ts/impls/implicit/alpha/alpha1.c)、
@@ -71,4 +70,4 @@ rho=0/0.5/1的刚体及弹性FSI速度、压力、位移实测趋近二阶。
 ALE端点反转测试在共同stage仍有效时失败；4rank中仅3rank有反转单元，
 所有rank共同拒绝并缩步恢复，失败前后checkpoint哈希一致。FSI实现同类检查，
 但本轮没有直接触发其独立端点反转分支，不把ALE证据移作该分支执行证据。
-详情见alpha-coupled.json；此段无性能收益声明，仍为未发布草稿。
+详情见 [alpha-coupled.json](../../docs/research/data/fem-integration-2026-10-31/alpha-coupled.json)；此段无性能收益声明，仍为未发布草稿。

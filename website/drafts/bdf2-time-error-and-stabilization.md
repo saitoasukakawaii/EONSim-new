@@ -64,6 +64,6 @@ CTest `time_integration`、`fluid_time_verification`、`solid_time_verification`
 后续同分支增量已补ALE与单体FSI BDF2，来源为[bdf-coupled.json](../../docs/research/data/fem-integration-2026-10-31/bdf-coupled.json)：
 弹性FSI压力阶1.86/1.97，刚体2.00/2.02，ALE解析网格速度2.02/2.01；最多4rank。
 接口功率平衡来自共享速度与两侧离散残量内积，不是总能量时间积分守恒。
-目前尚未证明非线性结构的时间阶、真实跳跃载荷事件或generalized-alpha。
-G5仍在实施。评审重点是稳定化对时间阶的限定、历史提交和恢复完整性；
+本报告未证明非线性结构时间阶或真实跳跃载荷事件；generalized-alpha 后续实现与证据见 [stage 草稿](generalized-alpha-stage-and-physical-output.md)。
+G5 已随 PR #23 交付，见 [集成验收](../../docs/development/FEM_INTEGRATION_VALIDATION.md)。评审重点是稳定化对时间阶的限定、历史提交和恢复完整性；
 本稿保持draft，不发布。

@@ -25,8 +25,8 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 本次整合前主线基线：38a5e516ffe129d1b70c7c1bd8365deb5ded101a（PR #21 合并）；本轮源提交及取舍见整合记录，最终主线以 Git 为准。
-- 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场有限元求解器。
+- 本次文档审查基线：`a508e3d`（PR #24 合并）；PR #21 的 `38a5e51` 为历史整合基线。
+- 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场及 Tri3/Quad4 二维标量有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
 
@@ -43,21 +43,18 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 | 求解器层级算子尺寸 | 已实现并合并 | PR #12；Release/Debug 针对性测试通过 |
 | 非线性装配阶段计时 | 已实现并合并 | PR #13；增加 callback、错误同步、最终装配和约束阶段计时；已有 HPC-01B/C 重复测量 |
 | 独立流体缓存 COO Jacobian | 已实现并合并 | PR #21；范围及验证局限见 HPC-02 报告 |
-| 通用 FEM 与 20 组上游学习规划 | 文档已集成 | 16 份 Markdown 随设计分支合入；本次已授权G0/G5/G1；其它阶段仍deferred，按需依赖子集除外 |
+| 通用 FEM 与 20 组上游学习规划 | 文档已集成 | 16 份 Markdown 随设计分支合入；G0B/G0/G5/G1已交付；其它阶段仍deferred，按需依赖子集除外 |
 | FEM-G0A DoF/FSI 分块详细设计 | 已审查合入 | [专题](../architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md)、标准库参考模型及 20 项测试交付；无 C++ 接入或数值验收 |
 | 可复现云环境与 MPI 故障 CI | 已随 PR #23 完成集成验收 | 最终主锁 Debug/Release 各60/60、兼容专项13/13；证据见 FEM_INTEGRATION_VALIDATION.md |
 | G0B/G0语义DoF与三recipe | 已合入 main（PR #23） | DoF语义、物理验收与三种PC树已完成集成验证；不代表生产内存重排 |
-| PETSc CI 与持续知识积累规则 | PR #24 review | 日常仅 PETSc 3.23.7 Debug/Release；3.19.6 手动专项；AGENTS 与状态/知识文件同步更新 |
+| PETSc CI 与持续知识积累规则 | 已合入 main（PR #24） | 日常仅 PETSc 3.23.7 Debug/Release；3.19.6 手动专项；AGENTS 与状态/知识文件同步更新 |
 
 ## 当前焦点
 
-截至 2026-10-31，最新 main 为 `dd490a2c28db846c75642b0125690f922eaef44e`，PR #23 的 G0B/G0/G5/G1 集成已完成。
+截至本次同步，main/origin/main 为 `a508e3d`（PR #24 合并），G0B/G0/G5/G1 已交付。
+日常 CI 为 PETSc 3.23.7 Debug/Release；3.19.6 仅手动兼容专项。合并状态由本地 Git 历史确认，本次未查询 PR #24 的远程 Checks，不能据合并推断其逐项测试结果。
 
-当前开发分支 `codex/primary-petsc-ci-policy` 对应 PR #24：
-- 固化 PETSc 3.23.7 为日常主力版本，Debug/Release 是常规 CI 矩阵。
-- PETSc 3.19.6 改为仅手动触发的兼容性专项任务，常规 Push/PR 中明确 skipped。
-- 在 `AGENTS.md` 中补充第三方依赖兼容策略及跨 Codex Task 持续知识积累要求。
-- 当前变更为工程流程、文档和 CI 配置，不修改求解器生产 C++ 代码；PR 检查以 GitHub 实时状态为准，未完成的检查不得标记为通过。
+用户本次授权 DOCS-01：审查全部项目 Markdown 并按当前进度同步。开发分支 `codex/markdown-progress-audit`；只修改文档，未启动 deferred 数值阶段。范围、逐文件处理与静态验证见 [文档审查记录](MARKDOWN_AUDIT_2026-10-31.md)。
 
 ## 最近完成
 
@@ -67,7 +64,7 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 - PR #21：HPC-02 独立流体可选固定 COO Jacobian；原测试和测量范围以报告为准，本轮未重跑。
 - ARCH-01：通用 FEM 架构与学习路线 16 份文档已集成；未发布知识草稿，非实现完成声明。
 - BRANCH-01：删除已完全合并的 18 个远程分支，审查整合其余 6 个；按用户明确授权直接合入 main，来源 CI 分支已有 PR #22，本会话未新建 PR。
-- INFRA-01：纳入原分支至 787372e 的实现与证据；修正锁定 ABI 检查的启用范围、JUnit 完整性检查和文档，最终集成的数值验收保留 review。
+- INFRA-01：整合时修正锁定 ABI 范围和 JUnit 完整性；当时未完成的最终数值验收已由 PR #23 补齐。
 
 - PR #3：持续研发进度、任务队列、会话日志、知识模板和采集 Skill。
 - PR #4：PETSc 对象生命周期源码审计。
@@ -78,15 +75,14 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 - PR #11：Schur/GAMG 小规模网格测量。
 - PR #12：求解器层级 A 算子 global/local 行列数报告。
 - PR #13：非线性装配阶段计时。Release 3 项、Debug 2 项针对性测试通过；未运行重复性能基准。
-- PR #24（review）：PETSc 3.19.6 从日常矩阵移出；新增持续知识积累项目级规则，等待 PR 检查和人工审核。
+- PR #24（已合并）：PETSc 3.19.6 从日常矩阵移出；新增持续知识积累项目级规则。
 
 ## 当前检查点
 
-- PR：[#24 — ci: make legacy PETSc validation opt-in](https://github.com/saitoasukakawaii/EONSim-new/pull/24)，状态 review。
-- 开发分支：`codex/primary-petsc-ci-policy`；基线 main：`dd490a2c28db846c75642b0125690f922eaef44e`。
-- 日常 CI 只执行 PETSc 3.23.7 Debug/Release；PETSc 3.19.6 手动兼容任务在 PR 检查中应为 skipped。
-- `AGENTS.md` 已纳入持续知识积累要求；本任务同步更新任务队列、会话日志和知识索引。
-- 本次没有执行 C++ 编译、CTest 或 MPI；CI 的实际状态和证据链接以 PR #24 Checks 为准。
+- 源码基线：`a508e3d`；PR #24 已合入，旧 `codex/primary-petsc-ci-policy` 不再是当前待交付任务。
+- DOCS-01 文档修订在 `codex/markdown-progress-audit` 静态验收通过；用户已追加授权推送及合并，正在通过 PR 交付，尚不标记已合入。
+- 本次只做 Markdown 状态、路径、围栏及 diff 检查；没有 C++ 编译、CTest、MPI 或性能运行。
+- PR #23 的 60/60/13 为归档验证，不作为本次新运行结果；实际测试 inventory 随源码/构建配置读取。
 
 ## 恢复规则
 

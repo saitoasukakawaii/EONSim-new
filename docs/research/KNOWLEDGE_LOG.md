@@ -1,5 +1,7 @@
 # EONSim Knowledge Log
 
+2026-10-31 状态同步：G0B/G0/G5/G1 与 INFRA-01 已完成 PR #23 集成，PR #24 已合入。以下按任务保留原证据；历史“待验收”只适用于对应检查点。全部 drafts 仍未发布。
+
 本文件是知识资产索引，不代替文章正文、文献阅读笔记或实验原始数据。
 
 ## G5 独立场generalized-alpha / 2026-10-31
@@ -48,22 +50,22 @@
 
 | Topic | 状态 | 主题 | 文章 |
 |---|---|---|---|
-| HUB-K001 | published | CFD 求解器学习路径 | [CFD](/learning/cfd) |
-| HUB-K002 | published | 有限元与固体力学 | [FEM](/learning/fem) |
-| HUB-K003 | published | HPC 与并行计算 | [HPC](/learning/hpc) |
-| HUB-K004 | published | EONSim 并行稀疏矩阵装配 | [Parallel Sparse Assembly](/knowledge/parallel-sparse-assembly) |
-| HUB-K005 | published | EONSim 单体 FSI 架构 | [Monolithic FSI](/knowledge/monolithic-fsi) |
-| HUB-K006 | published | EONSim 构建与运行 | [Build and Run](/tutorials/build-and-run) |
+| HUB-K001 | published | CFD 求解器学习路径 | [CFD](../../website/learning/cfd.md) |
+| HUB-K002 | published | 有限元与固体力学 | [FEM](../../website/learning/fem.md) |
+| HUB-K003 | published | HPC 与并行计算 | [HPC](../../website/learning/hpc.md) |
+| HUB-K004 | published | EONSim 并行稀疏矩阵装配 | [Parallel Sparse Assembly](../../website/knowledge/parallel-sparse-assembly.md) |
+| HUB-K005 | published | EONSim 单体 FSI 架构 | [Monolithic FSI](../../website/knowledge/monolithic-fsi.md) |
+| HUB-K006 | published | EONSim 构建与运行 | [Build and Run](../../website/tutorials/build-and-run.md) |
 
 ## 候选知识主题
 
 | Topic | 状态 | 主题 | 文章/预期证据 |
 |---|---|---|---|
-| HUB-K007 | draft | PETSc 非线性求解器对象生命周期 | [PETSc object lifetime](../../website/drafts/petsc-object-lifetime.md)；源码审计已完成，性能尚未测量 |
-| HUB-K008 | idea | Newton 变量/残量一致缩放 | 数学推导、Jacobian 变换、Jv 与线搜索验证 |
-| HUB-K009 | idea | Schur/GAMG 网格规模行为 | 多网格规模迭代数、内存和耗时 |
-| HUB-K010 | idea | MPIAIJ 对角/非对角预分配和装配成本 | d_nnz/o_nnz、远程插入、MatAssembly 计时 |
-| HUB-K011 | idea | PETSc SNES/KSP/PC setup profiling | 多时间步日志、重复运行统计和环境信息 |
+| HUB-K007 | draft | PETSc 非线性求解器对象生命周期 | [PETSc object lifetime](../../website/drafts/petsc-object-lifetime.md)；源码审计已完成，后续 setup 测量见 HUB-K011 |
+| HUB-K008 | draft | Newton 变量/残量一致缩放 | [缩放规格草稿](../../website/drafts/newton-scaling.md)；独立代数验证，生产缩放仍 deferred |
+| HUB-K009 | draft | Schur/GAMG 网格规模行为 | [网格测量](../../website/drafts/schur-mesh-profile.md)；小规模重复数据 |
+| HUB-K010 | draft | MPIAIJ 预分配和装配成本 | [阶段测量](../../website/drafts/assembly-phase-baseline.md)、[单元计时扰动](../../website/drafts/fluid-element-overhead.md)；纯通信归因仍未完成 |
+| HUB-K011 | draft | PETSc SNES/KSP/PC setup profiling | [多步测量](../../website/drafts/multistep-setup-profile.md)；未证明持久化收益 |
 
 ## 登记规则
 
@@ -143,11 +145,11 @@
 
 2026-10-31 合并补记：FEM-G0A 源提交 b674d5a 已完成本次设计/参考验证审查，20 项测试复验通过；检查工具修正 UTF-8 与 CRLF 兼容。设计子任务已合入，知识草稿仍为 draft，生产 C++/PETSc/MPI 验收范围不变。详见 BRANCH-02 合并清理记录。
 
-- 2026-10-31，FEM-G0B：[语义DoF与父编号](../../website/drafts/semantic-blocks-and-parent-numbering.md)，draft。理论/工作区实现/实际小rank检查分级；最终集成与兼容证据待补，不自动发布。
+- 2026-10-31，FEM-G0B：[语义DoF与父编号](../../website/drafts/semantic-blocks-and-parent-numbering.md)，draft。理论/工作区实现/实际小rank检查分级；后续集成与兼容证据已在 PR #23 补齐，不自动发布。
 
 ## G0 补强 / 2026-10-31
 
-[真实装配置换与PC验收草稿](../../website/drafts/assembled-permutation-and-pc-verification.md)，按benchmark-report模板。区分置换理论、工作分支实现、主锁Debug/Release 43项与兼容补验、72个受控测量样本。新提交CI及最终整体交付待完成；草稿未发布。
+[真实装配置换与PC验收草稿](../../website/drafts/assembled-permutation-and-pc-verification.md)，按benchmark-report模板。区分置换理论、工作分支实现、主锁Debug/Release 43项与兼容补验、72个受控测量样本。该提交 CI 及最终 PR #23 交付已完成；草稿未发布。
 
 - 2026-10-31，G5耦合alpha：更新[stage与算法历史草稿](../../website/drafts/generalized-alpha-stage-and-physical-output.md)，记录共同stage/独立历史、极小步消减误差与端点集体验收；真实数值与源码审查分级，草稿未发布。
 
@@ -157,3 +159,7 @@
 
 项目级持续知识积累规则已写入根目录 [AGENTS.md](../../AGENTS.md)，并同步到 [进度](../development/CODEX_PROGRESS.md)、[任务队列](../development/CODEX_TASK_QUEUE.md) 与 [会话日志](../development/CODEX_SESSION_LOG.md)。要求实质任务保存真实过程与测试证据，维护跨 Task 状态；有复用价值的技术成果才形成 `website/drafts/` 文章，且必须经人工审核后才能发布。该条目记录的是研发流程规则，不是算法或数值结果，因此不另建技术文章。源码/规则变更通过 PR #24 追踪；本任务未运行 C++ 编译、CTest、MPI 或性能测试，CI 结果以 PR Checks 的实际状态为准。
 
+
+## DOCS-01 / 2026-10-31
+
+基线 `a508e3d`，本地分支 `codex/markdown-progress-audit`。全仓 [Markdown 审查](../development/MARKDOWN_AUDIT_2026-10-31.md) 同步现行状态与历史证据边界，并按 eonsim-knowledge-capture 更新已有 DoF、BDF2、alpha、COO、生命周期草稿；原模板与理论/实现/验证/性能分级保留，没有新数值或性能数据。静态检查命令和未验证项见审查记录。没有新技术成果需要独立文章，所有草稿仍为 draft，未发布。

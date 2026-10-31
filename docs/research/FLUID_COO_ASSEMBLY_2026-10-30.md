@@ -1,5 +1,7 @@
 # HPC-02：独立流体固定 COO Jacobian 装配
 
+后续修复：本文原基线的 PETSc 3.19.6 故障超时已由 [INFRA-01](INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md) 定位并修复，最终集成见 [PR #23 验收](../development/FEM_INTEGRATION_VALIDATION.md)。下文失败及性能结果保留原提交/环境，不能改记为原测试通过。
+
 日期：2026-10-30（Asia/Shanghai）。基线 `24eae62`，实现及测量脚本 `ceea57d`。
 用户要求依据规划设计一个 5 小时以上的任务并完成后才创建 PR；领取范围与预计 7–9 小时
 工程工作量已登记在任务队列。该估计不是实际耗时记录。

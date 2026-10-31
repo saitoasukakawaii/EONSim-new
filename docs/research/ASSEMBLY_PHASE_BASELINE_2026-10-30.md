@@ -1,5 +1,7 @@
 # HPC-01B：装配阶段基线
 
+后续状态：HPC-01D/E 已增加独立流体 kernel/插入计时及开关扰动测量，HPC-02 已实现可选 COO Jacobian；见 [计时研究](FLUID_ELEMENT_OVERHEAD_2026-10-30.md) 和 [COO 研究](FLUID_COO_ASSEMBLY_2026-10-30.md)。下文数据和未实施说明保留原检查点范围。
+
 日期：2026-10-30（Asia/Shanghai）。main 基线 7f2bc51（PR #13 合并），测量脚本提交 d1708e1。
 本轮只扩展脚本汇总与数据检查，不改 C++、物理模型、容差或 CMake。
 

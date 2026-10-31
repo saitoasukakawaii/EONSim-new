@@ -2,19 +2,19 @@
 
 状态：采用。只规定职责和依赖方向，不要求立即建立全部目录、类或 library。
 
-2026-10-30 扩展设计见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)。新增职责明确拆分拓扑、几何、有限元空间、DoF/约束、时间映射与执行计划；物理语义、存储排列和预条件分组互相独立。现有 Tet4 路径保持为实现基线，G0–G8 仅规划，不建立第二套后端或预建全部类。
+2026-10-30 扩展设计见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)。新增职责明确拆分拓扑、几何、有限元空间、DoF/约束、时间映射与执行计划；物理语义、存储排列和预条件分组互相独立。现有 Tet4 路径继续保留；G0B/G0/G5/G1 已在 PR #23 交付，G2/G4 仅有必需子集，其余阶段仍为规划。具体边界见 [集成验收](../development/FEM_INTEGRATION_VALIDATION.md)，不建立第二套后端或预建全部类。
 
-## 首版范围与技术栈
+## 当前范围与技术栈
 
-| 项目 | 首版决策 | 扩展触发条件 |
+| 项目 | 当前决策 | 扩展触发条件 |
 |---|---|---|
-| 平台 | Linux 为集群主线；Windows 用于开发与小算例，使用与 PETSc 一致的 MPI/编译器环境 | 真实部署需求再补平台，日常只验证当前主工具链 |
+| 平台 | Linux 为主验证平台；另有授权 WSL2 验证记录，原生 Windows 未验证 | 真实部署需求再补平台，日常只验证当前主工具链 |
 | 语言/构建 | C++17、CMake、Ninja、Debug/Release 两个独立构建目录 | 不因未来 GPU 提前升级整套技术栈 |
 | 数值后端 | PETSc 实数双精度 Vec/Mat/KSP；非线性求解直接接 SNES，时间推进保持薄驱动 | 第二个后端有明确收益时才建立后端抽象 |
-| 网格 | Gmsh 2.2 ASCII；3D Tet4 计算域，Tri3 仅作体网格边界 | Tri/Quad 二维域、Hex/Prism/Pyramid、高阶、非匹配界面按算例添加 |
+| 网格 | Gmsh 2.2/4.1 ASCII 子集；3D Tet4 多物理场与 Tri3/Quad4 相容混合二维标量 | 二维流体/弹性、Hex/Prism/Pyramid、高阶、非匹配界面按算例添加 |
 | 分区 | METIS 离线分区；串行预处理输出各 rank 的 HDF5 分区包 | 全局预处理内存成为瓶颈，再引入并行读入/ParMETIS 或 DMPlex 路径 |
-| 离散 | P1 标量基础与弹性；不可压流采用一套一致的稳定化 P1/P1 实现 | 首版不同时开发 Taylor–Hood、完整 RBVMS、FVM、VEM、DG |
-| FSI | 先 monolithic 单轴运动刚体，再 monolithic 弹性体；共形 ALE、BE | 分离式耦合、6-DoF、非匹配和二阶时间格式在主线后按需加入 |
+| 离散 | P1/Q1 二维标量、Tet4/P1 标量与弹性；不可压流采用一套一致的稳定化 P1/P1 实现 | 首版不同时开发 Taylor–Hood、完整 RBVMS、FVM、VEM、DG |
+| FSI | monolithic 单轴刚体及弹性体；共形 ALE，BE/BDF2/共同 stage generalized-alpha | 分离式耦合、6-DoF、非匹配按需加入 |
 | 配置 | 一份 YAML＋PETSc options；解析一次后变为强类型结构 | 不建立通用表达式语言或运行时对象仓库 |
 | 输出 | 分区 VTU/PVTU 可视化；HDF5 存分区与状态 | I/O 实测占比明显时再引入并行 HDF5/聚合写 |
 | 并行 | MPI 优先；首版每 rank 单线程 | 装配成为热点后加 OpenMP；GPU 留在 CPU 规模路径完成之后 |
@@ -26,14 +26,14 @@
 ### 目录与依赖
 
 ```text
-apps/                 # mhpc：配置、对象组装、prepare/solve/post 子命令
-include/mhpc/         # 少量稳定公共类型
+src/main.cpp          # eonsim：配置、prepare/solve 与运行摘要
+include/eonsim/       # 具体公共类型与接口
 src/core/             # 索引、配置结构、计时、错误传播
 src/mesh/             # 输入、分区、局部网格、DoF、边界标签
 src/fem/              # 几何映射、形函数、积分、局部到全局装配
 src/algebra/          # PETSc 对象生命周期、稀疏图、线性/非线性求解
 src/physics/          # fluid、solid、rigid、mesh_motion；实际实现时再建子目录
-src/coupling/         # 单体 FSI 组合残量、界面约束与全局切线；分离式后续
+src/physics/fsi.cpp   # 当前单体 FSI 组合驱动；未单独建立 coupling 目录
 src/io/               # 分区包、结果、checkpoint
 cases/                # 可运行输入，同时承担最小回归
 cmake/                # 构建和依赖查找

@@ -4,7 +4,7 @@ description: "保持物理验收和存储编号不变时的分块接入与错误
 contentStatus: draft
 taskId: "FEM-G0B"
 baseCommit: "72a335604a50c1ae27516b8bde15e05564b5748b"
-resultCommit: ""
+resultCommit: "9cc2e102e8e32f929de1c9a790c1ae527b931fa2"
 date: "2026-10-31"
 ---
 
@@ -22,7 +22,7 @@ date: "2026-10-31"
 
 ## 算法与当前实现
 
-本草稿对应未完成的开发分支增量，提交后补固定引用，不将工作区文件称为已合并能力。
+G0B/G0 已随 PR #23 合入，源码可在 [交付提交](https://github.com/saitoasukakawaii/EONSim-new/tree/9cc2e102e8e32f929de1c9a790c1ae527b931fa2) 的下列路径核对。本篇仍是待人工审核的草稿。
 
 | 源码 | 职责 |
 |---|---|
@@ -36,13 +36,13 @@ date: "2026-10-31"
 
 ## 实验验证与局限
 
-当前工作区已执行1/2/4 rank子矩阵手写数值oracle；三recipe独立流体、共形弹性FSI、刚体、超弹性与直接解对照；初态、callback拒绝和恢复；27组COO/FSI重启对照。完整集成与旧PETSc新路径仍在验收，最终记录见 [实施证据](../../docs/development/FEM_INTEGRATION_VALIDATION.md)。
+G0 检查点已执行1/2/4 rank子矩阵手写数值oracle；三recipe独立流体、共形弹性FSI、刚体、超弹性与直接解对照；初态、callback拒绝和恢复；27组COO/FSI重启对照。完整集成与旧 PETSc 新路径已随 PR #23 完成验收，最终记录见 [实施证据](../../docs/development/FEM_INTEGRATION_VALIDATION.md)。
 
 quantity首次测试发现原始压力Jpp的AMG粗层失败；改用明确的Jacobi压力块策略后，原算例精度对照通过。它只证明这些小算例可用，不证明压力块一般可逆或该recipe性能更好。Schur压力算子与原始Jpp是不同对象，不能机械复制同一子求解器配置。
 
 ## 性能证据
 
-尚无可比较的性能实验。没有从迭代数、单次耗时或小rank正确性推导加速或扩展性。
+本增量最初没有性能实验。后续 G0 补强已有 72 样本对照，见 [装配置换与 PC 验收](assembled-permutation-and-pc-verification.md)；小问题直接解更快，不据此外推大规模性能。
 
 ## 参考文献与进一步核查
 

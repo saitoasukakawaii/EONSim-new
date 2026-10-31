@@ -1,5 +1,7 @@
 # EONSim 与 PERIGEE：本地源码审查依据
 
+阅读提示：下文 EONSim 指该次审查的原工程快照，不是当前 EONSim-new 的能力清单；其串行/全局场路径限制不能移作当前实现结论。当前进度见 [项目状态](../development/CODEX_PROGRESS.md)。
+
 状态：研究记录，不作为新的强制流程。审查日期：2026-10-29。当前规范见根目录 MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md。
 
 当前项目已选择 [单体刚体 → 单体弹性体 FSI](../architecture/L2_MONOLITHIC_FSI.md)。下述参考项目的分段/分离式实现属于研究事实，不构成本项目先开发分离式算法的要求。
@@ -51,24 +53,24 @@ EONSim 已建立 `core / mesh / linalg / discretization / physics / multiphysics
 
 ## 本地源码证据索引
 
-以下锚点对应本次读取的工作树，后续源码变动可能导致行号移动。它们支持架构判断，不构成本次运行验证。
+下列 `路径:行号` 相对原审查工程根目录：P 项为 PERIGEE，E 项为原 EONSim。对应提交见本文开头；原机器 C:/E: 链接不可移植，改为文本定位，不冒充当前仓库链接。这些来源本次未重新取得，不能构成新的运行验证。
 
 | 编号 | 阅读入口及主要依据 |
 |---|---|
-| P1 | [PERIGEE FSI 预处理](/E:/software/PERIGEE/examples/fsi/preprocess.cpp:358)：METIS/重编号/逐 rank 分区写出；[FSI driver](/E:/software/PERIGEE/examples/fsi/driver.cpp:247)：按 rank 读取分区 |
-| P2 | [APart_Node](/E:/software/PERIGEE/include/APart_Node.hpp:1)；[PDNSolution](/E:/software/PERIGEE/src/Solver/PDNSolution.cpp:10)：owned/ghost 与 PETSc ghost vector |
-| P3 | [PGAssem_FSI](/E:/software/PERIGEE/examples/fsi/src/PGAssem_FSI.cpp:3)：精确预分配、局部核到全局矩阵；[局部 ALE-VMS 核](/E:/software/PERIGEE/examples/fsi/src/PLocAssem_2x2Block_ALE_VMS_NS_GenAlpha.cpp:3)：局部块、时间层、稳定项 |
-| P4 | [field-split 配置](/E:/software/PERIGEE/examples/fsi/driver.cpp:536)；[PETSc 线性求解封装](/E:/software/PERIGEE/src/Solver/PLinear_Solver_PETSc.cpp:3) |
-| P5 | [FSI 非线性推进](/E:/software/PERIGEE/examples/fsi/src/PNonlinear_FSI_Solver.cpp:142)，其中 [网格单独求解](/E:/software/PERIGEE/examples/fsi/src/PNonlinear_FSI_Solver.cpp:316)；[时间步收敛后提交](/E:/software/PERIGEE/examples/fsi/src/PTime_FSI_Solver.cpp:116) |
-| P6 | [generalized-α](/E:/software/PERIGEE/src/Solver/TimeMethod_GenAlpha.cpp:1)；[材料组合](/E:/software/PERIGEE/include/MaterialModel_Mixed_Elasticity.hpp:1)；[项目流程说明](/E:/software/PERIGEE/README.md:1) |
-| P7 | [局部装配公共接口](/E:/software/PERIGEE/include/IPLocAssem.hpp:20)；[构建设置](/E:/software/PERIGEE/cmake/PerigeeSetup.cmake:10)；[应用选择](/E:/software/PERIGEE/CMakeLists.txt:1) |
-| E1 | [源码归属与依赖契约](/C:/Users/tfblab633/EONSim/docs/architecture/SOURCE_LAYOUT_AND_OWNERSHIP.md:1) |
-| E2 | [实体化 DoF](/C:/Users/tfblab633/EONSim/include/dof_manager.hpp:20)；[共享标量输运](/C:/Users/tfblab633/EONSim/include/scalar_transport_operator.hpp:12) |
-| E3 | [分布式向量契约](/C:/Users/tfblab633/EONSim/include/distributed_matrix.hpp:64)；[halo 与内部/边界行计算](/C:/Users/tfblab633/EONSim/src/linalg/distributed_matrix.cpp:660) |
-| E4 | [时间历史](/C:/Users/tfblab633/EONSim/include/time_integrators.hpp:18)；[分布式标量装配入口](/C:/Users/tfblab633/EONSim/include/distributed_assembly.hpp:13) |
-| E5 | [模型编译入口](/C:/Users/tfblab633/EONSim/src/compiler/model_compiler.cpp:287)；[COO 缓存作用域](/C:/Users/tfblab633/EONSim/src/linalg/petsc_a9_cached_coo.cpp:54)；[A9 构建桥接](/C:/Users/tfblab633/EONSim/src/CMakeLists.txt:5) |
-| E6 | [完整串行 CSR 检查](/C:/Users/tfblab633/EONSim/src/linalg/petsc_snes_solver.cpp:51)；[单 rank 入口限制](/C:/Users/tfblab633/EONSim/src/linalg/petsc_snes_solver.cpp:737) |
-| E7 | [瞬态流动完整向量收集](/C:/Users/tfblab633/EONSim/applications/eonsim/main.cpp:297)；[网格读取](/C:/Users/tfblab633/EONSim/applications/eonsim/main.cpp:2307)；[已有 D0 报告](/C:/Users/tfblab633/EONSim/docs/D0_DIST_A1_GATE_REPORT.md:1)，仅作历史辅助 |
-| E8 | [实际 Linalg target 依赖](/C:/Users/tfblab633/EONSim/cmake/EONSimLibraries.cmake:386) |
-| E9 | [CHT reference 范围](/C:/Users/tfblab633/EONSim/docs/STAGE07_FLOW_THERMAL_CHT_GAP_ANALYSIS.md:1)；[非匹配接口参考限制](/C:/Users/tfblab633/EONSim/include/interface_coupling.hpp:64) |
-| E10 | [构建 preset](/C:/Users/tfblab633/EONSim/CMakePresets.json:26)；[顶层选项](/C:/Users/tfblab633/EONSim/CMakeLists.txt:1) |
+| P1 | PERIGEE FSI 预处理（`examples/fsi/preprocess.cpp:358`）：METIS/重编号/逐 rank 分区写出；FSI driver（`examples/fsi/driver.cpp:247`）：按 rank 读取分区 |
+| P2 | APart_Node（`include/APart_Node.hpp:1`）；PDNSolution（`src/Solver/PDNSolution.cpp:10`）：owned/ghost 与 PETSc ghost vector |
+| P3 | PGAssem_FSI（`examples/fsi/src/PGAssem_FSI.cpp:3`）：精确预分配、局部核到全局矩阵；局部 ALE-VMS 核（`examples/fsi/src/PLocAssem_2x2Block_ALE_VMS_NS_GenAlpha.cpp:3`）：局部块、时间层、稳定项 |
+| P4 | field-split 配置（`examples/fsi/driver.cpp:536`）；PETSc 线性求解封装（`src/Solver/PLinear_Solver_PETSc.cpp:3`） |
+| P5 | FSI 非线性推进（`examples/fsi/src/PNonlinear_FSI_Solver.cpp:142`），其中 网格单独求解（`examples/fsi/src/PNonlinear_FSI_Solver.cpp:316`）；时间步收敛后提交（`examples/fsi/src/PTime_FSI_Solver.cpp:116`） |
+| P6 | generalized-α（`src/Solver/TimeMethod_GenAlpha.cpp:1`）；材料组合（`include/MaterialModel_Mixed_Elasticity.hpp:1`）；项目流程说明（`README.md:1`） |
+| P7 | 局部装配公共接口（`include/IPLocAssem.hpp:20`）；构建设置（`cmake/PerigeeSetup.cmake:10`）；应用选择（`CMakeLists.txt:1`） |
+| E1 | 源码归属与依赖契约（`docs/architecture/SOURCE_LAYOUT_AND_OWNERSHIP.md:1`） |
+| E2 | 实体化 DoF（`include/dof_manager.hpp:20`）；共享标量输运（`include/scalar_transport_operator.hpp:12`） |
+| E3 | 分布式向量契约（`include/distributed_matrix.hpp:64`）；halo 与内部/边界行计算（`src/linalg/distributed_matrix.cpp:660`） |
+| E4 | 时间历史（`include/time_integrators.hpp:18`）；分布式标量装配入口（`include/distributed_assembly.hpp:13`） |
+| E5 | 模型编译入口（`src/compiler/model_compiler.cpp:287`）；COO 缓存作用域（`src/linalg/petsc_a9_cached_coo.cpp:54`）；A9 构建桥接（`src/CMakeLists.txt:5`） |
+| E6 | 完整串行 CSR 检查（`src/linalg/petsc_snes_solver.cpp:51`）；单 rank 入口限制（`src/linalg/petsc_snes_solver.cpp:737`） |
+| E7 | 瞬态流动完整向量收集（`applications/eonsim/main.cpp:297`）；网格读取（`applications/eonsim/main.cpp:2307`）；已有 D0 报告（`docs/D0_DIST_A1_GATE_REPORT.md:1`），仅作历史辅助 |
+| E8 | 实际 Linalg target 依赖（`cmake/EONSimLibraries.cmake:386`） |
+| E9 | CHT reference 范围（`docs/STAGE07_FLOW_THERMAL_CHT_GAP_ANALYSIS.md:1`）；非匹配接口参考限制（`include/interface_coupling.hpp:64`） |
+| E10 | 构建 preset（`CMakePresets.json:26`）；顶层选项（`CMakeLists.txt:1`） |

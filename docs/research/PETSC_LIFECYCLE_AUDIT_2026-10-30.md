@@ -1,5 +1,7 @@
 # SOLVER-01：PETSc 非线性对象生命周期审计
 
+后续状态：重复 LinearSystem::solve 的 KSP 所有权缺陷已由 SOLVER-05 修复，见 [修复草稿及证据](../../website/drafts/linear-solve-ksp-lifetime.md)。SOLVER-02 测量已完成且继续暂缓持久 SNES/PC；下面的风险与实验建议针对原审计 SHA。
+
 日期：2026-10-30。源码基线：`0828f41b62391239b14a05e57a161defae1c8866`。结论：**需要额外测量，暂不实施持久化 SNES 重构。** 本任务只审计，不修改求解器。
 
 ## 调用链与所有权
@@ -63,4 +65,4 @@ finalize_seconds 在返回前求值，不含函数返回时 SNES 的 RAII 销毁
 
 旧分支 `audit/petsc-nonlinear-lifecycle` 的 [独立审计](https://github.com/saitoasukakawaii/EONSim-new/blob/51ef2e50b70c5906aa80cdd526a51cac1f142572/docs/development/NONLINEAR_SESSION_LIFECYCLE_AUDIT.md) 使用同一源码基线，确认了相同的持久化风险。补充调用方为 [ALE 驱动](https://github.com/saitoasukakawaii/EONSim-new/blob/0828f41b62391239b14a05e57a161defae1c8866/src/physics/ale.cpp)：同样在时间循环外持有 NonlinearSystem。保留本报告作为唯一审计入口，旧稿可从固定提交追溯，不再维护第二套状态表和同题草稿。
 
-上述行号和生命周期说明均针对历史基线。后续 [多步测量](MULTISTEP_SETUP_PROFILE_2026-10-30.md) 已完成；本轮集成的 CI 分支还会在 fatal callback 后更换 trial Vec 以隔离遗留只读锁，这属于异常恢复，不能据此把正常时间步说成每步重建全部 Vec。旧分支的“下一步建立基线”及 SOLVER-02 ready 状态不恢复到当前任务队列。
+上述行号和生命周期说明均针对历史基线。后续 [多步测量](MULTISTEP_SETUP_PROFILE_2026-10-30.md) 已完成；后续已合入的 INFRA-01 会在 fatal callback 后更换 trial Vec 以隔离遗留只读锁，这属于异常恢复，不能据此把正常时间步说成每步重建全部 Vec。旧分支的“下一步建立基线”及 SOLVER-02 ready 状态不恢复到当前任务队列。

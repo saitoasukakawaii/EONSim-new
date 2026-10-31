@@ -2,7 +2,7 @@
 
 状态：采用。首版以 assembled 低阶 FEM 为执行路径；高阶、partial assembly 和 matrix-free 为需求触发的扩展。
 
-2026-10-30 的扩展契约集中于 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)：§4 区分空间/基/DoF 泛函，§5 规定一般边界与 lifting，§7 分离排列和 PC 树，§8 从形式项及约束支撑生成图，§11 规定批次模板分派。均是待实现方案，不扩大下文固定节点布局与独立流体 COO 的支持范围。
+2026-10-30 的扩展契约集中于 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)：§4 区分空间/基/DoF 泛函，§5 规定一般边界与 lifting，§7 分离排列和 PC 树，§8 从形式项及约束支撑生成图，§11 规定批次模板分派。G0 已接入语义身份与 PC 树，G1 已实现二维标量所需边界和图/输出子集；完整多阶空间、通用形式图和高阶批次仍待实现。独立流体 COO 的范围不变。
 
 ### 物理场的实现顺序
 
@@ -10,7 +10,7 @@
 - **不可压流：** 先稳定化 Stokes，再 Navier–Stokes；等阶 P1/P1 必须有相容的压力稳定化，不能省掉稳定项换取“先跑通”。先保持低 Reynolds 数，不同时加入湍流闭合。
 - **固体：** 先独立静/动态线弹性，再用于小变形单体 FSI；有限变形阶段先在独立结构加入可压缩超弹性再耦合。接近不可压缩时才引入相容混合形式，不以极大体积模量掩盖锁死。
 - **刚体与耦合：** 流体/固体独立可用后，做单轴刚体动力学和 ALE，再单体刚体 FSI，最后单体弹性 FSI；分离式算法排在单体主线交付后。
-- **时间积分：** BE 是独立瞬态及首个单体 FSI 的共同基线，动态固体/刚体按时间关系恢复位移。BDF2 或 generalized-α 在单体弹性基线后按需求引入，并统一各场、接口和切线系数。具体独立未知量见 [单体 FSI](L2_MONOLITHIC_FSI.md)。
+- **时间积分：** BE 是独立瞬态及首个单体 FSI 的共同基线，动态固体/刚体按时间关系恢复位移。G5 已引入变步 BDF2 与两类 generalized-alpha，统一适用各场、接口和切线系数；具体支持矩阵见 [时间契约](../development/TIME_INTEGRATION.md)。具体独立未知量见 [单体 FSI](L2_MONOLITHIC_FSI.md)。
 
 统一定义离散残量 `R(x; history, dt)=0`，Newton 解 `J Δx = -R`。首版采用手写局部一致切线或现有可靠公式；AD 在复杂材料确实降低维护成本时引入。修改时间离散后，切线必须包含对应状态/导数之间的链式系数。
 
@@ -100,7 +100,7 @@ COO collective。驱动在每次 Jacobian 评价前清零整个缓冲；所有 r
 
 计时输出均取 rank 最大值：`setup_seconds` 为本次 solve 的初始化，不包含 NonlinearSystem 构造；`solve_seconds` 包含初始装配、Schur 配置与 SNESSolve；`schur_setup_seconds` 单独记录显式 Schur 配置；`linear_seconds` 累计顶层 KSP pre/post 回调之间的耗时，包含其中 PC setup 和内层求解；`linear_diagnostic_seconds` 为额外残量测量与输出耗时；`finalize_seconds` 包含最终验收、字段报告及原始反力提取。`linear_started/completed` 统计顶层调用。计时有嵌套关系，且各项最大值可能来自不同 rank，不能相加解释为总耗时；ghost 时间包含在 assembly 时间中。尚无逐子层累计时间或独立 PC setup 计时。
 
-装配细分字段与 `assembly_seconds` 一样，只累计正常完成的 `Context::evaluate`，并在 SNESSolve 返回时冻结，不包含最终验收/原始反力重装配：`callback_seconds` 为物理 assemble 回调（包含 kernel 与 Mat/Vec 插入，不能解释为纯 kernel）；`failure_sync_seconds` 为正常评价路径上的错误状态 MPI_Allreduce 等待；`assembly_finalize_seconds` 为原始 VecAssembly 与 MatAssembly Begin/End；`constraint_seconds` 为约束值替换、约束 VecAssembly 和 MatZeroRows。它们均是 assembly 的子区间，不覆盖清零等全部工作。每项独立取 rank 最大，不能相加还原总时间。失败评价的细分耗时被排除；已有 `ghost_seconds` 在评价开头累计，可能包含后来被拒绝的评价，不能用它与这些字段做严格分解。`assembly_finalize_seconds` 包括本地整理和通信等待，不是纯网络时间；远程插入的准备仍在 callback 内。本增量不提供 kernel/插入各自计时或拒绝评价成本。
+装配细分字段与 `assembly_seconds` 一样，只累计正常完成的 `Context::evaluate`，并在 SNESSolve 返回时冻结，不包含最终验收/原始反力重装配：`callback_seconds` 为物理 assemble 回调（包含 kernel 与 Mat/Vec 插入，不能解释为纯 kernel）；`failure_sync_seconds` 为正常评价路径上的错误状态 MPI_Allreduce 等待；`assembly_finalize_seconds` 为原始 VecAssembly 与 MatAssembly Begin/End；`constraint_seconds` 为约束值替换、约束 VecAssembly 和 MatZeroRows。它们均是 assembly 的子区间，不覆盖清零等全部工作。每项独立取 rank 最大，不能相加还原总时间。失败评价的细分耗时被排除；已有 `ghost_seconds` 在评价开头累计，可能包含后来被拒绝的评价，不能用它与这些字段做严格分解。`assembly_finalize_seconds` 包括本地整理和通信等待，不是纯网络时间；远程插入的准备仍在 callback 内。阶段计时本身不提供 kernel/插入各自计时或拒绝评价成本；独立流体另有下述单元级诊断。
 
 
 跨场材料依赖必须进入导数：例如黏度依赖温度时，一致单体 Newton 需要对应跨场导数。若先用滞后系数或 Picard，明确标记并按完整残量验收。AD 的引入不改变此义务。
@@ -116,7 +116,7 @@ kernel 区间仅包围 `fluid_element` 调用；insert 区间包围对应体单�
 
 统计在每个时间步尝试前重置，覆盖该次 solve 中的全部已完成单元调用，**包含最终物理验收和原始反力重装配**；因此不能与 `callback_seconds` 直接相减。若同次 solve 有被拒绝的试探评价，已完成单元工作仍计入；整个 solve 抛错时不输出该次计数，重试重新计数。输出表示非线性 solve 成功，不代替随后时间提交/checkpoint 的成功状态。
 
-时间是 rank-local，未取最大值或求和；使用 PetscSynchronizedPrintf/Flush 按 rank 输出。关闭时不执行单元级时钟读取、计数更新和报告同步；开启时每单元增加时钟读取，开销未量化，不能用本诊断直接证明加速或零开销。
+时间是 rank-local，未取最大值或求和；使用 PetscSynchronizedPrintf/Flush 按 rank 输出。关闭时不执行单元级时钟读取、计数更新和报告同步；开启时每单元增加时钟读取，开关扰动已在 [HPC-01E](../research/FLUID_ELEMENT_OVERHEAD_2026-10-30.md) 的小算例上测量，不能外推固定开销或用本诊断直接证明加速。
 
 ## 编译期拓扑、布局与积分规则
 
@@ -174,7 +174,7 @@ kernel 区间仅包围 `fluid_element` 调用；insert 区间包围对应体单�
 
 `-schur_pc` 使用 FGMRES；独立流体分速度/压力，FSI 使用外层乘法 flow/mesh/structure（或 rigid）分裂，flow 内嵌速度/压力 Schur。全局 operator 始终为完整 Jacobian。PETSc FULL Schur 分解配 SELFP 近似 `D−C diag(A)⁻¹B`，不形成 A 的显式逆；速度/压力与网格/弹性块采用 GAMG，刚体块 Jacobi。GAMG 粗层默认 GMRES/Jacobi 并显式启用残差范数；主物理容差未改变。
 
-`fsi_element_tangent` 用解析 `dV/dx`、`d grad(N)/dx` 初始化固定宽度 Dual，前向传播同一个 SUPG/PSPG 残量、网格速度和压力面积项。参考 Laplace 块与接口 BE 链式系数保留。局部状态大小由 Tet4Ale 模板推导，积分规则不包含运行时维护的数据。旧中心差分函数保留用于独立 Jv/轨迹/性能对照。
+`fsi_element_tangent` 用解析 `dV/dx`、`d grad(N)/dx` 初始化固定宽度 Dual，前向传播同一个 SUPG/PSPG 残量、网格速度和压力面积项。参考 Laplace 块保留，接口链式系数由所选时间格式提供，默认 BE。局部状态大小由 Tet4Ale 模板推导，积分规则不包含运行时维护的数据。旧中心差分函数保留用于独立 Jv/轨迹/性能对照。
 
 GAMG 当前只有低 Re 小算例运行证据，不宣称针对高 Re、近不可压结构或网格无关迭代调优完成。实际误差、迭代及 RSS 见 [B5 记录](../development/B5_ACCURACY_AND_PERFORMANCE.md)。
 

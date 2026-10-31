@@ -86,12 +86,8 @@ Cloud Task 工作区彼此隔离。跨 Task 恢复依赖 GitHub 中已提交的�
 - [ ] PR 已创建或更新；
 - [ ] 最终报告说明完成项、未完成项、风险和下一任务。
 
-## 8. 当前推荐的第一个 Goal
+## 8. 当前任务选择
 
-当前下一项任务是 SOLVER-02：测量多时间步算例中的 solver setup 开销。不要直接实现持久化 NonlinearSession。
+2026-10-31：SOLVER-02 多步 setup 测量早已完成，持久化 NonlinearSession 按实测继续暂缓；G0B/G0/G5/G1 已随 PR #23 交付，PR #24 的 CI/知识规则也已合入。
 
-建议先使用 cases/fluid/transient.yaml，再使用 cases/fsi/elastic.yaml；具体命令必须先从当前 README、case runner 和 CLI 解析代码确认。使用现有 -solver_report，记录首步与后续步的 setup、Schur setup、SNESSolve、assembly、ghost、linear 和内存指标。首轮不启用会增加额外评价开销的 -linear_report。
-
-至少进行多次重复运行，固定 commit、Release 构建、CPU/内存、MPI/PETSc 版本、rank、网格和容差。时间指标有包含关系，不能简单相加。若当前 Cloud VM 资源或 MPI 环境不足，记录可复现的限制，不伪造结果。
-
-只有测量证明 setup 是值得优化的成本，才创建下一 Goal 设计持久化 SNES/KSP/PC 的最小原型。
+下一 Goal 应从 [任务队列](CODEX_TASK_QUEUE.md) 的实际状态和用户新需求选择，不重复领取 SOLVER-02，也不自动启动 deferred 阶段。当前文档审查任务 DOCS-01 不等同于启动新的数值研发 Goal。任何新性能任务仍须固定提交、环境、网格、rank、容差及重复次数，并区分嵌套计时与端到端成本。

@@ -1,10 +1,12 @@
 # EONSim 下一阶段详细设计
 
-日期：2026-10-29；2026-10-30 同步至 `38a5e51`（PR #21）。范围：在现有 C++17、Tet4、MPI、PETSc、单体 FSI 主线上提高可靠性、精度和规模能力。
+阅读范围：本文中的 BE 位移/惯性公式是原始推导基线；当前 BDF2/generalized-alpha 的状态与链式系数统一见 [时间契约](../development/TIME_INTEGRATION.md)。不将原建议中的类型名称视为现有 API。
 
-**最新扩展规划：** [通用 FEM 架构规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) 集中规定多拓扑/多格式、有限元空间、一般边界、非一致界面、DoF 排列与预条件树、稀疏图、时间积分及并行输出；[20 组上游学习矩阵](../research/FEM_FRAMEWORK_LEARNING_2026-10-30.md) 给出逐项目取舍。新增 G0–G8 均只完成设计、实现 deferred；本轮不开发、不编译。本文保留已有可靠性主线，不将新方案写成已实现能力。
+原设计日期：2026-10-29；2026-10-31 同步 PR #23/#24 交付状态。范围：在现有 C++17、Tet4、MPI、PETSc、单体 FSI 主线上提高可靠性、精度和规模能力。
 
-本文是用户要求的深入设计方案，**不是下列接口已经实现的声明，也不新增日常审批或全量验证门禁**。实际代码状态、复现结果和优先级依据见 [架构审查](../research/EONSIM_ARCHITECTURE_AUDIT_2026-10-29.md)。沿用现行 L1/L2 决策；新增方案在对应功能落地时归并到所属主题文件，避免长期维护两份规范。
+**最新扩展规划：** [通用 FEM 架构规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) 集中规定多拓扑/多格式、有限元空间、一般边界、非一致界面、DoF 排列与预条件树、稀疏图、时间积分及并行输出；[20 组上游学习矩阵](../research/FEM_FRAMEWORK_LEARNING_2026-10-30.md) 给出逐项目取舍。G0B/G0/G5/G1 已通过 PR #23 交付；G2/G4 只实施必需子集，其余目标仍 deferred。本文保留已有可靠性主线，不将新方案写成已实现能力。
+
+本文是用户要求的深入设计方案，**不是下列接口已经实现的声明，也不新增日常审批或全量验证门禁**。历史复现依据见 [架构审查](../research/EONSIM_ARCHITECTURE_AUDIT_2026-10-29.md)，最新实现和验证见 [集成验收](../development/FEM_INTEGRATION_VALIDATION.md)。沿用现行 L1/L2 决策；新增方案在对应功能落地时归并到所属主题文件，避免长期维护两份规范。
 
 当前 B0–B5 已有小算例实现与记录。审查期间更新的 Schur/GAMG、压力归一化反力和局部 AD 已复验；以下方案面向这一基线继续完善，不重复安排已完成的修复。[B5 精度与性能记录](../development/B5_ACCURACY_AND_PERFORMANCE.md) 已显示压力误差随网格下降、固定空间网格的时间收敛趋势及小规模 CPU 成本，仍未证明网格无关迭代或大规模扩展。
 
@@ -43,7 +45,7 @@
 flowchart TD
     App[应用：配置、初始化、运行摘要] --> Problem[具体 Fluid / Solid / FSI 问题]
     App --> IO[分区、checkpoint、结果输出]
-    Problem --> Time[BE 步控制与共同接受]
+    Problem --> Time[步控制、时间格式与共同接受]
     Problem --> Assembly[编号、约束、装配计划]
     Problem --> Solver[PETSc 求解对象与代数存储]
     Assembly --> Kernel[局部残量、材料、几何]
@@ -78,7 +80,7 @@ flowchart TD
 
 ## 数据和编号契约
 
-保留三类身份：输入实体身份、分布式 mesh 身份、自由代数编号。输入身份在双域中用 `(domain, source_id)` 唯一；代数编号按 rank owned 连续区间生成，允许随分区变化。当前分区 v2 和同分区 checkpoint 无需立刻迁移；实现跨分区恢复前再升级格式。
+保留三类身份：输入实体身份、分布式 mesh 身份、自由代数编号。输入身份在双域中用 `(domain, source_id)` 唯一；代数编号按 rank owned 连续区间生成，允许随分区变化。当前三维分区 v2、二维分区 v3，checkpoint 容器 v3 仅支持同分区；跨分区恢复仍待设计。
 
 每个 field 明确：物理量、分量、所在区域、参考/当前构形、owned/ghost、独立量/恢复量、单位。字段布局的所有权、约束、IS、nullspace 和输出必须消费同一最终映射。没有相应区域的字段不进入代数系统；物理输出对非该域节点应移除或带有效掩码，避免把零填充值视为解。
 
@@ -96,9 +98,9 @@ R(x) = Wᵀ r(z) + r_global(x)         # 物理测试行投影
 J(x) = Wᵀ J_local(z) K(dt) + J_global
 ```
 
-在当前 BE/固定共形映射下，K/W 对本次未知量固定。K 含界面 `d_m=d_s,n+dt*v_s` 的 dt 系数；W 累加流体与结构界面动量，同时丢弃网格界面测试行。刚体质量/阻尼/弹簧项只在唯一 owner 添加。现有 `fsi.cpp` 的 `rows=-1` 和 `chain=dt` 正体现这一区别，应把它们变成清楚的两个装配数据视图。
+在当前 BE/固定共形映射下，K/W 对本次未知量固定。K 含界面 `d_m=d_s,n+dt*v_s` 的 dt 系数；W 累加流体与结构界面动量，同时丢弃网格界面测试行。刚体质量/阻尼/弹簧项只在唯一 owner 添加。G0 已用 `ReducedLayout::slot` 集中表达试探列、测试行、系数与 lifting；G5 再由实际时间格式提供系数。
 
-建议先保存具体 `trial_map`、`test_map`、列链式系数和 lifting 数组，仍用普通循环。不要求显式形成 K/W 矩阵。未来姿态相关刚体映射或移动非匹配投影若依赖 x，必须重新求导，包括映射自身的导数。
+当前使用具体 slot 映射和普通装配循环；原建议中的 trial_map/test_map 不是必须新增的 API。不要求显式形成 K/W 矩阵。未来姿态相关刚体映射或移动非匹配投影若依赖 x，必须重新求导，包括映射自身的导数。
 
 ## 数学与数值内核
 
@@ -229,7 +231,7 @@ stateDiagram-v2
 | 子 PC 配置或因子构造失败 | 打印子块原因并终止；只有证据表明是可恢复数值问题才缩 dt |
 | 通信或不可恢复 I/O 失败 | 作业级失败，避免 rank 分歧挂起 |
 
-当前 B4 已保存 actual time/next_dt，必须保留。下一阶段不把“收敛了”当成时间误差足够小：误差自适应需要独立估计器、接受准则、增长限制和历史处理；二阶格式需要统一修改固体位移恢复、ALE 速度、接口映射、材料链式系数和 checkpoint 历史。
+B4 已保存 actual time/next_dt，G5 已统一二阶时间的运动学、接口系数及 checkpoint 历史，见 [时间契约](../development/TIME_INTEGRATION.md)。误差估计式自适应仍未实现；非线性收敛不代表时间误差足够小。
 
 已实现的失败分类：局部域失败集体传播并排空部分装配，通过 PETSc domain-error 协议交给 SNES；默认 Newton 回溯在同一 dt 内恢复已通过 1/2 rank 检查。线性/PC 故障终止且输出顶层 SNES/KSP/PC reason，普通输入故障不缩步。递归原因报告已覆盖当前 FieldSplit、ASM/BJacobi、MG/GAMG 粗层和下平滑器，并保留 rank 与选项前缀；已补充顶层 KSP 累计耗时及按物理字段重新计算的线性残量；子层累计时间、独立 PC setup 时间和子 KSP 真实残量仍未实现。`solver_failures` 另覆盖单 rank 域拒绝前的远程残量插入、Jacobian 域拒绝、迭代耗尽和真实零主元 PC 失败。
 
@@ -255,7 +257,7 @@ manifest 记录格式版本、物理签名、布局/分区标识、accepted step
 
 已落地的最小增量（2026-10-29）：独立固体自动汇总已配置的边界标签，输出参考面积及全局 x/y/z 的面积平均位移/速度；反力仅输出该标签施加位移约束的分量。另用合并约束输出去重后的总支座反力，交线标签的各自反力不承诺可相加。平移双材料杆、旋转非单位杆和重叠约束在 1/2 rank 通过；现行契约归入 [B2 离散与算子](L2_DISCRETIZATION_AND_OPERATORS.md#区域与分量约束b2)。任意方向探针、当前面积选项与 FSI 观测扩展仍是后续设计。
 
-FSI 增加有方向的界面力和必要的功率检查。若交换的是结点积分力，`u_f=H v_s` 时配对 `f_s=-Hᵀ f_f`；若交换牵引密度，要包括面积/质量权重。比如离散内积矩阵为 M_f/M_s，则相容关系可写为 `M_s t_s=-Hᵀ M_f t_f`。守恒总力不自动保证力矩或离散功守恒，需按目标接口检验。[preCICE 映射语义](https://precice.org/docs/configuration/basics/mapping/)
+G5 已为共形 FSI 增加接口离散功率对照，alpha 日志明确标记 stage 量；更一般接口仍须检查有方向的力与功。若交换的是结点积分力，`u_f=H v_s` 时配对 `f_s=-Hᵀ f_f`；若交换牵引密度，要包括面积/质量权重。比如离散内积矩阵为 M_f/M_s，则相容关系可写为 `M_s t_s=-Hᵀ M_f t_f`。守恒总力不自动保证力矩或离散功守恒，需按目标接口检验。[preCICE 映射语义](https://precice.org/docs/configuration/basics/mapping/)
 
 所有应用共用简短运行摘要：代码 commit/dirty、构建与依赖版本、输入/分区标识、rank/线程、实际时间/步长、各字段残量、SNES/KSP/子 PC reason、主要物理量和分阶段成本。性能日志中的 assembly 若含 ghost/MatAssembly，则这些子项不能相加成总耗时。
 
@@ -315,4 +317,4 @@ MFEM/libCEED 若已拥有设备存储，不在外层复制另一套 Kokkos owner
 
 空间研究尽量压低时间误差；时间研究使用足够细空间网格，在相同物理时刻对比观测历程。BE 预期一阶，但只有进入渐近区后才能从数据判断阶数。若采用公开 FSI benchmark，先对齐维数、材料、边界、单位、时间格式和观测定义，不把 3D 挤出例与二维表值直接对照。
 
-二阶时间、非匹配界面、多拓扑与高阶的设计现已进入 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)，实现仍 deferred。六自由度、近不可压缩材料、跨 rank 恢复、分离式 preCICE、AMR/GPU 保持具体业务触发。各扩展需要独立算例和证据，均不属于当前 B5 或 PR #21 的实现声明。
+二阶时间及 Tri3/Quad4 二维标量已按 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) 交付；非匹配界面、三维混合体与高阶仍 deferred。六自由度、近不可压缩材料、跨 rank 恢复、分离式 preCICE、AMR/GPU 保持具体业务触发。各扩展需要独立算例和证据，均不属于当前 B5 或 PR #21 的实现声明。

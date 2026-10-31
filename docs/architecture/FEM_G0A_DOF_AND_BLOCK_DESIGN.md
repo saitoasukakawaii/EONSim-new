@@ -1,8 +1,8 @@
 # FEM-G0A：DoF 语义、存储排列与 FSI 分块接入设计
 
-日期：2026-10-30（Asia/Shanghai）。2026-10-31 合并更新：**设计与独立参考验证已审查合入，未实现 C++ 接入**。
+日期：2026-10-30（Asia/Shanghai）。2026-10-31 状态同步：**G0A 设计及参考验证已合入；后续 G0B/G0 已完成 C++/PETSc 接入并随 PR #23 交付**，见 [集成验收](../development/FEM_INTEGRATION_VALIDATION.md)。
 唯一源码基线：`f44c3e0e81f090637f6f21a7b63a9d12d3e30424`。
-本专题细化 [通用规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) §6–7/G0；以下接口和配置均为设计，当前程序不能直接读取。
+本专题细化 [通用规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) §6–7/G0；下文保留原设计接口，不能直接当成当前 API；实际可用配置与存储限制见 [DoF/PC 指南](../development/DOF_AND_PC_GROUPING.md)。
 
 ## 1. 基线、范围与决策
 
@@ -11,15 +11,15 @@ GitHub 只读查询 `repo:saitoasukakawaii/EONSim-new is:pr is:open` 返回空�
 设计阶段在本地 `docs/fem-g0a-dof-design` 工作，没有提交、推送、PR、远程构建操作。2026-10-31 用户追加授权提交并推送该设计分支；不创建 PR、不合并、不触发远程构建。未修改 `sources/` 同步参考文件。
 [基线记录](../research/data/fem-g0a-2026-10-30/baseline.json) 保存本次快照。
 
-2026-10-31 后续用户明确授权合并远程分支并清理多余分支。本次复核源提交 `b674d5a082173a695a0932c1f8f58f4e6563ff04`、重跑 20 项参考测试，并修复检查工具的 UTF-8 读取与 Windows CRLF 哈希误报；见 [合并清理记录](../development/BRANCH_CLEANUP_2026-10-31.md)。下文原始设计过程保留其当时状态；当前 FEM-G0A 设计子任务已交付，G0 的生产实现与真实数值验收仍未完成。
+2026-10-31 后续用户明确授权合并远程分支并清理多余分支。本次复核源提交 `b674d5a082173a695a0932c1f8f58f4e6563ff04`、重跑 20 项参考测试，并修复检查工具的 UTF-8 读取与 Windows CRLF 哈希误报；见 [合并清理记录](../development/BRANCH_CLEANUP_2026-10-31.md)。下文原始设计过程保留其当时状态；该合并检查点只交付 G0A 设计；G0 生产实现与数值验收已在后续 PR #23 完成。
 
 10 h 是工程量预算：基线 0.5、审计 1.5、接口 2、FSI/PETSc 2、参考验证 2、性能/切片 1、交叉审查 1 h。
 预算不是实际耗时；不以等待凑时，不报告“实际工作 10 小时”。
 本次只读源码/官方资料，写文档和标准库 Python；没有 CMake、编译器、CTest、MPI、EONSim、性能或网站构建。
-FEM-G0A 从 `in_progress` 转 `review`；FEM-G0 整体仍 deferred，其他 G 阶段没有启动。
+原设计提交时 FEM-G0A 从 `in_progress` 转 `review`，其余 G 阶段尚未启动；此为历史状态，不覆盖上方最新交付。
 
 历史证据不升级：[BRANCH-01](../development/BRANCH_INTEGRATION_2026-10-30.md) 只做合并期静态/脚本检查；
-[INFRA-01](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md) 的原分支 CI 对应其记录的提交，最终集成数值验收仍待执行，保持 review；
+[INFRA-01](../research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md) 的原分支 CI 对应其记录的提交，在原设计检查点最终集成数值验收仍待执行；后续已由 PR #23 补齐；
 [HPC-02](../research/FLUID_COO_ASSEMBLY_2026-10-30.md) 的独立流体 COO、历史 Release 故障与后续修复各有提交/环境边界，不能当作本设计或 FSI COO 的验证。
 
 确定的设计决策：

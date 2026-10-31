@@ -24,7 +24,7 @@ Newton 步解当前 Jacobian 对应的线性方程。固定非零模式不等于
 
 ## 性能证据
 
-本次未测性能。setup_seconds 不包含 system 构造，finalize_seconds 不包含返回时 SNES 析构；嵌套计时与各 rank 最大值不能直接相加。需要固定案例的重复测量后决定是否优化。
+本次未测性能。setup_seconds 不包含 system 构造，finalize_seconds 不包含返回时 SNES 析构；嵌套计时与各 rank 最大值不能直接相加。后续 [多步 setup 测量](multistep-setup-profile.md) 已完成，并继续暂缓持久化原型；本次源码审计本身不提供性能证据。
 
 ## 局限与参考资料
 

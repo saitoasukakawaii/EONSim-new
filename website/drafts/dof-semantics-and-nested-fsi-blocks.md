@@ -20,7 +20,7 @@ eonsimCommit: "f44c3e0e81f090637f6f21a7b63a9d12d3e30424"
 | 类别 | 本文依据 | 边界 |
 |---|---|---|
 | 理论 | 固定仿射映射的链式法则、置换关系、索引前缀和 | 不涉及状态相关约束的完整实现 |
-| 当前实现 | 固定 SHA 的 reduced_layout、fsi 与 schur_solver 源码 | 新语义接口和三种可选 recipe 尚未实现 |
+| 原设计基线实现 | 固定 SHA 的 reduced_layout、fsi 与 schur_solver 源码 | 该 SHA 尚无新接口；后续 G0B/G0 已接入三种 recipe，见 [实现草稿](semantic-blocks-and-parent-numbering.md) |
 | 验证 | 标准库 Python/Fraction 合成代数和分区索引测试 | 不是 MPI/PETSc 执行或 FSI 数值验收 |
 | 性能 | 专题给出复杂度与数组容量估算 | 无实测数据，无加速或扩展性结论 |
 

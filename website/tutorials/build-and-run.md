@@ -12,6 +12,8 @@
 - METIS、HDF5、BLAS/LAPACK 和 yaml-cpp；
 - Python 3（运行部分验证脚本需要）。
 
+日常主力环境锁定 PETSc 3.23.7、OpenMPI 5.0.8 和 GCC 15.3；可在 Linux x86-64-v3 上使用 `scripts/cloud/restore.sh 3.23.7` 与 `scripts/cloud/run.sh 3.23.7 debug core`。完整锁和要求见 [环境说明](https://github.com/saitoasukakawaii/EONSim-new/blob/main/environments/README.md)。PETSc 3.19.6 仅按需手动兼容验证。下面 presets 命令用于已配置匹配依赖的手工环境，编译并行度按资源调整。
+
 ## 2. Debug 构建
 
 在仓库根目录执行：

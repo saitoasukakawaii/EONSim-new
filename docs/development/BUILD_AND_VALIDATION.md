@@ -55,7 +55,7 @@ PETSc 调试构建与优化构建分别记录。应用 Debug 可在 ABI 相容�
 
 ### 从干净云机恢复与验证
 
-需要Linux x86_64云端主机、bash、curl、sha256sum、Git、系统CA，以及GitHub release和conda-forge下载权限。主锁要求x86-64-v3 CPU；建议至少4CPU、8GiB内存及12GiB可用磁盘。不要使用用户本地Windows/WSL作为本任务验证环境。
+需要Linux x86_64云端主机、bash、curl、sha256sum、Git、系统CA，以及GitHub release和conda-forge下载权限。主锁要求x86-64-v3 CPU；建议至少4CPU、8GiB内存及12GiB可用磁盘。云端与本地环境的验证证据分开记录；PR #23 另有用户授权的 WSL2 运行记录，不代表原生 Windows 已验证。
 
 ```bash
 git clone https://github.com/saitoasukakawaii/EONSim-new.git
@@ -78,7 +78,7 @@ scripts/cloud/run.sh 3.19.6 release mpi-failure /opt/eonsim-cloud
 
 入口复用原preset但以 `-B build/cloud-版本-模式` 隔离ABI，显式开启原PETSc provider及OpenBLAS。
 云入口同时显式设置 `EONSIM_VERIFY_LOCKED_RUNTIME=ON`，才注册仅适用于锁定 OpenMPI/32 位 PetscInt 的 `runtime_mpi` 探针。
-该选项默认 OFF；普通 `BUILD_TESTING=ON` 不附带锁定环境的 ABI 限制。启用探针时云端套件为 35 项，普通配置为原有 34 项。
+该选项默认 OFF；普通 `BUILD_TESTING=ON` 不附带锁定环境的 ABI 限制。PR #23 检查点启用探针时为 60 项，普通配置少一个 runtime_mpi。数量随源码和配置变化，执行前使用 `ctest --test-dir <构建目录> -N` 读取实际 inventory，不硬编码测试总数。
 清除编译器激活脚本的优化flags，让Debug/Release采用自身CMake标志；清除PYTHONOPTIMIZE以保留数值断言。
 编译线程取CPU affinity、可见cgroup v2当前组/祖先配额、内存每任务2GiB预算及上限4的最小值。
 当前未实现cgroup v1探测；这类部署应先迁移到v2或手工受控构建，不宣称已自动识别其配额。
@@ -132,7 +132,7 @@ GitHub Actions `core-numerics.yml` 在 main、codex 分支 Push 及 PR 上只运
 
 利用已有几何计算及残量规约完成这些检查，不为每个数组访问附加分支，不每次迭代扫描整张稀疏图，不创建多层 bool/status/exception 的重复包装。未实现功能在配置阶段明确报错，不静默退化到另一种方程、时间格式或松弛容差。
 
-首版默认失败即停止并保留已接受状态。以后确有长任务恢复需求时，增加有次数上限的时间步缩小/回退；不要先开发通用恢复策略管理器。
+默认 max_retries=0，失败停止并保留已接受状态；已实现可配置的有限缩步、G5 历史恢复与事件控制。错误是否可重试由具体驱动契约决定，不开发通用恢复策略管理器。
 
 ## 引入上游库时保持同一验证尺度
 
@@ -150,6 +150,8 @@ Doxygen 是可选开发工具，单独生成 HTML；不加入默认 build，也�
 
 
 ## 已执行的阶段交付验证
+
+最新功能交付见 [PR #23 集成验收](FEM_INTEGRATION_VALIDATION.md)：主锁 Debug/Release 各 60 项、兼容专项 13 项通过，最多 4 rank。这是归档结果，本次文档同步未重新运行。PR #24 后旧版不进入日常 CI。以下为历史基线。
 
 2026-10-29：Debug 和 Release 均通过 13 项 CTest，涵盖 Poisson、分布式布局、
 流体/固体/ALE、刚体/弹性/超弹性 FSI 的局部与总系统导数、接受状态、失败退出和重启。

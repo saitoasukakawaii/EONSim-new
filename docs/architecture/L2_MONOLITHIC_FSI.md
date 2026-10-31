@@ -1,10 +1,10 @@
 # L2：单体刚体与弹性体 FSI 的实现契约
 
-状态：采用，2026-10-29 更新。P5–P8 小算例、B3 独立共形双域及 B5 导数/求解扩展已有实现；下文区分当前能力与后续扩展。本项目的离散方案不代表上游项目采用同一离散。开发次序见 [路线与工作流程](../development/ROADMAP.md)，通用历史规则见 [多物理场与状态](L2_MULTIPHYSICS_AND_STATE.md)，进一步审查与方案见 [下一阶段详细设计](EONSIM_NEXT_STAGE_DESIGN.md)。
+状态：采用，2026-10-31 更新。P5–P8、B3/B5 及 G0 语义 PC、G5 时间扩展均已有实现；下文区分当前能力与后续扩展。本项目的离散方案不代表上游项目采用同一离散。开发次序见 [路线与工作流程](../development/ROADMAP.md)，通用历史规则见 [多物理场与状态](L2_MULTIPHYSICS_AND_STATE.md)，进一步审查与方案见 [下一阶段详细设计](EONSIM_NEXT_STAGE_DESIGN.md)。
 
 ## 目标和首版范围
 
-后续共形 trace 与非一致界面、K/W 映射、力/功传递及嵌套预条件详见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) §6–7；BDF2/generalized-α 见 §9。实现前保持本文件的 Tet4/BE 约定。坐标匹配不自动意味着不同空间可共享 DoF，人工 ALE 界面残量不作为结构力；共享 DoF 在普通 PC 分区树中只能有一个代数代表。
+后续共形 trace 与非一致界面、K/W 映射、力/功传递及嵌套预条件详见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) §6–7；BDF2/generalized-α 见 §9。本文件保留 Tet4/BE 的推导基线；G5 已实现的 BDF2/generalized-alpha 映射、共同 stage 与证据见 [时间契约](../development/TIME_INTEGRATION.md)。坐标匹配不自动意味着不同空间可共享 DoF，人工 ALE 界面残量不作为结构力；共享 DoF 在普通 PC 分区树中只能有一个代数代表。
 
 主线为独立流体、独立固体、**monolithic 刚体 FSI、monolithic 弹性体 FSI**。分离式 Dirichlet–Neumann、Aitken/IQN 等在主线交付后再做。“网格分区”指 MPI 数据分布，与“分离式耦合算法”不同。
 
@@ -39,7 +39,7 @@ ALE：x_m = X_m + d_m
      w_m = (d_m - d_m,n) / dt
 ```
 
-上述选择是 BE 下的方案，不能直接照搬到 generalized-α/BDF2。二阶时间格式在首个单体弹性 FSI 基线完成后再引入，届时同时更新各场、接口和切线链式系数。BE 有数值耗散；当前案例不据此声称二阶精度或精确保能。
+上述选择是 BE 下的方案，不能直接照搬到 generalized-α/BDF2。G5 的二阶扩展已同步更新各场、接口和切线链式系数，不能将下面的 BE 公式直接用于它们。BE 有数值耗散；BE 案例不据此声称二阶精度或精确保能。
 
 用 I 表示未被本质边界或接口运动学消元的流体/ALE 自由 DoF，Γ 表示界面：
 
@@ -164,7 +164,7 @@ checkpoint 只保存整体已接受 BE 状态，暂限同 rank/同分区恢复�
 
 ## B5：默认一致 ALE 切线
 
-B5 已将流体/ALE 默认局部中心差分替换为解析几何导数加前向链式传播；`-fsi_fd_tangent` 可显式选择旧参考。体积、形函数梯度、对流网格速度和压力面积都对同一 trial 状态求导，tau 仍按 accepted 速度与本次 dt 冻结。接口消元及 BE 系数继续作用于该完整切线。
+B5 已将流体/ALE 默认局部中心差分替换为解析几何导数加前向链式传播；`-fsi_fd_tangent` 可显式选择旧参考。体积、形函数梯度、对流网格速度和压力面积都对同一 trial 状态求导，tau 仍按 accepted 速度与本次 dt 冻结。接口消元及所选时间格式的链式系数继续作用于该完整切线。
 
 `-schur_pc` 保留统一 SNES 与共同提交，只改变线性预条件。`schur_verification` 对独立流体、独立双域 FSI、旧刚体和 Neo-Hookean FSI 做整体直接解与 1/2/4 rank Schur 对照。新切线与差分轨迹、局部方向导数和既有全局 Jv 均验证。
 
