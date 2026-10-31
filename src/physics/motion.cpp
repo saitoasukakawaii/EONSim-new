@@ -10,9 +10,11 @@ void validate(const RigidParameters& p,double dt) {
        !std::isfinite(p.mass+p.damping+p.stiffness+dt)) throw std::runtime_error("Invalid rigid parameters");
 }
 }
-double rigid_residual(const RigidParameters& p,const RigidState& old,double dt,double v,double force) {
+double rigid_residual(const RigidParameters& p,const RigidState& old,double dt,double v,double force,double displacement_dt) {
     validate(p,dt);
-    return p.mass*(v-old.velocity)/dt+p.damping*v+p.stiffness*(old.position+dt*v)-force;
+    if(displacement_dt<0||!std::isfinite(displacement_dt)) throw std::runtime_error("Invalid rigid displacement coefficient");
+    const double chain=displacement_dt>0?displacement_dt:dt;
+    return p.mass*(v-old.velocity)/dt+p.damping*v+p.stiffness*(old.position+chain*v)-force;
 }
 RigidState rigid_step(const RigidParameters& p,const RigidState& old,double dt,double force) {
     validate(p,dt);

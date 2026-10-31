@@ -1,5 +1,6 @@
 #include "eonsim/solid.hpp"
 #include "eonsim/time_step.hpp"
+#include "eonsim/time_integration.hpp"
 #include "eonsim/regions.hpp"
 #include "eonsim/fluid_boundary.hpp"
 #include "eonsim/boundary_geometry.hpp"
@@ -15,6 +16,11 @@ namespace eonsim {
 SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& config)
 {
     const auto& s=config.solid;
+    const bool bdf2=config.time_integration.scheme==TimeScheme::bdf2;
+    const bool alpha=config.time_integration.scheme==TimeScheme::generalized_alpha;
+    bool alpha_ready=false;
+    if(bdf2&&!s.transient) throw std::runtime_error("BDF2 requires transient solid");
+    if(alpha&&!s.transient) throw std::runtime_error("generalized_alpha requires transient solid");
     const bool tagged=!s.boundaries.empty();
     const auto materials=cell_materials(comm,mesh,s.regions,SolidMaterial{s.young,s.poisson,s.density,s.neo_hookean});
     const auto layout=make_field_layout(mesh,Tet4Vector::components,{{"structure",{0,1,2}}});
@@ -48,34 +54,78 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     for(int v:global_tags) if(!v) throw std::runtime_error("Solid boundary missing");
     }
     SolidResult result;
+    TimeHistory displacement_history(bdf2?displacement.size():0),velocity_history(bdf2?velocity.size():0);
     double previous_energy=0;
     std::vector<double> signature_parameters{double(s.neo_hookean),s.young,s.poisson,s.density,s.traction,s.dt};
     for(const auto& r:s.regions) signature_parameters.insert(signature_parameters.end(),{double(r.first),r.second.young,r.second.poisson,r.second.density,double(r.second.neo_hookean)});
     if(tagged) { FluidConfig f; f.boundaries=s.boundaries; const auto values=fluid_boundary_signature(f); signature_parameters.insert(signature_parameters.end(),values.begin(),values.end()); }
+    if(bdf2) signature_parameters.insert(signature_parameters.end(),{20501.,2.});
+    if(alpha) signature_parameters.insert(signature_parameters.end(),{20501.,3.,config.time_integration.rho_infinity});
+    if(!config.time_control.events.empty()) {
+        signature_parameters.push_back(20502.);
+        signature_parameters.insert(signature_parameters.end(),config.time_control.events.begin(),config.time_control.events.end());
+    }
+    if(!config.time_control.step_sizes.empty()) {
+        signature_parameters.insert(signature_parameters.end(),{20504.,double(config.time_control.step_sizes.size())});
+        signature_parameters.insert(signature_parameters.end(),config.time_control.step_sizes.begin(),config.time_control.step_sizes.end());
+    }
     const auto signature=state_signature(mesh,tagged?"solid_tagged":"solid",signature_parameters);
     int first=0;
     TimeStepper clock(s.dt,s.steps,config.time_control);
     if(!config.restart.empty()) {
-        const auto saved=read_checkpoint(config.restart,mesh,signature,{{"displacement",displacement.size()},
-            {"velocity",velocity.size()},{"acceleration",acceleration.size()},{"energy",1}});
+        std::map<std::string,std::size_t> sizes{{"displacement",displacement.size()},
+            {"velocity",velocity.size()},{"acceleration",acceleration.size()},{"energy",1}};
+        if(bdf2) { sizes["previous_displacement"]=displacement.size(); sizes["previous_velocity"]=velocity.size(); sizes["time_metadata"]=1; }
+        if(alpha) sizes["time_metadata"]=1;
+        const auto saved=read_checkpoint(config.restart,mesh,signature,sizes);
         displacement=saved.fields.at("displacement"); velocity=saved.fields.at("velocity");
         acceleration=saved.fields.at("acceleration"); previous_energy=saved.fields.at("energy")[0]; first=saved.step+1;
         clock.restore(saved.step,saved.time,saved.next_dt);
+        if(bdf2) {
+            displacement_history.previous=saved.fields.at("previous_displacement");
+            velocity_history.previous=saved.fields.at("previous_velocity");
+            const double previous_dt=saved.fields.at("time_metadata")[0];
+            if(previous_dt<0||previous_dt>saved.time||(previous_dt==0&&saved.step>0&&!clock.at_event()))
+                throw std::runtime_error("Invalid BDF2 solid checkpoint history step");
+            displacement_history.previous_dt=velocity_history.previous_dt=previous_dt;
+        }
+        if(alpha) {
+            const double ready=saved.fields.at("time_metadata")[0];
+            if((ready!=0&&ready!=1)||(ready==0&&saved.step>0&&!clock.at_event())) throw std::runtime_error("Invalid alpha solid checkpoint history");
+            alpha_ready=ready==1;
+        }
         if(!clock.active(config.stop_after)) throw std::runtime_error("Restart must precede requested final step");
     }
     int step=first;
     NonlinearSystem system(comm,layout);
     while(step==0 || (s.transient&&clock.active(config.stop_after))) {
+        if(bdf2&&velocity_history.previous_dt>0) clock.next_dt=std::min(clock.next_dt,2*velocity_history.previous_dt);
         const double dt=step?clock.dt():0,time=clock.time+dt;
+        const auto derivative=step?time_derivative(alpha?TimeScheme::backward_euler:config.time_integration.scheme,dt,velocity_history.previous_dt):TimeDerivative{};
+        const bool alpha_step=alpha&&alpha_ready&&step;
+        const AlphaStep alpha_map(step?dt:s.dt,config.time_integration.rho_infinity,true);
+        const double integration_dt=alpha_step?alpha_map.effective_dt():derivative.effective_dt;
+        const double displacement_dt=alpha_step?alpha_map.displacement_dt():integration_dt;
+        auto effective_d=bdf2&&step?displacement_history.reference(displacement,derivative):std::vector<double>{};
+        auto effective_v=bdf2&&step?velocity_history.reference(velocity,derivative):std::vector<double>{};
+        if(alpha_step) {
+            effective_d=displacement; effective_v=velocity;
+            for(std::size_t i=0;i<displacement.size();++i) {
+                effective_d[i]=alpha_map.displacement_reference(displacement[i],velocity[i],acceleration[i]);
+                effective_v[i]=alpha_map.reference(velocity[i],acceleration[i]);
+            }
+        }
+        const auto& reference_d=(bdf2&&step)||alpha_step?effective_d:displacement;
+        const auto& reference_v=(bdf2&&step)||alpha_step?effective_v:velocity;
         try {
-        const auto parameters=[&](std::size_t e) { const auto& m=materials[e]; return SolidParameters{m.young,m.poisson,m.density,dt,m.neo_hookean}; };
+        const auto parameters=[&](std::size_t e) { const auto& m=materials[e]; return SolidParameters{m.young,m.poisson,m.density,integration_dt,m.neo_hookean,displacement_dt}; };
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
             for(std::size_t e=0;e<mesh.cells.size();++e) {
                 Tet4Vector::State<double> state,dn,vn;
                 Tet4Vector::State<PetscInt> ids;
                 for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) {
                     const auto n=Tet4Vector::components*mesh.cells[e].nodes[a]+c;
-                    state[Tet4Vector::components*a+c]=x[n]; dn[Tet4Vector::components*a+c]=displacement[n]; vn[Tet4Vector::components*a+c]=velocity[n]; ids[Tet4Vector::components*a+c]=layout.local_to_global[n];
+                    state[Tet4Vector::components*a+c]=x[n]; dn[Tet4Vector::components*a+c]=reference_d[n]; vn[Tet4Vector::components*a+c]=reference_v[n]; ids[Tet4Vector::components*a+c]=layout.local_to_global[n];
                 }
                 const auto local=solid_element(geometry[e],parameters(e),state,dn,vn,j!=nullptr);
                 EONSIM_PETSC(VecSetValues(r,Tet4Vector::dofs,ids.data(),local.residual.data(),ADD_VALUES));
@@ -97,10 +147,12 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         auto next_d=displacement,next_v=velocity,next_a=acceleration;
         if(step) {
             for(std::size_t n=0;n<displacement.size();++n) {
-                next_a[n]=(result.nonlinear.values[n]-velocity[n])/dt;
-                next_d[n]+=dt*result.nonlinear.values[n];
+                const double stage=result.nonlinear.values[n];
+                next_a[n]=alpha_step?alpha_map.endpoint_rate(velocity[n],acceleration[n],stage):(stage-reference_v[n])/integration_dt;
+                const double stage_d=reference_d[n]+displacement_dt*stage;
+                next_d[n]=alpha_step?alpha_map.endpoint(displacement[n],stage_d):stage_d;
+                next_v[n]=alpha_step?alpha_map.endpoint(velocity[n],stage):stage;
             }
-            next_v=result.nonlinear.values;
         } else next_d=result.nonlinear.values;
         double local[2]{},energy[2]{};
         for(std::size_t e=0;e<mesh.cells.size();++e) {
@@ -117,22 +169,70 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         MPI_Allreduce(local,energy,2,MPI_DOUBLE,MPI_SUM,comm);
         result.strain_energy=energy[0]; result.kinetic_energy=energy[1];
         const double total=energy[0]+energy[1];
-        if(step && total>previous_energy+1e-9*std::max(1.,previous_energy))
+        if(!std::isfinite(total)||energy[0]<-1e-12||energy[1]<-1e-12) throw StepRejected("Invalid solid energy");
+        // BE has monotone physical energy for the unloaded problem. BDF2's
+        // stability is in a history-dependent norm, not this instantaneous sum.
+        if(step && !bdf2 && !alpha && total>previous_energy+1e-9*std::max(1.,previous_energy))
             throw StepRejected("Unloaded BE solid gained energy");
+        if(bdf2&&step) { displacement_history.commit(displacement,dt); velocity_history.commit(velocity,dt); }
         displacement=std::move(next_d); velocity=std::move(next_v); acceleration=std::move(next_a);
+        if(alpha&&step) alpha_ready=true;
         previous_energy=total;
         if(step) clock.accept();
-        if(!config.checkpoint.empty()) write_checkpoint(comm,config.checkpoint,mesh,signature,{step,
-            {{"displacement",displacement},{"velocity",velocity},{"acceleration",acceleration},{"energy",{total}}},clock.time,clock.next_dt});
+        if(bdf2&&clock.at_event()) displacement_history.previous_dt=velocity_history.previous_dt=0;
+        if(alpha&&clock.at_event()) alpha_ready=false;
+        if(!config.checkpoint.empty()) {
+            Checkpoint saved{step,{{"displacement",displacement},{"velocity",velocity},{"acceleration",acceleration},{"energy",{total}}},clock.time,clock.next_dt};
+            if(bdf2) {
+                saved.fields["previous_displacement"]=displacement_history.previous;
+                saved.fields["previous_velocity"]=velocity_history.previous;
+                saved.fields["time_metadata"]={velocity_history.previous_dt};
+            }
+            if(alpha) saved.fields["time_metadata"]={alpha_ready?1.:0.};
+            write_checkpoint(comm,config.checkpoint,mesh,signature,saved);
+        }
         if(mesh.rank==0) std::cout << std::setprecision(16) << "solid_step=" << step << " time=" << time
+            << " evaluation_time=" << (alpha_step?time-(1-alpha_map.p.alpha_f)*dt:time)
             << " strain_energy=" << energy[0] << " kinetic_energy=" << energy[1]
-            << " total_energy=" << total << " residual=" << result.nonlinear.residual_norm << '\n';
+            << " total_energy=" << total << " residual=" << result.nonlinear.residual_norm
+            << " time_order=" << (step?(alpha_step?2:derivative.order):0) << '\n';
         step=clock.step+1;
         } catch(const StepRejected& error) {
             if(step==0) throw;
             clock.reject(error.what());
             if(mesh.rank==0) std::cout << "step_retry=" << clock.retries << " time=" << clock.time << " next_dt=" << clock.next_dt << '\n';
         }
+    }
+    const auto stage_residual=result.nonlinear.raw_residual;
+    auto output_acceleration=acceleration;
+    if(alpha) {
+        // The generalized-alpha history acceleration is algorithmic; for
+        // gamma!=1/2 it is not a second-order endpoint physical acceleration.
+        // Recover the latter from M*a+f_int(d)=0 at the accepted endpoint.
+        const auto assemble_acceleration=[&](const std::vector<double>& x,Vec r,Mat j) {
+            for(std::size_t e=0;e<mesh.cells.size();++e) {
+                Tet4Vector::State<double> d,residual{};
+                Tet4Vector::Matrix<double> matrix{};
+                Tet4Vector::State<PetscInt> ids;
+                for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) {
+                    const auto n=Tet4Vector::dof(mesh.cells[e].nodes[a],c),i=Tet4Vector::dof(a,c);
+                    d[i]=displacement[n]; ids[i]=layout.local_to_global[n];
+                }
+                const auto& material=materials[e];
+                residual=solid_element(geometry[e],{material.young,material.poisson,material.density,0,material.neo_hookean},d,{},{},false).residual;
+                for(int a=0;a<Tet4Topology::nodes;++a) for(int b=0;b<Tet4Topology::nodes;++b) for(int c=0;c<Space3::dimension;++c) {
+                    const double mass=material.density*geometry[e].volume*Tet4Topology::mass_weight(a,b);
+                    const auto row=Tet4Vector::dof(a,c),col=Tet4Vector::dof(b,c);
+                    residual[row]+=mass*x[Tet4Vector::dof(mesh.cells[e].nodes[b],c)];
+                    matrix[Tet4Vector::matrix(row,col)]+=mass;
+                }
+                EONSIM_PETSC(VecSetValues(r,Tet4Vector::dofs,ids.data(),residual.data(),ADD_VALUES));
+                if(j) EONSIM_PETSC(MatSetValues(j,Tet4Vector::dofs,ids.data(),Tet4Vector::dofs,ids.data(),matrix.data(),ADD_VALUES));
+            }
+        };
+        const auto endpoint=system.solve(config.solver,acceleration,bc,std::vector<double>(bc.size(),0),assemble_acceleration);
+        output_acceleration=endpoint.values;
+        result.nonlinear.raw_residual=endpoint.raw_residual;
     }
     if(tagged) {
         // 每标签依次存面积、位移积分、速度积分、反力；尾部为去重后的总支座反力。
@@ -193,8 +293,12 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     MPI_Allreduce(&tip,&global_tip,1,MPI_DOUBLE,MPI_SUM,comm);
     result.displacement_error=global[0]; result.reaction_x=global[1]; result.tip_displacement=global[2]>0?global_tip/global[2]:0;
     }
-    result.fields={{"displacement",Space3::dimension,displacement},{"velocity",Space3::dimension,velocity},{"acceleration",Space3::dimension,acceleration},
+    result.fields={{"displacement",Space3::dimension,displacement},{"velocity",Space3::dimension,velocity},{"acceleration",Space3::dimension,output_acceleration},
                    {"momentum_residual",Space3::dimension,result.nonlinear.raw_residual}};
+    if(alpha) {
+        result.fields.push_back({"algorithmic_acceleration",Space3::dimension,acceleration});
+        result.fields.push_back({"stage_momentum_residual",Space3::dimension,stage_residual});
+    }
     return result;
 }
 }

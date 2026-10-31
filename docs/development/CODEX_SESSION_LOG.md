@@ -2,6 +2,57 @@
 
 本文件记录有实质代码、算法、验证或知识产出的开发会话。只记录事实，不写无法复现的“已优化”“性能显著提升”等结论。
 
+## 2026-10-31 / G5 — generalized-alpha ALE与单体FSI
+
+- 以25e0945为基线，独立alpha云端CI三环境成功。共同af、一阶流体/二阶运动学、各自算法历史接入单体残量和checkpoint；明确stage力/功率输出。
+- 新增提交前端点几何检查，rank局部失效先allreduce再共同拒绝。
+- 主锁Debug10项针对性CTest全部通过（324.63秒），rho=0/0.5/1的速度/压力/位移趋二阶，整体J差分约1.8e-9；1/2/4rank完整历史、事件重启、接口运动与功率通过。
+- 首次极小步重试对照因时间戳相减及接口位移消减而算法网格加速度不一致；改为17位实际步长重放、接口直接共享stage速度，保持原容差后通过。
+- ALE rho0.5粗步启动误差抵消，改用更细同问题网格时间步进入渐近区；未改阶数阈值。
+- ALE补充实测stage有效/endpoint反转，坏单元rank分布3/1/2/0；缩步恢复与失败checkpoint哈希不变通过。FSI独立端点反转分支仅审查，未直接触发。
+- 独立审查两轮无剩余源码阻塞项；更新知识草稿，未发布。证据alpha-coupled.json。继续G1，G5最终集成验收与整体主线交付仍待完成。
+
+## 2026-10-31 / G5 — 独立场generalized-alpha
+
+- BDF2耦合检查点`bab4fda`云端CI三环境成功（run41192856614）。
+- 核对PETSc3.23.7 alpha1/alpha2版本源码、一阶原始预印本§3–4与压力评价论文。Chung1993出版社全文403，仅核实出版信息，不声称读过全文。
+- 新时刻权重参数分别实现一阶流体与二阶结构；独立stage速度/压力、端点恢复、完整算法历史及rho checkpoint。接受一个BE启动步的策略明确不同于PETSc探测启动。
+- 结构惯性q与位移beta*h/gamma分离；局部线弹性/Neo-Hookean方向导数通过。物理端点加速度由卸载模型一致质量方程恢复，算法加速度独立输出/保存。
+- 独立审查发现stage残量与端点输出混用风险，已将流体字段命名stage_momentum_residual，结构保留stage字段但端点反力/残量使用质量恢复方程，日志标记evaluation_time。
+- 主锁Debug7项针对性CTest全部通过，26.82秒CTest墙钟；包括rho=0/0.5/1的真实流体早期/终点速度与压力阶、结构位移/速度/物理加速度阶、rho=1启动后能量保持、阻尼、1/2/4rank、事件checkpoint、算法历史和真实拒绝。
+- [alpha-standalone.json](../research/data/fem-integration-2026-10-31/alpha-standalone.json)保留实际源码/二进制、命令、退出码和结果。alpha ALE/FSI尚未接入并明确拒绝；G5不关闭，继续下一增量。
+
+## 2026-10-31 / G5 — BDF2 ALE与单体FSI
+
+- 独立场提交`c923387`的云端CI三环境成功（run41181938354）。
+- FSI流体惯性、结构/刚体位置与加速度、ALE网格速度、reduced.slot位移试探列和lifting统一使用当前BDF2映射；各层历史只在共同接受后提交。
+- ALE新增同分区checkpoint，保存当前与前一流体/网格状态及步长；重试重建trial几何不污染accepted。
+- 独立审查指出测试遗漏压力MPI/重启与非均匀接口功率，已补齐。接口功率按全分量离散残量与共享速度内积计算，不声称总能量守恒。
+- 主锁Debug6项针对性CTest全部通过，138.35秒CTest墙钟；包括3个新验收和旧motion/刚体FSI/弹性FSI回归。整体Jacobian差分相对误差约1.4e-9，MPI最多4rank。
+- 弹性FSI压力阶1.86/1.97、刚体压力阶2.00/2.02，速度与网格位移趋近2；粗时间步压力未达门槛后保持物理问题和容差继续细化。ALE网格速度BE阶0.95/0.98、BDF2阶2.02/2.01，均匀/剪切流保持及重启通过。
+- 高压超弹性真实拒绝压力测试：从两步accepted检查点限制Newton为2次，15次缩步后以原容差接受下一BDF2步，并与无拒绝相同轨迹一致。测试显式允许16次重试，只推进一个恢复步；不作为实用步长建议。原8次上限耗尽的结果不是生产回归；3次Newton上限没有触发拒绝，未拿它替代恢复证据。
+- [bdf-coupled.json](../research/data/fem-integration-2026-10-31/bdf-coupled.json)保存实际源码/二进制/日志哈希、命令、退出码和数值结果。G5仍未关闭，继续generalized-alpha；G1未实施。
+
+## 2026-10-31 / G5 — 独立流体和固体BDF2增量
+
+- 从`e9e4d30`继续；该G0补强提交云端三环境CI成功（run41180022722）。
+- 统一BE/BDF2导数映射、实际历史步长、比率上限2、事件后启动、两层accepted checkpoint；独立固体位移重建同步使用当前格式。
+- 真实流体首次320步测试暴露累计舍入制造极短末步，时间控制器补偿求和修复，320/10000步oracle通过。
+- 独立审查指出步长相关tau使时间加密同时改变空间离散；新增显式固定tau并保持旧BE默认。压力驱动实测速度/压力BDF2阶约2；不是Python参考替代生产验证。
+- 固体粗步未进入渐近区，保持问题和门槛继续细化，位移/速度/加速度BDF2阶接近2。没有声称非线性材料阶数或BDF2逐步物理能量单调。
+- 主锁Debug编译退出0；针对性CTest9项全部通过，42.23秒CTest墙钟。选择包含time_integration、fluid/solid_time_verification、fluid/solid_element_jacobian、time_retry_verification、restart_block_verification、fluid/solid_verification。
+- 新测试覆盖变步长、1/2/4rank、事件处重启、最后短步、BDF2启动后的真实Newton拒绝与同轨迹对照；签名拒绝更换积分器/候选步计划。独立审查公式与状态无阻塞缺陷，建议的schedule签名已补齐。
+- [证据清单](../research/data/fem-integration-2026-10-31/bdf-standalone.json)记录实际dirty源码哈希、基线SHA、二进制哈希、命令、退出码及结果；不是把新结果归给旧提交。新增知识草稿保持draft。
+- G5未关闭，后续继续ALE/FSI及两类generalized-alpha，G1尚未实施；此处只记录可复现增量。
+
+## 2026-10-31 / FEM-INTEGRATION — 从已合入的G0检查点接续
+
+- fetch核实main为47b5bd46c992fcf64cf163361053ceb0091fa5a5，工作区起始干净，无开放PR；建立codex/fem-time-mesh。
+- 读取主线CI作业日志，主锁Debug/Release各43项、旧锁Release 10项均成功；独立审查核对原g0.json的100份源码哈希全部匹配。
+- 本轮明确追加授权WSL2开发验证、CI云端复验。两套仓库依赖锁成功恢复；主锁Debug编译与链接检查通过。首次MPI预检被沙箱socket策略拒绝，沙箱外同命令预检与完整43项通过。
+- G0补强真实J/R跨rank置换、已知离散解与真实Newton右端检查，三recipe物理量及压力规范对照；独立审查发现辅助PREONLY失败分叉并修复为共同拒绝。
+- 当前Release/兼容检查、受控性能、新提交CI尚待完成。整体任务继续，未将G5/G1标记完成。
+
 ## 2026-10-30 — ARCH-01 — 通用 FEM 架构与上游学习规划
 
 - 用户要求审查 EONSim-new，并进一步规划多网格/空间、边界、非一致界面、DoF/预条件、时间格式与高性能执行；明确暂不开发、不编译。本轮遵守此范围。
@@ -273,3 +324,19 @@
 - quantity首次失败定位为原始压力块AMG粗层问题，固定使用Jacobi后通过；没有改变物理方程、精度门槛或超时。独立审查指出并修正rank局部输入错误、子KSP数组生命周期、Schur命名options漏检、零初态配置绕过与PC负例假通过条件。
 - 权限：仓库API报告push可用，main保护规则读取403（integration缺少该端点权限）；尚未尝试合并或绕过规则。正式PR等待全部阶段完成。
 - 下一步：保存并推送经验证G0检查点，检查CI，随后统一时间映射/accepted历史，从BE迁移进入G5。预计工程量不是实际耗时。
+
+- 接续验证：主锁Release完整43项通过；旧锁三recipe补验3项通过。主锁Debug及旧锁Release新增奇异诊断失败/恢复10项均通过。性能两算例/1、2、4rank/四模式/三重复共72样本，最大场差3.307e-12，直接解在此小问题中solve中位数较低。证据入g0-supplement.json及pc-recipes-benchmark.json。
+- 使用知识采集Skill生成真实装配置换与PC验收草稿并登记；尚未发布。当前准备提交推送检查点并进行新提交云端CI，之后进入G5。
+
+## 2026-10-31 / FEM-INTEGRATION — G5与G1最终集成
+
+- 用户明确授权WSL2真实构建/MPI，并由云端CI复验；继续使用两套Linux显式依赖锁、原presets与恢复入口，没有另建构建系统。实际资源24逻辑CPU、约32GiB，编译并发4、每rank数学库单线程。
+- G5依次推送c923387（独立BDF2）、bab4fda（ALE/FSI BDF2）、25e0945（独立一阶/二阶alpha）、2fcd2fd（共同stage ALE/FSI alpha）；四个检查点云端三环境CI均成功。局部/整体切线、速度/压力/结构与网格时间阶、能量/阻尼、接口运动与功、事件/拒绝/完整历史重启见阶段JSON，不能将BE启动或参考ODE单独当作FSI精度证据。
+- G1增加独立规范化导入层、Gmsh4.1 ASCII子集、Tri3/P1与Quad4/Q1相容混合二维标量Poisson/扩散；贯通命名材料和D/N/Robin、纯Neumann、METIS/owned/ghost/AIJ、G5时间与checkpoint、VTU/PVTU/PVD。二维分区版本3，三维保留版本2及旧Tet4读取。
+- 独立审查发现并修复导入partition tags静默丢弃、名称维数检查、线性PC局部失败集体传播、不连通域零空间和restart输出时间片覆盖。新布局配置独立声明固定语义/存储策略；不把PC树变化或诊断MatPermute称为生产排列。
+- 数值检查包括独立解析Q1质量/刚度、角点反转、外部编号/方向、三拓扑patch/MMS/畸变/边界法向通量、双材料、纯Neumann、空间与时间加密、1/2/4rank重启和真实失败恢复。对称矩阵成对计算消除极小步长舍入导致的假非对称；未降低rank、放宽容差或延长失败超时。
+- 配置补充前主锁Debug/Release各59项及兼容13项通过；这份中间证据保留于build/pre-layout-policy-evidence。配置补充后的最终清单为主锁各60项、兼容13项，运行结束结果与源码哈希归档fem-final.json；不将中间结果冒充最终通过。
+- 使用eonsim-knowledge-capture生成二维规范化/双线性单元草稿并登记，所有文章仍在website/drafts。当前环境没有node，本地网站命令未运行成功；网站构建及草稿隔离交由PR云端检查。Markdown本地链接检查通过。
+- 最终主线与PR状态以后续交付记录为准；G2/G4仅实施必要子集，其余阶段不关闭。未测二维性能，也未把G0原检查点72样本性能结果归到新源码。
+
+- 最终配置补充后Debug60/60、Release60/60、兼容13/13全通过；CTest墙钟574.87/213.11/18.50秒。fem-final.json保存109份源码哈希和实际清单，独立审查无确定源码阻塞；准备最终G1提交、PR及云端验证。

@@ -52,6 +52,24 @@ void LinearSystem::constrain(const std::vector<PetscInt>& dofs, const std::vecto
     EONSIM_PETSC(MatZeroRowsColumns(matrix_.get(), n, dofs.data(), 1.0, work_.get(), rhs_.get()));
 }
 
+void LinearSystem::constant_nullspace(double tolerance)
+{
+    if(!(tolerance>0)||!std::isfinite(tolerance)) throw std::runtime_error("Invalid nullspace compatibility tolerance");
+    PetscScalar sum=0; PetscReal norm=0;
+    EONSIM_PETSC(VecSum(rhs_.get(),&sum));
+    EONSIM_PETSC(VecNorm(rhs_.get(),NORM_1,&norm));
+    if(std::abs(sum)>tolerance*std::max(1.,norm))
+        throw std::runtime_error("Incompatible pure Neumann load: integral source plus outward flux is nonzero");
+    PetscOwner<MatNullSpace,MatNullSpaceDestroy> nullspace;
+    EONSIM_PETSC(MatNullSpaceCreate(communicator_,PETSC_TRUE,0,nullptr,nullspace.put()));
+    PetscBool valid=PETSC_FALSE;
+    EONSIM_PETSC(MatNullSpaceTest(nullspace.get(),matrix_.get(),&valid));
+    if(!valid) throw std::runtime_error("Constant vector is not an operator nullspace");
+    EONSIM_PETSC(MatSetNullSpace(matrix_.get(),nullspace.get()));
+    EONSIM_PETSC(MatSetTransposeNullSpace(matrix_.get(),nullspace.get()));
+    EONSIM_PETSC(MatNullSpaceRemove(nullspace.get(),rhs_.get()));
+}
+
 LinearResult LinearSystem::solve(const SolverConfig& config, bool full_diagnostics)
 {
     if (full_diagnostics) {
@@ -80,10 +98,18 @@ LinearResult LinearSystem::solve(const SolverConfig& config, bool full_diagnosti
             EONSIM_PETSC(PCFieldSplitSetIS(preconditioner, field.first.c_str(), indices.get()));
         }
     }
-    EONSIM_PETSC(KSPSolve(solver.get(), rhs_.get(), solution_.get()));
-    KSPConvergedReason reason;
-    EONSIM_PETSC(KSPGetConvergedReason(solver.get(), &reason));
-    if (reason <= 0) throw std::runtime_error(std::string("Linear solve did not converge: ") + KSPConvergedReasons[reason]);
+    const auto solve_error=KSPSolve(solver.get(), rhs_.get(), solution_.get());
+    KSPConvergedReason reason=KSP_CONVERGED_ITERATING;
+    PCFailedReason pc_failure=PC_NOERROR;
+    const auto reason_error=KSPGetConvergedReason(solver.get(), &reason);
+    const auto pc_error=PCGetFailedReason(preconditioner,&pc_failure);
+    // In PETSc 3.19 PREONLY, a PC failure may yield rank-local reasons.
+    // All ranks decide before any residual/ghost collective or exception.
+    int flags[2]{reason_error||pc_error||(solve_error&&solve_error!=PETSC_ERR_NOT_CONVERGED),
+                 solve_error||reason<=0||pc_failure!=PC_NOERROR},global_flags[2]{};
+    MPI_Allreduce(flags,global_flags,2,MPI_INT,MPI_MAX,communicator_);
+    if(global_flags[0])throw std::runtime_error("Collective linear solver API failure");
+    if(global_flags[1])throw LinearSolveFailure(std::string("Linear solve did not converge: ")+KSPConvergedReasons[reason]+" pc_reason="+std::to_string(pc_failure));
     LinearResult result;
     result.reason = KSPConvergedReasons[reason];
     EONSIM_PETSC(KSPGetIterationNumber(solver.get(), &result.iterations));
@@ -94,7 +120,7 @@ LinearResult LinearSystem::solve(const SolverConfig& config, bool full_diagnosti
     EONSIM_PETSC(VecNorm(rhs_.get(), NORM_2, &result.rhs_norm));
     const double tolerance = std::max(result.absolute_tolerance, result.relative_tolerance * result.rhs_norm);
     if (!std::isfinite(result.true_residual) || !std::isfinite(result.rhs_norm) || result.true_residual > tolerance)
-        throw std::runtime_error("True residual does not satisfy the configured linear solve tolerance");
+        throw LinearSolveFailure("True residual does not satisfy the configured linear solve tolerance");
     const char *ksp = nullptr, *pc = nullptr;
     EONSIM_PETSC(KSPGetType(solver.get(), &ksp));
     EONSIM_PETSC(PCGetType(preconditioner, &pc));

@@ -33,7 +33,7 @@ AlgebraLayout make_field_layout(const MeshPartition& mesh, int components,
     }
     for(std::size_t n=0;n<mesh.owned_nodes;++n) for(const auto& meaning:meanings)
         layout.owned_semantics.push_back({mesh.nodes[n].global_id,meaning.domain,meaning.quantity,
-            DofEntity::vertex,meaning.component,0,1});
+            DofEntity::vertex,meaning.component,0,meaning.space});
     return layout;
 }
 } // namespace eonsim

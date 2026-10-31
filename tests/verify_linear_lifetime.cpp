@@ -7,10 +7,16 @@
 using namespace eonsim;
 namespace {
 int created = 0, destroyed = 0;
+bool fail_pc=false;
 void require(bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
 }
-PetscErrorCode apply(PC, Vec x, Vec y) { return VecCopy(x, y); }
+PetscErrorCode apply(PC pc, Vec x, Vec y) {
+    PetscCall(VecCopy(x,y));int rank;
+    PetscCallMPI(MPI_Comm_rank(PetscObjectComm(reinterpret_cast<PetscObject>(pc)),&rank));
+    if(fail_pc&&rank==0)PetscCall(PCSetFailedReason(pc,PC_SUBPC_ERROR));
+    return PETSC_SUCCESS;
+}
 PetscErrorCode destroy(PC) { ++destroyed; return PETSC_SUCCESS; }
 PetscErrorCode create(PC pc) {
     PetscCall(PCSetType(pc, PCSHELL));
@@ -41,10 +47,12 @@ void verify() {
         }
         system.constrain({}, {});
         SolverConfig config;
-        for (int attempt = 0; attempt < 4; ++attempt) {
+        for (int attempt = 0; attempt < 6; ++attempt) {
             // A failed solve between successful calls also exercises stack unwinding.
-            const bool fail = attempt == 2;
-            if (fail) EONSIM_PETSC(PetscOptionsSetValue(nullptr, "-ksp_max_it", "0"));
+            const bool fail = attempt == 2 || attempt==4;
+            if (attempt==2) EONSIM_PETSC(PetscOptionsSetValue(nullptr, "-ksp_max_it", "0"));
+            fail_pc=attempt==4;
+            if(fail_pc)EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-ksp_type","preonly"));
             bool rejected = false;
             try {
                 const auto result = system.solve(config, attempt % 2 == 0);
@@ -57,6 +65,8 @@ void verify() {
                 rejected = true;
             }
             if (fail) EONSIM_PETSC(PetscOptionsClearValue(nullptr, "-ksp_max_it"));
+            if(fail_pc)EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-ksp_type"));
+            fail_pc=false;
             require(rejected == fail, "Unexpected solve failure state");
             require(created == attempt+1, "Expected a fresh configured PC per call");
             require(destroyed == created, "Solve retained its KSP/PC after return or failure");
@@ -64,7 +74,7 @@ void verify() {
     }
     require(destroyed == created, "Unbalanced PC lifetime after system destruction");
     EONSIM_PETSC(PetscOptionsClearValue(nullptr, "-pc_type"));
-    if (rank == 0) std::cout << "linear lifetime: 4 PC creations/destructions per rank; success/failure/recovery passed on " << ranks << " ranks\n";
+    if (rank == 0) std::cout << "linear lifetime: 6 PC creations/destructions per rank; exhaustion/local PC failure/recovery passed on " << ranks << " ranks\n";
 }
 }
 int main(int argc, char** argv) {

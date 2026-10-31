@@ -46,6 +46,7 @@ target_compile_definitions(eonsim_build_options INTERFACE
 add_library(eonsim_core
     src/core/config.cpp
     src/mesh/gmsh.cpp
+    src/mesh/mesh_import.cpp
     src/mesh/fsi_domains.cpp
     src/mesh/partition.cpp
     src/fem/tet4.cpp
@@ -67,6 +68,7 @@ add_library(eonsim_core
     src/physics/fluid.cpp
     src/physics/fluid_boundary.cpp
     src/physics/poisson.cpp
+    src/physics/scalar2d.cpp
     src/io/checkpoint.cpp
     src/io/vtu.cpp
 )
@@ -142,6 +144,10 @@ if(BUILD_TESTING)
     add_executable(verify_boundary_geometry tests/verify_boundary_geometry.cpp)
     target_link_libraries(verify_boundary_geometry PRIVATE eonsim_core)
     add_test(NAME boundary_geometry COMMAND verify_boundary_geometry)
+    add_executable(verify_element2d tests/verify_element2d.cpp)
+    target_link_libraries(verify_element2d PRIVATE eonsim_core)
+    add_test(NAME element2d_oracles COMMAND verify_element2d)
+    set_tests_properties(element2d_oracles PROPERTIES LABELS "core;rank-1")
     add_executable(verify_quadrature tests/verify_quadrature.cpp)
     target_link_libraries(verify_quadrature PRIVATE eonsim_core)
     add_test(NAME quadrature_moments COMMAND verify_quadrature)
@@ -151,6 +157,10 @@ if(BUILD_TESTING)
     add_executable(verify_fsi_element tests/verify_fsi_element.cpp)
     target_link_libraries(verify_fsi_element PRIVATE eonsim_core)
     add_test(NAME fsi_element_jacobian COMMAND verify_fsi_element)
+    add_executable(verify_time_integration tests/verify_time_integration.cpp)
+    target_link_libraries(verify_time_integration PRIVATE eonsim_core)
+    add_test(NAME time_integration COMMAND verify_time_integration)
+    set_tests_properties(time_integration PROPERTIES LABELS "core;rank-1")
     add_executable(verify_solid_element tests/verify_solid_element.cpp)
     target_link_libraries(verify_solid_element PRIVATE eonsim_core)
     add_test(NAME solid_element_jacobian COMMAND verify_solid_element)
@@ -158,6 +168,80 @@ if(BUILD_TESTING)
     target_link_libraries(verify_fluid_element PRIVATE eonsim_core)
     add_test(NAME fluid_element_jacobian COMMAND verify_fluid_element)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME layout_policy_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_layout_policy.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/layout_policy_verification")
+    set_tests_properties(layout_policy_verification PROPERTIES TIMEOUT 120 PROCESSORS 2 LABELS "core;rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME mesh_import_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_mesh_import.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/mesh_import_verification")
+    set_tests_properties(mesh_import_verification PROPERTIES TIMEOUT 120 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    foreach(check space time failure)
+        add_test(NAME scalar2d_${check}
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_scalar2d.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --checks ${check}
+            --work "${CMAKE_CURRENT_BINARY_DIR}/scalar2d_${check}")
+        set_tests_properties(scalar2d_${check} PROPERTIES TIMEOUT 300 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+            ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    endforeach()
+    add_test(NAME fluid_alpha_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fluid_time.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --alpha
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_alpha_verification")
+    add_test(NAME solid_alpha_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_solid_time.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --alpha
+        --work "${CMAKE_CURRENT_BINARY_DIR}/solid_alpha_verification")
+    set_tests_properties(fluid_alpha_verification solid_alpha_verification PROPERTIES TIMEOUT 300 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME ale_time_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_ale_time.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/ale_time_verification")
+    add_test(NAME ale_alpha_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_ale_time.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --alpha
+        --work "${CMAKE_CURRENT_BINARY_DIR}/ale_alpha_verification")
+    add_test(NAME fsi_alpha_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_time.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --alpha
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_alpha_verification")
+    add_test(NAME domains_alpha_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_domains.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --scheme generalized_alpha
+        --work "${CMAKE_CURRENT_BINARY_DIR}/domains_alpha_verification")
+    set_tests_properties(ale_alpha_verification domains_alpha_verification PROPERTIES TIMEOUT 300 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    set_tests_properties(fsi_alpha_verification PROPERTIES TIMEOUT 600 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME fsi_time_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_time.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_time_verification")
+    add_test(NAME domains_bdf2_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_domains.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --scheme bdf2
+        --work "${CMAKE_CURRENT_BINARY_DIR}/domains_bdf2_verification")
+    set_tests_properties(ale_time_verification domains_bdf2_verification PROPERTIES TIMEOUT 300 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    set_tests_properties(fsi_time_verification PROPERTIES TIMEOUT 600 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME solid_time_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_solid_time.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/solid_time_verification")
+    set_tests_properties(solid_time_verification PROPERTIES TIMEOUT 300 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME fluid_time_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fluid_time.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_time_verification")
+    set_tests_properties(fluid_time_verification PROPERTIES TIMEOUT 300 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME fluid_coo_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fluid_coo.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
@@ -281,6 +365,8 @@ if(BUILD_TESTING)
     set_tests_properties(poisson_parallel PROPERTIES
         TIMEOUT 120 ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     # Reuse numerical assertions in the existing tests; labels only select runs.
+    set_tests_properties(scalar2d_failure PROPERTIES LABELS "core;mpi-failure;rank-1;rank-2;rank-4")
+    set_tests_properties(linear_lifetime linear_lifetime_mpi PROPERTIES LABELS "core;mpi-failure")
     set_tests_properties(solver_failures solver_failures_mpi
         nonlinear_acceptance nonlinear_acceptance_mpi coo_jacobian coo_jacobian_mpi2
         PROPERTIES LABELS "core;mpi-failure")

@@ -1,0 +1,2322 @@
+{
+  "baseline": "47b5bd46c992fcf64cf163361053ceb0091fa5a5",
+  "status": "local verification; cloud CI for new changes pending",
+  "scope": "Full suites before the added singular-diagnostic test; that test subsequently passed the mpi-failure selections. No G5/G1 implementation.",
+  "runs": {
+    "debug_all": {
+      "commit": "47b5bd46c992fcf64cf163361053ceb0091fa5a5",
+      "dirty": true,
+      "mode": "debug",
+      "selection": "all",
+      "petsc": "3.23.7",
+      "platform": "Linux-6.6.87.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+      "resources": {
+        "cpu_budget": 24,
+        "memory_bytes": 33539915776,
+        "cgroup": {
+          "/sys/fs/cgroup": {},
+          "/sys/fs/cgroup/init.scope": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          }
+        },
+        "build_jobs": 4
+      },
+      "status": "passed",
+      "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+      "tests": [
+        {
+          "name": "runtime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.12745,
+          "log": "evidence/junit.xml#runtime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi1",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.165776,
+          "log": "evidence/junit.xml#pc_plan_mpi1",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.189354,
+          "log": "evidence/junit.xml#pc_plan_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi4",
+          "status": "passed",
+          "ranks": [
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.196663,
+          "log": "evidence/junit.xml#pc_plan_mpi4",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0780995,
+          "log": "evidence/junit.xml#coo_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.140655,
+          "log": "evidence/junit.xml#coo_jacobian_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi4",
+          "status": "passed",
+          "ranks": [
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.185127,
+          "log": "evidence/junit.xml#coo_jacobian_mpi4",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "linear_lifetime",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0725534,
+          "log": "evidence/junit.xml#linear_lifetime",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "linear_lifetime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.133089,
+          "log": "evidence/junit.xml#linear_lifetime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0814899,
+          "log": "evidence/junit.xml#solver_failures",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.142713,
+          "log": "evidence/junit.xml#solver_failures_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "checkpoint_publication",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0839736,
+          "log": "evidence/junit.xml#checkpoint_publication",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "checkpoint_publication_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.135019,
+          "log": "evidence/junit.xml#checkpoint_publication_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0739976,
+          "log": "evidence/junit.xml#nonlinear_acceptance",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.151253,
+          "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "boundary_geometry",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0600044,
+          "log": "evidence/junit.xml#boundary_geometry",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "quadrature_moments",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0654423,
+          "log": "evidence/junit.xml#quadrature_moments",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "hyperelastic_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0591202,
+          "log": "evidence/junit.xml#hyperelastic_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fsi_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0584513,
+          "log": "evidence/junit.xml#fsi_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solid_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0577596,
+          "log": "evidence/junit.xml#solid_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0579365,
+          "log": "evidence/junit.xml#fluid_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_coo_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 15.4396,
+          "log": "evidence/junit.xml#fluid_coo_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "profile_log_validation",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0968558,
+          "log": "evidence/junit.xml#profile_log_validation",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_element_report",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 3.44902,
+          "log": "evidence/junit.xml#fluid_element_report",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_retry",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 12.9293,
+          "log": "evidence/junit.xml#pc_recipe_retry",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_restart",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 31.2428,
+          "log": "evidence/junit.xml#pc_recipe_restart",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_physics",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 10.442,
+          "log": "evidence/junit.xml#pc_recipe_physics",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_quantity",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 10.2312,
+          "log": "evidence/junit.xml#pc_recipe_quantity",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_hybrid",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 10.9641,
+          "log": "evidence/junit.xml#pc_recipe_hybrid",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "schur_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 10.4908,
+          "log": "evidence/junit.xml#schur_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "time_retry_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 9.33271,
+          "log": "evidence/junit.xml#time_retry_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "domains_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 3.72581,
+          "log": "evidence/junit.xml#domains_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "regions_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 2.77613,
+          "log": "evidence/junit.xml#regions_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "tagged_fluid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.08286,
+          "log": "evidence/junit.xml#tagged_fluid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "restart_block_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 12.1348,
+          "log": "evidence/junit.xml#restart_block_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "hyperelastic_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 10.4823,
+          "log": "evidence/junit.xml#hyperelastic_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "elastic_fsi_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 7.79406,
+          "log": "evidence/junit.xml#elastic_fsi_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "rigid_fsi_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.14512,
+          "log": "evidence/junit.xml#rigid_fsi_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "motion_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.807513,
+          "log": "evidence/junit.xml#motion_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.846371,
+          "log": "evidence/junit.xml#solid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 3.9431,
+          "log": "evidence/junit.xml#fluid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "poisson_verification",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.477002,
+          "log": "evidence/junit.xml#poisson_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "poisson_parallel",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.552045,
+          "log": "evidence/junit.xml#poisson_parallel",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "commands": [
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python3",
+            "/home/tfblab633/EONSim/tests/test_cloud_evidence.py"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.11622419599996192,
+          "log": "evidence/evidence-parser.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/g++",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.008840399999940018,
+          "log": "evidence/compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpicxx",
+            "--showme"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.016680598999982976,
+          "log": "evidence/mpi-compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.016844400000081805,
+          "log": "evidence/mpi-runtime.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.032997599000054834,
+          "log": "evidence/cmake.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--preset",
+            "debug",
+            "-B",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug",
+            "-DBUILD_TESTING=ON",
+            "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+            "-DCMAKE_PREFIX_PATH=/home/tfblab633/EONSim/.cloud/petsc-3.23.7",
+            "-DMPIEXEC_EXECUTABLE=/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.1278753240000015,
+          "log": "evidence/configure.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--build",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug",
+            "--parallel",
+            "4"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0170625990000417,
+          "log": "evidence/build.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ldd",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/eonsim"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0656231980000257,
+          "log": "evidence/runtime-linkage.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "2",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.21578799199994592,
+          "log": "evidence/runtime-preflight.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "4",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.1662102950000417,
+          "log": "evidence/runtime-preflight-4.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug",
+            "--show-only=json-v1"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.033433798000032766,
+          "log": "evidence/test-inventory.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug",
+            "-T",
+            "Test",
+            "--no-compress-output",
+            "--output-junit",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/evidence/junit.xml",
+            "--no-tests=error",
+            "-j",
+            "1",
+            "-V"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 166.74884959100007,
+          "log": "evidence/ctest.log"
+        }
+      ],
+      "dependencies": [
+        {
+          "name": "openblas",
+          "version": "0.3.34",
+          "build": "openmp_hd0bf9d2_2",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/openblas-0.3.34-openmp_hd0bf9d2_2.conda",
+          "sha256": "22f5428f5a29523432725c340016ef2ee1c32aa7d1a601097a63a0b27c8d5eed"
+        },
+        {
+          "name": "superlu_dist",
+          "version": "9.1.0",
+          "build": "h3349319_0",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/superlu_dist-9.1.0-h3349319_0.conda",
+          "sha256": "30105f23b74bde0e3edc4b1ac7f7355244d80b04f51e114d80a4c59a1875e6b7"
+        },
+        {
+          "name": "gcc",
+          "version": "15.3.0",
+          "build": "hc6a0c74_7",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/gcc-15.3.0-hc6a0c74_7.conda",
+          "sha256": "f362d14caab740de46f60d5ca8a4340066704ff573bc0a618030ceca3a2b7f87"
+        },
+        {
+          "name": "petsc",
+          "version": "3.23.7",
+          "build": "real_h5e9295b_0",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/petsc-3.23.7-real_h5e9295b_0.conda",
+          "sha256": "1db9bbdbef86862360d4cc1a01956d0029cc8a9668ac9fba77b5ab75b4af3962"
+        },
+        {
+          "name": "gxx",
+          "version": "15.3.0",
+          "build": "hc6a0c74_7",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/gxx-15.3.0-hc6a0c74_7.conda",
+          "sha256": "b4d8243c72c114f3bc5189659f0ad7745d35b3c08fbd529d7dd32b7fbb631a5e"
+        },
+        {
+          "name": "openmpi",
+          "version": "5.0.8",
+          "build": "h2fe1745_110",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/openmpi-5.0.8-h2fe1745_110.conda",
+          "sha256": "4f7eb20a3ca68bdbb5ffed23cf9f31ad246b02eea03260ed8ca36e080136a8d5"
+        }
+      ]
+    },
+    "release_all": {
+      "commit": "47b5bd46c992fcf64cf163361053ceb0091fa5a5",
+      "dirty": true,
+      "mode": "release",
+      "selection": "all",
+      "petsc": "3.23.7",
+      "platform": "Linux-6.6.87.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+      "resources": {
+        "cpu_budget": 24,
+        "memory_bytes": 33539915776,
+        "cgroup": {
+          "/sys/fs/cgroup": {},
+          "/sys/fs/cgroup/init.scope": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          }
+        },
+        "build_jobs": 4
+      },
+      "status": "passed",
+      "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+      "tests": [
+        {
+          "name": "runtime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.155399,
+          "log": "evidence/junit.xml#runtime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi1",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.196309,
+          "log": "evidence/junit.xml#pc_plan_mpi1",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.233748,
+          "log": "evidence/junit.xml#pc_plan_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi4",
+          "status": "passed",
+          "ranks": [
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.265809,
+          "log": "evidence/junit.xml#pc_plan_mpi4",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0990516,
+          "log": "evidence/junit.xml#coo_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.168763,
+          "log": "evidence/junit.xml#coo_jacobian_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi4",
+          "status": "passed",
+          "ranks": [
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.163964,
+          "log": "evidence/junit.xml#coo_jacobian_mpi4",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "linear_lifetime",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.114718,
+          "log": "evidence/junit.xml#linear_lifetime",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "linear_lifetime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.189503,
+          "log": "evidence/junit.xml#linear_lifetime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.113752,
+          "log": "evidence/junit.xml#solver_failures",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.164305,
+          "log": "evidence/junit.xml#solver_failures_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "checkpoint_publication",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.127529,
+          "log": "evidence/junit.xml#checkpoint_publication",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "checkpoint_publication_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.168023,
+          "log": "evidence/junit.xml#checkpoint_publication_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.109286,
+          "log": "evidence/junit.xml#nonlinear_acceptance",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.1753,
+          "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "boundary_geometry",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0765096,
+          "log": "evidence/junit.xml#boundary_geometry",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "quadrature_moments",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0836941,
+          "log": "evidence/junit.xml#quadrature_moments",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "hyperelastic_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0831345,
+          "log": "evidence/junit.xml#hyperelastic_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fsi_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0761483,
+          "log": "evidence/junit.xml#fsi_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solid_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0824704,
+          "log": "evidence/junit.xml#solid_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_element_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0759236,
+          "log": "evidence/junit.xml#fluid_element_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_coo_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 12.6898,
+          "log": "evidence/junit.xml#fluid_coo_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "profile_log_validation",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0817748,
+          "log": "evidence/junit.xml#profile_log_validation",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_element_report",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 2.54453,
+          "log": "evidence/junit.xml#fluid_element_report",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_retry",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 3.70557,
+          "log": "evidence/junit.xml#pc_recipe_retry",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_restart",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 19.0848,
+          "log": "evidence/junit.xml#pc_recipe_restart",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_physics",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.43918,
+          "log": "evidence/junit.xml#pc_recipe_physics",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_quantity",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.07961,
+          "log": "evidence/junit.xml#pc_recipe_quantity",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_hybrid",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.58447,
+          "log": "evidence/junit.xml#pc_recipe_hybrid",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "schur_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 5.29595,
+          "log": "evidence/junit.xml#schur_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "time_retry_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 2.24647,
+          "log": "evidence/junit.xml#time_retry_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "domains_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.69374,
+          "log": "evidence/junit.xml#domains_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "regions_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 2.50918,
+          "log": "evidence/junit.xml#regions_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "tagged_fluid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 4.48306,
+          "log": "evidence/junit.xml#tagged_fluid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "restart_block_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 6.92596,
+          "log": "evidence/junit.xml#restart_block_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "hyperelastic_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.65512,
+          "log": "evidence/junit.xml#hyperelastic_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "elastic_fsi_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.0475,
+          "log": "evidence/junit.xml#elastic_fsi_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "rigid_fsi_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.489459,
+          "log": "evidence/junit.xml#rigid_fsi_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "motion_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.696779,
+          "log": "evidence/junit.xml#motion_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.639897,
+          "log": "evidence/junit.xml#solid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fluid_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.53932,
+          "log": "evidence/junit.xml#fluid_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "poisson_verification",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.439647,
+          "log": "evidence/junit.xml#poisson_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "poisson_parallel",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.53199,
+          "log": "evidence/junit.xml#poisson_parallel",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "commands": [
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python3",
+            "/home/tfblab633/EONSim/tests/test_cloud_evidence.py"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.06560640099996817,
+          "log": "evidence/evidence-parser.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/g++",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.002762599999869053,
+          "log": "evidence/compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpicxx",
+            "--showme"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.004680500999938886,
+          "log": "evidence/mpi-compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.008836299999984476,
+          "log": "evidence/mpi-runtime.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.009026799999901414,
+          "log": "evidence/cmake.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--preset",
+            "release",
+            "-B",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-release",
+            "-DBUILD_TESTING=ON",
+            "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+            "-DCMAKE_PREFIX_PATH=/home/tfblab633/EONSim/.cloud/petsc-3.23.7",
+            "-DMPIEXEC_EXECUTABLE=/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 11.944389710999985,
+          "log": "evidence/configure.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--build",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-release",
+            "--parallel",
+            "4"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 16.870456669000077,
+          "log": "evidence/build.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ldd",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-release/eonsim"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.019974799000010535,
+          "log": "evidence/runtime-linkage.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "2",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.21652319000008902,
+          "log": "evidence/runtime-preflight.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "4",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.21589628900005664,
+          "log": "evidence/runtime-preflight-4.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-release",
+            "--show-only=json-v1"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.008821398999998564,
+          "log": "evidence/test-inventory.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-release",
+            "-T",
+            "Test",
+            "--no-compress-output",
+            "--output-junit",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-release/evidence/junit.xml",
+            "--no-tests=error",
+            "-j",
+            "1",
+            "-V"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 87.39045819700004,
+          "log": "evidence/ctest.log"
+        }
+      ],
+      "dependencies": [
+        {
+          "name": "openblas",
+          "version": "0.3.34",
+          "build": "openmp_hd0bf9d2_2",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/openblas-0.3.34-openmp_hd0bf9d2_2.conda",
+          "sha256": "22f5428f5a29523432725c340016ef2ee1c32aa7d1a601097a63a0b27c8d5eed"
+        },
+        {
+          "name": "superlu_dist",
+          "version": "9.1.0",
+          "build": "h3349319_0",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/superlu_dist-9.1.0-h3349319_0.conda",
+          "sha256": "30105f23b74bde0e3edc4b1ac7f7355244d80b04f51e114d80a4c59a1875e6b7"
+        },
+        {
+          "name": "gcc",
+          "version": "15.3.0",
+          "build": "hc6a0c74_7",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/gcc-15.3.0-hc6a0c74_7.conda",
+          "sha256": "f362d14caab740de46f60d5ca8a4340066704ff573bc0a618030ceca3a2b7f87"
+        },
+        {
+          "name": "petsc",
+          "version": "3.23.7",
+          "build": "real_h5e9295b_0",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/petsc-3.23.7-real_h5e9295b_0.conda",
+          "sha256": "1db9bbdbef86862360d4cc1a01956d0029cc8a9668ac9fba77b5ab75b4af3962"
+        },
+        {
+          "name": "gxx",
+          "version": "15.3.0",
+          "build": "hc6a0c74_7",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/gxx-15.3.0-hc6a0c74_7.conda",
+          "sha256": "b4d8243c72c114f3bc5189659f0ad7745d35b3c08fbd529d7dd32b7fbb631a5e"
+        },
+        {
+          "name": "openmpi",
+          "version": "5.0.8",
+          "build": "h2fe1745_110",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/openmpi-5.0.8-h2fe1745_110.conda",
+          "sha256": "4f7eb20a3ca68bdbb5ffed23cf9f31ad246b02eea03260ed8ca36e080136a8d5"
+        }
+      ]
+    },
+    "debug_failure_supplement": {
+      "commit": "47b5bd46c992fcf64cf163361053ceb0091fa5a5",
+      "dirty": true,
+      "mode": "debug",
+      "selection": "mpi-failure",
+      "petsc": "3.23.7",
+      "platform": "Linux-6.6.87.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+      "resources": {
+        "cpu_budget": 24,
+        "memory_bytes": 33539915776,
+        "cgroup": {
+          "/sys/fs/cgroup": {},
+          "/sys/fs/cgroup/init.scope": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          }
+        },
+        "build_jobs": 4
+      },
+      "status": "passed",
+      "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+      "tests": [
+        {
+          "name": "runtime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.12579,
+          "log": "evidence/junit.xml#runtime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi1",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.157144,
+          "log": "evidence/junit.xml#pc_plan_mpi1",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.191269,
+          "log": "evidence/junit.xml#pc_plan_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi4",
+          "status": "passed",
+          "ranks": [
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.192589,
+          "log": "evidence/junit.xml#pc_plan_mpi4",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0713906,
+          "log": "evidence/junit.xml#coo_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.136304,
+          "log": "evidence/junit.xml#coo_jacobian_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0755541,
+          "log": "evidence/junit.xml#solver_failures",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.1383,
+          "log": "evidence/junit.xml#solver_failures_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0712278,
+          "log": "evidence/junit.xml#nonlinear_acceptance",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.133603,
+          "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "commands": [
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python3",
+            "/home/tfblab633/EONSim/tests/test_cloud_evidence.py"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.06696259799991822,
+          "log": "evidence/evidence-parser.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/g++",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0025607999998555897,
+          "log": "evidence/compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpicxx",
+            "--showme"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.005386400000134017,
+          "log": "evidence/mpi-compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0088448999999855,
+          "log": "evidence/mpi-runtime.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.009514899999885529,
+          "log": "evidence/cmake.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--preset",
+            "debug",
+            "-B",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug",
+            "-DBUILD_TESTING=ON",
+            "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+            "-DCMAKE_PREFIX_PATH=/home/tfblab633/EONSim/.cloud/petsc-3.23.7",
+            "-DMPIEXEC_EXECUTABLE=/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 4.927518171999964,
+          "log": "evidence/configure.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--build",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug",
+            "--parallel",
+            "4"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.5198985600000015,
+          "log": "evidence/build.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ldd",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/eonsim"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.009394899999961126,
+          "log": "evidence/runtime-linkage.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "2",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.21515509400001065,
+          "log": "evidence/runtime-preflight.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug",
+            "--show-only=json-v1",
+            "-L",
+            "^mpi-failure$"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.008549200000061319,
+          "log": "evidence/test-inventory.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug",
+            "-T",
+            "Test",
+            "--no-compress-output",
+            "--output-junit",
+            "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/evidence/junit.xml",
+            "--no-tests=error",
+            "-j",
+            "1",
+            "-V",
+            "-L",
+            "^mpi-failure$"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.3178594660000726,
+          "log": "evidence/ctest.log"
+        }
+      ],
+      "dependencies": [
+        {
+          "name": "openblas",
+          "version": "0.3.34",
+          "build": "openmp_hd0bf9d2_2",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/openblas-0.3.34-openmp_hd0bf9d2_2.conda",
+          "sha256": "22f5428f5a29523432725c340016ef2ee1c32aa7d1a601097a63a0b27c8d5eed"
+        },
+        {
+          "name": "superlu_dist",
+          "version": "9.1.0",
+          "build": "h3349319_0",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/superlu_dist-9.1.0-h3349319_0.conda",
+          "sha256": "30105f23b74bde0e3edc4b1ac7f7355244d80b04f51e114d80a4c59a1875e6b7"
+        },
+        {
+          "name": "gcc",
+          "version": "15.3.0",
+          "build": "hc6a0c74_7",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/gcc-15.3.0-hc6a0c74_7.conda",
+          "sha256": "f362d14caab740de46f60d5ca8a4340066704ff573bc0a618030ceca3a2b7f87"
+        },
+        {
+          "name": "petsc",
+          "version": "3.23.7",
+          "build": "real_h5e9295b_0",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/petsc-3.23.7-real_h5e9295b_0.conda",
+          "sha256": "1db9bbdbef86862360d4cc1a01956d0029cc8a9668ac9fba77b5ab75b4af3962"
+        },
+        {
+          "name": "gxx",
+          "version": "15.3.0",
+          "build": "hc6a0c74_7",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/gxx-15.3.0-hc6a0c74_7.conda",
+          "sha256": "b4d8243c72c114f3bc5189659f0ad7745d35b3c08fbd529d7dd32b7fbb631a5e"
+        },
+        {
+          "name": "openmpi",
+          "version": "5.0.8",
+          "build": "h2fe1745_110",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/openmpi-5.0.8-h2fe1745_110.conda",
+          "sha256": "4f7eb20a3ca68bdbb5ffed23cf9f31ad246b02eea03260ed8ca36e080136a8d5"
+        }
+      ]
+    },
+    "legacy_failure_supplement": {
+      "commit": "47b5bd46c992fcf64cf163361053ceb0091fa5a5",
+      "dirty": true,
+      "mode": "release",
+      "selection": "mpi-failure",
+      "petsc": "3.19.6",
+      "platform": "Linux-6.6.87.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+      "resources": {
+        "cpu_budget": 24,
+        "memory_bytes": 33539915776,
+        "cgroup": {
+          "/sys/fs/cgroup": {},
+          "/sys/fs/cgroup/init.scope": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          }
+        },
+        "build_jobs": 4
+      },
+      "status": "passed",
+      "lock_sha256": "ca6f133b45ab2c22a3d34445be5b1f0c6469dcf41364ad300c0a9315e4d8191a",
+      "tests": [
+        {
+          "name": "runtime_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0871648,
+          "log": "evidence/junit.xml#runtime_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi1",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.109647,
+          "log": "evidence/junit.xml#pc_plan_mpi1",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.179271,
+          "log": "evidence/junit.xml#pc_plan_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi4",
+          "status": "passed",
+          "ranks": [
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.162842,
+          "log": "evidence/junit.xml#pc_plan_mpi4",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0956382,
+          "log": "evidence/junit.xml#coo_jacobian",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "coo_jacobian_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0958293,
+          "log": "evidence/junit.xml#coo_jacobian_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0919298,
+          "log": "evidence/junit.xml#solver_failures",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "solver_failures_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0963805,
+          "log": "evidence/junit.xml#solver_failures_mpi",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.103609,
+          "log": "evidence/junit.xml#nonlinear_acceptance",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "nonlinear_acceptance_mpi",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0954188,
+          "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "commands": [
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.19.6/bin/python3",
+            "/home/tfblab633/EONSim/tests/test_cloud_evidence.py"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.06661629799987168,
+          "log": "evidence/evidence-parser.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.19.6/bin/g++",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0035090999999738415,
+          "log": "evidence/compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.19.6/bin/mpicxx",
+            "--showme"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.005869800000027681,
+          "log": "evidence/mpi-compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.19.6/bin/mpiexec",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.005316599000025235,
+          "log": "evidence/mpi-runtime.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.009933099999898332,
+          "log": "evidence/cmake.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--preset",
+            "release",
+            "-B",
+            "/home/tfblab633/EONSim/build/cloud-3.19.6-release",
+            "-DBUILD_TESTING=ON",
+            "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+            "-DCMAKE_PREFIX_PATH=/home/tfblab633/EONSim/.cloud/petsc-3.19.6",
+            "-DMPIEXEC_EXECUTABLE=/home/tfblab633/EONSim/.cloud/petsc-3.19.6/bin/mpiexec",
+            "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 3.2245492170000034,
+          "log": "evidence/configure.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--build",
+            "/home/tfblab633/EONSim/build/cloud-3.19.6-release",
+            "--parallel",
+            "4"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.5179044860001341,
+          "log": "evidence/build.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ldd",
+            "/home/tfblab633/EONSim/build/cloud-3.19.6-release/eonsim"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.010467800000014904,
+          "log": "evidence/runtime-linkage.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/tfblab633/EONSim/.cloud/petsc-3.19.6/bin/mpiexec",
+            "-n",
+            "2",
+            "/home/tfblab633/EONSim/build/cloud-3.19.6-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.116365696999992,
+          "log": "evidence/runtime-preflight.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/tfblab633/EONSim/build/cloud-3.19.6-release",
+            "--show-only=json-v1",
+            "-L",
+            "^mpi-failure$"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.010011999999960608,
+          "log": "evidence/test-inventory.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/tfblab633/EONSim/build/cloud-3.19.6-release",
+            "-T",
+            "Test",
+            "--no-compress-output",
+            "--output-junit",
+            "/home/tfblab633/EONSim/build/cloud-3.19.6-release/evidence/junit.xml",
+            "--no-tests=error",
+            "-j",
+            "1",
+            "-V",
+            "-L",
+            "^mpi-failure$"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.1699350690000756,
+          "log": "evidence/ctest.log"
+        }
+      ],
+      "dependencies": [
+        {
+          "name": "petsc",
+          "version": "3.19.6",
+          "build": "real_hda1ae68_100",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/petsc-3.19.6-real_hda1ae68_100.conda",
+          "sha256": "d39fe136656cc6f554b609ad1bf5e0565c2b487aeb7f9b27d71d24a69956950c"
+        },
+        {
+          "name": "gcc",
+          "version": "12.4.0",
+          "build": "h236703b_2",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/gcc-12.4.0-h236703b_2.conda",
+          "sha256": "ebe2dabb0a6f0ef05039d3a26b9c6b0aa050d7e791c6ab77ee91653b2098cdc3"
+        },
+        {
+          "name": "gxx",
+          "version": "12.4.0",
+          "build": "h236703b_2",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/gxx-12.4.0-h236703b_2.conda",
+          "sha256": "6c3ea9877dc6babf064bafacd9e67280072b676864c26e90cbfec52eaa32a60e"
+        },
+        {
+          "name": "openmpi",
+          "version": "4.1.6",
+          "build": "hc5af2df_101",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/openmpi-4.1.6-hc5af2df_101.conda",
+          "sha256": "f0769dd891e1735be4606ec8643951e5cbca199f774e58c7d933f70a70134ce4"
+        },
+        {
+          "name": "superlu_dist",
+          "version": "7.2.0",
+          "build": "h34f6f4d_0",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/superlu_dist-7.2.0-h34f6f4d_0.tar.bz2",
+          "sha256": "abaaac9e2b27a0fd6e9efd02daf8a4bf96d4b8ae7946d35b68a7399e2191817f"
+        },
+        {
+          "name": "openblas",
+          "version": "0.3.34",
+          "build": "pthreads_h299a788_2",
+          "url": "https://conda.anaconda.org/conda-forge/linux-64/openblas-0.3.34-pthreads_h299a788_2.conda",
+          "sha256": "0e8629ce8f0f5ccce78535ed43dcdb8165f7b9541d5e3def6639850737d400e2"
+        }
+      ]
+    }
+  },
+  "source_sha256": {
+    "include/eonsim/ale.hpp": "9d7de8d8a82a1032395aaccc9ed7b37c838a8a683eca4704399978ebee6c1ee6",
+    "include/eonsim/boundary_geometry.hpp": "676185f62e269227d3f9a41f712e5487bc320f5209ab769583356fca92908264",
+    "include/eonsim/checkpoint.hpp": "4df8665a91c50d756cfea7f01972de0edef4a520b3c901c7961e043111740199",
+    "include/eonsim/config.hpp": "9a820d348531103ef4e9dc33964a4ec225169971bd17976756f7829ae136013c",
+    "include/eonsim/discretization.hpp": "40356e1019a23dd66bda37290e060f0ff6a90851f9d862ea5f1f0a8bfd1054e2",
+    "include/eonsim/dof_semantics.hpp": "92b49911d1b8d100e5bce7a62b4a530ddc29f1c3ae2b9980ced36382116008bd",
+    "include/eonsim/dual.hpp": "1c918f59bd01e48f1d7e561323d7f57ee4b6a5726734de857ff0eb1783577e4d",
+    "include/eonsim/field_layout.hpp": "e61fdc18810f11e86aa1ae879a268d5b1924a8367d0888152499815fd775d3e8",
+    "include/eonsim/fluid.hpp": "adda7989c3e364b607dd71f7239e2928171ce7a364b14178e3bcdd2f9e021c7f",
+    "include/eonsim/fluid_boundary.hpp": "583fec7e4563c1b232eb8f8c3052540e2782fb9def71012020043354b9565e31",
+    "include/eonsim/fluid_element.hpp": "5340d2a100bde9bd18c1d20f9af439bc04259e73fe308d6e5092b7be64251394",
+    "include/eonsim/fluid_residual.hpp": "2a2534995fc0df069992f7f1e38f4ca7bedfcd2cd4657c03c5f08db6c2461530",
+    "include/eonsim/fsi.hpp": "624222620c1e012a6985130c3ea910c6fb65960e0de329215d27934fdca3ec86",
+    "include/eonsim/fsi_domains.hpp": "dc24a7c91dec2632ef67a6c53ee828d7cdfaf96f056dcbca8cd7b8077cd25287",
+    "include/eonsim/fsi_element.hpp": "a2a5ad5b1f4edeccc45dcee9fc3aa3d3fe0133fe46cc7ee0517844a0526da6fb",
+    "include/eonsim/hyperelastic.hpp": "03c5ae56b99e7b31d3f01953235399cf47d8be5faf85e8ad1dd17430ce7ffc38",
+    "include/eonsim/linear_system.hpp": "b74f96dc0f9556fb3b7a80d6e10397b89078542b2655b2d523d52100a7d93888",
+    "include/eonsim/mesh.hpp": "dde8226f61163ec6dcb6e58e1d989e7aae346524ffd3e2fee4f155b7b1968dfc",
+    "include/eonsim/motion.hpp": "10c88d1820cf56241620bf1ef38dedca90c3d75b2cdbe25c5c969d93ac2edea3",
+    "include/eonsim/nonlinear_system.hpp": "938de94e46bae5cd9ef1a1cd7ff0499835b321e8c89a243f432425c162e364c9",
+    "include/eonsim/pc_plan.hpp": "6c3d6dcbf193ec76b75f12e73d88f8e1cff1e78300a8f5c2d870a24ce6e0c30b",
+    "include/eonsim/poisson.hpp": "e08b08f88af7a9edda9405cd0d54e4cdd424d6b129b7c65df865ea9dcb1c6082",
+    "include/eonsim/quadrature.hpp": "a9d7cf1c4b0b608dd9d714cc8a20abf09aa1f661338e720889b08468b1eda39f",
+    "include/eonsim/reduced_layout.hpp": "fc687ac9f6338f001ba8194c340470e14fc81c3f234e5636f7718d451fb5fd2b",
+    "include/eonsim/regions.hpp": "e87c98bb826c40a71610ae6edb490268b6244b54775de070cd4638603d02e9c4",
+    "include/eonsim/schur_solver.hpp": "b29d10bdf8f33f7f65b9d83c9d6e5eb72f11bb22d40698d1df5633e52f6c84b2",
+    "include/eonsim/solid.hpp": "dfcd73497d3c8d931e7c9be21cf3ef5207d17a34cd60b59bd386821d2caa7136",
+    "include/eonsim/solid_element.hpp": "cc33f8ba0ff7b57b15731fa502ad01e3baca9cd58760628ae53ec04dde6049f0",
+    "include/eonsim/tet4.hpp": "930b9d5c4ace1dce1dd8a771388025b09013bc7676ab5846b811b9c680ed489c",
+    "include/eonsim/time_step.hpp": "fe1ad661fe7c9ece7aaf0d8c5b885ce284c8092e7818ae62150b7e42b36d4076",
+    "include/eonsim/vtu.hpp": "7ffb55cfeaeb5bc3a430b76bbc48464aad593c5810c11252991bb899514f3c12",
+    "src/algebra/linear_system.cpp": "87807a0bec5663aa69324d13bc669f5ae6dd89a9b9f94929392eaa3442fa74d5",
+    "src/algebra/nonlinear_system.cpp": "40476b90e9b81cafb71b00d481690ba9c4abdf0922efaa967fe3ea73c51795ac",
+    "src/algebra/pc_plan.cpp": "9ebfe7aa688ea37a0dee7f6cc2ed72080b45d63d913b1032758f3df93b0276f9",
+    "src/algebra/schur_solver.cpp": "25c94386a4ca2a15a4e8aa00165069af8e7c76853c0a8f9e0bfae145b343d101",
+    "src/core/config.cpp": "cd41d235ff527535fe7ab33eb6adecae39056837b49b0245445df60d256ca3c7",
+    "src/fem/boundary_geometry.cpp": "43cc8e41e715c7c3fea570e5346ff16108d30d355e96db33e6a1c5b6a6450aca",
+    "src/fem/field_layout.cpp": "e2397bff8d3941737142acd233df7b9214e2a0b28045b95057b9bb6831079173",
+    "src/fem/reduced_layout.cpp": "0b6548d0ce3e6aba73c3f055ccc4ec6cb467e55192b9a8d7e0e1f82e1d1ae4c3",
+    "src/fem/tet4.cpp": "3f7832113dffb709d7cc618b8f3ab746bd5e0e2278a48ff5c46ad24457fcd914",
+    "src/io/checkpoint.cpp": "cfed31381947e6ccf9ed8ddb37063202687d430d464a037e40f7129ce452a6b4",
+    "src/io/vtu.cpp": "4d88b718aaa5ac7301c420f109b62835ec13c46bfb66c595e78081555b7448a7",
+    "src/main.cpp": "55dea2d0c8a2831f05e24a0fdbc3d4139425edad90c5d200e3977d6591c6f817",
+    "src/mesh/fsi_domains.cpp": "483557c1bf5f8c7dabc8fc9ba42415e5f3d28a5bc045acb99ef7ffc3364b496e",
+    "src/mesh/gmsh.cpp": "36894fbbff4a61e6825165727a763871316f7c14a31d05435fe2d9494631295a",
+    "src/mesh/partition.cpp": "aaa08d64e2a4a02d59f879fe6503a240458ec3e1a7cdfa8a377c08818c252796",
+    "src/physics/ale.cpp": "6b0b4492d814e6b2b35b9a211aab870e5063f30b6a857273f50297bce4a65a36",
+    "src/physics/fluid.cpp": "153eb98572ec29684c243d5d90143729f70182b87fefa3700e22c914d68653b2",
+    "src/physics/fluid_boundary.cpp": "f22ee5d9423067c90e4a7d706508c88c06492509ee8cd5844b3140bea46ab4f0",
+    "src/physics/fluid_element.cpp": "ef6320bb68817861d5f8941c9423fae49f4308d1640b408e69bd7af244a497fc",
+    "src/physics/fsi.cpp": "9fea07cc559178b227b671230980e1a5d11aa96254b0a58471b3a1a651b0e991",
+    "src/physics/fsi_element.cpp": "d02b8930f51fda8946881af91932e00e614bfbaf974194a66f8767d47fd87a94",
+    "src/physics/hyperelastic.cpp": "d26fca9698d54037d45ac84bb893bc9be1e80a21919b0d5d43c412ae703fac77",
+    "src/physics/motion.cpp": "5c270616f7902896f99299486d4982682ea1e58dd49feb0e7d0a67d960b210c2",
+    "src/physics/poisson.cpp": "436c5cf6d0e2197b0499e6eb3398d18827c53144225a9aa946e6337173028e52",
+    "src/physics/solid.cpp": "e334745c107c4764036fe3cdb5aa94d121ab3124d67d27ddbeda84b355dfe16a",
+    "src/physics/solid_element.cpp": "f9ed2ea962fed1623164dedafab3951ca6d88723b6b1494a10527c9791c872ad",
+    "tests/test_cloud_evidence.py": "c0f4206b23a496f6979274b33a8d8acd77e4acb0a7a6eca91c0aac03632b0d6a",
+    "tests/test_profile_validation.py": "b862da83b3ac711ff79286f189cb8dd4bfff97f20095d6ed8e599197bbe83864",
+    "tests/verify_boundary_geometry.cpp": "bfdaf1128d7733a247f8a19dae81ce0c4eb2ec7f91f0ed827d0bfaa4426383d8",
+    "tests/verify_checkpoint.cpp": "25430934f82c6115626c768550bf901c54c296356e567f8e32ff120b4d331e89",
+    "tests/verify_coo_jacobian.cpp": "6e3c4caeda900e3aacce5eca958dab197bfe63da40c9427a6c4487767e695755",
+    "tests/verify_domains.py": "553b404a09ea4173fae1ddbadeed24fa94d0c7c6436144a77ff8705ef7005590",
+    "tests/verify_elastic_fsi.py": "ef19bb5cdd1cf21341b08f65db3845aa6e626a19f60e220ad434e57901493ae1",
+    "tests/verify_fluid.py": "bffe8b3720dd255db749e8b3118ba851c378d0a465877fc7f5acf99c00df277a",
+    "tests/verify_fluid_coo.py": "153ee835ac749c585582148d0ff36d99724e3b443f3e7e03e13522ed6e372a2d",
+    "tests/verify_fluid_element.cpp": "aa01de1889d824961111d0ec0898261f0fb2d6765fd2dfdd0a28ac3de279f40f",
+    "tests/verify_fluid_element_report.py": "4db84d175acd359163c680c0319fc931ec8e03dc2df062ab55ae8414a4f943a5",
+    "tests/verify_fsi.py": "cd87425865e6f5ef6c5a3e96dfc6b1de6d0ca49a233aed216c0ca03c802dccba",
+    "tests/verify_fsi_element.cpp": "9dcb3842cf7a27b265afc5c1abf50a533336bed034d3c620f5a9560af153b163",
+    "tests/verify_hyperelastic.py": "e42f6a962ef1e42c5542adb6e145fe0e143ad14bab9e47b89185f1c5d0280d2d",
+    "tests/verify_hyperelastic_element.cpp": "ad8d4d2dc0152bfb9321db8bd22a7421e452d45bf869688d5ec3c5765a79eea0",
+    "tests/verify_linear_lifetime.cpp": "94b8367029ecc0199b9ffe71e30126aa0cf6e5337ceca765e7aa2e578ee11791",
+    "tests/verify_motion.py": "40b367f178ecd72099fe45f9053afdd23c0a05d3ea00ed30130bef303e7447da",
+    "tests/verify_nonlinear_acceptance.cpp": "be080d621d585da292d3bf2972c5ab8bfac609a497e01f31397abd84a47d47cf",
+    "tests/verify_parallel.py": "6e09ef878fbda9c8d178487fa0e44759590e7feb89421ebafb99a4e1dc3aad19",
+    "tests/verify_pc_plan.cpp": "082dffc72ef6a0db2aae9bd50d8de216db119ddab15d272de3410fc5e6bb116c",
+    "tests/verify_pc_restart.py": "15bcbf30d32a263482025b5cf22f68113a2968bd0a7e5cdd15158ab6b73b55a3",
+    "tests/verify_poisson.py": "dd64816b9c62f6fc1b0a9ef97f593f7647ace8bbf7acc0c471655f3cdac746ff",
+    "tests/verify_quadrature.cpp": "a094bcbb71406d7d6a8ab36c47499b5ba104c81919c3b0d7da4c499cf5aad8a1",
+    "tests/verify_regions.py": "ea3e489bb47a9d2fdf3910b5f985bb1cb03df8844872cf4176a4da6a4ec88603",
+    "tests/verify_restart.py": "48b71afa4f7cebd3110b1bcd668a703123c30d0aa6bbc06308026491b67f6af9",
+    "tests/verify_runtime.cpp": "856cc2aeefafad22b2bed15fc539c9caa97d1c5a70be8b908b2e76bf3b4649c1",
+    "tests/verify_schur.py": "fc91d9d123054d1858390ac56fbd85988217d0d0b6e33da6c2d9137f90ed401b",
+    "tests/verify_solid.py": "e1dacdd200c46f2d139102d08691d92102d212410be4072108b5e7e61a8bdfe8",
+    "tests/verify_solid_element.cpp": "696c11e542e6cb90b9d643550c7f92afe1339aa2ed54abf12985fc45f653c790",
+    "tests/verify_solver_failures.cpp": "42173ac3c14e49d1f48debe37d1c0721584e888cfb1c8bf8a5db570daf3b9524",
+    "tests/verify_tagged_fluid.py": "22e2baec13608414142483409744d1c79ae72701583e1af20ec6b710006df077",
+    "tests/verify_time_retry.py": "ae5fe24beef16594c10fed7be5c9350536c75b40d532dd36fe16a4686906042e"
+  }
+}

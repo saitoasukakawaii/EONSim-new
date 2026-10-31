@@ -8,8 +8,8 @@ int main() {
     const auto g=tet4_geometry({Point{0,0,0},Point{1.1,.1,0},Point{.2,.9,.1},Point{.1,.2,1.2}});
     std::array<double,12> x{},dn{},vn{},direction{};
     for(int i=0;i<12;++i) { x[i]=.03*std::sin(i+1); dn[i]=.02*std::cos(i+1); vn[i]=.04*std::sin(2*i); direction[i]=std::sin(3*i+.7); }
-    for(double dt:{0.,.03}) {
-        const SolidParameters p{120,.28,1.3,dt};
+    for(const auto p:{SolidParameters{120,.28,1.3,0},SolidParameters{120,.28,1.3,.03},
+                     SolidParameters{120,.28,1.3,.03,false,.017},SolidParameters{120,.28,1.3,.03,true,.017}}) {
         const auto e=solid_element(g,p,x,dn,vn);
         const auto residual_only=solid_element(g,p,x,dn,vn,false);
         if(residual_only.residual!=e.residual || residual_only.strain_energy!=e.strain_energy || residual_only.kinetic_energy!=e.kinetic_energy)
@@ -26,7 +26,7 @@ int main() {
             error+=(fd-jv)*(fd-jv); norm+=jv*jv;
         }
         const double relative=std::sqrt(error/norm);
-        std::cout << "dt=" << dt << " jv_relative_error=" << relative << '\n';
+        std::cout << "dt=" << p.dt << " displacement_dt=" << p.displacement_dt << " jv_relative_error=" << relative << '\n';
         if(!std::isfinite(relative)||relative>2e-8) throw std::runtime_error("Solid Jacobian mismatch");
     }
     for(int a=0;a<4;++a) for(int c=0;c<3;++c) x[3*a+c]=.1*(c+1);

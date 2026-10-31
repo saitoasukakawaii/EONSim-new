@@ -66,6 +66,11 @@ std::uint64_t state_signature(const MeshPartition& mesh,const std::string& physi
     for(const auto& n:mesh.nodes) { bytes(&n.global_id,sizeof(n.global_id)); bytes(n.position.data(),n.position.size()*sizeof(double)); }
     for(const auto& c:mesh.cells) { bytes(&c.global_id,sizeof(c.global_id)); bytes(c.nodes.data(),c.nodes.size()*sizeof(LocalId)); bytes(&c.physical_tag,sizeof(c.physical_tag)); }
     for(const auto& f:mesh.boundary) { bytes(f.nodes.data(),f.nodes.size()*sizeof(LocalId)); bytes(&f.physical_tag,sizeof(f.physical_tag)); }
+    if(mesh.topological_dimension==2) {
+        bytes(&mesh.topological_dimension,sizeof(int));
+        for(const auto& c:mesh.cells2) { bytes(&c.global_id,sizeof(c.global_id)); bytes(&c.vertices,sizeof(int)); bytes(c.nodes.data(),c.vertices*sizeof(LocalId)); bytes(&c.physical_tag,sizeof(int)); }
+        for(const auto& e:mesh.edges) { bytes(e.nodes.data(),e.nodes.size()*sizeof(LocalId)); bytes(&e.physical_tag,sizeof(int)); }
+    }
     bytes(mesh.algebra_ids.data(),mesh.algebra_ids.size()*sizeof(GlobalId));
     bytes(mesh.owners.data(),mesh.owners.size()*sizeof(int));
     return hash;

@@ -2,6 +2,24 @@
 
 本文件是知识资产索引，不代替文章正文、文献阅读笔记或实验原始数据。
 
+## G5 独立场generalized-alpha / 2026-10-31
+
+[stage与物理输出草稿](../../website/drafts/generalized-alpha-stage-and-physical-output.md)：
+新时刻权重、分离惯性/位移链、算法加速度与端点物理加速度、压力stage及启动。
+来源[alpha-standalone.json](data/fem-integration-2026-10-31/alpha-standalone.json)，
+理论/实现/真实数值分开，无性能声明。待审核：输出时间语义、启动压力与质量恢复的卸载模型限定；保持draft。
+
+## G5 独立场BDF2 / 2026-10-31
+
+[时间误差与稳定化草稿](../../website/drafts/bdf2-time-error-and-stabilization.md)：
+不等距BDF2公式、结构速度未知量重建、固定tau的真实速度/压力时间阶，
+卸载结构高频模态进入渐近区的验证。理论、实现、数值证据分开；没有性能结论。
+源码与测试来源为[bdf-standalone.json](data/fem-integration-2026-10-31/bdf-standalone.json)。
+待审核：稳定化限定、非线性结构/跳跃载荷的未验证边界；保持draft。
+后续补充ALE/单体FSI BDF2的压力时间阶、移动网格保持与接口离散功率，
+来源[bdf-coupled.json](data/fem-integration-2026-10-31/bdf-coupled.json)，已更新同一草稿；
+不将接口功率平衡声称为总能量守恒，非线性材料仅验证状态恢复而非时间阶。
+
 ## ARCH-01 / 2026-10-30
 
 [通用 FEM / DoF 分层草稿](../../website/drafts/general-fem-dof-architecture.md)：源码阅读基线
@@ -126,3 +144,11 @@
 2026-10-31 合并补记：FEM-G0A 源提交 b674d5a 已完成本次设计/参考验证审查，20 项测试复验通过；检查工具修正 UTF-8 与 CRLF 兼容。设计子任务已合入，知识草稿仍为 draft，生产 C++/PETSc/MPI 验收范围不变。详见 BRANCH-02 合并清理记录。
 
 - 2026-10-31，FEM-G0B：[语义DoF与父编号](../../website/drafts/semantic-blocks-and-parent-numbering.md)，draft。理论/工作区实现/实际小rank检查分级；最终集成与兼容证据待补，不自动发布。
+
+## G0 补强 / 2026-10-31
+
+[真实装配置换与PC验收草稿](../../website/drafts/assembled-permutation-and-pc-verification.md)，按benchmark-report模板。区分置换理论、工作分支实现、主锁Debug/Release 43项与兼容补验、72个受控测量样本。新提交CI及最终整体交付待完成；草稿未发布。
+
+- 2026-10-31，G5耦合alpha：更新[stage与算法历史草稿](../../website/drafts/generalized-alpha-stage-and-physical-output.md)，记录共同stage/独立历史、极小步消减误差与端点集体验收；真实数值与源码审查分级，草稿未发布。
+
+- 2026-10-31，G1：[规范化网格与双线性标量单元](../../website/drafts/normalized-mesh-and-bilinear-scalar-elements.md)，benchmark-report草稿。记录文件/拓扑/空间分离、原生Q1、独立矩阵与收敛、零空间和restart数据文件身份；源码/PETSc-MPI/审查分级，无性能测量，未发布。

@@ -2,6 +2,32 @@
 
 更新时间：2026-10-31（Asia/Shanghai）
 
+## 最新接续：G0/G5/G1 最终集成验收
+
+当前分支`codex/fem-time-mesh`，已推送G0检查点`e9e4d30`。
+[该提交云端CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41180022722)
+主锁Debug/Release及PETSc3.19.6 Release均成功。G0验收补强通过，尚待整体任务主线交付。
+用户明确授权本次WSL2实际构建/MPI、由CI云端复验；旧cloud-only限制在本任务被覆盖。
+
+G5已接入独立瞬态流体、卸载结构、ALE及单体刚体/弹性FSI的BE/变步BDF2、两层accepted历史、事件降阶及重启。
+真实时间收敛、1/2/4rank与历史恢复范围见[TIME_INTEGRATION](TIME_INTEGRATION.md)。
+当前增量执行针对性回归与独立审查，不把它关闭为完整G5。
+独立场检查点`c923387`已推送并通过[云端CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41181938354)。
+ALE/FSI增量主锁Debug6项针对性检查全部通过，含压力、接口功率、真实拒绝及完整历史恢复。
+BDF2耦合检查点`bab4fda`已推送并通过[云端CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41192856614)。
+独立流体一阶/结构二阶generalized-alpha主锁Debug7项针对性验收通过；rho=0/0.5/1、早期/终点压力、
+物理加速度、算法历史重启、能量/阻尼及真实拒绝已验证；提交`25e0945`的云端CI三环境成功（run41194151488）。
+alpha ALE/单体FSI已接入：共同af、独立算法历史、完整运动学链及端点几何拒绝；
+真实速度/压力/位移时间阶趋近2，事件/重启/接口运动及负例验收见当前证据。
+继续G1规范化网格和二维标量闭环；G5仍待最终完整集成验收，不关闭整体任务。
+G5耦合检查点`2fcd2fd`已推送并通过云端三环境CI（41195474887）。
+G1已实现规范化Gmsh2.2/4.1、原生Tri3/Quad4及混合二维Poisson/扩散、命名边界/材料、
+纯Neumann、完整分区/输出/时间历史；空间、时间、1/2/4rank及真实失败恢复针对性验证通过。
+独立审查修复了额外分区tags、物理名称、集体线性失败、不连通零空间和restart数据文件覆盖问题。
+最终主锁Debug/Release各60/60、PETSc3.19.6相关13/13通过；109份源码哈希及完整测试清单见fem-final.json。
+独立审查无剩余源码阻塞；当前等待最终提交CI及PR/主线交付。
+以下早期检查点保留为历史，不覆盖本段当前状态。
+
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
@@ -29,6 +55,12 @@
 | G0B/G0语义DoF与三recipe | 实现及数值验收通过，review | 主环境Debug/Release各43/43；3.19.6相关检查通过，待整体PR/合并 |
 
 ## 当前焦点
+
+2026-10-31 接续：已 fetch 核实最新 main 为 `47b5bd46c992fcf64cf163361053ceb0091fa5a5`，无开放 PR；工作分支 `codex/fem-time-mesh`。
+该 SHA 的云端数值 CI 已成功（主锁 Debug/Release 各43项，兼容锁Release 10项，无失败/跳过），见 [主线CI证据](../research/data/fem-integration-2026-10-31/main-ci.json)。
+独立只读审查确认 g0.json 的100份源码哈希与该SHA一致；完整G0仍需补强真实装配置换、逐recipe物理观测和受控性能证据。
+本轮用户明确授权 WSL2 开发/验证并由云端CI复验；锁定依赖恢复中，不复用PATH中的ParaView MPI。
+以下旧检查点保留为历史；当前总任务仍 in_progress，G5/G1未完成。
 
 从最新main `72a3356` 开展用户授权的G0B→G0→G5→G1整体任务。G0A已合入，未重复开发。
 G0检查点已有生产实现、真实数值/MPI验收与独立审查；下一步推送验证检查点并进入G5。

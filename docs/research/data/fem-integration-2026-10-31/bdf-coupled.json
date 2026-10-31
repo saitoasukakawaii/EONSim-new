@@ -1,0 +1,243 @@
+{
+  "base_commit": "c92338783f5a23a901eaee7e84deb86286a19191",
+  "dirty": true,
+  "source_sha256": {
+    "CMakeLists.txt": "3baa954314950f25d6953a16271ec96067c415bd720c28ace454a3a522df918b",
+    "include/eonsim/ale.hpp": "9d7de8d8a82a1032395aaccc9ed7b37c838a8a683eca4704399978ebee6c1ee6",
+    "include/eonsim/boundary_geometry.hpp": "676185f62e269227d3f9a41f712e5487bc320f5209ab769583356fca92908264",
+    "include/eonsim/checkpoint.hpp": "4df8665a91c50d756cfea7f01972de0edef4a520b3c901c7961e043111740199",
+    "include/eonsim/config.hpp": "04e695adcd3c29764f2d2ed8e0768ddddb2aeeeae46de6887318893c6085251d",
+    "include/eonsim/discretization.hpp": "40356e1019a23dd66bda37290e060f0ff6a90851f9d862ea5f1f0a8bfd1054e2",
+    "include/eonsim/dof_semantics.hpp": "92b49911d1b8d100e5bce7a62b4a530ddc29f1c3ae2b9980ced36382116008bd",
+    "include/eonsim/dual.hpp": "1c918f59bd01e48f1d7e561323d7f57ee4b6a5726734de857ff0eb1783577e4d",
+    "include/eonsim/field_layout.hpp": "e61fdc18810f11e86aa1ae879a268d5b1924a8367d0888152499815fd775d3e8",
+    "include/eonsim/fluid.hpp": "adda7989c3e364b607dd71f7239e2928171ce7a364b14178e3bcdd2f9e021c7f",
+    "include/eonsim/fluid_boundary.hpp": "583fec7e4563c1b232eb8f8c3052540e2782fb9def71012020043354b9565e31",
+    "include/eonsim/fluid_element.hpp": "00ee39ca327a23e32f0967b189f4ff93a4db563670721391897d45116d848594",
+    "include/eonsim/fluid_residual.hpp": "2a2534995fc0df069992f7f1e38f4ca7bedfcd2cd4657c03c5f08db6c2461530",
+    "include/eonsim/fsi.hpp": "624222620c1e012a6985130c3ea910c6fb65960e0de329215d27934fdca3ec86",
+    "include/eonsim/fsi_domains.hpp": "dc24a7c91dec2632ef67a6c53ee828d7cdfaf96f056dcbca8cd7b8077cd25287",
+    "include/eonsim/fsi_element.hpp": "19c929b3658511429159d9084fc627c945f6fc824baab5130f35b2faedbfa8bc",
+    "include/eonsim/hyperelastic.hpp": "03c5ae56b99e7b31d3f01953235399cf47d8be5faf85e8ad1dd17430ce7ffc38",
+    "include/eonsim/linear_system.hpp": "b74f96dc0f9556fb3b7a80d6e10397b89078542b2655b2d523d52100a7d93888",
+    "include/eonsim/mesh.hpp": "dde8226f61163ec6dcb6e58e1d989e7aae346524ffd3e2fee4f155b7b1968dfc",
+    "include/eonsim/motion.hpp": "83e63f60a36956a4f7c7e0cad3a0aee1ec37795b66b8782562b3ef46a8b208a7",
+    "include/eonsim/nonlinear_system.hpp": "938de94e46bae5cd9ef1a1cd7ff0499835b321e8c89a243f432425c162e364c9",
+    "include/eonsim/pc_plan.hpp": "6c3d6dcbf193ec76b75f12e73d88f8e1cff1e78300a8f5c2d870a24ce6e0c30b",
+    "include/eonsim/poisson.hpp": "e08b08f88af7a9edda9405cd0d54e4cdd424d6b129b7c65df865ea9dcb1c6082",
+    "include/eonsim/quadrature.hpp": "a9d7cf1c4b0b608dd9d714cc8a20abf09aa1f661338e720889b08468b1eda39f",
+    "include/eonsim/reduced_layout.hpp": "fc687ac9f6338f001ba8194c340470e14fc81c3f234e5636f7718d451fb5fd2b",
+    "include/eonsim/regions.hpp": "e87c98bb826c40a71610ae6edb490268b6244b54775de070cd4638603d02e9c4",
+    "include/eonsim/schur_solver.hpp": "b29d10bdf8f33f7f65b9d83c9d6e5eb72f11bb22d40698d1df5633e52f6c84b2",
+    "include/eonsim/solid.hpp": "dfcd73497d3c8d931e7c9be21cf3ef5207d17a34cd60b59bd386821d2caa7136",
+    "include/eonsim/solid_element.hpp": "3e077437985d8fc217187f7270d0b9a3be045963b6d6995015ad7499a73e9724",
+    "include/eonsim/tet4.hpp": "930b9d5c4ace1dce1dd8a771388025b09013bc7676ab5846b811b9c680ed489c",
+    "include/eonsim/time_integration.hpp": "d3ab9d5eb5feabc9850fd9a59bd66edbee2edf31f98e13ca7487b4fb548d20d7",
+    "include/eonsim/time_step.hpp": "66a0dfd42fc5b7c2f9094bae70e148ddeaf8ddfdd19a0eb5b6cb27be7e51428f",
+    "include/eonsim/vtu.hpp": "7ffb55cfeaeb5bc3a430b76bbc48464aad593c5810c11252991bb899514f3c12",
+    "scripts/cloud/restore.sh": "cbd0ff0aa59ed1af148185947e02d2ffca5eb1cc03af190976fa9dfa00935b43",
+    "scripts/cloud/run.sh": "ce45907e7e6dc692c13b211d5de8892ef8ed9fd12b1aaf798d54c26cd828624c",
+    "scripts/cloud/validate.py": "2383cb41a62fad332f5f350cb410ad574ca49089fec7b51654bbafcb5445dd37",
+    "src/algebra/linear_system.cpp": "87807a0bec5663aa69324d13bc669f5ae6dd89a9b9f94929392eaa3442fa74d5",
+    "src/algebra/nonlinear_system.cpp": "40476b90e9b81cafb71b00d481690ba9c4abdf0922efaa967fe3ea73c51795ac",
+    "src/algebra/pc_plan.cpp": "9ebfe7aa688ea37a0dee7f6cc2ed72080b45d63d913b1032758f3df93b0276f9",
+    "src/algebra/schur_solver.cpp": "25c94386a4ca2a15a4e8aa00165069af8e7c76853c0a8f9e0bfae145b343d101",
+    "src/core/config.cpp": "78af0d3521cd8b92b87233f8d06910c895e759eb04a17f981ccd4b8c9b3e5b89",
+    "src/fem/boundary_geometry.cpp": "43cc8e41e715c7c3fea570e5346ff16108d30d355e96db33e6a1c5b6a6450aca",
+    "src/fem/field_layout.cpp": "e2397bff8d3941737142acd233df7b9214e2a0b28045b95057b9bb6831079173",
+    "src/fem/reduced_layout.cpp": "0b6548d0ce3e6aba73c3f055ccc4ec6cb467e55192b9a8d7e0e1f82e1d1ae4c3",
+    "src/fem/tet4.cpp": "3f7832113dffb709d7cc618b8f3ab746bd5e0e2278a48ff5c46ad24457fcd914",
+    "src/io/checkpoint.cpp": "cfed31381947e6ccf9ed8ddb37063202687d430d464a037e40f7129ce452a6b4",
+    "src/io/vtu.cpp": "4d88b718aaa5ac7301c420f109b62835ec13c46bfb66c595e78081555b7448a7",
+    "src/main.cpp": "37b7641cab82db815ebeb0dfc706491bcc546bb33c3964d5d058e02b4b9696bd",
+    "src/mesh/fsi_domains.cpp": "483557c1bf5f8c7dabc8fc9ba42415e5f3d28a5bc045acb99ef7ffc3364b496e",
+    "src/mesh/gmsh.cpp": "36894fbbff4a61e6825165727a763871316f7c14a31d05435fe2d9494631295a",
+    "src/mesh/partition.cpp": "aaa08d64e2a4a02d59f879fe6503a240458ec3e1a7cdfa8a377c08818c252796",
+    "src/physics/ale.cpp": "3e863dc097c77e0ed4ade76e3280a82210634fd94a672201499b1a85c68c6e18",
+    "src/physics/fluid.cpp": "03daae1981f1a419fb432ae8fbe5c29931168a79ab32767b3f6a7b02758bb74a",
+    "src/physics/fluid_boundary.cpp": "f22ee5d9423067c90e4a7d706508c88c06492509ee8cd5844b3140bea46ab4f0",
+    "src/physics/fluid_element.cpp": "ef6320bb68817861d5f8941c9423fae49f4308d1640b408e69bd7af244a497fc",
+    "src/physics/fsi.cpp": "a53d888e01348e9b603234ea7d7a46684dc0606367b4fb73113d28a5b38878fe",
+    "src/physics/fsi_element.cpp": "d02b8930f51fda8946881af91932e00e614bfbaf974194a66f8767d47fd87a94",
+    "src/physics/hyperelastic.cpp": "d26fca9698d54037d45ac84bb893bc9be1e80a21919b0d5d43c412ae703fac77",
+    "src/physics/motion.cpp": "5c270616f7902896f99299486d4982682ea1e58dd49feb0e7d0a67d960b210c2",
+    "src/physics/poisson.cpp": "436c5cf6d0e2197b0499e6eb3398d18827c53144225a9aa946e6337173028e52",
+    "src/physics/solid.cpp": "1185505c00d8950d7fbbeceddc9d23da517e030347c96bc7919c7ece1ed3aee6",
+    "src/physics/solid_element.cpp": "f9ed2ea962fed1623164dedafab3951ca6d88723b6b1494a10527c9791c872ad",
+    "tests/test_cloud_evidence.py": "c0f4206b23a496f6979274b33a8d8acd77e4acb0a7a6eca91c0aac03632b0d6a",
+    "tests/test_profile_validation.py": "b862da83b3ac711ff79286f189cb8dd4bfff97f20095d6ed8e599197bbe83864",
+    "tests/verify_ale_time.py": "ab5ad69881c9a1f7cf764229eaa420a6950c81348d80c4b970dd270709ce9bc5",
+    "tests/verify_boundary_geometry.cpp": "bfdaf1128d7733a247f8a19dae81ce0c4eb2ec7f91f0ed827d0bfaa4426383d8",
+    "tests/verify_checkpoint.cpp": "25430934f82c6115626c768550bf901c54c296356e567f8e32ff120b4d331e89",
+    "tests/verify_coo_jacobian.cpp": "6e3c4caeda900e3aacce5eca958dab197bfe63da40c9427a6c4487767e695755",
+    "tests/verify_domains.py": "cc37e754cc0a989932ba2d0d6cf9f65bfc3efe055a755a70ff9c180383756a0d",
+    "tests/verify_elastic_fsi.py": "ef19bb5cdd1cf21341b08f65db3845aa6e626a19f60e220ad434e57901493ae1",
+    "tests/verify_fluid.py": "bffe8b3720dd255db749e8b3118ba851c378d0a465877fc7f5acf99c00df277a",
+    "tests/verify_fluid_coo.py": "153ee835ac749c585582148d0ff36d99724e3b443f3e7e03e13522ed6e372a2d",
+    "tests/verify_fluid_element.cpp": "aa01de1889d824961111d0ec0898261f0fb2d6765fd2dfdd0a28ac3de279f40f",
+    "tests/verify_fluid_element_report.py": "4db84d175acd359163c680c0319fc931ec8e03dc2df062ab55ae8414a4f943a5",
+    "tests/verify_fluid_time.py": "5957660665420bca11f5129c01a17eefe1a05eea44163cd7fd9924bad80ed077",
+    "tests/verify_fsi.py": "cd87425865e6f5ef6c5a3e96dfc6b1de6d0ca49a233aed216c0ca03c802dccba",
+    "tests/verify_fsi_element.cpp": "9dcb3842cf7a27b265afc5c1abf50a533336bed034d3c620f5a9560af153b163",
+    "tests/verify_fsi_time.py": "e54591896ea7f2d6d4a55a000d06cd26dbc6ab2b20225dfcd24a59f2dfa290f8",
+    "tests/verify_hyperelastic.py": "e42f6a962ef1e42c5542adb6e145fe0e143ad14bab9e47b89185f1c5d0280d2d",
+    "tests/verify_hyperelastic_element.cpp": "ad8d4d2dc0152bfb9321db8bd22a7421e452d45bf869688d5ec3c5765a79eea0",
+    "tests/verify_linear_lifetime.cpp": "94b8367029ecc0199b9ffe71e30126aa0cf6e5337ceca765e7aa2e578ee11791",
+    "tests/verify_motion.py": "40b367f178ecd72099fe45f9053afdd23c0a05d3ea00ed30130bef303e7447da",
+    "tests/verify_nonlinear_acceptance.cpp": "be080d621d585da292d3bf2972c5ab8bfac609a497e01f31397abd84a47d47cf",
+    "tests/verify_parallel.py": "6e09ef878fbda9c8d178487fa0e44759590e7feb89421ebafb99a4e1dc3aad19",
+    "tests/verify_pc_plan.cpp": "082dffc72ef6a0db2aae9bd50d8de216db119ddab15d272de3410fc5e6bb116c",
+    "tests/verify_pc_restart.py": "15bcbf30d32a263482025b5cf22f68113a2968bd0a7e5cdd15158ab6b73b55a3",
+    "tests/verify_poisson.py": "dd64816b9c62f6fc1b0a9ef97f593f7647ace8bbf7acc0c471655f3cdac746ff",
+    "tests/verify_quadrature.cpp": "a094bcbb71406d7d6a8ab36c47499b5ba104c81919c3b0d7da4c499cf5aad8a1",
+    "tests/verify_regions.py": "ea3e489bb47a9d2fdf3910b5f985bb1cb03df8844872cf4176a4da6a4ec88603",
+    "tests/verify_restart.py": "48b71afa4f7cebd3110b1bcd668a703123c30d0aa6bbc06308026491b67f6af9",
+    "tests/verify_runtime.cpp": "856cc2aeefafad22b2bed15fc539c9caa97d1c5a70be8b908b2e76bf3b4649c1",
+    "tests/verify_schur.py": "fc91d9d123054d1858390ac56fbd85988217d0d0b6e33da6c2d9137f90ed401b",
+    "tests/verify_solid.py": "e1dacdd200c46f2d139102d08691d92102d212410be4072108b5e7e61a8bdfe8",
+    "tests/verify_solid_element.cpp": "696c11e542e6cb90b9d643550c7f92afe1339aa2ed54abf12985fc45f653c790",
+    "tests/verify_solid_time.py": "0de10816dbf8eeb4e907bb28738987666daa00d4d21455b815f1ec8a65b847ba",
+    "tests/verify_solver_failures.cpp": "42173ac3c14e49d1f48debe37d1c0721584e888cfb1c8bf8a5db570daf3b9524",
+    "tests/verify_tagged_fluid.py": "22e2baec13608414142483409744d1c79ae72701583e1af20ec6b710006df077",
+    "tests/verify_time_integration.cpp": "f19cf0d2d1614681fab533b91a5420108302cec1e368fc575542f72dcf529474",
+    "tests/verify_time_retry.py": "ae5fe24beef16594c10fed7be5c9350536c75b40d532dd36fe16a4686906042e"
+  },
+  "binary_sha256": "37e874711dc2626e393a9707015da1d57e921d0159e5f72234f672c3c340f597",
+  "junit_sha256": "1d9e7852524bd7dc27e0fe7e95edb7f1926492bbc3a9db97986498aa99bbf674",
+  "platform": "Linux-6.6.87.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "dependencies": {
+    "petsc": "3.23.7",
+    "openmpi": "5.0.8",
+    "compiler": "GCC 15.3.0",
+    "mode": "Debug",
+    "blas_threads": 1,
+    "openmp_threads": 1
+  },
+  "exit_code": 0,
+  "tests": [
+    {
+      "name": "ale_time_verification",
+      "result": "passed",
+      "seconds": 4.43391
+    },
+    {
+      "name": "fsi_time_verification",
+      "result": "passed",
+      "seconds": 118.724
+    },
+    {
+      "name": "domains_bdf2_verification",
+      "result": "passed",
+      "seconds": 5.83853
+    },
+    {
+      "name": "elastic_fsi_verification",
+      "result": "passed",
+      "seconds": 7.39507
+    },
+    {
+      "name": "rigid_fsi_verification",
+      "result": "passed",
+      "seconds": 1.17473
+    },
+    {
+      "name": "motion_verification",
+      "result": "passed",
+      "seconds": 0.774083
+    }
+  ],
+  "command": "ctest --test-dir build/cloud-3.23.7-debug -R '^(ale_time_verification|fsi_time_verification|domains_bdf2_verification|motion_verification|rigid_fsi_verification|elastic_fsi_verification)$' --output-on-failure --output-junit bdf-coupled-junit.xml",
+  "fsi": [
+    {
+      "body": "elastic",
+      "h": 0.001,
+      "velocity": 5.242729964894535e-05,
+      "pressure": 0.002192771993380797,
+      "mesh_displacement": 9.405433485490908e-08
+    },
+    {
+      "body": "elastic",
+      "h": 0.0005,
+      "velocity": 1.2331637415641685e-05,
+      "velocity_order": 2.0879538635323005,
+      "pressure": 0.0006028629471618129,
+      "pressure_order": 1.8628538398742365,
+      "mesh_displacement": 2.6382963622350887e-08,
+      "mesh_displacement_order": 1.8338878044762006
+    },
+    {
+      "body": "elastic",
+      "h": 0.00025,
+      "velocity": 2.9076131005757914e-06,
+      "velocity_order": 2.0844571599698054,
+      "pressure": 0.00015362483134981827,
+      "pressure_order": 1.9724186351535844,
+      "mesh_displacement": 6.765175721912338e-09,
+      "mesh_displacement_order": 1.963407319888515
+    },
+    {
+      "body": "rigid",
+      "h": 0.001,
+      "velocity": 2.8887268218007228e-08,
+      "pressure": 2.279442080415672e-07,
+      "mesh_displacement": 9.230543696686492e-08
+    },
+    {
+      "body": "rigid",
+      "h": 0.0005,
+      "velocity": 7.221484363520864e-09,
+      "velocity_order": 2.0000664628694715,
+      "pressure": 5.681199615632918e-08,
+      "pressure_order": 2.0044132516744546,
+      "mesh_displacement": 2.300716932955324e-08,
+      "mesh_displacement_order": 2.004332134333325
+    },
+    {
+      "body": "rigid",
+      "h": 0.00025,
+      "velocity": 1.7866914169600096e-09,
+      "velocity_order": 2.0150049258891696,
+      "pressure": 1.4034765801181413e-08,
+      "pressure_order": 2.0171906049288,
+      "mesh_displacement": 5.683933464742824e-09,
+      "mesh_displacement_order": 2.0171219217146827
+    }
+  ],
+  "ale": [
+    {
+      "scheme": "be",
+      "h": 0.1,
+      "mesh_velocity_error": 0.0022489401065151904
+    },
+    {
+      "scheme": "be",
+      "h": 0.05,
+      "mesh_velocity_error": 0.0011617527969083052,
+      "order": 0.9529421218310508
+    },
+    {
+      "scheme": "be",
+      "h": 0.025,
+      "mesh_velocity_error": 0.0005901095119529159,
+      "order": 0.9772484997422947
+    },
+    {
+      "scheme": "bdf2",
+      "h": 0.1,
+      "mesh_velocity_error": 0.0003034704306359576
+    },
+    {
+      "scheme": "bdf2",
+      "h": 0.05,
+      "mesh_velocity_error": 7.45654873014201e-05,
+      "order": 2.024976013436296
+    },
+    {
+      "scheme": "bdf2",
+      "h": 0.025,
+      "mesh_velocity_error": 1.846622699769318e-05,
+      "order": 2.013618906031061
+    }
+  ],
+  "nonlinear_retry_log": "step_retry=1 time=0.008 next_dt=0.002\nstep_retry=2 time=0.008 next_dt=0.001\nstep_retry=3 time=0.008 next_dt=0.0005\nstep_retry=4 time=0.008 next_dt=0.00025\nstep_retry=5 time=0.008 next_dt=0.000125\nstep_retry=6 time=0.008 next_dt=6.25e-05\nstep_retry=7 time=0.008 next_dt=3.125e-05\nstep_retry=8 time=0.008 next_dt=1.5625e-05\nstep_retry=9 time=0.008 next_dt=7.8125e-06\nstep_retry=10 time=0.008 next_dt=3.90625e-06\nstep_retry=11 time=0.008 next_dt=1.95313e-06\nstep_retry=12 time=0.008 next_dt=9.76563e-07\nstep_retry=13 time=0.008 next_dt=4.88281e-07\nstep_retry=14 time=0.008 next_dt=2.44141e-07\nstep_retry=15 time=0.008 next_dt=1.2207e-07\nfsi_step=3 time=0.008000122070312501 position=0.0008028942683237868 velocity=0.1495171350351324 fluid_force=1.798512263040216 body_balance=2.909603807887962e-11 snes_iterations=2 interface_power=0.2687277875227195 body_power=0.2687277875270975 power_balance=4.377997964155611e-12 residual=3.135503114030595e-11 time_order=2\nstatus=success\n"
+}

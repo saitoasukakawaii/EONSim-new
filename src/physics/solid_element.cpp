@@ -6,14 +6,14 @@ namespace eonsim {
 SolidElement solid_element(const Tet4Geometry& g,const SolidParameters& p,
     const Tet4Vector::State<double>& x,const Tet4Vector::State<double>& dn,const Tet4Vector::State<double>& vn,bool compute_tangent)
 {
-    if(!(p.young>0 && p.poisson>-1 && p.poisson<.5 && p.density>0 && p.dt>=0) ||
-        !std::isfinite(p.young+p.poisson+p.density+p.dt)) throw std::runtime_error("Invalid solid material/time parameters");
+    if(!(p.young>0 && p.poisson>-1 && p.poisson<.5 && p.density>0 && p.dt>=0&&p.displacement_dt>=0) ||
+        !std::isfinite(p.young+p.poisson+p.density+p.dt+p.displacement_dt)) throw std::runtime_error("Invalid solid material/time parameters");
     const double mu=p.young/(2*(1+p.poisson));
     const double lambda=p.young*p.poisson/((1+p.poisson)*(1-2*p.poisson));
-    const double chain=p.dt>0?p.dt:1;
+    const double chain=p.dt>0?(p.displacement_dt>0?p.displacement_dt:p.dt):1;
     double grad[Space3::dimension][Space3::dimension]{};
     for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i) for(int j=0;j<Space3::dimension;++j)
-        grad[i][j]+=(p.dt>0?dn[Tet4Vector::components*a+i]+p.dt*x[Tet4Vector::components*a+i]:x[Tet4Vector::components*a+i])*g.gradients[a][j];
+        grad[i][j]+=(p.dt>0?dn[Tet4Vector::components*a+i]+chain*x[Tet4Vector::components*a+i]:x[Tet4Vector::components*a+i])*g.gradients[a][j];
     double tr=0;
     for(int i=0;i<Space3::dimension;++i) tr+=grad[i][i];
     double stress[Space3::dimension][Space3::dimension]{};

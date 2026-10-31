@@ -3,12 +3,14 @@
 #include <cstdint>
 #include <tuple>
 namespace eonsim {
-enum class DofDomain : std::uint8_t { fluid, solid, mesh };
-enum class DofQuantity : std::uint8_t { velocity, pressure, displacement };
+enum class DofDomain : std::uint8_t { fluid, solid, mesh, scalar };
+enum class DofQuantity : std::uint8_t { velocity, pressure, displacement, scalar_value };
 enum class DofEntity : std::uint8_t { vertex, body };
 /** Identity in one layout's mesh namespace (not a restart identifier).
  * entity is the imported/joined mesh ID, never MPI rank or algebra row.
  * Tet4 vertex P1 uses mode=0, space=1; the global rigid scalar uses space=0.
+ * The conforming 2D scalar P1/Q1 space uses space=2, including mixed cells:
+ * shared vertices have one identity; cell type controls their local basis.
  * Multiple physical slots may refer to one canonical identity through ReducedLayout.
  */
 struct DofKey {
@@ -26,5 +28,6 @@ struct ComponentMeaning {
     DofDomain domain;
     DofQuantity quantity;
     std::uint16_t component;
+    std::uint16_t space=1;
 };
 } // namespace eonsim

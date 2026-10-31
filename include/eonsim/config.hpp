@@ -56,6 +56,9 @@ struct FluidConfig {
     bool mean_pressure=false;
     std::map<int,FluidMaterial> regions;
     bool traction_outlet=false;
+    // Fixed SUPG/PSPG coefficient (units time/density) for a time-step-independent
+    // spatial discretization. Unset preserves the original transient estimate.
+    std::optional<double> stabilization_tau;
     double density=1, viscosity=1, pressure_drop=1, dt=.05, ramp_time=.1;
     int steps=10;
 };
@@ -85,15 +88,48 @@ struct FsiDomains {
 };
 struct FsiConfig {
     FsiDomains domains;
+    std::optional<double> stabilization_tau;
     bool elastic=false, neo_hookean=false;
     double young=100, poisson=.3, solid_density=1, thickness=.25;
     double dt=.02, mass=2, damping=.3, stiffness=5, pressure=1, density=1, viscosity=1;
     int steps=5;
 };
 
-struct TimeControl { int max_retries=0; double minimum_dt=1e-10,reduction=.5; };
+struct TimeControl {
+    int max_retries=0; double minimum_dt=1e-10,reduction=.5;
+    std::vector<double> step_sizes; ///< 候选步长按accepted步号选取，末值延续；拒绝优先缩步。
+    std::vector<double> events; ///< 必须命中的不连续时刻；新格式在事件后重新启动历史。
+};
+enum class TimeScheme { backward_euler, bdf2, generalized_alpha };
+struct TimeIntegration { TimeScheme scheme=TimeScheme::backward_euler; double rho_infinity=.5; };
+
+/// (c0+c1*x+c2*y+c3*x*x+c4*x*y+c5*y*y)*exp(rate*t).
+struct ScalarFunction { std::array<double,6> polynomial{}; double rate=0; };
+struct ScalarBoundary {
+    enum class Type { dirichlet,neumann,robin };
+    std::string region; ///< Numeric physical tag or unique physical name, dimension 1.
+    Type type=Type::dirichlet;
+    ScalarFunction value;
+    double robin_coefficient=0; ///< k grad(u).n + coefficient*u = value.
+};
+struct Scalar2DConfig {
+    bool transient=false;
+    double diffusivity=1,capacity=1,dt=.01;
+    int steps=10;
+    std::string manufactured; ///< Empty: user forcing; affine/quadratic/sine: analytical oracle.
+    double manufactured_rate=0;
+    ScalarFunction source,initial;
+    std::vector<ScalarBoundary> boundaries;
+    std::map<std::string,double> regions; ///< Diffusivity by dimension-2 name/tag.
+};
 
 struct Config {
+    // Independent policy declarations. Only the current policies are supported;
+    // neither option requests or implies a storage permutation.
+    std::string semantic_order="entity_first",storage_order="owner_node";
+    bool scalar2d_problem=false;
+    Scalar2DConfig scalar2d;
+    TimeIntegration time_integration;
     TimeControl time_control;
     std::filesystem::path checkpoint, restart;
     int stop_after=0;

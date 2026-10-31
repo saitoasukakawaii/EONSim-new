@@ -1,6 +1,7 @@
 #include "eonsim/config.hpp"
 #include "eonsim/time_step.hpp"
 #include "eonsim/poisson.hpp"
+#include "eonsim/scalar2d.hpp"
 #include "eonsim/fluid.hpp"
 #include "eonsim/solid.hpp"
 #include "eonsim/ale.hpp"
@@ -70,6 +71,7 @@ int main(int argc, char* argv[])
             using Clock = std::chrono::steady_clock;
             const auto begin = Clock::now();
             auto config = eonsim::read_config(*case_file);
+            if(rank==0)std::cout << "layout_policy semantic_order=" << config.semantic_order << " storage_order=" << config.storage_order << '\n';
             PetscBool fluid_coo=PETSC_FALSE;
             EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_coo",&fluid_coo,nullptr));
             if(fluid_coo&&(!config.fluid_problem||config.fsi_problem||config.motion_problem))
@@ -81,15 +83,16 @@ int main(int argc, char* argv[])
             if(stop<0 || stop>1000000000) throw std::runtime_error("Invalid -stop_after");
             config.stop_after=static_cast<int>(stop);
             if((!config.checkpoint.empty()||!config.restart.empty()||stop) &&
-               !(config.fsi_problem || (config.solid_problem&&config.solid.transient) ||
-                 (config.fluid_problem&&config.fluid.mode==eonsim::FluidConfig::Mode::transient)))
-                throw std::runtime_error("Checkpoint/restart/stop_after require transient fluid/solid or FSI");
+               !((config.scalar2d_problem&&config.scalar2d.transient)||config.fsi_problem || (config.solid_problem&&config.solid.transient) ||
+                 (config.fluid_problem&&config.fluid.mode==eonsim::FluidConfig::Mode::transient)||
+                 (config.motion_problem&&config.motion.mode!=eonsim::MotionConfig::Mode::rigid)))
+                throw std::runtime_error("Checkpoint/restart/stop_after require transient fluid/solid, ALE or FSI");
             if (auto mesh = option("-mesh")) config.mesh = std::filesystem::absolute(*mesh);
             if (auto output = option("-output")) config.output = std::filesystem::absolute(*output);
             if (config.output.extension() != ".vtu") throw std::runtime_error("output must have a .vtu extension");
             const auto diagnostics = option("-diagnostics").value_or("basic");
             if (diagnostics != "basic" && diagnostics != "full") throw std::runtime_error("diagnostics must be basic or full");
-            const auto read_mesh=[&] { return config.fsi_problem&&!config.fsi.domains.solid_mesh.empty()?eonsim::read_fsi_domains(config.mesh,config.fsi.domains):eonsim::read_gmsh22(config.mesh); };
+            const auto read_mesh=[&] { if(config.scalar2d_problem)return eonsim::read_gmsh2d(config.mesh);return config.fsi_problem&&!config.fsi.domains.solid_mesh.empty()?eonsim::read_fsi_domains(config.mesh,config.fsi.domains):eonsim::read_gmsh22(config.mesh); };
             if (prepare) {
                 PetscInt parts = 1;
                 EONSIM_PETSC(PetscOptionsGetInt(nullptr, nullptr, "-parts", &parts, nullptr));
@@ -98,12 +101,13 @@ int main(int argc, char* argv[])
                 std::cout << "Prepared " << parts << " HDF5 partitions in " << *prepare << "\nstatus=success\n";
             } else {
             const auto mesh = partition ? eonsim::read_partition(*partition, rank, size) : read_mesh();
+            if(mesh.topological_dimension!=(config.scalar2d_problem?2:3))throw std::runtime_error("Partition topology does not match selected physics");
             std::vector<eonsim::GlobalId> counts(size);
             const eonsim::GlobalId owned = mesh.owned_nodes;
             MPI_Allgather(&owned, 1, MPI_INT64_T, counts.data(), 1, MPI_INT64_T, PETSC_COMM_WORLD);
             eonsim::GlobalId owned_start = 0, total = 0;
             for (int r = 0; r < size; ++r) { if (r < rank) owned_start += counts[r]; total += counts[r]; }
-            const eonsim::GlobalId local_cells = mesh.cells.size();
+            const eonsim::GlobalId local_cells = mesh.topological_dimension==2?mesh.cells2.size():mesh.cells.size();
             eonsim::GlobalId total_cells = 0;
             MPI_Allreduce(&local_cells, &total_cells, 1, MPI_INT64_T, MPI_SUM, PETSC_COMM_WORLD);
             if (total_cells != mesh.global_cells) throw std::runtime_error("Incomplete cell partition");
@@ -119,7 +123,9 @@ int main(int argc, char* argv[])
                     throw std::runtime_error("Ghost ID does not belong to its declared owner");
             }
             const double input_seconds = std::chrono::duration<double>(Clock::now()-begin).count();
-            if(config.fsi_problem) {
+            if(config.scalar2d_problem) {
+                eonsim::solve_scalar2d(PETSC_COMM_WORLD,mesh,config);
+            } else if(config.fsi_problem) {
                 const auto fsi=eonsim::solve_fsi(PETSC_COMM_WORLD,mesh,config);
                 eonsim::write_fields(config.output,fsi.current_mesh,fsi.fields);
                 const auto solid_path=config.output.parent_path()/(config.output.stem().string()+"_solid.vtu");

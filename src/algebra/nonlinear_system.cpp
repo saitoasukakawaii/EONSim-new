@@ -19,6 +19,87 @@
 #endif
 namespace eonsim {
 namespace {
+// 显式的小算例诊断：检验真实已装配 J/R 的跨 rank 置换，不修改生产布局。
+// VecPermute 不支持非本地置换，故向量使用同一 IS 的分布式 scatter。
+void verify_operator_permutation(MPI_Comm comm,Mat matrix,Vec residual) {
+    PetscInt begin,end,size;
+    EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
+    EONSIM_PETSC(MatGetSize(matrix,&size,nullptr));
+    std::vector<PetscInt> reverse;
+    for(PetscInt i=begin;i<end;++i) reverse.push_back(size-1-i);
+    PetscOwner<IS,ISDestroy> source,destination;
+    EONSIM_PETSC(ISCreateGeneral(comm,end-begin,reverse.data(),PETSC_COPY_VALUES,source.put()));
+    EONSIM_PETSC(ISCreateStride(comm,end-begin,begin,1,destination.put()));
+    PetscOwner<Mat,MatDestroy> permuted;
+    EONSIM_PETSC(MatPermute(matrix,source.get(),source.get(),permuted.put()));
+    PetscOwner<Vec,VecDestroy> direction,action,mapped_direction,mapped_action,actual,mapped_residual;
+    EONSIM_PETSC(MatCreateVecs(matrix,direction.put(),action.put()));
+    EONSIM_PETSC(VecDuplicate(direction.get(),mapped_direction.put()));
+    EONSIM_PETSC(VecDuplicate(action.get(),mapped_action.put()));
+    EONSIM_PETSC(VecDuplicate(action.get(),actual.put()));
+    EONSIM_PETSC(VecDuplicate(action.get(),mapped_residual.put()));
+    PetscOwner<VecScatter,VecScatterDestroy> scatter;
+    EONSIM_PETSC(VecScatterCreate(direction.get(),source.get(),mapped_direction.get(),destination.get(),scatter.put()));
+    const auto map=[&](Vec from,Vec to) {
+        EONSIM_PETSC(VecScatterBegin(scatter.get(),from,to,INSERT_VALUES,SCATTER_FORWARD));
+        EONSIM_PETSC(VecScatterEnd(scatter.get(),from,to,INSERT_VALUES,SCATTER_FORWARD));
+    };
+    PetscScalar* values;
+    EONSIM_PETSC(VecGetArray(direction.get(),&values));
+    for(PetscInt i=begin;i<end;++i) values[i-begin]=std::sin(.37*(i+1))+.2*std::cos(.13*(i+1));
+    EONSIM_PETSC(VecRestoreArray(direction.get(),&values));
+    EONSIM_PETSC(MatMult(matrix,direction.get(),action.get()));
+    map(direction.get(),mapped_direction.get()); map(action.get(),mapped_action.get());
+    EONSIM_PETSC(MatMult(permuted.get(),mapped_direction.get(),actual.get()));
+    PetscReal scale,error;
+    EONSIM_PETSC(VecNorm(mapped_action.get(),NORM_INFINITY,&scale));
+    EONSIM_PETSC(VecAXPY(actual.get(),-1,mapped_action.get()));
+    EONSIM_PETSC(VecNorm(actual.get(),NORM_INFINITY,&error));
+    if(!std::isfinite(scale)||!std::isfinite(error)||error>1e-11*(1+scale)) throw std::runtime_error("Assembled Jacobian permutation mismatch");
+    map(residual,mapped_residual.get());
+    EONSIM_PETSC(VecScatterBegin(scatter.get(),mapped_residual.get(),actual.get(),INSERT_VALUES,SCATTER_REVERSE));
+    EONSIM_PETSC(VecScatterEnd(scatter.get(),mapped_residual.get(),actual.get(),INSERT_VALUES,SCATTER_REVERSE));
+    EONSIM_PETSC(VecAXPY(actual.get(),-1,residual));
+    PetscReal residual_error;
+    EONSIM_PETSC(VecNorm(actual.get(),NORM_INFINITY,&residual_error));
+    if(!std::isfinite(residual_error)||residual_error!=0) throw std::runtime_error("Assembled residual permutation mismatch");
+    // 已知离散解的右端 J*v，检查真实切线的置换线性求解，而非只比较矩阵尺寸。
+    PetscOwner<KSP,KSPDestroy> solver;
+    EONSIM_PETSC(KSPCreate(comm,solver.put()));
+    EONSIM_PETSC(KSPSetOperators(solver.get(),permuted.get(),permuted.get()));
+    EONSIM_PETSC(KSPSetType(solver.get(),KSPPREONLY));
+    PC pc; EONSIM_PETSC(KSPGetPC(solver.get(),&pc));
+    EONSIM_PETSC(PCSetType(pc,PCLU));
+    EONSIM_PETSC(PCFactorSetMatSolverType(pc,MATSOLVERSUPERLU_DIST));
+    const auto solve_checked=[&](Vec rhs,Vec solution) {
+        const auto solve_error=KSPSolve(solver.get(),rhs,solution);
+        KSPConvergedReason reason=KSP_CONVERGED_ITERATING;
+        PCFailedReason pc_failure=PC_NOERROR;
+        const auto reason_error=KSPGetConvergedReason(solver.get(),&reason);
+        const auto pc_error=PCGetFailedReason(pc,&pc_failure);
+        // PETSc 3.19 PREONLY 可在局部 PC 失败后返回不同 reason；进入后续规约前共同拒绝。
+        int failed=solve_error||reason_error||pc_error||reason<=0||pc_failure!=PC_NOERROR,any_failed=0;
+        MPI_Allreduce(&failed,&any_failed,1,MPI_INT,MPI_MAX,comm);
+        if(any_failed) throw std::runtime_error("Assembled permutation reference solve failed");
+    };
+    solve_checked(mapped_action.get(),actual.get());
+    EONSIM_PETSC(VecAXPY(actual.get(),-1,mapped_direction.get()));
+    PetscReal solution_error; EONSIM_PETSC(VecNorm(actual.get(),NORM_INFINITY,&solution_error));
+    if(!std::isfinite(solution_error)||solution_error>2e-8)
+        throw std::runtime_error("Assembled permutation solve mismatch");
+    // 同一因子求解真实 Newton 右端；逆映射后由原始 J/R 验证修正方程。
+    solve_checked(mapped_residual.get(),actual.get());
+    EONSIM_PETSC(VecScatterBegin(scatter.get(),actual.get(),direction.get(),INSERT_VALUES,SCATTER_REVERSE));
+    EONSIM_PETSC(VecScatterEnd(scatter.get(),actual.get(),direction.get(),INSERT_VALUES,SCATTER_REVERSE));
+    EONSIM_PETSC(MatMult(matrix,direction.get(),action.get()));
+    EONSIM_PETSC(VecAXPY(action.get(),-1,residual));
+    PetscReal correction_error,residual_scale;
+    EONSIM_PETSC(VecNorm(action.get(),NORM_2,&correction_error));
+    EONSIM_PETSC(VecNorm(residual,NORM_2,&residual_scale));
+    if(!std::isfinite(correction_error)||correction_error>1e-8+1e-7*residual_scale)
+        throw std::runtime_error("Permuted Newton correction fails original equations");
+    EONSIM_PETSC(PetscPrintf(comm,"operator_permutation dofs=%" PetscInt_FMT " action_error=%.17g residual_error=%.17g solution_error=%.17g correction_error=%.17g\n",size,double(error),double(residual_error),double(solution_error),double(correction_error)));
+}
 // 只读取已存在的求解器；尤其不调用 PCSetUp 或会创建新对象的 PCMGGetSmootherUp。
 PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
                                std::set<KSP>& visited,std::ostringstream& out)
@@ -529,7 +610,10 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     }
     const auto solve_begin=std::chrono::steady_clock::now();
     const double setup_seconds=std::chrono::duration<double>(solve_begin-setup_begin).count();
-    context.evaluate(x.get(),r.get(),(schur||semantic)?j.get():nullptr,true);
+    PetscBool verify_permutation=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-verify_operator_permutation",&verify_permutation,nullptr));
+    context.evaluate(x.get(),r.get(),(schur||semantic||verify_permutation)?j.get():nullptr,true);
+    if(verify_permutation) verify_operator_permutation(comm,j.get(),r.get());
     acceptance.measure(r.get(),true);
     EONSIM_PETSC(SNESSetInitialFunction(snes.get(),r.get()));
     const auto schur_begin=std::chrono::steady_clock::now();

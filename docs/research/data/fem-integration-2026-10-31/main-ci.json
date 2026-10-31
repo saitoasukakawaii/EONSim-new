@@ -1,0 +1,106 @@
+{
+  "source_sha": "47b5bd46c992fcf64cf163361053ceb0091fa5a5",
+  "run_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41178465248",
+  "evidence": "Existing cloud job logs inspected in this session; not rerun locally",
+  "jobs": [
+    {
+      "job_id": 124470796979,
+      "name": "PETSc 3.19.6 / release",
+      "conclusion": "success",
+      "summary": {
+        "commit": "47b5bd46c992fcf64cf163361053ceb0091fa5a5",
+        "mode": "release",
+        "selection": "mpi-failure",
+        "petsc": "3.19.6",
+        "status": "passed",
+        "resources": {
+          "cpu_budget": 4,
+          "memory_bytes": 16760344576,
+          "cgroup": {
+            "/sys/fs/cgroup": {},
+            "/sys/fs/cgroup/system.slice": {
+              "cpu.max": "max 100000",
+              "memory.max": "max"
+            },
+            "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+              "cpu.max": "max 100000",
+              "memory.max": "max"
+            }
+          },
+          "build_jobs": 4
+        },
+        "test_counts": {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "job_id": 124470797085,
+      "name": "PETSc 3.23.7 / release",
+      "conclusion": "success",
+      "summary": {
+        "commit": "47b5bd46c992fcf64cf163361053ceb0091fa5a5",
+        "mode": "release",
+        "selection": "all",
+        "petsc": "3.23.7",
+        "status": "passed",
+        "resources": {
+          "cpu_budget": 4,
+          "memory_bytes": 16760344576,
+          "cgroup": {
+            "/sys/fs/cgroup": {},
+            "/sys/fs/cgroup/system.slice": {
+              "cpu.max": "max 100000",
+              "memory.max": "max"
+            },
+            "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+              "cpu.max": "max 100000",
+              "memory.max": "max"
+            }
+          },
+          "build_jobs": 4
+        },
+        "test_counts": {
+          "passed": 43,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "job_id": 124470797117,
+      "name": "PETSc 3.23.7 / debug",
+      "conclusion": "success",
+      "summary": {
+        "commit": "47b5bd46c992fcf64cf163361053ceb0091fa5a5",
+        "mode": "debug",
+        "selection": "all",
+        "petsc": "3.23.7",
+        "status": "passed",
+        "resources": {
+          "cpu_budget": 4,
+          "memory_bytes": 16760344576,
+          "cgroup": {
+            "/sys/fs/cgroup": {},
+            "/sys/fs/cgroup/system.slice": {
+              "cpu.max": "max 100000",
+              "memory.max": "max"
+            },
+            "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+              "cpu.max": "max 100000",
+              "memory.max": "max"
+            }
+          },
+          "build_jobs": 4
+        },
+        "test_counts": {
+          "passed": 43,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    }
+  ]
+}
