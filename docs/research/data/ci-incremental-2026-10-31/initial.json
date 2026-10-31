@@ -1,0 +1,430 @@
+{
+  "source_commit": "8f695cc6ed17fcbbd2736cceba38e7984de2b67e",
+  "tested_merge_commit": "9ce31f9f869770e5672b01a1dfa39b4788710c6f",
+  "pr": 26,
+  "run_id": 41214961025,
+  "workflow_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41214961025",
+  "local_checks": {
+    "selection_receipt_tests": 24,
+    "evidence_parser_tests": 6,
+    "actionlint": "1.7.7 passed",
+    "shell_syntax": "passed",
+    "markdown_links": "passed"
+  },
+  "receipt": {
+    "schema": 1,
+    "repository": "saitoasukakawaii/EONSim-new",
+    "pr": 26,
+    "base": "3df1c31f8f3b6c995e00368782a94971a92371c3",
+    "head": "8f695cc6ed17fcbbd2736cceba38e7984de2b67e",
+    "commit": "9ce31f9f869770e5672b01a1dfa39b4788710c6f",
+    "tree": "38bd119bf75d36d4a92f6dac272e5aa183db17c1",
+    "fingerprint": "9a98d316184ee3c95b66d93a2e25489985c19eda3e641dd3f422de425d381df6",
+    "run_id": 41214961025,
+    "status": "passed",
+    "covered": [
+      "poisson_verification"
+    ],
+    "executed": [
+      "poisson_verification"
+    ],
+    "reused": [],
+    "origins": {
+      "poisson_verification": {
+        "debug": {
+          "run_id": 41214961025,
+          "commit": "9ce31f9f869770e5672b01a1dfa39b4788710c6f"
+        },
+        "release": {
+          "run_id": 41214961025,
+          "commit": "9ce31f9f869770e5672b01a1dfa39b4788710c6f"
+        }
+      }
+    },
+    "previous_run_id": null,
+    "disposition": "run"
+  },
+  "cloud": {
+    "debug": {
+      "commit": "9ce31f9f869770e5672b01a1dfa39b4788710c6f",
+      "dirty": false,
+      "mode": "debug",
+      "petsc": "3.23.7",
+      "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+      "resources": {
+        "cpu_budget": 4,
+        "memory_bytes": 16760344576,
+        "cgroup": {
+          "/sys/fs/cgroup": {},
+          "/sys/fs/cgroup/system.slice": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          },
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          }
+        },
+        "build_jobs": 4
+      },
+      "selected_tests": [
+        "poisson_verification"
+      ],
+      "build_targets": [
+        "eonsim",
+        "verify_runtime"
+      ],
+      "tests": [
+        {
+          "name": "poisson_verification",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.670517,
+          "log": "evidence/junit.xml#poisson_verification",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "status": "passed",
+      "commands": [
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/g++",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.008899169999999401,
+          "log": "evidence/compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpicxx",
+            "--showme"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.012758226000002537,
+          "log": "evidence/mpi-compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.020956654999999103,
+          "log": "evidence/mpi-runtime.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.01291032099999967,
+          "log": "evidence/cmake.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--preset",
+            "debug",
+            "-B",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug",
+            "-DBUILD_TESTING=ON",
+            "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+            "-DCMAKE_PREFIX_PATH=/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7",
+            "-DMPIEXEC_EXECUTABLE=/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 2.525175204,
+          "log": "evidence/configure.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug",
+            "--show-only=json-v1"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.021245618999998328,
+          "log": "evidence/full-test-inventory.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--build",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug",
+            "--parallel",
+            "4",
+            "--target",
+            "eonsim",
+            "verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 22.092616116000002,
+          "log": "evidence/build.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ldd",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/eonsim"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.021360219000001734,
+          "log": "evidence/runtime-linkage.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "1",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.16950426799999718,
+          "log": "evidence/runtime-preflight.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug",
+            "-T",
+            "Test",
+            "--no-compress-output",
+            "--output-junit",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/evidence/junit.xml",
+            "--no-tests=error",
+            "-j",
+            "1",
+            "-V",
+            "-R",
+            "^(poisson_verification)$"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.7207454119999994,
+          "log": "evidence/ctest.log"
+        }
+      ]
+    },
+    "release": {
+      "commit": "9ce31f9f869770e5672b01a1dfa39b4788710c6f",
+      "dirty": false,
+      "mode": "release",
+      "petsc": "3.23.7",
+      "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+      "resources": {
+        "cpu_budget": 4,
+        "memory_bytes": 16760344576,
+        "cgroup": {
+          "/sys/fs/cgroup": {},
+          "/sys/fs/cgroup/system.slice": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          },
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          }
+        },
+        "build_jobs": 4
+      },
+      "selected_tests": [
+        "poisson_verification"
+      ],
+      "build_targets": [
+        "eonsim",
+        "verify_runtime"
+      ],
+      "tests": [
+        {
+          "name": "poisson_verification",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.526675,
+          "log": "evidence/junit.xml#poisson_verification",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "status": "passed",
+      "commands": [
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/g++",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.010525438000001941,
+          "log": "evidence/compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpicxx",
+            "--showme"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.012494688000003862,
+          "log": "evidence/mpi-compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.020492454999995857,
+          "log": "evidence/mpi-runtime.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.020657803999995394,
+          "log": "evidence/cmake.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--preset",
+            "release",
+            "-B",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release",
+            "-DBUILD_TESTING=ON",
+            "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+            "-DCMAKE_PREFIX_PATH=/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7",
+            "-DMPIEXEC_EXECUTABLE=/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 2.2758015830000033,
+          "log": "evidence/configure.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release",
+            "--show-only=json-v1"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.020708490000004076,
+          "log": "evidence/full-test-inventory.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--build",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release",
+            "--parallel",
+            "4",
+            "--target",
+            "eonsim",
+            "verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 33.69257965,
+          "log": "evidence/build.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ldd",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/eonsim"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.02118742299998644,
+          "log": "evidence/runtime-linkage.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "1",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.1687190750000127,
+          "log": "evidence/runtime-preflight.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release",
+            "-T",
+            "Test",
+            "--no-compress-output",
+            "--output-junit",
+            "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/junit.xml",
+            "--no-tests=error",
+            "-j",
+            "1",
+            "-V",
+            "-R",
+            "^(poisson_verification)$"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.569722224000003,
+          "log": "evidence/ctest.log"
+        }
+      ]
+    }
+  },
+  "legacy": "skipped",
+  "full_suite": "not run",
+  "website": {
+    "run_id": 41214961032,
+    "status": "success"
+  },
+  "trigger_observation": "Both observed runs for source_commit are pull_request; no push workflow run."
+}

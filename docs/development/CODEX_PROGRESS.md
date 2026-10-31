@@ -51,7 +51,7 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 
 ## 当前焦点
 
-CI-INCREMENTAL-01 正在本地分支 `codex/pr-incremental-ci` 实施；基线 `ef20e03`。用户已选择仅 PR 自动增量检查，并授权脚本验证加一次小型云端验收。没有授权全量数值验证或自动合并。
+CI-INCREMENTAL-01 正在本地分支 `codex/pr-incremental-ci` 实施；基线 `ef20e03`。用户已选择仅 PR 自动增量检查，并授权脚本验证加一次小型云端验收。没有授权全量数值验证或自动合并。实现 `8f695cc` 已推送至 [PR #26](https://github.com/saitoasukakawaii/EONSim-new/pull/26)；首轮云端仅 poisson_verification，Debug/Release 各 1/1，通过证据见[记录](../research/data/ci-incremental-2026-10-31/initial.json)。文档后续提交的 receipt 复用待验收。
 
 DOCS-01 已通过 PR #25 合入，合并提交 `be21882`；G0B/G0/G5/G1 与 PR #24 工程策略保持已交付。当前 main tip 以 Git 为准。
 CI-INCREMENTAL-01 将日常数值 CI 改为 PR 选测的 PETSc 3.23.7 Debug/Release；3.19.6 仍仅手动兼容专项，main 上生效以合并为准。合并状态由本地 Git 历史确认，本次未查询 PR #24 的远程 Checks，不能据合并推断其逐项测试结果。

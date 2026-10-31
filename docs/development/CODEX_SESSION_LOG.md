@@ -409,3 +409,11 @@
 - 首轮选测脚本测试发现 include/eonsim/fsi_element.hpp 未映射；补齐后 24 项 Python 测试通过。共享 reader、流体边界对固体的使用者及 profile 日志输入也纳入显式规则。
 - 已执行 python3 tests/test_ci_selection.py（24 项通过）、python3 tests/test_cloud_evidence.py（6 项通过）、bash -n scripts/cloud/run.sh、actionlint 1.7.7 的 core-numerics.yml 语法检查及 git diff --check；尚未运行本次生产构建/数值测试，云端 smoke 待 PR 验收。旧数值记录不计为本次通过。
 - 使用 eonsim-knowledge-capture 记录 CI 选测/证据复用草稿，不发布；后续补充真实云端证据及文档提交的复用结果。
+
+### CI-INCREMENTAL-01：首轮云端精确清单验收
+
+- 实现提交 `8f695cc6ed17fcbbd2736cceba38e7984de2b67e` 已推送并创建 [PR #26](https://github.com/saitoasukakawaii/EONSim-new/pull/26)，未合并。主数值 [run 41214961025](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41214961025) 成功，实际测试 merge preview `9ce31f9f869770e5672b01a1dfa39b4788710c6f`，tree 与功能提交相同。
+- PETSc 3.23.7、OpenMPI 5、GCC 15.3，云端 4 CPU/约 16 GiB；Debug/Release 仅运行 poisson_verification，各 1 passed、0 failed、0 skipped，rank=1。构建 targets 仅 eonsim、verify_runtime；锁定运行时探针 rank=1 另计，不冒充数值测试数。JUnit 与清单一致，receipt 已生成。
+- 实际入口：`scripts/cloud/run.sh 3.23.7 <debug|release> explicit .cloud build/ci/plan.json`；CTest 使用 `-R '^(poisson_verification)$'`。完整命令、退出码及精简结果见 [initial.json](../research/data/ci-incremental-2026-10-31/initial.json)。本地未编译或运行求解器，主锁全量及旧锁未执行；旧锁 job 为 skipped。
+- 网站 run 41214961032 成功，草稿隔离通过。GitHub runs 查询确认该提交只有两个 pull_request 事件，没有 Push run。
+- 下一笔仅补记文档/证据，将用于实际验证同 PR receipt 复用；复用结果尚未计为完成。

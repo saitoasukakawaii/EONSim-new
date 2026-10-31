@@ -3,9 +3,9 @@ title: "从全量 CI 转向增量检查：选择、执行与证据复用"
 description: "EONSim 如何区分本次通过、历史证据和无需运行，避免跳过检查被误报为数值验收。"
 contentStatus: draft
 taskId: "CI-INCREMENTAL-01"
-pullRequest: ""
+pullRequest: "https://github.com/saitoasukakawaii/EONSim-new/pull/26"
 baseCommit: "ef20e03"
-resultCommit: ""
+resultCommit: "8f695cc6ed17fcbbd2736cceba38e7984de2b67e"
 date: "2026-10-31"
 ---
 
@@ -44,7 +44,7 @@ artifact 缺失、过期或 API 不可用时，没有有效复用基线；应重
 
 初次提交前执行：`python3 tests/test_ci_selection.py`（24 项通过）、`python3 tests/test_cloud_evidence.py`（6 项通过）、`bash -n scripts/cloud/run.sh`、actionlint 1.7.7 与 `git diff --check`。这些是 CI 逻辑证据，不是求解器数值验收。
 
-计划中的云端验收仅选择 `poisson_verification`，随后以文档提交检查 receipt 复用；实际结果和提交以会话日志为准，未记录完成前视为未验证。不运行全量套件或旧锁数值测试。
+[首轮云端证据](../../docs/research/data/ci-incremental-2026-10-31/initial.json)确认 Debug/Release 各只运行 `poisson_verification` 一项并通过，构建目标仅 eonsim 与 verify_runtime。后续文档提交的 receipt 复用结果以会话日志为准；此阶段尚未完成该项实际验收。没有运行全量套件或旧锁数值测试。
 
 当前只在同一 PR、相同 base 与指纹下复用，最多查询最近 90 个成功 PR runs；不跨 PR 缓存测试结果。artifact 保留 14 天，过期会失去可复用证据。没有测量节省百分比，不作性能承诺。网站工作流保持独立。
 
