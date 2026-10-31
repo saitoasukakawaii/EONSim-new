@@ -2,31 +2,25 @@
 
 更新时间：2026-10-31（Asia/Shanghai）
 
-## 最新接续：G0/G5/G1 最终集成验收
+## 最新交付：G0B → G0 → G5 → G1 已合入 main
 
-当前分支`codex/fem-time-mesh`，已推送G0检查点`e9e4d30`。
-[该提交云端CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41180022722)
-主锁Debug/Release及PETSc3.19.6 Release均成功。G0验收补强通过，尚待整体任务主线交付。
-用户明确授权本次WSL2实际构建/MPI、由CI云端复验；旧cloud-only限制在本任务被覆盖。
+[PR #23](https://github.com/saitoasukakawaii/EONSim-new/pull/23) 已合并，main实现提交
+`9cc2e102e8e32f929de1c9a790c1ae527b931fa2`，功能分支最终源码`9e5a1eddf06a02f5e64201d3eff2d55638ddbf13`。
+G0B/G0/G5/G1及本整体任务完成；INFRA-01最终集成验收也已补齐。
 
-G5已接入独立瞬态流体、卸载结构、ALE及单体刚体/弹性FSI的BE/变步BDF2、两层accepted历史、事件降阶及重启。
-真实时间收敛、1/2/4rank与历史恢复范围见[TIME_INTEGRATION](TIME_INTEGRATION.md)。
-当前增量执行针对性回归与独立审查，不把它关闭为完整G5。
-独立场检查点`c923387`已推送并通过[云端CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41181938354)。
-ALE/FSI增量主锁Debug6项针对性检查全部通过，含压力、接口功率、真实拒绝及完整历史恢复。
-BDF2耦合检查点`bab4fda`已推送并通过[云端CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41192856614)。
-独立流体一阶/结构二阶generalized-alpha主锁Debug7项针对性验收通过；rho=0/0.5/1、早期/终点压力、
-物理加速度、算法历史重启、能量/阻尼及真实拒绝已验证；提交`25e0945`的云端CI三环境成功（run41194151488）。
-alpha ALE/单体FSI已接入：共同af、独立算法历史、完整运动学链及端点几何拒绝；
-真实速度/压力/位移时间阶趋近2，事件/重启/接口运动及负例验收见当前证据。
-继续G1规范化网格和二维标量闭环；G5仍待最终完整集成验收，不关闭整体任务。
-G5耦合检查点`2fcd2fd`已推送并通过云端三环境CI（41195474887）。
-G1已实现规范化Gmsh2.2/4.1、原生Tri3/Quad4及混合二维Poisson/扩散、命名边界/材料、
-纯Neumann、完整分区/输出/时间历史；空间、时间、1/2/4rank及真实失败恢复针对性验证通过。
-独立审查修复了额外分区tags、物理名称、集体线性失败、不连通零空间和restart数据文件覆盖问题。
-最终主锁Debug/Release各60/60、PETSc3.19.6相关13/13通过；109份源码哈希及完整测试清单见fem-final.json。
-独立审查无剩余源码阻塞；当前等待最终提交CI及PR/主线交付。
-以下早期检查点保留为历史，不覆盖本段当前状态。
+- DoF语义、独立代表/重建、owned/ghost、存储、物理验收与PC树分离；physics/quantity/hybrid真实PETSc路径验收通过。
+- BE、变步BDF2、一阶/二阶generalized-alpha接入各适用独立场、ALE和单体FSI；共同stage、完整链式切线、accepted历史、拒绝与checkpoint已验证。
+- Gmsh2.2/4.1 ASCII规范化、Tri3/P1、Quad4/Q1及相容混合二维Poisson/扩散、命名材料与D/N/Robin、纯Neumann、并行分区/输出/重启闭环完成。
+- 用户授权WSL2本地Debug/Release各60/60、兼容锁13/13；最终源码109份哈希由独立审查逐份核对，所有测试无失败/跳过。
+- [PR云端数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41199182613)同样60/60/13通过，
+  [push CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41199162462)成功，
+  [网站及草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41199182529)成功。
+  GitHub合并预览tree与功能提交完全一致；[交付证据](../research/data/fem-integration-2026-10-31/delivery-ci.json)。
+
+用户入口：[DoF与PC](DOF_AND_PC_GROUPING.md)、[时间支持矩阵](TIME_INTEGRATION.md)、[二维标量](SCALAR_2D.md)、[完整验证记录](FEM_INTEGRATION_VALIDATION.md)。
+验证最多4rank；没有生产存储重排、二维流体、三维混合体或跨分区重启。G2/G4只实施必要子集，其它阶段仍deferred。
+G0性能72样本对应原检查点，小问题直接解更快；没有新的G1性能结论。知识文章保留website/drafts，不发布。
+后续只能按具体需求领取新任务，不能把本任务完成解释为G0–G8全部完成。
 
 ## 项目基线
 

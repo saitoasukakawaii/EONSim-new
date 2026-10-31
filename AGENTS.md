@@ -2,6 +2,8 @@
 
 ## 当前状态与目标
 
+2026-10-31最新交付：G0B/G0/G5/G1已通过PR #23合入main。具备DoF语义与三种PC树、BE/变步BDF2/两类generalized-alpha及适用ALE/FSI接入、Gmsh4.1与Tri3/Quad4相容混合二维标量闭环。本地及云端主锁Debug/Release各60项、兼容锁13项通过；数量为该检查点实际inventory，后续执行应重新读取。详细适用范围见[集成验收](docs/development/FEM_INTEGRATION_VALIDATION.md)。下文20项等记录为B5历史，不覆盖本次交付；验证仍最多4rank。
+
 这是多物理场 HPC 开发工作区，P0–P8 小算例主线已实现并验证：分布式基础、独立流体/固体、刚体/弹性单体 FSI、有限变形、分块求解及同分区重启。当前验证最多 4 rank，不能将其报告为大规模生产就绪。后续沿具体算例改进精度、规模或新增边界能力；不要将设计示意接口报告为已有实现。
 
 基础完善 B0–B5 已实现：几何/标签边界、区域材料与分量约束、独立共形双域 FSI、BE 回滚缩步与实际时间恢复、解析几何/前向链式 ALE 切线及 Schur/GAMG。Debug/Release 各 20 项 CTest 通过，Schur 与直接解对照覆盖 1/2/4 rank；精度和规模数据见 [B5 记录](docs/development/B5_ACCURACY_AND_PERFORMANCE.md)。下一步依据实际算例的精度/规模需求推进；不将共形双域能力解释为非匹配界面、自动重网格或大规模生产验证。

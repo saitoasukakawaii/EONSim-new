@@ -1,6 +1,6 @@
 # FEM G0B → G0 → G5 → G1：实施与验证记录
 
-状态：最终集成验收与主线交付进行中。最早基线 main `72a335604a50c1ae27516b8bde15e05564b5748b`；
+状态：G0B/G0/G5/G1完成并通过PR #23合入main。最早基线 main `72a335604a50c1ae27516b8bde15e05564b5748b`；
 本次接续主线 `47b5bd46c992fcf64cf163361053ceb0091fa5a5`，G5检查点 `2fcd2fd834320883b3e148892fcc9ee3a431288c`。
 下文按检查点保留历史；旧段落中的“尚未实施”不覆盖最新状态。
 工程量估计与依赖在现有 [队列](CODEX_TASK_QUEUE.md) 维护；本文仅记录实现和验证事实。
@@ -163,3 +163,20 @@ ALE stage有效但endpoint反转负例在4rank中坏单元数3/1/2/0，共同拒
 包含最后新增的layout_policy_verification；两种主构建完成2/4rank ABI/MPI预检，兼容锁完成2rank预检。
 独立审查最终无确定源码阻塞。Python语法、Markdown本地链接及git diff空白检查通过；
 本地node未安装，网站检查交由PR云端执行。最终提交的CI及主线合并尚待完成。
+
+
+## 主线交付
+
+最终功能提交`9e5a1eddf06a02f5e64201d3eff2d55638ddbf13`经独立证据复核，109/109源码哈希匹配。
+[PR #23](https://github.com/saitoasukakawaii/EONSim-new/pull/23)已合并为
+`9cc2e102e8e32f929de1c9a790c1ae527b931fa2`，未强推、未绕过检查。
+[云端PR数值检查](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41199182613)
+主锁Debug/Release各60项、兼容13项均通过，无失败/跳过；4CPU、约16GiB云端资源与本地资源分开记录。
+[push检查](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41199162462)及
+[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41199182529)成功。
+PR使用合并预览SHA `300a7544f181002063b954c014610ebc9a3c9fae`，其tree与功能提交均为
+`ba8692ba4938995ad495aabd562380f43e590150`；[机器记录](../research/data/fem-integration-2026-10-31/delivery-ci.json)。
+后续完成状态归档仅修改文档，生产源码及测试清单不变；最新main检查见仓库Actions。
+
+G0B/G0/G5/G1及INFRA-01集成验收关闭。完整G2/G4和其它未授权阶段不关闭。
+旧段落保留阶段历史，不能覆盖本节最终状态；源清单、数学适用性及未覆盖范围仍有效。

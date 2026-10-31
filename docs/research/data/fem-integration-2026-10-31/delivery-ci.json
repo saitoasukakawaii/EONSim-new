@@ -1,0 +1,113 @@
+{
+  "head": "9e5a1eddf06a02f5e64201d3eff2d55638ddbf13",
+  "pull_request": 23,
+  "numerics_run": 41199182613,
+  "website_run": 41199182529,
+  "website_conclusion": "success",
+  "independent_review": {
+    "source_hashes_matched": 109,
+    "inventory": [
+      60,
+      60,
+      13
+    ],
+    "failures": 0,
+    "skips": 0,
+    "blockers": []
+  },
+  "checkout_commit": "300a7544f181002063b954c014610ebc9a3c9fae",
+  "tree": "ba8692ba4938995ad495aabd562380f43e590150",
+  "jobs": [
+    {
+      "job_id": 124531405299,
+      "commit": "300a7544f181002063b954c014610ebc9a3c9fae",
+      "mode": "debug",
+      "selection": "all",
+      "petsc": "3.23.7",
+      "status": "passed",
+      "resources": {
+        "cpu_budget": 4,
+        "memory_bytes": 16760344576,
+        "cgroup": {
+          "/sys/fs/cgroup": {},
+          "/sys/fs/cgroup/system.slice": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          },
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          }
+        },
+        "build_jobs": 4
+      },
+      "test_counts": {
+        "passed": 60,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "job_id": 124531405302,
+      "commit": "300a7544f181002063b954c014610ebc9a3c9fae",
+      "mode": "release",
+      "selection": "all",
+      "petsc": "3.23.7",
+      "status": "passed",
+      "resources": {
+        "cpu_budget": 4,
+        "memory_bytes": 16760344576,
+        "cgroup": {
+          "/sys/fs/cgroup": {},
+          "/sys/fs/cgroup/system.slice": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          },
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          }
+        },
+        "build_jobs": 4
+      },
+      "test_counts": {
+        "passed": 60,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "job_id": 124531405305,
+      "commit": "300a7544f181002063b954c014610ebc9a3c9fae",
+      "mode": "release",
+      "selection": "mpi-failure",
+      "petsc": "3.19.6",
+      "status": "passed",
+      "resources": {
+        "cpu_budget": 4,
+        "memory_bytes": 16760344576,
+        "cgroup": {
+          "/sys/fs/cgroup": {},
+          "/sys/fs/cgroup/system.slice": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          },
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          }
+        },
+        "build_jobs": 4
+      },
+      "test_counts": {
+        "passed": 13,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "numerics_conclusion": "success",
+  "push_run": 41199162462,
+  "push_conclusion": "success",
+  "merge_commit": "9cc2e102e8e32f929de1c9a790c1ae527b931fa2"
+}
