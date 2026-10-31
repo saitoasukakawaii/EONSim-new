@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-30",
+  "timezone": "Asia/Shanghai",
+  "repository": "https://github.com/saitoasukakawaii/EONSim-new",
+  "head_at_start": "f44c3e0e81f090637f6f21a7b63a9d12d3e30424",
+  "origin_main_after_fetch": "f44c3e0e81f090637f6f21a7b63a9d12d3e30424",
+  "ahead_behind": [
+    0,
+    0
+  ],
+  "initial_worktree": "clean",
+  "pr_query": "repo:saitoasukakawaii/EONSim-new is:pr is:open",
+  "open_prs": [],
+  "delivery_branch": "docs/fem-g0a-dof-design",
+  "engineering_budget_hours": 10,
+  "actual_work_hours": null,
+  "actual_work_hours_note": "Not measured; budget is not elapsed time.",
+  "evidence_scope": "Static source audit, stdlib exact algebra and simulated partition index logic only.",
+  "sources_directory_present": false,
+  "sources_directory_modified": false,
+  "source_sha256": {
+    "include/eonsim/discretization.hpp": "40356e1019a23dd66bda37290e060f0ff6a90851f9d862ea5f1f0a8bfd1054e2",
+    "include/eonsim/linear_system.hpp": "27a521b50e7c2f4962a9f83ac497b1672f4573e6d97c5c2ef78398ab804bb1d6",
+    "include/eonsim/nonlinear_system.hpp": "938de94e46bae5cd9ef1a1cd7ff0499835b321e8c89a243f432425c162e364c9",
+    "include/eonsim/mesh.hpp": "dde8226f61163ec6dcb6e58e1d989e7aae346524ffd3e2fee4f155b7b1968dfc",
+    "src/fem/field_layout.cpp": "f3d1649086b348e7cb547ed49f56a671b27835a46894c022174f488c6bad6d48",
+    "src/fem/reduced_layout.cpp": "debccfb933008d33a779ec95cb3eddd7a4dc9e62774aca86e0a0a8802861dc47",
+    "src/mesh/fsi_domains.cpp": "483557c1bf5f8c7dabc8fc9ba42415e5f3d28a5bc045acb99ef7ffc3364b496e",
+    "src/mesh/partition.cpp": "aaa08d64e2a4a02d59f879fe6503a240458ec3e1a7cdfa8a377c08818c252796",
+    "src/physics/fsi.cpp": "3168e6f3207a03cf3bd1e3fae1eee024189e206d5d7203f96245e69d927533bf",
+    "src/physics/solid_element.cpp": "f9ed2ea962fed1623164dedafab3951ca6d88723b6b1494a10527c9791c872ad",
+    "src/algebra/nonlinear_system.cpp": "9c84b34a0ddf7687bc66ef0185dddce132c35f1ebd20d35b7b42b90c72baf51a",
+    "src/algebra/schur_solver.cpp": "25c94386a4ca2a15a4e8aa00165069af8e7c76853c0a8f9e0bfae145b343d101",
+    "src/io/checkpoint.cpp": "cfed31381947e6ccf9ed8ddb37063202687d430d464a037e40f7129ce452a6b4",
+    "src/io/vtu.cpp": "4d88b718aaa5ac7301c420f109b62835ec13c46bfb66c595e78081555b7448a7"
+  },
+  "prohibited_actions_executed": []
+}

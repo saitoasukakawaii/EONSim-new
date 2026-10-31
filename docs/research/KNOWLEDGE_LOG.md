@@ -117,3 +117,10 @@
 ## BRANCH-01 / 2026-10-30
 
 本次按 eonsim-knowledge-capture 更新 [MPI 失败与云端恢复草稿](../../website/drafts/mpi-failure-cloud-reproducibility.md)，补充合并验证边界；沿用原开发记录模板，不另建同题文章。新知识为固定 ABI 探针应按环境启用，以及测试结果不能用条数替代名称完整性。6 项合成 XML 回归只证明解析器行为；没有本次编译、MPI 数值或性能证据。原 INFRA-01 数据保留其原提交出处，最终集成验收未运行；草稿仍未发布。取舍见 [整合记录](../development/BRANCH_INTEGRATION_2026-10-30.md)。
+
+
+## FEM-G0A / 2026-10-30
+
+按 eonsim-knowledge-capture 的 algorithm-note 模板新增 [DoF 身份与嵌套 FSI 分块草稿](../../website/drafts/dof-semantics-and-nested-fsi-blocks.md)。固定源码 SHA `f44c3e0e81f090637f6f21a7b63a9d12d3e30424`；理论为固定 K/W、非零 lifting、置换与父编号推导，当前实现为该 SHA 的源码审计，验证仅为标准库 Fraction 合成代数及 1/2/4 模拟分区索引逻辑。没有性能实测、新 C++ 接口或真实 PETSc/MPI 验证，INFRA-01 保持 review。草稿未发布；待人工审查结构速度语义、界面唯一代表、父编号、验收不变性与证据边界。实施契约只在 [FEM-G0A 专题](../architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md) 维护。
+
+2026-10-31 合并补记：FEM-G0A 源提交 b674d5a 已完成本次设计/参考验证审查，20 项测试复验通过；检查工具修正 UTF-8 与 CRLF 兼容。设计子任务已合入，知识草稿仍为 draft，生产 C++/PETSc/MPI 验收范围不变。详见 BRANCH-02 合并清理记录。

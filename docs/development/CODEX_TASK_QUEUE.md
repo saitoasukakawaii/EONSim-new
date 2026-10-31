@@ -15,8 +15,10 @@
 
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
+| BRANCH-02 | P1 | done | 合入新增 G0A 并清理全部 7 个非主分支 | [源提交与检查](BRANCH_CLEANUP_2026-10-31.md)；保留 main，无生产求解器改动 |
 | BRANCH-01 | P1 | done | 清理 18 个已合并分支并整合其余 6 个 | [源提交、取舍和检查](BRANCH_INTEGRATION_2026-10-30.md)；不编译，数值验收不随合并自动完成 |
 | HPC-02 | P2 | done | 独立流体固定图 COO Jacobian 装配（PR #21 合并） | 证据见 FLUID_COO_ASSEMBLY_2026-10-30；保留默认路径，Release 既有超时等局限按报告记录 |
+| FEM-G0A | P1 | done | DoF 语义、存储排列与 FSI 分块预条件详细设计及独立代数参考验证 | [专题与迁移切片](../architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md)；20 项标准库测试通过，设计分支已审查合入；无 C++/MPI/PETSc 数值验收，G0 整体仍 deferred |
 | FEM-G0 | P1 | deferred | DoF 语义、排列与物理场/物理量/混合 PC 树 | 现有 Tet4 结果与置换等价、叶子覆盖互斥、空本地块；本轮只规划 |
 | FEM-G1 | P2 | deferred | 规范化 reader、Gmsh4.1、Tri3/Quad4 二维标量闭环 | G0 后；方向/标签/边界/MMS，禁止将读入等同求解 |
 | FEM-G2 | P2 | deferred | entity DoF、不同阶空间与通用 Dirichlet/Neumann/Robin | G0/G1 后；trace、lifting、纯 Neumann、modal/nodal 与混合稳定性 |
@@ -45,7 +47,7 @@
 | HPC-01 | P2 | deferred | MPI 稀疏装配与通信 profiling | 分离本地 kernel、远程插入、MatAssembly、halo exchange 和 KSP 时间 |
 | HUB-02 | P3 | deferred | 将 PETSc 生命周期审计整理成正式教学文章 | 结合性能数据更新草稿；人工审核后发布 |
 
-新增 FEM-G0–G8 的详细设计、依赖与验收唯一入口是 [通用 FEM 规划](../architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) §13。ARCH-01 本轮仅形成本地文档草案，不属于已合并的 done 开发任务；用户明确暂不开发，因此不得自动领取这些 deferred 候选。
+新增 FEM-G0–G8 的详细设计、依赖与验收唯一入口是 [通用 FEM 规划](../architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) §13。ARCH-01 的规划文档已随 BRANCH-01 集成，不能解释为 G0–G8 实现完成。FEM-G0A 设计与参考验证已按用户后续授权审查合入，子任务 done；本轮只做分支整合，不执行其它阶段。
 
 ## HPC-01C：多时间步装配阶段测量
 
@@ -108,3 +110,15 @@ HPC-01E 已完成1/2/4 rank、每配置5对测量及6次预热，见 [报告](..
 依赖锁、恢复脚本、MPI 失败处理和测试已随分支集成；合并审查额外把 OpenMPI/int32 检查限定为云端显式启用，并使 JUnit 解析拒绝重复、缺失与错误结果。6 项纯 Python 解析器回归通过。
 
 按用户要求，本次不编译，不运行 CMake 配置、CTest、MPI、性能或网站构建。最终集成提交的 Debug/Release 数值回归与环境恢复没有重新验证；原分支成功记录不能替代这些检查。该任务保留 review，后续按用户安排完成集成验收，不自动开启下一轮构建。
+
+
+## FEM-G0A 范围与交付
+
+10 小时是工程量预算，不是实测耗时。以 `f44c3e0e81f090637f6f21a7b63a9d12d3e30424` 为源码事实基线，开始时最新 main 一致且开放 PR 查询为空。
+任务从 in_progress 转为 review；2026-10-30 先按要求本地交付，2026-10-31 用户追加授权提交并推送 `docs/fem-g0a-dof-design`，不创建 PR、不合并、不触发 CI。三种分组、固定 K/W 与 lifting/置换、父块分布式编号、所有权/失效/成本和后续切片见专题。
+20 项 Python 标准库参考测试只证明合成代数与分区索引逻辑；不构成真实 MPI/PETSc、FSI 稳定性、性能或 INFRA-01 最终集成验收。FEM-G0 整体不标 done。
+
+
+## BRANCH-02 / 2026-10-31
+
+用户追加授权合并并清理远程分支，替代上面 FEM-G0A 原交付阶段的“不合并”限制。已审查 G0A 源提交并复验 20 项参考测试；检查工具的 UTF-8/CRLF 修复通过正反例。FEM-G0A 为设计子任务完成，FEM-G0 整体及 G0B/G5/G1 的生产开发尚未执行，INFRA-01 的最终集成数值验收仍 review。分支及提交清单见合并清理记录。

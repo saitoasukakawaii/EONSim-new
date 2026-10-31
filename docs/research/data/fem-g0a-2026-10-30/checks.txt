@@ -1,0 +1,45 @@
+FEM-G0A local evidence, 2026-10-30 Asia/Shanghai
+Source: f44c3e0e81f090637f6f21a7b63a9d12d3e30424
+
+Cross-review method: same author cross-checked production source, contract,
+hand-derived constants and negative examples. No independent-agent review claimed.
+Corrections made before final checks:
+- Distinguished retained Dirichlet algebra rows from eliminated fixed slots.
+- Kept physical acceptance fields separate from PC velocity regrouping.
+- Kept solid kernel BE chain factors distinct from interface mesh column factors.
+- Recorded joined-ID rewriting and rank-dependent partition fingerprint.
+- Added actual semantic alias keys, nested matrix-entry oracle and single-child rejection.
+- Corrected a fixed-SHA link typo and the draft's solve/acceptance ordering.
+- Recorded the missing reduced-layout version in current checkpoint v3.
+- Checked legacy prefix length and default Schur A00 sharing scope.
+
+Reference tests: first run 18/18; after the above additional cases, 20/20.
+Exact final unittest output is reference-tests.txt; no solver was invoked.
+The direct temporary PETSc source download timed out; official version-tag source
+was then read using the browsing tool. No dependency was installed.
+
+Automated final checks follow below.
+
+Command: python3 -B docs/research/fem_g0a/check_artifacts.py
+PASS: AST syntax for 3 standard-library Python files
+PASS: balanced Markdown fences in 7 files
+PASS: 72 local file/site-route links (source existence only)
+PASS: 31 fixed EONSim SHA/path/line references
+PASS: 14 audited production source hashes unchanged
+Scope: no remote link liveness, Markdown rendering, build, MPI, or solver check
+
+PASS: git diff --check (tracked changes)
+PASS: new-file whitespace checked with git diff --no-index --check /dev/null FILE;
+      no output/errors. --no-index returns 1 for different files; the first
+      wrapper stopped on that normal difference status and was corrected.
+PASS: git diff --exit-code -- src include CMakeLists.txt CMakePresets.json cmake tests cases .github sources
+PASS: HEAD and locally fetched origin/main remain f44c3e0e81f090637f6f21a7b63a9d12d3e30424
+PASS: reference-result hashes match the model, tests and original unittest output
+PASS: imports are standard library plus the local reference_model module
+
+The first link check misclassified existing /learning/... site routes as absolute
+filesystem links; source-route resolution was added to the checker and the
+complete check then passed. No existing article links were removed.
+
+Delivery state: local, uncommitted, FEM-G0A review; FEM-G0 deferred; INFRA-01 review.
+No CMake/compiler/CTest/MPI/EONSim/benchmark/website build or remote build trigger.

@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-31",
+  "timezone": "Asia/Shanghai",
+  "main_before": "f44c3e0e81f090637f6f21a7b63a9d12d3e30424",
+  "merged_source": {
+    "branch": "docs/fem-g0a-dof-design",
+    "sha": "b674d5a082173a695a0932c1f8f58f4e6563ff04"
+  },
+  "branches_to_remove": [
+    {
+      "branch": "audit/petsc-nonlinear-lifecycle",
+      "sha": "51ef2e50b70c5906aa80cdd526a51cac1f142572",
+      "merged": true,
+      "ahead": 0,
+      "behind": 85
+    },
+    {
+      "branch": "codex/fluid-cached-coo",
+      "sha": "c1fef032f32b0da9c76b8db3d61427beebdfb737",
+      "merged": true,
+      "ahead": 0,
+      "behind": 33
+    },
+    {
+      "branch": "codex/infra-reproducible-mpi-ci",
+      "sha": "787372e746a3523194a8139bc36c70cee9e21f13",
+      "merged": true,
+      "ahead": 0,
+      "behind": 26
+    },
+    {
+      "branch": "docs/codex-research-workflow",
+      "sha": "45a324f905eb2569cf4332c3aefb3d5bf85ab7e1",
+      "merged": true,
+      "ahead": 0,
+      "behind": 106
+    },
+    {
+      "branch": "docs/fem-g0a-dof-design",
+      "sha": "b674d5a082173a695a0932c1f8f58f4e6563ff04",
+      "merged": false,
+      "ahead": 1,
+      "behind": 0
+    },
+    {
+      "branch": "docs/general-fem-architecture-plan",
+      "sha": "1585585f8b6ef52d9e52ad12df0eaa5d207cdd6f",
+      "merged": true,
+      "ahead": 0,
+      "behind": 32
+    },
+    {
+      "branch": "docs/refresh-continuous-loop-state",
+      "sha": "0f9ea3cf4ae4f1c1a39bd1eeebeb302dcdf1e3fa",
+      "merged": true,
+      "ahead": 0,
+      "behind": 59
+    }
+  ],
+  "preserved_branches": [
+    "main"
+  ],
+  "push_policy": "atomic fast-forward main update and SHA-guarded branch deletions"
+}
