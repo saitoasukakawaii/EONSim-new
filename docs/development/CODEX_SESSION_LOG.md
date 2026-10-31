@@ -356,4 +356,4 @@
 - 更新 `AGENTS.md`：规定第三方差异优先通过能力检测、官方版本宏和集中兼容层处理；需要 Patch 时必须版本限定、可追溯、可重复应用；仅在相关兼容路径变化时做针对性验证。
 - 更新 `.github/workflows/core-numerics.yml`：日常矩阵保留 PETSc 3.23.7 Debug/Release；3.19.6 仅在手动触发并勾选 `run_legacy_petsc` 时执行 Release `mpi-failure` 专项检查。
 - 更新 `docs/development/BUILD_AND_VALIDATION.md`，使构建说明与工作流一致。保留 3.19.6 锁文件和运行脚本，未删除历史环境。
-- 本次未执行 PETSc 3.19.6 编译或链接测试；分支上的 GitHub Actions 将验证修改后的日常 3.23.7 Debug/Release 工作流。未将未运行的旧版专项检查标记为通过。
+- 在工作流文件完成调整前，首个内容提交曾短暂触发旧矩阵的一次过渡 Push CI，其中 PETSc 3.19.6 Release 专项 job 已通过；随后最终工作流改为独立可选 job，当前 PR CI 中 3.19.6 job 明确 skipped，不执行编译/链接。最终 3.23.7 Debug/Release CI 正在验收；不将过渡运行解释为未来日常策略。
