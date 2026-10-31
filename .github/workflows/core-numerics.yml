@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      run_legacy_petsc:
+        description: "Run the PETSc 3.19.6 compatibility build and MPI-failure tests (only when relevant)"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -16,6 +22,7 @@ concurrency:
 
 jobs:
   numerics:
+    if: ${{ matrix.legacy != true || (github.event_name == 'workflow_dispatch' && inputs.run_legacy_petsc) }}
     name: PETSc ${{ matrix.petsc }} / ${{ matrix.mode }}
     runs-on: ubuntu-24.04
     timeout-minutes: 35
@@ -28,16 +35,19 @@ jobs:
             selection: all
             compiler: gcc-15.3.0
             abi: openmpi-5-real-double-int32-v3
+            legacy: false
           - petsc: 3.23.7
             mode: release
             selection: all
             compiler: gcc-15.3.0
             abi: openmpi-5-real-double-int32-v3
+            legacy: false
           - petsc: 3.19.6
             mode: release
             selection: mpi-failure
             compiler: gcc-12.4.0
             abi: openmpi-4-real-double-int32
+            legacy: true
     steps:
       - uses: actions/checkout@v4
       - name: Dependency package cache
