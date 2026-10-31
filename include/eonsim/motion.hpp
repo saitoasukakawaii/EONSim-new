@@ -6,7 +6,9 @@
 namespace eonsim {
 struct RigidState { double position=0,velocity=0; };
 struct RigidParameters { double mass=1,damping=.1,stiffness=10; };
-/// 纯局部残量；trial 独立未知量是速度，位置由 BE 恢复；不提交历史。
+/// 纯局部残量；trial未知量为速度。位置=reference.position+dt*velocity，
+/// 加速度=(velocity-reference.velocity)/dt；BE传accepted与实际步长，BDF2传历史参考与有效步长。
+/// 不提交历史。
 double rigid_residual(const RigidParameters& p,const RigidState& accepted,double dt,double velocity,double force);
 /// 给定外力的闭式 BE 步，与未来单体刚体行使用同一离散。
 RigidState rigid_step(const RigidParameters& p,const RigidState& accepted,double dt,double force);

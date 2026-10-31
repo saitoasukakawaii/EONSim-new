@@ -1,5 +1,7 @@
 #include "eonsim/ale.hpp"
 #include "eonsim/time_step.hpp"
+#include "eonsim/time_integration.hpp"
+#include "eonsim/checkpoint.hpp"
 #include "eonsim/motion.hpp"
 #include "eonsim/fluid_element.hpp"
 #include "eonsim/field_layout.hpp"
@@ -15,15 +17,43 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
     const auto& m=config.motion;
     if(m.mode==MotionConfig::Mode::rigid) throw std::runtime_error("Rigid ODE is not an ALE fluid case");
     const bool shear=m.mode==MotionConfig::Mode::shear;
+    const bool bdf2=config.time_integration.scheme==TimeScheme::bdf2;
     const auto layout=make_field_layout(mesh,Tet4Flow::components,{{"velocity",{0,1,2}},{"pressure",{Tet4Flow::pressure}}});
     const auto ml=make_field_layout(mesh,Tet4Vector::components,{{"mesh",{0,1,2}}});
     std::vector<double> accepted(layout.local_to_global.size(),0),dn(mesh.nodes.size()*Tet4Vector::components,0),w(dn);
     for(std::size_t n=0;n<mesh.nodes.size();++n) accepted[Tet4Flow::components*n]=m.speed*(shear?mesh.nodes[n].position[1]:1);
     AleResult result; result.current_mesh=mesh;
     TimeStepper clock(m.dt,m.steps,config.time_control);
+    TimeHistory fluid_history(bdf2?accepted.size():0),mesh_history(bdf2?dn.size():0);
+    std::vector<double> signature_values{double(m.mode),m.speed,m.amplitude,m.dt,double(config.time_integration.scheme),double(config.time_control.events.size())};
+    signature_values.insert(signature_values.end(),config.time_control.events.begin(),config.time_control.events.end());
+    signature_values.push_back(config.time_control.step_sizes.size());
+    signature_values.insert(signature_values.end(),config.time_control.step_sizes.begin(),config.time_control.step_sizes.end());
+    const auto signature=state_signature(mesh,"ale",signature_values);
+    if(!config.restart.empty()) {
+        std::map<std::string,std::size_t> sizes{{"fluid",accepted.size()},{"mesh",dn.size()}};
+        if(bdf2) { sizes["previous_fluid"]=accepted.size(); sizes["previous_mesh"]=dn.size(); sizes["time_metadata"]=1; }
+        const auto saved=read_checkpoint(config.restart,mesh,signature,sizes);
+        accepted=saved.fields.at("fluid"); dn=saved.fields.at("mesh");
+        clock.restore(saved.step,saved.time,saved.next_dt);
+        if(bdf2) {
+            fluid_history.previous=saved.fields.at("previous_fluid"); mesh_history.previous=saved.fields.at("previous_mesh");
+            const double previous_dt=saved.fields.at("time_metadata")[0];
+            if(previous_dt<0||previous_dt>saved.time||(previous_dt==0&&!clock.at_event())) throw std::runtime_error("Invalid BDF2 ALE history step");
+            fluid_history.previous_dt=mesh_history.previous_dt=previous_dt;
+        }
+        if(!clock.active(config.stop_after)) throw std::runtime_error("Restart must precede requested final step");
+    }
     NonlinearSystem system(comm,layout);
-    while(clock.active()) {
+    while(clock.active(config.stop_after)) {
+        if(bdf2&&fluid_history.previous_dt>0) clock.next_dt=std::min(clock.next_dt,2*fluid_history.previous_dt);
         const int step=clock.step+1; const double dt=clock.dt(),time=clock.time+dt;
+        const auto derivative=time_derivative(config.time_integration.scheme,dt,fluid_history.previous_dt);
+        const double integration_dt=derivative.effective_dt;
+        const auto effective_fluid=bdf2?fluid_history.reference(accepted,derivative):std::vector<double>{};
+        const auto effective_mesh=bdf2?mesh_history.reference(dn,derivative):std::vector<double>{};
+        const auto& reference_fluid=bdf2?effective_fluid:accepted;
+        const auto& reference_mesh=bdf2?effective_mesh:dn;
         try {
         std::vector<PetscInt> mesh_bc,fluid_bc;
         std::vector<double> mesh_values,fluid_values;
@@ -53,7 +83,7 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
         std::vector<Tet4Geometry> geometry;
         for(std::size_t n=0;n<mesh.nodes.size();++n) for(int c=0;c<Space3::dimension;++c) {
             result.current_mesh.nodes[n].position[c]=mesh.nodes[n].position[c]+d[Tet4Vector::components*n+c];
-            w[Tet4Vector::components*n+c]=(d[Tet4Vector::components*n+c]-dn[Tet4Vector::components*n+c])/dt;
+            w[Tet4Vector::components*n+c]=(d[Tet4Vector::components*n+c]-reference_mesh[Tet4Vector::components*n+c])/integration_dt;
         }
         int invalid=0,any_invalid=0;
         try { for(const auto& cell:mesh.cells) {
@@ -70,18 +100,25 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
                 Tet4Flow::State<PetscInt> ids;
                 for(int a=0;a<Tet4Topology::nodes;++a) {
                     const auto n=mesh.cells[e].nodes[a];
-                    for(int c=0;c<Tet4Flow::components;++c) { state[Tet4Flow::components*a+c]=x[Tet4Flow::components*n+c]; old[Tet4Flow::components*a+c]=accepted[Tet4Flow::components*n+c]; ids[Tet4Flow::components*a+c]=layout.local_to_global[Tet4Flow::components*n+c]; }
+                    for(int c=0;c<Tet4Flow::components;++c) { state[Tet4Flow::components*a+c]=x[Tet4Flow::components*n+c]; old[Tet4Flow::components*a+c]=reference_fluid[Tet4Flow::components*n+c]; ids[Tet4Flow::components*a+c]=layout.local_to_global[Tet4Flow::components*n+c]; }
                     for(int c=0;c<Space3::dimension;++c) mesh_velocity[a][c]=w[Tet4Vector::components*n+c];
                 }
                 const double h=std::cbrt(Tet4Topology::jacobian_scale*geometry[e].volume);
-                const double tau=1/std::sqrt(4/(dt*dt)+16/(h*h*h*h)+4*m.speed*m.speed/(h*h));
-                const auto element=fluid_element(geometry[e],{1,1,dt,tau,true},state,old,mesh_velocity,j!=nullptr);
+                const double tau=1/std::sqrt(4/(integration_dt*integration_dt)+16/(h*h*h*h)+4*m.speed*m.speed/(h*h));
+                const auto element=fluid_element(geometry[e],{1,1,integration_dt,tau,true},state,old,mesh_velocity,j!=nullptr);
                 EONSIM_PETSC(VecSetValues(r,Tet4Flow::dofs,ids.data(),element.residual.data(),ADD_VALUES));
                 if(j) EONSIM_PETSC(MatSetValues(j,Tet4Flow::dofs,ids.data(),Tet4Flow::dofs,ids.data(),element.tangent.data(),ADD_VALUES));
             }
         };
         auto solved=system.solve(config.solver,accepted,fluid_bc,fluid_values,assemble);
+        if(bdf2) { fluid_history.commit(accepted,dt); mesh_history.commit(dn,dt); }
         accepted=std::move(solved.values); dn=d; clock.accept();
+        if(bdf2&&clock.at_event()) fluid_history.previous_dt=mesh_history.previous_dt=0;
+        if(!config.checkpoint.empty()) {
+            Checkpoint saved{step,{{"fluid",accepted},{"mesh",dn}},clock.time,clock.next_dt};
+            if(bdf2) { saved.fields["previous_fluid"]=fluid_history.previous; saved.fields["previous_mesh"]=mesh_history.previous; saved.fields["time_metadata"]={fluid_history.previous_dt}; }
+            write_checkpoint(comm,config.checkpoint,mesh,signature,saved);
+        }
         double error=0,mesh_error=0,min_volume=std::numeric_limits<double>::max();
         for(std::size_t n=0;n<mesh.owned_nodes;++n) {
             for(int c=0;c<Space3::dimension;++c) error=std::max(error,std::abs(accepted[Tet4Flow::components*n+c]-(c==0?m.speed*(shear?mesh.nodes[n].position[1]:1):0)));
@@ -93,7 +130,7 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
         MPI_Allreduce(&min_volume,&result.min_volume,1,MPI_DOUBLE,MPI_MIN,comm);
         if(mesh.rank==0) std::cout << std::setprecision(16) << "ale_step=" << step << " time=" << time
             << " velocity_max_error=" << result.velocity_error << " mesh_max_error=" << result.mesh_error
-            << " min_volume=" << result.min_volume << '\n';
+            << " min_volume=" << result.min_volume << " time_order=" << derivative.order << '\n';
         } catch(const StepRejected& error) {
             clock.reject(error.what());
             if(mesh.rank==0) std::cout << "step_retry=" << clock.retries << " time=" << clock.time << " next_dt=" << clock.next_dt << '\n';

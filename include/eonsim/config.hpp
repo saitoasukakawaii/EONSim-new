@@ -88,6 +88,7 @@ struct FsiDomains {
 };
 struct FsiConfig {
     FsiDomains domains;
+    std::optional<double> stabilization_tau;
     bool elastic=false, neo_hookean=false;
     double young=100, poisson=.3, solid_density=1, thickness=.25;
     double dt=.02, mass=2, damping=.3, stiffness=5, pressure=1, density=1, viscosity=1;

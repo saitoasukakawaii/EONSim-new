@@ -9,10 +9,12 @@
 主锁Debug/Release及PETSc3.19.6 Release均成功。G0验收补强通过，尚待整体任务主线交付。
 用户明确授权本次WSL2实际构建/MPI、由CI云端复验；旧cloud-only限制在本任务被覆盖。
 
-G5已接入独立瞬态流体和卸载结构的BE/变步BDF2、两层accepted历史、事件降阶及重启。
+G5已接入独立瞬态流体、卸载结构、ALE及单体刚体/弹性FSI的BE/变步BDF2、两层accepted历史、事件降阶及重启。
 真实时间收敛、1/2/4rank与历史恢复范围见[TIME_INTEGRATION](TIME_INTEGRATION.md)。
 当前增量执行针对性回归与独立审查，不把它关闭为完整G5。
-下一步继续ALE/单体FSI、两类generalized-alpha，之后G1二维标量闭环。
+独立场检查点`c923387`已推送并通过[云端CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41181938354)。
+ALE/FSI增量主锁Debug6项针对性检查全部通过，含压力、接口功率、真实拒绝及完整历史恢复。
+下一步继续两类generalized-alpha及共同FSI评价，之后G1二维标量闭环。
 以下早期检查点保留为历史，不覆盖本段当前状态。
 
 ## 项目基线

@@ -9,6 +9,9 @@
 卸载结构高频模态进入渐近区的验证。理论、实现、数值证据分开；没有性能结论。
 源码与测试来源为[bdf-standalone.json](data/fem-integration-2026-10-31/bdf-standalone.json)。
 待审核：稳定化限定、非线性结构/跳跃载荷的未验证边界；保持draft。
+后续补充ALE/单体FSI BDF2的压力时间阶、移动网格保持与接口离散功率，
+来源[bdf-coupled.json](data/fem-integration-2026-10-31/bdf-coupled.json)，已更新同一草稿；
+不将接口功率平衡声称为总能量守恒，非线性材料仅验证状态恢复而非时间阶。
 
 ## ARCH-01 / 2026-10-30
 

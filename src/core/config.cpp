@@ -248,7 +248,12 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau"},"fsi");
+        if(f["stabilization_tau"]) {
+            config.fsi.stabilization_tau=f["stabilization_tau"].as<double>();
+            if(!(*config.fsi.stabilization_tau>0)||!std::isfinite(*config.fsi.stabilization_tau))
+                throw std::runtime_error("fsi.stabilization_tau must be finite and positive");
+        }
         auto& v=config.fsi;
         if(f["material"]) {
             const auto material=f["material"].as<std::string>();
@@ -345,8 +350,9 @@ Config read_config(const std::filesystem::path& path)
         !std::isfinite(solver.absolute_tolerance) || solver.absolute_tolerance <= 0.0 || solver.maximum_iterations <= 0)
         throw std::runtime_error("Invalid solver tolerances or maximum_iterations");
     if(config.time_integration.scheme!=TimeScheme::backward_euler &&
-       !((config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)))
-        throw std::runtime_error("BDF2 currently requires transient standalone fluid or solid");
+       !((config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)||config.fsi_problem||
+         (config.motion_problem&&config.motion.mode!=MotionConfig::Mode::rigid)))
+        throw std::runtime_error("BDF2 requires transient standalone fluid, solid, ALE or FSI");
     return config;
 }
 } // namespace eonsim

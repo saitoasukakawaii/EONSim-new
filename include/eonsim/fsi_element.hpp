@@ -9,6 +9,8 @@ struct FsiElementData {
     const Tet4Topology::Nodal<Point> reference;
     const Tet4Geometry reference_geometry;
     const Tet4Scalar::Matrix<double> mesh_stiffness;
+    /// 时间参考（BE为accepted，BDF2为两层历史重建）；fluid.dt为有效步长。
+    /// previous_mesh使用同一映射，保证界面离散网格速度与结构速度一致。
     Tet4Flow::State<double> previous_fluid{};
     Tet4Topology::Nodal<Point> previous_mesh{};
     std::vector<Tri3Topology::Nodal<int>> inlet_faces;

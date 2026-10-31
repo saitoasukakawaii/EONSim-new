@@ -82,8 +82,9 @@ int main(int argc, char* argv[])
             config.stop_after=static_cast<int>(stop);
             if((!config.checkpoint.empty()||!config.restart.empty()||stop) &&
                !(config.fsi_problem || (config.solid_problem&&config.solid.transient) ||
-                 (config.fluid_problem&&config.fluid.mode==eonsim::FluidConfig::Mode::transient)))
-                throw std::runtime_error("Checkpoint/restart/stop_after require transient fluid/solid or FSI");
+                 (config.fluid_problem&&config.fluid.mode==eonsim::FluidConfig::Mode::transient)||
+                 (config.motion_problem&&config.motion.mode!=eonsim::MotionConfig::Mode::rigid)))
+                throw std::runtime_error("Checkpoint/restart/stop_after require transient fluid/solid, ALE or FSI");
             if (auto mesh = option("-mesh")) config.mesh = std::filesystem::absolute(*mesh);
             if (auto output = option("-output")) config.output = std::filesystem::absolute(*output);
             if (config.output.extension() != ".vtu") throw std::runtime_error("output must have a .vtu extension");
