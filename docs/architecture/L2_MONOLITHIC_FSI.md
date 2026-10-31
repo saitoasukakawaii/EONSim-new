@@ -167,3 +167,7 @@ checkpoint 只保存整体已接受 BE 状态，暂限同 rank/同分区恢复�
 B5 已将流体/ALE 默认局部中心差分替换为解析几何导数加前向链式传播；`-fsi_fd_tangent` 可显式选择旧参考。体积、形函数梯度、对流网格速度和压力面积都对同一 trial 状态求导，tau 仍按 accepted 速度与本次 dt 冻结。接口消元及 BE 系数继续作用于该完整切线。
 
 `-schur_pc` 保留统一 SNES 与共同提交，只改变线性预条件。`schur_verification` 对独立流体、独立双域 FSI、旧刚体和 Neo-Hookean FSI 做整体直接解与 1/2/4 rank Schur 对照。新切线与差分轨迹、局部方向导数和既有全局 Jv 均验证。
+
+G0B 将上述固定界面映射集中到 `ReducedLayout::slot`：每物理槽返回试探列/本地代表、测试行、重建系数和lifting。
+`fsi.cpp` 的场展开与装配共同使用它；mesh界面测试行仍舍弃，结构kernel内部时间导数保持原含义。
+三种语义PC树只分组独立代表，界面行不复制；真实验证状态见 [实施记录](../development/FEM_INTEGRATION_VALIDATION.md)。

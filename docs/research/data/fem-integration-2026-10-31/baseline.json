@@ -1,0 +1,1271 @@
+[
+  {
+    "commit": "72a335604a50c1ae27516b8bde15e05564b5748b",
+    "dirty": false,
+    "mode": "debug",
+    "selection": "all",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 34359738368,
+      "cgroup": {
+        "/sys/fs/cgroup": {
+          "cpu.max": "400000 100000",
+          "memory.max": "34359738368"
+        }
+      },
+      "build_jobs": 4
+    },
+    "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+    "tests": [
+      {
+        "name": "runtime_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.162368,
+        "log": "evidence/junit.xml#runtime_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "coo_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0883471,
+        "log": "evidence/junit.xml#coo_jacobian",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "coo_jacobian_mpi2",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.170452,
+        "log": "evidence/junit.xml#coo_jacobian_mpi2",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "coo_jacobian_mpi4",
+        "status": "passed",
+        "ranks": [
+          4
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.184243,
+        "log": "evidence/junit.xml#coo_jacobian_mpi4",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "linear_lifetime",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0802967,
+        "log": "evidence/junit.xml#linear_lifetime",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "linear_lifetime_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.154921,
+        "log": "evidence/junit.xml#linear_lifetime_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "solver_failures",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0908179,
+        "log": "evidence/junit.xml#solver_failures",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "solver_failures_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.172101,
+        "log": "evidence/junit.xml#solver_failures_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "checkpoint_publication",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0932589,
+        "log": "evidence/junit.xml#checkpoint_publication",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "checkpoint_publication_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.166179,
+        "log": "evidence/junit.xml#checkpoint_publication_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "nonlinear_acceptance",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0833942,
+        "log": "evidence/junit.xml#nonlinear_acceptance",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "nonlinear_acceptance_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.168027,
+        "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "boundary_geometry",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0646238,
+        "log": "evidence/junit.xml#boundary_geometry",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "quadrature_moments",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0640766,
+        "log": "evidence/junit.xml#quadrature_moments",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "hyperelastic_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0641111,
+        "log": "evidence/junit.xml#hyperelastic_element_jacobian",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "fsi_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0642086,
+        "log": "evidence/junit.xml#fsi_element_jacobian",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "solid_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0628973,
+        "log": "evidence/junit.xml#solid_element_jacobian",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "fluid_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0641549,
+        "log": "evidence/junit.xml#fluid_element_jacobian",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "fluid_coo_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 21.9409,
+        "log": "evidence/junit.xml#fluid_coo_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "profile_log_validation",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.144363,
+        "log": "evidence/junit.xml#profile_log_validation",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "fluid_element_report",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 5.0678,
+        "log": "evidence/junit.xml#fluid_element_report",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "schur_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 14.7545,
+        "log": "evidence/junit.xml#schur_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "time_retry_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 17.8158,
+        "log": "evidence/junit.xml#time_retry_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "domains_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 6.16585,
+        "log": "evidence/junit.xml#domains_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "regions_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 3.40796,
+        "log": "evidence/junit.xml#regions_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "tagged_fluid_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 5.21768,
+        "log": "evidence/junit.xml#tagged_fluid_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "restart_block_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 18.1211,
+        "log": "evidence/junit.xml#restart_block_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "hyperelastic_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 16.9577,
+        "log": "evidence/junit.xml#hyperelastic_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "elastic_fsi_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 12.428,
+        "log": "evidence/junit.xml#elastic_fsi_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "rigid_fsi_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 1.69612,
+        "log": "evidence/junit.xml#rigid_fsi_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "motion_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.948666,
+        "log": "evidence/junit.xml#motion_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "solid_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 1.10555,
+        "log": "evidence/junit.xml#solid_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "fluid_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 6.62726,
+        "log": "evidence/junit.xml#fluid_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "poisson_verification",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.608507,
+        "log": "evidence/junit.xml#poisson_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "poisson_parallel",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.655408,
+        "log": "evidence/junit.xml#poisson_parallel",
+        "exit_behavior": "Completed"
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "petsc",
+        "version": "3.23.7",
+        "build": "real_h5e9295b_0",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/petsc-3.23.7-real_h5e9295b_0.conda",
+        "sha256": "1db9bbdbef86862360d4cc1a01956d0029cc8a9668ac9fba77b5ab75b4af3962"
+      },
+      {
+        "name": "openmpi",
+        "version": "5.0.8",
+        "build": "h2fe1745_110",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/openmpi-5.0.8-h2fe1745_110.conda",
+        "sha256": "4f7eb20a3ca68bdbb5ffed23cf9f31ad246b02eea03260ed8ca36e080136a8d5"
+      },
+      {
+        "name": "ninja",
+        "version": "1.13.2",
+        "build": "h171cf75_1",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/ninja-1.13.2-h171cf75_1.conda",
+        "sha256": "2b5f2e865122f9fc0637f520a7cb22e16b9727b2db6761ee16cb5e6404412c81"
+      },
+      {
+        "name": "metis",
+        "version": "5.1.0",
+        "build": "h86e3903_1008",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/metis-5.1.0-h86e3903_1008.conda",
+        "sha256": "c845827efbac5eaf722260493dbf06a520c89bf0d59c46605af72cb47c3f75e9"
+      },
+      {
+        "name": "gcc",
+        "version": "15.3.0",
+        "build": "hc6a0c74_7",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/gcc-15.3.0-hc6a0c74_7.conda",
+        "sha256": "f362d14caab740de46f60d5ca8a4340066704ff573bc0a618030ceca3a2b7f87"
+      },
+      {
+        "name": "cmake",
+        "version": "4.4.5",
+        "build": "hff7ac6b_0",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/cmake-4.4.5-hff7ac6b_0.conda",
+        "sha256": "2fdc108bc51a8845fc1c25e1cb78f6781bdce439f637ff850c2fa9a5a92c56f6"
+      },
+      {
+        "name": "gxx",
+        "version": "15.3.0",
+        "build": "hc6a0c74_7",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/gxx-15.3.0-hc6a0c74_7.conda",
+        "sha256": "b4d8243c72c114f3bc5189659f0ad7745d35b3c08fbd529d7dd32b7fbb631a5e"
+      },
+      {
+        "name": "hdf5",
+        "version": "1.14.6",
+        "build": "mpi_openmpi_h8367ee7_6",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/hdf5-1.14.6-mpi_openmpi_h8367ee7_6.conda",
+        "sha256": "172545b7754612743cfe40767543c8d9507f748a99b87c30d26162cc719de3a3"
+      },
+      {
+        "name": "python",
+        "version": "3.15.2",
+        "build": "h6e52b48_100_cp315",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/python-3.15.2-h6e52b48_100_cp315.conda",
+        "sha256": "dd6fdef748df5636029673a834ca3632ce44c86d71e4986d70bcdb2ae5607a25"
+      },
+      {
+        "name": "openblas",
+        "version": "0.3.34",
+        "build": "openmp_hd0bf9d2_2",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/openblas-0.3.34-openmp_hd0bf9d2_2.conda",
+        "sha256": "22f5428f5a29523432725c340016ef2ee1c32aa7d1a601097a63a0b27c8d5eed"
+      },
+      {
+        "name": "yaml-cpp",
+        "version": "0.8.0",
+        "build": "h54a6638_1",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/yaml-cpp-0.8.0-h54a6638_1.conda",
+        "sha256": "425808ebd2a20bfc460995293995e1fa0510e93c300535e2ec3622bd3d84288c"
+      }
+    ],
+    "log_sha256": "015e238fef8118d6e2f67a9202ae67d0ad842a2e4edbf0f3db532cad8e603193",
+    "raw_evidence": "/workspace/engineering-evidence/baseline-debug-evidence"
+  },
+  {
+    "commit": "72a335604a50c1ae27516b8bde15e05564b5748b",
+    "dirty": true,
+    "mode": "release",
+    "selection": "all",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 34359738368,
+      "cgroup": {
+        "/sys/fs/cgroup": {
+          "cpu.max": "400000 100000",
+          "memory.max": "34359738368"
+        }
+      },
+      "build_jobs": 4
+    },
+    "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+    "tests": [
+      {
+        "name": "runtime_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.162635,
+        "log": "evidence/junit.xml#runtime_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "coo_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0847357,
+        "log": "evidence/junit.xml#coo_jacobian",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "coo_jacobian_mpi2",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.166168,
+        "log": "evidence/junit.xml#coo_jacobian_mpi2",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "coo_jacobian_mpi4",
+        "status": "passed",
+        "ranks": [
+          4
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.181315,
+        "log": "evidence/junit.xml#coo_jacobian_mpi4",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "linear_lifetime",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0795694,
+        "log": "evidence/junit.xml#linear_lifetime",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "linear_lifetime_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.14701,
+        "log": "evidence/junit.xml#linear_lifetime_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "solver_failures",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.085327,
+        "log": "evidence/junit.xml#solver_failures",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "solver_failures_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.161969,
+        "log": "evidence/junit.xml#solver_failures_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "checkpoint_publication",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0833182,
+        "log": "evidence/junit.xml#checkpoint_publication",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "checkpoint_publication_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.152559,
+        "log": "evidence/junit.xml#checkpoint_publication_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "nonlinear_acceptance",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0839765,
+        "log": "evidence/junit.xml#nonlinear_acceptance",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "nonlinear_acceptance_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.171722,
+        "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "boundary_geometry",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0651876,
+        "log": "evidence/junit.xml#boundary_geometry",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "quadrature_moments",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0652649,
+        "log": "evidence/junit.xml#quadrature_moments",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "hyperelastic_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0643047,
+        "log": "evidence/junit.xml#hyperelastic_element_jacobian",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "fsi_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0652769,
+        "log": "evidence/junit.xml#fsi_element_jacobian",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "solid_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0648227,
+        "log": "evidence/junit.xml#solid_element_jacobian",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "fluid_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.0625686,
+        "log": "evidence/junit.xml#fluid_element_jacobian",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "fluid_coo_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 15.1075,
+        "log": "evidence/junit.xml#fluid_coo_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "profile_log_validation",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.134555,
+        "log": "evidence/junit.xml#profile_log_validation",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "fluid_element_report",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 2.97676,
+        "log": "evidence/junit.xml#fluid_element_report",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "schur_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 5.17338,
+        "log": "evidence/junit.xml#schur_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "time_retry_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 2.63098,
+        "log": "evidence/junit.xml#time_retry_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "domains_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 1.98397,
+        "log": "evidence/junit.xml#domains_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "regions_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 2.93948,
+        "log": "evidence/junit.xml#regions_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "tagged_fluid_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 5.0281,
+        "log": "evidence/junit.xml#tagged_fluid_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "restart_block_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 7.87569,
+        "log": "evidence/junit.xml#restart_block_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "hyperelastic_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 2.43668,
+        "log": "evidence/junit.xml#hyperelastic_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "elastic_fsi_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 1.52761,
+        "log": "evidence/junit.xml#elastic_fsi_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "rigid_fsi_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.621958,
+        "log": "evidence/junit.xml#rigid_fsi_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "motion_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.801337,
+        "log": "evidence/junit.xml#motion_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "solid_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.824631,
+        "log": "evidence/junit.xml#solid_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "fluid_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 1.92173,
+        "log": "evidence/junit.xml#fluid_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "poisson_verification",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.498247,
+        "log": "evidence/junit.xml#poisson_verification",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "poisson_parallel",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.621616,
+        "log": "evidence/junit.xml#poisson_parallel",
+        "exit_behavior": "Completed"
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "petsc",
+        "version": "3.23.7",
+        "build": "real_h5e9295b_0",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/petsc-3.23.7-real_h5e9295b_0.conda",
+        "sha256": "1db9bbdbef86862360d4cc1a01956d0029cc8a9668ac9fba77b5ab75b4af3962"
+      },
+      {
+        "name": "openmpi",
+        "version": "5.0.8",
+        "build": "h2fe1745_110",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/openmpi-5.0.8-h2fe1745_110.conda",
+        "sha256": "4f7eb20a3ca68bdbb5ffed23cf9f31ad246b02eea03260ed8ca36e080136a8d5"
+      },
+      {
+        "name": "ninja",
+        "version": "1.13.2",
+        "build": "h171cf75_1",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/ninja-1.13.2-h171cf75_1.conda",
+        "sha256": "2b5f2e865122f9fc0637f520a7cb22e16b9727b2db6761ee16cb5e6404412c81"
+      },
+      {
+        "name": "metis",
+        "version": "5.1.0",
+        "build": "h86e3903_1008",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/metis-5.1.0-h86e3903_1008.conda",
+        "sha256": "c845827efbac5eaf722260493dbf06a520c89bf0d59c46605af72cb47c3f75e9"
+      },
+      {
+        "name": "gcc",
+        "version": "15.3.0",
+        "build": "hc6a0c74_7",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/gcc-15.3.0-hc6a0c74_7.conda",
+        "sha256": "f362d14caab740de46f60d5ca8a4340066704ff573bc0a618030ceca3a2b7f87"
+      },
+      {
+        "name": "cmake",
+        "version": "4.4.5",
+        "build": "hff7ac6b_0",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/cmake-4.4.5-hff7ac6b_0.conda",
+        "sha256": "2fdc108bc51a8845fc1c25e1cb78f6781bdce439f637ff850c2fa9a5a92c56f6"
+      },
+      {
+        "name": "gxx",
+        "version": "15.3.0",
+        "build": "hc6a0c74_7",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/gxx-15.3.0-hc6a0c74_7.conda",
+        "sha256": "b4d8243c72c114f3bc5189659f0ad7745d35b3c08fbd529d7dd32b7fbb631a5e"
+      },
+      {
+        "name": "hdf5",
+        "version": "1.14.6",
+        "build": "mpi_openmpi_h8367ee7_6",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/hdf5-1.14.6-mpi_openmpi_h8367ee7_6.conda",
+        "sha256": "172545b7754612743cfe40767543c8d9507f748a99b87c30d26162cc719de3a3"
+      },
+      {
+        "name": "python",
+        "version": "3.15.2",
+        "build": "h6e52b48_100_cp315",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/python-3.15.2-h6e52b48_100_cp315.conda",
+        "sha256": "dd6fdef748df5636029673a834ca3632ce44c86d71e4986d70bcdb2ae5607a25"
+      },
+      {
+        "name": "openblas",
+        "version": "0.3.34",
+        "build": "openmp_hd0bf9d2_2",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/openblas-0.3.34-openmp_hd0bf9d2_2.conda",
+        "sha256": "22f5428f5a29523432725c340016ef2ee1c32aa7d1a601097a63a0b27c8d5eed"
+      },
+      {
+        "name": "yaml-cpp",
+        "version": "0.8.0",
+        "build": "h54a6638_1",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/yaml-cpp-0.8.0-h54a6638_1.conda",
+        "sha256": "425808ebd2a20bfc460995293995e1fa0510e93c300535e2ec3622bd3d84288c"
+      }
+    ],
+    "log_sha256": "f38dcd5757bedc8b7565047bf9e5f059d250201c1c9649cac3010c0a68224db4",
+    "raw_evidence": "/workspace/engineering-evidence/baseline-release-evidence"
+  },
+  {
+    "commit": "72a335604a50c1ae27516b8bde15e05564b5748b",
+    "dirty": true,
+    "mode": "debug",
+    "selection": "mpi-failure",
+    "petsc": "3.19.6",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 34359738368,
+      "cgroup": {
+        "/sys/fs/cgroup": {
+          "cpu.max": "400000 100000",
+          "memory.max": "34359738368"
+        }
+      },
+      "build_jobs": 4
+    },
+    "lock_sha256": "ca6f133b45ab2c22a3d34445be5b1f0c6469dcf41364ad300c0a9315e4d8191a",
+    "tests": [
+      {
+        "name": "runtime_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.118953,
+        "log": "evidence/junit.xml#runtime_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "coo_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.113997,
+        "log": "evidence/junit.xml#coo_jacobian",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "coo_jacobian_mpi2",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.126379,
+        "log": "evidence/junit.xml#coo_jacobian_mpi2",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "solver_failures",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.117322,
+        "log": "evidence/junit.xml#solver_failures",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "solver_failures_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.132406,
+        "log": "evidence/junit.xml#solver_failures_mpi",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "nonlinear_acceptance",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.114747,
+        "log": "evidence/junit.xml#nonlinear_acceptance",
+        "exit_behavior": "Completed"
+      },
+      {
+        "name": "nonlinear_acceptance_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "seconds": 0.1247,
+        "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+        "exit_behavior": "Completed"
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "ninja",
+        "version": "1.13.2",
+        "build": "h171cf75_1",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/ninja-1.13.2-h171cf75_1.conda",
+        "sha256": "2b5f2e865122f9fc0637f520a7cb22e16b9727b2db6761ee16cb5e6404412c81"
+      },
+      {
+        "name": "metis",
+        "version": "5.1.0",
+        "build": "h86e3903_1008",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/metis-5.1.0-h86e3903_1008.conda",
+        "sha256": "c845827efbac5eaf722260493dbf06a520c89bf0d59c46605af72cb47c3f75e9"
+      },
+      {
+        "name": "hdf5",
+        "version": "1.14.2",
+        "build": "mpi_openmpi_h327c9cf_0",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/hdf5-1.14.2-mpi_openmpi_h327c9cf_0.conda",
+        "sha256": "9bdba8976cb1904557403d083f6521a1014554275bae1f9f7a7e695fee02a52f"
+      },
+      {
+        "name": "openmpi",
+        "version": "4.1.6",
+        "build": "hc5af2df_101",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/openmpi-4.1.6-hc5af2df_101.conda",
+        "sha256": "f0769dd891e1735be4606ec8643951e5cbca199f774e58c7d933f70a70134ce4"
+      },
+      {
+        "name": "petsc",
+        "version": "3.19.6",
+        "build": "real_hda1ae68_100",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/petsc-3.19.6-real_hda1ae68_100.conda",
+        "sha256": "d39fe136656cc6f554b609ad1bf5e0565c2b487aeb7f9b27d71d24a69956950c"
+      },
+      {
+        "name": "gcc",
+        "version": "12.4.0",
+        "build": "h236703b_2",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/gcc-12.4.0-h236703b_2.conda",
+        "sha256": "ebe2dabb0a6f0ef05039d3a26b9c6b0aa050d7e791c6ab77ee91653b2098cdc3"
+      },
+      {
+        "name": "gxx",
+        "version": "12.4.0",
+        "build": "h236703b_2",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/gxx-12.4.0-h236703b_2.conda",
+        "sha256": "6c3ea9877dc6babf064bafacd9e67280072b676864c26e90cbfec52eaa32a60e"
+      },
+      {
+        "name": "cmake",
+        "version": "3.28.4",
+        "build": "hcfe8598_0",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/cmake-3.28.4-hcfe8598_0.conda",
+        "sha256": "6c7d7552e0ce3b142d0f18de64b6d9f1eccc8825aa3b7127a4000e539d73a9f7"
+      },
+      {
+        "name": "python",
+        "version": "3.12.3",
+        "build": "hab00c5b_0_cpython",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/python-3.12.3-hab00c5b_0_cpython.conda",
+        "sha256": "f9865bcbff69f15fd89a33a2da12ad616e98d65ce7c83c644b92e66e5016b227"
+      },
+      {
+        "name": "openblas",
+        "version": "0.3.34",
+        "build": "pthreads_h299a788_2",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/openblas-0.3.34-pthreads_h299a788_2.conda",
+        "sha256": "0e8629ce8f0f5ccce78535ed43dcdb8165f7b9541d5e3def6639850737d400e2"
+      },
+      {
+        "name": "yaml-cpp",
+        "version": "0.8.0",
+        "build": "h54a6638_1",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/yaml-cpp-0.8.0-h54a6638_1.conda",
+        "sha256": "425808ebd2a20bfc460995293995e1fa0510e93c300535e2ec3622bd3d84288c"
+      }
+    ],
+    "log_sha256": "08e3606705f9b81b3fa2ac4d167bae6cfcb38143fa183b2c90c7cfdd5cd8ef2b",
+    "raw_evidence": "/workspace/engineering-evidence/baseline-legacy-evidence"
+  }
+]

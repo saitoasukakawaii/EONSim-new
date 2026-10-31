@@ -5,7 +5,10 @@
 
 namespace eonsim {
 AlgebraLayout make_field_layout(const MeshPartition& mesh, int components,
-                               const std::map<std::string, std::vector<int>>& groups) {
+                               const std::map<std::string, std::vector<int>>& groups,
+                               const std::vector<ComponentMeaning>& meanings) {
+    if(!meanings.empty() && meanings.size()!=static_cast<std::size_t>(components))
+        throw std::runtime_error("Semantic component count differs from field layout");
     if (components < 1 || mesh.global_nodes > std::numeric_limits<PetscInt>::max()/components)
         throw std::runtime_error("Field size exceeds PETSc index range");
     std::set<int> seen;
@@ -28,6 +31,9 @@ AlgebraLayout make_field_layout(const MeshPartition& mesh, int components,
         auto& ids = layout.fields[group.first];
         for (std::size_t n = 0; n < mesh.owned_nodes; ++n) for (int c : group.second) ids.push_back(mesh.algebra_ids[n]*components+c);
     }
+    for(std::size_t n=0;n<mesh.owned_nodes;++n) for(const auto& meaning:meanings)
+        layout.owned_semantics.push_back({mesh.nodes[n].global_id,meaning.domain,meaning.quantity,
+            DofEntity::vertex,meaning.component,0,1});
     return layout;
 }
 } // namespace eonsim

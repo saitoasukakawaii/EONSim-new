@@ -54,6 +54,7 @@ add_library(eonsim_core
     src/algebra/linear_system.cpp
     src/algebra/nonlinear_system.cpp
     src/algebra/schur_solver.cpp
+    src/algebra/pc_plan.cpp
     src/physics/fluid_element.cpp
     src/fem/reduced_layout.cpp
     src/physics/fsi.cpp
@@ -92,6 +93,14 @@ if(BUILD_TESTING)
             ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_runtime> ${MPIEXEC_POSTFLAGS})
         set_tests_properties(runtime_mpi PROPERTIES TIMEOUT 30 PROCESSORS 2 LABELS "core;mpi-failure")
     endif()
+    add_executable(verify_pc_plan tests/verify_pc_plan.cpp)
+    target_link_libraries(verify_pc_plan PRIVATE eonsim_core)
+    foreach(ranks IN ITEMS 1 2 4)
+        add_test(NAME pc_plan_mpi${ranks} COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" ${ranks}
+            ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_pc_plan> ${MPIEXEC_POSTFLAGS})
+        set_tests_properties(pc_plan_mpi${ranks} PROPERTIES TIMEOUT 60 PROCESSORS ${ranks}
+            LABELS "core;mpi-failure;rank-${ranks}" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    endforeach()
     add_executable(verify_coo_jacobian tests/verify_coo_jacobian.cpp)
     target_link_libraries(verify_coo_jacobian PRIVATE eonsim_core)
     add_test(NAME coo_jacobian COMMAND verify_coo_jacobian)
@@ -164,6 +173,26 @@ if(BUILD_TESTING)
         --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_element_report")
     set_tests_properties(fluid_element_report PROPERTIES TIMEOUT 120 PROCESSORS 2
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME pc_recipe_retry
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_time_retry.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --recipe hybrid
+        --work "${CMAKE_CURRENT_BINARY_DIR}/pc_recipe_retry")
+    set_tests_properties(pc_recipe_retry PROPERTIES TIMEOUT 300 PROCESSORS 2 LABELS "core;rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME pc_recipe_restart
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_pc_restart.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/pc_recipe_restart")
+    set_tests_properties(pc_recipe_restart PROPERTIES TIMEOUT 300 PROCESSORS 4 LABELS "core;rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    foreach(recipe IN ITEMS physics quantity hybrid)
+        add_test(NAME pc_recipe_${recipe}
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_schur.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --recipe ${recipe} --work "${CMAKE_CURRENT_BINARY_DIR}/pc_recipe_${recipe}")
+        set_tests_properties(pc_recipe_${recipe} PROPERTIES TIMEOUT 300 PROCESSORS 4
+            LABELS "core;rank-1;rank-2;rank-4" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    endforeach()
     add_test(NAME schur_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_schur.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"

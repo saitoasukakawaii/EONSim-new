@@ -284,7 +284,13 @@ Config read_config(const std::filesystem::path& path)
             throw std::runtime_error("Invalid FSI parameters");
     }
     if (const auto solver = root["solver"]) {
-        keys(solver, {"relative_tolerance", "absolute_tolerance", "maximum_iterations", "fields"}, "solver");
+        keys(solver, {"relative_tolerance", "absolute_tolerance", "maximum_iterations", "fields", "pc_recipe"}, "solver");
+        if (solver["pc_recipe"]) config.solver.pc_recipe = solver["pc_recipe"].as<std::string>();
+        if(!config.solver.pc_recipe.empty()) {
+            const auto& recipe=config.solver.pc_recipe;
+            if(recipe!="physics"&&recipe!="quantity"&&recipe!="hybrid") throw std::runtime_error("Unknown solver.pc_recipe");
+            if(!config.fluid_problem&&!config.fsi_problem) throw std::runtime_error("solver.pc_recipe currently requires independent fluid or FSI");
+        }
         if (solver["relative_tolerance"]) config.solver.relative_tolerance = solver["relative_tolerance"].as<double>();
         if (solver["absolute_tolerance"]) config.solver.absolute_tolerance = solver["absolute_tolerance"].as<double>();
         if (solver["maximum_iterations"]) config.solver.maximum_iterations = solver["maximum_iterations"].as<int>();

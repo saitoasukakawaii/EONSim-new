@@ -3,6 +3,7 @@
  * @brief 分布式 PETSc 代数对象、装配和线性求解。 */
 
 #include "eonsim/config.hpp"
+#include "eonsim/dof_semantics.hpp"
 #include <petscksp.h>
 #include <string>
 #include <map>
@@ -51,7 +52,8 @@ struct LinearResult {
 struct AlgebraLayout {
     PetscInt owned = 0, global = 0, begin = 0;
     std::vector<PetscInt> local_to_global, diagonal, off_diagonal;
-    std::map<std::string, std::vector<PetscInt>> fields;
+    std::map<std::string, std::vector<PetscInt>> fields; ///< Physical acceptance, never PC recipes.
+    std::vector<DofKey> owned_semantics; ///< Optional, in owned storage order; layout-local namespace.
 };
 
 /** @brief assembled AIJ 线性系统；不依赖网格或物理核。

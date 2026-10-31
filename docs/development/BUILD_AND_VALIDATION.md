@@ -157,3 +157,17 @@ Doxygen 是可选开发工具，单独生成 HTML；不加入默认 build，也�
 `-solver_report` 输出有效 DoF、非零元、线性迭代、SNES 内部总耗时、装配和 ghost 更新时间。
 Linux 下 `peak_rss_*` 使用 getrusage 的进程高水位值；`rss_*` 是求解后的驻留内存采样。
 这些是诊断数据，不增加日常测试门禁。性能范围与限制见 PERFORMANCE_BASELINE.md。
+
+## 语义 PC 分组（G0B）
+
+独立流体与现有单体 FSI 可以显式选择 `solver: {pc_recipe: physics}`（也支持
+`quantity`、`hybrid`），或使用 `-pc_recipe hybrid`。省略时默认求解和存储编号保持原状；
+不能与 `-block_pc` / `-schur_pc` 同时使用。这不是生产存储重排功能。
+`-pc_plan_report` 输出owned块大小与实际options prefix；`-linear_report` 继续使用原物理验收字段。
+
+针对索引/故障的快速检查：激活仓库锁定环境后执行
+`ctest --test-dir build/cloud-3.23.7-debug -R '^pc_plan_' --output-on-failure`。
+真实算例选择 `-R '^pc_recipe_'`，包含三recipe对直接解、COO/重启以及hybrid真实缩步。
+公共接口与最终集成仍使用 `scripts/cloud/run.sh 3.23.7 debug all` 和release对应命令，
+不能用索引测试代替数值验收。索引/故障测试同时标记mpi-failure以覆盖旧锁定环境。
+实现边界与证据见 [整体实施记录](FEM_INTEGRATION_VALIDATION.md)。
