@@ -1,6 +1,6 @@
 # MultiPhysicsHPC 文档入口
 
-当前仓库包含 Tet4 Poisson、独立流体/固体、刚体/弹性体单体 FSI 的小算例实现。实际 API 从 include/eonsim 与 src 生成；开发规范中的声明片段仍为注释示例。阶段证据与适用范围见 README 和 ROADMAP。
+当前仓库包含 Tet4 多物理场、Tri3/Quad4 相容混合二维标量、语义 DoF/PC 分组及 BE/BDF2/generalized-alpha 的适用小算例实现；验证最多 4 rank。实际 API 从 include/eonsim 与 src 生成；开发规范中的声明片段仍为注释示例。阶段证据与适用范围见 README 和 ROADMAP。
 
 ## 阅读入口
 

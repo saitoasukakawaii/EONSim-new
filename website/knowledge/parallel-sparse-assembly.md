@@ -2,7 +2,7 @@
 
 本文解释 EONSim 当前如何把 Tet4 网格分区映射为 PETSc 分布式稀疏矩阵，并区分网格分区、自由度分区和矩阵行分区。
 
-**内容状态：** 源码对应说明。实现细节以链接指向的仓库版本为准；本文不是大规模性能报告。
+**内容状态：** 源码对应说明。实现细节以链接指向的仓库版本为准；本文不是大规模性能报告。下文以 Tet4 路径为例；PR #23 已增加 Tri3/Quad4 二维标量及语义 PC 树，当前支持范围见 [集成验收](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/development/FEM_INTEGRATION_VALIDATION.md)。
 
 ## 1. 数据流概览
 
@@ -11,7 +11,7 @@
 3. FieldLayout 将节点编号映射为分量交错的代数编号，并生成本地 owned 行的对角/非对角预分配计数。
 4. PETSc MPIAIJ 保存全局分布式矩阵的本地行。
 5. 单元核计算局部贡献，PETSc 汇总远程行插入。
-6. Field IS 提供物理场分组，供 PCFieldSplit 构造块预条件器。
+6. 物理验收 fields 与 PC 分组分开；默认字段 IS 或显式语义 PcBlock 树供 PCFieldSplit 构造预条件器。
 
 ## 2. 网格分区与节点所有权
 
@@ -93,7 +93,7 @@ MPIAIJ 的 diagonal/off-diagonal 表示进程拥有关系；PCFieldSplit 的 vel
 
 ## 8. 当前边界与下一步研究
 
-当前实现采用离线 METIS、分区 HDF5、MPIAIJ 和 assembled 装配。下一步性能研究应先测量：
+当前实现采用离线 METIS、分区 HDF5、MPIAIJ 和 assembled 装配。已有阶段/单元计时、开关扰动与独立流体 COO 测量，见 [知识索引](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/research/KNOWLEDGE_LOG.md)。扩大问题规模时仍需测量：
 - 网格预处理时间和峰值内存；
 - 每 rank owned/ghost 数量与边界比例；
 - d_nnz/o_nnz 分布及矩阵非零元数量；

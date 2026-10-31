@@ -56,7 +56,7 @@ PETSc VecPermute不支持跨rank非本地置换，因此这里使用scatter；�
 小型问题上直接解solve中位数均更低，不由此推断大规模结果。
 G0补强验收通过，整体主线交付仍in_progress；G5独立场BDF2已实施，G1尚未实施。后文为前序检查点记录。
 
-## 当前基线
+## 72a3356 历史基线
 
 PETSc 3.23.7 real/double/int32 + OpenMPI 5.0.8 + GCC 15.3.0，Linux x86_64，cgroup 4 CPU/32 GiB，4编译任务、CTest串行、每rank BLAS/OpenMP单线程。
 锁定恢复入口和来源继续使用 `environments/` 与 `scripts/cloud/`，没有增加安装框架。
@@ -69,7 +69,7 @@ bash scripts/cloud/restore.sh 3.19.6 /workspace/eonsim-cloud
 bash scripts/cloud/run.sh 3.19.6 debug mpi-failure /workspace/eonsim-cloud
 ```
 
-路径是本次示例，可替换为任意可写持久目录。快照旧构建缓存引用消失的 `/tmp/infra-pristine` Ninja；将旧目录移至证据目录后从空构建目录恢复成功。主环境初次依赖恢复使用新前缀及包缓存；再次恢复成功，不能将缓存命中代替运行验证。
+以上为历史完整集成命令；PR #24 后 3.19.6 仅按需手动专项，不是日常矩阵。路径可替换为任意可写持久目录。快照旧构建缓存引用消失的 `/tmp/infra-pristine` Ninja；将旧目录移至证据目录后从空构建目录恢复成功。主环境初次依赖恢复使用新前缀及包缓存；再次恢复成功，不能将缓存命中代替运行验证。
 
 | 代码 | 环境/模式 | 选择 | 实际结果 |
 |---|---|---|---|
@@ -79,7 +79,7 @@ bash scripts/cloud/run.sh 3.19.6 debug mpi-failure /workspace/eonsim-cloud
 
 [机器可读清单](../research/data/fem-integration-2026-10-31/baseline.json) 保留实际dirty标记、依赖锁摘要、测试名/状态及日志摘要。原始日志位于 `/workspace/engineering-evidence/baseline-*-evidence/`。这些只是基线，不能用于声称新能力已验收。
 
-## G0B 当前实现
+## G0B 实现检查点
 
 - `DofKey` 在一个layout的网格命名空间中使用网格实体ID、域、量、分量、空间/局部模式；不使用rank/代数编号作为身份。joined网格仍使用重编号后的实体ID，不承诺跨导入或跨分区重启身份。
 - `AlgebraLayout::owned_semantics` 与 `fields` 分开；后者继续独立控制物理验收。保留原 owned/ghost 映射、编号、图、默认LU及原block/schur选项。
@@ -91,7 +91,7 @@ bash scripts/cloud/run.sh 3.19.6 debug mpi-failure /workspace/eonsim-cloud
 - options prefix按树命名。固定分裂类型不能被options改写；独立Schur inner/upper尚未接线，按真实第二孩子prefix的所有选项共同拒绝。`-pc_plan_report` 输出块大小、owned区间和实际prefix。
 - 索引计划在每次solve的准备阶段生成；Newton内不重建。没有承诺跨时间步缓存或预条件因子复用。
 
-## G0 验收进展与边界
+## G0 首轮验收检查点与边界
 
 已执行的首轮 targeted 检查：1/2/4 rank 子矩阵手写oracle和错误配置；三recipe独立流体、双域弹性、刚体、超弹性与直接解对照；初态收敛、callback分类/accepted不变/同对象恢复；fluid COO与FSI重启对照。后续slot映射改造后的完整回归正在执行，最终状态以后续实际结果为准。
 
@@ -162,7 +162,7 @@ ALE stage有效但endpoint反转负例在4rank中坏单元数3/1/2/0，共同拒
 
 包含最后新增的layout_policy_verification；两种主构建完成2/4rank ABI/MPI预检，兼容锁完成2rank预检。
 独立审查最终无确定源码阻塞。Python语法、Markdown本地链接及git diff空白检查通过；
-本地node未安装，网站检查交由PR云端执行。最终提交的CI及主线合并尚待完成。
+本地node未安装，网站检查交由PR云端执行。该本地检查点尚待 CI 与主线合并；后续已完成，见下节。
 
 
 ## 主线交付

@@ -24,7 +24,7 @@ lastVerifiedCommit: ""
 
 ## 问题背景与适用范围
 
-当前 EONSim 的计算域是三维 Tet4，三角形用于边界。节点具有固定数量的字段分量，这种布局足以支撑现有 P1 小算例，但不能直接表达 P2/P1、modal、高阶边/面 DoF 或界面乘子。扩展首先改变数据语义，再选择模板优化。
+原设计基线 38a5e51 的计算域是三维 Tet4，三角形用于边界。后续 PR #23 已增加 Tri3/Quad4 二维标量、语义 DoF/PC 与 G5 时间格式，见 [集成验收](../../docs/development/FEM_INTEGRATION_VALIDATION.md)；下文通用多空间设计仍不等于全部实现。节点具有固定数量的字段分量，这种布局足以支撑现有 P1 小算例，但不能直接表达 P2/P1、modal、高阶边/面 DoF 或界面乘子。扩展首先改变数据语义，再选择模板优化。
 
 以下只讨论布局与耦合契约，不证明某个离散的稳定性，也不提供高性能实现。完整工程规划见 [通用 FEM 设计](../../docs/architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md)；上游证据见 [学习矩阵](../../docs/research/FEM_FRAMEWORK_LEARNING_2026-10-30.md)。
 

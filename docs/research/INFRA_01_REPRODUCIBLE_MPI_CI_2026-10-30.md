@@ -1,5 +1,7 @@
 # INFRA-01：云端恢复、MPI失败与核心CI
 
+2026-10-31 后续验收：PR #23 已补齐最终集成，主锁 Debug/Release 各 60 项、旧锁专项 13 项通过，见 [集成记录](../development/FEM_INTEGRATION_VALIDATION.md)。PR #24 已将旧锁改为手动兼容专项；下文 35/35/7 及未验收说明只属于原检查点。
+
 日期：2026-10-30（Asia/Shanghai）。基线 `38a5e516ffe129d1b70c7c1bd8365deb5ded101a`（PR #21已合并）。
 工程量估计14–18小时；本报告不将估计当作实际耗时。全部本轮构建和执行位于远程Linux云环境，未使用历史WSL或用户电脑。
 

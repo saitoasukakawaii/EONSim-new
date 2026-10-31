@@ -108,6 +108,7 @@ value:
 Dirichlet 按端点值插值，源项及自然边界在共同 stage 评价；拒绝不提交历史。
 checkpoint 保存格式所需完整历史、步长/ready、参数及二维拓扑/所有权签名。
 缺字段、改变格式/物理参数/网格或不同分区明确拒绝，不静默改用 BE。
+瞬态标量捕获 `LinearSolveFailure` 后由 TimeStepper 按配置有限缩步；稳态直接报错。输入、I/O 等普通异常不因此重试。这与三维非线性驱动将线性/PC 故障作为终止错误的策略不同。
 
 每个接受步写 VTU（Tri=5、Quad=9、边=3）、并行 PVTU 及 PVD 时间序列。
 `output.vtu` 为最终接受状态；`output_stepN.*` 为当前运行的各步。

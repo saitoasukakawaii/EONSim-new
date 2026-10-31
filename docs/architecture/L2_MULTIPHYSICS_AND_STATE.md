@@ -4,7 +4,7 @@
 
 ### 一次准备、多次数值更新
 
-扩展方案见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) §6、§9、§10：时间控制与时间格式分开，积分器负责 stage/导数映射与切线系数；BDF2 历史和 generalized-α 的速度/加速度必须纳入 accepted/trial 与 checkpoint。非匹配界面映射和并行输出分别有更新/发布责任。这些要求用于未来实现，不表示当前 BE 已支持这些格式。
+扩展方案见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) §6、§9、§10：时间控制与时间格式分开，积分器负责 stage/导数映射与切线系数；BDF2 历史和 generalized-α 的速度/加速度必须纳入 accepted/trial 与 checkpoint。非匹配界面映射和并行输出分别有更新/发布责任。G5 已实现 BE、变步 BDF2 与适用的一阶/二阶 generalized-alpha，以及完整 accepted 历史和 checkpoint；支持矩阵见 [时间契约](../development/TIME_INTEGRATION.md)。非匹配接口与通用输出扩展仍是未来工作。
 
 ```text
 读配置/分区 → 建 DoF 与约束 → 建稀疏图/ghost 计划 → 建 solver
@@ -37,7 +37,7 @@
 
 ## 数据输出、恢复与交付标准
 
-可视化文件服务观察，checkpoint 服务恢复，两者分开。checkpoint 至少包含网格/分区与参考构形标识、时间与步长、已接受流体/固体场、当前网格位移和时间积分必要历史及材料内部变量；刚体版本另存位置、速度及已实现的姿态/角速度。generalized-α 或 0D 模型引入后补齐其状态。不能只保存当前位移就称为可重启。
+可视化文件服务观察，checkpoint 服务恢复，两者分开。checkpoint 至少包含网格/分区与参考构形标识、时间与步长、已接受流体/固体场、当前网格位移和时间积分必要历史及材料内部变量；刚体版本另存位置、速度及已实现的姿态/角速度。当前 generalized-alpha 已保存各场算法历史；未来 0D 模型需另补其状态。不能只保存当前位移就称为可重启。
 
 只保证相同分区、相同 rank 数和相容配置重启。每次写入独立 generation，所有 rank 完成文件写入、flush 和显式 close 检查后，协调 rank 写该代 manifest，最后原子替换根目录 current 指针。创建目录、rank 写入和发布三个阶段分别集体传播首个失败信息，避免单 rank I/O 异常把其余进程留在 barrier；发布前不改旧指针或旧代文件。读取端只读 current 指向的完整代，也允许显式 generation 路径，不扫描未发布目录。
 
@@ -80,11 +80,11 @@ manifest v3 记录 rank 数、accepted step/time/next_dt，各 rank 元数据与
 依据：[Kratos、MOOSE、4C、LifeV、svMultiPhysics](../research/UPSTREAM_ARCHITECTURE_REVIEW.md)。节点内内存快照的语义见 [并行与内存](L2_PARALLEL_MEMORY_AND_BACKENDS.md)。
 
 
-## B4：实际时间、回滚与缩步
+## B4 基线与 G5 扩展：实际时间、回滚与缩步
 
-`TimeStepper` 统一流体、固体、ALE、单体 FSI 与刚体 BE 的时间推进。`dt*steps` 定义终止物理时间；缩步后 accepted 步数可以多于配置 steps，`-stop_after` 仍表示 accepted 步数。默认 max_retries=0 保持失败即终止；可在 YAML 根节点设置 `time_control: {max_retries: 6, minimum_dt: 0.0005, reduction: 0.5}`。
+`TimeStepper` 统一步控制；流体、固体、ALE、单体 FSI 已接入 G5 的适用时间格式，独立刚体 ODE 仍仅 BE。`dt*steps` 定义终止物理时间；缩步后 accepted 步数可以多于配置 steps，`-stop_after` 仍表示 accepted 步数。默认 max_retries=0 保持失败即终止；可在 YAML 根节点设置 `time_control: {max_retries: 6, minimum_dt: 0.0005, reduction: 0.5}`。
 
-只对 `StepRejected`（非线性迭代未收敛、最终字段验收未达标、非法 trial 几何/形变、固体撤载能量检查）缩步。参数、线性求解/PC、通信和 I/O 失败不重试。每个 accepted 步重置重试次数；失败从相同 accepted 历史重算，包括 tau、BE 链式系数、各字段初始残量和时变边界。当前策略在成功后保持缩小的步长，不自动增长，也不是误差估计式自适应。
+只对 `StepRejected`（非线性迭代未收敛、最终字段验收未达标、非法 trial 几何/形变、固体撤载能量检查）缩步。本节三维非线性驱动的参数、线性求解/PC、通信和 I/O 失败不重试；二维标量对可恢复线性数值失败的单独策略见 [二维标量契约](../development/SCALAR_2D.md)。每个 accepted 步重置重试次数；失败从相同 accepted 历史重算，包括 tau、所选时间格式的链式系数、各字段初始残量和时变边界。默认策略成功后保持缩小的步长；G5 可显式提供 step_sizes/events，BDF2 限制增长比，仍不是误差估计式自适应。
 
 局部装配失败在全 communicator 汇总后，仍先完成部分 Vec/Mat 装配以排空远程插入，避免污染下一试探点。SNES 残量/Jacobian 回调中的 `StepRejected` 分别使用 PETSc function/Jacobian domain-error 协议，Release 同样显式开启 Jacobian 域检查。默认 Newton 回溯线搜索可在同一 dt 内恢复，最终非线性失败才交给时间驱动；其他 SNES 类型的恢复行为由所选算法决定。线性/PC 失败抛普通异常，报告顶层 SNES/KSP/PC reason，并附本 rank 的子求解器层级；当前覆盖 FieldSplit、ASM/BJacobi 和 MG/GAMG 粗层/下平滑器，范围见离散与算子契约。ALE 在进入求解前同样汇总几何拒绝。固体在临时位移/速度/加速度上检查能量后才提交。流体/FSI 收敛前不改 accepted 状态。
 

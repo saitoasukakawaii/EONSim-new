@@ -1,5 +1,7 @@
 # SOLVER-04：稳态流体 Schur/GAMG 网格测量
 
+后续状态：SOLVER-04B 已补充每层 A 算子尺寸诊断，见 [实现与验证草稿](../../website/drafts/solver-level-dimensions.md)。下文原始测量没有该字段，不追补其未测数据；独立 PC 累计成本仍未实现。
+
 日期：2026-10-30（Asia/Shanghai）；同步基线 a4957e0（PR #10 已合并）。
 测量脚本提交 79eb826，求解器相对基线无修改；完整提交号与 executable SHA256 记录于 [results.json](data/schur-mesh-2026-10-30/results.json)。
 

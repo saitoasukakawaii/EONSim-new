@@ -10,6 +10,10 @@
 - 未实现、未充分验证或仅有设计的能力必须明确标注。
 - 内部工作草稿通过 Pull Request 审查；合并到 main 后才进入生产网站。
 
+## 当前交付
+
+2026-10-31：P0–P8、B0–B5 及 G0B/G0/G5/G1 已交付，包括语义 DoF/三种 PC 树、适用的 BE/BDF2/generalized-alpha、Tri3/Quad4 相容混合二维标量。验证最多 4 rank，尚无多节点生产扩展证明。PR #24 已将日常 CI 固定为 PETSc 3.23.7 Debug/Release，旧版仅手动专项。详见 [进度与证据](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/development/CODEX_PROGRESS.md)。
+
 ## 研发主线
 
 1. 数值可靠性和求解器治理；

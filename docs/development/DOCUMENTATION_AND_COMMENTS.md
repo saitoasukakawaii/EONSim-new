@@ -158,13 +158,13 @@ assemble_boundary_cells();
 
 在 `docs/doxygen/groups.dox` 用 `@defgroup` 定义，API 用 `@ingroup` 关联。主页保留当前实现状态、导航和主要阅读顺序；不要提前生成所有未来模块的空类页面。
 
-当前 Doxygen 只展示主页、注释规范和上述组。完整架构仍从仓库 L0/L1/L2 阅读，不在 API 站点维护第二份。需要把架构页纳入网站时，再显式添加相应 Markdown 到 INPUT，并核对其相对链接；未导入的本地文件路径不是网站页面。
+当前 Doxygen 的 INPUT 包含主页、注释规范、上述组及 include/eonsim、src，按显式注释提取 API。完整架构仍从仓库 L0/L1/L2 阅读，不在 API 站点维护第二份。需要把架构页纳入网站时，再显式添加相应 Markdown 到 INPUT，并核对其相对链接；未导入的本地文件路径不是网站页面。
 
 代码示例先放代码块即可；真实可运行示例出现后用 `@snippet` 引用同一份源码，减少两套代码漂移。不要把注释示例当成已经编译/验证过的求解程序。
 
 ## 已提供的轻量配置
 
-实际配置在 `docs/doxygen/Doxyfile`。它只生成 HTML，不依赖 Graphviz、LaTeX、Sphinx 或 Clang 解析器；当前源代码目录还未创建，因此没有把不存在的 include/src/apps 放进 INPUT。P0 出现源码后按需追加这些已存在目录，保持排除 build、external/third_party 和模板目录。
+实际配置在 `docs/doxygen/Doxyfile`。它只生成 HTML，不依赖 Graphviz、LaTeX、Sphinx 或 Clang 解析器；INPUT 已包含实际的 include/eonsim 与 src 目录，保持排除 build、external/third_party 和模板目录。
 
 配置原则：
 
@@ -174,7 +174,7 @@ assemble_boundary_cells();
 - 采用同一份文档，预处理默认按 `MHPC_DEBUG=0`、`NDEBUG` 看公开 API。Debug 额外断言/诊断在行为说明中指出，不维护两份数学语义。
 - 公式使用 MathJax，生成 HTML 无需本机 LaTeX；当前浏览公式使用 CDN。离线部署时再将 MathJax 随站点提供并调整路径，HTML 生成成功不代表离线公式渲染已经验证。
 
-这些选择和告警含义对应 [Doxygen 配置文档](https://www.doxygen.nl/manual/config.html)。当前配置已在本机 Doxygen 1.9.8 生成验证；换用其他版本时以该版本支持的配置项为准。
+这些选择和告警含义对应 [Doxygen 配置文档](https://www.doxygen.nl/manual/config.html)。初始配置曾使用 Doxygen 1.9.8 生成验证；本次文档同步未重新生成；换用其他版本时以该版本支持的配置项为准。
 
 在仓库根目录运行：
 

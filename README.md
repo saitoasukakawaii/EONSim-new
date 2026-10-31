@@ -11,6 +11,8 @@ C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体
 2026-10-30 新增 [通用 FEM 架构规划](docs/architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) 与
 [20 组上游学习矩阵](docs/research/FEM_FRAMEWORK_LEARNING_2026-10-30.md)，覆盖多拓扑/空间、边界与非匹配接口、时间格式、DoF/预条件及并行输出。它们提供总体路线；本次G0/G5/G1实现范围见[集成验证](docs/development/FEM_INTEGRATION_VALIDATION.md)，其他阶段不随之完成。
 
+2026-10-31：G0B/G0/G5/G1 已通过 PR #23 合入 main；主锁 Debug/Release 各 60 项及旧锁专项 13 项是该检查点的通过记录，后续运行应读取实际 inventory。PR #24 已将日常 CI 固定为 PETSc 3.23.7 Debug/Release。下文 P/B 阶段数值与环境保留历史口径，不代表本次重新测试。
+
 ## 新增能力与说明
 
 - [DoF语义与三种预条件分组](docs/development/DOF_AND_PC_GROUPING.md)：物理验收字段与PC分组分开，默认存储不变。
@@ -23,7 +25,7 @@ C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体
 BLAS/LAPACK、METIS、HDF5 和 yaml-cpp（当前验证版本 0.8.0）。运行已保存的算例不需要 Gmsh 或 Python；
 重新生成网格及可选验证脚本需要 Python 3。
 
-云端主验证环境固定PETSc 3.23.7、OpenMPI 5.0.8及GCC15.3，另保留PETSc3.19.6故障兼容检查。
+云端主验证环境固定PETSc 3.23.7、OpenMPI 5.0.8及GCC15.3，另保留PETSc3.19.6手动故障兼容专项，不进入日常CI。
 完整版本/来源见[依赖锁](environments/README.md)，干净恢复及证据查看见[构建与验证](docs/development/BUILD_AND_VALIDATION.md)。
 
 ```bash
@@ -47,9 +49,9 @@ cmake --build --preset release --parallel 2
 在 Release 中保留。应用默认将尚未设置的 `OMP_NUM_THREADS`、`OPENBLAS_NUM_THREADS`、
 `MKL_NUM_THREADS` 设为 `1`，已有环境设置会保留并在摘要中显示。
 
-这台机器验证使用 GCC 13.3、PETSc 3.23.2（优化构建、实数双精度、32 位 PetscInt）、
+P0–B5 历史验证环境使用 GCC 13.3、PETSc 3.23.2（优化构建、实数双精度、32 位 PetscInt）、
 OpenMPI 4.1.6、OpenBLAS 0.3.26。应用网格 ID 使用 64 位，进入 PETSc 前检查代数编号范围。
-Debug 应用当前也链接这套优化 PETSc；它不等同于 PETSc 自身的调试构建。
+当时的 Debug 应用也链接这套优化 PETSc；它不等同于 PETSc 自身的调试构建。
 
 ## 算例与运行
 
@@ -159,20 +161,19 @@ Provider 自动读取 `PETSC_DIR`、`PETSC_ARCH`；也可用 `EONSIM_PETSC_ROOT`
 
 BLAS 可显式设置 `-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS|SYSTEM|MKL|BLIS_FLAME|ACCELERATE`。
 此选项控制 EONSim 直接依赖，已安装 PETSc 自身使用的 BLAS 不会随之改变。
-机器路径用本地命令或忽略的 `CMakeUserPresets.json` 设置。当前机器 PATH 中的 ParaView
-带有 MPICH 启动器，而本项目使用 OpenMPI；可通过 `-DMPIEXEC_EXECUTABLE=/usr/bin/mpiexec`
+机器路径用本地命令或忽略的 `CMakeUserPresets.json` 设置。历史本地环境曾在 PATH 中混入 ParaView 的 MPICH 启动器；本项目验证使用 OpenMPI。手工环境可通过 `-DMPIEXEC_EXECUTABLE=/usr/bin/mpiexec`
 设置匹配的启动器，多 rank 求解必须传入匹配的分区目录。
 
 ```text
-include/eonsim/       具体配置、网格、Tet4、线性系统与结果类型
+include/eonsim/       配置、网格、有限元、DoF/PC、时间积分与求解接口
 src/core/            YAML 解析与强类型配置
 src/mesh/            Gmsh 输入、拓扑/标签检查
-src/fem/             Tet4 几何、场布局、分布式有效编号与界面消元
+src/fem/             Tet4/Tri3/Quad4 几何、场布局、有效编号与界面消元
 src/algebra/         PETSc 生命周期、装配、约束、KSP/SNES 与分块求解
-src/physics/         Poisson、流体、固体、刚体、ALE 与单体 FSI 核/驱动
-src/io/              VTU/PVTU 输出、accepted 状态 HDF5 checkpoint
+src/physics/         Poisson、二维标量扩散、流体/固体、刚体、ALE 与单体 FSI
+src/io/              VTU/PVTU、二维 PVD 序列、accepted 历史 HDF5 checkpoint
 src/main.cpp         初始化、配置、运行与摘要
-cases/               poisson/fluid/solid/motion/fsi 可运行 YAML 和网格
+cases/               poisson/scalar2d/fluid/solid/motion/fsi 可运行 YAML 和网格
 ```
 
 一个 `eonsim_core` library 和一个 `eonsim` 应用；所有模式通过 `-case` 选择。
@@ -212,7 +213,7 @@ solver:
 
 `-linear_report` 额外重新计算每次顶层线性求解的 `A*x-b`，输出原始 L2 范数、逐字段缩放 RMS 和约束最大值，并启用 `-solver_report`。该诊断增加 MatMult 和全局规约，不改变收敛条件；未收敛或开启 PETSc 对角缩放时明确报告不可用。阶段计时区分初始化、显式 Schur 配置、顶层 KSP、额外线性诊断和最终验收；计时存在嵌套，不能相加作为总耗时。
 
-`-solver_report` 还输出按 rank 排列的 `solver_node`：可定位 FieldSplit、ASM/BJacobi 和 GAMG 粗层/下平滑器的 options prefix、KSP/PC 原因及最后一次迭代数。主 KSP 未收敛时先共同输出各 rank 的树，再抛出带本 rank 层级的异常；即使只有一个 rank 的局部 LU 零主元，也保留具体原因。`reported_norm` 是 PETSc 记录值，`norm_type=0` 时没有范数判据，不能把零值当作物理块残量已收敛；完整含义与遍历范围见[离散与算子契约](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md#求解-operator-与预条件器各有职责)。
+`-solver_report` 还输出按 rank 排列的 `solver_node`：可定位 FieldSplit、ASM/BJacobi 和 GAMG 粗层/下平滑器的 options prefix、KSP/PC 原因及最后一次迭代数。主 KSP 未收敛时本地输出原因树并抛出带 rank/phase/reason 的异常；失败诊断不新增 collective；即使只有一个 rank 的局部 LU 零主元，也保留具体原因。`reported_norm` 是 PETSc 记录值，`norm_type=0` 时没有范数判据，不能把零值当作物理块残量已收敛；完整含义与遍历范围见[离散与算子契约](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md#求解-operator-与预条件器各有职责)。
 
 默认 SNES 收敛回调要求 PETSc 默认停止条件和字段条件均通过。PETSc options 可以替换回调，
 但任何正停止原因仍须通过最终重新装配后的字段验收；失败进入既有有限缩步流程，不能提交状态。
@@ -361,7 +362,7 @@ Debug/Release、1/2 rank、全局 Jacobian 和界面力平衡检查通过。
 缺失文件、参数/分区不匹配或非有限字段会失败退出；不支持跨 rank 重分区恢复。
 `-stop_after N` 按累计 accepted 步数主动结束本次运行，恢复的物理时间必须早于请求的结束时间。
 
-本机 PETSc 3.23.2 / SuperLU_DIST 9.1.0 的多个 LU 子块同时存在时，
+历史本地 PETSc 3.23.2 / SuperLU_DIST 9.1.0 的多个 LU 子块同时存在时，
 销毁路径出现 communicator 重复释放，Valgrind 已复现；因此分块默认不使用多个 SuperLU_DIST 子因子。
 单个整体直接解保持可用。修复外部依赖前，不建议手动把各分块同时改回该 LU 后端。
 ASM 路径在 CPU 下的针对性 Valgrind 检查报告 0 个内存访问错误；此结果不代表全依赖库无内存泄漏。
@@ -374,7 +375,7 @@ P8 交付时 Debug/Release 的 13 项 CTest 全部通过，包含五类 transien
 可选 API 文档：`cmake --preset debug -DMHPC_BUILD_DOCS=ON`，随后
 `cmake --build build/debug --target docs`；入口为 `build/docs/html/index.html`。
 
-结构常量由 [discretization.hpp](include/eonsim/discretization.hpp) 的拓扑/场布局模板推导；高斯积分点与权重由独立的 [quadrature.hpp](include/eonsim/quadrature.hpp) 静态模板维护。当前物理求解仍为三维 Tet4；模板定义和积分规则选择见 [离散算子说明](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md#编译期拓扑布局与积分规则)。
+结构常量由 [discretization.hpp](include/eonsim/discretization.hpp) 的拓扑/场布局模板推导；高斯积分点与权重由独立的 [quadrature.hpp](include/eonsim/quadrature.hpp) 静态模板维护。三维多物理场使用 Tet4，二维标量另有原生 Tri3/P1 与 Quad4/Q1；模板定义和积分规则选择见 [离散算子说明](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md#编译期拓扑布局与积分规则)。
 
 ## 基础完善：几何与标签边界
 

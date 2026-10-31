@@ -7,8 +7,8 @@
 $$
 \boldsymbol R(\boldsymbol x)=
 \begin{bmatrix}
-\boldsymbol R_f(\boldsymbol u,p,\boldsymbol d)\
-\boldsymbol R_s(\boldsymbol d,\boldsymbol u)\
+\boldsymbol R_f(\boldsymbol u,p,\boldsymbol d)\\
+\boldsymbol R_s(\boldsymbol d,\boldsymbol u)\\
 \boldsymbol R_\Gamma(\boldsymbol u,\boldsymbol d)
 \end{bmatrix}
 =\boldsymbol 0.
@@ -36,6 +36,8 @@ $$
 - [有效自由度布局](https://github.com/saitoasukakawaii/EONSim-new/blob/main/src/fem/reduced_layout.cpp)
 - [Schur 求解器](https://github.com/saitoasukakawaii/EONSim-new/blob/main/src/algebra/schur_solver.cpp)
 - [单体 FSI 数学契约](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/architecture/L2_MONOLITHIC_FSI.md)
+
+G0/G5 已支持独立的 physics/quantity/hybrid PC 树和 BE、变步 BDF2、共同 stage generalized-alpha；默认存储仍不变。时间映射、算法历史和端点输出的边界见 [时间支持矩阵](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/development/TIME_INTEGRATION.md)，真实验收最多 4 rank。上述残量矩阵是概念示意；当前 EONSim 显式保留 ALE 内部未知量，接口运动学通过 ReducedLayout 消元，并非另建一组界面乘子方程。
 
 ## 4. 阅读时需要区分的状态
 

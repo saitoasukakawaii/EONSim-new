@@ -44,7 +44,7 @@ PETSc的VecPermute目前不支持非本地置换，不能直接替代这里的�
 本轮获用户明确授权在WSL2运行，并要求云端复验；本机GCC15.3/PETSc3.23.7主锁，
 兼容锁PETSc3.19.6，均使用锁定OpenMPI和OpenBLAS。主锁Debug/Release完整43项通过，
 新增故障负例随后在Debug及旧锁Release的10项选择中通过。旧锁三recipe补验也通过。
-记录见`docs/research/data/fem-integration-2026-10-31/g0-supplement.json`；新提交CI尚待完成。
+记录见`docs/research/data/fem-integration-2026-10-31/g0-supplement.json`；该提交云端 CI 及后续 PR #23 最终交付均已完成，见 [集成验收](../../docs/development/FEM_INTEGRATION_VALIDATION.md)。
 源码基线47b5bd4已有成功云端CI，不能用该旧CI代替本增量。
 
 ## 性能观测
