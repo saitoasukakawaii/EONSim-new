@@ -152,3 +152,8 @@
 - 2026-10-31，G5耦合alpha：更新[stage与算法历史草稿](../../website/drafts/generalized-alpha-stage-and-physical-output.md)，记录共同stage/独立历史、极小步消减误差与端点集体验收；真实数值与源码审查分级，草稿未发布。
 
 - 2026-10-31，G1：[规范化网格与双线性标量单元](../../website/drafts/normalized-mesh-and-bilinear-scalar-elements.md)，benchmark-report草稿。记录文件/拓扑/空间分离、原生Q1、独立矩阵与收敛、零空间和restart数据文件身份；源码/PETSc-MPI/审查分级，无性能测量，未发布。
+
+## DEV-PROCESS-POLICY / 2026-10-31
+
+项目级持续知识积累规则已写入根目录 [AGENTS.md](../../AGENTS.md)，并同步到 [进度](../development/CODEX_PROGRESS.md)、[任务队列](../development/CODEX_TASK_QUEUE.md) 与 [会话日志](../development/CODEX_SESSION_LOG.md)。要求实质任务保存真实过程与测试证据，维护跨 Task 状态；有复用价值的技术成果才形成 `website/drafts/` 文章，且必须经人工审核后才能发布。该条目记录的是研发流程规则，不是算法或数值结果，因此不另建技术文章。源码/规则变更通过 PR #24 追踪；本任务未运行 C++ 编译、CTest、MPI 或性能测试，CI 结果以 PR Checks 的实际状态为准。
+
