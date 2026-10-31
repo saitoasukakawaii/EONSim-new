@@ -45,20 +45,19 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 | 独立流体缓存 COO Jacobian | 已实现并合并 | PR #21；范围及验证局限见 HPC-02 报告 |
 | 通用 FEM 与 20 组上游学习规划 | 文档已集成 | 16 份 Markdown 随设计分支合入；本次已授权G0/G5/G1；其它阶段仍deferred，按需依赖子集除外 |
 | FEM-G0A DoF/FSI 分块详细设计 | 已审查合入 | [专题](../architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md)、标准库参考模型及 20 项测试交付；无 C++ 接入或数值验收 |
-| 可复现云环境与 MPI 故障 CI | 基线数值验收通过，review | 72a3356主环境Debug/Release各35/35，旧版7/7；新分支CI待检查 |
-| G0B/G0语义DoF与三recipe | 实现及数值验收通过，review | 主环境Debug/Release各43/43；3.19.6相关检查通过，待整体PR/合并 |
+| 可复现云环境与 MPI 故障 CI | 已随 PR #23 完成集成验收 | 最终主锁 Debug/Release 各60/60、兼容专项13/13；证据见 FEM_INTEGRATION_VALIDATION.md |
+| G0B/G0语义DoF与三recipe | 已合入 main（PR #23） | DoF语义、物理验收与三种PC树已完成集成验证；不代表生产内存重排 |
+| PETSc CI 与持续知识积累规则 | PR #24 review | 日常仅 PETSc 3.23.7 Debug/Release；3.19.6 手动专项；AGENTS 与状态/知识文件同步更新 |
 
 ## 当前焦点
 
-2026-10-31 接续：已 fetch 核实最新 main 为 `47b5bd46c992fcf64cf163361053ceb0091fa5a5`，无开放 PR；工作分支 `codex/fem-time-mesh`。
-该 SHA 的云端数值 CI 已成功（主锁 Debug/Release 各43项，兼容锁Release 10项，无失败/跳过），见 [主线CI证据](../research/data/fem-integration-2026-10-31/main-ci.json)。
-独立只读审查确认 g0.json 的100份源码哈希与该SHA一致；完整G0仍需补强真实装配置换、逐recipe物理观测和受控性能证据。
-本轮用户明确授权 WSL2 开发/验证并由云端CI复验；锁定依赖恢复中，不复用PATH中的ParaView MPI。
-以下旧检查点保留为历史；当前总任务仍 in_progress，G5/G1未完成。
+截至 2026-10-31，最新 main 为 `dd490a2c28db846c75642b0125690f922eaef44e`，PR #23 的 G0B/G0/G5/G1 集成已完成。
 
-从最新main `72a3356` 开展用户授权的G0B→G0→G5→G1整体任务。G0A已合入，未重复开发。
-G0检查点已有生产实现、真实数值/MPI验收与独立审查；下一步推送验证检查点并进入G5。
-G5/G1尚未实现，整体任务仍in_progress。正式PR在全部阶段验证/审查完成后创建，不直接推送main。
+当前开发分支 `codex/primary-petsc-ci-policy` 对应 PR #24：
+- 固化 PETSc 3.23.7 为日常主力版本，Debug/Release 是常规 CI 矩阵。
+- PETSc 3.19.6 改为仅手动触发的兼容性专项任务，常规 Push/PR 中明确 skipped。
+- 在 `AGENTS.md` 中补充第三方依赖兼容策略及跨 Codex Task 持续知识积累要求。
+- 当前变更为工程流程、文档和 CI 配置，不修改求解器生产 C++ 代码；PR 检查以 GitHub 实时状态为准，未完成的检查不得标记为通过。
 
 ## 最近完成
 
@@ -79,15 +78,15 @@ G5/G1尚未实现，整体任务仍in_progress。正式PR在全部阶段验证/�
 - PR #11：Schur/GAMG 小规模网格测量。
 - PR #12：求解器层级 A 算子 global/local 行列数报告。
 - PR #13：非线性装配阶段计时。Release 3 项、Debug 2 项针对性测试通过；未运行重复性能基准。
+- PR #24（review）：PETSc 3.19.6 从日常矩阵移出；新增持续知识积累项目级规则，等待 PR 检查和人工审核。
 
 ## 当前检查点
 
-- 分支：`codex/fem-g0-g5-g1`，源基线`72a335604a50c1ae27516b8bde15e05564b5748b`。
-- 新语义PC树与K/W映射，保留默认方程、编号、验收和旧选项。主环境最新Debug/Release完整43项全部通过，无跳过。
-- PETSc3.19.6：失败/状态10项、三recipe/重启7项通过；最新所有权负例及hybrid真实缩步4项补验通过。
-- [实际命令、来源清单与结果](FEM_INTEGRATION_VALIDATION.md)。独立审查问题已修复；源码/数值通过不自动等于远程CI或main合并。
-- 下一增量：G5统一时间映射与accepted历史，先保留BE回归，再BDF2/两类generalized-alpha及FSI验证；之后G1二维标量闭环。
-- 旧快照未提交G0A文件已stash/归档，不混入本分支。知识草稿未发布，未创建正式PR。
+- PR：[#24 — ci: make legacy PETSc validation opt-in](https://github.com/saitoasukakawaii/EONSim-new/pull/24)，状态 review。
+- 开发分支：`codex/primary-petsc-ci-policy`；基线 main：`dd490a2c28db846c75642b0125690f922eaef44e`。
+- 日常 CI 只执行 PETSc 3.23.7 Debug/Release；PETSc 3.19.6 手动兼容任务在 PR 检查中应为 skipped。
+- `AGENTS.md` 已纳入持续知识积累要求；本任务同步更新任务队列、会话日志和知识索引。
+- 本次没有执行 C++ 编译、CTest 或 MPI；CI 的实际状态和证据链接以 PR #24 Checks 为准。
 
 ## 恢复规则
 
@@ -95,7 +94,7 @@ G5/G1尚未实现，整体任务仍in_progress。正式PR在全部阶段验证/�
 1. 读取 AGENTS.md、CODEX_PROGRESS.md、CODEX_TASK_QUEUE.md 和当前任务相关契约。
 2. 检查 main、当前分支、工作区和未合并 PR，避免重复任务。
 3. 只领取一个 ready 任务；若没有 ready 任务，先提出候选，不擅自扩展范围。
-4. 每完成一个可验证增量，更新进度、队列和会话日志。
+4. 每项实质开发任务结束时，按 AGENTS.md 更新进度、队列、会话日志和知识索引；无可复用技术成果时不创建文章。
 5. 重要改动 commit/push 到独立分支；通过 PR 审核，不直接推送 main。
 6. 有复用价值的知识写入 website/drafts/，人工审核后才发布。
 
@@ -107,7 +106,5 @@ Goal 使用说明见 CODEX_GOAL_WORKFLOW.md。Goal 负责当前线程内的多�
 - 未运行的测试和性能实验明确写“未运行”。
 - 不把计划、推断写成已实现或已验证。
 - 任务合并到 main 后才将队列状态标为 done。
+- 每项实质任务记录源码提交、实际测试命令和结果；未运行或未验证的项目明确标注。
 
-## 2026-10-31：FEM-INTEGRATION 已启动
-
-从 main `72a3356` 建立 `codex/fem-g0-g5-g1`，执行用户新授权的 G0B→G0→G5→G1 整体任务。当前G0实现与数值验收已完成至review，继续G5；G0A已合入，INFRA基线验收已补齐，新分支CI仍待检查。阶段依赖、验收与工作量估计见 [任务队列](CODEX_TASK_QUEUE.md#fem-integration2026-10-31-授权与检查点)。

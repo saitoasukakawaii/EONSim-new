@@ -16,6 +16,7 @@
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
 | FEM-INTEGRATION | P1 | done | G0B → G0 → G5 → G1 连续主线交付 | 基线及每阶段真实数值/MPI验证、独立审查、最终CI/PR与允许时合并；PR #23已合入main；本地与云端60/60/13通过，见集成验证记录 |
+| DEV-PROCESS-POLICY | P1 | review | 固化 PETSc 主力 CI 策略与持续知识积累要求 | [PR #24](https://github.com/saitoasukakawaii/EONSim-new/pull/24)；3.23.7 Debug/Release 为日常矩阵，3.19.6 手动专项；AGENTS、进度、队列、会话日志与知识索引同步更新；等待 CI/人工审核和合并 |
 | FEM-G0B | P1 | done | 旧存储上的语义与 physics/quantity/hybrid PC 接入 | 依赖基线；独立验收字段、父编号、唯一界面代表、刚体、空本地块及真实求解 |
 | BRANCH-02 | P1 | done | 合入新增 G0A 并清理全部 7 个非主分支 | [源提交与检查](BRANCH_CLEANUP_2026-10-31.md)；保留 main，无生产求解器改动 |
 | BRANCH-01 | P1 | done | 清理 18 个已合并分支并整合其余 6 个 | [源提交、取舍和检查](BRANCH_INTEGRATION_2026-10-30.md)；不编译，数值验收不随合并自动完成 |
@@ -51,6 +52,12 @@
 
 新增 FEM-G0–G8 的详细设计、依赖与验收唯一入口是 [通用 FEM 规划](../architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) §13。ARCH-01 的规划文档已随 BRANCH-01 集成，不能解释为 G0–G8 实现完成。FEM-G0A 设计与参考验证已按用户后续授权审查合入，子任务 done；该分支整合记录为历史；当前已按用户授权执行G0B/G0/G5/G1。
 
+
+## DEV-PROCESS-POLICY / 2026-10-31
+
+用户要求将 PETSc 3.23.7 设为日常主力 CI，PETSc 3.19.6 仅保留手动兼容验证；并将跨 Codex Task 的持续知识积累固化为根目录 `AGENTS.md` 规则。当前 PR #24 同时承载 CI 和开发流程规则，尚未合并。普通开发任务不因此增加多版本测试；无复用技术成果时不创建知识文章。实际测试状态以 PR Checks 为准，未完成的 3.23.7 检查不得标记为通过。
+
+
 ## HPC-01C：多时间步装配阶段测量
 
 ### 目标
@@ -78,7 +85,7 @@ HPC-02 基线：24eae624ee93b3e1989312e1b1b273217571310f。预计工程工作量
 范围为独立固定网格 Tet4 流体的 Jacobian COO；残量仍使用原 Vec 插入，FSI/ALE/固体、方程、停止容差和默认装配算法不改变。验收包括空贡献 rank、重复索引、远程行、重复更新清零、非零约束与原始反力、单 rank 局部拒绝后的共同失败和同对象恢复；真实案例覆盖 steady/transient/tagged、压力归一化和同分区重启。性能只报告实测配对数据，不预设加速门槛。
 
 1. 一个 Goal 对应一个主要任务和一个验收终点。
-2. 开始时将任务标记为 in_progress；结束时标记为 review 或 done。
+2. 开始时将任务标记为 in_progress；结束时标记为 review 或 done，并按 AGENTS.md 完成实质任务的进度、队列、会话日志和知识索引更新。
 3. 任务受阻时记录阻塞与解锁条件，不要无限重试。
 4. PR 合并后才能标记 done。
 5. 下一 Goal 必须重新读取 main 的最新进度和任务队列。

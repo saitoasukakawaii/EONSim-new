@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      run_legacy_petsc:
+        description: "Run PETSc 3.19.6 compatibility build and MPI-failure tests when relevant"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -16,48 +22,77 @@ concurrency:
 
 jobs:
   numerics:
-    name: PETSc ${{ matrix.petsc }} / ${{ matrix.mode }}
+    name: PETSc 3.23.7 / ${{ matrix.mode }}
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     strategy:
       fail-fast: false
       matrix:
         include:
-          - petsc: 3.23.7
-            mode: debug
+          - mode: debug
             selection: all
             compiler: gcc-15.3.0
             abi: openmpi-5-real-double-int32-v3
-          - petsc: 3.23.7
-            mode: release
+          - mode: release
             selection: all
             compiler: gcc-15.3.0
             abi: openmpi-5-real-double-int32-v3
-          - petsc: 3.19.6
-            mode: release
-            selection: mpi-failure
-            compiler: gcc-12.4.0
-            abi: openmpi-4-real-double-int32
     steps:
       - uses: actions/checkout@v4
       - name: Dependency package cache
         uses: actions/cache@v4
         with:
           path: .cloud/mamba/pkgs
-          key: deps-${{ runner.os }}-${{ runner.arch }}-${{ matrix.compiler }}-${{ matrix.abi }}-${{ hashFiles(format('environments/petsc-{0}-linux-64.lock', matrix.petsc)) }}
+          key: deps-${{ runner.os }}-${{ runner.arch }}-${{ matrix.compiler }}-${{ matrix.abi }}-${{ hashFiles('environments/petsc-3.23.7-linux-64.lock') }}
       - name: Restore locked environment
         shell: bash
         run: |
           mkdir -p build/restore-evidence
           set -o pipefail
-          scripts/cloud/restore.sh '${{ matrix.petsc }}' 2>&1 | tee build/restore-evidence/restore.log
+          scripts/cloud/restore.sh '3.23.7' 2>&1 | tee build/restore-evidence/restore.log
       - name: Build and verify existing numerical contracts
-        run: scripts/cloud/run.sh '${{ matrix.petsc }}' '${{ matrix.mode }}' '${{ matrix.selection }}'
+        run: scripts/cloud/run.sh '3.23.7' '${{ matrix.mode }}' '${{ matrix.selection }}'
       - name: Preserve evidence even on failure
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: numerics-${{ matrix.petsc }}-${{ matrix.mode }}-${{ github.sha }}
+          name: numerics-3.23.7-${{ matrix.mode }}-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            build/restore-evidence/
+            build/cloud-*/evidence/
+            build/cloud-*/CMakeCache.txt
+            build/cloud-*/CMakeFiles/CMakeConfigureLog.yaml
+            build/cloud-*/Testing/
+            build/cloud-*/**/*.log
+            build/cloud-*/**/results.json
+
+  legacy-compat:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_legacy_petsc }}
+    name: PETSc 3.19.6 / release (manual compatibility)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency package cache
+        uses: actions/cache@v4
+        with:
+          path: .cloud/mamba/pkgs
+          key: deps-${{ runner.os }}-${{ runner.arch }}-gcc-12.4.0-openmpi-4-real-double-int32-${{ hashFiles('environments/petsc-3.19.6-linux-64.lock') }}
+      - name: Restore locked environment
+        shell: bash
+        run: |
+          mkdir -p build/restore-evidence
+          set -o pipefail
+          scripts/cloud/restore.sh '3.19.6' 2>&1 | tee build/restore-evidence/restore.log
+      - name: Build and verify legacy MPI-failure contracts
+        run: scripts/cloud/run.sh '3.19.6' 'release' 'mpi-failure'
+      - name: Preserve evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numerics-3.19.6-release-${{ github.sha }}
           if-no-files-found: error
           retention-days: 14
           path: |
