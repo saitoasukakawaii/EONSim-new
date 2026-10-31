@@ -425,3 +425,14 @@
 - 补充两个标准库测试验证手动 all/explicit 清单生成及 PR 禁止请求手动全量，执行 `python3 tests/test_ci_selection.py SelectionTests.test_manual_all_and_explicit_cli_only_plan_requested_names SelectionTests.test_pr_cannot_request_manual_full_suite`，2 项通过；没有执行任何全量数值测试。选测/receipt 测试文件现共 26 项。
 - 本地直接查询 api.github.com 曾超时；改用已连接 GitHub 的只读 fetch/log/artifact 接口取得证据，没有修改网络策略或把查询失败计为测试失败。
 - 交付为 PR #26 review，未自动合并。代码、规则、状态及知识索引同步，文章保持 draft。已验证范围为新 CI 路径；不扩大为现有 60 项套件的新通过记录。最后补记只涉及状态/证据及上述脚本测试，数值执行链与规则指纹保持不变。
+
+
+## FEM-G2A — 局部 P2 检查点（未完成）
+
+- 用户批准完整 P2 稳态 D/N、1/2 rank 闭环，本地开发及云端相关检查；10 小时为估计，闭环完成优先。
+- 已将 main 快进至 PR #26 合并提交 `35bf1a1`，新分支 `codex/fem-g2a-p2`。
+- 新增纯参考 P2 tabulation，节点顺序为顶点及 01/12/20 边中点；不修改网格几何、生产模型或依赖。
+- 实际命令：`c++ -std=c++17 -Wall -Wextra -Wpedantic -Iinclude tests/verify_tri_p2.cpp -o build/p2-local/verify_tri_p2 && build/p2-local/verify_tri_p2`，退出 0；独立六个二次空间单项式的值/梯度重现、节点插值、反向边迹通过。无 MPI/PETSc；不是求解器验收。
+- `python3 tests/test_ci_selection.py`：26 项通过；`git diff --check` 通过。新增 CMake 注册项尚未通过 CMake 构建执行，不将直接编译结果称为 CTest 通过。
+- 未完成：实体边空间、分区存储、装配、D/N、输出、数值收敛和真实 1/2 rank、云端 CI、PR。任务继续 in_progress。源码检查点由本记录所在 Git 提交追溯。
+- 暂不生成完整知识文章：只有局部基础函数证据，完成真实闭环后按知识采集 Skill 汇总，不能提前写成生产能力。
