@@ -3,7 +3,7 @@ import argparse,hashlib,json,math,re,subprocess,sys,xml.etree.ElementTree as ET
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'cases/fsi'))
 from generate_domains import generate
-p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',type=Path,required=True);p.add_argument('--scheme',choices=['be','bdf2'],default='be');a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',type=Path,required=True);p.add_argument('--scheme',choices=['be','bdf2','generalized_alpha'],default='be');a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
 case=generate(a.work)
 if a.scheme!='be':
  cfg=json.loads(case.read_text());cfg['time']=dict(scheme=a.scheme);cfg['fsi']['stabilization_tau']=.05;case.write_text(json.dumps(cfg))
@@ -29,14 +29,27 @@ def pressure(path,ranks):
   for i,node in enumerate(f['mesh_node_id']):
    if int(f['owner'][i])==rank:result[int(node)]=float(f['pressure'][i])
  return result
+def histories(path,ranks):
+ result={}
+ for solid in (False,True):
+  for rank in range(ranks):
+   suffix=('_solid' if solid else '')+(f'_rank{rank}' if ranks>1 else '')+'.vtu';root=ET.parse(path.with_name(path.stem+suffix))
+   f={x.attrib['Name']:x.text.split() for x in root.findall('.//PointData/DataArray')}
+   for name in f:
+    if 'algorithmic_acceleration' not in name and name!='mesh_velocity':continue
+    for i,node in enumerate(f['mesh_node_id']):
+     if int(f['owner'][i])==rank:result[(solid,int(node),name)]=list(map(float,f[name][3*i:3*i+3]))
+ return result
 def compare(first,second,ranks):
  for solid in (False,True):
   x,_,_=data(first,ranks,solid);y,_,_=data(second,ranks,solid)
   assert max(abs(v-w) for n in x for v,w in zip(x[n],y[n]))<2e-9
  x,y=pressure(first,ranks),pressure(second,ranks);assert x.keys()==y.keys()
  assert max(abs(x[n]-y[n]) for n in x)<2e-9
-solutions=[];pressures=[]
-for ranks in ((1,2,4) if a.scheme=='bdf2' else (1,2)):
+ x,y=histories(first,ranks),histories(second,ranks);assert x.keys()==y.keys()
+ assert max((abs(v-w) for n in x for v,w in zip(x[n],y[n])),default=0)<2e-9
+solutions=[];pressures=[];all_histories=[]
+for ranks in ((1,2,4) if a.scheme!='be' else (1,2)):
  part=a.work/f'part{ranks}';run([a.executable,'-case',case,'-prepare',part,'-parts',ranks])
  prefix=([a.mpiexec,'-n',ranks] if ranks>1 else [])+[a.executable,'-case',case,'-partition',part]
  out=a.work/f'full{ranks}.vtu';text=run(prefix+['-output',out]);f,fn,nf=data(out,ranks);s,sn,ns=data(out,ranks,True)
@@ -53,6 +66,10 @@ for ranks in ((1,2,4) if a.scheme=='bdf2' else (1,2)):
   assert int(report['equation_rows'])>0 and int(report['constraint_rows'])==0
  solutions.append((f,s))
  pressures.append(pressure(out,ranks))
+ all_histories.append(histories(out,ranks))
+ if a.scheme=='generalized_alpha':
+  history=all_histories[-1]
+  assert max(abs(v-w) for n in interface for v,w in zip(history[(False,n,'mesh_velocity')],s[n][3:6]))<2e-10
  checkpoint=a.work/f'checkpoint{ranks}';run(prefix+['-checkpoint',checkpoint,'-stop_after',2,'-output',a.work/'partial.vtu'])
  snapshot={p:hashlib.sha256(p.read_bytes()).digest() for p in checkpoint.rglob('*') if p.is_file()}
  rejected=run(prefix+['-restart',checkpoint,'-checkpoint',checkpoint,'-snes_convergence_test','skip','-snes_max_it',0,
@@ -71,6 +88,9 @@ for parallel in solutions[1:]:
  for x,y in zip(solutions[0],parallel):assert max(abs(v-w) for n in x for v,w in zip(x[n],y[n]))<2e-9
 for y in pressures[1:]:
  x=pressures[0];assert x.keys()==y.keys() and max(abs(x[n]-y[n]) for n in x)<2e-9
+for y in all_histories[1:]:
+ x=all_histories[0];assert x.keys()==y.keys()
+ assert max((abs(v-w) for n in x for v,w in zip(x[n],y[n])),default=0)<2e-9
 # Field names and scales are input contracts; typos or incomplete declarations cannot fall back silently.
 original_case=case.read_text()
 for mode,error in (('scale','Invalid field tolerance or scale'),('missing','Missing solver field'),('unknown','Unknown solver field')):

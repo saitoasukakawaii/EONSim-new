@@ -357,8 +357,9 @@ Config read_config(const std::filesystem::path& path)
         !std::isfinite(solver.absolute_tolerance) || solver.absolute_tolerance <= 0.0 || solver.maximum_iterations <= 0)
         throw std::runtime_error("Invalid solver tolerances or maximum_iterations");
     if(config.time_integration.scheme==TimeScheme::generalized_alpha&&
-       !((config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)))
-        throw std::runtime_error("generalized_alpha currently requires standalone transient fluid or solid");
+       !((config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)||config.fsi_problem||
+         (config.motion_problem&&config.motion.mode!=MotionConfig::Mode::rigid)))
+        throw std::runtime_error("generalized_alpha requires transient fluid, solid, ALE or FSI");
     if(config.time_integration.scheme==TimeScheme::bdf2 &&
        !((config.fluid_problem&&config.fluid.mode==FluidConfig::Mode::transient)||(config.solid_problem&&config.solid.transient)||config.fsi_problem||
          (config.motion_problem&&config.motion.mode!=MotionConfig::Mode::rigid)))

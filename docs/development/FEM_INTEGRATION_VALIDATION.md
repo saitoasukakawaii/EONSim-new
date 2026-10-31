@@ -21,7 +21,7 @@ ALE/FSI BDF2增量：主锁Debug6项针对性CTest全部通过，138.35秒CTest�
 独立流体一阶/结构二阶generalized-alpha：主锁Debug7项针对性CTest全部通过，26.82秒CTest墙钟，
 [证据](../research/data/fem-integration-2026-10-31/alpha-standalone.json)。rho=0/0.5/1的早期/终点压力、
 速度与结构位移/物理加速度近二阶；算法历史与物理加速度区分，rho=1在线弹性BE启动后保持能量。
-事件重置、真实拒绝恢复与最多4rank重启通过。alpha ALE/FSI仍未实施，G5未完成。
+事件重置、真实拒绝恢复与最多4rank重启通过。该检查点尚未实施alpha ALE/FSI；后续增量如下。
 
 ## 47b5bd4 后的 G0 验收补强
 
@@ -109,3 +109,15 @@ bash scripts/cloud/run.sh 3.19.6 debug mpi-failure /workspace/eonsim-cloud
 - 默认旧路径、Poisson、固体、COO、checkpoint、局部/整体导数等现有短套件均保留。没有生产存储重排、跨rank数重启或大规模扩展性声明。
 
 这些墙钟是CTest执行记录，不是工程实际耗时，也不是同配置性能比较。正式PR与主线交付仍等待G5/G1和整体CI/审查。
+
+## G5 耦合generalized-alpha增量
+
+主锁Debug10项针对性CTest全部通过，324.63秒墙钟；
+[源码、命令、退出码和数值证据](../research/data/fem-integration-2026-10-31/alpha-coupled.json)。
+弹性FSI末次加密速度阶2.04–2.12、压力1.97–2.10、网格位移1.95–2.02；
+刚体FSI对应各字段约2.01–2.03。rho=0/0.5/1、完整历史及事件重启、真实Newton拒绝、
+1/2/4rank与接口网格速度/结构速度一致性通过。ALE解析网格速度末次阶约2.00–2.01。
+ALE stage有效但endpoint反转负例在4rank中坏单元数3/1/2/0，共同拒绝、缩步恢复；
+补充脚本确认失败checkpoint哈希不变。FSI独立端点反转分支未直接触发，只作源码审查。
+两轮独立只读审查无剩余源码阻塞项；不据此宣称任意非线性FSI稳定性或性能改善。
+独立alpha提交25e0945已通过云端三环境CI（41194151488）；本增量CI待push触发。

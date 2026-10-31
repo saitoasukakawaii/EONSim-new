@@ -1,0 +1,463 @@
+{
+  "base_commit": "25e0945ebe3563beddf9bce0dcf93e817843a9b1",
+  "dirty": true,
+  "source_sha256": {
+    "CMakeLists.txt": "e76e9fdf2864b9838962a749c80614095c66840e6ca9b1990972d42ac1d074ed",
+    "include/eonsim/ale.hpp": "9d7de8d8a82a1032395aaccc9ed7b37c838a8a683eca4704399978ebee6c1ee6",
+    "include/eonsim/boundary_geometry.hpp": "676185f62e269227d3f9a41f712e5487bc320f5209ab769583356fca92908264",
+    "include/eonsim/checkpoint.hpp": "4df8665a91c50d756cfea7f01972de0edef4a520b3c901c7961e043111740199",
+    "include/eonsim/config.hpp": "0d87bf6fb2e6cdd71d0787e718233045fa980de4e049e3f04f391e2ee9997e9b",
+    "include/eonsim/discretization.hpp": "40356e1019a23dd66bda37290e060f0ff6a90851f9d862ea5f1f0a8bfd1054e2",
+    "include/eonsim/dof_semantics.hpp": "92b49911d1b8d100e5bce7a62b4a530ddc29f1c3ae2b9980ced36382116008bd",
+    "include/eonsim/dual.hpp": "1c918f59bd01e48f1d7e561323d7f57ee4b6a5726734de857ff0eb1783577e4d",
+    "include/eonsim/field_layout.hpp": "e61fdc18810f11e86aa1ae879a268d5b1924a8367d0888152499815fd775d3e8",
+    "include/eonsim/fluid.hpp": "adda7989c3e364b607dd71f7239e2928171ce7a364b14178e3bcdd2f9e021c7f",
+    "include/eonsim/fluid_boundary.hpp": "583fec7e4563c1b232eb8f8c3052540e2782fb9def71012020043354b9565e31",
+    "include/eonsim/fluid_element.hpp": "00ee39ca327a23e32f0967b189f4ff93a4db563670721391897d45116d848594",
+    "include/eonsim/fluid_residual.hpp": "2a2534995fc0df069992f7f1e38f4ca7bedfcd2cd4657c03c5f08db6c2461530",
+    "include/eonsim/fsi.hpp": "624222620c1e012a6985130c3ea910c6fb65960e0de329215d27934fdca3ec86",
+    "include/eonsim/fsi_domains.hpp": "dc24a7c91dec2632ef67a6c53ee828d7cdfaf96f056dcbca8cd7b8077cd25287",
+    "include/eonsim/fsi_element.hpp": "2d9f49830a480c968314675e5ed9ce310c2602a4541d640cad5c54a428ad633e",
+    "include/eonsim/hyperelastic.hpp": "03c5ae56b99e7b31d3f01953235399cf47d8be5faf85e8ad1dd17430ce7ffc38",
+    "include/eonsim/linear_system.hpp": "b74f96dc0f9556fb3b7a80d6e10397b89078542b2655b2d523d52100a7d93888",
+    "include/eonsim/mesh.hpp": "dde8226f61163ec6dcb6e58e1d989e7aae346524ffd3e2fee4f155b7b1968dfc",
+    "include/eonsim/motion.hpp": "122e70644f44be824126f899980ac0827318c72299d689141e1316bf69c0de9b",
+    "include/eonsim/nonlinear_system.hpp": "938de94e46bae5cd9ef1a1cd7ff0499835b321e8c89a243f432425c162e364c9",
+    "include/eonsim/pc_plan.hpp": "6c3d6dcbf193ec76b75f12e73d88f8e1cff1e78300a8f5c2d870a24ce6e0c30b",
+    "include/eonsim/poisson.hpp": "e08b08f88af7a9edda9405cd0d54e4cdd424d6b129b7c65df865ea9dcb1c6082",
+    "include/eonsim/quadrature.hpp": "a9d7cf1c4b0b608dd9d714cc8a20abf09aa1f661338e720889b08468b1eda39f",
+    "include/eonsim/reduced_layout.hpp": "fc687ac9f6338f001ba8194c340470e14fc81c3f234e5636f7718d451fb5fd2b",
+    "include/eonsim/regions.hpp": "e87c98bb826c40a71610ae6edb490268b6244b54775de070cd4638603d02e9c4",
+    "include/eonsim/schur_solver.hpp": "b29d10bdf8f33f7f65b9d83c9d6e5eb72f11bb22d40698d1df5633e52f6c84b2",
+    "include/eonsim/solid.hpp": "dfcd73497d3c8d931e7c9be21cf3ef5207d17a34cd60b59bd386821d2caa7136",
+    "include/eonsim/solid_element.hpp": "34884c84bc04509610b6217db280edda08af18f3832646ae6a47edec9d6690c8",
+    "include/eonsim/tet4.hpp": "930b9d5c4ace1dce1dd8a771388025b09013bc7676ab5846b811b9c680ed489c",
+    "include/eonsim/time_integration.hpp": "33711e074bf5235d3c4f37d7b17a95b48b872b734ec48993269a6cb2b721d706",
+    "include/eonsim/time_step.hpp": "66a0dfd42fc5b7c2f9094bae70e148ddeaf8ddfdd19a0eb5b6cb27be7e51428f",
+    "include/eonsim/vtu.hpp": "7ffb55cfeaeb5bc3a430b76bbc48464aad593c5810c11252991bb899514f3c12",
+    "scripts/cloud/restore.sh": "cbd0ff0aa59ed1af148185947e02d2ffca5eb1cc03af190976fa9dfa00935b43",
+    "scripts/cloud/run.sh": "ce45907e7e6dc692c13b211d5de8892ef8ed9fd12b1aaf798d54c26cd828624c",
+    "scripts/cloud/validate.py": "2383cb41a62fad332f5f350cb410ad574ca49089fec7b51654bbafcb5445dd37",
+    "src/algebra/linear_system.cpp": "87807a0bec5663aa69324d13bc669f5ae6dd89a9b9f94929392eaa3442fa74d5",
+    "src/algebra/nonlinear_system.cpp": "40476b90e9b81cafb71b00d481690ba9c4abdf0922efaa967fe3ea73c51795ac",
+    "src/algebra/pc_plan.cpp": "9ebfe7aa688ea37a0dee7f6cc2ed72080b45d63d913b1032758f3df93b0276f9",
+    "src/algebra/schur_solver.cpp": "25c94386a4ca2a15a4e8aa00165069af8e7c76853c0a8f9e0bfae145b343d101",
+    "src/core/config.cpp": "91f0aaef54e5a97dd7f4a26d61ba8265cde35e31df5e99e036cfae9d20a3b393",
+    "src/fem/boundary_geometry.cpp": "43cc8e41e715c7c3fea570e5346ff16108d30d355e96db33e6a1c5b6a6450aca",
+    "src/fem/field_layout.cpp": "e2397bff8d3941737142acd233df7b9214e2a0b28045b95057b9bb6831079173",
+    "src/fem/reduced_layout.cpp": "0b6548d0ce3e6aba73c3f055ccc4ec6cb467e55192b9a8d7e0e1f82e1d1ae4c3",
+    "src/fem/tet4.cpp": "3f7832113dffb709d7cc618b8f3ab746bd5e0e2278a48ff5c46ad24457fcd914",
+    "src/io/checkpoint.cpp": "cfed31381947e6ccf9ed8ddb37063202687d430d464a037e40f7129ce452a6b4",
+    "src/io/vtu.cpp": "4d88b718aaa5ac7301c420f109b62835ec13c46bfb66c595e78081555b7448a7",
+    "src/main.cpp": "37b7641cab82db815ebeb0dfc706491bcc546bb33c3964d5d058e02b4b9696bd",
+    "src/mesh/fsi_domains.cpp": "483557c1bf5f8c7dabc8fc9ba42415e5f3d28a5bc045acb99ef7ffc3364b496e",
+    "src/mesh/gmsh.cpp": "36894fbbff4a61e6825165727a763871316f7c14a31d05435fe2d9494631295a",
+    "src/mesh/partition.cpp": "aaa08d64e2a4a02d59f879fe6503a240458ec3e1a7cdfa8a377c08818c252796",
+    "src/physics/ale.cpp": "092a28762904a2387973c946ed84ce3e656f37d12a8636f50f4011d0f0c95c97",
+    "src/physics/fluid.cpp": "61137e5d184fa6320b6928488d87bcebafc8b7af7e081d3c33a6244d88905f34",
+    "src/physics/fluid_boundary.cpp": "f22ee5d9423067c90e4a7d706508c88c06492509ee8cd5844b3140bea46ab4f0",
+    "src/physics/fluid_element.cpp": "ef6320bb68817861d5f8941c9423fae49f4308d1640b408e69bd7af244a497fc",
+    "src/physics/fsi.cpp": "f824f4eb0d8d20cd790d2381a15bab6b8488dec5e0de4ea95e44fa0de7dc4f12",
+    "src/physics/fsi_element.cpp": "7b0817cac8dfba1976599217656269bf03bb306395e7b50e7e933657ffdf3744",
+    "src/physics/hyperelastic.cpp": "d26fca9698d54037d45ac84bb893bc9be1e80a21919b0d5d43c412ae703fac77",
+    "src/physics/motion.cpp": "3e164b0ee228116995934d89ff0950dd6e8ec0d706260557488fa67fd46faff9",
+    "src/physics/poisson.cpp": "436c5cf6d0e2197b0499e6eb3398d18827c53144225a9aa946e6337173028e52",
+    "src/physics/solid.cpp": "cd2f048514e1e0e2ea395a2e53b8c69fda11f607fd9fe0cb6d9c499f4f06e507",
+    "src/physics/solid_element.cpp": "b8d0b8a344f3bd8dd59b2839daac22993b1a84f6c6d11f2a6a946985e30548da",
+    "tests/test_cloud_evidence.py": "c0f4206b23a496f6979274b33a8d8acd77e4acb0a7a6eca91c0aac03632b0d6a",
+    "tests/test_profile_validation.py": "b862da83b3ac711ff79286f189cb8dd4bfff97f20095d6ed8e599197bbe83864",
+    "tests/verify_ale_time.py": "af1781c190d26a67450a226e99ffa43e00d43bfae61bef2cbd10955aed62922f",
+    "tests/verify_boundary_geometry.cpp": "bfdaf1128d7733a247f8a19dae81ce0c4eb2ec7f91f0ed827d0bfaa4426383d8",
+    "tests/verify_checkpoint.cpp": "25430934f82c6115626c768550bf901c54c296356e567f8e32ff120b4d331e89",
+    "tests/verify_coo_jacobian.cpp": "6e3c4caeda900e3aacce5eca958dab197bfe63da40c9427a6c4487767e695755",
+    "tests/verify_domains.py": "3daa918db0d43720437804cf3f6ebf29865d9d8f5485ee12205ac8b830de0210",
+    "tests/verify_elastic_fsi.py": "ef19bb5cdd1cf21341b08f65db3845aa6e626a19f60e220ad434e57901493ae1",
+    "tests/verify_fluid.py": "bffe8b3720dd255db749e8b3118ba851c378d0a465877fc7f5acf99c00df277a",
+    "tests/verify_fluid_coo.py": "153ee835ac749c585582148d0ff36d99724e3b443f3e7e03e13522ed6e372a2d",
+    "tests/verify_fluid_element.cpp": "aa01de1889d824961111d0ec0898261f0fb2d6765fd2dfdd0a28ac3de279f40f",
+    "tests/verify_fluid_element_report.py": "4db84d175acd359163c680c0319fc931ec8e03dc2df062ab55ae8414a4f943a5",
+    "tests/verify_fluid_time.py": "9092f07e55d46a387eeed89287d9109fcb5df123b300a8d43c4787950d581a63",
+    "tests/verify_fsi.py": "cd87425865e6f5ef6c5a3e96dfc6b1de6d0ca49a233aed216c0ca03c802dccba",
+    "tests/verify_fsi_element.cpp": "d2ea045e31d0827b6343efcb23b47817f113c311bbbad73c77ac44807ab58459",
+    "tests/verify_fsi_time.py": "65e99d3368c4b3ebc0663be4f439d97ae659757dc02e561721e13905645c3423",
+    "tests/verify_hyperelastic.py": "e42f6a962ef1e42c5542adb6e145fe0e143ad14bab9e47b89185f1c5d0280d2d",
+    "tests/verify_hyperelastic_element.cpp": "ad8d4d2dc0152bfb9321db8bd22a7421e452d45bf869688d5ec3c5765a79eea0",
+    "tests/verify_linear_lifetime.cpp": "94b8367029ecc0199b9ffe71e30126aa0cf6e5337ceca765e7aa2e578ee11791",
+    "tests/verify_motion.py": "40b367f178ecd72099fe45f9053afdd23c0a05d3ea00ed30130bef303e7447da",
+    "tests/verify_nonlinear_acceptance.cpp": "be080d621d585da292d3bf2972c5ab8bfac609a497e01f31397abd84a47d47cf",
+    "tests/verify_parallel.py": "6e09ef878fbda9c8d178487fa0e44759590e7feb89421ebafb99a4e1dc3aad19",
+    "tests/verify_pc_plan.cpp": "082dffc72ef6a0db2aae9bd50d8de216db119ddab15d272de3410fc5e6bb116c",
+    "tests/verify_pc_restart.py": "15bcbf30d32a263482025b5cf22f68113a2968bd0a7e5cdd15158ab6b73b55a3",
+    "tests/verify_poisson.py": "dd64816b9c62f6fc1b0a9ef97f593f7647ace8bbf7acc0c471655f3cdac746ff",
+    "tests/verify_quadrature.cpp": "a094bcbb71406d7d6a8ab36c47499b5ba104c81919c3b0d7da4c499cf5aad8a1",
+    "tests/verify_regions.py": "ea3e489bb47a9d2fdf3910b5f985bb1cb03df8844872cf4176a4da6a4ec88603",
+    "tests/verify_restart.py": "48b71afa4f7cebd3110b1bcd668a703123c30d0aa6bbc06308026491b67f6af9",
+    "tests/verify_runtime.cpp": "856cc2aeefafad22b2bed15fc539c9caa97d1c5a70be8b908b2e76bf3b4649c1",
+    "tests/verify_schur.py": "fc91d9d123054d1858390ac56fbd85988217d0d0b6e33da6c2d9137f90ed401b",
+    "tests/verify_solid.py": "e1dacdd200c46f2d139102d08691d92102d212410be4072108b5e7e61a8bdfe8",
+    "tests/verify_solid_element.cpp": "54a74c08152519578a45786235276a9fecb1142d343dea1f756e423a21f46ac2",
+    "tests/verify_solid_time.py": "3927562d707fc1cea8ae3fd675a513c7e7f9bde9ab915b363ba1efb9651a59c1",
+    "tests/verify_solver_failures.cpp": "42173ac3c14e49d1f48debe37d1c0721584e888cfb1c8bf8a5db570daf3b9524",
+    "tests/verify_tagged_fluid.py": "22e2baec13608414142483409744d1c79ae72701583e1af20ec6b710006df077",
+    "tests/verify_time_integration.cpp": "a1f95031f68b6edb45b3631bdffa3c76eea7e8791844dcd8ca3e9592f21c82f0",
+    "tests/verify_time_retry.py": "ae5fe24beef16594c10fed7be5c9350536c75b40d532dd36fe16a4686906042e"
+  },
+  "binary_sha256": "7b1c64de7e2a3122388adacde8587a5d79def049aeeb1f85c76647c8d8521e8a",
+  "environment": "WSL2 explicitly authorized; PETSc 3.23.7 locked Debug; OpenMPI pml=ob1 btl=self,sm,tcp; BLAS/OpenMP threads=1",
+  "tests": [
+    {
+      "name": "fsi_element_jacobian",
+      "classname": "fsi_element_jacobian",
+      "time": "0.0597741",
+      "status": "run",
+      "failed": false
+    },
+    {
+      "name": "ale_time_verification",
+      "classname": "ale_time_verification",
+      "time": "3.98236",
+      "status": "run",
+      "failed": false
+    },
+    {
+      "name": "ale_alpha_verification",
+      "classname": "ale_alpha_verification",
+      "time": "6.66742",
+      "status": "run",
+      "failed": false
+    },
+    {
+      "name": "fsi_alpha_verification",
+      "classname": "fsi_alpha_verification",
+      "time": "171.989",
+      "status": "run",
+      "failed": false
+    },
+    {
+      "name": "domains_alpha_verification",
+      "classname": "domains_alpha_verification",
+      "time": "6.17247",
+      "status": "run",
+      "failed": false
+    },
+    {
+      "name": "fsi_time_verification",
+      "classname": "fsi_time_verification",
+      "time": "120.026",
+      "status": "run",
+      "failed": false
+    },
+    {
+      "name": "domains_bdf2_verification",
+      "classname": "domains_bdf2_verification",
+      "time": "6.17484",
+      "status": "run",
+      "failed": false
+    },
+    {
+      "name": "elastic_fsi_verification",
+      "classname": "elastic_fsi_verification",
+      "time": "7.53111",
+      "status": "run",
+      "failed": false
+    },
+    {
+      "name": "rigid_fsi_verification",
+      "classname": "rigid_fsi_verification",
+      "time": "1.1663",
+      "status": "run",
+      "failed": false
+    },
+    {
+      "name": "motion_verification",
+      "classname": "motion_verification",
+      "time": "0.851452",
+      "status": "run",
+      "failed": false
+    }
+  ],
+  "ctest_exit_code": 0,
+  "ctest_wall_seconds": 324.63,
+  "junit_sha256": "7974e93ac64f166a0a7b4462581aced0b46aef75aa3be598c188e68e8c9a899e",
+  "ctest_command": "ctest --test-dir build/cloud-3.23.7-debug -R '^(ale_alpha_verification|fsi_alpha_verification|domains_alpha_verification|fsi_element_jacobian|ale_time_verification|fsi_time_verification|domains_bdf2_verification|motion_verification|rigid_fsi_verification|elastic_fsi_verification)$' --output-on-failure --output-junit alpha-coupled-junit.xml",
+  "supplement": {
+    "command": "python tests/verify_ale_time.py --executable build/cloud-3.23.7-debug/eonsim --mpiexec .cloud/petsc-3.23.7/bin/mpiexec --work build/ale-alpha-final --alpha",
+    "exit_code": 0,
+    "reason": "Added checkpoint hash assertion and partial-rank inversion oracle after CTest ALE invocation; supplemental script is included in current source manifest",
+    "invalid_cells_by_rank": [
+      3,
+      1,
+      2,
+      0
+    ]
+  },
+  "numerical": {
+    "fsi": [
+      {
+        "body": "elastic",
+        "rho": 0.0,
+        "h": 0.001,
+        "scheme": "generalized_alpha",
+        "velocity": 6.487815856178711e-05,
+        "pressure": 0.0030117760602106137,
+        "mesh_displacement": 1.3658748705126622e-07
+      },
+      {
+        "body": "elastic",
+        "rho": 0.0,
+        "h": 0.0005,
+        "scheme": "generalized_alpha",
+        "velocity": 1.50192070817386e-05,
+        "velocity_order": 2.1109242223172924,
+        "pressure": 0.0008401247911618079,
+        "pressure_order": 1.8419389576316278,
+        "mesh_displacement": 3.946467323302884e-08,
+        "mesh_displacement_order": 1.7911916137121693
+      },
+      {
+        "body": "elastic",
+        "rho": 0.0,
+        "h": 0.00025,
+        "scheme": "generalized_alpha",
+        "velocity": 3.4499598623336207e-06,
+        "velocity_order": 2.122157167335173,
+        "pressure": 0.00021490407333721572,
+        "pressure_order": 1.9669108118847602,
+        "mesh_displacement": 1.0194894826091794e-08,
+        "mesh_displacement_order": 1.9527149116667066
+      },
+      {
+        "body": "elastic",
+        "rho": 0.5,
+        "h": 0.001,
+        "scheme": "generalized_alpha",
+        "velocity": 2.361035573538343e-05,
+        "pressure": 0.0008955100899753767,
+        "mesh_displacement": 5.5490112966823965e-08
+      },
+      {
+        "body": "elastic",
+        "rho": 0.5,
+        "h": 0.0005,
+        "scheme": "generalized_alpha",
+        "velocity": 5.715726087564852e-06,
+        "velocity_order": 2.0464110931930795,
+        "pressure": 0.00022246345631975168,
+        "pressure_order": 2.0091413210040865,
+        "mesh_displacement": 1.3959174651474421e-08,
+        "mesh_displacement_order": 1.9910170965807699
+      },
+      {
+        "body": "elastic",
+        "rho": 0.5,
+        "h": 0.00025,
+        "scheme": "generalized_alpha",
+        "velocity": 1.3790359411421022e-06,
+        "velocity_order": 2.0512767227978554,
+        "pressure": 5.3422304951325115e-05,
+        "pressure_order": 2.0580542378200337,
+        "mesh_displacement": 3.440728722570897e-09,
+        "mesh_displacement_order": 2.0204275882077596
+      },
+      {
+        "body": "elastic",
+        "rho": 1.0,
+        "h": 0.001,
+        "scheme": "generalized_alpha",
+        "velocity": 1.9359213090906508e-05,
+        "pressure": 0.0005858593713375319,
+        "mesh_displacement": 5.734013256831968e-08
+      },
+      {
+        "body": "elastic",
+        "rho": 1.0,
+        "h": 0.0005,
+        "scheme": "generalized_alpha",
+        "velocity": 4.7891522536786785e-06,
+        "velocity_order": 2.015178104791658,
+        "pressure": 0.0001416178867624914,
+        "pressure_order": 2.048550910574424,
+        "mesh_displacement": 1.44427721959283e-08,
+        "mesh_displacement_order": 1.9891975553326926
+      },
+      {
+        "body": "elastic",
+        "rho": 1.0,
+        "h": 0.00025,
+        "scheme": "generalized_alpha",
+        "velocity": 1.161296238480152e-06,
+        "velocity_order": 2.0440342610637,
+        "pressure": 3.295260741655415e-05,
+        "pressure_order": 2.103538963701793,
+        "mesh_displacement": 3.593208862346851e-09,
+        "mesh_displacement_order": 2.007002982325867
+      },
+      {
+        "body": "rigid",
+        "rho": 0.0,
+        "h": 0.001,
+        "scheme": "generalized_alpha",
+        "velocity": 3.0976591483803414e-08,
+        "pressure": 2.1254684606187592e-07,
+        "mesh_displacement": 6.11891681712755e-08
+      },
+      {
+        "body": "rigid",
+        "rho": 0.0,
+        "h": 0.0005,
+        "scheme": "generalized_alpha",
+        "velocity": 7.73626847463362e-09,
+        "velocity_order": 2.0014686384035127,
+        "pressure": 5.295613509688576e-08,
+        "pressure_order": 2.0049111125487453,
+        "mesh_displacement": 1.5227109352262576e-08,
+        "mesh_displacement_order": 2.0066341938525913
+      },
+      {
+        "body": "rigid",
+        "rho": 0.0,
+        "h": 0.00025,
+        "scheme": "generalized_alpha",
+        "velocity": 1.9144427856074973e-09,
+        "velocity_order": 2.0147133171378564,
+        "pressure": 1.3069984600391983e-08,
+        "pressure_order": 2.0185403923349408,
+        "mesh_displacement": 3.738795646879843e-09,
+        "mesh_displacement_order": 2.025996568511516
+      },
+      {
+        "body": "rigid",
+        "rho": 0.5,
+        "h": 0.001,
+        "scheme": "generalized_alpha",
+        "velocity": 1.907758976207379e-08,
+        "pressure": 1.589475495735102e-07,
+        "mesh_displacement": 6.156269811054288e-08
+      },
+      {
+        "body": "rigid",
+        "rho": 0.5,
+        "h": 0.0005,
+        "scheme": "generalized_alpha",
+        "velocity": 4.73844598340639e-09,
+        "velocity_order": 2.009393017833911,
+        "pressure": 3.957158753174153e-08,
+        "pressure_order": 2.00601392565412,
+        "mesh_displacement": 1.5323490503850966e-08,
+        "mesh_displacement_order": 2.0063114991034032
+      },
+      {
+        "body": "rigid",
+        "rho": 0.5,
+        "h": 0.00025,
+        "scheme": "generalized_alpha",
+        "velocity": 1.16210664223881e-09,
+        "velocity_order": 2.02767152607274,
+        "pressure": 9.725964684761473e-09,
+        "pressure_order": 2.024551686232876,
+        "mesh_displacement": 3.763267890686465e-09,
+        "mesh_displacement_order": 2.025687065630651
+      },
+      {
+        "body": "rigid",
+        "rho": 1.0,
+        "h": 0.001,
+        "scheme": "generalized_alpha",
+        "velocity": 1.757412275505105e-08,
+        "pressure": 1.5225496802096094e-07,
+        "mesh_displacement": 6.161082638189849e-08
+      },
+      {
+        "body": "rigid",
+        "rho": 1.0,
+        "h": 0.0005,
+        "scheme": "generalized_alpha",
+        "velocity": 4.361708850038759e-09,
+        "velocity_order": 2.0104872998337067,
+        "pressure": 3.789953636137362e-08,
+        "pressure_order": 2.00623719887223,
+        "mesh_displacement": 1.5335719519056247e-08,
+        "mesh_displacement_order": 2.0062880302057633
+      },
+      {
+        "body": "rigid",
+        "rho": 1.0,
+        "h": 0.00025,
+        "scheme": "generalized_alpha",
+        "velocity": 1.0678138493809317e-09,
+        "velocity_order": 2.0302333055800905,
+        "pressure": 9.302538468718732e-09,
+        "pressure_order": 2.0264838430560714,
+        "mesh_displacement": 3.766349704129339e-09,
+        "mesh_displacement_order": 2.0256569913821845
+      }
+    ],
+    "ale": [
+      {
+        "scheme": "generalized_alpha",
+        "rho": 0.0,
+        "h": 0.0625,
+        "mesh_velocity_error": 0.00011703667728622802
+      },
+      {
+        "scheme": "generalized_alpha",
+        "rho": 0.0,
+        "h": 0.03125,
+        "mesh_velocity_error": 2.8923090661978068e-05,
+        "order": 2.0166670874705623
+      },
+      {
+        "scheme": "generalized_alpha",
+        "rho": 0.0,
+        "h": 0.015625,
+        "mesh_velocity_error": 7.186894649888198e-06,
+        "order": 2.008781280573547
+      },
+      {
+        "scheme": "generalized_alpha",
+        "rho": 0.5,
+        "h": 0.0625,
+        "mesh_velocity_error": 3.5312252332372895e-05
+      },
+      {
+        "scheme": "generalized_alpha",
+        "rho": 0.5,
+        "h": 0.03125,
+        "mesh_velocity_error": 9.53169730956438e-06,
+        "order": 1.8893638010351494
+      },
+      {
+        "scheme": "generalized_alpha",
+        "rho": 0.5,
+        "h": 0.015625,
+        "mesh_velocity_error": 2.3823563335273468e-06,
+        "order": 2.000343921792933
+      },
+      {
+        "scheme": "generalized_alpha",
+        "rho": 1.0,
+        "h": 0.0625,
+        "mesh_velocity_error": 6.90779520720608e-05
+      },
+      {
+        "scheme": "generalized_alpha",
+        "rho": 1.0,
+        "h": 0.03125,
+        "mesh_velocity_error": 1.72715799151707e-05,
+        "order": 1.9998252532514735
+      },
+      {
+        "scheme": "generalized_alpha",
+        "rho": 1.0,
+        "h": 0.015625,
+        "mesh_velocity_error": 4.318025745422838e-06,
+        "order": 1.9999563089160057
+      }
+    ]
+  },
+  "limitations": [
+    "FSI endpoint inversion branch reviewed but not directly triggered",
+    "No coupled performance claim; ranks at most 4",
+    "Main Release/legacy final regression remains for final integration"
+  ]
+}

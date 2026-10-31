@@ -11,6 +11,8 @@ int main() {
     for(int i=0;i<Tet4Ale::dofs;++i) { x[i]=.015*std::sin(i+1); direction[i]=std::sin(3*i+.7); }
     for(int i=0;i<Tet4Flow::dofs;++i) data.previous_fluid[i]=.03*std::cos(i+.2);
     for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) data.previous_mesh[a][c]=.002*std::sin(a+c+.1);
+    for(double mesh_dt:{0.,.043}) {
+    data.mesh_dt=mesh_dt;
     const auto jac=fsi_element_tangent(data,x);
     for(int field=0;field<2;++field) {
         auto plus=x,minus=x;
@@ -26,5 +28,6 @@ int main() {
         const double relative=std::sqrt(error/norm);
         std::cout << "field=" << field << " jv_relative_error=" << relative << '\n';
         if(!std::isfinite(relative)||relative>2e-8) throw std::runtime_error("FSI coupled Jacobian mismatch");
+    }
     }
 }

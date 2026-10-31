@@ -16,7 +16,7 @@ Tet4Ale::State<S> residual(const FsiElementData& data,const Tet4Ale::State<S>& x
     for(int a=0;a<Tet4Topology::nodes;++a) {
         for(int c=0;c<Space3::dimension;++c) {
             current[a][c]=data.reference[a][c]+x[Tet4Ale::dof(a,Tet4Ale::mesh_offset+c)];
-            velocity[a][c]=(x[Tet4Ale::dof(a,Tet4Ale::mesh_offset+c)]-data.previous_mesh[a][c])/data.fluid.dt;
+            velocity[a][c]=(x[Tet4Ale::dof(a,Tet4Ale::mesh_offset+c)]-data.previous_mesh[a][c])/(data.mesh_dt>0?data.mesh_dt:data.fluid.dt);
         }
         for(int c=0;c<Tet4Flow::components;++c) fluid[Tet4Flow::dof(a,c)]=x[Tet4Ale::dof(a,c)];
     }
@@ -50,7 +50,7 @@ Tet4Ale::State<S> residual(const FsiElementData& data,const Tet4Ale::State<S>& x
     return result;
 }
 Tet4Geometry current_geometry(const FsiElementData& data,const Tet4Ale::State<double>& x) {
-    if(!(data.fluid.dt>0)) throw std::runtime_error("FSI requires positive dt");
+    if(!(data.fluid.dt>0)||data.mesh_dt<0||!std::isfinite(data.mesh_dt)) throw std::runtime_error("FSI requires valid inertia and mesh time coefficients");
     auto coordinates=data.reference;
     for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) coordinates[a][c]+=x[Tet4Ale::dof(a,Tet4Ale::mesh_offset+c)];
     return tet4_geometry(coordinates);

@@ -2,7 +2,7 @@
 
 更新时间：2026-10-31（Asia/Shanghai）
 
-## 最新接续：独立场 BDF2
+## 最新接续：G5 耦合 generalized-alpha
 
 当前分支`codex/fem-time-mesh`，已推送G0检查点`e9e4d30`。
 [该提交云端CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41180022722)
@@ -16,7 +16,10 @@ G5已接入独立瞬态流体、卸载结构、ALE及单体刚体/弹性FSI的BE
 ALE/FSI增量主锁Debug6项针对性检查全部通过，含压力、接口功率、真实拒绝及完整历史恢复。
 BDF2耦合检查点`bab4fda`已推送并通过[云端CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41192856614)。
 独立流体一阶/结构二阶generalized-alpha主锁Debug7项针对性验收通过；rho=0/0.5/1、早期/终点压力、
-物理加速度、算法历史重启、能量/阻尼及真实拒绝已验证。下一步继续alpha的ALE/共同FSI评价，之后G1二维标量闭环。
+物理加速度、算法历史重启、能量/阻尼及真实拒绝已验证；提交`25e0945`的云端CI三环境成功（run41194151488）。
+alpha ALE/单体FSI已接入：共同af、独立算法历史、完整运动学链及端点几何拒绝；
+真实速度/压力/位移时间阶趋近2，事件/重启/接口运动及负例验收见当前证据。
+继续G1规范化网格和二维标量闭环；G5仍待最终完整集成验收，不关闭整体任务。
 以下早期检查点保留为历史，不覆盖本段当前状态。
 
 ## 项目基线
