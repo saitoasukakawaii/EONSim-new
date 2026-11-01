@@ -48,8 +48,35 @@ for n in (4,8,16):
 parallel,_=solve('sine-16-mpi2',n=16,ranks=2,kind='sine');assert parallel.keys()==values.keys() and max(abs(parallel[k]-values[k]) for k in values)<2e-9
 solve('quad',topology='quad',error='P2 requires Tri3')
 solve('transient',change=lambda c:c['scalar2d'].update(mode='diffusion'),error='P2 supports steady')
-solve('robin',change=lambda c:c['scalar2d']['boundaries'][0].update(type='robin',coefficient=1),error='P2 Robin')
-solve('pure-neumann',change=lambda c:[b.update(type='neumann') for b in c['scalar2d']['boundaries']],error='P2 requires a Dirichlet')
+
+
+# Robin can anchor the entire problem without any essential boundary.
+for boundary_type in ('robin','neumann'):
+ baseline=None
+ for rank in (1,2):
+  def boundary_case(cfg):
+   for b in cfg['scalar2d']['boundaries']:
+    b.update(type=boundary_type)
+    if boundary_type=='robin':b['coefficient']=2
+  fields,report=solve(f'{boundary_type}-{rank}',ranks=rank,distorted=True,change=boundary_case)
+  assert report['l2_error']<2e-10 and report['h1_error']<2e-9,report
+  if boundary_type=='neumann':assert abs(report['integral'])<1e-12,report
+  if baseline:assert fields.keys()==baseline.keys() and max(abs(fields[k]-baseline[k]) for k in fields)<2e-9
+  baseline=fields;records.append(dict(boundary=boundary_type,ranks=rank,**report))
+# Explicit user data also exercises the non-manufactured Robin load path.
+def robin_user(cfg):
+ c=cfg['scalar2d'];c.pop('manufactured');c['source']=-6
+ # u=1+x+2y+x²+2y², alpha=2; boundary restrictions below use full polynomials.
+ values={'left':[1,2,4,2,0,4],'right':[5,2,4,2,0,4],'bottom':[0,2,4,2,0,4],'top':[8,2,4,2,0,4]}
+ for b in c['boundaries']:b.update(type='robin',coefficient=2,value={'polynomial':values[b['region']]})
+user_fields,user_report=solve('robin-user',ranks=2,change=robin_user)
+reference,_=solve('robin-reference',ranks=2,change=lambda cfg:[b.update(type='robin',coefficient=2) for b in cfg['scalar2d']['boundaries']])
+assert user_fields.keys()==reference.keys() and max(abs(user_fields[k]-reference[k]) for k in reference)<2e-9
+# Neumann incompatibility must be rejected, never repaired by fixing a node.
+def incompatible(cfg):
+ c=cfg['scalar2d'];c.pop('manufactured');c['source']=1
+ for b in c['boundaries']:b.update(type='neumann',value=0)
+solve('incompatible-neumann',ranks=2,change=incompatible,error='Incompatible pure Neumann load')
 solve('solver-failure',ranks=2,kind='sine',extra=['-ksp_max_it',0],error='Linear solve did not converge')
 # A legacy P1 partition must never be silently interpreted as a P2 space.
 folder=a.work/'missing-space';case=generate(folder,4,'tri','4.1',False,False)
