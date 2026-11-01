@@ -51,7 +51,7 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 
 ## 当前焦点
 
-FEM-G2A 正在实施，基线 main `35bf1a1`，分支 `codex/fem-g2a-p2`。当前仅新增参考三角形 P2 基函数及局部验证；生产求解、共享边分区、输出、1/2 rank 验收仍未完成。PR #26 已合并；下述待审描述属于合并前检查点。
+FEM-G2A 正在实施，基线 main `35bf1a1`，分支 `codex/fem-g2a-p2`。代码 edfc73c 已接入共享边空间、HDF5 分区、P2 稳态 D/N 求解及二次 VTU/PVTU；本地 Debug 1/2 rank 数值验证通过，云端 PR 验收待执行，尚未合入 main。PR #26 已合并；下述待审描述属于合并前检查点。
 
 CI-INCREMENTAL-01 已实现并在 [PR #26](https://github.com/saitoasukakawaii/EONSim-new/pull/26) 待审（review，未合并）；分支 `codex/pr-incremental-ci`，实现提交 `8f695cc`，含约束提交 `ef20e03`。自动数值 CI 仅 PR 选测，文档/证据后续提交可复用同 PR 成功记录；全量仅手动显式选择。云端首次 Debug/Release 各仅 poisson_verification 1/1 通过；文档提交 `0072295` 的第二次运行实际零构建、零数值测试，完整继承原来源，见 [首次验收](../research/data/ci-incremental-2026-10-31/initial.json)与[复用验收](../research/data/ci-incremental-2026-10-31/reuse.json)。本地 24 项选测/receipt 测试与 6 项证据解析通过，另补 2 项手动入口测试通过；未运行全量、旧锁数值测试或本地求解器构建。默认 main 行为要在 PR 合并后才改变。
 

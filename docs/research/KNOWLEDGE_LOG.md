@@ -180,3 +180,8 @@ DOCS-01 交付补记：已通过 [PR #25](https://github.com/saitoasukakawaii/EO
 ### FEM-G2A 局部检查点
 
 P2 参考三角形六节点插值、六个多项式的值/梯度重现及反向边迹已通过直接 C++17 编译验证。源码为本条所属提交；命令与范围见 CODEX_SESSION_LOG 的 FEM-G2A 记录。尚无生产求解、MPI 或收敛证据，完整知识草稿待闭环完成后形成。
+
+
+### 2026-11-01 — FEM-G2A 共享边空间
+
+[草稿](../../website/drafts/p2-edge-space-poisson.md)：源码 edfc73c，参考基函数、离线实体空间与 P2 稳态 Poisson 已实现；本地 Debug PETSc 3.23.7、1/2 rank patch/收敛/失败证据见 data/p2-2026-11-01。理论、实现与实际验证分列，未测性能，云端验收待补，文章不发布。

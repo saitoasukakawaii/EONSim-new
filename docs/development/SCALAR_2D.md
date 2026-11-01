@@ -131,3 +131,14 @@ checkpoint 保存格式所需完整历史、步长/ready、参数及二维拓扑
 `scalar2d_failure` 验证真实 KSP 失败、accepted/checkpoint 不污染、缩步重放和旧 PVD/时间片保留。
 最终 Debug/Release 与兼容锁结果记录于 [集成验证](FEM_INTEGRATION_VALIDATION.md)，
 不将可编译接口或小型参考模型替代这些真实 PETSc/MPI 证据。
+
+
+## P2 稳态三角形增量（FEM-G2A）
+
+配置 `scalar2d.degree: 2` 选择直边 Tri3 上的二次 Lagrange 场；默认 1 保留 P1/Q1。首版仅支持统一扩散系数的稳态 Poisson、Dirichlet 与 Neumann，必须存在 Dirichlet 边界。Robin、纯 Neumann、regions、瞬态及 Quad4/混合网格明确拒绝。几何仍为三顶点，场具有三个顶点和三个边中点 DoF，不支持高阶 Gmsh 几何输入。
+
+沿用 `-prepare <目录> -parts 2` 和 `-partition <目录>`；准备时必须使用同一份 degree=2 配置。分区 HDF5 保留原几何格式，新增版本 1 的 scalar_p2 组；旧 P1 分区不能直接作 P2 求解，需重新 prepare。串行无 partition 入口使用同一空间构造。
+
+边身份由排序后的原始端点 ID 对定义；owner 为邻接单元 owner 的最小值。求解只读取本 rank 数据，owned 行图包含远程单元贡献。P2 语义 space=3，vertex/edge 与代数编号分离。输出采用六节点二次三角形 VTU/PVTU，PointData 的 entity_first/entity_second 为 Int64 身份端点，顶点两个端点相同，另提供 owner 与 u；不把中点称为导入网格节点。
+
+源码检查点 edfc73c，本地 Debug PETSc 3.23.7 实际 1/2 rank patch 与正弦加密通过；最细 L2/H1 阶为 2.9699/1.9711。证据见 ../research/data/p2-2026-11-01/。云端与主线合并状态以任务队列为准。本轮不构成完整 G2 或性能验证。

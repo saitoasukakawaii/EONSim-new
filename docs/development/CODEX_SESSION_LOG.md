@@ -436,3 +436,15 @@
 - `python3 tests/test_ci_selection.py`：26 项通过；`git diff --check` 通过。新增 CMake 注册项尚未通过 CMake 构建执行，不将直接编译结果称为 CTest 通过。
 - 未完成：实体边空间、分区存储、装配、D/N、输出、数值收敛和真实 1/2 rank、云端 CI、PR。任务继续 in_progress。源码检查点由本记录所在 Git 提交追溯。
 - 暂不生成完整知识文章：只有局部基础函数证据，完成真实闭环后按知识采集 Skill 汇总，不能提前写成生产能力。
+
+
+## 2026-11-01 / FEM-G2A — 分布式 P2 实现与本地验证
+
+- 源码提交 edfc73c；基线 35bf1a1，分支 codex/fem-g2a-p2。新增独立 ScalarP2Space，以原始顶点 ID 对规范化边，在现有 METIS 单元分区之后建立 owned/ghost 和包含远程单元贡献的完整图。HDF5 可选组 version=1，原几何版本不变。
+- P2 稳态统一系数 Poisson、非零 D/N、原生二次三角形 VTU/PVTU 已接入；geometry/space 分离。缺失空间、非法连接/owner、非有限坐标明确拒绝。未支持模型在配置/准备阶段报错。
+- 本地命令 `scripts/cloud/run.sh 3.23.7 debug explicit .cloud build/p2-local/plan.json` 首次执行 p2_space_oracles、tri_p2_oracles，2/2 通过；随后 `scripts/cloud/run.sh 3.23.7 debug explicit .cloud build/p2-local/solve-plan.json` 只执行 scalar_p2_verification，1/1 通过。空间身份/读取校验修改后，仅重跑受影响的 P2 求解项，通过。
+- 真实 1/2 rank 畸变 patch L2 约 3e-12、H1 约 5e-11；n=4/8/16 正弦最细 L2/H1 阶 2.9699/1.9711；双 rank 使用节点/单元反排输入，场按实体身份对照。配置拒绝和强制 KSP 失败均通过。
+- 直接 C++17 编译执行 verify_tri_p2 补充解析刚度/载荷矩阵 oracle，及 verify_p2_space 的实体/远程邻接验证，均通过；26 项 CI 选择脚本测试通过。未执行全量、旧锁或本地 Release。
+- `python3 build/p2-local/check_corruption.py` 使用 h5py 3.14 修改 rank_1.h5，分别删除 P2 组、篡改连接和 owner；真实双 rank 明确失败且未生成索引。该额外本地检查脚本与结果已归档。新补入自动脚本的旧 P1 分区拒绝场景尚待云端执行。
+- 编译发现 signedness 和 misleading-indentation 警告，已修正并重新编译，无新增警告。未降低数值门槛或放宽测试超时来隐藏失败。
+- 证据 docs/research/data/p2-2026-11-01；摘要记录实际执行时的 dirty 状态，不能把后来新增测试标为此前已执行。云端验收及 PR 仍待完成，任务 in_progress。
