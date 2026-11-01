@@ -189,4 +189,4 @@ P2 参考三角形六节点插值、六个多项式的值/梯度重现及反向�
 
 ### 2026-11-01 — FEM-G2B 边界与物理均值
 
-更新[现有 P2 草稿](../../website/drafts/p2-edge-space-poisson.md)：源码 d6ec424，新增 Robin 边迹矩阵及纯 Neumann 相容性/零空间/体积均值解释。本地 Debug、PETSc 3.23.7、1/2 rank 相关数值及拒绝检查通过；命令见会话日志，证据 data/p2-boundaries-2026-11-01。云端待验收，文章仍未发布。
+更新[现有 P2 草稿](../../website/drafts/p2-edge-space-poisson.md)：源码 d6ec424，新增 Robin 边迹矩阵及纯 Neumann 相容性/零空间/体积均值解释。本地 Debug、PETSc 3.23.7、1/2 rank 相关数值及拒绝检查通过；命令见会话日志，证据 data/p2-boundaries-2026-11-01。PR #28 云端 run 41287626201 的 Debug/Release 各 10 项相关检查通过，文章仍未发布。

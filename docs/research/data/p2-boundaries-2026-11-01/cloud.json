@@ -1,0 +1,65 @@
+{
+  "run_id": 41287626201,
+  "feature_commit": "41547fa39be715d09abf28d424468eddcf0b1eab",
+  "source_commit": "d6ec4244a73adbcbfd839b93cc595260a0138447",
+  "modes": [
+    {
+      "commit": "bbf494b84af62b904a7821355d75fab982831b16",
+      "mode": "release",
+      "selection": "explicit",
+      "petsc": "3.23.7",
+      "status": "passed",
+      "resources": {
+        "cpu_budget": 4,
+        "memory_bytes": 16760336384,
+        "cgroup": {
+          "/sys/fs/cgroup": {},
+          "/sys/fs/cgroup/system.slice": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          },
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          }
+        },
+        "build_jobs": 4
+      },
+      "test_counts": {
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "commit": "bbf494b84af62b904a7821355d75fab982831b16",
+      "mode": "debug",
+      "selection": "explicit",
+      "petsc": "3.23.7",
+      "status": "passed",
+      "resources": {
+        "cpu_budget": 4,
+        "memory_bytes": 16760344576,
+        "cgroup": {
+          "/sys/fs/cgroup": {},
+          "/sys/fs/cgroup/system.slice": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          },
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu.max": "max 100000",
+            "memory.max": "max"
+          }
+        },
+        "build_jobs": 4
+      },
+      "test_counts": {
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "website_run": 41287626208,
+  "legacy": "skipped"
+}

@@ -471,3 +471,8 @@
 - 执行 `scripts/cloud/run.sh 3.23.7 debug explicit .cloud build/p2-local/solve-plan.json`，清单仅 scalar_p2_verification：1/1 通过，真实 1/2 rank 全 Robin 与纯 Neumann patch、用户显式源项/Robin 数据、MPI 场值对照及不相容载荷拒绝均通过；相关已有 P2 路径随受影响测试复验。
 - 双 rank 纯 Neumann L2=6.2481e-13、H1=9.2768e-12，物理积分=-9.9920e-16。没有放宽容差；编译无新增警告。没有执行全量、旧锁或本地 Release。精简数据与原摘要归档 docs/research/data/p2-boundaries-2026-11-01，原摘要保留实际 dirty 状态。
 - 使用知识采集 Skill 更新现有 P2 草稿，不制造重复文章；云端相关验收待执行。
+
+
+### FEM-G2B 云端交付
+
+PR #28 的 run 41287626201 成功，实际 merge preview bbf494b84af62b904a7821355d75fab982831b16，功能提交 41547fa，生产源码 d6ec424。PETSc 3.23.7 Debug/Release 各 10 passed、0 failed、0 skipped；旧锁专项 skipped。网站 run 41287626208 成功。摘要 docs/research/data/p2-boundaries-2026-11-01/cloud.json；本次无全量测试。状态 review，未自动合并；收尾文档复用上述成功证据。

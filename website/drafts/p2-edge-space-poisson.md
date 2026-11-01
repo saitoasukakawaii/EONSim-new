@@ -40,4 +40,4 @@ Robin 边矩阵为 ∫ α NᵢNⱼ，载荷为 ∫ Nᵢr；α 为正时可独立
 
 P2 顶点基函数的三角形积分为零，三个边中点基函数积分各为面积的三分之一；因此物理均值由 FE 积分计算，不能用六个节点的算术平均。归一化时只减去常数，梯度保持不变，制造解必须同步减去其积分均值。
 
-源码 d6ec424；本地 Debug/PETSc 3.23.7 执行 scalar_p2_verification，真实 1/2 rank 的全 Robin、纯 Neumann 和用户显式载荷通过；不相容 Neumann 载荷被拒绝。新证据 docs/research/data/p2-boundaries-2026-11-01，云端检查待补；不构成性能结论。
+源码 d6ec424；本地 Debug/PETSc 3.23.7 执行 scalar_p2_verification，真实 1/2 rank 的全 Robin、纯 Neumann 和用户显式载荷通过；不相容 Neumann 载荷被拒绝。新证据 docs/research/data/p2-boundaries-2026-11-01，PR #28 云端 run 41287626201 的 Debug/Release 各 10 项相关检查通过；不构成性能结论。
