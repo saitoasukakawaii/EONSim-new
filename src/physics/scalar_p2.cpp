@@ -74,8 +74,8 @@ void solve_scalar_p2(MPI_Comm comm,const MeshPartition& mesh,const ScalarP2Space
     for(std::size_t i=0;i<s.owned;++i){PetscInt diagonal=0,off=0;for(auto j=s.row_offsets[i];j<s.row_offsets[i+1];++j){auto col=s.row_columns[j];if(col>=s.begin&&col<s.begin+owned)++diagonal;else ++off;}layout.diagonal.push_back(diagonal);layout.off_diagonal.push_back(off);layout.fields["scalar"].push_back(s.algebra_ids[i]);}
     for(std::size_t i=0;i<s.owned;++i)layout.owned_semantics.push_back({s.entity_ids[i],DofDomain::scalar,DofQuantity::scalar_value,s.entities[i][0]==s.entities[i][1]?DofEntity::vertex:DofEntity::edge,0,0,3});
     std::map<int,ScalarBoundary> bc;bool anchored=false;
-    for(const auto& b:c.boundaries){if(b.type==ScalarBoundary::Type::robin)throw std::runtime_error("P2 Robin is not supported");anchored|=b.type==ScalarBoundary::Type::dirichlet;if(!bc.emplace(boundary_tag(mesh,b.region),b).second)throw std::runtime_error("Duplicate P2 boundary");}
-    if(!anchored)throw std::runtime_error("P2 requires a Dirichlet boundary");
+    for(const auto& b:c.boundaries){anchored|=b.type!=ScalarBoundary::Type::neumann;if(!bc.emplace(boundary_tag(mesh,b.region),b).second)throw std::runtime_error("Duplicate P2 boundary");}
+    const bool nullspace=!anchored;
     for(const auto& b:bc){int found=0,all=0;for(const auto& e:mesh.edges)found|=e.physical_tag==b.first;MPI_Allreduce(&found,&all,1,MPI_INT,MPI_MAX,comm);if(!all)throw std::runtime_error("P2 boundary absent from mesh");}
     for(const auto& e:mesh.edges)if(!bc.count(e.physical_tag))throw std::runtime_error("Missing P2 boundary condition");
     std::vector<std::vector<P2Point>> points;for(const auto& cell:mesh.cells2)points.push_back(quadrature(mesh,cell));
@@ -88,15 +88,32 @@ void solve_scalar_p2(MPI_Comm comm,const MeshPartition& mesh,const ScalarP2Space
     for(std::size_t ei=0;ei<mesh.edges.size();++ei){const auto& edge=mesh.edges[ei];const auto& data=bc.at(edge.physical_tag);if(data.type==ScalarBoundary::Type::dirichlet)continue;
         const auto& x=mesh.nodes[edge.nodes[0]].position;const auto& y=mesh.nodes[edge.nodes[1]].position;const double length=std::hypot(y[0]-x[0],y[1]-x[1]);
         std::array<PetscInt,3> ids;for(int i=0;i<3;++i)ids[i]=s.algebra_ids[s.boundaries[ei][i]];std::array<double,9> zero{};std::array<double,3> b{};
-        for(int j=0;j<4;++j){const double t=GaussLegendre<4>::points[j];Point p{};for(int d=0;d<3;++d)p[d]=(1-t)*x[d]+t*y[d];const auto e=exact_p2(c.manufactured,p);const double g=c.manufactured.empty()?evaluate(data.value,p):c.diffusivity*(e.dx*(y[1]-x[1])-e.dy*(y[0]-x[0]))/length;
-            const std::array<double,3> shape{(1-t)*(1-2*t),t*(2*t-1),4*t*(1-t)};for(int i=0;i<3;++i)b[i]+=length*GaussLegendre<4>::weights[j]*shape[i]*g;}
+        for(int j=0;j<4;++j){const double t=GaussLegendre<4>::points[j];Point p{};for(int d=0;d<3;++d)p[d]=(1-t)*x[d]+t*y[d];const auto e=exact_p2(c.manufactured,p);const double g=c.manufactured.empty()?evaluate(data.value,p):c.diffusivity*(e.dx*(y[1]-x[1])-e.dy*(y[0]-x[0]))/length+data.robin_coefficient*e.u;
+            const std::array<double,3> shape{(1-t)*(1-2*t),t*(2*t-1),4*t*(1-t)};for(int i=0;i<3;++i){b[i]+=length*GaussLegendre<4>::weights[j]*shape[i]*g;
+                for(int l=i;l<3;++l){const double entry=length*GaussLegendre<4>::weights[j]*data.robin_coefficient*shape[i]*shape[l];zero[3*i+l]+=entry;if(i!=l)zero[3*l+i]+=entry;}}}
         system.add(3,ids.data(),zero.data(),b.data());
     }
     std::vector<PetscInt> fixed;std::vector<double> values;
     for(std::size_t i=0;i<s.owned;++i){bool set=false;double v=0;for(int tag:s.boundary_tags[i]){const auto& b=bc.at(tag);if(b.type!=ScalarBoundary::Type::dirichlet)continue;double next=c.manufactured.empty()?evaluate(b.value,s.points[i]):exact_p2(c.manufactured,s.points[i]).u;if(set&&std::abs(v-next)>1e-12*std::max({1.,std::abs(v),std::abs(next)}))throw std::runtime_error("Conflicting P2 Dirichlet data");v=next;set=true;}if(set){fixed.push_back(s.algebra_ids[i]);values.push_back(v);}}
-    system.constrain(fixed,values);const auto solution=system.solve(config.solver,true);
+    system.constrain(fixed,values);
+    if(nullspace)system.constant_nullspace(1e-11);
+    auto solution=system.solve(config.solver,true);
+    // Normalize with the physical FE volume integral, not the nodal mean:
+    // P2 vertex shape integrals vanish on affine triangles.
+    double exact_shift=0;
+    if(nullspace) {
+        double moments[3]{},total_moments[3]{};
+        for(std::size_t ci=0;ci<s.cells.size();++ci)for(const auto& q:points[ci]) {
+            double u=0;for(int i=0;i<6;++i)u+=solution.values[s.cells[ci][i]]*q.basis.value[i];
+            moments[0]+=q.weight;moments[1]+=q.weight*u;moments[2]+=q.weight*exact_p2(c.manufactured,q.x).u;
+        }
+        MPI_Allreduce(moments,total_moments,3,MPI_DOUBLE,MPI_SUM,comm);
+        if(!(total_moments[0]>0))throw std::runtime_error("Empty P2 domain");
+        for(auto& u:solution.values)u-=total_moments[1]/total_moments[0];
+        exact_shift=total_moments[2]/total_moments[0];
+    }
     double local[4]{},global[4]{};
-    for(std::size_t ci=0;ci<s.cells.size();++ci)for(const auto& q:points[ci]){double u=0,dx=0,dy=0;for(int i=0;i<6;++i){const auto v=solution.values[s.cells[ci][i]];u+=v*q.basis.value[i];dx+=v*q.basis.gradient[i][0];dy+=v*q.basis.gradient[i][1];}const auto e=exact_p2(c.manufactured,q.x);local[0]+=q.weight;local[1]+=q.weight*u;local[2]+=q.weight*(u-e.u)*(u-e.u);local[3]+=q.weight*((dx-e.dx)*(dx-e.dx)+(dy-e.dy)*(dy-e.dy));}
+    for(std::size_t ci=0;ci<s.cells.size();++ci)for(const auto& q:points[ci]){double u=0,dx=0,dy=0;for(int i=0;i<6;++i){const auto v=solution.values[s.cells[ci][i]];u+=v*q.basis.value[i];dx+=v*q.basis.gradient[i][0];dy+=v*q.basis.gradient[i][1];}const auto e=exact_p2(c.manufactured,q.x);local[0]+=q.weight;local[1]+=q.weight*u;local[2]+=q.weight*(u-e.u+exact_shift)*(u-e.u+exact_shift);local[3]+=q.weight*((dx-e.dx)*(dx-e.dx)+(dy-e.dy)*(dy-e.dy));}
     MPI_Allreduce(local,global,4,MPI_DOUBLE,MPI_SUM,comm);write_p2(comm,mesh,s,config,solution.values);
     if(mesh.rank==0){std::cout<<std::setprecision(17)<<"scalar_p2 degree=2 dofs="<<s.global<<" area="<<global[0]<<" integral="<<global[1]<<" true_residual="<<solution.true_residual;if(!c.manufactured.empty())std::cout<<" l2_error="<<std::sqrt(global[2])<<" h1_error="<<std::sqrt(global[3]);std::cout<<"\nstatus=success\n";}
 }

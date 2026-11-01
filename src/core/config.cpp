@@ -382,10 +382,8 @@ Config read_config(const std::filesystem::path& path)
         }
     }
     if(config.scalar2d_problem&&config.scalar2d.degree==2) {
-        const auto& c=config.scalar2d;bool anchored=false;
+        const auto& c=config.scalar2d;
         if(c.transient||!c.regions.empty())throw std::runtime_error("P2 supports steady uniform-coefficient Poisson only");
-        for(const auto& b:c.boundaries){if(b.type==ScalarBoundary::Type::robin)throw std::runtime_error("P2 Robin is not supported");anchored|=b.type==ScalarBoundary::Type::dirichlet;}
-        if(!anchored)throw std::runtime_error("P2 requires a Dirichlet boundary");
     }
     if (const auto solver = root["solver"]) {
         keys(solver, {"relative_tolerance", "absolute_tolerance", "maximum_iterations", "fields", "pc_recipe"}, "solver");

@@ -456,3 +456,23 @@
 - PETSc 3.23.7 Debug/Release 各 19 passed、0 failed、0 skipped；selected checks 包含 P2 三项及共享配置/分区/语义入口的代表回归，未运行全量。最终新增的 missing-space 自动负例与解析刚度/载荷 oracle 已随此次 CI 验收。旧锁 job skipped。
 - 云端 4 CPU、约 16 GiB，网站 run 41283957245 通过；草稿保持未发布。来源摘要 docs/research/data/p2-2026-11-01/cloud.json。
 - 状态 review，未自动合并。文档收尾只复用上述通过证据，不将其记作新提交重新运行。Markdown 本地链接与 git diff --check 通过。
+
+
+## 2026-11-01 / FEM-G2A 合并状态接续
+
+用户要求继续推进。通过 GitHub PR 信息及 git ls-remote 确认 PR #27 已于 2026-11-01 合并，main 为 c0745ea88c89ab08bb5babbcae530ee2008a49cf；本地 main 已快进。审核时间线没有待处理的代码审查意见。任务改为 done，数值证据复用既有 run 41283957039，不重新编译或运行测试。后续新增范围正在确认。
+
+
+## 2026-11-01 / FEM-G2B — P2 Robin 与纯 Neumann
+
+- 用户要求继续推进；上一任务 PR #27 已合并。提出后续范围选择，在等待期间完成主线同步；未收到其他选择后按已说明的推荐项推进边界扩展。未自动合并 PR。
+- 实现 d6ec4244a73adbcbfd839b93cc595260a0138447。Robin 复用三节点边迹，增加正系数边界矩阵和相应制造解载荷；纯 Neumann 复用现有 LinearSystem 常数零空间及载荷相容性检查。无新配置键、依赖、分区格式或主求解器后端。
+- 非直观数学细节：P2 顶点基函数的体积积分为零，节点均值不是物理体积均值；归一化使用积分后的全局均值，并同步规范制造解的误差参考。
+- 执行 `scripts/cloud/run.sh 3.23.7 debug explicit .cloud build/p2-local/solve-plan.json`，清单仅 scalar_p2_verification：1/1 通过，真实 1/2 rank 全 Robin 与纯 Neumann patch、用户显式源项/Robin 数据、MPI 场值对照及不相容载荷拒绝均通过；相关已有 P2 路径随受影响测试复验。
+- 双 rank 纯 Neumann L2=6.2481e-13、H1=9.2768e-12，物理积分=-9.9920e-16。没有放宽容差；编译无新增警告。没有执行全量、旧锁或本地 Release。精简数据与原摘要归档 docs/research/data/p2-boundaries-2026-11-01，原摘要保留实际 dirty 状态。
+- 使用知识采集 Skill 更新现有 P2 草稿，不制造重复文章；云端相关验收待执行。
+
+
+### FEM-G2B 云端交付
+
+PR #28 的 run 41287626201 成功，实际 merge preview bbf494b84af62b904a7821355d75fab982831b16，功能提交 41547fa，生产源码 d6ec424。PETSc 3.23.7 Debug/Release 各 10 passed、0 failed、0 skipped；旧锁专项 skipped。网站 run 41287626208 成功。摘要 docs/research/data/p2-boundaries-2026-11-01/cloud.json；本次无全量测试。状态 review，未自动合并；收尾文档复用上述成功证据。
