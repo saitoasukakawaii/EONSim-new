@@ -4,7 +4,7 @@ description: "直边三角形二次标量空间的分区、图和局部验收。
 contentStatus: draft
 taskId: "FEM-G2A"
 baseCommit: "35bf1a1"
-resultCommit: "edfc73c"
+resultCommit: "d6ec424"
 date: "2026-11-01"
 ---
 
@@ -28,8 +28,16 @@ date: "2026-11-01"
 
 ## 限制与审查问题
 
-仅稳态统一系数、纯 Tri3、D/N 且有 Dirichlet 锚定；不支持曲边、Robin、纯 Neumann、瞬态、混合空间或跨分区重启。没有性能测量。下一步审查应关注空间文件的身份一致性和 MPI 远程行完整性；完整 G2 仍未完成。
+仅稳态统一系数、纯 Tri3；后续 d6ec424 接入 Robin 与纯 Neumann，不支持曲边、瞬态、混合空间或跨分区重启。没有性能测量。下一步审查应关注空间文件的身份一致性和 MPI 远程行完整性；完整 G2 仍未完成。
 
 练习：对两三角形共享边列出九个全局自由度，解释共享边 owned 行为什么需要九列，而非单个局部单元的六列。
 
 参考：[VTK 二次三角形节点顺序](https://vtk.org/doc/nightly/html/classvtkQuadraticTriangle.html)；仓库 docs/architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md 的空间、稀疏图与输出契约。
+
+## Robin 与常数零空间增量
+
+Robin 边矩阵为 ∫ α NᵢNⱼ，载荷为 ∫ Nᵢr；α 为正时可独立锚定问题。全 Neumann 则检查 ∫f+∫g=0 的离散相容性，使用 PETSc 常数零空间，拒绝不相容载荷而不改变物理问题。
+
+P2 顶点基函数的三角形积分为零，三个边中点基函数积分各为面积的三分之一；因此物理均值由 FE 积分计算，不能用六个节点的算术平均。归一化时只减去常数，梯度保持不变，制造解必须同步减去其积分均值。
+
+源码 d6ec424；本地 Debug/PETSc 3.23.7 执行 scalar_p2_verification，真实 1/2 rank 的全 Robin、纯 Neumann 和用户显式载荷通过；不相容 Neumann 载荷被拒绝。新证据 docs/research/data/p2-boundaries-2026-11-01，云端检查待补；不构成性能结论。
