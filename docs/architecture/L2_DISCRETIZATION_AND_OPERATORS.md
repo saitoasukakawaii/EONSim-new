@@ -191,3 +191,10 @@ MeshImportData先表达来源ID、拓扑、实体及physical groups，再适配�
 标量Dirichlet/Neumann/Robin及纯Neumann零空间仅服务该模型；不因此宣称完整G2已完成。
 分区连接偏移、混合VTU/PVTU/PVD属于当前闭环必需的G4子集。
 数学、边界符号、积分及运行时支持范围统一维护于[SCALAR_2D](../development/SCALAR_2D.md)。
+
+
+### FEM-G2A：直边三角形 P2 字段
+
+P2 几何继续使用 Tri3，ScalarP2Space 独立持有顶点/边中点的 cell-to-DoF、owned/ghost 和完整远程行邻接。DofEntity::edge 追加在现有枚举之后；space=3 区分 P2 与 P1/Q1 的 space=2。离线边 ID 按规范原始端点对排序，与代数行编号分离，不把坐标相同当作实体相同。
+
+预处理写出可选 P2 HDF5 组，单个 rank 在求解中只读取本地文件；既有几何分区格式不承载新增场节点。支持范围和命令以 SCALAR_2D 文档为准；该切片不构成完整 G2。

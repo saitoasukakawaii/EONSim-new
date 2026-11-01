@@ -22,7 +22,7 @@ date: "2026-11-01"
 
 ## 实际验证
 
-本地 Debug、PETSc 3.23.7，运行 `scripts/cloud/run.sh 3.23.7 debug explicit .cloud build/p2-local/solve-plan.json`，清单仅 scalar_p2_verification。1/2 rank 二次 patch 与 n=4/8/16 正弦加密通过；最细 L2/H1 阶为 2.9699/1.9711。独立局部测试还检查六个单项式、解析刚度与载荷。证据保存于 docs/research/data/p2-2026-11-01。云端最终结果待补，不把局部测试等同真实求解。
+本地 Debug、PETSc 3.23.7，运行 `scripts/cloud/run.sh 3.23.7 debug explicit .cloud build/p2-local/solve-plan.json`，清单仅 scalar_p2_verification。1/2 rank 二次 patch 与 n=4/8/16 正弦加密通过；最细 L2/H1 阶为 2.9699/1.9711。独立局部测试还检查六个单项式、解析刚度与载荷。证据保存于 docs/research/data/p2-2026-11-01。PR #27 云端 run 41283957039 已完成 Debug/Release 各 19 项相关检查，含真实 P2 求解；详见证据目录 cloud.json。
 
 在 rank 1 缺失组、破坏连接或 owner 的三个实际 MPI 负例中，作业退出且没有发布成功索引。理论身份与文件校验均不能替代数值误差检查。
 

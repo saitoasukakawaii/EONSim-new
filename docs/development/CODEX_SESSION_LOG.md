@@ -448,3 +448,11 @@
 - `python3 build/p2-local/check_corruption.py` 使用 h5py 3.14 修改 rank_1.h5，分别删除 P2 组、篡改连接和 owner；真实双 rank 明确失败且未生成索引。该额外本地检查脚本与结果已归档。新补入自动脚本的旧 P1 分区拒绝场景尚待云端执行。
 - 编译发现 signedness 和 misleading-indentation 警告，已修正并重新编译，无新增警告。未降低数值门槛或放宽测试超时来隐藏失败。
 - 证据 docs/research/data/p2-2026-11-01；摘要记录实际执行时的 dirty 状态，不能把后来新增测试标为此前已执行。云端验收及 PR 仍待完成，任务 in_progress。
+
+
+### FEM-G2A 云端验收完成
+
+- PR #27：功能提交 6327c189b9cd936159fb11c5f472934047fa2f0e，生产实现 edfc73c。run 41283957039 的实际 merge preview 为 60ee8e26a0ccf8f1b11aad8fe1906c17f67cd87c。
+- PETSc 3.23.7 Debug/Release 各 19 passed、0 failed、0 skipped；selected checks 包含 P2 三项及共享配置/分区/语义入口的代表回归，未运行全量。最终新增的 missing-space 自动负例与解析刚度/载荷 oracle 已随此次 CI 验收。旧锁 job skipped。
+- 云端 4 CPU、约 16 GiB，网站 run 41283957245 通过；草稿保持未发布。来源摘要 docs/research/data/p2-2026-11-01/cloud.json。
+- 状态 review，未自动合并。文档收尾只复用上述通过证据，不将其记作新提交重新运行。Markdown 本地链接与 git diff --check 通过。
