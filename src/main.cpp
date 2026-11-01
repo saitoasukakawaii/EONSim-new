@@ -2,6 +2,7 @@
 #include "eonsim/time_step.hpp"
 #include "eonsim/poisson.hpp"
 #include "eonsim/scalar2d.hpp"
+#include "eonsim/scalar_p2_space.hpp"
 #include "eonsim/fluid.hpp"
 #include "eonsim/solid.hpp"
 #include "eonsim/ale.hpp"
@@ -97,7 +98,7 @@ int main(int argc, char* argv[])
                 PetscInt parts = 1;
                 EONSIM_PETSC(PetscOptionsGetInt(nullptr, nullptr, "-parts", &parts, nullptr));
                 if (parts < 1 || parts > 1000000) throw std::runtime_error("Invalid -parts");
-                eonsim::prepare_partitions(read_mesh(), static_cast<int>(parts), *prepare);
+                eonsim::prepare_partitions(read_mesh(), static_cast<int>(parts), *prepare, config.scalar2d_problem?config.scalar2d.degree:1);
                 std::cout << "Prepared " << parts << " HDF5 partitions in " << *prepare << "\nstatus=success\n";
             } else {
             const auto mesh = partition ? eonsim::read_partition(*partition, rank, size) : read_mesh();
@@ -124,7 +125,10 @@ int main(int argc, char* argv[])
             }
             const double input_seconds = std::chrono::duration<double>(Clock::now()-begin).count();
             if(config.scalar2d_problem) {
-                eonsim::solve_scalar2d(PETSC_COMM_WORLD,mesh,config);
+                if(config.scalar2d.degree==2) {
+                    const auto space=partition?eonsim::read_scalar_p2_space(*partition,mesh):eonsim::prepare_scalar_p2_space(mesh,std::vector<int>(mesh.cells2.size(),0),mesh);
+                    eonsim::solve_scalar_p2(PETSC_COMM_WORLD,mesh,space,config);
+                } else eonsim::solve_scalar2d(PETSC_COMM_WORLD,mesh,config);
             } else if(config.fsi_problem) {
                 const auto fsi=eonsim::solve_fsi(PETSC_COMM_WORLD,mesh,config);
                 eonsim::write_fields(config.output,fsi.current_mesh,fsi.fields);

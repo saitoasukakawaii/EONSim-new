@@ -1,4 +1,5 @@
 #include "eonsim/tri_p2.hpp"
+#include "eonsim/quadrature.hpp"
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -34,6 +35,13 @@ int main() {
             near(forward.value[0],reverse.value[1]);near(forward.value[3],reverse.value[3]);
             near(forward.value[2],0);near(forward.value[4],0);near(forward.value[5],0);
         }
+        // Independent exact reference-triangle stiffness and constant-load integrals.
+        const double expected[6][6]={{1,1./6,1./6,-2./3,0,-2./3},{1./6,.5,0,-2./3,0,0},{1./6,0,.5,0,0,-2./3},{-2./3,-2./3,0,8./3,-4./3,0},{0,0,0,-4./3,8./3,-4./3},{-2./3,0,-2./3,0,-4./3,8./3}};
+        double stiffness[6][6]{},load[6]{};
+        for(int i=0;i<4;++i)for(int j=0;j<4;++j){const double r=eonsim::GaussLegendre<4>::points[i],s=(1-r)*eonsim::GaussLegendre<4>::points[j];
+            const double w=(1-r)*eonsim::GaussLegendre<4>::weights[i]*eonsim::GaussLegendre<4>::weights[j];const auto q=eonsim::tabulate_tri_p2(r,s);
+            for(int a=0;a<6;++a){load[a]+=w*q.value[a];for(int b=0;b<6;++b)stiffness[a][b]+=w*(q.gradient[a][0]*q.gradient[b][0]+q.gradient[a][1]*q.gradient[b][1]);}}
+        for(int a=0;a<6;++a){near(load[a],a<3?0:1./6);for(int b=0;b<6;++b)near(stiffness[a][b],expected[a][b]);}
         std::cout<<"P2 nodal interpolation, six polynomial values/gradients and edge traces passed\n";
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

@@ -1,4 +1,6 @@
 #include "eonsim/mesh.hpp"
+#include "eonsim/scalar_p2_space.hpp"
+#include <cmath>
 #include <hdf5.h>
 #include <metis.h>
 #include <algorithm>
@@ -144,7 +146,8 @@ void initialize_serial_partition(MeshPartition& mesh) {
     mesh.fingerprint = fingerprint(mesh, 1);
 }
 
-void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesystem::path& directory) {
+void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesystem::path& directory, int scalar_degree) {
+    if(scalar_degree!=1&&scalar_degree!=2)throw std::runtime_error("Invalid scalar degree");
     const auto cells=cells_of(mesh),faces=faces_of(mesh);
     if (ranks < 1 || static_cast<std::size_t>(ranks) > cells.size()) throw std::runtime_error("Invalid partition count");
     if (cells.size() > static_cast<std::size_t>(std::numeric_limits<idx_t>::max()/Tet4Topology::nodes) ||
@@ -213,6 +216,11 @@ void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesys
             local.row_columns.insert(local.row_columns.end(), columns.begin(), columns.end()); local.row_offsets.push_back(local.row_columns.size());
         }
         save(local, filename(directory, rank));
+        if(scalar_degree==2) {
+            const std::vector<int> owners(cell_part.begin(),cell_part.end());
+            const auto space=prepare_scalar_p2_space(mesh,owners,local);
+            save_scalar_p2_space(directory,local,space);
+        }
     }
     std::ofstream marker(directory / "manifest.yaml");
     marker << "version: 1\nranks: " << ranks << "\nglobal_nodes: " << nn << "\nglobal_cells: " << ne << '\n';
@@ -287,5 +295,63 @@ MeshPartition read_partition(const std::filesystem::path& directory, int rank, i
     if (!valid_csr(mesh.row_offsets, mesh.owned_nodes, mesh.row_columns.size())) throw std::runtime_error("Invalid adjacency offsets");
     for (auto col : mesh.row_columns) if (col < 0 || col >= mesh.global_nodes) throw std::runtime_error("Invalid adjacency column");
     return mesh;
+}
+
+void save_scalar_p2_space(const std::filesystem::path& directory,const MeshPartition& mesh,const ScalarP2Space& space) {
+    H5Owner<H5Fclose> file(H5Fopen(filename(directory,mesh.rank).string().c_str(),H5F_ACC_RDWR,H5P_DEFAULT));
+    H5Owner<H5Gclose> group(H5Gcreate2(file.id,"scalar_p2",H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT));
+    const auto g=group.id;
+    write<GlobalId>(g,"meta",{1,space.global,space.begin,static_cast<GlobalId>(space.owned)});
+    write<std::uint64_t>(g,"mesh_fingerprint",{mesh.fingerprint});
+    std::vector<GlobalId> keys,offsets{0};std::vector<double> xyz;std::vector<int> tags,cells,boundaries;
+    for(const auto& k:space.entities)keys.insert(keys.end(),k.begin(),k.end());
+    for(const auto& x:space.points)xyz.insert(xyz.end(),x.begin(),x.end());
+    for(const auto& t:space.boundary_tags){tags.insert(tags.end(),t.begin(),t.end());offsets.push_back(tags.size());}
+    for(const auto& c:space.cells)cells.insert(cells.end(),c.begin(),c.end());
+    for(const auto& b:space.boundaries)boundaries.insert(boundaries.end(),b.begin(),b.end());
+    write(g,"entity_ids",space.entity_ids);write(g,"entities",keys);write(g,"points",xyz);write(g,"owners",space.owners);write(g,"algebra",space.algebra_ids);
+    write(g,"tag_offsets",offsets);write(g,"tags",tags);write(g,"cells",cells);write(g,"boundaries",boundaries);
+    write(g,"row_offsets",space.row_offsets);write(g,"row_columns",space.row_columns);
+}
+ScalarP2Space read_scalar_p2_space(const std::filesystem::path& directory,const MeshPartition& mesh) {
+    H5Owner<H5Fclose> file(H5Fopen(filename(directory,mesh.rank).string().c_str(),H5F_ACC_RDONLY,H5P_DEFAULT));
+    if(H5Lexists(file.id,"scalar_p2",H5P_DEFAULT)<=0)throw std::runtime_error("Missing P2 space: prepare partitions with scalar2d.degree=2");
+    H5Owner<H5Gclose> group(H5Gopen2(file.id,"scalar_p2",H5P_DEFAULT));const auto g=group.id;
+    const auto meta=read<GlobalId>(g,"meta");const auto hash=read<std::uint64_t>(g,"mesh_fingerprint");
+    if(meta.size()!=4||meta[0]!=1||meta[1]<1||meta[2]<0||meta[3]<0||meta[2]>meta[1]||meta[3]>meta[1]-meta[2]||hash.size()!=1||hash[0]!=mesh.fingerprint)
+        throw std::runtime_error("Invalid P2 space metadata");
+    ScalarP2Space s;s.global=meta[1];s.begin=meta[2];s.owned=meta[3];
+    const auto keys=read<GlobalId>(g,"entities"),offsets=read<GlobalId>(g,"tag_offsets");
+    const auto xyz=read<double>(g,"points");const auto tags=read<int>(g,"tags"),cells=read<int>(g,"cells"),boundaries=read<int>(g,"boundaries");
+    s.owners=read<int>(g,"owners");s.algebra_ids=read<GlobalId>(g,"algebra");
+    s.entity_ids=read<GlobalId>(g,"entity_ids");
+    const auto n=s.algebra_ids.size();
+    auto csr=[](const auto& p,std::size_t rows,std::size_t entries){return p.size()==rows+1&&p.front()==0&&p.back()==static_cast<GlobalId>(entries)&&std::is_sorted(p.begin(),p.end());};
+    if(n>static_cast<std::size_t>(s.global)||s.entity_ids.size()!=n||s.owned>n||keys.size()!=2*n||xyz.size()!=3*n||s.owners.size()!=n||!csr(offsets,n,tags.size())||cells.size()!=6*mesh.cells2.size()||boundaries.size()!=3*mesh.edges.size())
+        throw std::runtime_error("Invalid P2 space array sizes");
+    std::set<std::array<GlobalId,2>> identities;std::set<GlobalId> algebra;
+    for(std::size_t i=0;i<n;++i) {
+        const std::array<GlobalId,2> key{keys[2*i],keys[2*i+1]};
+        if(key[0]>key[1]||!identities.insert(key).second||!algebra.insert(s.algebra_ids[i]).second||s.algebra_ids[i]<0||s.algebra_ids[i]>=s.global||s.owners[i]<0||s.owners[i]>=mesh.ranks||
+           (i<s.owned&&(s.owners[i]!=mesh.rank||s.algebra_ids[i]!=s.begin+static_cast<GlobalId>(i)))||(i>=s.owned&&s.owners[i]==mesh.rank))throw std::runtime_error("Invalid P2 entity ownership");
+        Point x{xyz[3*i],xyz[3*i+1],xyz[3*i+2]};for(double v:x)if(!std::isfinite(v))throw std::runtime_error("Invalid P2 coordinates");
+        s.entities.push_back(key);s.points.push_back(x);s.boundary_tags.emplace_back(tags.begin()+offsets[i],tags.begin()+offsets[i+1]);
+    }
+    for(int v:cells)if(v<0||static_cast<std::size_t>(v)>=n)throw std::runtime_error("Invalid P2 cell index");
+    for(int v:boundaries)if(v<0||static_cast<std::size_t>(v)>=n)throw std::runtime_error("Invalid P2 boundary index");
+    for(std::size_t i=0;i<cells.size();i+=6){std::array<LocalId,6> c;std::copy_n(cells.begin()+i,6,c.begin());s.cells.push_back(c);}
+    for(std::size_t i=0;i<boundaries.size();i+=3){std::array<LocalId,3> b;std::copy_n(boundaries.begin()+i,3,b.begin());s.boundaries.push_back(b);}
+    auto check_entity=[&](LocalId index,LocalId a,LocalId b) {
+        std::array<GlobalId,2> expected{mesh.nodes.at(a).global_id,mesh.nodes.at(b).global_id};std::sort(expected.begin(),expected.end());
+        if(s.entities[index]!=expected)throw std::runtime_error("P2 connectivity does not match geometry");
+        for(int d=0;d<3;++d){const double expected_x=.5*mesh.nodes[a].position[d]+.5*mesh.nodes[b].position[d];if(std::abs(s.points[index][d]-expected_x)>1e-13*std::max(1.,std::abs(expected_x)))throw std::runtime_error("P2 midpoint does not match geometry");}
+        if(a==b&&s.entity_ids[index]!=expected[0])throw std::runtime_error("P2 vertex identity mismatch");
+    };
+    for(std::size_t i=0;i<s.cells.size();++i){const auto& c=mesh.cells2[i];if(c.vertices!=3)throw std::runtime_error("P2 requires Tri3 geometry");for(int a=0;a<3;++a){check_entity(s.cells[i][a],c.nodes[a],c.nodes[a]);check_entity(s.cells[i][a+3],c.nodes[a],c.nodes[(a+1)%3]);}}
+    for(std::size_t i=0;i<s.boundaries.size();++i){const auto& b=mesh.edges[i];check_entity(s.boundaries[i][0],b.nodes[0],b.nodes[0]);check_entity(s.boundaries[i][1],b.nodes[1],b.nodes[1]);check_entity(s.boundaries[i][2],b.nodes[0],b.nodes[1]);}
+    s.row_offsets=read<GlobalId>(g,"row_offsets");s.row_columns=read<GlobalId>(g,"row_columns");
+    if(!csr(s.row_offsets,s.owned,s.row_columns.size()))throw std::runtime_error("Invalid P2 sparse graph");
+    for(auto c:s.row_columns)if(c<0||c>=s.global)throw std::runtime_error("Invalid P2 sparse column");
+    return s;
 }
 } // namespace eonsim

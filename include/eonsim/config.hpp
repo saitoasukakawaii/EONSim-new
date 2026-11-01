@@ -113,6 +113,7 @@ struct ScalarBoundary {
     double robin_coefficient=0; ///< k grad(u).n + coefficient*u = value.
 };
 struct Scalar2DConfig {
+    int degree=1;
     bool transient=false;
     double diffusivity=1,capacity=1,dt=.01;
     int steps=10;

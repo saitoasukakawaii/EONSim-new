@@ -1,6 +1,8 @@
 {
   "schema": 1,
   "tests": {
+    "scalar_p2_verification": {"targets": ["eonsim"], "ranks": [1, 2]},
+    "p2_space_oracles": {"targets": ["verify_p2_space"], "ranks": [1]},
     "tri_p2_oracles": {"targets": ["verify_tri_p2"], "ranks": [1]},
     "ale_alpha_verification": {"targets": ["eonsim"], "ranks": [1, 2, 4]},
     "ale_time_verification": {"targets": ["eonsim"], "ranks": [1, 2, 4]},
@@ -64,6 +66,9 @@
     "time_retry_verification": {"targets": ["eonsim"], "ranks": [1, 2]}
   },
   "rules": [
+    {"paths": ["src/mesh/partition.cpp", "include/eonsim/mesh.hpp", "src/core/config.cpp", "include/eonsim/config.hpp", "src/main.cpp", "include/eonsim/dof_semantics.hpp", "include/eonsim/tri_p2.hpp", "CMakeLists.txt"], "tests": ["scalar_p2_verification", "p2_space_oracles", "tri_p2_oracles"], "python": []},
+    {"paths": ["tests/verify_scalar_p2.py", "src/physics/scalar_p2.cpp", "include/eonsim/scalar_p2_space.hpp", "src/fem/scalar_p2_space.cpp"], "tests": ["scalar_p2_verification"], "python": []},
+    {"paths": ["include/eonsim/scalar_p2_space.hpp", "src/fem/scalar_p2_space.cpp", "tests/verify_p2_space.cpp", "src/physics/scalar_p2.cpp"], "tests": ["p2_space_oracles", "tri_p2_oracles"], "python": []},
     {"paths": ["include/eonsim/tri_p2.hpp", "tests/verify_tri_p2.cpp"], "tests": ["tri_p2_oracles"], "python": []},
     {"paths": ["tests/test_profile_validation.py"], "tests": [], "python": ["tests/test_profile_validation.py"]},
     {"paths": ["tests/verify_ale_time.py"], "tests": ["ale_alpha_verification", "ale_time_verification"], "python": []},
