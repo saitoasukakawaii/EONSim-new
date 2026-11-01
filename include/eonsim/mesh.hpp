@@ -59,7 +59,7 @@ void initialize_serial_partition(MeshPartition& mesh);
 /** @brief 串行离线 METIS 分区并写出每 rank 的 HDF5 输入；不参与求解循环。
  * @throws std::runtime_error 输入、METIS 或文件失败。manifest.yaml 最后写入。
  */
-void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesystem::path& directory);
+void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesystem::path& directory, int scalar_degree=1);
 
 /// 只读取指定 rank 的文件；校验格式、所有权布局和 communicator 大小，不读全局网格。
 MeshPartition read_partition(const std::filesystem::path& directory, int rank, int ranks);

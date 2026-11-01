@@ -175,3 +175,13 @@ DOCS-01 交付补记：已通过 [PR #25](https://github.com/saitoasukakawaii/EO
 ## CI-INCREMENTAL-01 / 2026-10-31
 
 [PR 增量 CI 与证据复用草稿](../../website/drafts/incremental-ci-and-evidence-reuse.md)：基线 ef20e03，开发分支 codex/pr-incremental-ci。说明路径映射、精确测试清单、同 PR 成功证据与必需检查状态的边界；PR #26 待审；本地脚本检查、云端 Debug/Release 各一项 Poisson 和后续文档提交的零构建/零数值运行复用均已验证，见 [initial.json](data/ci-incremental-2026-10-31/initial.json)及[reuse.json](data/ci-incremental-2026-10-31/reuse.json)。无性能结论，不发布。
+
+
+### FEM-G2A 局部检查点
+
+P2 参考三角形六节点插值、六个多项式的值/梯度重现及反向边迹已通过直接 C++17 编译验证。源码为本条所属提交；命令与范围见 CODEX_SESSION_LOG 的 FEM-G2A 记录。尚无生产求解、MPI 或收敛证据，完整知识草稿待闭环完成后形成。
+
+
+### 2026-11-01 — FEM-G2A 共享边空间
+
+[草稿](../../website/drafts/p2-edge-space-poisson.md)：源码 edfc73c，参考基函数、离线实体空间与 P2 稳态 Poisson 已实现；本地 Debug PETSc 3.23.7、1/2 rank patch/收敛/失败证据见 data/p2-2026-11-01。理论、实现与实际验证分列，未测性能，PR #27 云端 Debug/Release 各 19 项相关检查通过，实际 merge preview 60ee8e26；证据 data/p2-2026-11-01/cloud.json，文章不发布。

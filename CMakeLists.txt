@@ -49,6 +49,7 @@ add_library(eonsim_core
     src/mesh/mesh_import.cpp
     src/mesh/fsi_domains.cpp
     src/mesh/partition.cpp
+    src/fem/scalar_p2_space.cpp
     src/fem/tet4.cpp
     src/fem/boundary_geometry.cpp
     src/fem/field_layout.cpp
@@ -68,6 +69,7 @@ add_library(eonsim_core
     src/physics/fluid.cpp
     src/physics/fluid_boundary.cpp
     src/physics/poisson.cpp
+    src/physics/scalar_p2.cpp
     src/physics/scalar2d.cpp
     src/io/checkpoint.cpp
     src/io/vtu.cpp
@@ -144,6 +146,18 @@ if(BUILD_TESTING)
     add_executable(verify_boundary_geometry tests/verify_boundary_geometry.cpp)
     target_link_libraries(verify_boundary_geometry PRIVATE eonsim_core)
     add_test(NAME boundary_geometry COMMAND verify_boundary_geometry)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME scalar_p2_verification COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_scalar_p2.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/scalar-p2")
+    set_tests_properties(scalar_p2_verification PROPERTIES TIMEOUT 240 PROCESSORS 2 LABELS "core;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_executable(verify_p2_space tests/verify_p2_space.cpp src/fem/scalar_p2_space.cpp)
+    target_include_directories(verify_p2_space PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    add_test(NAME p2_space_oracles COMMAND verify_p2_space)
+    add_executable(verify_tri_p2 tests/verify_tri_p2.cpp)
+    target_include_directories(verify_tri_p2 PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    add_test(NAME tri_p2_oracles COMMAND verify_tri_p2)
+    set_tests_properties(tri_p2_oracles PROPERTIES LABELS "core;rank-1")
     add_executable(verify_element2d tests/verify_element2d.cpp)
     target_link_libraries(verify_element2d PRIVATE eonsim_core)
     add_test(NAME element2d_oracles COMMAND verify_element2d)

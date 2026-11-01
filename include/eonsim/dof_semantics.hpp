@@ -5,7 +5,7 @@
 namespace eonsim {
 enum class DofDomain : std::uint8_t { fluid, solid, mesh, scalar };
 enum class DofQuantity : std::uint8_t { velocity, pressure, displacement, scalar_value };
-enum class DofEntity : std::uint8_t { vertex, body };
+enum class DofEntity : std::uint8_t { vertex, body, edge };
 /** Identity in one layout's mesh namespace (not a restart identifier).
  * entity is the imported/joined mesh ID, never MPI rank or algebra row.
  * Tet4 vertex P1 uses mode=0, space=1; the global rigid scalar uses space=0.

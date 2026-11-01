@@ -338,8 +338,10 @@ Config read_config(const std::filesystem::path& path)
             throw std::runtime_error("Invalid FSI parameters");
     }
     if(const auto f=root["scalar2d"]) {
-        keys(f,{"mode","diffusivity","capacity","dt","steps","manufactured","manufactured_rate","source","initial","boundaries","regions"},"scalar2d");
+        keys(f,{"degree","mode","diffusivity","capacity","dt","steps","manufactured","manufactured_rate","source","initial","boundaries","regions"},"scalar2d");
         auto& c=config.scalar2d;
+        if(f["degree"])c.degree=f["degree"].as<int>();
+        if(c.degree!=1&&c.degree!=2)throw std::runtime_error("scalar2d.degree must be 1 or 2");
         const auto mode=f["mode"].as<std::string>();
         if(mode=="diffusion")c.transient=true;
         else if(mode!="poisson")throw std::runtime_error("scalar2d.mode must be poisson or diffusion");
@@ -378,6 +380,12 @@ Config read_config(const std::filesystem::path& path)
             else if(b["value"])throw std::runtime_error("Manufactured boundary values are generated from the exact solution");
             c.boundaries.push_back(bc);
         }
+    }
+    if(config.scalar2d_problem&&config.scalar2d.degree==2) {
+        const auto& c=config.scalar2d;bool anchored=false;
+        if(c.transient||!c.regions.empty())throw std::runtime_error("P2 supports steady uniform-coefficient Poisson only");
+        for(const auto& b:c.boundaries){if(b.type==ScalarBoundary::Type::robin)throw std::runtime_error("P2 Robin is not supported");anchored|=b.type==ScalarBoundary::Type::dirichlet;}
+        if(!anchored)throw std::runtime_error("P2 requires a Dirichlet boundary");
     }
     if (const auto solver = root["solver"]) {
         keys(solver, {"relative_tolerance", "absolute_tolerance", "maximum_iterations", "fields", "pc_recipe"}, "solver");

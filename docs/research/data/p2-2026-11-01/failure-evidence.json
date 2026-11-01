@@ -1,0 +1,12 @@
+{
+  "source_commit": "edfc73c90489764962110acbb93bfdcc168c2b4b",
+  "command": "python3 build/p2-local/check_corruption.py",
+  "mode": "Debug",
+  "petsc": "3.23.7",
+  "ranks": 2,
+  "results": {
+    "missing": "rank-1 corruption rejected; no successful index",
+    "connectivity": "rank-1 corruption rejected; no successful index",
+    "owner": "rank-1 corruption rejected; no successful index"
+  }
+}
