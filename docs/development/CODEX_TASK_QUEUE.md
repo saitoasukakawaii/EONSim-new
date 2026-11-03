@@ -4,7 +4,7 @@
 
 ## FSI-LOAD-01 / review
 
-用户授权：平滑周期压力驱动的单体 FSI、响应 CSV、流固时间序列及针对性验证。基线 `417e6f9`，分支 `codex/fsi-periodic-pressure`；验收及记录完成后才创建 PR。10 小时为工程量估计。实现 `a6c6761`；Debug/Release 针对性检查与双 rank 示例已通过，等待 PR 审查，未合并。证据见 [验收记录](../research/data/fsi-pressure-2026-11-03/README.md)。
+用户授权：平滑周期压力驱动的单体 FSI、响应 CSV、流固时间序列及针对性验证。基线 `417e6f9`，分支 `codex/fsi-periodic-pressure`；验收及记录完成后才创建 PR。10 小时为工程量估计。实现 `a6c6761`；Debug/Release 针对性检查与双 rank 示例已通过，已创建 [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31)，云端 Debug/Release 各 24/24 与网站检查通过；等待审查，未合并。证据见 [验收记录](../research/data/fsi-pressure-2026-11-03/README.md)。
 
 ## 状态定义
 

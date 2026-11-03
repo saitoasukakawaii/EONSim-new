@@ -57,3 +57,10 @@ BE h=.00025/.000125/.0000625；BDF2/alpha h=.0005/.00025/.000125，alpha rho=.5�
 - Release 编译在未修改的 `pc_plan.cpp` 出现 GCC `-Wfree-nonheap-object` 警告；编译成功，本任务没有修复或归因为已确认误报。
 
 没有运行全量、PETSc 3.19.6、新增 4 rank 或性能测量。其他模块历史证据不计入本次通过数。
+
+## PR 云端验收
+
+[PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31) 在上述本地验收及记录完成后创建，未自动合并。
+[数值 run 41589294783](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41589294783) success，主锁 Debug/Release 各 24/24，零失败/跳过。旧锁按策略 skipped。
+[网站 run 41589294782](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41589294782) success。
+检验 PR head `38a83c9` 的合并预览 `6bed816adfa8090d174c335da36b283b47d25f87`；精简实际日志摘要见 [ci.json](ci.json)。原始 artifacts 保留 14 天。既有相关回归包含最多 4 rank；新增压力验证仍为 1/2 rank。

@@ -32,7 +32,7 @@ alpha 启动步沿用 BE。重试从同一 accepted 时间重新评价压力。
 `output_interval=0`（默认）仅保留原最终场。正整数启用历史：
 
 - `<stem>.csv`：每个已接受步一行，不含初态或拒绝步。
-- `<stem>_step<N>.vtu`：每隔 N 的配置间隔以及本次运行的终点输出；MPI 使用 rank 片和 PVTU。
+- `<stem>_step<N>.vtu`：N 为已接受步号；按配置间隔以及本次运行的终点输出；MPI 使用 rank 片和 PVTU。
 - `<stem>.pvd` 与 `<stem>_solid.pvd`：流体和弹性固体的实际时间序列，包含变形网格、已有场与适用算法历史。
 - 原 `<stem>.vtu` 和 `<stem>_solid.vtu` 最终场保持兼容。
 

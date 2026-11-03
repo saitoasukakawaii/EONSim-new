@@ -532,3 +532,7 @@ BE 粗步未达门槛后细化，保持原阶数标准；其他初期失败为�
 
 使用 eonsim-knowledge-capture，形成 [阶段载荷与接受历史草稿](../../website/drafts/fsi-periodic-pressure-history.md)，未发布。
 进度/队列/知识索引同步，任务 review；所有本地验收及记录完成后才创建 PR，未自动合并。
+
+本地验收与记录提交 `38a83c9` 后创建 [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31)。自动增量 CI 数值 run `41589294783`，网站 run `41589294782`，开始时均 in_progress；最终结果另行记录。
+
+云端数值 run `41589294783` 最终 success：PETSc 3.23.7 Debug/Release 各 24/24、零失败/跳过；3.19.6 按策略 skipped。网站 run `41589294782` success。数值检验提交为合并预览 `6bed816adfa8090d174c335da36b283b47d25f87`，PR head `38a83c9`，不是已合并 main。精简日志摘要见 [ci.json](../research/data/fsi-pressure-2026-11-03/ci.json)。仅补记录，不重跑本地检查。

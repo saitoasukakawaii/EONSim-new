@@ -218,3 +218,5 @@ FEM-G2C 云端补验：[PR #29](https://github.com/saitoasukakawaii/EONSim-new/p
 - 实现：`a6c6761084f2003c72593107c6aa5cbc351d75bb`；理论为项目阶段时间约定与 smoothstep 多项式，代码为候选步压力及集体输出阶段。
 - 验证：[PETSc 3.23.7 Debug/Release 本地证据](data/fsi-pressure-2026-11-03/README.md)，含 1/2 rank、时间精度、恢复、实际缩步、I/O 失败及完整装配切线。
 - 复用教训：评价时间与终点量不能混记；双域节点 owner 与本地域单元存在性不同；粗步未进渐近区不能放宽精度门槛。无性能或生产规模结论。
+
+FSI-LOAD-01 补充：PR #31 云端主锁 Debug/Release 各 24/24 与网站检查通过；[CI 摘要](data/fsi-pressure-2026-11-03/ci.json)。草稿仍未发布。
