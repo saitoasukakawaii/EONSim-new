@@ -4,9 +4,9 @@
 
 ## FSI-NEXT-02 当前检查点 / 2026-11-03
 
-实现 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`，基线 main `b2755b6`，独立分支 `codex/fsi-next-02-periodic-flow`。周期离散总流量入口、无滑移弹性壁通道与独立表面/体积质量诊断已实现，本地验收和自审完成；状态 review，尚未创建 PR，不自动合并。
+实现 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`，基线 main `b2755b6`，独立分支 `codex/fsi-next-02-periodic-flow`。周期离散总流量入口、无滑移弹性壁通道与独立表面/体积质量诊断已实现，本地验收和自审完成；状态 review，[PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33) 已完成自动CI，未合并，不自动合并。[数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424335) Debug/Release各29/29通过，零失败/零跳过；[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424264)通过。
 Debug/Release 新 flow 各1/1与旧入口/压力各2项通过；三时间格式、1/2 rank、恢复、非法输入、整体Jv、真实9次缩步重放及零形状拒绝均有证据。Release 六周期、三网格/三步长最大阶段质量残差3.08e-16；累计体积误差随dt减小。空间渐近收敛及严格周期稳态尚未证明，不作性能或大规模结论。
-[能力说明](FSI_PERIODIC_FLOW.md)、[完整验收与失败记录](../research/data/fsi-flow-2026-11-03/README.md)。本地与API提交tree一致；不把元数据差异视为数值结果变化。下文 FSI-NEXT-01 状态文字是历史检查点，当前基线已经包含其实现。
+[能力说明](FSI_PERIODIC_FLOW.md)、[完整验收与失败记录](../research/data/fsi-flow-2026-11-03/README.md)。本地与API提交tree一致；不把元数据差异视为数值结果变化。FSI-NEXT-01 已经 PR #32 合入 `b2755b6`；下文其未合并描述仅是历史检查点。
 
 ## 历史集成交付：G0B → G0 → G5 → G1 已合入 main
 
@@ -55,7 +55,7 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 | G0B/G0语义DoF与三recipe | 已合入 main（PR #23） | DoF语义、物理验收与三种PC树已完成集成验证；不代表生产内存重排 |
 | PETSc CI 与持续知识积累规则 | 已合入 main（PR #24） | 日常仅 PETSc 3.23.7 Debug/Release；3.19.6 手动专项；AGENTS 与状态/知识文件同步更新 |
 
-## 当前焦点
+## FSI-NEXT-01 及此前任务的历史检查点
 
 FSI-NEXT-01：基线 `06b05c4`，分支 `codex/fsi-inlet-reliability`，生产实现 `0d93d41`/`69692ee`，最终研究脚本 `32783a5`。固定非零速度入口、弹性顶壁、分布式面积观测与阶段/终点几何检查已完成。本地 PETSc 3.23.7 Debug/Release 各 5 项（4 项主检查 + 1 项旧弹性体补验） 定向检查通过；分场时间研究通过，空间轨迹的时间差/最后空间差为 9.51%；Release 性能完成 10 预热 + 30 正式样本，最多 4 rank。小网格直接法更快，较大网格分块内存更低但无稳定加速结论。全部本地验收与记录完成后创建 PR，尚未合并。见 [能力契约](FSI_INLET_AND_RELIABILITY.md) 与 [验收记录](../research/data/fsi-next-2026-11-03/README.md)。
 
@@ -98,7 +98,7 @@ DOCS-01 的开发分支 `codex/markdown-progress-audit` 已合并；范围、逐
 - PR #13：非线性装配阶段计时。Release 3 项、Debug 2 项针对性测试通过；未运行重复性能基准。
 - PR #24（已合并）：PETSc 3.19.6 从日常矩阵移出；新增持续知识积累项目级规则。
 
-## 当前检查点
+## FSI-NEXT-01 合并前检查点（历史）
 
 FSI-NEXT-01 本地实施与数值研究完成，源码/脚本 `32783a5`；PR 与云端选测状态后续补记。
 当前 main 为 `06b05c4`；未运行全量或历史锁；知识文章保留草稿。

@@ -1,6 +1,6 @@
 # FSI-NEXT-02 本地验收
 
-2026-11-03；基线 `b2755b671ebffc4ad858d560214d4a7377eaf05e`，实现 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`，分支 `codex/fsi-next-02-periodic-flow`。本地代码审查与本节验收完成；PR/CI 后续单独记录，不自动合并。
+2026-11-03；基线 `b2755b671ebffc4ad858d560214d4a7377eaf05e`，实现 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`，分支 `codex/fsi-next-02-periodic-flow`。本地代码审查与本节验收完成后创建唯一 [PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33)；[数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424335) Debug/Release各29/29通过，零失败/零跳过；[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424264)通过。 未合并，不自动合并。
 20 小时是预算上限，不是实际运行时间或通过证据。未能检索到此前计划原文；本次具体验收条目见队列和 [能力说明](../../../development/FSI_PERIODIC_FLOW.md)。
 
 ## 环境和构建
@@ -81,3 +81,9 @@ python scripts/study_fsi_flow.py --executable build/cloud-3.23.7-release/eonsim 
 - 新诊断与求解时间层一致，拒绝前不提交；恢复从 accepted 位移重算旧体积。
 - Jv/恢复/非法参数/几何与无滑移有实际检查；没有调松容差隐藏失败。
 - 选测映射与新增测试匹配；研究脚本不进入默认性能矩阵；草稿不发布；长期架构契约未改变，无需改架构文档。
+
+## PR 自动 CI 交付证据
+
+`delivery-ci.json` 保存 PR head `a9d9093626a70db070527534fa2c39085682efb2`、合并预览 `10fb26733432f7c0a5a27d4fe31b5dfdcb6106ba`、job ID与实际计数。预览tree与本地head相同，都是 `9a9d31386b38c649092e720061a74f7785f95f57`。数值run `41626424335`、网站run `41626424264` 均成功，增量证据登记成功；旧3.19.6按策略skipped，不计入29项通过。
+
+随后只补状态/证据文档，不改生产代码、测试、依赖、基线和选测规则；该提交复用同PR成功数值证据，不能写成重新运行29项。没有额外PR、main合并或知识稿发布。
