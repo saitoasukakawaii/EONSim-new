@@ -4,6 +4,10 @@
 #include "eonsim/ale.hpp"
 namespace eonsim {
 struct FsiResult { MeshPartition current_mesh,solid_mesh; std::vector<PointField> fields,solid_fields; double position=0,velocity=0,fluid_force=0,balance=0; };
+/// Pressure at absolute evaluation time; no trial-state dependence.
+double fsi_pressure(const FsiConfig& config,double time);
+/// Collective local-piece write followed by index publication; fatal errors synchronize.
+void write_fsi_fields(MPI_Comm comm,const std::filesystem::path& path,const FsiResult& result);
 /// collective；界面速度/位移被消元，网格界面测试行被丢弃；仅整体收敛后提交。
 FsiResult solve_fsi(MPI_Comm comm,const MeshPartition& mesh,const Config& config);
 }

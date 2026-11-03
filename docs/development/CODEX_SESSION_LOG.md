@@ -515,3 +515,24 @@ PR #28 的 run 41287626201 成功，实际 merge preview bbf494b84af62b904a78213
 ### FEM-G2C 远端合并与补记竞态
 
 最终状态查询发现 PR #29 已在 2026-11-03T05:16:50Z 合并，merge commit 为 dff911648e54507e9cca80ad1880c20b867a0c75，实际合并 head 为 e5900a1；本 agent 未调用合并工具。补记 87f6df0 在该时间之后推送到原分支，没有进入已关闭 PR，因此查不到它对应的新 PR CI，不属于检查失败或绕过。修正队列为 done；最终证据与合并状态单独提交纯文档补记 PR，不修改数值源码，不重跑历史已通过检查。
+
+
+## 2026-11-03 / FSI-LOAD-01：时变压力与接受步历史
+
+用户批准计划后执行；先 fetch origin，基线 `417e6f9`，独立分支 `codex/fsi-periodic-pressure`。
+实现提交 `a6c6761084f2003c72593107c6aa5cbc351d75bb`。
+新增 smoothstep 启动正弦压力、共同阶段评价、缩步重算和波形签名；
+抽取既有场重建实现接受步 CSV/流固 PVD，集体传播写出失败，保留最终场路径。
+
+实际验收命令、配置、rank、误差和失败尝试见 [本地验收](../research/data/fsi-pressure-2026-11-03/README.md)。
+Debug state/convergence 直接脚本通过，局部切线/刚体 CTest 2/2；Release convergence 直接脚本通过，state/局部切线/刚体 CTest 3/3。
+Python CI 选择器 26/26。Release 双 rank 示例 100 步完成，并实际生成检查响应图。
+BE 粗步未达门槛后细化，保持原阶数标准；其他初期失败为测试配置/比较器/错误字符串问题，具体根因已归档。
+未执行全量、旧 PETSc、新 4 rank 或性能基准；10 小时是计划估计，不宣称实际运行 10 小时。
+
+使用 eonsim-knowledge-capture，形成 [阶段载荷与接受历史草稿](../../website/drafts/fsi-periodic-pressure-history.md)，未发布。
+进度/队列/知识索引同步，任务 review；所有本地验收及记录完成后才创建 PR，未自动合并。
+
+本地验收与记录提交 `38a83c9` 后创建 [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31)。自动增量 CI 数值 run `41589294783`，网站 run `41589294782`，开始时均 in_progress；最终结果另行记录。
+
+云端数值 run `41589294783` 最终 success：PETSc 3.23.7 Debug/Release 各 24/24、零失败/跳过；3.19.6 按策略 skipped。网站 run `41589294782` success。数值检验提交为合并预览 `6bed816adfa8090d174c335da36b283b47d25f87`，PR head `38a83c9`，不是已合并 main。精简日志摘要见 [ci.json](../research/data/fsi-pressure-2026-11-03/ci.json)。仅补记录，不重跑本地检查。

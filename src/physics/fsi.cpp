@@ -12,8 +12,61 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <fstream>
+#include <limits>
 #include <stdexcept>
 namespace eonsim {
+namespace {
+// Each phase contains only local work; propagate its first failure before peers
+// enter another collective or publish an index. I/O is fatal, never StepRejected.
+template<class Work> void output_stage(MPI_Comm comm,const char* phase,const Work& work) {
+    int rank; MPI_Comm_rank(comm,&rank); std::string error;
+    try {work();} catch(const std::exception& e) {error=e.what();}
+    int failed=error.empty()?std::numeric_limits<int>::max():rank,first;
+    MPI_Allreduce(&failed,&first,1,MPI_INT,MPI_MIN,comm);
+    if(first==std::numeric_limits<int>::max()) return;
+    int length=static_cast<int>(error.size()); MPI_Bcast(&length,1,MPI_INT,first,comm);
+    error.resize(length); MPI_Bcast(error.data(),length,MPI_CHAR,first,comm);
+    throw std::runtime_error(std::string("FSI ")+phase+" failed on rank "+std::to_string(first)+": "+error);
+}
+std::string xml_filename(const std::string& text) {
+    std::string out;
+    for(char c:text) switch(c) {
+        case '&':out+="&amp;";break;case '<':out+="&lt;";break;case '>':out+="&gt;";break;
+        case '\"':out+="&quot;";break;case '\'':out+="&apos;";break;default:out+=c;
+    }
+    return out;
+}
+void publish_series(const std::filesystem::path& path,const std::vector<std::pair<double,std::string>>& entries) {
+    std::ofstream out; out.exceptions(std::ios::badbit|std::ios::failbit); out.open(path.string()+".tmp");
+    out<<std::setprecision(17)<<"<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\"><Collection>\n";
+    for(const auto& e:entries) out<<"<DataSet timestep=\""<<e.first<<"\" file=\""<<xml_filename(e.second)<<"\"/>\n";
+    out<<"</Collection></VTKFile>\n"; out.close(); std::filesystem::rename(path.string()+".tmp",path);
+}
+}
+double fsi_pressure(const FsiConfig& config,double time) {
+    if(!config.pressure_time) return config.pressure;
+    const auto& p=*config.pressure_time;
+    const double x=p.ramp_time>0?std::clamp(time/p.ramp_time,0.,1.):1.;
+    const double scale=x*x*x*(10+x*(-15+6*x));
+    // Reduce before multiplying by 2*pi so finite small periods do not overflow.
+    const double pressure=scale*(config.pressure+p.amplitude*std::sin(2*std::acos(-1.)*(std::fmod(time,p.period)/p.period)));
+    if(!std::isfinite(pressure)) throw std::runtime_error("Nonfinite FSI pressure");
+    return pressure;
+}
+void write_fsi_fields(MPI_Comm comm,const std::filesystem::path& path,const FsiResult& result) {
+    const auto solid=path.parent_path()/(path.stem().string()+"_solid.vtu");
+    output_stage(comm,"piece write",[&] {
+        write_fields(path,result.current_mesh,result.fields);
+        if(!result.solid_fields.empty()) write_fields(solid,result.solid_mesh,result.solid_fields);
+    });
+    output_stage(comm,"index publication",[&] {
+        if(result.current_mesh.rank!=0) return;
+        write_field_index(path,result.current_mesh.ranks,result.fields);
+        if(!result.solid_fields.empty()) write_field_index(solid,result.current_mesh.ranks,result.solid_fields);
+    });
+}
+
 template<bool Elastic>
 FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& config)
 {
@@ -92,6 +145,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         signature_values.insert(signature_values.end(),{20504.,double(config.time_control.step_sizes.size())});
         signature_values.insert(signature_values.end(),config.time_control.step_sizes.begin(),config.time_control.step_sizes.end());
     }
+    if(f.pressure_time) signature_values.insert(signature_values.end(),{20505.,f.pressure_time->amplitude,f.pressure_time->period,f.pressure_time->ramp_time});
     const auto signature=state_signature(mesh,dual?"fsi_dual":"fsi",signature_values);
     TimeStepper clock(f.dt,f.steps,config.time_control);
     if(!config.restart.empty()) {
@@ -122,6 +176,48 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         }
         if(!clock.active(config.stop_after)) throw std::runtime_error("Restart must precede requested final step");
     }
+    const auto snapshot=[&] {
+        result.current_mesh=mesh;
+        result.fields={{"velocity",Space3::dimension,{}},{"pressure",1,{}},{"mesh_displacement",Space3::dimension,{}}};
+        if(Elastic) { result.solid_mesh=mesh; result.solid_fields={{"velocity",Space3::dimension,{}},{"displacement",Space3::dimension,solid_d}}; }
+        if(alpha) {
+            result.fields.push_back({"mesh_velocity",Space3::dimension,mesh_velocity});
+            result.fields.push_back({"fluid_algorithmic_acceleration",Space3::dimension,fluid_rate});
+            result.fields.push_back({"mesh_algorithmic_acceleration",Space3::dimension,mesh_acceleration});
+            if(Elastic) result.solid_fields.push_back({"algorithmic_acceleration",Space3::dimension,solid_acceleration});
+        }
+        for(std::size_t n=0;n<mesh.nodes.size();++n) {
+            for(int c=0;c<Space3::dimension;++c) {
+                result.fields[0].values.push_back(physical[nc*n+c]); result.fields[2].values.push_back(physical[Layout::dof(n,Layout::mesh_offset+c)]);
+                result.current_mesh.nodes[n].position[c]+=physical[Layout::dof(n,Layout::mesh_offset+c)];
+                if(Elastic) {
+                    result.solid_fields[0].values.push_back(physical[Layout::dof(n,Layout::structure_offset+c)]);
+                    result.solid_mesh.nodes[n].position[c]=(!dual&&c==0?1+f.thickness*(1-mesh.nodes[n].position[0]):mesh.nodes[n].position[c])+solid_d[Tet4Vector::components*n+c];
+                }
+            }
+            result.fields[1].values.push_back(physical[Layout::dof(n,Layout::pressure)]);
+        }
+        if(Elastic&&!dual) for(auto& cell:result.solid_mesh.cells) std::swap(cell.nodes[1],cell.nodes[2]);
+        if(dual) {
+            auto filter=[&](MeshPartition& output,int region) {
+                output.cells.erase(std::remove_if(output.cells.begin(),output.cells.end(),[&](const auto& c){return c.physical_tag!=region;}),output.cells.end());
+                output.boundary.erase(std::remove_if(output.boundary.begin(),output.boundary.end(),[&](const auto& face){ for(auto n:face.nodes) if(!node_in_region(mesh,n,region)) return true; return false; }),output.boundary.end());
+            };
+            filter(result.current_mesh,f.domains.fluid_region); filter(result.solid_mesh,f.domains.solid_region);
+        }
+    };
+    const std::string history_stem=config.output.stem().string()+(config.restart.empty()?"":"_restart"+std::to_string(clock.step));
+    const auto history_path=[&](const std::string& suffix) {return config.output.parent_path()/(history_stem+suffix);};
+    std::ofstream history;
+    std::vector<std::pair<double,std::string>> fluid_series,solid_series;
+    if(f.output_interval>0) output_stage(comm,"history open",[&] {
+        if(mesh.rank!=0) return;
+        if(!config.output.parent_path().empty()) std::filesystem::create_directories(config.output.parent_path());
+        history.exceptions(std::ios::badbit|std::ios::failbit);
+        history.open(history_path(".csv")); history<<std::setprecision(17);
+        history<<"step,time,accepted_dt,evaluation_time,applied_pressure,endpoint_position,endpoint_velocity,evaluation_fluid_force,evaluation_body_balance,evaluation_interface_power,evaluation_body_power,evaluation_power_balance,snes_iterations,residual,time_order\n";
+        history.flush();
+    });
     NonlinearSystem system(comm,layout);
     while(clock.active(config.stop_after)) {
         if(bdf2&&physical_history.previous_dt>0) clock.next_dt=std::min(clock.next_dt,2*physical_history.previous_dt);
@@ -130,6 +226,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         const bool alpha_step=alpha&&alpha_ready;
         const AlphaStep fluid_map(dt,config.time_integration.rho_infinity,false),solid_map(dt,config.time_integration.rho_infinity,true);
         const double af=alpha_step?fluid_map.p.alpha_f:1;
+        const double evaluation_time=clock.time+af*dt;
+        const double pressure=fsi_pressure(f,evaluation_time);
         const double integration_dt=alpha_step?fluid_map.effective_dt():derivative.effective_dt;
         const double solid_dt=alpha_step?solid_map.effective_dt():derivative.effective_dt;
         const double mesh_dt=alpha_step?solid_map.displacement_dt():derivative.effective_dt;
@@ -181,6 +279,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             const double tau=f.stabilization_tau.value_or(1/std::sqrt(4*f.density*f.density/(integration_dt*integration_dt)+4*f.density*f.density*speed2/(h*h)+16*f.viscosity*f.viscosity/(h*h*h*h)));
             data[e].fluid={f.density,f.viscosity,integration_dt,tau,true};
             data[e].mesh_dt=mesh_dt;
+            data[e].inlet_pressure=pressure;
         }
         // 相同局部残量同时用于 SNES 装配和收敛后界面力检查。
         const auto local_residual=[&](std::size_t e,const std::vector<double>& full,bool tangent,
@@ -354,8 +453,32 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             }
             write_checkpoint(comm,config.checkpoint,mesh,signature,saved);
         }
+        if(f.output_interval>0) {
+            if(step%f.output_interval==0||!clock.active(config.stop_after)) {
+                output_stage(comm,"snapshot extraction",snapshot);
+                const auto path=history_path("_step"+std::to_string(step)+".vtu");
+                write_fsi_fields(comm,path,result);
+                output_stage(comm,"series publication",[&] {
+                    if(mesh.rank!=0) return;
+                    const auto suffix=mesh.ranks>1?".pvtu":".vtu";
+                    fluid_series.emplace_back(time,path.stem().string()+suffix);
+                    publish_series(history_path(".pvd"),fluid_series);
+                    if(Elastic) {
+                        solid_series.emplace_back(time,path.stem().string()+"_solid"+suffix);
+                        publish_series(history_path("_solid.pvd"),solid_series);
+                    }
+                });
+            }
+            output_stage(comm,"history row",[&] {
+                if(mesh.rank!=0) return;
+                history<<step<<','<<time<<','<<dt<<','<<evaluation_time<<','<<pressure<<','<<result.position<<','<<result.velocity<<','
+                    <<result.fluid_force<<','<<result.balance<<','<<global[2]<<','<<body_power<<','<<body_power-global[2]<<','
+                    <<solved.iterations<<','<<solved.residual_norm<<','<<(alpha_step?2:derivative.order)<<'\n';
+                history.flush();
+            });
+        }
         const std::string stage=alpha?"stage_":"";
-        if(mesh.rank==0) std::cout << std::setprecision(17) << "fsi_step=" << step << " time=" << time << " accepted_dt=" << dt << " evaluation_time=" << time-(1-af)*dt
+        if(mesh.rank==0) std::cout << std::setprecision(17) << "fsi_step=" << step << " time=" << time << " accepted_dt=" << dt << " evaluation_time=" << evaluation_time << " applied_pressure=" << pressure
             << " position=" << result.position << " velocity=" << result.velocity << " " << stage << "fluid_force=" << result.fluid_force
             << " " << stage << "body_balance=" << result.balance << " snes_iterations=" << solved.iterations
             << " " << stage << "interface_power=" << global[2] << " " << stage << "body_power=" << body_power << " " << stage << "power_balance=" << body_power-global[2]
@@ -365,33 +488,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             if(mesh.rank==0) std::cout << "step_retry=" << clock.retries << " time=" << clock.time << " next_dt=" << clock.next_dt << '\n';
         }
     }
-    result.fields={{"velocity",Space3::dimension,{}},{"pressure",1,{}},{"mesh_displacement",Space3::dimension,{}}};
-    if(Elastic) { result.solid_mesh=mesh; result.solid_fields={{"velocity",Space3::dimension,{}},{"displacement",Space3::dimension,solid_d}}; }
-    if(alpha) {
-        result.fields.push_back({"mesh_velocity",Space3::dimension,mesh_velocity});
-        result.fields.push_back({"fluid_algorithmic_acceleration",Space3::dimension,fluid_rate});
-        result.fields.push_back({"mesh_algorithmic_acceleration",Space3::dimension,mesh_acceleration});
-        if(Elastic) result.solid_fields.push_back({"algorithmic_acceleration",Space3::dimension,solid_acceleration});
-    }
-    for(std::size_t n=0;n<mesh.nodes.size();++n) {
-        for(int c=0;c<Space3::dimension;++c) {
-            result.fields[0].values.push_back(physical[nc*n+c]); result.fields[2].values.push_back(physical[Layout::dof(n,Layout::mesh_offset+c)]);
-            result.current_mesh.nodes[n].position[c]+=physical[Layout::dof(n,Layout::mesh_offset+c)];
-            if(Elastic) {
-                result.solid_fields[0].values.push_back(physical[Layout::dof(n,Layout::structure_offset+c)]);
-                result.solid_mesh.nodes[n].position[c]=(!dual&&c==0?1+f.thickness*(1-mesh.nodes[n].position[0]):mesh.nodes[n].position[c])+solid_d[Tet4Vector::components*n+c];
-            }
-        }
-        result.fields[1].values.push_back(physical[Layout::dof(n,Layout::pressure)]);
-    }
-    if(Elastic&&!dual) for(auto& cell:result.solid_mesh.cells) std::swap(cell.nodes[1],cell.nodes[2]);
-    if(dual) {
-        auto filter=[&](MeshPartition& output,int region) {
-            output.cells.erase(std::remove_if(output.cells.begin(),output.cells.end(),[&](const auto& c){return c.physical_tag!=region;}),output.cells.end());
-            output.boundary.erase(std::remove_if(output.boundary.begin(),output.boundary.end(),[&](const auto& face){ for(auto n:face.nodes) if(!node_in_region(mesh,n,region)) return true; return false; }),output.boundary.end());
-        };
-        filter(result.current_mesh,f.domains.fluid_region); filter(result.solid_mesh,f.domains.solid_region);
-    }
+    if(f.output_interval>0) output_stage(comm,"history close",[&] {if(mesh.rank==0) history.close();});
+    output_stage(comm,"final snapshot",snapshot);
     return result;
 }
 FsiResult solve_fsi(MPI_Comm comm,const MeshPartition& mesh,const Config& config)

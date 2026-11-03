@@ -51,6 +51,9 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 
 ## 当前焦点
 
+FSI-LOAD-01：基线 `417e6f9`，分支 `codex/fsi-periodic-pressure`，实现 `a6c6761`。平滑周期压力、共同阶段取值、缩步重算、checkpoint 参数校验、接受步 CSV 与流固 PVD 已完成。本地 PETSc 3.23.7 Debug/Release 的新增状态/时间精度、局部切线及恒压刚体检查通过（各四项相关检查，直接脚本与 CTest 分开记录）；2 rank 示例完成。云端 PETSc 3.23.7 Debug/Release 各 24/24 相关检查通过，网站检查通过（run `41589294783` / `41589294782`）。状态 review，所有本地验收与记录完成后已创建 [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31)，未合并。见 [使用契约](FSI_PRESSURE_HISTORY.md) 与 [验收证据](../research/data/fsi-pressure-2026-11-03/README.md)。
+
+
 FEM-G2C 已获用户授权执行，基线 main `1bc87a7`，分支 `codex/p2-transient-diffusion`。目标为 P2 瞬态扩散三种时间格式、完整历史恢复及接受步输出；完成验收后创建 PR。实现 `d19a032` 已完成；本地 Debug 分项与 Release 五项 P2 检查、8 项双 rank 历史故障补验通过。[PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29) 云端 PETSc 3.23.7 Debug/Release 各 15/15 相关检查通过，网站及草稿隔离通过，任务 done，已由远端合并为 `dff9116`（本 agent 未执行合并）。证据见 `docs/research/data/p2-transient-2026-11-03/`。
 
 FEM-G2B：基线 c0745ea，分支 codex/p2-boundary-extension，源码 d6ec424；P2 Robin 与纯 Neumann 已实现，本地 Debug 1/2 rank 相关验证通过，[PR #28](https://github.com/saitoasukakawaii/EONSim-new/pull/28) 云端 Debug/Release 各 10/10 相关检查通过，已合入 main（1bc87a7），复用历史验收，本次未重跑。

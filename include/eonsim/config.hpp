@@ -86,7 +86,10 @@ struct FsiDomains {
     std::vector<int> pressure_tags;
     std::vector<ComponentConstraint> fluid_constraints,mesh_constraints,solid_constraints;
 };
+struct FsiPressureTime { double amplitude=0, period=1, ramp_time=0; };
 struct FsiConfig {
+    std::optional<FsiPressureTime> pressure_time;
+    int output_interval=0; ///< Zero: final fields only; positive: accepted-step history and snapshot cadence.
     FsiDomains domains;
     std::optional<double> stabilization_tau;
     bool elastic=false, neo_hookean=false;

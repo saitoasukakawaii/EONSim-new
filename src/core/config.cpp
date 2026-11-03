@@ -277,13 +277,24 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","pressure_time","output_interval"},"fsi");
         if(f["stabilization_tau"]) {
             config.fsi.stabilization_tau=f["stabilization_tau"].as<double>();
             if(!(*config.fsi.stabilization_tau>0)||!std::isfinite(*config.fsi.stabilization_tau))
                 throw std::runtime_error("fsi.stabilization_tau must be finite and positive");
         }
         auto& v=config.fsi;
+        if(f["output_interval"]) v.output_interval=f["output_interval"].as<int>();
+        if(v.output_interval<0) throw std::runtime_error("fsi.output_interval must be nonnegative");
+        if(const auto p=f["pressure_time"]) {
+            keys(p,{"amplitude","period","ramp_time"},"fsi.pressure_time");
+            FsiPressureTime profile{p["amplitude"].as<double>(),p["period"].as<double>(),0};
+            if(p["ramp_time"]) profile.ramp_time=p["ramp_time"].as<double>();
+            if(!std::isfinite(profile.amplitude)||!std::isfinite(profile.period)||!std::isfinite(profile.ramp_time)||
+               !(profile.period>0)||profile.ramp_time<0) throw std::runtime_error("Invalid fsi.pressure_time");
+            v.pressure_time=profile;
+        }
+
         if(f["material"]) {
             const auto material=f["material"].as<std::string>();
             if(material!="linear" && material!="neo_hookean") throw std::runtime_error("Unknown FSI material");

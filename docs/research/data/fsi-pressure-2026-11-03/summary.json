@@ -1,0 +1,54 @@
+{
+  "source_commit": "a6c6761084f2003c72593107c6aa5cbc351d75bb",
+  "base_commit": "417e6f9",
+  "petsc": "3.23.7",
+  "modes": [
+    "Debug",
+    "Release"
+  ],
+  "state": {
+    "debug": {
+      "status": "passed",
+      "jacobian_max_relative_error": 6.0056e-09,
+      "retries": {
+        "bdf2": 15,
+        "generalized_alpha": 16
+      },
+      "ranks": [
+        1,
+        2
+      ]
+    },
+    "release": {
+      "status": "passed",
+      "jacobian_max_relative_error": 6.0056e-09,
+      "retries": {
+        "bdf2": 15,
+        "generalized_alpha": 16
+      },
+      "ranks": [
+        1,
+        2
+      ]
+    }
+  },
+  "convergence": {
+    "debug": "passed",
+    "release": "passed"
+  },
+  "example": {
+    "ranks": 2,
+    "steps": 100,
+    "time": 0.2,
+    "max_interface_mean_axial_displacement": 0.0036559920459989298,
+    "max_body_balance": 3.616343115670764e-13,
+    "max_power_balance": 4.85722573273506e-17
+  },
+  "ci_selection_tests": 26,
+  "not_run": [
+    "full CTest suite",
+    "PETSc 3.19.6",
+    "new 4-rank validation",
+    "performance measurements"
+  ]
+}
