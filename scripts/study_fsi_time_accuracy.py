@@ -4,6 +4,8 @@ This transient order experiment does not certify periodic steady state. The
 steady spatial study separately requires a temporal-contamination estimate.
 """
 import argparse
+import hashlib
+import csv
 import json
 import math
 from pathlib import Path
@@ -11,11 +13,19 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tests'))
 from verify_fsi_inlet import Runner,generate
 from fsi_field_cycles import read_snapshot,difference,series
+from fsi_cycle_metrics import volume_budget
 
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',type=Path,required=True);p.add_argument('--coarse',action='store_true')
     a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
+    definition=dict(executable_sha256=hashlib.sha256(Path(a.executable).read_bytes()).hexdigest(),coarse=a.coarse,
+                    ranks=2,n=2,tau=.05,relative_tolerance=1e-11,absolute_tolerance=1e-13)
+    provenance=a.work/'study-definition.json'
+    if provenance.exists():
+        if json.loads(provenance.read_text())!=definition:raise ValueError('Temporal study definition changed')
+    elif any(a.work.iterdir()):raise ValueError('Existing temporal outputs lack executable provenance; preserve and use a fresh directory')
+    else:provenance.write_text(json.dumps(definition,indent=2)+'\n')
     def solve(label,scheme,steps_per_cycle):
         run=Runner(a.executable,a.mpiexec,a.work/label,timeout=7200)
         cfg=json.loads(generate(run.work,n=2,periodic_flow=True).read_text())
@@ -29,7 +39,7 @@ def main():
         return run.work
     reference_steps=1280 if a.coarse else 10240
     reference=solve('reference' if a.coarse else 'reference-10240','bdf2',reference_steps)
-    summary=[]
+    summary=[];mass_summary=[]
     for scheme in ('be','bdf2','generalized_alpha'):
         previous={}
         for steps in ((40,80,160) if a.coarse else ((1280,2560,5120) if scheme=='be' else (160,320,640))):
@@ -53,6 +63,10 @@ def main():
                     if key in previous:
                         order=math.log(previous[key]/error,2);result['orders'][key]=order
                     previous[key]=error
+            with (work/'flow.csv').open() as stream:
+                rows=[{k:float(v) for k,v in row.items()} for row in csv.DictReader(stream)]
+            mass_summary.append(dict(scheme=scheme,dt=.1/steps,**volume_budget(rows)))
+            (a.work/'mass-convergence.json').write_text(json.dumps(mass_summary,indent=2)+'\n')
             summary.append(result)
             (a.work/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
             print(json.dumps(result),flush=True)
@@ -75,6 +89,10 @@ def main():
                 ratios[key]=delta/min(r['errors'][key] for r in summary)
         (a.work/'reference-contamination.json').write_text(json.dumps(ratios,indent=2)+'\n')
         if max(ratios.values())>.1:raise RuntimeError('Reference refinement difference exceeds 10% of candidate error')
+    for scheme in ('be','bdf2','generalized_alpha'):
+        budgets=[r['max_absolute_defect'] for r in mass_summary if r['scheme']==scheme]
+        if any(math.log(a/b,2)<(.85 if scheme=='be' else 1.7) for a,b in zip(budgets,budgets[1:])):
+            raise RuntimeError('Cumulative mass-budget refinement criterion failed')
     failures=[r for r in summary if any(order<(.85 if r['scheme']=='be' else 1.7) for field,order in r['orders'].items() if field!='fluid_pressure')]
     if failures:raise RuntimeError('Temporal order criterion failed; retain raw evidence')
 

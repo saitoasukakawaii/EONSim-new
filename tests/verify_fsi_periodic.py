@@ -31,6 +31,7 @@ def main():
         work=run(f'r{ranks}',ranks,3)
         receipt=json.loads((work/'periodic-result.json').read_text())
         assert not receipt['converged'] and receipt['metrics'][-1]['consecutive_passes']==0
+        assert len(list((work/'checkpoint').glob('generation_*')))==3
         for solid in (False,True):
             scales={'velocity':1,'displacement':1} if solid else {'velocity':1,'pressure':1,'mesh_displacement':1}
             errors=difference(fields(a.work/'r1',3,solid,1),fields(work,3,solid,ranks),scales)
@@ -53,6 +54,14 @@ def main():
         scales={'velocity':1,'displacement':1} if solid else {'velocity':1,'pressure':1,'mesh_displacement':1}
         errors=difference(fields(resumed,4,solid,2),read_snapshot(direct.work/('direct'+suffix+'.pvtu'),solid),scales)
         assert max(errors.values())<2e-9,errors
+    # A requested endpoint must publish even when it is off the regular cadence.
+    cfg['fsi']['checkpoint_interval']=100
+    checkpoint=direct.work/'off-cadence'
+    direct.solve('endpoint',cfg,2,['-checkpoint',checkpoint,'-stop_after',3])
+    generation=(checkpoint/'current').read_text().split()[1]
+    assert int((checkpoint/generation/'manifest').read_text().split()[2])==3
+    bad=dict(cfg);bad['fsi']=dict(cfg['fsi'],checkpoint_interval=0)
+    direct.solve('bad-cadence',bad,2,fail='fsi.checkpoint_interval must be positive')
     print('1/2/4 rank fields, nonconvergence, definition rejection and cycle continuation passed')
 
 

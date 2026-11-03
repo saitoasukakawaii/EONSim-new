@@ -580,7 +580,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         clock.accept();
         if(bdf2&&clock.at_event()) physical_history.previous_dt=displacement_history.previous_dt=body_history.previous_dt=0;
         if(alpha&&clock.at_event()) alpha_ready=false;
-        if(!config.checkpoint.empty()) {
+        if(!config.checkpoint.empty()&&(step%f.checkpoint_interval==0||!clock.active(config.stop_after))) {
             Checkpoint saved{step,{{"reduced",accepted},{"physical",physical},{"solid_displacement",solid_d},{"rigid",{body.position,body.velocity}}},clock.time,clock.next_dt};
             if(bdf2) {
                 saved.fields["previous_physical"]=physical_history.previous;

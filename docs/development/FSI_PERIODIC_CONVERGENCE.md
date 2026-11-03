@@ -18,6 +18,8 @@ python scripts/study_fsi_periodic.py --executable build/cloud-3.23.7-release/eon
 
 达到周期上限而未通过时返回失败，并保存未收敛 receipt；不能把程序结束视为周期稳态。首次运行要求空目录。恢复增加 `--resume` 并保留 n、rank、dt、格式、稳定化、尺度、阈值及采样数；允许增加周期上限。`--minimum-cycles` 可要求追加周期以估计剩余瞬态。
 
+`fsi.checkpoint_interval` 控制接受步保存间隔，默认1，必须为正整数。无论间隔如何，成功到达请求停止点或最终步时都保存；失败/拒绝步不保存。研究驱动设置为每个周期的步数，避免对每个中间步写一代文件；不改变物理状态和恢复签名。
+
 `study-definition.json` 固定算例参数、网格哈希和可执行文件哈希。恢复先验证定义及接受历史连续性；receipt 指向完整周期的 checkpoint generation，不把后来失败尝试的部分进度作为完成周期。再次执行该周期前保留失败尝试文件。周期receipt采用临时文件替换发布。
 
 ## 质量预算和几何
@@ -35,3 +37,9 @@ python scripts/study_fsi_periodic.py --executable build/cloud-3.23.7-release/eon
 ## 当前验证边界
 
 Debug/Release 的新增 `fsi_periodic` 已验证1/2/4 rank、周期未收敛退出、定义变化拒绝、跨进程续算和连续物理求解对照；后续相位插值改动还须补受影响回归。移动几何与原flow检查已经执行。完整空间收敛、10%误差污染门槛和最终审查尚未通过。证据见 docs/research/data/fsi-next-03/。
+
+## 继续计算与采样误差
+
+`study_fsi_transient_tail.py` 从已收敛周期的指定generation再计算三个等长周期块。它报告完整场块间差、实测收缩率和条件性几何尾项估计；非衰减或q≥0.8拒绝该估计。该结果依赖衰减继续，不是严格渐近误差界。
+
+`study_fsi_phase_sampling.py` 从同一状态继续两个周期，输出每周期100个真实场快照，在第二周期比较20相位线性插值与100相位实际场。完整包络包括周期起点和终点，不靠外推补齐。`analyze_fsi_space.error_budget` 要求每个场的时间、瞬态和采样估计分别严格小于末档空间差10%，缺字段/非有限估计直接拒绝。

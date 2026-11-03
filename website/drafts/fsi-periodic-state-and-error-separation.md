@@ -4,7 +4,7 @@ description: "用完整场、参考构形范数和独立质量预算审查周期
 contentStatus: draft
 algorithm: "Phase-aligned FSI field comparisons and moving-volume budgets"
 sourceReferences: []
-eonsimCommit: "b87c887"
+eonsimCommit: "96f232fdcf597aaeb1f6813cf88fb4b1953682d5"
 ---
 
 # 周期流固耦合的判据与误差分离
@@ -33,12 +33,16 @@ eonsimCommit: "b87c887"
 
 基线FSI-NEXT-02的六周期数据没有证明周期稳态。本轮完整场检测中，固定tau的n=2在第77周期、默认tau的n=4在第50周期达到三个连续周期的1e-3判据。它们使用不同稳定化设置，不能直接作为空间收敛序列。
 
-首轮时间研究的粗步长没有满足既定阶门槛；BDF2和alpha随加密逐渐接近二阶，BE固体速度需要进一步细化。保留失败数据并继续加密参考解；不把较粗级别排除后称为所有网格/步长均已验证。
+首轮时间研究的粗步长没有满足既定阶门槛；BDF2和alpha随加密逐渐接近二阶，BE固体速度在进一步加密后进入本次门槛：最终三个步长层级的最小受检阶为0.864；BDF2和alpha分别为1.882和1.981。参考再次加密的差占候选误差最多3.21%。失败粗矩阵保留，不能称为所有测试过的步长均通过。
+
+真实通道的累计质量预算最大误差随时间步加密约按BE一阶、BDF2/alpha二阶下降。原始配置、完整接受CSV、日志及第二周期场见 `docs/research/data/fsi-next-03/time-accuracy-final/`。
+
+追加等长周期块可以测量自由响应的衰减。若连续块差D1、D2、D3呈收缩，取q=max(D2/D1,D3/D2)，则用D1+D2+D3+D3*q/(1-q)估计起点仍可能含有的瞬态。此处只在实测q<0.8时使用；它依赖后续收缩持续，是经验估计，不是严格数学误差界。相位采样另与实际100相位快照比较，不能把20相位数据再插值成100点作为独立验证。
 
 目前没有完整空间收敛、相位误差预算或大规模性能结论。最终源码提交、完整原始数据及误差污染检验仍待补齐，文章不得发布。
 
 ## 证据与练习
 
-源码入口：`src/physics/fsi_diagnostics.cpp`、`scripts/fsi_cycle_metrics.py`、`scripts/fsi_field_cycles.py`、`scripts/fsi_space_metrics.py`。测试命令和实际结果见仓库 `docs/research/data/fsi-next-03/`；初始本地检查点b87c887仅包含标量初版，不包含后续完整场实现。
+源码入口：`src/physics/fsi_diagnostics.cpp`、`scripts/fsi_cycle_metrics.py`、`scripts/fsi_field_cycles.py`、`scripts/fsi_space_metrics.py`。测试命令和实际结果见仓库 `docs/research/data/fsi-next-03/`；基础源码检查点96f232f包含完整场检测与时间研究；本节后续追加周期/密集采样脚本尚在同一分支持续实施，最终提交待补齐。
 
 练习：给周期信号添加缓慢均值漂移，再分别用均值和固定振荡尺度归一化，观察是否会得到错误的周期判定。随后比较20与100个相位点得到的场差，确认采样误差是否足以影响停止条件。

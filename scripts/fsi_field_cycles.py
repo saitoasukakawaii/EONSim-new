@@ -13,7 +13,7 @@ def read_snapshot(path, solid=False, include_cells=False):
     for piece in pieces:
         root=ET.parse(piece)
         arrays={a.attrib['Name']:(int(a.attrib.get('NumberOfComponents',1)),list(map(float,(a.text or '').split()))) for a in root.findall('.//PointData/DataArray')}
-        ids=[int(x) for x in arrays['mesh_node_id'][1]]
+        ids=list(map(int,(root.find('.//PointData/DataArray[@Name="mesh_node_id"]').text or '').split()))
         xyz=list(map(float,root.find('.//Points/DataArray').text.split()))
         conn=list(map(int,(root.find('.//Cells/DataArray[@Name="connectivity"]').text or '').split()))
         disp=arrays['displacement' if solid else 'mesh_displacement'][1]
@@ -56,15 +56,11 @@ def series(path):
     return [(float(p.attrib['timestep']),path.parent/p.attrib['file']) for p in ET.parse(path).findall('.//DataSet')]
 
 
-def compare_series(entries,period,end,scales,solid=False,phases=20):
-    """Compare common physical phases using bounded linear time interpolation.
-
-    No extrapolation is allowed. Gaps exceeding T/16 are rejected; studies must
-    additionally quantify phase-sampling error before using convergence results.
-    """
+def phase_sampler(entries,period,solid=False):
+    """Return a cached bounded physical-time sampler for one reference mesh."""
     import bisect
     entries=sorted(entries);times=[t for t,_ in entries]
-    if phases<16 or len(entries)<2:raise ValueError('At least 16 phases per cycle required')
+    if len(entries)<2:raise ValueError('Incomplete snapshot history')
     if any(b<=a for a,b in zip(times,times[1:])):raise ValueError('Nonincreasing snapshot times')
     if not all(math.isfinite(t) for t in times) or not math.isfinite(period) or period<=0:raise ValueError('Invalid phase times')
     tol=1e-10*period;cache={}
@@ -83,12 +79,36 @@ def compare_series(entries,period,end,scales,solid=False,phases=20):
         f=(t-times[i-1])/(times[i]-times[i-1])
         blended={k:{name:[(1-f)*x+f*y for x,y in zip(a[k][name],b[k][name])] for name in a[k]} for k in a}
         return blended,wa
+    return sample
+
+
+def compare_series(entries,period,end,scales,solid=False,phases=20):
+    """Compare common physical phases without extrapolation; reject gaps >T/16."""
+    if phases<16 or len(entries)<2:raise ValueError('At least 16 phases per cycle required')
+    if not math.isfinite(end):raise ValueError('Invalid cycle endpoint')
+    sample=phase_sampler(entries,period,solid)
     result={name:0. for name in scales}
     for j in range(1,phases+1):
         t=end-period+j*period/phases
         error=difference(sample(t-period),sample(t),scales)
         for name,value in error.items():result[name]=max(result[name],value)
     return result
+
+
+def phase_sampling_error(entries,period,end,scales,solid=False,phases=20,dense_phases=100):
+    """Compare the coarse phase interpolant to actually stored dense snapshots.
+
+    Both bounding endpoints are required. Dense observations must exist exactly;
+    interpolating an already coarse history cannot serve as a sampling oracle.
+    """
+    if phases<16 or dense_phases<=phases or dense_phases%phases:raise ValueError('Invalid nested phase grids')
+    times=[t for t,_ in entries];tol=period*1e-10
+    target=[end-period+j*period/dense_phases for j in range(dense_phases+1)]
+    if any(sum(abs(t-v)<tol for t in times)!=1 for v in target):raise ValueError('Actual dense phase snapshots required')
+    coarse=[(t,path) for t,path in entries if any(abs(t-(end-period+j*period/phases))<tol for j in range(phases+1))]
+    dense=phase_sampler(entries,period,solid);sample=phase_sampler(coarse,period,solid)
+    values=[difference(sample(t),dense(t),scales) for t in target[1:]]
+    return {name:math.sqrt(sum(v[name]**2 for v in values)/dense_phases) for name in scales}
 
 
 def pressure_drop(snapshot,axis=0):
@@ -112,3 +132,24 @@ def pressure_drop(snapshot,axis=0):
         if area<=0:raise ValueError('Missing pressure observation plane')
         means.append(integral/area)
     return dict(inlet_pressure=means[0],outlet_pressure=means[1],pressure_drop=means[0]-means[1])
+
+
+def channel_boundary_errors(fluid,solid):
+    """No-slip and interface compatibility for the unit channel with top wall y=1."""
+    fn=fluid[0];sn=solid[0]
+    key=lambda v:tuple(round(x,10) for x in v['reference_position'])
+    solid_by_position={key(v):v for v in sn.values()}
+    errors=dict(rigid_velocity=0.,interface_velocity=0.,interface_displacement=0.)
+    interface_count=0
+    for node in fn.values():
+        x,y,z=node['reference_position']
+        if abs(y)<1e-10 or abs(z)<1e-10 or abs(z-1)<1e-10:
+            errors['rigid_velocity']=max(errors['rigid_velocity'],max(map(abs,node['velocity'])))
+        if abs(y-1)<1e-10:
+            interface_count+=1
+            if key(node) not in solid_by_position:raise ValueError('Missing solid interface node')
+            other=solid_by_position[key(node)]
+            errors['interface_velocity']=max(errors['interface_velocity'],max(abs(a-b) for a,b in zip(node['velocity'],other['velocity'])))
+            errors['interface_displacement']=max(errors['interface_displacement'],max(abs(a-b) for a,b in zip(node['mesh_displacement'],other['displacement'])))
+    if not interface_count:raise ValueError('No interface nodes checked')
+    return errors

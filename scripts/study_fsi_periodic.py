@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tests'))
 from verify_fsi_inlet import Runner,generate
-from fsi_field_cycles import series,compare_series
+from fsi_field_cycles import series,compare_series,read_snapshot,pressure_drop
 from fsi_cycle_metrics import compare_cycles,volume_budget
 
 
@@ -22,6 +22,17 @@ def save_receipt(receipt,cfg,metrics,checkpoint,converged):
     temporary.write_text(json.dumps(dict(converged=converged,config=cfg,metrics=metrics,
                                         checkpoint_generation=generation),indent=2)+'\n')
     temporary.replace(receipt)
+
+
+def preserve_attempt(work,label):
+    """Keep existing solver outputs before replaying an incomplete attempt."""
+    leftovers=[p for p in work.iterdir() if p.name.startswith(label+'.') or p.name.startswith(label+'_')]
+    if leftovers:
+        archive=work/'failed-attempts'/label
+        index=0
+        while (archive/str(index)).exists():index+=1
+        destination=archive/str(index);destination.mkdir(parents=True)
+        for old_file in leftovers:shutil.move(str(old_file),destination/old_file.name)
 
 
 def main():
@@ -73,21 +84,19 @@ def main():
         definition['mesh_sha256']={name:hashlib.sha256((run.work/name).read_bytes()).hexdigest() for name in ('fluid.msh','solid.msh')}
         definition_path.write_text(json.dumps(definition,indent=2)+'\n')
     cfg['fsi']['steps']=a.cycles*steps
+    cfg['fsi']['checkpoint_interval']=steps
     for cycle in range(start,a.cycles+1):
         label=f'cycle{cycle}'
         extra=['-checkpoint',checkpoint,'-stop_after',cycle*steps]
         if cycle>1:extra+=['-restart',resume_source if cycle==start else checkpoint]
-        leftovers=[p for p in run.work.iterdir() if p.name.startswith(label+'.') or p.name.startswith(label+'_')]
-        if leftovers:
-            archive=run.work/'failed-attempts'/label
-            index=0
-            while (archive/str(index)).exists():index+=1
-            destination=archive/str(index);destination.mkdir(parents=True)
-            for old_file in leftovers:shutil.move(str(old_file),destination/old_file.name)
+        preserve_attempt(run.work,label)
         _,rows,_=run.solve(label,cfg,a.ranks,extra)
         all_rows+=rows
         stem=label+(f'_restart{(cycle-1)*steps}' if cycle>1 else '')
         fluid+=series(run.work/(stem+'.pvd'));solid+=series(run.work/(stem+'_solid.pvd'))
+        if max(abs(r['stage_mass_residual']) for r in rows)>1e-9:raise ValueError('Stage continuity failed')
+        if max(abs(r['stage_mass_residual']+r['stage_divergence']) for r in rows)>1e-12:raise ValueError('Surface/divergence disagreement')
+        if max(abs(r['endpoint_inlet_flow']-r['target_endpoint_flow']) for r in rows)>1e-12:raise ValueError('Inlet flux mismatch')
         if cycle<3:
             metrics.append(dict(cycle=cycle,consecutive_passes=0,status='insufficient cycle history'))
             save_receipt(receipt,cfg,metrics,checkpoint,False)
@@ -97,10 +106,10 @@ def main():
                     solid=compare_series(solid,period,end,{'velocity':.01,'displacement':1e-4},True))
         result['observations']={name:compare_cycles([r['time'] for r in all_rows],[r[name] for r in all_rows],period,end,scale)
              for name,scale in [('area_displacement_y',1e-4),('endpoint_volume',1e-4),('endpoint_outlet_flow',.01)]}
+        pressure=[(t,pressure_drop(read_snapshot(path,False,True))['pressure_drop'])
+                  for t,path in fluid if end-2*period-period/a.phases-1e-10<=t<=end+1e-10]
+        result['observations']['pressure_drop']=compare_cycles([t for t,_ in pressure],[v for _,v in pressure],period,end,.1)
         result['mass_budget']=volume_budget(all_rows)
-        if max(abs(r['stage_mass_residual']) for r in rows)>1e-9:raise ValueError('Stage continuity failed')
-        if max(abs(r['stage_mass_residual']+r['stage_divergence']) for r in rows)>1e-12:raise ValueError('Surface/divergence disagreement')
-        if max(abs(r['endpoint_inlet_flow']-r['target_endpoint_flow']) for r in rows)>1e-12:raise ValueError('Inlet flux mismatch')
         passed=max([*result['fluid'].values(),*result['solid'].values(),*[v['relative_max'] for v in result['observations'].values()]])<=a.tolerance
         streak=streak+1 if passed else 0
         result['consecutive_passes']=streak;metrics.append(result)

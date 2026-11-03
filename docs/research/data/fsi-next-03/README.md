@@ -1,5 +1,9 @@
 # FSI-NEXT-03：实施中的检查点
 
+## 最新进展（历史段落保留）
+
+时间精度和累计质量预算已通过，完整原始输入/接受历史/日志与第二周期场见 [time-accuracy-final](time-accuracy-final/README.md)。checkpoint保存间隔的Debug受影响回归7/7通过，日志见 `cadence-debug/`；默认稳定化n=2周期86通过，n=8仍在推进。等长追加周期估计及100相位实际采样检查正在实施。完整空间收敛、10%误差分离、最新脚本回归和最终审查仍未完成，无PR。以下“未实施”均是对应历史检查点状态。
+
 基线 main 4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e，分支 codex/fsi-next-03-periodic-convergence。
 48小时是预算，当前未完成整体验收，不能创建PR。
 

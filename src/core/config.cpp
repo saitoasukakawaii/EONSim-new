@@ -277,7 +277,7 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","pressure_time","output_interval","inlet"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","pressure_time","output_interval","checkpoint_interval","inlet"},"fsi");
         if(f["stabilization_tau"]) {
             config.fsi.stabilization_tau=f["stabilization_tau"].as<double>();
             if(!(*config.fsi.stabilization_tau>0)||!std::isfinite(*config.fsi.stabilization_tau))
@@ -286,6 +286,8 @@ Config read_config(const std::filesystem::path& path)
         auto& v=config.fsi;
         if(f["output_interval"]) v.output_interval=f["output_interval"].as<int>();
         if(v.output_interval<0) throw std::runtime_error("fsi.output_interval must be nonnegative");
+        if(f["checkpoint_interval"]) v.checkpoint_interval=f["checkpoint_interval"].as<int>();
+        if(v.checkpoint_interval<=0) throw std::runtime_error("fsi.checkpoint_interval must be positive");
         if(const auto p=f["pressure_time"]) {
             keys(p,{"amplitude","period","ramp_time"},"fsi.pressure_time");
             FsiPressureTime profile{p["amplitude"].as<double>(),p["period"].as<double>(),0};

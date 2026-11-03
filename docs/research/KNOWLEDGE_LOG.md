@@ -1,5 +1,9 @@
 # EONSim Knowledge Log
 
+## FSI-NEXT-03 误差分离补充
+
+草稿 [周期状态与误差分离](../../website/drafts/fsi-periodic-state-and-error-separation.md) 补充已验证的三格式时间阶和质量预算阶，以及尚在验证的等长追加周期衰减估计、实际密集采样oracle。时间证据 `data/fsi-next-03/time-accuracy-final/`；默认稳定化空间序列仍在运行。经验几何尾项估计必须注明衰减持续的条件，不能写成严格渐近误差界。未发布，无PR。
+
 ## FSI-NEXT-03 连续实施进展（未整体完成）
 
 完成完整场参考体积加权周期比较、实际时间插值（禁止外推/大间隙）、周期checkpoint续算及定义/历史拒绝、独立Tet4移动体积与通量oracle、跨网格P1比较初版。Debug/Release新增fsi_periodic各1/1通过，涵盖1/2/4 rank、恢复、未收敛和修改定义拒绝；后续相位插值改动仍需针对性回归。固定tau n2第77周期、默认tau n4第50周期达到连续三周期1e-3判据，不能混合作为空间序列。
