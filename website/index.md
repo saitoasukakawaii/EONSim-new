@@ -46,6 +46,15 @@ EONSim Research & Learning 是围绕 EONSim 多物理场求解器建设的公开
 
 所有内容会区分理论说明、代码实现和实验验证状态。开发中的草稿通过 GitHub Pull Request 审核；只有审核并合并到生产分支的内容才会进入正式网站。
 
+## 2026-11-03 主线进展
+
+本次内容核对所依据的功能主线检查点为 [`4f3a995`](https://github.com/saitoasukakawaii/EONSim-new/commit/4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e)。近期已合入的工作包括：
+
+- **单体 FSI**：平滑周期压力与接受步历史、固定速度入口与阶段/终点几何检查，以及周期体积流量入口、无滑移弹性壁通道和移动域质量预算。
+- **二维 P2 标量有限元**：直边三角形六节点二次场、稳态 Poisson 的 D/N/Robin/纯 Neumann 边界，以及 BE、变步 BDF2 和一阶 generalized-alpha 瞬态扩散。
+
+这些结果有针对性 Debug/Release、MPI、重启和数值研究证据；它们不等同于全量测试、大规模生产扩展或实验验证。可从 [研发状态](/development/) 和 [知识专题](/knowledge/) 查看范围与限制。
+
 ## 推荐起点
 
 - [CFD 求解器学习路径](/learning/cfd)

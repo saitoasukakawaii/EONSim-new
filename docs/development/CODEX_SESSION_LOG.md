@@ -11,7 +11,7 @@
 - 使用 `scripts/cloud/restore.sh` 和 `scripts/cloud/run.sh` 编译；Debug/Release 新增1项、旧入口/压力2项均通过；三格式/1和2rank/恢复/Jv/9次真实缩步重放。六周期研究完成三网格和三步长，原始数据与局限见[验收](../research/data/fsi-flow-2026-11-03/README.md)。没有全量和3.19.6编译，也没有性能研究。
 - 重要失败：空环境恢复；MPI root拒绝；LLVM OpenMP启动断言在串行重试仍复现，保留失败且不冒充正确非法参数拒绝；避开残留注册PID名字后完整复验通过，底层断言精确原因仍未回溯确认。Git push无凭据，使用GitHub API保存相同tree后同步本地。详细命令、失败尝试、解决范围见验收，不将环境规避写成数值修复。
 - 本 agent 完成源码diff自审、26项CI选择器测试；无外部独立审查。知识稿 `website/drafts/fsi-periodic-flow-mass-budget.md` 保持草稿；长期架构未变，不改架构契约。
-- 本地验收/证据/自审后仅创建 [PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33)。[数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424335) Debug/Release各29/29通过，零失败/零跳过；[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424264)通过。 增量证据job也成功；不需要代码修复。合并预览tree与本地/PR head完全相同，精简证据见 `delivery-ci.json`。当前review且未合入main，不标done；最终纯文档更新按既有同PR证据复用机制检查。
+- 本地验收/证据/自审后仅创建 [PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33)。[数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424335) Debug/Release各29/29通过，零失败/零跳过；[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424264)通过。 增量证据job也成功；不需要代码修复。合并预览tree与本地/PR head完全相同，精简证据见 `delivery-ci.json`。PR #33 随后于 2026-11-03 合入 main，合并提交 `4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e`；任务状态更新为 done。后续纯文档更新不重新运行未受影响的数值测试，保留并引用原 CI 来源。
 - 同时核对前置 FSI-NEXT-01 已由 PR #32 合并为基线 `b2755b6`，纠正队列旧 in_progress，历史记录明确标注。
 
 ## 2026-10-31 / DOCS-01 — 全仓 Markdown 进度同步
@@ -563,3 +563,11 @@ BE 粗步未达门槛后细化，保持原阶数标准；其他初期失败为�
 - Python 选测器 26/26；`git diff --check` 通过。使用 eonsim-knowledge-capture 形成 [知识草稿](../../website/drafts/fsi-inlet-endpoint-and-resolution.md)，未发布；更新进度、队列与知识索引。PR/云端结果另行记录。
 
 FSI-NEXT-01 最终审查发现旧镜像弹性体使用单独参考几何分支，追加 Debug/Release `elastic_fsi_verification` 各 1/1（不重复前述已通过检查），并补 CI 映射；本地各累计 5 项。选测器 26/26、证据解析 6/6 通过，新文档链接检查通过。
+
+## 2026-11-03 / WEBSITE-KNOWLEDGE-REFRESH — 网站与知识资产同步
+
+- 基线 main `4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e`；在独立分支 `codex/website-knowledge-refresh-2026-11-03` 更新网站首页、研发总览、知识索引、单体 FSI 专题及 FEM 学习页。
+- 根据已合入 PR #31/#32/#33 更新 FSI 能力说明；根据 PR #27/#28/#29 更新 P2 标量有限元范围。相关测试数量只按已归档证据记录，不将选测描述为全量测试。
+- 补记 FSI 与 P2 技术文章草稿的合并状态、CI 来源和限制；所有文章继续留在 `website/drafts/`，未自动发布。
+- 同步 `KNOWLEDGE_LOG.md`、`CODEX_PROGRESS.md` 和 `CODEX_TASK_QUEUE.md`，修正 FSI-NEXT-02 已合并后的状态。
+- 本任务只改文档，不运行 CMake、编译、CTest、MPI、数值或性能实验；网站构建/草稿隔离检查待本 PR 的 GitHub Actions 结果确认。

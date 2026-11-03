@@ -62,3 +62,11 @@ PETSc 3.23.7 Debug/Release：1/2 rank、三种时间格式、启动/周期段恢
 只保证相同 rank/分区重启；没有非匹配接口、重网格、逐标签波形或历史自动拼接。
 草稿未发布。审核时重点检查压力符号沿用关系、阶段时间命名、输出失败后的 checkpoint 语义。
 进一步练习：保持固定空间算子，把载荷周期减半并重新观察达到渐近阶数所需的时间步长。
+
+## 合入状态补记（2026-11-03）
+
+FSI-LOAD-01 已通过 [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31) 合入 `main`，合并提交为 [`06b05c4`](https://github.com/saitoasukakawaii/EONSim-new/commit/06b05c4a6cfb6959e430a9c6042011cc0622510c)。实现提交为 `a6c6761084f2003c72593107c6aa5cbc351d75bb`。
+
+PR 云端 PETSc 3.23.7 Debug/Release 各 24/24 项相关检查通过，网站构建检查通过；证据见 [本地验收记录](../../docs/research/data/fsi-pressure-2026-11-03/README.md) 与 `ci.json`。
+
+本文仍为未发布草稿；源码合入与知识文章发布是两个独立审核步骤。
