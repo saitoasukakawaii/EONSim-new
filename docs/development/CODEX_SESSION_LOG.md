@@ -501,3 +501,12 @@ PR #28 的 run 41287626201 成功，实际 merge preview bbf494b84af62b904a78213
 - `python3 tests/test_ci_selection.py` 26 项通过；`python3 tests/test_cloud_evidence.py` 6 项通过；新增文件路径分类无未知项，PR 预计选取 15 个相关 CTest（最终以实际 PR 差异为准）；`git diff --check` 通过。没有全量、旧锁、性能或超过 2 rank 的本轮运行。
 - 测试执行时 HEAD 为基线且源码 dirty，随后提交为上述实现 SHA；原始摘要保留真实状态。Debug 时间/失败结果早于仅签名补充，复用未受影响路径；最终 restart/Release/故障补验覆盖完整签名。不因为后续文档提交重跑。
 - 使用 eonsim-knowledge-capture 整理 P2 瞬态历史草稿，保持未发布；已更新状态、队列及知识索引。PR 与云端检查尚待后续记录。
+
+
+### FEM-G2C — PR #29 云端验收与交付
+
+- 实现 d19a032，交付 head e5900a169d079c82b4af8509d1aa4af4fd199a88；[PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29) 已创建，未合并。实际 merge preview b8c1642f08ef5333f55e874fa5c83157e7ba2a59 的 tree 284e3497681e54af1949869fee3c963e597deca3 与本地 head 一致。
+- [数值 run 41582475827](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41582475827) 的 Debug/Release 日志及 receipt 均确认：PETSc 3.23.7，各 15 passed、0 failed、0 skipped。清单包含 P2 新增三组及配置/CMake 影响入口代表回归；不是全量。P2 新验收为 1/2 rank；共享旧检查 scalar2d_space 等保留自身最多 4 rank，不扩展 P2 验证结论。
+- 云端 4 CPU、约 16 GiB；每模式构建、运行时链接和 CTest 命令退出 0；receipt 核对测试清单与双模式来源后成功。3.19.6 手动专项 job skipped。选测脚本的合成 failure/error/skipped XML 是负例输入，26/6 项脚本测试均通过，不将日志里的负例文本误认为数值失败。
+- [网站 run 41582475766](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41582475766) 构建和草稿/模板隔离成功；文章仍是 draft。
+- 精简机器证据、15 项清单与每项原始来源见 docs/research/data/p2-transient-2026-11-03/cloud.json。收尾仅补状态和证据，复用同 PR 上述通过记录，本次不重新编译或运行数值测试，不使用 skip ci 绕过检查。

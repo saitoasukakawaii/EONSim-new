@@ -181,3 +181,9 @@ P1/Q1 的 stage_boundary_flux/stage_flux_balance 诊断，不能据日志字段�
 2.157/2.006/1.997；变步 BDF2 另有加密检查。8 项双 rank HDF5 历史/空间故障补验通过。
 原始结果、实际命令与 dirty/提交对应关系见 [G2C 证据](../research/data/p2-transient-2026-11-03/source.json)。
 没有全量、PETSc 3.19.6、超过 2 rank 的新验收或性能测量。PR 云端验收另记，不把本地证据标为云端结果。
+
+
+G2C 云端补验：[PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29) 的
+[run 41582475827](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41582475827)
+在 merge preview b8c1642 上通过 Debug/Release 各 15/15 相关检查；
+[精简证据](../research/data/p2-transient-2026-11-03/cloud.json)。PR 尚未合并。

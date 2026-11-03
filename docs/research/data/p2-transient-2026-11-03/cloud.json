@@ -1,0 +1,319 @@
+{
+  "pr": 29,
+  "url": "https://github.com/saitoasukakawaii/EONSim-new/pull/29",
+  "run_id": 41582475827,
+  "website_run": 41582475766,
+  "website": "success",
+  "head": "e5900a169d079c82b4af8509d1aa4af4fd199a88",
+  "implementation": "d19a032",
+  "merge_preview": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59",
+  "tree": "284e3497681e54af1949869fee3c963e597deca3",
+  "tree_matches_local_head": true,
+  "selected_tests": [
+    "domains_verification",
+    "fluid_verification",
+    "layout_policy_verification",
+    "p2_space_oracles",
+    "poisson_parallel",
+    "poisson_verification",
+    "rigid_fsi_verification",
+    "runtime_mpi",
+    "scalar2d_space",
+    "scalar_p2_failure",
+    "scalar_p2_restart",
+    "scalar_p2_time",
+    "scalar_p2_verification",
+    "solid_verification",
+    "tri_p2_oracles"
+  ],
+  "python": [
+    "tests/test_ci_selection.py",
+    "tests/test_cloud_evidence.py"
+  ],
+  "legacy": "skipped (manual compatibility not requested)",
+  "modes": [
+    {
+      "summary": {
+        "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59",
+        "mode": "debug",
+        "selection": "explicit",
+        "petsc": "3.23.7",
+        "status": "passed",
+        "resources": {
+          "cpu_budget": 4,
+          "memory_bytes": 16760340480,
+          "cgroup": {
+            "/sys/fs/cgroup": {},
+            "/sys/fs/cgroup/system.slice": {
+              "cpu.max": "max 100000",
+              "memory.max": "max"
+            },
+            "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+              "cpu.max": "max 100000",
+              "memory.max": "max"
+            }
+          },
+          "build_jobs": 4
+        },
+        "test_counts": {
+          "passed": 15,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "commands": [
+        "compiler: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/evidence/compiler.log",
+        "mpi-compiler: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/evidence/mpi-compiler.log",
+        "mpi-runtime: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/evidence/mpi-runtime.log",
+        "cmake: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/evidence/cmake.log",
+        "configure: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/evidence/configure.log",
+        "full-test-inventory: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/evidence/full-test-inventory.log",
+        "build: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/evidence/build.log",
+        "runtime-linkage: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/evidence/runtime-linkage.log",
+        "ctest: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-debug/evidence/ctest.log"
+      ]
+    },
+    {
+      "summary": {
+        "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59",
+        "mode": "release",
+        "selection": "explicit",
+        "petsc": "3.23.7",
+        "status": "passed",
+        "resources": {
+          "cpu_budget": 4,
+          "memory_bytes": 16759308288,
+          "cgroup": {
+            "/sys/fs/cgroup": {},
+            "/sys/fs/cgroup/system.slice": {
+              "cpu.max": "max 100000",
+              "memory.max": "max"
+            },
+            "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+              "cpu.max": "max 100000",
+              "memory.max": "max"
+            }
+          },
+          "build_jobs": 4
+        },
+        "test_counts": {
+          "passed": 15,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "commands": [
+        "compiler: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/compiler.log",
+        "mpi-compiler: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/mpi-compiler.log",
+        "mpi-runtime: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/mpi-runtime.log",
+        "cmake: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/cmake.log",
+        "configure: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/configure.log",
+        "full-test-inventory: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/full-test-inventory.log",
+        "build: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/build.log",
+        "runtime-linkage: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/runtime-linkage.log",
+        "ctest: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/ctest.log"
+      ]
+    }
+  ],
+  "receipt": {
+    "schema": 1,
+    "repository": "saitoasukakawaii/EONSim-new",
+    "pr": 29,
+    "base": "1bc87a7e1bf9cc3124f563b527e6f2ea669ceeac",
+    "head": "e5900a169d079c82b4af8509d1aa4af4fd199a88",
+    "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59",
+    "tree": "284e3497681e54af1949869fee3c963e597deca3",
+    "fingerprint": "94748985acdfdf3b6d8aa813721f34c6b2bbd5dcb77f9d32999ac12fa5864064",
+    "run_id": 41582475827,
+    "status": "passed",
+    "covered": [
+      "domains_verification",
+      "fluid_verification",
+      "layout_policy_verification",
+      "p2_space_oracles",
+      "poisson_parallel",
+      "poisson_verification",
+      "rigid_fsi_verification",
+      "runtime_mpi",
+      "scalar2d_space",
+      "scalar_p2_failure",
+      "scalar_p2_restart",
+      "scalar_p2_time",
+      "scalar_p2_verification",
+      "solid_verification",
+      "tri_p2_oracles"
+    ],
+    "executed": [
+      "domains_verification",
+      "fluid_verification",
+      "layout_policy_verification",
+      "p2_space_oracles",
+      "poisson_parallel",
+      "poisson_verification",
+      "rigid_fsi_verification",
+      "runtime_mpi",
+      "scalar2d_space",
+      "scalar_p2_failure",
+      "scalar_p2_restart",
+      "scalar_p2_time",
+      "scalar_p2_verification",
+      "solid_verification",
+      "tri_p2_oracles"
+    ],
+    "reused": [],
+    "origins": {
+      "runtime_mpi": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "scalar_p2_verification": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "scalar_p2_time": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "scalar_p2_restart": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "scalar_p2_failure": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "p2_space_oracles": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "tri_p2_oracles": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "layout_policy_verification": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "scalar2d_space": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "domains_verification": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "rigid_fsi_verification": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "solid_verification": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "fluid_verification": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "poisson_verification": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      },
+      "poisson_parallel": {
+        "debug": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        },
+        "release": {
+          "run_id": 41582475827,
+          "commit": "b8c1642f08ef5333f55e874fa5c83157e7ba2a59"
+        }
+      }
+    },
+    "previous_run_id": null,
+    "disposition": "run"
+  }
+}
