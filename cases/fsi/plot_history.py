@@ -19,8 +19,8 @@ def main():
     fig, axes = plt.subplots(4, 1, sharex=True, figsize=(8, 9), constrained_layout=True)
     for ax, (name, time, label) in zip(axes, [
         ('applied_pressure', 'evaluation_time', 'Applied pressure'),
-        ('endpoint_position', 'time', 'Interface mean axial displacement'),
-        ('endpoint_velocity', 'time', 'Interface mean axial velocity'),
+        ('endpoint_position', 'time', 'Mean axial\ndisplacement'),
+        ('endpoint_velocity', 'time', 'Mean axial\nvelocity'),
         ('evaluation_fluid_force', 'evaluation_time', 'Axial fluid force'),
     ]):
         ax.plot([r[time] for r in rows], [r[name] for r in rows])

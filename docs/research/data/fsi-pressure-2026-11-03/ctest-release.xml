@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="3"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="8"
+	timestamp="2026-11-03T14:15:54"
+	>
+	<testcase name="fsi_element_jacobian" classname="fsi_element_jacobian" time="0.0606931" status="run">
+		<properties>
+			<property name="cmake_labels" value="rank-1"/>
+		</properties>
+		<system-out>field=0 jv_relative_error=2.90591e-11
+field=1 jv_relative_error=7.7753e-11
+field=0 jv_relative_error=2.94352e-11
+field=1 jv_relative_error=8.77826e-11
+</system-out>
+	</testcase>
+	<testcase name="fsi_pressure_state" classname="fsi_pressure_state" time="7.94171" status="run">
+		<properties>
+			<property name="cmake_labels" value="core;rank-1;rank-2"/>
+		</properties>
+		<system-out>FSI pressure state/history/MPI/Jacobian/retry checks passed
+</system-out>
+	</testcase>
+	<testcase name="rigid_fsi_verification" classname="rigid_fsi_verification" time="0.544778" status="run">
+		<properties>
+			<property name="cmake_labels" value="core;rank-1;rank-2"/>
+		</properties>
+		<system-out>FSI passed: added mass, body balance, pressure-driven motion, full Jv and 1/2 rank
+</system-out>
+	</testcase>
+</testsuite>
