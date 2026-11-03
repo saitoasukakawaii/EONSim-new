@@ -186,4 +186,4 @@ P1/Q1 的 stage_boundary_flux/stage_flux_balance 诊断，不能据日志字段�
 G2C 云端补验：[PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29) 的
 [run 41582475827](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41582475827)
 在 merge preview b8c1642 上通过 Debug/Release 各 15/15 相关检查；
-[精简证据](../research/data/p2-transient-2026-11-03/cloud.json)。PR 尚未合并。
+[精简证据](../research/data/p2-transient-2026-11-03/cloud.json)。PR #29 已合入 main（dff9116）。

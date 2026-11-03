@@ -207,3 +207,6 @@ P2 参考三角形六节点插值、六个多项式的值/梯度重现及反向�
 
 
 FEM-G2C 云端补验：[PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29)，run 41582475827，PETSc 3.23.7 Debug/Release 各 15/15 相关项通过；网站 run 41582475766 通过。源码仍为 d19a032，merge preview b8c1642；详见 [云端证据](data/p2-transient-2026-11-03/cloud.json)。PR 未合并，草稿未发布。
+
+
+2026-11-03 合并状态核对：PR #29 已在远端合并为 dff911648e54507e9cca80ad1880c20b867a0c75，本 agent 没有执行合并。最终云端证据补记提交晚于合并，作为纯文档后续 PR 提交；知识文章仍保持 draft。

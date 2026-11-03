@@ -510,3 +510,8 @@ PR #28 的 run 41287626201 成功，实际 merge preview bbf494b84af62b904a78213
 - 云端 4 CPU、约 16 GiB；每模式构建、运行时链接和 CTest 命令退出 0；receipt 核对测试清单与双模式来源后成功。3.19.6 手动专项 job skipped。选测脚本的合成 failure/error/skipped XML 是负例输入，26/6 项脚本测试均通过，不将日志里的负例文本误认为数值失败。
 - [网站 run 41582475766](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41582475766) 构建和草稿/模板隔离成功；文章仍是 draft。
 - 精简机器证据、15 项清单与每项原始来源见 docs/research/data/p2-transient-2026-11-03/cloud.json。收尾仅补状态和证据，复用同 PR 上述通过记录，本次不重新编译或运行数值测试，不使用 skip ci 绕过检查。
+
+
+### FEM-G2C 远端合并与补记竞态
+
+最终状态查询发现 PR #29 已在 2026-11-03T05:16:50Z 合并，merge commit 为 dff911648e54507e9cca80ad1880c20b867a0c75，实际合并 head 为 e5900a1；本 agent 未调用合并工具。补记 87f6df0 在该时间之后推送到原分支，没有进入已关闭 PR，因此查不到它对应的新 PR CI，不属于检查失败或绕过。修正队列为 done；最终证据与合并状态单独提交纯文档补记 PR，不修改数值源码，不重跑历史已通过检查。

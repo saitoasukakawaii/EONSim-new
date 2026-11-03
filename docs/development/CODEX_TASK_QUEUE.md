@@ -15,7 +15,7 @@
 
 | ID | 优先级 | 状态 | 任务 | 交付与验收 |
 |---|---:|---|---|---|
-| FEM-G2C | P2 | review | P2 瞬态扩散闭环 | 基线 1bc87a7；实现 d19a032；BE/BDF2/alpha、同分区重启、接受步输出及本地 1/2 rank 验收完成，Release 5/5、历史故障 8/8；[PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29) 云端 Debug/Release 各 15/15 通过，待人工审核，未合并 |
+| FEM-G2C | P2 | done | P2 瞬态扩散闭环 | 基线 1bc87a7；实现 d19a032；BE/BDF2/alpha、同分区重启、接受步输出及本地 1/2 rank 验收完成，Release 5/5、历史故障 8/8；[PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29) 云端 Debug/Release 各 15/15 通过，已由远端合入 main（dff9116）；最终证据补记另提纯文档 PR |
 | FEM-G2B | P2 | done | P2 Robin 与纯 Neumann 边界 | [PR #28](https://github.com/saitoasukakawaii/EONSim-new/pull/28)；1/2 rank patch、物理零均值、用户输入与不相容载荷拒绝通过；云端 Debug/Release 各 10/10 相关检查通过，已合入 main（1bc87a7）；复用历史证据，本次未运行 |
 | FEM-G2A | P2 | done | 直边三角形 P2 稳态 Poisson，D/N，1/2 rank | edfc73c 已接入分区/装配/输出，本地 Debug 1/2 rank patch、空间收敛和失败检查通过；[PR #27](https://github.com/saitoasukakawaii/EONSim-new/pull/27) 云端 Debug/Release 各 19 项相关检查通过；2026-11-01 已合入 main（c0745ea），复用既有验收证据 |
 | CI-INCREMENTAL-01 | P1 | done | PR 增量 CI、精确执行与同 PR 成功证据复用 | [PR #26](https://github.com/saitoasukakawaii/EONSim-new/pull/26) 已合入 main（35bf1a1）；首次主锁 Debug/Release 各仅 Poisson 1/1 通过，文档后续提交实际零构建/零数值测试并继承原证据；保留手动全量，PR #26 已合并 |
