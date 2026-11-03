@@ -536,3 +536,18 @@ BE 粗步未达门槛后细化，保持原阶数标准；其他初期失败为�
 本地验收与记录提交 `38a83c9` 后创建 [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31)。自动增量 CI 数值 run `41589294783`，网站 run `41589294782`，开始时均 in_progress；最终结果另行记录。
 
 云端数值 run `41589294783` 最终 success：PETSc 3.23.7 Debug/Release 各 24/24、零失败/跳过；3.19.6 按策略 skipped。网站 run `41589294782` success。数值检验提交为合并预览 `6bed816adfa8090d174c335da36b283b47d25f87`，PR head `38a83c9`，不是已合并 main。精简日志摘要见 [ci.json](../research/data/fsi-pressure-2026-11-03/ci.json)。仅补记录，不重跑本地检查。
+
+## 2026-11-03 / FSI-NEXT-01：固定入口、可靠性与受控研究
+
+- 用户要求实施下一步完整 FSI 任务，全部完成后才提交 PR；20 小时是工程量估计。fetch 确认 PR #31 已合并为 `06b05c4`，从该 main 创建 `codex/fsi-inlet-reliability`。未自动合并任何 PR。
+- 生产实现 `0d93d41`，界面真实双域邻接补强 `69692ee`；最终性能脚本 `32783a5`。固定仿射三分量入口及 smoothstep 启动，BE/BDF2 终点规定值与 alpha 终点插值，冲突检查和 checkpoint 签名；新增共形弹性顶壁算例。
+- 界面三角片按稳定节点 ID 分布式路由，只接受恰有一个流体与一个固体邻接单元的面。按参考面积积分位移/速度、另报当前面积；几何检查同时覆盖阶段和外推终点，失败必须早于历史提交。夹持反力不混入自由界面残量平衡。更新单体 FSI 长期契约。
+- 实际本地 PETSc 3.23.7 Debug/Release 构建受影响目标，CTest 正则 `^(fsi_diagnostics|fsi_diagnostics_mpi|fsi_inlet|fsi_pressure_state)$` 各 4/4，零失败/跳过。含 1/2 rank、三时间格式终点、恢复、装配切线及真实拒绝重放；线性/Neo-Hookean Jacobian 最大差 1.54187e-8/1.54813e-8。
+- 入口 Neo-Hookean 两格式各真实缩步 16 次；刚体 alpha 周期压力第四步阶段收敛而终点反转，失败 checkpoint SHA256 不变，失败步无历史发布。缩步 1 次后成功，与相同步长重放一致。
+- `scripts/study_fsi_next.py --study inlet-time` Release 分场 RMS 比较：BE .905–1.056、BDF2 1.892–2.091、alpha 2.000–2.223。`--study accuracy` 最初时间污染为最后空间差 6.98 倍，统一细化后为 .09509；n=2/4/8 轨迹差减小，不宣称预定空间阶。旧进程超时不足，主动取消为退出 143；只复用已成功样本，以归档的 `finish_accuracy.py` 完成参考解，取消样本不计通过。
+- `--study performance` 最终为 10 预热 + 30 正式样本，1/2/4 rank、n=4/8、625/5057 DoF。三次交替重复且同容差；最大场差 6.16e-11。直接法在小网格及 n=8 的 2/4 rank 更快，分块最大进程 RSS 更低；没有稳定加速证据，不改变默认求解器或引入推测性优化。
+- 重要失败：BE/BDF2 误带 rho 参数；重复负例沿用输出前缀留下旧 PVD；粗 BE 固体位移阶 .844；仅按流体外表面计数缺少固体邻接。分别修正测试配置/前缀、细化时间、补强邻接及 oracle，未降低验收标准。性能首轮位移差 2.20e-14 经 dt^-2 放大为加速度差 1.027e-8；统一收紧非线性后旧 KSP atol 又导致 SNES -6，最终同时收紧所有 recipe 的线性容差，重新测量完整矩阵，失败数据单独保存。
+- [验收 README](../research/data/fsi-next-2026-11-03/README.md) 记录完整命令、配置、依赖、rank、源码沿革、失败尝试及 JUnit/CSV/JSON/图。空间历史来自原方程提交，后续邻接修订不改变该平面共形算例，复用已有通过证据；没有全量或 PETSc 3.19.6 运行。
+- Python 选测器 26/26；`git diff --check` 通过。使用 eonsim-knowledge-capture 形成 [知识草稿](../../website/drafts/fsi-inlet-endpoint-and-resolution.md)，未发布；更新进度、队列与知识索引。PR/云端结果另行记录。
+
+FSI-NEXT-01 最终审查发现旧镜像弹性体使用单独参考几何分支，追加 Debug/Release `elastic_fsi_verification` 各 1/1（不重复前述已通过检查），并补 CI 映射；本地各累计 5 项。选测器 26/26、证据解析 6/6 通过，新文档链接检查通过。

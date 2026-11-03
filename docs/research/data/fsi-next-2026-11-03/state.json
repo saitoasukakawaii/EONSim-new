@@ -1,0 +1,22 @@
+{
+  "debug": {
+    "linear_jacobian_max": 1.54187e-08,
+    "neo_hookean_jacobian_max": 1.54813e-08,
+    "inlet_retries": {
+      "bdf2": 16,
+      "generalized_alpha": 16
+    },
+    "endpoint_rejection": true,
+    "endpoint_retries": 1
+  },
+  "release": {
+    "linear_jacobian_max": 1.54187e-08,
+    "neo_hookean_jacobian_max": 1.54813e-08,
+    "inlet_retries": {
+      "bdf2": 16,
+      "generalized_alpha": 16
+    },
+    "endpoint_rejection": true,
+    "endpoint_retries": 1
+  }
+}

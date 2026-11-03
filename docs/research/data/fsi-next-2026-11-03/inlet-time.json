@@ -1,0 +1,98 @@
+[
+  {
+    "scheme": "be",
+    "h": 0.0005,
+    "fluid_velocity": 0.00024321640818960257,
+    "fluid_mesh_displacement": 1.2653247551631507e-06,
+    "solid_velocity": 0.0009787123265649744,
+    "solid_displacement": 7.205878277381214e-06
+  },
+  {
+    "scheme": "be",
+    "h": 0.00025,
+    "fluid_velocity": 0.0001265771006234282,
+    "fluid_velocity_order": 0.9422241342391857,
+    "fluid_mesh_displacement": 6.087299951774223e-07,
+    "fluid_mesh_displacement_order": 1.0556333495384709,
+    "solid_velocity": 0.0005066377293835584,
+    "solid_velocity_order": 0.9499303512611509,
+    "solid_displacement": 3.848007510259331e-06,
+    "solid_displacement_order": 0.9050626669238647
+  },
+  {
+    "scheme": "be",
+    "h": 0.000125,
+    "fluid_velocity": 6.448461079562256e-05,
+    "fluid_velocity_order": 0.9729896182145109,
+    "fluid_mesh_displacement": 2.9717296587352593e-07,
+    "fluid_mesh_displacement_order": 1.0344995779688069,
+    "solid_velocity": 0.0002571504406360949,
+    "solid_velocity_order": 0.978341892955466,
+    "solid_displacement": 1.996684229399262e-06,
+    "solid_displacement_order": 0.9465054226365813
+  },
+  {
+    "scheme": "bdf2",
+    "h": 0.001,
+    "fluid_velocity": 4.171237919410585e-05,
+    "fluid_mesh_displacement": 2.313987400558139e-07,
+    "solid_velocity": 0.0005317631453291707,
+    "solid_displacement": 1.2409295489959522e-06
+  },
+  {
+    "scheme": "bdf2",
+    "h": 0.0005,
+    "fluid_velocity": 1.0378374529314015e-05,
+    "fluid_velocity_order": 2.0068950979845495,
+    "fluid_mesh_displacement": 6.235358254715643e-08,
+    "fluid_mesh_displacement_order": 1.891836651025994,
+    "solid_velocity": 0.0001404172465963488,
+    "solid_velocity_order": 1.9210636484569745,
+    "solid_displacement": 3.1464485229526085e-07,
+    "solid_displacement_order": 1.9796249668061807
+  },
+  {
+    "scheme": "bdf2",
+    "h": 0.00025,
+    "fluid_velocity": 2.4351827357393354e-06,
+    "fluid_velocity_order": 2.0914785640503974,
+    "fluid_mesh_displacement": 1.5380180044959103e-08,
+    "fluid_mesh_displacement_order": 2.019400060974975,
+    "solid_velocity": 3.3724266600511616e-05,
+    "solid_velocity_order": 2.0578611695527678,
+    "solid_displacement": 7.715542685295158e-08,
+    "solid_displacement_order": 2.027884800295794
+  },
+  {
+    "scheme": "generalized_alpha",
+    "h": 0.001,
+    "fluid_velocity": 1.4755223091462975e-05,
+    "fluid_mesh_displacement": 9.679587121612498e-08,
+    "solid_velocity": 0.0002112231578476168,
+    "solid_displacement": 4.7253370924132463e-07
+  },
+  {
+    "scheme": "generalized_alpha",
+    "h": 0.0005,
+    "fluid_velocity": 3.516361950374299e-06,
+    "fluid_velocity_order": 2.0690702493006015,
+    "fluid_mesh_displacement": 2.3532216467786645e-08,
+    "fluid_mesh_displacement_order": 2.040308298845677,
+    "solid_velocity": 5.143096454080558e-05,
+    "solid_velocity_order": 2.038058900462511,
+    "solid_displacement": 1.1812427417906971e-07,
+    "solid_displacement_order": 2.0001117862148226
+  },
+  {
+    "scheme": "generalized_alpha",
+    "h": 0.00025,
+    "fluid_velocity": 7.529876423441302e-07,
+    "fluid_velocity_order": 2.2233854859202546,
+    "fluid_mesh_displacement": 5.1147934758191766e-09,
+    "fluid_mesh_displacement_order": 2.2018893190786755,
+    "solid_velocity": 1.1174823148914738e-05,
+    "solid_velocity_order": 2.202385210660402,
+    "solid_displacement": 2.595400210850206e-08,
+    "solid_displacement_order": 2.1862765401426305
+  }
+]

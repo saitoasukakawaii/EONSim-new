@@ -277,7 +277,7 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","pressure_time","output_interval"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","pressure_time","output_interval","inlet"},"fsi");
         if(f["stabilization_tau"]) {
             config.fsi.stabilization_tau=f["stabilization_tau"].as<double>();
             if(!(*config.fsi.stabilization_tau>0)||!std::isfinite(*config.fsi.stabilization_tau))
@@ -328,6 +328,21 @@ Config read_config(const std::filesystem::path& path)
                 }
             };
             constraints("fluid_constraints",domain.fluid_constraints); constraints("mesh_constraints",domain.mesh_constraints); constraints("solid_constraints",domain.solid_constraints);
+        }
+        if(const auto b=f["inlet"]) {
+            keys(b,{"tag","value","origin","gradient","ramp_time"},"fsi.inlet");
+            FluidBoundary inlet; inlet.tag=b["tag"].as<int>();
+            inlet.value=vector3(b["value"],"fsi.inlet.value");
+            if(b["origin"]) inlet.origin=vector3(b["origin"],"fsi.inlet.origin");
+            if(const auto g=b["gradient"]) {
+                if(!g.IsSequence()||g.size()!=3) throw std::runtime_error("FSI inlet gradient requires three rows");
+                for(int i=0;i<3;++i) {const auto row=vector3(g[i],"fsi.inlet.gradient"); for(int j=0;j<3;++j) inlet.gradient[3*i+j]=row[j];}
+            }
+            if(b["ramp_time"]) inlet.ramp_time=b["ramp_time"].as<double>();
+            if(!v.elastic||v.domains.solid_mesh.empty()||inlet.tag<=0||inlet.tag==v.domains.fluid_interface||
+               std::find(v.domains.pressure_tags.begin(),v.domains.pressure_tags.end(),inlet.tag)!=v.domains.pressure_tags.end()||
+               !std::isfinite(inlet.ramp_time)||inlet.ramp_time<0) throw std::runtime_error("Invalid FSI inlet");
+            v.inlet=inlet;
         }
         if(v.neo_hookean && !v.elastic) throw std::runtime_error("Neo-Hookean FSI requires an elastic body");
         if(f["young"]) v.young=f["young"].as<double>();

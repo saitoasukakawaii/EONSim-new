@@ -1,6 +1,9 @@
 {
   "schema": 1,
   "tests": {
+    "fsi_inlet": {"targets": ["eonsim"], "ranks": [1, 2]},
+    "fsi_diagnostics": {"targets": ["verify_fsi_diagnostics"], "ranks": [1]},
+    "fsi_diagnostics_mpi": {"targets": ["verify_fsi_diagnostics"], "ranks": [2]},
     "fsi_pressure_state": {"targets": ["eonsim"], "ranks": [1, 2]},
     "fsi_pressure_convergence": {"targets": ["eonsim"], "ranks": [1]},
     "scalar_p2_time": {"targets": ["eonsim"], "ranks": [1, 2]},
@@ -72,6 +75,7 @@
     "time_retry_verification": {"targets": ["eonsim"], "ranks": [1, 2]}
   },
   "rules": [
+    {"paths": ["include/eonsim/config.hpp", "src/core/config.cpp", "src/physics/fsi.cpp", "include/eonsim/fsi_diagnostics.hpp", "src/physics/fsi_diagnostics.cpp", "tests/verify_fsi_diagnostics.cpp", "tests/verify_fsi_inlet.py", "cases/fsi/generate_wall.py", "scripts/study_fsi_next.py", "CMakeLists.txt"], "tests": ["fsi_inlet", "fsi_diagnostics", "fsi_diagnostics_mpi", "fsi_pressure_state", "elastic_fsi_verification"], "python": []},
     {"paths": ["include/eonsim/config.hpp", "src/core/config.cpp", "include/eonsim/fsi.hpp", "src/physics/fsi.cpp", "src/main.cpp", "tests/verify_fsi_pressure.py", "CMakeLists.txt", "cases/fsi/*"], "tests": ["fsi_pressure_state", "fsi_pressure_convergence"], "python": []},
     {"paths": ["src/physics/scalar_p2.cpp", "src/core/config.cpp", "include/eonsim/config.hpp", "include/eonsim/tri_p2.hpp", "include/eonsim/scalar_p2_space.hpp", "src/fem/scalar_p2_space.cpp", "src/io/checkpoint.cpp", "include/eonsim/checkpoint.hpp", "include/eonsim/time_integration.hpp", "include/eonsim/time_step.hpp", "src/algebra/linear_system.cpp", "include/eonsim/linear_system.hpp", "src/main.cpp", "CMakeLists.txt", "tests/verify_scalar_p2_time.py", "cases/scalar2d/generate.py"], "tests": ["scalar_p2_time", "scalar_p2_restart", "scalar_p2_failure"], "python": []},
     {"paths": ["src/mesh/partition.cpp", "include/eonsim/mesh.hpp", "src/core/config.cpp", "include/eonsim/config.hpp", "src/main.cpp", "include/eonsim/dof_semantics.hpp", "include/eonsim/tri_p2.hpp", "CMakeLists.txt"], "tests": ["scalar_p2_verification", "p2_space_oracles", "tri_p2_oracles"], "python": []},
