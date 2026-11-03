@@ -1,6 +1,10 @@
 {
   "schema": 1,
   "tests": {
+    "scalar_p2_time": {"targets": ["eonsim"], "ranks": [1, 2]},
+    "scalar_p2_restart": {"targets": ["eonsim"], "ranks": [1, 2]},
+    "scalar_p2_failure": {"targets": ["eonsim"], "ranks": [1, 2]},
+
     "scalar_p2_verification": {"targets": ["eonsim"], "ranks": [1, 2]},
     "p2_space_oracles": {"targets": ["verify_p2_space"], "ranks": [1]},
     "tri_p2_oracles": {"targets": ["verify_tri_p2"], "ranks": [1]},
@@ -66,6 +70,7 @@
     "time_retry_verification": {"targets": ["eonsim"], "ranks": [1, 2]}
   },
   "rules": [
+    {"paths": ["src/physics/scalar_p2.cpp", "src/core/config.cpp", "include/eonsim/config.hpp", "include/eonsim/tri_p2.hpp", "include/eonsim/scalar_p2_space.hpp", "src/fem/scalar_p2_space.cpp", "src/io/checkpoint.cpp", "include/eonsim/checkpoint.hpp", "include/eonsim/time_integration.hpp", "include/eonsim/time_step.hpp", "src/algebra/linear_system.cpp", "include/eonsim/linear_system.hpp", "src/main.cpp", "CMakeLists.txt", "tests/verify_scalar_p2_time.py", "cases/scalar2d/generate.py"], "tests": ["scalar_p2_time", "scalar_p2_restart", "scalar_p2_failure"], "python": []},
     {"paths": ["src/mesh/partition.cpp", "include/eonsim/mesh.hpp", "src/core/config.cpp", "include/eonsim/config.hpp", "src/main.cpp", "include/eonsim/dof_semantics.hpp", "include/eonsim/tri_p2.hpp", "CMakeLists.txt"], "tests": ["scalar_p2_verification", "p2_space_oracles", "tri_p2_oracles"], "python": []},
     {"paths": ["tests/verify_scalar_p2.py", "src/physics/scalar_p2.cpp", "include/eonsim/scalar_p2_space.hpp", "src/fem/scalar_p2_space.cpp"], "tests": ["scalar_p2_verification"], "python": []},
     {"paths": ["include/eonsim/scalar_p2_space.hpp", "src/fem/scalar_p2_space.cpp", "tests/verify_p2_space.cpp", "src/physics/scalar_p2.cpp"], "tests": ["p2_space_oracles", "tri_p2_oracles"], "python": []},

@@ -383,7 +383,7 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.scalar2d_problem&&config.scalar2d.degree==2) {
         const auto& c=config.scalar2d;
-        if(c.transient||!c.regions.empty())throw std::runtime_error("P2 supports steady uniform-coefficient Poisson only");
+        if(!c.regions.empty())throw std::runtime_error("P2 supports uniform-coefficient scalar problems only");
     }
     if (const auto solver = root["solver"]) {
         keys(solver, {"relative_tolerance", "absolute_tolerance", "maximum_iterations", "fields", "pc_recipe"}, "solver");
