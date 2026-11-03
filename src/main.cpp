@@ -131,15 +131,8 @@ int main(int argc, char* argv[])
                 } else eonsim::solve_scalar2d(PETSC_COMM_WORLD,mesh,config);
             } else if(config.fsi_problem) {
                 const auto fsi=eonsim::solve_fsi(PETSC_COMM_WORLD,mesh,config);
-                eonsim::write_fields(config.output,fsi.current_mesh,fsi.fields);
-                const auto solid_path=config.output.parent_path()/(config.output.stem().string()+"_solid.vtu");
-                if(config.fsi.elastic) eonsim::write_fields(solid_path,fsi.solid_mesh,fsi.solid_fields);
-                MPI_Barrier(PETSC_COMM_WORLD);
-                if(rank==0) {
-                    eonsim::write_field_index(config.output,size,fsi.fields);
-                    if(config.fsi.elastic) eonsim::write_field_index(solid_path,size,fsi.solid_fields);
-                    std::cout << "status=success\n";
-                }
+                eonsim::write_fsi_fields(PETSC_COMM_WORLD,config.output,fsi);
+                if(rank==0) std::cout << "status=success\n";
             } else if(config.motion_problem) {
                 if(config.motion.mode==eonsim::MotionConfig::Mode::rigid) {
                     const auto& m=config.motion;

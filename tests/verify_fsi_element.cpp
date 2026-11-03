@@ -1,12 +1,19 @@
 /** @file @brief 全 ALE 局部耦合切线，独立方向扰动覆盖几何/压力面积/网格速度。 */
 #include "eonsim/fsi_element.hpp"
+#include "eonsim/fsi.hpp"
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
 int main() {
     using namespace eonsim;
+    FsiConfig load; load.pressure=2; load.pressure_time=FsiPressureTime{1,4,1};
+    for(const auto& sample: {std::pair<double,double>{0,0},{1,3},{2,2},{3,1},{5,3}})
+        if(std::abs(fsi_pressure(load,sample.first)-sample.second)>1e-14)
+            throw std::runtime_error("FSI pressure startup/period mismatch");
+    load.pressure_time->ramp_time=2;
+    if(std::abs(fsi_pressure(load,1)-1.5)>1e-14) throw std::runtime_error("FSI pressure ramp midpoint mismatch");
     FsiElementData data({Point{0,0,0},Point{1.1,.1,0},Point{.2,.9,.1},Point{.1,.2,1.2}});
-    data.inlet_faces={{0,2,3}}; data.fluid={1.3,.6,.07,.02,true}; data.inlet_pressure=.8;
+    data.inlet_faces={{0,2,3}}; data.fluid={1.3,.6,.07,.02,true}; data.inlet_pressure=fsi_pressure(load,.7);
     Tet4Ale::State<double> x{},direction{};
     for(int i=0;i<Tet4Ale::dofs;++i) { x[i]=.015*std::sin(i+1); direction[i]=std::sin(3*i+.7); }
     for(int i=0;i<Tet4Flow::dofs;++i) data.previous_fluid[i]=.03*std::cos(i+.2);

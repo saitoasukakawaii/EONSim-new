@@ -226,6 +226,14 @@ if(BUILD_TESTING)
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_ale_time.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --alpha
         --work "${CMAKE_CURRENT_BINARY_DIR}/ale_alpha_verification")
+    foreach(check state convergence)
+        add_test(NAME fsi_pressure_${check}
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_pressure.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --checks ${check}
+            --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_pressure_${check}")
+        set_tests_properties(fsi_pressure_${check} PROPERTIES TIMEOUT 1200 PROCESSORS 2
+            LABELS "core;rank-1;rank-2" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    endforeach()
     add_test(NAME fsi_alpha_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_time.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --alpha
