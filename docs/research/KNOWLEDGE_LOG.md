@@ -190,3 +190,17 @@ P2 参考三角形六节点插值、六个多项式的值/梯度重现及反向�
 ### 2026-11-01 — FEM-G2B 边界与物理均值
 
 更新[现有 P2 草稿](../../website/drafts/p2-edge-space-poisson.md)：源码 d6ec424，新增 Robin 边迹矩阵及纯 Neumann 相容性/零空间/体积均值解释。本地 Debug、PETSc 3.23.7、1/2 rank 相关数值及拒绝检查通过；命令见会话日志，证据 data/p2-boundaries-2026-11-01。PR #28 云端 run 41287626201 的 Debug/Release 各 10 项相关检查通过，文章仍未发布。
+
+
+### FEM-G2C 启动检查点（2026-11-02）
+
+基线 `1bc87a7`，当前未提交改动增加 P2 解析一致质量矩阵 oracle；独立 C++17 检查通过，命令与边界见 [会话日志](../development/CODEX_SESSION_LOG.md)。生产瞬态功能、MPI、checkpoint 尚未实现或验证。本检查点不生成文章，不构成功能交付或性能证据。
+
+
+### FEM-G2C P2 瞬态历史（2026-11-03）
+
+- 草稿：[P2 瞬态扩散：一致质量、时间层和完整历史](../../website/drafts/p2-transient-history.md)，未审核、未发布。
+- 实现 `d19a03268577b33ddfb41177037d9bbc1f76d273`；BE/BDF2/一阶 alpha、P2 空间签名及同分区完整历史恢复、接受步输出。
+- 理论证据：一致质量的重心坐标积分、统一时间方程和 alpha 边界时刻；实现与验证分开标记。
+- 本地 Debug 分项与 Release 五项 P2 检查通过，真实 1/2 rank；8/8 HDF5 历史/空间补验通过；命令及失败尝试见会话日志，原始摘要见 [源码与证据](data/p2-transient-2026-11-03/source.json)。
+- 无全量、旧锁、超过 2 rank 新验证或性能结论；PR 云端结果后续登记，不把本地结果称为云端通过。
