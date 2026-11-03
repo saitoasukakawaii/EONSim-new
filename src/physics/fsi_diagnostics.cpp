@@ -1,4 +1,5 @@
 #include "eonsim/fsi_diagnostics.hpp"
+#include "eonsim/boundary_geometry.hpp"
 #include <algorithm>
 #include <cmath>
 #include <map>
@@ -43,6 +44,20 @@ std::vector<Tri3Topology::Nodal<LocalId>> fsi_interface_faces(MPI_Comm comm,
     MPI_Alltoallv(received.data(),recv_count.data(),recv_offset.data(),MPI_INT64_T,reply.data(),send_count.data(),send_offset.data(),MPI_INT64_T,comm);
     std::vector<Face> result;
     for(std::size_t i=0;i<reply.size();i+=5) if(reply[i]) result.push_back(candidates.at(reply[i+3]));
+    return result;
+}
+std::array<double,6> fsi_tet_mass_observation(const Tet4Topology::Nodal<Point>& current,
+    const Tet4Topology::Nodal<Point>& velocity)
+{
+    const auto g=tet4_geometry(current);
+    std::array<double,6> result{};result[0]=g.volume;
+    for(int a=0;a<4;++a) for(int c=0;c<3;++c) result[1]+=g.volume*g.gradients[a][c]*velocity[a][c];
+    for(int skip=0;skip<4;++skip) {
+        Tri3Topology::Nodal<Point> face,u;int k=0;
+        for(int a=0;a<4;++a) if(a!=skip) {face[k]=current[a];u[k++]=velocity[a];}
+        const auto fg=triangle_geometry(face,current[skip]);
+        for(int a=0;a<3;++a) for(int c=0;c<3;++c) result[2+skip]+=fg.area*fg.normal[c]*u[a][c]/3;
+    }
     return result;
 }
 double fsi_volume_ratio(const Tet4Topology::Nodal<Point>& reference,const Tet4Topology::Nodal<Point>& current) {

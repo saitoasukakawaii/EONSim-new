@@ -241,16 +241,14 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     const auto n=cell.nodes[a]; xyz[a][c]=mesh.nodes[n].position[c]+state[Layout::dof(n,Layout::mesh_offset+c)];
                     u[a][c]=state[Layout::dof(n,c)];
                 }
-                const auto g=tet4_geometry(xyz); local[0]+=g.volume;
-                for(int a=0;a<4;++a) for(int c=0;c<3;++c) local[4]+=g.volume*g.gradients[a][c]*u[a][c];
+                const auto observation=fsi_tet_mass_observation(xyz,u); local[0]+=observation[0]; local[4]+=observation[1];
                 for(int skip=0;skip<4;++skip) {
-                    Tri3Topology::Nodal<LocalId> key; Tri3Topology::Nodal<Point> face,velocity; int k=0;
-                    for(int a=0;a<4;++a) if(a!=skip) {key[k]=cell.nodes[a];face[k]=xyz[a];velocity[k++]=u[a];}
+                    Tri3Topology::Nodal<LocalId> key; int k=0;
+                    for(int a=0;a<4;++a) if(a!=skip) {key[k++]=cell.nodes[a];}
                     std::sort(key.begin(),key.end());
                     const auto found=boundary.find(key);
                     if(found==boundary.end()&&!interface_keys.count(key)) continue;
-                    const auto fg=triangle_geometry(face,xyz[skip]); double flux=0;
-                    for(int a=0;a<3;++a) for(int c=0;c<3;++c) flux+=fg.area*fg.normal[c]*velocity[a][c]/3;
+                    const double flux=observation[2+skip];
                     const int tag=found==boundary.end()?0:found->second;
                     if(f.inlet&&tag==f.inlet->tag) local[1]-=flux;
                     else if(std::find(f.domains.pressure_tags.begin(),f.domains.pressure_tags.end(),tag)!=f.domains.pressure_tags.end()) local[2]+=flux;
