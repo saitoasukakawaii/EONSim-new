@@ -88,6 +88,7 @@ struct FsiDomains {
 };
 struct FsiPressureTime { double amplitude=0, period=1, ramp_time=0; };
 struct FsiConfig {
+    std::optional<FluidBoundary> inlet; ///< Fixed external affine velocity, smooth startup.
     std::optional<FsiPressureTime> pressure_time;
     int output_interval=0; ///< Zero: final fields only; positive: accepted-step history and snapshot cadence.
     FsiDomains domains;

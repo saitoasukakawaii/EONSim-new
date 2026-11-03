@@ -1,4 +1,5 @@
 #include "eonsim/fsi.hpp"
+#include "eonsim/fsi_diagnostics.hpp"
 #include "eonsim/time_step.hpp"
 #include "eonsim/time_integration.hpp"
 #include "eonsim/fsi_domains.hpp"
@@ -77,7 +78,12 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     PetscBool finite_difference=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_fd_tangent",&finite_difference,nullptr));
     const bool dual=!f.domains.solid_mesh.empty();
-    const auto reduced=dual?make_dual_fsi_layout(comm,mesh,f.domains):Elastic?make_elastic_fsi_layout(comm,mesh):make_rigid_fsi_layout(comm,mesh);
+    auto domains=f.domains;
+    if(f.inlet) {
+        domains.fluid_constraints.push_back({f.inlet->tag,{0,1,2}});
+        domains.mesh_constraints.push_back({f.inlet->tag,{0,1,2}});
+    }
+    const auto reduced=dual?make_dual_fsi_layout(comm,mesh,domains):Elastic?make_elastic_fsi_layout(comm,mesh):make_rigid_fsi_layout(comm,mesh);
     using Layout=CoupledLayout<Tet4Topology,Elastic>;
     constexpr int nc=Layout::components;
     const auto& layout=reduced.algebra;
@@ -90,6 +96,33 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             throw std::runtime_error("FSI reference boundary mismatch");
     }
     const auto& interface=reduced.interface_nodes;
+    std::vector<Point> inlet_values(mesh.nodes.size());
+    std::vector<bool> inlet_nodes(mesh.nodes.size());
+    output_stage(comm,"inlet validation",[&] {
+        if(!f.inlet) return;
+        for(std::size_t n=0;n<mesh.nodes.size();++n) {
+            const auto& tags=mesh.node_boundary_tags[n];
+            const auto has=[&](int t){return std::find(tags.begin(),tags.end(),t)!=tags.end();};
+            if(!has(f.inlet->tag)) continue;
+            if(!node_in_region(mesh,n,f.domains.fluid_region)) throw std::runtime_error("FSI inlet must belong to fluid");
+            inlet_nodes[n]=true;
+            for(int c=0;c<3;++c) {
+                double value=f.inlet->value[c];
+                for(int j=0;j<3;++j) value+=f.inlet->gradient[3*c+j]*(mesh.nodes[n].position[j]-f.inlet->origin[j]);
+                if(!std::isfinite(value)) throw std::runtime_error("Nonfinite FSI inlet value");
+                bool zero=interface[n];
+                for(const auto& bc:f.domains.fluid_constraints)
+                    if(has(bc.tag)&&std::find(bc.components.begin(),bc.components.end(),c)!=bc.components.end()) zero=true;
+                if(zero&&std::abs(value)>1e-12) throw std::runtime_error("FSI inlet conflicts with homogeneous/interface constraint");
+                inlet_values[n][c]=zero?0:value;
+            }
+        }
+    });
+    const auto inlet_scale=[&](double t) {
+        if(!f.inlet||f.inlet->ramp_time==0) return 1.;
+        const double x=std::clamp(t/f.inlet->ramp_time,0.,1.); return x*x*x*(10+x*(-15+6*x));
+    };
+    const auto interface_faces=fsi_interface_faces(comm,mesh,interface,dual?f.domains.fluid_region:0);
     std::vector<bool> fluid_cell,solid_cell;
     std::vector<FsiElementData> data;
     std::vector<Tet4Geometry> solid_geometry;
@@ -118,6 +151,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     }
     std::vector<double> accepted(layout.local_to_global.size(),0),physical(mesh.nodes.size()*nc,0);
     std::vector<double> solid_d(mesh.nodes.size()*Tet4Vector::components,0);
+    // A zero-ramp inlet is present in the initial physical state as well.
+    for(std::size_t n=0;n<mesh.nodes.size();++n) if(inlet_nodes[n])
+        for(int c=0;c<3;++c) physical[nc*n+c]=inlet_scale(0)*inlet_values[n][c];
     RigidState body;
     std::vector<double> fluid_rate(alpha?solid_d.size():0,0),mesh_velocity(fluid_rate),mesh_acceleration(fluid_rate);
     std::vector<double> solid_acceleration(alpha&&Elastic?solid_d.size():0,0);
@@ -146,6 +182,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         signature_values.insert(signature_values.end(),config.time_control.step_sizes.begin(),config.time_control.step_sizes.end());
     }
     if(f.pressure_time) signature_values.insert(signature_values.end(),{20505.,f.pressure_time->amplitude,f.pressure_time->period,f.pressure_time->ramp_time});
+    if(f.inlet) {
+        signature_values.insert(signature_values.end(),{20506.,double(f.inlet->tag),f.inlet->ramp_time});
+        for(const auto& a:{std::vector<double>(f.inlet->value.begin(),f.inlet->value.end()),std::vector<double>(f.inlet->origin.begin(),f.inlet->origin.end()),std::vector<double>(f.inlet->gradient.begin(),f.inlet->gradient.end())}) signature_values.insert(signature_values.end(),a.begin(),a.end());
+    }
     const auto signature=state_signature(mesh,dual?"fsi_dual":"fsi",signature_values);
     TimeStepper clock(f.dt,f.steps,config.time_control);
     if(!config.restart.empty()) {
@@ -215,7 +255,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         if(!config.output.parent_path().empty()) std::filesystem::create_directories(config.output.parent_path());
         history.exceptions(std::ios::badbit|std::ios::failbit);
         history.open(history_path(".csv")); history<<std::setprecision(17);
-        history<<"step,time,accepted_dt,evaluation_time,applied_pressure,endpoint_position,endpoint_velocity,evaluation_fluid_force,evaluation_body_balance,evaluation_interface_power,evaluation_body_power,evaluation_power_balance,snes_iterations,residual,time_order\n";
+        history<<"step,time,accepted_dt,evaluation_time,applied_pressure,endpoint_position,endpoint_velocity,evaluation_fluid_force,evaluation_body_balance,evaluation_interface_power,evaluation_body_power,evaluation_power_balance,snes_iterations,residual,time_order,reference_interface_area,current_interface_area,area_displacement_x,area_displacement_y,area_displacement_z,area_velocity_x,area_velocity_y,area_velocity_z,stage_min_fluid_j,stage_min_solid_j,endpoint_min_fluid_j,endpoint_min_solid_j\n";
         history.flush();
     });
     NonlinearSystem system(comm,layout);
@@ -262,6 +302,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 (Elastic?reference_d[Tet4Vector::components*n+c-Layout::mesh_offset]:
                  (c==Layout::mesh_offset?reference_body.position:0)):0;
             full[i]=reduced.slot(i,mesh_dt,lifting).expand(x);
+            if(c<3&&inlet_nodes[n]) full[i]=((1-af)*inlet_scale(clock.time)+af*inlet_scale(time))*inlet_values[n][c];
         }
         return full;
     };
@@ -344,7 +385,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             local_residual(e,next,false,r,j);
             for(int a=0;a<Tet4Topology::nodes;++a) if(interface[mesh.cells[e].nodes[a]]) {
                 local[0]-=r[nc*a];
-                if(Elastic) local[1]+=r[nc*a]+r[Layout::dof(a,Layout::structure_offset)];
+                if(Elastic&&reduced.global[Layout::dof(mesh.cells[e].nodes[a],Layout::structure_offset)]>=0)
+                    local[1]+=r[nc*a]+r[Layout::dof(a,Layout::structure_offset)];
                 for(int c=0;c<Space3::dimension;++c) {
                     const auto n=mesh.cells[e].nodes[a];
                     const double velocity=next[Layout::dof(n,c)];
@@ -388,36 +430,59 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             next_body={alpha_step?solid_map.endpoint(body.position,position):position,alpha_step?solid_map.endpoint(body.velocity,v):v};
             if(alpha) next_body_acceleration=alpha_step?solid_map.endpoint_rate(body.velocity,body_acceleration,v):(v-body.velocity)/dt;
         }
-        // A valid alpha stage need not imply a valid extrapolated endpoint.
-        // Check endpoint geometry before committing any physical/history state.
-        if(alpha_step) {
-            int invalid=0,any_invalid=0;
-            try {
-                for(std::size_t e=0;e<mesh.cells.size();++e) {
-                    Tet4Topology::Nodal<Point> xyz;
-                    if(fluid_cell[e]) {
-                        for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) {
-                            const auto n=mesh.cells[e].nodes[a];
-                            xyz[a][c]=mesh.nodes[n].position[c]+next_physical[Layout::dof(n,Layout::mesh_offset+c)];
-                        }
-                        (void)tet4_geometry(xyz);
+        // Both stage and extrapolated endpoint must be valid before any history commit.
+        double quality[4]; std::fill(std::begin(quality),std::end(quality),std::numeric_limits<double>::infinity());
+        int invalid=0,any_invalid=0; bool checking_endpoint=false;
+        try {
+            for(std::size_t e=0;e<mesh.cells.size();++e) {
+                Tet4Topology::Nodal<Point> ref,stage_xyz,end_xyz;
+                const auto& cell=mesh.cells[e];
+                if(fluid_cell[e]) {
+                    for(int a=0;a<4;++a) for(int c=0;c<3;++c) {
+                        const auto n=cell.nodes[a]; ref[a][c]=mesh.nodes[n].position[c];
+                        stage_xyz[a][c]=ref[a][c]+next[Layout::dof(n,Layout::mesh_offset+c)];
+                        end_xyz[a][c]=ref[a][c]+next_physical[Layout::dof(n,Layout::mesh_offset+c)];
                     }
-                    if(solid_cell[e]) {
-                        Tet4Vector::State<double> d;
-                        for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) {
-                            const auto n=mesh.cells[e].nodes[a];
-                            d[Tet4Vector::dof(a,c)]=next_solid[Tet4Vector::dof(n,c)];
-                            xyz[a][c]=(!dual&&c==0?1+f.thickness*(1-mesh.nodes[n].position[0]):mesh.nodes[n].position[c])+d[Tet4Vector::dof(a,c)];
-                        }
-                        if(!dual) std::swap(xyz[1],xyz[2]);
-                        (void)tet4_geometry(xyz);
-                        if(f.neo_hookean) (void)solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,0,true},d,{},{},false);
-                    }
+                    checking_endpoint=false;
+                    quality[0]=std::min(quality[0],fsi_volume_ratio(ref,stage_xyz));
+                    checking_endpoint=true;
+                    quality[2]=std::min(quality[2],fsi_volume_ratio(ref,end_xyz));
                 }
-            } catch(const StepRejected&) { invalid=1; }
-            MPI_Allreduce(&invalid,&any_invalid,1,MPI_INT,MPI_MAX,comm);
-            if(any_invalid) throw StepRejected("Invalid generalized-alpha FSI endpoint geometry");
-        }
+                if(solid_cell[e]) {
+                    for(int a=0;a<4;++a) for(int c=0;c<3;++c) {
+                        const auto n=cell.nodes[a];
+                        ref[a][c]=(!dual&&c==0?1+f.thickness*(1-mesh.nodes[n].position[0]):mesh.nodes[n].position[c]);
+                        stage_xyz[a][c]=ref[a][c]+reference_d[3*n+c]+mesh_dt*next[Layout::dof(n,Layout::structure_offset+c)];
+                        end_xyz[a][c]=ref[a][c]+next_solid[3*n+c];
+                    }
+                    if(!dual) {std::swap(ref[1],ref[2]);std::swap(stage_xyz[1],stage_xyz[2]);std::swap(end_xyz[1],end_xyz[2]);}
+                    checking_endpoint=false;
+                    quality[1]=std::min(quality[1],fsi_volume_ratio(ref,stage_xyz));
+                    checking_endpoint=true;
+                    quality[3]=std::min(quality[3],fsi_volume_ratio(ref,end_xyz));
+                }
+            }
+        } catch(const StepRejected&) {invalid=checking_endpoint?2:1;}
+        MPI_Allreduce(&invalid,&any_invalid,1,MPI_INT,MPI_MAX,comm);
+        if(any_invalid) throw StepRejected(any_invalid==2?"Invalid FSI endpoint geometry":"Invalid FSI stage geometry");
+        if(!Elastic) quality[1]=quality[3]=1;
+        double min_quality[4]; MPI_Allreduce(quality,min_quality,4,MPI_DOUBLE,MPI_MIN,comm);
+        double local_surface[8]{},surface[8]{};
+        output_stage(comm,"interface observation",[&] {
+            for(const auto& face:interface_faces) {
+                Tri3Topology::Nodal<Point> ref,current,displacement,velocity;
+                for(int a=0;a<3;++a) for(int c=0;c<3;++c) {
+                    const auto n=face[a]; ref[a][c]=mesh.nodes[n].position[c];
+                    displacement[a][c]=next_physical[Layout::dof(n,Layout::mesh_offset+c)];
+                    velocity[a][c]=next_physical[Layout::dof(n,c)]; current[a][c]=ref[a][c]+displacement[a][c];
+                }
+                const auto obs=fsi_surface_observation(ref,current,displacement,velocity);
+                for(int i=0;i<8;++i) local_surface[i]+=obs[i];
+            }
+        });
+        MPI_Allreduce(local_surface,surface,8,MPI_DOUBLE,MPI_SUM,comm);
+        if(!(surface[0]>0)) throw std::runtime_error("Empty FSI observation interface");
+        for(int i=2;i<8;++i) surface[i]/=surface[0];
         if(Elastic) {
             double average[3]{},sum[3]{};
             for(std::size_t n=0;n<mesh.owned_nodes;++n) if(interface[n]) {
@@ -473,7 +538,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 if(mesh.rank!=0) return;
                 history<<step<<','<<time<<','<<dt<<','<<evaluation_time<<','<<pressure<<','<<result.position<<','<<result.velocity<<','
                     <<result.fluid_force<<','<<result.balance<<','<<global[2]<<','<<body_power<<','<<body_power-global[2]<<','
-                    <<solved.iterations<<','<<solved.residual_norm<<','<<(alpha_step?2:derivative.order)<<'\n';
+                    <<solved.iterations<<','<<solved.residual_norm<<','<<(alpha_step?2:derivative.order);
+                for(double value:surface) history<<','<<value;
+                for(double value:min_quality) history<<','<<value;
+                history<<'\n';
                 history.flush();
             });
         }
@@ -482,6 +550,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             << " position=" << result.position << " velocity=" << result.velocity << " " << stage << "fluid_force=" << result.fluid_force
             << " " << stage << "body_balance=" << result.balance << " snes_iterations=" << solved.iterations
             << " " << stage << "interface_power=" << global[2] << " " << stage << "body_power=" << body_power << " " << stage << "power_balance=" << body_power-global[2]
+            << " area_displacement_x=" << surface[2] << " area_displacement_y=" << surface[3]
+            << " endpoint_min_fluid_j=" << min_quality[2] << " endpoint_min_solid_j=" << min_quality[3]
             << " residual=" << solved.residual_norm << " time_order=" << (alpha_step?2:derivative.order) << '\n';
         } catch(const StepRejected& error) {
             clock.reject(error.what());

@@ -59,6 +59,7 @@ add_library(eonsim_core
     src/algebra/pc_plan.cpp
     src/physics/fluid_element.cpp
     src/fem/reduced_layout.cpp
+    src/physics/fsi_diagnostics.cpp
     src/physics/fsi.cpp
     src/physics/fsi_element.cpp
     src/physics/motion.cpp
@@ -174,6 +175,15 @@ if(BUILD_TESTING)
     add_executable(verify_hyperelastic_element tests/verify_hyperelastic_element.cpp)
     target_link_libraries(verify_hyperelastic_element PRIVATE eonsim_core)
     add_test(NAME hyperelastic_element_jacobian COMMAND verify_hyperelastic_element)
+    add_executable(verify_fsi_diagnostics tests/verify_fsi_diagnostics.cpp)
+    target_link_libraries(verify_fsi_diagnostics PRIVATE eonsim_core)
+    add_test(NAME fsi_diagnostics COMMAND verify_fsi_diagnostics)
+    add_test(NAME fsi_diagnostics_mpi COMMAND "${MPIEXEC_EXECUTABLE}" -n 2 $<TARGET_FILE:verify_fsi_diagnostics>)
+    set_tests_properties(fsi_diagnostics fsi_diagnostics_mpi PROPERTIES TIMEOUT 60)
+    add_test(NAME fsi_inlet COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_inlet.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_inlet")
+    set_tests_properties(fsi_inlet PROPERTIES TIMEOUT 600 PROCESSORS 2
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_executable(verify_fsi_element tests/verify_fsi_element.cpp)
     target_link_libraries(verify_fsi_element PRIVATE eonsim_core)
     add_test(NAME fsi_element_jacobian COMMAND verify_fsi_element)
