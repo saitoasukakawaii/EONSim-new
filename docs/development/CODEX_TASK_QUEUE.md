@@ -2,9 +2,13 @@
 
 本队列用于跨 Codex Goal / Cloud Task 接续研发。每个 Goal 只领取一个有明确验收条件的里程碑任务。
 
-## FSI-LOAD-01 / review
+## FSI-NEXT-01 / in_progress
 
-用户授权：平滑周期压力驱动的单体 FSI、响应 CSV、流固时间序列及针对性验证。基线 `417e6f9`，分支 `codex/fsi-periodic-pressure`；验收及记录完成后才创建 PR。10 小时为工程量估计。实现 `a6c6761`；Debug/Release 针对性检查与双 rank 示例已通过，已创建 [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31)，云端 Debug/Release 各 24/24 与网站检查通过；等待审查，未合并。证据见 [验收记录](../research/data/fsi-pressure-2026-11-03/README.md)。
+基线 `06b05c4`；分支 `codex/fsi-inlet-reliability`，生产实现 `0d93d41`/`69692ee`，研究脚本 `32783a5`。速度入口与弹性壁通道、面积/几何诊断、精度与性能实验已完成本地验收：Debug/Release 各 5 项（4 项主检查 + 1 项旧弹性体补验）；分场时间阶、时间污染 9.51% 的空间研究、1/2/4 rank 的 30 个正式性能样本通过。用户授权全部完成后创建 PR，20 小时是估计，允许必要超时。待完成记录后提交 PR；没有自动合并。见 [证据](../research/data/fsi-next-2026-11-03/README.md)。
+
+## FSI-LOAD-01 / done
+
+用户授权：平滑周期压力驱动的单体 FSI、响应 CSV、流固时间序列及针对性验证。基线 `417e6f9`，分支 `codex/fsi-periodic-pressure`；验收及记录完成后才创建 PR。10 小时为工程量估计。实现 `a6c6761`；Debug/Release 针对性检查与双 rank 示例已通过，已创建 [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31)，云端 Debug/Release 各 24/24 与网站检查通过；已由远端合并为 `06b05c4`。证据见 [验收记录](../research/data/fsi-pressure-2026-11-03/README.md)。
 
 ## 状态定义
 

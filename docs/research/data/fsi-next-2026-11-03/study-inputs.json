@@ -1,0 +1,605 @@
+{
+  "inlet-time-reference": {
+    "mesh": "fluid.msh",
+    "output": "/home/tfblab633/EONSim/build/fsi-next-time-fields/reference.vtu",
+    "fsi": {
+      "body": "elastic",
+      "domains": {
+        "solid_mesh": "solid.msh",
+        "fluid_region": 10,
+        "solid_region": 20,
+        "fluid_interface": 4,
+        "solid_interface": 13,
+        "pressure_tags": [
+          2
+        ],
+        "fluid_constraints": [
+          {
+            "tag": 3,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 5,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 6,
+            "components": [
+              2
+            ]
+          }
+        ],
+        "mesh_constraints": [
+          {
+            "tag": 1,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 2,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 3,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 5,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 6,
+            "components": [
+              2
+            ]
+          }
+        ],
+        "solid_constraints": [
+          {
+            "tag": 11,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 12,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 15,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 16,
+            "components": [
+              2
+            ]
+          }
+        ]
+      },
+      "young": 100,
+      "poisson": 0.3,
+      "material": "linear",
+      "dt": 6.25e-05,
+      "steps": 640,
+      "pressure": 0,
+      "output_interval": 0,
+      "inlet": {
+        "tag": 1,
+        "value": [
+          0.1,
+          0,
+          0
+        ],
+        "gradient": [
+          [
+            0,
+            -0.1,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "ramp_time": 0.02
+      },
+      "stabilization_tau": 0.05
+    },
+    "time": {
+      "scheme": "bdf2"
+    },
+    "solver": {
+      "relative_tolerance": 1e-11,
+      "absolute_tolerance": 1e-13,
+      "maximum_iterations": 30
+    }
+  },
+  "spatial-n8-original": {
+    "mesh": "fluid.msh",
+    "output": "/home/tfblab633/EONSim/build/fsi-next-accuracy/n8/spatial.vtu",
+    "fsi": {
+      "body": "elastic",
+      "domains": {
+        "solid_mesh": "solid.msh",
+        "fluid_region": 10,
+        "solid_region": 20,
+        "fluid_interface": 2,
+        "solid_interface": 11,
+        "pressure_tags": [
+          1
+        ],
+        "fluid_constraints": [
+          {
+            "tag": 1,
+            "components": [
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 3,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 4,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 5,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 6,
+            "components": [
+              2
+            ]
+          }
+        ],
+        "mesh_constraints": [
+          {
+            "tag": 1,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 3,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 4,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 5,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 6,
+            "components": [
+              2
+            ]
+          }
+        ],
+        "solid_constraints": [
+          {
+            "tag": 12,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 13,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 14,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 15,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 16,
+            "components": [
+              2
+            ]
+          }
+        ]
+      },
+      "young": 100,
+      "poisson": 0.3,
+      "dt": 0.002,
+      "steps": 100,
+      "pressure": 20,
+      "material": "neo_hookean",
+      "pressure_time": {
+        "amplitude": 2,
+        "period": 0.1,
+        "ramp_time": 0.05
+      },
+      "output_interval": 10000
+    },
+    "solver": {
+      "relative_tolerance": 1e-11,
+      "absolute_tolerance": 1e-13,
+      "maximum_iterations": 30,
+      "fields": {
+        "velocity": {
+          "residual_scale": 1
+        },
+        "pressure": {
+          "residual_scale": 0.01
+        },
+        "mesh": {
+          "residual_scale": 0.01
+        },
+        "structure": {
+          "residual_scale": 1
+        }
+      }
+    },
+    "time": {
+      "scheme": "bdf2"
+    }
+  },
+  "spatial-n8-resolved": {
+    "mesh": "fluid.msh",
+    "output": "/home/tfblab633/EONSim/build/fsi-next-accuracy/n8/time-half3.vtu",
+    "fsi": {
+      "body": "elastic",
+      "domains": {
+        "solid_mesh": "solid.msh",
+        "fluid_region": 10,
+        "solid_region": 20,
+        "fluid_interface": 2,
+        "solid_interface": 11,
+        "pressure_tags": [
+          1
+        ],
+        "fluid_constraints": [
+          {
+            "tag": 1,
+            "components": [
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 3,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 4,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 5,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 6,
+            "components": [
+              2
+            ]
+          }
+        ],
+        "mesh_constraints": [
+          {
+            "tag": 1,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 3,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 4,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 5,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 6,
+            "components": [
+              2
+            ]
+          }
+        ],
+        "solid_constraints": [
+          {
+            "tag": 12,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 13,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 14,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 15,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 16,
+            "components": [
+              2
+            ]
+          }
+        ]
+      },
+      "young": 100,
+      "poisson": 0.3,
+      "dt": 0.00025,
+      "steps": 800,
+      "pressure": 20,
+      "material": "neo_hookean",
+      "pressure_time": {
+        "amplitude": 2,
+        "period": 0.1,
+        "ramp_time": 0.05
+      },
+      "output_interval": 10000
+    },
+    "solver": {
+      "relative_tolerance": 1e-11,
+      "absolute_tolerance": 1e-13,
+      "maximum_iterations": 30,
+      "fields": {
+        "velocity": {
+          "residual_scale": 1
+        },
+        "pressure": {
+          "residual_scale": 0.01
+        },
+        "mesh": {
+          "residual_scale": 0.01
+        },
+        "structure": {
+          "residual_scale": 1
+        }
+      }
+    },
+    "time": {
+      "scheme": "bdf2"
+    }
+  },
+  "spatial-n8-reference": {
+    "mesh": "fluid.msh",
+    "output": "/home/tfblab633/EONSim/build/fsi-next-accuracy/n8/time-final.vtu",
+    "fsi": {
+      "body": "elastic",
+      "domains": {
+        "solid_mesh": "solid.msh",
+        "fluid_region": 10,
+        "solid_region": 20,
+        "fluid_interface": 2,
+        "solid_interface": 11,
+        "pressure_tags": [
+          1
+        ],
+        "fluid_constraints": [
+          {
+            "tag": 1,
+            "components": [
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 3,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 4,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 5,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 6,
+            "components": [
+              2
+            ]
+          }
+        ],
+        "mesh_constraints": [
+          {
+            "tag": 1,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 3,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 4,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 5,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 6,
+            "components": [
+              2
+            ]
+          }
+        ],
+        "solid_constraints": [
+          {
+            "tag": 12,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 13,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 14,
+            "components": [
+              1
+            ]
+          },
+          {
+            "tag": 15,
+            "components": [
+              2
+            ]
+          },
+          {
+            "tag": 16,
+            "components": [
+              2
+            ]
+          }
+        ]
+      },
+      "young": 100,
+      "poisson": 0.3,
+      "dt": 0.000125,
+      "steps": 1600,
+      "pressure": 20,
+      "material": "neo_hookean",
+      "pressure_time": {
+        "amplitude": 2,
+        "period": 0.1,
+        "ramp_time": 0.05
+      },
+      "output_interval": 10000
+    },
+    "solver": {
+      "relative_tolerance": 1e-11,
+      "absolute_tolerance": 1e-13,
+      "maximum_iterations": 30,
+      "fields": {
+        "velocity": {
+          "residual_scale": 1
+        },
+        "pressure": {
+          "residual_scale": 0.01
+        },
+        "mesh": {
+          "residual_scale": 0.01
+        },
+        "structure": {
+          "residual_scale": 1
+        }
+      }
+    },
+    "time": {
+      "scheme": "bdf2"
+    }
+  }
+}

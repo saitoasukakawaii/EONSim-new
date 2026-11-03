@@ -1,8 +1,8 @@
 # EONSim Codex Development Progress
 
-更新时间：2026-10-31（Asia/Shanghai）
+更新时间：2026-11-03（Asia/Shanghai）
 
-## 最新交付：G0B → G0 → G5 → G1 已合入 main
+## 历史集成交付：G0B → G0 → G5 → G1 已合入 main
 
 [PR #23](https://github.com/saitoasukakawaii/EONSim-new/pull/23) 已合并，main实现提交
 `9cc2e102e8e32f929de1c9a790c1ae527b931fa2`，功能分支最终源码`9e5a1eddf06a02f5e64201d3eff2d55638ddbf13`。
@@ -25,7 +25,7 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 本次文档审查基线：`a508e3d`（PR #24 合并）；PR #21 的 `38a5e51` 为历史整合基线。
+- 当前任务基线 main：`06b05c4`（PR #31 已合并）；本分支源码检查点 `32783a5`。早期整合证据按其原提交保留。
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场及 Tri3/Quad4 二维标量有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -51,7 +51,9 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 
 ## 当前焦点
 
-FSI-LOAD-01：基线 `417e6f9`，分支 `codex/fsi-periodic-pressure`，实现 `a6c6761`。平滑周期压力、共同阶段取值、缩步重算、checkpoint 参数校验、接受步 CSV 与流固 PVD 已完成。本地 PETSc 3.23.7 Debug/Release 的新增状态/时间精度、局部切线及恒压刚体检查通过（各四项相关检查，直接脚本与 CTest 分开记录）；2 rank 示例完成。云端 PETSc 3.23.7 Debug/Release 各 24/24 相关检查通过，网站检查通过（run `41589294783` / `41589294782`）。状态 review，所有本地验收与记录完成后已创建 [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31)，未合并。见 [使用契约](FSI_PRESSURE_HISTORY.md) 与 [验收证据](../research/data/fsi-pressure-2026-11-03/README.md)。
+FSI-NEXT-01：基线 `06b05c4`，分支 `codex/fsi-inlet-reliability`，生产实现 `0d93d41`/`69692ee`，最终研究脚本 `32783a5`。固定非零速度入口、弹性顶壁、分布式面积观测与阶段/终点几何检查已完成。本地 PETSc 3.23.7 Debug/Release 各 5 项（4 项主检查 + 1 项旧弹性体补验） 定向检查通过；分场时间研究通过，空间轨迹的时间差/最后空间差为 9.51%；Release 性能完成 10 预热 + 30 正式样本，最多 4 rank。小网格直接法更快，较大网格分块内存更低但无稳定加速结论。全部本地验收与记录完成后创建 PR，尚未合并。见 [能力契约](FSI_INLET_AND_RELIABILITY.md) 与 [验收记录](../research/data/fsi-next-2026-11-03/README.md)。
+
+FSI-LOAD-01 已通过 [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31) 在远端合并为 `06b05c4`，本 agent 未执行合并。实现 `a6c6761` 的平滑周期压力、共同阶段取值、缩步/签名和接受步历史已交付；原云端 Debug/Release 各 24/24 与网站通过证据仍见 [验收记录](../research/data/fsi-pressure-2026-11-03/README.md)。本轮只重跑受影响的 `fsi_pressure_state`，其余复用历史通过证据，本次未运行。
 
 
 FEM-G2C 已获用户授权执行，基线 main `1bc87a7`，分支 `codex/p2-transient-diffusion`。目标为 P2 瞬态扩散三种时间格式、完整历史恢复及接受步输出；完成验收后创建 PR。实现 `d19a032` 已完成；本地 Debug 分项与 Release 五项 P2 检查、8 项双 rank 历史故障补验通过。[PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29) 云端 PETSc 3.23.7 Debug/Release 各 15/15 相关检查通过，网站及草稿隔离通过，任务 done，已由远端合并为 `dff9116`（本 agent 未执行合并）。证据见 `docs/research/data/p2-transient-2026-11-03/`。
@@ -91,6 +93,11 @@ DOCS-01 的开发分支 `codex/markdown-progress-audit` 已合并；范围、逐
 - PR #24（已合并）：PETSc 3.19.6 从日常矩阵移出；新增持续知识积累项目级规则。
 
 ## 当前检查点
+
+FSI-NEXT-01 本地实施与数值研究完成，源码/脚本 `32783a5`；PR 与云端选测状态后续补记。
+当前 main 为 `06b05c4`；未运行全量或历史锁；知识文章保留草稿。
+
+### DOCS-01 历史检查点
 
 - 源码基线：`a508e3d`；PR #24 已合入，旧 `codex/primary-petsc-ci-policy` 不再是当前待交付任务。
 - DOCS-01 已通过 [PR #25](https://github.com/saitoasukakawaii/EONSim-new/pull/25) 合入 main（`be21882`）。

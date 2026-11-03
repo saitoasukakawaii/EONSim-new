@@ -1,0 +1,25 @@
+{
+  "os": "Linux-6.6.87.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "cpu": "Intel Core i9-12900K",
+  "logical_cpus": 24,
+  "memory_kib": 32753812,
+  "petsc": "3.23.7",
+  "mpi": "Open MPI 5.0.8",
+  "compiler": "GCC 15.3.0",
+  "application_builds": [
+    "Debug",
+    "Release"
+  ],
+  "threads": {
+    "OMP_NUM_THREADS": 1,
+    "OPENBLAS_NUM_THREADS": 1,
+    "MKL_NUM_THREADS": 1
+  },
+  "mpi_environment": {
+    "OMPI_MCA_pml": "ob1",
+    "OMPI_MCA_btl": "self,sm,tcp",
+    "PRTE_MCA_rmaps_default_mapping_policy": ":oversubscribe"
+  },
+  "maximum_ranks": 4,
+  "dependency_lock": "environments/petsc-3.23.7-linux-64.lock"
+}

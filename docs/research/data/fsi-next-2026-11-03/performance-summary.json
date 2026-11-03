@@ -1,0 +1,182 @@
+[
+  {
+    "n": 4,
+    "ranks": 1,
+    "recipe": "direct",
+    "dofs": 625,
+    "solve_seconds_median": 0.10242410099999999,
+    "assembly_seconds_median": 0.065435201,
+    "ghost_seconds_median": 8.109999999999999e-05,
+    "linear_iterations_median": 10.0,
+    "peak_rss_max_bytes_median": 49606656.0,
+    "peak_rss_sum_bytes_median": 49606656.0,
+    "wall_seconds_median": 0.2506188029947225,
+    "solve_seconds_range": [
+      0.101896301,
+      0.104175401
+    ],
+    "field_max_error": 0.0
+  },
+  {
+    "n": 4,
+    "ranks": 1,
+    "recipe": "hybrid",
+    "dofs": 625,
+    "solve_seconds_median": 0.172181001,
+    "assembly_seconds_median": 0.099418601,
+    "ghost_seconds_median": 7.67e-05,
+    "linear_iterations_median": 145.0,
+    "peak_rss_max_bytes_median": 46919700.0,
+    "peak_rss_sum_bytes_median": 46919700.0,
+    "wall_seconds_median": 0.31939380399126094,
+    "solve_seconds_range": [
+      0.157172801,
+      0.17859610199999998
+    ],
+    "field_max_error": 2.444600077922132e-12
+  },
+  {
+    "n": 4,
+    "ranks": 1,
+    "recipe": "physics",
+    "dofs": 625,
+    "solve_seconds_median": 0.156830001,
+    "assembly_seconds_median": 0.09793980099999999,
+    "ghost_seconds_median": 7.36e-05,
+    "linear_iterations_median": 177.0,
+    "peak_rss_max_bytes_median": 46792704.0,
+    "peak_rss_sum_bytes_median": 46792704.0,
+    "wall_seconds_median": 0.3227793039986864,
+    "solve_seconds_range": [
+      0.150094701,
+      0.157946901
+    ],
+    "field_max_error": 2.086053552119438e-12
+  },
+  {
+    "n": 8,
+    "ranks": 1,
+    "recipe": "direct",
+    "dofs": 5057,
+    "solve_seconds_median": 1.666553651,
+    "assembly_seconds_median": 0.64085112,
+    "ghost_seconds_median": 0.0002262,
+    "linear_iterations_median": 11.0,
+    "peak_rss_max_bytes_median": 124870656.0,
+    "peak_rss_sum_bytes_median": 124870656.0,
+    "wall_seconds_median": 1.9302421720058192,
+    "solve_seconds_range": [
+      1.592359501,
+      1.728761871
+    ],
+    "field_max_error": 0.0
+  },
+  {
+    "n": 8,
+    "ranks": 1,
+    "recipe": "hybrid",
+    "dofs": 5057,
+    "solve_seconds_median": 1.597830801,
+    "assembly_seconds_median": 0.907758939,
+    "ghost_seconds_median": 0.00022799999999999999,
+    "linear_iterations_median": 195.0,
+    "peak_rss_max_bytes_median": 70615040.0,
+    "peak_rss_sum_bytes_median": 70615040.0,
+    "wall_seconds_median": 1.8586190009955317,
+    "solve_seconds_range": [
+      1.579934666,
+      1.843245075
+    ],
+    "field_max_error": 4.4440769423823023e-11
+  },
+  {
+    "n": 8,
+    "ranks": 1,
+    "recipe": "physics",
+    "dofs": 5057,
+    "solve_seconds_median": 1.527314401,
+    "assembly_seconds_median": 0.870943127,
+    "ghost_seconds_median": 0.00024,
+    "linear_iterations_median": 259.0,
+    "peak_rss_max_bytes_median": 71442432.0,
+    "peak_rss_sum_bytes_median": 71442432.0,
+    "wall_seconds_median": 1.792367001005914,
+    "solve_seconds_range": [
+      1.504462945,
+      1.671166871
+    ],
+    "field_max_error": 2.1371926797741914e-11
+  },
+  {
+    "n": 8,
+    "ranks": 2,
+    "recipe": "direct",
+    "dofs": 5057,
+    "solve_seconds_median": 1.299968303,
+    "assembly_seconds_median": 0.5275124,
+    "ghost_seconds_median": 0.0001843,
+    "linear_iterations_median": 11.0,
+    "peak_rss_max_bytes_median": 102768640.0,
+    "peak_rss_sum_bytes_median": 204107776.0,
+    "wall_seconds_median": 1.537569601990981,
+    "solve_seconds_range": [
+      1.286987599,
+      1.306804799
+    ],
+    "field_max_error": 1.0444978215673473e-12
+  },
+  {
+    "n": 8,
+    "ranks": 2,
+    "recipe": "physics",
+    "dofs": 5057,
+    "solve_seconds_median": 1.5620337979999999,
+    "assembly_seconds_median": 0.747185303,
+    "ghost_seconds_median": 0.000284,
+    "linear_iterations_median": 253.0,
+    "peak_rss_max_bytes_median": 69423104.0,
+    "peak_rss_sum_bytes_median": 128135168.0,
+    "wall_seconds_median": 1.797935497990693,
+    "solve_seconds_range": [
+      1.497322899,
+      1.623791605
+    ],
+    "field_max_error": 6.154821595959203e-11
+  },
+  {
+    "n": 8,
+    "ranks": 4,
+    "recipe": "direct",
+    "dofs": 5057,
+    "solve_seconds_median": 0.972362603,
+    "assembly_seconds_median": 0.330245501,
+    "ghost_seconds_median": 0.0001936,
+    "linear_iterations_median": 11.0,
+    "peak_rss_max_bytes_median": 79818752.0,
+    "peak_rss_sum_bytes_median": 302174208.0,
+    "wall_seconds_median": 1.180531803998747,
+    "solve_seconds_range": [
+      0.956204201,
+      0.975790803
+    ],
+    "field_max_error": 1.0695888619238758e-12
+  },
+  {
+    "n": 8,
+    "ranks": 4,
+    "recipe": "physics",
+    "dofs": 5057,
+    "solve_seconds_median": 1.056740803,
+    "assembly_seconds_median": 0.469560802,
+    "ghost_seconds_median": 0.0002457,
+    "linear_iterations_median": 253.0,
+    "peak_rss_max_bytes_median": 62205952.0,
+    "peak_rss_sum_bytes_median": 228593664.0,
+    "wall_seconds_median": 1.2630493040051078,
+    "solve_seconds_range": [
+      1.049132403,
+      1.062380303
+    ],
+    "field_max_error": 4.4902885229514133e-11
+  }
+]
