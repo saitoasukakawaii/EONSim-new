@@ -82,10 +82,12 @@ def main():
         for n in (4,8):
             run=Runner(a.executable,a.mpiexec,a.work/f'n{n}',timeout=2400);cfg=json.loads(wall(run.work,n,True).read_text())
             cfg['fsi'].update(dt=.004,steps=5,output_interval=0)
-            cfg['solver'].update(relative_tolerance=1e-10,absolute_tolerance=1e-12)
+            # Endpoint mesh acceleration amplifies displacement error by dt^-2.
+            # Use identical tighter nonlinear tolerances for every paired recipe.
+            cfg['solver'].update(relative_tolerance=1e-12,absolute_tolerance=1e-14)
             baselines={};medians={}
             def measure(ranks,recipe,repeat):
-                extra=['-solver_report','-device_enable','none']
+                extra=['-solver_report','-device_enable','none','-ksp_rtol','1e-12','-ksp_atol','1e-16']
                 if recipe!='direct':extra+=['-pc_recipe',recipe]
                 start=time.perf_counter();fields,_,log=run.solve(f'r{ranks}-{recipe}-{repeat}',cfg,ranks,extra);wall_seconds=time.perf_counter()-start
                 if ranks not in baselines:baselines[ranks]=fields
