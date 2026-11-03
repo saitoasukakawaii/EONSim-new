@@ -2,6 +2,12 @@
 
 更新时间：2026-11-03（Asia/Shanghai）
 
+## FSI-NEXT-02 当前检查点 / 2026-11-03
+
+实现 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`，基线 main `b2755b6`，独立分支 `codex/fsi-next-02-periodic-flow`。周期离散总流量入口、无滑移弹性壁通道与独立表面/体积质量诊断已实现，本地验收和自审完成；状态 review，尚未创建 PR，不自动合并。
+Debug/Release 新 flow 各1/1与旧入口/压力各2项通过；三时间格式、1/2 rank、恢复、非法输入、整体Jv、真实9次缩步重放及零形状拒绝均有证据。Release 六周期、三网格/三步长最大阶段质量残差3.08e-16；累计体积误差随dt减小。空间渐近收敛及严格周期稳态尚未证明，不作性能或大规模结论。
+[能力说明](FSI_PERIODIC_FLOW.md)、[完整验收与失败记录](../research/data/fsi-flow-2026-11-03/README.md)。本地与API提交tree一致；不把元数据差异视为数值结果变化。下文 FSI-NEXT-01 状态文字是历史检查点，当前基线已经包含其实现。
+
 ## 历史集成交付：G0B → G0 → G5 → G1 已合入 main
 
 [PR #23](https://github.com/saitoasukakawaii/EONSim-new/pull/23) 已合并，main实现提交

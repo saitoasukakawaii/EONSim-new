@@ -1,0 +1,12 @@
+layout_policy semantic_order=entity_first storage_order=owner_node
+step_retry=1 time=0.008 next_dt=0.002
+step_retry=2 time=0.008 next_dt=0.001
+step_retry=3 time=0.008 next_dt=0.0005
+step_retry=4 time=0.008 next_dt=0.00025
+step_retry=5 time=0.008 next_dt=0.000125
+step_retry=6 time=0.008 next_dt=6.25e-05
+step_retry=7 time=0.008 next_dt=3.125e-05
+step_retry=8 time=0.008 next_dt=1.5625e-05
+step_retry=9 time=0.008 next_dt=7.8125e-06
+fsi_step=3 time=0.0080078124999999993 accepted_dt=7.8125000000000002e-06 evaluation_time=0.0080052083333333329 applied_pressure=0 position=7.9063685588497064e-05 velocity=0.011733317797531251 stage_fluid_force=1.4079284921103952 stage_body_balance=-1.9790765554139611e-10 snes_iterations=2 stage_interface_power=0.34226169686145053 stage_body_power=0.34226169703391052 stage_power_balance=1.7245999073267626e-10 area_displacement_x=0.0001778932925741184 area_displacement_y=0.0010985005077993894 endpoint_min_fluid_j=0.99799605175537243 endpoint_min_solid_j=0.97251945352277913 residual=6.1436074575302981e-10 time_order=2
+status=success

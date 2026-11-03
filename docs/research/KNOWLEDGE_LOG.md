@@ -4,6 +4,10 @@
 
 本文件是知识资产索引，不代替文章正文、文献阅读笔记或实验原始数据。
 
+## FSI-NEXT-02 / 2026-11-03
+
+[周期流量入口与移动域质量预算草稿](../../website/drafts/fsi-periodic-flow-mass-budget.md)：实现 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`；离散P1入口归一化、无滑移、阶段与secant区别、独立积分和同分区恢复。理论推导/实现/验证明确区分，无性能证据。Debug/Release与六周期实际结果、原始CSV/日志见[验收](data/fsi-flow-2026-11-03/README.md)。空间渐近收敛、严格周期稳态、大规模及高Re均未证明。待人工审核：时间层解释、适用边界、全局与局部守恒区别。草稿未发布。
+
 ## G5 独立场generalized-alpha / 2026-10-31
 
 [stage与物理输出草稿](../../website/drafts/generalized-alpha-stage-and-physical-output.md)：
