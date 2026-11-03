@@ -72,5 +72,10 @@ class Fields(unittest.TestCase):
         self.assertAlmostEqual(result['velocity'],expected)
         with self.assertRaisesRegex(ValueError,'Actual dense'):phase_sampling_error(entries[::5],1.,1.,{'velocity':1.})
 
+    def test_equal_volume_different_reference_positions_rejected(self):
+        left=({0:dict(velocity=[0,0,0],reference_position=[0,0,0])},{0:1.})
+        right=({0:dict(velocity=[0,0,0],reference_position=[1,0,0])},{0:1.})
+        with self.assertRaisesRegex(ValueError,'coordinates changed'):difference(left,right,{'velocity':1.})
+
 
 if __name__=='__main__':unittest.main()

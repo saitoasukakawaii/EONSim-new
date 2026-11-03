@@ -47,7 +47,7 @@ def main():
     p.add_argument('--resume',action='store_true')
     p.add_argument('--automatic-tau',action='store_true')
     a=p.parse_args();period=.1
-    if not (math.isfinite(a.dt) and a.dt>0 and a.cycles>=a.minimum_cycles>=3 and a.n>=2 and a.ranks>0 and math.isfinite(a.tau) and a.tau>=0 and math.isfinite(a.tolerance) and a.tolerance>0):raise ValueError('Invalid study parameters')
+    if not (math.isfinite(a.dt) and a.dt>0 and a.cycles>=a.minimum_cycles>=3 and a.n>=2 and a.ranks>0 and math.isfinite(a.tau) and a.tau>0 and math.isfinite(a.tolerance) and a.tolerance>0):raise ValueError('Invalid study parameters')
     steps=round(period/a.dt)
     if a.phases<16 or abs(steps*a.dt-period)>1e-12 or steps%a.phases:raise ValueError('Require at least 16 exactly aligned phases per cycle')
     run=Runner(a.executable,a.mpiexec,a.work,timeout=7200)
@@ -55,6 +55,10 @@ def main():
     definition=dict(executable_sha256=hashlib.sha256(Path(a.executable).read_bytes()).hexdigest(),n=a.n,ranks=a.ranks,dt=a.dt,scheme=a.scheme,tau=None if a.automatic_tau else a.tau,
                     tolerance=a.tolerance,phases=a.phases,fluid_scales={'velocity':.01,'pressure':.1,'mesh_displacement':1e-4},
                     solid_scales={'velocity':.01,'displacement':1e-4})
+    root=Path(__file__).resolve().parents[1]
+    inputs=('scripts/study_fsi_periodic.py','scripts/fsi_field_cycles.py','scripts/fsi_cycle_metrics.py',
+            'cases/fsi/generate_wall.py','cases/poisson/generate_mesh.py','tests/verify_fsi_inlet.py')
+    definition['source_sha256']={name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in inputs}
     definition_path=run.work/'study-definition.json'
     all_rows=[];fluid=[];solid=[];metrics=[];streak=0;start=1
     resume_source=checkpoint
@@ -74,6 +78,7 @@ def main():
             with (run.work/(stem+'.csv')).open() as f:all_rows += [{k:float(v) for k,v in r.items()} for r in csv.DictReader(f)]
             fluid+=series(run.work/(stem+'.pvd'));solid+=series(run.work/(stem+'_solid.pvd'))
         volume_budget(all_rows)  # Validate persisted accepted history before another solver launch.
+        if abs(all_rows[-1]['time']-(start-1)*period)>1e-10:raise ValueError('Accepted history does not reach recorded cycle')
         if saved['converged'] and start-1>=a.minimum_cycles:return
     else:
         if any(run.work.iterdir()):raise ValueError('Fresh study requires an empty work directory')
@@ -109,6 +114,14 @@ def main():
         pressure=[(t,pressure_drop(read_snapshot(path,False,True))['pressure_drop'])
                   for t,path in fluid if end-2*period-period/a.phases-1e-10<=t<=end+1e-10]
         result['observations']['pressure_drop']=compare_cycles([t for t,_ in pressure],[v for _,v in pressure],period,end,.1)
+        # Also check every actual field phase, including the accepted endpoint;
+        # a denser interpolated scalar grid need not include those exact peaks.
+        def pressure_at(time):
+            found=[value for t,value in pressure if abs(t-time)<1e-10]
+            if len(found)!=1:raise ValueError('Missing exact pressure phase')
+            return found[0]
+        exact_pressure=max(abs(pressure_at(end-period+j*period/a.phases)-pressure_at(end-2*period+j*period/a.phases))/.1 for j in range(1,a.phases+1))
+        result['observations']['pressure_drop']['relative_max']=max(result['observations']['pressure_drop']['relative_max'],exact_pressure)
         result['mass_budget']=volume_budget(all_rows)
         passed=max([*result['fluid'].values(),*result['solid'].values(),*[v['relative_max'] for v in result['observations'].values()]])<=a.tolerance
         streak=streak+1 if passed else 0

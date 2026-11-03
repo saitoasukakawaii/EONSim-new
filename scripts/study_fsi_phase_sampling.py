@@ -9,7 +9,8 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tests'))
 from verify_fsi_inlet import Runner
 from study_fsi_periodic import preserve_attempt
-from fsi_field_cycles import series,phase_sampling_error
+from fsi_field_cycles import series,phase_sampling_error,compare_series,read_snapshot,pressure_drop
+from analyze_fsi_space import phase_paths
 
 
 def main():
@@ -38,14 +39,22 @@ def main():
         run.solve('dense',cfg,source_definition['ranks'],['-restart',checkpoint])
         temporary=run.work/'solver-complete.tmp';temporary.write_text(json.dumps(dict(end_cycle=cycle+2))+'\n');temporary.replace(run.work/'solver-complete.json')
     if json.loads((run.work/'solver-complete.json').read_text())!={'end_cycle':cycle+2}:raise ValueError('Invalid solver completion receipt')
-    result={}
+    result={};periodic={}
     for solid in (False,True):
         entries=series(run.work/(f'dense_restart{cycle*steps}'+('_solid' if solid else '')+'.pvd'))
         scales={name:1. for name in (('velocity','displacement') if solid else ('velocity','pressure','mesh_displacement'))}
         errors=phase_sampling_error(entries,.1,(cycle+2)*.1,scales,solid)
         result.update({('solid_' if solid else 'fluid_')+k:v for k,v in errors.items()})
-    receipt=dict(definition=definition,coarse_phases=20,dense_phases=100,errors=result)
+        physical_scales=source_definition['solid_scales' if solid else 'fluid_scales']
+        checks=compare_series(entries,.1,(cycle+2)*.1,physical_scales,solid,phases=100)
+        periodic.update({('solid_' if solid else 'fluid_')+k:v for k,v in checks.items()})
+        if not solid:
+            before=[pressure_drop(read_snapshot(path,False,True))['pressure_drop'] for path in phase_paths(entries,cycle+1,100)]
+            after=[pressure_drop(read_snapshot(path,False,True))['pressure_drop'] for path in phase_paths(entries,cycle+2,100)]
+            periodic['pressure_drop']=max(abs(a-b) for a,b in zip(before,after))/.1
+    receipt=dict(definition=definition,start_cycle=cycle,end_cycle=cycle+2,coarse_phases=20,dense_phases=100,errors=result,dense_cycle_difference=periodic,dense_periodic_check=max(periodic.values())<=source_definition['tolerance'])
     (run.work/'sampling-result.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps(receipt),flush=True)
+    if not receipt['dense_periodic_check']:raise RuntimeError('Dense phases reveal unresolved periodic variation')
 
 
 if __name__=='__main__':main()

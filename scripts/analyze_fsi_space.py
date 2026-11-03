@@ -60,19 +60,26 @@ def error_budget(spatial,temporal,transient,sampling):
 
 
 def compare(coarse,fine,n):
+    return cross_mesh_cycles({solid:last_cycle(coarse,solid) for solid in (False,True)},
+                             {solid:last_cycle(fine,solid) for solid in (False,True)},n)
+
+
+def cross_mesh_cycles(left,right,n):
     result={}
     for solid in (False,True):
-        a=last_cycle(coarse,solid);b=last_cycle(fine,solid)
+        a=left[solid];b=right[solid]
+        if not a or len(a)!=len(b):raise ValueError('Incompatible phase grids')
         fields=['velocity','displacement'] if solid else ['velocity','pressure','mesh_displacement']
         stencil=interpolation(read_snapshot(a[0],solid,True),read_snapshot(b[0],solid),n)
         values=[]
-        for left,right in zip(a,b):
-            values.append(distance(read_snapshot(left,solid,True),read_snapshot(right,solid),stencil,fields))
+        for first,second in zip(a,b):
+            values.append(distance(read_snapshot(first,solid,True),read_snapshot(second,solid),stencil,fields))
         for field in fields:result[('solid_' if solid else 'fluid_')+field]=math.sqrt(sum(r[field]**2 for r in values)/len(values))
     return result
 
 
 def validate_cases(workdirs,policy):
+    if policy not in ('automatic','fixed'):raise ValueError('Unsupported stabilization policy')
     expected=None;definitions=[]
     for work,n in zip(workdirs,(2,4,8)):
         definition=json.loads((work/'study-definition.json').read_text())
@@ -80,7 +87,6 @@ def validate_cases(workdirs,policy):
         cfg=copy.deepcopy(json.loads((work/'periodic-result.json').read_text())['config'])
         f=cfg['fsi'];tau=f.get('stabilization_tau')
         if policy=='automatic' and tau is not None:raise ValueError('Mixed stabilization policies')
-        if policy=='viscous' and (tau is None or abs(tau*4*f.get('viscosity',1.)*n*n-1)>1e-12):raise ValueError('Expected viscous h-squared stabilization')
         if policy=='fixed' and tau is None:raise ValueError('Expected fixed stabilization')
         if policy!='fixed':f.pop('stabilization_tau',None)
         f.pop('steps');f.pop('output_interval');f.pop('checkpoint_interval',None);cfg.pop('output');cfg.pop('mesh');f['domains'].pop('solid_mesh')
@@ -90,7 +96,7 @@ def validate_cases(workdirs,policy):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--coarse',type=Path,required=True);p.add_argument('--medium',type=Path,required=True);p.add_argument('--fine',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--policy',choices=['automatic','fixed','viscous'],default='automatic');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--coarse',type=Path,required=True);p.add_argument('--medium',type=Path,required=True);p.add_argument('--fine',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--policy',choices=['automatic','fixed'],default='automatic');a=p.parse_args()
     definitions=validate_cases((a.coarse,a.medium,a.fine),a.policy)
     first=compare(a.coarse,a.medium,2);last=compare(a.medium,a.fine,4)
     result=dict(stabilization_policy=a.policy,definitions=definitions,difference_2_4=first,difference_4_8=last,observed_orders={k:math.log(first[k]/last[k],2) for k in first})
@@ -100,7 +106,7 @@ def main():
         result['boundary_errors'][str(work)]={k:max(e[k] for e in errors) for k in errors[0]}
     result['pressure_cycles']={str(work):[pressure_drop(read_snapshot(path,False,True)) for path in last_cycle(work,False)] for work in (a.coarse,a.medium,a.fine)}
     a.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result),flush=True)
-    if any(v>1e-10 for errors in result['boundary_errors'].values() for v in errors.values()):raise RuntimeError('No-slip/interface compatibility failed')
+    if any(v>1e-12 for errors in result['boundary_errors'].values() for v in errors.values()):raise RuntimeError('No-slip/interface compatibility failed')
     if any(last[k]>=first[k] for k in first):raise RuntimeError('Spatial differences are not decreasing')
 
 

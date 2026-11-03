@@ -41,6 +41,7 @@ def difference(a,b,scales):
     na,wa=a;nb,wb=b
     if na.keys()!=nb.keys() or wa.keys()!=wb.keys():raise ValueError('Incompatible snapshot nodes')
     if any(abs(wa[k]-wb[k])>1e-10*max(wa[k],wb[k]) for k in wa):raise ValueError('Reference geometry changed')
+    if any(abs(x-y)>1e-10 for k in na for x,y in zip(na[k]['reference_position'],nb[k]['reference_position'])):raise ValueError('Reference coordinates changed')
     total=sum(wa.values())
     result={}
     for field,scale in scales.items():
@@ -76,6 +77,7 @@ def phase_sampler(entries,period,solid=False):
         a,wa=snapshot(i-1);b,wb=snapshot(i)
         if a.keys()!=b.keys() or wa.keys()!=wb.keys():raise ValueError('Snapshot topology changed')
         if any(abs(wa[k]-wb[k])>1e-10*max(wa[k],wb[k]) for k in wa):raise ValueError('Reference geometry changed')
+        if any(abs(x-y)>1e-10 for k in a for x,y in zip(a[k]['reference_position'],b[k]['reference_position'])):raise ValueError('Reference coordinates changed')
         f=(t-times[i-1])/(times[i]-times[i-1])
         blended={k:{name:[(1-f)*x+f*y for x,y in zip(a[k][name],b[k][name])] for name in a[k]} for k in a}
         return blended,wa

@@ -21,7 +21,7 @@ def main():
         path=a.work/name
         cmd=base+['--work',str(path),'--ranks',str(ranks),'--cycles',str(cycles)]+(['--resume'] if resume else [])+list(extra)
         result=subprocess.run(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=600)
-        (a.work/(name+f'-{cycles}-{len(extra)}.log')).write_text(result.stdout)
+        (a.work/(name+f'-{cycles}-{len(extra)}-{time.time_ns()}.log')).write_text(result.stdout)
         if result.returncode==0 or expected not in result.stdout:raise RuntimeError(result.stdout[-4000:])
         return path
     def fields(work,cycle,solid,ranks):
@@ -39,6 +39,11 @@ def main():
     work=a.work/'r2';before=hashlib.sha256((work/'fluid.msh').read_bytes()).hexdigest()
     run('r2',2,4,True,('--n','4'),expected='Study definition changed')
     assert hashlib.sha256((work/'fluid.msh').read_bytes()).hexdigest()==before
+    history=work/'cycle3_restart40.csv';original=history.read_bytes()
+    try:
+        history.write_bytes(b'\n'.join(original.splitlines()[:-1])+b'\n')
+        run('r2',2,4,True,expected='Accepted history does not reach recorded cycle')
+    finally:history.write_bytes(original)
     resumed=run('r2',2,4,True)
     continuous=run('continuous',2,4)
     for solid in (False,True):
@@ -58,6 +63,11 @@ def main():
     cfg['fsi']['checkpoint_interval']=100
     checkpoint=direct.work/'off-cadence'
     direct.solve('endpoint',cfg,2,['-checkpoint',checkpoint,'-stop_after',3])
+    generation=(checkpoint/'current').read_text().split()[1]
+    assert int((checkpoint/generation/'manifest').read_text().split()[2])==3
+    cfg['fsi']['steps']=3
+    checkpoint=direct.work/'natural-end'
+    direct.solve('natural-end',cfg,2,['-checkpoint',checkpoint])
     generation=(checkpoint/'current').read_text().split()[1]
     assert int((checkpoint/generation/'manifest').read_text().split()[2])==3
     bad=dict(cfg);bad['fsi']=dict(cfg['fsi'],checkpoint_interval=0)

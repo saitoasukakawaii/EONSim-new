@@ -21,6 +21,10 @@ def main():
     a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
     definition=dict(executable_sha256=hashlib.sha256(Path(a.executable).read_bytes()).hexdigest(),coarse=a.coarse,
                     ranks=2,n=2,tau=.05,relative_tolerance=1e-11,absolute_tolerance=1e-13)
+    root=Path(__file__).resolve().parents[1]
+    inputs=('scripts/study_fsi_time_accuracy.py','scripts/fsi_field_cycles.py','scripts/fsi_cycle_metrics.py',
+            'cases/fsi/generate_wall.py','cases/poisson/generate_mesh.py','tests/verify_fsi_inlet.py')
+    definition['source_sha256']={name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in inputs}
     provenance=a.work/'study-definition.json'
     if provenance.exists():
         if json.loads(provenance.read_text())!=definition:raise ValueError('Temporal study definition changed')
@@ -49,6 +53,8 @@ def main():
                 suffix='_solid' if solid else ''
                 fields={'velocity':1.,'displacement':1.} if solid else {'velocity':1.,'pressure':1.,'mesh_displacement':1.}
                 ref=series(reference/('flow'+suffix+'.pvd'));current=series(work/('flow'+suffix+'.pvd'))
+                actual=[t for t,_ in current if t>.1+1e-12]
+                if len(actual)!=20 or any(abs(t-(.1+j*.005))>1e-12 for j,t in enumerate(actual,1)):raise ValueError('Incomplete physical phase grid')
                 errors=[]
                 for t,path in current:
                     if t<=.1+1e-12:continue
@@ -65,6 +71,7 @@ def main():
                     previous[key]=error
             with (work/'flow.csv').open() as stream:
                 rows=[{k:float(v) for k,v in row.items()} for row in csv.DictReader(stream)]
+            if len(rows)!=2*steps or abs(rows[-1]['time']-.2)>1e-12:raise ValueError('Accepted mass history does not cover the complete run')
             mass_summary.append(dict(scheme=scheme,dt=.1/steps,**volume_budget(rows)))
             (a.work/'mass-convergence.json').write_text(json.dumps(mass_summary,indent=2)+'\n')
             summary.append(result)

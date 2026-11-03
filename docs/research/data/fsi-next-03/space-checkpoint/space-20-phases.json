@@ -1,0 +1,416 @@
+{
+  "stabilization_policy": "automatic",
+  "definitions": [
+    {
+      "executable_sha256": "7c4b29049ac2976a0345d5e468ee0cb1b21656518ffd0bb5f3fba72c4c8612eb",
+      "n": 2,
+      "ranks": 2,
+      "dt": 0.001,
+      "scheme": "generalized_alpha",
+      "tau": null,
+      "tolerance": 0.001,
+      "phases": 20,
+      "fluid_scales": {
+        "velocity": 0.01,
+        "pressure": 0.1,
+        "mesh_displacement": 0.0001
+      },
+      "solid_scales": {
+        "velocity": 0.01,
+        "displacement": 0.0001
+      },
+      "mesh_sha256": {
+        "fluid.msh": "cff2ae349652d0b34c4c47c5313e010b399a5236ccf749ee8d65915f271c3ef8",
+        "solid.msh": "c84cd00759f468bd351bce49a7fd0e44c38e7d7e875b7ddbff5117494a931cb6"
+      }
+    },
+    {
+      "executable_sha256": "3675fc5e3f900f6a6e2d33fa53d9b3d70a49591e02449eb0daacb030db227d75",
+      "n": 4,
+      "ranks": 2,
+      "dt": 0.001,
+      "scheme": "generalized_alpha",
+      "tau": null,
+      "tolerance": 0.001,
+      "phases": 20,
+      "fluid_scales": {
+        "velocity": 0.01,
+        "pressure": 0.1,
+        "mesh_displacement": 0.0001
+      },
+      "solid_scales": {
+        "velocity": 0.01,
+        "displacement": 0.0001
+      }
+    },
+    {
+      "executable_sha256": "7c4b29049ac2976a0345d5e468ee0cb1b21656518ffd0bb5f3fba72c4c8612eb",
+      "n": 8,
+      "ranks": 2,
+      "dt": 0.001,
+      "scheme": "generalized_alpha",
+      "tau": null,
+      "tolerance": 0.001,
+      "phases": 20,
+      "fluid_scales": {
+        "velocity": 0.01,
+        "pressure": 0.1,
+        "mesh_displacement": 0.0001
+      },
+      "solid_scales": {
+        "velocity": 0.01,
+        "displacement": 0.0001
+      },
+      "mesh_sha256": {
+        "fluid.msh": "640bf91ac0b29e79a5b1983ab82fccd6789c7af73a3d734180d4183401f9f4e7",
+        "solid.msh": "0c59b1ff62612f4968b226577be5d4f3c4dae9b965a32baf5aea47f0bcccbbe8"
+      }
+    }
+  ],
+  "difference_2_4": {
+    "fluid_velocity": 0.007055327316472538,
+    "fluid_pressure": 0.1909310177152521,
+    "fluid_mesh_displacement": 0.00026484079073688875,
+    "solid_velocity": 0.0057577193157126545,
+    "solid_displacement": 0.0003922998580638938
+  },
+  "difference_4_8": {
+    "fluid_velocity": 0.0017457798235487893,
+    "fluid_pressure": 0.03898846886996956,
+    "fluid_mesh_displacement": 8.7708595070569e-05,
+    "solid_velocity": 0.002917039423146949,
+    "solid_displacement": 0.00022307867901549526
+  },
+  "observed_orders": {
+    "fluid_velocity": 2.014841396238636,
+    "fluid_pressure": 2.291932090560561,
+    "fluid_mesh_displacement": 1.5943352102122657,
+    "solid_velocity": 0.9809925762928408,
+    "solid_displacement": 0.8144041803987241
+  },
+  "boundary_errors": {
+    "build/fsi-next-03/space-auto-n2": {
+      "rigid_velocity": 0.0,
+      "interface_velocity": 0.0,
+      "interface_displacement": 0.0
+    },
+    "build/fsi-next-03/full-auto-n4": {
+      "rigid_velocity": 0.0,
+      "interface_velocity": 0.0,
+      "interface_displacement": 0.0
+    },
+    "build/fsi-next-03/space-auto-n8": {
+      "rigid_velocity": 0.0,
+      "interface_velocity": 0.0,
+      "interface_displacement": 0.0
+    }
+  },
+  "pressure_cycles": {
+    "build/fsi-next-03/space-auto-n2": [
+      {
+        "inlet_pressure": 0.9794173509822205,
+        "outlet_pressure": 0.12745505801781964,
+        "pressure_drop": 0.8519622929644008
+      },
+      {
+        "inlet_pressure": 0.9754044104385893,
+        "outlet_pressure": 0.15143174884074237,
+        "pressure_drop": 0.8239726615978469
+      },
+      {
+        "inlet_pressure": 0.9284310416231704,
+        "outlet_pressure": 0.1676833953173573,
+        "pressure_drop": 0.760747646305813
+      },
+      {
+        "inlet_pressure": 0.8430439061916966,
+        "outlet_pressure": 0.17459390048524337,
+        "pressure_drop": 0.6684500057064532
+      },
+      {
+        "inlet_pressure": 0.7275974341660724,
+        "outlet_pressure": 0.17148573868430436,
+        "pressure_drop": 0.556111695481768
+      },
+      {
+        "inlet_pressure": 0.5934530061739867,
+        "outlet_pressure": 0.15868922529149604,
+        "pressure_drop": 0.4347637808824906
+      },
+      {
+        "inlet_pressure": 0.4537598201631823,
+        "outlet_pressure": 0.1374640148942932,
+        "pressure_drop": 0.3162958052688891
+      },
+      {
+        "inlet_pressure": 0.3221342248624733,
+        "outlet_pressure": 0.1098655942280601,
+        "pressure_drop": 0.2122686306344132
+      },
+      {
+        "inlet_pressure": 0.21142929164147165,
+        "outlet_pressure": 0.07858684496869049,
+        "pressure_drop": 0.13284244667278117
+      },
+      {
+        "inlet_pressure": 0.1325263498454417,
+        "outlet_pressure": 0.046709028852593884,
+        "pressure_drop": 0.08581732099284782
+      },
+      {
+        "inlet_pressure": 0.09317870778916759,
+        "outlet_pressure": 0.017360131854293623,
+        "pressure_drop": 0.07581857593487397
+      },
+      {
+        "inlet_pressure": 0.09719473037344115,
+        "outlet_pressure": -0.006608987618471599,
+        "pressure_drop": 0.10380371799191275
+      },
+      {
+        "inlet_pressure": 0.14414858100000466,
+        "outlet_pressure": -0.022864047276327952,
+        "pressure_drop": 0.16701262827633262
+      },
+      {
+        "inlet_pressure": 0.22948824588795655,
+        "outlet_pressure": -0.029792284328722336,
+        "pressure_drop": 0.2592805302166789
+      },
+      {
+        "inlet_pressure": 0.34490392664325653,
+        "outlet_pressure": -0.026697406568133568,
+        "pressure_drop": 0.3716013332113901
+      },
+      {
+        "inlet_pressure": 0.4790637020941216,
+        "outlet_pressure": -0.013897836846502849,
+        "pressure_drop": 0.49296153894062444
+      },
+      {
+        "inlet_pressure": 0.6187886625660903,
+        "outlet_pressure": 0.007335425861679486,
+        "pressure_drop": 0.6114532367044109
+      },
+      {
+        "inlet_pressure": 0.7504286297571358,
+        "outlet_pressure": 0.03493615312797869,
+        "pressure_drop": 0.715492476629157
+      },
+      {
+        "inlet_pressure": 0.8611444055068409,
+        "outlet_pressure": 0.06621932065898264,
+        "pressure_drop": 0.7949250848478583
+      },
+      {
+        "inlet_pressure": 0.9400734851190451,
+        "outlet_pressure": 0.09810976418699573,
+        "pressure_drop": 0.8419637209320494
+      }
+    ],
+    "build/fsi-next-03/full-auto-n4": [
+      {
+        "inlet_pressure": 0.6551932446226547,
+        "outlet_pressure": 0.04711726792091146,
+        "pressure_drop": 0.6080759767017433
+      },
+      {
+        "inlet_pressure": 0.652436972852308,
+        "outlet_pressure": 0.04920468582188665,
+        "pressure_drop": 0.6032322870304213
+      },
+      {
+        "inlet_pressure": 0.6166534644522339,
+        "outlet_pressure": 0.05002904354207164,
+        "pressure_drop": 0.5666244209101623
+      },
+      {
+        "inlet_pressure": 0.5513194923238103,
+        "outlet_pressure": 0.04950814429800632,
+        "pressure_drop": 0.501811348025804
+      },
+      {
+        "inlet_pressure": 0.4628143335188392,
+        "outlet_pressure": 0.04768984763298214,
+        "pressure_drop": 0.4151244858858571
+      },
+      {
+        "inlet_pressure": 0.3598688720901539,
+        "outlet_pressure": 0.04475641896640124,
+        "pressure_drop": 0.31511245312375263
+      },
+      {
+        "inlet_pressure": 0.25250060802615437,
+        "outlet_pressure": 0.04099277785647928,
+        "pressure_drop": 0.2115078301696751
+      },
+      {
+        "inlet_pressure": 0.1512074722904773,
+        "outlet_pressure": 0.03676529258727578,
+        "pressure_drop": 0.1144421797032015
+      },
+      {
+        "inlet_pressure": 0.06598350276042109,
+        "outlet_pressure": 0.03249292281942388,
+        "pressure_drop": 0.0334905799409972
+      },
+      {
+        "inlet_pressure": 0.005099958165016594,
+        "outlet_pressure": 0.028591136199442483,
+        "pressure_drop": -0.023491178034425887
+      },
+      {
+        "inlet_pressure": -0.025497322099881037,
+        "outlet_pressure": 0.025440679526974055,
+        "pressure_drop": -0.05093800162685509
+      },
+      {
+        "inlet_pressure": -0.022741352706554283,
+        "outlet_pressure": 0.023354553189736334,
+        "pressure_drop": -0.04609590589629062
+      },
+      {
+        "inlet_pressure": 0.013046585701383744,
+        "outlet_pressure": 0.022534022661177072,
+        "pressure_drop": -0.009487436959793328
+      },
+      {
+        "inlet_pressure": 0.07836123969138001,
+        "outlet_pressure": 0.02305864078421815,
+        "pressure_drop": 0.055302598907161854
+      },
+      {
+        "inlet_pressure": 0.16684441325377453,
+        "outlet_pressure": 0.02487885026198889,
+        "pressure_drop": 0.14196556299178564
+      },
+      {
+        "inlet_pressure": 0.26980260492023195,
+        "outlet_pressure": 0.027813424376304623,
+        "pressure_drop": 0.24198918054392732
+      },
+      {
+        "inlet_pressure": 0.37718469604969374,
+        "outlet_pressure": 0.031576833855241335,
+        "pressure_drop": 0.3456078621944524
+      },
+      {
+        "inlet_pressure": 0.4784686058049297,
+        "outlet_pressure": 0.03580096894077961,
+        "pressure_drop": 0.4426676368641501
+      },
+      {
+        "inlet_pressure": 0.5637090648828109,
+        "outlet_pressure": 0.04006967032145368,
+        "pressure_drop": 0.5236393945613572
+      },
+      {
+        "inlet_pressure": 0.6246208234609683,
+        "outlet_pressure": 0.04396970721541337,
+        "pressure_drop": 0.5806511162455549
+      }
+    ],
+    "build/fsi-next-03/space-auto-n8": [
+      {
+        "inlet_pressure": 0.5642883102572654,
+        "outlet_pressure": 0.031778205422402776,
+        "pressure_drop": 0.5325101048348627
+      },
+      {
+        "inlet_pressure": 0.5620117380227942,
+        "outlet_pressure": 0.03367031364164096,
+        "pressure_drop": 0.5283414243811533
+      },
+      {
+        "inlet_pressure": 0.5314094149226007,
+        "outlet_pressure": 0.03475942042839127,
+        "pressure_drop": 0.4966499944942095
+      },
+      {
+        "inlet_pressure": 0.47547365806195824,
+        "outlet_pressure": 0.03493962278187464,
+        "pressure_drop": 0.4405340352800836
+      },
+      {
+        "inlet_pressure": 0.3996458927708391,
+        "outlet_pressure": 0.0341928019544369,
+        "pressure_drop": 0.3654530908164022
+      },
+      {
+        "inlet_pressure": 0.3113810252574125,
+        "outlet_pressure": 0.03259215222838757,
+        "pressure_drop": 0.27878887302902494
+      },
+      {
+        "inlet_pressure": 0.21933270884628214,
+        "outlet_pressure": 0.03029483658311648,
+        "pressure_drop": 0.18903787226316565
+      },
+      {
+        "inlet_pressure": 0.1324690920163845,
+        "outlet_pressure": 0.027525008588618966,
+        "pressure_drop": 0.10494408342776552
+      },
+      {
+        "inlet_pressure": 0.05930546110136972,
+        "outlet_pressure": 0.02455354463032968,
+        "pressure_drop": 0.03475191647104004
+      },
+      {
+        "inlet_pressure": 0.007032769676828419,
+        "outlet_pressure": 0.021672262573579473,
+        "pressure_drop": -0.014639492896751054
+      },
+      {
+        "inlet_pressure": -0.019269252586120184,
+        "outlet_pressure": 0.01916288817806952,
+        "pressure_drop": -0.0384321407641897
+      },
+      {
+        "inlet_pressure": -0.01702884591519349,
+        "outlet_pressure": 0.017270319232732985,
+        "pressure_drop": -0.034299165147926476
+      },
+      {
+        "inlet_pressure": 0.013571746031265016,
+        "outlet_pressure": 0.016180342235667312,
+        "pressure_drop": -0.0026085962044022967
+      },
+      {
+        "inlet_pressure": 0.0695148860453066,
+        "outlet_pressure": 0.01599968534736901,
+        "pressure_drop": 0.053515200697937595
+      },
+      {
+        "inlet_pressure": 0.1453083246214385,
+        "outlet_pressure": 0.016745505584046222,
+        "pressure_drop": 0.12856281903739228
+      },
+      {
+        "inlet_pressure": 0.2335712636573373,
+        "outlet_pressure": 0.018345498254150005,
+        "pressure_drop": 0.2152257654031873
+      },
+      {
+        "inlet_pressure": 0.3256555270052593,
+        "outlet_pressure": 0.02064347699127876,
+        "pressure_drop": 0.3050120500139805
+      },
+      {
+        "inlet_pressure": 0.41251306618745964,
+        "outlet_pressure": 0.023413519393756167,
+        "pressure_drop": 0.38909954679370345
+      },
+      {
+        "inlet_pressure": 0.4856707386510781,
+        "outlet_pressure": 0.026384565879610068,
+        "pressure_drop": 0.45928617277146805
+      },
+      {
+        "inlet_pressure": 0.5379752406878008,
+        "outlet_pressure": 0.029266638526835292,
+        "pressure_drop": 0.5087086021609655
+      }
+    ]
+  }
+}
