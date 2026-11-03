@@ -1,4 +1,5 @@
 #include "eonsim/fsi.hpp"
+#include "eonsim/boundary_geometry.hpp"
 #include "eonsim/fsi_diagnostics.hpp"
 #include "eonsim/time_step.hpp"
 #include "eonsim/time_integration.hpp"
@@ -13,6 +14,7 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <set>
 #include <fstream>
 #include <limits>
 #include <stdexcept>
@@ -109,6 +111,14 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             for(int c=0;c<3;++c) {
                 double value=f.inlet->value[c];
                 for(int j=0;j<3;++j) value+=f.inlet->gradient[3*c+j]*(mesh.nodes[n].position[j]-f.inlet->origin[j]);
+                if(f.inlet_flow) {
+                    const auto& q=*f.inlet_flow;
+                    for(int j=0;j<3;++j) {
+                        const double x=mesh.nodes[n].position[j];
+                        if(x<q.lower[j]-1e-12||x>q.upper[j]+1e-12) throw std::runtime_error("FSI flow inlet outside rectangle");
+                        if(j!=q.axis) {const double r=std::clamp((x-q.lower[j])/(q.upper[j]-q.lower[j]),0.,1.); value*=r*(1-r);}
+                    }
+                }
                 if(!std::isfinite(value)) throw std::runtime_error("Nonfinite FSI inlet value");
                 bool zero=interface[n];
                 for(const auto& bc:f.domains.fluid_constraints)
@@ -118,11 +128,39 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             }
         }
     });
+    if(f.inlet_flow) {
+        double local=0,total=0;
+        output_stage(comm,"flow normalization",[&] {
+            for(const auto& cell:mesh.cells) if(cell.physical_tag==f.domains.fluid_region)
+                for(int skip=0;skip<4;++skip) {
+                    Tri3Topology::Nodal<LocalId> nodes,key; int k=0;
+                    for(int a=0;a<4;++a) if(a!=skip) nodes[k++]=cell.nodes[a];
+                    key=nodes; std::sort(key.begin(),key.end());
+                    if(!boundary.count(key)||boundary.at(key)!=f.inlet->tag) continue;
+                    Tri3Topology::Nodal<Point> xyz;
+                    for(int a=0;a<3;++a) xyz[a]=mesh.nodes[nodes[a]].position;
+                    const auto g=triangle_geometry(xyz,mesh.nodes[cell.nodes[skip]].position);
+                    if(std::abs(g.normal[f.inlet_flow->axis]+1)>1e-10) throw std::runtime_error("FSI flow inlet requires negative axis outward normal");
+                    for(auto n:nodes) for(int c=0;c<3;++c) local-=g.area*g.normal[c]*inlet_values[n][c]/3;
+                }
+        });
+        MPI_Allreduce(&local,&total,1,MPI_DOUBLE,MPI_SUM,comm);
+        if(!(total>0)||!std::isfinite(total)) throw std::runtime_error("FSI flow inlet has zero discrete profile flux; refine inlet mesh");
+        for(auto& value:inlet_values) for(auto& c:value) c/=total;
+    }
     const auto inlet_scale=[&](double t) {
-        if(!f.inlet||f.inlet->ramp_time==0) return 1.;
-        const double x=std::clamp(t/f.inlet->ramp_time,0.,1.); return x*x*x*(10+x*(-15+6*x));
+        const double x=f.inlet&&f.inlet->ramp_time>0?std::clamp(t/f.inlet->ramp_time,0.,1.):1.;
+        double scale=x*x*x*(10+x*(-15+6*x));
+        if(f.inlet_flow) {
+            const auto& q=*f.inlet_flow;
+            scale*=q.mean+q.amplitude*std::sin(2*std::acos(-1.)*(std::fmod(t,q.period)/q.period));
+        }
+        if(!std::isfinite(scale)) throw std::runtime_error("Nonfinite FSI inlet waveform");
+        return scale;
     };
     const auto interface_faces=fsi_interface_faces(comm,mesh,interface,dual?f.domains.fluid_region:0);
+    std::set<Tri3Topology::Nodal<LocalId>> interface_keys;
+    for(auto face:interface_faces) {std::sort(face.begin(),face.end());interface_keys.insert(face);}
     std::vector<bool> fluid_cell,solid_cell;
     std::vector<FsiElementData> data;
     std::vector<Tet4Geometry> solid_geometry;
@@ -186,6 +224,43 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         signature_values.insert(signature_values.end(),{20506.,double(f.inlet->tag),f.inlet->ramp_time});
         for(const auto& a:{std::vector<double>(f.inlet->value.begin(),f.inlet->value.end()),std::vector<double>(f.inlet->origin.begin(),f.inlet->origin.end()),std::vector<double>(f.inlet->gradient.begin(),f.inlet->gradient.end())}) signature_values.insert(signature_values.end(),a.begin(),a.end());
     }
+    if(f.inlet_flow) {
+        const auto& q=*f.inlet_flow;
+        signature_values.insert(signature_values.end(),{20507.,q.mean,q.amplitude,q.period,double(q.axis)});
+        signature_values.insert(signature_values.end(),q.lower.begin(),q.lower.end());
+        signature_values.insert(signature_values.end(),q.upper.begin(),q.upper.end());
+    }
+    // Diagnostics use local owned cells and current geometry. Surface flux and
+    // volume divergence are independently integrated; no global fields gathered.
+    const auto mass_observation=[&](const std::vector<double>& state) {
+        std::array<double,5> local{},global{}; // volume, inward inlet, outward outlet/wall, div(u)
+        output_stage(comm,"mass observation",[&] {
+            for(std::size_t e=0;e<mesh.cells.size();++e) if(fluid_cell[e]) {
+                const auto& cell=mesh.cells[e]; Tet4Topology::Nodal<Point> xyz,u;
+                for(int a=0;a<4;++a) for(int c=0;c<3;++c) {
+                    const auto n=cell.nodes[a]; xyz[a][c]=mesh.nodes[n].position[c]+state[Layout::dof(n,Layout::mesh_offset+c)];
+                    u[a][c]=state[Layout::dof(n,c)];
+                }
+                const auto g=tet4_geometry(xyz); local[0]+=g.volume;
+                for(int a=0;a<4;++a) for(int c=0;c<3;++c) local[4]+=g.volume*g.gradients[a][c]*u[a][c];
+                for(int skip=0;skip<4;++skip) {
+                    Tri3Topology::Nodal<LocalId> key; Tri3Topology::Nodal<Point> face,velocity; int k=0;
+                    for(int a=0;a<4;++a) if(a!=skip) {key[k]=cell.nodes[a];face[k]=xyz[a];velocity[k++]=u[a];}
+                    std::sort(key.begin(),key.end());
+                    const auto found=boundary.find(key);
+                    if(found==boundary.end()&&!interface_keys.count(key)) continue;
+                    const auto fg=triangle_geometry(face,xyz[skip]); double flux=0;
+                    for(int a=0;a<3;++a) for(int c=0;c<3;++c) flux+=fg.area*fg.normal[c]*velocity[a][c]/3;
+                    const int tag=found==boundary.end()?0:found->second;
+                    if(f.inlet&&tag==f.inlet->tag) local[1]-=flux;
+                    else if(std::find(f.domains.pressure_tags.begin(),f.domains.pressure_tags.end(),tag)!=f.domains.pressure_tags.end()) local[2]+=flux;
+                    else local[3]+=flux;
+                }
+            }
+        });
+        MPI_Allreduce(local.data(),global.data(),5,MPI_DOUBLE,MPI_SUM,comm);
+        return global;
+    };
     const auto signature=state_signature(mesh,dual?"fsi_dual":"fsi",signature_values);
     TimeStepper clock(f.dt,f.steps,config.time_control);
     if(!config.restart.empty()) {
@@ -255,7 +330,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         if(!config.output.parent_path().empty()) std::filesystem::create_directories(config.output.parent_path());
         history.exceptions(std::ios::badbit|std::ios::failbit);
         history.open(history_path(".csv")); history<<std::setprecision(17);
-        history<<"step,time,accepted_dt,evaluation_time,applied_pressure,endpoint_position,endpoint_velocity,evaluation_fluid_force,evaluation_body_balance,evaluation_interface_power,evaluation_body_power,evaluation_power_balance,snes_iterations,residual,time_order,reference_interface_area,current_interface_area,area_displacement_x,area_displacement_y,area_displacement_z,area_velocity_x,area_velocity_y,area_velocity_z,stage_min_fluid_j,stage_min_solid_j,endpoint_min_fluid_j,endpoint_min_solid_j\n";
+        history<<"step,time,accepted_dt,evaluation_time,applied_pressure,endpoint_position,endpoint_velocity,evaluation_fluid_force,evaluation_body_balance,evaluation_interface_power,evaluation_body_power,evaluation_power_balance,snes_iterations,residual,time_order,reference_interface_area,current_interface_area,area_displacement_x,area_displacement_y,area_displacement_z,area_velocity_x,area_velocity_y,area_velocity_z,stage_min_fluid_j,stage_min_solid_j,endpoint_min_fluid_j,endpoint_min_solid_j";
+        if(f.inlet_flow) history<<",stage_volume,stage_inlet_flow,stage_outlet_flow,stage_wall_flux,stage_divergence,endpoint_volume,endpoint_inlet_flow,endpoint_outlet_flow,endpoint_wall_flux,endpoint_divergence,volume_secant_rate,stage_mass_residual,secant_mass_residual,target_endpoint_flow";
+        history<<'\n';
         history.flush();
     });
     NonlinearSystem system(comm,layout);
@@ -493,6 +570,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         } else {
             result.position=next_body.position; result.velocity=next_body.velocity;
         }
+        std::array<double,5> stage_mass{},endpoint_mass{},old_mass{};
+        if(f.inlet_flow) {stage_mass=mass_observation(next); endpoint_mass=mass_observation(next_physical); old_mass=mass_observation(physical);}
         const double body_power=Elastic?global[3]:(result.balance+result.fluid_force)*solved.values[reduced.body_local];
         if(bdf2) { physical_history.commit(physical,dt); displacement_history.commit(solid_d,dt); body_history.commit({body.position,body.velocity},dt); }
         accepted=std::move(next_reduced); physical=std::move(next_physical); solid_d=std::move(next_solid); body=next_body;
@@ -541,6 +620,13 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     <<solved.iterations<<','<<solved.residual_norm<<','<<(alpha_step?2:derivative.order);
                 for(double value:surface) history<<','<<value;
                 for(double value:min_quality) history<<','<<value;
+                if(f.inlet_flow) {
+                    for(double v:stage_mass) history<<','<<v;
+                    for(double v:endpoint_mass) history<<','<<v;
+                    const double rate=(endpoint_mass[0]-old_mass[0])/dt;
+                    history<<','<<rate<<','<<stage_mass[1]-stage_mass[2]-stage_mass[3]
+                        <<','<<stage_mass[1]-stage_mass[2]-rate<<','<<inlet_scale(time);
+                }
                 history<<'\n';
                 history.flush();
             });
