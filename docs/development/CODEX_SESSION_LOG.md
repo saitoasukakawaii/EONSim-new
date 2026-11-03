@@ -2,6 +2,18 @@
 
 本文件记录有实质代码、算法、验证或知识产出的开发会话。只记录事实，不写无法复现的“已优化”“性能显著提升”等结论。
 
+## 2026-11-03 / FSI-NEXT-02 — 周期流量、无滑移与移动域质量预算
+
+- 用户授权20小时预算、同一独立分支持续实施、阶段检查点；全部本地验收/审查之前不创建PR，完成后唯一汇总PR且不自动合并。基线main `b2755b6`，分支 `codex/fsi-next-02-periodic-flow`，实现 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`。
+- 首先读取 main/仓库契约；此前20小时计划原文未检索到，未以其它仓库历史计划替代。按本次明确目标在队列落实可执行验收。
+- 现有仿射入口不能表达四边为零的非零截面形状；新增P1矩形形状的离散通量归一化与平滑周期波形，复用既有整体求解、端点/stage映射和签名机制。
+- 新诊断独立积分当前表面通量与体散度，分开stage预算、secant体积变化及后处理累计预算。无滑移通道用真实弹性顶壁和夹持边界，非预设运动。
+- 使用 `scripts/cloud/restore.sh` 和 `scripts/cloud/run.sh` 编译；Debug/Release 新增1项、旧入口/压力2项均通过；三格式/1和2rank/恢复/Jv/9次真实缩步重放。六周期研究完成三网格和三步长，原始数据与局限见[验收](../research/data/fsi-flow-2026-11-03/README.md)。没有全量和3.19.6编译，也没有性能研究。
+- 重要失败：空环境恢复；MPI root拒绝；LLVM OpenMP启动断言在串行重试仍复现，保留失败且不冒充正确非法参数拒绝；避开残留注册PID名字后完整复验通过，底层断言精确原因仍未回溯确认。Git push无凭据，使用GitHub API保存相同tree后同步本地。详细命令、失败尝试、解决范围见验收，不将环境规避写成数值修复。
+- 本 agent 完成源码diff自审、26项CI选择器测试；无外部独立审查。知识稿 `website/drafts/fsi-periodic-flow-mass-budget.md` 保持草稿；长期架构未变，不改架构契约。
+- 本地验收/证据/自审后仅创建 [PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33)。[数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424335) Debug/Release各29/29通过，零失败/零跳过；[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424264)通过。 增量证据job也成功；不需要代码修复。合并预览tree与本地/PR head完全相同，精简证据见 `delivery-ci.json`。当前review且未合入main，不标done；最终纯文档更新按既有同PR证据复用机制检查。
+- 同时核对前置 FSI-NEXT-01 已由 PR #32 合并为基线 `b2755b6`，纠正队列旧 in_progress，历史记录明确标注。
+
 ## 2026-10-31 / DOCS-01 — 全仓 Markdown 进度同步
 
 - 用户要求审查全部 Markdown 并按当前进度更新；基线 `a508e3d`，在 `codex/markdown-progress-audit` 工作。本次只修改文档，未推送、合并或部署。

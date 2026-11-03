@@ -1,0 +1,44 @@
+{
+  "pr": 33,
+  "head": "a9d9093626a70db070527534fa2c39085682efb2",
+  "merge_preview": "10fb26733432f7c0a5a27d4fe31b5dfdcb6106ba",
+  "tree": "9a9d31386b38c649092e720061a74f7785f95f57",
+  "numerical_run": 41626424335,
+  "website_run": 41626424264,
+  "jobs": [
+    {
+      "id": 125884816578,
+      "name": "Select affected checks",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 125884818559,
+      "name": "PETSc 3.19.6 / release (manual compatibility)",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 125884880776,
+      "name": "PETSc 3.23.7 / debug",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 125884880892,
+      "name": "PETSc 3.23.7 / release",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 125892048844,
+      "name": "Record incremental evidence",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "notices": [
+    "2026-11-03T11:22:03.4727813Z ##[notice]{\"commit\": \"10fb26733432f7c0a5a27d4fe31b5dfdcb6106ba\", \"mode\": \"release\", \"selection\": \"explicit\", \"petsc\": \"3.23.7\", \"status\": \"passed\", \"resources\": {\"cpu_budget\": 4, \"memory_bytes\": 16760344576, \"cgroup\": {\"/sys/fs/cgroup\": {}, \"/sys/fs/cgroup/system.slice\": {\"cpu.max\": \"max 100000\", \"memory.max\": \"max\"}, \"/sys/fs/cgroup/system.slice/hosted-compute-agent.service\": {\"cpu.max\": \"max 100000\", \"memory.max\": \"max\"}}, \"build_jobs\": 4}, \"test_counts\": {\"passed\": 29, \"failed\": 0, \"skipped\": 0}}",
+    "2026-11-03T11:34:03.5260068Z ##[notice]{\"commit\": \"10fb26733432f7c0a5a27d4fe31b5dfdcb6106ba\", \"mode\": \"debug\", \"selection\": \"explicit\", \"petsc\": \"3.23.7\", \"status\": \"passed\", \"resources\": {\"cpu_budget\": 4, \"memory_bytes\": 16760340480, \"cgroup\": {\"/sys/fs/cgroup\": {}, \"/sys/fs/cgroup/system.slice\": {\"cpu.max\": \"max 100000\", \"memory.max\": \"max\"}, \"/sys/fs/cgroup/system.slice/hosted-compute-agent.service\": {\"cpu.max\": \"max 100000\", \"memory.max\": \"max\"}}, \"build_jobs\": 4}, \"test_counts\": {\"passed\": 29, \"failed\": 0, \"skipped\": 0}}"
+  ]
+}

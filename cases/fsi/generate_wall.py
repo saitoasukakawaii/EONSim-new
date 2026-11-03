@@ -7,7 +7,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'poisson'))
 from generate_mesh import write_mesh
 
 
-def generate(directory,n=2,nonlinear=False):
+def generate(directory,n=2,nonlinear=False,periodic_flow=False):
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     write_mesh(directory/'fluid.msh',n);write_mesh(directory/'solid.msh',n)
     path=directory/'solid.msh';lines=path.read_text().splitlines()
@@ -28,10 +28,16 @@ def generate(directory,n=2,nonlinear=False):
         inlet=dict(tag=1,value=[.1,0,0],gradient=[[0,-.1,0],[0,0,0],[0,0,0]],ramp_time=.02)),
         time=dict(scheme='generalized_alpha',rho_infinity=.5),
         solver=dict(relative_tolerance=1e-10,absolute_tolerance=1e-12,maximum_iterations=30))
+    if periodic_flow:
+        domains['fluid_constraints']=[constraint(tag,[0,1,2]) for tag in (3,5,6)]
+        domains['mesh_constraints']=[constraint(tag,[0,1,2]) for tag in (1,2,3,5,6)]
+        domains['solid_constraints']=[constraint(tag,[0,1,2]) for tag in (11,12,15,16)]
+        case['fsi']['inlet']=dict(tag=1,ramp_time=.02,flow_rate=dict(mean=.01,amplitude=.005,period=.1,axis=0,lower=[0,0,0],upper=[0,1,1]))
+        case['fsi'].update(steps=160,output_interval=1,stabilization_tau=.05)
     path=directory/'case.json';path.write_text(json.dumps(case,indent=2)+'\n');return path
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--output',type=Path,default=Path('build/fsi-wall'))
-    p.add_argument('--subdivisions',type=int,default=2);p.add_argument('--nonlinear',action='store_true');a=p.parse_args()
-    print(generate(a.output,a.subdivisions,a.nonlinear))
+    p.add_argument('--subdivisions',type=int,default=2);p.add_argument('--nonlinear',action='store_true');p.add_argument('--periodic-flow',action='store_true');a=p.parse_args()
+    print(generate(a.output,a.subdivisions,a.nonlinear,a.periodic_flow))

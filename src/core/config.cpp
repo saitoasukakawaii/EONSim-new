@@ -330,9 +330,20 @@ Config read_config(const std::filesystem::path& path)
             constraints("fluid_constraints",domain.fluid_constraints); constraints("mesh_constraints",domain.mesh_constraints); constraints("solid_constraints",domain.solid_constraints);
         }
         if(const auto b=f["inlet"]) {
-            keys(b,{"tag","value","origin","gradient","ramp_time"},"fsi.inlet");
+            keys(b,{"tag","value","origin","gradient","ramp_time","flow_rate"},"fsi.inlet");
             FluidBoundary inlet; inlet.tag=b["tag"].as<int>();
-            inlet.value=vector3(b["value"],"fsi.inlet.value");
+            if(const auto q=b["flow_rate"]) {
+                if(b["value"]||b["origin"]||b["gradient"]) throw std::runtime_error("FSI flow_rate excludes affine inlet parameters");
+                keys(q,{"mean","amplitude","period","axis","lower","upper"},"fsi.inlet.flow_rate");
+                FsiFlowRate flow;
+                flow.mean=q["mean"].as<double>(); flow.amplitude=q["amplitude"].as<double>(); flow.period=q["period"].as<double>();
+                flow.axis=q["axis"].as<int>(); flow.lower=vector3(q["lower"],"flow_rate.lower"); flow.upper=vector3(q["upper"],"flow_rate.upper");
+                if(flow.axis<0||flow.axis>2||!std::isfinite(flow.mean)||!std::isfinite(flow.amplitude)||!std::isfinite(flow.period)||flow.period<=0)
+                    throw std::runtime_error("Invalid FSI flow_rate");
+                for(int c=0;c<3;++c) if(c==flow.axis?flow.lower[c]!=flow.upper[c]:flow.lower[c]>=flow.upper[c])
+                    throw std::runtime_error("Invalid FSI flow_rate rectangle");
+                inlet.value[flow.axis]=1; v.inlet_flow=flow;
+            } else inlet.value=vector3(b["value"],"fsi.inlet.value");
             if(b["origin"]) inlet.origin=vector3(b["origin"],"fsi.inlet.origin");
             if(const auto g=b["gradient"]) {
                 if(!g.IsSequence()||g.size()!=3) throw std::runtime_error("FSI inlet gradient requires three rows");

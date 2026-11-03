@@ -1,0 +1,20 @@
+{
+  "base": "b2755b671ebffc4ad858d560214d4a7377eaf05e",
+  "implementation": "9bde79765ee57a2c42eb2964ac8297ec6246e3a7",
+  "local_commit_in_test_receipts": "f378e92e7ef3ab2dfaeab85167d872b469ef62d2",
+  "identical_tree": "991b394efc84f3e9c121cca346802ae38f5ce318",
+  "sha256": {
+    "src/physics/fsi.cpp": "68b2ddf5563b593446bc2cf5d6e1ef0dca5555ddacd1046b7cfa1aabbce2fe35",
+    "src/core/config.cpp": "28ecda0851f2349cd13c8158951a34c20ce71445ee11dcd9869f39aa3ec606d8",
+    "include/eonsim/config.hpp": "6955e0807e036099e33779fe87c1cab50b334d60df18491eaea863cbc867b819",
+    "cases/fsi/generate_wall.py": "cdf7dd21c692b6b59dc4d636e9b1e30a327f7886e4b7d6dd835674e8d825e5ea",
+    "tests/verify_fsi_flow.py": "3fc85c1fbb1dee9dbd3553756fafdec09260e268c644b0cd96d80092d9cd974a",
+    "scripts/study_fsi_flow.py": "8ec2d1aa2584871b551406f2dae34d2d585d9928eb6542759e6ee6c274c4c08e"
+  },
+  "notes": [
+    "Local git push lacked credentials; GitHub Git Data API saved exactly the same tree with its own commit metadata.",
+    "Study ran before implementation commit; production files are identical. Postprocessing added trapezoid integration without rerunning solver.",
+    "Debug old-inlet/pressure passes are in failures/debug-mixed-ctest.log; only the new flow test was rerun after its OpenMP startup failure.",
+    "Release old-inlet/pressure success driver is archived; final new-flow run supersedes its earlier smaller test version."
+  ]
+}

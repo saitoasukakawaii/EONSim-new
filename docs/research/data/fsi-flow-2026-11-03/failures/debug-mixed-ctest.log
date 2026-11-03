@@ -1,0 +1,108 @@
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+UpdateCTestConfiguration  from :/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+UpdateCTestConfiguration  from :/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+SetCTestConfiguration:SourceDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+Test project /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 28
+    Start 28: fsi_flow
+
+28: Test command: /workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_flow.py" "--executable" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/eonsim" "--mpiexec" "/workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/fsi_flow"
+28: Working Directory: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+28: Environment variables: 
+28:  OMP_NUM_THREADS=1
+28:  OPENBLAS_NUM_THREADS=1
+28:  MKL_NUM_THREADS=1
+28: Test timeout computed to be: 600
+28: Traceback (most recent call last):
+28:   File "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_flow.py", line 89, in <module>
+28:     if __name__=='__main__':main()
+28:                             ~~~~^^
+28:   File "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_flow.py", line 71, in main
+28:     bad=copy.deepcopy(base);change(bad);run.solve('invalid-'+label,bad,2,fail=message)
+28:                                         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+28:   File "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_inlet.py", line 30, in solve
+28:     log=self.command([self.mpi,'-n',ranks,self.exe,'-case',case,'-partition',part,*extra],label,fail)
+28:   File "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_inlet.py", line 22, in command
+28:     if fail: assert r.returncode!=0 and fail in r.stdout,r.stdout[-5000:]
+28:                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+28: AssertionError: OMP: Error #13: Assertion failure at z_Linux_util.cpp(2125).
+28: OMP: Hint Please submit a bug report with this message, compile and run commands used, and machine configuration info including native compiler and operating system versions. Faster response will be obtained by including all program sources. For information on submitting this issue, please see https://github.com/llvm/llvm-project/issues/.
+28: OMP: Error #13: Assertion failure at z_Linux_util.cpp(2125).
+28: OMP: Hint Please submit a bug report with this message, compile and run commands used, and machine configuration info including native compiler and operating system versions. Faster response will be obtained by including all program sources. For information on submitting this issue, please see https://github.com/llvm/llvm-project/issues/.
+28: --------------------------------------------------------------------------
+28: prterun noticed that process rank 0 with PID 249 on node eadee4dda98a exited on
+28: signal 6 (Aborted).
+28: --------------------------------------------------------------------------
+28: 
+1/3 Test #28: fsi_flow .........................***Failed   35.27 sec
+test 29
+    Start 29: fsi_inlet
+
+29: Test command: /workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_inlet.py" "--executable" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/eonsim" "--mpiexec" "/workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/fsi_inlet"
+29: Working Directory: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+29: Environment variables: 
+29:  OMP_NUM_THREADS=1
+29:  OPENBLAS_NUM_THREADS=1
+29:  MKL_NUM_THREADS=1
+29: Test timeout computed to be: 600
+29: FSI inlet three schemes, startup/endpoints, MPI, histories, diagnostics and Jacobians passed
+2/3 Test #29: fsi_inlet ........................   Passed   45.91 sec
+test 43
+    Start 43: fsi_pressure_state
+
+43: Test command: /workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_pressure.py" "--executable" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/eonsim" "--mpiexec" "/workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--checks" "state" "--work" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/fsi_pressure_state"
+43: Working Directory: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+43: Environment variables: 
+43:  OMP_NUM_THREADS=1
+43:  OPENBLAS_NUM_THREADS=1
+43:  MKL_NUM_THREADS=1
+43: Test timeout computed to be: 1200
+43: Traceback (most recent call last):
+43:   File "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_pressure.py", line 220, in <module>
+43:     main()
+43:     ~~~~^^
+43:   File "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_pressure.py", line 154, in main
+43:     one, rows, _ = solve(scheme+'-r1', cfg)
+43:                    ~~~~~^^^^^^^^^^^^^^^^^^^
+43:   File "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_pressure.py", line 50, in solve
+43:     log = command([a.mpiexec, '-n', ranks, a.executable, '-case', case, '-partition', part, *extra], label, fail)
+43:   File "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_pressure.py", line 35, in command
+43:     assert r.returncode == 0, r.stdout[-6000:]
+43:            ^^^^^^^^^^^^^^^^^
+43: AssertionError: OMP: Error #13: Assertion failure at z_Linux_util.cpp(2125).
+43: OMP: Hint Please submit a bug report with this message, compile and run commands used, and machine configuration info including native compiler and operating system versions. Faster response will be obtained by including all program sources. For information on submitting this issue, please see https://github.com/llvm/llvm-project/issues/.
+43: --------------------------------------------------------------------------
+43: prterun noticed that process rank 0 with PID 634 on node eadee4dda98a exited on
+43: signal 6 (Aborted).
+43: --------------------------------------------------------------------------
+43: 
+3/3 Test #43: fsi_pressure_state ...............***Failed   18.07 sec
+
+The following tests passed:
+	fsi_inlet
+
+33% tests passed, 2 tests failed out of 3
+
+Label Time Summary:
+core      =  36.14 sec*proc (1 test)
+rank-1    = 198.49 sec*proc (3 tests)
+rank-2    = 106.68 sec*proc (2 tests)
+
+Total Test time (real) =  99.25 sec
+
+The following tests FAILED:
+	 28 - fsi_flow (Failed)                                 rank-1 rank-2
+	 43 - fsi_pressure_state (Failed)                       core rank-1 rank-2
