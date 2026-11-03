@@ -75,8 +75,9 @@ def main():
     p=argparse.ArgumentParser()
     for name in ('space-cases','time-cases','transient-results','sampling-results','time-transient-results','time-sampling-results'):
         p.add_argument('--'+name,nargs=3,type=Path,required=True)
+    p.add_argument('--policy',choices=['automatic','fixed'],default='automatic')
     p.add_argument('--output',type=Path,required=True);a=p.parse_args()
-    definitions=validate_cases(a.space_cases,'automatic');validate_cases(a.time_cases,'automatic')
+    definitions=validate_cases(a.space_cases,a.policy);validate_cases(a.time_cases,a.policy)
     space_fields=[dense_cycles(p,w) for p,w in zip(a.sampling_results,a.space_cases)]
     time_fields=[dense_cycles(p,w) for p,w in zip(a.time_sampling_results,a.time_cases)]
     half=lambda fields:{solid:paths[1::2] for solid,paths in fields.items()}
@@ -122,6 +123,7 @@ def main():
                 temporal_by_mesh=temporal,transient_by_mesh=transient,sampling_by_mesh=sampling,
                 time_transient_by_mesh=time_transient,time_sampling_by_mesh=time_sampling,estimates=estimates,budget=budget,
                 limitation='Measured dt refinement and empirical contraction estimates; not rigorous continuum-error bounds')
+    result['stabilization_policy']=a.policy
     a.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result),flush=True)
     if not budget['passed']:raise RuntimeError('The complete 10% error budget has not passed')
 

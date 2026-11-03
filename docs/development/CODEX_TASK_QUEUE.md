@@ -1,8 +1,18 @@
 # EONSim Codex Task Queue
 
+## FSI-NEXT-03 环境中断检查点 / 2026-11-03
+
+执行环境被标记 unavailable，exec-server恢复超时；当前无法确认后台进程存活。不是预算耗尽，也不是整体完成。最后完整远端源码/证据检查点20ac3af；本提交通过GitHub API保存断开前已验证的两项Python修改和恢复记录。未创建PR。
+
+默认稳定化n=2半步长dt=.0005在136周期达到周期判据，但20相位压强场差0.08908已超过末档100相位空间差0.03899的10%；候选拒绝，阈值不变。默认tau显式依赖integration_dt，时间加密同时改变稳定化；不能把全部差异解释为积分截断误差，也不据此宣称程序错误。固定tau=.05的三网格、半步长、尾项和100相位对照已排入单一MPI队列，尚未取得完整结果。n=4默认半步长最后确认在第28周期。
+
+旧队列重复启动造成额外Release回归4项OpenMP启动断言失败、3项通过；失败日志在本地duplicate-worker-release，尚未确认推送。旧worker已退出，4项串行补验已排队。底层断言及旧描述符再次出现的精确原因未证实。n=4跨构建完整周期重放全部场差0；固定tau n=2旧状态7700行完整历史、压降/质量/几何/无滑移独立审计通过。断开前执行 `python tests/test_fsi_space_metrics.py`，5/5通过，包括新增固定tau一致性与不一致拒绝；不代表完整数值预算通过。
+
+恢复顺序和未上传证据见 `docs/development/FSI_NEXT_03_RECOVERY.md`。恢复环境后继续同一分支，全部验收/证据/审查前不创建PR。
+
 本队列用于跨 Codex Goal / Cloud Task 接续研发。每个 Goal 只领取一个有明确验收条件的里程碑任务。
 
-## FSI-NEXT-03 / in_progress
+## FSI-NEXT-03 / blocked（执行环境 unavailable）
 
 用户已授权实施48小时计划；基线 main `4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e`，分支 `codex/fsi-next-03-periodic-convergence`。预算3/9/6/16/8/6小时依次用于基线、周期检测续算、质量预算、时空收敛、MPI恢复审查、证据与CI。全部必交功能、本地验证、证据与审查完成前不创建任何PR，之后仅一个汇总PR；不自动合并。
 

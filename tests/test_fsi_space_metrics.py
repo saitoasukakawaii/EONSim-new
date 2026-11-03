@@ -37,6 +37,15 @@ class Space(unittest.TestCase):
             data['config']['fsi']['stabilization_tau']=.05
             (workdirs[0]/'periodic-result.json').write_text(json.dumps(data))
             with self.assertRaisesRegex(ValueError,'Mixed stabilization'):validate_cases(workdirs,'automatic')
+            with self.assertRaisesRegex(ValueError,'Expected fixed'):validate_cases(workdirs,'fixed')
+            for work in workdirs:
+                data=json.loads((work/'periodic-result.json').read_text())
+                data['config']['fsi']['stabilization_tau']=.05
+                (work/'periodic-result.json').write_text(json.dumps(data))
+            validate_cases(workdirs,'fixed')
+            data['config']['fsi']['stabilization_tau']=.025
+            (workdirs[-1]/'periodic-result.json').write_text(json.dumps(data))
+            with self.assertRaisesRegex(ValueError,'differ beyond'):validate_cases(workdirs,'fixed')
 
     def test_error_budget_requires_all_fields_and_strict_ten_percent(self):
         from analyze_fsi_space import error_budget

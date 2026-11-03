@@ -48,3 +48,13 @@ eonsimCommit: "96f232fdcf597aaeb1f6813cf88fb4b1953682d5"
 源码入口：`src/physics/fsi_diagnostics.cpp`、`scripts/fsi_cycle_metrics.py`、`scripts/fsi_field_cycles.py`、`scripts/fsi_space_metrics.py`。测试命令和实际结果见仓库 `docs/research/data/fsi-next-03/`；基础源码检查点96f232f包含完整场检测与时间研究；本节后续追加周期/密集采样脚本尚在同一分支持续实施，最终提交待补齐。
 
 练习：给周期信号添加缓慢均值漂移，再分别用均值和固定振荡尺度归一化，观察是否会得到错误的周期判定。随后比较20与100个相位点得到的场差，确认采样误差是否足以影响停止条件。
+
+## FSI-NEXT-03 环境中断检查点 / 2026-11-03
+
+执行环境被标记 unavailable，exec-server恢复超时；当前无法确认后台进程存活。不是预算耗尽，也不是整体完成。最后完整远端源码/证据检查点20ac3af；本提交通过GitHub API保存断开前已验证的两项Python修改和恢复记录。未创建PR。
+
+默认稳定化n=2半步长dt=.0005在136周期达到周期判据，但20相位压强场差0.08908已超过末档100相位空间差0.03899的10%；候选拒绝，阈值不变。默认tau显式依赖integration_dt，时间加密同时改变稳定化；不能把全部差异解释为积分截断误差，也不据此宣称程序错误。固定tau=.05的三网格、半步长、尾项和100相位对照已排入单一MPI队列，尚未取得完整结果。n=4默认半步长最后确认在第28周期。
+
+旧队列重复启动造成额外Release回归4项OpenMP启动断言失败、3项通过；失败日志在本地duplicate-worker-release，尚未确认推送。旧worker已退出，4项串行补验已排队。底层断言及旧描述符再次出现的精确原因未证实。n=4跨构建完整周期重放全部场差0；固定tau n=2旧状态7700行完整历史、压降/质量/几何/无滑移独立审计通过。断开前执行 `python tests/test_fsi_space_metrics.py`，5/5通过，包括新增固定tau一致性与不一致拒绝；不代表完整数值预算通过。
+
+恢复顺序和未上传证据见 `docs/development/FSI_NEXT_03_RECOVERY.md`。恢复环境后继续同一分支，全部验收/证据/审查前不创建PR。
