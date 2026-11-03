@@ -135,7 +135,7 @@ checkpoint 保存格式所需完整历史、步长/ready、参数及二维拓扑
 
 ## P2 稳态三角形增量（FEM-G2A）
 
-配置 `scalar2d.degree: 2` 选择直边 Tri3 上的二次 Lagrange 场；默认 1 保留 P1/Q1。当前支持统一扩散系数的稳态 Poisson、Dirichlet、Neumann 与正系数 Robin。regions、瞬态及 Quad4/混合网格明确拒绝。几何仍为三顶点，场具有三个顶点和三个边中点 DoF，不支持高阶 Gmsh 几何输入。
+配置 `scalar2d.degree: 2` 选择直边 Tri3 上的二次 Lagrange 场；默认 1 保留 P1/Q1。当前支持统一扩散系数的稳态 Poisson 与瞬态扩散、Dirichlet、Neumann 与正系数 Robin。regions 及 Quad4/混合网格明确拒绝。几何仍为三顶点，场具有三个顶点和三个边中点 DoF，不支持高阶 Gmsh 几何输入。
 
 沿用 `-prepare <目录> -parts 2` 和 `-partition <目录>`；准备时必须使用同一份 degree=2 配置。分区 HDF5 保留原几何格式，新增版本 1 的 scalar_p2 组；旧 P1 分区不能直接作 P2 求解，需重新 prepare。串行无 partition 入口使用同一空间构造。
 
@@ -150,3 +150,34 @@ Robin 使用同一约定 `k grad(u).n + coefficient*u = value`，coefficient 必
 所有边界均为 Neumann 时，先检查离散载荷相容性，再复用 PETSc 常数零空间；不固定任意节点，不修补超出相容性容差的载荷。求解后按实际 FE 体积积分去除常数，制造解也使用相同的物理零均值规范进行误差比较。P2 三角形顶点形函数的积分为零，不能用节点算术平均代替体积平均。已有限制为单个连通域；不增加多分量零空间。
 
 实现 d6ec424，本地 Debug PETSc 3.23.7 的 scalar_p2_verification 通过，包含 1/2 rank 全 Robin、纯 Neumann、显式用户载荷与不相容载荷拒绝；云端与合并状态见队列。证据位于 ../research/data/p2-boundaries-2026-11-01/。
+
+
+### FEM-G2C：P2 瞬态扩散
+
+`degree: 2`、`mode: diffusion` 采用一致质量矩阵，支持 BE、变步 BDF2 和一阶 generalized-alpha。
+几何、分区和边空间沿用 G2A；capacity 与 diffusivity 为正的统一常数。将上文绝热算例的
+网格生成为 `--topology tri` 并添加 `degree: 2`，重新 prepare 后即可运行；边界、初态和源项
+继续使用现有 polynomial/rate 数据格式。
+
+BDF2 保存前一接受状态与实际步长；alpha 保存算法导数与 ready 标志。首步和事件后的第一步
+使用 BE，后续按选定格式推进。alpha 的源项/自然边界在共同 stage 评价，Dirichlet 使用端点
+数据的 alpha_f 插值，使恢复的端点满足边界值。`algorithmic_rate` 是算法历史，不等同于精确物理导数。
+
+checkpoint 使用既有 v3 generation 发布协议，增加 P2 空间的整数实体身份、代数编号、owner、
+连接及边界标签签名。恢复要求同 rank、同分区、同时间格式和物理数据；缺失/非法历史及空间错配
+明确拒绝。线性数值失败按 time_control 有限缩步，重试不推进 accepted 历史；输入与 I/O 错误终止。
+瞬态全 Neumann 问题由质量项约束常数模态，保留真实均值，不使用稳态零均值归一化。
+
+每步输出六节点二次三角形 VTU/PVTU；PVD 只登记已接受且写入完成的时间片。
+重启序列为 `solution_restartK.pvd` 和相同前缀的时间片，保留原序列；重复从相同 K 恢复到
+同一输出前缀仍会替换该恢复分支，保留多个分支时应使用不同 `-output`。分片、索引与 PVD
+写入错误集体传播，失败不发布新的全局索引；临时文件可能保留，不承诺整个输出目录的事务回滚。
+
+日志报告端点 time、evaluation_time、accepted_dt、time_order 和物理积分；P2 当前未提供
+P1/Q1 的 stage_boundary_flux/stage_flux_balance 诊断，不能据日志字段类比推断已有该功能。
+
+源码 d19a03268577b33ddfb41177037d9bbc1f76d273；本地 PETSc 3.23.7 Debug 分项检查、Release 五项相关检查及 1/2 rank 验证通过。
+时间阶使用可精确表示的二次空间制造解：最细级 BE 0.988、BDF2 2.157、alpha（rho=0/0.5/1）
+2.157/2.006/1.997；变步 BDF2 另有加密检查。8 项双 rank HDF5 历史/空间故障补验通过。
+原始结果、实际命令与 dirty/提交对应关系见 [G2C 证据](../research/data/p2-transient-2026-11-03/source.json)。
+没有全量、PETSc 3.19.6、超过 2 rank 的新验收或性能测量。PR 云端验收另记，不把本地证据标为云端结果。

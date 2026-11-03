@@ -51,7 +51,9 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 
 ## 当前焦点
 
-FEM-G2B：基线 c0745ea，分支 codex/p2-boundary-extension，源码 d6ec424；P2 Robin 与纯 Neumann 已实现，本地 Debug 1/2 rank 相关验证通过，[PR #28](https://github.com/saitoasukakawaii/EONSim-new/pull/28) 云端 Debug/Release 各 10/10 相关检查通过，review，未合并。
+FEM-G2C 已获用户授权执行，基线 main `1bc87a7`，分支 `codex/p2-transient-diffusion`。目标为 P2 瞬态扩散三种时间格式、完整历史恢复及接受步输出；完成验收后创建 PR。实现 `d19a032` 已完成；本地 Debug 分项与 Release 五项 P2 检查、8 项双 rank 历史故障补验通过。待整理提交 PR 及云端验收，任务 in_progress。证据见 `docs/research/data/p2-transient-2026-11-03/`。
+
+FEM-G2B：基线 c0745ea，分支 codex/p2-boundary-extension，源码 d6ec424；P2 Robin 与纯 Neumann 已实现，本地 Debug 1/2 rank 相关验证通过，[PR #28](https://github.com/saitoasukakawaii/EONSim-new/pull/28) 云端 Debug/Release 各 10/10 相关检查通过，已合入 main（1bc87a7），复用历史验收，本次未重跑。
 
 FEM-G2A 已合入 main（c0745ea），原实施基线 main `35bf1a1`，分支 `codex/fem-g2a-p2`。代码 edfc73c 已接入共享边空间、HDF5 分区、P2 稳态 D/N 求解及二次 VTU/PVTU；本地 Debug 1/2 rank 数值验证通过，[PR #27](https://github.com/saitoasukakawaii/EONSim-new/pull/27) 云端 Debug/Release 各 19/19 相关检查通过，任务 done，2026-11-01 已合入 main（c0745ea）。PR #26 已合并；下述待审描述属于合并前检查点。
 

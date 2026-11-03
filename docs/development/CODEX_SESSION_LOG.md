@@ -476,3 +476,28 @@
 ### FEM-G2B 云端交付
 
 PR #28 的 run 41287626201 成功，实际 merge preview bbf494b84af62b904a7821355d75fab982831b16，功能提交 41547fa，生产源码 d6ec424。PETSc 3.23.7 Debug/Release 各 10 passed、0 failed、0 skipped；旧锁专项 skipped。网站 run 41287626208 成功。摘要 docs/research/data/p2-boundaries-2026-11-01/cloud.json；本次无全量测试。状态 review，未自动合并；收尾文档复用上述成功证据。
+
+
+## 2026-11-02 / FEM-G2C — 启动检查点（未完成）
+
+- 用户授权按约 10 小时规划实施，验收完成后才创建 PR。基线 `1bc87a7`，分支 `codex/p2-transient-diffusion`；当前改动未提交。
+- 核对 P2 装配、P1/Q1 时间驱动及 checkpoint 接口。P2 空间身份尚未纳入 checkpoint，P2 输出局部 I/O 异常的集体传播需完善；这些是待实现事项。
+- 增加独立解析 P2 一致质量矩阵 oracle（参考三角形面积 1/2，整数矩阵除以 360），同时保留刚度、载荷和二次重现检查。顶点行和为零，不采用行和集总质量。
+- 实际执行 `c++ -std=c++17 -Wall -Wextra -Wpedantic -Iinclude tests/verify_tri_p2.cpp -o /tmp/eonsim-verify-tri-p2-g2c` 及 `/tmp/eonsim-verify-tri-p2-g2c`，均退出 0。独立 C++17 检查，无 PETSc/MPI，不计为 CTest 或瞬态生产验收。`git diff --check` 通过。
+- 首次创建分支因沙箱中 .git 只读失败，按工具授权升级后创建成功；没有绕过文件系统权限。
+- 尚未实现生产时间推进、恢复及时间序列，未构建求解器、未跑 Debug/Release 或 MPI 验收；未创建 PR。任务保持 in_progress。尚无完整可复用成果，不新增文章草稿。
+
+
+## 2026-11-03 / FEM-G2C — P2 瞬态闭环本地验收
+
+- 用户要求继续实施，完成后提交 PR；源码 `d19a03268577b33ddfb41177037d9bbc1f76d273`，基线 `1bc87a7`。上次只完成质量矩阵 oracle 后停止的检查点不代表完整交付；本轮继续实施，没有后台任务或绕过额度限制。
+- 生产 P2 接入一致质量矩阵、BE/变步 BDF2/一阶 generalized-alpha、时变 D/N/Robin、事件、真实 KSP 失败后的有限缩步。历史只在求解成功后更新，瞬态 Neumann 保留均值。
+- 复用 v3 checkpoint，附加 P2 实体整数身份、编号、owner、连接及边界标签签名；不能把大整数 ID 转 double 后散列。恢复时局部读取异常集体传播，校验跨 rank 时钟/历史元数据一致。P2 输出加入算法导数、接受步序列和 XML 转义，分片失败不发布全局索引。
+- 初次沙箱 MPI 预检因 PMIx socket errno=1 失败，按工具授权在沙箱外重跑；不是数值失败。首次新增 time 测试误向 BE/BDF2 配置 rho_infinity，配置器正确拒绝；修正测试仅在 alpha 设置 rho，未改校验规则或放宽容差。其余 restart/failure/质量 oracle 已通过，未因该测试错误重复运行。
+- 实际命令：`bash scripts/cloud/run.sh 3.23.7 debug explicit .cloud build/p2-local/solve-plan.json`，原 P2 steady 检查通过；`... debug explicit .cloud build/p2-local/transient-plan.json` 首轮 3 passed/1 failed；随后 `... debug explicit .cloud build/p2-local/time-only-plan.json` 仅时间项通过。补充变步时间阶和用户边界后重跑该时间项通过；签名加入语义身份与标签后仅 `... debug explicit .cloud build/p2-local/restart-only-plan.json` 重启项通过。
+- `bash scripts/cloud/run.sh 3.23.7 release explicit .cloud build/p2-local/release-plan.json`：scalar_p2_verification/time/restart/failure、tri_p2_oracles 共 5 passed/0 failed/0 skipped；应用 Release，锁 PETSc 3.23.7/OpenMPI，单 rank 单线程，数值 MPI 为 1/2 rank。环境为本地 WSL2，不能称云端运行。各步命令、依赖和结果保留于证据 JSON。
+- 独立质量矩阵逐项对照解析值；恒定与交替步长时间加密、rho=0/0.5/1、时变端点 D 与自然 N/Robin、绝热积分、乱序输入 1/2 rank 对照通过。重启覆盖事件处和有效多步历史，输出原时间片/序列保持；真实 KSP 限制触发缩步，重放到相同实际步长结果一致，重试耗尽不改 checkpoint。
+- `python3 build/p2-local/check_history.py`（系统 h5py 3.14.0 + 锁定 MPI/求解器）：双 rank 缺失 previous/rate、非法 time_metadata、非有限 scalar、改变边实体语义身份均拒绝，8/8 通过；该脚本作为本地补验归档，不新增日常 Python 依赖。
+- `python3 tests/test_ci_selection.py` 26 项通过；`python3 tests/test_cloud_evidence.py` 6 项通过；新增文件路径分类无未知项，PR 预计选取 15 个相关 CTest（最终以实际 PR 差异为准）；`git diff --check` 通过。没有全量、旧锁、性能或超过 2 rank 的本轮运行。
+- 测试执行时 HEAD 为基线且源码 dirty，随后提交为上述实现 SHA；原始摘要保留真实状态。Debug 时间/失败结果早于仅签名补充，复用未受影响路径；最终 restart/Release/故障补验覆盖完整签名。不因为后续文档提交重跑。
+- 使用 eonsim-knowledge-capture 整理 P2 瞬态历史草稿，保持未发布；已更新状态、队列及知识索引。PR 与云端检查尚待后续记录。

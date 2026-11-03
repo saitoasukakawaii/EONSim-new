@@ -47,7 +47,7 @@ for n in (4,8,16):
  previous=r;records.append(r)
 parallel,_=solve('sine-16-mpi2',n=16,ranks=2,kind='sine');assert parallel.keys()==values.keys() and max(abs(parallel[k]-values[k]) for k in values)<2e-9
 solve('quad',topology='quad',error='P2 requires Tri3')
-solve('transient',change=lambda c:c['scalar2d'].update(mode='diffusion'),error='P2 supports steady')
+solve('regions',change=lambda cfg:(cfg['scalar2d'].pop('manufactured'),cfg['scalar2d'].update(regions={'domain':2}),[b.update(value=0) for b in cfg['scalar2d']['boundaries']]),error='P2 supports uniform-coefficient')
 
 
 # Robin can anchor the entire problem without any essential boundary.

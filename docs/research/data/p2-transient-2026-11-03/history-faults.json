@@ -1,0 +1,170 @@
+[
+  {
+    "scheme": "bdf2",
+    "mode": "missing",
+    "ranks": 2,
+    "expected": "Checkpoint HDF5 operation failed",
+    "exit_code": 1,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "-n",
+      "2",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/eonsim",
+      "-case",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/bdf2-2/case.json",
+      "-partition",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/bdf2-2/part",
+      "-restart",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/bdf2-missing",
+      "-output",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/bdf2-missing/bad.vtu"
+    ]
+  },
+  {
+    "scheme": "bdf2",
+    "mode": "invalid",
+    "ranks": 2,
+    "expected": "Invalid P2",
+    "exit_code": 1,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "-n",
+      "2",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/eonsim",
+      "-case",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/bdf2-2/case.json",
+      "-partition",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/bdf2-2/part",
+      "-restart",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/bdf2-invalid",
+      "-output",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/bdf2-invalid/bad.vtu"
+    ]
+  },
+  {
+    "scheme": "bdf2",
+    "mode": "nonfinite",
+    "ranks": 2,
+    "expected": "Nonfinite checkpoint field",
+    "exit_code": 1,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "-n",
+      "2",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/eonsim",
+      "-case",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/bdf2-2/case.json",
+      "-partition",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/bdf2-2/part",
+      "-restart",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/bdf2-nonfinite",
+      "-output",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/bdf2-nonfinite/bad.vtu"
+    ]
+  },
+  {
+    "scheme": "bdf2",
+    "mode": "space-identity",
+    "ranks": 2,
+    "expected": "Checkpoint mesh/partition/physics mismatch",
+    "exit_code": 1,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "-n",
+      "2",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/eonsim",
+      "-case",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/bdf2-2/case.json",
+      "-partition",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/bdf2-space-identity/part",
+      "-restart",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/bdf2-space-identity",
+      "-output",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/bdf2-space-identity/bad.vtu"
+    ]
+  },
+  {
+    "scheme": "generalized_alpha",
+    "mode": "missing",
+    "ranks": 2,
+    "expected": "Checkpoint HDF5 operation failed",
+    "exit_code": 1,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "-n",
+      "2",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/eonsim",
+      "-case",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/generalized_alpha-2/case.json",
+      "-partition",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/generalized_alpha-2/part",
+      "-restart",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/generalized_alpha-missing",
+      "-output",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/generalized_alpha-missing/bad.vtu"
+    ]
+  },
+  {
+    "scheme": "generalized_alpha",
+    "mode": "invalid",
+    "ranks": 2,
+    "expected": "Invalid P2",
+    "exit_code": 1,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "-n",
+      "2",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/eonsim",
+      "-case",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/generalized_alpha-2/case.json",
+      "-partition",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/generalized_alpha-2/part",
+      "-restart",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/generalized_alpha-invalid",
+      "-output",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/generalized_alpha-invalid/bad.vtu"
+    ]
+  },
+  {
+    "scheme": "generalized_alpha",
+    "mode": "nonfinite",
+    "ranks": 2,
+    "expected": "Nonfinite checkpoint field",
+    "exit_code": 1,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "-n",
+      "2",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/eonsim",
+      "-case",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/generalized_alpha-2/case.json",
+      "-partition",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/generalized_alpha-2/part",
+      "-restart",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/generalized_alpha-nonfinite",
+      "-output",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/generalized_alpha-nonfinite/bad.vtu"
+    ]
+  },
+  {
+    "scheme": "generalized_alpha",
+    "mode": "space-identity",
+    "ranks": 2,
+    "expected": "Checkpoint mesh/partition/physics mismatch",
+    "exit_code": 1,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "-n",
+      "2",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/eonsim",
+      "-case",
+      "/home/tfblab633/EONSim/build/cloud-3.23.7-debug/scalar-p2-failure/generalized_alpha-2/case.json",
+      "-partition",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/generalized_alpha-space-identity/part",
+      "-restart",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/generalized_alpha-space-identity",
+      "-output",
+      "/home/tfblab633/EONSim/build/p2-local/history-faults/generalized_alpha-space-identity/bad.vtu"
+    ]
+  }
+]
