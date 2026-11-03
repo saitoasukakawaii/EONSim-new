@@ -12,7 +12,7 @@ std::vector<Tri3Topology::Nodal<LocalId>> fsi_interface_faces(MPI_Comm comm,
     using Key=Tri3Topology::Nodal<GlobalId>;
     std::vector<Face> candidates;
     std::vector<std::vector<GlobalId>> buckets(mesh.ranks);
-    for(const auto& cell:mesh.cells) if(fluid_region==0||cell.physical_tag==fluid_region)
+    for(const auto& cell:mesh.cells)
         for(int skip=0;skip<4;++skip) {
             Face face{}; int k=0; bool shared=true;
             for(int a=0;a<4;++a) if(a!=skip) {face[k++]=cell.nodes[a];shared=shared&&trace[cell.nodes[a]];}
@@ -23,7 +23,7 @@ std::vector<Tri3Topology::Nodal<LocalId>> fsi_interface_faces(MPI_Comm comm,
             std::uint64_t hash=1469598103934665603ULL;
             for(auto id:key) {hash^=static_cast<std::uint64_t>(id);hash*=1099511628211ULL;}
             auto& bucket=buckets[hash%mesh.ranks];
-            bucket.insert(bucket.end(),key.begin(),key.end());bucket.push_back(candidates.size());
+            bucket.insert(bucket.end(),key.begin(),key.end());bucket.push_back(candidates.size());bucket.push_back(fluid_region==0||cell.physical_tag==fluid_region?0:1);
             candidates.push_back(face);
         }
     std::vector<int> send_count(mesh.ranks),recv_count(mesh.ranks),send_offset(mesh.ranks),recv_offset(mesh.ranks);
@@ -33,13 +33,16 @@ std::vector<Tri3Topology::Nodal<LocalId>> fsi_interface_faces(MPI_Comm comm,
     std::vector<GlobalId> sent;for(const auto& b:buckets) sent.insert(sent.end(),b.begin(),b.end());
     std::vector<GlobalId> received(std::accumulate(recv_count.begin(),recv_count.end(),0));
     MPI_Alltoallv(sent.data(),send_count.data(),send_offset.data(),MPI_INT64_T,received.data(),recv_count.data(),recv_offset.data(),MPI_INT64_T,comm);
-    std::map<Key,int> incidence;
-    for(std::size_t i=0;i<received.size();i+=4) ++incidence[{received[i],received[i+1],received[i+2]}];
-    for(std::size_t i=0;i<received.size();i+=4) received[i]=incidence.at({received[i],received[i+1],received[i+2]})==1?1:0;
+    std::map<Key,std::array<int,2>> incidence;
+    for(std::size_t i=0;i<received.size();i+=5) ++incidence[{received[i],received[i+1],received[i+2]}][received[i+4]];
+    for(std::size_t i=0;i<received.size();i+=5) {
+        const auto count=incidence.at({received[i],received[i+1],received[i+2]});
+        received[i]=received[i+4]==0&&count[0]==1&&(fluid_region==0||count[1]==1)?1:0;
+    }
     std::vector<GlobalId> reply(sent.size());
     MPI_Alltoallv(received.data(),recv_count.data(),recv_offset.data(),MPI_INT64_T,reply.data(),send_count.data(),send_offset.data(),MPI_INT64_T,comm);
     std::vector<Face> result;
-    for(std::size_t i=0;i<reply.size();i+=4) if(reply[i]) result.push_back(candidates.at(reply[i+3]));
+    for(std::size_t i=0;i<reply.size();i+=5) if(reply[i]) result.push_back(candidates.at(reply[i+3]));
     return result;
 }
 double fsi_volume_ratio(const Tet4Topology::Nodal<Point>& reference,const Tet4Topology::Nodal<Point>& current) {

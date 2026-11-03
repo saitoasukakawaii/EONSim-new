@@ -65,14 +65,19 @@ def main():
         cfg['time']=dict(scheme='bdf2');cfg['solver'].update(relative_tolerance=1e-11,absolute_tolerance=1e-13)
         reference,_,_=run.solve('reference',cfg)
         for scheme in ('be','bdf2','generalized_alpha'):
-            cfg['time']=dict(scheme=scheme);last=None
-            for h in (.001,.0005,.00025):
+            cfg['time']=dict(scheme=scheme);previous={}
+            for h in ((.0005,.00025,.000125) if scheme=='be' else (.001,.0005,.00025)):
                 cfg['fsi'].update(dt=h,steps=round(.04/h));actual,_,_=run.solve(f'{scheme}-{h}',cfg)
-                keys=[k for k in actual if k[2] in ('velocity','mesh_displacement','displacement')]
-                e=math.sqrt(sum((v-w)**2 for k in keys for v,w in zip(actual[k],reference[k]))/sum(len(actual[k]) for k in keys))
-                row=dict(scheme=scheme,h=h,error=e)
-                if last:row['order']=math.log(last/e,2);assert row['order']>(.85 if scheme=='be' else 1.7),row
-                last=e;evidence.append(row);print(row,flush=True)
+                row=dict(scheme=scheme,h=h)
+                for solid,name in ((False,'velocity'),(False,'mesh_displacement'),(True,'velocity'),(True,'displacement')):
+                    keys=[k for k in actual if k[0]==solid and k[2]==name]
+                    e=math.sqrt(sum((v-w)**2 for k in keys for v,w in zip(actual[k],reference[k]))/sum(len(actual[k]) for k in keys))
+                    field=('solid_' if solid else 'fluid_')+name;row[field]=e
+                    if field in previous:
+                        row[field+'_order']=math.log(previous[field]/e,2)
+                        assert row[field+'_order']>(.85 if scheme=='be' else 1.7),row
+                    previous[field]=e
+                evidence.append(row);print(row,flush=True)
     else:
         for n in (4,8):
             run=Runner(a.executable,a.mpiexec,a.work/f'n{n}',timeout=2400);cfg=json.loads(wall(run.work,n,True).read_text())

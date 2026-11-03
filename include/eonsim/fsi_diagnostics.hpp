@@ -3,7 +3,7 @@
 #include <mpi.h>
 namespace eonsim {
 /// One-time distributed face incidence query. Only exterior faces of the fluid
-/// whose vertices are shared trace nodes survive; no global mesh replication.
+/// with a solid neighbor survive (legacy region=0 uses exterior trace faces); no global mesh replication.
 std::vector<Tri3Topology::Nodal<LocalId>> fsi_interface_faces(MPI_Comm comm,
     const MeshPartition& mesh,const std::vector<bool>& trace,int fluid_region);
 /// Pure local signed geometry validation; throws StepRejected before commit.

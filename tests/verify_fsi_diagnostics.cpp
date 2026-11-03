@@ -24,8 +24,11 @@ int main(int argc,char** argv) {
         check(mesh.ranks<=2);mesh.nodes.resize(5);for(int i=0;i<5;++i)mesh.nodes[i].global_id=i+1;
         if(mesh.rank==0) mesh.cells.push_back({1,{0,1,2,3},10});
         if(mesh.ranks==1||mesh.rank==1) mesh.cells.push_back({2,{0,2,1,4},10});
-        auto faces=fsi_interface_faces(PETSC_COMM_WORLD,mesh,std::vector<bool>(5,true),10);
+        auto faces=fsi_interface_faces(PETSC_COMM_WORLD,mesh,std::vector<bool>(5,true),0);
         int count=faces.size(),total;MPI_Allreduce(&count,&total,1,MPI_INT,MPI_SUM,PETSC_COMM_WORLD);check(total==6);
+        for(auto& c:mesh.cells) if(c.global_id==2) c.physical_tag=20;
+        faces=fsi_interface_faces(PETSC_COMM_WORLD,mesh,std::vector<bool>(5,true),10);
+        count=faces.size();MPI_Allreduce(&count,&total,1,MPI_INT,MPI_SUM,PETSC_COMM_WORLD);check(total==1);
         if(mesh.rank==0)std::cout<<"FSI geometry, affine surface and distributed face cancellation passed\n";
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';MPI_Abort(PETSC_COMM_WORLD,1);}
     PetscFinalize();
