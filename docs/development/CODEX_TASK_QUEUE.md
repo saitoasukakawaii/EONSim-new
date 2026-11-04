@@ -12,7 +12,9 @@
 
 本队列用于跨 Codex Goal / Cloud Task 接续研发。每个 Goal 只领取一个有明确验收条件的里程碑任务。
 
-## FSI-NEXT-03 / blocked（执行环境 unavailable）
+## FSI-NEXT-03 / in_progress
+
+2026-11-04 已从远端 a67f329 恢复同一分支，核对 main 仍为 4f3a995。默认三网格归档逐文件校验通过（923/743/678 个文件），重新审计 8600/5000/3700 条接受步。使用仓库 restore.sh 和 run.sh 恢复 PETSc 3.23.7 Release，所得可执行文件 SHA-256 为 b4de28ffc6481701b533ec4772f4f0f604cfc18bc15bc63c858ebebae38352da。单一 MPI 队列的 fsi_periodic、fsi_flow、fsi_inlet、fsi_pressure_state 均通过。旧固定 τ 算例缺少原始场和 checkpoint，固定 τ=.05 的三网格与两步长研究从初态重算。完整误差预算、证据审查及 PR/CI 仍待完成。
 
 用户已授权实施48小时计划；基线 main `4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e`，分支 `codex/fsi-next-03-periodic-convergence`。预算3/9/6/16/8/6小时依次用于基线、周期检测续算、质量预算、时空收敛、MPI恢复审查、证据与CI。全部必交功能、本地验证、证据与审查完成前不创建任何PR，之后仅一个汇总PR；不自动合并。
 

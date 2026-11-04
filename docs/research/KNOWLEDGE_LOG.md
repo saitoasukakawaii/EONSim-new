@@ -1,5 +1,7 @@
 # EONSim Knowledge Log
 
+2026-11-04 三档网格的归档恢复和全部接受步审计通过。之前缺少原始场的固定 τ 工况重新求解，完整周期误差预算仍待实测。[补验证据](data/fsi-next-03/recovery-release/)
+
 ## FSI-NEXT-03 环境中断检查点 / 2026-11-03
 
 执行环境被标记 unavailable，exec-server恢复超时；当前无法确认后台进程存活。不是预算耗尽，也不是整体完成。最后完整远端源码/证据检查点20ac3af；本提交通过GitHub API保存断开前已验证的两项Python修改和恢复记录。未创建PR。
