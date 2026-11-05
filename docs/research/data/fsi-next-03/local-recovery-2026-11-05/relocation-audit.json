@@ -48,6 +48,18 @@
     {
       "archive": "sampling-fixed-n4-dt0005.tar.gz",
       "files_verified": 2426
+    },
+    {
+      "archive": "fixed-n8-dt001.tar.gz",
+      "files_verified": 648
+    },
+    {
+      "archive": "tail-fixed-n8-dt001.tar.gz",
+      "files_verified": 398
+    },
+    {
+      "archive": "sampling-fixed-n8-dt001.tar.gz",
+      "files_verified": 2426
     }
   ],
   "temporal": {
@@ -206,7 +218,70 @@
         "minimum_j": 0.997553553969975
       },
       "accepted_rows": 9800
+    },
+    "fixed-n8-dt001": {
+      "last_cycle": 31,
+      "pressure_checks": {
+        "29": {
+          "relative_max": 3.7757202137264634e-05,
+          "relative_mean_drift": 5.2340511014215e-07
+        },
+        "30": {
+          "relative_max": 4.3255264214475675e-05,
+          "relative_mean_drift": 8.240161313080585e-07
+        },
+        "31": {
+          "relative_max": 2.6333268084710593e-05,
+          "relative_mean_drift": 3.843334016213895e-07
+        }
+      },
+      "boundary_errors": {
+        "rigid_velocity": 0.0,
+        "interface_velocity": 0.0,
+        "interface_displacement": 0.0
+      },
+      "mass_budget": {
+        "final_defect": -6.330754094780247e-09,
+        "max_absolute_defect": 2.3648248070090892e-08,
+        "integrated_net_flow": 0.0005334343428258709,
+        "volume_change": 0.0005334406735799657
+      },
+      "flow_balance": {
+        "stage_mass": 9.636388909051163e-16,
+        "surface_divergence": 2.5261910618912253e-17,
+        "inlet_flow": 8.500145032286355e-17,
+        "minimum_j": 0.9970066450764719
+      },
+      "accepted_rows": 3100
     }
   },
+  "tail_recomputation": {
+    "fixed-n2-dt001": {
+      "blocks_recomputed": 3,
+      "maximum_absolute_difference": 0.0,
+      "estimates_match": true
+    },
+    "fixed-n2-dt0005": {
+      "blocks_recomputed": 3,
+      "maximum_absolute_difference": 0.0,
+      "estimates_match": true
+    },
+    "fixed-n4-dt001": {
+      "blocks_recomputed": 3,
+      "maximum_absolute_difference": 0.0,
+      "estimates_match": true
+    },
+    "fixed-n4-dt0005": {
+      "blocks_recomputed": 3,
+      "maximum_absolute_difference": 0.0,
+      "estimates_match": true
+    },
+    "fixed-n8-dt001": {
+      "blocks_recomputed": 3,
+      "maximum_absolute_difference": 0.0,
+      "estimates_match": true
+    }
+  },
+  "complete_budget": null,
   "receipt_paths_rewritten": false
 }

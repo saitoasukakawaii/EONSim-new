@@ -260,5 +260,99 @@
     "exit_code": 0,
     "seconds": 0.862607556999933,
     "log": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/resume-20261105/archive-fixed-n4-dt0005.log"
+  },
+  {
+    "label": "fixed-n8-dt001",
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/scripts/study_fsi_periodic.py",
+      "--executable",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-release/eonsim",
+      "--mpiexec",
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "--work",
+      "/home/tfblab633/EONSim-next03-20261105/fixed-n8-dt001",
+      "--n",
+      "8",
+      "--dt",
+      ".001",
+      "--cycles",
+      "240"
+    ],
+    "exit_code": 0,
+    "seconds": 667.795372194,
+    "log": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/resume-20261105/fixed-n8-dt001.log"
+  },
+  {
+    "label": "tail-fixed-n8-dt001",
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/scripts/study_fsi_transient_tail.py",
+      "--executable",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-release/eonsim",
+      "--mpiexec",
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "--source",
+      "/home/tfblab633/EONSim-next03-20261105/fixed-n8-dt001",
+      "--work",
+      "/home/tfblab633/EONSim-next03-20261105/tail-fixed-n8-dt001"
+    ],
+    "exit_code": 0,
+    "seconds": 612.1469314650001,
+    "log": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/resume-20261105/tail-fixed-n8-dt001.log"
+  },
+  {
+    "label": "sampling-fixed-n8-dt001",
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/scripts/study_fsi_phase_sampling.py",
+      "--executable",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-release/eonsim",
+      "--mpiexec",
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "--source",
+      "/home/tfblab633/EONSim-next03-20261105/fixed-n8-dt001",
+      "--work",
+      "/home/tfblab633/EONSim-next03-20261105/sampling-fixed-n8-dt001"
+    ],
+    "exit_code": 0,
+    "seconds": 53.44582606599988,
+    "log": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/resume-20261105/sampling-fixed-n8-dt001.log"
+  },
+  {
+    "label": "archive-fixed-n8-dt001",
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/scripts/archive_fsi_periodic.py",
+      "--work",
+      "/home/tfblab633/EONSim-next03-20261105/fixed-n8-dt001",
+      "--output",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/resume-20261105/fixed-n8-dt001.tar.gz"
+    ],
+    "exit_code": 0,
+    "seconds": 2.147044928000014,
+    "log": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/resume-20261105/archive-fixed-n8-dt001.log"
+  },
+  {
+    "label": "fixed-n8-dt0005",
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/scripts/study_fsi_periodic.py",
+      "--executable",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-release/eonsim",
+      "--mpiexec",
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "--work",
+      "/home/tfblab633/EONSim-next03-20261105/fixed-n8-dt0005",
+      "--n",
+      "8",
+      "--dt",
+      ".0005",
+      "--cycles",
+      "240"
+    ],
+    "exit_code": 0,
+    "seconds": 1340.125139929,
+    "log": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/resume-20261105/fixed-n8-dt0005.log"
   }
 ]

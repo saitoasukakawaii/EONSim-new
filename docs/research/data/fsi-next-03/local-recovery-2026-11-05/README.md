@@ -13,10 +13,11 @@ main 为 `4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e`。
 | 2 | 0.0005 | 88 | 本轮从初态求解 |
 | 4 | 0.001 | 39 | 本轮从初态求解 |
 | 4 | 0.0005 | 49 | 本轮从初态求解 |
+| 8 | 0.001 | 31 | 本轮从初态求解 |
 
-以上四个状态均完成三个十周期尾项块及两周期100相位输出。
+以上五个状态均完成三个十周期尾项块及两周期100相位输出。
 `progress-analysis.json` 是当时的离线中间结果，不能代替最终三网格预算。
-n=8 两档步长、它们的尾项和密集采样以及最终完整预算尚未完成。
+n=8 半步长、其尾项和密集采样以及最终完整预算尚未完成。
 
 ## 构建与针对性验证
 
@@ -40,11 +41,19 @@ n=8 两档步长、它们的尾项和密集采样以及最终完整预算尚未�
 最后四周期场，以及最后和前一完整周期的checkpoint。更早PVD中的场引用按原工具契约未归档。
 伴随 `.manifest.json` 列出文件大小和SHA。
 
-`tail-*.tar.gz` 和 `sampling-*.tar.gz` 由本目录 `archive-continuations.py` 生成，
-保存全部真实VTU/PVTU片段、PVD、完整CSV/日志、配置、定义、结果及可用checkpoint；
-逐个核对PVD/PVTU引用闭合，并回读压缩包核对所有文件SHA。
+`tail-*.tar.gz` 和 `sampling-*.tar.gz` 由本目录 `archive-continuations.py` 生成。
+密集采样包保存两周期全部真实VTU/PVTU片段；n=2/4尾项包保存三个追加区间的全部场，
+n=8尾项包使用 `--tail-endpoints` 保存每个区间末周期的20个真实场相位（即尾项计算实际使用的全部场），
+同时保存全部原始PVD索引、完整接受CSV/日志、配置、定义、结果及每个区间末checkpoint。
+尾项中未用于估计的中间周期场未收入n=8交付包，完整本机原件仍保留；manifest明确列出保留周期。
+核对所有收录PVTU的rank片段引用，并回读压缩包核对全部收录文件SHA。
+迁移后还从实际场重新计算三个区间差和几何尾项，必须与原receipt相符。
 这补齐了旧 `../fixed-operator/n2-dt001-continuations.tar.gz` 只含索引/日志而缺场片段的局限。
 旧包未删除，所有本轮继续计算均为真实求解。
+
+超过48 MiB的压缩包按原有 `scripts/split_fsi_archive.py` 分为4 MiB传输片，存入同名 `.parts/` 目录。
+使用 `python scripts/split_fsi_archive.py join <archive>.parts/<archive>.parts.json --output <archive>` 重组，
+再对照同名 `.manifest.json` 解压核验。`chunk-verification.json` 记录本轮已经实际重组并验证的整包SHA。
 
 解压后，误差估计通过检查点generation、完整检查点文件SHA、网格SHA及研究定义与源状态绑定，
 不要求恢复到原绝对路径。原始receipt的路径和哈希不改写。

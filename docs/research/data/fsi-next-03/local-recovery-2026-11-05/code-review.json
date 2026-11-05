@@ -1,0 +1,30 @@
+{
+  "review_type": "self-review",
+  "reviewed_code_commit": "e4bda862e9feebb63a09200f65bb7c4f4f842337",
+  "base_commit": "4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e",
+  "code_verdict": "No unresolved blocking code finding in the reviewed scope",
+  "numerical_acceptance": "Pending the final n=8 half-step state, continuation and complete error budget",
+  "scope": [
+    "Default-preserving positive checkpoint cadence and successful off-cadence endpoints",
+    "Local Tet4 moving-volume, divergence and outward-face flux observation",
+    "Full-field and pressure-drop physical-phase periodic comparisons",
+    "Bounded checkpoint continuation, full accepted history and incomplete-state rejection",
+    "Reference-configuration interpolation and dimensional phase-RMS field differences",
+    "Three-block conditional transient tail and actual 100-phase sampling",
+    "Strict complete-field temporal/transient/sampling 10 percent budgets",
+    "Portable source identity using checkpoint, mesh and study-definition checksums",
+    "Preserving actual VTU pieces and verifying relocated evidence"
+  ],
+  "corrected_finding": {
+    "problem": "The prior estimate attachment used the absolute source directory, so a restored identical archive could not be audited on a new machine; a path alone also did not verify source contents.",
+    "resolution_commit": "e4bda862e9feebb63a09200f65bb7c4f4f842337",
+    "evidence": ["analysis-test.json", "relocation-audit.json"]
+  },
+  "evidence_limits": [
+    "Only one related Release CTest was newly run in this environment; unaffected prior Debug/Release evidence was reused, not rerun.",
+    "Cross-build compatibility is supported by one complete n=2 cycle replay, not merely equal source hashes.",
+    "The fixed-tau study does not qualify the default dt-dependent stabilization or establish a continuum-limit result.",
+    "Geometric-tail extrapolation is empirical and conditional on continued contraction.",
+    "No independent external review or large-scale/performance claim is made."
+  ]
+}
