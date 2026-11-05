@@ -56,8 +56,15 @@ def audit_cycle(work):
 def attached_estimate(path,source,kind):
     result=json.loads(path.read_text());definition=result['definition']
     saved=json.loads((source/'periodic-result.json').read_text())
-    if Path(definition['source']).resolve()!=source.resolve() or definition['source_checkpoint']!=saved['checkpoint_generation']:
+    # A restored archive may live at another path. Its identity is the complete
+    # physical checkpoint, mesh and study definition, not the former hostname.
+    if definition['source_checkpoint']!=saved['checkpoint_generation'] or definition['source_definition']!=json.loads((source/'study-definition.json').read_text()):
         raise ValueError('Error estimate is attached to a different periodic state')
+    checkpoint=source/'checkpoint'/saved['checkpoint_generation']
+    actual={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in checkpoint.iterdir() if p.is_file()}
+    meshes={name:hashlib.sha256((source/name).read_bytes()).hexdigest() for name in ('fluid.msh','solid.msh')}
+    if not actual or actual!=definition['source_files_sha256'] or meshes!=definition['mesh_sha256']:
+        raise ValueError('Error estimate source checkpoint or mesh checksum mismatch')
     if kind=='transient':return {k:v['remaining_at_source'] for k,v in result['estimate'].items()}
     if not result.get('dense_periodic_check'):raise ValueError('Dense periodic sampling check missing or failed')
     return result['errors']

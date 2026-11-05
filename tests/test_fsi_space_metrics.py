@@ -64,5 +64,37 @@ class Space(unittest.TestCase):
         self.assertAlmostEqual(result['u']['contraction'],.5)
         with self.assertRaisesRegex(ValueError,'not resolved'):tail_estimate([{'u':1.},{'u':.9},{'u':.8}])
 
+    def test_error_estimate_survives_relocation_but_not_changed_source(self):
+        import hashlib
+        import json
+        import tempfile
+        from analyze_fsi_error_budget import attached_estimate
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);source=root/'restored';source.mkdir()
+            checkpoint=source/'checkpoint'/'generation_1';checkpoint.mkdir(parents=True)
+            (checkpoint/'manifest').write_text('physical checkpoint')
+            (checkpoint/'state_rank0.h5').write_bytes(b'accepted state and algorithm history')
+            for name in ('fluid.msh','solid.msh'):(source/name).write_text(name)
+            study=dict(n=2,dt=.001,tau=.05,ranks=1)
+            (source/'study-definition.json').write_text(json.dumps(study))
+            (source/'periodic-result.json').write_text(json.dumps(dict(checkpoint_generation='generation_1')))
+            digest=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+            definition=dict(source='/former/machine/study',source_checkpoint='generation_1',source_definition=study,
+                source_files_sha256={p.name:digest(p) for p in checkpoint.iterdir()},
+                mesh_sha256={name:digest(source/name) for name in ('fluid.msh','solid.msh')})
+            estimate=root/'tail.json'
+            estimate.write_text(json.dumps(dict(definition=definition,estimate={'u':dict(remaining_at_source=.01)})))
+            self.assertEqual(attached_estimate(estimate,source,'transient'),{'u':.01})
+            for changed in (checkpoint/'state_rank0.h5',checkpoint/'manifest',source/'fluid.msh',source/'solid.msh'):
+                original=changed.read_bytes()
+                changed.write_bytes(original+b' changed')
+                with self.assertRaisesRegex(ValueError,'checksum mismatch'):attached_estimate(estimate,source,'transient')
+                changed.write_bytes(original)
+            extra=checkpoint/'state_rank1.h5';extra.write_bytes(b'unexpected rank')
+            with self.assertRaisesRegex(ValueError,'checksum mismatch'):attached_estimate(estimate,source,'transient')
+            extra.unlink()
+            (source/'study-definition.json').write_text(json.dumps(dict(study,tau=.025)))
+            with self.assertRaisesRegex(ValueError,'different periodic state'):attached_estimate(estimate,source,'transient')
+
 
 if __name__=='__main__':unittest.main()
