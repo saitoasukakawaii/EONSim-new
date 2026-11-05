@@ -1,7 +1,7 @@
 # EONSim Codex Development Progress
 
 
-## FSI-NEXT-03 本地验收完成 / 2026-11-05
+## FSI-NEXT-03 / PR #35验收通过 / 2026-11-05
 
 固定τ=.05的n=2/4/8、dt=.001/.0005六状态分别在77/88、39/49、31/31周期达到连续三周期判据。
 全部完成三个十周期尾项区间和两周期真实100相位采样；时间/瞬态/采样预算的逐字段最大比分别为2.765560%、0.589428%、0.001042%，均严格小于10%。
@@ -9,7 +9,7 @@
 18个可恢复包迁移后核验49305文件，实际尾项与完整预算重算完全一致，原receipt未改写。
 全部周期与追加研究审计77100行接受历史，质量/流量/正几何和100相位边界约束通过。
 本机构建及fsi_periodic 1/1（含1/2/4 rank）、迁移修正e4bda86的6项检查通过；其余未受影响历史检查复用，本机未重跑。
-本地验收与自审完成，待提交同一汇总PR并完成自动CI；不自动合并。[本轮证据](../research/data/fsi-next-03/local-recovery-2026-11-05/README.md)。
+本地验收与自审完成；[PR #35](https://github.com/saitoasukakawaii/EONSim-new/pull/35)已创建，[云端数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42049457299)主锁Debug/Release各29/29通过，零失败/零跳过；54项Python检查与[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42049457283)通过。状态review，未合入main，不自动合并。[本轮证据](../research/data/fsi-next-03/local-recovery-2026-11-05/README.md)。
 
 下列FSI-NEXT-03尚未完成/未创建PR描述为历史检查点，不覆盖本节状态。
 

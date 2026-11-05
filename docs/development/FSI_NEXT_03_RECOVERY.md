@@ -12,7 +12,7 @@
 18个可恢复包迁移后核验49305文件，实际尾项与完整预算重算完全一致，原receipt未改写。
 全部周期与追加研究审计77100行接受历史，质量/流量/正几何和100相位边界约束通过。
 本机构建及fsi_periodic 1/1（含1/2/4 rank）、迁移修正e4bda86的6项检查通过；其余未受影响历史检查复用，本机未重跑。
-本地验收与自审完成，待提交同一汇总PR并完成自动CI；不自动合并。[本轮证据](../research/data/fsi-next-03/local-recovery-2026-11-05/README.md)。
+本地验收与自审完成；[PR #35](https://github.com/saitoasukakawaii/EONSim-new/pull/35)已创建，[云端数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42049457299)主锁Debug/Release各29/29通过，零失败/零跳过；54项Python检查与[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42049457283)通过。状态review，未合入main，不自动合并。[本轮证据](../research/data/fsi-next-03/local-recovery-2026-11-05/README.md)。
 
 顺序计算入口build/resume-20261105/continue-matrix.py已结束；matrix-status.json记录最终预算成功。
 无需再启动MPI研究。归档在证据目录；大于48 MiB的包使用现有split_fsi_archive.py按4 MiB分片并通过重组校验。

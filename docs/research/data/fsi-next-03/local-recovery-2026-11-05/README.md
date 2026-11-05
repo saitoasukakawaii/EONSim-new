@@ -3,7 +3,9 @@
 从 `1b33db8c973b67d343d6376e3d8dee557f4af3de` 接续同一开发分支，
 main基线为 `4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e`，最终分析修正为 `e4bda862e9feebb63a09200f65bb7c4f4f842337`。
 六状态、尾项、真实100相位与完整10%误差预算已经通过；迁移后从原始场重算预算完全一致。
-本地验收与自审完成，后续在同一PR执行自动CI；没有合并main或发布文章。
+本地验收与自审完成；[PR #35](https://github.com/saitoasukakawaii/EONSim-new/pull/35)已创建，[云端数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42049457299)主锁Debug/Release各29/29通过，零失败/零跳过；54项Python检查与[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42049457283)通过。状态review，未合入main，不自动合并。
+首轮CI测试的合并预览308800e与本地验收tree 4b1ebb0完全相同；精简永久记录见delivery-ci.json。
+最后交付记录更新不改变数值代码或输入；后续自动检查按同PR规则复用成功数值证据。文章未发布。
 
 固定τ=0.05，generalized-alpha（默认ρ∞=0.5），2 MPI rank，每rank单线程，周期0.1。
 流体参考域[0,1]³，弹性顶壁y∈[1,1.25]；密度/黏度为1，固体密度1，线弹性E=100、ν=0.3。
