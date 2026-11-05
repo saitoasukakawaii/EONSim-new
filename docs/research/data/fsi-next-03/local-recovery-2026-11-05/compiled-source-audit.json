@@ -1,0 +1,379 @@
+{
+  "build_commit": "1b33db8c973b67d343d6376e3d8dee557f4af3de",
+  "analysis_fix_commit": "e4bda862e9feebb63a09200f65bb7c4f4f842337",
+  "executable_sha256": "2e12cb6ea905c2e600b427371c9aa33e586e7bf0dc91b4493ecbc28225104665",
+  "build_summary_dirty": true,
+  "production_sources_match_git": true,
+  "files": [
+    {
+      "path": "CMakeLists.txt",
+      "git_blob": "ccdb6b25f246b3abd3ca0ac06e3ebd6406faef4f",
+      "sha256": "983bbbf2d26d1cc92e2874c85e28703b5bd9e1865919ee464e8e268cdbda47b2"
+    },
+    {
+      "path": "CMakePresets.json",
+      "git_blob": "07ffda94e63c912dde95a213159f1903d60ce373",
+      "sha256": "96ff8459f913b1f91722f750d53c52a9691bf2aac38b418df390553f9924ee37"
+    },
+    {
+      "path": "cmake/EONSimBlasLapackProvider.cmake",
+      "git_blob": "6f40d0209b453ee558e8f2bdacdf5bde8d7247f2",
+      "sha256": "afbf71c2fb878fea357a83d146329903bc55221ddb04e2edcaff66bdf65c41bd"
+    },
+    {
+      "path": "cmake/EONSimPETScProvider.cmake",
+      "git_blob": "8c76b1ebea9e1bcd941f9031303a0b64b7e76200",
+      "sha256": "a4616ae83a62a51b79dca5cbc7c4380d88943dafd79ce760652e842bedc3f1f4"
+    },
+    {
+      "path": "cmake/FindMPI.cmake",
+      "git_blob": "b99fd109f9f11021a148ffef3d8c0026fea02922",
+      "sha256": "d20c251830f7884c640cc00e5b85fc6d7a78537e6c0dc2fc20319d074cb3d6bb"
+    },
+    {
+      "path": "include/eonsim/ale.hpp",
+      "git_blob": "d9619cab739c860214aa30192d9be2b4c7cf1a26",
+      "sha256": "9d7de8d8a82a1032395aaccc9ed7b37c838a8a683eca4704399978ebee6c1ee6"
+    },
+    {
+      "path": "include/eonsim/boundary_geometry.hpp",
+      "git_blob": "1facff660252920a12ca4f672588dc162787a3a7",
+      "sha256": "676185f62e269227d3f9a41f712e5487bc320f5209ab769583356fca92908264"
+    },
+    {
+      "path": "include/eonsim/checkpoint.hpp",
+      "git_blob": "254548e47b01abba911d9367e79aec011648ad7a",
+      "sha256": "4df8665a91c50d756cfea7f01972de0edef4a520b3c901c7961e043111740199"
+    },
+    {
+      "path": "include/eonsim/config.hpp",
+      "git_blob": "ee3d7c6ec0d474ddd151f91838313a7b686b8d30",
+      "sha256": "e5b840b1cd30005d3c2452a9992ce71a92da7822a5331bfa402bc818d9db9d00"
+    },
+    {
+      "path": "include/eonsim/discretization.hpp",
+      "git_blob": "5495088ec985614b7afb11d44e51718e581edccb",
+      "sha256": "40356e1019a23dd66bda37290e060f0ff6a90851f9d862ea5f1f0a8bfd1054e2"
+    },
+    {
+      "path": "include/eonsim/dof_semantics.hpp",
+      "git_blob": "21c3d7e8442bba1be70487c3227644321b80bd55",
+      "sha256": "2f0cd194c0396fba884b35e2fabe15db470ad8521d120b087a6e90bbc67a6b6f"
+    },
+    {
+      "path": "include/eonsim/dual.hpp",
+      "git_blob": "dd2e967ef38babbee9d0f584d35e3e6270b85495",
+      "sha256": "1c918f59bd01e48f1d7e561323d7f57ee4b6a5726734de857ff0eb1783577e4d"
+    },
+    {
+      "path": "include/eonsim/element2d.hpp",
+      "git_blob": "586e9b73332cb3d883a225f0478e06901bf64ff7",
+      "sha256": "f20fe69a14682412c3f67c47492ebb97ff3b8655b5a6307ffebc32d404171bd4"
+    },
+    {
+      "path": "include/eonsim/field_layout.hpp",
+      "git_blob": "cc1fb62d088981d37a326df8f2199f8d1d1ed142",
+      "sha256": "e61fdc18810f11e86aa1ae879a268d5b1924a8367d0888152499815fd775d3e8"
+    },
+    {
+      "path": "include/eonsim/fluid.hpp",
+      "git_blob": "6c0d762504ad14162ee159e5af01e121f79053c9",
+      "sha256": "adda7989c3e364b607dd71f7239e2928171ce7a364b14178e3bcdd2f9e021c7f"
+    },
+    {
+      "path": "include/eonsim/fluid_boundary.hpp",
+      "git_blob": "1544be02dcb761ae89f24d1d2375d377acc0ee99",
+      "sha256": "583fec7e4563c1b232eb8f8c3052540e2782fb9def71012020043354b9565e31"
+    },
+    {
+      "path": "include/eonsim/fluid_element.hpp",
+      "git_blob": "d4c6363baec42d4441fee90c8565e5e340b15a68",
+      "sha256": "00ee39ca327a23e32f0967b189f4ff93a4db563670721391897d45116d848594"
+    },
+    {
+      "path": "include/eonsim/fluid_residual.hpp",
+      "git_blob": "746a65cee634e9124ddf75e448b1050b64f9acca",
+      "sha256": "2a2534995fc0df069992f7f1e38f4ca7bedfcd2cd4657c03c5f08db6c2461530"
+    },
+    {
+      "path": "include/eonsim/fsi.hpp",
+      "git_blob": "180e51b38da899f2aec1060bf5fc2e49ee234bcf",
+      "sha256": "8832e6daea0fe78c15057df72c08cdca5e6b8d2b08e1f0ad7239127d5a4f934a"
+    },
+    {
+      "path": "include/eonsim/fsi_diagnostics.hpp",
+      "git_blob": "108f2b3aa28054c9dba755819e6f4d83d6c2fcf8",
+      "sha256": "ebb8b09220844a3b4158b6207a6c22f416ee3c45ca18bf71b145e3445114ddab"
+    },
+    {
+      "path": "include/eonsim/fsi_domains.hpp",
+      "git_blob": "ec0516a996bb81dda6bf256df58efa3569d39991",
+      "sha256": "dc24a7c91dec2632ef67a6c53ee828d7cdfaf96f056dcbca8cd7b8077cd25287"
+    },
+    {
+      "path": "include/eonsim/fsi_element.hpp",
+      "git_blob": "06924bf334172df1378ac92478652ff7a7b05986",
+      "sha256": "2d9f49830a480c968314675e5ed9ce310c2602a4541d640cad5c54a428ad633e"
+    },
+    {
+      "path": "include/eonsim/hyperelastic.hpp",
+      "git_blob": "30706671be71f27ec1b7a0f8a0520cec8fb3af40",
+      "sha256": "03c5ae56b99e7b31d3f01953235399cf47d8be5faf85e8ad1dd17430ce7ffc38"
+    },
+    {
+      "path": "include/eonsim/linear_system.hpp",
+      "git_blob": "b7d87b4dd04df5cead5d0b4eb38663a16c3a5412",
+      "sha256": "b0b399804431a996aaba98bbb2e7ce0eda6cf9354e2ea777e953913b33e2cf49"
+    },
+    {
+      "path": "include/eonsim/mesh.hpp",
+      "git_blob": "722dffdcd00d0b851307b46b54bbe0f7861e62d0",
+      "sha256": "b5c11ae606acbf5cc73c5436ec551bdf0acd18104af2661083ee88b515a2e78a"
+    },
+    {
+      "path": "include/eonsim/mesh_import.hpp",
+      "git_blob": "c19930268b089e26af0d2bc185e037efd59560df",
+      "sha256": "11a1640c2a1a9d80cf8e7f589c94256d839719372927f6cb95f809b1a65dcf3c"
+    },
+    {
+      "path": "include/eonsim/motion.hpp",
+      "git_blob": "0af9bfb3fae3999ac41e51a5b7cea517f7b4bd89",
+      "sha256": "122e70644f44be824126f899980ac0827318c72299d689141e1316bf69c0de9b"
+    },
+    {
+      "path": "include/eonsim/nonlinear_system.hpp",
+      "git_blob": "c85e2f42a3408b6043410230db40d04142173687",
+      "sha256": "938de94e46bae5cd9ef1a1cd7ff0499835b321e8c89a243f432425c162e364c9"
+    },
+    {
+      "path": "include/eonsim/pc_plan.hpp",
+      "git_blob": "c87e319c8874c7405246bc9261413f1caf4e297f",
+      "sha256": "6c3d6dcbf193ec76b75f12e73d88f8e1cff1e78300a8f5c2d870a24ce6e0c30b"
+    },
+    {
+      "path": "include/eonsim/poisson.hpp",
+      "git_blob": "ca6c50a56e11468b55d7045934982ffeb3c184ae",
+      "sha256": "e08b08f88af7a9edda9405cd0d54e4cdd424d6b129b7c65df865ea9dcb1c6082"
+    },
+    {
+      "path": "include/eonsim/quadrature.hpp",
+      "git_blob": "8d5500dbaed532c2fb148305ca6c584658a6df1e",
+      "sha256": "a9d7cf1c4b0b608dd9d714cc8a20abf09aa1f661338e720889b08468b1eda39f"
+    },
+    {
+      "path": "include/eonsim/reduced_layout.hpp",
+      "git_blob": "bd0446e4e3b2b0719c12ff582ac2abbf35c30a55",
+      "sha256": "fc687ac9f6338f001ba8194c340470e14fc81c3f234e5636f7718d451fb5fd2b"
+    },
+    {
+      "path": "include/eonsim/regions.hpp",
+      "git_blob": "8906a87b10cad3808fbf185afc7c8ab8512877d3",
+      "sha256": "e87c98bb826c40a71610ae6edb490268b6244b54775de070cd4638603d02e9c4"
+    },
+    {
+      "path": "include/eonsim/scalar2d.hpp",
+      "git_blob": "537ebbbe19e5d2cdd69ba3dfa9e393046717828d",
+      "sha256": "10396d50d1a22fc865e2926514ca4bf8c99ff0d4f7823f173669ace21faa377d"
+    },
+    {
+      "path": "include/eonsim/scalar_p2_space.hpp",
+      "git_blob": "1ecc0183e1269c3eb459a710361c3c3fd59b064d",
+      "sha256": "85c0a6bee4ef954fe190232e229972b443593d0cc5691b4d094cd7ca127c0f67"
+    },
+    {
+      "path": "include/eonsim/schur_solver.hpp",
+      "git_blob": "7be6b53995e03cb51dad2aefac245a595e064768",
+      "sha256": "b29d10bdf8f33f7f65b9d83c9d6e5eb72f11bb22d40698d1df5633e52f6c84b2"
+    },
+    {
+      "path": "include/eonsim/solid.hpp",
+      "git_blob": "612bb419803e3741002cffd628bf7314b334489f",
+      "sha256": "dfcd73497d3c8d931e7c9be21cf3ef5207d17a34cd60b59bd386821d2caa7136"
+    },
+    {
+      "path": "include/eonsim/solid_element.hpp",
+      "git_blob": "97505ba955c8f9f50f955dcb79f22d678bf7a606",
+      "sha256": "34884c84bc04509610b6217db280edda08af18f3832646ae6a47edec9d6690c8"
+    },
+    {
+      "path": "include/eonsim/tet4.hpp",
+      "git_blob": "cd3b255a30d47c45c80939b028376ee14eca0d10",
+      "sha256": "930b9d5c4ace1dce1dd8a771388025b09013bc7676ab5846b811b9c680ed489c"
+    },
+    {
+      "path": "include/eonsim/time_integration.hpp",
+      "git_blob": "8d1fc86ca191420d88afa052a257b2c1b7c4a264",
+      "sha256": "33711e074bf5235d3c4f37d7b17a95b48b872b734ec48993269a6cb2b721d706"
+    },
+    {
+      "path": "include/eonsim/time_step.hpp",
+      "git_blob": "02bfaa2b77fb3f495f189c1467ca1ceb5c417308",
+      "sha256": "66a0dfd42fc5b7c2f9094bae70e148ddeaf8ddfdd19a0eb5b6cb27be7e51428f"
+    },
+    {
+      "path": "include/eonsim/tri_p2.hpp",
+      "git_blob": "130390125c28e42ede4738099f6ad5de07c6522b",
+      "sha256": "8c9bed81bcfdc06221af615fa0d7d8ef4d79bcad95600bfa052e1aa69cd2525d"
+    },
+    {
+      "path": "include/eonsim/vtu.hpp",
+      "git_blob": "73b2898526ae8c8cc6f45dd1d6bfa3b49fcef138",
+      "sha256": "7ffb55cfeaeb5bc3a430b76bbc48464aad593c5810c11252991bb899514f3c12"
+    },
+    {
+      "path": "src/algebra/linear_system.cpp",
+      "git_blob": "c1339ac8a0a6aaf2053d11bce83931f07226e6b9",
+      "sha256": "5be46e10e161a3a750dab3e0580bc6fe7abe788d9090ea7032d077eb929e7e36"
+    },
+    {
+      "path": "src/algebra/nonlinear_system.cpp",
+      "git_blob": "1eb4b8c0e47a52c6eb88bb74661c472ba34a83f1",
+      "sha256": "40476b90e9b81cafb71b00d481690ba9c4abdf0922efaa967fe3ea73c51795ac"
+    },
+    {
+      "path": "src/algebra/pc_plan.cpp",
+      "git_blob": "fe2877d0e6c7ff61ad6aad80cdab5810d48dafbe",
+      "sha256": "9ebfe7aa688ea37a0dee7f6cc2ed72080b45d63d913b1032758f3df93b0276f9"
+    },
+    {
+      "path": "src/algebra/schur_solver.cpp",
+      "git_blob": "e6a231bd8369f886aa841d19848c47c6cfcd55c4",
+      "sha256": "25c94386a4ca2a15a4e8aa00165069af8e7c76853c0a8f9e0bfae145b343d101"
+    },
+    {
+      "path": "src/core/config.cpp",
+      "git_blob": "76f1b5dd42ab5509c565a41320b045264760a10d",
+      "sha256": "9d280f350cc7b9b8bd56839faa05a87b8d3daeb5ec6c988051de900b3b97af93"
+    },
+    {
+      "path": "src/fem/boundary_geometry.cpp",
+      "git_blob": "de40f8c0da47047282edb13b466a140f2a10bd38",
+      "sha256": "43cc8e41e715c7c3fea570e5346ff16108d30d355e96db33e6a1c5b6a6450aca"
+    },
+    {
+      "path": "src/fem/field_layout.cpp",
+      "git_blob": "60e47f01a547c8875eff4cbf2545be33217aed17",
+      "sha256": "068d737f7f614481eca57086146ef5e9088808060c19405ffece0409b3d4e68c"
+    },
+    {
+      "path": "src/fem/reduced_layout.cpp",
+      "git_blob": "d5c23740144f4957a71f781a24de84871d034149",
+      "sha256": "0b6548d0ce3e6aba73c3f055ccc4ec6cb467e55192b9a8d7e0e1f82e1d1ae4c3"
+    },
+    {
+      "path": "src/fem/scalar_p2_space.cpp",
+      "git_blob": "d70bc2a7ae9e3da66ef574f44c2ff0758afcb042",
+      "sha256": "07bfcf7ae64d70d7b230b49c74bdc84f345404c5c5225a319c07a3ab6115e4d2"
+    },
+    {
+      "path": "src/fem/tet4.cpp",
+      "git_blob": "b7113a2ca1c4de4a970237c59483b8b1b8764523",
+      "sha256": "3f7832113dffb709d7cc618b8f3ab746bd5e0e2278a48ff5c46ad24457fcd914"
+    },
+    {
+      "path": "src/io/checkpoint.cpp",
+      "git_blob": "98be1c848fb58362ecf12fb984314c33720df024",
+      "sha256": "caaf26272b19266da45f4308221006558b7e279c054abce2170c0ae243355524"
+    },
+    {
+      "path": "src/io/vtu.cpp",
+      "git_blob": "4542ad6256b664d253af6975d27a71ffcf25aaaf",
+      "sha256": "b4fb7e4326dc81cda35229557f81c3f2d65636a505cd5158c8443e83db3032a1"
+    },
+    {
+      "path": "src/main.cpp",
+      "git_blob": "ffc6f4a2b65b68f402914fe7454977c7d54e9874",
+      "sha256": "0b403b1e4f50d8525cc2ebc7201cd94cc71dec9e6fda3639fc6f5bd579cb0a25"
+    },
+    {
+      "path": "src/mesh/fsi_domains.cpp",
+      "git_blob": "f4a57f047e743ae3aa87205c4bd69c8bac70ce07",
+      "sha256": "483557c1bf5f8c7dabc8fc9ba42415e5f3d28a5bc045acb99ef7ffc3364b496e"
+    },
+    {
+      "path": "src/mesh/gmsh.cpp",
+      "git_blob": "7b11f976138abd3b8a2c26a7143c6c6abda635ab",
+      "sha256": "5ecc84c872489e4005446647373aa262803a50cc41de414971a4469635a92c81"
+    },
+    {
+      "path": "src/mesh/mesh_import.cpp",
+      "git_blob": "f82895a0cd53da17afc8c6ae91f85eaf32b91c10",
+      "sha256": "5c25ffe2da5a86353c059ea201d341ddc3ae993a320b7fc85f8ba102bb7fd773"
+    },
+    {
+      "path": "src/mesh/partition.cpp",
+      "git_blob": "840adc22a264bfdfed6a3eb375762526a6fd55ca",
+      "sha256": "fe43561c8e2cefd24a40bffe9e5a0dd42cc589849af5f14bc44e9a7bda7b25f7"
+    },
+    {
+      "path": "src/physics/ale.cpp",
+      "git_blob": "b8529b669e0e967105eaf76dd7ba9ee0e124a5c9",
+      "sha256": "092a28762904a2387973c946ed84ce3e656f37d12a8636f50f4011d0f0c95c97"
+    },
+    {
+      "path": "src/physics/fluid.cpp",
+      "git_blob": "efbe1a2872acf221d5e202ca8ef831d7c6871719",
+      "sha256": "61137e5d184fa6320b6928488d87bcebafc8b7af7e081d3c33a6244d88905f34"
+    },
+    {
+      "path": "src/physics/fluid_boundary.cpp",
+      "git_blob": "45e48ed45d9c18af093ae97c26754585af7934cf",
+      "sha256": "f22ee5d9423067c90e4a7d706508c88c06492509ee8cd5844b3140bea46ab4f0"
+    },
+    {
+      "path": "src/physics/fluid_element.cpp",
+      "git_blob": "a5c90957e7eefa03115d3f733cbaf2620d189c82",
+      "sha256": "ef6320bb68817861d5f8941c9423fae49f4308d1640b408e69bd7af244a497fc"
+    },
+    {
+      "path": "src/physics/fsi.cpp",
+      "git_blob": "7f8e9dd08359f6b607f3275e4f4f3e6729c0ed43",
+      "sha256": "7eb1e2986198aad04d1cd056f2e360d67cc239a4bff71b00570dc9ee56be06c1"
+    },
+    {
+      "path": "src/physics/fsi_diagnostics.cpp",
+      "git_blob": "e45d4b1052b70541a3232fbba1d2fd182774afe6",
+      "sha256": "a68b14743b2bef68c1a92ac2b1165bb836ea7c1ba7f5bba0e762c5bbcb1e8905"
+    },
+    {
+      "path": "src/physics/fsi_element.cpp",
+      "git_blob": "fdde29d701b22776e6ef640adc7035393390cd0f",
+      "sha256": "7b0817cac8dfba1976599217656269bf03bb306395e7b50e7e933657ffdf3744"
+    },
+    {
+      "path": "src/physics/hyperelastic.cpp",
+      "git_blob": "963509a3ae591ba075c519ef85d4e02ddbf22f22",
+      "sha256": "d26fca9698d54037d45ac84bb893bc9be1e80a21919b0d5d43c412ae703fac77"
+    },
+    {
+      "path": "src/physics/motion.cpp",
+      "git_blob": "c1b66b5107c6db9ce5f77869757a31db9e8c014c",
+      "sha256": "3e164b0ee228116995934d89ff0950dd6e8ec0d706260557488fa67fd46faff9"
+    },
+    {
+      "path": "src/physics/poisson.cpp",
+      "git_blob": "c222e0af5ede290d0e14d42bb50bfc999852ca4d",
+      "sha256": "436c5cf6d0e2197b0499e6eb3398d18827c53144225a9aa946e6337173028e52"
+    },
+    {
+      "path": "src/physics/scalar2d.cpp",
+      "git_blob": "da360cc0ab80f448833cd3a5753cb187309c0157",
+      "sha256": "4b40d777bb0ac8c3034303315f84b67d04c0ebe5f49727fe22aeb3518c6d8573"
+    },
+    {
+      "path": "src/physics/scalar_p2.cpp",
+      "git_blob": "cc38d585e47395b6da8e1869d26303c7f5d50b5f",
+      "sha256": "abd4cce2ff933b2336b40aba27422018d8daca79be4d937f6db439c3438df5b4"
+    },
+    {
+      "path": "src/physics/solid.cpp",
+      "git_blob": "3dcd27b8d2e83b00585ae4b61330a06fedb4a186",
+      "sha256": "cd2f048514e1e0e2ea395a2e53b8c69fda11f607fd9fe0cb6d9c499f4f06e507"
+    },
+    {
+      "path": "src/physics/solid_element.cpp",
+      "git_blob": "aec5ba760368cb769a4c04665f2b4c734ad8fdd7",
+      "sha256": "b8d0b8a344f3bd8dd59b2839daac22993b1a84f6c6d11f2a6a946985e30548da"
+    }
+  ]
+}

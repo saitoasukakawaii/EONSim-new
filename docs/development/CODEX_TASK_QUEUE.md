@@ -1,5 +1,12 @@
 # EONSim Codex Task Queue
 
+## FSI-NEXT-03 最新接续 / 2026-11-05 / in_progress
+
+本机Release构建与周期恢复1/2/4 rank检查通过。固定τ三网格矩阵已完成n=2/n=4的两步长、尾项和100相位输出；
+n=8正在同一MPI队列计算，完整预算、最终证据/审查和PR/CI仍待完成。路径迁移修正`e4bda86`及6项检查通过。
+已将已完成四状态的checkpoint、实际场片段、全量接受历史和SHA归档，避免只保存摘要或PVD。
+见[本轮证据](../research/data/fsi-next-03/local-recovery-2026-11-05/README.md)。不放宽既定门槛，不提前创建PR。
+
 ## FSI-NEXT-03 环境中断检查点 / 2026-11-03
 
 执行环境被标记 unavailable，exec-server恢复超时；当前无法确认后台进程存活。不是预算耗尽，也不是整体完成。最后完整远端源码/证据检查点20ac3af；本提交通过GitHub API保存断开前已验证的两项Python修改和恢复记录。未创建PR。

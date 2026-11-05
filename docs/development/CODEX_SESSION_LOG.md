@@ -1,5 +1,21 @@
 # EONSim Codex Session Log
 
+## 2026-11-05 / FSI-NEXT-03 本地接续与归档迁移修正
+
+- 恢复最新分支`1b33db8`，核对main仍为`4f3a995`；保留已有Linux旧项目的未提交修改，复用其锁定PETSc依赖。
+- 仓库完整下载无有效进度，按需取源码/相关归档；Windows换行导致首轮shell入口失败，恢复LF后用仓库run.sh成功编译。
+  Release只执行`fsi_periodic`，1/1通过；构建dirty标志原样保留，74份生产输入逐字节匹配Git。
+- 固定τ粗网格归档878文件、7700行接受历史和研究指纹核对通过；本地二进制完整周期重放最大场差2.21e-15。
+  n=2半步长从初态计算88周期收敛；n=4两步长39/49周期收敛；四状态尾项和100相位采样完成，n=8继续。
+- 发现原误差估计仅用绝对目录名和generation绑定，导致完整数据换机器后不能审计。
+  `e4bda86`改为generation、完整检查点SHA、网格SHA和研究定义校验；`python tests/test_fsi_space_metrics.py`6/6通过。
+  不改原receipt，不允许用路径迁移跳过不同构建的重放验收。
+- 原固定n2续算包仅含30份索引/日志，没有实际场片段；本轮真实重算尾项/密集采样，并归档全部引用文件和SHA。
+  归档辅助脚本最终打印的st_size调用错误已修正，重新生成并回读验证；未涉及求解。
+- [本轮命令、日志及数据](../research/data/fsi-next-03/local-recovery-2026-11-05/README.md)。
+  无新Debug或全量检查；其余历史证据在未改数学/输入路径的前提下复用。整体尚未完成，无PR。
+  使用eonsim-knowledge-capture更新既有误差分离草稿，未发布。
+
 ## 2026-11-04 恢复与串行补验
 
 2026-11-04 已从远端 a67f329 恢复同一分支，核对 main 仍为 4f3a995。默认三网格归档逐文件校验通过（923/743/678 个文件），重新审计 8600/5000/3700 条接受步。使用仓库 restore.sh 和 run.sh 恢复 PETSc 3.23.7 Release，所得可执行文件 SHA-256 为 b4de28ffc6481701b533ec4772f4f0f604cfc18bc15bc63c858ebebae38352da。单一 MPI 队列的 fsi_periodic、fsi_flow、fsi_inlet、fsi_pressure_state 均通过。旧固定 τ 算例缺少原始场和 checkpoint，固定 τ=.05 的三网格与两步长研究从初态重算。完整误差预算、证据审查及 PR/CI 仍待完成。 原始日志、JUnit、构建摘要及归档复核见 docs/research/data/fsi-next-03/recovery-release/。

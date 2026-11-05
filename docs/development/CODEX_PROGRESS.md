@@ -1,5 +1,14 @@
 # EONSim Codex Development Progress
 
+## FSI-NEXT-03 本地接续 / 2026-11-05
+
+从 `1b33db8` 接续；本机 PETSc 3.23.7 Release 构建及 `fsi_periodic` 1/1通过（含1/2/4 rank）。
+固定τ=.05的n=2原归档878文件/7700接受步核验和完整末周期跨构建重放通过，最大场差2.21e-15。
+n=2半步长在88周期，n=4两步长在39/49周期达到完整场连续三周期判据；四状态尾项和100相位输出已完成。
+n=8及完整10%预算继续，未创建PR，整体未完成。
+`e4bda86` 修正误差估计恢复时依赖旧绝对路径的问题，改为检查点/网格/研究定义内容校验，6/6针对性检查通过。
+[本轮原始证据与恢复说明](../research/data/fsi-next-03/local-recovery-2026-11-05/README.md)。以下中断与待补验描述为原检查点历史。
+
 ## FSI-NEXT-03 恢复计算
 
 2026-11-04 已从远端 a67f329 恢复同一分支，核对 main 仍为 4f3a995。默认三网格归档逐文件校验通过（923/743/678 个文件），重新审计 8600/5000/3700 条接受步。使用仓库 restore.sh 和 run.sh 恢复 PETSc 3.23.7 Release，所得可执行文件 SHA-256 为 b4de28ffc6481701b533ec4772f4f0f604cfc18bc15bc63c858ebebae38352da。单一 MPI 队列的 fsi_periodic、fsi_flow、fsi_inlet、fsi_pressure_state 均通过。旧固定 τ 算例缺少原始场和 checkpoint，固定 τ=.05 的三网格与两步长研究从初态重算。完整误差预算、证据审查及 PR/CI 仍待完成。

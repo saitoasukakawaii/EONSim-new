@@ -1,0 +1,56 @@
+[1/35] Building CXX object CMakeFiles/eonsim_core.dir/src/mesh/fsi_domains.cpp.o
+[2/35] Building CXX object CMakeFiles/eonsim_core.dir/src/mesh/mesh_import.cpp.o
+[3/35] Building CXX object CMakeFiles/eonsim_core.dir/src/mesh/gmsh.cpp.o
+[4/35] Building CXX object CMakeFiles/eonsim_core.dir/src/fem/tet4.cpp.o
+[5/35] Building CXX object CMakeFiles/eonsim_core.dir/src/fem/scalar_p2_space.cpp.o
+[6/35] Building CXX object CMakeFiles/eonsim_core.dir/src/fem/boundary_geometry.cpp.o
+[7/35] Building CXX object CMakeFiles/eonsim_core.dir/src/fem/field_layout.cpp.o
+[8/35] Building CXX object CMakeFiles/eonsim_core.dir/src/algebra/linear_system.cpp.o
+[9/35] Building CXX object CMakeFiles/eonsim_core.dir/src/mesh/partition.cpp.o
+[10/35] Building CXX object CMakeFiles/eonsim_core.dir/src/algebra/schur_solver.cpp.o
+[11/35] Building CXX object CMakeFiles/eonsim_core.dir/src/core/config.cpp.o
+[12/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/fluid_element.cpp.o
+[13/35] Building CXX object CMakeFiles/eonsim_core.dir/src/algebra/pc_plan.cpp.o
+In file included from /home/tfblab633/EONSim/.cloud/petsc-3.23.7/lib/gcc/x86_64-conda-linux-gnu/15.3.0/include/c++/x86_64-conda-linux-gnu/bits/c++allocator.h:33,
+                 from /home/tfblab633/EONSim/.cloud/petsc-3.23.7/lib/gcc/x86_64-conda-linux-gnu/15.3.0/include/c++/bits/allocator.h:46,
+                 from /home/tfblab633/EONSim/.cloud/petsc-3.23.7/lib/gcc/x86_64-conda-linux-gnu/15.3.0/include/c++/bits/stl_tree.h:66,
+                 from /home/tfblab633/EONSim/.cloud/petsc-3.23.7/lib/gcc/x86_64-conda-linux-gnu/15.3.0/include/c++/map:64,
+                 from /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/include/eonsim/config.hpp:8,
+                 from /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/include/eonsim/linear_system.hpp:5,
+                 from /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/include/eonsim/pc_plan.hpp:2,
+                 from /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/src/algebra/pc_plan.cpp:1:
+In member function 'void std::__new_allocator<_Tp>::deallocate(_Tp*, size_type) [with _Tp = std::pair<std::__cxx11::basic_string<char>, std::__cxx11::basic_string<char> >]',
+    inlined from 'static void std::allocator_traits<std::allocator<_Tp1> >::deallocate(allocator_type&, pointer, size_type) [with _Tp = std::pair<std::__cxx11::basic_string<char>, std::__cxx11::basic_string<char> >]' at /home/tfblab633/EONSim/.cloud/petsc-3.23.7/lib/gcc/x86_64-conda-linux-gnu/15.3.0/include/c++/bits/alloc_traits.h:649:23,
+    inlined from 'void std::_Vector_base<_Tp, _Alloc>::_M_deallocate(pointer, std::size_t) [with _Tp = std::pair<std::__cxx11::basic_string<char>, std::__cxx11::basic_string<char> >; _Alloc = std::allocator<std::pair<std::__cxx11::basic_string<char>, std::__cxx11::basic_string<char> > >]' at /home/tfblab633/EONSim/.cloud/petsc-3.23.7/lib/gcc/x86_64-conda-linux-gnu/15.3.0/include/c++/bits/stl_vector.h:396:19,
+    inlined from 'std::_Vector_base<_Tp, _Alloc>::~_Vector_base() [with _Tp = std::pair<std::__cxx11::basic_string<char>, std::__cxx11::basic_string<char> >; _Alloc = std::allocator<std::pair<std::__cxx11::basic_string<char>, std::__cxx11::basic_string<char> > >]' at /home/tfblab633/EONSim/.cloud/petsc-3.23.7/lib/gcc/x86_64-conda-linux-gnu/15.3.0/include/c++/bits/stl_vector.h:375:15,
+    inlined from 'std::vector<_Tp, _Alloc>::~vector() [with _Tp = std::pair<std::__cxx11::basic_string<char>, std::__cxx11::basic_string<char> >; _Alloc = std::allocator<std::pair<std::__cxx11::basic_string<char>, std::__cxx11::basic_string<char> > >]' at /home/tfblab633/EONSim/.cloud/petsc-3.23.7/lib/gcc/x86_64-conda-linux-gnu/15.3.0/include/c++/bits/stl_vector.h:805:7,
+    inlined from 'void eonsim::{anonymous}::validate_options(MPI_Comm, const eonsim::PcBlock&, const std::string&, const std::vector<std::__cxx11::basic_string<char> >&)' at /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/src/algebra/pc_plan.cpp:179:5:
+/home/tfblab633/EONSim/.cloud/petsc-3.23.7/lib/gcc/x86_64-conda-linux-gnu/15.3.0/include/c++/bits/new_allocator.h:172:66: warning: 'void operator delete(void*, std::size_t)' called on pointer '__result' with nonzero offset 64 [-Wfree-nonheap-object]
+  172 |         _GLIBCXX_OPERATOR_DELETE(_GLIBCXX_SIZED_DEALLOC(__p, __n));
+      |                                                                  ^
+/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/src/algebra/pc_plan.cpp: In function 'void eonsim::{anonymous}::validate_options(MPI_Comm, const eonsim::PcBlock&, const std::string&, const std::vector<std::__cxx11::basic_string<char> >&)':
+/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/src/algebra/pc_plan.cpp:171:6: note: declared here
+  171 | void validate_options(MPI_Comm comm,const PcBlock& node,const std::string& prefix,const std::vector<std::string>& tokens) {
+      |      ^~~~~~~~~~~~~~~~
+[14/35] Building CXX object CMakeFiles/eonsim_core.dir/src/algebra/nonlinear_system.cpp.o
+[15/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/fsi_diagnostics.cpp.o
+[16/35] Building CXX object CMakeFiles/eonsim_core.dir/src/fem/reduced_layout.cpp.o
+[17/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/motion.cpp.o
+[18/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/fsi_element.cpp.o
+[19/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/hyperelastic.cpp.o
+[20/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/solid_element.cpp.o
+[21/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/ale.cpp.o
+[22/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/solid.cpp.o
+[23/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/fluid_boundary.cpp.o
+[24/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/poisson.cpp.o
+[25/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/fluid.cpp.o
+[26/35] Building CXX object CMakeFiles/eonsim_core.dir/src/io/checkpoint.cpp.o
+[27/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/fsi.cpp.o
+[28/35] Building CXX object CMakeFiles/eonsim_core.dir/src/io/vtu.cpp.o
+[29/35] Building CXX object CMakeFiles/verify_runtime.dir/tests/verify_runtime.cpp.o
+[30/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/scalar_p2.cpp.o
+[31/35] Linking CXX executable verify_runtime
+[32/35] Building CXX object CMakeFiles/eonsim.dir/src/main.cpp.o
+[33/35] Building CXX object CMakeFiles/eonsim_core.dir/src/physics/scalar2d.cpp.o
+[34/35] Linking CXX static library libeonsim_core.a
+[35/35] Linking CXX executable eonsim
