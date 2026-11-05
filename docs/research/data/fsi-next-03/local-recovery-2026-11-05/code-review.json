@@ -3,7 +3,7 @@
   "reviewed_code_commit": "e4bda862e9feebb63a09200f65bb7c4f4f842337",
   "base_commit": "4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e",
   "code_verdict": "No unresolved blocking code finding in the reviewed scope",
-  "numerical_acceptance": "Pending the final n=8 half-step state, continuation and complete error budget",
+  "numerical_acceptance": "Complete fixed-tau six-state budget passed, including exact relocated recomputation",
   "scope": [
     "Default-preserving positive checkpoint cadence and successful off-cadence endpoints",
     "Local Tet4 moving-volume, divergence and outward-face flux observation",
@@ -18,7 +18,10 @@
   "corrected_finding": {
     "problem": "The prior estimate attachment used the absolute source directory, so a restored identical archive could not be audited on a new machine; a path alone also did not verify source contents.",
     "resolution_commit": "e4bda862e9feebb63a09200f65bb7c4f4f842337",
-    "evidence": ["analysis-test.json", "relocation-audit.json"]
+    "evidence": [
+      "analysis-test.json",
+      "relocation-audit.json"
+    ]
   },
   "evidence_limits": [
     "Only one related Release CTest was newly run in this environment; unaffected prior Debug/Release evidence was reused, not rerun.",
@@ -26,5 +29,76 @@
     "The fixed-tau study does not qualify the default dt-dependent stabilization or establish a continuum-limit result.",
     "Geometric-tail extrapolation is empirical and conditional on continued contraction.",
     "No independent external review or large-scale/performance claim is made."
-  ]
+  ],
+  "final_summary": {
+    "states": [
+      {
+        "n": 2,
+        "dt": 0.001,
+        "cycles": 77,
+        "max_tail_contraction": 0.504594404094476,
+        "ranks": 2
+      },
+      {
+        "n": 2,
+        "dt": 0.0005,
+        "cycles": 88,
+        "max_tail_contraction": 0.557666979925695,
+        "ranks": 2
+      },
+      {
+        "n": 4,
+        "dt": 0.001,
+        "cycles": 39,
+        "max_tail_contraction": 0.43147804927435734,
+        "ranks": 2
+      },
+      {
+        "n": 4,
+        "dt": 0.0005,
+        "cycles": 49,
+        "max_tail_contraction": 0.6108793995010507,
+        "ranks": 2
+      },
+      {
+        "n": 8,
+        "dt": 0.001,
+        "cycles": 31,
+        "max_tail_contraction": 0.2870962017063754,
+        "ranks": 2
+      },
+      {
+        "n": 8,
+        "dt": 0.0005,
+        "cycles": 31,
+        "max_tail_contraction": 0.32256372129188793,
+        "ranks": 2
+      }
+    ],
+    "phases": 100,
+    "periodic_accepted_rows": 48300,
+    "continuation_accepted_rows": 28800,
+    "maximum_budget_ratios": {
+      "temporal": 0.02765560435688446,
+      "transient": 0.005894279778952107,
+      "sampling": 1.0421125841515211e-05
+    },
+    "observed_spatial_orders": {
+      "fluid_velocity": 2.111114123826405,
+      "fluid_pressure": 2.3076865579487573,
+      "fluid_mesh_displacement": 1.8999706148188713,
+      "solid_velocity": 0.8503328661712753,
+      "solid_displacement": 1.1237964475280806
+    },
+    "flow_balance": {
+      "stage_mass": 9.636388909051163e-16,
+      "surface_divergence": 3.209238430557093e-17,
+      "inlet_flow": 3.434752482434078e-16,
+      "minimum_j": 0.9970066450764719
+    },
+    "maximum_boundary_error": 0.0,
+    "archives_verified": 18,
+    "files_verified": 49305,
+    "exact_relocated_budget": true
+  }
 }

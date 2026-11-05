@@ -31,7 +31,9 @@ for name in ('restored-n2.json','matrix-status.json','progress-analysis.json','f
              'inspect-matrix.py','package.log','check-relocated-evidence.py','relocation-audit.json',
              'audit-continuation-histories.py','continuation-history-audit.json','code-review.json',
              'plot-results.py','space-20-phases.json','space-20-phases.log','package-n8-tail-endpoints.log',
-             'relocated-budget.json','relocated-budget.log','save-evidence.py'):
+             'relocated-budget.json','relocated-budget.log','save-evidence.py',
+             'final-summary.json','result-tables.md','summarize-results.py','ci-selection-preview.json',
+             'package-n8-half.log'):
     path=run/name
     if path.is_file():shutil.copy2(path,destination/name)
 build=root/'build/cloud-3.23.7-release/evidence'
