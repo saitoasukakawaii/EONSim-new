@@ -1,5 +1,28 @@
 # FSI-NEXT-03 环境中断恢复点
 
+## 最新本机恢复点 / 2026-11-05
+
+仓库副本：`C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current`；
+WSL发行版Ubuntu-24.04，结果根目录 `/home/tfblab633/EONSim-next03-20261105`。
+原Linux旧项目仍有用户未提交修改，只复用其 `.cloud/petsc-3.23.7` 依赖，没有改动旧项目源码。
+本机实现修正`e4bda86`，四状态证据本机提交`4524e0d`。
+用户已于2026-11-05明确授权将本轮代码、日志、网格和计算结果上传原公开开发分支，全部验收后创建PR；不自动合并。
+
+本轮单一队列入口 `build/resume-20261105/continue-matrix.py`，以结果根目录的 `mpi.lock` 加锁；
+进程运行状态应重新检查，不能仅凭此文档判断仍在运行。
+已完成固定τ=.05的n=2原步长归档恢复/重放，以及n=2半步长、n=4两步长从初态求解；
+周期数77/88/39/49。四状态的尾项和100相位采样已完成。
+n=8原步长已31周期收敛，其尾项、密集采样以及n=8半步长和完整预算由同一队列继续。
+实际命令和完成阶段以 `build/resume-20261105/matrix-status.json` 及各阶段日志为准。
+
+下列本机结果已经保存成可恢复包：
+`docs/research/data/fsi-next-03/local-recovery-2026-11-05/`。
+12个包在另一目录解压后核验42361个文件，原receipt路径没有改写，
+可以重新得到相同的n=2/n=4时间差；完整结果见 `build/resume-20261105/relocation-audit.json`。
+全部六状态计算、严格预算、证据/图表与最终审查完成之前不创建PR，不自动合并。
+
+以下为原云环境的历史恢复说明，不应据其中旧worker/session ID在本机启动另一个队列。
+
 原工作目录 /workspace/scratch/b8438b07bb94/EONSim-new，分支 codex/fsi-next-03-periodic-convergence，main基线4f3a995。2026-11-03环境unavailable；不要报告后台仍在运行。本记录来自已返回的工具输出，不替代尚未上传的原始证据。
 
 ## 恢复动作
