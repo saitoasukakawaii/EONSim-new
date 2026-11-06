@@ -113,7 +113,17 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 for(int j=0;j<3;++j) value+=f.inlet->gradient[3*c+j]*(mesh.nodes[n].position[j]-f.inlet->origin[j]);
                 if(f.inlet_flow) {
                     const auto& q=*f.inlet_flow;
-                    for(int j=0;j<3;++j) {
+                    if(q.circular) {
+                        double r2=0;
+                        for(int j=0;j<3;++j) {
+                            const double dx=mesh.nodes[n].position[j]-q.center[j];
+                            if(j==q.axis) {
+                                if(std::abs(dx)>1e-12) throw std::runtime_error("FSI flow inlet outside circle plane");
+                            } else r2+=(dx/q.radius)*(dx/q.radius);
+                        }
+                        if(!std::isfinite(r2)||r2>1+1e-12) throw std::runtime_error("FSI flow inlet outside circle");
+                        value*=std::max(0.,1-r2);
+                    } else for(int j=0;j<3;++j) {
                         const double x=mesh.nodes[n].position[j];
                         if(x<q.lower[j]-1e-12||x>q.upper[j]+1e-12) throw std::runtime_error("FSI flow inlet outside rectangle");
                         if(j!=q.axis) {const double r=std::clamp((x-q.lower[j])/(q.upper[j]-q.lower[j]),0.,1.); value*=r*(1-r);}
@@ -229,6 +239,11 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         signature_values.insert(signature_values.end(),{20507.,q.mean,q.amplitude,q.period,double(q.axis)});
         signature_values.insert(signature_values.end(),q.lower.begin(),q.lower.end());
         signature_values.insert(signature_values.end(),q.upper.begin(),q.upper.end());
+        // Preserve old rectangle checkpoint signatures; circle geometry is additional physics.
+        if(q.circular) {
+            signature_values.insert(signature_values.end(),{20508.,q.radius});
+            signature_values.insert(signature_values.end(),q.center.begin(),q.center.end());
+        }
     }
     // Diagnostics use local owned cells and current geometry. Surface flux and
     // volume divergence are independently integrated; no global fields gathered.

@@ -88,6 +88,9 @@ struct FsiDomains {
 };
 struct FsiPressureTime { double amplitude=0, period=1, ramp_time=0; };
 struct FsiFlowRate {
+    bool circular=false; ///< Circular parabolic profile; default preserves rectangle.
+    Space3::Vector<double> center{};
+    double radius=0;
     double mean=0, amplitude=0, period=1;
     int axis=0;
     Space3::Vector<double> lower{},upper{}; ///< Fixed axis-aligned rectangular inlet bounds.

@@ -14,7 +14,8 @@ from generate_wall import generate
 
 
 class Runner:
-    def __init__(self,exe,mpi,work,timeout=600):
+    def __init__(self,exe,mpi,work,timeout=600,interface_area=1.):
+        self.interface_area=interface_area
         self.timeout=timeout;self.exe=str(Path(exe).resolve());self.mpi=mpi;self.work=Path(work).resolve();self.work.mkdir(parents=True,exist_ok=True)
     def command(self,args,label,fail=None):
         r=subprocess.run(list(map(str,args)),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=self.timeout)
@@ -53,7 +54,7 @@ class Runner:
             assert len(rows)==len(re.findall('fsi_step=',log))
             for row in rows:
                 assert all(math.isfinite(v) for v in row.values()),row
-                assert abs(row['reference_interface_area']-1)<1e-12,row
+                assert abs(row['reference_interface_area']-self.interface_area)<1e-12,row
                 assert abs(row['evaluation_body_balance'])<2e-9,row
                 assert abs(row['evaluation_power_balance'])<2e-9,row
                 assert min(row[k] for k in row if k.endswith('_j'))>0,row

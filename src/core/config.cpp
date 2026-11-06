@@ -336,13 +336,24 @@ Config read_config(const std::filesystem::path& path)
             FluidBoundary inlet; inlet.tag=b["tag"].as<int>();
             if(const auto q=b["flow_rate"]) {
                 if(b["value"]||b["origin"]||b["gradient"]) throw std::runtime_error("FSI flow_rate excludes affine inlet parameters");
-                keys(q,{"mean","amplitude","period","axis","lower","upper"},"fsi.inlet.flow_rate");
+                keys(q,{"mean","amplitude","period","axis","lower","upper","profile","center","radius"},"fsi.inlet.flow_rate");
                 FsiFlowRate flow;
                 flow.mean=q["mean"].as<double>(); flow.amplitude=q["amplitude"].as<double>(); flow.period=q["period"].as<double>();
-                flow.axis=q["axis"].as<int>(); flow.lower=vector3(q["lower"],"flow_rate.lower"); flow.upper=vector3(q["upper"],"flow_rate.upper");
+                flow.axis=q["axis"].as<int>();
+                const auto profile=q["profile"]?q["profile"].as<std::string>():"rectangle";
+                if(profile!="rectangle"&&profile!="circle") throw std::runtime_error("Invalid FSI flow_rate profile");
+                flow.circular=profile=="circle";
+                if(flow.circular) {
+                    if(q["lower"]||q["upper"]) throw std::runtime_error("Circular FSI flow_rate excludes rectangle bounds");
+                    flow.center=vector3(q["center"],"flow_rate.center"); flow.radius=q["radius"].as<double>();
+                    if(!(flow.radius>0)||!std::isfinite(flow.radius)) throw std::runtime_error("Invalid FSI flow_rate radius");
+                } else {
+                    if(q["center"]||q["radius"]) throw std::runtime_error("Rectangular FSI flow_rate excludes circle parameters");
+                    flow.lower=vector3(q["lower"],"flow_rate.lower"); flow.upper=vector3(q["upper"],"flow_rate.upper");
+                }
                 if(flow.axis<0||flow.axis>2||!std::isfinite(flow.mean)||!std::isfinite(flow.amplitude)||!std::isfinite(flow.period)||flow.period<=0)
                     throw std::runtime_error("Invalid FSI flow_rate");
-                for(int c=0;c<3;++c) if(c==flow.axis?flow.lower[c]!=flow.upper[c]:flow.lower[c]>=flow.upper[c])
+                if(!flow.circular) for(int c=0;c<3;++c) if(c==flow.axis?flow.lower[c]!=flow.upper[c]:flow.lower[c]>=flow.upper[c])
                     throw std::runtime_error("Invalid FSI flow_rate rectangle");
                 inlet.value[flow.axis]=1; v.inlet_flow=flow;
             } else inlet.value=vector3(b["value"],"fsi.inlet.value");

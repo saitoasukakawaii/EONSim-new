@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "tests": {
+    "fsi_tube": {"targets": ["eonsim"], "ranks": [1, 2, 4]},
     "fsi_periodic": {"targets": ["eonsim"], "ranks": [1, 2, 4]},
     "fsi_flow": {"targets": ["eonsim"], "ranks": [1, 2]},
     "fsi_inlet": {"targets": ["eonsim"], "ranks": [1, 2]},
@@ -77,10 +78,11 @@
     "time_retry_verification": {"targets": ["eonsim"], "ranks": [1, 2]}
   },
   "rules": [
+    {"paths": ["cases/fsi/generate_tube.py", "tests/verify_fsi_tube.py", "tests/test_tube_mesh.py"], "tests": ["fsi_tube"], "python": ["tests/test_tube_mesh.py"]},
     {"paths": ["scripts/archive_fsi_periodic.py", "scripts/split_fsi_archive.py", "tests/test_fsi_archive.py"], "tests": [], "python": ["tests/test_fsi_archive.py"]},
     {"paths": ["scripts/fsi_cycle_metrics.py", "scripts/fsi_field_cycles.py", "scripts/fsi_space_metrics.py", "scripts/study_fsi_periodic.py", "scripts/study_fsi_time_accuracy.py", "scripts/analyze_fsi_space.py", "scripts/analyze_fsi_error_budget.py", "scripts/study_fsi_transient_tail.py", "scripts/study_fsi_phase_sampling.py", "scripts/study_fsi_checkpoint_replay.py", "tests/verify_fsi_periodic.py", "tests/test_fsi_cycle_metrics.py", "tests/test_fsi_field_cycles.py", "tests/test_fsi_space_metrics.py"], "tests": ["fsi_periodic", "fsi_flow"], "python": ["tests/test_fsi_cycle_metrics.py", "tests/test_fsi_field_cycles.py", "tests/test_fsi_space_metrics.py"]},
-    {"paths": ["include/eonsim/config.hpp", "src/core/config.cpp", "src/physics/fsi.cpp", "include/eonsim/fsi_diagnostics.hpp", "src/physics/fsi_diagnostics.cpp", "tests/verify_fsi_diagnostics.cpp", "tests/verify_fsi_inlet.py", "tests/verify_fsi_flow.py", "cases/fsi/generate_wall.py", "scripts/study_fsi_next.py", "scripts/study_fsi_flow.py", "CMakeLists.txt"], "tests": ["fsi_periodic", "fsi_flow", "fsi_inlet", "fsi_diagnostics", "fsi_diagnostics_mpi", "fsi_pressure_state", "elastic_fsi_verification"], "python": []},
-    {"paths": ["include/eonsim/config.hpp", "src/core/config.cpp", "include/eonsim/fsi.hpp", "src/physics/fsi.cpp", "src/main.cpp", "tests/verify_fsi_pressure.py", "CMakeLists.txt", "cases/fsi/*"], "tests": ["fsi_pressure_state", "fsi_pressure_convergence"], "python": []},
+    {"paths": ["include/eonsim/config.hpp", "src/core/config.cpp", "src/physics/fsi.cpp", "include/eonsim/fsi_diagnostics.hpp", "src/physics/fsi_diagnostics.cpp", "tests/verify_fsi_diagnostics.cpp", "tests/verify_fsi_inlet.py", "tests/verify_fsi_flow.py", "cases/fsi/generate_wall.py", "scripts/study_fsi_next.py", "scripts/study_fsi_flow.py", "CMakeLists.txt"], "tests": ["fsi_tube", "fsi_periodic", "fsi_flow", "fsi_inlet", "fsi_diagnostics", "fsi_diagnostics_mpi", "fsi_pressure_state", "elastic_fsi_verification"], "python": []},
+    {"paths": ["include/eonsim/config.hpp", "src/core/config.cpp", "include/eonsim/fsi.hpp", "src/physics/fsi.cpp", "src/main.cpp", "tests/verify_fsi_pressure.py", "CMakeLists.txt", "cases/fsi/*"], "tests": ["fsi_tube", "fsi_pressure_state", "fsi_pressure_convergence"], "python": []},
     {"paths": ["src/physics/scalar_p2.cpp", "src/core/config.cpp", "include/eonsim/config.hpp", "include/eonsim/tri_p2.hpp", "include/eonsim/scalar_p2_space.hpp", "src/fem/scalar_p2_space.cpp", "src/io/checkpoint.cpp", "include/eonsim/checkpoint.hpp", "include/eonsim/time_integration.hpp", "include/eonsim/time_step.hpp", "src/algebra/linear_system.cpp", "include/eonsim/linear_system.hpp", "src/main.cpp", "CMakeLists.txt", "tests/verify_scalar_p2_time.py", "cases/scalar2d/generate.py"], "tests": ["scalar_p2_time", "scalar_p2_restart", "scalar_p2_failure"], "python": []},
     {"paths": ["src/mesh/partition.cpp", "include/eonsim/mesh.hpp", "src/core/config.cpp", "include/eonsim/config.hpp", "src/main.cpp", "include/eonsim/dof_semantics.hpp", "include/eonsim/tri_p2.hpp", "CMakeLists.txt"], "tests": ["scalar_p2_verification", "p2_space_oracles", "tri_p2_oracles"], "python": []},
     {"paths": ["tests/verify_scalar_p2.py", "src/physics/scalar_p2.cpp", "include/eonsim/scalar_p2_space.hpp", "src/fem/scalar_p2_space.cpp"], "tests": ["scalar_p2_verification"], "python": []},
@@ -159,7 +161,7 @@
     {"paths": ["include/eonsim/solid.hpp", "src/physics/solid.cpp"], "tests": ["domains_verification", "hyperelastic_verification", "solid_alpha_verification", "solid_element_jacobian", "solid_time_verification", "solid_verification"], "python": []},
     {"paths": ["include/eonsim/solid_element.hpp", "src/physics/solid_element.cpp"], "tests": ["domains_verification", "fsi_element_jacobian", "hyperelastic_verification", "solid_alpha_verification", "solid_element_jacobian", "solid_time_verification", "solid_verification"], "python": []},
     {"paths": ["include/eonsim/hyperelastic.hpp", "src/physics/hyperelastic.cpp"], "tests": ["fsi_element_jacobian", "hyperelastic_element_jacobian", "hyperelastic_verification", "solid_alpha_verification"], "python": []},
-    {"paths": ["include/eonsim/fsi.hpp", "src/physics/fsi.cpp"], "tests": ["domains_verification", "fsi_alpha_verification", "fsi_element_jacobian", "fsi_time_verification", "hyperelastic_verification", "pc_recipe_restart", "pc_recipe_retry", "rigid_fsi_verification"], "python": []},
+    {"paths": ["include/eonsim/fsi.hpp", "src/physics/fsi.cpp"], "tests": ["fsi_tube", "domains_verification", "fsi_alpha_verification", "fsi_element_jacobian", "fsi_time_verification", "hyperelastic_verification", "pc_recipe_restart", "pc_recipe_retry", "rigid_fsi_verification"], "python": []},
     {"paths": ["src/physics/fsi_element.cpp", "include/eonsim/fsi_element.hpp"], "tests": ["domains_verification", "fsi_alpha_verification", "fsi_element_jacobian", "fsi_time_verification", "hyperelastic_verification", "rigid_fsi_verification"], "python": []},
     {"paths": ["include/eonsim/ale.hpp", "src/physics/ale.cpp"], "tests": ["ale_alpha_verification", "ale_time_verification", "motion_verification"], "python": []},
     {"paths": ["include/eonsim/motion.hpp", "src/physics/motion.cpp"], "tests": ["fsi_alpha_verification", "fsi_time_verification", "motion_verification", "rigid_fsi_verification"], "python": []},
