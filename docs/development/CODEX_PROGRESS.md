@@ -1,5 +1,15 @@
 # EONSim Codex Development Progress
 
+## FSI-PROD-02 / ready / 48小时任务 / 2026-11-06
+
+已核对最新main `dc378529538259567a78cea9820a202a6187809c`，PR #37已合并；下方review为历史。
+用户要求规划48小时任务、完成后才提交PR。已建立独立分支 `codex/fsi-prod-02-qualification`，
+[完整任务与验收](FSI_PROD_02_48H_TASK.md)。本次完成计划固化，数值实施尚未开始。
+预算3/8/6/12/11/8小时：基线与参考环境、刚性解析基准、环壁/几何、FSI误差分离、
+svFSI/MPI/恢复对照、审查与PR/CI。48小时不是已执行时长，也不替代验收。
+全部必交功能、本地验证、证据和审查前不建任何PR；完成后一个汇总PR并处理CI，不自动合并。
+
+
 ## FSI-PROD-01 / review / PR #37 / 2026-11-06
 
 用户目标升级为生产级 FSI。主线 `dd27eef` 已合并 PR #36；下方旧 review 状态为历史。

@@ -299,3 +299,10 @@ Implementation `718b7a6bb97fbb5eed09829a0bb7225d3963ee5f`; mathematical derivati
 MPI implementation and small-case verification are distinguished. Evidence in
 [data/fsi-tube-2026-11-06](data/fsi-tube-2026-11-06/README.md). No performance or
 physiological accuracy conclusion. Review required; article remains draft.
+
+## 2026-11-06 — FSI-PROD-02 quantitative qualification plan
+
+[48-hour task contract](../development/FSI_PROD_02_48H_TASK.md), baseline main
+`dc378529538259567a78cea9820a202a6187809c`. Planning only; no new numerical
+conclusion or article publication. Analytical, spatial/temporal, independent
+solver and MPI evidence are separate acceptance gates.

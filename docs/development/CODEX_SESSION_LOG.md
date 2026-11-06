@@ -736,3 +736,17 @@ accepted tree `8ef42cd7e716aa995b03030fa7ed0617e7e2c449`. Core run
 and PROD-02 dimensionless-scale scoping (Re .006366, alpha 12.533 for current
 coarse case); no numerical rerun or new physical accuracy claim. PR remains
 unmerged and the knowledge article unpublished.
+
+## 2026-11-06 — FSI-PROD-02 48-hour task planning
+
+User requested a 48-hour production-FSI task with no PR before completion.
+Verified PR #37 merged as main dc378529538259567a78cea9820a202a6187809c;
+created isolated branch codex/fsi-prod-02-qualification. Wrote the complete
+task contract, phase budget, quantitative gates, reference availability gate,
+artifact list and no-early-PR rule in FSI_PROD_02_48H_TASK.md.
+This checkpoint is planning only: no new numerical implementation, build,
+MPI solve, reference comparison or performance result. No PR created.
+Read source boundary capabilities when scoping Lamé and pipe validation;
+implementation feasibility and actual reference build remain stage A work.
+No new algorithmic result to publish as a knowledge draft; knowledge index
+links the plan without claiming validation.
