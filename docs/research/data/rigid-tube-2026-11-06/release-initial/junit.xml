@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="2"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="8"
+	timestamp="2026-11-06T22:18:22"
+	>
+	<testcase name="regions_verification" classname="regions_verification" time="3.06263" status="run">
+		<properties>
+			<property name="cmake_labels" value="rank-1;rank-2"/>
+		</properties>
+		<system-out>solid 1 error 1.0408340855860843e-17
+solid 2 error 1.734723475976807e-17
+fluid 1 error 1.317207064827893e-14
+fluid 2 error 2.4014006099796685e-15
+translated_bar 1 tip 0.007500000000000002 support -0.9999999999999993
+translated_bar 2 tip 0.007499999999999995 support -0.9999999999999973
+rotated_support 1 tip 0.009999999999999936 support -0.9999999999999886
+rotated_support 2 tip 0.00999999999999994 support -0.9999999999999911
+layered shear 1.0 4.0 ranks 1 field_error 1.1102230246251565e-14 interface_stress 1.5999999999999983 1.600000000000005 flow 0.65
+layered shear 1.0 4.0 ranks 2 field_error 1.1102230246251565e-14 interface_stress 1.5999999999999983 1.600000000000005 flow 0.65
+layered shear 4.0 1.0 ranks 1 field_error 5.773159728050814e-15 interface_stress 1.5999999999999945 1.599999999999999 flow 0.35
+layered shear 4.0 1.0 ranks 2 field_error 5.329070518200751e-15 interface_stress 1.599999999999996 1.600000000000001 flow 0.35
+regions, layered shear, tagged observations, component constraints and normalized re...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="tagged_fluid_verification" classname="tagged_fluid_verification" time="5.49777" status="run">
+		<properties>
+			<property name="cmake_labels" value="rank-1;rank-2"/>
+		</properties>
+		<system-out>traction 1 analytic max error 1.1102230246251565e-14
+traction 2 analytic max error 2.220446049250313e-15
+velocity_gauge 1 analytic max error 7.549516567451064e-15
+velocity_gauge 2 analytic max error 2.4424906541753444e-14
+pressure 1 analytic max error 1.1546319456101628e-14
+pressure 2 analytic max error 3.1086244689504383e-15
+split_traction 1 analytic max error 3.197442310920451e-14
+split_traction 2 analytic max error 1.7763568394002505e-15
+split_pressure 1 analytic max error 3.2862601528904634e-14
+split_pressure 2 analytic max error 3.9968028886505635e-15
+merged component flux static 1/2 ranks passed
+merged component flux transient 1/2 ranks passed
+tagged fluid verification passed
+</system-out>
+	</testcase>
+</testsuite>

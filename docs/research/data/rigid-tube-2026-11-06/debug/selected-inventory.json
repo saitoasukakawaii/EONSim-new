@@ -1,0 +1,123 @@
+[
+  {
+    "backtrace": 127,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python3.15",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/tests/verify_regions.py",
+      "--executable",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-debug/eonsim",
+      "--mpiexec",
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "--work",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-debug/regions_verification"
+    ],
+    "name": "regions_verification",
+    "properties": [
+      {
+        "name": "ENVIRONMENT",
+        "value": [
+          "OMP_NUM_THREADS=1",
+          "OPENBLAS_NUM_THREADS=1",
+          "MKL_NUM_THREADS=1"
+        ]
+      },
+      {
+        "name": "LABELS",
+        "value": [
+          "rank-1",
+          "rank-2"
+        ]
+      },
+      {
+        "name": "TIMEOUT",
+        "value": 180.0
+      },
+      {
+        "name": "WORKING_DIRECTORY",
+        "value": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-debug"
+      }
+    ]
+  },
+  {
+    "backtrace": 129,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python3.15",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/tests/verify_tagged_fluid.py",
+      "--executable",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-debug/eonsim",
+      "--mpiexec",
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "--work",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-debug/tagged_fluid_verification"
+    ],
+    "name": "tagged_fluid_verification",
+    "properties": [
+      {
+        "name": "ENVIRONMENT",
+        "value": [
+          "OMP_NUM_THREADS=1",
+          "OPENBLAS_NUM_THREADS=1",
+          "MKL_NUM_THREADS=1"
+        ]
+      },
+      {
+        "name": "LABELS",
+        "value": [
+          "rank-1",
+          "rank-2"
+        ]
+      },
+      {
+        "name": "TIMEOUT",
+        "value": 180.0
+      },
+      {
+        "name": "WORKING_DIRECTORY",
+        "value": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-debug"
+      }
+    ]
+  },
+  {
+    "backtrace": 131,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python3.15",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/scripts/study_rigid_tube.py",
+      "--executable",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-debug/eonsim",
+      "--mpiexec",
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+      "--work",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-debug/rigid_tube_verification"
+    ],
+    "name": "rigid_tube_verification",
+    "properties": [
+      {
+        "name": "ENVIRONMENT",
+        "value": [
+          "OMP_NUM_THREADS=1",
+          "OPENBLAS_NUM_THREADS=1",
+          "MKL_NUM_THREADS=1"
+        ]
+      },
+      {
+        "name": "LABELS",
+        "value": [
+          "rank-1",
+          "rank-2"
+        ]
+      },
+      {
+        "name": "PROCESSORS",
+        "value": 2
+      },
+      {
+        "name": "TIMEOUT",
+        "value": 300.0
+      },
+      {
+        "name": "WORKING_DIRECTORY",
+        "value": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-debug"
+      }
+    ]
+  }
+]

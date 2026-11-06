@@ -1,5 +1,17 @@
 # EONSim Codex Development Progress
 
+## FSI-PROD-02A / 本地验收完成 / 2026-11-06
+
+PR #36、#37 已合入 main `dc378529538259567a78cea9820a202a6187809c`，下方review为历史。
+分支 `codex/fsi-tube-qualification`、实现 `a0d228764850fa838229acb6a6e613933070490f`：
+同一流体标签的互斥分量混合边界、几何不变的四面体加密和刚性稳态流量基线。
+11个串行状态和1/2 rank对照；48边形流量误差1.264676%，12/48边形末档变化
+0.410813%/0.024769%，MPI场差2.78e-17、最大净通量4.12e-17。首轮level-2未通过，
+保留原结果、门槛不变，追加加密后通过。压强误差仍3.993089%，仅完成流量增量，
+PROD-02整体未完成。Debug三项、Release最终两项+复用首轮regions、Python3+26项通过。
+[完整证据](../research/data/rigid-tube-2026-11-06/README.md)；
+[接口/复现](RIGID_TUBE_QUALIFICATION.md)。本地验收与自审完成，准备PR，不自动合并。
+
 ## FSI-PROD-01 / review / PR #37 / 2026-11-06
 
 用户目标升级为生产级 FSI。主线 `dd27eef` 已合并 PR #36；下方旧 review 状态为历史。

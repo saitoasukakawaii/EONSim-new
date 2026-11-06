@@ -1,5 +1,14 @@
 # EONSim Knowledge Log
 
+## 2026-11-06 / 刚性管混合端面与几何误差分离
+
+新增[数值基准草稿](../../website/drafts/rigid-tube-geometry-and-mixed-boundaries.md)，
+实现a0d228764850fa838229acb6a6e613933070490f。理论：充分发展端面应力相容性、
+Poisson域单调性给出的cos^4几何界；实现：互斥分量条件、保持多边形的red细分；验证：
+11状态/1–2rank、固定门槛加密、Debug/Release与重算；无性能证据。首轮误差抵消及不通过记录保留。
+流量误差1.264676%通过，压力仍3.993089%，不扩张为全场/瞬态FSI资格。待审问题是端面定义、
+几何界适用对象及剩余局部质量误差；稿件未发布。[证据](data/rigid-tube-2026-11-06/README.md)。
+
 ## 2026-11-06 / 质量预算的非有限值拒绝
 
 源码 `80571b102e31dd2e7664a64a39a92efc8402045c`；`max(0., abs(NaN))`可保留0，故初始状态和累积量必须在最大值归约前验证。时间差容差不能替代接受步长严格为正的检查。扩充[既有周期FSI草稿](../../website/drafts/fsi-periodic-state-and-error-separation.md)，未发布。26项Python检查通过，9组归档22400行重算与原36个预算值一致；无新PETSc/MPI或性能证据。命令与复现详见[会话日志](../development/CODEX_SESSION_LOG.md)。PR #35已合并为815755e，下方未合入描述为历史。
