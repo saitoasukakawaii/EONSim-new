@@ -1,0 +1,35 @@
+{
+  "last_cycle": 37,
+  "pressure_checks": {
+    "35": {
+      "relative_max": 0.000416101066412905,
+      "relative_mean_drift": 5.3253629678599694e-05
+    },
+    "36": {
+      "relative_max": 0.0004051938277633421,
+      "relative_mean_drift": 4.85501469437849e-05
+    },
+    "37": {
+      "relative_max": 0.00033662408204571115,
+      "relative_mean_drift": 2.934860057221371e-05
+    }
+  },
+  "boundary_errors": {
+    "rigid_velocity": 0.0,
+    "interface_velocity": 0.0,
+    "interface_displacement": 0.0
+  },
+  "mass_budget": {
+    "final_defect": -7.266975275981198e-09,
+    "max_absolute_defect": 2.5860662557170504e-08,
+    "integrated_net_flow": 0.0008130735759947727,
+    "volume_change": 0.0008130808429700487
+  },
+  "flow_balance": {
+    "stage_mass": 2.905661822261152e-17,
+    "surface_divergence": 2.912438085839186e-17,
+    "inlet_flow": 8.500145032286355e-17,
+    "minimum_j": 0.9958711004335798
+  },
+  "accepted_rows": 3700
+}

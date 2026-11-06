@@ -12,6 +12,23 @@ int main(int argc,char** argv) {
         Tet4Topology::Nodal<Point> ref{Point{0,0,0},Point{1,0,0},Point{0,1,0},Point{0,0,1}},current=ref;
         for(auto& x:current){x[0]*=2;x[1]*=3;x[2]*=4;}
         check(std::abs(fsi_volume_ratio(ref,current)-24)<1e-12);
+        // Three-axis moving tetrahedron: V(t) is cubic, unlike the coarse wall pilot.
+        const double t=.37;Tet4Topology::Nodal<Point> moving{},speed{};
+        for(int a=0;a<4;++a) for(int c=0;c<3;++c) {
+            moving[a][c]=(1+(c+1)*t)*ref[a][c]+.2*t;
+            speed[a][c]=(c+1)*ref[a][c]+.2;
+        }
+        const auto mass=fsi_tet_mass_observation(moving,speed);
+        const double exact_volume=(1+t)*(1+2*t)*(1+3*t)/6;
+        const double exact_rate=((1+2*t)*(1+3*t)+2*(1+t)*(1+3*t)+3*(1+t)*(1+2*t))/6;
+        double surface=0;for(int i=2;i<6;++i)surface+=mass[i];
+        check(std::abs(mass[0]-exact_volume)<1e-12);
+        check(std::abs(mass[1]-exact_rate)<1e-12&&std::abs(surface-exact_rate)<1e-12);
+        // Translation has nonzero individual face fluxes but zero total volume rate.
+        for(auto& u:speed)u={.2,-.4,.7};
+        const auto translation=fsi_tet_mass_observation(moving,speed);
+        surface=0;for(int i=2;i<6;++i)surface+=translation[i];
+        check(std::abs(translation[1])<1e-12&&std::abs(surface)<1e-12);
         auto stage=ref,endpoint=ref;stage[1][0]=.25;endpoint[1][0]=-.5;
         check(fsi_volume_ratio(ref,stage)>0);bool rejected=false;
         try{(void)fsi_volume_ratio(ref,endpoint);}catch(const StepRejected&){rejected=true;}check(rejected);

@@ -1,0 +1,59 @@
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+UpdateCTestConfiguration  from :/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+UpdateCTestConfiguration  from :/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+SetCTestConfiguration:SourceDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+Test project /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 26
+    Start 26: fsi_diagnostics
+
+26: Test command: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/verify_fsi_diagnostics
+26: Working Directory: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+26: Test timeout computed to be: 60
+26: FSI geometry, affine surface and distributed face cancellation passed
+1/3 Test #26: fsi_diagnostics ..................   Passed    0.12 sec
+test 27
+    Start 27: fsi_diagnostics_mpi
+
+27: Test command: /workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/mpiexec "-n" "2" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/verify_fsi_diagnostics"
+27: Working Directory: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+27: Test timeout computed to be: 60
+27: FSI geometry, affine surface and distributed face cancellation passed
+2/3 Test #27: fsi_diagnostics_mpi ..............   Passed    0.35 sec
+test 28
+    Start 28: fsi_flow
+
+28: Test command: /workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_flow.py" "--executable" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/eonsim" "--mpiexec" "/workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug/fsi_flow"
+28: Working Directory: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-debug
+28: Environment variables: 
+28:  OMP_NUM_THREADS=1
+28:  OPENBLAS_NUM_THREADS=1
+28:  MKL_NUM_THREADS=1
+28: Test timeout computed to be: 600
+28: {"be": {"stage_mass_residual": 4.336808689942018e-18, "secant_mass_residual": 2.298014209478616e-13, "area_displacement_y": 0.00015738422347693612}, "bdf2": {"stage_mass_residual": 4.336808689942018e-18, "secant_mass_residual": 0.0013851289786423384, "area_displacement_y": 0.00015504886878715398}, "generalized_alpha": {"stage_mass_residual": 5.204170427930421e-18, "secant_mass_residual": 0.0006625033902744491, "area_displacement_y": 0.00015435041230509253}, "jacobian_relative_error": 1.03756e-07, "retry_accepted_dt": 7.8125e-06}
+3/3 Test #28: fsi_flow .........................   Passed   52.00 sec
+
+The following tests passed:
+	fsi_diagnostics
+	fsi_diagnostics_mpi
+	fsi_flow
+
+100% tests passed out of 3
+
+Label Time Summary:
+rank-1    = 104.12 sec*proc (2 tests)
+rank-2    = 104.34 sec*proc (2 tests)
+
+Total Test time (real) =  52.47 sec

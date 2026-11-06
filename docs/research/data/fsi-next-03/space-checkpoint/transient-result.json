@@ -1,0 +1,92 @@
+{
+  "definition": {
+    "source": "/workspace/scratch/b8438b07bb94/EONSim-new/build/fsi-next-03/space-auto-n2",
+    "source_checkpoint": "generation_1793715021170188472",
+    "source_definition": {
+      "executable_sha256": "7c4b29049ac2976a0345d5e468ee0cb1b21656518ffd0bb5f3fba72c4c8612eb",
+      "n": 2,
+      "ranks": 2,
+      "dt": 0.001,
+      "scheme": "generalized_alpha",
+      "tau": null,
+      "tolerance": 0.001,
+      "phases": 20,
+      "fluid_scales": {
+        "velocity": 0.01,
+        "pressure": 0.1,
+        "mesh_displacement": 0.0001
+      },
+      "solid_scales": {
+        "velocity": 0.01,
+        "displacement": 0.0001
+      },
+      "mesh_sha256": {
+        "fluid.msh": "cff2ae349652d0b34c4c47c5313e010b399a5236ccf749ee8d65915f271c3ef8",
+        "solid.msh": "c84cd00759f468bd351bce49a7fd0e44c38e7d7e875b7ddbff5117494a931cb6"
+      }
+    },
+    "source_manifest_sha256": "920f4aece38cd3d00b4af3e071beef68f142bdd87828c48635e0e6d32bc751c6",
+    "executable_sha256": "6e6f6565e27f1fa541f055be9d79efdcb12840808711eb568a74c166493d1889",
+    "block_cycles": 10
+  },
+  "blocks": [
+    {
+      "generation": "generation_1793716605812976797",
+      "end_cycle": 96
+    },
+    {
+      "generation": "generation_1793716738965615142",
+      "end_cycle": 106
+    },
+    {
+      "generation": "generation_1793716870011332916",
+      "end_cycle": 116
+    }
+  ],
+  "block_changes": [
+    {
+      "fluid_velocity": 1.1302296472434881e-07,
+      "fluid_pressure": 2.078593880706085e-05,
+      "fluid_mesh_displacement": 5.306477227774739e-10,
+      "solid_velocity": 5.274345939700644e-06,
+      "solid_displacement": 2.825782013270468e-08
+    },
+    {
+      "fluid_velocity": 6.318452142174409e-08,
+      "fluid_pressure": 1.1317346176341575e-05,
+      "fluid_mesh_displacement": 3.0298093737578266e-10,
+      "solid_velocity": 2.8368369118534965e-06,
+      "solid_displacement": 1.5713937740546514e-08
+    },
+    {
+      "fluid_velocity": 3.523960224579447e-08,
+      "fluid_pressure": 6.0525346386251134e-06,
+      "fluid_mesh_displacement": 1.6285998720341942e-10,
+      "solid_velocity": 1.5257216743570129e-06,
+      "solid_displacement": 8.830110010112356e-09
+    }
+  ],
+  "estimate": {
+    "fluid_velocity": {
+      "contraction": 0.5590414441511469,
+      "remaining_at_source": 2.5612339157162115e-07
+    },
+    "fluid_pressure": {
+      "contraction": 0.5444712544086363,
+      "remaining_at_source": 4.539011857448077e-05
+    },
+    "fluid_mesh_displacement": {
+      "contraction": 0.5709643599146041,
+      "remaining_at_source": 1.2132241342518736e-09
+    },
+    "solid_velocity": {
+      "contraction": 0.5378556780851782,
+      "remaining_at_source": 1.1412579411043233e-05
+    },
+    "solid_displacement": {
+      "contraction": 0.561928534776367,
+      "remaining_at_source": 6.412853755668626e-08
+    }
+  },
+  "limitation": "Empirical geometric decay extrapolation, not a rigorous asymptotic bound"
+}

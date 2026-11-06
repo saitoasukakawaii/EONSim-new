@@ -1,0 +1,392 @@
+{
+  "restored_at": "/home/tfblab633/EONSim-next03-20261105/relocated-evidence",
+  "archives": [
+    {
+      "archive": "fixed-n2-dt001.tar.gz",
+      "files_verified": 878
+    },
+    {
+      "archive": "tail-fixed-n2-dt001.tar.gz",
+      "files_verified": 7355
+    },
+    {
+      "archive": "sampling-fixed-n2-dt001.tar.gz",
+      "files_verified": 2426
+    },
+    {
+      "archive": "fixed-n2-dt0005.tar.gz",
+      "files_verified": 933
+    },
+    {
+      "archive": "tail-fixed-n2-dt0005.tar.gz",
+      "files_verified": 7355
+    },
+    {
+      "archive": "sampling-fixed-n2-dt0005.tar.gz",
+      "files_verified": 2426
+    },
+    {
+      "archive": "fixed-n4-dt001.tar.gz",
+      "files_verified": 688
+    },
+    {
+      "archive": "tail-fixed-n4-dt001.tar.gz",
+      "files_verified": 7355
+    },
+    {
+      "archive": "sampling-fixed-n4-dt001.tar.gz",
+      "files_verified": 2426
+    },
+    {
+      "archive": "fixed-n4-dt0005.tar.gz",
+      "files_verified": 738
+    },
+    {
+      "archive": "tail-fixed-n4-dt0005.tar.gz",
+      "files_verified": 7355
+    },
+    {
+      "archive": "sampling-fixed-n4-dt0005.tar.gz",
+      "files_verified": 2426
+    },
+    {
+      "archive": "fixed-n8-dt001.tar.gz",
+      "files_verified": 648
+    },
+    {
+      "archive": "tail-fixed-n8-dt001.tar.gz",
+      "files_verified": 398
+    },
+    {
+      "archive": "sampling-fixed-n8-dt001.tar.gz",
+      "files_verified": 2426
+    },
+    {
+      "archive": "fixed-n8-dt0005.tar.gz",
+      "files_verified": 648
+    },
+    {
+      "archive": "tail-fixed-n8-dt0005.tar.gz",
+      "files_verified": 398
+    },
+    {
+      "archive": "sampling-fixed-n8-dt0005.tar.gz",
+      "files_verified": 2426
+    }
+  ],
+  "temporal": {
+    "2": {
+      "fluid_velocity": 9.676462412088484e-07,
+      "fluid_pressure": 7.312078205530146e-05,
+      "fluid_mesh_displacement": 1.8132169849502906e-08,
+      "solid_velocity": 1.0035259166211152e-05,
+      "solid_displacement": 4.631371847338801e-08
+    },
+    "4": {
+      "fluid_velocity": 1.8321123660239198e-06,
+      "fluid_pressure": 2.634791233255222e-05,
+      "fluid_mesh_displacement": 3.013499312829991e-08,
+      "solid_velocity": 9.045950069592343e-06,
+      "solid_displacement": 9.934063679702112e-08
+    },
+    "8": {
+      "fluid_velocity": 1.576227100851866e-06,
+      "fluid_pressure": 2.9109277269160023e-05,
+      "fluid_mesh_displacement": 2.578977391086428e-08,
+      "solid_velocity": 7.311053088618088e-06,
+      "solid_displacement": 9.119098977714606e-08
+    }
+  },
+  "audits": {
+    "fixed-n2-dt001": {
+      "last_cycle": 77,
+      "pressure_checks": {
+        "75": {
+          "relative_max": 0.0003636411210933277,
+          "relative_mean_drift": 1.3716499978236318e-05
+        },
+        "76": {
+          "relative_max": 0.00034589769239423696,
+          "relative_mean_drift": 1.367388669716585e-06
+        },
+        "77": {
+          "relative_max": 0.0003320130922329634,
+          "relative_mean_drift": 1.2851288999089772e-05
+        }
+      },
+      "boundary_errors": {
+        "rigid_velocity": 0.0,
+        "interface_velocity": 0.0,
+        "interface_displacement": 0.0
+      },
+      "mass_budget": {
+        "final_defect": -6.8142860931296075e-09,
+        "max_absolute_defect": 2.149890787494531e-08,
+        "integrated_net_flow": 0.0004123292928514411,
+        "volume_change": 0.0004123361071375342
+      },
+      "flow_balance": {
+        "stage_mass": 7.15573433840433e-18,
+        "surface_divergence": 7.697835424647081e-18,
+        "inlet_flow": 1.8388068845354155e-16,
+        "minimum_j": 0.9975024991345985
+      },
+      "accepted_rows": 7700
+    },
+    "fixed-n2-dt0005": {
+      "last_cycle": 88,
+      "pressure_checks": {
+        "86": {
+          "relative_max": 0.00038512106467547547,
+          "relative_mean_drift": 5.055485401458948e-06
+        },
+        "87": {
+          "relative_max": 0.0003494792737832042,
+          "relative_mean_drift": 5.902678793023863e-06
+        },
+        "88": {
+          "relative_max": 0.00033530833464356924,
+          "relative_mean_drift": 1.1027300350650858e-05
+        }
+      },
+      "boundary_errors": {
+        "rigid_velocity": 0.0,
+        "interface_velocity": 0.0,
+        "interface_displacement": 0.0
+      },
+      "mass_budget": {
+        "final_defect": -1.180307018138274e-09,
+        "max_absolute_defect": 4.8467764752208454e-09,
+        "integrated_net_flow": 0.00041231760339005617,
+        "volume_change": 0.0004123187836970743
+      },
+      "flow_balance": {
+        "stage_mass": 6.938893903907228e-18,
+        "surface_divergence": 7.359022245745361e-18,
+        "inlet_flow": 3.400058012914542e-16,
+        "minimum_j": 0.9975073487580814
+      },
+      "accepted_rows": 17600
+    },
+    "fixed-n4-dt001": {
+      "last_cycle": 39,
+      "pressure_checks": {
+        "37": {
+          "relative_max": 0.0001763369885998678,
+          "relative_mean_drift": 6.964578409988236e-06
+        },
+        "38": {
+          "relative_max": 0.00025719278820175717,
+          "relative_mean_drift": 1.408725086070664e-05
+        },
+        "39": {
+          "relative_max": 0.00020116579219353614,
+          "relative_mean_drift": 9.56945740022974e-06
+        }
+      },
+      "boundary_errors": {
+        "rigid_velocity": 0.0,
+        "interface_velocity": 0.0,
+        "interface_displacement": 0.0
+      },
+      "mass_budget": {
+        "final_defect": -6.316103513793157e-09,
+        "max_absolute_defect": 2.2951270423085418e-08,
+        "integrated_net_flow": 0.0004594738547604324,
+        "volume_change": 0.0004594801708639462
+      },
+      "flow_balance": {
+        "stage_mass": 3.0617869350990645e-16,
+        "surface_divergence": 9.324138683375338e-18,
+        "inlet_flow": 7.806255641895632e-17,
+        "minimum_j": 0.9975577963699722
+      },
+      "accepted_rows": 3900
+    },
+    "fixed-n4-dt0005": {
+      "last_cycle": 49,
+      "pressure_checks": {
+        "47": {
+          "relative_max": 0.00015436533686852272,
+          "relative_mean_drift": 3.7228764074616334e-06
+        },
+        "48": {
+          "relative_max": 0.00012693153662785006,
+          "relative_mean_drift": 2.6043513474960367e-07
+        },
+        "49": {
+          "relative_max": 0.00013715413378093122,
+          "relative_mean_drift": 6.923179817222568e-06
+        }
+      },
+      "boundary_errors": {
+        "rigid_velocity": 0.0,
+        "interface_velocity": 0.0,
+        "interface_displacement": 0.0
+      },
+      "mass_budget": {
+        "final_defect": -1.023671569603049e-09,
+        "max_absolute_defect": 5.178633293081303e-09,
+        "integrated_net_flow": 0.00045945425661899643,
+        "volume_change": 0.00045945528029056604
+      },
+      "flow_balance": {
+        "stage_mass": 5.811323644522304e-17,
+        "surface_divergence": 1.1058862159352145e-17,
+        "inlet_flow": 1.5092094240998222e-16,
+        "minimum_j": 0.997553553969975
+      },
+      "accepted_rows": 9800
+    },
+    "fixed-n8-dt001": {
+      "last_cycle": 31,
+      "pressure_checks": {
+        "29": {
+          "relative_max": 3.7757202137264634e-05,
+          "relative_mean_drift": 5.2340511014215e-07
+        },
+        "30": {
+          "relative_max": 4.3255264214475675e-05,
+          "relative_mean_drift": 8.240161313080585e-07
+        },
+        "31": {
+          "relative_max": 2.6333268084710593e-05,
+          "relative_mean_drift": 3.843334016213895e-07
+        }
+      },
+      "boundary_errors": {
+        "rigid_velocity": 0.0,
+        "interface_velocity": 0.0,
+        "interface_displacement": 0.0
+      },
+      "mass_budget": {
+        "final_defect": -6.330754094780247e-09,
+        "max_absolute_defect": 2.3648248070090892e-08,
+        "integrated_net_flow": 0.0005334343428258709,
+        "volume_change": 0.0005334406735799657
+      },
+      "flow_balance": {
+        "stage_mass": 9.636388909051163e-16,
+        "surface_divergence": 2.5261910618912253e-17,
+        "inlet_flow": 8.500145032286355e-17,
+        "minimum_j": 0.9970066450764719
+      },
+      "accepted_rows": 3100
+    },
+    "fixed-n8-dt0005": {
+      "last_cycle": 31,
+      "pressure_checks": {
+        "29": {
+          "relative_max": 4.5434770594154905e-05,
+          "relative_mean_drift": 4.783483017883894e-07
+        },
+        "30": {
+          "relative_max": 4.5255725736742525e-05,
+          "relative_mean_drift": 2.304392563375751e-06
+        },
+        "31": {
+          "relative_max": 3.318023428150463e-05,
+          "relative_mean_drift": 3.0809986055618795e-06
+        }
+      },
+      "boundary_errors": {
+        "rigid_velocity": 0.0,
+        "interface_velocity": 0.0,
+        "interface_displacement": 0.0
+      },
+      "mass_budget": {
+        "final_defect": -9.857948511313164e-10,
+        "max_absolute_defect": 5.320338337681178e-09,
+        "integrated_net_flow": 0.0005334158628954979,
+        "volume_change": 0.000533416848690349
+      },
+      "flow_balance": {
+        "stage_mass": 2.454633718507182e-16,
+        "surface_divergence": 2.2822455730819868e-17,
+        "inlet_flow": 9.8879238130678e-17,
+        "minimum_j": 0.9970435986231692
+      },
+      "accepted_rows": 6200
+    }
+  },
+  "tail_recomputation": {
+    "fixed-n2-dt001": {
+      "blocks_recomputed": 3,
+      "maximum_absolute_difference": 0.0,
+      "estimates_match": true
+    },
+    "fixed-n2-dt0005": {
+      "blocks_recomputed": 3,
+      "maximum_absolute_difference": 0.0,
+      "estimates_match": true
+    },
+    "fixed-n4-dt001": {
+      "blocks_recomputed": 3,
+      "maximum_absolute_difference": 0.0,
+      "estimates_match": true
+    },
+    "fixed-n4-dt0005": {
+      "blocks_recomputed": 3,
+      "maximum_absolute_difference": 0.0,
+      "estimates_match": true
+    },
+    "fixed-n8-dt001": {
+      "blocks_recomputed": 3,
+      "maximum_absolute_difference": 0.0,
+      "estimates_match": true
+    },
+    "fixed-n8-dt0005": {
+      "blocks_recomputed": 3,
+      "maximum_absolute_difference": 0.0,
+      "estimates_match": true
+    }
+  },
+  "complete_budget": {
+    "passed": true,
+    "numerical_results_exactly_equal": true,
+    "command": [
+      "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/scripts/analyze_fsi_error_budget.py",
+      "--policy",
+      "fixed",
+      "--output",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/resume-20261105/relocated-budget.json",
+      "--space-cases",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/fixed-n2-dt001",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/fixed-n4-dt001",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/fixed-n8-dt001",
+      "--time-cases",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/fixed-n2-dt0005",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/fixed-n4-dt0005",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/fixed-n8-dt0005",
+      "--transient-results",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/tail-fixed-n2-dt001/transient-result.json",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/tail-fixed-n4-dt001/transient-result.json",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/tail-fixed-n8-dt001/transient-result.json",
+      "--sampling-results",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/sampling-fixed-n2-dt001/sampling-result.json",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/sampling-fixed-n4-dt001/sampling-result.json",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/sampling-fixed-n8-dt001/sampling-result.json",
+      "--time-transient-results",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/tail-fixed-n2-dt0005/transient-result.json",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/tail-fixed-n4-dt0005/transient-result.json",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/tail-fixed-n8-dt0005/transient-result.json",
+      "--time-sampling-results",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/sampling-fixed-n2-dt0005/sampling-result.json",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/sampling-fixed-n4-dt0005/sampling-result.json",
+      "/home/tfblab633/EONSim-next03-20261105/relocated-evidence/sampling-fixed-n8-dt0005/sampling-result.json"
+    ],
+    "compared_keys": [
+      "budget",
+      "estimates",
+      "observed_spatial_orders",
+      "difference_2_4",
+      "difference_4_8",
+      "temporal_by_mesh",
+      "transient_by_mesh",
+      "time_transient_by_mesh",
+      "sampling_changes"
+    ]
+  },
+  "receipt_paths_rewritten": false
+}

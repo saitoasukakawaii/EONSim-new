@@ -1,0 +1,444 @@
+{
+  "stabilization_policy": "fixed",
+  "definitions": [
+    {
+      "executable_sha256": "b4de28ffc6481701b533ec4772f4f0f604cfc18bc15bc63c858ebebae38352da",
+      "n": 2,
+      "ranks": 2,
+      "dt": 0.001,
+      "scheme": "generalized_alpha",
+      "tau": 0.05,
+      "tolerance": 0.001,
+      "phases": 20,
+      "fluid_scales": {
+        "velocity": 0.01,
+        "pressure": 0.1,
+        "mesh_displacement": 0.0001
+      },
+      "solid_scales": {
+        "velocity": 0.01,
+        "displacement": 0.0001
+      },
+      "source_sha256": {
+        "scripts/study_fsi_periodic.py": "b92dcd58b41ed18173ac5fb2aaa92c5ce13b76205e79a3005cdda0cfe09f95ef",
+        "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+        "scripts/fsi_cycle_metrics.py": "4d5f0f34ed7092ede3a9d7f5dc420200b211a921c05d0304fe322578930593a9",
+        "cases/fsi/generate_wall.py": "cdf7dd21c692b6b59dc4d636e9b1e30a327f7886e4b7d6dd835674e8d825e5ea",
+        "cases/poisson/generate_mesh.py": "fc3b31bc5a77117f9aa7eef326eb4df2f0a3bf07c65a6cff30c698b36aac7487",
+        "tests/verify_fsi_inlet.py": "2f8371b9910bb56ffc4f3f015964ea23a5b46f6c16a666eeba2bd7de76aaf24b"
+      },
+      "mesh_sha256": {
+        "fluid.msh": "cff2ae349652d0b34c4c47c5313e010b399a5236ccf749ee8d65915f271c3ef8",
+        "solid.msh": "c84cd00759f468bd351bce49a7fd0e44c38e7d7e875b7ddbff5117494a931cb6"
+      }
+    },
+    {
+      "executable_sha256": "2e12cb6ea905c2e600b427371c9aa33e586e7bf0dc91b4493ecbc28225104665",
+      "n": 4,
+      "ranks": 2,
+      "dt": 0.001,
+      "scheme": "generalized_alpha",
+      "tau": 0.05,
+      "tolerance": 0.001,
+      "phases": 20,
+      "fluid_scales": {
+        "velocity": 0.01,
+        "pressure": 0.1,
+        "mesh_displacement": 0.0001
+      },
+      "solid_scales": {
+        "velocity": 0.01,
+        "displacement": 0.0001
+      },
+      "source_sha256": {
+        "scripts/study_fsi_periodic.py": "b92dcd58b41ed18173ac5fb2aaa92c5ce13b76205e79a3005cdda0cfe09f95ef",
+        "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+        "scripts/fsi_cycle_metrics.py": "4d5f0f34ed7092ede3a9d7f5dc420200b211a921c05d0304fe322578930593a9",
+        "cases/fsi/generate_wall.py": "cdf7dd21c692b6b59dc4d636e9b1e30a327f7886e4b7d6dd835674e8d825e5ea",
+        "cases/poisson/generate_mesh.py": "fc3b31bc5a77117f9aa7eef326eb4df2f0a3bf07c65a6cff30c698b36aac7487",
+        "tests/verify_fsi_inlet.py": "2f8371b9910bb56ffc4f3f015964ea23a5b46f6c16a666eeba2bd7de76aaf24b"
+      },
+      "mesh_sha256": {
+        "fluid.msh": "d71de16854c7157851b959b37939403e51cc6b87315e03b00feeab5e9b3b2091",
+        "solid.msh": "3d3868f9ba5b635041ad528a2a3ea45d0bdd5d5793660bca87737c0a51f6e7ce"
+      }
+    },
+    {
+      "executable_sha256": "2e12cb6ea905c2e600b427371c9aa33e586e7bf0dc91b4493ecbc28225104665",
+      "n": 8,
+      "ranks": 2,
+      "dt": 0.001,
+      "scheme": "generalized_alpha",
+      "tau": 0.05,
+      "tolerance": 0.001,
+      "phases": 20,
+      "fluid_scales": {
+        "velocity": 0.01,
+        "pressure": 0.1,
+        "mesh_displacement": 0.0001
+      },
+      "solid_scales": {
+        "velocity": 0.01,
+        "displacement": 0.0001
+      },
+      "source_sha256": {
+        "scripts/study_fsi_periodic.py": "b92dcd58b41ed18173ac5fb2aaa92c5ce13b76205e79a3005cdda0cfe09f95ef",
+        "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+        "scripts/fsi_cycle_metrics.py": "4d5f0f34ed7092ede3a9d7f5dc420200b211a921c05d0304fe322578930593a9",
+        "cases/fsi/generate_wall.py": "cdf7dd21c692b6b59dc4d636e9b1e30a327f7886e4b7d6dd835674e8d825e5ea",
+        "cases/poisson/generate_mesh.py": "fc3b31bc5a77117f9aa7eef326eb4df2f0a3bf07c65a6cff30c698b36aac7487",
+        "tests/verify_fsi_inlet.py": "2f8371b9910bb56ffc4f3f015964ea23a5b46f6c16a666eeba2bd7de76aaf24b"
+      },
+      "mesh_sha256": {
+        "fluid.msh": "640bf91ac0b29e79a5b1983ab82fccd6789c7af73a3d734180d4183401f9f4e7",
+        "solid.msh": "0c59b1ff62612f4968b226577be5d4f3c4dae9b965a32baf5aea47f0bcccbbe8"
+      }
+    }
+  ],
+  "difference_2_4": {
+    "fluid_velocity": 0.0061822766700882666,
+    "fluid_pressure": 0.1322078891437222,
+    "fluid_mesh_displacement": 0.00019648888410164837,
+    "solid_velocity": 0.0031584468932420746,
+    "solid_displacement": 0.00026754097631343003
+  },
+  "difference_4_8": {
+    "fluid_velocity": 0.0014310001143398943,
+    "fluid_pressure": 0.026704045623740263,
+    "fluid_mesh_displacement": 5.264896394025359e-05,
+    "solid_velocity": 0.0017518344507811857,
+    "solid_displacement": 0.00012277046196319837
+  },
+  "observed_orders": {
+    "fluid_velocity": 2.111114431987061,
+    "fluid_pressure": 2.307678038524093,
+    "fluid_mesh_displacement": 1.899970651326164,
+    "solid_velocity": 0.8503488686709091,
+    "solid_displacement": 1.1237963738602332
+  },
+  "boundary_errors": {
+    "/home/tfblab633/EONSim-next03-20261105/fixed-n2-dt001": {
+      "rigid_velocity": 0.0,
+      "interface_velocity": 0.0,
+      "interface_displacement": 0.0
+    },
+    "/home/tfblab633/EONSim-next03-20261105/fixed-n4-dt001": {
+      "rigid_velocity": 0.0,
+      "interface_velocity": 0.0,
+      "interface_displacement": 0.0
+    },
+    "/home/tfblab633/EONSim-next03-20261105/fixed-n8-dt001": {
+      "rigid_velocity": 0.0,
+      "interface_velocity": 0.0,
+      "interface_displacement": 0.0
+    }
+  },
+  "pressure_cycles": {
+    "/home/tfblab633/EONSim-next03-20261105/fixed-n2-dt001": [
+      {
+        "inlet_pressure": 0.5290167736984399,
+        "outlet_pressure": 0.28915994514247617,
+        "pressure_drop": 0.23985682855596374
+      },
+      {
+        "inlet_pressure": 0.5204392228254454,
+        "outlet_pressure": 0.2962377744515421,
+        "pressure_drop": 0.22420144837390332
+      },
+      {
+        "inlet_pressure": 0.48711408871620077,
+        "outlet_pressure": 0.29603193541683703,
+        "pressure_drop": 0.19108215329936373
+      },
+      {
+        "inlet_pressure": 0.4324173443924123,
+        "outlet_pressure": 0.2886136587731971,
+        "pressure_drop": 0.1438036856192152
+      },
+      {
+        "inlet_pressure": 0.36168341526747444,
+        "outlet_pressure": 0.27470840540717867,
+        "pressure_drop": 0.08697500986029577
+      },
+      {
+        "inlet_pressure": 0.28171284353320797,
+        "outlet_pressure": 0.25562650825998656,
+        "pressure_drop": 0.026086335273221406
+      },
+      {
+        "inlet_pressure": 0.20033286621845375,
+        "outlet_pressure": 0.2332319315250572,
+        "pressure_drop": -0.03289906530660344
+      },
+      {
+        "inlet_pressure": 0.12563083843468334,
+        "outlet_pressure": 0.20976921193993983,
+        "pressure_drop": -0.08413837350525649
+      },
+      {
+        "inlet_pressure": 0.0649383110683124,
+        "outlet_pressure": 0.18754761710868256,
+        "pressure_drop": -0.12260930604037017
+      },
+      {
+        "inlet_pressure": 0.024085420914534014,
+        "outlet_pressure": 0.16869333091072708,
+        "pressure_drop": -0.14460790999619305
+      },
+      {
+        "inlet_pressure": 0.00704672739200813,
+        "outlet_pressure": 0.15503358284570656,
+        "pressure_drop": -0.14798685545369844
+      },
+      {
+        "inlet_pressure": 0.0156028322724339,
+        "outlet_pressure": 0.14795045247598965,
+        "pressure_drop": -0.13234762020355575
+      },
+      {
+        "inlet_pressure": 0.048955051644704276,
+        "outlet_pressure": 0.14815848628768705,
+        "pressure_drop": -0.09920343464298277
+      },
+      {
+        "inlet_pressure": 0.10372754164035454,
+        "outlet_pressure": 0.15559279937201445,
+        "pressure_drop": -0.05186525773165991
+      },
+      {
+        "inlet_pressure": 0.1744996160165424,
+        "outlet_pressure": 0.16949778587977016,
+        "pressure_drop": 0.005001830136772245
+      },
+      {
+        "inlet_pressure": 0.2544388880079949,
+        "outlet_pressure": 0.18855319531201298,
+        "pressure_drop": 0.06588569269598193
+      },
+      {
+        "inlet_pressure": 0.3357849499946649,
+        "outlet_pressure": 0.21092784293443134,
+        "pressure_drop": 0.12485710706023356
+      },
+      {
+        "inlet_pressure": 0.41048711529437687,
+        "outlet_pressure": 0.23439746733098,
+        "pressure_drop": 0.17608964796339688
+      },
+      {
+        "inlet_pressure": 0.4711621223032328,
+        "outlet_pressure": 0.25662916732507274,
+        "pressure_drop": 0.21453295497816005
+      },
+      {
+        "inlet_pressure": 0.511956816457097,
+        "outlet_pressure": 0.27547781960893036,
+        "pressure_drop": 0.23647899684816664
+      }
+    ],
+    "/home/tfblab633/EONSim-next03-20261105/fixed-n4-dt001": [
+      {
+        "inlet_pressure": 0.3494845771437364,
+        "outlet_pressure": 0.11841168941469757,
+        "pressure_drop": 0.2310728877290388
+      },
+      {
+        "inlet_pressure": 0.3450047552407639,
+        "outlet_pressure": 0.12355463985703563,
+        "pressure_drop": 0.22145011538372827
+      },
+      {
+        "inlet_pressure": 0.32113007717676234,
+        "outlet_pressure": 0.12528936225739704,
+        "pressure_drop": 0.1958407149193653
+      },
+      {
+        "inlet_pressure": 0.28021827593186527,
+        "outlet_pressure": 0.12344872688954664,
+        "pressure_drop": 0.15676954904231863
+      },
+      {
+        "inlet_pressure": 0.2262546684156508,
+        "outlet_pressure": 0.11821447692268264,
+        "pressure_drop": 0.10804019149296817
+      },
+      {
+        "inlet_pressure": 0.16450603299545452,
+        "outlet_pressure": 0.11009642085394868,
+        "pressure_drop": 0.054409612141505845
+      },
+      {
+        "inlet_pressure": 0.10103512379779332,
+        "outlet_pressure": 0.09988968857051414,
+        "pressure_drop": 0.0011454352272791818
+      },
+      {
+        "inlet_pressure": 0.04206567306339408,
+        "outlet_pressure": 0.08859730793507699,
+        "pressure_drop": -0.04653163487168291
+      },
+      {
+        "inlet_pressure": -0.00664703430997205,
+        "outlet_pressure": 0.0773232268186881,
+        "pressure_drop": -0.08397026112866014
+      },
+      {
+        "inlet_pressure": -0.04033645122702,
+        "outlet_pressure": 0.06716822724689821,
+        "pressure_drop": -0.1075046784739182
+      },
+      {
+        "inlet_pressure": -0.055689685350064064,
+        "outlet_pressure": 0.059128385000565706,
+        "pressure_drop": -0.11481807035062977
+      },
+      {
+        "inlet_pressure": -0.05121090480530561,
+        "outlet_pressure": 0.053989852422218924,
+        "pressure_drop": -0.10520075722752453
+      },
+      {
+        "inlet_pressure": -0.027347469628526667,
+        "outlet_pressure": 0.05225203012967975,
+        "pressure_drop": -0.07959949975820642
+      },
+      {
+        "inlet_pressure": 0.013574892839238215,
+        "outlet_pressure": 0.05408733319398818,
+        "pressure_drop": -0.04051244035474996
+      },
+      {
+        "inlet_pressure": 0.06755131974060599,
+        "outlet_pressure": 0.059319403543875215,
+        "pressure_drop": 0.008231916196730776
+      },
+      {
+        "inlet_pressure": 0.12928989249102976,
+        "outlet_pressure": 0.06743368561255914,
+        "pressure_drop": 0.061856206878470626
+      },
+      {
+        "inlet_pressure": 0.192748126278604,
+        "outlet_pressure": 0.07763435420757209,
+        "pressure_drop": 0.1151137720710319
+      },
+      {
+        "inlet_pressure": 0.2517184889837359,
+        "outlet_pressure": 0.08892676606494905,
+        "pressure_drop": 0.16279172291878685
+      },
+      {
+        "inlet_pressure": 0.30043242271881127,
+        "outlet_pressure": 0.10020720443152581,
+        "pressure_drop": 0.20022521828728546
+      },
+      {
+        "inlet_pressure": 0.3341201797342122,
+        "outlet_pressure": 0.11036700593452212,
+        "pressure_drop": 0.2237531737996901
+      }
+    ],
+    "/home/tfblab633/EONSim-next03-20261105/fixed-n8-dt001": [
+      {
+        "inlet_pressure": 0.30766699579096485,
+        "outlet_pressure": 0.08105750269259569,
+        "pressure_drop": 0.22660949309836914
+      },
+      {
+        "inlet_pressure": 0.3042606242681333,
+        "outlet_pressure": 0.08676288351091276,
+        "pressure_drop": 0.2174977407572205
+      },
+      {
+        "inlet_pressure": 0.28325135253549133,
+        "outlet_pressure": 0.09017393974733982,
+        "pressure_drop": 0.1930774127881515
+      },
+      {
+        "inlet_pressure": 0.24669684596041297,
+        "outlet_pressure": 0.09095693370494538,
+        "pressure_drop": 0.15573991225546757
+      },
+      {
+        "inlet_pressure": 0.1981764682520471,
+        "outlet_pressure": 0.08903569542148938,
+        "pressure_drop": 0.10914077283055772
+      },
+      {
+        "inlet_pressure": 0.14243922897809802,
+        "outlet_pressure": 0.08459857333775159,
+        "pressure_drop": 0.05784065564034643
+      },
+      {
+        "inlet_pressure": 0.0849398124847362,
+        "outlet_pressure": 0.07807999726632694,
+        "pressure_drop": 0.006859815218409254
+      },
+      {
+        "inlet_pressure": 0.031305766680854344,
+        "outlet_pressure": 0.07011813427873072,
+        "pressure_drop": -0.038812367597876374
+      },
+      {
+        "inlet_pressure": -0.013213306328873412,
+        "outlet_pressure": 0.06149249250220314,
+        "pressure_drop": -0.07470579883107656
+      },
+      {
+        "inlet_pressure": -0.04425951130498736,
+        "outlet_pressure": 0.05304770326262187,
+        "pressure_drop": -0.09730721456760924
+      },
+      {
+        "inlet_pressure": -0.05879333547312038,
+        "outlet_pressure": 0.045610606529468606,
+        "pressure_drop": -0.10440394200258898
+      },
+      {
+        "inlet_pressure": -0.05539201737358508,
+        "outlet_pressure": 0.03990876563876462,
+        "pressure_drop": -0.0953007830123497
+      },
+      {
+        "inlet_pressure": -0.03438818153621924,
+        "outlet_pressure": 0.03649941330932416,
+        "pressure_drop": -0.0708875948455434
+      },
+      {
+        "inlet_pressure": 0.0021633968683012735,
+        "outlet_pressure": 0.03571569204477394,
+        "pressure_drop": -0.033552295176472666
+      },
+      {
+        "inlet_pressure": 0.050685693600758204,
+        "outlet_pressure": 0.03763438230679911,
+        "pressure_drop": 0.013051311293959096
+      },
+      {
+        "inlet_pressure": 0.10642855881041448,
+        "outlet_pressure": 0.04206824308411641,
+        "pressure_drop": 0.06436031572629806
+      },
+      {
+        "inlet_pressure": 0.16393408587016256,
+        "outlet_pressure": 0.04858407697264258,
+        "pressure_drop": 0.11535000889751998
+      },
+      {
+        "inlet_pressure": 0.2175720680792547,
+        "outlet_pressure": 0.05654463450392727,
+        "pressure_drop": 0.16102743357532742
+      },
+      {
+        "inlet_pressure": 0.2620921165186764,
+        "outlet_pressure": 0.06517056215441219,
+        "pressure_drop": 0.19692155436426423
+      },
+      {
+        "inlet_pressure": 0.29313730967593943,
+        "outlet_pressure": 0.07361704604121407,
+        "pressure_drop": 0.21952026363472538
+      }
+    ]
+  }
+}

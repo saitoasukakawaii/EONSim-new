@@ -1,0 +1,146 @@
+[
+  {
+    "scheme": "be",
+    "dt": 0.00015625,
+    "errors": {
+      "fluid_velocity": 0.00011934083409844177,
+      "fluid_pressure": 0.006940704339503881,
+      "fluid_mesh_displacement": 7.38326087351923e-07,
+      "solid_velocity": 0.0008326520687080105,
+      "solid_displacement": 4.843352223588612e-06
+    },
+    "orders": {}
+  },
+  {
+    "scheme": "be",
+    "dt": 7.8125e-05,
+    "errors": {
+      "fluid_velocity": 6.300390863391044e-05,
+      "fluid_pressure": 0.0038363773213018356,
+      "fluid_mesh_displacement": 3.827858392540062e-07,
+      "solid_velocity": 0.0004890777044398734,
+      "solid_displacement": 2.634963835594639e-06
+    },
+    "orders": {
+      "fluid_velocity": 0.921574526985226,
+      "fluid_pressure": 0.8553374527627225,
+      "fluid_mesh_displacement": 0.9477206744342882,
+      "solid_velocity": 0.767650080062913,
+      "solid_displacement": 0.8782227627424947
+    }
+  },
+  {
+    "scheme": "be",
+    "dt": 3.90625e-05,
+    "errors": {
+      "fluid_velocity": 3.2478636533304225e-05,
+      "fluid_pressure": 0.0020386944807773604,
+      "fluid_mesh_displacement": 1.9502479056312401e-07,
+      "solid_velocity": 0.00026869102058938024,
+      "solid_displacement": 1.3864842437043112e-06
+    },
+    "orders": {
+      "fluid_velocity": 0.9559502643896199,
+      "fluid_pressure": 0.9120990325599952,
+      "fluid_mesh_displacement": 0.9728799361618803,
+      "solid_velocity": 0.8641155895154836,
+      "solid_displacement": 0.9263519398844097
+    }
+  },
+  {
+    "scheme": "bdf2",
+    "dt": 0.000625,
+    "errors": {
+      "fluid_velocity": 3.437538880206717e-05,
+      "fluid_pressure": 0.0030603609408962097,
+      "fluid_mesh_displacement": 1.6052607610500535e-07,
+      "solid_velocity": 0.0005012411949733909,
+      "solid_displacement": 1.8813988440559158e-06
+    },
+    "orders": {}
+  },
+  {
+    "scheme": "bdf2",
+    "dt": 0.0003125,
+    "errors": {
+      "fluid_velocity": 8.82689049491205e-06,
+      "fluid_pressure": 0.0008007471720983699,
+      "fluid_mesh_displacement": 4.043754070417177e-08,
+      "solid_velocity": 0.00013573405089529095,
+      "solid_displacement": 4.908785771580222e-07
+    },
+    "orders": {
+      "fluid_velocity": 1.9613988260992437,
+      "fluid_pressure": 1.9342831121835504,
+      "fluid_mesh_displacement": 1.989040505579941,
+      "solid_velocity": 1.8847223012036,
+      "solid_displacement": 1.9383676117168673
+    }
+  },
+  {
+    "scheme": "bdf2",
+    "dt": 0.00015625,
+    "errors": {
+      "fluid_velocity": 2.190411555099917e-06,
+      "fluid_pressure": 0.00019944726822093754,
+      "fluid_mesh_displacement": 1.0012960242908205e-08,
+      "solid_velocity": 3.4080812509164454e-05,
+      "solid_displacement": 1.2218189043636223e-07
+    },
+    "orders": {
+      "fluid_velocity": 2.0107033375830334,
+      "fluid_pressure": 2.005339434688596,
+      "fluid_mesh_displacement": 2.0138267020827088,
+      "solid_velocity": 1.9937510516687547,
+      "solid_displacement": 2.0063357386868965
+    }
+  },
+  {
+    "scheme": "generalized_alpha",
+    "dt": 0.000625,
+    "errors": {
+      "fluid_velocity": 1.315770475633794e-05,
+      "fluid_pressure": 0.0012007859335300827,
+      "fluid_mesh_displacement": 5.985581974719509e-08,
+      "solid_velocity": 0.00020384020257761422,
+      "solid_displacement": 7.350073360706599e-07
+    },
+    "orders": {}
+  },
+  {
+    "scheme": "generalized_alpha",
+    "dt": 0.0003125,
+    "errors": {
+      "fluid_velocity": 3.272467338085286e-06,
+      "fluid_pressure": 0.00029974431194533025,
+      "fluid_mesh_displacement": 1.4866864060741028e-08,
+      "solid_velocity": 5.134367067554277e-05,
+      "solid_displacement": 1.8341961268921428e-07
+    },
+    "orders": {
+      "fluid_velocity": 2.0074571477296903,
+      "fluid_pressure": 2.00217469996596,
+      "fluid_mesh_displacement": 2.0093911615382343,
+      "solid_velocity": 1.989180270210762,
+      "solid_displacement": 2.002610737834487
+    }
+  },
+  {
+    "scheme": "generalized_alpha",
+    "dt": 0.00015625,
+    "errors": {
+      "fluid_velocity": 7.922386153083148e-07,
+      "fluid_pressure": 7.26456239329623e-05,
+      "fluid_mesh_displacement": 3.598571225243452e-09,
+      "solid_velocity": 1.247119099055547e-05,
+      "solid_displacement": 4.4447937144700477e-08
+    },
+    "orders": {
+      "fluid_velocity": 2.0463718650239833,
+      "fluid_pressure": 2.0447845770739828,
+      "fluid_mesh_displacement": 2.046604246366994,
+      "solid_velocity": 2.0415871929667087,
+      "solid_displacement": 2.0449595422686517
+    }
+  }
+]

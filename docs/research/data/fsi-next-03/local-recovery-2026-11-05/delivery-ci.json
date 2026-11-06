@@ -1,0 +1,86 @@
+{
+  "pr": 35,
+  "pr_url": "https://github.com/saitoasukakawaii/EONSim-new/pull/35",
+  "base": "4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e",
+  "validated_head": "b22f34545f66da515bc4049faa993c292bd893c5",
+  "tested_merge_preview": "308800e810c12f2eb2835caaa9872bd15d9246e3",
+  "local_and_preview_tree": "4b1ebb0339416904c49ff327e6fb1bc0875a6943",
+  "merge_preview_tree_matches_local": true,
+  "core_run_id": 42049457299,
+  "core_conclusion": "success",
+  "website_run_id": 42049457283,
+  "website_conclusion": "success",
+  "debug_job_id": 127321445489,
+  "release_job_id": 127321445476,
+  "receipt_job_id": 127333744324,
+  "receipt_conclusion": "success",
+  "debug": {
+    "commit": "308800e810c12f2eb2835caaa9872bd15d9246e3",
+    "mode": "debug",
+    "selection": "explicit",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 16764678144,
+      "cgroup": {
+        "/sys/fs/cgroup": {},
+        "/sys/fs/cgroup/system.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        }
+      },
+      "build_jobs": 4
+    },
+    "test_counts": {
+      "passed": 29,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "release": {
+    "commit": "308800e810c12f2eb2835caaa9872bd15d9246e3",
+    "mode": "release",
+    "selection": "explicit",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 16760344576,
+      "cgroup": {
+        "/sys/fs/cgroup": {},
+        "/sys/fs/cgroup/system.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        }
+      },
+      "build_jobs": 4
+    },
+    "test_counts": {
+      "passed": 29,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "python_tests_passed": 54,
+  "python_suite_counts": [
+    26,
+    6,
+    2,
+    6,
+    8,
+    6
+  ],
+  "legacy_3_19_6": "Not requested; manual compatibility job skipped by policy",
+  "review": "self-review; no independent external review claimed",
+  "merged": false,
+  "publication": "Knowledge article remains an unpublished draft"
+}

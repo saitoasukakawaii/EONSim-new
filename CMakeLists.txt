@@ -180,6 +180,10 @@ if(BUILD_TESTING)
     add_test(NAME fsi_diagnostics COMMAND verify_fsi_diagnostics)
     add_test(NAME fsi_diagnostics_mpi COMMAND "${MPIEXEC_EXECUTABLE}" -n 2 $<TARGET_FILE:verify_fsi_diagnostics>)
     set_tests_properties(fsi_diagnostics fsi_diagnostics_mpi PROPERTIES TIMEOUT 60)
+    add_test(NAME fsi_periodic COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_periodic.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_periodic")
+    set_tests_properties(fsi_periodic PROPERTIES TIMEOUT 600 PROCESSORS 4
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1" LABELS "rank-1;rank-2;rank-4")
     add_test(NAME fsi_flow COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_flow.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_flow")
     set_tests_properties(fsi_flow PROPERTIES TIMEOUT 600 PROCESSORS 2

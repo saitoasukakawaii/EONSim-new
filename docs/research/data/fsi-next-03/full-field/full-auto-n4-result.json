@@ -1,0 +1,1894 @@
+{
+  "converged": true,
+  "config": {
+    "mesh": "fluid.msh",
+    "output": "solution.vtu",
+    "fsi": {
+      "body": "elastic",
+      "domains": {
+        "solid_mesh": "solid.msh",
+        "fluid_region": 10,
+        "solid_region": 20,
+        "fluid_interface": 4,
+        "solid_interface": 13,
+        "pressure_tags": [
+          2
+        ],
+        "fluid_constraints": [
+          {
+            "tag": 3,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 5,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 6,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "mesh_constraints": [
+          {
+            "tag": 1,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 2,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 3,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 5,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 6,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "solid_constraints": [
+          {
+            "tag": 11,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 12,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 15,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "tag": 16,
+            "components": [
+              0,
+              1,
+              2
+            ]
+          }
+        ]
+      },
+      "young": 100,
+      "poisson": 0.3,
+      "material": "linear",
+      "dt": 0.001,
+      "steps": 12000,
+      "pressure": 0,
+      "output_interval": 5,
+      "inlet": {
+        "tag": 1,
+        "ramp_time": 0.02,
+        "flow_rate": {
+          "mean": 0.01,
+          "amplitude": 0.005,
+          "period": 0.1,
+          "axis": 0,
+          "lower": [
+            0,
+            0,
+            0
+          ],
+          "upper": [
+            0,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    "time": {
+      "scheme": "generalized_alpha"
+    },
+    "solver": {
+      "relative_tolerance": 1e-10,
+      "absolute_tolerance": 1e-12,
+      "maximum_iterations": 30
+    }
+  },
+  "metrics": [
+    {
+      "cycle": 3,
+      "fluid": {
+        "velocity": 0.29708771991422467,
+        "pressure": 0.9954434205449683,
+        "mesh_displacement": 1.049382334079381
+      },
+      "solid": {
+        "velocity": 0.9994631591401225,
+        "displacement": 3.079837644657454
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 1.2744332986487101,
+          "relative_mean_drift": 1.2112980067671681,
+          "relative_max": 1.8171731722169608,
+          "mean": 0.0006396268133001677,
+          "amplitude": 5.783952970479474e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 1.2733588798118174,
+          "relative_mean_drift": 1.2101915463779733,
+          "relative_max": 1.816233291287439,
+          "mean": 1.000639453040764,
+          "amplitude": 5.7814618369844695e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.13788077878730853,
+          "relative_mean_drift": 0.110514731531017,
+          "relative_max": 0.25730603651748596,
+          "mean": 0.009284000340344559,
+          "amplitude": 0.002700902906812238
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 4,
+      "fluid": {
+        "velocity": 0.17241874804894786,
+        "pressure": 0.6197131199281578,
+        "mesh_displacement": 0.4249259255374973
+      },
+      "solid": {
+        "velocity": 0.6603105728623518,
+        "displacement": 1.0484556313524436
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.38800434352211344,
+          "relative_mean_drift": 0.36306912298558724,
+          "relative_max": 0.7130860128432155,
+          "mean": 0.0006759337255987264,
+          "amplitude": 3.951741829663543e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.38738243141911605,
+          "relative_mean_drift": 0.3624528460646238,
+          "relative_max": 0.712056015663709,
+          "mean": 1.0006756983253704,
+          "amplitude": 3.949960930715868e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.07471092790921868,
+          "relative_mean_drift": 0.05740433533214635,
+          "relative_max": 0.1432537805162174,
+          "mean": 0.009858043693666023,
+          "amplitude": 0.00280379554999101
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 5,
+      "fluid": {
+        "velocity": 0.05746689402590761,
+        "pressure": 0.29002283332142226,
+        "mesh_displacement": 0.15202731824678503
+      },
+      "solid": {
+        "velocity": 0.5470756680775029,
+        "displacement": 0.7262311346018974
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.12155334162161083,
+          "relative_mean_drift": 0.11472253781034396,
+          "relative_max": 0.16900762314702714,
+          "mean": 0.0006874059793797608,
+          "amplitude": 3.8794038170613244e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.12120115638442036,
+          "relative_mean_drift": 0.11437537876711479,
+          "relative_max": 0.16851737180578752,
+          "mean": 1.0006871358632472,
+          "amplitude": 3.8783666672426165e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.024771476863775295,
+          "relative_mean_drift": 0.00391416614364443,
+          "relative_max": 0.04483362820025313,
+          "mean": 0.009897185355102468,
+          "amplitude": 0.002714026424518683
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 6,
+      "fluid": {
+        "velocity": 0.047445627113266685,
+        "pressure": 0.2502818307137236,
+        "mesh_displacement": 0.08549006500216082
+      },
+      "solid": {
+        "velocity": 0.3950391766752016,
+        "displacement": 0.3865961670056654
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0692947139976159,
+          "relative_mean_drift": 0.06300067821449579,
+          "relative_max": 0.11051579019700228,
+          "mean": 0.0006937060472012103,
+          "amplitude": 3.5073109608836e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.06912939906848672,
+          "relative_mean_drift": 0.06283036065547407,
+          "relative_max": 0.11025619217175375,
+          "mean": 1.0006934188993126,
+          "amplitude": 3.5065493261710046e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.025727796610379064,
+          "relative_mean_drift": 0.008230758306846733,
+          "relative_max": 0.03652391812488283,
+          "mean": 0.009979492938170935,
+          "amplitude": 0.0028915687456408036
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 7,
+      "fluid": {
+        "velocity": 0.0423548510491352,
+        "pressure": 0.21662023070061098,
+        "mesh_displacement": 0.048056409684984654
+      },
+      "solid": {
+        "velocity": 0.2888655814404278,
+        "displacement": 0.2959373357642324
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.03692767983703638,
+          "relative_mean_drift": 0.027607067664886582,
+          "relative_max": 0.07052128558969797,
+          "mean": 0.000696466753967699,
+          "amplitude": 3.705700543458188e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.03684077737494876,
+          "relative_mean_drift": 0.0275105196280781,
+          "relative_max": 0.07039471075831472,
+          "mean": 1.0006961699512755,
+          "amplitude": 3.7049384725151846e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.023703930598218702,
+          "relative_mean_drift": 0.002671914539366093,
+          "relative_max": 0.03514602144787226,
+          "mean": 0.009952773792777272,
+          "amplitude": 0.002721900167829923
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 8,
+      "fluid": {
+        "velocity": 0.03574108586461384,
+        "pressure": 0.17778877298365142,
+        "mesh_displacement": 0.03837422605762251
+      },
+      "solid": {
+        "velocity": 0.23729304708171575,
+        "displacement": 0.23419172153205017
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.03128222256203734,
+          "relative_mean_drift": 0.02332696913794803,
+          "relative_max": 0.056148252775672355,
+          "mean": 0.0006987994508814938,
+          "amplitude": 3.500127178381518e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.031223416515979964,
+          "relative_mean_drift": 0.023271289496234332,
+          "relative_max": 0.05605178614365158,
+          "mean": 1.000698497080225,
+          "amplitude": 3.499684063190678e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.01928982392092857,
+          "relative_mean_drift": 0.0052308704867894485,
+          "relative_max": 0.029853030205286013,
+          "mean": 0.010005082497645167,
+          "amplitude": 0.0028386028583828344
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 9,
+      "fluid": {
+        "velocity": 0.02690397093270836,
+        "pressure": 0.1450170043064746,
+        "mesh_displacement": 0.022473848217482786
+      },
+      "solid": {
+        "velocity": 0.18819791049030665,
+        "displacement": 0.1971516364965594
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.01627629423931794,
+          "relative_mean_drift": 0.008753619789526249,
+          "relative_max": 0.031183663981132176,
+          "mean": 0.0006996748128604464,
+          "amplitude": 3.5902532856892056e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.01624365055500656,
+          "relative_mean_drift": 0.008728367993579567,
+          "relative_max": 0.031122449493103943,
+          "mean": 1.0006993699170246,
+          "amplitude": 3.5896703668325536e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.012987743746258553,
+          "relative_mean_drift": 0.002692286739752114,
+          "relative_max": 0.021959099693217785,
+          "mean": 0.009978159630247646,
+          "amplitude": 0.002778959494726413
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 10,
+      "fluid": {
+        "velocity": 0.017000537503277978,
+        "pressure": 0.07482387883285198,
+        "mesh_displacement": 0.014408701463709594
+      },
+      "solid": {
+        "velocity": 0.16296020233579397,
+        "displacement": 0.15554105758704437
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.010040777131274482,
+          "relative_mean_drift": 0.005877195227149193,
+          "relative_max": 0.02195448623754006,
+          "mean": 0.0007002625323831613,
+          "amplitude": 3.521815000539705e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.01001585812900284,
+          "relative_mean_drift": 0.005858951340458746,
+          "relative_max": 0.021904656106741527,
+          "mean": 1.0006999558121585,
+          "amplitude": 3.521400864725521e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.007559271125306132,
+          "relative_mean_drift": 0.0024106002337916546,
+          "relative_max": 0.01332433328867233,
+          "mean": 0.010002265632585562,
+          "amplitude": 0.0027872687915014805
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 11,
+      "fluid": {
+        "velocity": 0.009991752883502,
+        "pressure": 0.05578875053137519,
+        "mesh_displacement": 0.009848282444524296
+      },
+      "solid": {
+        "velocity": 0.1454210697248453,
+        "displacement": 0.13703807525447334
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.005015624996077747,
+          "relative_mean_drift": 0.003605895056817581,
+          "relative_max": 0.009655113404211926,
+          "mean": 0.000700623121888843,
+          "amplitude": 3.519486890646436e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0050072080920616135,
+          "relative_mean_drift": 0.0035991339493619823,
+          "relative_max": 0.009637490812064442,
+          "mean": 1.0007003157255534,
+          "amplitude": 3.5189955002734585e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.00404537096463637,
+          "relative_mean_drift": 0.0004059398400726549,
+          "relative_max": 0.006588135794038594,
+          "mean": 0.009998206234184836,
+          "amplitude": 0.0028010919567106616
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 12,
+      "fluid": {
+        "velocity": 0.0095374993553594,
+        "pressure": 0.03704692631685807,
+        "mesh_displacement": 0.008159930378301818
+      },
+      "solid": {
+        "velocity": 0.12108761105108763,
+        "displacement": 0.12156160068054024
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0032021863720486706,
+          "relative_mean_drift": 0.0010633820189397732,
+          "relative_max": 0.006159636632103527,
+          "mean": 0.0007007294600907371,
+          "amplitude": 3.534805579199151e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.003207331960219213,
+          "relative_mean_drift": 0.00105857342445545,
+          "relative_max": 0.006164105257333574,
+          "mean": 1.0007004215828958,
+          "amplitude": 3.534421167905588e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0033981168170782177,
+          "relative_mean_drift": 0.00040922906933641833,
+          "relative_max": 0.005101082267862898,
+          "mean": 0.00999411394349147,
+          "amplitude": 0.0027875721056707598
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 13,
+      "fluid": {
+        "velocity": 0.008844332940135669,
+        "pressure": 0.046135944523895044,
+        "mesh_displacement": 0.0075863448551205526
+      },
+      "solid": {
+        "velocity": 0.10570144108058072,
+        "displacement": 0.10426098626029859
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.004016637088564995,
+          "relative_mean_drift": 0.000897384880770707,
+          "relative_max": 0.006328857137782298,
+          "mean": 0.0007008191985788141,
+          "amplitude": 3.530610902018668e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.004020300199114,
+          "relative_mean_drift": 0.0008947677004877974,
+          "relative_max": 0.0063329265387324085,
+          "mean": 1.000700511059666,
+          "amplitude": 3.530307494148399e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.003725636831688884,
+          "relative_mean_drift": 0.001065196791960863,
+          "relative_max": 0.006037238111209972,
+          "mean": 0.010004765911411079,
+          "amplitude": 0.0027828229654115783
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 14,
+      "fluid": {
+        "velocity": 0.008985434645465003,
+        "pressure": 0.04397091188018455,
+        "mesh_displacement": 0.005801816872136076
+      },
+      "solid": {
+        "velocity": 0.08974685113663705,
+        "displacement": 0.08698768778839623
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.004062104946311452,
+          "relative_mean_drift": 0.0010006736679197378,
+          "relative_max": 0.006032025699019951,
+          "mean": 0.0007009192659456061,
+          "amplitude": 3.519848470796128e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0040629167166075526,
+          "relative_mean_drift": 0.0009995809304927383,
+          "relative_max": 0.006033127304405639,
+          "mean": 1.000700611017759,
+          "amplitude": 3.5194367687729766e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.003920106178051054,
+          "relative_mean_drift": 0.0008646014290554754,
+          "relative_max": 0.0063465103897437924,
+          "mean": 0.009996119897120525,
+          "amplitude": 0.0028021963630082353
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 15,
+      "fluid": {
+        "velocity": 0.00750075199270825,
+        "pressure": 0.03277657597152097,
+        "mesh_displacement": 0.0048690485371440054
+      },
+      "solid": {
+        "velocity": 0.07695380167450268,
+        "displacement": 0.07087102877808342
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0033689581259870385,
+          "relative_mean_drift": 0.0005762401284656491,
+          "relative_max": 0.005176957459258327,
+          "mean": 0.0007008616419327595,
+          "amplitude": 3.525422661967254e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.003368786485463859,
+          "relative_mean_drift": 0.0005767995123542868,
+          "relative_max": 0.005176485149416266,
+          "mean": 1.0007005533378077,
+          "amplitude": 3.525028973105915e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.003587422029510829,
+          "relative_mean_drift": 0.0004387168044122492,
+          "relative_max": 0.005288456275785551,
+          "mean": 0.010000507065164647,
+          "amplitude": 0.002772903446783625
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 16,
+      "fluid": {
+        "velocity": 0.00594037363203309,
+        "pressure": 0.03185179235924084,
+        "mesh_displacement": 0.0045060652866046325
+      },
+      "solid": {
+        "velocity": 0.06620038452107761,
+        "displacement": 0.06200497361856905
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0028298685214842184,
+          "relative_mean_drift": 0.0008900582920677702,
+          "relative_max": 0.0046732988833592115,
+          "mean": 0.0007009506477619663,
+          "amplitude": 3.511752596486241e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0028289336304373634,
+          "relative_mean_drift": 0.0008891803626558115,
+          "relative_max": 0.004671740900796806,
+          "mean": 1.000700642255844,
+          "amplitude": 3.5114467403118965e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0029666702343068324,
+          "relative_mean_drift": 0.00010982110393215725,
+          "relative_max": 0.0042569859278912894,
+          "mean": 0.010001605276203968,
+          "amplitude": 0.0027973687076915175
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 17,
+      "fluid": {
+        "velocity": 0.005314656031133882,
+        "pressure": 0.022114770059548997,
+        "mesh_displacement": 0.00346557443357988
+      },
+      "solid": {
+        "velocity": 0.052564559666635396,
+        "displacement": 0.05245160407379608
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.002232810681165422,
+          "relative_mean_drift": 0.0003449072117760243,
+          "relative_max": 0.0032515965504105373,
+          "mean": 0.0007009161570407887,
+          "amplitude": 3.526813776486996e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.002232648406439877,
+          "relative_mean_drift": 0.000344420993444311,
+          "relative_max": 0.003251148359417755,
+          "mean": 1.0007006078137446,
+          "amplitude": 3.5264082498431826e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0022214689493424452,
+          "relative_mean_drift": 0.00042945322212462576,
+          "relative_max": 0.0035143951345762217,
+          "mean": 0.009997310743982721,
+          "amplitude": 0.0027835271407744572
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 18,
+      "fluid": {
+        "velocity": 0.004099202251312025,
+        "pressure": 0.019972909934471327,
+        "mesh_displacement": 0.0029001735944763716
+      },
+      "solid": {
+        "velocity": 0.04596772319746409,
+        "displacement": 0.046145480070277925
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0018478914484472866,
+          "relative_mean_drift": 5.92172050136413e-05,
+          "relative_max": 0.002775046105473822,
+          "mean": 0.0007009220787612901,
+          "amplitude": 3.520810910188758e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0018478907093138779,
+          "relative_mean_drift": 5.8482476465726574e-05,
+          "relative_max": 0.0027745136677026494,
+          "mean": 1.0007006136619923,
+          "amplitude": 3.5204998505844465e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0017584593028058663,
+          "relative_mean_drift": 0.0004900513346197857,
+          "relative_max": 0.0027406353822714835,
+          "mean": 0.01000221125732892,
+          "amplitude": 0.0027843903700826454
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 19,
+      "fluid": {
+        "velocity": 0.0036109263738145344,
+        "pressure": 0.015523158145490452,
+        "mesh_displacement": 0.0025478846621969035
+      },
+      "solid": {
+        "velocity": 0.04204315087031984,
+        "displacement": 0.03828983125327629
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.001528392598042859,
+          "relative_mean_drift": 0.00028564407559648414,
+          "relative_max": 0.0022218629679995276,
+          "mean": 0.0007009506431688498,
+          "amplitude": 3.516752720655815e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0015286448087627558,
+          "relative_mean_drift": 0.0002859568179816585,
+          "relative_max": 0.0022230145058088624,
+          "mean": 1.000700642257674,
+          "amplitude": 3.516345437881707e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.001571550529124409,
+          "relative_mean_drift": 0.00030973979063570546,
+          "relative_max": 0.0024736698639846524,
+          "mean": 0.009999113859422563,
+          "amplitude": 0.0027931373400521004
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 20,
+      "fluid": {
+        "velocity": 0.0032849126138711614,
+        "pressure": 0.012485366237784646,
+        "mesh_displacement": 0.002116580688444573
+      },
+      "solid": {
+        "velocity": 0.034725063290109555,
+        "displacement": 0.03269985032248713
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0013030610600442522,
+          "relative_mean_drift": 0.0003389275241003909,
+          "relative_max": 0.0019221472597830483,
+          "mean": 0.0007009167504164397,
+          "amplitude": 3.522239375047565e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0013033994463339433,
+          "relative_mean_drift": 0.0003390357864764548,
+          "relative_max": 0.001922149157618236,
+          "mean": 1.0007006083540955,
+          "amplitude": 3.5218407922199546e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0014151404886519727,
+          "relative_mean_drift": 4.4471839419672824e-05,
+          "relative_max": 0.0021163824826768776,
+          "mean": 0.00999955857781676,
+          "amplitude": 0.0027823197301769724
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 21,
+      "fluid": {
+        "velocity": 0.0024463422306927117,
+        "pressure": 0.014089657795417583,
+        "mesh_displacement": 0.0019614045775640555
+      },
+      "solid": {
+        "velocity": 0.02949897644581791,
+        "displacement": 0.02822746265652009
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0011839600875368818,
+          "relative_mean_drift": 0.000265183784076355,
+          "relative_max": 0.0018469668258203672,
+          "mean": 0.0007009432687948474,
+          "amplitude": 3.515369343275594e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0011841539028757389,
+          "relative_mean_drift": 0.000265036879491809,
+          "relative_max": 0.00184732741548288,
+          "mean": 1.0007006348577834,
+          "amplitude": 3.515058651615277e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0012223293204747677,
+          "relative_mean_drift": 0.00017152150693409033,
+          "relative_max": 0.0016876775494542584,
+          "mean": 0.0100012737928861,
+          "amplitude": 0.0027908258410869633
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 22,
+      "fluid": {
+        "velocity": 0.002390875565743829,
+        "pressure": 0.010541347178277581,
+        "mesh_displacement": 0.0016722605580568259
+      },
+      "solid": {
+        "velocity": 0.024730781808922846,
+        "displacement": 0.024535646247967165
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.001061517424615778,
+          "relative_mean_drift": 7.504543730130962e-05,
+          "relative_max": 0.0015136781720973339,
+          "mean": 0.0007009357642511172,
+          "amplitude": 3.5212606221696066e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0010616424357614619,
+          "relative_mean_drift": 7.484124037518414e-05,
+          "relative_max": 0.0015141348619351902,
+          "mean": 1.0007006273736594,
+          "amplitude": 3.520855159522274e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0010159715022790938,
+          "relative_mean_drift": 0.00025807897341167236,
+          "relative_max": 0.001623016498225431,
+          "mean": 0.009998693003151983,
+          "amplitude": 0.0027887381024923135
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 23,
+      "fluid": {
+        "velocity": 0.0020602534670816604,
+        "pressure": 0.009027811448324046,
+        "mesh_displacement": 0.0013440774154930132
+      },
+      "solid": {
+        "velocity": 0.021348470400453522,
+        "displacement": 0.02072412457145194
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0008916261060365628,
+          "relative_mean_drift": 8.570097238438568e-05,
+          "relative_max": 0.0012977214509306105,
+          "mean": 0.0007009271941538788,
+          "amplitude": 3.517433134463241e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0008915912053660039,
+          "relative_mean_drift": 8.589029557026784e-05,
+          "relative_max": 0.0012972583629533574,
+          "mean": 1.00070061878463,
+          "amplitude": 3.517047391277117e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0008779322603266754,
+          "relative_mean_drift": 0.00021173671263051256,
+          "relative_max": 0.0013991231792961217,
+          "mean": 0.01000081037027829,
+          "amplitude": 0.002786439904059811
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 24,
+      "fluid": {
+        "velocity": 0.001599189905781496,
+        "pressure": 0.0077855574678671255,
+        "mesh_displacement": 0.0011942603445664166
+      },
+      "solid": {
+        "velocity": 0.019195230421621974,
+        "displacement": 0.017297649864133062
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.000717924557097466,
+          "relative_mean_drift": 0.00017281606744957227,
+          "relative_max": 0.0010929969071666896,
+          "mean": 0.0007009444757606237,
+          "amplitude": 3.5166710301510855e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0007179151647413063,
+          "relative_mean_drift": 0.00017287874593679975,
+          "relative_max": 0.0010933988381367499,
+          "mean": 1.0007006360725044,
+          "amplitude": 3.516265075409475e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0007688770502445844,
+          "relative_mean_drift": 8.846620495758334e-05,
+          "relative_max": 0.0011236596590649683,
+          "mean": 0.009999925708228713,
+          "amplitude": 0.002791675630612431
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 25,
+      "fluid": {
+        "velocity": 0.0015150066074326068,
+        "pressure": 0.006371827615387638,
+        "mesh_displacement": 0.0009607066433760811
+      },
+      "solid": {
+        "velocity": 0.015696790984606742,
+        "displacement": 0.015105836644814088
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0006076716809620011,
+          "relative_mean_drift": 0.0001602008045077265,
+          "relative_max": 0.0009129403951292202,
+          "mean": 0.0007009284556801729,
+          "amplitude": 3.520564473984947e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.000607730703059879,
+          "relative_mean_drift": 0.0001601520949710833,
+          "relative_max": 0.0009128121436496883,
+          "mean": 1.000700620057295,
+          "amplitude": 3.5201636125914426e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0006480612419783956,
+          "relative_mean_drift": 3.918207735395643e-05,
+          "relative_max": 0.0010254214898685124,
+          "mean": 0.009999533887455173,
+          "amplitude": 0.0027874214652953253
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 26,
+      "fluid": {
+        "velocity": 0.0011410359875740164,
+        "pressure": 0.006316123125577681,
+        "mesh_displacement": 0.0008775371704274518
+      },
+      "solid": {
+        "velocity": 0.013273744287229845,
+        "displacement": 0.012725057812547102
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0005401706529687206,
+          "relative_mean_drift": 8.511725602460732e-05,
+          "relative_max": 0.0008222694501680561,
+          "mean": 0.0007009369674057754,
+          "amplitude": 3.516206126513358e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0005402400890406454,
+          "relative_mean_drift": 8.500674469891223e-05,
+          "relative_max": 0.0008222273661928625,
+          "mean": 1.0007006285579694,
+          "amplitude": 3.5158048409922316e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0005316347672504879,
+          "relative_mean_drift": 0.00011391397114607135,
+          "relative_max": 0.0007301405324905072,
+          "mean": 0.010000673027166635,
+          "amplitude": 0.002789631559554152
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 27,
+      "fluid": {
+        "velocity": 0.0010588112146816798,
+        "pressure": 0.004776605343330396,
+        "mesh_displacement": 0.0007267060880376218
+      },
+      "solid": {
+        "velocity": 0.012030293127072699,
+        "displacement": 0.011242877312007824
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0004726666586488866,
+          "relative_mean_drift": 6.933443709778212e-06,
+          "relative_max": 0.0006964025675917918,
+          "mean": 0.0007009376607501463,
+          "amplitude": 3.5190567923696725e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.00047269273829021264,
+          "relative_mean_drift": 7.034637265063148e-06,
+          "relative_max": 0.000696519830700737,
+          "mean": 1.000700629261433,
+          "amplitude": 3.518652469103323e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.00045377728236590723,
+          "relative_mean_drift": 0.00011968307480756911,
+          "relative_max": 0.0007091317323428686,
+          "mean": 0.009999476196418559,
+          "amplitude": 0.0027902914806395077
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 28,
+      "fluid": {
+        "velocity": 0.000961198274200988,
+        "pressure": 0.0041345335994479255,
+        "mesh_displacement": 0.000598082364664584
+      },
+      "solid": {
+        "velocity": 0.010263564788143203,
+        "displacement": 0.009364789852778185
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.00038795163655803684,
+          "relative_mean_drift": 7.070712297773544e-05,
+          "relative_max": 0.0005665846720623053,
+          "mean": 0.0007009305900378487,
+          "amplitude": 3.518594236604064e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0003879663623742068,
+          "relative_mean_drift": 7.075716224741457e-05,
+          "relative_max": 0.0005665274471766679,
+          "mean": 1.0007006221857169,
+          "amplitude": 3.5181939618933455e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.0004009367659301855,
+          "relative_mean_drift": 7.19424480856685e-05,
+          "relative_max": 0.0006497234760004245,
+          "mean": 0.010000195620899415,
+          "amplitude": 0.0027877086240932405
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 29,
+      "fluid": {
+        "velocity": 0.0007041633623600402,
+        "pressure": 0.0037707674247620796,
+        "mesh_displacement": 0.0005453119803788256
+      },
+      "solid": {
+        "velocity": 0.008899485832772471,
+        "displacement": 0.007789552035536243
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0003256079401561839,
+          "relative_mean_drift": 8.717861408647562e-05,
+          "relative_max": 0.0005046721704329415,
+          "mean": 0.0007009393078992572,
+          "amplitude": 3.517053026974462e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.00032563117028005893,
+          "relative_mean_drift": 8.716503905811801e-05,
+          "relative_max": 0.0005047874451769019,
+          "mean": 1.0007006309022208,
+          "amplitude": 3.5166500785055455e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.00035309907746408,
+          "relative_mean_drift": 5.880289628450364e-06,
+          "relative_max": 0.0004967549092052895,
+          "mean": 0.01000013681800313,
+          "amplitude": 0.0027905470170280977
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 30,
+      "fluid": {
+        "velocity": 0.0006771389367708106,
+        "pressure": 0.0031817302189006335,
+        "mesh_displacement": 0.0004544167539491345
+      },
+      "solid": {
+        "velocity": 0.007193877503362648,
+        "displacement": 0.006941488242957129
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0002850147061908202,
+          "relative_mean_drift": 6.185695148126083e-05,
+          "relative_max": 0.00042264589677869224,
+          "mean": 0.0007009331222041092,
+          "amplitude": 3.519403303960193e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0002850552351283774,
+          "relative_mean_drift": 6.179965102159901e-05,
+          "relative_max": 0.00042269050481991144,
+          "mean": 1.0007006247222556,
+          "amplitude": 3.519001434304503e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.00029154576562484574,
+          "relative_mean_drift": 4.6475708484444944e-05,
+          "relative_max": 0.00047894800501574464,
+          "mean": 0.009999672060918287,
+          "amplitude": 0.002788407796018364
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 31,
+      "fluid": {
+        "velocity": 0.0005419183699211176,
+        "pressure": 0.0025922927748511415,
+        "mesh_displacement": 0.00039253963163118043
+      },
+      "solid": {
+        "velocity": 0.00671945385288966,
+        "displacement": 0.006009364841126168
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.00025249098849924786,
+          "relative_mean_drift": 1.689883617766708e-05,
+          "relative_max": 0.0003736681186152467,
+          "mean": 0.0007009348120877269,
+          "amplitude": 3.517389615089909e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0002524985370518429,
+          "relative_mean_drift": 1.6833339930300006e-05,
+          "relative_max": 0.00037363045546356943,
+          "mean": 1.0007006264055898,
+          "amplitude": 3.5169882932506447e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.00023977443363811502,
+          "relative_mean_drift": 6.511480081793661e-05,
+          "relative_max": 0.0003700414737288493,
+          "mean": 0.010000323208926467,
+          "amplitude": 0.002788787930779017
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 32,
+      "fluid": {
+        "velocity": 0.00045520027389877904,
+        "pressure": 0.0024673196634236536,
+        "mesh_displacement": 0.000335552708399276
+      },
+      "solid": {
+        "velocity": 0.0055697921087201965,
+        "displacement": 0.004929868390480504
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.00021078769669669842,
+          "relative_mean_drift": 2.3229779244727058e-05,
+          "relative_max": 0.0003205232365828016,
+          "mean": 0.0007009371350656514,
+          "amplitude": 3.5182365848338416e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.00021078727837683467,
+          "relative_mean_drift": 2.3276350742673646e-05,
+          "relative_max": 0.00032049727760607993,
+          "mean": 1.0007006287332247,
+          "amplitude": 3.5178340982544576e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.00020821069040937094,
+          "relative_mean_drift": 5.138158458533313e-05,
+          "relative_max": 0.00030641404171229125,
+          "mean": 0.009999809393080613,
+          "amplitude": 0.0027894970309755122
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 33,
+      "fluid": {
+        "velocity": 0.00044967096486383504,
+        "pressure": 0.0016094999645041566,
+        "mesh_displacement": 0.00026691059948724704
+      },
+      "solid": {
+        "velocity": 0.004962106470870883,
+        "displacement": 0.004277121648142799
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.0001730705518630753,
+          "relative_mean_drift": 4.24531690511183e-05,
+          "relative_max": 0.000256786355425781,
+          "mean": 0.0007009328897487463,
+          "amplitude": 3.5185169494444057e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.00017307496481469017,
+          "relative_mean_drift": 4.246827714146639e-05,
+          "relative_max": 0.000256770118500782,
+          "mean": 1.000700624486397,
+          "amplitude": 3.518115718159631e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.00018684217546112238,
+          "relative_mean_drift": 1.97668939521646e-05,
+          "relative_max": 0.0002921535241760115,
+          "mean": 0.010000007062020134,
+          "amplitude": 0.002788002415783001
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 34,
+      "fluid": {
+        "velocity": 0.0003302595679729892,
+        "pressure": 0.0018111998671566062,
+        "mesh_displacement": 0.00024366279213613063
+      },
+      "solid": {
+        "velocity": 0.004514825352293002,
+        "displacement": 0.0036713300908057483
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.00014915000360388484,
+          "relative_mean_drift": 3.820269451679909e-05,
+          "relative_max": 0.00023335351019343128,
+          "mean": 0.000700936710018198,
+          "amplitude": 3.5174932608403656e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.00014916582568889848,
+          "relative_mean_drift": 3.8189442667230233e-05,
+          "relative_max": 0.00023333400545055838,
+          "mean": 1.0007006283053412,
+          "amplitude": 3.517091526072935e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.00015808755872724338,
+          "relative_mean_drift": 1.1197056693281886e-05,
+          "relative_max": 0.0002297868851929702,
+          "mean": 0.010000119032587067,
+          "amplitude": 0.0027891504085042792
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 35,
+      "fluid": {
+        "velocity": 0.00029401150258736674,
+        "pressure": 0.001448781278405031,
+        "mesh_displacement": 0.00021124649155087078
+      },
+      "solid": {
+        "velocity": 0.0035656338529257907,
+        "displacement": 0.003102346544017224
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.00013208852153834996,
+          "relative_mean_drift": 1.8532778143516194e-05,
+          "relative_max": 0.0001945735326525956,
+          "mean": 0.0007009348567403836,
+          "amplitude": 3.5185725074150754e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.0001321075187030896,
+          "relative_mean_drift": 1.850429061714398e-05,
+          "relative_max": 0.00019461162237277563,
+          "mean": 1.0007006264549123,
+          "amplitude": 3.518170520455666e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.00012969588011381888,
+          "relative_mean_drift": 2.8463905534949056e-05,
+          "relative_max": 0.00020979406751536062,
+          "mean": 0.009999834393531717,
+          "amplitude": 0.0027885258147784687
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 36,
+      "fluid": {
+        "velocity": 0.0002615736340845928,
+        "pressure": 0.0011044768805319083,
+        "mesh_displacement": 0.00016981539285436183
+      },
+      "solid": {
+        "velocity": 0.0032253743879576513,
+        "displacement": 0.002779503313511484
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 0.00011428120542910407,
+          "relative_mean_drift": 3.635236994950074e-06,
+          "relative_max": 0.00016576117018276063,
+          "mean": 0.0007009344932166841,
+          "amplitude": 3.517892438954209e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 0.00011428366021562204,
+          "relative_mean_drift": 3.6632760019861266e-06,
+          "relative_max": 0.00016576348293995125,
+          "mean": 1.0007006260885847,
+          "amplitude": 3.517491313720367e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 0.00011017563728312741,
+          "relative_mean_drift": 2.8741627425600422e-05,
+          "relative_max": 0.00018241107859039846,
+          "mean": 0.010000121809805973,
+          "amplitude": 0.002788422077740835
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 37,
+      "fluid": {
+        "velocity": 0.00020780450192717562,
+        "pressure": 0.0012469362243870707,
+        "mesh_displacement": 0.0001599492149699321
+      },
+      "solid": {
+        "velocity": 0.0027618135336759113,
+        "displacement": 0.0022593276349011436
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 9.328464358966737e-05,
+          "relative_mean_drift": 1.841516166738398e-05,
+          "relative_max": 0.0001414713950143292,
+          "mean": 0.0007009363347328508,
+          "amplitude": 3.517989116669977e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 9.328938271899593e-05,
+          "relative_mean_drift": 1.8430579232925348e-05,
+          "relative_max": 0.00014155601357757064,
+          "mean": 1.0007006279316426,
+          "amplitude": 3.517586837176179e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 9.66325992941424e-05,
+          "relative_mean_drift": 1.6533727292821642e-05,
+          "relative_max": 0.00013973224490450992,
+          "mean": 0.009999956472533045,
+          "amplitude": 0.002788945219449018
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 38,
+      "fluid": {
+        "velocity": 0.00018596748475807335,
+        "pressure": 0.0008260873634685604,
+        "mesh_displacement": 0.00012985348233639351
+      },
+      "solid": {
+        "velocity": 0.002598190219805995,
+        "displacement": 0.0019511898561648154
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 7.850959779919829e-05,
+          "relative_mean_drift": 2.1337154801346535e-05,
+          "relative_max": 0.00011798945469417531,
+          "mean": 0.0007009342010173707,
+          "amplitude": 3.518354990407046e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 7.851473325264587e-05,
+          "relative_mean_drift": 2.1337047441394308e-05,
+          "relative_max": 0.0001180172692905046,
+          "mean": 1.0007006257979378,
+          "amplitude": 3.5179535401330675e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 8.51347007954785e-05,
+          "relative_mean_drift": 8.321043739638258e-07,
+          "relative_max": 0.00013678809058087493,
+          "mean": 0.009999964793576784,
+          "amplitude": 0.00278838198655021
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 39,
+      "fluid": {
+        "velocity": 0.0001506634081887563,
+        "pressure": 0.0008362309205697352,
+        "mesh_displacement": 0.00011085473264137515
+      },
+      "solid": {
+        "velocity": 0.002193505877734709,
+        "displacement": 0.0016918767516079002
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 6.861377945460983e-05,
+          "relative_mean_drift": 1.4493208279229026e-05,
+          "relative_max": 0.00010536975922760365,
+          "mean": 0.0007009356503381986,
+          "amplitude": 3.517818845987387e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 6.862529889527195e-05,
+          "relative_mean_drift": 1.4481078974837303e-05,
+          "relative_max": 0.00010534561889485872,
+          "mean": 1.0007006272460457,
+          "amplitude": 3.517417159693004e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 6.986673244608825e-05,
+          "relative_mean_drift": 1.115086900362603e-05,
+          "relative_max": 0.00010699101594228988,
+          "mean": 0.010000076302266821,
+          "amplitude": 0.0027888136461552693
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 40,
+      "fluid": {
+        "velocity": 0.00013601311796587848,
+        "pressure": 0.0007202741829739158,
+        "mesh_displacement": 9.565613730103401e-05
+      },
+      "solid": {
+        "velocity": 0.002091569364699286,
+        "displacement": 0.001453019336181109
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 6.121726861134693e-05,
+          "relative_mean_drift": 3.3431430398867234e-06,
+          "relative_max": 9.214502790996781e-05,
+          "mean": 0.0007009353160238946,
+          "amplitude": 3.518265013429712e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 6.122070229161421e-05,
+          "relative_mean_drift": 3.328316875578219e-06,
+          "relative_max": 9.213252605277944e-05,
+          "mean": 1.0007006269132142,
+          "amplitude": 3.5178629480769885e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 5.871875644464135e-05,
+          "relative_mean_drift": 1.5090805695896169e-05,
+          "relative_max": 8.902112568053705e-05,
+          "mean": 0.009999925394209862,
+          "amplitude": 0.0027887841359549785
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 41,
+      "fluid": {
+        "velocity": 0.00012583805212024846,
+        "pressure": 0.0005577849885263337,
+        "mesh_displacement": 7.483570110712301e-05
+      },
+      "solid": {
+        "velocity": 0.0018170082495350607,
+        "displacement": 0.0012371013173226597
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 5.084713399213743e-05,
+          "relative_mean_drift": 6.204708574255907e-06,
+          "relative_max": 7.425713829207689e-05,
+          "mean": 0.0007009346955530372,
+          "amplitude": 3.518097432396298e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 5.084895724730105e-05,
+          "relative_mean_drift": 6.213852071779158e-06,
+          "relative_max": 7.423171854981092e-05,
+          "mean": 1.0007006262918288,
+          "amplitude": 3.5176958851690365e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 5.0735453066603306e-05,
+          "relative_mean_drift": 1.1664191132339545e-05,
+          "relative_max": 8.428205412903261e-05,
+          "mean": 0.010000042036121187,
+          "amplitude": 0.0027885934530997923
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 42,
+      "fluid": {
+        "velocity": 0.00010096232339690232,
+        "pressure": 0.0005510022798445072,
+        "mesh_displacement": 7.12254383818848e-05
+      },
+      "solid": {
+        "velocity": 0.001693295566636295,
+        "displacement": 0.0010853643692385032
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 4.1955061695684654e-05,
+          "relative_mean_drift": 1.0503087693384581e-05,
+          "relative_max": 6.526686261213409e-05,
+          "mean": 0.0007009357458618065,
+          "amplitude": 3.518000873051425e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 4.1958458619265e-05,
+          "relative_mean_drift": 1.0503829611652193e-05,
+          "relative_max": 6.52498921560607e-05,
+          "mean": 1.0007006273422119,
+          "amplitude": 3.51759893374437e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 4.562304204262916e-05,
+          "relative_mean_drift": 3.884884791750207e-06,
+          "relative_max": 6.855984747353161e-05,
+          "mean": 0.010000003187273268,
+          "amplitude": 0.0027889865986203185
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 43,
+      "fluid": {
+        "velocity": 9.345757260267946e-05,
+        "pressure": 0.00045334607231990655,
+        "mesh_displacement": 6.078180783497748e-05
+      },
+      "solid": {
+        "velocity": 0.0015716753390936466,
+        "displacement": 0.0009243558079770789
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 3.6060589217184054e-05,
+          "relative_mean_drift": 9.157101323631784e-06,
+          "relative_max": 5.426519006607004e-05,
+          "mean": 0.0007009348301516741,
+          "amplitude": 3.518273774524513e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 3.606562505395369e-05,
+          "relative_mean_drift": 9.151918303057505e-06,
+          "relative_max": 5.427922333822721e-05,
+          "mean": 1.00070062642702,
+          "amplitude": 3.517871998204303e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 3.8089589458050236e-05,
+          "relative_mean_drift": 3.6519467104217224e-06,
+          "relative_max": 6.257193442636005e-05,
+          "mean": 0.009999966667806164,
+          "amplitude": 0.0027886982112915295
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 44,
+      "fluid": {
+        "velocity": 7.293976792172331e-05,
+        "pressure": 0.0003690939948295329,
+        "mesh_displacement": 5.2332839450457835e-05
+      },
+      "solid": {
+        "velocity": 0.0013125402158288928,
+        "displacement": 0.0008407408823633207
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 3.2127970568251175e-05,
+          "relative_mean_drift": 4.165015585678959e-06,
+          "relative_max": 4.635057893054295e-05,
+          "mean": 0.0007009352466532327,
+          "amplitude": 3.5180034063073975e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 3.213199128618977e-05,
+          "relative_mean_drift": 4.1578930229380084e-06,
+          "relative_max": 4.6361614547407726e-05,
+          "mean": 1.0007006268428094,
+          "amplitude": 3.517601573654883e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 3.132154627684654e-05,
+          "relative_mean_drift": 7.681963027372389e-06,
+          "relative_max": 5.5054836474097146e-05,
+          "mean": 0.010000043487436439,
+          "amplitude": 0.0027888393877761298
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 45,
+      "fluid": {
+        "velocity": 6.003003490089345e-05,
+        "pressure": 0.00035022319595640067,
+        "mesh_displacement": 4.502335480614924e-05
+      },
+      "solid": {
+        "velocity": 0.0012741376977791663,
+        "displacement": 0.0007266922498988086
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 2.7682166554318206e-05,
+          "relative_mean_drift": 1.229181640403454e-06,
+          "relative_max": 4.346838404739421e-05,
+          "mean": 0.0007009353695713968,
+          "amplitude": 3.518165978757051e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 2.7683161245945055e-05,
+          "relative_mean_drift": 1.2356461687179632e-06,
+          "relative_max": 4.3480230527137564e-05,
+          "mean": 1.0007006269663739,
+          "amplitude": 3.517764099181253e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 2.6759309146394792e-05,
+          "relative_mean_drift": 7.327011587026782e-06,
+          "relative_max": 4.1286647097481255e-05,
+          "mean": 0.009999970217320568,
+          "amplitude": 0.002788909563951611
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 46,
+      "fluid": {
+        "velocity": 6.182462129171135e-05,
+        "pressure": 0.00023825691513766647,
+        "mesh_displacement": 3.712490954279285e-05
+      },
+      "solid": {
+        "velocity": 0.001062470254788542,
+        "displacement": 0.0005999457711672393
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 2.2525484862699444e-05,
+          "relative_mean_drift": 4.640432690603802e-06,
+          "relative_max": 3.347436215695408e-05,
+          "mean": 0.0007009349055281277,
+          "amplitude": 3.518156290919274e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 2.2526471554812966e-05,
+          "relative_mean_drift": 4.643991267927472e-06,
+          "relative_max": 3.348815447168363e-05,
+          "mean": 1.0007006265019747,
+          "amplitude": 3.5177545381070985e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 2.365659745278022e-05,
+          "relative_mean_drift": 3.871586418812019e-06,
+          "relative_max": 3.8634229079098636e-05,
+          "mean": 0.010000008933184756,
+          "amplitude": 0.0027887436884306456
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 47,
+      "fluid": {
+        "velocity": 5.279525897362851e-05,
+        "pressure": 0.00024552665958328673,
+        "mesh_displacement": 3.179725421835475e-05
+      },
+      "solid": {
+        "velocity": 0.001073127361110369,
+        "displacement": 0.00051556449098472
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 1.915583514329843e-05,
+          "relative_mean_drift": 5.09177821236534e-06,
+          "relative_max": 3.072396223178196e-05,
+          "mean": 0.0007009354147059489,
+          "amplitude": 3.5180551152671135e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 1.9157167208178808e-05,
+          "relative_mean_drift": 5.091665283840641e-06,
+          "relative_max": 3.071709331337047e-05,
+          "mean": 1.0007006270111414,
+          "amplitude": 3.517653230855622e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 2.08874361347732e-05,
+          "relative_mean_drift": 1.439606179206329e-07,
+          "relative_max": 3.051607230554476e-05,
+          "mean": 0.010000010372790935,
+          "amplitude": 0.002788899859124014
+        }
+      },
+      "consecutive_passes": 0
+    },
+    {
+      "cycle": 48,
+      "fluid": {
+        "velocity": 3.9424252326970876e-05,
+        "pressure": 0.00020867880575490866,
+        "mesh_displacement": 2.8263820945620298e-05
+      },
+      "solid": {
+        "velocity": 0.0009119343545416889,
+        "displacement": 0.0004739536701386422
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 1.6733548859374566e-05,
+          "relative_mean_drift": 3.2597533434816487e-06,
+          "relative_max": 2.5910866478665376e-05,
+          "mean": 0.0007009350887306146,
+          "amplitude": 3.518189517600419e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 1.6736564134703463e-05,
+          "relative_mean_drift": 3.256663810152771e-06,
+          "relative_max": 2.5906916611972974e-05,
+          "mean": 1.000700626685475,
+          "amplitude": 3.517787682338902e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 1.6913464459145327e-05,
+          "relative_mean_drift": 2.9467242622430157e-06,
+          "relative_max": 2.5780758195620423e-05,
+          "mean": 0.009999980905548312,
+          "amplitude": 0.0027887915091329577
+        }
+      },
+      "consecutive_passes": 1
+    },
+    {
+      "cycle": 49,
+      "fluid": {
+        "velocity": 4.02834882887895e-05,
+        "pressure": 0.00016277482015757694,
+        "mesh_displacement": 2.2689661939386803e-05
+      },
+      "solid": {
+        "velocity": 0.0008722559453599358,
+        "displacement": 0.00041371256404044125
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 1.4880902249111127e-05,
+          "relative_mean_drift": 5.355369801674517e-07,
+          "relative_max": 2.110108091079102e-05,
+          "mean": 0.0007009351422843127,
+          "amplitude": 3.518081805640213e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 1.4881354838795596e-05,
+          "relative_mean_drift": 5.31671182774085e-07,
+          "relative_max": 2.1088930601820266e-05,
+          "mean": 1.000700626738642,
+          "amplitude": 3.51768006277009e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 1.434268830892859e-05,
+          "relative_mean_drift": 3.647174427077397e-06,
+          "relative_max": 2.4846229848898838e-05,
+          "mean": 0.010000017377292583,
+          "amplitude": 0.0027887987414136383
+        }
+      },
+      "consecutive_passes": 2
+    },
+    {
+      "cycle": 50,
+      "fluid": {
+        "velocity": 3.155152155070755e-05,
+        "pressure": 0.0001795612898271556,
+        "mesh_displacement": 2.18088229504749e-05
+      },
+      "solid": {
+        "velocity": 0.0008383701706744401,
+        "displacement": 0.00034132086518811423
+      },
+      "observations": {
+        "area_displacement_y": {
+          "relative_rms": 1.2224422469073856e-05,
+          "relative_mean_drift": 1.6916309188154367e-06,
+          "relative_max": 1.8328552065828563e-05,
+          "mean": 0.0007009353114474045,
+          "amplitude": 3.518119727683594e-05
+        },
+        "endpoint_volume": {
+          "relative_rms": 1.2224732995794145e-05,
+          "relative_mean_drift": 1.69434575744698e-06,
+          "relative_max": 1.8324957107296314e-05,
+          "mean": 1.0007006269080767,
+          "amplitude": 3.517717851075908e-05
+        },
+        "endpoint_outlet_flow": {
+          "relative_rms": 1.2288420428405657e-05,
+          "relative_mean_drift": 2.7100587405658302e-06,
+          "relative_max": 2.0663718550487098e-05,
+          "mean": 0.009999990276705178,
+          "amplitude": 0.0027888277118763884
+        }
+      },
+      "mass_budget": {
+        "final_defect": -7.389279813789333e-09,
+        "max_absolute_defect": 2.5261795765527204e-08,
+        "integrated_net_flow": 0.000665441437699684,
+        "volume_change": 0.0006654488269794978
+      },
+      "consecutive_passes": 3
+    }
+  ],
+  "checkpoint_generation": "generation_1793713514380407853"
+}

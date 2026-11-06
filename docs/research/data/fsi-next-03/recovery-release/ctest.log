@@ -1,0 +1,82 @@
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+UpdateCTestConfiguration  from :/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+UpdateCTestConfiguration  from :/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+SetCTestConfiguration:SourceDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+Test project /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 28
+    Start 28: fsi_periodic
+
+28: Test command: /workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_periodic.py" "--executable" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/eonsim" "--mpiexec" "/workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/fsi_periodic"
+28: Working Directory: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+28: Environment variables: 
+28:  OMP_NUM_THREADS=1
+28:  OPENBLAS_NUM_THREADS=1
+28:  MKL_NUM_THREADS=1
+28: Test timeout computed to be: 600
+28: 1/2/4 rank fields, nonconvergence, definition rejection and cycle continuation passed
+1/4 Test #28: fsi_periodic .....................   Passed    6.85 sec
+test 29
+    Start 29: fsi_flow
+
+29: Test command: /workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_flow.py" "--executable" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/eonsim" "--mpiexec" "/workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/fsi_flow"
+29: Working Directory: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+29: Environment variables: 
+29:  OMP_NUM_THREADS=1
+29:  OPENBLAS_NUM_THREADS=1
+29:  MKL_NUM_THREADS=1
+29: Test timeout computed to be: 600
+29: {"be": {"stage_mass_residual": 4.336808689942018e-18, "secant_mass_residual": 2.298014209478616e-13, "area_displacement_y": 0.00015738422347693612}, "bdf2": {"stage_mass_residual": 4.336808689942018e-18, "secant_mass_residual": 0.0013851289786423384, "area_displacement_y": 0.00015504886878715398}, "generalized_alpha": {"stage_mass_residual": 5.204170427930421e-18, "secant_mass_residual": 0.0006625033902744491, "area_displacement_y": 0.00015435041230509253}, "jacobian_relative_error": 1.03756e-07, "retry_accepted_dt": 7.8125e-06}
+2/4 Test #29: fsi_flow .........................   Passed    6.03 sec
+test 30
+    Start 30: fsi_inlet
+
+30: Test command: /workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_inlet.py" "--executable" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/eonsim" "--mpiexec" "/workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/fsi_inlet"
+30: Working Directory: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+30: Environment variables: 
+30:  OMP_NUM_THREADS=1
+30:  OPENBLAS_NUM_THREADS=1
+30:  MKL_NUM_THREADS=1
+30: Test timeout computed to be: 600
+30: FSI inlet three schemes, startup/endpoints, MPI, histories, diagnostics and Jacobians passed
+3/4 Test #30: fsi_inlet ........................   Passed    9.29 sec
+test 44
+    Start 44: fsi_pressure_state
+
+44: Test command: /workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_pressure.py" "--executable" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/eonsim" "--mpiexec" "/workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--checks" "state" "--work" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/fsi_pressure_state"
+44: Working Directory: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+44: Environment variables: 
+44:  OMP_NUM_THREADS=1
+44:  OPENBLAS_NUM_THREADS=1
+44:  MKL_NUM_THREADS=1
+44: Test timeout computed to be: 1200
+44: FSI pressure state/history/MPI/Jacobian/retry checks passed
+4/4 Test #44: fsi_pressure_state ...............   Passed    9.05 sec
+
+The following tests passed:
+	fsi_periodic
+	fsi_flow
+	fsi_inlet
+	fsi_pressure_state
+
+100% tests passed out of 4
+
+Label Time Summary:
+core      =  18.10 sec*proc (1 test)
+rank-1    =  76.16 sec*proc (4 tests)
+rank-2    =  57.57 sec*proc (3 tests)
+rank-4    =  27.40 sec*proc (1 test)
+
+Total Test time (real) =  31.23 sec

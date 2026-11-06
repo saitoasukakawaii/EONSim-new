@@ -1,0 +1,60 @@
+{
+  "periodic": {
+    "fixed-n2-dt001": {
+      "cycle": 77,
+      "converged": true
+    },
+    "fixed-n2-dt0005": {
+      "cycle": 88,
+      "converged": true
+    },
+    "fixed-n4-dt001": {
+      "cycle": 39,
+      "converged": true
+    },
+    "fixed-n4-dt0005": {
+      "cycle": 49,
+      "converged": true
+    },
+    "fixed-n8-dt001": {
+      "cycle": 31,
+      "converged": true
+    },
+    "fixed-n8-dt0005": {
+      "cycle": 3,
+      "converged": false
+    }
+  },
+  "temporal": {
+    "2": {
+      "fluid_velocity": 9.676462412088484e-07,
+      "fluid_pressure": 7.312078205530146e-05,
+      "fluid_mesh_displacement": 1.8132169849502906e-08,
+      "solid_velocity": 1.0035259166211152e-05,
+      "solid_displacement": 4.631371847338801e-08
+    },
+    "4": {
+      "fluid_velocity": 1.8321123660239198e-06,
+      "fluid_pressure": 2.634791233255222e-05,
+      "fluid_mesh_displacement": 3.013499312829991e-08,
+      "solid_velocity": 9.045950069592343e-06,
+      "solid_displacement": 9.934063679702112e-08
+    }
+  },
+  "spatial": {
+    "2-4": {
+      "fluid_velocity": 0.006182271595054483,
+      "fluid_pressure": 0.13220718080809216,
+      "fluid_mesh_displacement": 0.00019648888695893187,
+      "solid_velocity": 0.0031584089503798067,
+      "solid_displacement": 0.0002675410013275542
+    },
+    "4-8": {
+      "fluid_velocity": 0.0014309992452936305,
+      "fluid_pressure": 0.026703744858554524,
+      "fluid_mesh_displacement": 5.264896603813754e-05,
+      "solid_velocity": 0.0017518328371253793,
+      "solid_displacement": 0.0001227704671728105
+    }
+  }
+}
