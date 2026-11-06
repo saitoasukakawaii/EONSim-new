@@ -45,3 +45,16 @@ $$
 - 比较单元刚度矩阵和全局稀疏矩阵。
 - 用有限差分方向导数检查单元 Jacobian。
 - 解释近不可压缩材料为什么可能产生体积锁死。
+
+## EONSim 当前实现：P2 标量空间
+
+EONSim 除了三维 Tet4/P1 多物理场路径，还实现了一个二维标量有限元闭环：几何仍为直边 Tri3，标量场可采用六节点二次 Lagrange P2 空间。新增的边中点是场自由度，不是曲边几何节点；边实体身份由原始端点 ID 对确定，不能用浮点坐标相等来合并实体。
+
+目前已合入的 P2 功能包括：
+
+- 稳态 Poisson 的 Dirichlet/Neumann 边界与共享边自由度分区。
+- Robin 边界及纯 Neumann 问题的相容性、常数零空间和有限元体积均值处理。
+- 瞬态扩散的一致质量矩阵、Backward Euler、变步 BDF2 和一阶 generalized-alpha。
+- P2 场身份签名、同分区完整历史恢复、接受步输出与失败路径检查。
+
+实现范围、边界符号和可复现命令见 [SCALAR_2D 实施说明](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/development/SCALAR_2D.md)。相关 PR #27/#28/#29 的 PETSc 3.23.7 云端 Debug/Release 选测分别为 19/19、10/10、15/15；这些不是全量测试或性能基准。P2 文章仍处于人工审核草稿状态。

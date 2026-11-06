@@ -63,17 +63,11 @@ PR #35 已由远端合并，基线为 `815755eb15ffb63299487e8f9163ddc9d242a2f2`
 
 更新时间：2026-11-03（Asia/Shanghai）
 
-### 首个实施检查点：尚未整体完成
+## FSI-NEXT-02 已合入检查点 / 2026-11-03
 
-新增 `scripts/fsi_cycle_metrics.py` 和四项合成历史验证（全部通过）；仅标量后处理，不能据此宣称完整场周期性。仓库编译脚本完成 Release 编译和 fsi_flow 1/1；首次 LLVM OpenMP 启动断言失败原样保留，使用上一轮PID隔离办法后通过，精确底层根因未证实。30周期2-rank/n=2/dt=.001固定tau与默认tau对照已完成，末周期位移归一化RMS差分别1.77e-4/1.55e-4（尺度1e-4），均值约4.489e-4/5.642e-4，差约26%。这不是空间收敛、完整场周期性或稳定化错误的证明。
-
-证据 `docs/research/data/fsi-next-03/`。下一步：完整场多相位采样与停止/续算，再建立稳定化受控的时空误差矩阵；剩余验收仍见任务队列。没有创建PR。48小时预算未声称耗尽，当前也没有已确认不可解决的阻塞。
-
-## FSI-NEXT-02 当前检查点 / 2026-11-03
-
-实现 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`，基线 main `b2755b6`，独立分支 `codex/fsi-next-02-periodic-flow`。周期离散总流量入口、无滑移弹性壁通道与独立表面/体积质量诊断已实现，本地验收和自审完成；状态 review，[PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33) 已完成自动CI，未合并，不自动合并。[数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424335) Debug/Release各29/29通过，零失败/零跳过；[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424264)通过。
-Debug/Release 新 flow 各1/1与旧入口/压力各2项通过；三时间格式、1/2 rank、恢复、非法输入、整体Jv、真实9次缩步重放及零形状拒绝均有证据。Release 六周期、三网格/三步长最大阶段质量残差3.08e-16；累计体积误差随dt减小。空间渐近收敛及严格周期稳态尚未证明，不作性能或大规模结论。
-[能力说明](FSI_PERIODIC_FLOW.md)、[完整验收与失败记录](../research/data/fsi-flow-2026-11-03/README.md)。本地与API提交tree一致；不把元数据差异视为数值结果变化。FSI-NEXT-01 已经 PR #32 合入 `b2755b6`；下文其未合并描述仅是历史检查点。
+实现 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`，基线 main `b2755b6`，独立分支 `codex/fsi-next-02-periodic-flow`。周期离散总流量入口、无滑移弹性壁通道与独立表面/体积质量诊断已实现，本地验收和自审完成；[PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33) 已合入 main，合并提交为 `4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e`。
+[数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424335) PETSc 3.23.7 Debug/Release 各29/29通过，零失败/零跳过；[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424264)通过。Debug/Release 新 flow 各1/1与旧入口/压力各2项通过；三时间格式、1/2 rank、恢复、非法输入、整体Jv、真实9次缩步重放及零形状拒绝均有证据。
+Release 六周期、三网格/三步长最大阶段质量残差3.08e-16；累计体积误差随dt减小。空间渐近收敛及严格周期稳态尚未证明，不作性能或大规模结论。[能力说明](FSI_PERIODIC_FLOW.md)、[完整验收与失败记录](../research/data/fsi-flow-2026-11-03/README.md)。
 
 ## 历史集成交付：G0B → G0 → G5 → G1 已合入 main
 
@@ -98,7 +92,7 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 ## 项目基线
 
 - 仓库：saitoasukakawaii/EONSim-new
-- 当前任务基线 main：`06b05c4`（PR #31 已合并）；本分支源码检查点 `32783a5`。早期整合证据按其原提交保留。
+- 当前 main：`4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e`（FSI-NEXT-02 / PR #33 合并提交）。各历史任务的原始基线与证据仍按对应章节保留。
 - 软件：C++17、MPI、PETSc、三维 Tet4/P1 多物理场及 Tri3/Quad4 二维标量有限元求解器。
 - 已交付主线：P0–P8 与 B0–B5 小算例基线；不代表已完成大规模生产扩展。
 - 公开知识网站：website/，VitePress；只有合并到 main 的正式栏目内容进入生产网站。
@@ -124,7 +118,7 @@ G0性能72样本对应原检查点，小问题直接解更快；没有新的G1�
 
 ## FSI-NEXT-01 及此前任务的历史检查点
 
-FSI-NEXT-01：基线 `06b05c4`，分支 `codex/fsi-inlet-reliability`，生产实现 `0d93d41`/`69692ee`，最终研究脚本 `32783a5`。固定非零速度入口、弹性顶壁、分布式面积观测与阶段/终点几何检查已完成。本地 PETSc 3.23.7 Debug/Release 各 5 项（4 项主检查 + 1 项旧弹性体补验） 定向检查通过；分场时间研究通过，空间轨迹的时间差/最后空间差为 9.51%；Release 性能完成 10 预热 + 30 正式样本，最多 4 rank。小网格直接法更快，较大网格分块内存更低但无稳定加速结论。全部本地验收与记录完成后创建 PR，尚未合并。见 [能力契约](FSI_INLET_AND_RELIABILITY.md) 与 [验收记录](../research/data/fsi-next-2026-11-03/README.md)。
+FSI-NEXT-01：基线 `06b05c4`，分支 `codex/fsi-inlet-reliability`，生产实现 `0d93d41`/`69692ee`，最终研究脚本 `32783a5`。固定非零速度入口、弹性顶壁、分布式面积观测与阶段/终点几何检查已完成。本地 PETSc 3.23.7 Debug/Release 各 5 项（4 项主检查 + 1 项旧弹性体补验） 定向检查通过；分场时间研究通过，空间轨迹的时间差/最后空间差为 9.51%；Release 性能完成 10 预热 + 30 正式样本，最多 4 rank。小网格直接法更快，较大网格分块内存更低但无稳定加速结论。已通过 PR #32 合入 main（merge commit `b2755b6`）；此处保留其实现/验证来源和历史测量边界。见 [能力契约](FSI_INLET_AND_RELIABILITY.md) 与 [验收记录](../research/data/fsi-next-2026-11-03/README.md)。
 
 FSI-LOAD-01 已通过 [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31) 在远端合并为 `06b05c4`，本 agent 未执行合并。实现 `a6c6761` 的平滑周期压力、共同阶段取值、缩步/签名和接受步历史已交付；原云端 Debug/Release 各 24/24 与网站通过证据仍见 [验收记录](../research/data/fsi-pressure-2026-11-03/README.md)。本轮只重跑受影响的 `fsi_pressure_state`，其余复用历史通过证据，本次未运行。
 
@@ -135,14 +129,14 @@ FEM-G2B：基线 c0745ea，分支 codex/p2-boundary-extension，源码 d6ec424�
 
 FEM-G2A 已合入 main（c0745ea），原实施基线 main `35bf1a1`，分支 `codex/fem-g2a-p2`。代码 edfc73c 已接入共享边空间、HDF5 分区、P2 稳态 D/N 求解及二次 VTU/PVTU；本地 Debug 1/2 rank 数值验证通过，[PR #27](https://github.com/saitoasukakawaii/EONSim-new/pull/27) 云端 Debug/Release 各 19/19 相关检查通过，任务 done，2026-11-01 已合入 main（c0745ea）。PR #26 已合并；下述待审描述属于合并前检查点。
 
-CI-INCREMENTAL-01 已实现并在 [PR #26](https://github.com/saitoasukakawaii/EONSim-new/pull/26) 待审（review，未合并）；分支 `codex/pr-incremental-ci`，实现提交 `8f695cc`，含约束提交 `ef20e03`。自动数值 CI 仅 PR 选测，文档/证据后续提交可复用同 PR 成功记录；全量仅手动显式选择。云端首次 Debug/Release 各仅 poisson_verification 1/1 通过；文档提交 `0072295` 的第二次运行实际零构建、零数值测试，完整继承原来源，见 [首次验收](../research/data/ci-incremental-2026-10-31/initial.json)与[复用验收](../research/data/ci-incremental-2026-10-31/reuse.json)。本地 24 项选测/receipt 测试与 6 项证据解析通过，另补 2 项手动入口测试通过；未运行全量、旧锁数值测试或本地求解器构建。默认 main 行为要在 PR 合并后才改变。
+CI-INCREMENTAL-01 已通过 [PR #26](https://github.com/saitoasukakawaii/EONSim-new/pull/26) 合入 main（merge commit `35bf1a1`）；分支 `codex/pr-incremental-ci`，实现提交 `8f695cc`，含约束提交 `ef20e03`。自动数值 CI 仅 PR 选测，文档/证据后续提交可复用同 PR 成功记录；全量仅手动显式选择。云端首次 Debug/Release 各仅 poisson_verification 1/1 通过；文档提交 `0072295` 的第二次运行实际零构建、零数值测试，完整继承原来源，见 [首次验收](../research/data/ci-incremental-2026-10-31/initial.json)与[复用验收](../research/data/ci-incremental-2026-10-31/reuse.json)。本地 24 项选测/receipt 测试与 6 项证据解析通过，另补 2 项手动入口测试通过；未运行全量、旧锁数值测试或本地求解器构建。该策略已随 PR #26 合入 main 后生效。
 
 DOCS-01 已通过 PR #25 合入，合并提交 `be21882`；G0B/G0/G5/G1 与 PR #24 工程策略保持已交付。当前 main tip 以 Git 为准。
 CI-INCREMENTAL-01 将日常数值 CI 改为 PR 选测的 PETSc 3.23.7 Debug/Release；3.19.6 仍仅手动兼容专项，main 上生效以合并为准。合并状态由本地 Git 历史确认，本次未查询 PR #24 的远程 Checks，不能据合并推断其逐项测试结果。
 
 DOCS-01 的开发分支 `codex/markdown-progress-audit` 已合并；范围、逐文件处理与静态验证见 [文档审查记录](MARKDOWN_AUDIT_2026-10-31.md)。
 
-此前 TEST-POLICY-01：仅修改验证约束，不开发、不编译项目。基线 `3df1c31`；约束提交 `ef20e03` 已随 PR #26 推送待审（review，未合入 main）。默认仅检查新增或受影响行为，历史已通过且未受影响的测试不重跑；全量仅在用户明确要求时运行。规则见 [构建与验证](BUILD_AND_VALIDATION.md)。该文档任务未运行构建、数值测试或 CI，也未修改工作流；后续 CI-INCREMENTAL-01 承接自动选测实现。
+此前 TEST-POLICY-01：仅修改验证约束，不开发、不编译项目。基线 `3df1c31`；约束提交 `ef20e03` 已随 PR #26 合入 main（`35bf1a1`）。默认仅检查新增或受影响行为，历史已通过且未受影响的测试不重跑；全量仅在用户明确要求时运行。规则见 [构建与验证](BUILD_AND_VALIDATION.md)。该文档任务未运行构建、数值测试或 CI，也未修改工作流；后续 CI-INCREMENTAL-01 承接自动选测实现。
 
 ## 最近完成
 

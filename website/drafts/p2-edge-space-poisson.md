@@ -41,3 +41,11 @@ Robin 边矩阵为 ∫ α NᵢNⱼ，载荷为 ∫ Nᵢr；α 为正时可独立
 P2 顶点基函数的三角形积分为零，三个边中点基函数积分各为面积的三分之一；因此物理均值由 FE 积分计算，不能用六个节点的算术平均。归一化时只减去常数，梯度保持不变，制造解必须同步减去其积分均值。
 
 源码 d6ec424；本地 Debug/PETSc 3.23.7 执行 scalar_p2_verification，真实 1/2 rank 的全 Robin、纯 Neumann 和用户显式载荷通过；不相容 Neumann 载荷被拒绝。新证据 docs/research/data/p2-boundaries-2026-11-01，PR #28 云端 run 41287626201 的 Debug/Release 各 10 项相关检查通过；不构成性能结论。
+
+## 后续边界扩展与合入状态补记
+
+FEM-G2B 在同一 P2 标量空间上补入 Robin 边迹矩阵，以及纯 Neumann 问题的载荷相容性、常数零空间和有限元体积均值处理。对应实现提交 `d6ec424`，已通过 [PR #28](https://github.com/saitoasukakawaii/EONSim-new/pull/28) 合入 `main`（`1bc87a7`）；云端 PETSc 3.23.7 Debug/Release 各 10/10 项相关检查通过。
+
+此前 FEM-G2A 已通过 [PR #27](https://github.com/saitoasukakawaii/EONSim-new/pull/27) 合入 `main`（`c0745ea`），云端 Debug/Release 各 19/19 项相关检查通过。两组数字均为 PR 变更选择的相关检查，不是全量测试。
+
+本文仍是待人工审核的知识草稿，未移动到 `website/knowledge/`。

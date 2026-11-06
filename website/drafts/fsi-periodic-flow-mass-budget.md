@@ -61,3 +61,11 @@ n=2/3/4 的位移仍有网格敏感性，末周期仍有剩余瞬态；未证明
 练习：对同一张入口网格分别用连续归一化常数与 I_h，比较实际输入流量；再比较 stage 预算、端点梯形累计预算与 secant 混合预算。更高阶单元或移动入口需要重新推导积分和几何时间关系，不能直接套用本实现。
 
 参考入口：本文质量关系由散度定理和移动域体积导数直接推导；项目 [时间契约](../../docs/development/TIME_INTEGRATION.md) 与 [FSI 能力说明](../../docs/development/FSI_PERIODIC_FLOW.md) 给出具体实现范围。未使用未经核实的文献引用。
+
+## 合入状态与云端验收补记（2026-11-03）
+
+实现已通过 [PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33) 合入 `main`，合并提交为 [`4f3a995`](https://github.com/saitoasukakawaii/EONSim-new/commit/4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e)。实现提交仍为 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`。
+
+PR 云端 PETSc 3.23.7 Debug/Release 各 29/29 项相关检查通过，零失败、零跳过；[数值 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424335) 和 [网站/草稿隔离 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424264) 均成功。对应证据保存在 `docs/research/data/fsi-flow-2026-11-03/README.md` 与 `delivery-ci.json`。
+
+本文仍为 draft：源码已合入不代表文章已经过人工编辑审核或进入正式知识栏目。
