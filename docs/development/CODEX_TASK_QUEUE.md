@@ -1,5 +1,23 @@
 # EONSim Codex Task Queue
 
+## FSI-PROD-01 / review / PR #37 / 2026-11-06
+
+用户目标升级为生产级 FSI。主线 `dd27eef` 已合并 PR #36；下方旧 review 状态为历史。
+独立分支 `codex/fsi-production-tube` 实施圆形离散流量入口与共形实体壁圆管，
+验收包含三时间格式、1/2/4 rank、质量/界面/正几何、同分区恢复与非法输入。
+源码远端 `718b7a6` 与本地 `31a04e6` tree 完全一致。仓库脚本/PETSc 3.23.7
+Debug/Release 各两项受影响检查通过（tube 与旧 rectangle flow），网格2项、CI选择26项通过。
+最大1/4 rank场差5.43e-14，续算差0，质量残差1.56e-17，Jacobian差9.92e-9。
+首次负例预期错误及Debug OpenMP启动失败均保留；PID隔离后完整Debug tube通过。
+[本阶段证据](../research/data/fsi-tube-2026-11-06/README.md)。本地验收与自审完成；[PR #37](https://github.com/saitoasukakawaii/EONSim-new/pull/37)
+已创建；[数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42170183765)
+Debug/Release 各31/31通过，零失败/零跳过；网站与增量证据检查通过。
+源码/证据head `29d8082` 的合并预览 `92a28b5` 与本地验收tree完全一致。
+本阶段完成、待人工审查合并；不自动合并。
+[生产路线](FSI_PRODUCTION_ROADMAP.md)；[接口和算例](FSI_CIRCULAR_TUBE.md)。
+下一阶段为定量圆管/默认稳定化资格，再到 RCR/外壁支撑、实际几何与多节点规模。
+
+
 ## FSI-QA-01 / review / 2026-11-06
 
 本轮领取质量预算有效性修复，基线 `815755e`，实现 `80571b102e31dd2e7664a64a39a92efc8402045c`。本地验收完成：拒绝NaN初始状态、非正体积/接受步长、算术溢出；有效非零时间续算保持可用；26项Python检查与9组22400行归档重算通过。仅后处理修改，无新增数值求解或性能结论，等待分支合并。

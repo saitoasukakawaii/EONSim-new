@@ -291,3 +291,11 @@ FSI-LOAD-01 补充：PR #31 已合入 main（`06b05c4`）；云端主锁 Debug/R
 - 小网格直接法更快，较大网格分块内存较低，但不证明大规模加速；无非匹配界面、重网格或生产规模结论。详细未验证边界和人工审查问题留在草稿中。
 
 FSI-NEXT-01 补验：旧镜像弹性体几何路径 Debug/Release 各 1/1；本地两模式各累计 5 项独立检查通过，详见同一验收目录。PR #32 已合入 main（`b2755b6`）；知识草稿仍未发布。
+
+## 2026-11-06 — Circular FSI inlet and conforming tube (draft)
+
+[Discrete inlet flux normalization](../../website/drafts/fsi-circular-inlet-discrete-flux.md).
+Implementation `718b7a6bb97fbb5eed09829a0bb7225d3963ee5f`; mathematical derivation,
+MPI implementation and small-case verification are distinguished. Evidence in
+[data/fsi-tube-2026-11-06](data/fsi-tube-2026-11-06/README.md). No performance or
+physiological accuracy conclusion. Review required; article remains draft.

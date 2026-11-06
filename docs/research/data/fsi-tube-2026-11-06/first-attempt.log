@@ -1,0 +1,86 @@
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release
+UpdateCTestConfiguration  from :/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+UpdateCTestConfiguration  from :/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release
+SetCTestConfiguration:SourceDirectory:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release
+Test project /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 29
+    Start 29: fsi_tube
+
+29: Test command: /workspace/scratch/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_tube.py" "--executable" "/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release/eonsim" "--mpiexec" "/workspace/scratch/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release/fsi_tube"
+29: Working Directory: /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release
+29: Environment variables:
+29:  OMP_NUM_THREADS=1
+29:  OPENBLAS_NUM_THREADS=1
+29:  MKL_NUM_THREADS=1
+29: Test timeout computed to be: 600
+29: Traceback (most recent call last):
+29:   File "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_tube.py", line 75, in <module>
+29:   File "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_tube.py", line 63, in main
+29:     run.solve('changed-waveform',changed,2,['-restart',checkpoint],fail='Checkpoint mesh/partition/physics mismatch')
+29:     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29:   File "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_inlet.py", line 31, in solve
+29:     log=self.command([self.mpi,'-n',ranks,self.exe,'-case',case,'-partition',part,*extra],label,fail)
+29:   File "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_inlet.py", line 23, in command
+29:     if fail: assert r.returncode!=0 and fail in r.stdout,r.stdout[-5000:]
+29:                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29: AssertionError: layout_policy semantic_order=entity_first storage_order=owner_node
+29: EONSim rank 0: FSI inlet validation failed on rank 0: FSI inlet conflicts with homogeneous/interface constraint
+29: status=failed
+29: EONSim rank 1: FSI inlet validation failed on rank 0: FSI inlet conflicts with homogeneous/interface constraint
+29: status=failed
+29: --------------------------------------------------------------------------
+29: MPI_ABORT was invoked on rank 0 in communicator MPI_COMM_WORLD
+29:   Proc: [[58176,1],0]
+29:   Errorcode: 1
+29:
+29: NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+29: You may or may not see output from other processes, depending on
+29: exactly when Open MPI kills them.
+29: --------------------------------------------------------------------------
+29: --------------------------------------------------------------------------
+29: prterun has exited due to process rank 1 with PID 0 on node 00fc98759f84 calling
+29: "abort". This may have caused other processes in the application to be
+29: terminated by signals sent by prterun (as reported here).
+29: --------------------------------------------------------------------------
+29:
+29:
+1/2 Test #29: fsi_tube .........................***Failed   36.11 sec
+test 30
+    Start 30: fsi_flow
+
+30: Test command: /workspace/scratch/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_flow.py" "--executable" "/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release/eonsim" "--mpiexec" "/workspace/scratch/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release/fsi_flow"
+30: Working Directory: /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-release
+30: Environment variables:
+30:  OMP_NUM_THREADS=1
+30:  OPENBLAS_NUM_THREADS=1
+30:  MKL_NUM_THREADS=1
+30: Test timeout computed to be: 600
+30: {"be": {"stage_mass_residual": 4.336808689942018e-18, "secant_mass_residual": 2.298014209478616e-13, "area_displacement_y": 0.00015738422347693612}, "bdf2": {"stage_mass_residual": 4.336808689942018e-18, "secant_mass_residual": 0.0013851289786423384, "area_displacement_y": 0.00015504886878715398}, "generalized_alpha": {"stage_mass_residual": 5.204170427930421e-18, "secant_mass_residual": 0.0006625033902744491, "area_displacement_y": 0.00015435041230509253}, "jacobian_relative_error": 1.03756e-07, "retry_accepted_dt": 7.8125e-06}
+2/2 Test #30: fsi_flow .........................   Passed    8.98 sec
+
+The following tests passed:
+	fsi_flow
+
+50% tests passed, 1 tests failed out of 2
+
+Label Time Summary:
+rank-1    = 162.42 sec*proc (2 tests)
+rank-2    =  17.96 sec*proc (1 test)
+
+Total Test time (real) =  45.10 sec
+
+The following tests FAILED:
+	 29 - fsi_tube (Failed)                                 rank-1
