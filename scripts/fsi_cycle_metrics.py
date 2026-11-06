@@ -47,16 +47,22 @@ def volume_budget(rows, initial_time=0., initial_volume=1., initial_net_flow=0.)
     Initial data must describe the same physical state as the first accepted step.
     """
     if not rows:raise ValueError('Empty mass history')
+    if not all(math.isfinite(x) for x in (initial_time,initial_volume,initial_net_flow)) or initial_volume<=0:
+        raise ValueError('Invalid initial mass state')
     previous_time=initial_time;previous_net=initial_net_flow;integral=0.;maximum=0.
     for row in rows:
         t=row['time'];dt=t-previous_time
         net=row['endpoint_inlet_flow']-row['endpoint_outlet_flow']
         if not all(math.isfinite(x) for x in (t,net,row['endpoint_volume'],row['accepted_dt'])):
             raise ValueError('Nonfinite mass history')
-        if dt<=0 or abs(dt-row['accepted_dt'])>1e-10*max(1.,abs(t)):
+        if row['endpoint_volume']<=0:raise ValueError('Nonpositive mass-history volume')
+        if not math.isfinite(dt) or dt<=0 or row['accepted_dt']<=0 or abs(dt-row['accepted_dt'])>1e-10*max(1.,abs(t)):
             raise ValueError('Gap or duplicate in accepted mass history')
         integral+=dt*(previous_net+net)/2
         defect=integral-(row['endpoint_volume']-initial_volume)
+        # max(0., abs(nan)) is zero: reject invalid arithmetic before reduction.
+        if not math.isfinite(integral) or not math.isfinite(defect):
+            raise ValueError('Nonfinite mass budget')
         maximum=max(maximum,abs(defect));previous_time=t;previous_net=net
     return dict(final_defect=defect,max_absolute_defect=maximum,integrated_net_flow=integral,
                 volume_change=rows[-1]['endpoint_volume']-initial_volume)

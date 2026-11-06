@@ -1,5 +1,38 @@
 # EONSim Codex Session Log
 
+## 2026-11-06 / FSI-QA-01 质量预算有效性修复
+
+- 基线：main `815755eb15ffb63299487e8f9163ddc9d242a2f2`，PR #35已合并。工作区连接两次内部错误，改从GitHub核对后克隆主线；未修改原连接工作区。
+- 源码：`80571b102e31dd2e7664a64a39a92efc8402045c`，分支 `codex/fsi-mass-history-validation`。
+- 复现：一条t=.1、dt=.1、进出流均0、体积1的历史，传入`initial_volume=NaN`，旧函数返回`final_defect=NaN`而`max_absolute_defect=0`。t=1e-12、accepted_dt=-1e-12也通过旧绝对容差检查。
+- 根因：初始质量状态未验证；NaN在max归约中可被掩盖；时间一致性容差没有单独约束接受步长符号。有限输入也可在积分中溢出。
+- 修复：验证初始三标量有限/体积正值，接受体积和步长正值、时间差有限；积分和缺陷在归约前验证有限性。梯形积分公式和既有时间一致性容差不变。
+- 实际测试：`python tests/test_fsi_cycle_metrics.py` 10/10；`python tests/test_fsi_archive.py` 2/2；`python tests/test_fsi_field_cycles.py` 8/8；`python tests/test_fsi_space_metrics.py` 6/6。均为系统Python、无MPI/无PETSc依赖、无C++构建配置。`git diff --check`通过。
+- 归档重算：以下命令实际执行，9组22400行、36个质量预算值精确一致；这是旧求解输出的新后处理验证，不是新的数值求解。C++/PETSc 3.23.7 Debug/Release、MPI以及3.19.6均未运行。
+- 自审：volume_budget所有调用者共享修复；正常非零起始时间/非零初始通量续算通过；归档和原收据未改写。无独立审查，不推断既有数值证据曾含异常状态。
+- 文档生成曾因嵌套here-document结束标记冲突失败，确认无文件变更后改用结构化补丁。代码修复没有失败尝试。
+- 知识：补入既有周期FSI草稿，保持draft，无新架构决策。
+
+```sh
+python - <<'PY'
+import csv,gzip,json,sys
+from pathlib import Path
+sys.path.insert(0,'scripts')
+from fsi_cycle_metrics import volume_budget
+root=Path('docs/research/data/fsi-next-03/time-accuracy-final')
+count=0
+for expected in json.loads((root/'mass-convergence.json').read_text()):
+    name=f"{expected['scheme']}-{round(.1/expected['dt'])}"
+    with gzip.open(root/name/'flow.csv.gz','rt') as stream:
+        rows=[{k:float(v) for k,v in r.items()} for r in csv.DictReader(stream)]
+    result=volume_budget(rows)
+    assert all(result[k]==expected[k] for k in result),(name,result,expected)
+    count+=len(rows)
+    print(name,len(rows),'rows: exact match')
+print('PASS: 9 archived histories,',count,'accepted rows; all 36 budget values unchanged')
+PY
+```
+
 
 ## 2026-11-05 / FSI-NEXT-03 验收与PR #35交付
 

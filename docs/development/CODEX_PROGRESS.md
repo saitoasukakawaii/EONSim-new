@@ -1,5 +1,9 @@
 # EONSim Codex Development Progress
 
+## FSI-QA-01 / review / 2026-11-06
+
+PR #35 已由远端合并，基线为 `815755eb15ffb63299487e8f9163ddc9d242a2f2`；下方“未合入main”为历史。完成有界修复 FSI-QA-01：质量预算拒绝非有限初始状态、非正体积/接受步长及累积算术溢出，源码 `80571b102e31dd2e7664a64a39a92efc8402045c`。26项相关Python检查通过；9组归档时间研究的22400条接受步重新分析，36个预算值与原收据精确一致。未重跑C++/PETSc/MPI求解；默认τ数值资格仍未完成，不改变原数值结论。独立分支 `codex/fsi-mass-history-validation`，尚未合并。
+
 
 ## FSI-NEXT-03 / PR #35验收通过 / 2026-11-05
 
