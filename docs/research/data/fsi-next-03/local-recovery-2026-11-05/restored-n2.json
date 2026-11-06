@@ -1,0 +1,41 @@
+{
+  "archive_sha256": "a4fee66b73ce6aff98e28bdc727a94bd44b5d8ac2be0528f5cf3db2b2cb46f13",
+  "restored_to": "/home/tfblab633/EONSim-next03-20261105/fixed-n2-dt001",
+  "files_verified": 878,
+  "source_fingerprints_match": true,
+  "audit": {
+    "last_cycle": 77,
+    "pressure_checks": {
+      "75": {
+        "relative_max": 0.0003636411210933277,
+        "relative_mean_drift": 1.3716499978236318e-05
+      },
+      "76": {
+        "relative_max": 0.00034589769239423696,
+        "relative_mean_drift": 1.367388669716585e-06
+      },
+      "77": {
+        "relative_max": 0.0003320130922329634,
+        "relative_mean_drift": 1.2851288999089772e-05
+      }
+    },
+    "boundary_errors": {
+      "rigid_velocity": 0.0,
+      "interface_velocity": 0.0,
+      "interface_displacement": 0.0
+    },
+    "mass_budget": {
+      "final_defect": -6.8142860931296075e-09,
+      "max_absolute_defect": 2.149890787494531e-08,
+      "integrated_net_flow": 0.0004123292928514411,
+      "volume_change": 0.0004123361071375342
+    },
+    "flow_balance": {
+      "stage_mass": 7.15573433840433e-18,
+      "surface_divergence": 7.697835424647081e-18,
+      "inlet_flow": 1.8388068845354155e-16,
+      "minimum_j": 0.9975024991345985
+    },
+    "accepted_rows": 7700
+  }
+}

@@ -1,0 +1,42 @@
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+UpdateCTestConfiguration  from :/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+UpdateCTestConfiguration  from :/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+SetCTestConfiguration:SourceDirectory:/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+Test project /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 28
+    Start 28: fsi_periodic
+
+28: Test command: /workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/b8438b07bb94/EONSim-new/tests/verify_fsi_periodic.py" "--executable" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/eonsim" "--mpiexec" "/workspace/scratch/b8438b07bb94/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release/fsi_periodic"
+28: Working Directory: /workspace/scratch/b8438b07bb94/EONSim-new/build/cloud-3.23.7-release
+28: Environment variables: 
+28:  OMP_NUM_THREADS=1
+28:  OPENBLAS_NUM_THREADS=1
+28:  MKL_NUM_THREADS=1
+28: Test timeout computed to be: 600
+28: 1/2/4 rank fields, nonconvergence, definition rejection and cycle continuation passed
+1/1 Test #28: fsi_periodic .....................   Passed   26.43 sec
+
+The following tests passed:
+	fsi_periodic
+
+100% tests passed out of 1
+
+Label Time Summary:
+rank-1    = 105.71 sec*proc (1 test)
+rank-2    = 105.71 sec*proc (1 test)
+rank-4    = 105.71 sec*proc (1 test)
+
+Total Test time (real) =  26.43 sec

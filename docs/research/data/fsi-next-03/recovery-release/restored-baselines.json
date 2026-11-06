@@ -1,0 +1,116 @@
+{
+  "2": {
+    "verified_files": 923,
+    "audit": {
+      "last_cycle": 86,
+      "pressure_checks": {
+        "84": {
+          "relative_max": 0.0005454965694495773,
+          "relative_mean_drift": 2.1328408139863198e-05
+        },
+        "85": {
+          "relative_max": 0.00047420995578084657,
+          "relative_mean_drift": 2.348105965264274e-05
+        },
+        "86": {
+          "relative_max": 0.00032604695426319275,
+          "relative_mean_drift": 1.730501016498215e-05
+        }
+      },
+      "boundary_errors": {
+        "rigid_velocity": 0.0,
+        "interface_velocity": 0.0,
+        "interface_displacement": 0.0
+      },
+      "mass_budget": {
+        "final_defect": -6.449824595960475e-09,
+        "max_absolute_defect": 2.1135369482738872e-08,
+        "integrated_net_flow": 0.0005350703013294551,
+        "volume_change": 0.0005350767511540511
+      },
+      "flow_balance": {
+        "stage_mass": 6.5052130349130266e-18,
+        "surface_divergence": 7.209944447028604e-18,
+        "inlet_flow": 2.949029909160572e-16,
+        "minimum_j": 0.9967919084324248
+      },
+      "accepted_rows": 8600
+    }
+  },
+  "4": {
+    "verified_files": 743,
+    "audit": {
+      "last_cycle": 50,
+      "pressure_checks": {
+        "48": {
+          "relative_max": 0.00018986285676647618,
+          "relative_mean_drift": 8.026064175955736e-06
+        },
+        "49": {
+          "relative_max": 0.00014109207288171,
+          "relative_mean_drift": 4.502545614306318e-06
+        },
+        "50": {
+          "relative_max": 0.0001784783958447278,
+          "relative_mean_drift": 3.119799618711734e-06
+        }
+      },
+      "boundary_errors": {
+        "rigid_velocity": 0.0,
+        "interface_velocity": 0.0,
+        "interface_displacement": 0.0
+      },
+      "mass_budget": {
+        "final_defect": -7.389279813789333e-09,
+        "max_absolute_defect": 2.5261795765527204e-08,
+        "integrated_net_flow": 0.000665441437699684,
+        "volume_change": 0.0006654488269794978
+      },
+      "flow_balance": {
+        "stage_mass": 9.974659986866641e-18,
+        "surface_divergence": 1.0164395367051604e-17,
+        "inlet_flow": 1.8735013540549517e-16,
+        "minimum_j": 0.996444872877276
+      },
+      "accepted_rows": 5000
+    }
+  },
+  "8": {
+    "verified_files": 678,
+    "audit": {
+      "last_cycle": 37,
+      "pressure_checks": {
+        "35": {
+          "relative_max": 0.000416101066412905,
+          "relative_mean_drift": 5.3253629678599694e-05
+        },
+        "36": {
+          "relative_max": 0.0004051938277633421,
+          "relative_mean_drift": 4.85501469437849e-05
+        },
+        "37": {
+          "relative_max": 0.00033662408204571115,
+          "relative_mean_drift": 2.934860057221371e-05
+        }
+      },
+      "boundary_errors": {
+        "rigid_velocity": 0.0,
+        "interface_velocity": 0.0,
+        "interface_displacement": 0.0
+      },
+      "mass_budget": {
+        "final_defect": -7.266975275981198e-09,
+        "max_absolute_defect": 2.5860662557170504e-08,
+        "integrated_net_flow": 0.0008130735759947727,
+        "volume_change": 0.0008130808429700487
+      },
+      "flow_balance": {
+        "stage_mass": 2.905661822261152e-17,
+        "surface_divergence": 2.912438085839186e-17,
+        "inlet_flow": 8.500145032286355e-17,
+        "minimum_j": 0.9958711004335798
+      },
+      "accepted_rows": 3700
+    }
+  }
+}

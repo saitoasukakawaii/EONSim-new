@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="7"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="239"
+	timestamp="2026-11-03T06:28:33"
+	>
+	<testcase name="fsi_diagnostics" classname="fsi_diagnostics" time="0.211659" status="run">
+		<properties>
+			<property name="cmake_labels" value="rank-1"/>
+		</properties>
+		<system-out>FSI geometry, affine surface and distributed face cancellation passed
+</system-out>
+	</testcase>
+	<testcase name="fsi_diagnostics_mpi" classname="fsi_diagnostics_mpi" time="0.423521" status="run">
+		<properties>
+			<property name="cmake_labels" value="rank-2"/>
+		</properties>
+		<system-out>FSI geometry, affine surface and distributed face cancellation passed
+</system-out>
+	</testcase>
+	<testcase name="fsi_periodic" classname="fsi_periodic" time="59.0203" status="run">
+		<properties>
+			<property name="cmake_labels" value="rank-1;rank-2;rank-4"/>
+		</properties>
+		<system-out>1/2/4 rank fields, nonconvergence, definition rejection and cycle continuation passed
+</system-out>
+	</testcase>
+	<testcase name="fsi_flow" classname="fsi_flow" time="34.299" status="run">
+		<properties>
+			<property name="cmake_labels" value="rank-1;rank-2"/>
+		</properties>
+		<system-out>{"be": {"stage_mass_residual": 4.336808689942018e-18, "secant_mass_residual": 2.298014209478616e-13, "area_displacement_y": 0.00015738422347693612}, "bdf2": {"stage_mass_residual": 4.336808689942018e-18, "secant_mass_residual": 0.0013851289786423384, "area_displacement_y": 0.00015504886878715398}, "generalized_alpha": {"stage_mass_residual": 5.204170427930421e-18, "secant_mass_residual": 0.0006625033902744491, "area_displacement_y": 0.00015435041230509253}, "jacobian_relative_error": 1.03756e-07, "retry_accepted_dt": 7.8125e-06}
+</system-out>
+	</testcase>
+	<testcase name="fsi_inlet" classname="fsi_inlet" time="69.3823" status="run">
+		<properties>
+			<property name="cmake_labels" value="rank-1"/>
+		</properties>
+		<system-out>FSI inlet three schemes, startup/endpoints, MPI, histories, diagnostics and Jacobians passed
+</system-out>
+	</testcase>
+	<testcase name="fsi_pressure_state" classname="fsi_pressure_state" time="42.9324" status="run">
+		<properties>
+			<property name="cmake_labels" value="core;rank-1;rank-2"/>
+		</properties>
+		<system-out>FSI pressure state/history/MPI/Jacobian/retry checks passed
+</system-out>
+	</testcase>
+	<testcase name="elastic_fsi_verification" classname="elastic_fsi_verification" time="32.9357" status="run">
+		<properties>
+			<property name="cmake_labels" value="rank-1;rank-2"/>
+		</properties>
+		<system-out>elastic FSI passed: common interface geometry/velocity, force balance, load response, full Jacobian, MPI
+</system-out>
+	</testcase>
+</testsuite>

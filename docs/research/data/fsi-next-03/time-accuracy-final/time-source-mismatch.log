@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/b8438b07bb94/EONSim-new/scripts/study_fsi_time_accuracy.py", line 107, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/scratch/b8438b07bb94/EONSim-new/scripts/study_fsi_time_accuracy.py", line 30, in main
+    if json.loads(provenance.read_text())!=definition:raise ValueError('Temporal study definition changed')
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Temporal study definition changed

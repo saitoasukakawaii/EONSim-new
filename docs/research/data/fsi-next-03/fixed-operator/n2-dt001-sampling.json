@@ -1,0 +1,67 @@
+{
+  "definition": {
+    "source": "/workspace/scratch/b8438b07bb94/EONSim-new/build/fsi-next-03/fixed-n2-.001",
+    "source_checkpoint": "generation_1793802520214576025",
+    "source_definition": {
+      "executable_sha256": "b4de28ffc6481701b533ec4772f4f0f604cfc18bc15bc63c858ebebae38352da",
+      "n": 2,
+      "ranks": 2,
+      "dt": 0.001,
+      "scheme": "generalized_alpha",
+      "tau": 0.05,
+      "tolerance": 0.001,
+      "phases": 20,
+      "fluid_scales": {
+        "velocity": 0.01,
+        "pressure": 0.1,
+        "mesh_displacement": 0.0001
+      },
+      "solid_scales": {
+        "velocity": 0.01,
+        "displacement": 0.0001
+      },
+      "source_sha256": {
+        "scripts/study_fsi_periodic.py": "b92dcd58b41ed18173ac5fb2aaa92c5ce13b76205e79a3005cdda0cfe09f95ef",
+        "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+        "scripts/fsi_cycle_metrics.py": "4d5f0f34ed7092ede3a9d7f5dc420200b211a921c05d0304fe322578930593a9",
+        "cases/fsi/generate_wall.py": "cdf7dd21c692b6b59dc4d636e9b1e30a327f7886e4b7d6dd835674e8d825e5ea",
+        "cases/poisson/generate_mesh.py": "fc3b31bc5a77117f9aa7eef326eb4df2f0a3bf07c65a6cff30c698b36aac7487",
+        "tests/verify_fsi_inlet.py": "2f8371b9910bb56ffc4f3f015964ea23a5b46f6c16a666eeba2bd7de76aaf24b"
+      },
+      "mesh_sha256": {
+        "fluid.msh": "cff2ae349652d0b34c4c47c5313e010b399a5236ccf749ee8d65915f271c3ef8",
+        "solid.msh": "c84cd00759f468bd351bce49a7fd0e44c38e7d7e875b7ddbff5117494a931cb6"
+      }
+    },
+    "source_files_sha256": {
+      "manifest": "595aaab1cdfd3edfd712040e27c17d2e460a13ba5fe1580c776a696247fbeb82",
+      "state_rank0.h5": "fa7fe570c2aac1d7611260aff813619a49ec3b5ac5d829f5d2460f7b266ca4bf",
+      "state_rank1.h5": "14b782b6a38f30734dbc4bff992e5ad7f129842a90682bfb0f4d7895a49ea0af"
+    },
+    "mesh_sha256": {
+      "fluid.msh": "cff2ae349652d0b34c4c47c5313e010b399a5236ccf749ee8d65915f271c3ef8",
+      "solid.msh": "c84cd00759f468bd351bce49a7fd0e44c38e7d7e875b7ddbff5117494a931cb6"
+    },
+    "executable_sha256": "b4de28ffc6481701b533ec4772f4f0f604cfc18bc15bc63c858ebebae38352da"
+  },
+  "start_cycle": 77,
+  "end_cycle": 79,
+  "coarse_phases": 20,
+  "dense_phases": 100,
+  "errors": {
+    "fluid_velocity": 4.287714498915293e-05,
+    "fluid_pressure": 0.0010983823697252482,
+    "fluid_mesh_displacement": 2.4717790203643505e-07,
+    "solid_velocity": 4.050796415470258e-05,
+    "solid_displacement": 6.442801546956791e-07
+  },
+  "dense_cycle_difference": {
+    "fluid_velocity": 3.5482852601775595e-05,
+    "fluid_pressure": 0.00042380592420584865,
+    "fluid_mesh_displacement": 8.75339529052058e-06,
+    "pressure_drop": 0.00028735184007033787,
+    "solid_velocity": 0.0007439606726792189,
+    "solid_displacement": 0.0002438089222275562
+  },
+  "dense_periodic_check": true
+}

@@ -97,6 +97,7 @@ struct FsiConfig {
     std::optional<FluidBoundary> inlet; ///< Fixed external affine velocity, smooth startup.
     std::optional<FsiPressureTime> pressure_time;
     int output_interval=0; ///< Zero: final fields only; positive: accepted-step history and snapshot cadence.
+    int checkpoint_interval=1; ///< Accepted-step cadence when checkpointing; always save a successful requested endpoint.
     FsiDomains domains;
     std::optional<double> stabilization_tau;
     bool elastic=false, neo_hookean=false;
