@@ -1,6 +1,6 @@
 # EONSim Codex Development Progress
 
-## FSI-PROD-02A / 本地验收完成 / 2026-11-06
+## FSI-PROD-02A / PR #38检查通过 / 2026-11-06
 
 PR #36、#37 已合入 main `dc378529538259567a78cea9820a202a6187809c`，下方review为历史。
 分支 `codex/fsi-tube-qualification`、实现 `a0d228764850fa838229acb6a6e613933070490f`：
@@ -10,7 +10,10 @@ PR #36、#37 已合入 main `dc378529538259567a78cea9820a202a6187809c`，下方r
 保留原结果、门槛不变，追加加密后通过。压强误差仍3.993089%，仅完成流量增量，
 PROD-02整体未完成。Debug三项、Release最终两项+复用首轮regions、Python3+26项通过。
 [完整证据](../research/data/rigid-tube-2026-11-06/README.md)；
-[接口/复现](RIGID_TUBE_QUALIFICATION.md)。本地验收与自审完成，准备PR，不自动合并。
+[接口/复现](RIGID_TUBE_QUALIFICATION.md)。本地验收与自审完成；
+[PR #38](https://github.com/saitoasukakawaii/EONSim-new/pull/38) 已创建，待审查，未合并。
+云端PETSc3.23.7 Debug/Release各26/26、Python35项、网站与增量证据检查全部通过，
+数值测试零失败/零跳过；[云端记录](../research/data/rigid-tube-2026-11-06/cloud-ci.json)。
 
 ## FSI-PROD-01 / review / PR #37 / 2026-11-06
 

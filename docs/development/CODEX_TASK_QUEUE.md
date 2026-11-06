@@ -14,7 +14,10 @@ PR #36、#37 已合入，当前基线 `dc378529538259567a78cea9820a202a6187809c`
 最初level-2不通过，按原门槛加密后通过。Release新增/扩充两项、Debug三项通过；
 Release未变regions复用首轮通过，Python网格/重算3项与CI选择26项通过。
 48边形压强误差仍3.993089%，不能宣称全场定量资格。
-[证据](../research/data/rigid-tube-2026-11-06/README.md)。准备上传同一分支并创建PR，不自动合并。
+[证据](../research/data/rigid-tube-2026-11-06/README.md)。
+[PR #38](https://github.com/saitoasukakawaii/EONSim-new/pull/38) 已创建，状态review，未合并。
+云端Debug/Release各26/26、Python35项、网站/增量证据检查通过；数值测试零失败/零跳过。
+最后仅补记文档与云端收据，复用这些通过证据，不重跑已完成数值研究。
 
 ## FSI-PROD-01 / review / PR #37 / 2026-11-06
 

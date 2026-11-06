@@ -22,7 +22,14 @@
 - 自审：流量通过不能掩盖压强和局部散度误差；几何界适用于连续多边形解，不是FE约束。
   没有独立审查者。未重跑无关FSI/时间研究；PROD-02的Womersley、弹性管、瞬态tau、svFSI待后续。
 - 知识沉淀：按eonsim-knowledge-capture生成[草稿](../../website/drafts/rigid-tube-geometry-and-mixed-boundaries.md)，
-  区分理论、实现、实际验证和未测性能，保持draft；本地验收完成，准备PR，不自动合并。
+  区分理论、实现、实际验证和未测性能，保持draft；本地验收完成，已创建
+  [PR #38](https://github.com/saitoasukakawaii/EONSim-new/pull/38)，未合并。
+- 云端最终验收：[run 42236840428](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42236840428)
+  PETSc3.23.7 Debug/Release各26/26，零失败/零跳过；Python26+6+3=35项与增量receipt通过。
+  网站run42236840526通过。测试合并预览3f4625c394cb487a17b00a400ea98d2b9eb53375的tree
+  2802d32421aa6c6c9ec49ac0146862b3de0d7853与已审查head d1c4be0完全一致。
+  Debug运行较久，期间日志尚未发布，结束后读取实际成功计数；没有假定提前通过。
+  最终补记仅文档/证据，后续CI应复用同PR成功收据。完整11状态研究仍是本地证据，CI只做小回归。
 
 ## 2026-11-06 / FSI-QA-01 质量预算有效性修复
 

@@ -6,6 +6,15 @@ Local acceptance passed on 2026-11-06. Source:
 `codex/fsi-tube-qualification`. This is a steady flow-quantity qualification,
 not completion of the full PROD-02 production stage.
 
+[PR #38](https://github.com/saitoasukakawaii/EONSim-new/pull/38) is open, unmerged.
+[Cloud numerical CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42236840428)
+passed 26/26 selected tests in both Debug and Release, zero failed/skipped tests;
+35 Python checks and the incremental receipt passed.
+[Website/draft isolation](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42236840526)
+passed. [cloud-ci.json](cloud-ci.json) records exact head/base, tested merge commit,
+matching Git trees, resource data and counts. CI runs the small tube regression,
+not the complete eleven-state study. The manual 3.19.6 job was not requested.
+
 ## Results
 
 R=1, L=2, rho=mu=1, imposed normal-stress drop=.02, Q_circle=pi/800,
@@ -75,7 +84,9 @@ taken and no scaling or memory-efficiency conclusion is made.
 - `python tests/test_ci_selection.py`: 26 tests passed. An earlier Windows run
   hit Git ownership protection (25 passed, one error); rerun with process-local
   safe.directory for this checkout passed. No global Git configuration changed.
-- Python syntax check and `git diff --check` passed.
+- Python syntax and source/documentation whitespace checks passed. Raw CTest,
+  inventory and dependency logs retain their original trailing whitespace;
+  they were not reformatted to satisfy a whole-archive whitespace check.
 
 For each build, the exact tests JSON was supplied to:
 
