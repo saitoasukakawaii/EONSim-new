@@ -71,3 +71,19 @@ launcher is archived as run-debug-isolated.py.
 Archived log text has trailing whitespace removed for Git diff hygiene.
 `original-log-sha256.json` records the hashes before this cosmetic normalization;
 original logs remain in the local build evidence directories.
+
+## PR acceptance
+
+[PR #37](https://github.com/saitoasukakawaii/EONSim-new/pull/37):
+[Core numerical validation](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42170183765)
+passed PETSc 3.23.7 Debug **31/31** and Release **31/31**, zero failures/skips.
+[Website/draft isolation](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42170183717)
+and incremental receipt passed. The optional historical PETSc 3.19.6 job was
+intentionally skipped under the repository policy.
+
+Tested merge-preview `92a28b597d3022637c5fe29700f2385c99910e64` has exactly
+tree `8ef42cd7e716aa995b03030fa7ed0617e7e2c449`, identical to accepted local
+and remote head `29d8082d46de44b194b158f69285b560dda053c8`. Job-reported
+receipts are preserved in ci-receipt.json. This final follow-up only records
+acceptance and the next quantitative-study scope; numerical evidence is reused,
+not reported as rerun. No automatic merge or draft publication.

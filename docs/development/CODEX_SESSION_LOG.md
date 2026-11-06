@@ -728,3 +728,11 @@ Reusable derivation and failure lesson captured in unpublished draft
 `website/drafts/fsi-circular-inlet-discrete-flux.md`; roadmap and task queue
 advance toward quantitative tube qualification, vascular boundaries, real
 geometry and multi-node scaling. Do not auto-merge main or publish the draft.
+
+PR #37 acceptance: remote head `29d8082`, merge preview `92a28b5`, identical
+accepted tree `8ef42cd7e716aa995b03030fa7ed0617e7e2c449`. Core run
+42170183765 Debug/Release each 31 passed, zero failed/skipped; website run
+42170183717 and incremental receipt passed. Final update only records evidence
+and PROD-02 dimensionless-scale scoping (Re .006366, alpha 12.533 for current
+coarse case); no numerical rerun or new physical accuracy claim. PR remains
+unmerged and the knowledge article unpublished.

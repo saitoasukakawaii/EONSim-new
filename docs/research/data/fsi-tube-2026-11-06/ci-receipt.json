@@ -1,0 +1,63 @@
+{
+  "run_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42170183765",
+  "website_run_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42170183717",
+  "head": "29d8082d46de44b194b158f69285b560dda053c8",
+  "tested_merge": "92a28b597d3022637c5fe29700f2385c99910e64",
+  "tree": "8ef42cd7e716aa995b03030fa7ed0617e7e2c449",
+  "debug": {
+    "commit": "92a28b597d3022637c5fe29700f2385c99910e64",
+    "mode": "debug",
+    "selection": "explicit",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 16760344576,
+      "cgroup": {
+        "/sys/fs/cgroup": {},
+        "/sys/fs/cgroup/system.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        }
+      },
+      "build_jobs": 4
+    },
+    "test_counts": {
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "release": {
+    "commit": "92a28b597d3022637c5fe29700f2385c99910e64",
+    "mode": "release",
+    "selection": "explicit",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 16760344576,
+      "cgroup": {
+        "/sys/fs/cgroup": {},
+        "/sys/fs/cgroup/system.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        }
+      },
+      "build_jobs": 4
+    },
+    "test_counts": {
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0
+    }
+  }
+}
