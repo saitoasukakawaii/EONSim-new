@@ -1,51 +1,6 @@
 # EONSim Knowledge Log
 
-
-## 2026-11-05 / 固定算子周期误差分离与可恢复证据
-
-固定τ=.05的n=2/4/8、dt=.001/.0005六状态分别在77/88、39/49、31/31周期达到连续三周期判据。
-全部完成三个十周期尾项区间和两周期真实100相位采样；时间/瞬态/采样预算的逐字段最大比分别为2.765560%、0.589428%、0.001042%，均严格小于10%。
-空间五场差均递减，但观测阶不统一，不能宣称全场二阶或连续模型渐近误差已证明；默认随dt变化的τ候选仍未通过。
-18个可恢复包迁移后核验49305文件，实际尾项与完整预算重算完全一致，原receipt未改写。
-全部周期与追加研究审计77100行接受历史，质量/流量/正几何和100相位边界约束通过。
-本机构建及fsi_periodic 1/1（含1/2/4 rank）、迁移修正e4bda86的6项检查通过；其余未受影响历史检查复用，本机未重跑。
-本地验收与自审完成；[PR #35](https://github.com/saitoasukakawaii/EONSim-new/pull/35)已创建，[云端数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42049457299)主锁Debug/Release各29/29通过，零失败/零跳过；54项Python检查与[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42049457283)通过。状态review，未合入main，不自动合并。[本轮证据](data/fsi-next-03/local-recovery-2026-11-05/README.md)。
-
-[知识草稿](../../website/drafts/fsi-periodic-state-and-error-separation.md)区分理论、实现与实际验证；无性能结论。
-人工审查重点：固定τ解释、经验尾项收缩假设、50/100采样含义与非均匀观测阶。草稿未发布。
-
-
-## FSI-NEXT-03 环境中断检查点 / 2026-11-03
-
-执行环境被标记 unavailable，exec-server恢复超时；当前无法确认后台进程存活。不是预算耗尽，也不是整体完成。最后完整远端源码/证据检查点20ac3af；本提交通过GitHub API保存断开前已验证的两项Python修改和恢复记录。未创建PR。
-
-默认稳定化n=2半步长dt=.0005在136周期达到周期判据，但20相位压强场差0.08908已超过末档100相位空间差0.03899的10%；候选拒绝，阈值不变。默认tau显式依赖integration_dt，时间加密同时改变稳定化；不能把全部差异解释为积分截断误差，也不据此宣称程序错误。固定tau=.05的三网格、半步长、尾项和100相位对照已排入单一MPI队列，尚未取得完整结果。n=4默认半步长最后确认在第28周期。
-
-旧队列重复启动造成额外Release回归4项OpenMP启动断言失败、3项通过；失败日志在本地duplicate-worker-release，尚未确认推送。旧worker已退出，4项串行补验已排队。底层断言及旧描述符再次出现的精确原因未证实。n=4跨构建完整周期重放全部场差0；固定tau n=2旧状态7700行完整历史、压降/质量/几何/无滑移独立审计通过。断开前执行 `python tests/test_fsi_space_metrics.py`，5/5通过，包括新增固定tau一致性与不一致拒绝；不代表完整数值预算通过。
-
-恢复顺序和未上传证据见 `docs/development/FSI_NEXT_03_RECOVERY.md`。恢复环境后继续同一分支，全部验收/证据/审查前不创建PR。
-
-## FSI-NEXT-03 自审中的复用知识
-
-连续历史仍可能缺失尾部，必须同时核对声明终点；原时间矩阵在校验配置、CSV SHA和可执行文件后重新分析通过。归档明确区分完整标量历史、最后四周期场和可恢复checkpoint，逐文件SHA回读核对。正式场差使用100实际相位，50/100统计差检验相位积分；20相位重建误差另列。相关说明补入原草稿，完整空间/时间污染预算仍未验收，不发布。
-
-## FSI-NEXT-03 误差分离补充
-
-草稿 [周期状态与误差分离](../../website/drafts/fsi-periodic-state-and-error-separation.md) 补充已验证的三格式时间阶和质量预算阶，以及尚在验证的等长追加周期衰减估计、实际密集采样oracle。时间证据 `data/fsi-next-03/time-accuracy-final/`；默认稳定化空间序列仍在运行。经验几何尾项估计必须注明衰减持续的条件，不能写成严格渐近误差界。未发布，无PR。
-
-## FSI-NEXT-03 连续实施进展（未整体完成）
-
-完成完整场参考体积加权周期比较、实际时间插值（禁止外推/大间隙）、周期checkpoint续算及定义/历史拒绝、独立Tet4移动体积与通量oracle、跨网格P1比较初版。Debug/Release新增fsi_periodic各1/1通过，涵盖1/2/4 rank、恢复、未收敛和修改定义拒绝；后续相位插值改动仍需针对性回归。固定tau n2第77周期、默认tau n4第50周期达到连续三周期1e-3判据，不能混合作为空间序列。
-
-首次60周期上限正确拒绝；并行续算遇PMIx初始化及LLVM OpenMP启动断言，改用独立临时目录、串行MPI研究与PID隔离，保留失败日志。发现两段持久CSV尾部缺失：从相同初态/物理checkpoint真实重放，重放终点全部比较字段与原快照差为0，已有重叠行一致，保留原件后恢复完整历史；精确文件截断根因尚未确认，不归咎于求解器或平台。
-
-时间粗矩阵及首轮加密仍有BE固体速度未进入渐近区，门槛未放宽；继续加密时间步和独立参考。完整网格序列、时间/瞬态10%污染、相位采样、最终复核和PR/CI未完成，无PR。可复用知识草稿：website/drafts/fsi-periodic-state-and-error-separation.md（未发布）。
-
-## FSI-NEXT-03 启动检查点
-
-已核对 PR #33 合入 main `4f3a995`；其下方未合并表述保留为历史。用户授权48小时计划实施，独立分支 `codex/fsi-next-03-periodic-convergence`，状态 in_progress。首先核查周期剩余瞬态和稳定化尺度；尚无新的数值通过或收敛结论。全部本地验收与审查完成前不创建PR。验收清单及剩余项见 CODEX_TASK_QUEUE.md。
-
-2026-10-31 状态同步：G0B/G0/G5/G1 与 INFRA-01 已完成 PR #23 集成，PR #24 已合入。以下按任务保留原证据；历史“待验收”只适用于对应检查点。全部 drafts 仍未发布。
+2026-11-03 状态同步：当前 main 为 `4f3a995de45d`。FSI-LOAD-01、FSI-NEXT-01、FSI-NEXT-02 已分别通过 PR #31/#32/#33 合入；FEM-G2A/B/C 已通过 PR #27/#28/#29 合入。下列文章均仍是 drafts，源码合入不自动等于知识文章发布；历史检查点保留其当时状态和原始证据。
 
 本文件是知识资产索引，不代替文章正文、文献阅读笔记或实验原始数据。
 
@@ -57,7 +12,7 @@
 
 ## FSI-NEXT-02 / 2026-11-03
 
-[周期流量入口与移动域质量预算草稿](../../website/drafts/fsi-periodic-flow-mass-budget.md)：实现 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`；离散P1入口归一化、无滑移、阶段与secant区别、独立积分和同分区恢复。理论推导/实现/验证明确区分，无性能证据。Debug/Release与六周期实际结果、原始CSV/日志见[验收](data/fsi-flow-2026-11-03/README.md)。空间渐近收敛、严格周期稳态、大规模及高Re均未证明。待人工审核：时间层解释、适用边界、全局与局部守恒区别。草稿未发布。PR #33 云端 Debug/Release 各29/29及网站/草稿隔离通过，见验收目录 `delivery-ci.json`。
+[周期流量入口与移动域质量预算草稿](../../website/drafts/fsi-periodic-flow-mass-budget.md)：实现 `9bde79765ee57a2c42eb2964ac8297ec6246e3a7`，已通过 [PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33) 合入 main，合并提交 `4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e`。离散P1入口归一化、无滑移、阶段与secant区别、独立积分和同分区恢复均有实现及验证证据。PR 云端 Debug/Release 各29/29，网站/草稿隔离通过；六周期原始CSV/日志见[验收](data/fsi-flow-2026-11-03/README.md)和 `delivery-ci.json`。无性能证据；空间渐近收敛、严格周期稳态、大规模及高Re均未证明。文章仍待人工审核，未发布。
 
 ## G5 独立场generalized-alpha / 2026-10-31
 
@@ -224,12 +179,12 @@ DOCS-01 交付补记：已通过 [PR #25](https://github.com/saitoasukakawaii/EO
 
 ## TEST-POLICY-01 / 2026-10-31
 
-验证约束更新，基线 `3df1c31`，由本地分支 `codex/incremental-validation-policy` 交付，未推送、未合入 main：采用[增量验证与历史证据复用](../development/BUILD_AND_VALIDATION.md)，仅检查新增或受影响行为，已通过且未受影响的测试不重跑，全量仅在用户明确要求时运行。核查旧约束与工作流后，明确现有 CI 的 `selection: all` 尚未修改。仅做文档静态检查，未开发、编译或执行数值测试；无新算法/性能结论，不生成文章草稿。过程及验证范围见[会话日志](../development/CODEX_SESSION_LOG.md)。
+验证约束更新的原始检查点：基线 `3df1c31`，由本地分支 `codex/incremental-validation-policy` 交付；该分支当时未推送、未合入 main。约束内容随后由 CI-INCREMENTAL-01 的提交 `ef20e03` 随 [PR #26](https://github.com/saitoasukakawaii/EONSim-new/pull/26) 合入 main（`35bf1a1`）。规则见[增量验证与历史证据复用](../development/BUILD_AND_VALIDATION.md)：仅检查新增或受影响行为，已通过且未受影响的测试不重跑，全量仅在用户明确要求时运行。原始文档检查未运行编译或数值测试；无新算法/性能结论。
 
 
 ## CI-INCREMENTAL-01 / 2026-10-31
 
-[PR 增量 CI 与证据复用草稿](../../website/drafts/incremental-ci-and-evidence-reuse.md)：基线 ef20e03，开发分支 codex/pr-incremental-ci。说明路径映射、精确测试清单、同 PR 成功证据与必需检查状态的边界；PR #26 待审；本地脚本检查、云端 Debug/Release 各一项 Poisson 和后续文档提交的零构建/零数值运行复用均已验证，见 [initial.json](data/ci-incremental-2026-10-31/initial.json)及[reuse.json](data/ci-incremental-2026-10-31/reuse.json)。无性能结论，不发布。
+[PR 增量 CI 与证据复用草稿](../../website/drafts/incremental-ci-and-evidence-reuse.md)：基线 ef20e03，开发分支 codex/pr-incremental-ci。说明路径映射、精确测试清单、同 PR 成功证据与必需检查状态的边界；PR #26 已合入 main（`35bf1a1`）；本地脚本检查、云端 Debug/Release 各一项 Poisson 和后续文档提交的零构建/零数值运行复用均已验证，见 [initial.json](data/ci-incremental-2026-10-31/initial.json)及[reuse.json](data/ci-incremental-2026-10-31/reuse.json)。无性能结论，不发布。
 
 
 ### FEM-G2A 局部检查点
@@ -239,12 +194,12 @@ P2 参考三角形六节点插值、六个多项式的值/梯度重现及反向�
 
 ### 2026-11-01 — FEM-G2A 共享边空间
 
-[草稿](../../website/drafts/p2-edge-space-poisson.md)：源码 edfc73c，参考基函数、离线实体空间与 P2 稳态 Poisson 已实现；本地 Debug PETSc 3.23.7、1/2 rank patch/收敛/失败证据见 data/p2-2026-11-01。理论、实现与实际验证分列，未测性能，PR #27 云端 Debug/Release 各 19 项相关检查通过，实际 merge preview 60ee8e26；证据 data/p2-2026-11-01/cloud.json，文章不发布。
+[草稿](../../website/drafts/p2-edge-space-poisson.md)：源码 edfc73c，参考基函数、离线实体空间与 P2 稳态 Poisson 已实现；本地 Debug PETSc 3.23.7、1/2 rank patch/收敛/失败证据见 data/p2-2026-11-01。理论、实现与实际验证分列，未测性能，PR #27 云端 Debug/Release 各 19 项相关检查通过，实际 merge preview 60ee8e26；证据 data/p2-2026-11-01/cloud.json。PR #27 已合入 main（`c0745ea`）；文章不发布。
 
 
 ### 2026-11-01 — FEM-G2B 边界与物理均值
 
-更新[现有 P2 草稿](../../website/drafts/p2-edge-space-poisson.md)：源码 d6ec424，新增 Robin 边迹矩阵及纯 Neumann 相容性/零空间/体积均值解释。本地 Debug、PETSc 3.23.7、1/2 rank 相关数值及拒绝检查通过；命令见会话日志，证据 data/p2-boundaries-2026-11-01。PR #28 云端 run 41287626201 的 Debug/Release 各 10 项相关检查通过，文章仍未发布。
+更新[现有 P2 草稿](../../website/drafts/p2-edge-space-poisson.md)：源码 d6ec424，新增 Robin 边迹矩阵及纯 Neumann 相容性/零空间/体积均值解释。本地 Debug、PETSc 3.23.7、1/2 rank 相关数值及拒绝检查通过；命令见会话日志，证据 data/p2-boundaries-2026-11-01。PR #28 云端 run 41287626201 的 Debug/Release 各 10 项相关检查通过；PR #28 已合入 main（`1bc87a7`），文章仍未发布。
 
 
 ### FEM-G2C 启动检查点（2026-11-02）
@@ -261,7 +216,7 @@ P2 参考三角形六节点插值、六个多项式的值/梯度重现及反向�
 - 无全量、旧锁、超过 2 rank 新验证或性能结论；PR 云端结果后续登记，不把本地结果称为云端通过。
 
 
-FEM-G2C 云端补验：[PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29)，run 41582475827，PETSc 3.23.7 Debug/Release 各 15/15 相关项通过；网站 run 41582475766 通过。源码仍为 d19a032，merge preview b8c1642；详见 [云端证据](data/p2-transient-2026-11-03/cloud.json)。PR 未合并，草稿未发布。
+FEM-G2C 云端补验：[PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29)，run 41582475827，PETSc 3.23.7 Debug/Release 各 15/15 相关项通过；网站 run 41582475766 通过。源码仍为 d19a032，merge preview b8c1642；详见 [云端证据](data/p2-transient-2026-11-03/cloud.json)。PR #29 已合入 main（`dff9116`）；草稿未发布。
 
 
 2026-11-03 合并状态核对：PR #29 已在远端合并为 dff911648e54507e9cca80ad1880c20b867a0c75，本 agent 没有执行合并。最终云端证据补记提交晚于合并，作为纯文档后续 PR 提交；知识文章仍保持 draft。
@@ -274,7 +229,7 @@ FEM-G2C 云端补验：[PR #29](https://github.com/saitoasukakawaii/EONSim-new/p
 - 验证：[PETSc 3.23.7 Debug/Release 本地证据](data/fsi-pressure-2026-11-03/README.md)，含 1/2 rank、时间精度、恢复、实际缩步、I/O 失败及完整装配切线。
 - 复用教训：评价时间与终点量不能混记；双域节点 owner 与本地域单元存在性不同；粗步未进渐近区不能放宽精度门槛。无性能或生产规模结论。
 
-FSI-LOAD-01 补充：PR #31 云端主锁 Debug/Release 各 24/24 与网站检查通过；[CI 摘要](data/fsi-pressure-2026-11-03/ci.json)。草稿仍未发布。
+FSI-LOAD-01 补充：PR #31 已合入 main（`06b05c4`）；云端主锁 Debug/Release 各 24/24 与网站检查通过；[CI 摘要](data/fsi-pressure-2026-11-03/ci.json)。草稿仍未发布。
 
 ## 2026-11-03 / FSI-NEXT-01
 
@@ -284,7 +239,4 @@ FSI-LOAD-01 补充：PR #31 云端主锁 Debug/Release 各 24/24 与网站检查
 - 可复用教训：阶段有效不代表终点有效；界面节点集不等于界面面片；加速度放大位移误差，非线性与线性停止条件须相容；时间污染未控制前不解释空间阶。
 - 小网格直接法更快，较大网格分块内存较低，但不证明大规模加速；无非匹配界面、重网格或生产规模结论。详细未验证边界和人工审查问题留在草稿中。
 
-FSI-NEXT-01 补验：旧镜像弹性体几何路径 Debug/Release 各 1/1；本地两模式各累计 5 项独立检查通过，详见同一验收目录。
-
-
-FSI-NEXT-03补充证据：三网格周期状态、20相位初步空间差和新构建重放见 `data/fsi-next-03/space-checkpoint/`；可恢复原始归档另附文件SHA清单。固体位移目前实测阶约0.81，应如实报告而非套用全场二阶。正式100相位、半步长和瞬态污染验证仍在进行，原草稿保持未发布。
+FSI-NEXT-01 补验：旧镜像弹性体几何路径 Debug/Release 各 1/1；本地两模式各累计 5 项独立检查通过，详见同一验收目录。PR #32 已合入 main（`b2755b6`）；知识草稿仍未发布。

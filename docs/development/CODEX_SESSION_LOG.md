@@ -90,7 +90,7 @@ n=2在原86周期状态之后追加三个十周期块，完整场块间收缩率
 - 使用 `scripts/cloud/restore.sh` 和 `scripts/cloud/run.sh` 编译；Debug/Release 新增1项、旧入口/压力2项均通过；三格式/1和2rank/恢复/Jv/9次真实缩步重放。六周期研究完成三网格和三步长，原始数据与局限见[验收](../research/data/fsi-flow-2026-11-03/README.md)。没有全量和3.19.6编译，也没有性能研究。
 - 重要失败：空环境恢复；MPI root拒绝；LLVM OpenMP启动断言在串行重试仍复现，保留失败且不冒充正确非法参数拒绝；避开残留注册PID名字后完整复验通过，底层断言精确原因仍未回溯确认。Git push无凭据，使用GitHub API保存相同tree后同步本地。详细命令、失败尝试、解决范围见验收，不将环境规避写成数值修复。
 - 本 agent 完成源码diff自审、26项CI选择器测试；无外部独立审查。知识稿 `website/drafts/fsi-periodic-flow-mass-budget.md` 保持草稿；长期架构未变，不改架构契约。
-- 本地验收/证据/自审后仅创建 [PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33)。[数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424335) Debug/Release各29/29通过，零失败/零跳过；[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424264)通过。 增量证据job也成功；不需要代码修复。合并预览tree与本地/PR head完全相同，精简证据见 `delivery-ci.json`。当前review且未合入main，不标done；最终纯文档更新按既有同PR证据复用机制检查。
+- 本地验收/证据/自审后仅创建 [PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33)。[数值CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424335) Debug/Release各29/29通过，零失败/零跳过；[网站/草稿隔离](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/41626424264)通过。 增量证据job也成功；不需要代码修复。合并预览tree与本地/PR head完全相同，精简证据见 `delivery-ci.json`。PR #33 随后于 2026-11-03 合入 main，合并提交 `4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e`；任务状态更新为 done。后续纯文档更新不重新运行未受影响的数值测试，保留并引用原 CI 来源。
 - 同时核对前置 FSI-NEXT-01 已由 PR #32 合并为基线 `b2755b6`，纠正队列旧 in_progress，历史记录明确标注。
 
 ## 2026-10-31 / DOCS-01 — 全仓 Markdown 进度同步
@@ -643,21 +643,10 @@ BE 粗步未达门槛后细化，保持原阶数标准；其他初期失败为�
 
 FSI-NEXT-01 最终审查发现旧镜像弹性体使用单独参考几何分支，追加 Debug/Release `elastic_fsi_verification` 各 1/1（不重复前述已通过检查），并补 CI 映射；本地各累计 5 项。选测器 26/26、证据解析 6/6 通过，新文档链接检查通过。
 
+## 2026-11-03 / WEBSITE-KNOWLEDGE-REFRESH — 网站与知识资产同步
 
-### FSI-NEXT-03 来源与采样自审补充
-
-原型只冻结二进制与数值参数，未冻结判据/生成器脚本；这是可能混用旧周期计数或旧网格缓存的风险，不是已观测数据损坏的根因。现将相关源码SHA纳入定义；旧时间目录缺少新指纹时按预期拒绝，并核对未改写网格，负例见 `time-source-mismatch.log`。已有数值数据及前次重新分析结果保留，不伪称旧记录开始前已有新增元数据。
-
-压降判据还显式检查所有实际场相位和接受终点，避免128点插值网格不包含20个原始相位峰值。相关小型MPI回归随后执行；长期研究过程仍保持其启动时的代码和可执行文件，最终独立审计补足各历史状态的压降和密集相位检查。
-
-
-### FSI-NEXT-03 三网格阶段数据
-
-n=2/4/8默认稳定化完整场周期停止在86/50/37。20相位空间差初步递减：流体速度/压力/ALE位移、固体速度/位移的实测阶分别2.015/2.292/1.594/0.981/0.814；时间污染尚未排除，不能作为最终空间验收或全场二阶结论。原始数据和自包含重启归档见 `space-auto-n{2,4,8}.tar.gz`，字段保留范围见侧车清单，三档均逐文件SHA回读核对通过。
-
-Release 7/7受影响检查通过（源码指纹/精确相位补充前的控制器版本）；n=8同一完整周期在新Release重放最大字段相位RMS差3.83e-14。最终控制器Debug/Release单项检查已排入后续批次，不能把这次7项结果冒充后续脚本的新通过。删除未使用的viscous稳定化分析选项，只保留实际涉及的automatic/fixed；固定tau=0在创建工况目录前拒绝。
-
-
-### 原始证据上传的传输失败
-
-19,168,899字节的n=8压缩归档经GitHub连接单次上传返回HTTP 400（MCP传输错误），未返回blob SHA，远端分支尚未更新；更小的文件已成功。精确服务端大小上限未确认。将该归档分为4MiB片段，并逐片及整体SHA校验，重组与原件字节完全一致；数值计算未中止或改变。新增重组失败保护的两个标准库测试均通过，包括损坏后续片段时保留旧输出。分片继续按同一分支保存，不创建PR。
+- 基线 main `4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e`；在独立分支 `codex/website-knowledge-refresh-2026-11-03` 更新网站首页、研发总览、知识索引、单体 FSI 专题及 FEM 学习页。
+- 根据已合入 PR #31/#32/#33 更新 FSI 能力说明；根据 PR #27/#28/#29 更新 P2 标量有限元范围。相关测试数量只按已归档证据记录，不将选测描述为全量测试。
+- 补记 FSI 与 P2 技术文章草稿的合并状态、CI 来源和限制；所有文章继续留在 `website/drafts/`，未自动发布。
+- 同步 `KNOWLEDGE_LOG.md`、`CODEX_PROGRESS.md` 和 `CODEX_TASK_QUEUE.md`，修正 FSI-NEXT-02 已合并后的状态。
+- 本任务只改文档，不运行 CMake、编译、CTest、MPI、数值或性能实验；网站构建/草稿隔离检查待本 PR 的 GitHub Actions 结果确认。

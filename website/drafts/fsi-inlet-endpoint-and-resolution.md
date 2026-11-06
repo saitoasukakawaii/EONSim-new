@@ -92,3 +92,11 @@ physics 在 n=8 的最大进程高水位内存更低。这支持按算例比较�
 `min(det F)` 只是几何体积指标，不能识别所有长细或劣形单元。
 审查应检查规定值与齐次约束交线的相容性、面积是否重复计入，以及状态提交是否晚于所有有效性检查。
 练习：将入口启动时间缩短，观察粗时间步上的误差是否掩盖空间加密趋势。
+
+## 合入状态补记（2026-11-03）
+
+FSI-NEXT-01 已通过 [PR #32](https://github.com/saitoasukakawaii/EONSim-new/pull/32) 合入 `main`，合并提交为 [`b2755b6`](https://github.com/saitoasukakawaii/EONSim-new/commit/b2755b671ebffc4ad858d560214d4a7377eaf05e)。实现提交为 `0d93d41`，双域邻接补强为 `69692ee`，研究脚本为 `32783a5`。
+
+本地 PETSc 3.23.7 Debug/Release 各累计 5 项针对性检查通过；研究覆盖 1/2/4 rank。相关性能结果只适用于报告中的小规模单机配置，不能据此推断大规模扩展或稳定加速。完整数据仍以 [验收记录](../../docs/research/data/fsi-next-2026-11-03/README.md) 为准。
+
+本文仍保留在 `website/drafts/`，尚未经过人工文章审核。

@@ -117,3 +117,11 @@ P2 目前未实现独立边界梯度通量日志，质量增长验收不能替�
 [时间契约](../../docs/development/TIME_INTEGRATION.md) 中固定版本的一阶 generalized-alpha 来源；
 实现与局限见 [二维标量指南](../../docs/development/SCALAR_2D.md)。
 审阅重点是 stage/端点边界、accepted 提交点、P2 签名覆盖和真实失败证据；本页尚未作为正式知识发布。
+
+## 合入状态与云端验收补记（2026-11-03）
+
+FEM-G2C 已通过 [PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29) 合入 `main`，合并提交为 [`dff9116`](https://github.com/saitoasukakawaii/EONSim-new/commit/dff911648e54507e9cca80ad1880c20b867a0c75)。实现提交为 `d19a03268577b33ddfb41177037d9bbc1f76d273`。
+
+PR 云端 PETSc 3.23.7 Debug/Release 各 15/15 项相关检查通过，网站构建和草稿隔离检查通过；云端证据见 [`cloud.json`](../../docs/research/data/p2-transient-2026-11-03/cloud.json)。本轮没有全量测试、旧 PETSc 锁或超过 2 rank 的新增验证，也没有性能结论。
+
+本文仍为 draft，待人工审查 stage/端点边界、accepted 历史提交点、P2 场签名和失败证据后再考虑发布。
