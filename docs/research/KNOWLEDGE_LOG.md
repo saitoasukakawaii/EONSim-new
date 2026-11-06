@@ -1,5 +1,9 @@
 # EONSim Knowledge Log
 
+## 2026-11-06 / 质量预算的非有限值拒绝
+
+源码 `80571b102e31dd2e7664a64a39a92efc8402045c`；`max(0., abs(NaN))`可保留0，故初始状态和累积量必须在最大值归约前验证。时间差容差不能替代接受步长严格为正的检查。扩充[既有周期FSI草稿](../../website/drafts/fsi-periodic-state-and-error-separation.md)，未发布。26项Python检查通过，9组归档22400行重算与原36个预算值一致；无新PETSc/MPI或性能证据。命令与复现详见[会话日志](../development/CODEX_SESSION_LOG.md)。PR #35已合并为815755e，下方未合入描述为历史。
+
 
 ## 2026-11-05 / 固定算子周期误差分离与可恢复证据
 
