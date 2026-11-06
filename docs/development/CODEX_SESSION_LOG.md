@@ -683,3 +683,48 @@ FSI-NEXT-01 最终审查发现旧镜像弹性体使用单独参考几何分支�
 - 补记 FSI 与 P2 技术文章草稿的合并状态、CI 来源和限制；所有文章继续留在 `website/drafts/`，未自动发布。
 - 同步 `KNOWLEDGE_LOG.md`、`CODEX_PROGRESS.md` 和 `CODEX_TASK_QUEUE.md`，修正 FSI-NEXT-02 已合并后的状态。
 - 本任务只改文档，不运行 CMake、编译、CTest、MPI、数值或性能实验；网站构建/草稿隔离检查待本 PR 的 GitHub Actions 结果确认。
+
+## 2026-11-06 — FSI-PROD-01 circular inlet / solid-wall tube
+
+User asked to advance toward production FSI. Rechecked/fetched main `dd27eef`
+(PR #36 merged), isolated branch `codex/fsi-production-tube`. Read architecture,
+state, build and knowledge contracts. Implementation local `31a04e6`, remote
+`718b7a6bb97fbb5eed09829a0bb7225d3963ee5f`, identical tree
+`8b0adc8bd3b206576cefd9a0e90e5314397d24ec` verified before branch creation.
+CLI push failed for missing HTTPS credentials; uploaded code via GitHub API.
+
+Implemented circle profile with discrete MPI flux normalization and geometry
+checkpoint signature, preserving rectangle default/signature; deterministic
+independent disk/annulus Tet4 meshes with matching interface triangulations;
+actual coupled tube acceptance and independent mesh oracles. Review performed
+by the implementing agent, no independent external review claimed.
+
+Important failure: an enlarged inlet radius violates zero velocity on clamped
+interface rim nodes before restart compatibility is checked. Initial negative
+test expected the wrong failure category. Split geometry-conflict and waveform
+signature tests without changing solver tolerances. The test script was edited
+while the first Python process retained its old code, so traceback source lines
+can show a newer label; preserve the failed log and rerun the entire corrected
+tube test. No production fix was needed for this failure.
+
+Validation commands, source hashes, metrics, first failure and final logs:
+[FSI-PROD-01 evidence](../research/data/fsi-tube-2026-11-06/README.md).
+Restored pinned PETSc 3.23.7 with `scripts/cloud/restore.sh`; compiled using
+`scripts/cloud/run.sh`, explicit affected tests only. Release tube and old
+rectangle flow checks passed. Independent mesh tests 2/2 and CI-selection
+checks 26/26 passed. Debug tube first failed at a negative-test process startup (LLVM OpenMP
+assertion/PMIx error), while rectangle flow passed. Retained the failure,
+reused the historical bounded PID-isolation workaround and reran the complete
+tube check: 1/1 passed, zero skips. Thus Debug/Release each accumulated two
+distinct affected checks passed. No tolerance or equation changes.
+
+Additional signed radial-field inspection shows both local contraction and
+expansion on this coarse transient mesh. Do not describe response as physically
+qualified; PROD-02 must separate spatial/geometric/time effects and compare
+against analytical limits and a pinned svFSI case. No default-tau, production
+scale, patient accuracy, RCR, external Robin or multi-node claim.
+
+Reusable derivation and failure lesson captured in unpublished draft
+`website/drafts/fsi-circular-inlet-discrete-flux.md`; roadmap and task queue
+advance toward quantitative tube qualification, vascular boundaries, real
+geometry and multi-node scaling. Do not auto-merge main or publish the draft.

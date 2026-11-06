@@ -498,3 +498,13 @@ FSI 外层仍按 flow/mesh/structure（或 rigid）分块，flow 内部再分速
 [实际精度与性能记录](docs/development/B5_ACCURACY_AND_PERFORMANCE.md) 包含 4³/8³/12³ 通道压力和速度收敛、
 5 组 FSI 时间步、703/2299 有效未知量的直接解/Schur/差分切线耗时及内存。
 当前测试覆盖低 Re 小规模问题；尚未证明网格无关迭代、高 Re 或大规模生产性能。
+
+## 圆形流量入口与实体壁圆管
+
+`python cases/fsi/generate_tube.py --output build/tube` 生成独立、共形的流体
+圆管与固体环壁。`fsi.inlet.flow_rate.profile: circle` 指定圆形抛物线速度
+形状，以离散面积积分归一化实际流量。仍限定固定、轴对齐入口。
+此合成算例用于小规模 MPI 实现验证；不代表生理精度或生产级规模已验收。
+[配置与运行](docs/development/FSI_CIRCULAR_TUBE.md) ·
+[生产化阶段](docs/development/FSI_PRODUCTION_ROADMAP.md) ·
+[验证证据](docs/research/data/fsi-tube-2026-11-06/README.md)。

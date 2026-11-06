@@ -176,3 +176,14 @@ G0B 将上述固定界面映射集中到 `ReducedLayout::slot`：每物理槽返
 ## 固定速度入口与界面观测
 
 独立双域弹性 FSI 可配置固定非零速度入口；通过已消元物理槽的提升值接入统一残量。generalized-alpha 本质边界采用相邻终点值插值，自然压力直接取共同阶段时间。界面夹持反力与自由测试行残量平衡分开解释。面积观测使用分布式流体面邻接消去内部候选面，参考面积积分不等于节点平均。具体接口与失败语义见 [入口与可靠性](../development/FSI_INLET_AND_RELIABILITY.md)。
+
+## Circular inlet / FSI-PROD-01
+
+The periodic flow inlet optionally uses an axis-aligned circular parabolic
+nodal profile. Its normalization remains the discrete Tri3 flux integral with
+one global scalar reduction. Circle geometry is included in the checkpoint
+physics signature; omitted profile retains the rectangular behavior/signature.
+The synthetic solid-wall tube establishes curved-interface implementation and
+small-rank consistency, not patient accuracy or production scalability.
+See [circular tube contract](../development/FSI_CIRCULAR_TUBE.md) and
+[production qualification stages](../development/FSI_PRODUCTION_ROADMAP.md).

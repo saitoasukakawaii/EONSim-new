@@ -1,0 +1,76 @@
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+UpdateCTestConfiguration  from :/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+UpdateCTestConfiguration  from :/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+SetCTestConfiguration:SourceDirectory:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+Test project /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 29
+    Start 29: fsi_tube
+
+29: Test command: /workspace/scratch/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_tube.py" "--executable" "/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/eonsim" "--mpiexec" "/workspace/scratch/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/fsi_tube"
+29: Working Directory: /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+29: Environment variables:
+29:  OMP_NUM_THREADS=1
+29:  OPENBLAS_NUM_THREADS=1
+29:  MKL_NUM_THREADS=1
+29: Test timeout computed to be: 600
+29: Traceback (most recent call last):
+29:   File "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_tube.py", line 76, in <module>
+29:     if __name__=='__main__':main()
+29:                             ~~~~^^
+29:   File "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_tube.py", line 63, in main
+29:     run.solve('changed-waveform',changed,2,['-restart',checkpoint],fail='Checkpoint mesh/partition/physics mismatch')
+29:     ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29:   File "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_inlet.py", line 31, in solve
+29:     log=self.command([self.mpi,'-n',ranks,self.exe,'-case',case,'-partition',part,*extra],label,fail)
+29:   File "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_inlet.py", line 23, in command
+29:     if fail: assert r.returncode!=0 and fail in r.stdout,r.stdout[-5000:]
+29:                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29: AssertionError: OMP: Error #13: Assertion failure at z_Linux_util.cpp(2125).
+29: OMP: Hint Please submit a bug report with this message, compile and run commands used, and machine configuration info including native compiler and operating system versions. Faster response will be obtained by including all program sources. For information on submitting this issue, please see https://github.com/llvm/llvm-project/issues/.
+29: [00fc98759f84:00708] PMIX ERROR: PMIX_ERR_UNREACH in file base/ptl_base_connection_hdlr.c at line 112
+29: --------------------------------------------------------------------------
+29: prterun noticed that process rank 1 with PID 712 on node 00fc98759f84 exited on
+29: signal 6 (Aborted).
+29: --------------------------------------------------------------------------
+29:
+1/2 Test #29: fsi_tube .........................***Failed  146.24 sec
+test 30
+    Start 30: fsi_flow
+
+30: Test command: /workspace/scratch/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_flow.py" "--executable" "/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/eonsim" "--mpiexec" "/workspace/scratch/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/fsi_flow"
+30: Working Directory: /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+30: Environment variables:
+30:  OMP_NUM_THREADS=1
+30:  OPENBLAS_NUM_THREADS=1
+30:  MKL_NUM_THREADS=1
+30: Test timeout computed to be: 600
+30: {"be": {"stage_mass_residual": 4.336808689942018e-18, "secant_mass_residual": 2.298014209478616e-13, "area_displacement_y": 0.00015738422347693612}, "bdf2": {"stage_mass_residual": 4.336808689942018e-18, "secant_mass_residual": 0.0013851289786423384, "area_displacement_y": 0.00015504886878715398}, "generalized_alpha": {"stage_mass_residual": 5.204170427930421e-18, "secant_mass_residual": 0.0006625033902744491, "area_displacement_y": 0.00015435041230509253}, "jacobian_relative_error": 1.03756e-07, "retry_accepted_dt": 7.8125e-06}
+2/2 Test #30: fsi_flow .........................   Passed   27.12 sec
+
+The following tests passed:
+	fsi_flow
+
+50% tests passed, 1 tests failed out of 2
+
+Label Time Summary:
+rank-1    = 639.21 sec*proc (2 tests)
+rank-2    = 639.21 sec*proc (2 tests)
+rank-4    = 584.97 sec*proc (1 test)
+
+Total Test time (real) = 173.37 sec
+
+The following tests FAILED:
+	 29 - fsi_tube (Failed)                                 rank-1 rank-2 rank-4

@@ -1,0 +1,42 @@
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+UpdateCTestConfiguration  from :/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+UpdateCTestConfiguration  from :/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+SetCTestConfiguration:SourceDirectory:/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+Test project /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 29
+    Start 29: fsi_tube
+
+29: Test command: /workspace/scratch/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/dc193391a83f/eonsim-production/tests/verify_fsi_tube.py" "--executable" "/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/eonsim" "--mpiexec" "/workspace/scratch/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug/fsi_tube"
+29: Working Directory: /workspace/scratch/dc193391a83f/eonsim-production/build/cloud-3.23.7-debug
+29: Environment variables:
+29:  OMP_NUM_THREADS=1
+29:  OPENBLAS_NUM_THREADS=1
+29:  MKL_NUM_THREADS=1
+29: Test timeout computed to be: 600
+29: {"be": {"mpi_error": 2.310868510435604e-15, "restart_error": 0.0, "maximum_radial_displacement": 6.885214000169964e-05, "maximum_mass_residual": 1.214306433183765e-17}, "bdf2": {"mpi_error": 7.846154281843098e-15, "restart_error": 0.0, "maximum_radial_displacement": 6.579944714457348e-05, "maximum_mass_residual": 1.5612511283791264e-17}, "generalized_alpha": {"mpi_error": 4.973799150320701e-14, "restart_error": 0.0, "maximum_radial_displacement": 6.582154500251932e-05, "maximum_mass_residual": 1.214306433183765e-17}, "four_rank_error": 4.047456814149086e-14, "jacobian_relative_error": 9.92097e-09}
+1/1 Test #29: fsi_tube .........................   Passed  156.07 sec
+
+The following tests passed:
+	fsi_tube
+
+100% tests passed out of 1
+
+Label Time Summary:
+rank-1    = 624.28 sec*proc (1 test)
+rank-2    = 624.28 sec*proc (1 test)
+rank-4    = 624.28 sec*proc (1 test)
+
+Total Test time (real) = 156.07 sec
