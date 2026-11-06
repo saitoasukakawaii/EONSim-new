@@ -3,6 +3,7 @@
 #include <yaml-cpp/yaml.h>
 #include <cmath>
 #include <algorithm>
+#include <map>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -51,12 +52,12 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
     const auto boundaries=f["boundaries"];
     if(!boundaries.IsSequence()||boundaries.size()==0) throw std::runtime_error("fluid.boundaries must be a nonempty sequence");
     if(f["pressure_drop"]||f["outlet"]||f["ramp_time"]) throw std::runtime_error("Tagged boundaries cannot use benchmark pressure_drop/outlet/ramp_time");
-    std::set<int> tags; bool natural=false,velocity=false;
+    std::map<int,std::set<int>> tag_components; bool natural=false,velocity=false;
     for(const auto& entry:boundaries) {
         const auto type=entry["type"].as<std::string>();
         FluidBoundary b;
         if(type=="pressure") {
-            keys(entry,{"tag","type","value","ramp_time"},"fluid.boundaries.pressure");
+            keys(entry,{"tag","type","value","ramp_time","components"},"fluid.boundaries.pressure");
             b.type=FluidBoundary::Type::pressure; b.pressure=entry["value"].as<double>();
             if(!std::isfinite(b.pressure)) throw std::runtime_error("Boundary pressure must be finite");
         } else {
@@ -81,7 +82,10 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
             if(b.components.empty()) throw std::runtime_error("Boundary components cannot be empty");
         }
         b.tag=entry["tag"].as<int>();
-        if(b.tag<=0||!tags.insert(b.tag).second) throw std::runtime_error("Boundary tags must be distinct and positive");
+        if(b.tag<=0) throw std::runtime_error("Boundary tags must be positive");
+        if(solid&&tag_components.count(b.tag)) throw std::runtime_error("Solid boundary tags must be distinct");
+        for(int c:b.components) if(!tag_components[b.tag].insert(c).second)
+            throw std::runtime_error("Overlapping components on boundary tag "+std::to_string(b.tag));
         if(entry["ramp_time"]) b.ramp_time=entry["ramp_time"].as<double>();
         if(!std::isfinite(b.ramp_time)||b.ramp_time<0) throw std::runtime_error("Boundary ramp_time must be finite and nonnegative");
         natural|=b.type!=FluidBoundary::Type::velocity; velocity|=b.type==FluidBoundary::Type::velocity;
@@ -98,10 +102,13 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
         config.mean_pressure=true;
     }
     if(config.mean_pressure&&config.pressure_gauge) throw std::runtime_error("Choose pressure gauge or mean normalization");
-    if(!solid&&natural&&(config.pressure_gauge||config.mean_pressure)) throw std::runtime_error("Pressure gauge cannot accompany traction or pressure boundaries");
-    const bool complete=std::all_of(config.boundaries.begin(),config.boundaries.end(),[](const auto& b){return b.components.size()==Space3::dimension;});
+    // Gauge compatibility depends on the free normal trace after all component
+    // constraints (including intersecting tags) are merged; check it on the mesh.
+    const bool complete=std::all_of(tag_components.begin(),tag_components.end(),[](const auto& b){return b.second.size()==Space3::dimension;});
     if(!solid&&!natural&&complete&&!config.pressure_gauge&&!config.mean_pressure) throw std::runtime_error("All-velocity boundaries require pressure_gauge or mean normalization");
-    std::sort(config.boundaries.begin(),config.boundaries.end(),[](const auto& a,const auto& b){return a.tag<b.tag;});
+    std::sort(config.boundaries.begin(),config.boundaries.end(),[](const auto& a,const auto& b){
+        return a.tag!=b.tag?a.tag<b.tag:a.components<b.components;
+    });
 }
 } // namespace
 

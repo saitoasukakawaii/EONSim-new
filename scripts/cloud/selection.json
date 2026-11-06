@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "tests": {
+    "rigid_tube_verification": {"targets": ["eonsim"], "ranks": [1, 2]},
     "fsi_tube": {"targets": ["eonsim"], "ranks": [1, 2, 4]},
     "fsi_periodic": {"targets": ["eonsim"], "ranks": [1, 2, 4]},
     "fsi_flow": {"targets": ["eonsim"], "ranks": [1, 2]},
@@ -78,6 +79,7 @@
     "time_retry_verification": {"targets": ["eonsim"], "ranks": [1, 2]}
   },
   "rules": [
+    {"paths": ["scripts/study_rigid_tube.py", "tests/test_rigid_tube.py", "cases/fsi/generate_tube.py", "src/core/config.cpp", "include/eonsim/config.hpp", "src/physics/fluid_boundary.cpp", "src/physics/fluid.cpp", "include/eonsim/fluid_residual.hpp", "CMakeLists.txt"], "tests": ["rigid_tube_verification"], "python": ["tests/test_rigid_tube.py"]},
     {"paths": ["cases/fsi/generate_tube.py", "tests/verify_fsi_tube.py", "tests/test_tube_mesh.py"], "tests": ["fsi_tube"], "python": ["tests/test_tube_mesh.py"]},
     {"paths": ["scripts/archive_fsi_periodic.py", "scripts/split_fsi_archive.py", "tests/test_fsi_archive.py"], "tests": [], "python": ["tests/test_fsi_archive.py"]},
     {"paths": ["scripts/fsi_cycle_metrics.py", "scripts/fsi_field_cycles.py", "scripts/fsi_space_metrics.py", "scripts/study_fsi_periodic.py", "scripts/study_fsi_time_accuracy.py", "scripts/analyze_fsi_space.py", "scripts/analyze_fsi_error_budget.py", "scripts/study_fsi_transient_tail.py", "scripts/study_fsi_phase_sampling.py", "scripts/study_fsi_checkpoint_replay.py", "tests/verify_fsi_periodic.py", "tests/test_fsi_cycle_metrics.py", "tests/test_fsi_field_cycles.py", "tests/test_fsi_space_metrics.py"], "tests": ["fsi_periodic", "fsi_flow"], "python": ["tests/test_fsi_cycle_metrics.py", "tests/test_fsi_field_cycles.py", "tests/test_fsi_space_metrics.py"]},
