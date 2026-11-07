@@ -96,3 +96,12 @@ Results, source identity, commands, failures and remaining limitations are recor
 in [the dated evidence](../research/data/rigid-tube-2026-11-06/README.md). Global
 mass balance and a small last flow change do not establish pointwise
 incompressibility, pressure accuracy or an asymptotic convergence order.
+
+## Continuation: whole-field diagnostics and seed meshes (2026-11-07)
+
+[The seed study](../research/data/rigid-tube-seeds-2026-11-07/README.md) adds exact
+P1 pressure-error integration, degree-four velocity-error integration and element
+velocity divergence. `scripts/study_rigid_tube_seed.py` accepts explicit
+`--seed SECTORS RADIAL AXIAL` values, refuses overwriting existing solve directories,
+and supports `--analyze-only` replay. The original red-refinement study, its 2% gate,
+and historical receipts are unchanged. New diagnostics do not certify full PROD-02.

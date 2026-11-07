@@ -1,5 +1,15 @@
 # EONSim Knowledge Log
 
+## 2026-11-07 / 全场误差与局部质量审计
+
+新增[算法草稿](../../website/drafts/tube-field-errors-and-local-mass.md)，实现
+`4113ab8300410459dbfb057db5d4978e7d106aa7`。理论为单纯形多项式矩及散度积分；
+验证包含6项解析检查、5组真实稳态网格、1/2/4 rank与归档字段审计。无性能结论，
+不宣称完整FSI资格。初始测试预期的手算错误、MPI root启动拒绝均保留。
+[证据](data/rigid-tube-seeds-2026-11-07/README.md)。待审：压力迹与域内压力误差
+的不同收敛行为、几何误差抵消和剩余局部质量误差。稿件未发布。
+
+
 ## 2026-11-06 / 刚性管混合端面与几何误差分离
 
 新增[数值基准草稿](../../website/drafts/rigid-tube-geometry-and-mixed-boundaries.md)，

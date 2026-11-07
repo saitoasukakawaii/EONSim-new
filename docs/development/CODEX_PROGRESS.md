@@ -1,5 +1,21 @@
 # EONSim Codex Development Progress
 
+## FSI-PROD-02 continuation / in_progress / 2026-11-07
+
+Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main
+`dc37852`; PR #38 remains open. Source `4113ab8300410459dbfb057db5d4978e7d106aa7`.
+Restored locked PETSc 3.23.7 in an 8 GiB Linux container. Added exact pressure/velocity
+field and local divergence diagnostics, plus a seed-mesh runner. Five actual serial
+solves: 96/12/24 sectors/radial/axial gives flow error 0.546409%, velocity L2 0.320760%,
+pressure RMS/drop 0.489014%, end-pressure-drop error still 5.140012%. A 96/8/16
+1/2/4-rank comparison has maximum field difference 5.31e-16. These isolated results
+are not full PROD-02 acceptance; Womersley, elastic walls, default transient tau,
+svFSI, error budgets and full review remain pending. No new PR or merge.
+Release tube regression 1/1 and Python 6+3+26 checks passed; historical Debug
+results reused, not rerun. Root MPI rejection and initial test-oracle arithmetic
+mistake are recorded. [Evidence and replay](../research/data/rigid-tube-seeds-2026-11-07/README.md).
+
+
 ## FSI-PROD-02A / PR #38检查通过 / 2026-11-06
 
 PR #36、#37 已合入 main `dc378529538259567a78cea9820a202a6187809c`，下方review为历史。
