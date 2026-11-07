@@ -79,6 +79,7 @@
     "time_retry_verification": {"targets": ["eonsim"], "ranks": [1, 2]}
   },
   "rules": [
+    {"paths": ["scripts/audit_rigid_tube_fields.py", "scripts/study_rigid_tube_seed.py", "tests/test_rigid_tube_fields.py"], "tests": [], "python": ["tests/test_rigid_tube_fields.py", "tests/test_rigid_tube.py"]},
     {"paths": ["scripts/study_rigid_tube.py", "tests/test_rigid_tube.py", "cases/fsi/generate_tube.py", "src/core/config.cpp", "include/eonsim/config.hpp", "src/physics/fluid_boundary.cpp", "src/physics/fluid.cpp", "include/eonsim/fluid_residual.hpp", "CMakeLists.txt"], "tests": ["rigid_tube_verification"], "python": ["tests/test_rigid_tube.py"]},
     {"paths": ["cases/fsi/generate_tube.py", "tests/verify_fsi_tube.py", "tests/test_tube_mesh.py"], "tests": ["fsi_tube"], "python": ["tests/test_tube_mesh.py"]},
     {"paths": ["scripts/archive_fsi_periodic.py", "scripts/split_fsi_archive.py", "tests/test_fsi_archive.py"], "tests": [], "python": ["tests/test_fsi_archive.py"]},
