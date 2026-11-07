@@ -33,6 +33,7 @@ struct SolverConfig {
 /** @brief 按 physical tag 的固定网格流体边界。
  * velocity/traction: value + gradient*(x-origin)，gradient 按行存储；pressure: t=-pressure*n。
  * ramp_time=0 表示立即施加，否则乘 min(t/ramp_time,1)；稳态忽略 ramp。
+ * 同一 tag 可按互不重叠的全局分量组合不同条件；所有条目均未选择的分量为零自然牵引。
  */
 struct FluidBoundary {
     enum class Type { velocity, traction, pressure };

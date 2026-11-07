@@ -1,5 +1,60 @@
 # EONSim Codex Session Log
 
+## FSI-PROD-02 continuation / in_progress / 2026-11-07
+
+Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main
+`dc37852`; PR #38 remains open. Source `4113ab8300410459dbfb057db5d4978e7d106aa7`.
+Restored locked PETSc 3.23.7 in an 8 GiB Linux container. Added exact pressure/velocity
+field and local divergence diagnostics, plus a seed-mesh runner. Five actual serial
+solves: 96/12/24 sectors/radial/axial gives flow error 0.546409%, velocity L2 0.320760%,
+pressure RMS/drop 0.489014%, end-pressure-drop error still 5.140012%. A 96/8/16
+1/2/4-rank comparison has maximum field difference 5.31e-16. These isolated results
+are not full PROD-02 acceptance; Womersley, elastic walls, default transient tau,
+svFSI, error budgets and full review remain pending. No new PR or merge.
+Release tube regression 1/1 and Python 6+3+26 checks passed; historical Debug
+results reused, not rerun. Root MPI rejection and initial test-oracle arithmetic
+mistake are recorded. [Evidence and replay](../research/data/rigid-tube-seeds-2026-11-07/README.md).
+
+
+Execution notes: original EONSim workspace connector returned internal errors twice.
+A fresh checkout of the existing branch was used; old uncommitted work could not be
+inspected. Git HTTPS push dry-run lacked credentials; repository objects are uploaded
+through the connected GitHub API, with tree equality checked. No auto-merge.
+The new numerical solves use unchanged source at 92d63f1; postprocessing source is
+4113ab8. Commands, initial failures and raw inputs/fields are in the evidence link.
+
+
+## 2026-11-06 / FSI-PROD-02A 刚性管稳态流量基线
+
+- 恢复：远端已合并PR #36/#37，基线dc378529538259567a78cea9820a202a6187809c。
+  复用当前checkout，未修改旧WSL工作区。Windows Git报告295个M但diff空；逐文件确认原始blob
+  与索引一致后刷新这些路径的索引，确认暂存diff为空，才建立独立分支；没有reset或丢弃用户修改。
+- 实现：a0d228764850fa838229acb6a6e613933070490f。原接口每tag单一条件不能表达相容的
+  Poiseuille端面：只允许按互斥笛卡尔分量组合流体条件，压力可选分量；规范检查移至实际法向
+  trace，唯一标签诊断避免重复计数，签名涵盖全部条目。固体仍要求tag唯一。
+- 验证设计：R=1/L=2/rho=mu=1/Delta p=.02，Re=.0025/alpha=0；充分发展稳态解，
+  red细分保持多边形边界；几何变化单列。事前设定流量2%、末档变化1%、MPI2e-9、净通量1e-10。
+- 首轮七个串行状态和MPI完成，但level-2场变化5.670926%/2.479559%失败；继续12边形到level4、
+  48边形到level3、补24边形level3，不重复原状态。最终流量1.264676%、末档变化
+  0.410813%/0.024769%、MPI2.78e-17、净通量4.12e-17通过；压力3.993089%仍未资格化。
+- 实际构建与检查：仓库run.sh、PETSc3.23.7、WSL2、单线程/单MPI队列；首轮Release
+  tagged_fluid/regions 2/2；扩充重启分量/规范检查后Release tagged_fluid/rigid_tube 2/2；
+  Debug三项3/3。网格与重算3项、CI选择26项。此前CI选择在Windows遇到Git所有权保护，
+  仅为当前进程设置该checkout safe.directory后通过；无全局配置修改。无数值求解失败。
+- 证据：[原始数据、命令、校验和及迁移重算](../research/data/rigid-tube-2026-11-06/README.md)。
+  构建原SHA/dirty字段保留，以实际数值源码哈希与二进制身份关联实现提交。未做性能测量。
+- 自审：流量通过不能掩盖压强和局部散度误差；几何界适用于连续多边形解，不是FE约束。
+  没有独立审查者。未重跑无关FSI/时间研究；PROD-02的Womersley、弹性管、瞬态tau、svFSI待后续。
+- 知识沉淀：按eonsim-knowledge-capture生成[草稿](../../website/drafts/rigid-tube-geometry-and-mixed-boundaries.md)，
+  区分理论、实现、实际验证和未测性能，保持draft；本地验收完成，已创建
+  [PR #38](https://github.com/saitoasukakawaii/EONSim-new/pull/38)，未合并。
+- 云端最终验收：[run 42236840428](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42236840428)
+  PETSc3.23.7 Debug/Release各26/26，零失败/零跳过；Python26+6+3=35项与增量receipt通过。
+  网站run42236840526通过。测试合并预览3f4625c394cb487a17b00a400ea98d2b9eb53375的tree
+  2802d32421aa6c6c9ec49ac0146862b3de0d7853与已审查head d1c4be0完全一致。
+  Debug运行较久，期间日志尚未发布，结束后读取实际成功计数；没有假定提前通过。
+  最终补记仅文档/证据，后续CI应复用同PR成功收据。完整11状态研究仍是本地证据，CI只做小回归。
+
 ## 2026-11-06 / FSI-QA-01 质量预算有效性修复
 
 - 基线：main `815755eb15ffb63299487e8f9163ddc9d242a2f2`，PR #35已合并。工作区连接两次内部错误，改从GitHub核对后克隆主线；未修改原连接工作区。

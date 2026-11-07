@@ -1,0 +1,43 @@
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release
+UpdateCTestConfiguration  from :/workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+UpdateCTestConfiguration  from :/workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+Cannot find file: /workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+SetCTestConfiguration:BuildDirectory:/workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release
+SetCTestConfiguration:SourceDirectory:/workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release
+Test project /workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 66
+    Start 66: rigid_tube_verification
+
+66: Test command: /workspace/scratch/7caafc9da860/eonsim-cloud/petsc-3.23.7/bin/python3.15 "/workspace/scratch/7caafc9da860/EONSim-new/scripts/study_rigid_tube.py" "--executable" "/workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release/eonsim" "--mpiexec" "/workspace/scratch/7caafc9da860/eonsim-cloud/petsc-3.23.7/bin/mpiexec" "--work" "/workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release/rigid_tube_verification"
+66: Working Directory: /workspace/scratch/7caafc9da860/EONSim-new/build/cloud-3.23.7-release
+66: Environment variables: 
+66:  OMP_NUM_THREADS=1
+66:  OPENBLAS_NUM_THREADS=1
+66:  MKL_NUM_THREADS=1
+66: Test timeout computed to be: 300
+66: {"sectors": 12, "level": 0, "nodes": 75, "tetrahedra": 216, "ranks": 1, "flow": 0.004191612973856333, "circle_flow_relative_error": 0.06738547890776769, "polygon_continuum_flow_lower_bound": 0.0034184953864014977, "polygon_continuum_flow_upper_bound": 0.003926990816987242, "net_outward_flux": 2.6020852139652106e-18, "volume": 6.0, "measured_pressure_drop": 0.006854964534201897, "measured_pressure_drop_relative_error": 0.6572517732899051, "volume_average_flow": 0.003368511478753651, "mean_to_end_flow_relative_difference": 0.20960107457907412, "maximum_transverse_velocity": 4.839165853735464e-05}
+66: {"sectors": 12, "level": 1, "nodes": 425, "tetrahedra": 1728, "ranks": 1, "flow": 0.003874577198518746, "circle_flow_relative_error": 0.013347018343350059, "polygon_continuum_flow_lower_bound": 0.0034184953864014977, "polygon_continuum_flow_upper_bound": 0.003926990816987242, "net_outward_flux": -1.734723475976807e-18, "volume": 6.0, "measured_pressure_drop": 0.014490647289322632, "measured_pressure_drop_relative_error": 0.27546763553386844, "volume_average_flow": 0.0034388230138059075, "mean_to_end_flow_relative_difference": 0.11096389195204324, "maximum_transverse_velocity": 2.872524464302983e-05}
+66: rigid tube verification passed
+1/1 Test #66: rigid_tube_verification ..........   Passed    0.70 sec
+
+The following tests passed:
+	rigid_tube_verification
+
+100% tests passed out of 1
+
+Label Time Summary:
+rank-1    =   1.41 sec*proc (1 test)
+rank-2    =   1.41 sec*proc (1 test)
+
+Total Test time (real) =   0.71 sec

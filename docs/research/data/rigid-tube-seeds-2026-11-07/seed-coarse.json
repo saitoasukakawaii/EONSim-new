@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "scope": "seed-mesh diagnostics only",
+  "states": [
+    {
+      "reference": {
+        "sectors": 48,
+        "level": 0,
+        "nodes": 1737,
+        "tetrahedra": 8064,
+        "ranks": 1,
+        "flow": 0.004062225233383587,
+        "circle_flow_relative_error": 0.034437161353001455,
+        "polygon_continuum_flow_lower_bound": 0.0038934667206682845,
+        "polygon_continuum_flow_upper_bound": 0.003926990816987242,
+        "net_outward_flux": -8.673617379884035e-18,
+        "volume": 6.265257226562476,
+        "measured_pressure_drop": 0.01680740107063006,
+        "measured_pressure_drop_relative_error": 0.15962994646849704,
+        "volume_average_flow": 0.003859857157562187,
+        "mean_to_end_flow_relative_difference": 0.051532607345553934,
+        "maximum_transverse_velocity": 2.522227472162679e-05
+      },
+      "fields": {
+        "velocity_relative_l2_error": 0.02494998097412577,
+        "pressure_rms_error": 0.0005302528426460467,
+        "pressure_rms_error_over_drop": 0.026512642132302335,
+        "pressure_mean_error": 2.6028371199193266e-05,
+        "divergence_rms": 0.00015656813486412168,
+        "divergence_rms_over_mean_speed_per_radius": 0.12525450789129736,
+        "divergence_maximum": 0.0004694359257200547,
+        "divergence_volume_integral": -9.672480982933669e-18,
+        "divergence_absolute_volume_integral": 0.0005229830173136288,
+        "divergence_theorem_absolute_defect": 9.988636030496337e-19
+      },
+      "seed": {
+        "sectors": 48,
+        "radial": 4,
+        "axial": 8,
+        "red_refinements": 0
+      }
+    },
+    {
+      "reference": {
+        "sectors": 48,
+        "level": 0,
+        "nodes": 6545,
+        "tetrahedra": 34560,
+        "ranks": 1,
+        "flow": 0.003975087760042949,
+        "circle_flow_relative_error": 0.012247785975880277,
+        "polygon_continuum_flow_lower_bound": 0.0038934667206682845,
+        "polygon_continuum_flow_upper_bound": 0.003926990816987242,
+        "net_outward_flux": -8.673617379884035e-19,
+        "volume": 6.265257226562476,
+        "measured_pressure_drop": 0.018228954863250626,
+        "measured_pressure_drop_relative_error": 0.0885522568374687,
+        "volume_average_flow": 0.0038889915959983866,
+        "mean_to_end_flow_relative_difference": 0.021924208142308544,
+        "maximum_transverse_velocity": 8.594813012536533e-06
+      },
+      "fields": {
+        "velocity_relative_l2_error": 0.010178924087745962,
+        "pressure_rms_error": 0.0002173338337900043,
+        "pressure_rms_error_over_drop": 0.010866691689500215,
+        "pressure_mean_error": 1.0299649823329489e-05,
+        "divergence_rms": 7.784134835914893e-05,
+        "divergence_rms_over_mean_speed_per_radius": 0.06227307868731914,
+        "divergence_maximum": 0.0003329997276774422,
+        "divergence_volume_integral": -4.816494035883969e-18,
+        "divergence_absolute_volume_integral": 0.00019603327380783483,
+        "divergence_theorem_absolute_defect": 3.949132297895565e-18
+      },
+      "seed": {
+        "sectors": 48,
+        "radial": 8,
+        "axial": 16,
+        "red_refinements": 0
+      }
+    },
+    {
+      "reference": {
+        "sectors": 96,
+        "level": 0,
+        "nodes": 13073,
+        "tetrahedra": 69120,
+        "ranks": 1,
+        "flow": 0.003965446585275957,
+        "circle_flow_relative_error": 0.009792680981673074,
+        "polygon_continuum_flow_lower_bound": 0.003918587328744121,
+        "polygon_continuum_flow_upper_bound": 0.003926990816987242,
+        "net_outward_flux": 6.938893903907228e-18,
+        "volume": 6.278700406093734,
+        "measured_pressure_drop": 0.01858826781149258,
+        "measured_pressure_drop_relative_error": 0.07058660942537098,
+        "volume_average_flow": 0.003909888789483737,
+        "mean_to_end_flow_relative_difference": 0.014147676524195013,
+        "maximum_transverse_velocity": 6.259822775263322e-06
+      },
+      "fields": {
+        "velocity_relative_l2_error": 0.005660053923060789,
+        "pressure_rms_error": 0.00016125709200751068,
+        "pressure_rms_error_over_drop": 0.008062854600375534,
+        "pressure_mean_error": 1.1404381084638734e-05,
+        "divergence_rms": 5.510229328676429e-05,
+        "divergence_rms_over_mean_speed_per_radius": 0.04408183462941143,
+        "divergence_maximum": 0.00024335415725670068,
+        "divergence_volume_integral": 7.455312686491434e-18,
+        "divergence_absolute_volume_integral": 0.000130506761067714,
+        "divergence_theorem_absolute_defect": 5.164187825842058e-19
+      },
+      "seed": {
+        "sectors": 96,
+        "radial": 8,
+        "axial": 16,
+        "red_refinements": 0
+      }
+    }
+  ]
+}

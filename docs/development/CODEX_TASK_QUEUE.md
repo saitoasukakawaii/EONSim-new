@@ -1,5 +1,40 @@
 # EONSim Codex Task Queue
 
+## FSI-PROD-02 continuation / in_progress / 2026-11-07
+
+Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main
+`dc37852`; PR #38 remains open. Source `4113ab8300410459dbfb057db5d4978e7d106aa7`.
+Restored locked PETSc 3.23.7 in an 8 GiB Linux container. Added exact pressure/velocity
+field and local divergence diagnostics, plus a seed-mesh runner. Five actual serial
+solves: 96/12/24 sectors/radial/axial gives flow error 0.546409%, velocity L2 0.320760%,
+pressure RMS/drop 0.489014%, end-pressure-drop error still 5.140012%. A 96/8/16
+1/2/4-rank comparison has maximum field difference 5.31e-16. These isolated results
+are not full PROD-02 acceptance; Womersley, elastic walls, default transient tau,
+svFSI, error budgets and full review remain pending. No new PR or merge.
+Release tube regression 1/1 and Python 6+3+26 checks passed; historical Debug
+results reused, not rerun. Root MPI rejection and initial test-oracle arithmetic
+mistake are recorded. [Evidence and replay](../research/data/rigid-tube-seeds-2026-11-07/README.md).
+
+
+## FSI-PROD-02A / review / 2026-11-06
+
+PR #36、#37 已合入，当前基线 `dc378529538259567a78cea9820a202a6187809c`。
+分支 `codex/fsi-tube-qualification` 领取生产路线的刚性稳态管首个独立增量：
+同一端面按互斥分量组合压强/速度条件；充分发展 Poiseuille 压降—流量基线；
+固定多边形的场加密与圆截面几何误差分开记录。预设验收：最细状态圆管解析流量误差 <2%，
+场加密流量差递减且末档 <1%；1/2 rank 场差 <2e-9；端面通量平衡 <1e-10；
+解析混合边界、重启签名和非法重叠拒绝通过。Debug/Release 使用仓库入口，最小相关回归。
+本增量不代表整个 PROD-02 完成；Womersley、弹性管、默认瞬态稳定化和固定版本 svFSI 对照仍待验收。
+实现 `a0d228764850fa838229acb6a6e613933070490f`，本地验收、自审和证据完成。
+48边形流量误差1.264676%；12/48边形末档变化0.410813%/0.024769%；MPI场差2.78e-17。
+最初level-2不通过，按原门槛加密后通过。Release新增/扩充两项、Debug三项通过；
+Release未变regions复用首轮通过，Python网格/重算3项与CI选择26项通过。
+48边形压强误差仍3.993089%，不能宣称全场定量资格。
+[证据](../research/data/rigid-tube-2026-11-06/README.md)。
+[PR #38](https://github.com/saitoasukakawaii/EONSim-new/pull/38) 已创建，状态review，未合并。
+云端Debug/Release各26/26、Python35项、网站/增量证据检查通过；数值测试零失败/零跳过。
+最后仅补记文档与云端收据，复用这些通过证据，不重跑已完成数值研究。
+
 ## FSI-PROD-01 / review / PR #37 / 2026-11-06
 
 用户目标升级为生产级 FSI。主线 `dd27eef` 已合并 PR #36；下方旧 review 状态为历史。

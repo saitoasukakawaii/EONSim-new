@@ -76,14 +76,19 @@ case = case_file('traction', base)
 partition = a.work/'partition2'
 # Preprocessing prints its own success marker.
 run([a.executable, '-case', case, '-prepare', partition, '-parts', 2])
-for variant in ('traction', 'velocity_gauge', 'pressure'):
+for variant in ('traction', 'velocity_gauge', 'pressure', 'split_traction', 'split_pressure'):
     config = copy.deepcopy(base)
     if variant == 'velocity_gauge':
         config['fluid']['boundaries'][1] = dict(velocity, tag=TAGS[1])
         config['fluid']['pressure_gauge'] = dict(node=first_node, value=pressure)
-    elif variant == 'pressure':
+    elif variant in ('pressure', 'split_pressure'):
         config['fluid']['boundaries'] = [dict(tag=t, type='velocity', value=[speed*d for d in EX]) for t in TAGS]
         config['fluid']['boundaries'][1] = dict(tag=TAGS[1], type='pressure', value=pressure)
+    if variant.startswith('split_'):
+        config['fluid']['boundaries'][1]['components'] = [0]
+        prescribed = (dict(type='velocity', value=[speed*d for d in EX])
+                      if variant == 'split_pressure' else copy.deepcopy(velocity))
+        config['fluid']['boundaries'].append(dict(prescribed, tag=TAGS[1], components=[1,2]))
     case = case_file(variant, config)
     outputs = []
     for ranks in (1, 2):
@@ -91,8 +96,10 @@ for variant in ('traction', 'velocity_gauge', 'pressure'):
         prefix = ([a.mpiexec, '-n', ranks] if ranks > 1 else []) + [a.executable, '-case', case]
         if ranks > 1: prefix += ['-partition', partition]
         text = run(prefix + ['-output', path]); state = values(path, ranks)
-        err = analytic(state, variant == 'pressure'); outputs.append(state)
-        rows = summary(text); flow = speed*LENGTHS[1]*LENGTHS[2]*(1 if variant == 'pressure' else .5)
+        uniform = variant in ('pressure', 'split_pressure')
+        err = analytic(state, uniform); outputs.append(state)
+        assert text.count('boundary_tag=') == len(TAGS), 'Boundary diagnostics must count each physical tag once'
+        rows = summary(text); flow = speed*LENGTHS[1]*LENGTHS[2]*(1 if uniform else .5)
         for tag, (area, flux, mean) in rows.items():
             expected_area = (LENGTHS[1]*LENGTHS[2], LENGTHS[0]*LENGTHS[2], LENGTHS[0]*LENGTHS[1])[TAGS.index(tag)//2]
             assert abs(area-expected_area) < 1e-12
@@ -117,6 +124,8 @@ compare(*outputs)
 
 # Changing a boundary parameter must invalidate a checkpoint. Test time ramps and accepted-state continuation.
 config = copy.deepcopy(base); config['fluid'].update(mode='transient', dt=.03, steps=4)
+config['fluid']['boundaries'][1]['components'] = [0]
+config['fluid']['boundaries'].append(dict(copy.deepcopy(velocity), tag=TAGS[1], components=[1,2]))
 for b in config['fluid']['boundaries']: b['ramp_time'] = .09
 case = case_file('transient', config)
 for ranks in (1, 2):
@@ -125,11 +134,22 @@ for ranks in (1, 2):
     full, resumed, checkpoint = a.work/f'full{ranks}.vtu', a.work/f'resumed{ranks}.vtu', a.work/f'checkpoint{ranks}'
     run(prefix + ['-output', full])
     run(prefix + ['-checkpoint', checkpoint, '-stop_after', 2, '-output', a.work/'partial.vtu'])
-    run(prefix + ['-restart', checkpoint, '-output', resumed])
+    reordered = copy.deepcopy(config); reordered['fluid']['boundaries'].reverse()
+    reordered_case = case_file('reordered', reordered)
+    restart_prefix = ([a.mpiexec, '-n', ranks] if ranks > 1 else []) + [a.executable, '-case', reordered_case]
+    if ranks > 1: restart_prefix += ['-partition', partition]
+    run(restart_prefix + ['-restart', checkpoint, '-output', resumed])
     compare(values(full, ranks), values(resumed, ranks))
     changed = copy.deepcopy(config); changed['fluid']['boundaries'][1]['value'][0] += .1
     bad_case = case_file('changed', changed)
     bad_prefix = ([a.mpiexec, '-n', ranks] if ranks > 1 else []) + [a.executable, '-case', bad_case]
+    if ranks > 1: bad_prefix += ['-partition', partition]
+    run(bad_prefix + ['-restart', checkpoint], 'Checkpoint mesh/partition/physics mismatch')
+    changed = copy.deepcopy(config)
+    changed['fluid']['boundaries'][1]['components'] = [0,1]
+    changed['fluid']['boundaries'][-1]['components'] = [2]
+    changed_case = case_file('changed_components', changed)
+    bad_prefix = ([a.mpiexec, '-n', ranks] if ranks > 1 else []) + [a.executable, '-case', changed_case]
     if ranks > 1: bad_prefix += ['-partition', partition]
     run(bad_prefix + ['-restart', checkpoint], 'Checkpoint mesh/partition/physics mismatch')
 
@@ -137,13 +157,16 @@ bad = []
 c = copy.deepcopy(base); c['fluid']['boundaries'].pop(); bad.append((c, 'Missing condition'))
 c = copy.deepcopy(base); c['fluid']['boundaries'].append(dict(velocity, tag=999)); bad.append((c, 'Configured boundary tag not found'))
 c = copy.deepcopy(base); c['fluid']['boundaries'][2]['value'][0] = 1; bad.append((c, 'Conflicting velocity'))
-c = copy.deepcopy(base); c['fluid']['pressure_gauge'] = dict(node=first_node, value=pressure); bad.append((c, 'Pressure gauge cannot accompany'))
+c = copy.deepcopy(base); c['fluid']['pressure_gauge'] = dict(node=first_node, value=pressure); bad.append((c, 'Pressure gauge conflicts with free normal boundary'))
 c = copy.deepcopy(base); c['fluid']['boundaries'][1] = dict(velocity, tag=TAGS[1]); bad.append((c, 'All-velocity boundaries require'))
 c = copy.deepcopy(base); c['fluid']['boundaries'][0]['gradient'] = [[0,0,0]]; bad.append((c, 'Boundary gradient requires'))
 c = copy.deepcopy(base); c['fluid']['boundaries'][0]['value'] = [0,0,float('inf')]; bad.append((c, 'must be finite'))
 c = copy.deepcopy(base); c['fluid']['boundaries'][1] = dict(copy.deepcopy(velocity), tag=TAGS[1]); c['fluid']['pressure_gauge'] = dict(node=first_node+1, value=pressure); bad.append((c, 'Pressure gauge must name'))
 c = copy.deepcopy(base); c['fluid']['boundaries'] = [dict(tag=t, type='velocity', value=[0,0,0], gradient=[[1,0,0],[0,0,0],[0,0,0]]) for t in TAGS]; c['fluid']['pressure_gauge'] = dict(node=first_node, value=pressure); bad.append((c, 'Incompatible prescribed net boundary flux'))
 c = copy.deepcopy(base); c['fluid'].update(mode='transient'); c['fluid']['boundaries'][0]['ramp_time'] = .1; bad.append((c, 'Conflicting velocity'))
+c = copy.deepcopy(base); c['fluid']['boundaries'].append(dict(velocity, tag=TAGS[1], components=[1])); bad.append((c, 'Overlapping components'))
+c = copy.deepcopy(base); c['fluid']['boundaries'][1] = dict(tag=TAGS[1], type='pressure', value=pressure, components=[]); bad.append((c, 'components cannot be empty'))
+c = copy.deepcopy(base); c['fluid']['boundaries'][1] = dict(tag=TAGS[1], type='pressure', value=pressure, components=[0,0]); bad.append((c, 'Invalid or repeated boundary component'))
 for i, (config, error) in enumerate(bad):
     case = case_file(f'invalid{i}', config)
     run([a.executable, '-case', case], error)
@@ -188,4 +211,17 @@ for ranks in (1,2):
     prefix = ([a.mpiexec, '-n', ranks] if ranks>1 else []) + [a.executable, '-case', case]
     if ranks>1: prefix += ['-partition', corner_parts]
     run(prefix, 'Incompatible prescribed net boundary flux')
+# Tangential natural data do not fix the pressure nullspace. A gauge is valid
+# when normal velocity is closed, even if a tag also has traction components.
+closed = copy.deepcopy(corner)
+closed['fluid']['boundaries'] = [dict(tag=t,type='velocity',value=[.2,0,0]) for t in range(1,7)]
+closed['fluid']['boundaries'][0]['components'] = [0]
+closed['fluid']['boundaries'].append(dict(tag=1,type='traction',components=[1,2],value=[0,0,0]))
+closed_case = case_file('closed_mixed',closed)
+for ranks in (1,2):
+    out = a.work/f'closed_mixed{ranks}.vtu'
+    prefix = ([a.mpiexec,'-n',ranks] if ranks>1 else [])+[a.executable,'-case',closed_case]
+    if ranks>1: prefix += ['-partition',corner_parts]
+    run(prefix+['-output',out])
+    assert max(abs(v[c]-([.2,0,0,0][c])) for v,_ in values(out,ranks).values() for c in range(4))<2e-9
 print('tagged fluid verification passed')

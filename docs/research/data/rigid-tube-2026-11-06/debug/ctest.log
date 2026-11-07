@@ -1,0 +1,93 @@
+SetCTestConfiguration:BuildDirectory:/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+UpdateCTestConfiguration  from :/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+UpdateCTestConfiguration  from :/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+SetCTestConfiguration:BuildDirectory:/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+SetCTestConfiguration:SourceDirectory:/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+Test project /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 64
+    Start 64: regions_verification
+
+64: Test command: /home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python3.15 "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/tests/verify_regions.py" "--executable" "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/eonsim" "--mpiexec" "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec" "--work" "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/regions_verification"
+64: Working Directory: /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+64: Environment variables: 
+64:  OMP_NUM_THREADS=1
+64:  OPENBLAS_NUM_THREADS=1
+64:  MKL_NUM_THREADS=1
+64: Test timeout computed to be: 180
+64: solid 1 error 1.0408340855860843e-17
+64: solid 2 error 1.734723475976807e-17
+64: fluid 1 error 1.317207064827893e-14
+64: fluid 2 error 2.4014006099796685e-15
+64: translated_bar 1 tip 0.007500000000000002 support -0.9999999999999993
+64: translated_bar 2 tip 0.007499999999999995 support -0.9999999999999973
+64: rotated_support 1 tip 0.009999999999999936 support -0.9999999999999886
+64: rotated_support 2 tip 0.00999999999999994 support -0.9999999999999911
+64: layered shear 1.0 4.0 ranks 1 field_error 1.1102230246251565e-14 interface_stress 1.5999999999999983 1.600000000000005 flow 0.65
+64: layered shear 1.0 4.0 ranks 2 field_error 1.1102230246251565e-14 interface_stress 1.5999999999999983 1.600000000000005 flow 0.65
+64: layered shear 4.0 1.0 ranks 1 field_error 5.773159728050814e-15 interface_stress 1.5999999999999945 1.599999999999999 flow 0.35
+64: layered shear 4.0 1.0 ranks 2 field_error 5.329070518200751e-15 interface_stress 1.599999999999996 1.600000000000001 flow 0.35
+64: regions, layered shear, tagged observations, component constraints and normalized reactions passed
+1/3 Test #64: regions_verification .............   Passed    3.53 sec
+test 65
+    Start 65: tagged_fluid_verification
+
+65: Test command: /home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python3.15 "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/tests/verify_tagged_fluid.py" "--executable" "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/eonsim" "--mpiexec" "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec" "--work" "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/tagged_fluid_verification"
+65: Working Directory: /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+65: Environment variables: 
+65:  OMP_NUM_THREADS=1
+65:  OPENBLAS_NUM_THREADS=1
+65:  MKL_NUM_THREADS=1
+65: Test timeout computed to be: 180
+65: traction 1 analytic max error 1.1102230246251565e-14
+65: traction 2 analytic max error 2.220446049250313e-15
+65: velocity_gauge 1 analytic max error 7.549516567451064e-15
+65: velocity_gauge 2 analytic max error 2.4424906541753444e-14
+65: pressure 1 analytic max error 1.1546319456101628e-14
+65: pressure 2 analytic max error 3.1086244689504383e-15
+65: split_traction 1 analytic max error 3.197442310920451e-14
+65: split_traction 2 analytic max error 1.7763568394002505e-15
+65: split_pressure 1 analytic max error 3.2862601528904634e-14
+65: split_pressure 2 analytic max error 3.9968028886505635e-15
+65: merged component flux static 1/2 ranks passed
+65: merged component flux transient 1/2 ranks passed
+65: tagged fluid verification passed
+2/3 Test #65: tagged_fluid_verification ........   Passed    6.32 sec
+test 66
+    Start 66: rigid_tube_verification
+
+66: Test command: /home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python3.15 "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/scripts/study_rigid_tube.py" "--executable" "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/eonsim" "--mpiexec" "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec" "--work" "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/rigid_tube_verification"
+66: Working Directory: /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+66: Environment variables: 
+66:  OMP_NUM_THREADS=1
+66:  OPENBLAS_NUM_THREADS=1
+66:  MKL_NUM_THREADS=1
+66: Test timeout computed to be: 300
+66: {"sectors": 12, "level": 0, "nodes": 75, "tetrahedra": 216, "ranks": 1, "flow": 0.004191612973856333, "circle_flow_relative_error": 0.06738547890776769, "polygon_continuum_flow_lower_bound": 0.0034184953864014977, "polygon_continuum_flow_upper_bound": 0.003926990816987242, "net_outward_flux": 2.6020852139652106e-18, "volume": 6.0, "measured_pressure_drop": 0.0068549645342018935, "measured_pressure_drop_relative_error": 0.6572517732899053, "volume_average_flow": 0.003368511478753651, "mean_to_end_flow_relative_difference": 0.20960107457907412, "maximum_transverse_velocity": 4.839165853735459e-05}
+66: {"sectors": 12, "level": 1, "nodes": 425, "tetrahedra": 1728, "ranks": 1, "flow": 0.0038745771985187446, "circle_flow_relative_error": 0.013347018343350392, "polygon_continuum_flow_lower_bound": 0.0034184953864014977, "polygon_continuum_flow_upper_bound": 0.003926990816987242, "net_outward_flux": -1.3010426069826053e-18, "volume": 6.0, "measured_pressure_drop": 0.014490647289322629, "measured_pressure_drop_relative_error": 0.27546763553386855, "volume_average_flow": 0.0034388230138059066, "mean_to_end_flow_relative_difference": 0.11096389195204313, "maximum_transverse_velocity": 2.8725244643029674e-05}
+66: rigid tube verification passed
+3/3 Test #66: rigid_tube_verification ..........   Passed    0.83 sec
+
+The following tests passed:
+	regions_verification
+	tagged_fluid_verification
+	rigid_tube_verification
+
+100% tests passed out of 3
+
+Label Time Summary:
+rank-1    =  11.52 sec*proc (3 tests)
+rank-2    =  11.52 sec*proc (3 tests)
+
+Total Test time (real) =  10.71 sec

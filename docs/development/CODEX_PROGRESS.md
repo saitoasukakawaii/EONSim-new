@@ -1,5 +1,36 @@
 # EONSim Codex Development Progress
 
+## FSI-PROD-02 continuation / in_progress / 2026-11-07
+
+Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main
+`dc37852`; PR #38 remains open. Source `4113ab8300410459dbfb057db5d4978e7d106aa7`.
+Restored locked PETSc 3.23.7 in an 8 GiB Linux container. Added exact pressure/velocity
+field and local divergence diagnostics, plus a seed-mesh runner. Five actual serial
+solves: 96/12/24 sectors/radial/axial gives flow error 0.546409%, velocity L2 0.320760%,
+pressure RMS/drop 0.489014%, end-pressure-drop error still 5.140012%. A 96/8/16
+1/2/4-rank comparison has maximum field difference 5.31e-16. These isolated results
+are not full PROD-02 acceptance; Womersley, elastic walls, default transient tau,
+svFSI, error budgets and full review remain pending. No new PR or merge.
+Release tube regression 1/1 and Python 6+3+26 checks passed; historical Debug
+results reused, not rerun. Root MPI rejection and initial test-oracle arithmetic
+mistake are recorded. [Evidence and replay](../research/data/rigid-tube-seeds-2026-11-07/README.md).
+
+
+## FSI-PROD-02A / PR #38检查通过 / 2026-11-06
+
+PR #36、#37 已合入 main `dc378529538259567a78cea9820a202a6187809c`，下方review为历史。
+分支 `codex/fsi-tube-qualification`、实现 `a0d228764850fa838229acb6a6e613933070490f`：
+同一流体标签的互斥分量混合边界、几何不变的四面体加密和刚性稳态流量基线。
+11个串行状态和1/2 rank对照；48边形流量误差1.264676%，12/48边形末档变化
+0.410813%/0.024769%，MPI场差2.78e-17、最大净通量4.12e-17。首轮level-2未通过，
+保留原结果、门槛不变，追加加密后通过。压强误差仍3.993089%，仅完成流量增量，
+PROD-02整体未完成。Debug三项、Release最终两项+复用首轮regions、Python3+26项通过。
+[完整证据](../research/data/rigid-tube-2026-11-06/README.md)；
+[接口/复现](RIGID_TUBE_QUALIFICATION.md)。本地验收与自审完成；
+[PR #38](https://github.com/saitoasukakawaii/EONSim-new/pull/38) 已创建，待审查，未合并。
+云端PETSc3.23.7 Debug/Release各26/26、Python35项、网站与增量证据检查全部通过，
+数值测试零失败/零跳过；[云端记录](../research/data/rigid-tube-2026-11-06/cloud-ci.json)。
+
 ## FSI-PROD-01 / review / PR #37 / 2026-11-06
 
 用户目标升级为生产级 FSI。主线 `dd27eef` 已合并 PR #36；下方旧 review 状态为历史。

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <set>
 #include <limits>
 #include <stdexcept>
 namespace eonsim {
@@ -19,10 +20,10 @@ struct NodalBoundary {
     Point value{},ramp{};
 };
 NodalBoundary merged_boundary(const MeshPartition& mesh,std::size_t node,const std::vector<FluidBoundary>& boundaries,
-                              const std::map<int,std::size_t>& lookup,bool transient) {
+                              const std::map<int,std::vector<std::size_t>>& lookup,bool transient) {
     NodalBoundary result;
-    for(int tag:mesh.node_boundary_tags[node]) {
-        const auto& b=boundaries.at(lookup.at(tag));
+    for(int tag:mesh.node_boundary_tags[node]) for(auto index:lookup.at(tag)) {
+        const auto& b=boundaries.at(index);
         if(b.type!=FluidBoundary::Type::velocity) continue;
         const auto value=evaluate(b,mesh.nodes[node].position);
         for(int c:b.components) {
@@ -39,13 +40,13 @@ FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& m
     const AlgebraLayout& layout,const std::vector<FluidBoundary>& boundaries,const std::vector<TriangleGeometry>& surfaces,
     int stride,bool transient,std::optional<PressureGauge> gauge)
 {
-    std::map<int,std::size_t> lookup;
-    for(std::size_t i=0;i<boundaries.size();++i) lookup.emplace(boundaries[i].tag,i);
-    std::vector<int> seen(lookup.size(),0),all(seen.size());
+    std::map<int,std::vector<std::size_t>> lookup;
+    for(std::size_t i=0;i<boundaries.size();++i) lookup[boundaries[i].tag].push_back(i);
+    std::vector<int> seen(boundaries.size(),0),all(seen.size());
     for(const auto& f:mesh.boundary) {
         const auto b=lookup.find(f.physical_tag);
         if(b==lookup.end()) throw std::runtime_error("Missing condition for boundary tag "+std::to_string(f.physical_tag));
-        seen[b->second]=1;
+        for(auto index:b->second) seen[index]=1;
     }
     MPI_Allreduce(seen.data(),all.data(),static_cast<int>(all.size()),MPI_INT,MPI_MAX,comm);
     for(std::size_t i=0;i<all.size();++i) if(!all[i]) throw std::runtime_error("Configured boundary tag not found: "+std::to_string(boundaries[i].tag));
@@ -95,7 +96,8 @@ FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& m
     if(gauge_total!=(gauge?1:0)) throw std::runtime_error("Pressure gauge must name exactly one mesh node");
     for(std::size_t f=0;f<mesh.boundary.size();++f) {
         const auto& face=mesh.boundary[f]; const auto& g=surfaces[f];
-        const auto& b=boundaries[lookup.at(face.physical_tag)];
+        for(auto index:lookup.at(face.physical_tag)) {
+        const auto& b=boundaries[index];
         if(b.type==FluidBoundary::Type::velocity) continue;
         SurfaceLoad load{}; load.ramp_time=b.ramp_time;
         for(int a=0;a<Tri3Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c)
@@ -109,6 +111,7 @@ FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& m
                 load.residual[TriangleVector::dof(a,c)]-=g.area*q.weight*q.shape[a]*traction[c];
         }
         plan.loads.push_back(load);
+        }
     }
     return plan;
 }
@@ -147,9 +150,11 @@ std::vector<BoundarySummary> summarize_fluid_boundaries(MPI_Comm comm,const Mesh
     const FluidConfig& config,const std::vector<TriangleGeometry>& surfaces,const std::vector<double>& state)
 {
     std::vector<BoundarySummary> result;
-    for(const auto& b:config.boundaries) {
+    std::set<int> tags;
+    for(const auto& b:config.boundaries) tags.insert(b.tag);
+    for(int tag:tags) {
         double local[3]{},sum[3]{};
-        for(std::size_t f=0;f<mesh.boundary.size();++f) if(mesh.boundary[f].physical_tag==b.tag) {
+        for(std::size_t f=0;f<mesh.boundary.size();++f) if(mesh.boundary[f].physical_tag==tag) {
             const auto& g=surfaces[f]; local[0]+=g.area;
             for(auto n:mesh.boundary[f].nodes) {
                 for(int c=0;c<Space3::dimension;++c) local[1]+=g.area*Tri3Topology::mean_weight*g.normal[c]*state[Tet4Flow::dof(n,c)];
@@ -157,7 +162,7 @@ std::vector<BoundarySummary> summarize_fluid_boundaries(MPI_Comm comm,const Mesh
             }
         }
         MPI_Allreduce(local,sum,3,MPI_DOUBLE,MPI_SUM,comm);
-        result.push_back({b.tag,sum[0],sum[1],sum[2]/sum[0]});
+        result.push_back({tag,sum[0],sum[1],sum[2]/sum[0]});
     }
     return result;
 }

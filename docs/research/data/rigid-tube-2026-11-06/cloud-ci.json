@@ -1,0 +1,71 @@
+{
+  "repository": "saitoasukakawaii/EONSim-new",
+  "pr": 38,
+  "head": "d1c4be0c96abbc54244e953bbbf12df37ec2be31",
+  "base": "dc378529538259567a78cea9820a202a6187809c",
+  "tested_merge_commit": "3f4625c394cb487a17b00a400ea98d2b9eb53375",
+  "tested_tree": "2802d32421aa6c6c9ec49ac0146862b3de0d7853",
+  "tested_merge_tree_equals_head_tree": true,
+  "numerics_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42236840428",
+  "website_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/42236840526",
+  "website_status": "success",
+  "incremental_receipt_status": "success",
+  "python_tests_passed": 35,
+  "debug": {
+    "commit": "3f4625c394cb487a17b00a400ea98d2b9eb53375",
+    "mode": "debug",
+    "selection": "explicit",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 16760344576,
+      "cgroup": {
+        "/sys/fs/cgroup": {},
+        "/sys/fs/cgroup/system.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        }
+      },
+      "build_jobs": 4
+    },
+    "test_counts": {
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "release": {
+    "commit": "3f4625c394cb487a17b00a400ea98d2b9eb53375",
+    "mode": "release",
+    "selection": "explicit",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 16760344576,
+      "cgroup": {
+        "/sys/fs/cgroup": {},
+        "/sys/fs/cgroup/system.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        }
+      },
+      "build_jobs": 4
+    },
+    "test_counts": {
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "compatibility_3_19_6": "not requested; manual job skipped"
+}

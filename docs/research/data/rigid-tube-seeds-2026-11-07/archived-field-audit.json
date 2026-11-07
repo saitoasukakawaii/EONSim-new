@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "scope": "diagnostic only; no new qualification",
+  "states": [
+    {
+      "reference": {
+        "sectors": 48,
+        "level": 0,
+        "nodes": 291,
+        "tetrahedra": 864,
+        "ranks": 1,
+        "flow": 0.004312899223864515,
+        "circle_flow_relative_error": 0.0982707688563782,
+        "polygon_continuum_flow_lower_bound": 0.0038934667206682845,
+        "polygon_continuum_flow_upper_bound": 0.003926990816987242,
+        "net_outward_flux": -5.204170427930421e-18,
+        "volume": 6.265257226562476,
+        "measured_pressure_drop": 0.010907507702126451,
+        "measured_pressure_drop_relative_error": 0.45462461489367745,
+        "volume_average_flow": 0.00375433419805264,
+        "mean_to_end_flow_relative_difference": 0.14223741583393917,
+        "maximum_transverse_velocity": 3.568344795549476e-05
+      },
+      "fields": {
+        "velocity_relative_l2_error": 0.10982270007479478,
+        "pressure_rms_error": 0.0026206415182042832,
+        "pressure_rms_error_over_drop": 0.13103207591021415,
+        "pressure_mean_error": -0.0001236141733291541,
+        "divergence_rms": 0.0004560641654213503,
+        "divergence_rms_over_mean_speed_per_radius": 0.3648513323370802,
+        "divergence_maximum": 0.0007977573943501331,
+        "divergence_volume_integral": -1.7508171019746388e-18,
+        "divergence_absolute_volume_integral": 0.002229388885780184,
+        "divergence_theorem_absolute_defect": 3.4533533259557825e-18
+      }
+    },
+    {
+      "reference": {
+        "sectors": 48,
+        "level": 1,
+        "nodes": 1685,
+        "tetrahedra": 6912,
+        "ranks": 1,
+        "flow": 0.003973726466398455,
+        "circle_flow_relative_error": 0.01190113539584714,
+        "polygon_continuum_flow_lower_bound": 0.0038934667206682845,
+        "polygon_continuum_flow_upper_bound": 0.003926990816987242,
+        "net_outward_flux": -1.9949319973733282e-17,
+        "volume": 6.265257226562476,
+        "measured_pressure_drop": 0.015956877780408975,
+        "measured_pressure_drop_relative_error": 0.20215611097955133,
+        "volume_average_flow": 0.003768916907865602,
+        "mean_to_end_flow_relative_difference": 0.052154325812755885,
+        "maximum_transverse_velocity": 1.9165170053922926e-05
+      },
+      "fields": {
+        "velocity_relative_l2_error": 0.06335949823806983,
+        "pressure_rms_error": 0.0011925502803682298,
+        "pressure_rms_error_over_drop": 0.059627514018411494,
+        "pressure_mean_error": 0.00021643189608231436,
+        "divergence_rms": 0.0001551726006246173,
+        "divergence_rms_over_mean_speed_per_radius": 0.12413808049969383,
+        "divergence_maximum": 0.0006058232257795775,
+        "divergence_volume_integral": -2.6393228999088778e-17,
+        "divergence_absolute_volume_integral": 0.0008020019177689894,
+        "divergence_theorem_absolute_defect": 6.443909025355497e-18
+      }
+    },
+    {
+      "reference": {
+        "sectors": 48,
+        "level": 2,
+        "nodes": 11241,
+        "tetrahedra": 55296,
+        "ranks": 1,
+        "flow": 0.0038763544176037283,
+        "circle_flow_relative_error": 0.012894453219618462,
+        "polygon_continuum_flow_lower_bound": 0.0038934667206682845,
+        "polygon_continuum_flow_upper_bound": 0.003926990816987242,
+        "net_outward_flux": -2.688821387764051e-17,
+        "volume": 6.265257226562476,
+        "measured_pressure_drop": 0.01828441936655854,
+        "measured_pressure_drop_relative_error": 0.08577903167207301,
+        "volume_average_flow": 0.0038173600357654875,
+        "mean_to_end_flow_relative_difference": 0.015022795974730828,
+        "maximum_transverse_velocity": 5.747664148557617e-06
+      },
+      "fields": {
+        "velocity_relative_l2_error": 0.03718844836712387,
+        "pressure_rms_error": 0.0004259124025319863,
+        "pressure_rms_error_over_drop": 0.021295620126599312,
+        "pressure_mean_error": 0.0002201070166257549,
+        "divergence_rms": 6.328558424770173e-05,
+        "divergence_rms_over_mean_speed_per_radius": 0.05062846739816138,
+        "divergence_maximum": 0.0005462282268693876,
+        "divergence_volume_integral": -2.1481552944479558e-17,
+        "divergence_absolute_volume_integral": 0.00027695827477283995,
+        "divergence_theorem_absolute_defect": 5.406660933160952e-18
+      }
+    },
+    {
+      "reference": {
+        "sectors": 48,
+        "level": 3,
+        "nodes": 81617,
+        "tetrahedra": 442368,
+        "ranks": 1,
+        "flow": 0.0038773271096673063,
+        "circle_flow_relative_error": 0.012646759219579029,
+        "polygon_continuum_flow_lower_bound": 0.0038934667206682845,
+        "polygon_continuum_flow_upper_bound": 0.003926990816987242,
+        "net_outward_flux": -2.5153490401663703e-17,
+        "volume": 6.265257226562476,
+        "measured_pressure_drop": 0.019201382185065743,
+        "measured_pressure_drop_relative_error": 0.039930890746712855,
+        "volume_average_flow": 0.0038618274821708904,
+        "mean_to_end_flow_relative_difference": 0.003946947731420243,
+        "maximum_transverse_velocity": 9.995926820404605e-06
+      },
+      "fields": {
+        "velocity_relative_l2_error": 0.019792271944188308,
+        "pressure_rms_error": 0.00018574604000134033,
+        "pressure_rms_error_over_drop": 0.009287302000067017,
+        "pressure_mean_error": 0.00010611741432652051,
+        "divergence_rms": 3.837149570995473e-05,
+        "divergence_rms_over_mean_speed_per_radius": 0.030697196567963783,
+        "divergence_maximum": 0.00040003710909295977,
+        "divergence_volume_integral": -9.61462466216926e-18,
+        "divergence_absolute_volume_integral": 0.00015595132547136217,
+        "divergence_theorem_absolute_defect": 1.5538865739494443e-17
+      }
+    }
+  ]
+}
