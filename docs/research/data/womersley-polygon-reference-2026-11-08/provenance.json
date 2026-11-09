@@ -1,0 +1,28 @@
+{
+  "source_head": "fa9646d030ce3f0b756c72d096af524f16f8088d",
+  "controller_sha256": "1f1d0e48c62ab5ca96d1dab43c8d2ad3749f1aef832228873c09db6e75624cea",
+  "original_attempt": "/home/tfblab633/EONSim-prod48-20261107/womersley-polygon-reference-fa9646d",
+  "previous_attempt": "/home/tfblab633/EONSim-prod48-20261107/womersley-polygon-reference-fa9646d-attempt2",
+  "linear_method": "Double sparse LU; extended precision state and CSR true residual for at most five corrections; original 1e-11 gate unchanged",
+  "longdouble_epsilon": 1.0842021724855044e-19,
+  "source_hashes": {
+    "scripts/study_rigid_tube.py": "e0b89fd0f28740df71ca48013ab3c01f9038b966defdcebbbf712bd355d2d799",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "numpy": "1.26.4",
+  "scipy": "1.17.1",
+  "geometry_sectors": [
+    48,
+    96
+  ],
+  "alpha": [
+    1,
+    2
+  ],
+  "reference_field_increment_limit": 0.0001,
+  "quadrature_change_limit": 1e-09,
+  "manufactured_nodal_limit": 1e-11,
+  "true_relative_residual_limit": 1e-11,
+  "scope": "Independent complex scalar P2 polygon response; R1,mu=rho1,pressure gradient.01. Same straight facets as the 3D tube. Successive mesh differences bound observed reference resolution, not a rigorous a-posteriori error bound. No 3D EON result or production pass is inferred."
+}

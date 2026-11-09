@@ -1,0 +1,18 @@
+{
+  "reference_source": {
+    "repository": "https://github.com/SimVascular/svFSI.git",
+    "commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "archive_sha256": "e8e2614d34c42c4d07ec5e6506f22feac2fe627dd621fecd8656833157a50773"
+  },
+  "files": {
+    "Code/Source/svFSI/INITIALIZE.f": "049be5737728805b1f18260fda34d85b451dd58ecfab31e856a40b8ed0d425ac",
+    "Code/Source/svFSI/OUTPUT.f": "30f0af3ef5c79be2c7649f24cb316e83ddb3a2aa2fa3ab9e25050cdc01d4bbf2",
+    "Code/Source/svFSILS/GMRES.f": "9dd4ccbddf18bb2c3d5a5d7920c737e6d2fc8595e236abbf3bec2ba5d9f92206"
+  },
+  "observations": [
+    "INITFROMBIN reads rank-local direct records and compares the saved processor count; cross-rank binary restart is unsupported by this path.",
+    "The first four-rank attempt remained inside GMRES at the third FSI solve of step1; four diagnostic GDB stacks are included. The root cause is not established.",
+    "The first screen wall time includes diagnostic debugger attachment and is not a clean performance sample. It had already exceeded the complete two-rank baseline before attachment.",
+    "The second attempt changed only restart dimension100->200; the third retained two ranks and original100, changing CPU allocation only. Full nonlinear/field/cost gates remain unchanged."
+  ]
+}

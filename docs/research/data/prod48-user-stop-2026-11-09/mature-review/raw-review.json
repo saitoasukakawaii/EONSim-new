@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "eligible": true,
+  "decision": "eligible_for_separate_fsi_refined_time_plan_review",
+  "adopted": false,
+  "full_qualification": false,
+  "screen_definition_sha256": "b3dc8ca587eb32a6d52437ec01a8cdc6060154e89c0024f646100ee1285a351b",
+  "screen_report_sha256": "1c86c9ce66b360a6ed970d31364bc9da01782f6553ac41d9d9ca0a8428ad9dc4",
+  "reviewer_sha256": "40ab688f95662fb48fc60486efe833bbcbf0856ddef2c27caa0ea7007db523cb",
+  "all_reported_metrics_exactly_recomputed": true,
+  "field_pairs": 176,
+  "native_pairs": 144,
+  "native_datasets": 1584,
+  "maximum_node": 6.224187831804784e-15,
+  "maximum_mass": 2.3668619454770602e-12,
+  "maximum_history": 1.5312620962881773e-14,
+  "maximum_legacy_clock": 0.0,
+  "cost_ratios": {
+    "old-first": 0.4203833323632669,
+    "new-default": 0.41144036445731036,
+    "new-window8": 0.8111982470288313,
+    "old-last": 0.4108095289552201
+  },
+  "raw_files_verified": 622,
+  "scope": "Separate full raw reread using the identical frozen comparator and unchanged thresholds. All metrics match exactly; no new numerical solve, no external/algorithm-independent review claim, no production adoption."
+}

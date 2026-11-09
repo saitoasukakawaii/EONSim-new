@@ -1,0 +1,202 @@
+{
+  "passed": true,
+  "utc": "2026-11-08T16:26:42Z",
+  "tests": {
+    "reference": 28,
+    "pressure": 8
+  },
+  "commands": {
+    "reference": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_svfsi*.py"
+    ],
+    "pressure": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_pressure_tube_audit.py"
+    ]
+  },
+  "actual100_convergence": {
+    "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "steps": 100,
+    "declared_steps": 700,
+    "first_step": 601,
+    "last_step": 700,
+    "restart": {
+      "step": 600,
+      "time": 18.849555921538826,
+      "stamp": [
+        1,
+        2,
+        2,
+        6625,
+        0,
+        7,
+        1
+      ],
+      "bytes": 1113064,
+      "serialized_values": 139129,
+      "sha256": "bfa30d7bfbb337e7a4ecac36008059cbb4a973a0ed128d4ea626078a5831c467",
+      "input_name": "native-seed.bin",
+      "path": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-fine-n200-screen-abec003/old/native-seed.bin",
+      "scope": "Exact native saved time and complete finite Yn/An/Dn record; no v4 clock claim"
+    },
+    "excluded_tail": {
+      "final_equation_rows": 0,
+      "last_observed_step": 700,
+      "iteration_rows": 0,
+      "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+    },
+    "equations": {
+      "FS": {
+        "tolerance": 1e-10,
+        "maximum_iterations": 30,
+        "minimum_iterations": 1
+      },
+      "MS": {
+        "tolerance": 1e-10,
+        "maximum_iterations": 30,
+        "minimum_iterations": 1
+      }
+    },
+    "iteration_rows": 600,
+    "final_equation_rows": 200,
+    "iteration_limit_rows": 0,
+    "maximum_iterations": {
+      "FS": 3,
+      "MS": 3
+    },
+    "maximum_final_relative_ratio": {
+      "FS": 2.4e-12,
+      "MS": 1e-11
+    },
+    "failed_equation_steps": [],
+    "passed": true,
+    "input_manifest_sha256": "cf5ecfef4946615c089dad3da92953920a18c5e64f0cee720e0dad4b9e11a48b",
+    "log_sha256": "cbe603c930e5912e5a695091ea31a0e8b2b23ba7660a4a4f629d952186920e12",
+    "analysis_source_sha256": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+  },
+  "native_records": {
+    "original-700.bin": {
+      "step": 700,
+      "time": 21.99114857512878,
+      "stamp": [
+        1,
+        2,
+        2,
+        6625,
+        0,
+        7,
+        1
+      ],
+      "bytes": 1113064,
+      "serialized_values": 139129,
+      "sha256": "2ad92a5fcb15262e62ca25157daeb731814463690709576e7b8f4f838684fb61"
+    },
+    "resumed-700.bin": {
+      "step": 700,
+      "time": 21.99114857512878,
+      "stamp": [
+        1,
+        2,
+        2,
+        6625,
+        0,
+        7,
+        1
+      ],
+      "bytes": 1113064,
+      "serialized_values": 139129,
+      "sha256": "6f2435c6da0d57cecc429c88f760cb8153303b2a9a5a6b82c3965c0a3038a254"
+    },
+    "r2-4400.bin": {
+      "step": 4400,
+      "time": 69.11503837897621,
+      "stamp": [
+        2,
+        2,
+        2,
+        4225,
+        0,
+        7,
+        1
+      ],
+      "bytes": 1419728,
+      "serialized_values": 164333,
+      "sha256": "6de07f8eb04a3c4fe717c6a4f0678e8df3d27f95d0cd01fc4be33a6a39ffadfb",
+      "record_bytes": 709864,
+      "rank_records": [
+        {
+          "rank": 0,
+          "stamp": [
+            2,
+            2,
+            2,
+            4225,
+            0,
+            7,
+            1
+          ],
+          "offset": 0,
+          "payload_bytes": 709864,
+          "serialized_values": 88729
+        },
+        {
+          "rank": 1,
+          "stamp": [
+            2,
+            2,
+            2,
+            3600,
+            0,
+            7,
+            1
+          ],
+          "offset": 709864,
+          "payload_bytes": 604864,
+          "serialized_values": 75604
+        }
+      ]
+    }
+  },
+  "elapsed_diagnostics": {
+    "original-700.bin": [
+      20999.835000000006
+    ],
+    "resumed-700.bin": [
+      -65721.19
+    ],
+    "r2-4400.bin": [
+      -31941.448999999997,
+      1075.929
+    ]
+  },
+  "observed_midnight_wraps": [
+    {
+      "before_step": 664,
+      "before": 19500.0,
+      "after_step": 664,
+      "after": -66000.0
+    }
+  ],
+  "endpoint_algorithm_bitwise_except_elapsed": true,
+  "physical_time_exact": true,
+  "physical_norm_history_limits_unchanged": true,
+  "old_screen_failed_preserved": true,
+  "no_numerical_rerun": true,
+  "no_cpp_change": true,
+  "full_physical_qualification": false,
+  "scope": "Actual100-step original recovery is complete, converged and reproduces the original700 algorithm state. Signed diagnostic elapsed only; no backend candidate has been run in this N200 proof."
+}

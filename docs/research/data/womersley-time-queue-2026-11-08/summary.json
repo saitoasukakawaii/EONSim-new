@@ -1,0 +1,110 @@
+{
+  "snapshot_utc": "2026-11-07T22:37:37Z",
+  "states": {
+    "womersley-time400-a2-current.json": {
+      "state": "cancelled_before_numerical_work",
+      "pid": 7822,
+      "alpha": 2,
+      "cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "utc": "2026-11-07T22:34:30Z",
+      "producer_status": "/home/tfblab633/EONSim-prod48-20261107/womersley-vector-boundary-retry2-current.json",
+      "holds_queue_lock": false,
+      "replacement_status": "womersley-time400-a2-retry2-current.json"
+    },
+    "womersley-time400-a2-retry2-current.json": {
+      "state": "waiting_for_fine_n200_producer",
+      "pid": 7843,
+      "alpha": 2,
+      "cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "utc": "2026-11-07T22:36:28Z",
+      "producer_status": "/home/tfblab633/EONSim-prod48-20261107/womersley-vector-boundary-retry2-current.json",
+      "holds_queue_lock": false
+    },
+    "womersley-time400-a1-retry2-current.json": {
+      "state": "waiting_for_fine_n200_producer",
+      "pid": 7849,
+      "alpha": 1,
+      "cpus": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "utc": "2026-11-07T22:36:43Z",
+      "producer_status": "/home/tfblab633/EONSim-prod48-20261107/alpha1-fine-vector-current.json",
+      "holds_queue_lock": false
+    },
+    "elastic-length24-current.json": {
+      "state": "running",
+      "pid": 7713,
+      "cpu": 19,
+      "utc": "2026-11-07T22:26:14Z",
+      "job": "warmup",
+      "command": [
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/eonsim",
+        "-case",
+        "case.json",
+        "-checkpoint",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint",
+        "-stop_after",
+        "5800",
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "elastic-mpi-restart-current.json": {
+      "state": "running",
+      "pid": 7370,
+      "cpu": 9,
+      "utc": "2026-11-07T22:27:58Z",
+      "job": "r2-warmup",
+      "command": [
+        "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+        "--bind-to",
+        "none",
+        "--oversubscribe",
+        "-n",
+        "2",
+        "/mnt/d/EONSim-prod48-20261107/elastic-mpi-s12-l0-n400-f0422d0-attempt2/eonsim",
+        "-case",
+        "case.json",
+        "-partition",
+        "/mnt/d/EONSim-prod48-20261107/elastic-mpi-s12-l0-n400-f0422d0-attempt2/r2/parts",
+        "-stop_after",
+        "11600",
+        "-solver_report",
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-snes_lag_jacobian",
+        "-2",
+        "-checkpoint",
+        "/mnt/d/EONSim-prod48-20261107/elastic-mpi-s12-l0-n400-f0422d0-attempt2/r2/checkpoint"
+      ]
+    }
+  },
+  "scope": "Fine N400 successors are waiting without holding numerical queue locks. Their trajectories/budgets have not run. L24 and production MPI states are snapshots only."
+}

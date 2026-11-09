@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "decision": "continue_nu0_native5000_and_original_companions",
+  "definition_sha256": "b209acfb643f82bfe3cccba367f236dd5f3821d6e6b4270907348993bbf4f4fa",
+  "controller_sha256": "66937209e54af7e67d8ddb9157b034ac144657085935bf8bbfec33a4071c8b6f",
+  "result_sha256": "b936a5b9d047f5ed64b5c7930c604954452470428b19d7c80f425029c99c18e6",
+  "resource": {
+    "command": [
+      "/usr/bin/systemd-run",
+      "--user",
+      "--scope",
+      "--quiet",
+      "--unit=eonsim-nu0-native5000-review-39073.scope",
+      "--property=MemoryMax=2G",
+      "--property=MemorySwapMax=0",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/review/controller.py",
+      "--worker"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/source",
+    "unit": "eonsim-nu0-native5000-review-39073.scope",
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "timeout_seconds": 1200,
+    "peak_observed_bytes": 169283584,
+    "minimum_available_bytes": 11864268800,
+    "scope_seen": true,
+    "cleanup": [],
+    "launcher_pid": 39074,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "returncode": 0,
+    "wall_seconds": 126.4086157589918,
+    "remaining_scope_members": []
+  },
+  "scope": "Independent self-review, not external human review. No stop request, signal, backend adoption or physical qualification."
+}

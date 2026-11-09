@@ -1,0 +1,402 @@
+{
+  "reports": [
+    {
+      "study": "womersley-a2-s48-l0-n100",
+      "cycle": 5,
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 100,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "quadrature_order": 6,
+      "first_harmonic_relative_l2": 0.023667211950141764,
+      "analytic_nodal_interpolation_relative_l2": 0.025577915473902764,
+      "numerical_minus_analytic_nodal_relative_l2": 0.01659410759155757,
+      "nonfirst_harmonic_relative_l2": 2.5452968893567253e-07,
+      "axial_bands": [
+        {
+          "x_interval": [
+            0.0,
+            0.25
+          ],
+          "velocity_first_harmonic_relative_l2": 0.02059108335110641,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.5824203548192939,
+            0.17128351859004426
+          ]
+        },
+        {
+          "x_interval": [
+            0.25,
+            0.5
+          ],
+          "velocity_first_harmonic_relative_l2": 0.024922624133024592,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.983713864622967,
+            -0.016117178813520497
+          ]
+        },
+        {
+          "x_interval": [
+            0.5,
+            0.75
+          ],
+          "velocity_first_harmonic_relative_l2": 0.023787358393926688,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.9904168464556699,
+            0.002010651741625626
+          ]
+        },
+        {
+          "x_interval": [
+            0.75,
+            1.0
+          ],
+          "velocity_first_harmonic_relative_l2": 0.023504289840423045,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.9958726124164211,
+            -0.0008394991431415689
+          ]
+        },
+        {
+          "x_interval": [
+            1.0,
+            1.25
+          ],
+          "velocity_first_harmonic_relative_l2": 0.02340674438905692,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.9964011095820399,
+            -0.0014043977099667292
+          ]
+        },
+        {
+          "x_interval": [
+            1.25,
+            1.5
+          ],
+          "velocity_first_harmonic_relative_l2": 0.023781157569260844,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.9931835619183147,
+            -0.0008578259076473495
+          ]
+        },
+        {
+          "x_interval": [
+            1.5,
+            1.75
+          ],
+          "velocity_first_harmonic_relative_l2": 0.02517258942540365,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            1.014419679944303,
+            -0.01389273084762767
+          ]
+        },
+        {
+          "x_interval": [
+            1.75,
+            2.0
+          ],
+          "velocity_first_harmonic_relative_l2": 0.0238871724534929,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.6654679721083839,
+            0.13893452826858171
+          ]
+        }
+      ],
+      "interpretation": "Localization only. Nodal interpolation is not the best-approximation projection. No causal attribution or new solve."
+    },
+    {
+      "study": "womersley-a2-s48-l1-n100",
+      "cycle": 5,
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 1,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 100,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "quadrature_order": 6,
+      "first_harmonic_relative_l2": 0.01861908511190342,
+      "analytic_nodal_interpolation_relative_l2": 0.008583386531600424,
+      "numerical_minus_analytic_nodal_relative_l2": 0.013523654747329108,
+      "nonfirst_harmonic_relative_l2": 1.8297279659809307e-07,
+      "axial_bands": [
+        {
+          "x_interval": [
+            0.0,
+            0.25
+          ],
+          "velocity_first_harmonic_relative_l2": 0.017055199609446695,
+          "analytic_nodal_interpolation_relative_l2": 0.008583386531600446,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.7445897806881927,
+            0.09997537096581754
+          ]
+        },
+        {
+          "x_interval": [
+            0.25,
+            0.5
+          ],
+          "velocity_first_harmonic_relative_l2": 0.019614352549237064,
+          "analytic_nodal_interpolation_relative_l2": 0.008583386531600446,
+          "mean_axial_pressure_gradient_over_exact": [
+            1.0206461298180056,
+            -0.022026450281327145
+          ]
+        },
+        {
+          "x_interval": [
+            0.5,
+            0.75
+          ],
+          "velocity_first_harmonic_relative_l2": 0.018788005205524344,
+          "analytic_nodal_interpolation_relative_l2": 0.008583386531600446,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.9936698978593123,
+            0.005953830729644487
+          ]
+        },
+        {
+          "x_interval": [
+            0.75,
+            1.0
+          ],
+          "velocity_first_harmonic_relative_l2": 0.018734624537354957,
+          "analytic_nodal_interpolation_relative_l2": 0.008583386531600446,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.9996039455033705,
+            -0.0012220029289625423
+          ]
+        },
+        {
+          "x_interval": [
+            1.0,
+            1.25
+          ],
+          "velocity_first_harmonic_relative_l2": 0.01864702381089957,
+          "analytic_nodal_interpolation_relative_l2": 0.008583386531600446,
+          "mean_axial_pressure_gradient_over_exact": [
+            1.0011442815014557,
+            -0.0012653252392189783
+          ]
+        },
+        {
+          "x_interval": [
+            1.25,
+            1.5
+          ],
+          "velocity_first_harmonic_relative_l2": 0.01870933568759998,
+          "analytic_nodal_interpolation_relative_l2": 0.008583386531600446,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.989731211579126,
+            0.0034459662585448057
+          ]
+        },
+        {
+          "x_interval": [
+            1.5,
+            1.75
+          ],
+          "velocity_first_harmonic_relative_l2": 0.019430034396199364,
+          "analytic_nodal_interpolation_relative_l2": 0.008583386531600446,
+          "mean_axial_pressure_gradient_over_exact": [
+            1.03823244262438,
+            -0.02156263277955728
+          ]
+        },
+        {
+          "x_interval": [
+            1.75,
+            2.0
+          ],
+          "velocity_first_harmonic_relative_l2": 0.017846784357948127,
+          "analytic_nodal_interpolation_relative_l2": 0.008583386531600446,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.7745051542619943,
+            0.09143469197670107
+          ]
+        }
+      ],
+      "interpretation": "Localization only. Nodal interpolation is not the best-approximation projection. No causal attribution or new solve."
+    },
+    {
+      "study": "womersley-a2-s48-l0-n200",
+      "cycle": 5,
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 200,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "quadrature_order": 6,
+      "first_harmonic_relative_l2": 0.022422415455059564,
+      "analytic_nodal_interpolation_relative_l2": 0.025577915473902764,
+      "numerical_minus_analytic_nodal_relative_l2": 0.015210806969992292,
+      "nonfirst_harmonic_relative_l2": 1.9837870861190682e-07,
+      "axial_bands": [
+        {
+          "x_interval": [
+            0.0,
+            0.25
+          ],
+          "velocity_first_harmonic_relative_l2": 0.019725161986291994,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.6181457257251124,
+            0.15361465927783496
+          ]
+        },
+        {
+          "x_interval": [
+            0.25,
+            0.5
+          ],
+          "velocity_first_harmonic_relative_l2": 0.023946317935372975,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            1.0270080139391493,
+            -0.03364939866147402
+          ]
+        },
+        {
+          "x_interval": [
+            0.5,
+            0.75
+          ],
+          "velocity_first_harmonic_relative_l2": 0.02251365640986978,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.989402886672829,
+            0.008010819672937274
+          ]
+        },
+        {
+          "x_interval": [
+            0.75,
+            1.0
+          ],
+          "velocity_first_harmonic_relative_l2": 0.022468929072166167,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.9992502956712368,
+            -0.00144826526268163
+          ]
+        },
+        {
+          "x_interval": [
+            1.0,
+            1.25
+          ],
+          "velocity_first_harmonic_relative_l2": 0.022325388078983457,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.9999518723237616,
+            -0.0011905250807451202
+          ]
+        },
+        {
+          "x_interval": [
+            1.25,
+            1.5
+          ],
+          "velocity_first_harmonic_relative_l2": 0.022464205256366464,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.9892950940586313,
+            0.002548260256993426
+          ]
+        },
+        {
+          "x_interval": [
+            1.5,
+            1.75
+          ],
+          "velocity_first_harmonic_relative_l2": 0.02358687634267185,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            1.047147834381677,
+            -0.02429029650341972
+          ]
+        },
+        {
+          "x_interval": [
+            1.75,
+            2.0
+          ],
+          "velocity_first_harmonic_relative_l2": 0.022101761373097797,
+          "analytic_nodal_interpolation_relative_l2": 0.025577915473902778,
+          "mean_axial_pressure_gradient_over_exact": [
+            0.7218420626525982,
+            0.11419718738791787
+          ]
+        }
+      ],
+      "interpretation": "Localization only. Nodal interpolation is not the best-approximation projection. No causal attribution or new solve."
+    }
+  ],
+  "analysis_sources": {
+    "scripts/analyze_womersley.py": "c48aa5bafa068c7a177c45d6d22b48b7b02917103279dff389b69498f6527ebd",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0"
+  },
+  "helper_sha256": "3c7d2377c4449ab60f77e55c2f635b07ddc0ccbf5fffe7f0a3f7318f210fee65"
+}

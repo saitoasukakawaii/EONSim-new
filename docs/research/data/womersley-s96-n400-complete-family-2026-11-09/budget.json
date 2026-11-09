@@ -1,0 +1,114 @@
+{
+  "alpha": 2,
+  "target_N200": {
+    "schema": 1,
+    "seed": [
+      96,
+      8,
+      8
+    ],
+    "level": 1,
+    "alpha": 2.0,
+    "period": 1.5707963267948966,
+    "radius": 1.0,
+    "length": 2.0,
+    "density": 1.0,
+    "viscosity": 1.0,
+    "pressure_amplitude": 0.02,
+    "steps_per_cycle": 200,
+    "phases": 200,
+    "warmup": 2,
+    "ranks": 1,
+    "schur": false,
+    "tau": null,
+    "executable_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+    "solver_options": [
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-fluid_lu_pc_reuse_window",
+      "32",
+      "-snes_lag_jacobian",
+      "-2"
+    ]
+  },
+  "eligibility": {
+    "n200_gates": {
+      "velocity": true,
+      "pressure": true,
+      "flow_amplitude": true,
+      "flow_phase": true,
+      "global_mass": true,
+      "periodic": true
+    },
+    "n400_gates": {
+      "velocity": true,
+      "pressure": true,
+      "flow_amplitude": true,
+      "flow_phase": true,
+      "global_mass": true,
+      "periodic": true
+    },
+    "middle_gates": {
+      "velocity": true,
+      "pressure": true,
+      "flow_amplitude": false,
+      "flow_phase": true,
+      "global_mass": true,
+      "periodic": true
+    }
+  },
+  "eligible": true,
+  "fields": {
+    "velocity": {
+      "space_relative_rms": 0.0030119997235991108,
+      "terms": {
+        "time": {
+          "relative_rms": 0.00022262113993100108,
+          "ratio_to_space": 0.07391140782210488,
+          "passed": true
+        },
+        "tail": {
+          "relative_rms": 6.52437257122575e-16,
+          "ratio_to_space": 2.1661265504465655e-13,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 0.0003483341251076716,
+          "ratio_to_space": 0.11564879052891772,
+          "passed": false
+        }
+      }
+    },
+    "pressure": {
+      "space_relative_rms": 0.008512214043282342,
+      "terms": {
+        "time": {
+          "relative_rms": 0.0006778398882057731,
+          "ratio_to_space": 0.07963144309566673,
+          "passed": true
+        },
+        "tail": {
+          "relative_rms": 2.3536574833515968e-15,
+          "ratio_to_space": 2.7650355963605653e-13,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 0.00034899670026014134,
+          "ratio_to_space": 0.04099952121570088,
+          "passed": true
+        }
+      }
+    }
+  },
+  "limit_fraction": 0.1,
+  "passed": false,
+  "n400_analytic_gates": {
+    "velocity": true,
+    "pressure": true,
+    "flow_amplitude": true,
+    "flow_phase": true,
+    "global_mass": true,
+    "periodic": true
+  },
+  "scope": "Numerical budget for the fine N200 state. Circular geometry and other production gates remain separate; N400 is not independently spatially qualified."
+}

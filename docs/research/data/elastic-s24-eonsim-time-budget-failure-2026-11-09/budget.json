@@ -1,0 +1,140 @@
+{
+  "solver": "eonsim",
+  "prerequisites": {
+    "coarse": {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true
+    },
+    "temporal": {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true
+    },
+    "fine": {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true
+    }
+  },
+  "eligible": true,
+  "field_budgets": {
+    "fluid_mesh_displacement": {
+      "space_relative_rms": 0.10667097958359494,
+      "terms": {
+        "time": {
+          "relative_rms": 0.0058962585586408624,
+          "ratio_to_space": 0.05527518901258553,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "tail": {
+          "relative_rms": 1.0261816169540541e-07,
+          "ratio_to_space": 9.62006368517377e-07,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 2.958348805587325e-05,
+          "ratio_to_space": 0.00027733398691337166,
+          "limit_fraction": 0.1,
+          "passed": true
+        }
+      }
+    },
+    "fluid_pressure": {
+      "space_relative_rms": 0.00987992658417001,
+      "terms": {
+        "time": {
+          "relative_rms": 0.009023740388118671,
+          "ratio_to_space": 0.9133408341896839,
+          "limit_fraction": 0.1,
+          "passed": false
+        },
+        "tail": {
+          "relative_rms": 7.168898328206718e-10,
+          "ratio_to_space": 7.256023885534733e-08,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 4.556221628351555e-05,
+          "ratio_to_space": 0.0046115946201986,
+          "limit_fraction": 0.1,
+          "passed": true
+        }
+      }
+    },
+    "fluid_velocity": {
+      "space_relative_rms": 0.013045936620479677,
+      "terms": {
+        "time": {
+          "relative_rms": 0.005037554810442552,
+          "ratio_to_space": 0.3861397580710713,
+          "limit_fraction": 0.1,
+          "passed": false
+        },
+        "tail": {
+          "relative_rms": 1.3822769170229e-08,
+          "ratio_to_space": 1.0595459392719908e-06,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 2.6825288261248362e-05,
+          "ratio_to_space": 0.0020562178892650517,
+          "limit_fraction": 0.1,
+          "passed": true
+        }
+      }
+    },
+    "solid_displacement": {
+      "space_relative_rms": 0.13825855063805378,
+      "terms": {
+        "time": {
+          "relative_rms": 0.007925817125352178,
+          "ratio_to_space": 0.05732605389522075,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "tail": {
+          "relative_rms": 1.0378596282812875e-07,
+          "ratio_to_space": 7.506657805189162e-07,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 3.932339206705591e-05,
+          "ratio_to_space": 0.00028441924123738554,
+          "limit_fraction": 0.1,
+          "passed": true
+        }
+      }
+    },
+    "solid_velocity": {
+      "space_relative_rms": 0.041711169962560427,
+      "terms": {
+        "time": {
+          "relative_rms": 0.00794963208741481,
+          "ratio_to_space": 0.19058760745743475,
+          "limit_fraction": 0.1,
+          "passed": false
+        },
+        "tail": {
+          "relative_rms": 1.6493687363348073e-07,
+          "ratio_to_space": 3.954261503130375e-06,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 3.932447100174622e-05,
+          "ratio_to_space": 0.0009427803400634294,
+          "limit_fraction": 0.1,
+          "passed": true
+        }
+      }
+    }
+  },
+  "passed": false,
+  "scope": "Independent S24 level1/N400 numerical error budget; does not establish remaining physical/cross-code/geometry/end gates"
+}

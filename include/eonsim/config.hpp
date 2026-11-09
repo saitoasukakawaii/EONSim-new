@@ -30,6 +30,9 @@ struct SolverConfig {
     std::map<std::string,FieldTolerance> fields; ///< 非空时须覆盖该非线性布局的全部字段。
 };
 
+/// Smooth quintic startup times (mean + amplitude*sin(2*pi*t/period)).
+struct PressureTime { double amplitude=0, period=1, ramp_time=0; };
+
 /** @brief 按 physical tag 的固定网格流体边界。
  * velocity/traction: value + gradient*(x-origin)，gradient 按行存储；pressure: t=-pressure*n。
  * ramp_time=0 表示立即施加，否则乘 min(t/ramp_time,1)；稳态忽略 ramp。
@@ -43,6 +46,7 @@ struct FluidBoundary {
     Space3::Vector<double> value{},origin{};
     Space3::Tensor<double> gradient{};
     double pressure=0,ramp_time=0;
+    std::optional<PressureTime> pressure_time; ///< Only transient fluid pressure; excludes legacy ramp_time.
 };
 struct PressureGauge { std::int64_t node; double value; }; // 原始网格 ID，非 PETSc 编号
 
@@ -60,8 +64,13 @@ struct FluidConfig {
     // Fixed SUPG/PSPG coefficient (units time/density) for a time-step-independent
     // spatial discretization. Unset preserves the original transient estimate.
     std::optional<double> stabilization_tau;
+    // Optional effective integration time used only in the transient tau
+    // estimate. Mesh/material/advection terms and the actual derivative stay
+    // unchanged. This is a diagnostic control, mutually exclusive with tau.
+    std::optional<double> stabilization_time_scale;
     double density=1, viscosity=1, pressure_drop=1, dt=.05, ramp_time=.1;
     int steps=10;
+    int checkpoint_interval=1; ///< Accepted-step cadence; always save the final accepted state.
 };
 
 struct SolidConfig {
@@ -87,7 +96,6 @@ struct FsiDomains {
     std::vector<int> pressure_tags;
     std::vector<ComponentConstraint> fluid_constraints,mesh_constraints,solid_constraints;
 };
-struct FsiPressureTime { double amplitude=0, period=1, ramp_time=0; };
 struct FsiFlowRate {
     bool circular=false; ///< Circular parabolic profile; default preserves rectangle.
     Space3::Vector<double> center{};
@@ -99,7 +107,7 @@ struct FsiFlowRate {
 struct FsiConfig {
     std::optional<FsiFlowRate> inlet_flow;
     std::optional<FluidBoundary> inlet; ///< Fixed external affine velocity, smooth startup.
-    std::optional<FsiPressureTime> pressure_time;
+    std::optional<PressureTime> pressure_time;
     int output_interval=0; ///< Zero: final fields only; positive: accepted-step history and snapshot cadence.
     int checkpoint_interval=1; ///< Accepted-step cadence when checkpointing; always save a successful requested endpoint.
     FsiDomains domains;

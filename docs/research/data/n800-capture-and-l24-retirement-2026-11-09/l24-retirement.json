@@ -1,0 +1,38 @@
+{
+  "parent": {
+    "pid": 7713,
+    "start_ticks": 2801171,
+    "state": "S",
+    "ppid": 7709,
+    "argv": [
+      "/usr/bin/python3",
+      "build/prod48-20261107/run-pressure-length24.py"
+    ]
+  },
+  "old_status": {
+    "state": "running",
+    "pid": 7713,
+    "cpu": 19,
+    "utc": "2026-11-08T20:58:38Z",
+    "job": "sample",
+    "command": [
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/eonsim",
+      "-case",
+      "case.json",
+      "-checkpoint",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint",
+      "-stop_after",
+      "6400",
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-snes_lag_jacobian",
+      "-2",
+      "-restart",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint"
+    ]
+  },
+  "retired_after_complete6400": true,
+  "original_numerics_not_interrupted": true,
+  "obsolete_postprocessing_not_executed": true,
+  "utc": "2026-11-08T23:02:27Z"
+}

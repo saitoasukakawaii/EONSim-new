@@ -1,0 +1,4 @@
+{
+  "error": "A required producer failed: eonsim",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78/source/build/prod48-20261107/analyze-elastic-s24-native1100-budgets.py\", line 129, in main\n    if any(v['state']=='failed' for v in receipts.values()):raise RuntimeError('A required producer failed: '+solver)\n                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: A required producer failed: eonsim\n"
+}

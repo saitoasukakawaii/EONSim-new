@@ -508,12 +508,22 @@ void NonlinearSystem::set_jacobian_coo(const std::vector<PetscInt>& rows,const s
 }
 NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     const std::vector<double>& initial,const std::vector<PetscInt>& constraints,
-    const std::vector<double>& prescribed,const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble)
+    const std::vector<double>& prescribed,const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble,
+    PetscInt lu_reuse_window,bool refresh_lu_preconditioner)
 {
     const auto setup_begin=std::chrono::steady_clock::now();
     solve_started_=true;
     const auto comm=communicator_;
     const auto& l=layout_;
+    // Move the retained owner into this attempt. Every exception destroys it;
+    // only a fully accepted solve can put it back. SNES is destroyed first.
+    PetscOwner<PC,PCDestroy> previous_lu;
+    std::swap(*previous_lu.put(),*retained_lu_.put());
+    const auto previous_uses=retained_lu_uses_,previous_window=retained_lu_window_;
+    retained_lu_uses_=retained_lu_window_=0;
+    std::string previous_options,options_snapshot;
+    previous_options.swap(retained_lu_options_);
+    bool reused_lu=false;
     auto& x=solution_; auto& r=residual_; auto& scratch=scratch_; auto& j=matrix_;
     if(initial.size()!=l.local_to_global.size() || constraints.size()!=prescribed.size())
         throw std::runtime_error("Invalid nonlinear state/constraint layout");
@@ -545,11 +555,20 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_recipe",recipe_option,sizeof(recipe_option),&recipe_set));
     const std::string recipe=recipe_set?recipe_option:config.pc_recipe;
     const bool semantic=!recipe.empty();
-    int enabled=semantic,enabled_min=0,enabled_max=0;
-    MPI_Allreduce(&enabled,&enabled_min,1,MPI_INT,MPI_MIN,comm);
-    MPI_Allreduce(&enabled,&enabled_max,1,MPI_INT,MPI_MAX,comm);
-    if(enabled_min!=enabled_max) throw std::runtime_error("PC recipe enablement differs between ranks");
-    int conflict=(block&&schur)||(semantic&&(block||schur)),any_conflict=0;
+    PetscBool velocity_block3=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-schur_velocity_block3",&velocity_block3,nullptr));
+    int velocity_options[2]={velocity_block3,schur},velocity_min[2]{},velocity_max[2]{};
+    MPI_Allreduce(velocity_options,velocity_min,2,MPI_INT,MPI_MIN,comm);
+    MPI_Allreduce(velocity_options,velocity_max,2,MPI_INT,MPI_MAX,comm);
+    if(velocity_max[0]&&(!velocity_min[0]||!velocity_min[1]))
+        throw std::runtime_error("Schur velocity block3 requires -schur_pc and matching options on every rank");
+    PetscInt policies[2]={semantic,lu_reuse_window},policy_min[2]{},policy_max[2]{};
+    MPI_Allreduce(policies,policy_min,2,MPIU_INT,MPI_MIN,comm);
+    MPI_Allreduce(policies,policy_max,2,MPIU_INT,MPI_MAX,comm);
+    if(policy_min[0]!=policy_max[0]) throw std::runtime_error("PC recipe enablement differs between ranks");
+    if(policy_min[1]!=policy_max[1]||policy_min[1]<0||policy_max[1]>1000000)
+        throw std::runtime_error("LU preconditioner reuse window must match on all ranks and be in0..1000000");
+    int conflict=(block&&schur)||(semantic&&(block||schur))||(lu_reuse_window&&(block||schur||semantic)),any_conflict=0;
     MPI_Allreduce(&conflict,&any_conflict,1,MPI_INT,MPI_MAX,comm);
     if(any_conflict) throw std::runtime_error("Choose only one PC recipe, block_pc or schur_pc");
     PcBlock plan;
@@ -560,7 +579,50 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         EONSIM_PETSC(PCSetType(pc,PCFIELDSPLIT));
         EONSIM_PETSC(PCFieldSplitSetType(pc,PC_COMPOSITE_MULTIPLICATIVE));
     }
+    if(lu_reuse_window) {
+        EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
+        EONSIM_PETSC(KSPSetTolerances(ksp,1e-9,1e-13,PETSC_DEFAULT,500));
+        EONSIM_PETSC(KSPSetNormType(ksp,KSP_NORM_UNPRECONDITIONED));
+    }
     EONSIM_PETSC(SNESSetFromOptions(snes.get()));
+    if(lu_reuse_window) {
+        KSPType kt; PCType pt; KSPNormType norm;
+        EONSIM_PETSC(KSPGetType(ksp,&kt)); EONSIM_PETSC(PCGetType(pc,&pt));
+        EONSIM_PETSC(KSPGetNormType(ksp,&norm));
+        int invalid=std::strcmp(kt,KSPFGMRES)||std::strcmp(pt,PCLU)||norm!=KSP_NORM_UNPRECONDITIONED,any_invalid=0;
+        if(!invalid) {
+            MatSolverType factor; PetscBool in_place;
+            EONSIM_PETSC(PCFactorGetMatSolverType(pc,&factor));
+            EONSIM_PETSC(PCFactorGetUseInPlace(pc,&in_place));
+            invalid=!factor||std::strcmp(factor,MATSOLVERMUMPS)||in_place;
+        }
+        for(const char* option:{"-snes_lag_preconditioner","-snes_lag_preconditioner_persists","-ksp_reuse_preconditioner"}) {
+            PetscBool supplied=PETSC_FALSE;
+            EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,option,&supplied));
+            invalid=invalid||supplied;
+        }
+        MPI_Allreduce(&invalid,&any_invalid,1,MPI_INT,MPI_MAX,comm);
+        if(any_invalid) throw std::runtime_error("LU preconditioner reuse requires FGMRES, unpreconditioned norm, out-of-place MUMPS LU and no separate preconditioner-lag options");
+        char* options=nullptr;
+        EONSIM_PETSC(PetscOptionsGetAll(nullptr,&options));
+        if(options) options_snapshot=options;
+        EONSIM_PETSC(PetscFree(options));
+        int keep=!refresh_lu_preconditioner&&previous_lu.get()&&previous_window==lu_reuse_window&&previous_uses<lu_reuse_window&&previous_options==options_snapshot,all_keep=0;
+        MPI_Allreduce(&keep,&all_keep,1,MPI_INT,MPI_MIN,comm);
+        if(all_keep) {
+            // The PC's operator is still this system's current matrix. Only its
+            // separate LU factors are stale; FGMRES solves the current equation.
+            EONSIM_PETSC(KSPSetPC(ksp,previous_lu.get())); pc=previous_lu.get();
+            reused_lu=true;
+        }
+        EONSIM_PETSC(PCSetReusePreconditioner(pc,reused_lu?PETSC_TRUE:PETSC_FALSE));
+        // SNESComputeJacobian otherwise resets KSP's reuse flag. A cached
+        // factor already exists; a fresh PC builds exactly once in this solve.
+        // -1 is set through the API, not the more restrictive options parser.
+        EONSIM_PETSC(SNESSetLagPreconditioner(snes.get(),reused_lu?-1:-2));
+    }
+    // Drop an expired factor before allocating another one, bounding peak memory.
+    if(!reused_lu) EONSIM_PETSC(PCDestroy(previous_lu.put()));
     if(semantic) validate_pc_plan_options(comm,ksp,plan);
     // PETSc 优化构建默认可能不检查 Jacobian domain error；结果有效性检查在两种构建都启用。
     EONSIM_PETSC(SNESSetCheckJacobianDomainError(snes.get(),PETSC_TRUE));
@@ -676,6 +738,9 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     local_values(r.get(),result.raw_residual);
     EONSIM_PETSC(SNESGetIterationNumber(snes.get(),&result.iterations));
     EONSIM_PETSC(SNESGetLinearSolveIterations(snes.get(),&result.linear_iterations));
+    result.reused_lu_preconditioner=reused_lu&&result.linear_iterations>0;
+    if(lu_reuse_window&&(reused_lu||result.linear_iterations>0))
+        result.lu_preconditioner_uses=(reused_lu?previous_uses:0)+(result.linear_iterations>0?1:0);
     const double finalize_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-finalize_begin).count();
     if(report) {
         MatInfo info; EONSIM_PETSC(MatGetInfo(j.get(),MAT_GLOBAL_SUM,&info));
@@ -710,6 +775,25 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         const auto tree=local_solver_report(ksp,rank);
         EONSIM_PETSC(PetscSynchronizedPrintf(comm,"%s",tree.c_str()));
         EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
+        if(rank==0&&lu_reuse_window)
+            std::cout<<"lu_preconditioner reused="<<result.reused_lu_preconditioner
+                     <<" uses="<<result.lu_preconditioner_uses<<" window="<<lu_reuse_window<<'\n';
+    }
+    if(result.lu_preconditioner_uses) {
+        if(!reused_lu) {
+            EONSIM_PETSC(PetscObjectReference(reinterpret_cast<PetscObject>(pc)));
+            *previous_lu.put()=pc;
+        }
+        // SNESDestroy calls SNESReset -> KSPReset -> PCReset even when another
+        // owner retains the PC. Detach it first, or its LU factors are lost.
+        // Keep no DM/application callbacks from this solve's stack context.
+        EONSIM_PETSC(KSPSetPC(ksp,nullptr));
+        EONSIM_PETSC(PCSetDM(pc,nullptr));
+        EONSIM_PETSC(PCSetApplicationContext(pc,nullptr));
+        std::swap(*retained_lu_.put(),*previous_lu.put());
+        retained_lu_uses_=result.lu_preconditioner_uses;
+        retained_lu_window_=lu_reuse_window;
+        retained_lu_options_=std::move(options_snapshot);
     }
     return result;
 }

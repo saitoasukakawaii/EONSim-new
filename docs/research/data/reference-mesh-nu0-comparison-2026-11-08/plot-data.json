@@ -1,0 +1,148 @@
+{
+  "source_head": "30828c50ecc5c12ee27dd0f39bb56eac93ae94dd",
+  "plot_source_sha256": "2a7e7096c8bb59e34ffa4d07fdefe2f4ade0a03e48e0d4414f252811c5c7117b",
+  "matplotlib": "3.6.3",
+  "variants": {
+    "original": {
+      "periodic": {
+        "fluid_velocity": {
+          "value": 1.6686938033880268e-07,
+          "limit": 1e-05,
+          "ratio": 0.01668693803388027
+        },
+        "fluid_pressure": {
+          "value": 8.817322899233466e-09,
+          "limit": 1e-05,
+          "ratio": 0.0008817322899233465
+        },
+        "fluid_mesh_displacement": {
+          "value": 1.911248137406694e-05,
+          "limit": 1e-05,
+          "ratio": 1.9112481374066939
+        },
+        "solid_velocity": {
+          "value": 1.9925495417616283e-06,
+          "limit": 1e-05,
+          "ratio": 0.19925495417616282
+        },
+        "solid_displacement": {
+          "value": 1.1581413383827234e-06,
+          "limit": 1e-05,
+          "ratio": 0.11581413383827233
+        }
+      },
+      "amplitude": {
+        "mid_radial_displacement": {
+          "value": 0.02432478855901706,
+          "limit": 0.05,
+          "ratio": 0.48649577118034115
+        },
+        "mid_ring_projected_area": {
+          "value": 0.024324782277332972,
+          "limit": 0.05,
+          "ratio": 0.4864956455466594
+        },
+        "mid_pressure": {
+          "value": 0.025826566379698872,
+          "limit": 0.02,
+          "ratio": 1.2913283189849436
+        },
+        "outward_flow_left": {
+          "value": 0.012139098777899399,
+          "limit": 0.05,
+          "ratio": 0.24278197555798797
+        },
+        "outward_flow_right": {
+          "value": 0.011281194727699825,
+          "limit": 0.05,
+          "ratio": 0.2256238945539965
+        }
+      },
+      "lame_mean": {
+        "value": 0.0831525183709416,
+        "limit": 0.02,
+        "ratio": 4.1576259185470805
+      },
+      "periodic_passed": false,
+      "observable_gates_passed": false,
+      "source_files": {
+        "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l0-n400-ramp16-c32/svfsi-audit.json": "440a79a6a373877da2aaa36167db1f1712b0d740d649685ae08101fa683b5df3",
+        "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l0-n400-ramp16-c32/comparison.json": "17e9306e9b254a9a405d3ca8ca07af0b0c5d030fc83aa480c34abe5421a72cff"
+      }
+    },
+    "mesh_nu0": {
+      "periodic": {
+        "fluid_velocity": {
+          "value": 1.6687408983711974e-07,
+          "limit": 1e-05,
+          "ratio": 0.016687408983711974
+        },
+        "fluid_pressure": {
+          "value": 8.816272661447099e-09,
+          "limit": 1e-05,
+          "ratio": 0.0008816272661447098
+        },
+        "fluid_mesh_displacement": {
+          "value": 5.895229829718535e-06,
+          "limit": 1e-05,
+          "ratio": 0.5895229829718535
+        },
+        "solid_velocity": {
+          "value": 1.9926077647414283e-06,
+          "limit": 1e-05,
+          "ratio": 0.1992607764741428
+        },
+        "solid_displacement": {
+          "value": 1.1581752468796564e-06,
+          "limit": 1e-05,
+          "ratio": 0.11581752468796563
+        }
+      },
+      "amplitude": {
+        "mid_radial_displacement": {
+          "value": 0.024322919360551302,
+          "limit": 0.05,
+          "ratio": 0.486458387211026
+        },
+        "mid_ring_projected_area": {
+          "value": 0.02432291307467221,
+          "limit": 0.05,
+          "ratio": 0.4864582614934442
+        },
+        "mid_pressure": {
+          "value": 0.025824665930861922,
+          "limit": 0.02,
+          "ratio": 1.2912332965430962
+        },
+        "outward_flow_left": {
+          "value": 0.012137889341012252,
+          "limit": 0.05,
+          "ratio": 0.24275778682024504
+        },
+        "outward_flow_right": {
+          "value": 0.011279567187498084,
+          "limit": 0.05,
+          "ratio": 0.22559134374996168
+        }
+      },
+      "lame_mean": {
+        "value": 0.08315251213530996,
+        "limit": 0.02,
+        "ratio": 4.157625606765498
+      },
+      "periodic_passed": true,
+      "observable_gates_passed": false,
+      "source_files": {
+        "/mnt/d/EONSim-prod48-20261107/reference-s12-l0-n400-meshnu0-a7a177e/svfsi-audit.json": "e7a9ed79c784323135cc97c9d3addc4f6d67b7911d8ae86dc5a83f4d1a60beb8",
+        "/mnt/d/EONSim-prod48-20261107/reference-s12-l0-n400-meshnu0-a7a177e/comparison.json": "4ccdfa698263a0f1063da2f6a42f8950c462aa095a2abcde6cf4145c781ae9fb"
+      }
+    }
+  },
+  "scope": "S12 level0, N400,32cycles,ramp16. Only reference mesh equation nu changes; physical solid nu=.3. Original EONSim result is common. Space/time/geometry/end budgets remain incomplete.",
+  "extraction_script_sha256": "03c605470f529e0b206592a12370ba19e1d2be56b778a343ff9a5d1842257820",
+  "svg_normalization": {
+    "original_sha256": "cb88b1de899148e38aadbe87f53936de0cdd51a9864a005666d3a874d51f6c9f",
+    "normalized_sha256": "864d651ee6ecb229c36d3e6380a1cce7ef1029ea11572475c69e5ce0cb01b9f2",
+    "xml_geometry_and_text_tokens_unchanged": true
+  }
+}

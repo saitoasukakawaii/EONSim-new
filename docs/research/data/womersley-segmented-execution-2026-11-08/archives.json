@@ -1,0 +1,73 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 97592,
+      "sha256": "83a028381145d63ca1841b9084588309b6c59622c4ac416af31fde482231cd83",
+      "verified_files": 604
+    }
+  ],
+  "verified_files": 604,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "work/womersley-legacy-segments-86bbdac/r1-default/eonsim": {
+      "bytes": 1599208,
+      "sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/womersley-legacy-segments-86bbdac/r1-segmented/eonsim": {
+      "bytes": 1599208,
+      "sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/womersley-legacy-segments-86bbdac/r2-default/eonsim": {
+      "bytes": 1599208,
+      "sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/womersley-legacy-segments-86bbdac/r2-segmented/eonsim": {
+      "bytes": 1599208,
+      "sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/womersley-segments-86bbdac/r1-default/eonsim": {
+      "bytes": 1599208,
+      "sha256": "e88ba71276b688ee0c5364883e61396899944a2629317a1fd1c8c420f5b11ed2",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/womersley-segments-86bbdac/r1-segmented/eonsim": {
+      "bytes": 1599208,
+      "sha256": "e88ba71276b688ee0c5364883e61396899944a2629317a1fd1c8c420f5b11ed2",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/womersley-segments-86bbdac/r2-default/eonsim": {
+      "bytes": 1599208,
+      "sha256": "e88ba71276b688ee0c5364883e61396899944a2629317a1fd1c8c420f5b11ed2",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/womersley-segments-86bbdac/r2-segmented/eonsim": {
+      "bytes": 1599208,
+      "sha256": "e88ba71276b688ee0c5364883e61396899944a2629317a1fd1c8c420f5b11ed2",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "v4-summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/womersley-segments-capture-86bbdac/v4-summary.json",
+      "sha256": "f547e53da1a7b952a05a1bb777b3641ebaf4c0c0f2025440ce3e43a34b88d3cf"
+    },
+    "legacy-summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/womersley-segments-capture-86bbdac/legacy-summary.json",
+      "sha256": "b4b9464341e4083bc9c59c9effefc30fc0efdde75788356b921b7e0d340f21c0"
+    },
+    "capture-production-followups.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-production-followups.py",
+      "sha256": "3bac74e89ba9d694f294db6debec297eaf9cc1a313fb637a1540596f81325bb1"
+    }
+  },
+  "source_checkpoint": "86bbdac310880793b86f2fdbde37ed9ed9a8469d",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

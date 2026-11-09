@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/usr/bin/systemd-run",
+    "--user",
+    "--scope",
+    "--quiet",
+    "--unit=eonsim-ilut-budget-eonsim-40042.scope",
+    "--property=MemoryMax=2G",
+    "--property=MemorySwapMax=0",
+    "/usr/bin/python3",
+    "/home/tfblab633/EONSim-prod48-20261107/elastic-s24-native1600-budgets-32fb313/controller.py",
+    "--worker",
+    "eonsim"
+  ],
+  "cwd": "/home/tfblab633/EONSim-prod48-20261107/elastic-s24-native1600-budgets-32fb313/source",
+  "unit": "eonsim-ilut-budget-eonsim-40042.scope",
+  "memory_max_bytes": 2147483648,
+  "memory_swap_max_bytes": 0,
+  "timeout_seconds": 14400,
+  "peak_observed_bytes": 165564416,
+  "minimum_available_bytes": 15759175680,
+  "scope_seen": true,
+  "cleanup": [],
+  "launcher_pid": 44541,
+  "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "returncode": 0,
+  "wall_seconds": 2536.857888903003,
+  "remaining_scope_members": []
+}

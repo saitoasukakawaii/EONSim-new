@@ -1,0 +1,315 @@
+{
+  "passed": true,
+  "utc": "2026-11-08T20:57:31Z",
+  "source_checkpoint": "e771355a25e66696f9320fc964eb768f86463e98",
+  "branch": "codex/fsi-production-48h-20261107",
+  "archives_json_sha256": "9debda8227b4390baa3f7315f9ff0ee9b36b192f7cd505195e1e9d6b60d600b2",
+  "storage_record_sha256": "05568467faa986eee6631d06b72cc34be767d96817ae69ba49593312fefc9ace",
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 23952252,
+      "sha256": "bded1db840f2d20af1bee7f81d52699a66b24dd07401a7dedec51b937ae8563d",
+      "verified_files": 297,
+      "blob_oid": "0e37a85e2714a919f63d1f712ae5c7c8e27364d7",
+      "index_path": "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part001.tar.xz",
+      "index_flags": "S docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part001.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 50063100,
+      "sha256": "f43c5612ecd504041db859ba9e2aad6507390459c397476f33940570eef87ff9",
+      "verified_files": 621,
+      "blob_oid": "3f127b5ae7699499c16cb8aab2d43dfe364c67f1",
+      "index_path": "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part002.tar.xz",
+      "index_flags": "S docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part002.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 34800788,
+      "sha256": "5e4067ba4ee56fb624c055cddd5523edf67f55e8ca6c204e16c0b18af3cbd489",
+      "verified_files": 465,
+      "blob_oid": "8b88a9db2500c7965449517efe02faff077af1cb",
+      "index_path": "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part003.tar.xz",
+      "index_flags": "S docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part003.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 811808,
+      "sha256": "8764018ac1a9cdc00a8aee2dd1910c6207a54a147ac971b2fb23b91a077d0713",
+      "verified_files": 25,
+      "blob_oid": "1a7d7bb51a0e772e9b2b50fa006284a5981f9996",
+      "index_path": "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part004.tar.xz",
+      "index_flags": "S docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part004.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true
+    }
+  ],
+  "scope": "Every archive is a complete regular100644 Git blob. Default Git readback matches every manifest SHA. D source archives retained; no pointer substitute, ref update, upload, move or deletion.",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "rev-parse",
+        "HEAD"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "branch",
+        "--show-current"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--stage",
+        "--",
+        "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--stage",
+        "--",
+        "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part002.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part002.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part002.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--stage",
+        "--",
+        "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part003.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part003.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part003.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--stage",
+        "--",
+        "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part004.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part004.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/elastic-s24-coarse-n400-nu0-reference-pair-2026-11-09/part004.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    }
+  ]
+}

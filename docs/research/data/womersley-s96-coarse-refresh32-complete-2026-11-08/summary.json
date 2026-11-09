@@ -1,0 +1,315 @@
+{
+  "producer": {
+    "state": "completed",
+    "pid": 27906,
+    "utc": "2026-11-08T07:14:29Z",
+    "target": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n200-refresh32-d844e40",
+    "adopted": true,
+    "scope": "Coarse six-cycle trajectory/analytic diagnostics complete; no fine or whole-project qualification."
+  },
+  "resources": {
+    "analysis.resource.json": {
+      "command": [
+        "/usr/bin/systemd-run",
+        "--user",
+        "--scope",
+        "--quiet",
+        "--unit=eonsim-rounder-coarse-analysis-27906.scope",
+        "--property=MemoryMax=2G",
+        "--property=MemorySwapMax=0",
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/source/scripts/analyze_womersley.py",
+        "--work",
+        "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n200-refresh32-d844e40",
+        "--output",
+        "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/analysis.json"
+      ],
+      "cwd": "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/source",
+      "unit": "eonsim-rounder-coarse-analysis-27906.scope",
+      "memory_max_bytes": 2147483648,
+      "memory_swap_max_bytes": 0,
+      "timeout_seconds": 3600,
+      "peak_observed_bytes": 220598272,
+      "minimum_available_bytes": 23287971840,
+      "scope_seen": true,
+      "cleanup": [],
+      "launcher_pid": 28414,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "returncode": 0,
+      "wall_seconds": 47.574884157998895,
+      "remaining_scope_members": []
+    },
+    "n200.resource.json": {
+      "command": [
+        "/usr/bin/systemd-run",
+        "--user",
+        "--scope",
+        "--quiet",
+        "--unit=eonsim-rounder-coarse-n200-27906.scope",
+        "--property=MemoryMax=2G",
+        "--property=MemorySwapMax=0",
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/source/scripts/study_womersley.py",
+        "--executable",
+        "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/eonsim",
+        "--work",
+        "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n200-refresh32-d844e40",
+        "--seed",
+        "96",
+        "8",
+        "8",
+        "--level",
+        "0",
+        "--alpha",
+        "2",
+        "--warmup",
+        "2",
+        "--cycles",
+        "6",
+        "--cycles-per-solve",
+        "1",
+        "--steps-per-cycle",
+        "200",
+        "--phases",
+        "200",
+        "--ranks",
+        "4",
+        "--mumps",
+        "--lu-reuse-window",
+        "32",
+        "--chord",
+        "--mpiexec",
+        "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/mpiexec-guard",
+        "--timeout",
+        "86400"
+      ],
+      "cwd": "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/source",
+      "unit": "eonsim-rounder-coarse-n200-27906.scope",
+      "memory_max_bytes": 2147483648,
+      "memory_swap_max_bytes": 0,
+      "timeout_seconds": 14400,
+      "peak_observed_bytes": 401256448,
+      "minimum_available_bytes": 15538089984,
+      "scope_seen": true,
+      "cleanup": [],
+      "launcher_pid": 27909,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "returncode": 0,
+      "wall_seconds": 1894.920555192999,
+      "remaining_scope_members": []
+    },
+    "tail.resource.json": {
+      "command": [
+        "/usr/bin/systemd-run",
+        "--user",
+        "--scope",
+        "--quiet",
+        "--unit=eonsim-rounder-coarse-tail-27906.scope",
+        "--property=MemoryMax=2G",
+        "--property=MemorySwapMax=0",
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/source/scripts/compare_womersley.py",
+        "--coarse",
+        "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n200-refresh32-d844e40",
+        "--fine",
+        "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n200-refresh32-d844e40",
+        "--coarse-cycle",
+        "5",
+        "--fine-cycle",
+        "6",
+        "--output",
+        "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/tail5-6.json"
+      ],
+      "cwd": "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/source",
+      "unit": "eonsim-rounder-coarse-tail-27906.scope",
+      "memory_max_bytes": 2147483648,
+      "memory_swap_max_bytes": 0,
+      "timeout_seconds": 3600,
+      "peak_observed_bytes": 86958080,
+      "minimum_available_bytes": 24636366848,
+      "scope_seen": true,
+      "cleanup": [],
+      "launcher_pid": 28441,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "returncode": 0,
+      "wall_seconds": 42.29052172299998,
+      "remaining_scope_members": []
+    }
+  },
+  "analysis": {
+    "definition": {
+      "schema": 1,
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "level": 0,
+      "alpha": 2.0,
+      "period": 1.5707963267948966,
+      "radius": 1.0,
+      "length": 2.0,
+      "density": 1.0,
+      "viscosity": 1.0,
+      "pressure_amplitude": 0.02,
+      "steps_per_cycle": 200,
+      "phases": 200,
+      "warmup": 2,
+      "ranks": 4,
+      "schur": false,
+      "tau": null,
+      "executable_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "solver_options": [
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-fluid_lu_pc_reuse_window",
+        "32",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "last_cycle": 6,
+    "quadrature_order": 4,
+    "versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.17.1",
+      "h5py": "3.14.0"
+    },
+    "nodes": 6921,
+    "tetrahedra": 34560,
+    "metrics": {
+      "velocity_relative_l2_error": 0.006918162934089768,
+      "pressure_rms_over_amplitude": 0.006792305004668952,
+      "flow_amplitude_relative_error": 0.010580466780554909,
+      "flow_phase_error_degrees": 0.13670526646518033,
+      "flow_mean": 1.6513680020646681e-10,
+      "maximum_net_flux": 8.278476509989904e-18,
+      "velocity_reference_rms": 0.0008411016265556662,
+      "pressure_reference_rms": 0.008164965809277261,
+      "flow_amplitude": [
+        0.0027417397052648227,
+        -0.0017890138158026404
+      ],
+      "reference_flow_amplitude": [
+        0.002708802995093303,
+        -0.0017767515298731434
+      ]
+    },
+    "last_periodic_difference": {
+      "velocity": 4.023944943445496e-15,
+      "pressure": 1.0574109582973404e-14
+    },
+    "preceding_periodic_difference": {
+      "velocity": 1.0241786861204158e-12,
+      "pressure": 1.155070682314198e-14
+    },
+    "preliminary_gates": {
+      "velocity": true,
+      "pressure": true,
+      "flow_amplitude": false,
+      "flow_phase": true,
+      "global_mass": true,
+      "periodic": true
+    },
+    "scope": "Analytic and periodic diagnostics; spatial/time/tail/sampling budgets still required"
+  },
+  "tail": {
+    "coarse_definition": {
+      "schema": 1,
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "level": 0,
+      "alpha": 2.0,
+      "period": 1.5707963267948966,
+      "radius": 1.0,
+      "length": 2.0,
+      "density": 1.0,
+      "viscosity": 1.0,
+      "pressure_amplitude": 0.02,
+      "steps_per_cycle": 200,
+      "phases": 200,
+      "warmup": 2,
+      "ranks": 4,
+      "schur": false,
+      "tau": null,
+      "executable_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "solver_options": [
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-fluid_lu_pc_reuse_window",
+        "32",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "fine_definition": {
+      "schema": 1,
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "level": 0,
+      "alpha": 2.0,
+      "period": 1.5707963267948966,
+      "radius": 1.0,
+      "length": 2.0,
+      "density": 1.0,
+      "viscosity": 1.0,
+      "pressure_amplitude": 0.02,
+      "steps_per_cycle": 200,
+      "phases": 200,
+      "warmup": 2,
+      "ranks": 4,
+      "schur": false,
+      "tau": null,
+      "executable_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "solver_options": [
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-fluid_lu_pc_reuse_window",
+        "32",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "coarse_cycle": 5,
+    "fine_cycle": 6,
+    "common_phases": 200,
+    "reference_scales": {
+      "velocity": 0.0008411016265556662,
+      "pressure": 0.008164965809277261
+    },
+    "rms": {
+      "velocity": 5.253298232703219e-19,
+      "pressure": 1.9919076784312407e-17
+    },
+    "maximum_phase_rms": {
+      "velocity": 3.3845466371024553e-18,
+      "pressure": 8.633724320852889e-17
+    },
+    "relative_rms": {
+      "velocity": 6.245735434153916e-16,
+      "pressure": 2.4395787134441883e-15
+    },
+    "relative_maximum_phase_rms": {
+      "velocity": 4.023944943445496e-15,
+      "pressure": 1.0574109582973404e-14
+    },
+    "norm": "Exact P1 volume L2 on the nested target mesh, cycle RMS and maximum phase separately",
+    "scope": "Field difference only; interpretation requires the recorded parameter differences"
+  },
+  "startup_failure": {
+    "state": "failed",
+    "pid": 27988,
+    "level": 1,
+    "utc": "2026-11-08T07:14:29Z",
+    "out": "/mnt/d/EONSim-prod48-20261107/rounder-fine-refresh32-screen-d844e40",
+    "adopted": false,
+    "error": ""
+  },
+  "scope": "Complete independent S96 level0 six-cycle N200 study. Flow amplitude remains over1%; no fine/project qualification. Failed first fine controller released no numerical work: producer completed publication followed lock release. Separate retry has fresh paths and waits outside resource locks."
+}

@@ -1,0 +1,88 @@
+{
+  "20754": {
+    "before": {
+      "state": "waiting_for_accepted_cycle",
+      "pid": 20754,
+      "utc": "2026-11-08T00:15:43Z",
+      "seed_step": 600,
+      "uninterrupted_reference_step": 603,
+      "holds_queue_lock": false
+    },
+    "after": {
+      "state": "cancelled_before_numerical_work",
+      "pid": 20754,
+      "utc": "2026-11-08T01:50:04Z",
+      "seed_step": 600,
+      "uninterrupted_reference_step": 603,
+      "holds_queue_lock": false,
+      "successor": "/home/tfblab633/EONSim-prod48-20261107/womersley-mumps-boundary-current.json",
+      "reason": "Explicit direct-solver handoff accepted; old frozen target is no longer the producer"
+    },
+    "identity": {
+      "pid": 20754,
+      "state": "S",
+      "ppid": 20751,
+      "sid": 20754,
+      "start": "3470456",
+      "command": [
+        "/usr/bin/python3",
+        "-u",
+        "build/prod48-20261107/handoff-womersley-segment600.py"
+      ]
+    }
+  },
+  "20817": {
+    "before": {
+      "state": "waiting_for_fine_n200_producer",
+      "pid": 20817,
+      "alpha": 2,
+      "cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "utc": "2026-11-08T00:17:15Z",
+      "producer_status": "/home/tfblab633/EONSim-prod48-20261107/womersley-segment-boundary-current.json",
+      "holds_queue_lock": false
+    },
+    "after": {
+      "state": "cancelled_before_numerical_work",
+      "pid": 20817,
+      "alpha": 2,
+      "cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "utc": "2026-11-08T01:50:04Z",
+      "producer_status": "/home/tfblab633/EONSim-prod48-20261107/womersley-segment-boundary-current.json",
+      "holds_queue_lock": false,
+      "successor": "/home/tfblab633/EONSim-prod48-20261107/womersley-mumps-boundary-current.json",
+      "reason": "Explicit direct-solver handoff accepted; old frozen target is no longer the producer"
+    },
+    "identity": {
+      "pid": 20817,
+      "state": "S",
+      "ppid": 20813,
+      "sid": 20817,
+      "start": "3479694",
+      "command": [
+        "/usr/bin/python3",
+        "-u",
+        "build/prod48-20261107/queue-womersley-time400-segmented.py",
+        "--alpha",
+        "2"
+      ]
+    }
+  }
+}

@@ -28,15 +28,19 @@ public:
         return false;
     }
     bool active(int stop_after=0) const { return time<end_-32*std::numeric_limits<double>::epsilon()*end_ && (!stop_after||step<stop_after); }
-    void restore(int accepted_step,double accepted_time,double saved_dt) {
-        if(accepted_step<0||accepted_time<0||accepted_time>=end_||!(saved_dt>0)||!std::isfinite(accepted_time+saved_dt)) throw std::runtime_error("Invalid restart time or final time already reached");
-        step=accepted_step; time=accepted_time; next_dt=saved_dt; time_correction_=0;
+    /// The summation correction is accepted algorithm state, including across restart.
+    double correction() const { return time_correction_; }
+    void restore(int accepted_step,double accepted_time,double saved_dt,double saved_correction) {
+        if(accepted_step<0||accepted_time<0||accepted_time>=end_||!(saved_dt>0)||
+           !std::isfinite(accepted_time+saved_dt)||!std::isfinite(saved_correction))
+            throw std::runtime_error("Invalid restart time or final time already reached");
+        step=accepted_step; time=accepted_time; next_dt=saved_dt; time_correction_=saved_correction;
     }
     void accept() {
         if(step==std::numeric_limits<int>::max()||!(time+dt()>time)) throw std::runtime_error("Time or step counter cannot advance");
         // Compensated accumulation prevents O(step*epsilon) clock drift from
-        // introducing an artificial near-zero final step. Restart resets only
-        // this floating-point correction, not the integration history.
+        // introducing an artificial near-zero final step. Its correction must
+        // survive checkpoint/restart to preserve every subsequent stage clock.
         const double increment=dt()-time_correction_;
         const double updated=time+increment;
         time_correction_=(updated-time)-increment;

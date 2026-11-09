@@ -1,0 +1,106 @@
+{
+  "utc": "2026-11-09T00:42:06Z",
+  "base": "98ee0f93d04537b7cf8a9a5045c501ac6dcce806",
+  "l12_completed": true,
+  "l24_completed": true,
+  "l12_periodic": true,
+  "l24_periodic": false,
+  "comparison_is_dynamic_length_sensitivity": true,
+  "pure_end_error_claim": false,
+  "extended_production_prepared": false,
+  "extended_production_adopted": false,
+  "full_qualification": false,
+  "files": {
+    "l12-audit.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/eonsim-audit.json",
+      "sha256": "939301461aeae7a5e1d1960f56bbf75399f777fd061c3e0ac8e820b82c0cf7a5",
+      "bytes": 627272
+    },
+    "l24-audit.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-bounded-postprocess-e771355/eonsim-audit.json",
+      "sha256": "60daa871c263faf79d5e75975c76708d4ebbeb71582b52679eaf25bf9c246f2d",
+      "bytes": 627666
+    },
+    "l12-completion.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/elastic-n200-native1600-handoff-32fb313/completion.json",
+      "sha256": "1fe352dbd4c8acb2976714ebffa15f9bb901854d733dfbca73ff68f5530513cf",
+      "bytes": 4963
+    },
+    "l24-completion.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/completion.json",
+      "sha256": "d83aeb251e723dae69828401978d66143b426df4b5394aa494aef397ef6a1976",
+      "bytes": 690
+    },
+    "length-comparison.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-bounded-postprocess-e771355/length-comparison.json",
+      "sha256": "911d800a5130c233b7dbd5e78fea75a010f842de0c105a8e0a30ac13c7bb4277",
+      "bytes": 3201
+    },
+    "original-length-kernel.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/original-length-kernel.py",
+      "sha256": "7e6670eb22cc350dcfb8a044da938ce2655576d7003da800a4714105f8b6ea39",
+      "bytes": 1201
+    },
+    "l12-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/elastic-n200-native1600-handoff-32fb313/definition.json",
+      "sha256": "068e3e0bd001785719e5411bc206ee813ba505025eeb631adf040c6bf98a9039",
+      "bytes": 5367
+    },
+    "l24-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/definition.json",
+      "sha256": "aa767dcbd75b5f059d44cad3ac1f7fee6d08faddb39997f5cf6f352005358d40",
+      "bytes": 4553
+    },
+    "l12-case.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/case.json",
+      "sha256": "b3bea9d75f9699e17d5814e07de847eaadf9925dd2fb441b1f599876be51698c",
+      "bytes": 1486
+    },
+    "l12-geometry.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/geometry.json",
+      "sha256": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e",
+      "bytes": 306
+    },
+    "l24-case.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-bounded-postprocess-e771355/case.json",
+      "sha256": "b3bea9d75f9699e17d5814e07de847eaadf9925dd2fb441b1f599876be51698c",
+      "bytes": 1486
+    },
+    "l24-geometry.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-bounded-postprocess-e771355/geometry.json",
+      "sha256": "f3798991155899baf1ada64e138610d69678bdae7e1df13007b73d84c1e47106",
+      "bytes": 307
+    },
+    "extend-length24-native6400.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/extend-length24-native6400.py",
+      "sha256": "469f78e7ca3d7bb58a3042e2d95ee759a14c2c6160011d0fdfa98dfc28fe094c",
+      "bytes": 14467
+    },
+    "check-length24-extension-static.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/check-length24-extension-static.py",
+      "sha256": "956ad5aceaa19ac26438a23d2fe51f19be6d66ec9f25578cc838b31fc60d9b99",
+      "bytes": 2406
+    },
+    "length24-extension-static-check.json": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/length24-extension-static-check.json",
+      "sha256": "fc80e900494ff7a17a30cb0fdb012b5268c358db57c3d6f22db491135ee38644",
+      "bytes": 2017
+    },
+    "capture-length24-native-proof.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-proof-capture-98ee0f9/controller.py",
+      "sha256": "58ab959d2deb6a562e3dc8580078812069ce5a2f268ffee5fbe467b9e06e0e9a",
+      "bytes": 5432
+    },
+    "proof-capture-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-proof-capture-98ee0f9/definition.json",
+      "sha256": "a4a26bff378f8c7a16239b6d6f904e67689f82593cd99c665fea57dc3c782a35",
+      "bytes": 563
+    },
+    "capture-n200-audit-and-length-summary.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-n200-audit-and-length-summary.py",
+      "sha256": "d72ae1974e34e237d1e02c2451c733b97702071ba29dae6b2d9bd5fbe2564028",
+      "bytes": 3769
+    }
+  },
+  "scope": "Complete matched-analyzer reports and original arithmetic, plus unlaunched extension and queued proof capture static evidence. Full raw L24/L12/cross archives are still being captured by43422; no raw-field substitute or whole-project acceptance."
+}

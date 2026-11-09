@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "ranks": 1,
+      "accepted_steps": 16,
+      "compared_stored_states": 13,
+      "compared_datasets": 65,
+      "maximum_field_or_history_difference": 0.0,
+      "exact_clocks": true,
+      "stops": [
+        4,
+        8,
+        12,
+        16
+      ],
+      "completed_resume_noop": true
+    },
+    {
+      "ranks": 2,
+      "accepted_steps": 16,
+      "compared_stored_states": 13,
+      "compared_datasets": 130,
+      "maximum_field_or_history_difference": 0.0,
+      "exact_clocks": true,
+      "stops": [
+        4,
+        8,
+        12,
+        16
+      ],
+      "completed_resume_noop": true
+    }
+  ],
+  "invalid_values_rejected": [
+    0,
+    -1
+  ],
+  "source_hashes": {
+    "scripts/study_womersley.py": "ff9d8ef039bfc9c66907d56ee2ea608d123c258bbcaaa871aff45a8fb549da43",
+    "scripts/study_rigid_tube.py": "e0b89fd0f28740df71ca48013ab3c01f9038b966defdcebbbf712bd355d2d799",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "scope": "Same-future-step v4 clocks are exact. Legacy v3 lacks correction and retains approximate-clock semantics. No physical Womersley qualification implied."
+}

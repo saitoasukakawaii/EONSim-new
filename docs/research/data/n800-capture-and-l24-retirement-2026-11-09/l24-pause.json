@@ -1,0 +1,59 @@
+{
+  "parent": {
+    "pid": 7713,
+    "start_ticks": 2801171,
+    "state": "T",
+    "ppid": 7709,
+    "argv": [
+      "/usr/bin/python3",
+      "build/prod48-20261107/run-pressure-length24.py"
+    ]
+  },
+  "children": {
+    "42141": {
+      "pid": 42141,
+      "start_ticks": 10928062,
+      "state": "R",
+      "ppid": 7713,
+      "argv": [
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/eonsim",
+        "-case",
+        "case.json",
+        "-checkpoint",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint",
+        "-stop_after",
+        "6400",
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-snes_lag_jacobian",
+        "-2",
+        "-restart",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint"
+      ]
+    }
+  },
+  "original_status": {
+    "state": "running",
+    "pid": 7713,
+    "cpu": 19,
+    "utc": "2026-11-08T20:58:38Z",
+    "job": "sample",
+    "command": [
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/eonsim",
+      "-case",
+      "case.json",
+      "-checkpoint",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint",
+      "-stop_after",
+      "6400",
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-snes_lag_jacobian",
+      "-2",
+      "-restart",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint"
+    ]
+  },
+  "utc": "2026-11-08T20:58:39Z",
+  "reason": "Only wait parent paused; original sample numerical child continues naturally to6400. No descendant signal."
+}

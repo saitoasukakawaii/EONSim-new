@@ -1,0 +1,10 @@
+{
+  "scope": "Preparation only; no numerical screen was launched by the failed assertion.",
+  "first_draft_sha256": "ea88a6af9db385f287cd9a3c114c213c76a5f7cee76a4f031efbba75ddfe3a41",
+  "first_preflight_result": "Assertion failed because scale-contract comparison removed dt and steps but left checkpoint_interval200 versus400.",
+  "correction": "Verify the expected factor2 for dt, inverse steps, and checkpoint interval, then compare every remaining physical case value exactly. Actual N200 case/export and all numerical input values remain unchanged.",
+  "corrected_preflight_passed": true,
+  "corrected_draft_sha256": "15bafdba264230f49a4171df7e53a2339ffac4e72cd0cd117c08acc9620bbae0",
+  "second_source_change": "Attach this preparation receipt to the frozen screen definition before launch.",
+  "production_adopted": false
+}

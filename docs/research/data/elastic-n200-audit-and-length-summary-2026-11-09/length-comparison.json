@@ -1,0 +1,86 @@
+{
+  "harmonics": {
+    "mid_radial_displacement": {
+      "L12": {
+        "mean": 0.00010738162061366611,
+        "sine": 1.177131994706294e-05,
+        "cosine": -3.520508788970581e-05,
+        "amplitude": 3.712091306282797e-05,
+        "phase_degrees": -71.51191136035814,
+        "higher_harmonic_rms": 4.732463614774337e-10
+      },
+      "L24": {
+        "mean": 0.00010703147793799552,
+        "sine": -7.83330842575736e-06,
+        "cosine": -5.500365344588162e-06,
+        "amplitude": 9.571558902132281e-06,
+        "phase_degrees": -144.92436998653793,
+        "higher_harmonic_rms": 1.2933758998374017e-10
+      },
+      "mean_difference": -3.5014267567058937e-07,
+      "amplitude_relative_difference": 2.8782515410899734,
+      "phase_difference_degrees": -73.41245862617978
+    },
+    "mid_ring_projected_area": {
+      "L12": {
+        "mean": 3.106499427852363,
+        "sine": 7.354698633610539e-05,
+        "cosine": -0.00021996164281925818,
+        "amplitude": 0.00023193163542490315,
+        "phase_degrees": -71.51198293901419,
+        "higher_harmonic_rms": 3.904371639994537e-09
+      },
+      "L24": {
+        "mean": 3.106497238195441,
+        "sine": -4.8942642846153425e-05,
+        "cosine": -3.436621487115698e-05,
+        "amplitude": 5.9803168923867776e-05,
+        "phase_degrees": -144.92449571403333,
+        "higher_harmonic_rms": 7.820711901420135e-10
+      },
+      "mean_difference": -2.1896569220025697e-06,
+      "amplitude_relative_difference": 2.878249925520886,
+      "phase_difference_degrees": -73.41251277501914
+    },
+    "mid_pressure": {
+      "L12": {
+        "mean": 0.020000328718369084,
+        "sine": 0.00191666048629299,
+        "cosine": -0.0066438733363883675,
+        "amplitude": 0.006914813108804111,
+        "phase_degrees": -73.90792128344225,
+        "higher_harmonic_rms": 9.417164309017159e-08
+      },
+      "L24": {
+        "mean": 0.02000049200294545,
+        "sine": -0.001662295920077797,
+        "cosine": -0.0008934888263960669,
+        "amplitude": 0.0018872069332221918,
+        "phase_degrees": -151.74184284364472,
+        "higher_harmonic_rms": 3.048103112546701e-08
+      },
+      "mean_difference": 1.6328457636688443e-07,
+      "amplitude_relative_difference": 2.664046049787371,
+      "phase_difference_degrees": -77.83392156020247
+    }
+  },
+  "mean_checks": {
+    "L12": {
+      "relative_lame_mean_error": 0.012376399038188025,
+      "periodic": true,
+      "quality": true
+    },
+    "L24": {
+      "relative_lame_mean_error": 0.015596774817767025,
+      "periodic": false,
+      "quality": true
+    }
+  },
+  "mean_limit": 0.02,
+  "mean_change_over_lame_scale": 0.0032203757795789987,
+  "input_audits": {
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/eonsim-audit.json": "939301461aeae7a5e1d1960f56bbf75399f777fd061c3e0ac8e820b82c0cf7a5",
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-bounded-postprocess-e771355/eonsim-audit.json": "60daa871c263faf79d5e75975c76708d4ebbeb71582b52679eaf25bf9c246f2d"
+  },
+  "scope": "Dynamic finite-length sensitivity, including distributed fluid/solid response. Not a pure boundary error or cross-reference qualification."
+}

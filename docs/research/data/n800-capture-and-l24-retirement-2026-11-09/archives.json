@@ -1,0 +1,59 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 9572,
+      "sha256": "62b5f2460fbe5abd9579bc9a94535910378d658a8976a1845d00472cb7b49f94",
+      "verified_files": 10
+    }
+  ],
+  "verified_files": 10,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {},
+  "copied_files": {
+    "l24-retirement.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/n800-waiter-l24-retirement-capture-ab0d107/l24-retirement.json",
+      "sha256": "4282bcdaa625b68cd9083418d1250d91be882ae9ef13a665c7303542f5565819"
+    },
+    "l24-pre-retirement.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/n800-waiter-l24-retirement-capture-ab0d107/l24-pre-retirement.json",
+      "sha256": "4c0b4477039cbc157bd1951f76229b1a35bccc1998cdabaee91f852f25a6c20c"
+    },
+    "l24-pause.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/n800-waiter-l24-retirement-capture-ab0d107/l24-pause.json",
+      "sha256": "05e530df6a36499644104d08c9d8010b8937893f934c4abe172766f518e2a226"
+    },
+    "l24-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/n800-waiter-l24-retirement-capture-ab0d107/l24-definition.json",
+      "sha256": "aa767dcbd75b5f059d44cad3ac1f7fee6d08faddb39997f5cf6f352005358d40"
+    },
+    "l24-review.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/n800-waiter-l24-retirement-capture-ab0d107/l24-review.json",
+      "sha256": "08d2f895e8549cfc44c02ea92a6eaff89b67c0257f5d06d47bc822d54ba39191"
+    },
+    "n800-capture-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/n800-waiter-l24-retirement-capture-ab0d107/n800-capture-definition.json",
+      "sha256": "548846d9f84e037a0fd8934ed82a9482fdf6321ba4b578d97fafb67847022c90"
+    },
+    "n800-capture-controller.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/n800-waiter-l24-retirement-capture-ab0d107/n800-capture-controller.py",
+      "sha256": "3ee437baeb40d56fdc232729c34d473d01c4dca1acedc3d4456e086073f53d00"
+    },
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/n800-waiter-l24-retirement-capture-ab0d107/summary.json",
+      "sha256": "30ff81dec5ba5f2a5644b7e1549a62980b2a9b39e55ae1253d670ef8a921bae1"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/n800-capture-and-l24-retirement-2026-11-09",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "ab0d107f8f73ae2512669d72f3237d8db14b21c0",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

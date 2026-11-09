@@ -1,0 +1,31 @@
+{
+  "records": [
+    {
+      "phases": 100,
+      "pressure_amplitude_percent": 4.902144956391341,
+      "pressure_phase_degrees": 2.657744888827608,
+      "reference_mesh_period_max": 1.9494131981242467e-05
+    },
+    {
+      "phases": 200,
+      "pressure_amplitude_percent": 2.4828400987707395,
+      "pressure_phase_degrees": 0.5122996594975007,
+      "reference_mesh_period_max": 1.935835586410802e-05
+    },
+    {
+      "phases": 400,
+      "pressure_amplitude_percent": 2.582656637969887,
+      "pressure_phase_degrees": 0.18351661552785004,
+      "reference_mesh_period_max": 1.911248137406694e-05
+    }
+  ],
+  "input_sha256": {
+    "/home/tfblab633/EONSim-prod48-20261107/elastic-convergence-reaudit-c49c69c/ramp16-comparison.json": "9178c3b9ca5bcd8e9dd3247a5f12f5ae7f3817b8b39a7d4e4ecca9a75e95f04e",
+    "/home/tfblab633/EONSim-prod48-20261107/elastic-convergence-reaudit-c49c69c/ramp16-svfsi.json": "8a07197a78de8b415a664f6be0518a15d4d5d873d551ceffdb5ebd4bb07da0f1",
+    "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l0-n200-ramp16-c32/comparison.json": "0d444f21127e32a65c85676f7e31d63e749c68fe56e28b70b94d9a0a19c7c4ab",
+    "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l0-n200-ramp16-c32/svfsi-audit.json": "d8290651e10d5ba1d2580bdeee64b28f781043f40872e0785e0eb136ad3e8f19",
+    "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l0-n400-ramp16-c32/comparison.json": "17e9306e9b254a9a405d3ca8ca07af0b0c5d030fc83aa480c34abe5421a72cff",
+    "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l0-n400-ramp16-c32/svfsi-audit.json": "440a79a6a373877da2aaa36167db1f1712b0d740d649685ae08101fa683b5df3"
+  },
+  "scope": "Completed coarse-grid observations only; no new PDE solve, fitted order or qualification"
+}

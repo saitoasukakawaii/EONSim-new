@@ -1,0 +1,95 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 20018012,
+      "sha256": "3769756259e9ba90cdcf077b18286e27ece395f5b4163bb6352654c5cba8e23d",
+      "verified_files": 555
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 20802268,
+      "sha256": "f404fe5343cfcf77599e739bc0ace9bf1cccf1191d88b83e30aa5404cca37a51",
+      "verified_files": 562
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 21227776,
+      "sha256": "70286dea08572f1deda1b89ded3eec34b217dc80639f5a8ed3351b3b976fea09",
+      "verified_files": 566
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 20118868,
+      "sha256": "1dca8b62aaf06146b05bf74b889b3f3253cfb394686e51b053143c78bca6128b",
+      "verified_files": 560
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 19817244,
+      "sha256": "8ea9ef26f26a2577822c6162786bba77f041eaf5fb898fefc7ee375e0f82e2de",
+      "verified_files": 554
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 17193324,
+      "sha256": "2c0ed28cb45bda0981978c4e6a18be5ae23b7deeaa173df1030c9f019db38e26",
+      "verified_files": 437
+    },
+    {
+      "file": "part007.tar.xz",
+      "bytes": 3440748,
+      "sha256": "9401bdfe4ae2b2228a7925430cb74759f5cd3dad5b0b78e38ff0f9aa3cec2a48",
+      "verified_files": 919
+    }
+  ],
+  "verified_files": 4153,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/rounder-fine-refresh32-screen-d844e40/eonsim": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "host-d/womersley-a2-s96-r8-a8-l0-n200-refresh32-d844e40/eonsim": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/rounder-coarse-refresh32-d844e40/eonsim": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/coarse-reference-capture-a6643c8/coarse/summary.json",
+      "sha256": "75905a6c52e45f24d64595e62e1f2d7df1f9bf8f39da972ebd9f5a69cffbcf6a"
+    },
+    "analysis.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/analysis.json",
+      "sha256": "a20ccf507f97c90a16b5a26dd6b2bd79c9e1de718ae65d908bd80d4a26582053"
+    },
+    "tail5-6.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/rounder-coarse-refresh32-d844e40/tail5-6.json",
+      "sha256": "3ffd69be612dab73b1c8e22a1388bcc647873aacd87d09e1feed24ba031eb0d7"
+    },
+    "failure.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/rounder-fine-refresh32-screen-d844e40/failure.json",
+      "sha256": "34309388fdf0acdb0c48d358005b176c6cb941d73d7e74bdeaaeefe45ef2ae68"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/womersley-s96-coarse-refresh32-complete-2026-11-08",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "a6643c8b77c876e1ba739a0b488b83f7ea5a8e0a",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

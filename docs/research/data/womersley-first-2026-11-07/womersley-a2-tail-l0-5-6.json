@@ -1,0 +1,73 @@
+{
+  "coarse_definition": {
+    "schema": 1,
+    "seed": [
+      48,
+      4,
+      8
+    ],
+    "level": 0,
+    "alpha": 2.0,
+    "period": 1.5707963267948966,
+    "radius": 1.0,
+    "length": 2.0,
+    "density": 1.0,
+    "viscosity": 1.0,
+    "pressure_amplitude": 0.02,
+    "steps_per_cycle": 100,
+    "phases": 100,
+    "warmup": 2,
+    "ranks": 4,
+    "schur": true,
+    "tau": null,
+    "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+  },
+  "fine_definition": {
+    "schema": 1,
+    "seed": [
+      48,
+      4,
+      8
+    ],
+    "level": 0,
+    "alpha": 2.0,
+    "period": 1.5707963267948966,
+    "radius": 1.0,
+    "length": 2.0,
+    "density": 1.0,
+    "viscosity": 1.0,
+    "pressure_amplitude": 0.02,
+    "steps_per_cycle": 100,
+    "phases": 100,
+    "warmup": 2,
+    "ranks": 4,
+    "schur": true,
+    "tau": null,
+    "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+  },
+  "coarse_cycle": 5,
+  "fine_cycle": 6,
+  "common_phases": 100,
+  "reference_scales": {
+    "velocity": 0.000842003489809154,
+    "pressure": 0.008164965809277261
+  },
+  "rms": {
+    "velocity": 2.8668544220669732e-18,
+    "pressure": 3.594185718994028e-17
+  },
+  "maximum_phase_rms": {
+    "velocity": 5.221488143824635e-18,
+    "pressure": 8.099686841905755e-17
+  },
+  "relative_rms": {
+    "velocity": 3.404801116343076e-15,
+    "pressure": 4.4019605261668264e-15
+  },
+  "relative_maximum_phase_rms": {
+    "velocity": 6.201266630151523e-15,
+    "pressure": 9.920049919502009e-15
+  },
+  "norm": "Exact P1 volume L2 on the nested target mesh, cycle RMS and maximum phase separately",
+  "scope": "Field difference only; interpretation requires the recorded parameter differences"
+}

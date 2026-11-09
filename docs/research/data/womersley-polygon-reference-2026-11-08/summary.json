@@ -1,0 +1,134 @@
+{
+  "passed": true,
+  "polygons": {
+    "48": {
+      "reference_resolution_passed": true,
+      "last": {
+        "level": 3,
+        "vertices": 10945,
+        "p2_dofs": 43393,
+        "triangles": 21504,
+        "results": {
+          "1": {
+            "relative_velocity_l2_on_polygon": 0.004978302638332276,
+            "polygon_reference_norm": 0.0025211742978760022,
+            "flow_real": 0.0037962785800504015,
+            "flow_imag": -0.0006302263042491132,
+            "circle_flow_real": 0.0038177605098182,
+            "circle_flow_imag": -0.0006356320068743732,
+            "flow_amplitude_relative_error": 0.005704347364603966,
+            "flow_phase_difference_degrees": 0.026863442941021276,
+            "area_relative_deficit": 0.0028533426503631887,
+            "quadrature_order": 6,
+            "true_relative_residual": 6.750671768673818e-12,
+            "refinement_residuals": [
+              6.750671768673818e-12
+            ],
+            "manufactured_nodal_error": null,
+            "quadrature6_8_maximum_metric_change": 6.25367813089639e-16,
+            "successive_relative_field_difference": 5.8671721616097715e-05
+          },
+          "2": {
+            "relative_velocity_l2_on_polygon": 0.004544775308421872,
+            "polygon_reference_norm": 0.002107576488882972,
+            "flow_real": 0.0026978849183281377,
+            "flow_imag": -0.0017646200421033852,
+            "circle_flow_real": 0.002708802995093303,
+            "circle_flow_imag": -0.0017767515298731434,
+            "flow_amplitude_relative_error": 0.004871225589556749,
+            "flow_phase_difference_degrees": 0.07386326204033367,
+            "area_relative_deficit": 0.0028533426503631887,
+            "quadrature_order": 6,
+            "true_relative_residual": 6.010215441061419e-12,
+            "refinement_residuals": [
+              6.010215441061419e-12
+            ],
+            "manufactured_nodal_error": null,
+            "quadrature6_8_maximum_metric_change": 6.262351748276274e-16,
+            "successive_relative_field_difference": 6.0812609493797256e-05
+          }
+        }
+      },
+      "levels": 3
+    },
+    "96": {
+      "reference_resolution_passed": true,
+      "last": {
+        "level": 3,
+        "vertices": 21889,
+        "p2_dofs": 86785,
+        "triangles": 43008,
+        "results": {
+          "1": {
+            "relative_velocity_l2_on_polygon": 0.0012380341890695307,
+            "polygon_reference_norm": 0.0025211743424770937,
+            "flow_real": 0.0038124155541581863,
+            "flow_imag": -0.0006342857883985605,
+            "circle_flow_real": 0.0038177605098182,
+            "circle_flow_imag": -0.0006356320068743732,
+            "flow_amplitude_relative_error": 0.0014193804512431653,
+            "flow_phase_difference_degrees": 0.00667304548443326,
+            "area_relative_deficit": 0.000713794177091498,
+            "quadrature_order": 6,
+            "true_relative_residual": 9.080761750758133e-15,
+            "refinement_residuals": [
+              2.5548740136504076e-11,
+              9.080761750758133e-15
+            ],
+            "manufactured_nodal_error": null,
+            "quadrature6_8_maximum_metric_change": 6.175615574477433e-16,
+            "successive_relative_field_difference": 2.6449677420485264e-05
+          },
+          "2": {
+            "relative_velocity_l2_on_polygon": 0.0011297751883584536,
+            "polygon_reference_norm": 0.0021075765281592666,
+            "flow_real": 0.0027060890356778626,
+            "flow_imag": -0.0017737331938826933,
+            "circle_flow_real": 0.002708802995093303,
+            "circle_flow_imag": -0.0017767515298731434,
+            "flow_amplitude_relative_error": 0.0012114847508245,
+            "flow_phase_difference_degrees": 0.018334034125729204,
+            "area_relative_deficit": 0.000713794177091498,
+            "quadrature_order": 6,
+            "true_relative_residual": 7.78794997782301e-15,
+            "refinement_residuals": [
+              2.1668844825946378e-11,
+              7.78794997782301e-15
+            ],
+            "manufactured_nodal_error": null,
+            "quadrature6_8_maximum_metric_change": 6.175615574477433e-16,
+            "successive_relative_field_difference": 2.887652748103989e-05
+          }
+        }
+      },
+      "levels": 3
+    }
+  },
+  "manufactured": [
+    {
+      "alpha": 0,
+      "true_relative_residual": 8.018997352999e-15,
+      "refinement_residuals": [
+        8.018997352999e-15
+      ],
+      "manufactured_nodal_error": 1.713059376724426e-13
+    },
+    {
+      "alpha": 1,
+      "true_relative_residual": 9.137387208921466e-15,
+      "refinement_residuals": [
+        9.137387208921466e-15
+      ],
+      "manufactured_nodal_error": 7.562729720071462e-14
+    },
+    {
+      "alpha": 2,
+      "true_relative_residual": 9.485907541576197e-15,
+      "refinement_residuals": [
+        9.485907541576197e-15
+      ],
+      "manufactured_nodal_error": 2.629185339440472e-13
+    }
+  ],
+  "scope": "Independent observed-converged polygon references. Geometry component is measured against the circular analytic solution; this does not establish the 3D solver error budget."
+}

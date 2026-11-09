@@ -1,0 +1,45 @@
+{
+  "base": "9d9ce998efe482d6c158327a34dcc2eda90df7c9",
+  "controller_sha256": "4fc95dfa2d45762f9484728ffd8e1e585986f552b585bd2fcdb1c6c8b7e37831",
+  "consumer_sha256": "06f1abb47374c225e2747c78570badc66ab3a708e475a24be67b9d7822542fff",
+  "source_hashes": {
+    "tests/test_pressure_tube_audit.py": "05bfa4436620ce79af6e63d731bd7b8285094bd2bc68d4fbbecb1d0b70f3dcd5",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+    "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+    "scripts/audit_pressure_tube.py": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+    "scripts/audit_svfsi_convergence.py": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/svfsi_restart_evidence.py": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "build/prod48-20261107/s24-budget-kernel.py": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+    "build/prod48-20261107/analyze-elastic-s24-native1100-budgets.py": "b9d61aca452437d7db6c97d4e2b19681ec286156a8ec7f19a42bb11ab14f0428",
+    "build/prod48-20261107/nu0-budget-kernel.py": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+    "build/prod48-20261107/analyze-elastic-s24-midnight2-budgets.py": "700e8a99a7354f1db983c4a9d2817406be240ab62dfccd97e6c819e34ade71f8",
+    "build/prod48-20261107/compare-pressure-fields.py": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+    "build/prod48-20261107/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "cases/fsi/generate_pressure_tube.py": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198"
+  },
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "family_definition_sha256": "b209acfb643f82bfe3cccba367f236dd5f3821d6e6b4270907348993bbf4f4fa",
+  "family_controller_sha256": "30dbfee700fb724163c7dc58d12c68cfc7944eb7acb236932a067b9ef98ce8f6",
+  "old_consumer_sha256": "320e77c5087a732894409352528910a63a454505c57bf5ecf0fa931773c7ddaf",
+  "old_identity": {
+    "pid": 39162,
+    "start_ticks": 9492987,
+    "state": "S",
+    "parent": 39157,
+    "argv": [
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/source/build/prod48-20261107/analyze-nu0-native5000-budgets.py"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/source",
+    "cgroup": "0::/init.scope\n"
+  },
+  "validation_sha256": "1f9f46a5ae60991ac9450d3bb7bf2093d3e8149593666e26aab37ad3ea8c86d5",
+  "recovery_definition_sha256": "4a5ac555434892ab89d6bff60aca011417bd506c346c055b9bd9d10a63cc0ea3",
+  "budget_tail_sha256": "ead574f634cb6713581244325d3f71690796bb17b5b74b56e5422187c1dfa078",
+  "scope": "Only idle39162 analysis waiter replacement. All numerical producers, family inputs and independent nu0 budget arithmetic unchanged. Re-audit uses explicit fine restart chain or exact family coarse/time log; new bounded EON audit route."
+}

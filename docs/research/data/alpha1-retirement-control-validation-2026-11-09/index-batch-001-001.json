@@ -1,0 +1,227 @@
+{
+  "passed": true,
+  "utc": "2026-11-08T19:24:52Z",
+  "source_checkpoint": "dba2dd8a5034be2497ad7282dcaf01f53cf78613",
+  "branch": "codex/fsi-production-48h-20261107",
+  "archives_json_sha256": "a656cabfbb9445e082d5c9d04fb33ada251f3a436ec56a7fd5d4b2ed0894f8e5",
+  "storage_record_sha256": "05568467faa986eee6631d06b72cc34be767d96817ae69ba49593312fefc9ace",
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 20304,
+      "sha256": "c094ee93ffd0d2843c2c738522552bdf2bfe3e3be0282e11d19797e133b15762",
+      "verified_files": 81,
+      "blob_oid": "4f2eb28d8f69ab67002a8c49f094dbebb179dc11",
+      "index_path": "docs/research/data/alpha1-retirement-control-validation-2026-11-09/part001.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true,
+      "index_flags": "S docs/research/data/alpha1-retirement-control-validation-2026-11-09/part001.tar.xz"
+    }
+  ],
+  "whole_archive_complete": false,
+  "scope": "Completed selected batch only; final receipt is required for the entire archive.",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "rev-parse",
+        "HEAD"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "branch",
+        "--show-current"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "diff",
+        "--cached",
+        "--name-only",
+        "-z"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--stage",
+        "--",
+        "docs/research/data/elastic-s24-fine-bounded-audit-report-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "cat-file",
+        "-s",
+        "c084b837fee473cf36766375717b470a521976e8"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--",
+        "docs/research/data/alpha1-retirement-control-validation-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "hash-object",
+        "-w",
+        "--no-filters",
+        "D:\\EONSim-prod48-20261107\\repository-archives\\alpha1-retirement-control-validation-2026-11-09\\part001.tar.xz"
+      ],
+      "external_object_write": true,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644,4f2eb28d8f69ab67002a8c49f094dbebb179dc11,docs/research/data/alpha1-retirement-control-validation-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--skip-worktree",
+        "--",
+        "docs/research/data/alpha1-retirement-control-validation-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/alpha1-retirement-control-validation-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/alpha1-retirement-control-validation-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    }
+  ]
+}

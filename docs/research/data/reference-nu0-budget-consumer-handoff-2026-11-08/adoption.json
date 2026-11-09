@@ -1,0 +1,26 @@
+{
+  "adopted": true,
+  "old_consumer": {
+    "pid": 20925,
+    "start_ticks": 3575499,
+    "state": "S",
+    "parent": 20922,
+    "command": "/usr/bin/python3 build/prod48-20261107/analyze-reference-nu0-s24-budgets.py",
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  "old_after": null,
+  "new_consumer": {
+    "pid": 38384,
+    "start_ticks": 9191689,
+    "state": "R",
+    "parent": 38379,
+    "command": "/usr/bin/python3 /home/tfblab633/EONSim-prod48-20261107/reference-nu0-recovered-budgets-ad31460/controller.py run",
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97",
+    "cgroup": "0::/init.scope"
+  },
+  "definition_sha256": "0e275a5a6e9d7574f8180b85c8a664b909d2457f466bb7a297b9c42b834bd9d2",
+  "review_sha256": "2c087ccb608d13d3232853ba714ca8bb982eeb31303bb072f825aee78baeb6c5",
+  "numerical_producers_signaled": false,
+  "utc": "2026-11-08T16:09:15Z"
+}

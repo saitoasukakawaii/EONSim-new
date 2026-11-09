@@ -1,0 +1,197 @@
+{
+  "utc": "2026-11-08T23:34:00.579921+00:00",
+  "source_head": "7ed5a5ddda43b7d3af4a51d35c3a054062f0ab54",
+  "review_kind": "Targeted executing-agent source review; not independent external review",
+  "scope": [
+    "Explicit retained-LU ownership, collective invalidation, current operator and final physical acceptance",
+    "Effective integration-coefficient refresh and fresh restart execution cache",
+    "Checkpoint v4 compensation, collective publication and explicit approximate v3 fallback"
+  ],
+  "exact_source_matches": [
+    {
+      "path": "include/eonsim/nonlinear_system.hpp",
+      "sha256": "294c41c34a382d807d27a909f10ec6bad18155408b71317e94522386d1ac5b61",
+      "validation_source": "docs/research/data/lu-time-coefficient-refresh-2026-11-08/source.json",
+      "validation_source_sha256": "c8c6aa0fea2597021d75e029ee922ca75c4b5ce2cd0204cd8a51b9806bd52d83",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "src/algebra/nonlinear_system.cpp",
+      "sha256": "5fa57d80ec7ecb03be421766b7b45b548041360649a8a0a29a0e6a09ef3577e1",
+      "validation_source": "docs/research/data/lu-time-coefficient-refresh-2026-11-08/source.json",
+      "validation_source_sha256": "c8c6aa0fea2597021d75e029ee922ca75c4b5ce2cd0204cd8a51b9806bd52d83",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "src/physics/fluid.cpp",
+      "sha256": "f781ed6925503f2dbc79c75faead481482df4ab8fe59c7ecbeede4e8eef8aee9",
+      "validation_source": "docs/research/data/lu-time-coefficient-refresh-2026-11-08/source.json",
+      "validation_source_sha256": "c8c6aa0fea2597021d75e029ee922ca75c4b5ce2cd0204cd8a51b9806bd52d83",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "tests/verify_lu_reuse.cpp",
+      "sha256": "bf4f038639bc97b6cf777abf3c6741d2b90e8a057ef5c1b57a01a708e3a67e49",
+      "validation_source": "docs/research/data/lu-time-coefficient-refresh-2026-11-08/source.json",
+      "validation_source_sha256": "c8c6aa0fea2597021d75e029ee922ca75c4b5ce2cd0204cd8a51b9806bd52d83",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "tests/verify_fluid_lu_reuse.py",
+      "sha256": "d49b1e62236df49be86c592be52496c835b03c9ed79adace408202389d9af222",
+      "validation_source": "docs/research/data/lu-time-coefficient-refresh-2026-11-08/source.json",
+      "validation_source_sha256": "c8c6aa0fea2597021d75e029ee922ca75c4b5ce2cd0204cd8a51b9806bd52d83",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "include/eonsim/time_step.hpp",
+      "sha256": "b44219cc84c5fbbb7acbed2efbebb9e6af93b6a8aff94feccf1ffe35245b82f0",
+      "validation_source": "docs/research/data/checkpoint-clock-v4-2026-11-08/source.json",
+      "validation_source_sha256": "2aa0a6b9e49077a31dc8c5737febc85a3d516ee815f4c955388a382c5830e565",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "include/eonsim/checkpoint.hpp",
+      "sha256": "5d1e076a881b29f944a3b518678f14c282e900e7ca25b6f9061c432bd97112c6",
+      "validation_source": "docs/research/data/checkpoint-clock-v4-2026-11-08/source.json",
+      "validation_source_sha256": "2aa0a6b9e49077a31dc8c5737febc85a3d516ee815f4c955388a382c5830e565",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "src/io/checkpoint.cpp",
+      "sha256": "8fc1c93927638659cee1eff30c3da70c48aff0355fd1c657aaf8fec328981189",
+      "validation_source": "docs/research/data/checkpoint-clock-v4-2026-11-08/source.json",
+      "validation_source_sha256": "2aa0a6b9e49077a31dc8c5737febc85a3d516ee815f4c955388a382c5830e565",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "tests/verify_checkpoint.cpp",
+      "sha256": "b6acb12c0f7788ffa3994c2aea743a89b7ce367ed8d9c6b7a84951f0fe9397b7",
+      "validation_source": "docs/research/data/checkpoint-clock-v4-2026-11-08/source.json",
+      "validation_source_sha256": "2aa0a6b9e49077a31dc8c5737febc85a3d516ee815f4c955388a382c5830e565",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "tests/verify_time_integration.cpp",
+      "sha256": "60c4db2639b0854e10e97c048afd973ea7a0025cd837c6aa0206b5eeec81ca93",
+      "validation_source": "docs/research/data/checkpoint-clock-v4-2026-11-08/source.json",
+      "validation_source_sha256": "2aa0a6b9e49077a31dc8c5737febc85a3d516ee815f4c955388a382c5830e565",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "src/physics/solid.cpp",
+      "sha256": "34c3c7cdb9d2950c85491d29554232c72e00dbbcd5772ae3754d9f52e37ed9b3",
+      "validation_source": "docs/research/data/checkpoint-clock-v4-2026-11-08/source.json",
+      "validation_source_sha256": "2aa0a6b9e49077a31dc8c5737febc85a3d516ee815f4c955388a382c5830e565",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "src/physics/fsi.cpp",
+      "sha256": "d08e8b032c02eee68558c84e2d66e9e13207cdd53e55b8f0de398487f8cc7dc0",
+      "validation_source": "docs/research/data/checkpoint-clock-v4-2026-11-08/source.json",
+      "validation_source_sha256": "2aa0a6b9e49077a31dc8c5737febc85a3d516ee815f4c955388a382c5830e565",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "src/physics/ale.cpp",
+      "sha256": "2a3301fcecc01b1c0784887bb9dbfa6661c0497b10399b4657d30bc779818ede",
+      "validation_source": "docs/research/data/checkpoint-clock-v4-2026-11-08/source.json",
+      "validation_source_sha256": "2aa0a6b9e49077a31dc8c5737febc85a3d516ee815f4c955388a382c5830e565",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "src/physics/scalar2d.cpp",
+      "sha256": "c756af89b1b36c9dd481874ef83a370c994e2bea198139b1118a1d3bd308b0b9",
+      "validation_source": "docs/research/data/checkpoint-clock-v4-2026-11-08/source.json",
+      "validation_source_sha256": "2aa0a6b9e49077a31dc8c5737febc85a3d516ee815f4c955388a382c5830e565",
+      "exact_frozen_source_match": true
+    },
+    {
+      "path": "src/physics/scalar_p2.cpp",
+      "sha256": "41bc1c595539641f0c1bfc97e5101580414242eb3d8101f6d646c97cdb7e245e",
+      "validation_source": "docs/research/data/checkpoint-clock-v4-2026-11-08/source.json",
+      "validation_source_sha256": "2aa0a6b9e49077a31dc8c5737febc85a3d516ee815f4c955388a382c5830e565",
+      "exact_frozen_source_match": true
+    }
+  ],
+  "source_locations": {
+    "src/algebra/nonlinear_system.cpp": {
+      "Move the retained owner into this attempt": [
+        518
+      ],
+      "int keep=!refresh_lu_preconditioner": [
+        610
+      ],
+      "SNESSetLagPreconditioner": [
+        622
+      ],
+      "context.evaluate(x.get(),r.get(),nullptr,true)": [
+        726
+      ],
+      "KSPSetPC(ksp,nullptr)": [
+        790
+      ]
+    },
+    "src/physics/fluid.cpp": {
+      "clock.restore(saved.step,saved.time,saved.next_dt,saved.time_correction)": [
+        92
+      ],
+      "const bool refresh_lu=": [
+        231
+      ],
+      "last_lu_integration_dt=integration_dt;": [
+        285
+      ],
+      "clock.time,clock.next_dt,clock.correction()": [
+        289
+      ]
+    },
+    "src/io/checkpoint.cpp": {
+      "state.time_correction": [
+        85,
+        90,
+        123,
+        155,
+        156
+      ],
+      "Inconsistent accepted checkpoint clock across ranks": [
+        92
+      ],
+      "pointer_format!=format": [
+        138
+      ],
+      "clock_replay=approximate": [
+        165
+      ]
+    },
+    "include/eonsim/time_step.hpp": {
+      "double correction() const": [
+        32
+      ],
+      "time_correction_=saved_correction": [
+        37
+      ],
+      "const double increment=dt()-time_correction_": [
+        44
+      ]
+    }
+  },
+  "conclusions": [
+    "No new runtime defect identified within this targeted scope.",
+    "The default LU window remains zero; retained factors do not replace the current equation or its final physical residual check.",
+    "Any-rank refresh, options/window change, expiry or solve failure invalidates the execution cache; effective integration time is tracked only after acceptance.",
+    "Checkpoint v4 persists time correction. Legacy v3 cannot recover the missing correction and reports approximate clock replay.",
+    "L2 state documentation still denied factor reuse unconditionally; corrected to distinguish the disabled default from the explicit validated fluid option."
+  ],
+  "validation_reused": true,
+  "new_tests_run": [],
+  "new_builds_run": [],
+  "remaining": [
+    "Complete active physical studies and each required error budget",
+    "Final review of the full delivery after all acceptance evidence exists"
+  ],
+  "full_project_qualification": false,
+  "push": false,
+  "pr": false,
+  "collector_sha256": "a6a745cbecbfd11f8a2af4fc05b37c10ecf3531cf61a023eb97f52166a6428a0"
+}

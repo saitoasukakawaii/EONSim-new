@@ -1,0 +1,28 @@
+{
+  "source_hashes": {
+    "scripts/svfsi_restart_evidence.py": "feb097ede2ad2a7a1a6e063d6fab4f7fcbdfd4c21e14e2dc7968517191671527",
+    "tests/test_svfsi_restart_evidence.py": "442b906a972ede440dacd2f58ca6fbd1718ceb58d1edc130084a59b5ebd45eef"
+  },
+  "previous_windows_result": {
+    "command": [
+      "C:\\Program Files\\Python313\\python.exe",
+      "-X",
+      "utf8",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_svfsi*.py",
+      "-v"
+    ],
+    "observed_tests": 23,
+    "errors": 1,
+    "seconds": 57.492,
+    "exception": "Backend proof omits a reviewed raw state",
+    "cause": "Windows temporary root used TFBLAB~1 while resolve expanded tfblab633. Evidence paths now resolve identically; repeated aliases are rejected.",
+    "evidence_kind": "Structured summary of captured tool output; not a reconstructed raw log"
+  },
+  "scope": "Rerun four affected backend transition tests after evidence-path canonicalization. Existing19 tests passed before this correction; Linux full23 and8 passed before it."
+}

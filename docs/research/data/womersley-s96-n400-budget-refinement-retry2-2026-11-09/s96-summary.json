@@ -1,0 +1,329 @@
+{
+  "prior_budget": {
+    "alpha": 2,
+    "target_N200": {
+      "schema": 1,
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "level": 1,
+      "alpha": 2.0,
+      "period": 1.5707963267948966,
+      "radius": 1.0,
+      "length": 2.0,
+      "density": 1.0,
+      "viscosity": 1.0,
+      "pressure_amplitude": 0.02,
+      "steps_per_cycle": 200,
+      "phases": 200,
+      "warmup": 2,
+      "ranks": 1,
+      "schur": false,
+      "tau": null,
+      "executable_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "solver_options": [
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-fluid_lu_pc_reuse_window",
+        "32",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "eligibility": {
+      "n200_gates": {
+        "velocity": true,
+        "pressure": true,
+        "flow_amplitude": true,
+        "flow_phase": true,
+        "global_mass": true,
+        "periodic": true
+      },
+      "n400_gates": {
+        "velocity": true,
+        "pressure": true,
+        "flow_amplitude": true,
+        "flow_phase": true,
+        "global_mass": true,
+        "periodic": true
+      },
+      "middle_gates": {
+        "velocity": true,
+        "pressure": true,
+        "flow_amplitude": false,
+        "flow_phase": true,
+        "global_mass": true,
+        "periodic": true
+      }
+    },
+    "eligible": true,
+    "fields": {
+      "velocity": {
+        "space_relative_rms": 0.0030119997235991108,
+        "terms": {
+          "time": {
+            "relative_rms": 0.00022262113993100108,
+            "ratio_to_space": 0.07391140782210488,
+            "passed": true
+          },
+          "tail": {
+            "relative_rms": 6.52437257122575e-16,
+            "ratio_to_space": 2.1661265504465655e-13,
+            "passed": true
+          },
+          "sampling": {
+            "relative_rms": 0.0003483341251076716,
+            "ratio_to_space": 0.11564879052891772,
+            "passed": false
+          }
+        }
+      },
+      "pressure": {
+        "space_relative_rms": 0.008512214043282342,
+        "terms": {
+          "time": {
+            "relative_rms": 0.0006778398882057731,
+            "ratio_to_space": 0.07963144309566673,
+            "passed": true
+          },
+          "tail": {
+            "relative_rms": 2.3536574833515968e-15,
+            "ratio_to_space": 2.7650355963605653e-13,
+            "passed": true
+          },
+          "sampling": {
+            "relative_rms": 0.00034899670026014134,
+            "ratio_to_space": 0.04099952121570088,
+            "passed": true
+          }
+        }
+      }
+    },
+    "limit_fraction": 0.1,
+    "passed": false,
+    "n400_analytic_gates": {
+      "velocity": true,
+      "pressure": true,
+      "flow_amplitude": true,
+      "flow_phase": true,
+      "global_mass": true,
+      "periodic": true
+    },
+    "scope": "Numerical budget for the fine N200 state. Circular geometry and other production gates remain separate; N400 is not independently spatially qualified."
+  },
+  "new_definition": {
+    "base": "a3e1c87e071ce73f480b63a1144874cd75e3e1c5",
+    "controller_sha256": "23608c1338d872349a62f1bdb9819661a3441919a31108d1b9dcfc09bacfa50c",
+    "binary_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+    "source_hashes": {
+      "scripts/study_womersley.py": "1f61965ade170c5ef639d6b5e3c04cd5e04230b2252c8228bf27e804af483d3c",
+      "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+      "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+      "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+      "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+      "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+    },
+    "file_hashes": {
+      "commands.json": "6100b2f21798db52d28d40b063e1c9522221c548ba38e57bd31e9a70093f0483",
+      "budget.py": "0180ed11ca273e1ff507583d52a75baab9c6618014fc9d9ff17b89f2ef2c2eae",
+      "budget-kernel.py": "a7e775f3d2896ba1b7f65f963aa25055bcea5de215141651710730119650d2da",
+      "prior-budget-kernel.py": "4d8bc3dc99ca8d40c59b5c4a78030996c574d60d3042b8888dd9af4fe8c6cd49",
+      "bounded_cgroup_job_6g.py": "3ce7e1b1c29a5b2778a58f9381a3ef5aaf30fb83071049d5a322f40559441fc2"
+    },
+    "snapshot_sources": {
+      "prior-n200-budget.json": {
+        "path": "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/budget.json",
+        "sha256": "c4c38a5cd5a2af252e0420c80b8ae6096e6b235da52d1a60dd5fa3b483855cf4"
+      },
+      "n400-analysis.json": {
+        "path": "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/n400-analysis.json",
+        "sha256": "8e2b3102748780f8e0d094eb35e408fd35bcb8dde117046c58f3c7b5d8bee674"
+      },
+      "middle-analysis.json": {
+        "path": "/home/tfblab633/EONSim-prod48-20261107/s96-coarse-n400-companion-8297a4/analysis.json",
+        "sha256": "35e25e043aa94c306f257a12aefd39374705c6a820530d6ca248827c31df11c7"
+      },
+      "tail-n400.json": {
+        "path": "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/tail-n400.json",
+        "sha256": "28ac8c8513427eea9e471879273972a902ea07b02aadf08942fe918137e2d362"
+      },
+      "prior-sampling-200-400.json": {
+        "path": "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/sampling-200-400.json",
+        "sha256": "97c74366cf0d3d94d50ab580d4e15bd30e93ba4611f08816bda536cc49458d5f"
+      }
+    },
+    "prior_resource_hashes": {
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/n200-analysis.resource.json": "d0764d98406912aa34ea8bc95828238d448858d31bdb11f17d47a339d4a1115e",
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/middle-analysis.resource.json": "f5263a5bb13bf57c0190a02075ca54e4f92ba366a7f1d63969f09bd2a3d64c42",
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/space-n200.resource.json": "211b8e6f314bbe5c43fba302220cd48f6603be358ca37403a1e7053a2699e2da",
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/coarse-mpi-history.resource.json": "7cdcdefe59c373b334c61dfce5bcc6731bdcebb5e92fe54711fe68e7c360da02",
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/coarse-n200.resource.json": "81d4f170d78763b054885f33be6ac0c0c36852b6032b258ea070cd3a230ce8c6",
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/fine-n200.resource.json": "926ed0f23fc00430929a88ca57a5adfe7604f5122027dff11293b3e1b9e8121b",
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/tail-n200.resource.json": "d4cbeeef2880d2388edd0cb5102b2c1097762600ef69dff1a3c812bb33680d19",
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/budget.resource.json": "064c5ce4583f1ac24e5b2647a69d04525ce5afd751a031151917b3dacb1b8a1e",
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/n400-analysis.resource.json": "74b25e28e1ed2d8467ba5772326c9d336766e76c03a73ed4d22b3ef45babaf45",
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/time-n200-n400.resource.json": "49e100d9923f24b12b8b23f22cf497c8cb382e95e0d4956af2c4a353fdcbbc14",
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/fine-n400.resource.json": "a69273b62deca021c81c864780e9d6d460907de69b9ab758052abd90ad4f7c75",
+      "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8/tail-n400.resource.json": "f657304ae288881a914277b62e0de049cea9d79e65ce09b7f3be5e54ae25edb4",
+      "/home/tfblab633/EONSim-prod48-20261107/s96-coarse-n400-companion-8297a4/analysis.resource.json": "c58c8f9892249a6fbbd83eb615b53faff5f80639cc59e9e26861aa78910056f5",
+      "/home/tfblab633/EONSim-prod48-20261107/s96-coarse-n400-companion-8297a4/time-n200-n400.resource.json": "3782b806c6874f6b66159b68170484691202dfff6169faacd5f262a27f33301c",
+      "/home/tfblab633/EONSim-prod48-20261107/s96-coarse-n400-companion-8297a4/study.resource.json": "eca4444ae19e11542e8c7359286244987e54b419b93c88e914634c78e862122f",
+      "/home/tfblab633/EONSim-prod48-20261107/s96-coarse-n400-companion-8297a4/tail-n400.resource.json": "3d1b094a57c9980cd03270fff1310174f140c9d94be51310265f1457340e1cb3"
+    },
+    "predecessor_definition_sha256": "cf27a4a3dc44a703a2c3ab9c21c17da7e7c2abc2fe6b481631e169d34e999ff6",
+    "coarse": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n400-native-serial32-8297a4",
+    "fine": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n400-native-serial32-a6643c8",
+    "time_control": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n800-native-serial32-a3e1c87",
+    "input_hashes": {
+      "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n400-native-serial32-8297a4/definition.json": "adddcc2214f975ad075c897adc0514b37e583dc95dad65ff9a8e7b438c4eece7",
+      "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n400-native-serial32-8297a4/receipt.json": "69b90cd2607b7d064ca6b879640493f68b619508b77c5b5cc38cf00d51d7bb29",
+      "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n400-native-serial32-8297a4/fluid.msh": "b74e491cc095ac829b4c193167283a81ee9f97fdae603a28aebcbbdc20e59ccd",
+      "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n400-native-serial32-a6643c8/definition.json": "d8d6967541dc7f1a460416c24c98d01f5a2ab67283f8f8216253eee9d15b4c74",
+      "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n400-native-serial32-a6643c8/receipt.json": "42eab6b1192b29c6f3a54ea89430856d034e521edcd0aa30f89e9da34b661079",
+      "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n400-native-serial32-a6643c8/fluid.msh": "451cab13c2ee225803076700e5ee81685252d198f90d4078ce494fb10ea64f1f"
+    },
+    "memory_max_bytes": 6442450944,
+    "swap_max_bytes": 0,
+    "admission_bytes": 15032385536,
+    "global_floor_bytes": 8589934592,
+    "cpus": [
+      21
+    ],
+    "ranks": 1,
+    "window": 32,
+    "steps_per_cycle": [
+      400,
+      400,
+      800
+    ],
+    "phases": [
+      400,
+      400,
+      800
+    ],
+    "warmup": 2,
+    "cycles": 6,
+    "budget_mapping": {
+      "200": "400",
+      "400": "800"
+    },
+    "budget_formula_thresholds_unchanged": true,
+    "scope": "N200 failure retained. New N400-target qualification uses already completed coarse/fine N400 and a fresh N8004800-step control. Only phase-resolution labels/constants change in the exact prior budget body; inverse mapping is byte-identical. No acceptance or physical defaults change. No prior process is signalled."
+  },
+  "new_review": {
+    "passed": true,
+    "decision": "run_s96_n400_target_with_fresh_n800",
+    "utc": "2026-11-08T19:55:08Z",
+    "definition_sha256": "db5aab2f7e5048113fa8fa9fd4a0f801dc8aa676dfeece3d796f84f6c904ffd5",
+    "reviewer_sha256": "3121bfba312ca2c80414fe2e07547a7929509e6c056abfe5ed786daf4f2b48a7",
+    "budget_kernel_sha256": "a7e775f3d2896ba1b7f65f963aa25055bcea5de215141651710730119650d2da",
+    "inverse_mapping_byte_and_ast_exact": true,
+    "prior_failed_term": "velocity.sampling",
+    "prior_failed_ratio": 0.11564879052891772,
+    "numerical_commands_checked": true,
+    "unchanged_physics_solver_source": true,
+    "original_signals": false,
+    "numerical_result": false,
+    "full_qualification": false,
+    "scope": "Internal review of concrete immutable source/input/resource/command and exact budget resolution substitution. New N800 still unexecuted; no physical or time-budget success inferred."
+  },
+  "new_adoption": {
+    "adopted": true,
+    "utc": "2026-11-08T19:55:24Z",
+    "review_sha256": "aa2950aa30136ab4d980c7f5d552a7391da0306d51da23662d0190f317f15fde",
+    "definition_sha256": "db5aab2f7e5048113fa8fa9fd4a0f801dc8aa676dfeece3d796f84f6c904ffd5",
+    "full_qualification": false
+  },
+  "new_space": {
+    "coarse_definition": {
+      "schema": 1,
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "level": 0,
+      "alpha": 2.0,
+      "period": 1.5707963267948966,
+      "radius": 1.0,
+      "length": 2.0,
+      "density": 1.0,
+      "viscosity": 1.0,
+      "pressure_amplitude": 0.02,
+      "steps_per_cycle": 400,
+      "phases": 400,
+      "warmup": 2,
+      "ranks": 1,
+      "schur": false,
+      "tau": null,
+      "executable_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "solver_options": [
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-fluid_lu_pc_reuse_window",
+        "32",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "fine_definition": {
+      "schema": 1,
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "level": 1,
+      "alpha": 2.0,
+      "period": 1.5707963267948966,
+      "radius": 1.0,
+      "length": 2.0,
+      "density": 1.0,
+      "viscosity": 1.0,
+      "pressure_amplitude": 0.02,
+      "steps_per_cycle": 400,
+      "phases": 400,
+      "warmup": 2,
+      "ranks": 1,
+      "schur": false,
+      "tau": null,
+      "executable_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "solver_options": [
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-fluid_lu_pc_reuse_window",
+        "32",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "coarse_cycle": 6,
+    "fine_cycle": 6,
+    "common_phases": 400,
+    "reference_scales": {
+      "velocity": 0.0008411016265714422,
+      "pressure": 0.008164965809277261
+    },
+    "rms": {
+      "velocity": 1.5334126521886702e-06,
+      "pressure": 4.376991223607056e-05
+    },
+    "maximum_phase_rms": {
+      "velocity": 2.060460463279152e-06,
+      "pressure": 6.0411253910329246e-05
+    },
+    "relative_rms": {
+      "velocity": 0.001823100329075899,
+      "pressure": 0.005360697553238737
+    },
+    "relative_maximum_phase_rms": {
+      "velocity": 0.00244971641735868,
+      "pressure": 0.007398837340101082
+    },
+    "norm": "Exact P1 volume L2 on the nested target mesh, cycle RMS and maximum phase separately",
+    "scope": "Field difference only; interpretation requires the recorded parameter differences"
+  },
+  "scope": "Complete N200-target budget failure, exact original arithmetic and resolution mapping, completed N400 space comparison and immutable actual N800 launch. All live N800 outputs/logs/receipts excluded. Full original N400 trajectory is captured separately; no N400-target qualification yet."
+}

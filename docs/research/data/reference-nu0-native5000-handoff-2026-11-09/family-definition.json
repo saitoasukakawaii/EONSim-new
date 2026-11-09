@@ -1,0 +1,145 @@
+{
+  "base": "fce909d4ee3dc9fb8c15c7640ff8e5806df5f713",
+  "controller_sha256": "30dbfee700fb724163c7dc58d12c68cfc7944eb7acb236932a067b9ef98ce8f6",
+  "source_hashes": {
+    "tests/test_pressure_tube_audit.py": "6a123179c7f7e317f4b0aec6200784d1d45c6a350cf46447f0d13be28db36d54",
+    "tests/test_svfsi_export.py": "bb1754ee41a6ad7d3da586b301d164b855aa4d7061936875ae09f6e6046280fb",
+    "tests/test_svfsi_restart_evidence.py": "014f6fc49e8eff625e48b84630866d8a285b1c2281d0db866c922420974398fe",
+    "tests/test_svfsi_convergence.py": "15e665b75312529d4cb9d06b985e3d972e2c88e319e51993e4cdf9db360fc2ac",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/export_svfsi_tube.py": "be8a29b999655fae7abb66a4d86a5a2483bc902c23715867f4175d74e31d0876",
+    "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+    "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+    "scripts/audit_pressure_tube.py": "db4d0e7e21eb49132ddb43044516f844a870baf3c77bfc50a85270707de31b49",
+    "scripts/audit_svfsi_convergence.py": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "scripts/study_rigid_tube.py": "e0b89fd0f28740df71ca48013ab3c01f9038b966defdcebbbf712bd355d2d799",
+    "scripts/svfsi_restart_evidence.py": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+    "scripts/analyze_womersley.py": "c48aa5bafa068c7a177c45d6d22b48b7b02917103279dff389b69498f6527ebd",
+    "build/prod48-20261107/analyze-nu0-native5000-budgets.py": "320e77c5087a732894409352528910a63a454505c57bf5ecf0fa931773c7ddaf",
+    "build/prod48-20261107/nu0-budget-kernel.py": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+    "build/prod48-20261107/compare-pressure-fields.py": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+    "build/prod48-20261107/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "cases/fsi/generate_pressure_tube.py": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198"
+  },
+  "family_definition_sha256": "e27343e73d856d010a4e8cd39d3ea5e5d2892011df642ce4cae39bc7d070f5e7",
+  "family_controller_sha256": "73fe928e8510998467ce2aeafa453d46e06ab351739ea217460de60f08609315",
+  "original_controller": {
+    "pid": 20277,
+    "start_ticks": 3304246,
+    "state": "S",
+    "ppid": 20271,
+    "argv": [
+      "/usr/bin/python3",
+      "-u",
+      "build/prod48-20261107/queue-reference-nu0-s24.py"
+    ],
+    "cgroup": "0::/init.scope\n"
+  },
+  "original_launcher": {
+    "pid": 21422,
+    "start_ticks": 3797252,
+    "state": "S",
+    "ppid": 20277,
+    "argv": [
+      "/usr/bin/mpiexec",
+      "--bind-to",
+      "none",
+      "--oversubscribe",
+      "-n",
+      "2",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-s24-series-6f202a1/rank-affinity.py",
+      "/home/tfblab633/EONSim-prod48-20261107/reference/build/bin/svFSI",
+      "svFSI.inp"
+    ],
+    "cgroup": "0::/init.scope\n"
+  },
+  "original_manifest_sha256": "35ee1d35e4f5f6fc6aa9e91c317f64de52529262ddae283bbb57e2921366b245",
+  "original_input_sha256": "96f469bf40435a66345659652873a3ae5d563b46bcf4f8a8a826ba4f7711b5b7",
+  "plans": {
+    "fine": {
+      "case_id": "s24-l1-n400",
+      "path": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-native5000-fce909d",
+      "n": 400,
+      "first": 11601,
+      "last": 12800,
+      "original_plan": {
+        "origin": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32",
+        "out": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-6f202a1",
+        "n": 400,
+        "first": 11601,
+        "last": 12800,
+        "input_hashes": {
+          "case.json": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+          "fluid.msh": "05f4777e11cad498d57b87f080f9c8f2430fd6a04577963211e8c4541c70a4b2",
+          "solid.msh": "e7f6bed5613c0a62623a185847e563fc13e10f6fbc686f3e391ccd2a88a4ba9b",
+          "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e"
+        }
+      }
+    },
+    "coarse": {
+      "case_id": "s24-l0-n400",
+      "path": "/mnt/d/EONSim-prod48-20261107/reference-s24-l0-n400-meshnu0-native5000-fce909d",
+      "n": 400,
+      "first": 11601,
+      "last": 12800,
+      "original_plan": {
+        "origin": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l0-n400-ramp16-c32",
+        "out": "/mnt/d/EONSim-prod48-20261107/reference-s24-l0-n400-meshnu0-6f202a1",
+        "n": 400,
+        "first": 11601,
+        "last": 12800,
+        "input_hashes": {
+          "case.json": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+          "fluid.msh": "c221a9954a7c736ba379a56b37d2146e84f9c54351493c02092d131f244867da",
+          "solid.msh": "939ff538b3cd52ff324a2a9499cdc36921d97466c2c43761fc52901b97e269df",
+          "geometry.json": "acd864c420e15296c6b394901e443811e88db5e06bf0f1b2b00a66352ccd86a4"
+        }
+      }
+    },
+    "time": {
+      "case_id": "s24-l1-n200",
+      "path": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-native5000-fce909d",
+      "n": 200,
+      "first": 5801,
+      "last": 6400,
+      "original_plan": {
+        "origin": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32",
+        "out": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-6f202a1",
+        "n": 200,
+        "first": 5801,
+        "last": 6400,
+        "input_hashes": {
+          "case.json": "b3bea9d75f9699e17d5814e07de847eaadf9925dd2fb441b1f599876be51698c",
+          "fluid.msh": "05f4777e11cad498d57b87f080f9c8f2430fd6a04577963211e8c4541c70a4b2",
+          "solid.msh": "e7f6bed5613c0a62623a185847e563fc13e10f6fbc686f3e391ccd2a88a4ba9b",
+          "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e"
+        }
+      }
+    }
+  },
+  "old_binary_sha256": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf",
+  "candidate_sha256": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3",
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "guard_sha256": "3dcbe5353d24edf82cd743f4c6066ee9c4831882539a0fb9d7fb444ced73721b",
+  "exporter_sha256": "1ceadb119736266be521a992da8954fd719a77cee5d2243895163b03c1fcae68",
+  "proposed_input_sha256": "3e035fd2f417c6695d49107f9828603d7477d4b5865559951e4422f7023ffefc",
+  "validation_report_sha256": "7844e911d8dc1e71a5c96171cac0be7e4a33341c306f046c9f96002c164d1c2f",
+  "screen_report_sha256": "5d546a0524397bb43f45e1463e962d38bc8211c18a6d4dfe09134b9949ddfacf",
+  "review_sha256": "e490eb69db9b4be09c763cb4d0c391784842329549a2df003da47233e101cba9",
+  "stop_report_sha256": "8324642ccdd35c6d65158b8a440320a973498132ad76b7b8b1268c36ac0f583e",
+  "budget_tail_sha256": "ead574f634cb6713581244325d3f71690796bb17b5b74b56e5422187c1dfa078",
+  "boundary": 5000,
+  "ranks": 2,
+  "cpus": [
+    9,
+    23
+  ],
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "admission_bytes": 10737418240,
+  "running_floor_bytes": 8589934592,
+  "scope": "Only fine nu0 switches to reviewed ILUT at exact native5000. Remaining coarseN400/timeN200 preserve original selected two ranks, binary, exporter, physics and output cadence in fresh directories. New strict midnight-aware audits and exact original budget arithmetic. No stop before independent review; no signals to original numerical processes or shared init.scope."
+}

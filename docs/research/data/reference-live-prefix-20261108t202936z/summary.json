@@ -1,0 +1,258 @@
+{
+  "utc": "2026-11-08T20:29:40Z",
+  "base": "d2c24ee76d9595058b3873f034facd59fa03a739",
+  "results": {
+    "nu3-fine": {
+      "passed": true,
+      "boundary": 5100,
+      "native": {
+        "step": 5100,
+        "time": 80.11061266653607,
+        "stamp": [
+          1,
+          2,
+          2,
+          6625,
+          0,
+          7,
+          1
+        ],
+        "bytes": 1113064,
+        "serialized_values": 139129,
+        "sha256": "131327717b766e1e7a18d04b427d4dd00bba9d1f5aa2d2b89bd514c1445bd699"
+      },
+      "original_native": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-ilut-m4000-midnight2-a0a4675/reference/results/stFile_5100.bin",
+      "original_log": "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675/svfsi.log",
+      "source_log_prefix_bytes": 594355,
+      "log_prefix_sha256": "e64b3dc9da13d63c0ad9e6383793aa8d1c4ba8f32c75bb18aa45121645597d76",
+      "source_log_bytes_at_snapshot": 649543,
+      "original_status": {
+        "state": "running",
+        "pid": 38880,
+        "utc": "2026-11-08T17:00:01Z",
+        "work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-ilut-m4000-midnight2-a0a4675",
+        "control": "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675",
+        "job": "svfsi",
+        "adopted": true
+      },
+      "first_step": 4001,
+      "converged_steps": 1100,
+      "final_equation_rows": 2200,
+      "maximum_final_relative_ratio": {
+        "FS": 6.1e-12,
+        "MS": 4.1e-11
+      },
+      "maximum_iterations": {
+        "FS": 3,
+        "MS": 3
+      },
+      "scope": "Completed prefix only, chosen below the latest native record. No full-study, periodic or physical qualification; live log and original status unchanged."
+    },
+    "nu0-fine": {
+      "passed": true,
+      "boundary": 6000,
+      "native": {
+        "step": 6000,
+        "time": 94.24777960768446,
+        "stamp": [
+          2,
+          2,
+          2,
+          4225,
+          0,
+          7,
+          1
+        ],
+        "bytes": 1419728,
+        "serialized_values": 164333,
+        "sha256": "051be5ee65d24ee492b1c872b296d945ace0161ca189bbf6f565d61ef0573c37",
+        "record_bytes": 709864,
+        "rank_records": [
+          {
+            "rank": 0,
+            "stamp": [
+              2,
+              2,
+              2,
+              4225,
+              0,
+              7,
+              1
+            ],
+            "offset": 0,
+            "payload_bytes": 709864,
+            "serialized_values": 88729
+          },
+          {
+            "rank": 1,
+            "stamp": [
+              2,
+              2,
+              2,
+              3600,
+              0,
+              7,
+              1
+            ],
+            "offset": 709864,
+            "payload_bytes": 604864,
+            "serialized_values": 75604
+          }
+        ]
+      },
+      "original_native": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-native5000-fce909d/reference/results/stFile_6000.bin",
+      "original_log": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/fine-solve.log",
+      "source_log_prefix_bytes": 540577,
+      "log_prefix_sha256": "8b099de0d7bcf6ba5b7fcfa552df00a15b7c5ac9dbf5f6703577debff796be1b",
+      "source_log_bytes_at_snapshot": 647413,
+      "original_status": {
+        "state": "running",
+        "pid": 39157,
+        "utc": "2026-11-08T17:59:41Z",
+        "control": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d",
+        "job": "fine-solve",
+        "adopted": true
+      },
+      "first_step": 5001,
+      "converged_steps": 1000,
+      "final_equation_rows": 2000,
+      "maximum_final_relative_ratio": {
+        "FS": 6e-12,
+        "MS": 4e-11
+      },
+      "maximum_iterations": {
+        "FS": 3,
+        "MS": 3
+      },
+      "scope": "Completed prefix only, chosen below the latest native record. No full-study, periodic or physical qualification; live log and original status unchanged."
+    },
+    "nu3-time": {
+      "passed": true,
+      "boundary": 1900,
+      "native": {
+        "step": 1900,
+        "time": 59.69026041820821,
+        "stamp": [
+          1,
+          2,
+          2,
+          6625,
+          0,
+          7,
+          1
+        ],
+        "bytes": 1113064,
+        "serialized_values": 139129,
+        "sha256": "fe505e3166c2b6f81e6c5992f108d94504b199da962d80012115073a23de32ef"
+      },
+      "original_native": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-ilut-native1100-b8b3a78/reference/results/stFile_1900.bin",
+      "original_log": "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78/solve.log",
+      "source_log_prefix_bytes": 432955,
+      "log_prefix_sha256": "758c046ce7ddaa89ffc79086c5a56b07b5d7347c15e4a09d918e16a9bfdc3054",
+      "source_log_bytes_at_snapshot": 522731,
+      "original_status": {
+        "state": "running",
+        "pid": 39392,
+        "utc": "2026-11-08T17:49:23Z",
+        "control": "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78",
+        "job": "solve",
+        "adopted": true
+      },
+      "first_step": 1101,
+      "converged_steps": 800,
+      "final_equation_rows": 1600,
+      "maximum_final_relative_ratio": {
+        "FS": 5.4e-12,
+        "MS": 1.6e-11
+      },
+      "maximum_iterations": {
+        "FS": 3,
+        "MS": 3
+      },
+      "scope": "Completed prefix only, chosen below the latest native record. No full-study, periodic or physical qualification; live log and original status unchanged."
+    },
+    "nu0-coarse": {
+      "passed": true,
+      "boundary": 9400,
+      "native": {
+        "step": 9400,
+        "time": 147.6548547186895,
+        "stamp": [
+          2,
+          2,
+          2,
+          637,
+          0,
+          7,
+          1
+        ],
+        "bytes": 214160,
+        "serialized_values": 26489,
+        "sha256": "e42dd414699b2b4c0e5ece081c117d947969914a2a970554db4648762def141c",
+        "record_bytes": 107080,
+        "rank_records": [
+          {
+            "rank": 0,
+            "stamp": [
+              2,
+              2,
+              2,
+              637,
+              0,
+              7,
+              1
+            ],
+            "offset": 0,
+            "payload_bytes": 107080,
+            "serialized_values": 13381
+          },
+          {
+            "rank": 1,
+            "stamp": [
+              2,
+              2,
+              2,
+              624,
+              0,
+              7,
+              1
+            ],
+            "offset": 107080,
+            "payload_bytes": 104896,
+            "serialized_values": 13108
+          }
+        ]
+      },
+      "original_native": "/mnt/d/EONSim-prod48-20261107/reference-s24-l0-n400-meshnu0-native5000-fce909d/reference/results/stFile_9400.bin",
+      "original_log": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-early-companion-family-a3e1c87/coarse-solve.log",
+      "source_log_prefix_bytes": 5054500,
+      "log_prefix_sha256": "dacb16cb2b4fd472c0d7c37b262a57083336ea3efc6747a23ca30f557c9bd1e2",
+      "source_log_bytes_at_snapshot": 5113454,
+      "original_status": {
+        "state": "running",
+        "pid": 41283,
+        "utc": "2026-11-08T20:03:37Z",
+        "control": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-early-companion-family-a3e1c87",
+        "job": "coarse-solve",
+        "adopted": true
+      },
+      "first_step": 1,
+      "converged_steps": 9400,
+      "final_equation_rows": 18800,
+      "maximum_final_relative_ratio": {
+        "FS": 3.7e-11,
+        "MS": 9.6e-11
+      },
+      "maximum_iterations": {
+        "FS": 3,
+        "MS": 3
+      },
+      "scope": "Completed prefix only, chosen below the latest native record. No full-study, periodic or physical qualification; live log and original status unchanged."
+    }
+  },
+  "source_hashes": {
+    "audit_svfsi_convergence.py": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "svfsi_restart_evidence.py": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c"
+  },
+  "full_qualification": false
+}

@@ -1,0 +1,130 @@
+{
+  "snapshot_utc": "2026-11-07T23:10:14Z",
+  "states": {
+    "womersley-time400-a1-retry2-current.json": {
+      "state": "cancelled_before_numerical_work",
+      "pid": 7849,
+      "alpha": 1,
+      "cpus": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "utc": "2026-11-07T23:02:53Z",
+      "producer_status": "/home/tfblab633/EONSim-prod48-20261107/alpha1-fine-vector-current.json",
+      "holds_queue_lock": false,
+      "replacement_status": "womersley-time400-a1-retry3-current.json",
+      "reason": "Self-review: CLI permits timeout<=86400, frozen successor requested172800. New attempt also splits six cycles at completed cycle5."
+    },
+    "womersley-time400-a1-retry3-current.json": {
+      "state": "waiting_for_fine_n200_producer",
+      "pid": 15457,
+      "alpha": 1,
+      "cpus": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "utc": "2026-11-07T23:03:15Z",
+      "producer_status": "/home/tfblab633/EONSim-prod48-20261107/alpha1-fine-vector-current.json",
+      "holds_queue_lock": false
+    },
+    "womersley-time400-a2-retry2-current.json": {
+      "state": "cancelled_before_numerical_work",
+      "pid": 7843,
+      "alpha": 2,
+      "cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "utc": "2026-11-07T23:02:53Z",
+      "producer_status": "/home/tfblab633/EONSim-prod48-20261107/womersley-vector-boundary-retry2-current.json",
+      "holds_queue_lock": false,
+      "replacement_status": "womersley-time400-a2-retry3-current.json",
+      "reason": "Self-review: CLI permits timeout<=86400, frozen successor requested172800. New attempt also splits six cycles at completed cycle5."
+    },
+    "womersley-time400-a2-retry3-current.json": {
+      "state": "waiting_for_fine_n200_producer",
+      "pid": 15446,
+      "alpha": 2,
+      "cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "utc": "2026-11-07T23:02:59Z",
+      "producer_status": "/home/tfblab633/EONSim-prod48-20261107/womersley-vector-boundary-retry2-current.json",
+      "holds_queue_lock": false
+    },
+    "reference-mesh-nu0-current.json": {
+      "state": "running",
+      "pid": 15488,
+      "cpu": 23,
+      "utc": "2026-11-07T23:07:34Z",
+      "job": "svfsi",
+      "command": [
+        "/home/tfblab633/EONSim-prod48-20261107/reference/build/bin/svFSI",
+        "svFSI.inp"
+      ]
+    },
+    "elastic-mpi-restart-current.json": {
+      "state": "running",
+      "pid": 7370,
+      "cpu": 9,
+      "utc": "2026-11-07T23:04:02Z",
+      "job": "r2-audit",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/d/EONSim-prod48-20261107/elastic-mpi-s12-l0-n400-f0422d0-attempt2/source/scripts/audit_pressure_tube.py",
+        "--case",
+        "/mnt/d/EONSim-prod48-20261107/elastic-mpi-s12-l0-n400-f0422d0-attempt2/r2/case.json",
+        "--work",
+        "/mnt/d/EONSim-prod48-20261107/elastic-mpi-s12-l0-n400-f0422d0-attempt2/r2",
+        "--first-step",
+        "11601",
+        "--output",
+        "/mnt/d/EONSim-prod48-20261107/elastic-mpi-s12-l0-n400-f0422d0-attempt2/r2/eonsim-audit.json"
+      ]
+    },
+    "womersley-vector-boundary-retry2-current.json": {
+      "state": "waiting_for_natural_warmup_exit",
+      "pid": 7542,
+      "scheduler_pid": 631,
+      "parent_pid": 507,
+      "scheduler_held": true,
+      "original_scheduler_terminated": false,
+      "utc": "2026-11-07T22:10:08Z",
+      "target_step": 400,
+      "launcher_pid": 632,
+      "rank_pids": [
+        635,
+        636,
+        637,
+        638
+      ],
+      "note": "Only the Python scheduler is held; all existing numerical ranks continue normally. Any pre-transfer failure resumes this same scheduler."
+    }
+  },
+  "scope": "N400 successors remain waiting, no trajectory started. Corrected real CLI checks are complete. Reference-nu0 and MPI are running snapshots only."
+}

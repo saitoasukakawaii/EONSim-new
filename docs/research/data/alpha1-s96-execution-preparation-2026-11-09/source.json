@@ -1,0 +1,76 @@
+{
+  "utc": "2026-11-08T23:51:19Z",
+  "files": {
+    "prepare-alpha1-s96-fine-family.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/prepare-alpha1-s96-fine-family.py",
+      "sha256": "76af0c77f797dda4f4bec675488c454e7b4663e563b1fb0f6fb45b8ef709f7aa",
+      "bytes": 10378
+    },
+    "run-alpha1-s96-fine-family.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/run-alpha1-s96-fine-family.py",
+      "sha256": "795b7fea8cd6c69b648861188ba35094f24c22197b36ed2ec13d416151c2410b",
+      "bytes": 16881
+    },
+    "check-alpha1-s96-fine-controller.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/check-alpha1-s96-fine-controller.py",
+      "sha256": "a4588c1901164b4648fb903e08be966a328da0231115a07245316b3ac762e435",
+      "bytes": 4618
+    },
+    "alpha1-s96-execution-controller-checks.json": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/alpha1-s96-execution-controller-checks.json",
+      "sha256": "6a70df4a83d37ac9fefc9148c25dc44c2746fd8a9d066190802f0a8676901a3d",
+      "bytes": 3090
+    },
+    "capture-alpha1-execution-preparation.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-alpha1-execution-preparation.py",
+      "sha256": "56a374a9dd03c394df89e817b396a871cfd79f728362ff42f907f3d264543363",
+      "bytes": 2877
+    }
+  },
+  "frozen_analysis_source_hashes": {
+    "scripts/study_womersley.py": "1f61965ade170c5ef639d6b5e3c04cd5e04230b2252c8228bf27e804af483d3c",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "actual_dependency_states": {
+    "alpha1-native200-lu32-recovery": {
+      "state": "running",
+      "pid": 40998,
+      "utc": "2026-11-08T21:52:50Z",
+      "control": "/home/tfblab633/EONSim-prod48-20261107/alpha1-native200-lu32-recovery-a3e1c87",
+      "job": "fine-n400",
+      "adopted": true
+    },
+    "alpha1-s96-coarse-n400": {
+      "state": "completed",
+      "pid": 43106,
+      "utc": "2026-11-08T22:51:35Z",
+      "control": "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-coarse-n400-fcc2956",
+      "target": "/mnt/d/EONSim-prod48-20261107/womersley-a1-s96-r8-a8-l0-n400-native32-fcc2956",
+      "full_qualification": false
+    },
+    "alpha1-s96-fine-execution-screen": {
+      "state": "waiting_for_existing_families",
+      "pid": 43221,
+      "utc": "2026-11-08T22:19:33Z",
+      "out": "/mnt/d/EONSim-prod48-20261107/alpha1-s96-fine-execution-screen-a341bc6",
+      "adopted": false,
+      "holds_locks": false
+    },
+    "alpha1-s96-fine-execution-review": {
+      "state": "waiting_for_completed_screen",
+      "pid": 43241,
+      "utc": "2026-11-08T22:21:13Z",
+      "adopted": false,
+      "holds_locks": false
+    }
+  },
+  "prepared": false,
+  "adopted": false,
+  "numerical_runs": 0,
+  "checks": 22,
+  "scope": "Unlaunched controller and actual static guard checks only. Existing running/waiting producers are unmodified; no numerical preparation directory or execution status exists. No field, cost, physical, budget, or project qualification claimed."
+}

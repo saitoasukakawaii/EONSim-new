@@ -1,0 +1,84 @@
+{
+  "eonsim": {
+    "time_relative_rms": {
+      "fluid_velocity": 0.011895725887841059,
+      "fluid_pressure": 0.021536550136427846,
+      "fluid_mesh_displacement": 0.01322581746523012,
+      "solid_velocity": 0.017907718910000033,
+      "solid_displacement": 0.017818910355835767
+    },
+    "tail_relative_rms": {
+      "fluid_velocity": 1.143774154597279e-07,
+      "fluid_pressure": 6.159670389425193e-09,
+      "fluid_mesh_displacement": 7.94985463983008e-07,
+      "solid_velocity": 1.3661276297291453e-06,
+      "solid_displacement": 8.034432890739389e-07
+    },
+    "sampling_relative_rms": {
+      "fluid_velocity": 9.81183448212601e-05,
+      "fluid_pressure": 0.0001844533787353899,
+      "fluid_mesh_displacement": 0.00010808171947827765,
+      "solid_velocity": 0.00014361507194340592,
+      "solid_displacement": 0.0001435993146211028
+    },
+    "time_prerequisites": [
+      {
+        "periodic": true,
+        "positive_geometry": true,
+        "quality": true
+      },
+      {
+        "periodic": true,
+        "positive_geometry": true,
+        "quality": true
+      }
+    ],
+    "time_cycles_periodic": [
+      true,
+      true
+    ],
+    "scope": "Pairwise observations only; compare separately against the last same-dt spatial field difference when available"
+  },
+  "svfsi": {
+    "time_relative_rms": {
+      "fluid_velocity": 0.002487455645462101,
+      "fluid_pressure": 0.006022365324965684,
+      "fluid_mesh_displacement": 0.003270901293250993,
+      "solid_velocity": 0.004845809326308472,
+      "solid_displacement": 0.004774000594635596
+    },
+    "tail_relative_rms": {
+      "fluid_velocity": 1.0864999822135766e-07,
+      "fluid_pressure": 5.778913392283231e-09,
+      "fluid_mesh_displacement": 1.9335815847040926e-05,
+      "solid_velocity": 1.2974325869021063e-06,
+      "solid_displacement": 7.578512896176254e-07
+    },
+    "sampling_relative_rms": {
+      "fluid_velocity": 9.657204849350118e-05,
+      "fluid_pressure": 0.00018146888987111566,
+      "fluid_mesh_displacement": 9.918254608654399e-05,
+      "solid_velocity": 0.00014146500760493747,
+      "solid_displacement": 0.0001414523949421513
+    },
+    "time_prerequisites": [
+      {
+        "periodic": false,
+        "positive_geometry": true,
+        "quality": true,
+        "relative_convergence": true
+      },
+      {
+        "periodic": false,
+        "positive_geometry": true,
+        "quality": true,
+        "relative_convergence": true
+      }
+    ],
+    "time_cycles_periodic": [
+      false,
+      false
+    ],
+    "scope": "Pairwise observations only; compare separately against the last same-dt spatial field difference when available"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "statuses": {
+    "screen": {
+      "state": "completed",
+      "pid": 42290,
+      "utc": "2026-11-08T22:05:46Z",
+      "adopted": false,
+      "passed": true,
+      "eligible": true
+    },
+    "review": {
+      "state": "completed",
+      "pid": 42340,
+      "utc": "2026-11-08T22:13:37Z",
+      "adopted": false,
+      "passed": true,
+      "mode": "nu0-n200"
+    }
+  },
+  "producer_still_unchanged": true,
+  "adopted": false,
+  "upstream_build_evidence": {
+    "archive": "reference-trilinos-serial-proof-2026-11-08",
+    "archives_sha256": "0658843a18113f0b0f91e2ea31a5038b4d2655713608eb31f5f33f13644a6374",
+    "manifest_sha256": "64eb7be22a1ce6ac0726331cbefe3972c26433e19c253a4a02e4abf888056b2e",
+    "parts": [
+      {
+        "file": "part001.tar.xz",
+        "blob_oid": "51cc9bd95a85d49e3696c01617275f2af891a568",
+        "sha256": "94095f3572042afd64faeca39c0527747444a3eb0b4a2b98feed37963b963d00"
+      },
+      {
+        "file": "part002.tar.xz",
+        "blob_oid": "2ec3f68dc926ff836fdd1e0201943abc96ada10b",
+        "sha256": "54504bfae6fac74b706d992f27ca2747d65eea3e617c39c7ba51726235e27641"
+      },
+      {
+        "file": "part003.tar.xz",
+        "blob_oid": "a362a6cef579dc49dd94cacd7859c87525efb9de",
+        "sha256": "3b643edcf15bbf8db51e684f916e2c7703c54acddc3050054d9483aa62a5f9d0"
+      },
+      {
+        "file": "part004.tar.xz",
+        "blob_oid": "293c0773539cee10287441de84d250493eb772e3",
+        "sha256": "97abc484a33e93ef84f331c6a1849b2fc9f157a3ce721b62b060e01e94a9bfe0"
+      },
+      {
+        "file": "part005.tar.xz",
+        "blob_oid": "2c22132889b12915dc6450ae6ae781af44a9dd48",
+        "sha256": "2bf04c835947b74152ffba76df3a0116333d19547edd73361a1271c429ea44a7"
+      }
+    ]
+  },
+  "scope": "Complete independent early-ramp N200 backend screening evidence. Preserve numerical/cost rejection and infrastructure failures. No production handoff or long-cycle qualification is claimed."
+}

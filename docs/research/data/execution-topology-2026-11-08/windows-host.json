@@ -1,0 +1,13 @@
+{
+  "observed_utc": "2026-11-08T03:59:16.3684036Z",
+  "processors": [
+    {
+      "Name": "12th Gen Intel(R) Core(TM) i9-12900K",
+      "NumberOfCores": 16,
+      "NumberOfLogicalProcessors": 24,
+      "MaxClockSpeed": 3200
+    }
+  ],
+  "scope": "Windows reported host CPU metadata only; no mapping from WSL CPU ids to host physical cores was measured.",
+  "command": "Get-CimInstance Win32_Processor | Select Name,NumberOfCores,NumberOfLogicalProcessors,MaxClockSpeed"
+}

@@ -1,0 +1,48 @@
+{
+  "original_processes": {
+    "33828": {
+      "pid": 33828,
+      "start_ticks": 7107684,
+      "state": "S",
+      "ppid": 6658,
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/run-elastic-budget-companion.py",
+        "--part",
+        "eonsim",
+        "--case-id",
+        "s24-l1-n200"
+      ],
+      "cpus": [
+        18
+      ]
+    },
+    "33829": {
+      "pid": 33829,
+      "start_ticks": 7107788,
+      "state": "R",
+      "ppid": 33828,
+      "argv": [
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/eonsim",
+        "-case",
+        "case.json",
+        "-checkpoint",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/checkpoint",
+        "-stop_after",
+        "5800"
+      ],
+      "cpus": [
+        18
+      ]
+    }
+  },
+  "boundary": 1600,
+  "seed_hashes": {
+    "manifest": "b5527e3710d049d1ddb136e938519d444b44aad5e7f07dfee0f67ce7768330f7",
+    "state_rank0.h5": "b6e11963966a9e4c9ab7cfa455a69924f32d2b2e6974ba78668fc3f159e2c1d5"
+  },
+  "new_budget_pid": 40042,
+  "signal": "SIGINT",
+  "target_pid": 33829,
+  "reason": "Reviewed execution-policy change at a sealed exact state. Later original tail excluded and preserved; no numerical failure claim and no shared-scope signal."
+}

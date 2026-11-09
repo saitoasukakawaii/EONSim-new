@@ -1,0 +1,73 @@
+{
+  "original_status": {
+    "state": "failed",
+    "pid": 41283,
+    "utc": "2026-11-08T22:51:33Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-early-companion-family-a3e1c87",
+    "error": "[Errno 2] No such file or directory: '/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-native5000-fce909d/reference/results/stFile_6400.bin'",
+    "adopted": true
+  },
+  "old_consumer_status": {
+    "state": "failed",
+    "pid": 41284,
+    "utc": "2026-11-08T22:51:37Z",
+    "error": "Reviewed native5000 family failed"
+  },
+  "failure": {
+    "error": "[Errno 2] No such file or directory: '/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-native5000-fce909d/reference/results/stFile_6400.bin'",
+    "traceback": "Traceback (most recent call last):\n  File \"/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/start-nu0-early-companions.py\", line 163, in run\n    assert native_checkpoint(reference/f'results/stFile_{p[\"last\"]}.bin')['step']==p['last']\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/tfblab633/EONSim-prod48-20261107/nu0-early-companion-handoff-a3e1c87/source/scripts/svfsi_restart_evidence.py\", line 29, in native_checkpoint\n    data = path.read_bytes()\n           ^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/pathlib.py\", line 1021, in read_bytes\n    with self.open(mode='rb') as f:\n         ^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/pathlib.py\", line 1015, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-native5000-fce909d/reference/results/stFile_6400.bin'\n",
+    "adopted": true
+  },
+  "all_original_processes_exited": true,
+  "original_log_sha256": "b9eab698db2cac8cfac725555fed21d979d7065393e42bf968c03b5095d7c3a9",
+  "native_seed": {
+    "step": 600,
+    "time": 18.849555921538826,
+    "stamp": [
+      2,
+      2,
+      2,
+      4225,
+      0,
+      7,
+      1
+    ],
+    "bytes": 1419728,
+    "serialized_values": 164333,
+    "sha256": "a2917e245ce1b8e83dbe8faa5fda80078b2e4f793501063aecad7a99b9687701",
+    "record_bytes": 709864,
+    "rank_records": [
+      {
+        "rank": 0,
+        "stamp": [
+          2,
+          2,
+          2,
+          4225,
+          0,
+          7,
+          1
+        ],
+        "offset": 0,
+        "payload_bytes": 709864,
+        "serialized_values": 88729
+      },
+      {
+        "rank": 1,
+        "stamp": [
+          2,
+          2,
+          2,
+          3600,
+          0,
+          7,
+          1
+        ],
+        "offset": 709864,
+        "payload_bytes": 604864,
+        "serialized_values": 75604
+      }
+    ]
+  },
+  "numerical_signals": []
+}

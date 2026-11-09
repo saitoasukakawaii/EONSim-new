@@ -1,0 +1,51 @@
+{
+  "base": "0029a7ea6ecaadea36d36a67781dbebb3e4b12fd",
+  "source_hashes": {
+    "scripts/audit_pressure_tube.py": "db4d0e7e21eb49132ddb43044516f844a870baf3c77bfc50a85270707de31b49",
+    "scripts/audit_svfsi_convergence.py": "ba676d551f6a3f2b31c4b891391690ec4c2132b848657c2e39a080000eb15bec",
+    "scripts/svfsi_restart_evidence.py": "179fc78c3077fcae81751496973f5370335d4fb50982ffe26e97538d6025d09a",
+    "tests/test_pressure_tube_audit.py": "6a123179c7f7e317f4b0aec6200784d1d45c6a350cf46447f0d13be28db36d54",
+    "tests/test_svfsi_convergence.py": "1164dc021e5308275ac453785ad5ba91c76ddb675428756ce0769f90078a9771",
+    "tests/test_svfsi_restart_evidence.py": "ce65b031069daf75e3fa0e9b916b538fbd99312352beff727236f163fd1d901d",
+    "scripts/cloud/selection.json": "3e03cce2cfc417870480f248495ce423b894aa64a5f6b775dcc3124f823c1d15",
+    "scripts/cloud/selection.py": "b79fdb4561f82b5e27903ba8f50c9214f6db5a00321627927e907812a8e110e2",
+    "scripts/cloud/receipt.py": "4bd1cde33961d2b97ef62c75d24b99f6015e27d2dd55d921021591241e52087c",
+    "scripts/cloud/validate.py": "0d30fa0fee03a67637b7b3a9671ae7655550b61568ba580ac4ebb78613023c49",
+    "scripts/cloud/run.sh": "59cebab159e0eebfa250184f49d1c2bc4d43a2b6813009cef1dd74fc52777e16",
+    "tests/test_ci_selection.py": "8d71f5700e4f0cec995ce02292607b4fef19d0989b6284e05dd5132431b18342",
+    "tests/test_cloud_evidence.py": "c0f4206b23a496f6979274b33a8d8acd77e4acb0a7a6eca91c0aac03632b0d6a",
+    "tests/verify_poisson.py": "dd64816b9c62f6fc1b0a9ef97f593f7647ace8bbf7acc0c471655f3cdac746ff"
+  },
+  "selection": {
+    "tests": [
+      "poisson_verification"
+    ],
+    "python": [
+      "tests/test_ci_selection.py",
+      "tests/test_cloud_evidence.py",
+      "tests/test_pressure_tube_audit.py",
+      "tests/test_svfsi_convergence.py",
+      "tests/test_svfsi_restart_evidence.py"
+    ],
+    "reasons": {
+      "scripts/audit_pressure_tube.py": [],
+      "scripts/audit_svfsi_convergence.py": [],
+      "scripts/cloud/selection.json": [
+        "poisson_verification"
+      ],
+      "scripts/svfsi_restart_evidence.py": [],
+      "tests/test_pressure_tube_audit.py": [],
+      "tests/test_svfsi_convergence.py": [],
+      "tests/test_svfsi_restart_evidence.py": []
+    },
+    "ignored": []
+  },
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "cpus": [
+    15
+  ],
+  "nice": 19,
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "scope": "Changed Python audit/CI mapping checks and only required Poisson smoke in both existing locked configurations; no full numerical suite or performance claim."
+}

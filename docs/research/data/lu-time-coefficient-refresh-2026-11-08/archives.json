@@ -1,0 +1,70 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 565360,
+      "sha256": "ed571ca401a8d67d21cbeeaf00dfa79a629b7477884fe7d58a76bef47400f0ba",
+      "verified_files": 3001
+    }
+  ],
+  "verified_files": 3001,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "work/lu-time-refresh-validation-d844e40/eonsim-debug": {
+      "bytes": 16908736,
+      "sha256": "c2c64a20b339bfcb5e8511c84df0ecddabad964832964a1e26dae02eb9babe20",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/lu-time-refresh-validation-d844e40/eonsim-release": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-capture-d844e40/summary.json",
+      "sha256": "bb5f6155f22a6ed3153cb91b3d1f50589931d5c1468b7f5a7ebeed11c9ba4584"
+    },
+    "source.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40/source.json",
+      "sha256": "c8c6aa0fea2597021d75e029ee922ca75c4b5ce2cd0204cd8a51b9806bd52d83"
+    },
+    "release-histories.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40/release-histories.json",
+      "sha256": "50a3c5db559bc32c307daa242d54a5ee4a1d31ce965b2f2bb46c8083e51a16ab"
+    },
+    "debug-histories.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40/debug-histories.json",
+      "sha256": "539fa70dfe28c12e8c5396cc72cf1c9dfc8aabfcea2be03a974497787d635c8b"
+    },
+    "release-binary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40/release-binary.json",
+      "sha256": "324343b019c2f8f94f8b2d1e2b047cb8c2ad62b02058eebc8dd31cde0603d768"
+    },
+    "debug-binary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40/debug-binary.json",
+      "sha256": "7128248cd5f593baebe6fd404d9acd21cdfae1e26cb3cc7c23521771b8867360"
+    },
+    "release.resource.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40/release.resource.json",
+      "sha256": "9843c55562027d51a4da6b29a995c2d17fa94bc2d46dab63af3866595970a708"
+    },
+    "debug.resource.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40/debug.resource.json",
+      "sha256": "eab1d58f3266a12ea101e3e1f850a960260d4babe8849e46155fb3eb29fae617"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/lu-time-coefficient-refresh-2026-11-08",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "d844e4081fec8adfb05c05d824161846fe501973",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

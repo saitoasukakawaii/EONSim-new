@@ -1,0 +1,98 @@
+{
+  "base": "a0a4675b561b07feabe19e52c9d993b7da3a4a83",
+  "controller_sha256": "f5a4a29d07be28efcd89878084b1ec874a07b00a7a1a787cdf284786c727d66d",
+  "source_hashes": {
+    "tests/test_pressure_tube_audit.py": "6a123179c7f7e317f4b0aec6200784d1d45c6a350cf46447f0d13be28db36d54",
+    "tests/test_svfsi_export.py": "bb1754ee41a6ad7d3da586b301d164b855aa4d7061936875ae09f6e6046280fb",
+    "tests/test_svfsi_restart_evidence.py": "014f6fc49e8eff625e48b84630866d8a285b1c2281d0db866c922420974398fe",
+    "tests/test_svfsi_convergence.py": "15e665b75312529d4cb9d06b985e3d972e2c88e319e51993e4cdf9db360fc2ac",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/export_svfsi_tube.py": "be8a29b999655fae7abb66a4d86a5a2483bc902c23715867f4175d74e31d0876",
+    "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+    "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+    "scripts/audit_pressure_tube.py": "db4d0e7e21eb49132ddb43044516f844a870baf3c77bfc50a85270707de31b49",
+    "scripts/audit_svfsi_convergence.py": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "scripts/study_rigid_tube.py": "e0b89fd0f28740df71ca48013ab3c01f9038b966defdcebbbf712bd355d2d799",
+    "scripts/svfsi_restart_evidence.py": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+    "scripts/analyze_womersley.py": "c48aa5bafa068c7a177c45d6d22b48b7b02917103279dff389b69498f6527ebd",
+    "build/prod48-20261107/compare-pressure-fields.py": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+    "build/prod48-20261107/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "cases/fsi/generate_pressure_tube.py": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198",
+    "cases/fsi/__pycache__/generate_tube.cpython-312.pyc": "ca049d0f34ee8c9bc06ea9d3822495af229623aff786ea4a4dbc7256dba7e04e",
+    "scripts/__pycache__/fsi_cycle_metrics.cpython-312.pyc": "c6b41b9e603657110de99e3569825cfacfd867143b03475fa84c4dadf0b4aec9",
+    "scripts/__pycache__/audit_svfsi_convergence.cpython-312.pyc": "01f584bf084c28fe58e8c0a3456778a82996e56039bb68e0ad2ce1e4e6201409",
+    "scripts/__pycache__/svfsi_restart_evidence.cpython-312.pyc": "24be16ca758231eb7800b7dcfe015f2ee110ab4726a80e4280d8520ca7310552",
+    "scripts/__pycache__/fsi_field_cycles.cpython-312.pyc": "456e926c3a2ee431f1d9b88678d405367c11815ebc3088975a442b55c310eafe",
+    "scripts/__pycache__/study_rigid_tube.cpython-312.pyc": "da63994d564f220b81280d77dde0fa4f6225f9ccef1bc3b031197acdd131aadd",
+    "scripts/__pycache__/audit_pressure_tube.cpython-312.pyc": "76dbe8d373564038f585b00232ad8377bddb3fe58f463e15a14530d61b51f903"
+  },
+  "binary_hashes": {
+    "old": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf",
+    "ilut": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3"
+  },
+  "seeds": {
+    "600": {
+      "step": 600,
+      "time": 18.849555921538826,
+      "stamp": [
+        1,
+        2,
+        2,
+        6625,
+        0,
+        7,
+        1
+      ],
+      "bytes": 1113064,
+      "serialized_values": 139129,
+      "sha256": "bfa30d7bfbb337e7a4ecac36008059cbb4a973a0ed128d4ea626078a5831c467"
+    },
+    "700": {
+      "step": 700,
+      "time": 21.99114857512878,
+      "stamp": [
+        1,
+        2,
+        2,
+        6625,
+        0,
+        7,
+        1
+      ],
+      "bytes": 1113064,
+      "serialized_values": 139129,
+      "sha256": "2ad92a5fcb15262e62ca25157daeb731814463690709576e7b8f4f838684fb61"
+    }
+  },
+  "parser_validation_sha256": "7844e911d8dc1e71a5c96171cac0be7e4a33341c306f046c9f96002c164d1c2f",
+  "mature_screen_sha256": "7d9cf3cc9698f470d7f23c360c1d4e0a8131092d1d6f0146668b9cdee2bcbfc3",
+  "imported_baseline": {
+    "control": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-fine-n200-screen-abec003",
+    "failure_sha256": "00108c70e31f834b86791328663015e97646c745b74f60aa8e619da4e7c22ce9",
+    "definition_sha256": "0669ccb631ea4e04786d9d379cb02e90d4c0aa7fc2927e358cc980e07a6452ea",
+    "resource_sha256": "79ccbcff00086f77c013bd2baf1158edf0853cc93e47e3c7e8b3c6447915c4c2",
+    "reason": "Completed original100 numerical solve; only old diagnostic elapsed parser rejected midnight. Original failure remains unchanged."
+  },
+  "original_manifest_sha256": "f0da7ac4c4c21961e4623e8e85b2be3852294670c0758798b08775fb4c0d298b",
+  "scales_source_sha256": "369330526821678c659f15aa9322873b8637d0394554de4e2f9fa4ae13e685f3",
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "guard_sha256": "cfdb06649876319665527ade5e4e114fa48e42eeb34b466bd6278f0f2db0154e",
+  "ranks": 1,
+  "cpus": [
+    16
+  ],
+  "shared_cpus": true,
+  "nice": 19,
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "solve_timeout_seconds": 3600,
+  "first_step": 601,
+  "last_step": 700,
+  "replay_first_step": 691,
+  "nodal_history_limit": 2e-09,
+  "mass_limit": 1e-08,
+  "minimum_cost_reduction": 0.1,
+  "scope": "Actual fine serial early-ramp N200 checkpoint600; original100 must reproduce actual original700 algorithm bytes, excluding elapsed only (serial records have no padding). Candidate100 and replay10 retain all physics/tolerances/ranks. Serial layout and actual original endpoint reproduction are required; this is original mesh-nu0.3, separate from the two-rank mesh-nu0 screen. No producer interruption, consumer update, backend handoff or long-cycle qualification."
+}

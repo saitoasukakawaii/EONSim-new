@@ -1,0 +1,130 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 7846612,
+      "sha256": "11d335c37e219c53fe8a770d2f70ebd9340046184ed199d78da7b0441824223a",
+      "verified_files": 1304
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 7436564,
+      "sha256": "44c156c14bd316d39bb1d7d544650568595066de67e68c802821705a0960665f",
+      "verified_files": 1365
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 7467428,
+      "sha256": "17dddb8806636676e473f791a27c8811b70a63bc26ac82afbc1eb6f0d37a5490",
+      "verified_files": 1363
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 7432820,
+      "sha256": "a68736e204da740f15d45820d4763720ca27557b7a35ea4ed94c79dc733640eb",
+      "verified_files": 1363
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 7436844,
+      "sha256": "f1e9daf3cb748ec270233a8eba7c3d594202254368307d187caa3fdd038388e3",
+      "verified_files": 1363
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 7469328,
+      "sha256": "0cedbd18e0f79915a1e9812f2434682985e61760bc597a1cfb786c34c69b5025",
+      "verified_files": 1365
+    },
+    {
+      "file": "part007.tar.xz",
+      "bytes": 7441968,
+      "sha256": "914202cecb2d308d76bc6cc697a07a62b22609ec9c530b5e3e5d92e6fdbd570f",
+      "verified_files": 1364
+    },
+    {
+      "file": "part008.tar.xz",
+      "bytes": 7437296,
+      "sha256": "5678e8c864be63e22a3a64bf5f765e4166043c7317b17d6479cd0d5b11d7d3de",
+      "verified_files": 1366
+    },
+    {
+      "file": "part009.tar.xz",
+      "bytes": 7434548,
+      "sha256": "5adbb1020c3b03f5394062430d40a3d385f2edac73d0e6436895c00b99b17405",
+      "verified_files": 1362
+    },
+    {
+      "file": "part010.tar.xz",
+      "bytes": 7464380,
+      "sha256": "ad5dcbeeda0ecffed5500db9efa78cba85e0a6db14e3e225cb06ff69039230ae",
+      "verified_files": 1364
+    },
+    {
+      "file": "part011.tar.xz",
+      "bytes": 7544172,
+      "sha256": "a8d62997000d5ac8e92cc15317dd4a9aad9260fa806473cd9bc2c2dc48b0be6f",
+      "verified_files": 1343
+    },
+    {
+      "file": "part012.tar.xz",
+      "bytes": 7435776,
+      "sha256": "07890e103ef350c2174ad6ec907961e8eb3ee88e5e54ec1feba2a86c4ad62597",
+      "verified_files": 1362
+    },
+    {
+      "file": "part013.tar.xz",
+      "bytes": 7457764,
+      "sha256": "541a1cd64dd915d7432ff398a3b32e69ed9b22726b94031bcfec56b1b7bc7830",
+      "verified_files": 1364
+    },
+    {
+      "file": "part014.tar.xz",
+      "bytes": 7437868,
+      "sha256": "2b61f76bb44bd9e5e71dd13a2fac71784234212a60bf5724f68984d23a5f06da",
+      "verified_files": 1366
+    },
+    {
+      "file": "part015.tar.xz",
+      "bytes": 2156312,
+      "sha256": "9b84eaee06ce0b07d1d07580d32a262b7a91825d9d44c3e985fdac3ff995d679",
+      "verified_files": 288
+    }
+  ],
+  "verified_files": 19302,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/elastic-clock-restart-6f202a1/eonsim": {
+      "bytes": 1599208,
+      "sha256": "e88ba71276b688ee0c5364883e61396899944a2629317a1fd1c8c420f5b11ed2",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "summary.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-clock-restart-6f202a1/summary.json",
+      "sha256": "2d631909e3bc2568a6ea45c9e349ef5d983cd17e36961689c939563ba2c12681"
+    },
+    "clock-replay.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-clock-restart-6f202a1/clock-replay.json",
+      "sha256": "57bb0eb3e54229895a1acdbd8ca6e66bdb22ab50f1910573f115250b77e29672"
+    },
+    "restart-history-comparison.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-clock-restart-6f202a1/restart-history-comparison.json",
+      "sha256": "6f9c59fb9f5562afc6796845d6478fe2fd1989e94d6d4a3cb50ad69dc98cc326"
+    },
+    "execution-definition.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-clock-restart-6f202a1/execution-definition.json",
+      "sha256": "4bcff59efd25b6d726404601663c52ab8e90d4fa6ef734e44dd8e588a1bd50b0"
+    },
+    "capture-production-followups.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-production-followups.py",
+      "sha256": "3bac74e89ba9d694f294db6debec297eaf9cc1a313fb637a1540596f81325bb1"
+    }
+  },
+  "source_checkpoint": "5091b68b46479cc972ddfd90eec4eb5c327fdae8",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

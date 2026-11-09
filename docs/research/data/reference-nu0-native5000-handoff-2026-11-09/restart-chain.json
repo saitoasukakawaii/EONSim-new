@@ -1,0 +1,28 @@
+{
+  "schema": "svfsi-native-restart-chain-v2",
+  "final_step": 12800,
+  "target_work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-native5000-fce909d/reference",
+  "segments": [
+    {
+      "work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-6f202a1/reference",
+      "log": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-6f202a1/svfsi.log",
+      "first_step": 1,
+      "last_step": 5000,
+      "binary_sha256": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf"
+    },
+    {
+      "work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-native5000-fce909d/reference",
+      "log": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/fine-solve.log",
+      "first_step": 5001,
+      "last_step": 12800,
+      "binary_sha256": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3",
+      "execution_transition": {
+        "kind": "svfsi-fsi-ilut-reviewed-v1",
+        "screen": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-two-rank-retry1-1374b6",
+        "review": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-two-rank-review-243c9d0",
+        "screen_report_sha256": "5d546a0524397bb43f45e1463e962d38bc8211c18a6d4dfe09134b9949ddfacf",
+        "review_sha256": "e490eb69db9b4be09c763cb4d0c391784842329549a2df003da47233e101cba9"
+      }
+    }
+  ]
+}

@@ -1,0 +1,214 @@
+{
+  "complete": true,
+  "adopted": false,
+  "source_head": "30828c50ecc5c12ee27dd0f39bb56eac93ae94dd",
+  "helper_sha256": "1c28e1b0c24b015af66ad9b161095915879e609d8bc532a13306fa3838096106",
+  "binary_sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+  "producer_identity": {
+    "pid": 20806,
+    "state": "S",
+    "start": "3477170",
+    "pgrp": 20806,
+    "sid": 20806,
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "build/prod48-20261107/handoff-alpha1-fine-segmented.py"
+    ]
+  },
+  "source_seed_hashes": {
+    "manifest": "40157e6eb34698711a58b0cf03e40fd4efe095ac3b2056e8497704d768f95f9c",
+    "state_rank1.h5": "de3f7aceeb651f95ee8e1f93a6c568cab507deea41367e4b2dafc88e8c3dc1bc",
+    "state_rank2.h5": "6f312a6463f062aa0e36f417f457223c4ec4856b2c0ca4dbcc24c819754a60d9",
+    "state_rank0.h5": "bf9790321360025c32807df6b7cc4bd464292148b5e8f4f2d7ebddc0cf64e8dd",
+    "state_rank3.h5": "96a4bebcec4d046ce1e905c26dfa9f3b4e7928a5eda6de9f20b338855d047835"
+  },
+  "source_study": "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-chord-m200",
+  "source_mesh_sha256": "d3e958f85e161f182d9464fae16aa4685eb753446b8cf17a2f64816ba598ec9e",
+  "cpus": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "ranks": 4,
+  "steps": [
+    401,
+    402,
+    403
+  ],
+  "timeout_per_mode_seconds": 900,
+  "per_rank_address_limit_bytes": 3758096384,
+  "available_memory_stop_bytes": 8589934592,
+  "field_limit": 2e-09,
+  "minimum_cost_reduction": 0.1,
+  "scope": "Diagnostic only. Same frozen binary, checkpoint, mesh, physical case and stopping criteria. Positive convergence and final fields must pass; local same-resource speedup is not a general performance claim. No production controller is changed.",
+  "runs": [
+    {
+      "mode": "mumps_chord",
+      "state": "bounded_failure",
+      "command": [
+        "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+        "--bind-to",
+        "none",
+        "-n",
+        "4",
+        "/usr/bin/python3",
+        "/mnt/d/EONSim-prod48-20261107/womersley-fine-direct-screen-30828c5-attempt2/rank-affinity-limit.py",
+        "/mnt/d/EONSim-prod48-20261107/womersley-fine-direct-screen-30828c5-attempt2/eonsim",
+        "-case",
+        "case.json",
+        "-restart",
+        "/mnt/d/EONSim-prod48-20261107/womersley-fine-direct-screen-30828c5-attempt2/initial-checkpoint",
+        "-partition",
+        "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-chord-m200/parts",
+        "-checkpoint",
+        "/mnt/d/EONSim-prod48-20261107/womersley-fine-direct-screen-30828c5-attempt2/mumps_chord/checkpoint",
+        "-solver_report",
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-snes_lag_jacobian",
+        "-2"
+      ],
+      "cwd": "/mnt/d/EONSim-prod48-20261107/womersley-fine-direct-screen-30828c5-attempt2/mumps_chord",
+      "process_group": 21293,
+      "final_cleanup": {
+        "session": 21293,
+        "before": [],
+        "signals": [],
+        "after": []
+      },
+      "returncode": 1,
+      "wall_seconds": 7.085086033002881,
+      "minimum_available_bytes": 26186268672,
+      "log_sha256": "ae688a23fc2dfe71594769b3cab3cd5f2b8832c26cd388186d7c3b974775590b",
+      "error": "Solver returned nonzero"
+    }
+  ],
+  "other_numerical_processes": [
+    {
+      "pid": 3213,
+      "cpus": [
+        18
+      ]
+    },
+    {
+      "pid": 3226,
+      "cpus": [
+        20
+      ]
+    },
+    {
+      "pid": 6701,
+      "cpus": [
+        8
+      ]
+    },
+    {
+      "pid": 7209,
+      "cpus": [
+        22
+      ]
+    },
+    {
+      "pid": 7611,
+      "cpus": [
+        21
+      ]
+    },
+    {
+      "pid": 7612,
+      "cpus": [
+        21
+      ]
+    },
+    {
+      "pid": 7613,
+      "cpus": [
+        21
+      ]
+    },
+    {
+      "pid": 7614,
+      "cpus": [
+        21
+      ]
+    },
+    {
+      "pid": 7750,
+      "cpus": [
+        19
+      ]
+    },
+    {
+      "pid": 20174,
+      "cpus": [
+        0,
+        1
+      ]
+    },
+    {
+      "pid": 20175,
+      "cpus": [
+        2,
+        3
+      ]
+    },
+    {
+      "pid": 20176,
+      "cpus": [
+        4,
+        5
+      ]
+    },
+    {
+      "pid": 20177,
+      "cpus": [
+        6,
+        7
+      ]
+    },
+    {
+      "pid": 21271,
+      "cpus": [
+        23
+      ]
+    }
+  ],
+  "affinity": [
+    {
+      "rank": 0,
+      "cpus": [
+        10,
+        11
+      ]
+    },
+    {
+      "rank": 1,
+      "cpus": [
+        12,
+        13
+      ]
+    },
+    {
+      "rank": 2,
+      "cpus": [
+        14,
+        15
+      ]
+    },
+    {
+      "rank": 3,
+      "cpus": [
+        16,
+        17
+      ]
+    }
+  ],
+  "selected": "keep_existing",
+  "reason": "Candidate did not pass bounded screen"
+}

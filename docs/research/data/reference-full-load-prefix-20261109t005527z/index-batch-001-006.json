@@ -1,0 +1,805 @@
+{
+  "passed": true,
+  "utc": "2026-11-09T00:58:30Z",
+  "source_checkpoint": "ada59feff225394b7f0e7b182cbf883761a68572",
+  "branch": "codex/fsi-production-48h-20261107",
+  "archives_json_sha256": "4040db47f1ec4042fc3c6b715e4d7d7721fe000e9eae7076501d82ddaf553ba7",
+  "storage_record_sha256": "05568467faa986eee6631d06b72cc34be767d96817ae69ba49593312fefc9ace",
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 1818496,
+      "sha256": "c573bb348c366d20143714dc39bda4820c01ac9e92a732c2a60cc1c7f7246cfa",
+      "verified_files": 21,
+      "blob_oid": "0b9683d7e4adfe5589e64e39d4ebfc8f9d3e0d15",
+      "index_path": "docs/research/data/reference-full-load-prefix-20261109t005527z/part001.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true,
+      "index_flags": "S docs/research/data/reference-full-load-prefix-20261109t005527z/part001.tar.xz"
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 1009120,
+      "sha256": "99b86ae906fddbf55eb6f7d66f5a838257d4f9781b5ae8b3bbf8ca7a2032b38d",
+      "verified_files": 15,
+      "blob_oid": "da5282a62e4bad152001bb4c91ccebfafa9b836b",
+      "index_path": "docs/research/data/reference-full-load-prefix-20261109t005527z/part002.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true,
+      "index_flags": "S docs/research/data/reference-full-load-prefix-20261109t005527z/part002.tar.xz"
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 161472,
+      "sha256": "8c4910c42d7bafa8ebfea499fb476d87b967733d9e5f62339d69e197e84b6c16",
+      "verified_files": 1,
+      "blob_oid": "f748fdcaba74f7c41db1fb80661e9a241e8358c9",
+      "index_path": "docs/research/data/reference-full-load-prefix-20261109t005527z/part003.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true,
+      "index_flags": "S docs/research/data/reference-full-load-prefix-20261109t005527z/part003.tar.xz"
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 1051920,
+      "sha256": "a25186172ff0c6b47e32c2eeed3e35525944736c53098eaa3bb7be951dc024aa",
+      "verified_files": 14,
+      "blob_oid": "101befd3594a1c1257897c93817ab92ceaf87cfa",
+      "index_path": "docs/research/data/reference-full-load-prefix-20261109t005527z/part004.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true,
+      "index_flags": "S docs/research/data/reference-full-load-prefix-20261109t005527z/part004.tar.xz"
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 161468,
+      "sha256": "e3bfd0ffdd48c16700807e7f5f30ba35ca0b5dda6445f3ef3b04061dc41c7d02",
+      "verified_files": 1,
+      "blob_oid": "cdae4ce241751e8a900705e3bee2364860ca8a64",
+      "index_path": "docs/research/data/reference-full-load-prefix-20261109t005527z/part005.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true,
+      "index_flags": "S docs/research/data/reference-full-load-prefix-20261109t005527z/part005.tar.xz"
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 3453800,
+      "sha256": "0d52437d6f92eed51ac95a0c482802a9d99a3f769ec4ebadb77b198297861daf",
+      "verified_files": 42,
+      "blob_oid": "bbeb5567bdc1b5eab8708d76a839b341f9c683a3",
+      "index_path": "docs/research/data/reference-full-load-prefix-20261109t005527z/part006.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true,
+      "index_flags": "S docs/research/data/reference-full-load-prefix-20261109t005527z/part006.tar.xz"
+    }
+  ],
+  "whole_archive_complete": false,
+  "scope": "Completed selected batch only; final receipt is required for the entire archive.",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "rev-parse",
+        "HEAD"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "branch",
+        "--show-current"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "diff",
+        "--cached",
+        "--name-only",
+        "-z"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part002.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part003.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part004.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part005.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part006.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "hash-object",
+        "-w",
+        "--no-filters",
+        "D:\\EONSim-prod48-20261107\\repository-archives\\reference-full-load-prefix-20261109t005527z\\part001.tar.xz"
+      ],
+      "external_object_write": true,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644,0b9683d7e4adfe5589e64e39d4ebfc8f9d3e0d15,docs/research/data/reference-full-load-prefix-20261109t005527z/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--skip-worktree",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/reference-full-load-prefix-20261109t005527z/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "hash-object",
+        "-w",
+        "--no-filters",
+        "D:\\EONSim-prod48-20261107\\repository-archives\\reference-full-load-prefix-20261109t005527z\\part002.tar.xz"
+      ],
+      "external_object_write": true,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644,da5282a62e4bad152001bb4c91ccebfafa9b836b,docs/research/data/reference-full-load-prefix-20261109t005527z/part002.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--skip-worktree",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part002.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/reference-full-load-prefix-20261109t005527z/part002.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part002.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "hash-object",
+        "-w",
+        "--no-filters",
+        "D:\\EONSim-prod48-20261107\\repository-archives\\reference-full-load-prefix-20261109t005527z\\part003.tar.xz"
+      ],
+      "external_object_write": true,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644,f748fdcaba74f7c41db1fb80661e9a241e8358c9,docs/research/data/reference-full-load-prefix-20261109t005527z/part003.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--skip-worktree",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part003.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/reference-full-load-prefix-20261109t005527z/part003.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part003.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "hash-object",
+        "-w",
+        "--no-filters",
+        "D:\\EONSim-prod48-20261107\\repository-archives\\reference-full-load-prefix-20261109t005527z\\part004.tar.xz"
+      ],
+      "external_object_write": true,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644,101befd3594a1c1257897c93817ab92ceaf87cfa,docs/research/data/reference-full-load-prefix-20261109t005527z/part004.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--skip-worktree",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part004.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/reference-full-load-prefix-20261109t005527z/part004.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part004.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "hash-object",
+        "-w",
+        "--no-filters",
+        "D:\\EONSim-prod48-20261107\\repository-archives\\reference-full-load-prefix-20261109t005527z\\part005.tar.xz"
+      ],
+      "external_object_write": true,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644,cdae4ce241751e8a900705e3bee2364860ca8a64,docs/research/data/reference-full-load-prefix-20261109t005527z/part005.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--skip-worktree",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part005.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/reference-full-load-prefix-20261109t005527z/part005.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part005.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "hash-object",
+        "-w",
+        "--no-filters",
+        "D:\\EONSim-prod48-20261107\\repository-archives\\reference-full-load-prefix-20261109t005527z\\part006.tar.xz"
+      ],
+      "external_object_write": true,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644,bbeb5567bdc1b5eab8708d76a839b341f9c683a3,docs/research/data/reference-full-load-prefix-20261109t005527z/part006.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "update-index",
+        "--skip-worktree",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part006.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/reference-full-load-prefix-20261109t005527z/part006.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/reference-full-load-prefix-20261109t005527z/part006.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    }
+  ]
+}

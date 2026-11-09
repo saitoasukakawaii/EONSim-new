@@ -1,0 +1,91 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 18292964,
+      "sha256": "c9bbd43af18907f49703ded01e0a7a606fee33c672e5ad3606fd5fceaf30c495",
+      "verified_files": 90
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 7470308,
+      "sha256": "46996d3306629d973e518551719593ef037d183c17ac594bf4b675a07c81c458",
+      "verified_files": 63
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 1920324,
+      "sha256": "6192709c5237fa18ba7ad2943fee2ed8f990922a507e8ee3b497ef2ba662e9a0",
+      "verified_files": 130
+    }
+  ],
+  "verified_files": 283,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/elastic-s24-l1-n400-ramp16-c32-mumps_chord-m400/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "host-d/elastic-s24-l1-n400-sample11600-recovery-abec003/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/reference-fine-ilut-handoff-recovery-abec003/svFSI": {
+      "bytes": 5179624,
+      "sha256": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "sample-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s24-sample-recovery-handoff-capture-abec003/sample-definition.json",
+      "sha256": "8ebcf78159ccb30246415f5fcc640f2f2d4f85c0c67212f0aec825d815facb34"
+    },
+    "sample-review.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s24-sample-recovery-handoff-capture-abec003/sample-review.json",
+      "sha256": "8284c6899f6278dd63b2c66fa96471012c22c3f372544f8b3e1b9cbb8323944c"
+    },
+    "sample-proof-result.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s24-sample-recovery-handoff-capture-abec003/sample-proof-result.json",
+      "sha256": "b0bb8a6dd725a93813a65b60d8ef4f4c662af1c76e86f6e560733707abf2e585"
+    },
+    "sample-adoption.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s24-sample-recovery-handoff-capture-abec003/sample-adoption.json",
+      "sha256": "7cad5ccf043d4d4aac2133bb1b93e964143b2ca90b018d0d4182257ee097621b"
+    },
+    "handoff-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s24-sample-recovery-handoff-capture-abec003/handoff-definition.json",
+      "sha256": "603227c6604d182f070ca20afe1d7141cf37b2255e75507edf3b8efeb61878b5"
+    },
+    "handoff-review.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s24-sample-recovery-handoff-capture-abec003/handoff-review.json",
+      "sha256": "b12398cfaf1ca7d29caf7d7f83ed78088dbeae6a9ba8560ae0a677821b4c1cd6"
+    },
+    "native-stop-request.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s24-sample-recovery-handoff-capture-abec003/native-stop-request.json",
+      "sha256": "84eb8c7fd28b2a2143850ce07690b20a808c4fa7e5dc7f77bacc49a36d7562f2"
+    },
+    "old-budget-failure.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s24-sample-recovery-handoff-capture-abec003/old-budget-failure.json",
+      "sha256": "45d370563f583e4c0c3afc553d213dc5c7b5f3fd5ee859ce29caef0425f5d2e6"
+    },
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s24-sample-recovery-handoff-capture-abec003/summary.json",
+      "sha256": "0d88314a18acfe270235952a2969be893059b0b28f7fbd870c724cadaf2ab926"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/elastic-s24-sample-recovery-handoff-2026-11-08",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "abec003e4df8a8444285ced8974db20ba8173862",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

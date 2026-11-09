@@ -1,0 +1,8 @@
+{
+  "queue_sha256": "122b82754868b29023901809099d82fc0bc9e30fe905fc14fbc99deeb0de074e",
+  "old_prepared_queue_sha256": "38b47f1af4ffe1beda8189a0dec4e769fc5645774bac0bbab47dece45680dc61",
+  "original_mumps_queue_sha256": "f3c3dafea71640ffae3eb6209f1d66a6ffd3076f30219ad5d91ef7d2402437b4",
+  "numerical_tail_matches_original_mumps": true,
+  "middle_wait_outside_compute_lock_scopes": true,
+  "scope": "Prepared queue releases memory/CPU locks while waiting for the middle study, then reacquires them before read-only analysis. Numerical tail and all thresholds unchanged. Static inspection, not a numerical production completion."
+}

@@ -1,0 +1,95 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 15993656,
+      "sha256": "c83d906774b5637db3efb294ab02cb03ef9ddae91b3510f6d2d3ea76d2f32e99",
+      "verified_files": 303
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 18367484,
+      "sha256": "8abd838b196a4699059ec39d23fbaeef3aed91cce84d0bc6aa0bac7e4565308e",
+      "verified_files": 294
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 14198240,
+      "sha256": "64abf72a678c0edf762eea451700d4e01382d147d9424bb6e972b47e84cd5080",
+      "verified_files": 236
+    }
+  ],
+  "verified_files": 833,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "work/womersley-alpha2-middle-f0422d0-attempt2/preflight-old/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/womersley-alpha2-middle-f0422d0-attempt2/preflight-vector/eonsim": {
+      "bytes": 1599208,
+      "sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "host-d/alpha2-middle-lu8-screen-638f75c/eonsim-candidate": {
+      "bytes": 1607856,
+      "sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "host-d/alpha2-middle-lu8-screen-638f75c/eonsim-original": {
+      "bytes": 1599208,
+      "sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "host-d/womersley-a2-s48-l1-n200-lu8-m480/eonsim": {
+      "bytes": 1607856,
+      "sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "host-d/womersley-a2-s48-l1-n200-vector/eonsim": {
+      "bytes": 1599208,
+      "sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/middle-lu8-evidence-capture-2367903/summary.json",
+      "sha256": "1ac08ae3ceac8d816c9edef6bf6cb74af7bd291105d49c2562d1fc748fc63fbf"
+    },
+    "report.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/alpha2-middle-lu8-screen-638f75c/report.json",
+      "sha256": "4c978283c4e436299f7ccfe801625ca4776c76cac3c136646dc2e2bc07d296f0"
+    },
+    "handoff-review.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/alpha2-middle-lu8-screen-638f75c/handoff-review.json",
+      "sha256": "bd5d61fa59abfb21bf3e01cb5ea93e5cd4bbb839554f4a9d7c9dd9529b0ca9b8"
+    },
+    "resume.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/alpha2-middle-lu8-screen-638f75c/resume.json",
+      "sha256": "d589ad6eda0ae59cb4fe2d713ae550b91d377eec289f1c5e6c94ed663e40a47c"
+    },
+    "adoption.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/womersley-middle-lu8-boundary-2367903/adoption.json",
+      "sha256": "6fc4c8dec7157803131fe3644171d4c8d8be717af0ac41cccc1044362df42d14"
+    },
+    "old-waiter-cancellation.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/womersley-middle-lu8-boundary-2367903/old-waiter-cancellation.json",
+      "sha256": "a172bc9aea675644fe2ddb4c8bcffb5c735684ef3201aa4741467d62a1a8b2eb"
+    },
+    "controller-checks.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/middle-lu8-evidence-capture-2367903/controller-checks.json",
+      "sha256": "44073162dbabae3ccc759864853a0ce46d35dfd969916016a991eecf289cb959"
+    },
+    "capture-production-followups.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-production-followups.py",
+      "sha256": "3bac74e89ba9d694f294db6debec297eaf9cc1a313fb637a1540596f81325bb1"
+    }
+  },
+  "source_checkpoint": "23679037b2ae93962c16933807f91b09c4620087",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

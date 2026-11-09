@@ -1,0 +1,39 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 39834848,
+      "sha256": "ae01628f29aa0db7cc36be0c37a629c24e3f3dd20bfaf2c4d7352fad83860f1a",
+      "verified_files": 26
+    }
+  ],
+  "verified_files": 26,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {},
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/artifact-ordering-check-2367903/summary.json",
+      "sha256": "6ae894c4e8535b030af608d5643d97c30306565037c82aac5e7fda9bf5f55205"
+    },
+    "sparse-index-check.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/external-evidence-validation-2367903/sparse-index-check.json",
+      "sha256": "f845ddd867c3ad1d233d172cdf4605d2ae2f6705f052bddcb0d26249b618b6c9"
+    },
+    "definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/external-evidence-validation-2367903/definition.json",
+      "sha256": "d1474a058d48eb01d02d08291966c14e28595eb6299c6d939db4ad32e8b9b268"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/archive-storage-validation-2026-11-08",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "23679037b2ae93962c16933807f91b09c4620087",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

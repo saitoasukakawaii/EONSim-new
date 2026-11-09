@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
+#include <iostream>
+#include <utility>
 namespace eonsim {
 namespace {
 struct Handle {
@@ -48,14 +50,14 @@ void write_text(const std::filesystem::path& path,const std::string& text) {
     std::ofstream out; out.exceptions(std::ios::failbit|std::ios::badbit);
     out.open(path); out<<text; out.close();
 }
-std::filesystem::path resolve_generation(const std::filesystem::path& directory) {
-    if(!std::filesystem::exists(directory/"current")) return directory;
+std::pair<std::filesystem::path,std::string> resolve_generation(const std::filesystem::path& directory) {
+    if(!std::filesystem::exists(directory/"current")) return {directory,{}};
     std::ifstream current(directory/"current"); std::string format,name,extra;
-    if(!(current>>format>>name)||format!="EONSim_checkpoint_v3"||current>>extra||
+    if(!(current>>format>>name)||(format!="EONSim_checkpoint_v3"&&format!="EONSim_checkpoint_v4")||current>>extra||
        name.rfind("generation_",0)!=0||name.size()<=11||
        !std::all_of(name.begin()+11,name.end(),[](char c){return c>='0'&&c<='9';}))
         throw std::runtime_error("Invalid checkpoint current pointer");
-    return directory/name;
+    return {directory/name,format};
 }
 }
 std::uint64_t state_signature(const MeshPartition& mesh,const std::string& physics,const std::vector<double>& parameters)
@@ -79,14 +81,15 @@ void write_checkpoint(MPI_Comm comm,const std::filesystem::path& dir,const MeshP
                       std::uint64_t signature,const Checkpoint& state)
 {
     stage(comm,"validation",[&] {
-        if(state.step<0||state.time<0||!(state.next_dt>0)||!std::isfinite(state.time+state.next_dt))
+        if(state.step<0||state.time<0||!(state.next_dt>0)||!std::isfinite(state.time+state.next_dt)||
+           !std::isfinite(state.time_correction))
             throw std::runtime_error("Invalid accepted checkpoint clock");
         int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
         if(mesh.rank!=rank||mesh.ranks!=ranks) throw std::runtime_error("Checkpoint communicator/layout mismatch");
     });
-    const double clock[]={double(state.step),state.time,state.next_dt}; double low[3],high[3];
-    MPI_Allreduce(clock,low,3,MPI_DOUBLE,MPI_MIN,comm); MPI_Allreduce(clock,high,3,MPI_DOUBLE,MPI_MAX,comm);
-    for(int i=0;i<3;++i) if(low[i]!=high[i]) throw std::runtime_error("Inconsistent accepted checkpoint clock across ranks");
+    const double clock[]={double(state.step),state.time,state.next_dt,state.time_correction}; double low[4],high[4];
+    MPI_Allreduce(clock,low,4,MPI_DOUBLE,MPI_MIN,comm); MPI_Allreduce(clock,high,4,MPI_DOUBLE,MPI_MAX,comm);
+    for(int i=0;i<4;++i) if(low[i]!=high[i]) throw std::runtime_error("Inconsistent accepted checkpoint clock across ranks");
     std::string generation;
     stage(comm,"generation creation",[&] {
         if(mesh.rank!=0) return;
@@ -102,11 +105,11 @@ void write_checkpoint(MPI_Comm comm,const std::filesystem::path& dir,const MeshP
     stage(comm,"rank write",[&] {
         const auto path=rank_path(destination,mesh.rank);
         Handle file(H5Fcreate(path.c_str(),H5F_ACC_EXCL,H5P_DEFAULT,H5P_DEFAULT),H5Fclose);
-        const std::uint64_t meta[]={3,static_cast<std::uint64_t>(mesh.rank),static_cast<std::uint64_t>(mesh.ranks),
+        const std::uint64_t meta[]={4,static_cast<std::uint64_t>(mesh.rank),static_cast<std::uint64_t>(mesh.ranks),
             mesh.owned_nodes,static_cast<std::uint64_t>(mesh.owned_begin),static_cast<std::uint64_t>(mesh.global_nodes),
             static_cast<std::uint64_t>(mesh.global_cells),signature,static_cast<std::uint64_t>(state.step)};
         write(file.id,"metadata",H5T_NATIVE_UINT64,9,meta);
-        write(file.id,"clock",H5T_NATIVE_DOUBLE,2,clock+1);
+        write(file.id,"clock",H5T_NATIVE_DOUBLE,3,clock+1);
         for(const auto& field:state.fields) {
             for(double x:field.second) if(!std::isfinite(x)) throw std::runtime_error("Nonfinite accepted checkpoint field");
             write(file.id,field.first.c_str(),H5T_NATIVE_DOUBLE,field.second.size(),field.second.data());
@@ -117,9 +120,9 @@ void write_checkpoint(MPI_Comm comm,const std::filesystem::path& dir,const MeshP
     stage(comm,"publication",[&] {
         if(mesh.rank!=0) return;
         std::ostringstream manifest;
-        manifest<<std::setprecision(17)<<"EONSim_checkpoint_v3 "<<mesh.ranks<<' '<<state.step<<' '<<state.time<<' '<<state.next_dt<<'\n';
+        manifest<<std::setprecision(17)<<"EONSim_checkpoint_v4 "<<mesh.ranks<<' '<<state.step<<' '<<state.time<<' '<<state.next_dt<<' '<<state.time_correction<<'\n';
         write_text(destination/"manifest",manifest.str());
-        write_text(dir/"current.tmp","EONSim_checkpoint_v3 "+generation+"\n");
+        write_text(dir/"current.tmp","EONSim_checkpoint_v4 "+generation+"\n");
         // 同一目录内 rename：发布前旧指针与旧代始终可读，禁止先 remove(current)。
         std::filesystem::rename(dir/"current.tmp",dir/"current");
     });
@@ -127,30 +130,39 @@ void write_checkpoint(MPI_Comm comm,const std::filesystem::path& dir,const MeshP
 Checkpoint read_checkpoint(const std::filesystem::path& dir,const MeshPartition& mesh,std::uint64_t signature,
                            const std::map<std::string,std::size_t>& sizes)
 {
-    const auto generation=resolve_generation(dir);
+    const auto [generation,pointer_format]=resolve_generation(dir);
     std::ifstream manifest(generation/"manifest"); std::string format,extra; int ranks=0,step=-1;
-    double time=0,next_dt=0;
-    if(!(manifest>>format>>ranks>>step>>time>>next_dt) || format!="EONSim_checkpoint_v3" || ranks!=mesh.ranks || step<0 ||
-        time<0||!(next_dt>0)||!std::isfinite(time+next_dt)||manifest>>extra)
+    double time=0,next_dt=0,correction=0;
+    if(!(manifest>>format>>ranks>>step>>time>>next_dt)||
+       (format!="EONSim_checkpoint_v3"&&format!="EONSim_checkpoint_v4")||
+       (!pointer_format.empty()&&pointer_format!=format))
+        throw std::runtime_error("Incomplete checkpoint or incompatible format");
+    const bool version4=format=="EONSim_checkpoint_v4";
+    if((version4&&!(manifest>>correction))||ranks!=mesh.ranks||step<0||time<0||!(next_dt>0)||
+       !std::isfinite(time+next_dt)||!std::isfinite(correction)||manifest>>extra)
         throw std::runtime_error("Incomplete checkpoint or incompatible rank count");
     const auto path=rank_path(generation,mesh.rank);
     if(!std::filesystem::exists(path)) throw std::runtime_error("Missing checkpoint rank file");
     Handle file(H5Fopen(path.c_str(),H5F_ACC_RDONLY,H5P_DEFAULT),H5Fclose);
     std::uint64_t meta[9]{}; read(file.id,"metadata",H5T_NATIVE_UINT64,9,meta);
-    if(meta[0]!=3 || meta[1]!=static_cast<std::uint64_t>(mesh.rank) || meta[2]!=static_cast<std::uint64_t>(mesh.ranks)
+    if(meta[0]!=(version4?4u:3u) || meta[1]!=static_cast<std::uint64_t>(mesh.rank) || meta[2]!=static_cast<std::uint64_t>(mesh.ranks)
        || meta[3]!=mesh.owned_nodes || meta[4]!=static_cast<std::uint64_t>(mesh.owned_begin)
        || meta[5]!=static_cast<std::uint64_t>(mesh.global_nodes) || meta[6]!=static_cast<std::uint64_t>(mesh.global_cells)
        || meta[7]!=signature || meta[8]!=static_cast<std::uint64_t>(step))
         throw std::runtime_error("Checkpoint mesh/partition/physics mismatch");
     Checkpoint state; state.step=step;
-    double clock[2]; read(file.id,"clock",H5T_NATIVE_DOUBLE,2,clock); state.time=clock[0]; state.next_dt=clock[1];
-    if(state.time!=time||state.next_dt!=next_dt) throw std::runtime_error("Checkpoint clock/manifest mismatch");
+    double clock[3]{}; read(file.id,"clock",H5T_NATIVE_DOUBLE,version4?3:2,clock);
+    state.time=clock[0]; state.next_dt=clock[1]; state.time_correction=clock[2];
+    if(state.time!=time||state.next_dt!=next_dt||state.time_correction!=correction)
+        throw std::runtime_error("Checkpoint clock/manifest mismatch");
     for(const auto& field:sizes) {
         auto& values=state.fields[field.first]; values.resize(field.second);
         read(file.id,field.first.c_str(),H5T_NATIVE_DOUBLE,values.size(),values.data());
         for(double x:values) if(!std::isfinite(x)) throw std::runtime_error("Nonfinite checkpoint field");
     }
     file.finish();
+    if(!version4&&mesh.rank==0)
+        std::cerr<<"checkpoint_format=v3 clock_correction=unavailable restored_correction=0 clock_replay=approximate\n";
     return state;
 }
 }

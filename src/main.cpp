@@ -77,6 +77,22 @@ int main(int argc, char* argv[])
             EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_coo",&fluid_coo,nullptr));
             if(fluid_coo&&(!config.fluid_problem||config.fsi_problem||config.motion_problem))
                 throw std::runtime_error("-fluid_coo requires the standalone fixed-mesh fluid problem");
+            PetscInt fluid_lu_reuse=0; PetscBool fluid_lu_reuse_set=PETSC_FALSE;
+            EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-fluid_lu_pc_reuse_window",&fluid_lu_reuse,&fluid_lu_reuse_set));
+            if(fluid_lu_reuse_set&&(!config.fluid_problem||config.fsi_problem||config.motion_problem||
+                                  config.fluid.mode!=eonsim::FluidConfig::Mode::transient))
+                throw std::runtime_error("-fluid_lu_pc_reuse_window requires standalone transient fixed-mesh fluid");
+            if(fluid_lu_reuse<0||fluid_lu_reuse>1000000)
+                throw std::runtime_error("Invalid -fluid_lu_pc_reuse_window; expected0..1000000");
+            PetscInt fsi_lu_reuse=0; PetscBool fsi_lu_reuse_set=PETSC_FALSE;
+            EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-fsi_lu_pc_reuse_window",&fsi_lu_reuse,&fsi_lu_reuse_set));
+            if(fsi_lu_reuse_set&&(!config.fsi_problem||!config.fsi.elastic||config.fsi.neo_hookean||
+                                 config.fsi.domains.solid_mesh.empty()||!config.fsi.pressure_time||
+                                 config.fsi.inlet||config.fsi.inlet_flow||
+                                 config.time_integration.scheme!=eonsim::TimeScheme::generalized_alpha))
+                throw std::runtime_error("-fsi_lu_pc_reuse_window requires linear elastic periodic-pressure dual-mesh generalized_alpha FSI");
+            if(fsi_lu_reuse<0||fsi_lu_reuse>1000000)
+                throw std::runtime_error("Invalid -fsi_lu_pc_reuse_window; expected0..1000000");
             if(auto path=option("-checkpoint")) config.checkpoint=std::filesystem::absolute(*path);
             if(auto path=option("-restart")) config.restart=std::filesystem::absolute(*path);
             PetscInt stop=0;

@@ -1,0 +1,111 @@
+{
+  "checks": [
+    {
+      "check": "legacy-noop",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/scripts/study_womersley.py",
+        "--work",
+        "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l0-n100",
+        "--executable",
+        "/home/tfblab633/EONSim-prod48-20261107/eonsim-b072cc8",
+        "--alpha",
+        "2",
+        "--cycles",
+        "6",
+        "--ranks",
+        "4",
+        "--mpiexec",
+        "/bin/false",
+        "--schur",
+        "--resume"
+      ],
+      "returncode": 0,
+      "passed": true
+    },
+    {
+      "check": "reject-coo-change",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/scripts/study_womersley.py",
+        "--work",
+        "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l0-n100",
+        "--executable",
+        "/home/tfblab633/EONSim-prod48-20261107/eonsim-b072cc8",
+        "--alpha",
+        "2",
+        "--cycles",
+        "6",
+        "--ranks",
+        "4",
+        "--mpiexec",
+        "/bin/false",
+        "--schur",
+        "--fluid-coo",
+        "--resume"
+      ],
+      "returncode": 1,
+      "passed": true
+    },
+    {
+      "check": "reject-chord-change",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/scripts/study_womersley.py",
+        "--work",
+        "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l0-n100",
+        "--executable",
+        "/home/tfblab633/EONSim-prod48-20261107/eonsim-b072cc8",
+        "--alpha",
+        "2",
+        "--cycles",
+        "6",
+        "--ranks",
+        "4",
+        "--mpiexec",
+        "/bin/false",
+        "--schur",
+        "--chord",
+        "--resume"
+      ],
+      "returncode": 1,
+      "passed": true
+    },
+    {
+      "check": "reject-unprepared-chord",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/scripts/study_womersley.py",
+        "--work",
+        "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l0-n100",
+        "--executable",
+        "/home/tfblab633/EONSim-prod48-20261107/eonsim-b072cc8",
+        "--alpha",
+        "2",
+        "--cycles",
+        "6",
+        "--ranks",
+        "4",
+        "--mpiexec",
+        "/bin/false",
+        "--chord",
+        "--resume"
+      ],
+      "returncode": 2,
+      "passed": true
+    }
+  ],
+  "unchanged_study_files": {
+    "definition.json": "13a5ea0cc8091acc54db72c7c3c5e46976103f025d628fed4549c6985b722090",
+    "receipt.json": "0e8962ec181f94986f86a21911d39da13119c320784e29b48c0b4ec78b8f64a2",
+    "mesh-sha256.txt": "df71c4e19dffdf8b013cf85049d4aa26bbf3024aadd196c39b8e32f89d5be626",
+    "checkpoint/current": "52ecfb2fd7c7e9718844d2bc7521a8048afbf4829ce85f0c47686cd7878251e9"
+  },
+  "unchanged_attempts": [
+    "attempt-001",
+    "attempt-002",
+    "attempt-003"
+  ],
+  "study_script_sha256": "b643bc8906b68338b9b06a2228fcd7b175f5022a249242d95c540e2f308dd54b",
+  "scope": "Read-only completed-study resume and pre-execution rejections; mpiexec is /bin/false, no numerical solve"
+}

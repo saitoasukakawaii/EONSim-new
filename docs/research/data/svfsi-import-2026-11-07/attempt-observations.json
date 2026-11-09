@@ -1,0 +1,26 @@
+[
+  {
+    "directory": "uniform-pressure-s12",
+    "result": "svFSI fatal XML tag error; returned zero; no physical result"
+  },
+  {
+    "directory": "uniform-pressure-s12-lines",
+    "result": "svFSI fatal connectivity size mismatch; returned zero; no physical result"
+  },
+  {
+    "directory": "uniform-pressure-s12-components",
+    "result": "Rejected by independent VTK reader before svFSI was launched; multi-component connectivity is incompatible"
+  },
+  {
+    "directory": "uniform-pressure-s12-raw",
+    "result": "General VTK reader passed; svFSI rejected uncompressed final block length: expected 1300, observed 1299"
+  },
+  {
+    "directory": "uniform-pressure-s12-raw-padded",
+    "result": "Trailing zero padding did not resolve the same svFSI uncompressed block error"
+  },
+  {
+    "directory": "uniform-pressure-s12-zlib",
+    "result": "Native zlib format passed both readers; all 100 steps passed independent discrete uniform-pressure checks"
+  }
+]

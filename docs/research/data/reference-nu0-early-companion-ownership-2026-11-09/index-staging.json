@@ -1,0 +1,114 @@
+{
+  "passed": true,
+  "utc": "2026-11-08T20:08:15Z",
+  "source_checkpoint": "a3e1c87e071ce73f480b63a1144874cd75e3e1c5",
+  "branch": "codex/fsi-production-48h-20261107",
+  "archives_json_sha256": "2d801d8acb277014936dcea103c85e33312a4011df40c79a9f7c6473e0c09285",
+  "storage_record_sha256": "05568467faa986eee6631d06b72cc34be767d96817ae69ba49593312fefc9ace",
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 686896,
+      "sha256": "e179d811266dc00ca091990b8cd6ace26b7e1d029823980ce177dd0c0d09cd54",
+      "verified_files": 69,
+      "blob_oid": "ce81c2b55b1c79d7db38aa22a3756e4d026480bb",
+      "index_path": "docs/research/data/reference-nu0-early-companion-ownership-2026-11-09/part001.tar.xz",
+      "index_flags": "S docs/research/data/reference-nu0-early-companion-ownership-2026-11-09/part001.tar.xz",
+      "indexed_bytes_match_manifest": true,
+      "local_source_retained": true,
+      "archive_absent_from_sparse_worktree": true
+    }
+  ],
+  "scope": "Every archive is a complete regular100644 Git blob. Default Git readback matches every manifest SHA. D source archives retained; no pointer substitute, ref update, upload, move or deletion.",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "rev-parse",
+        "HEAD"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "branch",
+        "--show-current"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "--stage",
+        "--",
+        "docs/research/data/reference-nu0-early-companion-ownership-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "ls-files",
+        "-v",
+        "--",
+        "docs/research/data/reference-nu0-early-companion-ownership-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "-c",
+        "gc.auto=0",
+        "-c",
+        "maintenance.auto=false",
+        "-C",
+        "C:\\Users\\tfblab633\\Documents\\ChatGPT\\\u6570\u503c\u8ba1\u7b97\\EONSim-new-current",
+        "show",
+        ":docs/research/data/reference-nu0-early-companion-ownership-2026-11-09/part001.tar.xz"
+      ],
+      "external_object_write": false,
+      "returncode": 0
+    }
+  ]
+}

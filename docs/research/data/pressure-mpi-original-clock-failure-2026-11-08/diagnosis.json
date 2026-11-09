@@ -1,0 +1,45 @@
+{
+  "original_gate_failed": true,
+  "root_cause": "v3 omitted compensated-summation correction; restore reset it to zero",
+  "clock_differences": {
+    "rank0": {
+      "continuous": [
+        201.06192982974676,
+        0.015707963267948967
+      ],
+      "resumed": [
+        201.0619298297468,
+        0.015707963267948967
+      ],
+      "difference": [
+        2.842170943040401e-14,
+        0.0
+      ],
+      "exact": false
+    },
+    "rank1": {
+      "continuous": [
+        201.06192982974676,
+        0.015707963267948967
+      ],
+      "resumed": [
+        201.0619298297468,
+        0.015707963267948967
+      ],
+      "difference": [
+        2.842170943040401e-14,
+        0.0
+      ],
+      "exact": false
+    }
+  },
+  "compared_steps": 400,
+  "different_steps": 183,
+  "first_different_step": 12404,
+  "maximum_time_difference": 2.842170943040401e-14,
+  "log_hashes": {
+    "r2-sample": "0b28b39cc9d2022f2192fae96f271e5f7d15a8906edf98a307cc82da0be3f9fd",
+    "r2-restart": "f2cafb40f8c0ff51e31bae35d8ef691219cf2a8426bd3194e457365f19e6a523"
+  },
+  "scope": "Original field comparisons passed, but full history comparison stopped at rank0/clock. The exact clock gate is retained; no legacy bitwise replay claim."
+}

@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "decision": "replace_idle_nu0_consumer_only",
+  "definition_sha256": "0e275a5a6e9d7574f8180b85c8a664b909d2457f466bb7a297b9c42b834bd9d2",
+  "review_controller_sha256": "101ddad290cc6652c06e1ef3dd018966d9cfcb0cba0e9f08f82539d1be13c340",
+  "result_sha256": "370c90ce82e15f63cf9464e74fa7cd08fb82b88f37e8e13d11e4f91f3cb36fdd",
+  "resource": {
+    "command": [
+      "/usr/bin/systemd-run",
+      "--user",
+      "--scope",
+      "--quiet",
+      "--unit=eonsim-nu0-consumer-review-38359.scope",
+      "--property=MemoryMax=2G",
+      "--property=MemorySwapMax=0",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-recovered-budgets-ad31460/review-controller.py",
+      "--worker"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-recovered-budgets-ad31460/source",
+    "unit": "eonsim-nu0-consumer-review-38359.scope",
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "timeout_seconds": 1200,
+    "peak_observed_bytes": 16138240,
+    "minimum_available_bytes": 12593700864,
+    "scope_seen": true,
+    "cleanup": [],
+    "launcher_pid": 38360,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "returncode": 0,
+    "wall_seconds": 1.023213640000904,
+    "remaining_scope_members": []
+  },
+  "producer_signaled": false,
+  "scope": "Separate self-review, not external human approval. Analysis routing and unchanged arithmetic only; no numerical production or physical qualification."
+}

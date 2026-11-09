@@ -80,7 +80,7 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         const auto saved=read_checkpoint(config.restart,mesh,signature,sizes);
         displacement=saved.fields.at("displacement"); velocity=saved.fields.at("velocity");
         acceleration=saved.fields.at("acceleration"); previous_energy=saved.fields.at("energy")[0]; first=saved.step+1;
-        clock.restore(saved.step,saved.time,saved.next_dt);
+        clock.restore(saved.step,saved.time,saved.next_dt,saved.time_correction);
         if(bdf2) {
             displacement_history.previous=saved.fields.at("previous_displacement");
             velocity_history.previous=saved.fields.at("previous_velocity");
@@ -182,7 +182,7 @@ SolidResult solve_solid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         if(bdf2&&clock.at_event()) displacement_history.previous_dt=velocity_history.previous_dt=0;
         if(alpha&&clock.at_event()) alpha_ready=false;
         if(!config.checkpoint.empty()) {
-            Checkpoint saved{step,{{"displacement",displacement},{"velocity",velocity},{"acceleration",acceleration},{"energy",{total}}},clock.time,clock.next_dt};
+            Checkpoint saved{step,{{"displacement",displacement},{"velocity",velocity},{"acceleration",acceleration},{"energy",{total}}},clock.time,clock.next_dt,clock.correction()};
             if(bdf2) {
                 saved.fields["previous_displacement"]=displacement_history.previous;
                 saved.fields["previous_velocity"]=velocity_history.previous;

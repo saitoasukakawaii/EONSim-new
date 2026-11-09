@@ -1,0 +1,30 @@
+{
+  "before": {
+    "state": "waiting_for_resources",
+    "pid": 26278,
+    "level": 1,
+    "utc": "2026-11-08T05:59:33Z",
+    "out": "/mnt/d/EONSim-prod48-20261107/rounder-womersley-l1-d844e40",
+    "adopted": false
+  },
+  "pid": 26278,
+  "start": "5533251",
+  "command": [
+    "/usr/bin/python3",
+    "build/prod48-20261107/run-rounder-womersley.py",
+    "--level",
+    "1"
+  ],
+  "reason": "Coarse startup-window32 screen failed its cost gate; cancel the unused dependent fine waiter before any numerical work. Preserve all screen results and original S48 jobs.",
+  "utc": "2026-11-08T06:06:06Z",
+  "observed_after_signals": {
+    "state": "failed",
+    "pid": 26278,
+    "level": 1,
+    "utc": "2026-11-08T06:06:06Z",
+    "out": "/mnt/d/EONSim-prod48-20261107/rounder-womersley-l1-d844e40",
+    "adopted": false,
+    "error": "Independent rounder family interrupted"
+  },
+  "retired": true
+}

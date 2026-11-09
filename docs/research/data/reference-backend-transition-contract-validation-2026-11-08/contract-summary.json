@@ -1,0 +1,45 @@
+{
+  "base": "27f5c82cc925e370c1c78227683f12cb7c261584",
+  "final_tests": {
+    "reference": 23,
+    "pressure": 8
+  },
+  "actual_proof_bindings": {
+    "two-rank": {
+      "kind": "svfsi-fsi-ilut-reviewed-v1",
+      "screen": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-two-rank-retry1-1374b6",
+      "review": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-two-rank-review-243c9d0",
+      "screen_report_sha256": "5d546a0524397bb43f45e1463e962d38bc8211c18a6d4dfe09134b9949ddfacf",
+      "review_sha256": "e490eb69db9b4be09c763cb4d0c391784842329549a2df003da47233e101cba9",
+      "binary_hashes": {
+        "old": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf",
+        "ilut": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3"
+      },
+      "ranks": 2,
+      "proof_first_step": 2601,
+      "proof_last_step": 2700,
+      "cost_ratio": 0.7652420742252468,
+      "scope": "Reviewed bounded execution transition only; all long-run convergence and physical gates remain required"
+    },
+    "fine-serial": {
+      "kind": "svfsi-fsi-ilut-reviewed-v1",
+      "screen": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-fine-serial-screen-243c9d0",
+      "review": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-fine-serial-review-243c9d0",
+      "screen_report_sha256": "88387a0df4a244b0e648cc9565d4a4bc0f9c6b5846e60f97c053ca39c5b046ef",
+      "review_sha256": "106c35eb6ef300933a4e63bda1d682cdfa5c81279a2e18b4f13006bbefcf9efa",
+      "binary_hashes": {
+        "old": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf",
+        "ilut": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3"
+      },
+      "ranks": 1,
+      "proof_first_step": 2801,
+      "proof_last_step": 2900,
+      "cost_ratio": 0.7296798992709752,
+      "scope": "Reviewed bounded execution transition only; all long-run convergence and physical gates remain required"
+    }
+  },
+  "legacy6400chain_passed": true,
+  "windows_affected_tests": 4,
+  "adopted": false,
+  "scope": "v2 transition provenance and strict negative tests, real one/two-rank bounded proof binding, unchanged S12 v1 chain. First Windows short-path identity failure preserved as tool-output summary; final affected tests passed after canonicalization. No numerical rerun or backend adoption."
+}

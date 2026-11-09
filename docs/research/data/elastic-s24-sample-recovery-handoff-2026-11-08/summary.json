@@ -1,0 +1,24 @@
+{
+  "base": "abec003e4df8a8444285ced8974db20ba8173862",
+  "eon_status_snapshot": {
+    "state": "running",
+    "pid": 37886,
+    "utc": "2026-11-08T15:35:34Z",
+    "job": "sample"
+  },
+  "reference_handoff_snapshot": {
+    "state": "waiting_for_native4000_boundary",
+    "pid": 37988,
+    "utc": "2026-11-08T15:40:00Z",
+    "work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-ilut-m4000-recovery-abec003",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-recovery-abec003",
+    "adopted": false,
+    "new_budget_pid": 37989
+  },
+  "budget_snapshot": {
+    "state": "waiting_for_handoff_adoption",
+    "pid": 37989,
+    "utc": "2026-11-08T15:40:00Z"
+  },
+  "scope": "Complete sealed400\u219211600 warmup, original sibling-core guard/budget failures, actual same-binary11600 two-state split proof and independent full-history/P1 readback, immutable sample adoption, revised native4000 reference request and budget sources. Active1200-step sample, changing reference output and future4000 adoption are excluded. Prior initial400 execution handoff remains linked through original immutable provenance. No physical qualification or completed reference adoption is asserted."
+}

@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "decision": "continue_elastic_n200_native1600",
+  "adopted": false,
+  "definition_sha256": "068e3e0bd001785719e5411bc206ee813ba505025eeb631adf040c6bf98a9039",
+  "proofs": [
+    {
+      "screen_sha256": "02bcf0773b15e2b6445f9e2b9740cb982e9253771671c0d74dc058f4bbfe106d",
+      "review_sha256": "4f48ca1bc0206d143694322a2c1a65894c8a3248f3d173940f9769819e60d189"
+    },
+    {
+      "screen_sha256": "79357e7c4210ea14170ed62b085e6e0d9213e3738c3218d1099c56189ec12f5a",
+      "review_sha256": "6d446cf8bd5118a514f9c43b1f737f2bcbed0661209388c24204088238ba0494"
+    }
+  ],
+  "budget_kernel_sha256": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+  "numerical_budget_tail_sha256": "ead574f634cb6713581244325d3f71690796bb17b5b74b56e5422187c1dfa078",
+  "budget_worker_and_arithmetic_exact": true,
+  "matched_reference_chain_routing_only": true,
+  "routing_check_sha256": "23b30d597af0bfb5a14607700926ae412453952d060f8c74a870eeecb47a2957",
+  "bounded_validation_completion_sha256": "1f9f46a5ae60991ac9450d3bb7bf2093d3e8149593666e26aab37ad3ea8c86d5",
+  "accepted_original_prefix": 1600,
+  "verified_raw_files": 242,
+  "scope": "Independent readback of both complete same-seed screens and native1600, actual process identities and safety guards, unchanged source/physics/budget arithmetic. Permission only for exact reviewed1600 execution-policy handoff; long-run fields and physical/error-budget qualification remain required.",
+  "resource_sha256": "c0d58fc758ad52ca3a03d7f5c4296693fc0f61ea16271dec2515605fb0fcb44e",
+  "reviewer_sha256": "c5f8707446e21b758dc9e0b94ad3e93754f086c41e9410c5098acdfb2c3c712b"
+}

@@ -1,0 +1,69 @@
+{
+  "definition": {
+    "schema": 1,
+    "seed": [
+      48,
+      4,
+      8
+    ],
+    "level": 0,
+    "alpha": 1.0,
+    "period": 6.283185307179586,
+    "radius": 1.0,
+    "length": 2.0,
+    "density": 1.0,
+    "viscosity": 1.0,
+    "pressure_amplitude": 0.02,
+    "steps_per_cycle": 200,
+    "phases": 100,
+    "warmup": 2,
+    "ranks": 4,
+    "schur": true,
+    "tau": null,
+    "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+  },
+  "last_cycle": 5,
+  "quadrature_order": 4,
+  "versions": {
+    "numpy": "1.26.4",
+    "scipy": "1.17.1",
+    "h5py": "3.14.0"
+  },
+  "nodes": 1737,
+  "tetrahedra": 8064,
+  "metrics": {
+    "velocity_relative_l2_error": 0.022915321938150254,
+    "pressure_rms_over_amplitude": 0.015846418871077093,
+    "flow_amplitude_relative_error": 0.024651307335116224,
+    "flow_phase_error_degrees": 0.12767152780161226,
+    "flow_mean": 5.90962349769717e-11,
+    "maximum_net_flux": 1.7355438402910268e-13,
+    "velocity_reference_rms": 0.001007241052057793,
+    "pressure_reference_rms": 0.008164965809277261,
+    "flow_amplitude": [
+      0.003913314871441449,
+      -0.0006425827747339634
+    ],
+    "reference_flow_amplitude": [
+      0.0038177605098182,
+      -0.0006356320068743732
+    ]
+  },
+  "last_periodic_difference": {
+    "velocity": 1.3202833067036094e-15,
+    "pressure": 4.931495257356545e-15
+  },
+  "preceding_periodic_difference": {
+    "velocity": 4.0936004866335385e-15,
+    "pressure": 4.869376214409498e-15
+  },
+  "preliminary_gates": {
+    "velocity": false,
+    "pressure": false,
+    "flow_amplitude": false,
+    "flow_phase": true,
+    "global_mass": true,
+    "periodic": true
+  },
+  "scope": "Analytic and periodic diagnostics; spatial/time/tail/sampling budgets still required"
+}

@@ -1,0 +1,98 @@
+{
+  "passed": true,
+  "decision": "run_bounded_l24_replay_proof_only",
+  "utc": "2026-11-09T00:14:53Z",
+  "definition_sha256": "6320690f7d943b8ff0f3677a41b34c7faadbead5b1fe4f8f0f8c234250f082ed",
+  "reviewer_sha256": "5f1f40bafe71a5924cad011013f1c06a17df46d2a29aa26ada83ce93988be38b",
+  "immutable_files_reopened": 416,
+  "native_records": [
+    {
+      "step": 6200,
+      "datasets": {
+        "clock": [
+          2
+        ],
+        "fluid_rate": [
+          38955
+        ],
+        "mesh_acceleration": [
+          38955
+        ],
+        "mesh_velocity": [
+          38955
+        ],
+        "metadata": [
+          9
+        ],
+        "physical": [
+          129850
+        ],
+        "reduced": [
+          63433
+        ],
+        "rigid": [
+          2
+        ],
+        "solid_acceleration": [
+          38955
+        ],
+        "solid_displacement": [
+          38955
+        ],
+        "time_metadata": [
+          2
+        ]
+      },
+      "clock": [
+        194.7787445225672,
+        0.031415926535897934
+      ]
+    },
+    {
+      "step": 6400,
+      "datasets": {
+        "clock": [
+          2
+        ],
+        "fluid_rate": [
+          38955
+        ],
+        "mesh_acceleration": [
+          38955
+        ],
+        "mesh_velocity": [
+          38955
+        ],
+        "metadata": [
+          9
+        ],
+        "physical": [
+          129850
+        ],
+        "reduced": [
+          63433
+        ],
+        "rigid": [
+          2
+        ],
+        "solid_acceleration": [
+          38955
+        ],
+        "solid_displacement": [
+          38955
+        ],
+        "time_metadata": [
+          2
+        ]
+      },
+      "clock": [
+        201.06192982974676,
+        0.031415926535897934
+      ]
+    }
+  ],
+  "original_periodic": false,
+  "adopted": false,
+  "full_qualification": false,
+  "scope": "Executing-agent review of concrete replay plan and original frozen inputs. No numerical proof yet; no long extension authorized by this result. Original c32 failure is retained. No external independent reviewer claim."
+}

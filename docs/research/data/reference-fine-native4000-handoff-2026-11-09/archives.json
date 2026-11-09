@@ -1,0 +1,86 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 1106444,
+      "sha256": "6f7ac0f2e68a13f3e13f5d688bd35369633b8abbe1a2eaee49c83f8342efcfb7",
+      "verified_files": 20
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 10203396,
+      "sha256": "5ea9902dc0f9b1587deae5f628477bfff3aa2f003370c378b36206df58b8a780",
+      "verified_files": 19
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 20093496,
+      "sha256": "b1d22f4393d72c76131059f685c36773b1ec6fe33529f3e50456a28bcaa5a1ac",
+      "verified_files": 59
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 161472,
+      "sha256": "8c4910c42d7bafa8ebfea499fb476d87b967733d9e5f62339d69e197e84b6c16",
+      "verified_files": 1
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 869936,
+      "sha256": "dc0fa6bd2c9dabc704894d7ecefe3a664d635885798a0b1eb613009549f57116",
+      "verified_files": 119
+    }
+  ],
+  "verified_files": 218,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/elastic-s24-l1-n400-ramp16-c32/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/reference-fine-ilut-handoff-recovery-abec003/svFSI": {
+      "bytes": 5179624,
+      "sha256": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "adoption.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native4000-midnight-capture-a0a4675/adoption.json",
+      "sha256": "1249e6d31b5cc4ea8cae3c7f30ed9f21147e27c02c04dc78748cd7d4ae355663"
+    },
+    "prefix-convergence.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native4000-midnight-capture-a0a4675/prefix-convergence.json",
+      "sha256": "25416086af7956eaa236d481d45619ae93ab4c6b208886a057e712c5c27c6a9b"
+    },
+    "old-process-completion.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native4000-midnight-capture-a0a4675/old-process-completion.json",
+      "sha256": "76bd3fc9da391831c2ef57dfa31d0022c26d877780f686708b629e512fa3758a"
+    },
+    "planned-interruption.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native4000-midnight-capture-a0a4675/planned-interruption.json",
+      "sha256": "6bb1c0e8ed90e375704688bb38cf138a26d32145b18d16dda70ce7c8f283caef"
+    },
+    "restart-chain.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native4000-midnight-capture-a0a4675/restart-chain.json",
+      "sha256": "5803b829febd17854d488b13ce2d6c6f59e0883d4553f850472d24499837aae5"
+    },
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native4000-midnight-capture-a0a4675/summary.json",
+      "sha256": "0a9b5d7eafb4f65a01fc16eb19326509de6588c4a018dca3d4fa9a0f8e389308"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/reference-fine-native4000-handoff-2026-11-09",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "fce909d4ee3dc9fb8c15c7640ff8e5806df5f713",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

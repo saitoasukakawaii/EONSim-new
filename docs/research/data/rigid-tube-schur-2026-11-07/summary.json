@@ -1,0 +1,183 @@
+{
+  "source_commit": "c218c18c7b11396ed177d91c631a278bdf0cb2a9",
+  "study_runner_commit": "b072cc81e29160488e5c08044d8aee3b0245078f",
+  "limits": {
+    "circle_flow_relative_error": 0.01,
+    "velocity_relative_l2_error": 0.01,
+    "pressure_rms_error_over_drop": 0.01,
+    "measured_pressure_drop_relative_error": 0.02,
+    "divergence_rms_over_mean_speed_per_radius": 0.01,
+    "net_flux_absolute": 1e-10
+  },
+  "states": [
+    {
+      "directory": "steady-schur-refined-budget",
+      "results": {
+        "reference": {
+          "sectors": 96,
+          "level": 0,
+          "nodes": 112945,
+          "tetrahedra": 649728,
+          "ranks": 4,
+          "flow": 0.003932218193960749,
+          "circle_flow_relative_error": 0.001331140615581372,
+          "polygon_continuum_flow_lower_bound": 0.003918587328744121,
+          "polygon_continuum_flow_upper_bound": 0.003926990816987242,
+          "net_outward_flux": -4.708508992169826e-16,
+          "volume": 6.278700406093734,
+          "measured_pressure_drop": 0.019382416343552356,
+          "measured_pressure_drop_relative_error": 0.030879182822382223,
+          "volume_average_flow": 0.003918854243285553,
+          "mean_to_end_flow_relative_difference": 0.003403102094709799,
+          "maximum_transverse_velocity": 1.1031396804362754e-06
+        },
+        "fields": {
+          "velocity_relative_l2_error": 0.001893543766448901,
+          "pressure_rms_error": 4.3657333831203545e-05,
+          "pressure_rms_error_over_drop": 0.002182866691560177,
+          "pressure_mean_error": 1.5644927834755556e-06,
+          "divergence_rms": 1.8347378003427803e-05,
+          "divergence_rms_over_mean_speed_per_radius": 0.014677902402742242,
+          "divergence_maximum": 0.00013561394274350726,
+          "divergence_volume_integral": -4.575801955957381e-16,
+          "divergence_absolute_volume_integral": 2.7984643256267332e-05,
+          "divergence_theorem_absolute_defect": 1.3270703621244478e-17
+        },
+        "seed": {
+          "sectors": 96,
+          "radial": 24,
+          "axial": 48,
+          "red_refinements": 0
+        }
+      },
+      "passed": {
+        "circle_flow_relative_error": true,
+        "velocity_relative_l2_error": true,
+        "pressure_rms_error_over_drop": true,
+        "measured_pressure_drop_relative_error": false,
+        "divergence_rms_over_mean_speed_per_radius": false,
+        "net_flux_absolute": true
+      },
+      "solver": {
+        "ranks": 4,
+        "schur": true,
+        "krylov_restart": 120,
+        "krylov_iterations": 2000
+      },
+      "executable_sha256": "f7e694748f37dbaaed15096f7b140c96eddaadac66d5bc78eac38e2677c82613"
+    },
+    {
+      "directory": "steady-schur-finest",
+      "results": {
+        "reference": {
+          "sectors": 96,
+          "level": 0,
+          "nodes": 447073,
+          "tetrahedra": 2626560,
+          "ranks": 4,
+          "flow": 0.003925073119293302,
+          "circle_flow_relative_error": 0.0004883377077542495,
+          "polygon_continuum_flow_lower_bound": 0.003918587328744121,
+          "polygon_continuum_flow_upper_bound": 0.003926990816987242,
+          "net_outward_flux": 2.38015411931386e-16,
+          "volume": 6.278700406093734,
+          "measured_pressure_drop": 0.019620184075460376,
+          "measured_pressure_drop_relative_error": 0.018990796226981188,
+          "volume_average_flow": 0.003919703316776725,
+          "mean_to_end_flow_relative_difference": 0.001367408982304937,
+          "maximum_transverse_velocity": 3.656371271982887e-07
+        },
+        "fields": {
+          "velocity_relative_l2_error": 0.0016499584246048072,
+          "pressure_rms_error": 2.0357207218519818e-05,
+          "pressure_rms_error_over_drop": 0.001017860360925991,
+          "pressure_mean_error": 4.141070343495546e-07,
+          "divergence_rms": 9.165523585410662e-06,
+          "divergence_rms_over_mean_speed_per_radius": 0.007332418868328529,
+          "divergence_maximum": 9.017711094902429e-05,
+          "divergence_volume_integral": 2.2226908866348476e-16,
+          "divergence_absolute_volume_integral": 1.1013288673864294e-05,
+          "divergence_theorem_absolute_defect": 1.5746323267901247e-17
+        },
+        "seed": {
+          "sectors": 96,
+          "radial": 48,
+          "axial": 96,
+          "red_refinements": 0
+        }
+      },
+      "passed": {
+        "circle_flow_relative_error": true,
+        "velocity_relative_l2_error": true,
+        "pressure_rms_error_over_drop": true,
+        "measured_pressure_drop_relative_error": true,
+        "divergence_rms_over_mean_speed_per_radius": true,
+        "net_flux_absolute": true
+      },
+      "solver": {
+        "ranks": 4,
+        "schur": true,
+        "krylov_restart": 120,
+        "krylov_iterations": 4000
+      },
+      "executable_sha256": "f7e694748f37dbaaed15096f7b140c96eddaadac66d5bc78eac38e2677c82613"
+    }
+  ],
+  "coarse_mpi_lu_comparison": {
+    "reference_commit": "c218c18c7b11396ed177d91c631a278bdf0cb2a9",
+    "verified_reference_files": 95,
+    "reference": "tube-seeds/s48-r4-a8",
+    "threshold": 2e-09,
+    "schur_vs_archived_lu": [
+      {
+        "ranks": 1,
+        "maximum_absolute_field_difference": 5.652110723897152e-13
+      },
+      {
+        "ranks": 2,
+        "maximum_absolute_field_difference": 2.514551067367421e-13
+      },
+      {
+        "ranks": 4,
+        "maximum_absolute_field_difference": 3.832437839301761e-13
+      }
+    ]
+  },
+  "limitations": [
+    "MPI/direct comparison is on the 1737-node pilot, not the largest mesh",
+    "Seed radial/axial refinement at fixed 96 sectors is not uniform angular h refinement",
+    "No transient/elastic or multi-node qualification from these steady results"
+  ],
+  "archives": [
+    {
+      "file": "steady-schur-pilot.tar.xz",
+      "bytes": 209884,
+      "sha256": "9e7b14ce6b144a0301d8f48f21f3c01e8fe6dddcc414b30de703e8305cacb825"
+    },
+    {
+      "file": "steady-schur-pilot-r2.tar.xz",
+      "bytes": 214872,
+      "sha256": "6c133555327adf5d6dc48b9d66d97b128533d071538fb3a165de4c90de94dd6e"
+    },
+    {
+      "file": "steady-schur-pilot-r4.tar.xz",
+      "bytes": 219148,
+      "sha256": "a30889b105ad82629e407a61cb5bcdf5780c6d3880fc3e3ae29cbf924276d4d8"
+    },
+    {
+      "file": "steady-schur-refined.tar.xz",
+      "bytes": 3705604,
+      "sha256": "c7f6c89aa96609ed96b6e042520ef86e7704bef7ec38fa16eb57b2e6952dbd00"
+    },
+    {
+      "file": "steady-schur-refined-budget.tar.xz",
+      "bytes": 22073908,
+      "sha256": "c000d0949deb765319e8a6afc77df84a7fddcaa0ce341d6146ff285d036fb697"
+    },
+    {
+      "file": "steady-schur-finest.tar.xz",
+      "bytes": 85873944,
+      "sha256": "27c850444f856996705c15ccde92e1688d686dd9f661e31f8448304f06841fe3"
+    }
+  ]
+}

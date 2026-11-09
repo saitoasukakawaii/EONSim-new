@@ -1,0 +1,27 @@
+{
+  "base": "d844e40",
+  "hashes": {
+    "include/eonsim/nonlinear_system.hpp": "294c41c34a382d807d27a909f10ec6bad18155408b71317e94522386d1ac5b61",
+    "src/algebra/nonlinear_system.cpp": "5fa57d80ec7ecb03be421766b7b45b548041360649a8a0a29a0e6a09ef3577e1",
+    "src/physics/fluid.cpp": "f781ed6925503f2dbc79c75faead481482df4ab8fe59c7ecbeede4e8eef8aee9",
+    "tests/verify_lu_reuse.cpp": "bf4f038639bc97b6cf777abf3c6741d2b90e8a057ef5c1b57a01a708e3a67e49",
+    "tests/verify_fluid_lu_reuse.py": "d49b1e62236df49be86c592be52496c835b03c9ed79adace408202389d9af222",
+    "CMakeLists.txt": "03a006a4318154334e55428e7a2e3bda9767a7b4402a30023548e6ac5df66d75",
+    "scripts/cloud/selection.json": "c56e2540d50f1cce0c7241755bf0f7b991f3712bcea6d638d29b8d332aa80b40",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "tests": [
+    "lu_reuse_mpi1",
+    "lu_reuse_mpi2",
+    "lu_reuse_mpi4",
+    "fluid_lu_reuse",
+    "nonlinear_acceptance_mpi",
+    "fluid_verification"
+  ],
+  "cpu": 21,
+  "nice": 10,
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "scope": "Locked Debug/Release affected paths, real1/2/4rank factor events and fresh/retained full-state comparisons. One WSL guest CPU for correctness only; no production adoption or timing claim."
+}

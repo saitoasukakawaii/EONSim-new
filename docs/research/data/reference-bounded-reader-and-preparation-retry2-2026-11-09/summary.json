@@ -1,0 +1,144 @@
+{
+  "validation": {
+    "passed": true,
+    "resource": {
+      "command": [
+        "/usr/bin/systemd-run",
+        "--user",
+        "--scope",
+        "--quiet",
+        "--unit=eonsim-ref-bounded-review-41802.scope",
+        "--property=MemoryMax=2G",
+        "--property=MemorySwapMax=0",
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/reference-bounded-report-review-d2c24ee/controller.py",
+        "--worker"
+      ],
+      "cwd": "/home/tfblab633/EONSim-prod48-20261107/reference-bounded-report-review-d2c24ee/source",
+      "unit": "eonsim-ref-bounded-review-41802.scope",
+      "memory_max_bytes": 2147483648,
+      "memory_swap_max_bytes": 0,
+      "timeout_seconds": 1200,
+      "peak_observed_bytes": 12775424,
+      "minimum_available_bytes": 16006148096,
+      "scope_seen": true,
+      "cleanup": [],
+      "launcher_pid": 41804,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "returncode": 0,
+      "wall_seconds": 6.4424231390003115,
+      "remaining_scope_members": []
+    },
+    "original_failed_reader_resource": {
+      "command": [
+        "/usr/bin/systemd-run",
+        "--user",
+        "--scope",
+        "--quiet",
+        "--unit=eonsim-ref-bounded-full-41583.scope",
+        "--property=MemoryMax=2G",
+        "--property=MemorySwapMax=0",
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/reference-bounded-full-audit-validation-d2c24ee/controller.py",
+        "--worker"
+      ],
+      "cwd": "/home/tfblab633/EONSim-prod48-20261107/reference-bounded-full-audit-validation-d2c24ee/source",
+      "unit": "eonsim-ref-bounded-full-41583.scope",
+      "memory_max_bytes": 2147483648,
+      "memory_swap_max_bytes": 0,
+      "timeout_seconds": 7200,
+      "peak_observed_bytes": 81088512,
+      "minimum_available_bytes": 15581593600,
+      "scope_seen": true,
+      "cleanup": [],
+      "launcher_pid": 41590,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "error": "Command '['/usr/bin/systemd-run', '--user', '--scope', '--quiet', '--unit=eonsim-ref-bounded-full-41583.scope', '--property=MemoryMax=2G', '--property=MemorySwapMax=0', '/usr/bin/python3', '/home/tfblab633/EONSim-prod48-20261107/reference-bounded-full-audit-validation-d2c24ee/controller.py', '--worker']' returned non-zero exit status 1.",
+      "returncode": 1,
+      "wall_seconds": 335.85054430500895,
+      "remaining_scope_members": []
+    },
+    "old_failed_status_preserved": true,
+    "immutable_inputs_unchanged": true,
+    "equivalence_sha256": "1b98fb662a36d925915b81082fb2d556dfcf7a3b702aec20b0586f3e8b141da4",
+    "scope": "Bounded reference reading and exact output equivalence established with explicit failed first comparison and separate review. No full physics qualification."
+  },
+  "equivalence": {
+    "passed": true,
+    "physical_and_quality_report_values_exact": true,
+    "legacy_convergence_values_exact": true,
+    "original_report_sha256": "c6a883bdb0f2108bc180d8c8af68c057647dae2b6512c436b13a915e5e3ec02d",
+    "recomputed_report_sha256": "3ed57339bb1a13d45a4757eeeee7b01650a6c246366fb2f294534cab5c43599b",
+    "original_analyzer": "9083406301d953607c8c71f95f2425094b4f3e21aeb273ed2a539ec1d622ef0a",
+    "bounded_analyzer": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+    "added_convergence_metadata": {
+      "declared_steps": 12800,
+      "excluded_tail": {
+        "final_equation_rows": 0,
+        "last_observed_step": 12800,
+        "iteration_rows": 0,
+        "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+      },
+      "first_step": 1,
+      "last_step": 12800,
+      "restart": null
+    },
+    "sampled_steps": 1200,
+    "full_convergence_steps": 12800,
+    "original_periodic_failure_preserved": true,
+    "all_raw_input_hashes_unchanged": true,
+    "old_comparison_failure_preserved": true,
+    "serialization_key_shape_reproduced": true,
+    "field_audit_repeated": false,
+    "scope": "Exact serialized report comparison. Original reader produced the complete report before int-key/str-key dictionary comparison failed. The original335-second resource receipt remains exit1; this separate report/hash review does not relabel it as a clean execution."
+  },
+  "contingency_preparation": {
+    "utc": "2026-11-08T20:34:32Z",
+    "prepared": true,
+    "executed": false,
+    "readiness": {
+      "fine-nu3": {
+        "eligible": false,
+        "reason": "Original producer has not failed; no recovery action",
+        "original_status": {
+          "state": "running",
+          "pid": 38880,
+          "utc": "2026-11-08T17:00:01Z",
+          "work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-ilut-m4000-midnight2-a0a4675",
+          "control": "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675",
+          "job": "svfsi",
+          "adopted": true
+        }
+      },
+      "fine-nu0": {
+        "eligible": false,
+        "reason": "Original producer has not failed; no recovery action",
+        "original_status": {
+          "state": "running",
+          "pid": 39157,
+          "utc": "2026-11-08T17:59:41Z",
+          "control": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d",
+          "job": "fine-solve",
+          "adopted": true
+        }
+      },
+      "time-nu3": {
+        "eligible": false,
+        "reason": "Original producer has not failed; no recovery action",
+        "original_status": {
+          "state": "running",
+          "pid": 39392,
+          "utc": "2026-11-08T17:49:23Z",
+          "control": "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78",
+          "job": "solve",
+          "adopted": true
+        }
+      }
+    },
+    "signals": [],
+    "numerical_jobs": [],
+    "analysis_jobs": []
+  },
+  "prior_raw_archive": "elastic-s24-coarse-n400-reference-2026-11-08",
+  "scope": "Full reference-reader equivalence after separate serialized-report review; original int/string-key comparison failure and failed capture retained. Static, unexecuted audit-OOM contingencies. Original ALE periodic failure retained. No new numerical trajectory, original status edit or project qualification."
+}

@@ -1,0 +1,111 @@
+{
+  "decision": "adopt_lu8_from600",
+  "utc": "2026-11-08T04:28:19Z",
+  "report_sha256": "ccc4a6400e6e67996f1e49a952f0fa68e00984fbbe7d413d80109ae20bc8f439",
+  "candidate_sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+  "independent_readback": [
+    {
+      "left": "old-default",
+      "right": "new-default",
+      "states": 8,
+      "datasets": 160,
+      "maximum_by_field": {
+        "fluid": 4.445228907190568e-18,
+        "time_previous": 4.445228907190568e-18
+      },
+      "legacy_clock_difference": 0.0,
+      "exact_v4_clock": false
+    },
+    {
+      "left": "new-default",
+      "right": "new-cached",
+      "states": 8,
+      "datasets": 160,
+      "maximum_by_field": {
+        "fluid": 1.0343288725511712e-16,
+        "time_previous": 8.413408858487514e-17
+      },
+      "legacy_clock_difference": 0.0,
+      "exact_v4_clock": true
+    }
+  ],
+  "independent_factor_events": {
+    "old-default": [
+      "MatLUFactorNum",
+      "8",
+      "1.0",
+      "4.1333e+02",
+      "1.0",
+      "4.14e+09",
+      "1.2",
+      "0.0e+00",
+      "0.0e+00",
+      "0.0e+00",
+      "84",
+      "33",
+      "0",
+      "0",
+      "0",
+      "84",
+      "33",
+      "0",
+      "0",
+      "0",
+      "35"
+    ],
+    "new-default": [
+      "MatLUFactorNum",
+      "8",
+      "1.0",
+      "3.9594e+02",
+      "1.0",
+      "4.15e+09",
+      "1.2",
+      "0.0e+00",
+      "0.0e+00",
+      "0.0e+00",
+      "84",
+      "33",
+      "0",
+      "0",
+      "0",
+      "84",
+      "33",
+      "0",
+      "0",
+      "0",
+      "36"
+    ],
+    "new-cached": [
+      "MatLUFactorNum",
+      "1",
+      "1.0",
+      "4.7913e+01",
+      "1.0",
+      "5.15e+08",
+      "1.2",
+      "0.0e+00",
+      "0.0e+00",
+      "0.0e+00",
+      "41",
+      "4",
+      "0",
+      "0",
+      "0",
+      "41",
+      "4",
+      "0",
+      "0",
+      "0",
+      "38"
+    ]
+  },
+  "wall_ratio": 0.2455210112706628,
+  "local_reduction_fraction": 0.7544789887293372,
+  "seed_hashes_unchanged": true,
+  "original_driver_resumed": true,
+  "screen_scopes_empty": true,
+  "handoff_controller_sha256": "130e9c77f515d283b7c9718dc340a1fbc5878122246ffc7b9950b543752b4dfa",
+  "queue_controller_sha256": "122b82754868b29023901809099d82fc0bc9e30fe905fc14fbc99deeb0de074e",
+  "scope": "Agent internal adoption review under existing user authorization. Adopt only explicit independent alpha2 fork from accepted600. Four ranks on WSL guest CPU groups0-7, no host physical-core isolation claim. Last three cycles4-6, matched N400 and all original physical/budget gates still required; no production qualification or PR authorization inferred from this screen."
+}

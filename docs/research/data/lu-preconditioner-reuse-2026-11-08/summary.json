@@ -1,0 +1,231 @@
+{
+  "passed": true,
+  "base": "d0f9bb3",
+  "binary_sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+  "debug_binary": {
+    "binary": "/home/tfblab633/EONSim-prod48-20261107/lu-reuse-validation-d0f9bb3-retry3/eonsim-debug",
+    "sha256": "ebf546ab61484fc835aea878e481907f3942236bc516e13824883339483983a9"
+  },
+  "numerical_source_hashes": {
+    "include/eonsim/nonlinear_system.hpp": "75ee21a7279913d4215f9d8f1dd99da46ac1ac12f73b7b710f95c8194d39b9a0",
+    "src/algebra/nonlinear_system.cpp": "7ccd8d7ac003bdc8249724a527faad1fbd41f6130f53418f38f664ac47c64c11",
+    "src/physics/fluid.cpp": "33a9385b1166327c96119b130681444963b1c6cee592c72ff62883cd1b4fc747",
+    "src/main.cpp": "e0e70a812fde8b69fc0e8233e0c4aacf56e1a64ec581d58e28fddf31bfe148d6",
+    "tests/verify_lu_reuse.cpp": "ac86f9cb045e7a5db0ab62a76b9fd600015cfa9505d9d15ebd0c7b03aec1da3a",
+    "tests/verify_fluid_lu_reuse.py": "99e8489f674a6b678091ac8c39a5a6dec1238d122830314bcddc982fcd800c3b",
+    "CMakeLists.txt": "03a006a4318154334e55428e7a2e3bda9767a7b4402a30023548e6ac5df66d75",
+    "scripts/cloud/selection.json": "c56e2540d50f1cce0c7241755bf0f7b991f3712bcea6d638d29b8d332aa80b40",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "study_source_hashes": {
+    "scripts/study_womersley.py": "1f61965ade170c5ef639d6b5e3c04cd5e04230b2252c8228bf27e804af483d3c",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "attempts": [
+    {
+      "path": "lu-reuse-validation-d0f9bb3",
+      "release_passed": 7,
+      "release_failed": [
+        "lu_reuse_mpi1",
+        "lu_reuse_mpi2",
+        "lu_reuse_mpi4"
+      ],
+      "cause": "SNESReset resets shared PC factors; numerical output equality alone missed it"
+    },
+    {
+      "path": "lu-reuse-validation-d0f9bb3-retry2",
+      "release_passed": 4,
+      "audit_failed": true,
+      "cause": "Repeated test invocation shared checkpoint directory; duplicate step generations rejected"
+    },
+    {
+      "path": "lu-reuse-validation-d0f9bb3-retry3",
+      "release_passed": 1,
+      "debug_passed": 10,
+      "release_reused": [
+        "six unaffected tests from first attempt",
+        "three LU MPI tests from second attempt"
+      ]
+    }
+  ],
+  "release_histories": {
+    "passed": true,
+    "results": [
+      {
+        "ranks": 1,
+        "left": "direct",
+        "right": "cached",
+        "states": 8,
+        "datasets": 40,
+        "maximum_field_history_difference": 1.0401913569857077e-12,
+        "clocks_and_time_metadata_exact": true
+      },
+      {
+        "ranks": 1,
+        "left": "cached",
+        "right": "restart",
+        "states": 5,
+        "datasets": 25,
+        "maximum_field_history_difference": 9.526043148744279e-13,
+        "clocks_and_time_metadata_exact": true
+      },
+      {
+        "ranks": 2,
+        "left": "direct",
+        "right": "cached",
+        "states": 8,
+        "datasets": 80,
+        "maximum_field_history_difference": 1.0401730475215198e-12,
+        "clocks_and_time_metadata_exact": true
+      },
+      {
+        "ranks": 2,
+        "left": "cached",
+        "right": "restart",
+        "states": 5,
+        "datasets": 50,
+        "maximum_field_history_difference": 9.526025801509519e-13,
+        "clocks_and_time_metadata_exact": true
+      },
+      {
+        "ranks": 4,
+        "left": "direct",
+        "right": "cached",
+        "states": 8,
+        "datasets": 160,
+        "maximum_field_history_difference": 1.0401741317236923e-12,
+        "clocks_and_time_metadata_exact": true
+      },
+      {
+        "ranks": 4,
+        "left": "cached",
+        "right": "restart",
+        "states": 5,
+        "datasets": 100,
+        "maximum_field_history_difference": 9.526051822361659e-13,
+        "clocks_and_time_metadata_exact": true
+      }
+    ]
+  },
+  "debug_histories": {
+    "passed": true,
+    "results": [
+      {
+        "ranks": 1,
+        "left": "direct",
+        "right": "cached",
+        "states": 8,
+        "datasets": 40,
+        "maximum_field_history_difference": 1.0401913569857077e-12,
+        "clocks_and_time_metadata_exact": true
+      },
+      {
+        "ranks": 1,
+        "left": "cached",
+        "right": "restart",
+        "states": 5,
+        "datasets": 25,
+        "maximum_field_history_difference": 9.526043148744279e-13,
+        "clocks_and_time_metadata_exact": true
+      },
+      {
+        "ranks": 2,
+        "left": "direct",
+        "right": "cached",
+        "states": 8,
+        "datasets": 80,
+        "maximum_field_history_difference": 1.0401730475215198e-12,
+        "clocks_and_time_metadata_exact": true
+      },
+      {
+        "ranks": 2,
+        "left": "cached",
+        "right": "restart",
+        "states": 5,
+        "datasets": 50,
+        "maximum_field_history_difference": 9.526025801509519e-13,
+        "clocks_and_time_metadata_exact": true
+      },
+      {
+        "ranks": 4,
+        "left": "direct",
+        "right": "cached",
+        "states": 8,
+        "datasets": 160,
+        "maximum_field_history_difference": 1.040174456984344e-12,
+        "clocks_and_time_metadata_exact": true
+      },
+      {
+        "ranks": 4,
+        "left": "cached",
+        "right": "restart",
+        "states": 5,
+        "datasets": 100,
+        "maximum_field_history_difference": 9.52601712789214e-13,
+        "clocks_and_time_metadata_exact": true
+      }
+    ]
+  },
+  "study_entry": {
+    "passed": true,
+    "results": [
+      {
+        "ranks": 1,
+        "cached_segmented_vs_mumps_chord": {
+          "compared_states": 13,
+          "compared_datasets": 65,
+          "maximum_field_history_difference": 1.1719791803699309e-14,
+          "exact_clock": true
+        },
+        "changed_policy_rejected_before_mutation": true,
+        "completed_resume_noop": true
+      },
+      {
+        "ranks": 2,
+        "cached_segmented_vs_mumps_chord": {
+          "compared_states": 13,
+          "compared_datasets": 130,
+          "maximum_field_history_difference": 1.1718057080223332e-14,
+          "exact_clock": true
+        },
+        "changed_policy_rejected_before_mutation": true,
+        "completed_resume_noop": true
+      }
+    ],
+    "source_hashes": {
+      "scripts/study_womersley.py": "1f61965ade170c5ef639d6b5e3c04cd5e04230b2252c8228bf27e804af483d3c",
+      "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+      "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+    },
+    "binary_sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+    "invalid_combinations_rejected": [
+      "negative-window",
+      "window-over-limit",
+      "implicit-MUMPS"
+    ],
+    "scope": "Execution policy, complete small-study histories and restart identity only; no performance or long-cycle qualification."
+  },
+  "ci_selection": {
+    "command": [
+      "/usr/bin/python3",
+      "tests/test_ci_selection.py"
+    ],
+    "returncode": 0,
+    "tests": 26,
+    "test_seconds": 0.401,
+    "observed_output": "Ran 26 tests in 0.401s; OK",
+    "source_sha256": {
+      "tests/test_ci_selection.py": "8d71f5700e4f0cec995ce02292607b4fef19d0989b6284e05dd5132431b18342",
+      "scripts/cloud/selection.json": "c56e2540d50f1cce0c7241755bf0f7b991f3712bcea6d638d29b8d332aa80b40"
+    },
+    "source": "Execution tool output in this chat; no rerun claimed"
+  },
+  "upstream_sources": [
+    "https://raw.githubusercontent.com/petsc/petsc/v3.23.7/src/snes/interface/snes.c",
+    "https://raw.githubusercontent.com/petsc/petsc/v3.23.7/src/ksp/ksp/interface/itfunc.c",
+    "https://raw.githubusercontent.com/petsc/petsc/v3.23.7/src/ksp/pc/interface/pcset.c"
+  ],
+  "scope": "Correctness only, shared CPU17, single-thread libraries, actual1/2/4-rank checks. Failed attempts retained. No fine-grid performance, production adoption, old-PETSc or full-suite claim."
+}

@@ -1,0 +1,18 @@
+{
+  "all_original_family_exited": true,
+  "old_status": {
+    "state": "failed",
+    "pid": 33828,
+    "cpu": 18,
+    "solver": "eonsim",
+    "utc": "2026-11-08T18:17:25Z",
+    "error": "Command '['/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/eonsim', '-case', 'case.json', '-checkpoint', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/checkpoint', '-stop_after', '5800']' died with <Signals.SIGINT: 2>."
+  },
+  "old_budget_status": {
+    "state": "failed",
+    "pid": 39393,
+    "utc": "2026-11-08T17:55:57Z",
+    "error": "A required producer failed: eonsim"
+  },
+  "cleanup": []
+}

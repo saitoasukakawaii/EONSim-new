@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "definition_sha256": "0e275a5a6e9d7574f8180b85c8a664b909d2457f466bb7a297b9c42b834bd9d2",
+  "old_consumer_identity": {
+    "pid": 20925,
+    "start_ticks": 3575499,
+    "state": "S",
+    "parent": 20922,
+    "command": "/usr/bin/python3 build/prod48-20261107/analyze-reference-nu0-s24-budgets.py",
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  "old_reference_plans_exact": true,
+  "numerical_budget_tail_sha256": "ead574f634cb6713581244325d3f71690796bb17b5b74b56e5422187c1dfa078",
+  "matched_audit_functions_exact": true,
+  "sealed_equivalence_readbacks": {
+    "eonsim": {
+      "original_sha256": "369330526821678c659f15aa9322873b8637d0394554de4e2f9fa4ae13e685f3",
+      "matched_sha256": "983b470400fb1a18f0c40a52c079988e853b3b842042d28c31e4d18678ad2ce7",
+      "all_physical_values_identical": true
+    },
+    "svfsi": {
+      "original_sha256": "c6a883bdb0f2108bc180d8c8af68c057647dae2b6512c436b13a915e5e3ec02d",
+      "matched_sha256": "f2a3f7048f9f86b1458a50c177109bde6ebfb0752f905b5f1b84422897c92b57",
+      "all_physical_values_identical": true
+    }
+  },
+  "changed_physical_values_rejected": true,
+  "changed_convergence_rejected": true,
+  "all_original_nu0_inputs_exact": true,
+  "production_signals_sent": false,
+  "full_physical_qualification": false
+}

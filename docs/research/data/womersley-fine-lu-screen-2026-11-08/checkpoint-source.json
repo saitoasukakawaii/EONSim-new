@@ -1,0 +1,40 @@
+{
+  "source": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-mumps-m460/checkpoint/generation_1794110902371267555",
+  "hashes": {
+    "manifest": "191e63026f7f6e4200b93fcf2ea68bbc0780f36ba9ebd86dcbbc7ef415e0566b",
+    "state_rank0.h5": "9df7bc6aa1689cef72234289c5d1267ad77995512d7fc3198301aad960c802de",
+    "state_rank1.h5": "a8b04269ee837a72dbd84405773367da36c3c9992f2560a249a8809cc2aab9cf",
+    "state_rank2.h5": "fa36a717ee4e7ba90821a1f47e0838978e69dd56b16e77862796250953e043af",
+    "state_rank3.h5": "db68517ee03b1f3f9800a5f4edfb2c9568209f7a08e6996a86fb2d50f40aaef9"
+  },
+  "mesh_sha256": "d3e958f85e161f182d9464fae16aa4685eb753446b8cf17a2f64816ba598ec9e",
+  "definition": {
+    "schema": 1,
+    "seed": [
+      48,
+      4,
+      8
+    ],
+    "level": 2,
+    "alpha": 2.0,
+    "period": 1.5707963267948966,
+    "radius": 1.0,
+    "length": 2.0,
+    "density": 1.0,
+    "viscosity": 1.0,
+    "pressure_amplitude": 0.02,
+    "steps_per_cycle": 200,
+    "phases": 200,
+    "warmup": 2,
+    "ranks": 4,
+    "schur": false,
+    "tau": null,
+    "executable_sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+    "solver_options": [
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-snes_lag_jacobian",
+      "-2"
+    ]
+  }
+}

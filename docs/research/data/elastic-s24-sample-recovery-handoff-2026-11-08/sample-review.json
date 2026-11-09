@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "decision": "continue_original_s24_sample11600",
+  "definition_sha256": "8ebcf78159ccb30246415f5fcc640f2f2d4f85c0c67212f0aec825d815facb34",
+  "proof_sha256": "de75dbe3f0250999a74e10ee79ad769be35d881e09ea544678a023d8614d1636",
+  "result_sha256": "b0bb8a6dd725a93813a65b60d8ef4f4c662af1c76e86f6e560733707abf2e585",
+  "review_controller_sha256": "58c2b4bc353be8a70618f6fb5a8c43fcbd71720e4aadb0bff8036d40c12ad686",
+  "resource": {
+    "command": [
+      "/usr/bin/systemd-run",
+      "--user",
+      "--scope",
+      "--quiet",
+      "--unit=eonsim-s24-sample11600-review-37909.scope",
+      "--property=MemoryMax=2G",
+      "--property=MemorySwapMax=0",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/elastic-s24-sample11600-recovery-abec003/review/controller.py",
+      "--worker"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/elastic-s24-sample11600-recovery-abec003",
+    "unit": "eonsim-s24-sample11600-review-37909.scope",
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "timeout_seconds": 1200,
+    "peak_observed_bytes": 86515712,
+    "minimum_available_bytes": 20328636416,
+    "scope_seen": true,
+    "cleanup": [],
+    "launcher_pid": 37910,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "returncode": 0,
+    "wall_seconds": 7.557296906001284,
+    "remaining_scope_members": []
+  },
+  "scope": "Actual11600 v3 same-binary restart equivalence only. Shared CPU22 guest-sibling23 is declared; no performance or complete physical qualification. Original failed controller remains failed."
+}

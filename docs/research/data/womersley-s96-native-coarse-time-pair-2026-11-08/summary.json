@@ -1,0 +1,64 @@
+{
+  "base": "1374b625b829f03c1d37fbc167cf390bc3aa8bb4",
+  "producer": {
+    "state": "completed",
+    "pid": 31784,
+    "utc": "2026-11-08T10:22:34Z",
+    "target": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n400-native-serial32-8297a4",
+    "full_qualification": false
+  },
+  "n200_metrics": {
+    "velocity_relative_l2_error": 0.006918162934089768,
+    "pressure_rms_over_amplitude": 0.006792305004668954,
+    "flow_amplitude_relative_error": 0.010580466780554909,
+    "flow_phase_error_degrees": 0.13670526646518033,
+    "flow_mean": 1.651368003452447e-10,
+    "maximum_net_flux": 8.278476509989904e-18,
+    "velocity_reference_rms": 0.0008411016265556662,
+    "pressure_reference_rms": 0.008164965809277261,
+    "flow_amplitude": [
+      0.0027417397052648227,
+      -0.0017890138158026404
+    ],
+    "reference_flow_amplitude": [
+      0.002708802995093303,
+      -0.0017767515298731434
+    ]
+  },
+  "n400_metrics": {
+    "velocity_relative_l2_error": 0.006156000524088377,
+    "pressure_rms_over_amplitude": 0.0054255899147259215,
+    "flow_amplitude_relative_error": 0.005182695800287851,
+    "flow_phase_error_degrees": 0.0742268364142464,
+    "flow_mean": 2.012394488548619e-10,
+    "maximum_net_flux": 1.0470174261010406e-17,
+    "velocity_reference_rms": 0.0008411016265556662,
+    "pressure_reference_rms": 0.008164965809277261,
+    "flow_amplitude": [
+      0.0027251533272859233,
+      -0.0017824309458408833
+    ],
+    "reference_flow_amplitude": [
+      0.002708802995093303,
+      -0.0017767515298731434
+    ]
+  },
+  "n400_preliminary_gates": {
+    "velocity": true,
+    "pressure": true,
+    "flow_amplitude": true,
+    "flow_phase": true,
+    "global_mass": true,
+    "periodic": true
+  },
+  "same_grid_time_relative_rms": {
+    "velocity": 0.001636009361822796,
+    "pressure": 0.004225703150067253
+  },
+  "n400_tail_relative_rms": {
+    "velocity": 6.384931489096177e-16,
+    "pressure": 2.3588026191037246e-15
+  },
+  "full_qualification": false,
+  "scope": "Complete native N2001200 and N4002400 coarse trajectories, full saved current/history fields and actual coarse MPI proof. All six N400 preliminary gates pass; N200 has its original failed flow-amplitude gate. Fine trajectories and fine-based independent budgets remain active and are excluded. No physical budget denominator or sampling rule changed."
+}

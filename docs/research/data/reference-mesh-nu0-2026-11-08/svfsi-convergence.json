@@ -1,0 +1,33 @@
+{
+  "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "steps": 12800,
+  "equations": {
+    "FS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    },
+    "MS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    }
+  },
+  "iteration_rows": 76738,
+  "final_equation_rows": 25600,
+  "iteration_limit_rows": 0,
+  "maximum_iterations": {
+    "FS": 3,
+    "MS": 3
+  },
+  "maximum_final_relative_ratio": {
+    "FS": 3.1e-11,
+    "MS": 9.7e-11
+  },
+  "failed_equation_steps": [],
+  "passed": true,
+  "input_manifest_sha256": "8236adf3c4ecc4c5dc4a9b2809c32f0306ddefee8f68e3dd36b736bb1444544e",
+  "log_sha256": "2bc33c6d227f73a867a48ad654f213dea627e0266f3c0a8b8d7e250082fa047c",
+  "analysis_source_sha256": "f20945bfa8f4ed1704c4dc78a8a0d97a23011ba6321c0502382c3fc859db6d2e",
+  "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+}

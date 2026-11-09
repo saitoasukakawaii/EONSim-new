@@ -1,0 +1,53 @@
+{
+  "source_study": "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-chord-m200",
+  "source_definition": {
+    "schema": 1,
+    "seed": [
+      48,
+      4,
+      8
+    ],
+    "level": 2,
+    "alpha": 2.0,
+    "period": 1.5707963267948966,
+    "radius": 1.0,
+    "length": 2.0,
+    "density": 1.0,
+    "viscosity": 1.0,
+    "pressure_amplitude": 0.02,
+    "steps_per_cycle": 200,
+    "phases": 200,
+    "warmup": 2,
+    "ranks": 4,
+    "schur": true,
+    "tau": null,
+    "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+    "solver_options": [
+      "-snes_lag_jacobian",
+      "-2"
+    ]
+  },
+  "source_definition_sha256": "523c5a5c1e3a955826723fda46a7c84d92144262600d3ec1e289801e50d2fb66",
+  "accepted_step": 400,
+  "checkpoint_generation": "generation_1794093923994547616",
+  "checkpoint_sha256": {
+    "manifest": "40157e6eb34698711a58b0cf03e40fd4efe095ac3b2056e8497704d768f95f9c",
+    "state_rank1.h5": "de3f7aceeb651f95ee8e1f93a6c568cab507deea41367e4b2dafc88e8c3dc1bc",
+    "state_rank2.h5": "6f312a6463f062aa0e36f417f457223c4ec4856b2c0ca4dbcc24c819754a60d9",
+    "state_rank0.h5": "bf9790321360025c32807df6b7cc4bd464292148b5e8f4f2d7ebddc0cf64e8dd",
+    "state_rank3.h5": "96a4bebcec4d046ce1e905c26dfa9f3b4e7928a5eda6de9f20b338855d047835"
+  },
+  "copied_inputs_sha256": {
+    "fluid.msh": "d3e958f85e161f182d9464fae16aa4685eb753446b8cf17a2f64816ba598ec9e",
+    "mesh-sha256.txt": "2f91446307c7587990276ddc5941af0eaf233308e19863a4d94ac65c2c6012f5",
+    "eonsim": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+    "parts/rank_1.h5": "2398ecd2087fdd44a1eb0552f718c9b45157d08cfdb11a369064c956998a9136",
+    "parts/rank_2.h5": "5f308330c035f2237f9f08d889c607ff1ec150f382bba27ce875a94991bc1143",
+    "parts/manifest.yaml": "0eaa3f4219c029692a32f3c3b58d9e466fce11b65989c4bd0d53e7912488bdc3",
+    "parts/rank_0.h5": "7f7fb2592777e3975e4acfd09c300b4f2dcf5b4b7b2fab486990edf5f8aadb91",
+    "parts/rank_3.h5": "e7a435520c9d40f4ef3dd06601973ed4266aebb41867bcd0ba38edfc69627f9f"
+  },
+  "probe_sha256": "1dbcc58b718875486e34781648a6208d8e45755e0cba61db691545c110e370a3",
+  "controller_sha256": "cec833e04816080937f3d146a27c9225ad8c24fb074af0113a03a8fd94a2ae30",
+  "scope": "Explicit execution-policy and binary fork at a naturally completed warmup; original study preserved. Six cycles requested to measure the fifth-to-sixth tail."
+}

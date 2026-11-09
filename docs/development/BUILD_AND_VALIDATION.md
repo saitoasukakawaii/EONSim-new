@@ -98,6 +98,13 @@ cat build/cloud-3.23.7-release/evidence/ctest.log
 
 任何非预期跳过、空选择、不完整JUnit或非零CTest退出都判失败；预期错误由既有测试断言错误原因、状态和恢复后正常返回，与应用异常退出/超时区分。CTest沿用原超时；外层Linux子进程收养及进程组清理仅处理本次验证后代，不杀无关作业。
 
+独立管流研究的`study_rigid_tube.run`在Linux/WSL为每次数值调用建立新会话。
+OpenMPI的rank可使用不同进程组，因此超时/中断时需核对整个自有会话及PID启动身份，
+不能只等启动器组退出。清理记录保留为日志旁的`.cleanup.json`，原超时/中断仍抛出；
+启动器成功但仍有运行子进程也判失败。此范围不包含主动脱离会话的守护进程，也不赋予
+非Linux入口新的清理保证。[真实MPI与中断检查](../research/data/linux-study-session-cleanup-2026-11-08/README.md)
+覆盖当前研究调用方式；已冻结研究不会自动改用新脚本。
+
 ### PR 增量 CI 与精确清单
 
 GitHub Actions `core-numerics.yml` 仅在面向 main 的 PR 自动运行；分支 Push 与合入 main 不重复触发数值 CI。保留 PETSc 3.23.7 Debug/Release 的原检查名称。纯文档/网站改动仍生成选测结果，但不恢复 PETSc、不编译、不执行数值检查；网站工作流独立且未修改。

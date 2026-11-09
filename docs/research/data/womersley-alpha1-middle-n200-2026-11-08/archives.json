@@ -1,0 +1,70 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 35108404,
+      "sha256": "989790ea59da3d78b21645415136558d292f793eb2080b8d6efe0154305d3d06",
+      "verified_files": 340
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 44414756,
+      "sha256": "01ce7b6a41a15cf656a117ba0324d9939ed4fa42f2d6a660575b27a250c26a3e",
+      "verified_files": 398
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 44499592,
+      "sha256": "755278e6bd07ed8f60cd120f4fd0d935c8c7ce76c18f646b41e0d3277ead9d57",
+      "verified_files": 399
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 44434808,
+      "sha256": "16a036077ed454a72ce0e3add740cc7b04afd31325ae74126f40825ad2701c66",
+      "verified_files": 399
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 3131088,
+      "sha256": "34bb2c2cbfaecbf4c6848231a2efde1a7adb2526c6a9e85ea26be1006195b58a",
+      "verified_files": 27
+    }
+  ],
+  "verified_files": 1563,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "work/womersley-a1-s48-l1-n200/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "middle-analysis.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/alpha1-fine-vector-segmented-08718b9/middle-analysis.json",
+      "sha256": "b40b47fa59dd4963b3a15469e8e755c33441640bdcc976468859f70b5a190383"
+    },
+    "middle-analysis-completion.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/alpha1-fine-vector-segmented-08718b9/middle-analysis-completion.json",
+      "sha256": "3a62d475a887f71ee8325740f2fd38ff9fae630f94f1d3284c10e5ea75064e54"
+    },
+    "receipt.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/womersley-a1-s48-l1-n200/receipt.json",
+      "sha256": "a6abe328329d0b5f3ad680cfe3b3fad2ba94933a4281370172ebf58622ded67b"
+    },
+    "definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/womersley-a1-s48-l1-n200/definition.json",
+      "sha256": "c30ee96dc50024e123b9e7c270ce102ad9d606295158c76c38329524406ee402"
+    },
+    "capture-production-followups.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-production-followups.py",
+      "sha256": "3bac74e89ba9d694f294db6debec297eaf9cc1a313fb637a1540596f81325bb1"
+    }
+  },
+  "source_checkpoint": "5091b68b46479cc972ddfd90eec4eb5c327fdae8",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

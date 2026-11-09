@@ -1,0 +1,167 @@
+{
+  "observed_utc": "2026-11-08T04:00:05Z",
+  "command": "lscpu --json; read cpu0..23/topology/{core_id,physical_package_id,thread_siblings_list}",
+  "guest": {
+    "Architecture": "x86_64",
+    "CPU(s)": "24",
+    "On-line CPU(s) list": "0-23",
+    "Vendor ID": "GenuineIntel",
+    "Model name": "12th Gen Intel(R) Core(TM) i9-12900K",
+    "Thread(s) per core": "2",
+    "Core(s) per socket": "12",
+    "Socket(s)": "1",
+    "Hypervisor vendor": "Microsoft",
+    "Virtualization type": "full",
+    "NUMA node(s)": "1"
+  },
+  "cpu_topology": [
+    {
+      "cpu": 0,
+      "core_id": 0,
+      "package_id": 0,
+      "thread_siblings_list": "0-1"
+    },
+    {
+      "cpu": 1,
+      "core_id": 0,
+      "package_id": 0,
+      "thread_siblings_list": "0-1"
+    },
+    {
+      "cpu": 2,
+      "core_id": 1,
+      "package_id": 0,
+      "thread_siblings_list": "2-3"
+    },
+    {
+      "cpu": 3,
+      "core_id": 1,
+      "package_id": 0,
+      "thread_siblings_list": "2-3"
+    },
+    {
+      "cpu": 4,
+      "core_id": 2,
+      "package_id": 0,
+      "thread_siblings_list": "4-5"
+    },
+    {
+      "cpu": 5,
+      "core_id": 2,
+      "package_id": 0,
+      "thread_siblings_list": "4-5"
+    },
+    {
+      "cpu": 6,
+      "core_id": 3,
+      "package_id": 0,
+      "thread_siblings_list": "6-7"
+    },
+    {
+      "cpu": 7,
+      "core_id": 3,
+      "package_id": 0,
+      "thread_siblings_list": "6-7"
+    },
+    {
+      "cpu": 8,
+      "core_id": 4,
+      "package_id": 0,
+      "thread_siblings_list": "8-9"
+    },
+    {
+      "cpu": 9,
+      "core_id": 4,
+      "package_id": 0,
+      "thread_siblings_list": "8-9"
+    },
+    {
+      "cpu": 10,
+      "core_id": 5,
+      "package_id": 0,
+      "thread_siblings_list": "10-11"
+    },
+    {
+      "cpu": 11,
+      "core_id": 5,
+      "package_id": 0,
+      "thread_siblings_list": "10-11"
+    },
+    {
+      "cpu": 12,
+      "core_id": 6,
+      "package_id": 0,
+      "thread_siblings_list": "12-13"
+    },
+    {
+      "cpu": 13,
+      "core_id": 6,
+      "package_id": 0,
+      "thread_siblings_list": "12-13"
+    },
+    {
+      "cpu": 14,
+      "core_id": 7,
+      "package_id": 0,
+      "thread_siblings_list": "14-15"
+    },
+    {
+      "cpu": 15,
+      "core_id": 7,
+      "package_id": 0,
+      "thread_siblings_list": "14-15"
+    },
+    {
+      "cpu": 16,
+      "core_id": 8,
+      "package_id": 0,
+      "thread_siblings_list": "16-17"
+    },
+    {
+      "cpu": 17,
+      "core_id": 8,
+      "package_id": 0,
+      "thread_siblings_list": "16-17"
+    },
+    {
+      "cpu": 18,
+      "core_id": 9,
+      "package_id": 0,
+      "thread_siblings_list": "18-19"
+    },
+    {
+      "cpu": 19,
+      "core_id": 9,
+      "package_id": 0,
+      "thread_siblings_list": "18-19"
+    },
+    {
+      "cpu": 20,
+      "core_id": 10,
+      "package_id": 0,
+      "thread_siblings_list": "20-21"
+    },
+    {
+      "cpu": 21,
+      "core_id": 10,
+      "package_id": 0,
+      "thread_siblings_list": "20-21"
+    },
+    {
+      "cpu": 22,
+      "core_id": 11,
+      "package_id": 0,
+      "thread_siblings_list": "22-23"
+    },
+    {
+      "cpu": 23,
+      "core_id": 11,
+      "package_id": 0,
+      "thread_siblings_list": "22-23"
+    }
+  ],
+  "binding_scope": "Linux affinity pins guest logical CPU ids. The guest reports12 two-thread core groups, whereas Windows reports16 host cores/24 logical processors. No host affinity or one-to-one host mapping was measured.",
+  "source": "https://learn.microsoft.com/en-us/windows/wsl/wsl-config",
+  "source_support": "The processors setting assigns logical processors to the WSL2 virtual machine.",
+  "correction": "Earlier raw study records that say physical cores refer to guest-reported core groups. Preserve original hashes; this clarification limits performance interpretation, not numerical field/clock results. Concurrent project computations and Windows scheduling were not isolated."
+}

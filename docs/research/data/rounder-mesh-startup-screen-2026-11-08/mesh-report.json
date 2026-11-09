@@ -1,0 +1,87 @@
+{
+  "quadrature_order": 4,
+  "reports": [
+    {
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "red_level": 0,
+      "nodes": 6921,
+      "tetrahedra": 34560,
+      "relative_nodal_interpolation_l2": {
+        "1.0": 0.0055915098688907984,
+        "2.0": 0.0064576994717289
+      },
+      "tetrahedron_mean_ratio": {
+        "minimum": 0.10238581265032219,
+        "percentile_5": 0.12158486285762818,
+        "median": 0.3022545865126797
+      },
+      "volume_mean_tau_time_fraction_alpha2_zero_advection": {
+        "100": 0.25335260123582126,
+        "200": 0.5542080125780078,
+        "400": 0.8151661648699945
+      },
+      "mesh_sha256": "b74e491cc095ac829b4c193167283a81ee9f97fdae603a28aebcbbdc20e59ccd"
+    },
+    {
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "red_level": 1,
+      "nodes": 50609,
+      "tetrahedra": 276480,
+      "relative_nodal_interpolation_l2": {
+        "1.0": 0.0018698742436057956,
+        "2.0": 0.0021657556122281767
+      },
+      "tetrahedron_mean_ratio": {
+        "minimum": 0.0540778661761196,
+        "percentile_5": 0.08821784211885597,
+        "median": 0.2510280739784326
+      },
+      "volume_mean_tau_time_fraction_alpha2_zero_advection": {
+        "100": 0.02181769811326223,
+        "200": 0.08101881508233437,
+        "400": 0.25335260123586684
+      },
+      "mesh_sha256": "451cab13c2ee225803076700e5ee81685252d198f90d4078ce494fb10ea64f1f"
+    },
+    {
+      "seed": [
+        96,
+        8,
+        16
+      ],
+      "red_level": 1,
+      "nodes": 98241,
+      "tetrahedra": 552960,
+      "relative_nodal_interpolation_l2": {
+        "1.0": 0.0018698742436057969,
+        "2.0": 0.0021657556122281776
+      },
+      "tetrahedron_mean_ratio": {
+        "minimum": 0.10200674116353095,
+        "percentile_5": 0.16139707987379692,
+        "median": 0.35807866003067074
+      },
+      "volume_mean_tau_time_fraction_alpha2_zero_advection": {
+        "100": 0.008795935117132619,
+        "200": 0.03411523455088373,
+        "400": 0.12184652474967698
+      },
+      "mesh_sha256": "b220559e902a093eafcf68177a1188201a5440efe499c9a499e9df455ac5ca7d"
+    }
+  ],
+  "scope": "A-priori nodal interpolants only, not numerical solutions, best approximations, geometry error bounds or predicted runtime.",
+  "tau_fraction_definition": "Volume mean of a_time^2/(a_time^2+a_visc^2), a_time=2/(2*dt/3), a_visc=4/(6*volume)^(2/3), zero advection. Not a field-error estimate.",
+  "analysis_sources": {
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0"
+  }
+}

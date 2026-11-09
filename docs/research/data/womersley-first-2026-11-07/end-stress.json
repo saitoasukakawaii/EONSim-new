@@ -1,0 +1,237 @@
+{
+  "reports": [
+    {
+      "study": "womersley-a2-s48-l0-n100",
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 100,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "cycle": 5,
+      "affine_oracle_error": 1.2434497875801753e-14,
+      "ends": {
+        "1": {
+          "area": 3.132628613281238,
+          "faces": 336,
+          "pressure": [
+            0.01894116748591297,
+            0.00038389612448033706
+          ],
+          "viscous_normal_stress": [
+            -0.0002007567778541024,
+            8.581112093301364e-05
+          ],
+          "equivalent_pressure": [
+            0.019141924263767075,
+            0.0002980850035473234
+          ],
+          "pressure_complex_amplitude_error_over_drop": 0.05631390874550622,
+          "equivalent_pressure_complex_amplitude_error_over_drop": 0.04541884626593581
+        },
+        "2": {
+          "area": 3.132628613281238,
+          "faces": 336,
+          "pressure": [
+            0.00088642748124448,
+            -0.0003138965409655324
+          ],
+          "viscous_normal_stress": [
+            0.0003548473366711717,
+            -0.00016201988954223732
+          ],
+          "equivalent_pressure": [
+            0.0005315801445733082,
+            -0.00015187665142329506
+          ],
+          "pressure_complex_amplitude_error_over_drop": 0.04701820705682956,
+          "equivalent_pressure_complex_amplitude_error_over_drop": 0.027642538204374987
+        }
+      },
+      "pressure_drop_amplitude": [
+        0.01805474000466849,
+        0.0006977926654458694
+      ],
+      "equivalent_pressure_drop_amplitude": [
+        0.018610344119193767,
+        0.00044996165497061846
+      ],
+      "pressure_drop_complex_amplitude_error": 0.10333139713304948,
+      "equivalent_pressure_drop_complex_amplitude_error": 0.07303439186443683
+    },
+    {
+      "study": "womersley-a2-s48-l1-n100",
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 1,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 100,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "cycle": 5,
+      "affine_oracle_error": 1.163513729807164e-13,
+      "ends": {
+        "1": {
+          "area": 3.132628613281238,
+          "faces": 1344,
+          "pressure": [
+            0.01945193549891784,
+            0.00019917449684863443
+          ],
+          "viscous_normal_stress": [
+            -0.00019733250231269558,
+            6.856358850800288e-05
+          ],
+          "equivalent_pressure": [
+            0.019649268001230537,
+            0.00013061090834063155
+          ],
+          "pressure_complex_amplitude_error_over_drop": 0.029156696380992084,
+          "equivalent_pressure_complex_amplitude_error_over_drop": 0.018713106659397006
+        },
+        "2": {
+          "area": 3.132628613281238,
+          "faces": 1344,
+          "pressure": [
+            0.0005466283893282636,
+            -0.00018765912490547026
+          ],
+          "viscous_normal_stress": [
+            0.00025208536963513824,
+            -9.014065020973904e-05
+          ],
+          "equivalent_pressure": [
+            0.00029454301969312536,
+            -9.751847469573122e-05
+          ],
+          "pressure_complex_amplitude_error_over_drop": 0.02889716868396879,
+          "equivalent_pressure_complex_amplitude_error_over_drop": 0.015513336468739309
+        }
+      },
+      "pressure_drop_amplitude": [
+        0.018905307109589577,
+        0.0003868336217541047
+      ],
+      "equivalent_pressure_drop_amplitude": [
+        0.01935472498153741,
+        0.00022812938303636276
+      ],
+      "pressure_drop_complex_amplitude_error": 0.058051545527111635,
+      "equivalent_pressure_drop_complex_amplitude_error": 0.03422071247272794
+    },
+    {
+      "study": "womersley-a2-s48-l0-n200",
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 200,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "cycle": 5,
+      "affine_oracle_error": 1.2434497875801753e-14,
+      "ends": {
+        "1": {
+          "area": 3.132628613281238,
+          "faces": 336,
+          "pressure": [
+            0.019146839587511854,
+            0.000309886193841858
+          ],
+          "viscous_normal_stress": [
+            -0.00012890204500123315,
+            5.6620991152368285e-05
+          ],
+          "equivalent_pressure": [
+            0.019275741632513086,
+            0.00025326520268948967
+          ],
+          "pressure_complex_amplitude_error_over_drop": 0.04538480314407945,
+          "equivalent_pressure_complex_amplitude_error_over_drop": 0.038363180452360784
+        },
+        "2": {
+          "area": 3.132628613281238,
+          "faces": 336,
+          "pressure": [
+            0.0006667301239493613,
+            -0.00023459490887654978
+          ],
+          "viscous_normal_stress": [
+            0.00022959792102584118,
+            -0.00010818292470460506
+          ],
+          "equivalent_pressure": [
+            0.0004371322029235201,
+            -0.00012641198417194473
+          ],
+          "pressure_complex_amplitude_error_over_drop": 0.03533991473717528,
+          "equivalent_pressure_complex_amplitude_error_over_drop": 0.02275217311462015
+        }
+      },
+      "pressure_drop_amplitude": [
+        0.018480109463562492,
+        0.0005444811027184078
+      ],
+      "equivalent_pressure_drop_amplitude": [
+        0.018838609429589565,
+        0.0003796771868614344
+      ],
+      "pressure_drop_complex_amplitude_error": 0.08072370955874349,
+      "equivalent_pressure_drop_complex_amplitude_error": 0.0610938381357173
+    }
+  ],
+  "scope": "Offline first-harmonic P1 pressure/stress traces on existing fields; no new PDE solve, extra gate or causal attribution",
+  "analysis_sources": {
+    "scripts/analyze_womersley.py": "c48aa5bafa068c7a177c45d6d22b48b7b02917103279dff389b69498f6527ebd",
+    "scripts/study_rigid_tube.py": "e0b89fd0f28740df71ca48013ab3c01f9038b966defdcebbbf712bd355d2d799"
+  }
+}

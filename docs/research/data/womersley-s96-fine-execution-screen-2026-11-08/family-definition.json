@@ -1,0 +1,96 @@
+{
+  "base": "a6643c8",
+  "controller_sha256": "39f10545d54a7a23ca4d249748f7b10d3686c86d7f32791e2d56bced7c5d76df",
+  "binary_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+  "source_hashes": {
+    "scripts/study_womersley.py": "1f61965ade170c5ef639d6b5e3c04cd5e04230b2252c8228bf27e804af483d3c",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "cap_sha256": "3ce7e1b1c29a5b2778a58f9381a3ef5aaf30fb83071049d5a322f40559441fc2",
+  "history_worker_sha256": "bde0e60fc5a778147df3f2e217dd8d03914c9198a27c56983f3d9f4ef69f2a70",
+  "budget_source_sha256": "1ccca6dffe4ab3887657e5fa6c320a3ae317923ec9050583270081ea834e50a9",
+  "budget_arithmetic_sha256": "aae1723d5c1148f31c13c0ff88e50e4df6bd049e877f8eb3e6abd8607ef6b49c",
+  "budget_worker_sha256": "e3c9965c3a84133333ad42e1e57449f3ec2ede9582706548a37fa3abb0518236",
+  "meshes": {
+    "0": {
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "red_level": 0,
+      "nodes": 6921,
+      "tetrahedra": 34560,
+      "relative_nodal_interpolation_l2": {
+        "1.0": 0.0055915098688907984,
+        "2.0": 0.0064576994717289
+      },
+      "tetrahedron_mean_ratio": {
+        "minimum": 0.10238581265032219,
+        "percentile_5": 0.12158486285762818,
+        "median": 0.3022545865126797
+      },
+      "volume_mean_tau_time_fraction_alpha2_zero_advection": {
+        "100": 0.25335260123582126,
+        "200": 0.5542080125780078,
+        "400": 0.8151661648699945
+      },
+      "mesh_sha256": "b74e491cc095ac829b4c193167283a81ee9f97fdae603a28aebcbbdc20e59ccd"
+    },
+    "1": {
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "red_level": 1,
+      "nodes": 50609,
+      "tetrahedra": 276480,
+      "relative_nodal_interpolation_l2": {
+        "1.0": 0.0018698742436057956,
+        "2.0": 0.0021657556122281767
+      },
+      "tetrahedron_mean_ratio": {
+        "minimum": 0.0540778661761196,
+        "percentile_5": 0.08821784211885597,
+        "median": 0.2510280739784326
+      },
+      "volume_mean_tau_time_fraction_alpha2_zero_advection": {
+        "100": 0.02181769811326223,
+        "200": 0.08101881508233437,
+        "400": 0.25335260123586684
+      },
+      "mesh_sha256": "451cab13c2ee225803076700e5ee81685252d198f90d4078ce494fb10ea64f1f"
+    }
+  },
+  "screen_review_sha256": "265558626ab6b6074f6dd3d1c2b14b922124afa99fd0ad40c3321aa3a40db620",
+  "coarse": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n200-native-serial32-a6643c8",
+  "fine": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n200-native-serial32-a6643c8",
+  "fine_time_control": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n400-native-serial32-a6643c8",
+  "four_rank_coarse": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n200-refresh32-d844e40",
+  "seed": [
+    96,
+    8,
+    8
+  ],
+  "alpha": 2,
+  "ranks": 1,
+  "cpus": [
+    21
+  ],
+  "warmup": 2,
+  "cycles": 6,
+  "window": 32,
+  "steps_per_cycle": [
+    200,
+    200,
+    400
+  ],
+  "memory_max_bytes": 6442450944,
+  "swap_max_bytes": 0,
+  "scope": "Fresh native rank1 family using unchanged study driver and original physical/error-budget gates. Coarse complete stored history also checked against the retained four-rank coarse. No original S48 or reference producer changes and no cross-partition restart."
+}

@@ -1,0 +1,68 @@
+{
+  "definition_sha256": "aa767dcbd75b5f059d44cad3ac1f7fee6d08faddb39997f5cf6f352005358d40",
+  "review": {
+    "passed": true,
+    "decision": "transfer_l24_postprocessing_after_natural6400",
+    "definition_sha256": "aa767dcbd75b5f059d44cad3ac1f7fee6d08faddb39997f5cf6f352005358d40",
+    "reviewer_sha256": "955dcd5532b812ca790d3d8a94a1083e454a04933c24f222b003ae75f5f33fda",
+    "utc": "2026-11-08T20:55:18Z",
+    "checks": [
+      "exact live parent identity and immutable original source/input",
+      "no numerical subprocess in replacement run",
+      "same disposable parent-stop/child-natural-finish/TERM+CONT functions passed; no child signal",
+      "all original accepted1..6400 checks and final checkpoint before retirement",
+      "coarse1200-state bounded-reader exact equivalence, unchanged source and private2GiB/swap0 controls",
+      "original length-comparison kernel extracted byte-for-byte after dedent, same600sample grid and thresholds",
+      "actual native1600 L12 route bound; original retired path not used"
+    ],
+    "adopted": false,
+    "full_qualification": false,
+    "limitation": "Executing-agent separate source/fixture review, not a distinct human/model review. Actual L24 natural completion, immutable full fields, bounded audit and actual L12 completion remain required."
+  },
+  "fixture": {
+    "passed": true,
+    "parent": {
+      "pid": 42070,
+      "start_ticks": 10901523,
+      "state": "R",
+      "ppid": 42069,
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import pathlib,subprocess,sys; p=pathlib.Path(sys.argv[1]); q=subprocess.Popen([sys.executable,\"-c\",sys.argv[2],str(p)]); (p/\"child-pid\").write_text(str(q.pid)); q.wait(); (p/\"obsolete-postprocess\").write_text(\"must not run\")",
+        "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/parent-boundary-fixture",
+        "import pathlib,time; p=pathlib.Path(__import__(\"sys\").argv[1]); (p/\"child-ready\").write_text(\"ready\"); time.sleep(2); (p/\"child-completed\").write_text(\"complete\")"
+      ]
+    },
+    "child": {
+      "pid": 42071,
+      "start_ticks": 10901530,
+      "state": "S",
+      "ppid": 42070,
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import pathlib,time; p=pathlib.Path(__import__(\"sys\").argv[1]); (p/\"child-ready\").write_text(\"ready\"); time.sleep(2); (p/\"child-completed\").write_text(\"complete\")",
+        "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/parent-boundary-fixture"
+      ]
+    },
+    "numerical_child_signals": [],
+    "parent_signals": [
+      "SIGSTOP",
+      "SIGTERM",
+      "SIGCONT"
+    ],
+    "child_natural_completion": true,
+    "obsolete_postprocessing_executed": false
+  },
+  "execution_state_snapshot": {
+    "state": "waiting_for_original_sample_child",
+    "pid": 42097,
+    "utc": "2026-11-08T20:55:44Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355",
+    "adopted": false
+  },
+  "preparation_only": true,
+  "full_qualification": false,
+  "scope": "Only immutable postprocessing plan, real disposable control fixture, reviewer and original input/source. Live L24 numerical output, sample logs, parent pause state, descendant inventory and future bounded audit are excluded. Snapshot state is historical and not proof of adoption/completion."
+}

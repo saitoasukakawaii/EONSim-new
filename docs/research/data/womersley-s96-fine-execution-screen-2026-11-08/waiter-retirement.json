@@ -1,0 +1,37 @@
+{
+  "retired": true,
+  "adopted": false,
+  "before": {
+    "pid": 28580,
+    "start_ticks": 6031536,
+    "process_state": "S",
+    "command": [
+      "python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/run-rounder-fine-refresh32-retry2.py"
+    ],
+    "status": {
+      "state": "awaiting_independent_review",
+      "pid": 28580,
+      "level": 1,
+      "utc": "2026-11-08T07:49:10Z",
+      "out": "/mnt/d/EONSim-prod48-20261107/rounder-fine-refresh32-screen-retry2-a6643c8",
+      "adopted": false,
+      "report_sha256": "6491c92d35ce076e5f1ae66098f79c6134448ae394a43d8bd0d8c89361cec2a3"
+    }
+  },
+  "observed_exit": {
+    "state": "failed",
+    "pid": 28580,
+    "level": 1,
+    "utc": "2026-11-08T07:50:31Z",
+    "out": "/mnt/d/EONSim-prod48-20261107/rounder-fine-refresh32-screen-retry2-a6643c8",
+    "adopted": false,
+    "error": "Independent rounder family interrupted"
+  },
+  "signal": "SIGTERM",
+  "utc": "2026-11-08T07:50:31Z",
+  "report_sha256": "6491c92d35ce076e5f1ae66098f79c6134448ae394a43d8bd0d8c89361cec2a3",
+  "raw_review_sha256": "fd5cbf97ba9e783638c19317d2462c7d1379f9e659829249d6ec0726064e0837",
+  "handler_failure_sha256": "a9b2b1af85f15380c76eadf04a9e609583b60e06cc0978363a21a0dc697af28a",
+  "reason": "Completed32-state four-rank screen retained. Only idle review waiter retired, before any long trajectory, to allow a separately locked serial comparison and explicit later policy selection."
+}

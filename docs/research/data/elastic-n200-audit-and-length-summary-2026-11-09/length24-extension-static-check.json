@@ -1,0 +1,59 @@
+{
+  "passed": true,
+  "utc": "2026-11-09T00:40:43Z",
+  "controller_sha256": "469f78e7ca3d7bb58a3042e2d95ee759a14c2c6160011d0fdfa98dfc28fe094c",
+  "only_physical_case_change": {
+    "fsi.steps": [
+      6400,
+      7200
+    ]
+  },
+  "actual_inspection": {
+    "ready": false,
+    "states": {
+      "proof": "running",
+      "review": "waiting_for_complete_proof"
+    },
+    "prepared": false,
+    "output_exists": false,
+    "execution_status_exists": false,
+    "adopted": false
+  },
+  "incomplete_evidence_rejected": true,
+  "numerical_command": [
+    "/usr/bin/python3",
+    "/home/tfblab633/EONSim-prod48-20261107/length24-native6400-extension-98ee0f9/execution-guard.py",
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-native6400-c36-98ee0f9/eonsim",
+    "-case",
+    "case.json",
+    "-checkpoint",
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-native6400-c36-98ee0f9/checkpoint",
+    "-restart",
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-native6400-c36-98ee0f9/checkpoint",
+    "-stop_after",
+    "7200",
+    "-solver_report",
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2"
+  ],
+  "audit_command": [
+    "/usr/bin/python3",
+    "/home/tfblab633/EONSim-prod48-20261107/length24-native6400-extension-98ee0f9/execution-guard.py",
+    "/usr/bin/python3",
+    "/home/tfblab633/EONSim-prod48-20261107/length24-native6400-extension-98ee0f9/source/scripts/audit_pressure_tube.py",
+    "--case",
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-native6400-c36-98ee0f9/case.json",
+    "--work",
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-native6400-c36-98ee0f9",
+    "--first-step",
+    "6601",
+    "--output",
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-native6400-c36-98ee0f9/eonsim-audit.json"
+  ],
+  "prepared": false,
+  "adopted": false,
+  "numerical_runs": 0,
+  "scope": "Real frozen input comparison and command checks only; no new directories/status, no numerical or completed restart proof."
+}

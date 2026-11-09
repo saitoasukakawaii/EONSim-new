@@ -1,0 +1,63 @@
+{
+  "base": "e771355a25e66696f9320fc964eb768f86463e98",
+  "controller_sha256": "ea9b710cfec410bf1c42d0dd631d320aaab70d19748498b6cf59f51e41ea07c8",
+  "original_parent": {
+    "pid": 7713,
+    "start_ticks": 2801171,
+    "state": "S",
+    "ppid": 7709,
+    "argv": [
+      "/usr/bin/python3",
+      "build/prod48-20261107/run-pressure-length24.py"
+    ]
+  },
+  "original_controller_sha256": "98dd5cc52535204328921becf3dbad39cf35bb39d9246f2a280537c951a8418f",
+  "original_provenance_sha256": "d778cef6b0c80aa1670bfd1b57ce04341f71324d5dad5abb8874615a0f8613d7",
+  "original_input_hashes": {
+    "case.json": "b3bea9d75f9699e17d5814e07de847eaadf9925dd2fb441b1f599876be51698c",
+    "fluid.msh": "fef303163ad38abcd0debd768ec5c474b72d415fb5a5b0deaa56b05cdda1ffe7",
+    "solid.msh": "85063021a030645a05a783a9cf02042a1838b244369b58d71ce2c66d88890a18",
+    "geometry.json": "f3798991155899baf1ada64e138610d69678bdae7e1df13007b73d84c1e47106",
+    "eonsim": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+  },
+  "source_hashes": {
+    "tests/test_pressure_tube_audit.py": "05bfa4436620ce79af6e63d731bd7b8285094bd2bc68d4fbbecb1d0b70f3dcd5",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+    "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+    "scripts/audit_pressure_tube.py": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+    "scripts/audit_svfsi_convergence.py": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/svfsi_restart_evidence.py": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "build/prod48-20261107/s24-budget-kernel.py": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+    "build/prod48-20261107/analyze-elastic-s24-native1100-budgets.py": "b9d61aca452437d7db6c97d4e2b19681ec286156a8ec7f19a42bb11ab14f0428",
+    "build/prod48-20261107/analyze-elastic-s24-midnight2-budgets.py": "700e8a99a7354f1db983c4a9d2817406be240ab62dfccd97e6c819e34ade71f8",
+    "build/prod48-20261107/compare-pressure-fields.py": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+    "build/prod48-20261107/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "cases/fsi/generate_pressure_tube.py": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198"
+  },
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "guard_sha256": "5fe97dffd47ecca76da8ff183cd2ddb309d1e06d32210d71ab2d90977434e036",
+  "accepted_function_sha256": "73b9f7835020192416030edd3c4df70816c0a862f1414fd18a324597bad77f34",
+  "length_kernel_sha256": "7e6670eb22cc350dcfb8a044da938ce2655576d7003da800a4714105f8b6ea39",
+  "validation_sha256": "1f9f46a5ae60991ac9450d3bb7bf2093d3e8149593666e26aab37ad3ea8c86d5",
+  "fixture_sha256": "ac900f552c32e09d89c57c2deccba8b69f170a5fe4b56e7849828b03f09fd460",
+  "original_target": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32",
+  "new_target": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-bounded-postprocess-e771355",
+  "short_target": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313",
+  "short_controller": 40040,
+  "short_definition_sha256": "068e3e0bd001785719e5411bc206ee813ba505025eeb631adf040c6bf98a9039",
+  "sample_first": 5801,
+  "sample_last": 6400,
+  "cpus": [
+    14
+  ],
+  "nice": 19,
+  "shared_cpu": true,
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "scope": "Postprocessing only. Pause exact parent after original sample child starts; child naturally completes6400 with no signals. Retire paused parent via default TERM+CONT before obsolete dense audit/retired L12 route. Preserve full original data/status receipt, create bounded same-formula audit, wait for actual native1600 L12 completion, run byte-extracted original length kernel. No new numerical solve/restart, no physics/gate change or qualification inferred."
+}

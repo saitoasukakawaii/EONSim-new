@@ -1,0 +1,43 @@
+{
+  "completed": true,
+  "report_sha256": "31d1527a53fe9ddc5fd40a92f0cbe0cb2b6a193fd2082c8ebe90df5bd803f361",
+  "fixture_modes": [
+    "active",
+    "natural",
+    "idle",
+    "stubborn",
+    "precommit-error"
+  ],
+  "passed": true,
+  "source_sha256": "c255799870e3b31a077e99d569c6f66dc16314d4aae457977199fbd0ea07efd0",
+  "resource": {
+    "command": [
+      "/usr/bin/systemd-run",
+      "--user",
+      "--scope",
+      "--quiet",
+      "--unit=eonsim-alpha1-retirement-fixture-40637.scope",
+      "--property=MemoryMax=2G",
+      "--property=MemorySwapMax=0",
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/validate-alpha1-retirement.py",
+      "worker"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "unit": "eonsim-alpha1-retirement-fixture-40637.scope",
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "timeout_seconds": 120,
+    "peak_observed_bytes": 85270528,
+    "minimum_available_bytes": 12891291648,
+    "scope_seen": true,
+    "cleanup": [],
+    "launcher_pid": 40638,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "returncode": 0,
+    "wall_seconds": 8.655825855996227,
+    "remaining_scope_members": []
+  },
+  "production_signals_sent": false,
+  "scope": "All five actual synthetic-process fixtures and frozen source; not a production handoff or a numerical acceptance result."
+}

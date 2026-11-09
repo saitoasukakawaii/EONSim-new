@@ -1,0 +1,19 @@
+{
+  "boundary": 1600,
+  "options": [
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2"
+  ],
+  "review_sha256": "6694781a8b051fb6b92785d2d1291d2cd9a5b2cdab45d31a12a4d078d57e0229",
+  "definition_sha256": "068e3e0bd001785719e5411bc206ee813ba505025eeb631adf040c6bf98a9039",
+  "original_log_sha256": "a78156e6ab64d9c31117d2d2a0495146d46d1e594d6ac2225533e80e35866844",
+  "seed_hashes": {
+    "manifest": "b5527e3710d049d1ddb136e938519d444b44aad5e7f07dfee0f67ce7768330f7",
+    "state_rank0.h5": "b6e11963966a9e4c9ab7cfa455a69924f32d2b2e6974ba78668fc3f159e2c1d5"
+  },
+  "new_budget_pid": 40042,
+  "original_failure_and_tail_preserved": true,
+  "full_physical_qualification": false
+}

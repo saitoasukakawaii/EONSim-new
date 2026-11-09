@@ -1,0 +1,51 @@
+{
+  "base": "243c9d0784b18d55d8b267fa0554767f20ca7554",
+  "mesh_ic": {
+    "numerical_pass": true,
+    "cost_ratio": 1.420609379262789,
+    "eligible": false,
+    "adopted": false,
+    "baseline_seconds": 105.18599300501228,
+    "candidate_seconds": 149.42820822999056,
+    "replay_seconds": 71.76804937100678,
+    "comparisons": {
+      "baseline-vs-original": {
+        "passed": true,
+        "states": 20,
+        "maximum_absolute_nodal": 1.8388068845354155e-16,
+        "maximum_normalized_mass_rms": 4.5457444569655824e-14,
+        "maximum_native_history_difference": null,
+        "maximum_saved_equation_norm_difference": null,
+        "exact_native_time": null,
+        "bitwise_replay_except_elapsed": null
+      },
+      "backend": {
+        "passed": true,
+        "states": 20,
+        "maximum_absolute_nodal": 1.734723475976807e-16,
+        "maximum_normalized_mass_rms": 4.481931490351215e-14,
+        "maximum_native_history_difference": 2.9656832545299494e-14,
+        "maximum_saved_equation_norm_difference": 0.0,
+        "exact_native_time": true,
+        "bitwise_replay_except_elapsed": null
+      },
+      "candidate-replay": {
+        "passed": true,
+        "states": 10,
+        "maximum_absolute_nodal": 0.0,
+        "maximum_normalized_mass_rms": 0.0,
+        "maximum_native_history_difference": 0.0,
+        "maximum_saved_equation_norm_difference": 0.0,
+        "exact_native_time": true,
+        "bitwise_replay_except_elapsed": true
+      }
+    },
+    "scope": "Same candidate binary and FSI ILUT in both20-state arms, only mesh preconditioning changes FSILS\u2192Trilinos-IC; CG/assembly0/physics/tolerances unchanged. Numerics pass but measured cost is42.06% higher, so reject."
+  },
+  "cancelled_placement": {
+    "utc": "2026-11-08T10:56:06Z",
+    "pid": 34174,
+    "reason": "Cancel isolated screen: CPU12 shares alpha1 pair12/13 while active S12 recovery occupies13; this serializes a two-rank screen. Preserve all partial evidence and retry independent CPUs10/16 with otherwise identical controls. No production process signaled."
+  },
+  "scope": "Both experiments are ended. Preserve slower but numerically valid mesh-IC proof and partial failed placement probe; no independent adoption review or production handoff. Active two-rank retry, fine serial screen and all production outputs are excluded."
+}

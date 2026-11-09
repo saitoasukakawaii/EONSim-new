@@ -1,0 +1,24 @@
+{
+  "tests": [
+    "poisson_verification"
+  ],
+  "python": [
+    "tests/test_ci_selection.py",
+    "tests/test_cloud_evidence.py",
+    "tests/test_pressure_tube_audit.py",
+    "tests/test_svfsi_convergence.py",
+    "tests/test_svfsi_restart_evidence.py"
+  ],
+  "reasons": {
+    "scripts/audit_pressure_tube.py": [],
+    "scripts/audit_svfsi_convergence.py": [],
+    "scripts/cloud/selection.json": [
+      "poisson_verification"
+    ],
+    "scripts/svfsi_restart_evidence.py": [],
+    "tests/test_pressure_tube_audit.py": [],
+    "tests/test_svfsi_convergence.py": [],
+    "tests/test_svfsi_restart_evidence.py": []
+  },
+  "ignored": []
+}

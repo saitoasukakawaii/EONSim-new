@@ -1,0 +1,86 @@
+{
+  "base": "27f5c82cc925e370c1c78227683f12cb7c261584",
+  "completed_step": 1200,
+  "analysis": {
+    "definition": {
+      "schema": 1,
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "level": 1,
+      "alpha": 2.0,
+      "period": 1.5707963267948966,
+      "radius": 1.0,
+      "length": 2.0,
+      "density": 1.0,
+      "viscosity": 1.0,
+      "pressure_amplitude": 0.02,
+      "steps_per_cycle": 200,
+      "phases": 200,
+      "warmup": 2,
+      "ranks": 1,
+      "schur": false,
+      "tau": null,
+      "executable_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "solver_options": [
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-fluid_lu_pc_reuse_window",
+        "32",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "last_cycle": 6,
+    "quadrature_order": 4,
+    "versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.17.1",
+      "h5py": "3.14.0"
+    },
+    "nodes": 50609,
+    "tetrahedra": 276480,
+    "metrics": {
+      "velocity_relative_l2_error": 0.004758257629456637,
+      "pressure_rms_over_amplitude": 0.0036007448041768956,
+      "flow_amplitude_relative_error": 0.002343262151469183,
+      "flow_phase_error_degrees": 0.06044516002207565,
+      "flow_mean": 2.2792858739295595e-10,
+      "maximum_net_flux": 1.0871985515364165e-17,
+      "velocity_reference_rms": 0.0008411016265714422,
+      "pressure_reference_rms": 0.008164965809277261,
+      "flow_amplitude": [
+        0.0027170277259390423,
+        -0.001778049539712247
+      ],
+      "reference_flow_amplitude": [
+        0.002708802995093303,
+        -0.0017767515298731434
+      ]
+    },
+    "last_periodic_difference": {
+      "velocity": 4.945678876100564e-15,
+      "pressure": 5.524256011769513e-15
+    },
+    "preceding_periodic_difference": {
+      "velocity": 1.034582064261712e-12,
+      "pressure": 7.558722454250817e-15
+    },
+    "preliminary_gates": {
+      "velocity": true,
+      "pressure": true,
+      "flow_amplitude": true,
+      "flow_phase": true,
+      "global_mass": true,
+      "periodic": true
+    },
+    "scope": "Analytic and periodic diagnostics; spatial/time/tail/sampling budgets still required"
+  },
+  "binary_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+  "source_file_count": 1672,
+  "source_bytes": 2827259646,
+  "full_qualification": false,
+  "scope": "Complete native serial S96 level1 alpha2 N200 six-cycle trajectory and all retained current/history fields. Six preliminary gates pass. Fine N400 and time/tail/sampling/space budgets remain active and are excluded from this immutable archive."
+}

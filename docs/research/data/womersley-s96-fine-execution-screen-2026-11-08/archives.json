@@ -1,0 +1,134 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 42685468,
+      "sha256": "fdf17e1fd3593999244a4d9dfe362a5af6a76444d03b7e0186aae858ec62eb78",
+      "verified_files": 20
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 35571808,
+      "sha256": "b78d60dc5b21ab2a9cef80160be86d9caee5770ec6c7157a0c57a02ca73c304d",
+      "verified_files": 45
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 23474940,
+      "sha256": "0dab9f66db5878a08f6ce4142083fe9692e751f2a4bac02e9418c5486184f03d",
+      "verified_files": 80
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 22673880,
+      "sha256": "bb4414e1ef054c811d2730a0a1ee4e7adb178230e941221e846400ea1c446b78",
+      "verified_files": 80
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 26357644,
+      "sha256": "858497f5285ffffa905a57135eed6950a14a172539fdb2a83325037f8e69f485",
+      "verified_files": 67
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 43860664,
+      "sha256": "bafb6b7a42b080ecc70384fc10aa06a356878708e9cfd0701733eb59a5439833",
+      "verified_files": 20
+    },
+    {
+      "file": "part007.tar.xz",
+      "bytes": 23524684,
+      "sha256": "5c19c917d31af3f4864518f9899a75e416801d7dcfce6bc859adf5acbccebfee",
+      "verified_files": 59
+    },
+    {
+      "file": "part008.tar.xz",
+      "bytes": 10049556,
+      "sha256": "5a5f6ec57c82f2bcc6f2d4e8dc36baa75d0ec86cb70e210758562eb3e4ed5295",
+      "verified_files": 86
+    },
+    {
+      "file": "part009.tar.xz",
+      "bytes": 8212732,
+      "sha256": "ad6eb4e9cec209f033380e1404b973504a1065d8201e9c7911d0589807601bee",
+      "verified_files": 93
+    },
+    {
+      "file": "part010.tar.xz",
+      "bytes": 8253024,
+      "sha256": "44ea32f2e7e142f584e3ca002c69646e6fc532b2edddde609c8d0b69b0027c97",
+      "verified_files": 45
+    }
+  ],
+  "verified_files": 595,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/rounder-fine-native-serial-screen-a6643c8/eonsim": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "host-d/rounder-fine-refresh32-screen-retry2-a6643c8/eonsim": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "host-d/rounder-fine-serial-screen-a6643c8/eonsim": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/rounder-native-serial-a2-family-a6643c8/eonsim": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/execution-screen-capture-a6643c8/s96/summary.json",
+      "sha256": "93eea0d3ccc1242efcd8933a90ccf12ddc4604144582d242a5c7f7223ac6d4fb"
+    },
+    "four-rank-report.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/execution-screen-capture-a6643c8/s96/four-rank-report.json",
+      "sha256": "6491c92d35ce076e5f1ae66098f79c6134448ae394a43d8bd0d8c89361cec2a3"
+    },
+    "waiter-retirement.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/execution-screen-capture-a6643c8/s96/waiter-retirement.json",
+      "sha256": "6862b7a2f194ec65a6fa8d828d06cde9c9c9f2fd2802ce1562ff1e0048ecccdf"
+    },
+    "partitioned-serial-report.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/execution-screen-capture-a6643c8/s96/partitioned-serial-report.json",
+      "sha256": "ee2e274aacc3155167102106f71e508db4b636adadb7ada733ae0ae34d02d482"
+    },
+    "native-serial-report.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/execution-screen-capture-a6643c8/s96/native-serial-report.json",
+      "sha256": "d312e87a41dd38d379b72e5b5fe8ef29467d04e8488097ef278fe705ad2557a9"
+    },
+    "native-serial-review.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/execution-screen-capture-a6643c8/s96/native-serial-review.json",
+      "sha256": "265558626ab6b6074f6dd3d1c2b14b922124afa99fd0ad40c3321aa3a40db620"
+    },
+    "family-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/execution-screen-capture-a6643c8/s96/family-definition.json",
+      "sha256": "cf27a4a3dc44a703a2c3ab9c21c17da7e7c2abc2fe6b481631e169d34e999ff6"
+    },
+    "family-adoption.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/execution-screen-capture-a6643c8/s96/family-adoption.json",
+      "sha256": "fe47684bae548f5637e73834bd50a4dddbc212783d6f854385e161a8ebbc615b"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/womersley-s96-fine-execution-screen-2026-11-08",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "a6643c8b77c876e1ba739a0b488b83f7ea5a8e0a",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

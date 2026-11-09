@@ -1,0 +1,196 @@
+{
+  "utc": "2026-11-09T00:18:16Z",
+  "base": "4f5f26d7e70585383a9a9f5ea5f9163875df5a7e",
+  "completed_original_steps": 6400,
+  "full_sampled_states": 600,
+  "periodic": false,
+  "solid_velocity_cycle31_max": 1.092453015494461e-05,
+  "solid_velocity_cycle32_max": 1.0567924362696135e-05,
+  "periodic_limit": 1e-05,
+  "quality_gates": {
+    "kinematics": {
+      "maximum": 0.0,
+      "limit": 1e-12,
+      "passed": true
+    },
+    "stage_mass": {
+      "maximum": 1.235990476633475e-17,
+      "limit": 1e-09,
+      "passed": true
+    },
+    "stage_divergence_theorem": {
+      "maximum": 1.2051700578819943e-17,
+      "limit": 1e-12,
+      "passed": true
+    }
+  },
+  "minimum_solid_jacobian": 0.9999807025124909,
+  "minimum_fluid_jacobian": 1.0000024854480003,
+  "mean_radial": 0.00010703147793799552,
+  "plane_strain_mean": 0.00010872727272727274,
+  "lame_relative_error": 0.015596774817767025,
+  "lame_limit": 0.02,
+  "lame_passed": true,
+  "proof_plan_ready": true,
+  "proof_completed": false,
+  "extended_production_adopted": false,
+  "full_qualification": false,
+  "files": {
+    "controller.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/controller.py",
+      "sha256": "1e150dd1bf8df239d6f5de9d7de53bc62ed07abbd2481d2fb49cbd80aee5c062",
+      "bytes": 18254
+    },
+    "definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/definition.json",
+      "sha256": "6320690f7d943b8ff0f3677a41b34c7faadbead5b1fe4f8f0f8c234250f082ed",
+      "bytes": 5969
+    },
+    "plan-review.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/plan-review.json",
+      "sha256": "3fb305233dd7c8aad689a71a4cb82404ffef883b4b3c85825c35c89b95b11aac",
+      "bytes": 2060
+    },
+    "immutable-inputs.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/immutable-inputs.json",
+      "sha256": "1922c140e90e847af9de4359c8d2b1441c27ac54c9a8facc289e2bdf7722efb3",
+      "bytes": 75471
+    },
+    "oracle-fields.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/oracle-fields.json",
+      "sha256": "1ed6b7d8ff5ddbb696b40966407b5ec1381e1f3e74ae41ef3baeb99038c31b2c",
+      "bytes": 49619
+    },
+    "original-audit.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/original-audit.json",
+      "sha256": "60daa871c263faf79d5e75975c76708d4ebbeb71582b52679eaf25bf9c246f2d",
+      "bytes": 627666
+    },
+    "original-audit-completion.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/original-audit-completion.json",
+      "sha256": "768be15c4f008dea7265dcd36da57c38f67702bd708c1dda538edd407cb51431",
+      "bytes": 2038
+    },
+    "scales.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/scales.json",
+      "sha256": "75491943e5592108fa34d672bf0a1e7f3fd3a5f6e4e91c8d431ffd8b0be4e0ce",
+      "bytes": 209
+    },
+    "execution-guard.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/execution-guard.py",
+      "sha256": "5fe97dffd47ecca76da8ff183cd2ddb309d1e06d32210d71ab2d90977434e036",
+      "bytes": 492
+    },
+    "bounded_cgroup_job_2g.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/bounded_cgroup_job_2g.py",
+      "sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+      "bytes": 4676
+    },
+    "proof-case.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/replay200/case.json",
+      "sha256": "63afdf682e3a3b0fa57a0ba3a7b25e06d1c51a45675d0713636a5cb644a4c805",
+      "bytes": 1490
+    },
+    "original-case.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/case.json",
+      "sha256": "b3bea9d75f9699e17d5814e07de847eaadf9925dd2fb441b1f599876be51698c",
+      "bytes": 1486
+    },
+    "review-length24-native-proof-plan.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/review-length24-native-proof-plan.py",
+      "sha256": "5f1f40bafe71a5924cad011013f1c06a17df46d2a29aa26ada83ce93988be38b",
+      "bytes": 5041
+    },
+    "capture-length24-audit-proof-plan.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-length24-audit-proof-plan.py",
+      "sha256": "38814415fa83ce7e7aad6987ed7212d4787472b748c29b470e1d25cfab9bedaf",
+      "bytes": 3582
+    },
+    "source/tests/test_pressure_tube_audit.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/tests/test_pressure_tube_audit.py",
+      "sha256": "05bfa4436620ce79af6e63d731bd7b8285094bd2bc68d4fbbecb1d0b70f3dcd5",
+      "bytes": 11403
+    },
+    "source/scripts/compare_womersley.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/scripts/compare_womersley.py",
+      "sha256": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+      "bytes": 4620
+    },
+    "source/scripts/womersley_reference.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/scripts/womersley_reference.py",
+      "sha256": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+      "bytes": 1584
+    },
+    "source/scripts/fsi_field_cycles.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/scripts/fsi_field_cycles.py",
+      "sha256": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+      "bytes": 9002
+    },
+    "source/scripts/fsi_cycle_metrics.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/scripts/fsi_cycle_metrics.py",
+      "sha256": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+      "bytes": 3652
+    },
+    "source/scripts/audit_pressure_tube.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/scripts/audit_pressure_tube.py",
+      "sha256": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+      "bytes": 26612
+    },
+    "source/scripts/audit_svfsi_convergence.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/scripts/audit_svfsi_convergence.py",
+      "sha256": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+      "bytes": 6816
+    },
+    "source/scripts/study_rigid_tube.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/scripts/study_rigid_tube.py",
+      "sha256": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+      "bytes": 15842
+    },
+    "source/scripts/svfsi_restart_evidence.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/scripts/svfsi_restart_evidence.py",
+      "sha256": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+      "bytes": 24696
+    },
+    "source/scripts/analyze_womersley.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/scripts/analyze_womersley.py",
+      "sha256": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+      "bytes": 13406
+    },
+    "source/build/prod48-20261107/s24-budget-kernel.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/build/prod48-20261107/s24-budget-kernel.py",
+      "sha256": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+      "bytes": 3505
+    },
+    "source/build/prod48-20261107/analyze-elastic-s24-native1100-budgets.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/build/prod48-20261107/analyze-elastic-s24-native1100-budgets.py",
+      "sha256": "b9d61aca452437d7db6c97d4e2b19681ec286156a8ec7f19a42bb11ab14f0428",
+      "bytes": 10898
+    },
+    "source/build/prod48-20261107/analyze-elastic-s24-midnight2-budgets.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/build/prod48-20261107/analyze-elastic-s24-midnight2-budgets.py",
+      "sha256": "700e8a99a7354f1db983c4a9d2817406be240ab62dfccd97e6c819e34ade71f8",
+      "bytes": 10580
+    },
+    "source/build/prod48-20261107/compare-pressure-fields.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/build/prod48-20261107/compare-pressure-fields.py",
+      "sha256": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+      "bytes": 11420
+    },
+    "source/build/prod48-20261107/compare-pressure-audits.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/build/prod48-20261107/compare-pressure-audits.py",
+      "sha256": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+      "bytes": 8915
+    },
+    "source/cases/fsi/generate_tube.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/cases/fsi/generate_tube.py",
+      "sha256": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+      "bytes": 5025
+    },
+    "source/cases/fsi/generate_pressure_tube.py": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/source/cases/fsi/generate_pressure_tube.py",
+      "sha256": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198",
+      "bytes": 2802
+    }
+  },
+  "scope": "Complete original c32 audit and immutable reviewed proof plan only. Running replay logs, fields, checkpoints and resources are intentionally excluded and must be captured after actual completion. Original failed periodic gate remains unchanged. Raw original trajectories belong to the separate full L24 archive, not this small static package."
+}

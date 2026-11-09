@@ -1,0 +1,128 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 20083132,
+      "sha256": "e655f1faa102efd720838e4507771a8780d98d1086466ae77f0fb9e3263dd2fe",
+      "verified_files": 150
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 20245396,
+      "sha256": "7e755d732eceb7a302472400c478dc475f32d7ff58ac19b5d7db82f80ccec202",
+      "verified_files": 150
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 20185976,
+      "sha256": "95af64be4f27167318c17a741c398e68c78ba2929c677fe8f9ed47a77e7b2532",
+      "verified_files": 150
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 20081680,
+      "sha256": "2ec1c47015adc23b9301acf5e9fcaac9a34466761efdc12cd7980132fbd84a3a",
+      "verified_files": 150
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 20141424,
+      "sha256": "0a6414c53bb0337bb90ad46b7f4d249f3614c9e9853ea28aa3fc96a8885c96c3",
+      "verified_files": 150
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 20244060,
+      "sha256": "21cb7650ff7e9da1b3060b36bd158a41cc683c87d7f21e19c47afe3a2bb363e9",
+      "verified_files": 150
+    },
+    {
+      "file": "part007.tar.xz",
+      "bytes": 20174036,
+      "sha256": "266e9638a059c550bb6fb09318af66bc6e80118226095dab706d74a5243d696e",
+      "verified_files": 150
+    },
+    {
+      "file": "part008.tar.xz",
+      "bytes": 20084636,
+      "sha256": "9edf191604008c7f8a5d2d74cdcf1165c48580c8fa3a1b125e1eb0f79a992fe0",
+      "verified_files": 150
+    },
+    {
+      "file": "part009.tar.xz",
+      "bytes": 20128636,
+      "sha256": "4ba27512c375ae2af5becb4652e6ec62cc14410b286fb17a4c94b8ec3a577294",
+      "verified_files": 150
+    },
+    {
+      "file": "part010.tar.xz",
+      "bytes": 20250160,
+      "sha256": "1afb123ece565915c3dd370d301a1ae3be958398321d3a67c9d14f27ed9377dc",
+      "verified_files": 150
+    },
+    {
+      "file": "part011.tar.xz",
+      "bytes": 16200500,
+      "sha256": "c0fe0cf727e7ac6b0f433f0467353fa2ed7d1bcc1a8f73437206ab6f0873492c",
+      "verified_files": 130
+    },
+    {
+      "file": "part012.tar.xz",
+      "bytes": 1656292,
+      "sha256": "0fade39f7a6f3dd3e9d84c0988d585343089a29ce8b126c971ff07b75b0f457a",
+      "verified_files": 1649
+    }
+  ],
+  "verified_files": 3279,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/womersley-a1-s96-r8-a8-l0-n400-native32-fcc2956/eonsim": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/alpha1-s96-coarse-n400-fcc2956/eonsim": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "analysis.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-coarse-complete-capture-4f9bf6f/analysis.json",
+      "sha256": "b4e7590e8d32a0301b34b5a6c62dd5c80e4c4d5a27490c730147a1c150c6932b"
+    },
+    "tail-n400.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-coarse-complete-capture-4f9bf6f/tail-n400.json",
+      "sha256": "8ffca8eb49407f293e8e0a4570402509d624898eec958aebb7b0061f9344e09d"
+    },
+    "completion.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-coarse-complete-capture-4f9bf6f/completion.json",
+      "sha256": "ee7bf5276928769ac14f79a1f198ade98dad2638ab922d2ff2dc749bb23a1ea9"
+    },
+    "controller-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-coarse-complete-capture-4f9bf6f/controller-definition.json",
+      "sha256": "2597cb69e072b3040eed14bd7da1a81096caf7306d947f6a86988460ade99ead"
+    },
+    "study-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-coarse-complete-capture-4f9bf6f/study-definition.json",
+      "sha256": "e960ca55bb14a720624c528c41ff9eca231f838f9799f47511f6a3d41131eb36"
+    },
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-coarse-complete-capture-4f9bf6f/summary.json",
+      "sha256": "f7677334447f864c9be8a7168e8208ea02db5f99178a4ad90222580e120c72dc"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/womersley-alpha1-s96-coarse-n400-complete-2026-11-09",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "ab0d107f8f73ae2512669d72f3237d8db14b21c0",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

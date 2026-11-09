@@ -1,0 +1,88 @@
+{
+  "base": "abec003e4df8a8444285ced8974db20ba8173862",
+  "controller_sha256": "21d5bc37195690be3f98f3826fa8c9a3cd9d3189ae2d4aff0153dbb8c031c3f5",
+  "original_controller": {
+    "pid": 5055,
+    "start_ticks": 2090032,
+    "state": "S",
+    "ppid": 5049,
+    "argv": [
+      "/usr/bin/python3",
+      "build/prod48-20261107/run-pressure-geometry.py",
+      "--part",
+      "svfsi"
+    ],
+    "cgroup": "0::/init.scope\n",
+    "cpus": [
+      8
+    ]
+  },
+  "original_solver": {
+    "pid": 6701,
+    "start_ticks": 2254886,
+    "state": "R",
+    "ppid": 5055,
+    "argv": [
+      "/home/tfblab633/EONSim-prod48-20261107/reference/build/bin/svFSI",
+      "svFSI.inp"
+    ],
+    "cgroup": "0::/init.scope\n",
+    "cpus": [
+      8
+    ]
+  },
+  "old_budget_failure": {
+    "state": "failed",
+    "pid": 7593,
+    "cpu": 19,
+    "utc": "2026-11-08T15:18:40Z",
+    "error": "Producer failed: elastic-execution-s24-current.json"
+  },
+  "recovery_adoption_sha256": "7cad5ccf043d4d4aac2133bb1b93e964143b2ca90b018d0d4182257ee097621b",
+  "recovery_review_sha256": "8284c6899f6278dd63b2c66fa96471012c22c3f372544f8b3e1b9cbb8323944c",
+  "superseded_preparation_sha256": "2bf29d18b40a928595b7e4177b51f46abc9ae1310610ae55156efacb4503e8a2",
+  "original_manifest_sha256": "f2656acae8849755b7766dfde029e16396084cd53d95a4b3d0d9da181acd69b7",
+  "original_provenance_sha256": "b9349f114a4b372db03ad437a041c8623d51cc8bb6827ffe6de25bf3d075752c",
+  "source_hashes": {
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+    "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+    "scripts/audit_pressure_tube.py": "db4d0e7e21eb49132ddb43044516f844a870baf3c77bfc50a85270707de31b49",
+    "scripts/audit_svfsi_convergence.py": "ba676d551f6a3f2b31c4b891391690ec4c2132b848657c2e39a080000eb15bec",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/svfsi_restart_evidence.py": "feb097ede2ad2a7a1a6e063d6fab4f7fcbdfd4c21e14e2dc7968517191671527",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "build/prod48-20261107/s24-budget-kernel.py": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+    "build/prod48-20261107/analyze-elastic-s24-recovered-budgets.py": "d8b035ebcce87d6b804749770a856a236a080b3b62460bef277f7ec3d3ef33fc",
+    "build/prod48-20261107/compare-pressure-fields.py": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+    "build/prod48-20261107/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "scripts/__pycache__/svfsi_restart_evidence.cpython-312.pyc": "d59493f1ea99e70a0ffc17263426d8f48a4dc126b67e0d5c877a33baa6b43c67"
+  },
+  "input_hashes": {
+    "case.json": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+    "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e",
+    "fluid.msh": "05f4777e11cad498d57b87f080f9c8f2430fd6a04577963211e8c4541c70a4b2",
+    "solid.msh": "e7f6bed5613c0a62623a185847e563fc13e10f6fbc686f3e391ccd2a88a4ba9b"
+  },
+  "old_binary_sha256": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf",
+  "candidate_sha256": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3",
+  "proposed_input_sha256": "e2fc5a3d3c793e058556d6607685ccf98e9b9bdefd2636ed8b3d7d7a2f6f01b3",
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "guard_sha256": "6f2667a58cb1d89ad8195e8dbe3a5fa56a5dde5011e53a9dce9108a557cd5b29",
+  "numerical_budget_tail_sha256": "ead574f634cb6713581244325d3f71690796bb17b5b74b56e5422187c1dfa078",
+  "old_budget_sha256": "cc18f0dda50b25babff9850213e368abc5370a44bc295b63f1899e0af93cdd4e",
+  "boundary": 4000,
+  "target": 12800,
+  "output_first": 11600,
+  "ranks": 1,
+  "cpus": [
+    8
+  ],
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "minimum_admission_bytes": 10737418240,
+  "minimum_running_available_bytes": 8589934592,
+  "scope": "Prepared only. Exact native4000 boundary via pinned results/STOP_SIM, reviewed FSI-ILUT-only continuation and replacement consumer for the exited failed budget and reviewed EON sample recovery. Stop trigger may be written only after independent review. Old reference solver/controller terminate naturally; original full-study audit failure is preserved. Shared init.scope is never signaled. No tolerance, input clock, physical model, output grid or budget arithmetic change."
+}

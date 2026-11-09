@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "decision": "continue_n200_native1100",
+  "definition_sha256": "753baee6102195befe44087a7df89cb9efe4edd874410c7ad19723dfc9467e19",
+  "result_sha256": "23336bb7e5d451697e7d7938f74e18e717d8b06fff7fa895ab898baba9952ba0",
+  "controller_sha256": "70e6a0ba4445e3a8e5d5f5a08011fb0448a03442c02e2c6fed732867d363565f",
+  "resource": {
+    "command": [
+      "/usr/bin/systemd-run",
+      "--user",
+      "--scope",
+      "--quiet",
+      "--unit=eonsim-native1100-review-39364.scope",
+      "--property=MemoryMax=2G",
+      "--property=MemorySwapMax=0",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78/review-retry2/controller.py",
+      "--worker"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78/source",
+    "unit": "eonsim-native1100-review-39364.scope",
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "timeout_seconds": 7200,
+    "peak_observed_bytes": 182386688,
+    "minimum_available_bytes": 12369784832,
+    "scope_seen": true,
+    "cleanup": [],
+    "launcher_pid": 39365,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "returncode": 0,
+    "wall_seconds": 65.94007992399565,
+    "remaining_scope_members": []
+  },
+  "scope": "Execution eligibility only; long physical acceptance remains pending."
+}

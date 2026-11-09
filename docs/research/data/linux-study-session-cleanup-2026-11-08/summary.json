@@ -1,0 +1,65 @@
+{
+  "passed": true,
+  "unit_tests": 7,
+  "positive_command": [
+    "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+    "--bind-to",
+    "none",
+    "--oversubscribe",
+    "-n",
+    "2",
+    "/usr/bin/python3",
+    "-c",
+    "print(\"status=success\",flush=True)"
+  ],
+  "negative_command": [
+    "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+    "--bind-to",
+    "none",
+    "--oversubscribe",
+    "-n",
+    "4",
+    "/usr/bin/python3",
+    "/home/tfblab633/EONSim-prod48-20261107/study-session-cleanup-validation-30828c5/rank.py"
+  ],
+  "mpi_rows": [
+    [
+      21185,
+      21181,
+      21185
+    ],
+    [
+      21184,
+      21181,
+      21184
+    ],
+    [
+      21187,
+      21181,
+      21187
+    ],
+    [
+      21186,
+      21181,
+      21186
+    ]
+  ],
+  "cleanup": {
+    "session": 21181,
+    "before": {
+      "21181": "3690680",
+      "21184": "3690690",
+      "21185": "3690690",
+      "21186": "3690691",
+      "21187": "3690691"
+    },
+    "signals": [
+      {
+        "pid": 21181,
+        "signal": "SIGINT"
+      }
+    ],
+    "after": {}
+  },
+  "scope": "Real OpenMPI5 two-rank success and four-rank timeout. Original timeout propagated; complete session empty before return; no physics solve or broad regression repeated."
+}

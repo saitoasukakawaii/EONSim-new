@@ -1,0 +1,146 @@
+{
+  "snapshot_utc": "2026-11-07T22:17:12Z",
+  "states": {
+    "elastic-mpi-restart-current.json": {
+      "state": "running",
+      "pid": 7370,
+      "cpu": 9,
+      "utc": "2026-11-07T22:04:04Z",
+      "job": "r1-warmup",
+      "command": [
+        "/mnt/d/EONSim-prod48-20261107/elastic-mpi-s12-l0-n400-f0422d0-attempt2/eonsim",
+        "-case",
+        "case.json",
+        "-partition",
+        "/mnt/d/EONSim-prod48-20261107/elastic-mpi-s12-l0-n400-f0422d0-attempt2/r1/parts",
+        "-stop_after",
+        "11600",
+        "-solver_report",
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-snes_lag_jacobian",
+        "-2",
+        "-checkpoint",
+        "/mnt/d/EONSim-prod48-20261107/elastic-mpi-s12-l0-n400-f0422d0-attempt2/r1/checkpoint"
+      ]
+    },
+    "womersley-alpha2-middle-current.json": {
+      "state": "failed",
+      "pid": 7476,
+      "cpu": 21,
+      "utc": "2026-11-07T22:08:02Z",
+      "error": "Command '['/home/tfblab633/EONSim-prod48-20261107/womersley-alpha2-middle-f0422d0/mpiexec-cpu21', '-n', '4', '/home/tfblab633/EONSim-prod48-20261107/womersley-alpha2-middle-f0422d0/preflight-old/eonsim', '-case', 'case.json', '-partition', '/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l1-n100/parts', '-schur_pc', '-ksp_gmres_restart', '120', '-ksp_max_it', '2000', '-solver_report']' returned non-zero exit status 1."
+    },
+    "womersley-alpha2-middle-retry2-current.json": {
+      "state": "running",
+      "pid": 7509,
+      "cpu": 21,
+      "utc": "2026-11-07T22:13:09Z",
+      "job": "middle-n200",
+      "command": [
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/womersley-alpha2-middle-f0422d0-attempt2/source/scripts/study_womersley.py",
+        "--executable",
+        "/home/tfblab633/EONSim-prod48-20261107/schur-vector-validation-054b64a-attempt3/eonsim-release",
+        "--work",
+        "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l1-n200-vector",
+        "--seed",
+        "48",
+        "4",
+        "8",
+        "--level",
+        "1",
+        "--alpha",
+        "2",
+        "--steps-per-cycle",
+        "200",
+        "--phases",
+        "200",
+        "--warmup",
+        "2",
+        "--cycles",
+        "6",
+        "--ranks",
+        "4",
+        "--schur",
+        "--chord",
+        "--velocity-block3",
+        "--mpiexec",
+        "/home/tfblab633/EONSim-prod48-20261107/womersley-alpha2-middle-f0422d0-attempt2/mpiexec-cpu21",
+        "--timeout",
+        "86400"
+      ]
+    },
+    "womersley-vector-boundary-current.json": {
+      "state": "cancelled_before_probe",
+      "pid": 6906,
+      "scheduler_pid": 631,
+      "parent_pid": 507,
+      "scheduler_held": false,
+      "original_scheduler_terminated": false,
+      "utc": "2026-11-07T21:13:58Z",
+      "target_step": 400,
+      "launcher_pid": 632,
+      "rank_pids": [
+        635,
+        636,
+        637,
+        638
+      ],
+      "note": "Only the Python scheduler is held; all existing numerical ranks continue normally. Any pre-transfer failure resumes this same scheduler.",
+      "resumed_original": true,
+      "replaced_due_to": "Invalid zero checkpoint interval in frozen pending probe; same scheduler resumed by finally",
+      "replacement_status": "womersley-vector-boundary-retry2-current.json"
+    },
+    "womersley-vector-boundary-retry2-current.json": {
+      "state": "waiting_for_natural_warmup_exit",
+      "pid": 7542,
+      "scheduler_pid": 631,
+      "parent_pid": 507,
+      "scheduler_held": true,
+      "original_scheduler_terminated": false,
+      "utc": "2026-11-07T22:10:08Z",
+      "target_step": 400,
+      "launcher_pid": 632,
+      "rank_pids": [
+        635,
+        636,
+        637,
+        638
+      ],
+      "note": "Only the Python scheduler is held; all existing numerical ranks continue normally. Any pre-transfer failure resumes this same scheduler."
+    },
+    "alpha1-fine-vector-current.json": {
+      "state": "waiting_for_middle_natural_exit",
+      "pid": 7639,
+      "held_parent": 1180,
+      "parent_held": true,
+      "original_parent_terminated": false,
+      "utc": "2026-11-07T22:15:46Z",
+      "cpus": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "child_pid": 5422,
+      "middle": "/home/tfblab633/EONSim-prod48-20261107/womersley-a1-s48-l1-n200",
+      "target_step": 1000
+    },
+    "elastic-s24-budgets-current.json": {
+      "state": "waiting_for_producers",
+      "pid": 7593,
+      "cpu": 19,
+      "utc": "2026-11-07T22:12:35Z",
+      "pending": [
+        "eonsim",
+        "svfsi"
+      ]
+    }
+  },
+  "scope": "Completed MPI five-step preflight and alpha2 middle three-step field comparison, preserved startup failures, and dated active-controller snapshots. Long trajectories and waiting probes are not complete."
+}

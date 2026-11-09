@@ -1,0 +1,64 @@
+{
+  "base": "ab0d107f8f73ae2512669d72f3237d8db14b21c0",
+  "utc": "2026-11-08T23:09:22Z",
+  "l24_numerics_complete": 6400,
+  "l24_old_parent_retired": true,
+  "l24_status_at_capture": {
+    "state": "analyzing",
+    "pid": 42097,
+    "utc": "2026-11-08T23:08:12Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355",
+    "job": "bounded-l24-audit",
+    "adopted": true
+  },
+  "n800_capture_status": {
+    "state": "waiting_for_complete_n800_and_prior_capture",
+    "pid": 43808,
+    "utc": "2026-11-08T23:04:22Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/s96-n800-complete-capture-ab0d107",
+    "archive": "womersley-s96-n800-n400-target-budget-2026-11-09",
+    "holds_locks": false
+  },
+  "copied_sources": {
+    "l24-retirement.json": {
+      "original_path": "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/retirement.json",
+      "sha256": "4282bcdaa625b68cd9083418d1250d91be882ae9ef13a665c7303542f5565819"
+    },
+    "l24-pre-retirement.json": {
+      "original_path": "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/pre-retirement.json",
+      "sha256": "4c0b4477039cbc157bd1951f76229b1a35bccc1998cdabaee91f852f25a6c20c"
+    },
+    "l24-pause.json": {
+      "original_path": "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/pause.json",
+      "sha256": "05e530df6a36499644104d08c9d8010b8937893f934c4abe172766f518e2a226"
+    },
+    "l24-definition.json": {
+      "original_path": "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/definition.json",
+      "sha256": "aa767dcbd75b5f059d44cad3ac1f7fee6d08faddb39997f5cf6f352005358d40"
+    },
+    "l24-review.json": {
+      "original_path": "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/review.json",
+      "sha256": "08d2f895e8549cfc44c02ea92a6eaff89b67c0257f5d06d47bc822d54ba39191"
+    },
+    "n800-capture-definition.json": {
+      "original_path": "/home/tfblab633/EONSim-prod48-20261107/s96-n800-complete-capture-ab0d107/definition.json",
+      "sha256": "548846d9f84e037a0fd8934ed82a9482fdf6321ba4b578d97fafb67847022c90"
+    },
+    "n800-capture-controller.py": {
+      "original_path": "/home/tfblab633/EONSim-prod48-20261107/s96-n800-complete-capture-ab0d107/controller.py",
+      "sha256": "3ee437baeb40d56fdc232729c34d473d01c4dca1acedc3d4456e086073f53d00"
+    }
+  },
+  "prior_complete_archives": {
+    "length24-postprocessing-preparation-2026-11-09": {
+      "archives_sha256": "156c5676b6126d5af50cfab4eb13d4cc23df04fa76b5667a2387c3a82c832e36",
+      "manifest_sha256": "71ad0e4d71e7fb8e4b903654c2316a69967aacfcb5498cc2c0350ce5c090e881"
+    },
+    "reference-live-prefix-20261108t224736z": {
+      "archives_sha256": "f93a9cff58b432fa0a378f3bbb5cc9d59b2ad29645444c92af44f2534c00fe32",
+      "manifest_sha256": "740be290600814d90f52f6293043377f2d706aa97c0e293f3f19340613daec88"
+    }
+  },
+  "full_qualification": false,
+  "scope": "Actual L24 numerical descendants finished naturally and only waiting parent retired; preserve original accepted-step checks. This small record does not include the still-preparing complete L24 audit/raw archive. N800 waiter is static preparation only. No new solve, signal, running-source edit or physical gate change. Readonly v4 status reader uses actual retirement instead of stale phase text; prior v1-v3 dependencies are SHA-linked."
+}

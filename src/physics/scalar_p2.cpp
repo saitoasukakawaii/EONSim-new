@@ -158,7 +158,7 @@ void solve_scalar_p2(MPI_Comm comm,const MeshPartition& mesh,const ScalarP2Space
             if(bdf)sizes.insert({{"previous",accepted.size()},{"time_metadata",1}});
             if(alpha)sizes.insert({{"rate",accepted.size()},{"time_metadata",1}});
             saved=read_checkpoint(config.restart,mesh,signature,sizes);
-            accepted=saved.fields.at("scalar");clock.restore(saved.step,saved.time,saved.next_dt);
+            accepted=saved.fields.at("scalar");clock.restore(saved.step,saved.time,saved.next_dt,saved.time_correction);
             if(bdf){history.previous=saved.fields.at("previous");history.previous_dt=saved.fields.at("time_metadata")[0];
                 if(history.previous_dt<0||history.previous_dt>saved.time||(history.previous_dt==0&&!clock.at_event()))throw std::runtime_error("Invalid P2 BDF2 history");}
             if(alpha){rate=saved.fields.at("rate");const double r=saved.fields.at("time_metadata")[0];
@@ -289,7 +289,7 @@ void solve_scalar_p2(MPI_Comm comm,const MeshPartition& mesh,const ScalarP2Space
             if(clock.at_event()){history.previous_dt=0;ready=false;}
         }else {accepted=std::move(next);steady_done=true;}
         if(!config.checkpoint.empty()) {
-            Checkpoint saved{clock.step,{{"scalar",accepted}},clock.time,clock.next_dt};
+            Checkpoint saved{clock.step,{{"scalar",accepted}},clock.time,clock.next_dt,clock.correction()};
             if(bdf){saved.fields["previous"]=history.previous;saved.fields["time_metadata"]={history.previous_dt};}
             if(alpha){saved.fields["rate"]=rate;saved.fields["time_metadata"]={ready?1.:0.};}
             write_checkpoint(comm,config.checkpoint,mesh,signature,saved);

@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "utc": "2026-11-08T14:07:48Z",
+  "tests": {
+    "reference": 23,
+    "pressure": 8
+  },
+  "commands": {
+    "reference": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_svfsi*.py",
+      "-v"
+    ],
+    "pressure": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_pressure_tube_audit.py",
+      "-v"
+    ]
+  },
+  "actual_proof_bindings": {
+    "two-rank": {
+      "kind": "svfsi-fsi-ilut-reviewed-v1",
+      "screen": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-two-rank-retry1-1374b6",
+      "review": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-two-rank-review-243c9d0",
+      "screen_report_sha256": "5d546a0524397bb43f45e1463e962d38bc8211c18a6d4dfe09134b9949ddfacf",
+      "review_sha256": "e490eb69db9b4be09c763cb4d0c391784842329549a2df003da47233e101cba9",
+      "binary_hashes": {
+        "old": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf",
+        "ilut": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3"
+      },
+      "ranks": 2,
+      "proof_first_step": 2601,
+      "proof_last_step": 2700,
+      "cost_ratio": 0.7652420742252468,
+      "scope": "Reviewed bounded execution transition only; all long-run convergence and physical gates remain required"
+    },
+    "fine-serial": {
+      "kind": "svfsi-fsi-ilut-reviewed-v1",
+      "screen": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-fine-serial-screen-243c9d0",
+      "review": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-fine-serial-review-243c9d0",
+      "screen_report_sha256": "88387a0df4a244b0e648cc9565d4a4bc0f9c6b5846e60f97c053ca39c5b046ef",
+      "review_sha256": "106c35eb6ef300933a4e63bda1d682cdfa5c81279a2e18b4f13006bbefcf9efa",
+      "binary_hashes": {
+        "old": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf",
+        "ilut": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3"
+      },
+      "ranks": 1,
+      "proof_first_step": 2801,
+      "proof_last_step": 2900,
+      "cost_ratio": 0.7296798992709752,
+      "scope": "Reviewed bounded execution transition only; all long-run convergence and physical gates remain required"
+    }
+  },
+  "legacy6400chain_passed": true,
+  "legacy6400chain_sha256": "4628c20f5bf6042df2da49618f780ee01f1fc353dcb2b8bf7fc2f906841e7523",
+  "adopted": false,
+  "scope": "Narrow schema/negative tests, both real reviewed late-ramp proof inventories and proposed physical input binding, plus unchanged original S12 v1 full chain. This does not execute or qualify a new long backend trajectory."
+}

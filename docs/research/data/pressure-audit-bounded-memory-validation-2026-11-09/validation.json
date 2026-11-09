@@ -1,0 +1,77 @@
+{
+  "passed": true,
+  "tests": {
+    "passed": true,
+    "affected_tests": 9,
+    "old_retention_regression_reproduced": true
+  },
+  "coarse": {
+    "passed": true,
+    "all_other_report_values_exact": true,
+    "original_sha256": "369330526821678c659f15aa9322873b8637d0394554de4e2f9fa4ae13e685f3",
+    "recomputed_sha256": "9b9148eae784f0a347baa42b409cf858e94a0d30773628415dade821ca39ae75",
+    "original_analyzer": "9083406301d953607c8c71f95f2425094b4f3e21aeb273ed2a539ec1d622ef0a",
+    "new_analyzer": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+    "sampled_steps": 1200
+  },
+  "resources": {
+    "tests": {
+      "command": [
+        "/usr/bin/systemd-run",
+        "--user",
+        "--scope",
+        "--quiet",
+        "--unit=eonsim-bounded-audit-tests-39845.scope",
+        "--property=MemoryMax=2G",
+        "--property=MemorySwapMax=0",
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/pressure-audit-bounded-validation-6bce127/controller.py",
+        "--worker",
+        "tests"
+      ],
+      "cwd": "/home/tfblab633/EONSim-prod48-20261107/pressure-audit-bounded-validation-6bce127/source",
+      "unit": "eonsim-bounded-audit-tests-39845.scope",
+      "memory_max_bytes": 2147483648,
+      "memory_swap_max_bytes": 0,
+      "timeout_seconds": 7200,
+      "peak_observed_bytes": 29065216,
+      "minimum_available_bytes": 13148942336,
+      "scope_seen": true,
+      "cleanup": [],
+      "launcher_pid": 39847,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "returncode": 0,
+      "wall_seconds": 3.4523025379894534,
+      "remaining_scope_members": []
+    },
+    "coarse": {
+      "command": [
+        "/usr/bin/systemd-run",
+        "--user",
+        "--scope",
+        "--quiet",
+        "--unit=eonsim-bounded-audit-coarse-39845.scope",
+        "--property=MemoryMax=2G",
+        "--property=MemorySwapMax=0",
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/pressure-audit-bounded-validation-6bce127/controller.py",
+        "--worker",
+        "coarse"
+      ],
+      "cwd": "/home/tfblab633/EONSim-prod48-20261107/pressure-audit-bounded-validation-6bce127/source",
+      "unit": "eonsim-bounded-audit-coarse-39845.scope",
+      "memory_max_bytes": 2147483648,
+      "memory_swap_max_bytes": 0,
+      "timeout_seconds": 7200,
+      "peak_observed_bytes": 36995072,
+      "minimum_available_bytes": 11606196224,
+      "scope_seen": true,
+      "cleanup": [],
+      "launcher_pid": 39850,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "returncode": 0,
+      "wall_seconds": 566.5359788500064,
+      "remaining_scope_members": []
+    }
+  }
+}

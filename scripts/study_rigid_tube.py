@@ -7,9 +7,12 @@ import argparse
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
+import time
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -76,7 +79,9 @@ def refine(nodes, cells, faces):
     return nodes, refined, boundary
 
 
-def write_mesh(path, nodes, cells, faces):
+def write_mesh(path, nodes, cells, faces, region=10):
+    if not isinstance(region,int) or isinstance(region,bool) or region<=0:
+        raise ValueError('Volume region must be a positive integer')
     with Path(path).open('w') as f:
         f.write(f'$MeshFormat\n2.2 0 8\n$EndMeshFormat\n$Nodes\n{len(nodes)}\n')
         for i, x in nodes.items():
@@ -85,7 +90,7 @@ def write_mesh(path, nodes, cells, faces):
         for i, (tag, t) in enumerate(faces, 1):
             f.write(f'{i} 2 2 {tag} {tag} '+' '.join(map(str,t))+'\n')
         for i, t in enumerate(cells, len(faces)+1):
-            f.write(f'{i} 4 2 10 10 '+' '.join(map(str,t))+'\n')
+            f.write(f'{i} 4 2 {region} {region} '+' '.join(map(str,t))+'\n')
         f.write('$EndElements\n')
 
 
@@ -110,16 +115,79 @@ def make_case(directory, sectors, level):
     (directory/'case.json').write_text(json.dumps(case_config(),indent=2)+'\n')
 
 
-def run(command, directory, name):
-    try:
-        result = subprocess.run(list(map(str,command)),cwd=directory,text=True,
-                                stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=900)
-    except subprocess.TimeoutExpired as error:
-        output = error.stdout or b''
-        (directory/name).write_text(output.decode(errors='replace') if isinstance(output,bytes) else output)
-        raise
-    (directory/name).write_text(result.stdout)
-    if result.returncode or 'status=success' not in result.stdout:
+def _session_members(session):
+    """Linux solver session members, including ranks in separate process groups."""
+    result = {}
+    for path in Path('/proc').iterdir():
+        if not path.name.isdigit():
+            continue
+        try:
+            fields = (path/'stat').read_text().rsplit(')',1)[1].split()
+            if int(fields[3]) == session and fields[0] != 'Z':
+                result[int(path.name)] = fields[19]  # start identity, not just PID
+        except (FileNotFoundError, ProcessLookupError):
+            pass
+    return result
+
+
+def _stop_session(process):
+    """Bound cleanup to the new Linux session owned by this one invocation."""
+    session = process.pid
+    record = dict(session=session, before=_session_members(session), signals=[])
+    if process.poll() is None:
+        # Give mpiexec a chance to relay cancellation and reap its ranks.
+        process.send_signal(signal.SIGINT)
+        record['signals'].append(dict(pid=process.pid, signal='SIGINT'))
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            pass
+    for sig, grace in ((signal.SIGTERM,2.), (signal.SIGKILL,5.)):
+        for pid, start in _session_members(session).items():
+            # OpenMPI gives ranks their own process groups. Enumerate the
+            # entire session even if the launcher has already exited.
+            if _session_members(session).get(pid) != start:
+                continue
+            try:
+                os.kill(pid,sig)
+                record['signals'].append(dict(pid=pid,start=start,signal=sig.name))
+            except ProcessLookupError:
+                pass
+        deadline = time.monotonic()+grace
+        while _session_members(session) and time.monotonic()<deadline:
+            time.sleep(.05)
+    process.wait(timeout=5)
+    record['after'] = _session_members(session)
+    if record['after']:
+        raise RuntimeError(f'Solver session {session} did not exit: {record["after"]}')
+    return record
+
+
+def run(command, directory, name, timeout=900):
+    # Stream to disk so long solves and interrupted attempts leave live evidence.
+    command = list(map(str,command))
+    linux_session = sys.platform.startswith('linux')
+    with (directory/name).open('w') as log:
+        if not linux_session:
+            # Preserve the existing non-Linux runner; the MPI session cleanup
+            # contract below is specifically for the Linux/WSL production path.
+            result = subprocess.run(command,cwd=directory,text=True,stdout=log,
+                                    stderr=subprocess.STDOUT,timeout=timeout)
+        else:
+            result = subprocess.Popen(command,cwd=directory,text=True,stdout=log,
+                                      stderr=subprocess.STDOUT,start_new_session=True)
+            def cleanup():
+                record = _stop_session(result)
+                (directory/(str(name)+'.cleanup.json')).write_text(json.dumps(record,indent=2)+'\n')
+            try:
+                result.wait(timeout=timeout)
+            except BaseException:
+                cleanup()
+                raise
+            if _session_members(result.pid):
+                cleanup()
+                raise RuntimeError(f'{directory/name}: solver launcher left running child processes')
+    if result.returncode or 'status=success' not in (directory/name).read_text():
         raise RuntimeError(f'{directory/name}: solver failed ({result.returncode})')
 
 

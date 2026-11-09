@@ -1,0 +1,23 @@
+[
+  [
+    "/usr/bin/cmake",
+    "-S",
+    "/home/tfblab633/EONSim-prod48-20261107/reference/svFSI-7bdb74c/Code",
+    "-B",
+    "/home/tfblab633/EONSim-prod48-20261107/reference/build",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DCMAKE_C_COMPILER=/usr/bin/gcc",
+    "-DCMAKE_CXX_COMPILER=/usr/bin/g++",
+    "-DCMAKE_Fortran_COMPILER=/usr/bin/gfortran",
+    "-DCMAKE_Fortran_FLAGS=-fallow-argument-mismatch",
+    "-DSV_USE_TRILINOS=OFF",
+    "-DSV_USE_SYSTEM_ZLIB=ON"
+  ],
+  [
+    "/usr/bin/cmake",
+    "--build",
+    "/home/tfblab633/EONSim-prod48-20261107/reference/build",
+    "--parallel",
+    "2"
+  ]
+]

@@ -1,0 +1,4 @@
+Recorded failure before adding the required empty python list to the new selection rule:
+tests/test_ci_selection.py: test_existing_production_paths_have_mappings
+scripts/cloud/selection.py:53: KeyError: 'python'
+26 tests ran, one error. Fixed rule metadata only; unchanged C++ numerical tests were not repeated.

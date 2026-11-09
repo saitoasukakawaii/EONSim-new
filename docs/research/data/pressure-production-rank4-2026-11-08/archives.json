@@ -1,0 +1,120 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 7592272,
+      "sha256": "fda4bc456d5c027c6b233ea1451ca6ab520dfe686fdf21a613c2daaa7293c17d",
+      "verified_files": 1884
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 6740800,
+      "sha256": "617bbe67f0dcda5c799a58dede336561db9316931f2c7ac36313e634ce0e5cf7",
+      "verified_files": 1941
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 6768052,
+      "sha256": "6cf64358988af9c80029ec3612c4bce7a92c319981262da4fe4cfe59b840c65a",
+      "verified_files": 1941
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 6743288,
+      "sha256": "f6093008f177164a1bee4396d13656b327a699f6e6e9ffa6c7ddb63e02901eaa",
+      "verified_files": 1942
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 6738444,
+      "sha256": "af029c51d78595587beab017a626f003e31dd6baf1a974940a06d14da6619db6",
+      "verified_files": 1941
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 6737740,
+      "sha256": "6043be67bb6a806596c8e1c4ab055d999b9f86ddd9924b0099cf6e57dd063657",
+      "verified_files": 1941
+    },
+    {
+      "file": "part007.tar.xz",
+      "bytes": 6757840,
+      "sha256": "fbac42b47133c2cde40cfa48d5fb188261c5b846451c4ad4b45307bfc5b85e74",
+      "verified_files": 1941
+    },
+    {
+      "file": "part008.tar.xz",
+      "bytes": 6742872,
+      "sha256": "2e7720b667a629049265af91c4503f609b56bd184b12f524bf3fc0f81066ca2b",
+      "verified_files": 1943
+    },
+    {
+      "file": "part009.tar.xz",
+      "bytes": 6738516,
+      "sha256": "ef1ca065e611f1439e9340680231e09dbef90a92079a438a123cad2adef83d46",
+      "verified_files": 1941
+    },
+    {
+      "file": "part010.tar.xz",
+      "bytes": 6741456,
+      "sha256": "da63ea0cb69f59095e3a9454cf43b08805b6e45ee2ebf53decdb8d50e3ce91ac",
+      "verified_files": 1940
+    },
+    {
+      "file": "part011.tar.xz",
+      "bytes": 6759636,
+      "sha256": "00a8e7bb03c6636c154323a7ab492018ae76ca947d2e1069329b59bb3d3254bb",
+      "verified_files": 1940
+    },
+    {
+      "file": "part012.tar.xz",
+      "bytes": 6753992,
+      "sha256": "5a284d21a4c3e8975d0c88181f96d0b4eb23bed3e6c12a3710c7d30bc2721704",
+      "verified_files": 1941
+    },
+    {
+      "file": "part013.tar.xz",
+      "bytes": 3765104,
+      "sha256": "c00fbfc0d1420f7efc17cd56ff9acb2b7cad083ed2ab0c96a5defb7c392428d5",
+      "verified_files": 999
+    },
+    {
+      "file": "part014.tar.xz",
+      "bytes": 4231852,
+      "sha256": "fadab9eeddaebf55b7ce695479d254281eae446d1153fc4b29faffc224c953a5",
+      "verified_files": 11
+    }
+  ],
+  "verified_files": 24246,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/elastic-mpi-r4-continuation-6f202a1/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "summary.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-mpi-r4-continuation-6f202a1/summary.json",
+      "sha256": "2a12436864134acdbb34ac841ce790fc50e7004759ce2695c42872a182c2d3b9"
+    },
+    "rank1-vs4.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-mpi-r4-continuation-6f202a1/rank1-vs4.json",
+      "sha256": "42618670a1ebefc98709bc0427ef2e334cea0db348ff60c7fbf1062cfb72764d"
+    },
+    "elastic-mpi-r4-current.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/elastic-mpi-r4-current.json",
+      "sha256": "28127857d0526e9f05b1d9b88e2ee4dc7cd16a789b775521e9d9812d1c9b2b7f"
+    },
+    "capture-production-followups.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-production-followups.py",
+      "sha256": "3bac74e89ba9d694f294db6debec297eaf9cc1a313fb637a1540596f81325bb1"
+    }
+  },
+  "source_checkpoint": "e435524ecf88ce8aaff66b08b4709335691a0555",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

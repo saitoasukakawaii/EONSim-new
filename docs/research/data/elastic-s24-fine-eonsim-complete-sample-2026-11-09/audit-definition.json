@@ -1,0 +1,33 @@
+{
+  "base": "6bce1276e14eda1f937a94a4c1156a502ee8058b",
+  "controller_sha256": "dff65c241208eed1166d310b57e86695eaa0d882a38466930c20de4e8897ccc6",
+  "validation_sha256": "1f9f46a5ae60991ac9450d3bb7bf2093d3e8149593666e26aab37ad3ea8c86d5",
+  "source_hashes": {
+    "tests/test_pressure_tube_audit.py": "05bfa4436620ce79af6e63d731bd7b8285094bd2bc68d4fbbecb1d0b70f3dcd5",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+    "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+    "scripts/audit_pressure_tube.py": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+    "scripts/audit_svfsi_convergence.py": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/svfsi_restart_evidence.py": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "build/prod48-20261107/s24-budget-kernel.py": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+    "build/prod48-20261107/analyze-elastic-s24-native1100-budgets.py": "b9d61aca452437d7db6c97d4e2b19681ec286156a8ec7f19a42bb11ab14f0428",
+    "build/prod48-20261107/analyze-elastic-s24-midnight2-budgets.py": "700e8a99a7354f1db983c4a9d2817406be240ab62dfccd97e6c819e34ade71f8",
+    "build/prod48-20261107/compare-pressure-fields.py": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+    "build/prod48-20261107/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "cases/fsi/generate_pressure_tube.py": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198"
+  },
+  "old_audit_failure_sha256": "86f4ca46ab68b5d1f3f1b1a8160e78ca0f35b61e1150b92e732f376bb38dfd44",
+  "old_sample_resource_sha256": "4723f8e1d7edf894f597e921b4095b93e946adf0e5f89ea5cbdb89d6744ab2d5",
+  "immutable_inputs_sha256": "29c28c188190b28ad87d21ed0d081b086c90204872941527b69027118ed3e169",
+  "cpus": [
+    22
+  ],
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "scope": "Analysis only after sealed12800 numerics. Keep old OOM and failed waiters. Identical physical/period/quality formulas with paths replacing a full cycle of cached dictionaries. New portable PVD indices reference immutable old VTUs. No numerical rerun or original status edit."
+}

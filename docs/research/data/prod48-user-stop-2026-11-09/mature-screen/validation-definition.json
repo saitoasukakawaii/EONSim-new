@@ -1,0 +1,40 @@
+{
+  "base": "9ccd73f60c4cc3839f4f749874dfc3e7832e2a19",
+  "source_hashes": {
+    "src/main.cpp": "16a30c82c7cb1bf44c39aad998bef18f767bdf222606bb24665c11cb07f3204e",
+    "src/physics/fsi.cpp": "26dd19e4b61cd9698dc2b8ff7a5888b09dbb89c0f348e7f9281fd1e90e32e3bd",
+    "src/physics/fluid.cpp": "f781ed6925503f2dbc79c75faead481482df4ab8fe59c7ecbeede4e8eef8aee9",
+    "include/eonsim/nonlinear_system.hpp": "294c41c34a382d807d27a909f10ec6bad18155408b71317e94522386d1ac5b61",
+    "src/algebra/nonlinear_system.cpp": "5fa57d80ec7ecb03be421766b7b45b548041360649a8a0a29a0e6a09ef3577e1",
+    "include/eonsim/time_step.hpp": "b44219cc84c5fbbb7acbed2efbebb9e6af93b6a8aff94feccf1ffe35245b82f0",
+    "include/eonsim/time_integration.hpp": "33711e074bf5235d3c4f37d7b17a95b48b872b734ec48993269a6cb2b721d706",
+    "src/io/checkpoint.cpp": "8fc1c93927638659cee1eff30c3da70c48aff0355fd1c657aaf8fec328981189",
+    "tests/verify_fsi_lu_reuse.py": "c50f8af5503127dde9836ff4af7ae4f765e3ee79da51f5301281940f12cbb4c4",
+    "tests/verify_fsi_pressure.py": "830d58ddc30dd90330fc5bf19255d65a1f90f791bcc9d866a67760d90f313ebb",
+    "tests/verify_fluid_lu_reuse.py": "d49b1e62236df49be86c592be52496c835b03c9ed79adace408202389d9af222",
+    "tests/test_ci_selection.py": "8d71f5700e4f0cec995ce02292607b4fef19d0989b6284e05dd5132431b18342",
+    "CMakeLists.txt": "bd212db67c9a25dce3d5ace45bef3f4ee0419e005811b3f1a2d130d5e6cba594",
+    "scripts/cloud/selection.json": "b2f8c2abba77f611cb9478c600107c04048694622803102cbca72de95cf9ba15",
+    "scripts/cloud/validate.py": "0d30fa0fee03a67637b7b3a9671ae7655550b61568ba580ac4ebb78613023c49",
+    "scripts/cloud/run.sh": "59cebab159e0eebfa250184f49d1c2bc4d43a2b6813009cef1dd74fc52777e16",
+    "scripts/cloud/selection.py": "b79fdb4561f82b5e27903ba8f50c9214f6db5a00321627927e907812a8e110e2",
+    "scripts/cloud/receipt.py": "4bd1cde33961d2b97ef62c75d24b99f6015e27d2dd55d921021591241e52087c",
+    "cases/fsi/generate_pressure_tube.py": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb"
+  },
+  "tests": [
+    "fsi_lu_reuse",
+    "fsi_pressure_state",
+    "fluid_lu_reuse"
+  ],
+  "controller_sha256": "486884ba4b489ae29a5bf1033f9d95c44e9ae1c09302024c24d49bd2353c458c",
+  "cpu": 19,
+  "nice": 19,
+  "lock": "elastic-budget-analysis.lock",
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "admission_bytes": 10737418240,
+  "running_floor_bytes": 8589934592,
+  "scope": "Affected-path Debug/Release tests and complete v4 histories. Correctness only, no cost or long-run qualification; existing production binaries remain frozen."
+}

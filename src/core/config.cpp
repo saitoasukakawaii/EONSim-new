@@ -47,6 +47,14 @@ ScalarFunction scalar_function(const YAML::Node& node,const std::string& locatio
     if(!std::isfinite(f.rate))throw std::runtime_error(location+" rate must be finite");
     return f;
 }
+PressureTime pressure_profile(const YAML::Node& p,const std::string& location) {
+    keys(p,{"amplitude","period","ramp_time"},location);
+    PressureTime profile{p["amplitude"].as<double>(),p["period"].as<double>(),0};
+    if(p["ramp_time"]) profile.ramp_time=p["ramp_time"].as<double>();
+    if(!std::isfinite(profile.amplitude)||!std::isfinite(profile.period)||!std::isfinite(profile.ramp_time)||
+       !(profile.period>0)||profile.ramp_time<0) throw std::runtime_error("Invalid "+location);
+    return profile;
+}
 void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
 {
     const auto boundaries=f["boundaries"];
@@ -57,9 +65,15 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
         const auto type=entry["type"].as<std::string>();
         FluidBoundary b;
         if(type=="pressure") {
-            keys(entry,{"tag","type","value","ramp_time","components"},"fluid.boundaries.pressure");
+            keys(entry,{"tag","type","value","ramp_time","components","pressure_time"},"fluid.boundaries.pressure");
             b.type=FluidBoundary::Type::pressure; b.pressure=entry["value"].as<double>();
             if(!std::isfinite(b.pressure)) throw std::runtime_error("Boundary pressure must be finite");
+            if(const auto p=entry["pressure_time"]) {
+                if(solid||config.mode!=FluidConfig::Mode::transient)
+                    throw std::runtime_error("Boundary pressure_time requires transient fluid");
+                if(entry["ramp_time"]) throw std::runtime_error("Use pressure_time.ramp_time without boundary ramp_time");
+                b.pressure_time=pressure_profile(p,"fluid.boundaries.pressure_time");
+            }
         } else {
             keys(entry,{"tag","type","value","origin","gradient","ramp_time","components"},"fluid.boundaries");
             if(type=="velocity"|| (solid&&type=="displacement")) b.type=FluidBoundary::Type::velocity;
@@ -187,7 +201,7 @@ Config read_config(const std::filesystem::path& path)
     if (tags.empty()) throw std::runtime_error("At least one Dirichlet physical tag is required");
     } else if(config.fluid_problem) {
         const auto f=root["fluid"];
-        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet","boundaries","pressure_gauge","pressure_normalization","regions","stabilization_tau"},"fluid");
+        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet","boundaries","pressure_gauge","pressure_normalization","regions","stabilization_tau","stabilization_time_scale","checkpoint_interval"},"fluid");
         const auto mode=f["mode"].as<std::string>();
         if(mode=="stokes") config.fluid.mode=FluidConfig::Mode::stokes;
         else if(mode=="steady") config.fluid.mode=FluidConfig::Mode::steady;
@@ -198,6 +212,15 @@ Config read_config(const std::filesystem::path& path)
             v.stabilization_tau=f["stabilization_tau"].as<double>();
             if(!(*v.stabilization_tau>0)||!std::isfinite(*v.stabilization_tau))
                 throw std::runtime_error("fluid.stabilization_tau must be finite and positive");
+        }
+        if(f["stabilization_time_scale"]) {
+            v.stabilization_time_scale=f["stabilization_time_scale"].as<double>();
+            if(!(*v.stabilization_time_scale>0)||!std::isfinite(*v.stabilization_time_scale))
+                throw std::runtime_error("fluid.stabilization_time_scale must be finite and positive");
+            if(v.mode!=FluidConfig::Mode::transient)
+                throw std::runtime_error("fluid.stabilization_time_scale requires transient fluid");
+            if(v.stabilization_tau)
+                throw std::runtime_error("Use only one of fluid.stabilization_tau and stabilization_time_scale");
         }
         if(f["boundaries"]) fluid_boundaries(f,v);
         else if(f["pressure_gauge"]||f["pressure_normalization"]) throw std::runtime_error("Pressure normalization requires tagged boundaries");
@@ -221,6 +244,8 @@ Config read_config(const std::filesystem::path& path)
         if(f["dt"]) v.dt=f["dt"].as<double>();
         if(f["ramp_time"]) v.ramp_time=f["ramp_time"].as<double>();
         if(f["steps"]) v.steps=f["steps"].as<int>();
+        if(f["checkpoint_interval"]) v.checkpoint_interval=f["checkpoint_interval"].as<int>();
+        if(v.checkpoint_interval<=0) throw std::runtime_error("fluid.checkpoint_interval must be positive");
         if(!(v.density>0 && v.viscosity>0 && v.dt>0 && v.ramp_time>0 && v.steps>0) ||
             !std::isfinite(v.density+v.viscosity+v.pressure_drop+v.dt+v.ramp_time))
             throw std::runtime_error("Invalid fluid material/time configuration");
@@ -296,12 +321,7 @@ Config read_config(const std::filesystem::path& path)
         if(f["checkpoint_interval"]) v.checkpoint_interval=f["checkpoint_interval"].as<int>();
         if(v.checkpoint_interval<=0) throw std::runtime_error("fsi.checkpoint_interval must be positive");
         if(const auto p=f["pressure_time"]) {
-            keys(p,{"amplitude","period","ramp_time"},"fsi.pressure_time");
-            FsiPressureTime profile{p["amplitude"].as<double>(),p["period"].as<double>(),0};
-            if(p["ramp_time"]) profile.ramp_time=p["ramp_time"].as<double>();
-            if(!std::isfinite(profile.amplitude)||!std::isfinite(profile.period)||!std::isfinite(profile.ramp_time)||
-               !(profile.period>0)||profile.ramp_time<0) throw std::runtime_error("Invalid fsi.pressure_time");
-            v.pressure_time=profile;
+            v.pressure_time=pressure_profile(p,"fsi.pressure_time");
         }
 
         if(f["material"]) {

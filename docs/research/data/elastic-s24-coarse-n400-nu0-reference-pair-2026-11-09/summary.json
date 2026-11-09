@@ -1,0 +1,376 @@
+{
+  "resources": {
+    "observables": {
+      "command": [
+        "/usr/bin/systemd-run",
+        "--user",
+        "--scope",
+        "--quiet",
+        "--unit=eonsim-nu0-coarse-pair-observables-41996.scope",
+        "--property=MemoryMax=2G",
+        "--property=MemorySwapMax=0",
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-coarse-pair-completion-e771355/analysis-guard.py",
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-coarse-pair-completion-e771355/source/build/prod48-20261107/compare-pressure-audits.py",
+        "--eonsim",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-coarse-pair-completion-e771355/eonsim-matched-audit.json",
+        "--svfsi",
+        "/mnt/d/EONSim-prod48-20261107/reference-s24-l0-n400-meshnu0-native5000-fce909d/svfsi-audit.json",
+        "--output",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-coarse-pair-completion-e771355/cross-code-observables.json"
+      ],
+      "cwd": "/home/tfblab633/EONSim-prod48-20261107/nu0-early-coarse-pair-completion-e771355/source",
+      "unit": "eonsim-nu0-coarse-pair-observables-41996.scope",
+      "memory_max_bytes": 2147483648,
+      "memory_swap_max_bytes": 0,
+      "timeout_seconds": 600,
+      "peak_observed_bytes": 13393920,
+      "minimum_available_bytes": 18694828032,
+      "scope_seen": true,
+      "cleanup": [],
+      "launcher_pid": 41998,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "returncode": 0,
+      "wall_seconds": 0.4108093490067404,
+      "remaining_scope_members": []
+    },
+    "fields": {
+      "command": [
+        "/usr/bin/systemd-run",
+        "--user",
+        "--scope",
+        "--quiet",
+        "--unit=eonsim-nu0-coarse-pair-fields-41996.scope",
+        "--property=MemoryMax=2G",
+        "--property=MemorySwapMax=0",
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-coarse-pair-completion-e771355/analysis-guard.py",
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-coarse-pair-completion-e771355/source/build/prod48-20261107/compare-pressure-fields.py",
+        "--left-case",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l0-n400-ramp16-c32/case.json",
+        "--left-work",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l0-n400-ramp16-c32",
+        "--left-audit",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-coarse-pair-completion-e771355/eonsim-matched-audit.json",
+        "--right-case",
+        "/mnt/d/EONSim-prod48-20261107/reference-s24-l0-n400-meshnu0-native5000-fce909d/case.json",
+        "--right-work",
+        "/mnt/d/EONSim-prod48-20261107/reference-s24-l0-n400-meshnu0-native5000-fce909d/reference",
+        "--right-audit",
+        "/mnt/d/EONSim-prod48-20261107/reference-s24-l0-n400-meshnu0-native5000-fce909d/svfsi-audit.json",
+        "--left-cycle",
+        "32",
+        "--right-cycle",
+        "32",
+        "--phases",
+        "400",
+        "--output",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-coarse-pair-completion-e771355/cross-code-fields.json"
+      ],
+      "cwd": "/home/tfblab633/EONSim-prod48-20261107/nu0-early-coarse-pair-completion-e771355/source",
+      "unit": "eonsim-nu0-coarse-pair-fields-41996.scope",
+      "memory_max_bytes": 2147483648,
+      "memory_swap_max_bytes": 0,
+      "timeout_seconds": 7200,
+      "peak_observed_bytes": 98762752,
+      "minimum_available_bytes": 15383257088,
+      "scope_seen": true,
+      "cleanup": [],
+      "launcher_pid": 41999,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "returncode": 0,
+      "wall_seconds": 97.7726186360087,
+      "remaining_scope_members": []
+    }
+  },
+  "sealed_coarse_receipt_sha256": "79730fd1f43602fef826f543138e2c4819e481570a06c567597240c7162c7dcd",
+  "observables": {
+    "prerequisites": {
+      "EONSim": {
+        "periodic": true,
+        "positive_geometry": true,
+        "quality": true
+      },
+      "svFSI": {
+        "periodic": true,
+        "positive_geometry": true,
+        "quality": true,
+        "relative_convergence": true
+      }
+    },
+    "synthetic_input": false,
+    "comparison_eligible": true,
+    "observables": {
+      "mid_radial_displacement": {
+        "eonsim": {
+          "mean": 0.0001052533939090581,
+          "sine": 1.204486511513386e-05,
+          "cosine": -3.4212363837396934e-05,
+          "amplitude": 3.627071290978707e-05,
+          "phase_degrees": -70.60478293954834,
+          "higher_harmonic_rms": 3.853889061315635e-10
+        },
+        "svfsi": {
+          "mean": 0.000105253389429245,
+          "sine": 1.1206226581711975e-05,
+          "cosine": -3.3374235506427764e-05,
+          "amplitude": 3.5205384671086494e-05,
+          "phase_degrees": -71.43924739627414,
+          "higher_harmonic_rms": 3.7928891889084074e-10
+        },
+        "reference_amplitude_denominator": 3.5205384671086494e-05,
+        "physical_scale": 5.436363636363637e-05,
+        "unresolved_amplitude_floor": 5.4363636363636365e-17,
+        "relative_amplitude_difference": 0.03026037774203069,
+        "amplitude_limit": 0.05,
+        "amplitude_passed": true,
+        "phase_difference_degrees": 0.8344644567258115,
+        "phase_limit_degrees": null,
+        "phase_passed": null,
+        "mean_difference": 4.479813099796635e-12,
+        "passed": true
+      },
+      "mid_ring_projected_area": {
+        "eonsim": {
+          "mean": 3.1064861231577314,
+          "sine": 7.525534608844746e-05,
+          "cosine": -0.00021375608257246,
+          "amplitude": 0.00022661648208287133,
+          "phase_degrees": -70.60478224971263,
+          "higher_harmonic_rms": 3.3531716003948667e-09
+        },
+        "svfsi": {
+          "mean": 3.106486123010046,
+          "sine": 7.001560042523343e-05,
+          "cosine": -0.00020851952468950061,
+          "amplitude": 0.00021996039752564825,
+          "phase_degrees": -71.4392466761046,
+          "higher_harmonic_rms": 3.2075862923611936e-09
+        },
+        "reference_amplitude_denominator": 0.00021996039752564825,
+        "physical_scale": 0.0003415768012448539,
+        "unresolved_amplitude_floor": 3.4157680124485387e-16,
+        "relative_amplitude_difference": 0.030260377013762003,
+        "amplitude_limit": 0.05,
+        "amplitude_passed": true,
+        "phase_difference_degrees": 0.8344644263919747,
+        "phase_limit_degrees": null,
+        "phase_passed": null,
+        "mean_difference": 1.4768541944931712e-10,
+        "passed": true
+      },
+      "mid_pressure": {
+        "eonsim": {
+          "mean": 0.020000286137222652,
+          "sine": 0.0018978815419958342,
+          "cosine": -0.006641787413178125,
+          "amplitude": 0.006907625814221545,
+          "phase_degrees": -74.05278573866275,
+          "higher_harmonic_rms": 8.680298416043747e-08
+        },
+        "svfsi": {
+          "mean": 0.02000029177090149,
+          "sine": 0.0017423376105735306,
+          "cosine": -0.0064685530760414875,
+          "amplitude": 0.006699098390588458,
+          "phase_degrees": -74.92487111793535,
+          "higher_harmonic_rms": 8.688238599940151e-08
+        },
+        "reference_amplitude_denominator": 0.006699098390588458,
+        "physical_scale": 0.01,
+        "unresolved_amplitude_floor": 1e-14,
+        "relative_amplitude_difference": 0.03112768487264592,
+        "amplitude_limit": 0.02,
+        "amplitude_passed": false,
+        "phase_difference_degrees": 0.8720853792726189,
+        "phase_limit_degrees": 1.0,
+        "phase_passed": true,
+        "mean_difference": -5.633678835936795e-09,
+        "passed": false
+      },
+      "outward_flow_left": {
+        "eonsim": {
+          "mean": -2.493324885261985e-10,
+          "sine": -0.0008909537587310344,
+          "cosine": -0.000758480738503514,
+          "amplitude": 0.001170081890671672,
+          "phase_degrees": -139.59180894482276,
+          "higher_harmonic_rms": 3.2931157199027126e-08
+        },
+        "svfsi": {
+          "mean": -1.8065289496282598e-10,
+          "sine": -0.000884173153317693,
+          "cosine": -0.0007337206815323004,
+          "amplitude": 0.0011489596178961103,
+          "phase_degrees": -140.31281543454006,
+          "higher_harmonic_rms": 3.1210192020702274e-08
+        },
+        "reference_amplitude_denominator": 0.0011489596178961103,
+        "physical_scale": 0.0020494608074691236,
+        "unresolved_amplitude_floor": 2.0494608074691234e-15,
+        "relative_amplitude_difference": 0.018383825198521046,
+        "amplitude_limit": 0.05,
+        "amplitude_passed": true,
+        "phase_difference_degrees": 0.721006489717297,
+        "phase_limit_degrees": 2.0,
+        "phase_passed": true,
+        "mean_difference": -6.867959356337251e-11,
+        "passed": true
+      },
+      "outward_flow_right": {
+        "eonsim": {
+          "mean": 2.4932748255883747e-10,
+          "sine": -0.0008824376635869961,
+          "cosine": -0.0007338999689736093,
+          "amplitude": 0.0011477392537403003,
+          "phase_degrees": -140.25060215219807,
+          "higher_harmonic_rms": 3.201648476721635e-08
+        },
+        "svfsi": {
+          "mean": 1.806504532708286e-10,
+          "sine": -0.0008758437616535314,
+          "cosine": -0.0007089854195431701,
+          "amplitude": 0.0011268374416712524,
+          "phase_degrees": -141.01022946119232,
+          "higher_harmonic_rms": 3.031657402257383e-08
+        },
+        "reference_amplitude_denominator": 0.0011268374416712524,
+        "physical_scale": 0.0020494608074691236,
+        "unresolved_amplitude_floor": 2.0494608074691234e-15,
+        "relative_amplitude_difference": 0.01854909261627629,
+        "amplitude_limit": 0.05,
+        "amplitude_passed": true,
+        "phase_difference_degrees": 0.7596273089942542,
+        "phase_limit_degrees": 2.0,
+        "phase_passed": true,
+        "mean_difference": 6.867702928800888e-11,
+        "passed": true
+      }
+    },
+    "observable_gates_passed": false,
+    "lame_mean_diagnostics": {
+      "EONSim": {
+        "numerical_mean": 0.0001052533939090581,
+        "infinite_circular_plane_strain_mean": 0.00010872727272727274,
+        "relative_difference": 0.031950390468529266,
+        "limit": 0.02,
+        "within_limit": false,
+        "scope": "Diagnostic only until polygon geometry and finite-end effects are bounded"
+      },
+      "svFSI": {
+        "numerical_mean": 0.000105253389429245,
+        "infinite_circular_plane_strain_mean": 0.00010872727272727274,
+        "relative_difference": 0.03195043167082367,
+        "limit": 0.02,
+        "within_limit": false,
+        "scope": "Diagnostic only until polygon geometry and finite-end effects are bounded"
+      }
+    },
+    "qualification": "Incomplete: independent space/time/tail/sampling, geometry, MPI and restart evidence remains required",
+    "scope": "Same-mesh cross-solver observables only; endpoint values, fixed absolute phase, svFSI amplitude denominator",
+    "input_files": {
+      "eonsim": {
+        "path": "/home/tfblab633/EONSim-prod48-20261107/nu0-early-coarse-pair-completion-e771355/eonsim-matched-audit.json",
+        "sha256": "9b9148eae784f0a347baa42b409cf858e94a0d30773628415dade821ca39ae75"
+      },
+      "svfsi": {
+        "path": "/mnt/d/EONSim-prod48-20261107/reference-s24-l0-n400-meshnu0-native5000-fce909d/svfsi-audit.json",
+        "sha256": "b66a9249a9dad01478cc8480d6a519ff21abfc9c2285c6573e481c8d0d4fb14f"
+      }
+    },
+    "helper_sha256": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6"
+  },
+  "fields_summary": {
+    "left_cycle": 32,
+    "right_cycle": 32,
+    "common_phases": 400,
+    "startup_comparison": false,
+    "pressure_profiles": [
+      {
+        "amplitude": 0.01,
+        "period": 6.283185307179586,
+        "ramp_time": 100.53096491487338
+      },
+      {
+        "amplitude": 0.01,
+        "period": 6.283185307179586,
+        "ramp_time": 100.53096491487338
+      }
+    ],
+    "left_solver": "EONSim",
+    "right_solver": "svFSI",
+    "left_dt": 0.015707963267948967,
+    "right_dt": 0.015707963267948967,
+    "left_red_level": 0,
+    "right_red_level": 0,
+    "selected_cycles_periodic": [
+      true,
+      true
+    ],
+    "audit_prerequisites": [
+      {
+        "periodic": true,
+        "positive_geometry": true,
+        "quality": true
+      },
+      {
+        "periodic": true,
+        "positive_geometry": true,
+        "quality": true,
+        "relative_convergence": true
+      }
+    ],
+    "scales": {
+      "fluid_velocity": 0.0006523636363636365,
+      "fluid_pressure": 0.01,
+      "fluid_mesh_displacement": 5.436363636363637e-05,
+      "solid_velocity": 5.436363636363637e-05,
+      "solid_displacement": 5.436363636363637e-05
+    },
+    "rms": {
+      "fluid_velocity": 4.628372314822823e-06,
+      "fluid_pressure": 0.0001318861001720932,
+      "fluid_mesh_displacement": 6.3813860100630085e-06,
+      "solid_velocity": 5.996818773652081e-07,
+      "solid_displacement": 5.995852213597804e-07
+    },
+    "maximum_phase_rms": {
+      "fluid_velocity": 6.305238874812066e-06,
+      "fluid_pressure": 0.00015502263208213275,
+      "fluid_mesh_displacement": 8.3863008280248e-06,
+      "solid_velocity": 7.576048594510148e-07,
+      "solid_displacement": 7.574336650025536e-07
+    },
+    "relative_rms": {
+      "fluid_velocity": 0.007094773615252375,
+      "fluid_pressure": 0.013188610017209319,
+      "fluid_mesh_displacement": 0.11738335470015566,
+      "solid_velocity": 0.011030937543507171,
+      "solid_displacement": 0.011029159590230073
+    },
+    "relative_maximum_phase_rms": {
+      "fluid_velocity": 0.009665221240653946,
+      "fluid_pressure": 0.015502263208213275,
+      "fluid_mesh_displacement": 0.15426305870948628,
+      "solid_velocity": 0.013935875341072176,
+      "solid_displacement": 0.013932726279311185
+    },
+    "synthetic_input": false,
+    "norm": "Exact consistent P1 mass on the verified red-refined target reference domains",
+    "qualification": "Not evaluated: pairwise differences only, with recorded parameter changes and no causal attribution",
+    "helper_sha256": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+    "analysis_sources_sha256": {
+      "scripts/audit_pressure_tube.py": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+      "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+      "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+      "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb"
+    }
+  },
+  "eonsim_periodic": true,
+  "reference_periodic": true,
+  "immutable_inputs_unchanged": true,
+  "full_qualification": false,
+  "scope": "Independent reference mesh-nu0 coarse-only result. Same400stored phases, unchanged physical gates and P1 norms; original mesh-nu.3 failures remain. Own fine/space/time/tail/sampling budgets are pending."
+}

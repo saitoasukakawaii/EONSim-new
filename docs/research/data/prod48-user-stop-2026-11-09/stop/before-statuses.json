@@ -1,0 +1,172 @@
+{
+  "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-fine-execution-screen-current.json": {
+    "state": "waiting_for_existing_families",
+    "pid": 43221,
+    "utc": "2026-11-08T22:19:33Z",
+    "out": "/mnt/d/EONSim-prod48-20261107/alpha1-s96-fine-execution-screen-a341bc6",
+    "adopted": false,
+    "holds_locks": false
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/s96-n400-qualified-family-current.json": {
+    "state": "running",
+    "pid": 41187,
+    "utc": "2026-11-08T19:57:37Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/s96-n400-qualified-family-a3e1c87",
+    "job": "fine-n800",
+    "adopted": true
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/s96-n800-complete-capture-current.json": {
+    "state": "waiting_for_complete_n800_and_prior_capture",
+    "pid": 43808,
+    "utc": "2026-11-08T23:04:22Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/s96-n800-complete-capture-ab0d107",
+    "archive": "womersley-s96-n800-n400-target-budget-2026-11-09",
+    "holds_locks": false
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/fsi-lu-mature-and-l24-capture-current.json": {
+    "state": "capturing",
+    "pid": 47776,
+    "utc": "2026-11-09T02:15:11Z",
+    "completed_archives": [],
+    "archive": "fsi-retained-lu-mature-proof-2026-11-09",
+    "raw_files": 1308
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-n200-native600-budgets-current.json": {
+    "state": "waiting_for_family",
+    "pid": 43315,
+    "utc": "2026-11-08T22:51:40Z",
+    "holds_analysis_lock": false
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-current.json": {
+    "state": "running",
+    "pid": 39157,
+    "utc": "2026-11-08T17:59:41Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d",
+    "job": "fine-solve",
+    "adopted": true
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-family-capture-current.json": {
+    "state": "waiting_for_capture_lock",
+    "pid": 47990,
+    "utc": "2026-11-09T02:22:00Z",
+    "completed_archives": [],
+    "stage": "immutable_execution_plan"
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/length24-matched-n200-capture-current.json": {
+    "state": "capturing",
+    "pid": 43422,
+    "utc": "2026-11-09T00:04:07Z",
+    "completed_archives": [],
+    "archive": "elastic-length24-complete-sample-2026-11-09"
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-n200-native600-family-current.json": {
+    "state": "running",
+    "pid": 43314,
+    "utc": "2026-11-08T22:51:40Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-n200-native600-family-fcc2956",
+    "job": "time-solve",
+    "adopted": true
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/alpha1-native200-lu32-recovery-current.json": {
+    "state": "running",
+    "pid": 40998,
+    "utc": "2026-11-09T02:34:42Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/alpha1-native200-lu32-recovery-a3e1c87",
+    "job": "middle-analysis",
+    "adopted": true
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-budget-current.json": {
+    "state": "waiting_for_complete_families",
+    "pid": 47952,
+    "utc": "2026-11-09T02:17:38Z",
+    "role": "budget",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f",
+    "adopted": false,
+    "full_qualification": false,
+    "holds_locks": false
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/length24-native-proof-capture-current.json": {
+    "state": "capturing",
+    "pid": 44619,
+    "utc": "2026-11-09T01:31:10Z",
+    "archive": "length24-native-extension-proof-2026-11-09",
+    "proof_and_review_passed": true
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/length24-native6400-extension-current.json": {
+    "state": "running",
+    "pid": 46800,
+    "utc": "2026-11-09T01:35:56Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/length24-native6400-extension-98ee0f9",
+    "adopted": true,
+    "full_qualification": false,
+    "job": "native6400-to7200"
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/alpha1-complete-family-capture-current.json": {
+    "state": "waiting_for_complete_stage",
+    "pid": 42447,
+    "utc": "2026-11-09T00:09:07Z",
+    "stage": "n400",
+    "completed_archives": [
+      "womersley-alpha1-n200-lu32-complete-2026-11-09"
+    ]
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/elastic-s24-native1600-budgets-current.json": {
+    "state": "waiting_for_producers",
+    "pid": 40042,
+    "utc": "2026-11-09T01:14:25Z",
+    "pending": [
+      "svfsi"
+    ],
+    "completed": [
+      "eonsim"
+    ]
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-current.json": {
+    "state": "running",
+    "pid": 39392,
+    "utc": "2026-11-08T17:49:23Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78",
+    "job": "solve",
+    "adopted": true
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-fine-execution-review-current.json": {
+    "state": "waiting_for_completed_screen",
+    "pid": 43241,
+    "utc": "2026-11-08T22:21:13Z",
+    "adopted": false,
+    "holds_locks": false
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-coarse-current.json": {
+    "state": "running",
+    "pid": 47944,
+    "utc": "2026-11-09T02:33:37Z",
+    "role": "coarse",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f",
+    "adopted": true,
+    "full_qualification": false,
+    "cycle": 10,
+    "completed_steps": 7200,
+    "target_steps": 25600
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-continuation-midnight2-current.json": {
+    "state": "running",
+    "pid": 38880,
+    "utc": "2026-11-08T17:00:01Z",
+    "work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-ilut-m4000-midnight2-a0a4675",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675",
+    "job": "svfsi",
+    "adopted": true
+  },
+  "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-fine-current.json": {
+    "state": "running",
+    "pid": 47914,
+    "utc": "2026-11-09T02:31:32Z",
+    "role": "fine",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f",
+    "adopted": true,
+    "full_qualification": false,
+    "cycle": 2,
+    "completed_steps": 800,
+    "target_steps": 25600
+  }
+}

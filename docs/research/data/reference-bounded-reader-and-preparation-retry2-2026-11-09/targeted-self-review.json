@@ -1,0 +1,37 @@
+{
+  "base": "d2c24ee76d9595058b3873f034facd59fa03a739",
+  "source_hashes": {
+    "include/eonsim/time_step.hpp": "b44219cc84c5fbbb7acbed2efbebb9e6af93b6a8aff94feccf1ffe35245b82f0",
+    "include/eonsim/checkpoint.hpp": "5d1e076a881b29f944a3b518678f14c282e900e7ca25b6f9061c432bd97112c6",
+    "src/io/checkpoint.cpp": "8fc1c93927638659cee1eff30c3da70c48aff0355fd1c657aaf8fec328981189",
+    "include/eonsim/nonlinear_system.hpp": "294c41c34a382d807d27a909f10ec6bad18155408b71317e94522386d1ac5b61",
+    "src/algebra/nonlinear_system.cpp": "5fa57d80ec7ecb03be421766b7b45b548041360649a8a0a29a0e6a09ef3577e1",
+    "src/physics/fluid.cpp": "f781ed6925503f2dbc79c75faead481482df4ab8fe59c7ecbeede4e8eef8aee9",
+    "src/physics/fluid_boundary.cpp": "2ba1a79d1ba4d73fd213521589dc379ff2bc0b54798f45041785e1e034653c73",
+    "src/core/config.cpp": "4caedcebbad319d97175ad4f42154c5fdf7fd5e46a79a1a14e589c378513eb35",
+    "src/algebra/schur_solver.cpp": "afa1801c6255fb04e6b053e3098c1c5d4a898c36475ca913f53a3bb6279b3f2a",
+    "scripts/study_womersley.py": "1f61965ade170c5ef639d6b5e3c04cd5e04230b2252c8228bf27e804af483d3c",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/export_svfsi_tube.py": "be8a29b999655fae7abb66a4d86a5a2483bc902c23715867f4175d74e31d0876",
+    "scripts/audit_pressure_tube.py": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+    "scripts/audit_svfsi_convergence.py": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "scripts/svfsi_restart_evidence.py": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+    "tests/test_pressure_tube_audit.py": "05bfa4436620ce79af6e63d731bd7b8285094bd2bc68d4fbbecb1d0b70f3dcd5",
+    "tests/test_svfsi_restart_evidence.py": "014f6fc49e8eff625e48b84630866d8a285b1c2281d0db866c922420974398fe",
+    "tests/test_svfsi_convergence.py": "15e665b75312529d4cb9d06b985e3d972e2c88e319e51993e4cdf9db360fc2ac",
+    "tests/verify_checkpoint.cpp": "b6acb12c0f7788ffa3994c2aea743a89b7ce367ed8d9c6b7a84951f0fe9397b7"
+  },
+  "reviewer": "Executing agent; targeted source and evidence-contract review, no separate human or model reviewer claimed",
+  "findings": [
+    "EONv4 preserves compensated clock state; legacyv3 explicitly restores zero unavailable correction and is not promoted to exactv4.",
+    "LU reuse is explicit standalone transient MUMPS/FGMRES; collective coefficient-change invalidation and current-operator residual acceptance remain active; default0 stays unchanged.",
+    "Reference chains require contiguous ranges and exact previous native seed hashes; reviewed backend changes bind physical inputs, rank layout, raw fields/history, replay and resource receipts.",
+    "Periodic checks include ALE displacement and retain complete required phase coverage; physical report qualification remains explicitly incomplete until independent space/time/tail/sampling budgets pass.",
+    "Three earlier reference producers freeze the dense cycle cache; preparation records this risk without declaring failure, changing those sources or launching recovery."
+  ],
+  "new_core_changes": false,
+  "new_solver_tests_run": false,
+  "limitation": "Targeted review only; live studies and all final acceptance checks remain required. New reference-reader equivalence is separately evidenced, not a rerun of solver physics."
+}

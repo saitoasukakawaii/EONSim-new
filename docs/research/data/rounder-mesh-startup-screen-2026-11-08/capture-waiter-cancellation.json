@@ -1,0 +1,14 @@
+{
+  "pid": 26664,
+  "start": "5624560",
+  "command": "/usr/bin/python3 build/prod48-20261107/capture-rounder-startup-screen.py",
+  "utc": "2026-11-08T06:20:46Z",
+  "previous_status": {
+    "state": "waiting_for_middle_complete_capture",
+    "pid": 26664,
+    "utc": "2026-11-08T06:14:45Z"
+  },
+  "reason": "Two immutable reports share basename report.json; capture helper correctly rejects the collision. Replace this waiting controller before any archive is made; retain all originals and cancellation evidence.",
+  "retired": true,
+  "archive_created": false
+}

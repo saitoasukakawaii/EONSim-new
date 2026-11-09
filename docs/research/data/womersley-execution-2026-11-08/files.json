@@ -1,0 +1,48 @@
+{
+  "files": {
+    "womersley-execution-metadata-check-618260d/legacy-noop.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "womersley-execution-metadata-check-618260d/original-check.py": {
+      "bytes": 2366,
+      "sha256": "3033c88711cf8741347f8854919f4fb137bfd3713ab1a01f35c58c14f4b3a1b8"
+    },
+    "womersley-execution-metadata-check-618260d/reject-chord-change.log": {
+      "bytes": 431,
+      "sha256": "9ba3f73a47a35597b5847aff4f90b9a023f747c1777f8454fda2525f8672e500"
+    },
+    "womersley-execution-metadata-check-618260d/reject-coo-change.log": {
+      "bytes": 431,
+      "sha256": "9ba3f73a47a35597b5847aff4f90b9a023f747c1777f8454fda2525f8672e500"
+    },
+    "womersley-execution-metadata-check-618260d/reject-unprepared-chord.log": {
+      "bytes": 700,
+      "sha256": "b5bdf09f0dfbb237ae0f64eaf7f752bf1d854238f4e1a553e723593f4bc99f7b"
+    },
+    "womersley-execution-metadata-check-618260d/report.json": {
+      "bytes": 3289,
+      "sha256": "aa89bc2fa8736f63fbb636f2987167b1863a855d19248d7abf800506ea0593b6"
+    },
+    "womersley-execution-metadata-check-618260d/studied-script.py": {
+      "bytes": 8656,
+      "sha256": "b643bc8906b68338b9b06a2228fcd7b175f5022a249242d95c540e2f308dd54b"
+    }
+  },
+  "archive": {
+    "name": "metadata-check.tar.xz",
+    "bytes": 4952,
+    "sha256": "a74ccb28e84331ed421c6c12669ccec1a082ecc1b00f9d60a71bfe7194c3b163"
+  },
+  "verified_files": 7,
+  "prepared_helpers": {
+    "prepared-probe-womersley-options.py": {
+      "sha256": "bb316b6a146df5c2e9e63d258f70bfd0294e499ef3b6a11ea3d87b91b87543a4",
+      "status": "CLI loaded only; no numerical option probe or real fork executed"
+    },
+    "prepared-fork-womersley-execution.py": {
+      "sha256": "057bf83fd870ba6fbe2a0d9dc2b1e52439222559cf9348b46148913f6504fc03",
+      "status": "Warmup-only copy with optional denser save cadence; syntax/CLI preparation only, no real fork executed"
+    }
+  }
+}

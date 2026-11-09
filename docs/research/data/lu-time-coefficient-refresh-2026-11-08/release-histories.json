@@ -1,0 +1,104 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "ranks": 1,
+      "left": "direct",
+      "right": "cached",
+      "states": 8,
+      "datasets": 40,
+      "maximum_field_history_difference": 1.465017343549313e-14,
+      "clocks_and_time_metadata_exact": true
+    },
+    {
+      "ranks": 1,
+      "left": "cached",
+      "right": "restart",
+      "states": 5,
+      "datasets": 25,
+      "maximum_field_history_difference": 0.0,
+      "clocks_and_time_metadata_exact": true
+    },
+    {
+      "ranks": 1,
+      "left": "startup-direct",
+      "right": "startup-cached",
+      "states": 10,
+      "datasets": 50,
+      "maximum_field_history_difference": 5.403121526581511e-16,
+      "clocks_and_time_metadata_exact": true
+    },
+    {
+      "ranks": 2,
+      "left": "direct",
+      "right": "cached",
+      "states": 8,
+      "datasets": 80,
+      "maximum_field_history_difference": 1.4649739754624136e-14,
+      "clocks_and_time_metadata_exact": true
+    },
+    {
+      "ranks": 2,
+      "left": "cached",
+      "right": "restart",
+      "states": 5,
+      "datasets": 50,
+      "maximum_field_history_difference": 0.0,
+      "clocks_and_time_metadata_exact": true
+    },
+    {
+      "ranks": 2,
+      "left": "startup-direct",
+      "right": "startup-cached",
+      "states": 10,
+      "datasets": 100,
+      "maximum_field_history_difference": 5.412337245047638e-16,
+      "clocks_and_time_metadata_exact": true
+    },
+    {
+      "ranks": 4,
+      "left": "direct",
+      "right": "cached",
+      "states": 8,
+      "datasets": 160,
+      "maximum_field_history_difference": 1.4649306073755142e-14,
+      "clocks_and_time_metadata_exact": true
+    },
+    {
+      "ranks": 4,
+      "left": "cached",
+      "right": "restart",
+      "states": 5,
+      "datasets": 100,
+      "maximum_field_history_difference": 3.469446951953614e-18,
+      "clocks_and_time_metadata_exact": true
+    },
+    {
+      "ranks": 4,
+      "left": "startup-direct",
+      "right": "startup-cached",
+      "states": 10,
+      "datasets": 200,
+      "maximum_field_history_difference": 5.447031714567174e-16,
+      "clocks_and_time_metadata_exact": true
+    },
+    {
+      "ranks": 2,
+      "left": "event-direct",
+      "right": "event-cached",
+      "states": 10,
+      "datasets": 100,
+      "maximum_field_history_difference": 2.7354420811809277e-16,
+      "clocks_and_time_metadata_exact": true
+    },
+    {
+      "ranks": 2,
+      "left": "alpha-direct",
+      "right": "alpha-cached",
+      "states": 10,
+      "datasets": 100,
+      "maximum_field_history_difference": 1.7520707107365752e-16,
+      "clocks_and_time_metadata_exact": true
+    }
+  ]
+}

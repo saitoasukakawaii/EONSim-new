@@ -6,7 +6,7 @@
 #include <stdexcept>
 int main() {
     using namespace eonsim;
-    FsiConfig load; load.pressure=2; load.pressure_time=FsiPressureTime{1,4,1};
+    FsiConfig load; load.pressure=2; load.pressure_time=PressureTime{1,4,1};
     for(const auto& sample: {std::pair<double,double>{0,0},{1,3},{2,2},{3,1},{5,3}})
         if(std::abs(fsi_pressure(load,sample.first)-sample.second)>1e-14)
             throw std::runtime_error("FSI pressure startup/period mismatch");

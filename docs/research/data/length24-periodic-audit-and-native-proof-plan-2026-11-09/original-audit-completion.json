@@ -1,0 +1,60 @@
+{
+  "resource": {
+    "command": [
+      "/usr/bin/systemd-run",
+      "--user",
+      "--scope",
+      "--quiet",
+      "--unit=eonsim-l24-bounded-audit-42097.scope",
+      "--property=MemoryMax=2G",
+      "--property=MemorySwapMax=0",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/analysis-guard.py",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/source/scripts/audit_pressure_tube.py",
+      "--case",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-bounded-postprocess-e771355/case.json",
+      "--work",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-bounded-postprocess-e771355",
+      "--first-step",
+      "5801",
+      "--output",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-bounded-postprocess-e771355/eonsim-audit.json"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/length24-bounded-postprocess-handoff-e771355/source",
+    "unit": "eonsim-l24-bounded-audit-42097.scope",
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "timeout_seconds": 14400,
+    "peak_observed_bytes": 159633408,
+    "minimum_available_bytes": 16338907136,
+    "scope_seen": true,
+    "cleanup": [],
+    "launcher_pid": 43852,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "returncode": 0,
+    "wall_seconds": 3086.610570492994,
+    "remaining_scope_members": []
+  },
+  "report_sha256": "60daa871c263faf79d5e75975c76708d4ebbeb71582b52679eaf25bf9c246f2d",
+  "immutable_inputs_unchanged": true,
+  "periodic": false,
+  "quality": {
+    "kinematics": {
+      "maximum": 0.0,
+      "limit": 1e-12,
+      "passed": true
+    },
+    "stage_mass": {
+      "maximum": 1.235990476633475e-17,
+      "limit": 1e-09,
+      "passed": true
+    },
+    "stage_divergence_theorem": {
+      "maximum": 1.2051700578819943e-17,
+      "limit": 1e-12,
+      "passed": true
+    }
+  },
+  "full_qualification": false
+}

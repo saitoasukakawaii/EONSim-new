@@ -4,6 +4,33 @@
 #include <iostream>
 using namespace eonsim;
 int main() {
+    // Reproduce the long production clock: the old continuation resets its
+    // correction at11600, then a second restart at12400 used to lose it again.
+    const double production_dt=2*std::acos(-1.)/400;
+    TimeStepper warmup(production_dt,12800,TimeControl{});
+    while(warmup.step<11600) warmup.accept();
+    TimeStepper full(production_dt,12800,TimeControl{});
+    full.restore(warmup.step,warmup.time,warmup.next_dt,0);
+    while(full.step<12400) full.accept();
+    if(full.correction()==0) throw std::runtime_error("Clock fixture has no correction to preserve");
+    TimeStepper resumed(production_dt,12800,TimeControl{}),lost=resumed;
+    resumed.restore(full.step,full.time,full.next_dt,full.correction());
+    lost.restore(full.step,full.time,full.next_dt,0);
+    bool old_clock_differs=false;
+    while(full.active()) {
+        if(resumed.step!=full.step||resumed.time!=full.time||resumed.dt()!=full.dt()||
+           resumed.next_dt!=full.next_dt||resumed.correction()!=full.correction()||
+           resumed.time+(2./3)*resumed.dt()!=full.time+(2./3)*full.dt())
+            throw std::runtime_error("Restart changed an accepted or stage clock");
+        old_clock_differs=old_clock_differs||lost.time!=full.time||lost.dt()!=full.dt();
+        full.accept();resumed.accept();lost.accept();
+    }
+    if(resumed.active()||resumed.time!=full.time||resumed.correction()!=full.correction()||!old_clock_differs)
+        throw std::runtime_error("Long compensated-clock restart regression failed");
+    bool invalid_clock=false;
+    try {resumed.restore(1,production_dt,production_dt,std::numeric_limits<double>::quiet_NaN());}
+    catch(const std::runtime_error&) {invalid_clock=true;}
+    if(!invalid_clock||resumed.time!=full.time) throw std::runtime_error("Nonfinite correction corrupted accepted clock");
     for(int steps:{320,10000}) {
         TimeStepper clock(.2/steps,steps,TimeControl{});
         while(clock.active()) clock.accept();

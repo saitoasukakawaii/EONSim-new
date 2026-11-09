@@ -1,0 +1,47 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 63840,
+      "sha256": "e6430638bde2631aeced3c0452b8f44c5834ea1d2160b32682b65f96202f423c",
+      "verified_files": 78
+    }
+  ],
+  "verified_files": 78,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {},
+  "copied_files": {
+    "linux-initial-report.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/contract-s96-fine-n200-capture-retry2-27f5c82/linux-initial-report.json",
+      "sha256": "135596543f2259347bc05fc674ea1c498581d11add02da45aae0750108000183"
+    },
+    "linux-final-report.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/contract-s96-fine-n200-capture-retry2-27f5c82/linux-final-report.json",
+      "sha256": "e374a5382d6eaa9c91591cf0d7dab4952d748b15eb50f651208b345b0124fd2c"
+    },
+    "windows-final-report.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/contract-s96-fine-n200-capture-retry2-27f5c82/windows-final-report.json",
+      "sha256": "9e6904141a61bc192ef6cd29892e12a3f2718ed640d2e07d3a3234c5825c60fc"
+    },
+    "windows-first-failure-summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/contract-s96-fine-n200-capture-retry2-27f5c82/windows-first-failure-summary.json",
+      "sha256": "4ed0586fc4ab7894350061c1f109606bb06cf5d8527e433880eab1028844818b"
+    },
+    "contract-summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/contract-s96-fine-n200-capture-retry2-27f5c82/contract-summary.json",
+      "sha256": "bfbf4445eeef1a53eadef88b33c173172b142d80599b5bbb4b5636180dd8b46a"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/reference-backend-transition-contract-validation-2026-11-08",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "27f5c82cc925e370c1c78227683f12cb7c261584",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

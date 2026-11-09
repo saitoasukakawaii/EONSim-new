@@ -1,0 +1,54 @@
+SetCTestConfiguration:BuildDirectory:/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+UpdateCTestConfiguration  from :/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+UpdateCTestConfiguration  from :/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/DartConfiguration.tcl
+Cannot find file: /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/DartConfiguration.tcl
+SetCMakeVariable:CTEST_BINARY_DIRECTORY:/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+SetCMakeVariable:CTEST_TEST_TIMEOUT:10000000
+SetCTestConfiguration:BuildDirectory:/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+SetCTestConfiguration:SourceDirectory:/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+Test project /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 32
+    Start 32: fsi_element_jacobian
+
+32: Test command: /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/verify_fsi_element
+32: Working Directory: /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+32: Test timeout computed to be: 30
+32: field=0 jv_relative_error=2.90591e-11
+32: field=1 jv_relative_error=7.7753e-11
+32: field=0 jv_relative_error=2.94352e-11
+32: field=1 jv_relative_error=8.77826e-11
+1/2 Test #32: fsi_element_jacobian .............   Passed    0.06 sec
+test 67
+    Start 67: fluid_pressure_time
+
+67: Test command: /home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/python3.15 "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/tests/verify_fluid_pressure_time.py" "--executable" "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/eonsim" "--mpiexec" "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec" "--work" "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug/fluid_pressure_time"
+67: Working Directory: /mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/cloud-3.23.7-debug
+67: Environment variables: 
+67:  OMP_NUM_THREADS=1
+67:  OPENBLAS_NUM_THREADS=1
+67:  MKL_NUM_THREADS=1
+67: Test timeout computed to be: 300
+67: {"work": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-debug/fluid_pressure_time/run-0_ct967z", "states": [{"scheme": "be", "ranks": 1, "discrete_oracle_error": 2.0816681711721685e-17, "mpi_difference": 0.0}, {"scheme": "be", "ranks": 2, "discrete_oracle_error": 2.0816681711721685e-17, "mpi_difference": 3.469446951953614e-18}, {"scheme": "be", "ranks": 4, "discrete_oracle_error": 2.0816681711721685e-17, "mpi_difference": 3.469446951953614e-18}, {"scheme": "bdf2", "ranks": 1, "discrete_oracle_error": 2.42861286636753e-17, "mpi_difference": 0.0}, {"scheme": "bdf2", "ranks": 2, "discrete_oracle_error": 2.42861286636753e-17, "mpi_difference": 6.938893903907228e-18}, {"scheme": "bdf2", "ranks": 4, "discrete_oracle_error": 2.42861286636753e-17, "mpi_difference": 1.0408340855860843e-17}, {"scheme": "generalized_alpha", "ranks": 1, "discrete_oracle_error": 1.8388068845354155e-16, "mpi_difference": 0.0}, {"scheme": "generalized_alpha", "ranks": 2, "discrete_oracle_error": 1.700029006457271e-16, "mpi_difference": 4.85722573273506e-17}, {"scheme": "generalized_alpha", "ranks": 4, "discrete_oracle_error": 1.97758476261356e-16, "mpi_difference": 3.469446951953614e-17}], "checks": "cadence/restart/profile mismatch/input rejection passed"}
+2/2 Test #67: fluid_pressure_time ..............   Passed    5.58 sec
+
+The following tests passed:
+	fsi_element_jacobian
+	fluid_pressure_time
+
+100% tests passed out of 2
+
+Label Time Summary:
+rank-1    =  22.39 sec*proc (2 tests)
+rank-2    =  22.33 sec*proc (1 test)
+rank-4    =  22.33 sec*proc (1 test)
+
+Total Test time (real) =   5.67 sec

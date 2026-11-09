@@ -1,0 +1,121 @@
+{
+  "base": "4f5f26d7e70585383a9a9f5ea5f9163875df5a7e",
+  "controller_sha256": "1e150dd1bf8df239d6f5de9d7de53bc62ed07abbd2481d2fb49cbd80aee5c062",
+  "source_hashes": {
+    "tests/test_pressure_tube_audit.py": "05bfa4436620ce79af6e63d731bd7b8285094bd2bc68d4fbbecb1d0b70f3dcd5",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+    "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+    "scripts/audit_pressure_tube.py": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+    "scripts/audit_svfsi_convergence.py": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/svfsi_restart_evidence.py": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "build/prod48-20261107/s24-budget-kernel.py": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+    "build/prod48-20261107/analyze-elastic-s24-native1100-budgets.py": "b9d61aca452437d7db6c97d4e2b19681ec286156a8ec7f19a42bb11ab14f0428",
+    "build/prod48-20261107/analyze-elastic-s24-midnight2-budgets.py": "700e8a99a7354f1db983c4a9d2817406be240ab62dfccd97e6c819e34ade71f8",
+    "build/prod48-20261107/compare-pressure-fields.py": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+    "build/prod48-20261107/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "cases/fsi/generate_pressure_tube.py": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198"
+  },
+  "input_hashes": {
+    "case.json": "b3bea9d75f9699e17d5814e07de847eaadf9925dd2fb441b1f599876be51698c",
+    "fluid.msh": "fef303163ad38abcd0debd768ec5c474b72d415fb5a5b0deaa56b05cdda1ffe7",
+    "solid.msh": "85063021a030645a05a783a9cf02042a1838b244369b58d71ce2c66d88890a18",
+    "geometry.json": "f3798991155899baf1ada64e138610d69678bdae7e1df13007b73d84c1e47106",
+    "eonsim": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+  },
+  "seed_hashes": {
+    "6200": {
+      "manifest": "e2bb90d01574f8270d549062de76372b8b81e48b3ec5e276f79ff641962a2b81",
+      "state_rank0.h5": "a0cf494cec0b370dda9f8d31e1e4323cf77a776cb02800a4b55e4534ab7c50fd"
+    },
+    "6400": {
+      "manifest": "066bd919ae7390eb897974bee8a0cb357f0cb25e154c5ecb7736c23a12f4faf0",
+      "state_rank0.h5": "0039c7bb2031b69f2a21db6e535c1219402075928801bc969426fbdf251d9571"
+    }
+  },
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "guard_sha256": "5fe97dffd47ecca76da8ff183cd2ddb309d1e06d32210d71ab2d90977434e036",
+  "scopes": "fresh owned 2GiB/swap0 scopes only",
+  "cpus": [
+    14
+  ],
+  "nice": 19,
+  "shared_cpu": true,
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "admission_bytes": 10737418240,
+  "running_floor_bytes": 8589934592,
+  "proof_steps": [
+    6200,
+    6400
+  ],
+  "replay_steps": [
+    6390,
+    6400
+  ],
+  "new_final_step": 7200,
+  "planned_commands": {
+    "replay200": [
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/execution-guard.py",
+      "/mnt/d/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/eonsim",
+      "-case",
+      "case.json",
+      "-checkpoint",
+      "/mnt/d/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/replay200/checkpoint",
+      "-restart",
+      "/mnt/d/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/replay200/checkpoint",
+      "-stop_after",
+      "6400",
+      "-solver_report",
+      "-log_view",
+      ":profile.txt",
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-snes_lag_jacobian",
+      "-2"
+    ],
+    "replay10": [
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/execution-guard.py",
+      "/mnt/d/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/eonsim",
+      "-case",
+      "case.json",
+      "-checkpoint",
+      "/mnt/d/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/replay10/checkpoint",
+      "-restart",
+      "/mnt/d/EONSim-prod48-20261107/length24-native-extension-proof-4f5f26d/replay10/checkpoint",
+      "-stop_after",
+      "6400",
+      "-solver_report",
+      "-log_view",
+      ":profile.txt",
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-snes_lag_jacobian",
+      "-2"
+    ]
+  },
+  "timeouts": {
+    "replay200": 7200,
+    "replay10": 1200,
+    "comparison": 7200
+  },
+  "immutable_manifest_sha256": "1922c140e90e847af9de4359c8d2b1441c27ac54c9a8facc289e2bdf7722efb3",
+  "oracle_fields_sha256": "1ed6b7d8ff5ddbb696b40966407b5ec1381e1f3e74ae41ef3baeb99038c31b2c",
+  "original_audit_sha256": "60daa871c263faf79d5e75975c76708d4ebbeb71582b52679eaf25bf9c246f2d",
+  "scales_sha256": "75491943e5592108fa34d672bf0a1e7f3fd3a5f6e4e91c8d431ffd8b0be4e0ce",
+  "nodal_limit": 2e-09,
+  "history_limit": 2e-09,
+  "normalized_mass_limit": 1e-08,
+  "legacy_clock_limit": 1e-12,
+  "original_native_boundary_pairs": 1,
+  "replay_native_pairs": 10,
+  "field_pairs": 210,
+  "adopted": false,
+  "scope": "Replay6201..6400 with final step7200 and unchanged physics, then native6390..6400 replay. Original only saved native states every200steps: compare all11datasets at6400 plus10 replay boundaries; all210 five-field pairs. Legacy v3 clock tolerance only. No v4 claim, no cost claim, no extended production, no replacement of failed c32 periodic audit."
+}

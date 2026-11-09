@@ -1,0 +1,34 @@
+{
+  "base": "b8b3a786ece0dbb86a5582eca5137c3a7e7a3501",
+  "report_sha256": "c0546735b40d508a04b9e06219d1620d6d8e85d960cbbbd0f22e38da951d393d",
+  "review_sha256": "4d3f69e8e0d81262f73d055d88cd025984abad2c7df76449faf75f10acf88a40",
+  "wall_seconds": {
+    "old": 3004.3935211600037,
+    "ilut": 1590.483061352992,
+    "replay": 167.6768612339947
+  },
+  "independent_wall_seconds": 236.9380413480103,
+  "comparisons": {
+    "backend": {
+      "passed": true,
+      "states": 100,
+      "maximum_absolute_nodal": 1.8431436932253575e-17,
+      "maximum_normalized_mass_rms": 4.482710502635609e-15,
+      "maximum_native_history_difference": 2.95572485757567e-15,
+      "maximum_saved_equation_norm_difference": 0.0,
+      "exact_native_time": true,
+      "bitwise_algorithm_except_elapsed_and_padding": false
+    },
+    "candidate-replay": {
+      "passed": true,
+      "states": 10,
+      "maximum_absolute_nodal": 0.0,
+      "maximum_normalized_mass_rms": 0.0,
+      "maximum_native_history_difference": 0.0,
+      "maximum_saved_equation_norm_difference": 0.0,
+      "exact_native_time": true,
+      "bitwise_algorithm_except_elapsed_and_padding": true
+    }
+  },
+  "scope": "Complete completed old100, candidate100 and native replay10 fields/history, immutable inputs and independent review. The old successful baseline is byte-imported; its prior diagnostic failure remains in the separately committed midnight audit archive. No new baseline numerical work, production backend adoption or physical qualification is claimed."
+}

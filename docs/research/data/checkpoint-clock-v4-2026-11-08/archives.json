@@ -1,0 +1,51 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 1468504,
+      "sha256": "f706f832865d2a5a1dd2fe89ce4527e6d1db851f8fb0c44627917dec63b95980",
+      "verified_files": 10464
+    }
+  ],
+  "verified_files": 10464,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "work/clock-checkpoint-validation-6f202a1/eonsim-debug": {
+      "bytes": 16885696,
+      "sha256": "de89816a671019e95d882d4b74aa4e4ebf4ee75cb1d2e12d6229623ea751a9d1",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/clock-checkpoint-validation-6f202a1/eonsim-release": {
+      "bytes": 1599208,
+      "sha256": "e88ba71276b688ee0c5364883e61396899944a2629317a1fd1c8c420f5b11ed2",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "source.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/clock-checkpoint-validation-6f202a1/source.json",
+      "sha256": "2aa0a6b9e49077a31dc8c5737febc85a3d516ee815f4c955388a382c5830e565"
+    },
+    "reader-checks.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/clock-checkpoint-validation-6f202a1/reader-checks.json",
+      "sha256": "e3d7106997cd2bf72a21de95188039d6f8b5f8842fd93084959fc195ae473477"
+    },
+    "actual-test-directories.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/clock-checkpoint-validation-6f202a1/actual-test-directories.json",
+      "sha256": "cc4e5c3672861f31f28b838eb9521c7d7b729809b273ac40b115cdeac85d8605"
+    },
+    "clock-checkpoint-validation-current.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/clock-checkpoint-validation-current.json",
+      "sha256": "ec64e4ede84368e90bc46203ea26b5ea01025c97b2b1569965c7c555435984c4"
+    },
+    "capture-production-followups.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-production-followups.py",
+      "sha256": "3bac74e89ba9d694f294db6debec297eaf9cc1a313fb637a1540596f81325bb1"
+    }
+  },
+  "source_checkpoint": "6f202a1584b8a09df41e666ad4599a427b0d4dc1",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

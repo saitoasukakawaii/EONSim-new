@@ -1,0 +1,31 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 2914060,
+      "sha256": "6a6d242dbd1cc2622f290d490b3296f9859bbd4c9d316f9f00b95c80784904ec",
+      "verified_files": 23
+    }
+  ],
+  "verified_files": 23,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {},
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/live-reference-prefix-review-20261108T202936Z/summary.json",
+      "sha256": "a7032e7d2b910a436742062934735f531ff23ee609c4959262ac555d5bab81cd"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/reference-live-prefix-20261108t202936z",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "d2c24ee76d9595058b3873f034facd59fa03a739",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

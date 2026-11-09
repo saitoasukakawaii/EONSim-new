@@ -1,0 +1,25 @@
+{
+  "source_checkpoint": "2367903",
+  "source_study": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-lu8-m600",
+  "source_hashes": {
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "controller_sha256": "7f06c32f4ba62905d5a2f154768398b24c1a66839aa4208cfc26d2acdd73ce8a",
+  "cap_sha256": "fbcf83036fcd29b969fcdb1bf079f1622faddcb107ade3b1b71f1262383ba993",
+  "cpus": [
+    17
+  ],
+  "nice": 19,
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "cycle": 4,
+  "steps": [
+    601,
+    800
+  ],
+  "qualification": "not evaluated",
+  "scope": "Read-only completed cycle; hard-linked immutable HDF states are read only and hashed before/after. New copied receipt and output order prevent races with live study segments. No production source or state mutation."
+}

@@ -1,0 +1,296 @@
+{
+  "stage": "n200",
+  "step": 1200,
+  "analysis": {
+    "definition": {
+      "schema": 1,
+      "seed": [
+        48,
+        4,
+        8
+      ],
+      "level": 2,
+      "alpha": 1.0,
+      "period": 6.283185307179586,
+      "radius": 1.0,
+      "length": 2.0,
+      "density": 1.0,
+      "viscosity": 1.0,
+      "pressure_amplitude": 0.02,
+      "steps_per_cycle": 200,
+      "phases": 200,
+      "warmup": 2,
+      "ranks": 4,
+      "schur": false,
+      "tau": null,
+      "executable_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "solver_options": [
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-fluid_lu_pc_reuse_window",
+        "32",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "last_cycle": 6,
+    "quadrature_order": 4,
+    "versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.17.1",
+      "h5py": "3.14.0"
+    },
+    "nodes": 91905,
+    "tetrahedra": 516096,
+    "metrics": {
+      "velocity_relative_l2_error": 0.01016444554197648,
+      "pressure_rms_over_amplitude": 0.002160891315219282,
+      "flow_amplitude_relative_error": 0.006402408209449373,
+      "flow_phase_error_degrees": 0.04045160746086848,
+      "flow_mean": 6.834086196949585e-10,
+      "maximum_net_flux": 1.5931101551077288e-17,
+      "velocity_reference_rms": 0.001007241052140459,
+      "pressure_reference_rms": 0.008164965809277261,
+      "flow_amplitude": [
+        0.0037937625949044417,
+        -0.0006288841397428308
+      ],
+      "reference_flow_amplitude": [
+        0.0038177605098182,
+        -0.0006356320068743732
+      ]
+    },
+    "last_periodic_difference": {
+      "velocity": 3.0917784210938e-15,
+      "pressure": 6.613302232617679e-15
+    },
+    "preceding_periodic_difference": {
+      "velocity": 1.3144018210808247e-15,
+      "pressure": 4.98870516370457e-15
+    },
+    "preliminary_gates": {
+      "velocity": false,
+      "pressure": true,
+      "flow_amplitude": true,
+      "flow_phase": true,
+      "global_mass": true,
+      "periodic": true
+    },
+    "scope": "Analytic and periodic diagnostics; spatial/time/tail/sampling budgets still required"
+  },
+  "producer_snapshot": {
+    "state": "running",
+    "pid": 40998,
+    "utc": "2026-11-08T21:52:50Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/alpha1-native200-lu32-recovery-a3e1c87",
+    "job": "fine-n400",
+    "adopted": true
+  },
+  "resource_hashes": {
+    "fine-n200.resource.json": "f1de9c14b3aabcbb11ed4d1ca58e0dad392f1e07226c0903dda70e08c2104d5c",
+    "n200-analysis.resource.json": "2f60d1bc05272ad45060c992849a9d8061d518634d3270eca074d0e33c44dce3"
+  },
+  "prior_complete_archives": {
+    "womersley-alpha1-native200-lu32-handoff-2026-11-09": {
+      "metadata_sha256": {
+        "archives.json": "eec3d61c7c5be1319919909ce5ea23cd302d5d5f36fed514ed1c16fcc6b37be2",
+        "manifest.json": "a35934f42bd322927933f180c04ae8416cebb6dc65cccb4ad4255ee0d850e570"
+      },
+      "parts": [
+        {
+          "file": "part001.tar.xz",
+          "bytes": 30235340,
+          "sha256": "205230d874e8769f827a1f2bcbe04a6c2cbd5c77fe750dac53c715c43cbf5afe",
+          "verified_files": 44,
+          "blob_oid": "55fa0c7248508f93274522786df975c7f244bc08"
+        },
+        {
+          "file": "part002.tar.xz",
+          "bytes": 26476900,
+          "sha256": "3d69cb406d338e508ab41ba541d25c4799e5fce66c7c71dfae895dee3cd8ed2d",
+          "verified_files": 44,
+          "blob_oid": "4cd9f64f67902f516a16166afd02a6149aa5ee52"
+        },
+        {
+          "file": "part003.tar.xz",
+          "bytes": 25400944,
+          "sha256": "30033703c04b0a44b22399ccf2d18020c3c94272229bdf75bbee18daa2baf686",
+          "verified_files": 44,
+          "blob_oid": "dfc0800b33386d3e86b243f7267da05cd95d6f85"
+        },
+        {
+          "file": "part004.tar.xz",
+          "bytes": 26312660,
+          "sha256": "62a586caf7cdba3b141e7ecfb72c1f1a003d943fdbff426fd892a07246032897",
+          "verified_files": 44,
+          "blob_oid": "c0d286c3bb4bfa837d8643026f5f98b9eb7cbe8e"
+        },
+        {
+          "file": "part005.tar.xz",
+          "bytes": 27244192,
+          "sha256": "f7605748a6b9b10c89ecde1ddffe4cf442d9212bed6ded604952d0eb4ce37ff0",
+          "verified_files": 44,
+          "blob_oid": "288d4235ffafc89c741af37ca5ff437a06247103"
+        },
+        {
+          "file": "part006.tar.xz",
+          "bytes": 26969940,
+          "sha256": "bca81532c9e68312c4e5e07b65912499be33e86881ec4e7c00e516bdf5f81595",
+          "verified_files": 44,
+          "blob_oid": "847f4e810502341ef28ae28cac068880c0142c83"
+        },
+        {
+          "file": "part007.tar.xz",
+          "bytes": 25081452,
+          "sha256": "25b21b1f2a29ad134ede446beff2763346965dd24ad14b99aca06a9b4d94497c",
+          "verified_files": 44,
+          "blob_oid": "7749090e42249d4a1ebc09389ba4870398457495"
+        },
+        {
+          "file": "part008.tar.xz",
+          "bytes": 27914444,
+          "sha256": "5bb922437a07a575216bd04a1441b995e26af70e15c40a8f9955dc40f7e56084",
+          "verified_files": 44,
+          "blob_oid": "a4f18e33c2108e8a754611d1b5dc493fad7aa4fa"
+        },
+        {
+          "file": "part009.tar.xz",
+          "bytes": 23622112,
+          "sha256": "ae2b7b6c423cf1e23c6181f179f27c91bfe3a76434032241d2473c360dcd0d5a",
+          "verified_files": 44,
+          "blob_oid": "d83aae856718e6ef79261d2af715901c7bff07a5"
+        },
+        {
+          "file": "part010.tar.xz",
+          "bytes": 12374848,
+          "sha256": "4e1c8363132cc76de7b057d3338ce74ff3c2404e922699fd0230085c3bc996e2",
+          "verified_files": 48,
+          "blob_oid": "d8a887e3f5ed37a38af5a8972e24012f53a1c347"
+        },
+        {
+          "file": "part011.tar.xz",
+          "bytes": 12534936,
+          "sha256": "47daa4bc4b141dfeacb9414ff82560a7d6ad5335392bb48c8817ff7e08612dfd",
+          "verified_files": 24,
+          "blob_oid": "5b064cec6f0977dbf415a642f112a974ce353496"
+        },
+        {
+          "file": "part012.tar.xz",
+          "bytes": 12614568,
+          "sha256": "60accb2b173ac7955ba946404f01df49a5c99ae5882b9264f1a119ac128dcc02",
+          "verified_files": 48,
+          "blob_oid": "eeeef5c821b2e7daa07e69b2f061a93d4b8e391a"
+        },
+        {
+          "file": "part013.tar.xz",
+          "bytes": 13185508,
+          "sha256": "0b97e98515ffd578d215cb29476eb48692d613766f47f1d5fba7c300524c26c7",
+          "verified_files": 24,
+          "blob_oid": "89df6366e7a91d18472b4c1522ef459beb8cfc9d"
+        },
+        {
+          "file": "part014.tar.xz",
+          "bytes": 13899096,
+          "sha256": "a30eec71ac7c55d10d63c0c06e627e46331c629687db6a9d46a7b85187dd039e",
+          "verified_files": 11,
+          "blob_oid": "4a6fb18ae885e78831e70e6cb44dd6cc24d6a8c3"
+        },
+        {
+          "file": "part015.tar.xz",
+          "bytes": 8099492,
+          "sha256": "868f30544621fe8ab3d1cd33254bf1f1a8c3627b80e4f9f310c4bf60bc75b1b4",
+          "verified_files": 19,
+          "blob_oid": "7b224611f41098919fedcd80c704f86188a09b1e"
+        },
+        {
+          "file": "part016.tar.xz",
+          "bytes": 8072408,
+          "sha256": "b73717dc10d182c9e1083ce4e3b589401e1c5f0375182cdf826b13bf8493d742",
+          "verified_files": 10,
+          "blob_oid": "47a7c6df0e714715655e63c0f359ca2878d6e43b"
+        },
+        {
+          "file": "part017.tar.xz",
+          "bytes": 14061188,
+          "sha256": "b6b0d3bc8fd12a7b309fb45676f5b00a7e2ed87b55e1ab34854ff256c8795b02",
+          "verified_files": 14,
+          "blob_oid": "5051ef854d2857fce2172877c107a8029f350507"
+        },
+        {
+          "file": "part018.tar.xz",
+          "bytes": 10174712,
+          "sha256": "3653a6563127b385787e25437f077e48cd408badacc585bfd38f0ff5d94857ab",
+          "verified_files": 18,
+          "blob_oid": "439595f1a572fde41926a7ef3558050e73640909"
+        },
+        {
+          "file": "part019.tar.xz",
+          "bytes": 13833000,
+          "sha256": "933bcce733dbc89c47933e7e0f3fedcbb4f4c9569094a0dfa42029d08e46257c",
+          "verified_files": 50,
+          "blob_oid": "db7e1c82604d01eefc38123bdb2f6cb5b86ce10b"
+        },
+        {
+          "file": "part020.tar.xz",
+          "bytes": 15751572,
+          "sha256": "25d65da5ff9a50c118c49a312d45aeed80b59904634fbdd88d1a2fc3fea8909c",
+          "verified_files": 14,
+          "blob_oid": "1a95496d31b7fd84e159a14826ee25545de85087"
+        },
+        {
+          "file": "part021.tar.xz",
+          "bytes": 3981072,
+          "sha256": "8c5f7979c4193c43b7706b9f33e71e194a414b5062ba499b1ece2be7013977f5",
+          "verified_files": 83,
+          "blob_oid": "74800c32bf4447c30c88059b343e5257dbb3772d"
+        }
+      ],
+      "whole_prior_archive_git_readback": true
+    },
+    "womersley-alpha1-middle-n200-2026-11-08": {
+      "metadata_sha256": {
+        "archives.json": "92766058f65439ddbf572b7bbffcb017e0b631f56f41d2bb6d1b66249b55d6ff",
+        "manifest.json": "80b6416543f8bf527b2e396635f4437830f3db813c410dbd0cf3b447892ba490"
+      },
+      "parts": [
+        {
+          "file": "part001.tar.xz",
+          "bytes": 35108404,
+          "sha256": "989790ea59da3d78b21645415136558d292f793eb2080b8d6efe0154305d3d06",
+          "verified_files": 340,
+          "blob_oid": "238289ee01861c3eaeae9156090c27272c54054a"
+        },
+        {
+          "file": "part002.tar.xz",
+          "bytes": 44414756,
+          "sha256": "01ce7b6a41a15cf656a117ba0324d9939ed4fa42f2d6a660575b27a250c26a3e",
+          "verified_files": 398,
+          "blob_oid": "78e6c926ffb211f89bbee213498726d9c5f1cf9c"
+        },
+        {
+          "file": "part003.tar.xz",
+          "bytes": 44499592,
+          "sha256": "755278e6bd07ed8f60cd120f4fd0d935c8c7ce76c18f646b41e0d3277ead9d57",
+          "verified_files": 399,
+          "blob_oid": "33e357c5f1457aa837a6a979d48db9abb392dd87"
+        },
+        {
+          "file": "part004.tar.xz",
+          "bytes": 44434808,
+          "sha256": "16a036077ed454a72ce0e3add740cc7b04afd31325ae74126f40825ad2701c66",
+          "verified_files": 399,
+          "blob_oid": "349d22b56fb21a2bce101a8bdc6a077f23e00304"
+        },
+        {
+          "file": "part005.tar.xz",
+          "bytes": 3131088,
+          "sha256": "34bb2c2cbfaecbf4c6848231a2efde1a7adb2526c6a9e85ea26be1006195b58a",
+          "verified_files": 27,
+          "blob_oid": "6cd50a9662495ceb5b17d2f0e93686a4c9434544"
+        }
+      ],
+      "whole_prior_archive_git_readback": true
+    }
+  },
+  "scope": "Complete sealed numerical stage and its retained current/history states. N200-only capture is not whole-family acceptance. All failed gates and prior failed handoff attempts remain preserved."
+}

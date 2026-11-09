@@ -1,0 +1,25 @@
+{
+  "base": "b8d1c76348067502963d26277be1bf9b75c9b5f7",
+  "run_directories": {
+    "release/fsi_lu_reuse": "/home/tfblab633/EONSim-prod48-20261107/fsi-lu-reuse-validation-9ccd73f/release/fsi_lu_reuse/run-g_2z9nt8",
+    "release/fluid_lu_reuse": "/home/tfblab633/EONSim-prod48-20261107/fsi-lu-reuse-validation-9ccd73f/release/fluid_lu_reuse/run-qsgm79o0",
+    "debug/fsi_lu_reuse": "/home/tfblab633/EONSim-prod48-20261107/fsi-lu-reuse-validation-9ccd73f/debug/fsi_lu_reuse/run-ltrp92od",
+    "debug/fluid_lu_reuse": "/home/tfblab633/EONSim-prod48-20261107/fsi-lu-reuse-validation-9ccd73f/debug/fluid_lu_reuse/run-4a8yq02z"
+  },
+  "selected_tests": [
+    "fsi_lu_reuse",
+    "fsi_pressure_state",
+    "fluid_lu_reuse"
+  ],
+  "new_fsi_histories": {
+    "passed": true,
+    "datasets": 3696,
+    "maximum": 9.731798700229888e-15,
+    "all_v4_clocks_exact": true
+  },
+  "numerical_passed": true,
+  "cost_measured": false,
+  "production_adopted": false,
+  "full_qualification": false,
+  "scope": "Complete new FSI/standalone-fluid current invocation raw runs, full existing pressure-state test directory, build/CTest logs, frozen source and clean resources. Previous fluid run directories are excluded using current.json. No performance or physical qualification claim; binaries identified by exact hashes."
+}

@@ -1,0 +1,67 @@
+{
+  "synthetic_no_solver_execution": true,
+  "steps": 48,
+  "samples_per_cycle": 16,
+  "results": {
+    "eonsim": {
+      "periodic": true,
+      "quality": {
+        "kinematics": {
+          "maximum": 0.0,
+          "limit": 1e-12,
+          "passed": true
+        },
+        "stage_mass": {
+          "maximum": 0.0,
+          "limit": 1e-09,
+          "passed": true
+        },
+        "stage_divergence_theorem": {
+          "maximum": 0.0,
+          "limit": 1e-12,
+          "passed": true
+        }
+      },
+      "mid_pressure": {
+        "mean": 0.02,
+        "sine": 0.010000000000000016,
+        "cosine": -1.0103097498981197e-17,
+        "amplitude": 0.010000000000000016,
+        "phase_degrees": -5.788648467007992e-14,
+        "higher_harmonic_rms": 1.5976011587195367e-17
+      },
+      "first_evaluation_time": 0.39269908169872414
+    },
+    "svfsi": {
+      "periodic": true,
+      "quality": {
+        "kinematics": {
+          "maximum": 0.0,
+          "limit": 1e-12,
+          "passed": true
+        },
+        "stage_mass": {
+          "maximum": 0.0,
+          "limit": 1e-09,
+          "passed": true
+        },
+        "stage_divergence_theorem": {
+          "maximum": 0.0,
+          "limit": 1e-12,
+          "passed": true
+        }
+      },
+      "mid_pressure": {
+        "mean": 0.02,
+        "sine": 0.010000000000000016,
+        "cosine": -1.0103097498981197e-17,
+        "amplitude": 0.010000000000000016,
+        "phase_degrees": -5.788648467007992e-14,
+        "higher_harmonic_rms": 1.5976011587195367e-17
+      },
+      "first_evaluation_time": 0.2617993877991494
+    }
+  },
+  "source_script_sha256": "b610b0547e3946f607c160b970d321883119cf40ba8f11b1d098a9c1fa744a79",
+  "scope": "Manufactured zero-motion uniform-pressure I/O and analysis pipeline; not a coupled elastic solution"
+}

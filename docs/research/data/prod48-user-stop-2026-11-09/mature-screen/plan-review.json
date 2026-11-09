@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "decision": "run_bounded_fsi_mature_lu_screen_only",
+  "utc": "2026-11-09T01:46:24Z",
+  "reviewer_sha256": "b3c8f5298065cfaec66f7e2d65a5ebdf748943ff081d9b44ff9bd641a349741f",
+  "definition_sha256": "b3dc8ca587eb32a6d52437ec01a8cdc6060154e89c0024f646100ee1285a351b",
+  "validation_completion_sha256": "2b2bd425df713a48ec44ac6448dc10e6430ca18c2b660c8ee3134209eb78220b",
+  "source_files_checked": 21,
+  "seed": {
+    "step": 6200,
+    "datasets": {
+      "clock": [
+        2
+      ],
+      "fluid_rate": [
+        19875
+      ],
+      "mesh_acceleration": [
+        19875
+      ],
+      "mesh_velocity": [
+        19875
+      ],
+      "metadata": [
+        9
+      ],
+      "physical": [
+        66250
+      ],
+      "reduced": [
+        31585
+      ],
+      "rigid": [
+        2
+      ],
+      "solid_acceleration": [
+        19875
+      ],
+      "solid_displacement": [
+        19875
+      ],
+      "time_metadata": [
+        2
+      ]
+    },
+    "sha256": "f7efeb96caa570bbce606472c5502ec803490f4e2abf6b59a12a928a53861ec7"
+  },
+  "field_pair_states": 176,
+  "native_pair_states": 144,
+  "native_datasets": 1584,
+  "adopted": false,
+  "full_qualification": false,
+  "scope": "Implementing-agent review of actual immutable plan. Only output frequency/path changes; existing full-load seed, physics, tolerances and actual clock contracts unchanged. All six numerical modes and every raw pair required, then separate review before any future adoption."
+}

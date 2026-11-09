@@ -1,0 +1,223 @@
+{
+  "analysis": {
+    "definition": {
+      "schema": 1,
+      "seed": [
+        48,
+        4,
+        8
+      ],
+      "level": 0,
+      "alpha": 2.0,
+      "period": 1.5707963267948966,
+      "radius": 1.0,
+      "length": 2.0,
+      "density": 1.0,
+      "viscosity": 1.0,
+      "pressure_amplitude": 0.02,
+      "steps_per_cycle": 200,
+      "phases": 100,
+      "warmup": 2,
+      "ranks": 4,
+      "schur": true,
+      "tau": null,
+      "executable_sha256": "52dcc56e3e269b115125309f0f4abd8ae697fcf7ca4777778771526d042f876c",
+      "tau_time_scale": 0.010471975511965978
+    },
+    "last_cycle": 5,
+    "quadrature_order": 4,
+    "versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.17.1",
+      "h5py": "3.14.0"
+    },
+    "nodes": 1737,
+    "tetrahedra": 8064,
+    "metrics": {
+      "velocity_relative_l2_error": 0.023659646898327134,
+      "pressure_rms_over_amplitude": 0.011536423588615433,
+      "flow_amplitude_relative_error": 0.015062010196021713,
+      "flow_phase_error_degrees": 0.25110918870407156,
+      "flow_mean": 1.0382807817286774e-10,
+      "maximum_net_flux": 1.4021043669939516e-13,
+      "velocity_reference_rms": 0.000842003489809154,
+      "pressure_reference_rms": 0.008164965809277261,
+      "flow_amplitude": [
+        0.0027574808052067473,
+        -0.0017914450613091529
+      ],
+      "reference_flow_amplitude": [
+        0.002708802995093303,
+        -0.0017767515298731434
+      ]
+    },
+    "last_periodic_difference": {
+      "velocity": 8.092607795207253e-13,
+      "pressure": 1.2415774593587747e-14
+    },
+    "preceding_periodic_difference": {
+      "velocity": 7.800071829610823e-09,
+      "pressure": 1.1585144971244374e-10
+    },
+    "preliminary_gates": {
+      "velocity": false,
+      "pressure": false,
+      "flow_amplitude": false,
+      "flow_phase": true,
+      "global_mass": true,
+      "periodic": true
+    },
+    "scope": "Analytic and periodic diagnostics; spatial/time/tail/sampling budgets still required"
+  },
+  "comparisons": {
+    "time-grid-at-common-bdf2-tau-time": {
+      "coarse_definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 100,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "fine_definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 200,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "52dcc56e3e269b115125309f0f4abd8ae697fcf7ca4777778771526d042f876c",
+        "tau_time_scale": 0.010471975511965978
+      },
+      "coarse_cycle": 5,
+      "fine_cycle": 5,
+      "common_phases": 100,
+      "reference_scales": {
+        "velocity": 0.000842003489809154,
+        "pressure": 0.008164965809277261
+      },
+      "rms": {
+        "velocity": 4.644874730016447e-07,
+        "pressure": 6.868377883506732e-08
+      },
+      "maximum_phase_rms": {
+        "velocity": 6.568073251846163e-07,
+        "pressure": 9.669994267085973e-08
+      },
+      "relative_rms": {
+        "velocity": 0.0005516455437814445,
+        "pressure": 8.412010587604287e-06
+      },
+      "relative_maximum_phase_rms": {
+        "velocity": 0.0007800529726230545,
+        "pressure": 1.1843275884999612e-05
+      },
+      "norm": "Exact P1 volume L2 on the nested target mesh, cycle RMS and maximum phase separately",
+      "scope": "Field difference only; interpretation requires the recorded parameter differences"
+    },
+    "tau-time-at-common-n200": {
+      "coarse_definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 200,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "52dcc56e3e269b115125309f0f4abd8ae697fcf7ca4777778771526d042f876c",
+        "tau_time_scale": 0.010471975511965978
+      },
+      "fine_definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 200,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "coarse_cycle": 5,
+      "fine_cycle": 5,
+      "common_phases": 100,
+      "reference_scales": {
+        "velocity": 0.000842003489809154,
+        "pressure": 0.008164965809277261
+      },
+      "rms": {
+        "velocity": 3.445864728760673e-06,
+        "pressure": 6.720024513708554e-05
+      },
+      "maximum_phase_rms": {
+        "velocity": 4.843041346565969e-06,
+        "pressure": 9.415094914085395e-05
+      },
+      "relative_rms": {
+        "velocity": 0.004092458963016534,
+        "pressure": 0.008230315558790308
+      },
+      "relative_maximum_phase_rms": {
+        "velocity": 0.005751806738548884,
+        "pressure": 0.01153108920969112
+      },
+      "norm": "Exact P1 volume L2 on the nested target mesh, cycle RMS and maximum phase separately",
+      "scope": "Field difference only; interpretation requires the recorded parameter differences"
+    }
+  },
+  "scope": "Coarse spatial mesh only; default N100 first startup step uses BE tau time, so this is not an identical startup operator. Periodic states and tails are audited separately. No default-tau qualification follows."
+}

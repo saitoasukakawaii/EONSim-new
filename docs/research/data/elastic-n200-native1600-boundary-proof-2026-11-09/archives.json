@@ -1,0 +1,79 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 22780000,
+      "sha256": "5e02d345b39a21ec8020b9be730b19566cbad5a8a4b9d7164e0c2050a737db0a",
+      "verified_files": 58
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 9360608,
+      "sha256": "24e805f59b3ac910e0d69061a73cea2e87a428d306e607d1152972eae3796ea9",
+      "verified_files": 46
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 10145296,
+      "sha256": "a1db7fdd6033ed5e057405d20566510392dfa4d82c79aa9bda194cc879c60016",
+      "verified_files": 37
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 10156360,
+      "sha256": "a8c35ab65154d95b828fbdc828b56eaf28999c28a026dfa118108bee076ae598",
+      "verified_files": 49
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 9215376,
+      "sha256": "21b16f64ce4e2e3db4e1b08dce7dbc1cb57bd106ddd0722d0dd105990a356496",
+      "verified_files": 59
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 2615212,
+      "sha256": "b566770b94d348c1d0977145908359b34cd03e8d814df8c51ddb08ad9e1dac8d",
+      "verified_files": 82
+    }
+  ],
+  "verified_files": 331,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/elastic-n200-mumps-chord-boundary1600-32fb313/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "screen-report.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/bounded-audit-boundary-capture-6bce127/elastic-n200-native1600-boundary-proof-2026-11-09/screen-report.json",
+      "sha256": "79357e7c4210ea14170ed62b085e6e0d9213e3738c3218d1099c56189ec12f5a"
+    },
+    "screen-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/bounded-audit-boundary-capture-6bce127/elastic-n200-native1600-boundary-proof-2026-11-09/screen-definition.json",
+      "sha256": "4b82b615aad0d6a28ba2cc06e26db2ba4b12a7b3a19b2105f7459dac30367223"
+    },
+    "independent-review.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/bounded-audit-boundary-capture-6bce127/elastic-n200-native1600-boundary-proof-2026-11-09/independent-review.json",
+      "sha256": "6d446cf8bd5118a514f9c43b1f737f2bcbed0661209388c24204088238ba0494"
+    },
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/bounded-audit-boundary-capture-6bce127/elastic-n200-native1600-boundary-proof-2026-11-09/summary.json",
+      "sha256": "86db2d202b9a1badb5718d8ca0d9a5a87b622cccbaee1f16ddf160c9dc18da7d"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/elastic-n200-native1600-boundary-proof-2026-11-09",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "6bce1276e14eda1f937a94a4c1156a502ee8058b",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

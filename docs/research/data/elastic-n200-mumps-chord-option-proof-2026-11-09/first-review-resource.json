@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/usr/bin/systemd-run",
+    "--user",
+    "--scope",
+    "--quiet",
+    "--unit=eonsim-n200-options-review-39468.scope",
+    "--property=MemoryMax=2G",
+    "--property=MemorySwapMax=0",
+    "/usr/bin/python3",
+    "/home/tfblab633/EONSim-prod48-20261107/elastic-n200-mumps-chord-review-32fb313/controller.py",
+    "--worker"
+  ],
+  "cwd": "/home/tfblab633/EONSim-prod48-20261107/elastic-n200-mumps-chord-review-32fb313/source",
+  "unit": "eonsim-n200-options-review-39468.scope",
+  "memory_max_bytes": 2147483648,
+  "memory_swap_max_bytes": 0,
+  "timeout_seconds": 7200,
+  "peak_observed_bytes": 58195968,
+  "minimum_available_bytes": 13517647872,
+  "scope_seen": true,
+  "cleanup": [],
+  "launcher_pid": 39478,
+  "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "error": "Command '['/usr/bin/systemd-run', '--user', '--scope', '--quiet', '--unit=eonsim-n200-options-review-39468.scope', '--property=MemoryMax=2G', '--property=MemorySwapMax=0', '/usr/bin/python3', '/home/tfblab633/EONSim-prod48-20261107/elastic-n200-mumps-chord-review-32fb313/controller.py', '--worker']' returned non-zero exit status 1.",
+  "returncode": 1,
+  "wall_seconds": 2.0291496650024783,
+  "remaining_scope_members": []
+}

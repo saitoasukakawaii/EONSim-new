@@ -1,0 +1,96 @@
+{
+  "completion": {
+    "state": "completed",
+    "pid": 26487,
+    "cpu": 21,
+    "utc": "2026-11-08T06:22:09Z",
+    "work": "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40",
+    "release": 6,
+    "debug": 6
+  },
+  "results": {
+    "release": {
+      "datasets": 1005,
+      "maximum_field_history_difference": 1.465017343549313e-14,
+      "exact_clocks": true,
+      "binary": {
+        "binary": "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40/eonsim-release",
+        "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07"
+      },
+      "resource": {
+        "command": [
+          "/usr/bin/systemd-run",
+          "--user",
+          "--scope",
+          "--quiet",
+          "--unit=eonsim-lu-time-refresh-release-26487.scope",
+          "--property=MemoryMax=2G",
+          "--property=MemorySwapMax=0",
+          "bash",
+          "scripts/cloud/run.sh",
+          "3.23.7",
+          "release",
+          "explicit",
+          "/home/tfblab633/EONSim/.cloud",
+          "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40/release-tests.json"
+        ],
+        "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "unit": "eonsim-lu-time-refresh-release-26487.scope",
+        "memory_max_bytes": 2147483648,
+        "memory_swap_max_bytes": 0,
+        "timeout_seconds": 7200,
+        "peak_observed_bytes": 376479744,
+        "minimum_available_bytes": 15528751104,
+        "scope_seen": true,
+        "cleanup": [],
+        "launcher_pid": 26501,
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "returncode": 0,
+        "wall_seconds": 265.3727244030015,
+        "remaining_scope_members": []
+      }
+    },
+    "debug": {
+      "datasets": 1005,
+      "maximum_field_history_difference": 1.4650607116362124e-14,
+      "exact_clocks": true,
+      "binary": {
+        "binary": "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40/eonsim-debug",
+        "sha256": "c2c64a20b339bfcb5e8511c84df0ecddabad964832964a1e26dae02eb9babe20"
+      },
+      "resource": {
+        "command": [
+          "/usr/bin/systemd-run",
+          "--user",
+          "--scope",
+          "--quiet",
+          "--unit=eonsim-lu-time-refresh-debug-26487.scope",
+          "--property=MemoryMax=2G",
+          "--property=MemorySwapMax=0",
+          "bash",
+          "scripts/cloud/run.sh",
+          "3.23.7",
+          "debug",
+          "explicit",
+          "/home/tfblab633/EONSim/.cloud",
+          "/home/tfblab633/EONSim-prod48-20261107/lu-time-refresh-validation-d844e40/debug-tests.json"
+        ],
+        "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+        "unit": "eonsim-lu-time-refresh-debug-26487.scope",
+        "memory_max_bytes": 2147483648,
+        "memory_swap_max_bytes": 0,
+        "timeout_seconds": 7200,
+        "peak_observed_bytes": 370085888,
+        "minimum_available_bytes": 15810187264,
+        "scope_seen": true,
+        "cleanup": [],
+        "launcher_pid": 26997,
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "returncode": 0,
+        "wall_seconds": 211.7365188610056,
+        "remaining_scope_members": []
+      }
+    }
+  },
+  "scope": "Coefficient-sensitive retained-LU invalidation; Debug/Release correctness and actual factor events only. No performance or production adoption claim."
+}

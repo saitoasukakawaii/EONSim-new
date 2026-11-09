@@ -1,0 +1,46 @@
+{
+  "passed": true,
+  "valid_formats": [
+    3,
+    4
+  ],
+  "rejection_checks": [
+    {
+      "name": "correction-mismatch",
+      "rejected": true,
+      "error": "Checkpoint clock mismatch"
+    },
+    {
+      "name": "clock-size",
+      "rejected": true,
+      "error": "Checkpoint clock mismatch"
+    },
+    {
+      "name": "metadata-version",
+      "rejected": true,
+      "error": "Checkpoint metadata mismatch"
+    },
+    {
+      "name": "nonfinite-manifest",
+      "rejected": true,
+      "error": "Duplicate state or inconsistent accepted time"
+    }
+  ],
+  "step": 600,
+  "ranks": 4,
+  "source_hashes": {
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "scripts/study_womersley.py": "73d1d8ca8a43e630209082c5f672cdd1df568ebda4dc4f1ca6574ea5e2c7047e",
+    "scripts/study_rigid_tube.py": "e0b89fd0f28740df71ca48013ab3c01f9038b966defdcebbbf712bd355d2d799",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "original_generation_hashes": {
+    "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l0-n100/checkpoint/generation_1794061832115830606/manifest": "1d09edebd38e45702f2648c62169d30b37542b3a656976a6548312f1fb888846",
+    "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l0-n100/checkpoint/generation_1794061832115830606/state_rank1.h5": "265ee0d0ec19e9251b732c58e28be9adc2cfcd8c9468ff44be4bf0e37cd9abcb",
+    "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l0-n100/checkpoint/generation_1794061832115830606/state_rank2.h5": "4c60d1a10e0145016eb0b42f677d8ec02442a1c02cecd009bb2003042c5b0ae2",
+    "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l0-n100/checkpoint/generation_1794061832115830606/state_rank0.h5": "7f60676a29cc0eaf89be3a26ac0b40c2946c28f07f88e77926b17806d337b326",
+    "/home/tfblab633/EONSim-prod48-20261107/womersley-a2-s48-l0-n100/checkpoint/generation_1794061832115830606/state_rank3.h5": "9d9970878b02b884f79297d97418439b33d70f979ea45e3bafc04bc1acfa3559"
+  },
+  "scope": "Actual completed legacy fields read unchanged through independent v4 metadata/clock conversion. Corrupt fixtures rejected. No new PDE solve."
+}

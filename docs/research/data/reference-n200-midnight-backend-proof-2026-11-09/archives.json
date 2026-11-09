@@ -1,0 +1,105 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 11835364,
+      "sha256": "c0461d1f8b094c3299042221dfd3ed89c03becb920270f57d448be5bbab06820",
+      "verified_files": 73
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 45896272,
+      "sha256": "34ad63c336523b79068fb9b9f5492242e514270344ff6f15678a1b7bc4d4965e",
+      "verified_files": 74
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 42279384,
+      "sha256": "20597678005c717c8c53dd2100e624f329d5065b3300bbf1a28198df6bc1c27e",
+      "verified_files": 62
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 33231168,
+      "sha256": "5ad2494034dbe3397af46804e92b4e8897502cadfc15b7dc1310c70492f15cc3",
+      "verified_files": 67
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 12639700,
+      "sha256": "c3bdecff3ae1157a1afa37537752e963e8791d964a129d91ef3deec62f542355",
+      "verified_files": 25
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 45893916,
+      "sha256": "07bcee1a1938d4999308163c6f910de5f597f507fdb80c7ca2449697b0c8d99f",
+      "verified_files": 74
+    },
+    {
+      "file": "part007.tar.xz",
+      "bytes": 41798972,
+      "sha256": "e1fdf329f96b3deec1b6bd6e87bdbce2664a75b2a34a9e11f7ddbbfc3f93a0db",
+      "verified_files": 61
+    },
+    {
+      "file": "part008.tar.xz",
+      "bytes": 32547988,
+      "sha256": "e8dbbfe23569bd647633e98729b90a9019242cc2ff43aa189606dbe6e92dffbd",
+      "verified_files": 66
+    },
+    {
+      "file": "part009.tar.xz",
+      "bytes": 11921912,
+      "sha256": "3182986ea56d7364c7e44d83f56cf41db5320a93efeb1a7166c2fbe6a710066b",
+      "verified_files": 23
+    },
+    {
+      "file": "part010.tar.xz",
+      "bytes": 1655140,
+      "sha256": "98cb4850253b39b9cf3d08cf9b49d1738d6dca7a7ad3cbfe791e72981a26dd91",
+      "verified_files": 31
+    }
+  ],
+  "verified_files": 556,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {},
+  "copied_files": {
+    "screen-report.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-n200-midnight-proof-capture-b8b3a78/screen-report.json",
+      "sha256": "c0546735b40d508a04b9e06219d1620d6d8e85d960cbbbd0f22e38da951d393d"
+    },
+    "screen-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-n200-midnight-proof-capture-b8b3a78/screen-definition.json",
+      "sha256": "94b3c43200b2c5a175f43ef4bc9715581a08ddb8cb9576b49ec384afcaf3652b"
+    },
+    "independent-review.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-n200-midnight-proof-capture-b8b3a78/independent-review.json",
+      "sha256": "4d3f69e8e0d81262f73d055d88cd025984abad2c7df76449faf75f10acf88a40"
+    },
+    "independent-resource.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-n200-midnight-proof-capture-b8b3a78/independent-resource.json",
+      "sha256": "8c33f6b65fa4f07a810d276e0e8d0c0639914ebff5f64b3d6ae7734721f97047"
+    },
+    "baseline-import.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-n200-midnight-proof-capture-b8b3a78/baseline-import.json",
+      "sha256": "84a1e4232218be231f30c271a2c24266642b41789e3586ee0e55b5d19cd138c1"
+    },
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-n200-midnight-proof-capture-b8b3a78/summary.json",
+      "sha256": "3295a4cd4153b6872f84e7fd2d2605fe695fd5048693e8a1646a1e0fca15c153"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/reference-n200-midnight-backend-proof-2026-11-09",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "b8b3a786ece0dbb86a5582eca5137c3a7e7a3501",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

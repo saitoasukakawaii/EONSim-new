@@ -1,0 +1,4 @@
+{
+  "error": "",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f/controller.py\", line 253, in run\n    resource=cap.run(cmd,directory,C/role/f'cycle{cycle:03d}.log',environment(),f'eonsim-fsi-n800-{role}-c{cycle}-{os.getpid()}.scope',d['cycle_timeout'])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f/bounded_cgroup_job_2g.py\", line 66, in run\n    if failure is not None:raise failure\n                           ^^^^^^^^^^^^^\n  File \"/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f/bounded_cgroup_job_2g.py\", line 41, in run\n    time.sleep(.2)\nKeyboardInterrupt\n"
+}

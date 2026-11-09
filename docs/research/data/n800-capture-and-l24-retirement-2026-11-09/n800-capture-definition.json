@@ -1,0 +1,25 @@
+{
+  "base": "ab0d107f8f73ae2512669d72f3237d8db14b21c0",
+  "controller_sha256": "3ee437baeb40d56fdc232729c34d473d01c4dca1acedc3d4456e086073f53d00",
+  "producer_definition_sha256": "db5aab2f7e5048113fa8fa9fd4a0f801dc8aa676dfeece3d796f84f6c904ffd5",
+  "producer_identity": {
+    "pid": 41187,
+    "start_ticks": 10548551,
+    "state": "S"
+  },
+  "prior_capture_identity": {
+    "pid": 42447,
+    "start_ticks": 11134483,
+    "state": "D"
+  },
+  "prior_archive_names": [
+    "womersley-s96-n400-complete-family-2026-11-09",
+    "womersley-s96-native-coarse-time-pair-2026-11-08"
+  ],
+  "cpus": [
+    15
+  ],
+  "nice": 19,
+  "shared_cpu": true,
+  "scope": "Read-only complete archive after N8004800 plus all N400-target reports and clean resources. Wait for prior CPU15 capture to exit and referenced complete archives to be indexed. Preserve failed old N200 budget and all new gates. No numerical rerun, source edit, signal, automatic staging or qualification."
+}

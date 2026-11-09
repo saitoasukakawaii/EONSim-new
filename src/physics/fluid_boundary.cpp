@@ -36,6 +36,14 @@ NodalBoundary merged_boundary(const MeshPartition& mesh,std::size_t node,const s
 }
 }
 double boundary_scale(double ramp_time,double t,bool transient) { return transient&&ramp_time>0?std::min(t/ramp_time,1.):1.; }
+double pressure_value(double mean,const PressureTime& p,double time) {
+    const double x=p.ramp_time>0?std::clamp(time/p.ramp_time,0.,1.):1.;
+    const double scale=x*x*x*(10+x*(-15+6*x));
+    // Reduce before multiplying by 2*pi so finite small periods do not overflow.
+    const double pressure=scale*(mean+p.amplitude*std::sin(2*std::acos(-1.)*(std::fmod(time,p.period)/p.period)));
+    if(!std::isfinite(pressure)) throw std::runtime_error("Nonfinite pressure load");
+    return pressure;
+}
 FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& mesh,
     const AlgebraLayout& layout,const std::vector<FluidBoundary>& boundaries,const std::vector<TriangleGeometry>& surfaces,
     int stride,bool transient,std::optional<PressureGauge> gauge)
@@ -100,12 +108,14 @@ FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& m
         const auto& b=boundaries[index];
         if(b.type==FluidBoundary::Type::velocity) continue;
         SurfaceLoad load{}; load.ramp_time=b.ramp_time;
+        load.pressure=b.pressure; load.pressure_time=b.pressure_time;
         for(int a=0;a<Tri3Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c)
             load.ids[TriangleVector::dof(a,c)]=layout.local_to_global[stride*face.nodes[a]+c];
         for(const auto& q:BoundaryQuadrature::points) {
             Point x{},traction{};
             for(int a=0;a<Tri3Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) x[c]+=q.shape[a]*mesh.nodes[face.nodes[a]].position[c];
-            if(b.type==FluidBoundary::Type::pressure) for(int c=0;c<Space3::dimension;++c) traction[c]=-b.pressure*g.normal[c];
+            if(b.type==FluidBoundary::Type::pressure) for(int c=0;c<Space3::dimension;++c)
+                traction[c]=-(b.pressure_time?1.:b.pressure)*g.normal[c];
             else traction=evaluate(b,x);
             for(int a=0;a<Tri3Topology::nodes;++a) for(int c:b.components)
                 load.residual[TriangleVector::dof(a,c)]-=g.area*q.weight*q.shape[a]*traction[c];
@@ -143,6 +153,13 @@ std::vector<double> fluid_boundary_signature(const FluidConfig& config)
     if(config.pressure_gauge) {
         const auto id=static_cast<std::uint64_t>(config.pressure_gauge->node);
         values.insert(values.end(),{double(id>>32),double(id&0xffffffffULL),config.pressure_gauge->value});
+    }
+    const auto profiles=std::count_if(config.boundaries.begin(),config.boundaries.end(),[](const auto& b){return bool(b.pressure_time);});
+    // Keep the exact legacy signature when no profile is present.
+    if(profiles) {
+        values.insert(values.end(),{20506.,double(profiles)});
+        for(std::size_t i=0;i<config.boundaries.size();++i) if(const auto p=config.boundaries[i].pressure_time)
+            values.insert(values.end(),{double(i),p->amplitude,p->period,p->ramp_time});
     }
     return values;
 }

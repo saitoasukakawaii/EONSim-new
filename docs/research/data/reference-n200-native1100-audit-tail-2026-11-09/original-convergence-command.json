@@ -1,0 +1,113 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/source/scripts/audit_svfsi_convergence.py",
+    "--work",
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/reference",
+    "--log",
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/svfsi.log",
+    "--output",
+    "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/svfsi-convergence.json"
+  ],
+  "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+  "resources": {
+    "cpu": 20,
+    "others": [
+      {
+        "pid": 7750,
+        "cpus": [
+          19
+        ]
+      },
+      {
+        "pid": 21425,
+        "cpus": [
+          9
+        ]
+      },
+      {
+        "pid": 21426,
+        "cpus": [
+          23
+        ]
+      },
+      {
+        "pid": 33829,
+        "cpus": [
+          18
+        ]
+      },
+      {
+        "pid": 34666,
+        "cpus": [
+          10,
+          11
+        ]
+      },
+      {
+        "pid": 34667,
+        "cpus": [
+          12,
+          13
+        ]
+      },
+      {
+        "pid": 34668,
+        "cpus": [
+          14,
+          15
+        ]
+      },
+      {
+        "pid": 34669,
+        "cpus": [
+          16,
+          17
+        ]
+      },
+      {
+        "pid": 38713,
+        "cpus": [
+          0,
+          1
+        ]
+      },
+      {
+        "pid": 38714,
+        "cpus": [
+          2,
+          3
+        ]
+      },
+      {
+        "pid": 38715,
+        "cpus": [
+          4,
+          5
+        ]
+      },
+      {
+        "pid": 38716,
+        "cpus": [
+          6,
+          7
+        ]
+      },
+      {
+        "pid": 39183,
+        "cpus": [
+          8
+        ]
+      },
+      {
+        "pid": 39471,
+        "cpus": [
+          21
+        ]
+      }
+    ],
+    "available_memory_kib": 13277036,
+    "host_c_free_bytes": 9350520832,
+    "host_d_free_bytes": 888328318976
+  }
+}

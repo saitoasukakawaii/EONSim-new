@@ -1,0 +1,28 @@
+{
+  "schema": "svfsi-native-restart-chain-v2",
+  "final_step": 12800,
+  "target_work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-ilut-m4000-midnight2-a0a4675/reference",
+  "segments": [
+    {
+      "work": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32/reference",
+      "log": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32/svfsi.log",
+      "first_step": 1,
+      "last_step": 4000,
+      "binary_sha256": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf"
+    },
+    {
+      "work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-ilut-m4000-midnight2-a0a4675/reference",
+      "log": "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675/svfsi.log",
+      "first_step": 4001,
+      "last_step": 12800,
+      "binary_sha256": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3",
+      "execution_transition": {
+        "kind": "svfsi-fsi-ilut-reviewed-v1",
+        "screen": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-fine-serial-screen-243c9d0",
+        "review": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-fine-serial-review-243c9d0",
+        "screen_report_sha256": "88387a0df4a244b0e648cc9565d4a4bc0f9c6b5846e60f97c053ca39c5b046ef",
+        "review_sha256": "106c35eb6ef300933a4e63bda1d682cdfa5c81279a2e18b4f13006bbefcf9efa"
+      }
+    }
+  ]
+}

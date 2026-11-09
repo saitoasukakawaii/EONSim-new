@@ -1,0 +1,93 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 17060680,
+      "sha256": "7a48bd2ca0c1c67ae12cb6366766f5c26afae7ab9b2dc66d2a3905ff0e85b798",
+      "verified_files": 17
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 17610104,
+      "sha256": "1422547015743111c4796f6867c1b899058d60150de7a29e648ac8529118d621",
+      "verified_files": 15
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 15792040,
+      "sha256": "a78c526f5786471ffb993c5668bf79f850c14b5996d7e1f3ffea649cabd47f8f",
+      "verified_files": 15
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 15789344,
+      "sha256": "b3bc51b3635d54c9c8e0051ff87c3cd73db66e457b226ea58c4fc097ed166d8e",
+      "verified_files": 15
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 18076132,
+      "sha256": "cd7803365374c0319be623445d691a5652199b11ea94d42325699be36617536e",
+      "verified_files": 21
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 15834176,
+      "sha256": "fd84576c7fc4e033834f03370d0447cfc57743d226439a5ad8ed1ac018c61de6",
+      "verified_files": 13
+    },
+    {
+      "file": "part007.tar.xz",
+      "bytes": 4488784,
+      "sha256": "1d86e44b6de3f946ccf5797459f6e87093cf69e0c5c1eae6de186d8e47b07bf7",
+      "verified_files": 871
+    }
+  ],
+  "verified_files": 967,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "work/gamg-probe-fine-6093f01/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/schur-vector-probe-fine-054b64a/eonsim": {
+      "bytes": 1599208,
+      "sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/schur-vector-validation-054b64a-attempt3/eonsim-debug": {
+      "bytes": 16866168,
+      "sha256": "c5adf6bfd16136edc593148933fc8f81d312cdc60da710205bcc80c393128140",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/schur-vector-validation-054b64a-attempt3/eonsim-release": {
+      "bytes": 1599208,
+      "sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "report.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/schur-vector-probe-fine-054b64a/report.json",
+      "sha256": "5caee3822315fd9f715c3cd91144ba6d50cdcecdb34a9ac9200ee621910d98b0"
+    },
+    "combined-release-evidence.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/schur-vector-validation-054b64a-attempt3/combined-release-evidence.json",
+      "sha256": "d7c8eb391e02b35ebfc10c6e5387e6e8b157b0c8fbd21b63172fdc1580c249b1"
+    },
+    "queue-followup-capture.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/queue-followup-capture.py",
+      "sha256": "86ac1666370d1f39e184cd3e805ad3006f9f04c5238f5d232fa23a0069818119"
+    },
+    "capture-production-followups.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-production-followups.py",
+      "sha256": "ae9fc23a1ac31ccfe2c5e40921578a286409da40f68b9c06d6e909ff2dd9c80a"
+    }
+  },
+  "source_checkpoint": "054b64acbdbc9aa0f9bbcfef00a137b06de5a5e6",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

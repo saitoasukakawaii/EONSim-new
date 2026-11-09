@@ -1,0 +1,55 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 222784,
+      "sha256": "6665f82852a823564a40d0e312e384c895fe20624d2cec564e39aefb8c092888",
+      "verified_files": 35
+    }
+  ],
+  "verified_files": 35,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/alpha1-checkpoint-lu32-screen-8297a4/eonsim-candidate": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "host-d/alpha1-checkpoint-lu32-screen-8297a4/eonsim-original": {
+      "bytes": 1599208,
+      "sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "work/s96-coarse-n400-companion-8297a4/eonsim": {
+      "bytes": 1611960,
+      "sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/handoff-preparation-capture-8297a4/summary.json",
+      "sha256": "475bf5ff9e5fd2a2287c014d1c0dcedd91a0be98e8646e766e02dfef8bc304b9"
+    },
+    "existing-input-references.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/handoff-preparation-capture-8297a4/existing-input-references.json",
+      "sha256": "863c71f9b5f0edeec42dbf242d8855cb6de17da1fe675aeb27ca9360e22144ac"
+    },
+    "report.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/alpha1-full-history-reader-check-8297a4/report.json",
+      "sha256": "320ec4d6ead662513dbe696e9356daeb81d2297e6fa3e9ee2daf63a6a9f2535c"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/womersley-handoff-preparation-2026-11-08",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "8297a417bbb405b5c44d93149c9a2aa6fa50af60",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

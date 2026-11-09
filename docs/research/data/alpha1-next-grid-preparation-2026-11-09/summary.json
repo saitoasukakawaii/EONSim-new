@@ -1,0 +1,83 @@
+{
+  "alpha1_n200_complete1200": true,
+  "analytic_velocity_passed": false,
+  "coarse_plan_only": true,
+  "coarse_start_snapshot": {
+    "state": "waiting_for_existing_proof_capture",
+    "pid": 43106,
+    "utc": "2026-11-08T22:09:49Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-coarse-n400-fcc2956",
+    "target": "/mnt/d/EONSim-prod48-20261107/womersley-a1-s96-r8-a8-l0-n400-native32-fcc2956"
+  },
+  "readonly_resource_sample": true,
+  "prior_build_and_execution_archives": {
+    "lu-time-coefficient-refresh-2026-11-08": {
+      "archives_sha256": "638da00aa163e69d8a591752f3778bacc39d7be2915ad60bb327b84574d513f3",
+      "manifest_sha256": "e8e3f0fc4b88e5cacc6e1c924ac46f6d084bf2c9a3bf11fbe5d105d92db9779f",
+      "parts": [
+        {
+          "file": "part001.tar.xz",
+          "sha256": "ed571ca401a8d67d21cbeeaf00dfa79a629b7477884fe7d58a76bef47400f0ba",
+          "blob_oid": "3df373ad5d3babfd8b5c6086ccc96acef96ff115"
+        }
+      ]
+    },
+    "womersley-s96-fine-execution-screen-2026-11-08": {
+      "archives_sha256": "b2a5b5b120459e8186cd08f9b2f5f08cecee62dde109176988716ffea8daea55",
+      "manifest_sha256": "6db103b7b6ca336edfd5811e0c4e4fcf59200afd729d8733eab31e2136de4efd",
+      "parts": [
+        {
+          "file": "part001.tar.xz",
+          "sha256": "fdf17e1fd3593999244a4d9dfe362a5af6a76444d03b7e0186aae858ec62eb78",
+          "blob_oid": "eefe6b727e660af705173473ba2294db1062acc4"
+        },
+        {
+          "file": "part002.tar.xz",
+          "sha256": "b78d60dc5b21ab2a9cef80160be86d9caee5770ec6c7157a0c57a02ca73c304d",
+          "blob_oid": "17b2a26a50894ab465a78d52f80af740756695a7"
+        },
+        {
+          "file": "part003.tar.xz",
+          "sha256": "0dab9f66db5878a08f6ce4142083fe9692e751f2a4bac02e9418c5486184f03d",
+          "blob_oid": "c92ba78a4bb89688f1d9ff3a9fb12d8aef810826"
+        },
+        {
+          "file": "part004.tar.xz",
+          "sha256": "bb4414e1ef054c811d2730a0a1ee4e7adb178230e941221e846400ea1c446b78",
+          "blob_oid": "51125ca866f3ea7e1ea6223a7c547f2ecb70dab9"
+        },
+        {
+          "file": "part005.tar.xz",
+          "sha256": "858497f5285ffffa905a57135eed6950a14a172539fdb2a83325037f8e69f485",
+          "blob_oid": "2e6aa31d1357e15c49ef8b2cc39a88f22fff80cf"
+        },
+        {
+          "file": "part006.tar.xz",
+          "sha256": "bafb6b7a42b080ecc70384fc10aa06a356878708e9cfd0701733eb59a5439833",
+          "blob_oid": "8fc5eea5b046d786eb123e300068dc473350725c"
+        },
+        {
+          "file": "part007.tar.xz",
+          "sha256": "5c19c917d31af3f4864518f9899a75e416801d7dcfce6bc859adf5acbccebfee",
+          "blob_oid": "4a20b33cf4a5ba1a6c86907c2fd5bead2b60d253"
+        },
+        {
+          "file": "part008.tar.xz",
+          "sha256": "5a5f6ec57c82f2bcc6f2d4e8dc36baa75d0ec86cb70e210758562eb3e4ed5295",
+          "blob_oid": "b82bd470afc63aea5ebdd559241feb2330205378"
+        },
+        {
+          "file": "part009.tar.xz",
+          "sha256": "ad6eb4e9cec209f033380e1404b973504a1065d8201e9c7911d0589807601bee",
+          "blob_oid": "cda7e0047ddfc05f44eafa62a007f064b922c3b1"
+        },
+        {
+          "file": "part010.tar.xz",
+          "sha256": "44ea32f2e7e142f584e3ca002c69646e6fc532b2edddde609c8d0b69b0027c97",
+          "blob_oid": "faf646e07da1fe4307bb7d7714629b620d96bf2a"
+        }
+      ]
+    }
+  },
+  "scope": "Completed N200 diagnostic/report/resource evidence only; full trajectory capture is separately queued. Static S96 alpha1 coarse source/input definition only, exclude growing outputs. Thirty-second resource snapshot changed no process and supports no causal host-core or scaling claim. No full-family qualification or upload."
+}

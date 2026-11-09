@@ -1,0 +1,62 @@
+{
+  "utc": "2026-11-08T02:56:38Z",
+  "state": {
+    "state": "waiting_for_natural_segment",
+    "pid": 24147,
+    "utc": "2026-11-08T02:50:32Z",
+    "paused_driver": 22001,
+    "numerical_children_continue": true,
+    "target_step": 600
+  },
+  "processes": {
+    "24147": {
+      "state": "S",
+      "ppid": 24142,
+      "start": "4398537",
+      "command": "/usr/bin/python3 /mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/screen-lu-reuse-cycle600.py "
+    },
+    "21873": {
+      "state": "S",
+      "ppid": 21867,
+      "start": "3965704",
+      "command": "/usr/bin/python3 -u build/prod48-20261107/handoff-womersley-mumps460.py "
+    },
+    "22001": {
+      "state": "T",
+      "ppid": 21873,
+      "start": "4036743",
+      "command": "/usr/bin/python3 /home/tfblab633/EONSim-prod48-20261107/womersley-mumps-boundary-5091b68/source/scripts/study_womersley.py --executable /mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-mumps-m460/eonsim --work /mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-mumps-m460 --seed 48 4 8 --level 2 --alpha 2 --steps-per-cycle 200 --phases 200 --warmup 2 --cycles 6 --cycles-per-solve 1 --ranks 4 --mumps --chord --resume --mpiexec /home/tfblab633/EONSim-prod48-20261107/womersley-mumps-boundary-5091b68/mpiexec-fixed --timeout 86400 "
+    },
+    "22002": {
+      "state": "S",
+      "ppid": 22001,
+      "start": "4036795",
+      "command": "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/prterun --bind-to none -n 4 /usr/bin/python3 /home/tfblab633/EONSim-prod48-20261107/womersley-mumps-boundary-5091b68/rank-guard.py /mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-mumps-m460/eonsim -case attempt-001/case.json -partition parts -checkpoint checkpoint -stop_after 600 -restart checkpoint/generation_1794102086226034020 -pc_factor_mat_solver_type mumps -snes_lag_jacobian -2 "
+    },
+    "22005": {
+      "state": "R",
+      "ppid": 22002,
+      "start": "4036804",
+      "command": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-mumps-m460/eonsim -case attempt-001/case.json -partition parts -checkpoint checkpoint -stop_after 600 -restart checkpoint/generation_1794102086226034020 -pc_factor_mat_solver_type mumps -snes_lag_jacobian -2 "
+    },
+    "22006": {
+      "state": "R",
+      "ppid": 22002,
+      "start": "4036804",
+      "command": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-mumps-m460/eonsim -case attempt-001/case.json -partition parts -checkpoint checkpoint -stop_after 600 -restart checkpoint/generation_1794102086226034020 -pc_factor_mat_solver_type mumps -snes_lag_jacobian -2 "
+    },
+    "22007": {
+      "state": "R",
+      "ppid": 22002,
+      "start": "4036804",
+      "command": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-mumps-m460/eonsim -case attempt-001/case.json -partition parts -checkpoint checkpoint -stop_after 600 -restart checkpoint/generation_1794102086226034020 -pc_factor_mat_solver_type mumps -snes_lag_jacobian -2 "
+    },
+    "22008": {
+      "state": "R",
+      "ppid": 22002,
+      "start": "4036804",
+      "command": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-mumps-m460/eonsim -case attempt-001/case.json -partition parts -checkpoint checkpoint -stop_after 600 -restart checkpoint/generation_1794102086226034020 -pc_factor_mat_solver_type mumps -snes_lag_jacobian -2 "
+    }
+  },
+  "scope": "Only study driver22001 is intentionally paused; numeric children continue. This is a startup observation, not a completed fine-grid result or adoption."
+}

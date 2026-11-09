@@ -1,0 +1,86 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "ranks": 1,
+      "left": "direct",
+      "right": "cached",
+      "states": 10,
+      "datasets": 110,
+      "max_field_history_difference": 1.1136924715771102e-15,
+      "clock_and_metadata_exact": true
+    },
+    {
+      "ranks": 1,
+      "left": "cached",
+      "right": "restart",
+      "states": 6,
+      "datasets": 66,
+      "max_field_history_difference": 1.7381929229287607e-15,
+      "clock_and_metadata_exact": true
+    },
+    {
+      "ranks": 2,
+      "left": "direct",
+      "right": "cached",
+      "states": 10,
+      "datasets": 220,
+      "max_field_history_difference": 1.106753577673203e-15,
+      "clock_and_metadata_exact": true
+    },
+    {
+      "ranks": 2,
+      "left": "cached",
+      "right": "restart",
+      "states": 6,
+      "datasets": 132,
+      "max_field_history_difference": 1.7243151351209463e-15,
+      "clock_and_metadata_exact": true
+    },
+    {
+      "ranks": 4,
+      "left": "direct",
+      "right": "cached",
+      "states": 10,
+      "datasets": 440,
+      "max_field_history_difference": 1.0998146837692957e-15,
+      "clock_and_metadata_exact": true
+    },
+    {
+      "ranks": 4,
+      "left": "cached",
+      "right": "restart",
+      "states": 6,
+      "datasets": 264,
+      "max_field_history_difference": 1.717376241217039e-15,
+      "clock_and_metadata_exact": true
+    },
+    {
+      "ranks": 2,
+      "left": "window4-direct",
+      "right": "window4-cached",
+      "states": 10,
+      "datasets": 220,
+      "max_field_history_difference": 1.8388068845354155e-15,
+      "clock_and_metadata_exact": true
+    },
+    {
+      "ranks": 2,
+      "left": "event-direct",
+      "right": "event-cached",
+      "states": 10,
+      "datasets": 220,
+      "max_field_history_difference": 1.106753577673203e-15,
+      "clock_and_metadata_exact": true
+    },
+    {
+      "ranks": 2,
+      "left": "variable-direct",
+      "right": "variable-cached",
+      "states": 8,
+      "datasets": 176,
+      "max_field_history_difference": 9.731798700229888e-15,
+      "clock_and_metadata_exact": true
+    }
+  ]
+}

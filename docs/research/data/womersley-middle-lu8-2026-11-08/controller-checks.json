@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "queue_sha256": "1ccca6dffe4ab3887657e5fa6c320a3ae317923ec9050583270081ea834e50a9",
+  "handoff_sha256": "6b95a64b116406f68af2b3e977307a4364ea1888f193ddc3e6138040ad65d855",
+  "results": [
+    {
+      "case": "preparing-middle-blocks-complete-fine",
+      "observed": "wait",
+      "passed": true
+    },
+    {
+      "case": "failed-middle-rejects-before-fine-work",
+      "observed": "error",
+      "passed": true
+    },
+    {
+      "case": "running-fine-keeps-waiting",
+      "observed": "wait",
+      "passed": true
+    },
+    {
+      "case": "completed-fine-and-adopted-middle-select",
+      "observed": "selected",
+      "passed": true
+    },
+    {
+      "case": "failed-fine-rejects",
+      "observed": "error",
+      "passed": true
+    }
+  ],
+  "middle_wait_outside_compute_locks": true,
+  "numerical_budget_tail_unchanged": true,
+  "numerical_tail_sha256": "f43cf19178142fe4404766083669f506fca4bd2a4fca832d791b138ff711a1ae",
+  "scope": "Actual execution of isolated source-extracted admission decisions and AST/source checks; no production launch, process termination or numerical solve."
+}

@@ -1,0 +1,57 @@
+{
+  "base": "b8b3a786ece0dbb86a5582eca5137c3a7e7a3501",
+  "controller_sha256": "f372774e12ab805c3b286158315c28fba928194867470c692b44984a889e01ff",
+  "source_hashes": {
+    "tests/test_pressure_tube_audit.py": "6a123179c7f7e317f4b0aec6200784d1d45c6a350cf46447f0d13be28db36d54",
+    "tests/test_svfsi_export.py": "bb1754ee41a6ad7d3da586b301d164b855aa4d7061936875ae09f6e6046280fb",
+    "tests/test_svfsi_restart_evidence.py": "014f6fc49e8eff625e48b84630866d8a285b1c2281d0db866c922420974398fe",
+    "tests/test_svfsi_convergence.py": "15e665b75312529d4cb9d06b985e3d972e2c88e319e51993e4cdf9db360fc2ac",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/export_svfsi_tube.py": "be8a29b999655fae7abb66a4d86a5a2483bc902c23715867f4175d74e31d0876",
+    "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+    "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+    "scripts/audit_pressure_tube.py": "db4d0e7e21eb49132ddb43044516f844a870baf3c77bfc50a85270707de31b49",
+    "scripts/audit_svfsi_convergence.py": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "scripts/study_rigid_tube.py": "e0b89fd0f28740df71ca48013ab3c01f9038b966defdcebbbf712bd355d2d799",
+    "scripts/svfsi_restart_evidence.py": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+    "scripts/analyze_womersley.py": "c48aa5bafa068c7a177c45d6d22b48b7b02917103279dff389b69498f6527ebd",
+    "build/prod48-20261107/compare-pressure-fields.py": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+    "build/prod48-20261107/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "cases/fsi/generate_pressure_tube.py": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198"
+  },
+  "input_hashes": {
+    "case.json": "b3bea9d75f9699e17d5814e07de847eaadf9925dd2fb441b1f599876be51698c",
+    "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e",
+    "fluid.msh": "05f4777e11cad498d57b87f080f9c8f2430fd6a04577963211e8c4541c70a4b2",
+    "solid.msh": "e7f6bed5613c0a62623a185847e563fc13e10f6fbc686f3e391ccd2a88a4ba9b",
+    "eonsim": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+  },
+  "seed_step": 1400,
+  "original_seed_generation": "generation_1794157075614849767",
+  "seed_hashes": {
+    "manifest": "c4c3f05aec0273030af5e6c36c7d7e9a77d548775ca4574ffbe369f97ddc9232",
+    "state_rank0.h5": "ff911f8261bdcd65fe9100d494f3e97f06254a7a18a07456453e1a07f17cb99b"
+  },
+  "normalization_sha256": "369330526821678c659f15aa9322873b8637d0394554de4e2f9fa4ae13e685f3",
+  "scales_sha256": "7ad952847873eff14afc829128127d5e012f99e751c03fdc6ec56ec170993eae",
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "guard_sha256": "1f8303c15a2dc7c1f08d7816a9f3dcc0cd672886a74e3ce6eb668c4f711c30fd",
+  "candidate_options": [
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2"
+  ],
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "admission_bytes": 10737418240,
+  "running_floor_bytes": 8589934592,
+  "cpus": [
+    16
+  ],
+  "shared_guest_cpu": true,
+  "minimum_cost_reduction": 0.2,
+  "adopted": false
+}

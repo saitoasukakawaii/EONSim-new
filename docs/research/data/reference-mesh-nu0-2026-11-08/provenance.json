@@ -1,0 +1,28 @@
+{
+  "source_head": "a7a177ebc9e8db7fc7ca2e1037c7497a80ea0701",
+  "controller_sha256": "44067a88d4ccb19e38e025fba9758eb22f9a56607b595f93492e9dce9e9657c2",
+  "source_hashes": {
+    "scripts/audit_pressure_tube.py": "9083406301d953607c8c71f95f2425094b4f3e21aeb273ed2a539ec1d622ef0a",
+    "scripts/audit_svfsi_convergence.py": "f20945bfa8f4ed1704c4dc78a8a0d97a23011ba6321c0502382c3fc859db6d2e",
+    "scripts/export_svfsi_tube.py": "be8a29b999655fae7abb66a4d86a5a2483bc902c23715867f4175d74e31d0876",
+    "scripts/study_rigid_tube.py": "e0b89fd0f28740df71ca48013ab3c01f9038b966defdcebbbf712bd355d2d799",
+    "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+    "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "build/prod48-20261107/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6"
+  },
+  "executable_sha256": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf",
+  "reference_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "original_study": "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l0-n400-ramp16-c32",
+  "original_case_sha256": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+  "case_sha256": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+  "mesh_parameter": {
+    "original": 0.3,
+    "counterfactual": 0.0
+  },
+  "original_export_sha256": "afb1ce7c17036c4323a05a244ebec0376a175987478f295f7c7fa511af1b60e4",
+  "new_export_sha256": "8236adf3c4ecc4c5dc4a9b2809c32f0306ddefee8f68e3dd36b736bb1444544e",
+  "diagnostic_sha256": "2788eccb5f0bebde0198d71855ef425d85c003be88462b14fb464780ee05df25",
+  "fixed_criteria": "Every reference equation/step converged; existing five-field periodic1e-5 and quality gates; same prescribed cross-solver observables.",
+  "scope": "Fresh full coupled counterfactual, not a relabeling of the original failed study; no production default or physical input change. CPU23 shares core22, so no performance claim."
+}

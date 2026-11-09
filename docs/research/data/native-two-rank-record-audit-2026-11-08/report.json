@@ -1,0 +1,215 @@
+{
+  "passed": true,
+  "utc": "2026-11-08T10:41:30Z",
+  "tests": {
+    "reference": 19,
+    "pressure": 8
+  },
+  "commands": {
+    "reference": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_svfsi*.py"
+    ],
+    "pressure": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_pressure_tube_audit.py"
+    ]
+  },
+  "decoded": {
+    "r2-startup20.bin": {
+      "step": 20,
+      "time": 0.31415926535897937,
+      "stamp": [
+        2,
+        2,
+        2,
+        4225,
+        0,
+        7,
+        1
+      ],
+      "bytes": 1419728,
+      "serialized_values": 164333,
+      "sha256": "687a83f0ff8231efacea789e565a933a79c20239f2b53ffeb2f0e3de87a8d55e",
+      "record_bytes": 709864,
+      "rank_records": [
+        {
+          "rank": 0,
+          "stamp": [
+            2,
+            2,
+            2,
+            4225,
+            0,
+            7,
+            1
+          ],
+          "offset": 0,
+          "payload_bytes": 709864,
+          "serialized_values": 88729
+        },
+        {
+          "rank": 1,
+          "stamp": [
+            2,
+            2,
+            2,
+            3600,
+            0,
+            7,
+            1
+          ],
+          "offset": 709864,
+          "payload_bytes": 604864,
+          "serialized_values": 75604
+        }
+      ]
+    },
+    "r2-2600.bin": {
+      "step": 2600,
+      "time": 40.84070449666894,
+      "stamp": [
+        2,
+        2,
+        2,
+        4225,
+        0,
+        7,
+        1
+      ],
+      "bytes": 1419728,
+      "serialized_values": 164333,
+      "sha256": "388e4babf850ff992405234205ab0b4b4db0bb4a1dabca7e8447a467b49f0970",
+      "record_bytes": 709864,
+      "rank_records": [
+        {
+          "rank": 0,
+          "stamp": [
+            2,
+            2,
+            2,
+            4225,
+            0,
+            7,
+            1
+          ],
+          "offset": 0,
+          "payload_bytes": 709864,
+          "serialized_values": 88729
+        },
+        {
+          "rank": 1,
+          "stamp": [
+            2,
+            2,
+            2,
+            3600,
+            0,
+            7,
+            1
+          ],
+          "offset": 709864,
+          "payload_bytes": 604864,
+          "serialized_values": 75604
+        }
+      ]
+    },
+    "r2-2700.bin": {
+      "step": 2700,
+      "time": 42.41150082346392,
+      "stamp": [
+        2,
+        2,
+        2,
+        4225,
+        0,
+        7,
+        1
+      ],
+      "bytes": 1419728,
+      "serialized_values": 164333,
+      "sha256": "e78a58997c7b315053ef1b11a02ac56808669d13ce9e0ffffdc7a2b225d658a3",
+      "record_bytes": 709864,
+      "rank_records": [
+        {
+          "rank": 0,
+          "stamp": [
+            2,
+            2,
+            2,
+            4225,
+            0,
+            7,
+            1
+          ],
+          "offset": 0,
+          "payload_bytes": 709864,
+          "serialized_values": 88729
+        },
+        {
+          "rank": 1,
+          "stamp": [
+            2,
+            2,
+            2,
+            3600,
+            0,
+            7,
+            1
+          ],
+          "offset": 709864,
+          "payload_bytes": 604864,
+          "serialized_values": 75604
+        }
+      ]
+    },
+    "r1-5600.bin": {
+      "step": 5600,
+      "time": 175.9291886010148,
+      "stamp": [
+        1,
+        2,
+        2,
+        3325,
+        0,
+        7,
+        1
+      ],
+      "bytes": 558664,
+      "serialized_values": 69829,
+      "sha256": "8ff753de115aa4c3ab5cfd918baf8ff24d666b0df90acb8eafd429e8162e95c3"
+    },
+    "r1-6000.bin": {
+      "step": 6000,
+      "time": 188.49555921536893,
+      "stamp": [
+        1,
+        2,
+        2,
+        3325,
+        0,
+        7,
+        1
+      ],
+      "bytes": 558664,
+      "serialized_values": 69829,
+      "sha256": "aeae649da85ad1d8baf84b32aab26ffbede3b4fd57103b9597047f5251154913"
+    }
+  },
+  "no_cpp_change": true,
+  "cpp_checks": "Not rerun; unchanged binaries and C++ paths retain prior evidence.",
+  "actual_parallel_restart_validated": false,
+  "scope": "19 reference and8 pressure tests pass; five immutable actual native files decoded. This is parser/provenance evidence, not restored parallel trajectory or linear-backend equivalence."
+}

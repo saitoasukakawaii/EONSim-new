@@ -1,0 +1,56 @@
+[
+  {
+    "scheme": "be",
+    "ranks": 1,
+    "discrete_oracle_error": 2.0816681711721685e-17,
+    "mpi_difference": 0.0
+  },
+  {
+    "scheme": "be",
+    "ranks": 2,
+    "discrete_oracle_error": 2.0816681711721685e-17,
+    "mpi_difference": 3.469446951953614e-18
+  },
+  {
+    "scheme": "be",
+    "ranks": 4,
+    "discrete_oracle_error": 2.0816681711721685e-17,
+    "mpi_difference": 3.469446951953614e-18
+  },
+  {
+    "scheme": "bdf2",
+    "ranks": 1,
+    "discrete_oracle_error": 2.42861286636753e-17,
+    "mpi_difference": 0.0
+  },
+  {
+    "scheme": "bdf2",
+    "ranks": 2,
+    "discrete_oracle_error": 2.42861286636753e-17,
+    "mpi_difference": 6.938893903907228e-18
+  },
+  {
+    "scheme": "bdf2",
+    "ranks": 4,
+    "discrete_oracle_error": 2.42861286636753e-17,
+    "mpi_difference": 1.0408340855860843e-17
+  },
+  {
+    "scheme": "generalized_alpha",
+    "ranks": 1,
+    "discrete_oracle_error": 1.8388068845354155e-16,
+    "mpi_difference": 0.0
+  },
+  {
+    "scheme": "generalized_alpha",
+    "ranks": 2,
+    "discrete_oracle_error": 1.700029006457271e-16,
+    "mpi_difference": 4.85722573273506e-17
+  },
+  {
+    "scheme": "generalized_alpha",
+    "ranks": 4,
+    "discrete_oracle_error": 1.97758476261356e-16,
+    "mpi_difference": 3.469446951953614e-17
+  }
+]

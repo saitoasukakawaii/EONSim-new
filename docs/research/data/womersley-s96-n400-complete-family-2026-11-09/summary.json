@@ -1,0 +1,469 @@
+{
+  "base": "6bce1276e14eda1f937a94a4c1156a502ee8058b",
+  "producer": {
+    "state": "completed",
+    "pid": 29270,
+    "utc": "2026-11-08T19:48:31Z",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/rounder-native-serial-a2-family-a6643c8",
+    "adopted": true,
+    "passed": false,
+    "scope": "Matched native serial alpha2 N200 numerical budget evaluated. No whole-project qualification."
+  },
+  "step": 2400,
+  "preliminary_gates": {
+    "velocity": true,
+    "pressure": true,
+    "flow_amplitude": true,
+    "flow_phase": true,
+    "global_mass": true,
+    "periodic": true
+  },
+  "budget": {
+    "alpha": 2,
+    "target_N200": {
+      "schema": 1,
+      "seed": [
+        96,
+        8,
+        8
+      ],
+      "level": 1,
+      "alpha": 2.0,
+      "period": 1.5707963267948966,
+      "radius": 1.0,
+      "length": 2.0,
+      "density": 1.0,
+      "viscosity": 1.0,
+      "pressure_amplitude": 0.02,
+      "steps_per_cycle": 200,
+      "phases": 200,
+      "warmup": 2,
+      "ranks": 1,
+      "schur": false,
+      "tau": null,
+      "executable_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+      "solver_options": [
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-fluid_lu_pc_reuse_window",
+        "32",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "eligibility": {
+      "n200_gates": {
+        "velocity": true,
+        "pressure": true,
+        "flow_amplitude": true,
+        "flow_phase": true,
+        "global_mass": true,
+        "periodic": true
+      },
+      "n400_gates": {
+        "velocity": true,
+        "pressure": true,
+        "flow_amplitude": true,
+        "flow_phase": true,
+        "global_mass": true,
+        "periodic": true
+      },
+      "middle_gates": {
+        "velocity": true,
+        "pressure": true,
+        "flow_amplitude": false,
+        "flow_phase": true,
+        "global_mass": true,
+        "periodic": true
+      }
+    },
+    "eligible": true,
+    "fields": {
+      "velocity": {
+        "space_relative_rms": 0.0030119997235991108,
+        "terms": {
+          "time": {
+            "relative_rms": 0.00022262113993100108,
+            "ratio_to_space": 0.07391140782210488,
+            "passed": true
+          },
+          "tail": {
+            "relative_rms": 6.52437257122575e-16,
+            "ratio_to_space": 2.1661265504465655e-13,
+            "passed": true
+          },
+          "sampling": {
+            "relative_rms": 0.0003483341251076716,
+            "ratio_to_space": 0.11564879052891772,
+            "passed": false
+          }
+        }
+      },
+      "pressure": {
+        "space_relative_rms": 0.008512214043282342,
+        "terms": {
+          "time": {
+            "relative_rms": 0.0006778398882057731,
+            "ratio_to_space": 0.07963144309566673,
+            "passed": true
+          },
+          "tail": {
+            "relative_rms": 2.3536574833515968e-15,
+            "ratio_to_space": 2.7650355963605653e-13,
+            "passed": true
+          },
+          "sampling": {
+            "relative_rms": 0.00034899670026014134,
+            "ratio_to_space": 0.04099952121570088,
+            "passed": true
+          }
+        }
+      }
+    },
+    "limit_fraction": 0.1,
+    "passed": false,
+    "n400_analytic_gates": {
+      "velocity": true,
+      "pressure": true,
+      "flow_amplitude": true,
+      "flow_phase": true,
+      "global_mass": true,
+      "periodic": true
+    },
+    "scope": "Numerical budget for the fine N200 state. Circular geometry and other production gates remain separate; N400 is not independently spatially qualified."
+  },
+  "resource_hashes": {
+    "n200-analysis.resource.json": "d0764d98406912aa34ea8bc95828238d448858d31bdb11f17d47a339d4a1115e",
+    "middle-analysis.resource.json": "f5263a5bb13bf57c0190a02075ca54e4f92ba366a7f1d63969f09bd2a3d64c42",
+    "space-n200.resource.json": "211b8e6f314bbe5c43fba302220cd48f6603be358ca37403a1e7053a2699e2da",
+    "coarse-mpi-history.resource.json": "7cdcdefe59c373b334c61dfce5bcc6731bdcebb5e92fe54711fe68e7c360da02",
+    "coarse-n200.resource.json": "81d4f170d78763b054885f33be6ac0c0c36852b6032b258ea070cd3a230ce8c6",
+    "fine-n200.resource.json": "926ed0f23fc00430929a88ca57a5adfe7604f5122027dff11293b3e1b9e8121b",
+    "tail-n200.resource.json": "d4cbeeef2880d2388edd0cb5102b2c1097762600ef69dff1a3c812bb33680d19",
+    "budget.resource.json": "064c5ce4583f1ac24e5b2647a69d04525ce5afd751a031151917b3dacb1b8a1e",
+    "n400-analysis.resource.json": "74b25e28e1ed2d8467ba5772326c9d336766e76c03a73ed4d22b3ef45babaf45",
+    "time-n200-n400.resource.json": "49e100d9923f24b12b8b23f22cf497c8cb382e95e0d4956af2c4a353fdcbbc14",
+    "fine-n400.resource.json": "a69273b62deca021c81c864780e9d6d460907de69b9ab758052abd90ad4f7c75",
+    "tail-n400.resource.json": "f657304ae288881a914277b62e0de049cea9d79e65ce09b7f3be5e54ae25edb4"
+  },
+  "prior_complete_archives": {
+    "womersley-s96-fine-n200-complete-2026-11-08": {
+      "archives_sha256": "191d9f55474f3cf134d52f9ba16865799081a999f6c8bda08625e3bab0c6abba",
+      "manifest_sha256": "7e3bdf1cca53d6cd44b89df5e6289ca42a7b5c344195d7008c014f9de9229437",
+      "indexed_parts": [
+        {
+          "file": "part001.tar.xz",
+          "blob_oid": "b2d3d04feaf7a9d359f601650f4e996e856da27f",
+          "sha256": "d5e698c1fdd466088c333f675cea5d8fd157b9dbd01072553029dc84d6b8dc42"
+        },
+        {
+          "file": "part002.tar.xz",
+          "blob_oid": "9c3d2fea9123707d8e9f2b62b3e219c7fbb3714c",
+          "sha256": "c79b5c2c6a336cc3f2684236a9101b880d49c1a67b50dc81ea52f0f8da6e768c"
+        },
+        {
+          "file": "part003.tar.xz",
+          "blob_oid": "2de005e2d56c73befb1cb03dacefd9711f6e4fa3",
+          "sha256": "82eeaf6ef17d657230255b200a60a04fbd7c3ac4aa325da8a8db153a631c60c0"
+        },
+        {
+          "file": "part004.tar.xz",
+          "blob_oid": "8cfc62443c6aa574e998b67b709269076e38b0e4",
+          "sha256": "c5a2815ad6c5742a3ecc65e3fa1c51411eaa59f6ad4e18cec41cf4aec289777e"
+        },
+        {
+          "file": "part005.tar.xz",
+          "blob_oid": "a2a54a9d3ad692e25a56bf2b1b13cf4ceeceac04",
+          "sha256": "8e13506589fb5b2b775d1da3f0397652e829373abe6f66c4a6616106470a604a"
+        },
+        {
+          "file": "part006.tar.xz",
+          "blob_oid": "ff016524ee489452b96784d60d0c22f7cba5a08d",
+          "sha256": "1e543f51059c8eb3eaf2132a97115e5401820d1574991b4b3003cf66c55cd434"
+        },
+        {
+          "file": "part007.tar.xz",
+          "blob_oid": "14e6d876eb4622736a5020f8c0200477c6fdf4df",
+          "sha256": "e6353ed401e71a0b96fde674aba8181886b494f3866a205a6305ff5d8a222667"
+        },
+        {
+          "file": "part008.tar.xz",
+          "blob_oid": "d82c8cf808e2cda6e8399292727be5ce81f14d4e",
+          "sha256": "5c0c51a51e0e2d0ebaecf22a1ccfac41f4b698f2d5f5b3b69b6b12b38fab56e8"
+        },
+        {
+          "file": "part009.tar.xz",
+          "blob_oid": "76f11f83f20ec42b72f00fc0a9ec688763119700",
+          "sha256": "06b2be39092f3106f3ab13b57f915370d1e795b338d5e79774ea75b575cf91ea"
+        },
+        {
+          "file": "part010.tar.xz",
+          "blob_oid": "02859f1b49139c84b0b00247359e07f56ddcaf5a",
+          "sha256": "5f348748ac472d13125bd568a5d1cd93ef07623abea59a98d524692f2ae08d0c"
+        },
+        {
+          "file": "part011.tar.xz",
+          "blob_oid": "41debfa157c96b186f938080e174bd27b6b280a9",
+          "sha256": "a9c02601156bae5b054ab2b6caea2c975d51b40a5eddad7b158ef565d9b4fc5c"
+        },
+        {
+          "file": "part012.tar.xz",
+          "blob_oid": "28892ef0fe3464ffa520af97d1086aa0091ad9c6",
+          "sha256": "3846588861df4c464baf577e510534978bb58dc0b45eed276d37df5e62e8e03b"
+        },
+        {
+          "file": "part013.tar.xz",
+          "blob_oid": "181b4dd7a565226a5035141e94138a6ddbe5574a",
+          "sha256": "3baf5583c9dadd7478bfbc67f55b25f4432a9221082e0f465874aee1a7012267"
+        },
+        {
+          "file": "part014.tar.xz",
+          "blob_oid": "abb7eef83bc658def16b62cf195d23035be73d72",
+          "sha256": "d5420625502bf964a5d723244f2940a45189f57d418596405c9789b8d1bbc157"
+        },
+        {
+          "file": "part015.tar.xz",
+          "blob_oid": "a4e835492655db87b416148ba8bfe654ad9dd16a",
+          "sha256": "7ee20a079e8e8c2ab0e91d5d9c84444d60f8f03663e445fadb8ffa404b5cbc18"
+        },
+        {
+          "file": "part016.tar.xz",
+          "blob_oid": "9d84dc0d187b2037d13fcde58ee71dc22c3797d8",
+          "sha256": "79ef297c0175ea21278d47cd8688fe5ae638d06c4a3ad5eec54a3090595810b2"
+        },
+        {
+          "file": "part017.tar.xz",
+          "blob_oid": "dab6ba35766e5539822fffa8041724e3fe5a0f29",
+          "sha256": "a0b03ab46a32d185cd81609bb00b86de8948a5e56a5c0207e3875b2ea8c47c69"
+        },
+        {
+          "file": "part018.tar.xz",
+          "blob_oid": "efbcfe5f37ca626023d057307f1c6399902c5b86",
+          "sha256": "49edcad6fcc4a75fb7ca088250ae371af1f2ab4f456472cfe3e5f332ca11819f"
+        },
+        {
+          "file": "part019.tar.xz",
+          "blob_oid": "a76dbc89f57278675a988635c59aa78c515aa598",
+          "sha256": "954628e784bb82c8084261764c813d3f6e55103c0cb5a2b90de1eb72f0611dc9"
+        },
+        {
+          "file": "part020.tar.xz",
+          "blob_oid": "aeaa73b92c9f57461327bf9268c0b8937f86cdd6",
+          "sha256": "7fd525ad65743913bf382ddb332e871de7a4bcc293f7493fc3090513fe24b633"
+        },
+        {
+          "file": "part021.tar.xz",
+          "blob_oid": "a4590afa1ebbf4da471ebe186aaa5706ce1c398b",
+          "sha256": "a8163090a080ebb527d4a906ae4936473d9e5be8c3cd1c7bf64181111f088513"
+        },
+        {
+          "file": "part022.tar.xz",
+          "blob_oid": "a037b759235e021feb3f3adbc54fe3e7b154a8ae",
+          "sha256": "b97ee92989a5b0f556592b4eca7e27c63cba58eb8ea1daa5231dca312e86b604"
+        },
+        {
+          "file": "part023.tar.xz",
+          "blob_oid": "f65df2332a27304d8b78719cdff9a4091d3a0967",
+          "sha256": "e064ee2cc477a03832b47d44a75459c78a255c43cb15966813d69f2928da0585"
+        },
+        {
+          "file": "part024.tar.xz",
+          "blob_oid": "3a748cf564ee9e19f8b8bf6f1489e5f78b997ac6",
+          "sha256": "43c17f49714f7ee4fe3477d7fb48c6cda7c562741b7145fefd41362c2c7fbc05"
+        },
+        {
+          "file": "part025.tar.xz",
+          "blob_oid": "6c717be7b1b88689efa03f974b52e46e226ba0c1",
+          "sha256": "354b043adc6efb08beb04cbc9c2db5181d0e3f9771274030c84e30f8a625b228"
+        },
+        {
+          "file": "part026.tar.xz",
+          "blob_oid": "13a0d3e799157296832ab346dc493c6b72dc2d48",
+          "sha256": "be8fd61673236c62c27a469523c698c882c4db4f726ae3259b6e22f7faf37f17"
+        },
+        {
+          "file": "part027.tar.xz",
+          "blob_oid": "c17c829d61c206a1d1090d80448e86e782a361a5",
+          "sha256": "fe3cd1088ae98c612afb14295a5746dc3798d28b1b8ec3feaa707654c0b783fc"
+        },
+        {
+          "file": "part028.tar.xz",
+          "blob_oid": "fbb49911eb4ec5168f9ee4bca280c3a1a9ae2dee",
+          "sha256": "54d9042f373c49d2c8633577b5e55fae131d0615e4180ccf979097fdd4525dcd"
+        },
+        {
+          "file": "part029.tar.xz",
+          "blob_oid": "1ff0d8fa468b6e3797173f0dc646964041cfa4c7",
+          "sha256": "75175ef76d58f3c8f5debebb8f77428fff8553823785d540b98c27a007f4f8a0"
+        },
+        {
+          "file": "part030.tar.xz",
+          "blob_oid": "933570a5df9ae88f8aeaa515916448600d8f15f9",
+          "sha256": "8136644c06bc66adcffa324215728b24e1c3dd7e912f926c8cf0a655738b102f"
+        },
+        {
+          "file": "part031.tar.xz",
+          "blob_oid": "de54545b5a28d3a52d447f6033b5bdc35f8fcd98",
+          "sha256": "faa01dff0668f8ce174d02d2aac3d3930a75a5385e76af70f0e9d59c1a47b808"
+        },
+        {
+          "file": "part032.tar.xz",
+          "blob_oid": "083be3078f51f4c4a9b5193ad5dbfce277dcc6ec",
+          "sha256": "f64c66bd1d1359303ecc8197b9dce11b3e015e068e1cecd4b05d5634b56de18f"
+        },
+        {
+          "file": "part033.tar.xz",
+          "blob_oid": "9468193e385e21d4d6e89b2a8f6ad2744e5b43d3",
+          "sha256": "6dcb69f8ca0ed7539c7d9afb0c2aac677cf91594196cc6376de900ae89294d71"
+        },
+        {
+          "file": "part034.tar.xz",
+          "blob_oid": "ea08dcd63a5d9b1115543ad3e9bd1fe7c36b6866",
+          "sha256": "66510ace5a09b22b83d7da0158d86aa0ff53fb86f98084a85243b71cb57f86cc"
+        },
+        {
+          "file": "part035.tar.xz",
+          "blob_oid": "c13cb319769f17dc9d02d51b8f40ed6d677ecd30",
+          "sha256": "56deb34e02e6de6722ae2227abf5d6f4c48bff1653d8d889ce760c2297e490bd"
+        },
+        {
+          "file": "part036.tar.xz",
+          "blob_oid": "65be56fa81eb778588e27e94c7f164d6b18b3411",
+          "sha256": "39222f9e55ad653920e882a69656db3237cc43e63c37c7aa96d46170ead8afb3"
+        },
+        {
+          "file": "part037.tar.xz",
+          "blob_oid": "acbb5107f0c79c017f17d0b4a3dc88d31909d1db",
+          "sha256": "3cd2d09fcd309f89309a4c29a5367465a11e3a6ba6e34fdbbbaf3c06ee13e52d"
+        },
+        {
+          "file": "part038.tar.xz",
+          "blob_oid": "025335780ef226ff2103f009ec5a96db4954b068",
+          "sha256": "c2355fadd7d931dba2002b77e7b41b47692494fb11191ec1156efab6bd7189c8"
+        },
+        {
+          "file": "part039.tar.xz",
+          "blob_oid": "284f7180ae98474d44d85159071a49819e77c5c9",
+          "sha256": "48326172e30d88b863784ad7524e53eace607935530b58c566e6efb9c1626e13"
+        },
+        {
+          "file": "part040.tar.xz",
+          "blob_oid": "7a5551ed24cda40b4971e7fd604732536f9399b9",
+          "sha256": "bce5b3d118f55e9ad1aab6b75a0f66eb11cb6e69226825a0b059f8365fb92dd6"
+        },
+        {
+          "file": "part041.tar.xz",
+          "blob_oid": "953b57c49d04fd3e8e19c36d40eff9b40da565fb",
+          "sha256": "275e2d93cacb7a868e7feb77579fcf35942ac52cef5bce8839c14740cd152819"
+        },
+        {
+          "file": "part042.tar.xz",
+          "blob_oid": "b4f099635373ebbcd7ed912e12e9be9a15753b5c",
+          "sha256": "0103e351bb4dc9a0f03c233918f74083d68078444909d7bb92f81be915b37290"
+        },
+        {
+          "file": "part043.tar.xz",
+          "blob_oid": "816de3cec622af6d0c41379262f50776ec48e340",
+          "sha256": "369df6267cab9a372179f53ed898dddb8a8890ad84ecbde3e18fb633e06fb010"
+        },
+        {
+          "file": "part044.tar.xz",
+          "blob_oid": "f32e1a98fa3a5b125f2d0d49f6793be9faec9b09",
+          "sha256": "93c966b18fb6ad82d8e2ceafb01f88284946a3045f1aa6a6ef5842ee9ae14a94"
+        }
+      ]
+    },
+    "womersley-s96-native-coarse-time-pair-2026-11-08": {
+      "archives_sha256": "1798de31979c5a88823ecfaf08f0eacf1276fb71624592f9a1798f9d5a82fe82",
+      "manifest_sha256": "77a87c4214055aeeb2a29995a2a74e3531bd2aea6d39df78c0cc344f9eb3778e",
+      "indexed_parts": [
+        {
+          "file": "part001.tar.xz",
+          "blob_oid": "38c9d8333392c1790cf76416d25cf5bd5e0c3ae5",
+          "sha256": "e65c89933e549968774c9e32638e894febfca46a1782252901a143dd6dbb47b4"
+        },
+        {
+          "file": "part002.tar.xz",
+          "blob_oid": "bc27dad903a1f7c6d4c3d71a0ee6b2596b7c276d",
+          "sha256": "28e96c8893ea6b13e088ee5a0761a8a0a2798de890f82d3d6dc97136c5283a63"
+        },
+        {
+          "file": "part003.tar.xz",
+          "blob_oid": "3fe247ab8b57cad646adcf3141eb0a6b6ba53bee",
+          "sha256": "a638eb6212d73495f87479eb607ee5073c095205b0ad54a6abeabb365e7a728f"
+        },
+        {
+          "file": "part004.tar.xz",
+          "blob_oid": "a24001c6cdffd7bebe0e89d9378f9fd7e6b5cd94",
+          "sha256": "a43991d69b73216f48ec2b985ffe54eb53fc3a1919656ed8eccc5c153d3c6132"
+        },
+        {
+          "file": "part005.tar.xz",
+          "blob_oid": "86404ee5aac01df5711b59bc0e6a0a3fb8a4e489",
+          "sha256": "ca384d0e31e239de7b5a493ccbf799cccbc81feef8317d2ac87e8693b4b078d0"
+        },
+        {
+          "file": "part006.tar.xz",
+          "blob_oid": "e09723cebc6c9028fcdee0f429689c32c0683891",
+          "sha256": "4b1291e6430f9bf09f134f8a3b0794fea75c9c26d8c03b8766a60f3d62c35fbb"
+        },
+        {
+          "file": "part007.tar.xz",
+          "blob_oid": "c72a5cb47818d969be27a75cfae9f944b5d965bb",
+          "sha256": "d0928c9b0718ec438f0eced83719a9b25ecba293cef1b3beb296a8ee68d18dd9"
+        },
+        {
+          "file": "part008.tar.xz",
+          "blob_oid": "c6892dfaaad797e724ad57023609f72f82c93294",
+          "sha256": "b5a72661565ed97168c0b3c2e1ddc76991b1efbb4c060f6644811544771f824f"
+        },
+        {
+          "file": "part009.tar.xz",
+          "blob_oid": "da7c4f7e19fd8ec26b29d49c5adae22665747b19",
+          "sha256": "83188f5b75cac840e385e1562edc99a41bcd2ad3c153d65c7f07d976ca0d5ee7"
+        },
+        {
+          "file": "part010.tar.xz",
+          "blob_oid": "6581ed0dc236d4eeaf510f2ece1e743b93f3b02b",
+          "sha256": "efea39ebb629c7258a83954343e6eda465e70b6a0ac34d0986d66dee54f8719c"
+        },
+        {
+          "file": "part011.tar.xz",
+          "blob_oid": "fd4002684e10e98af22001664c9b7c1fd824c10c",
+          "sha256": "9b79b55ba55788987d5d854fc2f95bd5018eab6286aac49c964a6d9ec8dc3660"
+        },
+        {
+          "file": "part012.tar.xz",
+          "blob_oid": "817839b22612c285cb1a133266e08da664119ae1",
+          "sha256": "24d57a84e456b1808aeee21747cc871b86f0a6d0bc0247e63c5266b5cbb2458c"
+        },
+        {
+          "file": "part013.tar.xz",
+          "blob_oid": "e0311553088c3376a50f2874535b6ac6b85fd813",
+          "sha256": "2bada27dc94a04f37f14bda276855cd7a14740e6160987c95eac6320c1c6429e"
+        },
+        {
+          "file": "part014.tar.xz",
+          "blob_oid": "2f285f4b890cef8fac983fa3708e888282962124",
+          "sha256": "ae6bccb44fdbc9cc9b053ff1dec6aa6508e82b0a52fa10e13c24af3f934903c5"
+        },
+        {
+          "file": "part015.tar.xz",
+          "blob_oid": "3954039a172e875437018e19f382ff23aecaa5cb",
+          "sha256": "0193dda956f92ab021fa626ccb9fb6afc8dd2179322cd6d078203dae0ae7a661"
+        },
+        {
+          "file": "part016.tar.xz",
+          "blob_oid": "8b1fe1fa13cee60d895510b7b5a7e5caa3dfccb9",
+          "sha256": "84dbf18fa23305783bbea46da5a1ce3ccc468c37f9cdf7cc291cdf6ccf42b906"
+        },
+        {
+          "file": "part017.tar.xz",
+          "blob_oid": "ef3c4d132e06e1afe04384f82226a86d43e8e78f",
+          "sha256": "36ddfbea280e3300d395fd650abb4483d4b73def11740535bb45aedfbf0eb872"
+        }
+      ]
+    }
+  },
+  "scope": "Complete sealed N4002400 trajectory with every retained current/history state, exact input/source/commands and whole completed N200-target budget. Earlier full N200/coarse trajectories are already committed and SHA-linked, not duplicated. Preserve all failed analytic or budget gates. Completion does not imply whole-project qualification."
+}

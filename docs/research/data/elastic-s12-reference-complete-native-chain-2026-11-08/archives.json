@@ -1,0 +1,101 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 28490660,
+      "sha256": "995d86aac71f81ab9f98562001d34e0b42ebd08011970c83b2207310943c62b8",
+      "verified_files": 106
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 46187788,
+      "sha256": "81e04e22a7adf3edb3039514db8a605c89c0d26b2af2682e6ddac60f90e96592",
+      "verified_files": 147
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 46184328,
+      "sha256": "131cb189325e396fd55e0791f7a9b7b50b494197c154f7ccd922042f94e4f463",
+      "verified_files": 147
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 46179020,
+      "sha256": "a5e96ca76a812e55706334e2b34aba586764fceb857af45709ee913ee8e58c44",
+      "verified_files": 147
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 46180012,
+      "sha256": "31bd3c7bf4c70d21a0e89f899dc9a95fd669f18d20e436646ec439aa38ccfd8b",
+      "verified_files": 147
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 41849284,
+      "sha256": "f03d64b6c6002fc530dcb478af4fff4680eba10e70026dfc126fc53d30ed14b5",
+      "verified_files": 154
+    },
+    {
+      "file": "part007.tar.xz",
+      "bytes": 25569064,
+      "sha256": "3a8c9bf8de6393504f0c8e925c98fe6fa07518afdb4c2c0ebee5acc79bf11f30",
+      "verified_files": 82
+    },
+    {
+      "file": "part008.tar.xz",
+      "bytes": 6836440,
+      "sha256": "27dd1174224f03d84de515b94faf2f1843f41726c75ea9b4cf3adbde55a5518b",
+      "verified_files": 140
+    }
+  ],
+  "verified_files": 1070,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {},
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s12-complete-reference-capture-v3-243c9d0/summary.json",
+      "sha256": "7eadf311e2461a852a9dde1ffc3088ff0aede78b66b8e43b7f4bd7355b8ee938"
+    },
+    "svfsi-audit.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/svfsi-audit.json",
+      "sha256": "de07435fae344001a2d69c2443c2f4b620c1802e9b763e45d75f131a5d51d846"
+    },
+    "svfsi-convergence.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/svfsi-convergence.json",
+      "sha256": "a8e00baa6280cc4d3ec92ba44b1f3a42dacf8505cc3e3a44116b75880420e49c"
+    },
+    "cross-code-observables.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/cross-code-observables.json",
+      "sha256": "380dd8ea9d7070684acffa7a81bfae49f3eb7f17d1c69b5169ac98006447d371"
+    },
+    "cross-code-fields.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/cross-code-fields.json",
+      "sha256": "41bbf3646c9c43909bc437fbf2e595b59f81fa79009a8b4ce4225cf12f7a0afe"
+    },
+    "restart-chain.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/restart-chain.json",
+      "sha256": "4628c20f5bf6042df2da49618f780ee01f1fc353dcb2b8bf7fc2f906841e7523"
+    },
+    "eonsim-audit.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s12-matched-analysis-recovery-243c9d0/eonsim-audit.json",
+      "sha256": "5e119411a9193c0f4a610f7db82e3e0cf65bff2be291fee12be289ea125f3b09"
+    },
+    "analysis-equivalence.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/s12-matched-analysis-recovery-243c9d0/analysis-equivalence.json",
+      "sha256": "7e7e36c5b5f13288005e131249adf97adaf82a7b049b1aa13fc07bc28e37fb59"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/elastic-s12-reference-complete-native-chain-2026-11-08",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "27f5c82cc925e370c1c78227683f12cb7c261584",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

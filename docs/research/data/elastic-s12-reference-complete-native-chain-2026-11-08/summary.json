@@ -1,0 +1,504 @@
+{
+  "base": "243c9d0784b18d55d8b267fa0554767f20ca7554",
+  "audit_producer": {
+    "state": "completed",
+    "pid": 35377,
+    "utc": "2026-11-08T12:34:16Z",
+    "full_physical_qualification": false,
+    "numerical_rerun": false
+  },
+  "original_cleanup_failure": {
+    "state": "failed",
+    "pid": 30063,
+    "utc": "2026-11-08T11:33:09Z",
+    "work": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/s12-native-recovery-a6643c8",
+    "error": "Launcher completed but scope still contains live processes"
+  },
+  "failed_capture_waiter": {
+    "state": "failed",
+    "pid": 34488,
+    "utc": "2026-11-08T11:33:13Z",
+    "error": "Recovery failed; preserve its separate failed evidence without labeling complete"
+  },
+  "failed_analysis_status": {
+    "state": "failed",
+    "pid": 34839,
+    "utc": "2026-11-08T11:54:45Z",
+    "error": "Command '['/usr/bin/systemd-run', '--user', '--scope', '--quiet', '--unit=eonsim-s12-final-audit-observables-34839.scope', '--property=MemoryMax=2G', '--property=MemorySwapMax=0', '/usr/bin/python3', '/home/tfblab633/EONSim-prod48-20261107/s12-native-audit-recovery-243c9d0/rank-guard.py', '/usr/bin/python3', '/home/tfblab633/EONSim-prod48-20261107/s12-native-audit-recovery-243c9d0/source/build/prod48-20261107/compare-pressure-audits.py', '--eonsim', '/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l1-n200-ramp16-c32/eonsim-audit.json', '--svfsi', '/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/svfsi-audit.json', '--output', '/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/cross-code-observables.json']' returned non-zero exit status 1."
+  },
+  "failed_capture_v2_status": {
+    "state": "failed",
+    "pid": 34864,
+    "utc": "2026-11-08T11:54:54Z",
+    "error": "Recovered audit failed; do not label complete"
+  },
+  "matched_eonsim_analysis": {
+    "passed": true,
+    "all_report_values_except_source_digest_identical": true,
+    "old_report_sha256": "2bfc98567d14496ddfbcb1577701be175c93de11bab29cd1b69926b380abe19a",
+    "new_report_sha256": "5e119411a9193c0f4a610f7db82e3e0cf65bff2be291fee12be289ea125f3b09"
+  },
+  "original_solve_resource": {
+    "command": [
+      "/usr/bin/systemd-run",
+      "--user",
+      "--scope",
+      "--quiet",
+      "--unit=eonsim-s12-recovery-svfsi-30063.scope",
+      "--property=MemoryMax=2G",
+      "--property=MemorySwapMax=0",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/s12-native-recovery-a6643c8/rank-guard.py",
+      "/home/tfblab633/EONSim-prod48-20261107/reference/build/bin/svFSI",
+      "svFSI.inp"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/reference",
+    "unit": "eonsim-s12-recovery-svfsi-30063.scope",
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "timeout_seconds": 18000,
+    "peak_observed_bytes": 42418176,
+    "minimum_available_bytes": 11490471936,
+    "scope_seen": true,
+    "cleanup": [
+      {
+        "signal": "SIGINT",
+        "members_before": [
+          30077
+        ],
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "launcher_pid": 30076,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "error": "Launcher completed but scope still contains live processes",
+    "returncode": 0,
+    "wall_seconds": 9610.144590643002,
+    "remaining_scope_members": []
+  },
+  "numerical_rerun": false,
+  "all_numerical_bytes_unchanged": true,
+  "convergence": {
+    "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "steps": 6400,
+    "first_step": 1,
+    "last_step": 6400,
+    "passed": true,
+    "segments": [
+      {
+        "work": "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l1-n200-ramp16-c32/reference",
+        "log": "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l1-n200-ramp16-c32/svfsi.log",
+        "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+        "steps": 5600,
+        "declared_steps": 6400,
+        "first_step": 1,
+        "last_step": 5600,
+        "restart": null,
+        "excluded_tail": {
+          "final_equation_rows": 84,
+          "last_observed_step": 5642,
+          "iteration_rows": 248,
+          "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+        },
+        "equations": {
+          "FS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          },
+          "MS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          }
+        },
+        "iteration_rows": 33786,
+        "final_equation_rows": 11200,
+        "iteration_limit_rows": 0,
+        "maximum_iterations": {
+          "FS": 3,
+          "MS": 3
+        },
+        "maximum_final_relative_ratio": {
+          "FS": 5.6e-11,
+          "MS": 9.8e-11
+        },
+        "failed_equation_steps": [],
+        "passed": true,
+        "input_manifest_sha256": "af10255cfa13086d61c12e52b8a28098d896c8ca7961305fcc5735de7b89821e",
+        "log_sha256": "a396b30741434beb4b0fa5e5c59b8893b747404cb1e1f9a91f80061128bdbc98",
+        "analysis_source_sha256": "ba676d551f6a3f2b31c4b891391690ec4c2132b848657c2e39a080000eb15bec",
+        "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+      },
+      {
+        "work": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/reference",
+        "log": "/home/tfblab633/EONSim-prod48-20261107/s12-native-recovery-a6643c8/svfsi.log",
+        "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+        "steps": 800,
+        "declared_steps": 6400,
+        "first_step": 5601,
+        "last_step": 6400,
+        "restart": {
+          "step": 5600,
+          "time": 175.9291886010148,
+          "stamp": [
+            1,
+            2,
+            2,
+            3325,
+            0,
+            7,
+            1
+          ],
+          "bytes": 558664,
+          "serialized_values": 69829,
+          "sha256": "8ff753de115aa4c3ab5cfd918baf8ff24d666b0df90acb8eafd429e8162e95c3",
+          "input_name": "restart-seed.bin",
+          "path": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/reference/restart-seed.bin",
+          "scope": "Exact native saved time and complete finite Yn/An/Dn record; no v4 clock claim"
+        },
+        "excluded_tail": {
+          "final_equation_rows": 0,
+          "last_observed_step": 6400,
+          "iteration_rows": 0,
+          "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+        },
+        "equations": {
+          "FS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          },
+          "MS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          }
+        },
+        "iteration_rows": 4800,
+        "final_equation_rows": 1600,
+        "iteration_limit_rows": 0,
+        "maximum_iterations": {
+          "FS": 3,
+          "MS": 3
+        },
+        "maximum_final_relative_ratio": {
+          "FS": 1e-11,
+          "MS": 3.8e-11
+        },
+        "failed_equation_steps": [],
+        "passed": true,
+        "input_manifest_sha256": "efdcc119b483221859921fb7c2aa0b7e7cc2f100325717fb9d6626e57d3f9836",
+        "log_sha256": "7973f4ed74b0c6b5ddd4c900b97b84a963b275deda9e559387d5f58a2b2e6e6e",
+        "analysis_source_sha256": "ba676d551f6a3f2b31c4b891391690ec4c2132b848657c2e39a080000eb15bec",
+        "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+      }
+    ],
+    "equations": {
+      "FS": {
+        "tolerance": 1e-10,
+        "maximum_iterations": 30,
+        "minimum_iterations": 1
+      },
+      "MS": {
+        "tolerance": 1e-10,
+        "maximum_iterations": 30,
+        "minimum_iterations": 1
+      }
+    },
+    "final_equation_rows": 12800,
+    "iteration_rows": 38338,
+    "iteration_limit_rows": 0,
+    "failed_equation_steps": [],
+    "maximum_iterations": {
+      "FS": 3,
+      "MS": 3
+    },
+    "maximum_final_relative_ratio": {
+      "FS": 5.6e-11,
+      "MS": 9.8e-11
+    },
+    "input_manifest_sha256": "efdcc119b483221859921fb7c2aa0b7e7cc2f100325717fb9d6626e57d3f9836",
+    "boundaries": [
+      {
+        "step": 5600,
+        "checkpoint": "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l1-n200-ramp16-c32/reference/results/stFile_5600.bin",
+        "checkpoint_sha256": "8ff753de115aa4c3ab5cfd918baf8ff24d666b0df90acb8eafd429e8162e95c3",
+        "output": "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l1-n200-ramp16-c32/reference/results/result_5600.vtu",
+        "output_sha256": "130c3027d162ed78d3f928628fd900592fc891586459423a44ec576447ae5938"
+      }
+    ],
+    "full_source_study": true,
+    "chain_sha256": "4628c20f5bf6042df2da49618f780ee01f1fc353dcb2b8bf7fc2f906841e7523",
+    "analysis_source_sha256": "179fc78c3077fcae81751496973f5370335d4fb50982ffe26e97538d6025d09a",
+    "scope": "Contiguous selected original/resumed segments with unchanged inputs and exact native seed hashes; original excluded tails remain explicit; no physical qualification"
+  },
+  "reference_periodic": false,
+  "quality_gates": {
+    "kinematics": {
+      "maximum": 0.0,
+      "limit": 1e-12,
+      "passed": true
+    },
+    "stage_mass": {
+      "maximum": 6.938893903907228e-18,
+      "limit": 1e-09,
+      "passed": true
+    },
+    "stage_divergence_theorem": {
+      "maximum": 6.962399068193535e-18,
+      "limit": 1e-12,
+      "passed": true
+    }
+  },
+  "final_cycle_differences": {
+    "31": {
+      "fluid_velocity": {
+        "relative_max": 8.346045238412541e-08,
+        "relative_rms": 5.9527476223638675e-08
+      },
+      "fluid_pressure": {
+        "relative_max": 4.286163615518196e-09,
+        "relative_rms": 3.041297618596749e-09
+      },
+      "fluid_mesh_displacement": {
+        "relative_max": 2.6249213658961897e-05,
+        "relative_rms": 2.62455349272362e-05
+      },
+      "solid_velocity": {
+        "relative_max": 9.962170643347658e-07,
+        "relative_rms": 7.104417420229094e-07
+      },
+      "solid_displacement": {
+        "relative_max": 6.309466307733492e-07,
+        "relative_rms": 4.4644001416908225e-07
+      }
+    },
+    "32": {
+      "fluid_velocity": {
+        "relative_max": 7.796551717797718e-08,
+        "relative_rms": 5.405378166061094e-08
+      },
+      "fluid_pressure": {
+        "relative_max": 4.001466777027519e-09,
+        "relative_rms": 2.8974709615236663e-09
+      },
+      "fluid_mesh_displacement": {
+        "relative_max": 2.624848369670432e-05,
+        "relative_rms": 2.6245199095826645e-05
+      },
+      "solid_velocity": {
+        "relative_max": 9.307099048993028e-07,
+        "relative_rms": 6.45159498942786e-07
+      },
+      "solid_displacement": {
+        "relative_max": 5.894546012564559e-07,
+        "relative_rms": 4.243617021412952e-07
+      }
+    }
+  },
+  "minimum_fluid_jacobian": 1.0000094990492474,
+  "minimum_solid_jacobian": 0.9999743395635821,
+  "lame_mean_relative_error": 0.04802610567980514,
+  "observables": {
+    "prerequisites": {
+      "EONSim": {
+        "periodic": true,
+        "positive_geometry": true,
+        "quality": true
+      },
+      "svFSI": {
+        "periodic": false,
+        "positive_geometry": true,
+        "quality": true,
+        "relative_convergence": true
+      }
+    },
+    "synthetic_input": false,
+    "comparison_eligible": false,
+    "observables": {
+      "mid_radial_displacement": {
+        "eonsim": {
+          "mean": 0.00010350547184614883,
+          "sine": 1.1383555103331629e-05,
+          "cosine": -3.3583286831627264e-05,
+          "amplitude": 3.5460153428967796e-05,
+          "phase_degrees": -71.27514549106871,
+          "higher_harmonic_rms": 4.358290866112265e-10
+        },
+        "svfsi": {
+          "mean": 0.00010350552523699573,
+          "sine": 9.676005542080633e-06,
+          "cosine": -3.27667271860668e-05,
+          "amplitude": 3.416553078376661e-05,
+          "phase_degrees": -73.54814389271426,
+          "higher_harmonic_rms": 4.5780594899855047e-10
+        },
+        "reference_amplitude_denominator": 3.416553078376661e-05,
+        "physical_scale": 5.436363636363637e-05,
+        "unresolved_amplitude_floor": 5.4363636363636365e-17,
+        "relative_amplitude_difference": 0.03789265424836632,
+        "amplitude_limit": 0.05,
+        "amplitude_passed": true,
+        "phase_difference_degrees": 2.272998401645566,
+        "phase_limit_degrees": null,
+        "phase_passed": null,
+        "mean_difference": -5.3390846905805416e-11,
+        "passed": true
+      },
+      "mid_ring_projected_area": {
+        "eonsim": {
+          "mean": 3.000635516475397,
+          "sine": 6.989351650699069e-05,
+          "cosine": -0.00020621164339617042,
+          "amplitude": 0.00021773457585294608,
+          "phase_degrees": -71.27638917653302,
+          "higher_harmonic_rms": 3.548100545512118e-09
+        },
+        "svfsi": {
+          "mean": 3.0006355166612853,
+          "sine": 5.940882547350701e-05,
+          "cosine": -0.0002011975363084252,
+          "amplitude": 0.00020978526440320277,
+          "phase_degrees": -73.54938854225804,
+          "higher_harmonic_rms": 3.5565747368575424e-09
+        },
+        "reference_amplitude_denominator": 0.00020978526440320277,
+        "physical_scale": 0.0003415768012448539,
+        "unresolved_amplitude_floor": 3.4157680124485387e-16,
+        "relative_amplitude_difference": 0.03789261115339784,
+        "amplitude_limit": 0.05,
+        "amplitude_passed": true,
+        "phase_difference_degrees": 2.2729993657250134,
+        "phase_limit_degrees": null,
+        "phase_passed": null,
+        "mean_difference": -1.8588819372666876e-10,
+        "passed": true
+      },
+      "mid_pressure": {
+        "eonsim": {
+          "mean": 0.02000031249893337,
+          "sine": 0.0018985954206061253,
+          "cosine": -0.0065910124900464264,
+          "amplitude": 0.006859016709054917,
+          "phase_degrees": -73.93051848179924,
+          "higher_harmonic_rms": 9.024653062754987e-08
+        },
+        "svfsi": {
+          "mean": 0.020000331217358024,
+          "sine": 0.0015689119104817534,
+          "cosine": -0.006419659180675064,
+          "amplitude": 0.006608593540147339,
+          "phase_degrees": -76.26657924293393,
+          "higher_harmonic_rms": 9.381346465542244e-08
+        },
+        "reference_amplitude_denominator": 0.006608593540147339,
+        "physical_scale": 0.01,
+        "unresolved_amplitude_floor": 1e-14,
+        "relative_amplitude_difference": 0.03789356500536048,
+        "amplitude_limit": 0.02,
+        "amplitude_passed": false,
+        "phase_difference_degrees": 2.3360607611346893,
+        "phase_limit_degrees": 1.0,
+        "phase_passed": false,
+        "mean_difference": -1.871842465403506e-08,
+        "passed": false
+      },
+      "outward_flow_left": {
+        "eonsim": {
+          "mean": -2.1664981902821991e-10,
+          "sine": -0.000872033588647773,
+          "cosine": -0.0007742587774436685,
+          "amplitude": 0.0011661557503946365,
+          "phase_degrees": -138.39885632519906,
+          "higher_harmonic_rms": 3.619967991094598e-08
+        },
+        "svfsi": {
+          "mean": -3.3001814051063757e-10,
+          "sine": -0.0008616198306862351,
+          "cosine": -0.0007332803184304112,
+          "amplitude": 0.0011314100750961969,
+          "phase_degrees": -139.6006029712261,
+          "higher_harmonic_rms": 3.556147664650764e-08
+        },
+        "reference_amplitude_denominator": 0.0011314100750961969,
+        "physical_scale": 0.0020494608074691236,
+        "unresolved_amplitude_floor": 2.0494608074691234e-15,
+        "relative_amplitude_difference": 0.03071006354215596,
+        "amplitude_limit": 0.05,
+        "amplitude_passed": true,
+        "phase_difference_degrees": 1.2017466460270327,
+        "phase_limit_degrees": 2.0,
+        "phase_passed": true,
+        "mean_difference": 1.1336832148241765e-10,
+        "passed": true
+      },
+      "outward_flow_right": {
+        "eonsim": {
+          "mean": 2.1664294317373937e-10,
+          "sine": -0.000867576134139449,
+          "cosine": -0.0007583298351349181,
+          "amplitude": 0.0011522814271626976,
+          "phase_degrees": -138.8439847381485,
+          "higher_harmonic_rms": 3.526851080468514e-08
+        },
+        "svfsi": {
+          "mean": 3.30023508518659e-10,
+          "sine": -0.0008561396719550724,
+          "cosine": -0.0007136551438671178,
+          "amplitude": 0.0011145756153188241,
+          "phase_degrees": -140.18631675134378,
+          "higher_harmonic_rms": 3.39838086005372e-08
+        },
+        "reference_amplitude_denominator": 0.0011145756153188241,
+        "physical_scale": 0.0020494608074691236,
+        "unresolved_amplitude_floor": 2.0494608074691234e-15,
+        "relative_amplitude_difference": 0.03382974768660062,
+        "amplitude_limit": 0.05,
+        "amplitude_passed": true,
+        "phase_difference_degrees": 1.3423320131952892,
+        "phase_limit_degrees": 2.0,
+        "phase_passed": true,
+        "mean_difference": -1.1338056534491962e-10,
+        "passed": true
+      }
+    },
+    "observable_gates_passed": false,
+    "lame_mean_diagnostics": {
+      "EONSim": {
+        "numerical_mean": 0.00010350547184614883,
+        "infinite_circular_plane_strain_mean": 0.00010872727272727274,
+        "relative_difference": 0.04802659673274496,
+        "limit": 0.02,
+        "within_limit": false,
+        "scope": "Diagnostic only until polygon geometry and finite-end effects are bounded"
+      },
+      "svFSI": {
+        "numerical_mean": 0.00010350552523699573,
+        "infinite_circular_plane_strain_mean": 0.00010872727272727274,
+        "relative_difference": 0.04802610567980519,
+        "limit": 0.02,
+        "within_limit": false,
+        "scope": "Diagnostic only until polygon geometry and finite-end effects are bounded"
+      }
+    },
+    "qualification": "Incomplete: independent space/time/tail/sampling, geometry, MPI and restart evidence remains required",
+    "scope": "Same-mesh cross-solver observables only; endpoint values, fixed absolute phase, svFSI amplitude denominator",
+    "input_files": {
+      "eonsim": {
+        "path": "/home/tfblab633/EONSim-prod48-20261107/s12-matched-analysis-recovery-243c9d0/eonsim-audit.json",
+        "sha256": "5e119411a9193c0f4a610f7db82e3e0cf65bff2be291fee12be289ea125f3b09"
+      },
+      "svfsi": {
+        "path": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/svfsi-audit.json",
+        "sha256": "de07435fae344001a2d69c2443c2f4b620c1802e9b763e45d75f131a5d51d846"
+      }
+    },
+    "helper_sha256": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6"
+  },
+  "full_physical_qualification": false,
+  "scope": "Complete original1..5600 plus exact-native resumed5601..6400 chain. Preserve original12h timeout/excluded tail, completed6400 solve followed by singleton-launcher cleanup failure, both failed capture waiters, and the source-mismatch postprocessing failure. EONSim report regenerated with exactly the same analyzer and required identical numerical content. Independent postprocessing completed with numerical bytes unchanged. All800 stored states plus actual5600 boundary, full history/source/commands/comparisons. Independent space/time/tail/sampling/geometry gates remain."
+}

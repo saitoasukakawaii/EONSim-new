@@ -1,0 +1,53 @@
+{
+  "before": {
+    "state": "waiting_for_fine_n200_producer",
+    "pid": 25369,
+    "alpha": 2,
+    "cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "utc": "2026-11-08T04:28:38Z",
+    "producer_status": "/home/tfblab633/EONSim-prod48-20261107/womersley-lu8-boundary-current.json",
+    "holds_queue_lock": false
+  },
+  "after": {
+    "state": "cancelled_before_numerical_work",
+    "pid": 25369,
+    "alpha": 2,
+    "cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "utc": "2026-11-08T04:59:25Z",
+    "producer_status": "/home/tfblab633/EONSim-prod48-20261107/womersley-lu8-boundary-current.json",
+    "holds_queue_lock": false,
+    "successor": "/home/tfblab633/EONSim-prod48-20261107/womersley-time400-a2-lu8-middle-current.json",
+    "reason": "Explicit reviewed new middle study replaces the budget input"
+  },
+  "identity": {
+    "pid": 25369,
+    "state": "S",
+    "ppid": 25368,
+    "sid": 25369,
+    "start": "4988008",
+    "command": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/queue-womersley-time400-lu8.py",
+      "--alpha",
+      "2"
+    ]
+  }
+}

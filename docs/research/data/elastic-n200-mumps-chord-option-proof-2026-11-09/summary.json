@@ -1,0 +1,50 @@
+{
+  "base": "32fb3133f1349d6f94cdcb95acd3de925fec410d",
+  "report_sha256": "02bcf0773b15e2b6445f9e2b9740cb982e9253771671c0d74dc058f4bbfe106d",
+  "review_sha256": "4f48ca1bc0206d143694322a2c1a65894c8a3248f3d173940f9769819e60d189",
+  "wall_seconds": {
+    "old-first": 170.78045833700162,
+    "mumps-chord": 50.510200381002505,
+    "split-first": 30.465199564001523,
+    "split-replay": 29.84887665399583,
+    "old-last": 161.06522053798835
+  },
+  "cost_ratios": {
+    "old-first": 0.29576100727713567,
+    "old-last": 0.3136009140414601
+  },
+  "actual_factor_events": {
+    "old-first": {
+      "event": "MatLUFactor",
+      "count": 16,
+      "rank_count_ratio": 1.0
+    },
+    "mumps-chord": {
+      "event": "MatLUFactorNum",
+      "count": 8,
+      "rank_count_ratio": 1.0
+    },
+    "split-first": {
+      "event": "MatLUFactorNum",
+      "count": 4,
+      "rank_count_ratio": 1.0
+    },
+    "split-replay": {
+      "event": "MatLUFactorNum",
+      "count": 4,
+      "rank_count_ratio": 1.0
+    },
+    "old-last": {
+      "event": "MatLUFactor",
+      "count": 16,
+      "rank_count_ratio": 1.0
+    }
+  },
+  "maximum_errors": {
+    "maximum_history": 5.092328197574963e-16,
+    "legacy_clock_difference": 0.0,
+    "maximum_node": 7.45931094670027e-17,
+    "maximum_normalized_mass": 3.3598051376333164e-14
+  },
+  "scope": "Complete same1400-seed old-first8, MUMPS/chord8, split4+4, old-last8. All24 paired states/current-history/fiveP1 fields plus independent readback. Preserve initial review failure: SuperLU_DIST reports MatLUFactor, MUMPS reports MatLUFactorNum. No numerical rerun, production adoption, host isolation or full-load physical qualification claimed."
+}

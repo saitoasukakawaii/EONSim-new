@@ -10,6 +10,8 @@ struct SurfaceLoad {
     TriangleVector::State<PetscInt> ids;
     TriangleVector::State<double> residual{}; // -integral N*t dA，独立于 trial
     double ramp_time;
+    double pressure=0;
+    std::optional<PressureTime> pressure_time; // When present, residual stores unit-pressure traction.
 };
 struct FluidBoundaryPlan {
     std::vector<PrescribedDof> constraints; // 仅 owned DoF、已合并相交面的相同条件
@@ -27,6 +29,8 @@ FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& m
     int stride,bool transient,std::optional<PressureGauge> gauge=std::nullopt);
 /// t 是当前求解时间；稳态不应用时间 ramp。
 double boundary_scale(double ramp_time,double t,bool transient);
+/// Shared sinusoidal pressure law; evaluate natural loads at the integrator's stage time.
+double pressure_value(double mean,const PressureTime& profile,double time);
 /// 将所有边界物理参数纳入重启签名；64 位规范点 ID 分为两个精确可表示的整数。
 std::vector<double> fluid_boundary_signature(const FluidConfig& config);
 struct BoundarySummary { int tag; double area,flow,pressure; }; // flow 为外向体积流量，pressure 为面积平均

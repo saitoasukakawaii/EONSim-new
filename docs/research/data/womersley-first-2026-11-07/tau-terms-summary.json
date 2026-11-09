@@ -1,0 +1,113 @@
+{
+  "source_formula": "src/physics/fluid.cpp: accepted nodal mean, h=cbrt(6V), effective BDF2 time=2dt/3",
+  "formula_source_sha256": "fc0b71285aacc329b77f9ac7e6a3295bf8cfa15a7983c47e5f1d94ee837c1314",
+  "analysis_source_sha256": "c48aa5bafa068c7a177c45d6d22b48b7b02917103279dff389b69498f6527ebd",
+  "scope": "Actual coefficient-term reconstruction and same-state half-step sensitivity only; not a new PDE solve, causal attribution, or solution-error bound",
+  "reports": [
+    {
+      "study": "womersley-a2-s48-l0-n100",
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 100,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "cycle": 5,
+      "phases": 100,
+      "previous_state_direct_checks": 100,
+      "previous_state_maximum_difference": 0.0,
+      "maximum_advection_squared_fraction": 1.057978516995688e-08,
+      "mean_time_squared_fraction": 0.6624922157684778,
+      "mean_same_state_half_step_tau_ratio": 0.5829312418428828,
+      "minimum_same_state_half_step_tau_ratio": 0.5449284860327024,
+      "maximum_same_state_half_step_tau_ratio": 0.6879789340514096
+    },
+    {
+      "study": "womersley-a2-s48-l1-n100",
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 1,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 100,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "cycle": 5,
+      "phases": 100,
+      "previous_state_direct_checks": 100,
+      "previous_state_maximum_difference": 0.0,
+      "maximum_advection_squared_fraction": 5.0196617094486585e-09,
+      "mean_time_squared_fraction": 0.1246601832311769,
+      "mean_same_state_half_step_tau_ratio": 0.857109433042319,
+      "minimum_same_state_half_step_tau_ratio": 0.7983756385437955,
+      "maximum_same_state_half_step_tau_ratio": 0.9506044006982995
+    },
+    {
+      "study": "womersley-a2-s48-l0-n200",
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 200,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "cycle": 5,
+      "phases": 100,
+      "previous_state_direct_checks": 0,
+      "previous_state_maximum_difference": 0.0,
+      "maximum_advection_squared_fraction": 4.962959503710837e-09,
+      "mean_time_squared_fraction": 0.8776558797773524,
+      "mean_same_state_half_step_tau_ratio": 0.5254217123552,
+      "minimum_same_state_half_step_tau_ratio": 0.5121668796401075,
+      "maximum_same_state_half_step_tau_ratio": 0.5673454147514781
+    }
+  ]
+}

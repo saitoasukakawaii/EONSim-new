@@ -1,0 +1,87 @@
+{
+  "snapshot_utc": "2026-11-08T00:19:12Z",
+  "states": {
+    "womersley-segment-boundary-current.json": {
+      "state": "waiting_for_accepted_cycle",
+      "pid": 20754,
+      "utc": "2026-11-08T00:15:43Z",
+      "seed_step": 600,
+      "uninterrupted_reference_step": 603,
+      "holds_queue_lock": false
+    },
+    "alpha1-fine-vector-segmented-current.json": {
+      "state": "waiting_for_middle_natural_exit",
+      "pid": 20806,
+      "held_parent": 1180,
+      "parent_held": true,
+      "original_parent_terminated": false,
+      "utc": "2026-11-08T00:16:50Z",
+      "cpus": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "child_pid": 5422,
+      "middle": "/home/tfblab633/EONSim-prod48-20261107/womersley-a1-s48-l1-n200",
+      "target_step": 1000
+    },
+    "womersley-time400-a1-retry4-current.json": {
+      "state": "waiting_for_fine_n200_producer",
+      "pid": 20825,
+      "alpha": 1,
+      "cpus": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "utc": "2026-11-08T00:17:35Z",
+      "producer_status": "/home/tfblab633/EONSim-prod48-20261107/alpha1-fine-vector-segmented-current.json",
+      "holds_queue_lock": false
+    },
+    "womersley-time400-a2-retry4-current.json": {
+      "state": "waiting_for_fine_n200_producer",
+      "pid": 20817,
+      "alpha": 2,
+      "cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "utc": "2026-11-08T00:17:15Z",
+      "producer_status": "/home/tfblab633/EONSim-prod48-20261107/womersley-segment-boundary-current.json",
+      "holds_queue_lock": false
+    },
+    "reference-nu0-s24-series-current.json": {
+      "state": "waiting_for_existing_mpi_and_clock_work",
+      "pid": 20277,
+      "utc": "2026-11-07T23:48:01Z",
+      "locks": [
+        "elastic-mpi-restart.lock",
+        "reference-diagnostic.lock"
+      ],
+      "holds_queue_lock": false
+    }
+  },
+  "cancelled_waiters": [
+    15446,
+    15457,
+    7639
+  ],
+  "running_numerical_child_preserved": 5422,
+  "scope": "Replacement of waiting controllers is complete. Main alpha2 accepted600 handoff, alpha1 fine screen, both N400 controls and reference-nu0 S24 family remain pending. No numerical qualification inferred."
+}

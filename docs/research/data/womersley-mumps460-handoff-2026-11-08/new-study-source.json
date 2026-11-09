@@ -1,0 +1,85 @@
+{
+  "source_study": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-vector-m400",
+  "source_definition": {
+    "schema": 1,
+    "seed": [
+      48,
+      4,
+      8
+    ],
+    "level": 2,
+    "alpha": 2.0,
+    "period": 1.5707963267948966,
+    "radius": 1.0,
+    "length": 2.0,
+    "density": 1.0,
+    "viscosity": 1.0,
+    "pressure_amplitude": 0.02,
+    "steps_per_cycle": 200,
+    "phases": 200,
+    "warmup": 2,
+    "ranks": 4,
+    "schur": true,
+    "tau": null,
+    "executable_sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+    "solver_options": [
+      "-snes_lag_jacobian",
+      "-2",
+      "-schur_velocity_block3"
+    ]
+  },
+  "new_definition": {
+    "schema": 1,
+    "seed": [
+      48,
+      4,
+      8
+    ],
+    "level": 2,
+    "alpha": 2.0,
+    "period": 1.5707963267948966,
+    "radius": 1.0,
+    "length": 2.0,
+    "density": 1.0,
+    "viscosity": 1.0,
+    "pressure_amplitude": 0.02,
+    "steps_per_cycle": 200,
+    "phases": 200,
+    "warmup": 2,
+    "ranks": 4,
+    "schur": false,
+    "tau": null,
+    "executable_sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+    "solver_options": [
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-snes_lag_jacobian",
+      "-2"
+    ]
+  },
+  "seed_step": 460,
+  "checkpoint_sha256": {
+    "manifest": "c003a86594f14f8942303116c4293b0d821d6ff53a3286a7d82a3b708a0d5073",
+    "state_rank0.h5": "23777b131bfa8d59f13a2abecd248fa2b7a308494b596c67b73cc42a3c383112",
+    "state_rank1.h5": "0eaf886b4ef0e85628bfc9c6e62ee20095303e1cdf829ade4316e07d22852694",
+    "state_rank2.h5": "6a59d8dbe2bc22f2186e84eb83ca4848c612f27842147feedd16058eedd7c53a",
+    "state_rank3.h5": "1ecb1a909cf6c008229bdfae345dd7f50c94a1b98e0fe62b508ac466e1dfe4d1"
+  },
+  "copied_input_hashes": {
+    "fluid.msh": "d3e958f85e161f182d9464fae16aa4685eb753446b8cf17a2f64816ba598ec9e",
+    "mesh-sha256.txt": "2f91446307c7587990276ddc5941af0eaf233308e19863a4d94ac65c2c6012f5",
+    "eonsim": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c"
+  },
+  "probe_sha256": "619e5548a4e6884091b032c2bf68176f73e5dbdfc56722446c4100e2e5c56c89",
+  "screen_sha256": "eafbc2a7b45e5566af541a82f56e1777a9d0d5a36aac80183223ad104cec10d0",
+  "source_hashes": {
+    "scripts/study_womersley.py": "a84c28bcf23916fc4e0415ae8f0c498909d8159d002710e090e571d915376055",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "build/prod48-20261107/bounded_cgroup_job.py": "20eeac62f0636ab8c6cffbb94a43edd060f71a2dbefcf8e5c39d26cfc57b98f9"
+  },
+  "scope": "Explicit direct-solver fork before the last three complete sampled cycles; final time and physical settings unchanged. Original outputs retained."
+}

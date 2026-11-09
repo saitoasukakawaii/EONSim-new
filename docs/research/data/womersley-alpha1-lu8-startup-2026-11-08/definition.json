@@ -1,0 +1,61 @@
+{
+  "base": "d1ad62b",
+  "controller_sha256": "b722c08204780372575d24064c48188cbb31ab74c4ad9cf9ee9210bf1aa621df",
+  "cap_sha256": "20eeac62f0636ab8c6cffbb94a43edd060f71a2dbefcf8e5c39d26cfc57b98f9",
+  "candidate_sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+  "baseline_sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+  "input_hashes": {
+    "fluid.msh": "d3e958f85e161f182d9464fae16aa4685eb753446b8cf17a2f64816ba598ec9e",
+    "parts/manifest.yaml": "0eaa3f4219c029692a32f3c3b58d9e466fce11b65989c4bd0d53e7912488bdc3",
+    "parts/rank_0.h5": "19f4670162808fd173f5b170e27f33439565a5499bfe8f9e948b2981293aca0c",
+    "parts/rank_1.h5": "4ec4151b5de03391dc35011ca6c1f33a24e48a2eb8a15161aca7ba109a18594d",
+    "parts/rank_2.h5": "78070cb81ff76ad7f05e5ab85dd2388633fe075588f8569097a3a6f6c3b9953d",
+    "parts/rank_3.h5": "22f3fb9b6b92c966c27fda3d968b7f514b750a15d7b48bb83b6fad61f73c8b4d"
+  },
+  "original_case_sha256": "9c8701e4e2d33ed2fc2d64c87db6c6175d1c71d2c03376aecb5ab6880b79b408",
+  "original_study": "/mnt/d/EONSim-prod48-20261107/womersley-a1-s48-l2-n200-vector-segmented",
+  "alpha2_producer_observation": {
+    "state": "running",
+    "pid": 25368,
+    "utc": "2026-11-08T04:28:40Z",
+    "target": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-lu8-m600",
+    "job": "continuation",
+    "adopted": true,
+    "new_waiter_pid": 25369
+  },
+  "steps": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "window": 8,
+  "ranks": 4,
+  "cpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "timeouts_seconds": {
+    "old-vector": 2400,
+    "new-default": 1200,
+    "new-cached": 1200
+  },
+  "field_limit": 2e-09,
+  "legacy_clock_limit": 1e-12,
+  "minimum_cost_reduction": 0.1,
+  "memory_max_bytes": 15032385536,
+  "swap_max_bytes": 0,
+  "admission_available_bytes": 17179869184,
+  "minimum_available_bytes": 8589934592,
+  "scope": "Same fine alpha1 physical problem and final time; independent zero-state8-step screen. Old vector/new default isolates policy and binary changes; new default/cache isolates factor reuse. Original alpha1 continues. No adoption, periodicity, scalability or production qualification."
+}

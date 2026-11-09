@@ -1,0 +1,31 @@
+{
+  "base": "6f202a1",
+  "hashes": {
+    "include/eonsim/time_step.hpp": "b44219cc84c5fbbb7acbed2efbebb9e6af93b6a8aff94feccf1ffe35245b82f0",
+    "include/eonsim/checkpoint.hpp": "5d1e076a881b29f944a3b518678f14c282e900e7ca25b6f9061c432bd97112c6",
+    "src/io/checkpoint.cpp": "8fc1c93927638659cee1eff30c3da70c48aff0355fd1c657aaf8fec328981189",
+    "tests/verify_checkpoint.cpp": "b6acb12c0f7788ffa3994c2aea743a89b7ce367ed8d9c6b7a84951f0fe9397b7",
+    "tests/verify_time_integration.cpp": "60c4db2639b0854e10e97c048afd973ea7a0025cd837c6aa0206b5eeec81ca93",
+    "CMakeLists.txt": "ee3c897291e3d428c483b092c67d61145b68dea7c5651f768382ac481b4ffe62",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "scripts/study_womersley.py": "73d1d8ca8a43e630209082c5f672cdd1df568ebda4dc4f1ca6574ea5e2c7047e",
+    "scripts/cloud/selection.json": "29cc8383d75cb4b2812367c6daa0e61cca6f857e01197606f0574a22dfcc3db7",
+    "src/physics/fluid.cpp": "b01843c267556172edaac6de32050e9dff43ac4fbf011651363fea86edfde671",
+    "src/physics/solid.cpp": "34c3c7cdb9d2950c85491d29554232c72e00dbbcd5772ae3754d9f52e37ed9b3",
+    "src/physics/fsi.cpp": "d08e8b032c02eee68558c84e2d66e9e13207cdd53e55b8f0de398487f8cc7dc0",
+    "src/physics/ale.cpp": "2a3301fcecc01b1c0784887bb9dbfa6661c0497b10399b4657d30bc779818ede",
+    "src/physics/scalar2d.cpp": "c756af89b1b36c9dd481874ef83a370c994e2bea198139b1118a1d3bd308b0b9",
+    "src/physics/scalar_p2.cpp": "41bc1c595539641f0c1bfc97e5101580414242eb3d8101f6d646c97cdb7e245e"
+  },
+  "tests": [
+    "time_integration",
+    "checkpoint_publication",
+    "checkpoint_publication_mpi",
+    "restart_block_verification",
+    "ale_time_verification",
+    "scalar2d_time",
+    "scalar_p2_restart",
+    "time_retry_verification"
+  ],
+  "scope": "Checkpoint v4 preserves compensated clock state. v3 read explicitly reports missing correction and initializes zero; no exact legacy-clock claim. One logical CPU for correctness only."
+}

@@ -1,0 +1,426 @@
+[
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current",
+      "rev-parse",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "seconds": 0.06274829991161823,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current",
+      "status",
+      "--porcelain"
+    ],
+    "returncode": 0,
+    "seconds": 0.09918999997898936,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current\\build\\prod48-20261107\\git-cross-drive-proof-224aad5\\fixture",
+      "init",
+      "--initial-branch=proof"
+    ],
+    "returncode": 0,
+    "seconds": 0.08418400003574789,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "powershell.exe",
+      "-NoProfile",
+      "-NonInteractive",
+      "-Command",
+      "New-Item -ItemType Junction -Path 'C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current\\build\\prod48-20261107\\git-cross-drive-proof-224aad5\\fixture\\.git\\objects\\external-evidence' -Target 'D:\\EONSim-prod48-20261107\\git-object-proofs\\224aad5\\objects' | Select-Object -ExpandProperty FullName"
+    ],
+    "returncode": 0,
+    "seconds": 2.290895299986005,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current\\build\\prod48-20261107\\git-cross-drive-proof-224aad5\\fixture",
+      "hash-object",
+      "-w",
+      "--no-filters",
+      "D:\\EONSim-prod48-20261107\\repository-archives\\pressure-audit-bounded-memory-validation-2026-11-09\\part001.tar.xz"
+    ],
+    "returncode": 0,
+    "seconds": 0.06465579988434911,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current\\build\\prod48-20261107\\git-cross-drive-proof-224aad5\\fixture",
+      "update-index",
+      "--add",
+      "--cacheinfo",
+      "100644,04f9a3509072d3c6dff82f1029cf0e1f8b921073,evidence/part001.tar.xz"
+    ],
+    "returncode": 0,
+    "seconds": 0.059177299961447716,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current\\build\\prod48-20261107\\git-cross-drive-proof-224aad5\\fixture",
+      "update-index",
+      "--skip-worktree",
+      "--",
+      "evidence/part001.tar.xz"
+    ],
+    "returncode": 0,
+    "seconds": 0.05682709999382496,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current\\build\\prod48-20261107\\git-cross-drive-proof-224aad5\\fixture",
+      "-c",
+      "user.name=EONSim isolated storage proof",
+      "-c",
+      "user.email=storage-proof@invalid",
+      "commit",
+      "-m",
+      "Verify a complete ordinary archive blob with external object storage"
+    ],
+    "returncode": 0,
+    "seconds": 0.07807679986581206,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current\\build\\prod48-20261107\\git-cross-drive-proof-224aad5\\fixture",
+      "rev-parse",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "seconds": 0.046490399865433574,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current\\build\\prod48-20261107\\git-cross-drive-proof-224aad5\\fixture",
+      "show",
+      "HEAD:evidence/part001.tar.xz"
+    ],
+    "returncode": 0,
+    "seconds": 0.07484050001949072,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current\\build\\prod48-20261107\\git-cross-drive-proof-224aad5\\fixture",
+      "fsck",
+      "--full",
+      "--strict"
+    ],
+    "returncode": 0,
+    "seconds": 0.25853889994323254,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "wsl.exe",
+      "-d",
+      "Ubuntu-24.04",
+      "--exec",
+      "/usr/bin/git",
+      "-c",
+      "safe.directory=/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "show",
+      "HEAD:evidence/part001.tar.xz"
+    ],
+    "returncode": 0,
+    "seconds": 0.47385619999840856,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "wsl.exe",
+      "-d",
+      "Ubuntu-24.04",
+      "--exec",
+      "/usr/bin/git",
+      "-c",
+      "safe.directory=/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current/build/prod48-20261107/git-cross-drive-proof-224aad5/fixture",
+      "fsck",
+      "--full",
+      "--strict"
+    ],
+    "returncode": 0,
+    "seconds": 1.6492947998922318,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "clone",
+      "--no-local",
+      "--no-checkout",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current\\build\\prod48-20261107\\git-cross-drive-proof-224aad5\\fixture",
+      "D:\\EONSim-prod48-20261107\\git-object-proofs\\224aad5\\independent-clone"
+    ],
+    "returncode": 0,
+    "seconds": 0.488381200004369,
+    "stderr": "Cloning into 'D:\\EONSim-prod48-20261107\\git-object-proofs\\224aad5\\independent-clone'...\n"
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=D:/EONSim-prod48-20261107/git-object-proofs/224aad5/independent-clone",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "D:\\EONSim-prod48-20261107\\git-object-proofs\\224aad5\\independent-clone",
+      "rev-parse",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "seconds": 0.05926590017043054,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=D:/EONSim-prod48-20261107/git-object-proofs/224aad5/independent-clone",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "D:\\EONSim-prod48-20261107\\git-object-proofs\\224aad5\\independent-clone",
+      "show",
+      "HEAD:evidence/part001.tar.xz"
+    ],
+    "returncode": 0,
+    "seconds": 0.07994140009395778,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=D:/EONSim-prod48-20261107/git-object-proofs/224aad5/independent-clone",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "D:\\EONSim-prod48-20261107\\git-object-proofs\\224aad5\\independent-clone",
+      "fsck",
+      "--full",
+      "--strict"
+    ],
+    "returncode": 0,
+    "seconds": 0.1405351001303643,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "wsl.exe",
+      "-d",
+      "Ubuntu-24.04",
+      "--exec",
+      "/usr/bin/git",
+      "-c",
+      "safe.directory=/mnt/d/EONSim-prod48-20261107/git-object-proofs/224aad5/independent-clone",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "/mnt/d/EONSim-prod48-20261107/git-object-proofs/224aad5/independent-clone",
+      "rev-parse",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "seconds": 0.37900039996020496,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "wsl.exe",
+      "-d",
+      "Ubuntu-24.04",
+      "--exec",
+      "/usr/bin/git",
+      "-c",
+      "safe.directory=/mnt/d/EONSim-prod48-20261107/git-object-proofs/224aad5/independent-clone",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "/mnt/d/EONSim-prod48-20261107/git-object-proofs/224aad5/independent-clone",
+      "show",
+      "HEAD:evidence/part001.tar.xz"
+    ],
+    "returncode": 0,
+    "seconds": 0.4630178001243621,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "wsl.exe",
+      "-d",
+      "Ubuntu-24.04",
+      "--exec",
+      "/usr/bin/git",
+      "-c",
+      "safe.directory=/mnt/d/EONSim-prod48-20261107/git-object-proofs/224aad5/independent-clone",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "/mnt/d/EONSim-prod48-20261107/git-object-proofs/224aad5/independent-clone",
+      "fsck",
+      "--full",
+      "--strict"
+    ],
+    "returncode": 0,
+    "seconds": 0.6964731998741627,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current",
+      "rev-parse",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "seconds": 0.053796099964529276,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "safe.directory=C:/Users/tfblab633/Documents/ChatGPT/数值计算/EONSim-new-current",
+      "-c",
+      "gc.auto=0",
+      "-c",
+      "maintenance.auto=false",
+      "-C",
+      "C:\\Users\\tfblab633\\Documents\\ChatGPT\\数值计算\\EONSim-new-current",
+      "status",
+      "--porcelain"
+    ],
+    "returncode": 0,
+    "seconds": 0.10973179992288351,
+    "stderr": ""
+  }
+]

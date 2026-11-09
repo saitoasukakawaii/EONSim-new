@@ -1,0 +1,71 @@
+{
+  "completed": true,
+  "baseline_reproduction": 0.0,
+  "results": {
+    "closed-nu030-n200": {
+      "mesh_poisson": 0.3,
+      "steps": 200,
+      "relative_rms": 1.9321200408327435e-05,
+      "maximum_normalized_nodal": 4.657860063866572e-05,
+      "maximum_normalized_boundary": 0.0,
+      "maximum_true_relative_linear_residual": 1.0339663333389538e-15
+    },
+    "nu000": {
+      "mesh_poisson": 0.0,
+      "steps": 200,
+      "relative_rms": 5.850068447952873e-06,
+      "maximum_normalized_nodal": 1.5173868811334769e-05,
+      "maximum_normalized_boundary": 0.0,
+      "maximum_true_relative_linear_residual": 1.176213412417574e-15
+    },
+    "nu045": {
+      "mesh_poisson": 0.45,
+      "steps": 200,
+      "relative_rms": 5.106996240123042e-05,
+      "maximum_normalized_nodal": 0.0001221442624265118,
+      "maximum_normalized_boundary": 0.0,
+      "maximum_true_relative_linear_residual": 1.2211549628191304e-15
+    },
+    "nu049": {
+      "mesh_poisson": 0.49,
+      "steps": 200,
+      "relative_rms": 5.789884754278219e-05,
+      "maximum_normalized_nodal": 0.00014773866218655582,
+      "maximum_normalized_boundary": 0.0,
+      "maximum_true_relative_linear_residual": 2.7689012348552885e-15
+    },
+    "subdivide2": {
+      "mesh_poisson": 0.3,
+      "steps": 400,
+      "relative_rms": 1.9285665522557487e-05,
+      "maximum_normalized_nodal": 4.655534109796492e-05,
+      "maximum_normalized_boundary": 0.0,
+      "maximum_true_relative_linear_residual": 1.0500571748423882e-15
+    },
+    "subdivide4": {
+      "mesh_poisson": 0.3,
+      "steps": 800,
+      "relative_rms": 1.926810501760452e-05,
+      "maximum_normalized_nodal": 4.654371172204871e-05,
+      "maximum_normalized_boundary": 0.0,
+      "maximum_true_relative_linear_residual": 1.0543986696784338e-15
+    },
+    "first-harmonic": {
+      "mesh_poisson": 0.3,
+      "steps": 200,
+      "relative_rms": 1.9321200407342268e-05,
+      "maximum_normalized_nodal": 4.657860063869659e-05,
+      "maximum_normalized_boundary": 0.0,
+      "maximum_true_relative_linear_residual": 1.0090739562298142e-15
+    },
+    "rank-one": {
+      "mesh_poisson": 0.3,
+      "steps": 200,
+      "relative_rms": 2.0530771302243787e-07,
+      "maximum_normalized_nodal": 4.876622148746112e-07,
+      "maximum_normalized_boundary": 0.0,
+      "maximum_true_relative_linear_residual": 1.0010079574980097e-15
+    }
+  },
+  "scope": "Counterfactual mesh-only observations; original coupled reference remains unchanged and unqualified where its gates fail."
+}

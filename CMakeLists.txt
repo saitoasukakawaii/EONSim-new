@@ -98,6 +98,22 @@ if(BUILD_TESTING)
             ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_runtime> ${MPIEXEC_POSTFLAGS})
         set_tests_properties(runtime_mpi PROPERTIES TIMEOUT 30 PROCESSORS 2 LABELS "core;mpi-failure")
     endif()
+    add_executable(verify_lu_reuse tests/verify_lu_reuse.cpp)
+    target_link_libraries(verify_lu_reuse PRIVATE eonsim_core)
+    foreach(ranks IN ITEMS 1 2 4)
+        add_test(NAME lu_reuse_mpi${ranks} COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" ${ranks}
+            ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_lu_reuse> ${MPIEXEC_POSTFLAGS})
+        set_tests_properties(lu_reuse_mpi${ranks} PROPERTIES TIMEOUT 90 PROCESSORS ${ranks}
+            LABELS "core;mpi-failure;rank-${ranks}" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    endforeach()
+    add_executable(verify_schur_vector tests/verify_schur_vector.cpp)
+    target_link_libraries(verify_schur_vector PRIVATE eonsim_core)
+    foreach(ranks IN ITEMS 1 2 4)
+        add_test(NAME schur_vector_mpi${ranks} COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" ${ranks}
+            ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_schur_vector> ${MPIEXEC_POSTFLAGS})
+        set_tests_properties(schur_vector_mpi${ranks} PROPERTIES TIMEOUT 60 PROCESSORS ${ranks}
+            LABELS "core;mpi-failure;rank-${ranks}" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    endforeach()
     add_executable(verify_pc_plan tests/verify_pc_plan.cpp)
     target_link_libraries(verify_pc_plan PRIVATE eonsim_core)
     foreach(ranks IN ITEMS 1 2 4)
@@ -131,7 +147,8 @@ if(BUILD_TESTING)
     set_tests_properties(solver_failures solver_failures_mpi PROPERTIES TIMEOUT 60
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_executable(verify_checkpoint tests/verify_checkpoint.cpp)
-    target_link_libraries(verify_checkpoint PRIVATE eonsim_core)
+    target_include_directories(verify_checkpoint PRIVATE "${EONSIM_HDF5_INCLUDE_DIR}")
+    target_link_libraries(verify_checkpoint PRIVATE eonsim_core "${EONSIM_HDF5_LIBRARY}")
     add_test(NAME checkpoint_publication COMMAND verify_checkpoint "${CMAKE_CURRENT_BINARY_DIR}/checkpoint_publication")
     add_test(NAME checkpoint_publication_mpi COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" 2
         ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_checkpoint> ${MPIEXEC_POSTFLAGS} "${CMAKE_CURRENT_BINARY_DIR}/checkpoint_publication_mpi")
@@ -327,6 +344,24 @@ if(BUILD_TESTING)
         set_tests_properties(pc_recipe_${recipe} PROPERTIES TIMEOUT 300 PROCESSORS 4
             LABELS "core;rank-1;rank-2;rank-4" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     endforeach()
+    add_test(NAME fluid_lu_reuse
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fluid_lu_reuse.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_lu_reuse")
+    set_tests_properties(fluid_lu_reuse PROPERTIES TIMEOUT 300 PROCESSORS 4
+        LABELS "core;rank-1;rank-2;rank-4" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME fsi_lu_reuse
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_lu_reuse.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_lu_reuse")
+    set_tests_properties(fsi_lu_reuse PROPERTIES TIMEOUT 600 PROCESSORS 4
+        LABELS "core;rank-1;rank-2;rank-4" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME schur_vector_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_schur_vector.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/schur_vector_verification")
+    set_tests_properties(schur_vector_verification PROPERTIES TIMEOUT 300 PROCESSORS 4
+        LABELS "core;rank-1;rank-2;rank-4" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME schur_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_schur.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
@@ -359,6 +394,18 @@ if(BUILD_TESTING)
             --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
             --work "${CMAKE_CURRENT_BINARY_DIR}/rigid_tube_verification")
     set_tests_properties(rigid_tube_verification PROPERTIES TIMEOUT 300 PROCESSORS 2 LABELS "rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME fluid_pressure_time
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fluid_pressure_time.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_pressure_time")
+    set_tests_properties(fluid_pressure_time PROPERTIES TIMEOUT 300 PROCESSORS 4 LABELS "rank-1;rank-2;rank-4"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME fluid_stabilization_time
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fluid_stabilization_time.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_stabilization_time")
+    set_tests_properties(fluid_stabilization_time PROPERTIES TIMEOUT 180 PROCESSORS 2 LABELS "rank-1;rank-2"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME restart_block_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_restart.py"

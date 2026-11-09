@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "phases": 16,
+      "observed_rms": 0.038060233744356575,
+      "exact_rms": 0.03806023374435663,
+      "absolute_difference": 5.551115123125783e-17
+    },
+    {
+      "phases": 20,
+      "observed_rms": 0.0244717418524232,
+      "exact_rms": 0.024471741852423234,
+      "absolute_difference": 3.469446951953614e-17
+    },
+    {
+      "phases": 100,
+      "observed_rms": 0.0009866357858642181,
+      "exact_rms": 0.0009866357858642205,
+      "absolute_difference": 2.3852447794681098e-18
+    },
+    {
+      "phases": 200,
+      "observed_rms": 0.0002467198171342179,
+      "exact_rms": 0.0002467198171342,
+      "absolute_difference": 1.7889335846010823e-17
+    },
+    {
+      "phases": 400,
+      "observed_rms": 6.168375916970885e-05,
+      "exact_rms": 6.168375916970614e-05,
+      "absolute_difference": 2.710505431213761e-18
+    }
+  ],
+  "passed": true,
+  "formula": "For a sinusoid sampled at n phases, linear reconstruction from every other state gives sampled RMS=(1-cos(2*pi/n))/2; includes the actual preceding endpoint",
+  "scope": "Manufactured quadrature/interpolation check, not physical or temporal-budget acceptance"
+}

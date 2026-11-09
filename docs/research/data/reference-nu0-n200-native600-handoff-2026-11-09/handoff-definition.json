@@ -1,0 +1,173 @@
+{
+  "base": "fcc29568f03edb7dba8c2812469c97d2c82175a2",
+  "controller_sha256": "857d9863cbb3d160600162f80baf4d05642ad5a8bdd7e456f191f5ae99502d54",
+  "consumer_sha256": "97cd39149f72cceb60674cfb66279109aebcfbba9ba94b8f8ae2d2bc768ce478",
+  "family_definition_sha256": "d15187816b93117d8cd39d6041e9bf097000f2d42bffeb7a92dce04fe0e5961c",
+  "source_hashes": {
+    "tests/test_pressure_tube_audit.py": "05bfa4436620ce79af6e63d731bd7b8285094bd2bc68d4fbbecb1d0b70f3dcd5",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/export_svfsi_tube.py": "be8a29b999655fae7abb66a4d86a5a2483bc902c23715867f4175d74e31d0876",
+    "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+    "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+    "scripts/audit_pressure_tube.py": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+    "scripts/audit_svfsi_convergence.py": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/svfsi_restart_evidence.py": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "build/prod48-20261107/s24-budget-kernel.py": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+    "build/prod48-20261107/analyze-elastic-s24-native1100-budgets.py": "b9d61aca452437d7db6c97d4e2b19681ec286156a8ec7f19a42bb11ab14f0428",
+    "build/prod48-20261107/nu0-budget-kernel.py": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+    "build/prod48-20261107/analyze-elastic-s24-midnight2-budgets.py": "700e8a99a7354f1db983c4a9d2817406be240ab62dfccd97e6c819e34ade71f8",
+    "build/prod48-20261107/compare-pressure-fields.py": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+    "build/prod48-20261107/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "cases/fsi/generate_pressure_tube.py": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198"
+  },
+  "plans": {
+    "fine": {
+      "case_id": "s24-l1-n400",
+      "path": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-native5000-fce909d",
+      "n": 400,
+      "first": 11601,
+      "last": 12800,
+      "original_plan": {
+        "origin": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32",
+        "out": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-6f202a1",
+        "n": 400,
+        "first": 11601,
+        "last": 12800,
+        "input_hashes": {
+          "case.json": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+          "fluid.msh": "05f4777e11cad498d57b87f080f9c8f2430fd6a04577963211e8c4541c70a4b2",
+          "solid.msh": "e7f6bed5613c0a62623a185847e563fc13e10f6fbc686f3e391ccd2a88a4ba9b",
+          "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e"
+        }
+      }
+    },
+    "coarse": {
+      "case_id": "s24-l0-n400",
+      "path": "/mnt/d/EONSim-prod48-20261107/reference-s24-l0-n400-meshnu0-native5000-fce909d",
+      "n": 400,
+      "first": 11601,
+      "last": 12800,
+      "original_plan": {
+        "origin": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l0-n400-ramp16-c32",
+        "out": "/mnt/d/EONSim-prod48-20261107/reference-s24-l0-n400-meshnu0-6f202a1",
+        "n": 400,
+        "first": 11601,
+        "last": 12800,
+        "input_hashes": {
+          "case.json": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+          "fluid.msh": "c221a9954a7c736ba379a56b37d2146e84f9c54351493c02092d131f244867da",
+          "solid.msh": "939ff538b3cd52ff324a2a9499cdc36921d97466c2c43761fc52901b97e269df",
+          "geometry.json": "acd864c420e15296c6b394901e443811e88db5e06bf0f1b2b00a66352ccd86a4"
+        }
+      }
+    },
+    "time": {
+      "case_id": "s24-l1-n200",
+      "path": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-ilut-native600-fcc2956",
+      "n": 200,
+      "first": 5801,
+      "last": 6400,
+      "original_plan": {
+        "origin": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32",
+        "out": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-6f202a1",
+        "n": 200,
+        "first": 5801,
+        "last": 6400,
+        "input_hashes": {
+          "case.json": "b3bea9d75f9699e17d5814e07de847eaadf9925dd2fb441b1f599876be51698c",
+          "fluid.msh": "05f4777e11cad498d57b87f080f9c8f2430fd6a04577963211e8c4541c70a4b2",
+          "solid.msh": "e7f6bed5613c0a62623a185847e563fc13e10f6fbc686f3e391ccd2a88a4ba9b",
+          "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e"
+        }
+      }
+    }
+  },
+  "original_controller": {
+    "pid": 41283,
+    "start_ticks": 10597691,
+    "state": "S",
+    "ppid": 41278,
+    "argv": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/start-nu0-early-companions.py",
+      "run"
+    ],
+    "cgroup": "0::/init.scope\n"
+  },
+  "old_consumer": {
+    "pid": 41284,
+    "start_ticks": 10597722,
+    "state": "S",
+    "ppid": 41283,
+    "argv": [
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/nu0-early-companion-handoff-a3e1c87/consumer.py"
+    ],
+    "cgroup": "0::/init.scope\n"
+  },
+  "original_solver_identities": [
+    {
+      "pid": 41957,
+      "start_ticks": 10843937,
+      "state": "R",
+      "ppid": 41954,
+      "argv": [
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-companion-handoff-a3e1c87/svFSI-original",
+        "svFSI.inp"
+      ],
+      "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-nu0-early-time-solve-41283.scope\n"
+    },
+    {
+      "pid": 41958,
+      "start_ticks": 10843937,
+      "state": "R",
+      "ppid": 41954,
+      "argv": [
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-companion-handoff-a3e1c87/svFSI-original",
+        "svFSI.inp"
+      ],
+      "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-nu0-early-time-solve-41283.scope\n"
+    }
+  ],
+  "original_companion_definition_sha256": "fa391c5270e8a0671168986581786211218b951ce7bcf7b99f2bf9508eee1f90",
+  "original_companion_controller_sha256": "d7a7f13b8cdbf8aae2e40b69d928d001aace61287c5777e0543a2866db4d1cef",
+  "original_handoff_definition_sha256": "9873a20a889445146518bb3bf2f1f243867ad110f31637accc811564bbeeacf1",
+  "original_fine_definition_sha256": "b209acfb643f82bfe3cccba367f236dd5f3821d6e6b4270907348993bbf4f4fa",
+  "original_fine_controller_sha256": "30dbfee700fb724163c7dc58d12c68cfc7944eb7acb236932a067b9ef98ce8f6",
+  "original_manifest_sha256": "d7ff527dc4f9be5673934079a01939deb7a2be48178c97d1cffa7b0f2f3393f8",
+  "original_input_sha256": "e63030eae78fee0eeae0c5cd947709cd084f6671e1b126ff21896807f0c0e556",
+  "input_hashes": {
+    "case.json": "b3bea9d75f9699e17d5814e07de847eaadf9925dd2fb441b1f599876be51698c",
+    "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e",
+    "fluid.msh": "05f4777e11cad498d57b87f080f9c8f2430fd6a04577963211e8c4541c70a4b2",
+    "solid.msh": "e7f6bed5613c0a62623a185847e563fc13e10f6fbc686f3e391ccd2a88a4ba9b"
+  },
+  "old_binary_sha256": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf",
+  "candidate_sha256": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3",
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "guard_sha256": "a74164cee92e51cdac7fde1d029d042f05b0da5d2fe38a5e2cd4b06976fecd17",
+  "proposed_input_sha256": "e353060bfa9f0c4c8a1473b7e958f0cd2d64d4f456ced3c199a29b9cab44436c",
+  "coarse_log_sha256": "448c5212239452f1f5c52c7daf7880330ebeb97e4f9a5758200ec64e3259bcd9",
+  "screen_report_sha256": "b2f971b5425a8aba5a373202c116a379739c664e0586fcfce44381c70d87a890",
+  "backend_review_sha256": "7f8d7573bc58843726a613ddce4bb4cf02c988ca4eef871f1dab25611d47511a",
+  "proof_archive_manifest_sha256": "e7c9f3a746e4c07a45cf93e194c3ee82dda6490f6cb474ad50f1dc2c12b9f8f6",
+  "stop_report_sha256": "8324642ccdd35c6d65158b8a440320a973498132ad76b7b8b1268c36ac0f583e",
+  "budget_kernel_sha256": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+  "boundary": 600,
+  "target": 6400,
+  "output_first": 5800,
+  "cpus": [
+    10,
+    12
+  ],
+  "ranks": 2,
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "admission_bytes": 10737418240,
+  "global_floor_bytes": 8589934592,
+  "scope": "Prepared only. Natural STOP_SIM600 preserves original missing6400 failure and idle consumer failure. No numerical signal or shared-scope action. Original fine and sealed coarse unchanged; exact native600 resumes only N200 using reviewed ILUT, full contiguous convergence, bounded full field audit and unchanged three-member budget."
+}

@@ -1,0 +1,48 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 14369392,
+      "sha256": "244eee2d941efea31b39e52f7cb294f65f6424f88601b3072a7fb8580a9032ec",
+      "verified_files": 36
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 14240360,
+      "sha256": "fe886eb0e934c81272bdb70204329f0c69d15654efed81ec98c60c26dea75f6b",
+      "verified_files": 30
+    }
+  ],
+  "verified_files": 66,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/elastic-s24-l1-n200-L24-ramp16-c32/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "preflight.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/preflight.json",
+      "sha256": "788b709e6651ecd7baa05201e03c852468808794926dffdfbf297ac7ce8cfb0b"
+    },
+    "provenance.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/provenance.json",
+      "sha256": "d778cef6b0c80aa1670bfd1b57ce04341f71324d5dad5abb8874615a0f8613d7"
+    },
+    "scope.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-preflight-snapshot-fa9646d/scope.json",
+      "sha256": "182337c7c216bd4a5a3cba89f2e24b2da8ec5d3e09a2b2f42048e429030a8684"
+    },
+    "capture-production-followups.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-production-followups.py",
+      "sha256": "3bac74e89ba9d694f294db6debec297eaf9cc1a313fb637a1540596f81325bb1"
+    }
+  },
+  "source_checkpoint": "fa9646d030ce3f0b756c72d096af524f16f8088d",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

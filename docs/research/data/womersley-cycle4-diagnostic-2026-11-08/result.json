@@ -1,0 +1,63 @@
+{
+  "cycle": 4,
+  "steps": [
+    601,
+    800
+  ],
+  "phases": 200,
+  "quadrature_order": 4,
+  "definition": {
+    "schema": 1,
+    "seed": [
+      48,
+      4,
+      8
+    ],
+    "level": 2,
+    "alpha": 2.0,
+    "period": 1.5707963267948966,
+    "radius": 1.0,
+    "length": 2.0,
+    "density": 1.0,
+    "viscosity": 1.0,
+    "pressure_amplitude": 0.02,
+    "steps_per_cycle": 200,
+    "phases": 200,
+    "warmup": 2,
+    "ranks": 4,
+    "schur": false,
+    "tau": null,
+    "executable_sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+    "solver_options": [
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-fluid_lu_pc_reuse_window",
+      "8",
+      "-snes_lag_jacobian",
+      "-2"
+    ]
+  },
+  "nodes": 91905,
+  "tetrahedra": 516096,
+  "metrics": {
+    "velocity_relative_l2_error": 0.01046822249592082,
+    "pressure_rms_over_amplitude": 0.00196569459483794,
+    "flow_amplitude_relative_error": 0.0050686455545440046,
+    "flow_phase_error_degrees": 0.09922716874403971,
+    "flow_mean": 4.735822745072227e-10,
+    "maximum_net_flux": 1.2990309037328764e-17,
+    "velocity_reference_rms": 0.000842003490958542,
+    "pressure_reference_rms": 0.008164965809277261,
+    "flow_amplitude": [
+      0.0026981304439900877,
+      -0.0017630757200451162
+    ],
+    "reference_flow_amplitude": [
+      0.002708802995093303,
+      -0.0017767515298731434
+    ]
+  },
+  "snapshot_unchanged": true,
+  "qualification": "not evaluated",
+  "scope": "One immutable completed cycle only. No last-three-cycle periodic, spatial, temporal, tail or sampling qualification. Production full analysis remains required."
+}

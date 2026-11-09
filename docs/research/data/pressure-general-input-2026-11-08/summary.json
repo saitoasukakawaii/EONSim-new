@@ -1,0 +1,52 @@
+{
+  "zero-ramp": {
+    "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "steps": 100,
+    "alpha_f": 0.6666666666666666,
+    "pressure_time_offset": 0.02094395102393196,
+    "pressure_input": {
+      "kind": "General scalar normal traction",
+      "time_knots": 102,
+      "table_end_time": 6.346017160251383,
+      "traction_sign": -1,
+      "ramp_time": 0.0,
+      "scope": "Exact prescribed values at fixed-step endpoint reads; linear interpolation between knots"
+    },
+    "versions": {
+      "vtk": "9.6.1",
+      "numpy": "1.26.4"
+    },
+    "maximum_velocity": 2.800561868426283e-15,
+    "maximum_pressure_range": 4.1359277114239035e-13,
+    "maximum_endpoint_recurrence_error": 4.1882643186941237e-13,
+    "maximum_stage_load_error": 1.1572166835893682e-13,
+    "passed": true,
+    "interpretation": "Stored pressure is the endpoint state; its alpha_f interpolation balances the input read at global endpoint time.",
+    "scope": "Exact discrete import/time-convention check, not elastic or spatial qualification"
+  },
+  "half-cycle-ramp": {
+    "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "steps": 100,
+    "alpha_f": 0.6666666666666666,
+    "pressure_time_offset": 0.02094395102393196,
+    "pressure_input": {
+      "kind": "General scalar normal traction",
+      "time_knots": 102,
+      "table_end_time": 6.346017160251383,
+      "traction_sign": -1,
+      "ramp_time": 3.141592653589793,
+      "scope": "Exact prescribed values at fixed-step endpoint reads; linear interpolation between knots"
+    },
+    "versions": {
+      "vtk": "9.6.1",
+      "numpy": "1.26.4"
+    },
+    "maximum_velocity": 2.5243177079592503e-15,
+    "maximum_pressure_range": 3.9909742177712815e-13,
+    "maximum_endpoint_recurrence_error": 4.049642565728817e-13,
+    "maximum_stage_load_error": 1.170695484997708e-13,
+    "passed": true,
+    "interpretation": "Stored pressure is the endpoint state; its alpha_f interpolation balances the input read at global endpoint time.",
+    "scope": "Exact discrete import/time-convention check, not elastic or spatial qualification"
+  }
+}

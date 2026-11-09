@@ -1,0 +1,149 @@
+{
+  "decision": "adopt_middle_lu8_from480",
+  "utc": "2026-11-08T04:59:03Z",
+  "report_sha256": "4c978283c4e436299f7ccfe801625ca4776c76cac3c136646dc2e2bc07d296f0",
+  "candidate_sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+  "independent_readback": [
+    {
+      "left": "continuous-reference",
+      "right": "old-vector",
+      "states": 8,
+      "datasets": 160,
+      "maximum_by_field": {
+        "fluid": 3.469446951953614e-17,
+        "time_previous": 3.469446951953614e-17
+      },
+      "legacy_clock_difference": 4.440892098500626e-16,
+      "exact_v4_clock": false
+    },
+    {
+      "left": "old-vector",
+      "right": "new-default",
+      "states": 8,
+      "datasets": 160,
+      "maximum_by_field": {
+        "fluid": 4.6010053406098095e-12,
+        "time_previous": 4.6010053406098095e-12
+      },
+      "legacy_clock_difference": 0.0,
+      "exact_v4_clock": false
+    },
+    {
+      "left": "new-default",
+      "right": "new-cached",
+      "states": 8,
+      "datasets": 160,
+      "maximum_by_field": {
+        "fluid": 4.85722573273506e-17,
+        "time_previous": 3.469446951953614e-17
+      },
+      "legacy_clock_difference": 0.0,
+      "exact_v4_clock": true
+    },
+    {
+      "left": "continuous-reference",
+      "right": "new-cached",
+      "states": 8,
+      "datasets": 160,
+      "maximum_by_field": {
+        "fluid": 4.6010070753332855e-12,
+        "time_previous": 4.6010070753332855e-12
+      },
+      "legacy_clock_difference": 4.440892098500626e-16,
+      "exact_v4_clock": false
+    }
+  ],
+  "independent_factor_events": {
+    "new-default": [
+      "MatLUFactorNum",
+      "8",
+      "1.0",
+      "6.2703e+01",
+      "1.0",
+      "1.99e+08",
+      "1.3",
+      "0.0e+00",
+      "0.0e+00",
+      "0.0e+00",
+      "63",
+      "26",
+      "0",
+      "0",
+      "0",
+      "63",
+      "26",
+      "0",
+      "0",
+      "0",
+      "11"
+    ],
+    "new-cached": [
+      "MatLUFactorNum",
+      "1",
+      "1.0",
+      "9.9596e+00",
+      "1.0",
+      "2.54e+07",
+      "1.3",
+      "0.0e+00",
+      "0.0e+00",
+      "0.0e+00",
+      "23",
+      "3",
+      "0",
+      "0",
+      "0",
+      "23",
+      "3",
+      "0",
+      "0",
+      "0",
+      "9"
+    ]
+  },
+  "wall_ratios": {
+    "to_vector": 0.09011784806587429,
+    "to_new_default": 0.4443759038729575
+  },
+  "seed_hashes_unchanged": true,
+  "original_six_resumed": true,
+  "screen_scopes_empty": true,
+  "controller_checks_sha256": "44073162dbabae3ccc759864853a0ce46d35dfd969916016a991eecf289cb959",
+  "controller_checks": {
+    "passed": true,
+    "queue_sha256": "1ccca6dffe4ab3887657e5fa6c320a3ae317923ec9050583270081ea834e50a9",
+    "handoff_sha256": "6b95a64b116406f68af2b3e977307a4364ea1888f193ddc3e6138040ad65d855",
+    "results": [
+      {
+        "case": "preparing-middle-blocks-complete-fine",
+        "observed": "wait",
+        "passed": true
+      },
+      {
+        "case": "failed-middle-rejects-before-fine-work",
+        "observed": "error",
+        "passed": true
+      },
+      {
+        "case": "running-fine-keeps-waiting",
+        "observed": "wait",
+        "passed": true
+      },
+      {
+        "case": "completed-fine-and-adopted-middle-select",
+        "observed": "selected",
+        "passed": true
+      },
+      {
+        "case": "failed-fine-rejects",
+        "observed": "error",
+        "passed": true
+      }
+    ],
+    "middle_wait_outside_compute_locks": true,
+    "numerical_budget_tail_unchanged": true,
+    "numerical_tail_sha256": "f43cf19178142fe4404766083669f506fca4bd2a4fca832d791b138ff711a1ae",
+    "scope": "Actual execution of isolated source-extracted admission decisions and AST/source checks; no production launch, process termination or numerical solve."
+  },
+  "scope": "Internal review under existing user authorization. Adopt only separate middle alpha2 fork from480 and a separately prepared budget waiter pointing to it. TwoGiB/swap0 and10GiB admission preserve8GiB headroom, original fine14GiB job unchanged. Eight-step local guestCPU21 result, no long-period or production qualification; all original diagnostics and physical gates remain."
+}

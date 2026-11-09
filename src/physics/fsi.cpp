@@ -10,6 +10,7 @@
 #include "eonsim/motion.hpp"
 #include "eonsim/solid_element.hpp"
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -49,13 +50,7 @@ void publish_series(const std::filesystem::path& path,const std::vector<std::pai
 }
 double fsi_pressure(const FsiConfig& config,double time) {
     if(!config.pressure_time) return config.pressure;
-    const auto& p=*config.pressure_time;
-    const double x=p.ramp_time>0?std::clamp(time/p.ramp_time,0.,1.):1.;
-    const double scale=x*x*x*(10+x*(-15+6*x));
-    // Reduce before multiplying by 2*pi so finite small periods do not overflow.
-    const double pressure=scale*(config.pressure+p.amplitude*std::sin(2*std::acos(-1.)*(std::fmod(time,p.period)/p.period)));
-    if(!std::isfinite(pressure)) throw std::runtime_error("Nonfinite FSI pressure");
-    return pressure;
+    return pressure_value(config.pressure,*config.pressure_time,time);
 }
 void write_fsi_fields(MPI_Comm comm,const std::filesystem::path& path,const FsiResult& result) {
     const auto solid=path.parent_path()/(path.stem().string()+"_solid.vtu");
@@ -79,6 +74,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     bool alpha_ready=false;
     PetscBool finite_difference=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_fd_tangent",&finite_difference,nullptr));
+    PetscInt lu_reuse_window=0;
+    EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-fsi_lu_pc_reuse_window",&lu_reuse_window,nullptr));
     const bool dual=!f.domains.solid_mesh.empty();
     auto domains=f.domains;
     if(f.inlet) {
@@ -286,7 +283,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         }
         const auto saved=read_checkpoint(config.restart,mesh,signature,sizes);
         accepted=saved.fields.at("reduced"); physical=saved.fields.at("physical"); solid_d=saved.fields.at("solid_displacement");
-        body={saved.fields.at("rigid")[0],saved.fields.at("rigid")[1]}; clock.restore(saved.step,saved.time,saved.next_dt);
+        body={saved.fields.at("rigid")[0],saved.fields.at("rigid")[1]}; clock.restore(saved.step,saved.time,saved.next_dt,saved.time_correction);
         if(bdf2) {
             physical_history.previous=saved.fields.at("previous_physical");
             displacement_history.previous=saved.fields.at("previous_displacement");
@@ -349,6 +346,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         history.flush();
     });
     NonlinearSystem system(comm,layout);
+    std::array<double,3> last_lu_coefficients{};
     while(clock.active(config.stop_after)) {
         if(bdf2&&physical_history.previous_dt>0) clock.next_dt=std::min(clock.next_dt,2*physical_history.previous_dt);
         const int step=clock.step+1; const double dt=clock.dt(),time=clock.time+dt;
@@ -361,6 +359,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         const double integration_dt=alpha_step?fluid_map.effective_dt():derivative.effective_dt;
         const double solid_dt=alpha_step?solid_map.effective_dt():derivative.effective_dt;
         const double mesh_dt=alpha_step?solid_map.displacement_dt():derivative.effective_dt;
+        const std::array<double,3> lu_coefficients{integration_dt,solid_dt,mesh_dt};
         auto effective_physical=bdf2?physical_history.reference(physical,derivative):std::vector<double>{};
         auto effective_d=bdf2?displacement_history.reference(solid_d,derivative):std::vector<double>{};
         if(alpha_step) {
@@ -467,7 +466,11 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 if(j) EONSIM_PETSC(MatSetValue(j,reduced.body,reduced.body,f.mass/solid_dt+f.damping+mesh_dt*f.stiffness,ADD_VALUES));
             }
         };
-        const auto solved=system.solve(config.solver,accepted,{}, {},assemble);
+        // The fluid, structure and displacement maps have different alpha
+        // coefficients. Retain only the preconditioner, never a previous
+        // coupled operator; any coefficient change starts a fresh LU window.
+        const bool refresh_lu=lu_reuse_window>0&&lu_coefficients!=last_lu_coefficients;
+        const auto solved=system.solve(config.solver,accepted,{}, {},assemble,lu_reuse_window,refresh_lu);
         const auto next=expand(solved.values);
         double local[4]{},global[4]{};
         for(std::size_t e=0;e<data.size();++e) {
@@ -593,10 +596,11 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             solid_acceleration=std::move(next_solid_acceleration); body_acceleration=next_body_acceleration; alpha_ready=true;
         }
         clock.accept();
+        last_lu_coefficients=lu_coefficients;
         if(bdf2&&clock.at_event()) physical_history.previous_dt=displacement_history.previous_dt=body_history.previous_dt=0;
         if(alpha&&clock.at_event()) alpha_ready=false;
         if(!config.checkpoint.empty()&&(step%f.checkpoint_interval==0||!clock.active(config.stop_after))) {
-            Checkpoint saved{step,{{"reduced",accepted},{"physical",physical},{"solid_displacement",solid_d},{"rigid",{body.position,body.velocity}}},clock.time,clock.next_dt};
+            Checkpoint saved{step,{{"reduced",accepted},{"physical",physical},{"solid_displacement",solid_d},{"rigid",{body.position,body.velocity}}},clock.time,clock.next_dt,clock.correction()};
             if(bdf2) {
                 saved.fields["previous_physical"]=physical_history.previous;
                 saved.fields["previous_displacement"]=displacement_history.previous;
@@ -653,6 +657,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             << " endpoint_min_fluid_j=" << min_quality[2] << " endpoint_min_solid_j=" << min_quality[3]
             << " residual=" << solved.residual_norm << " time_order=" << (alpha_step?2:derivative.order) << '\n';
         } catch(const StepRejected& error) {
+            // Endpoint geometry can reject an otherwise converged solve.
+            // Its retained factor must not survive a retry at an older dt.
+            last_lu_coefficients={};
             clock.reject(error.what());
             if(mesh.rank==0) std::cout << "step_retry=" << clock.retries << " time=" << clock.time << " next_dt=" << clock.next_dt << '\n';
         }

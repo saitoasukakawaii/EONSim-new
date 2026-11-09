@@ -1,0 +1,579 @@
+[
+  {
+    "pid": 38880,
+    "ppid": 38877,
+    "state": "S",
+    "start_ticks": 9390530,
+    "argv": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/continue-reference-fine-ilut-midnight2.py",
+      "run"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 39157,
+    "ppid": 39155,
+    "state": "S",
+    "start_ticks": 9491956,
+    "argv": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/continue-nu0-native5000-family.py",
+      "run"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 39180,
+    "ppid": 38880,
+    "state": "S",
+    "start_ticks": 9496279,
+    "argv": [
+      "/usr/bin/mpiexec",
+      "--bind-to",
+      "none",
+      "--oversubscribe",
+      "-n",
+      "1",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675/rank-guard.py",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675/svFSI",
+      "svFSI.inp"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-ilut-m4000-midnight2-a0a4675/reference",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-fine-ilut-svfsi-38880.scope"
+  },
+  {
+    "pid": 39183,
+    "ppid": 39180,
+    "state": "R",
+    "start_ticks": 9496328,
+    "argv": [
+      "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675/svFSI",
+      "svFSI.inp"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-ilut-m4000-midnight2-a0a4675/reference",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-fine-ilut-svfsi-38880.scope"
+  },
+  {
+    "pid": 39392,
+    "ppid": 39387,
+    "state": "S",
+    "start_ticks": 9622670,
+    "argv": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/continue-reference-n200-native1100.py",
+      "run"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 39643,
+    "ppid": 39392,
+    "state": "S",
+    "start_ticks": 9792562,
+    "argv": [
+      "/usr/bin/mpiexec",
+      "--bind-to",
+      "none",
+      "--oversubscribe",
+      "-n",
+      "1",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78/rank-guard.py",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78/svFSI",
+      "svFSI.inp"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-ilut-native1100-b8b3a78/reference",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-n200-native1100-solve-39392.scope"
+  },
+  {
+    "pid": 39646,
+    "ppid": 39643,
+    "state": "R",
+    "start_ticks": 9792619,
+    "argv": [
+      "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78/svFSI",
+      "svFSI.inp"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-ilut-native1100-b8b3a78/reference",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-n200-native1100-solve-39392.scope"
+  },
+  {
+    "pid": 39796,
+    "ppid": 39157,
+    "state": "S",
+    "start_ticks": 9854363,
+    "argv": [
+      "/usr/bin/mpiexec",
+      "--bind-to",
+      "none",
+      "--oversubscribe",
+      "-n",
+      "2",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/rank-guard.py",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/svFSI-ilut",
+      "svFSI.inp"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-native5000-fce909d/reference",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-nu0-native5000-fine-solve-39157.scope"
+  },
+  {
+    "pid": 39815,
+    "ppid": 39796,
+    "state": "R",
+    "start_ticks": 9854433,
+    "argv": [
+      "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/svFSI-ilut",
+      "svFSI.inp"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-native5000-fce909d/reference",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-nu0-native5000-fine-solve-39157.scope"
+  },
+  {
+    "pid": 39816,
+    "ppid": 39796,
+    "state": "R",
+    "start_ticks": 9854435,
+    "argv": [
+      "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/svFSI-ilut",
+      "svFSI.inp"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-native5000-fce909d/reference",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-nu0-native5000-fine-solve-39157.scope"
+  },
+  {
+    "pid": 40042,
+    "ppid": 40039,
+    "state": "S",
+    "start_ticks": 9960295,
+    "argv": [
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/elastic-n200-native1600-handoff-32fb313/source/build/prod48-20261107/analyze-elastic-s24-native1600-budgets.py"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/elastic-n200-native1600-handoff-32fb313/source",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 40998,
+    "ppid": 40992,
+    "state": "S",
+    "start_ticks": 10452294,
+    "argv": [
+      "/usr/bin/python3",
+      "-u",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/resume-alpha1-reviewed-family-after-retirement.py",
+      "run"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 41187,
+    "ppid": 41183,
+    "state": "S",
+    "start_ticks": 10548551,
+    "argv": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/run-s96-n400-qualified-family.py",
+      "run"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 41203,
+    "ppid": 41187,
+    "state": "S",
+    "start_ticks": 10561939,
+    "argv": [
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/s96-n400-qualified-family-a3e1c87/source/scripts/study_womersley.py",
+      "--executable",
+      "/home/tfblab633/EONSim-prod48-20261107/s96-n400-qualified-family-a3e1c87/eonsim",
+      "--work",
+      "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n800-native-serial32-a3e1c87",
+      "--seed",
+      "96",
+      "8",
+      "8",
+      "--level",
+      "1",
+      "--alpha",
+      "2",
+      "--steps-per-cycle",
+      "800",
+      "--phases",
+      "800",
+      "--warmup",
+      "2",
+      "--cycles",
+      "6",
+      "--cycles-per-solve",
+      "1",
+      "--ranks",
+      "1",
+      "--mumps",
+      "--lu-reuse-window",
+      "32",
+      "--chord",
+      "--timeout",
+      "86400"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/s96-n400-qualified-family-a3e1c87/source",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-s96-n400target-fine-n800-41187.scope"
+  },
+  {
+    "pid": 42447,
+    "ppid": 42443,
+    "state": "S",
+    "start_ticks": 11134483,
+    "argv": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-alpha1-completed-lu32-family.py"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 43221,
+    "ppid": 43218,
+    "state": "S",
+    "start_ticks": 11413359,
+    "argv": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/screen-alpha1-s96-fine-execution.py"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 43241,
+    "ppid": 43237,
+    "state": "S",
+    "start_ticks": 11423463,
+    "argv": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/review-alpha1-s96-fine-execution.py"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 43314,
+    "ppid": 43310,
+    "state": "S",
+    "start_ticks": 11444848,
+    "argv": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/continue-nu0-n200-native600.py",
+      "run"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 43315,
+    "ppid": 43314,
+    "state": "S",
+    "start_ticks": 11444932,
+    "argv": [
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/nu0-n200-native600-handoff-fcc2956/consumer.py"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/nu0-n200-native600-handoff-fcc2956/source",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 43422,
+    "ppid": 43419,
+    "state": "R",
+    "start_ticks": 11551911,
+    "argv": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-length24-and-matched-n200.py"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 43665,
+    "ppid": 43314,
+    "state": "S",
+    "start_ticks": 11606228,
+    "argv": [
+      "/usr/bin/mpiexec",
+      "--bind-to",
+      "none",
+      "--oversubscribe",
+      "-n",
+      "2",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/nu0-n200-native600-handoff-fcc2956/rank-guard.py",
+      "/home/tfblab633/EONSim-prod48-20261107/nu0-n200-native600-handoff-fcc2956/svFSI-ilut",
+      "svFSI.inp"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-ilut-native600-fcc2956/reference",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-nu0-time600-time-solve-43314.scope"
+  },
+  {
+    "pid": 43668,
+    "ppid": 43665,
+    "state": "R",
+    "start_ticks": 11606252,
+    "argv": [
+      "/home/tfblab633/EONSim-prod48-20261107/nu0-n200-native600-handoff-fcc2956/svFSI-ilut",
+      "svFSI.inp"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-ilut-native600-fcc2956/reference",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-nu0-time600-time-solve-43314.scope"
+  },
+  {
+    "pid": 43669,
+    "ppid": 43665,
+    "state": "R",
+    "start_ticks": 11606252,
+    "argv": [
+      "/home/tfblab633/EONSim-prod48-20261107/nu0-n200-native600-handoff-fcc2956/svFSI-ilut",
+      "svFSI.inp"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-ilut-native600-fcc2956/reference",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-nu0-time600-time-solve-43314.scope"
+  },
+  {
+    "pid": 43808,
+    "ppid": 43805,
+    "state": "S",
+    "start_ticks": 11682379,
+    "argv": [
+      "/usr/bin/python3",
+      "-u",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-s96-n800-complete-family.py"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 44619,
+    "ppid": 44615,
+    "state": "R",
+    "start_ticks": 12250920,
+    "argv": [
+      "/usr/bin/python3",
+      "-u",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-length24-native-proof.py"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 45888,
+    "ppid": 41203,
+    "state": "R",
+    "start_ticks": 12429871,
+    "argv": [
+      "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n800-native-serial32-a3e1c87/eonsim",
+      "-case",
+      "attempt-004/case.json",
+      "-checkpoint",
+      "checkpoint",
+      "-stop_after",
+      "3200",
+      "-restart",
+      "checkpoint/generation_1794186535090662368",
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-fluid_lu_pc_reuse_window",
+      "32",
+      "-snes_lag_jacobian",
+      "-2"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n800-native-serial32-a3e1c87",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-s96-n400target-fine-n800-41187.scope"
+  },
+  {
+    "pid": 46800,
+    "ppid": 46796,
+    "state": "S",
+    "start_ticks": 12588137,
+    "argv": [
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/length24-native6400-extension-98ee0f9/controller.py",
+      "run"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 46811,
+    "ppid": 46800,
+    "state": "R",
+    "start_ticks": 12591857,
+    "argv": [
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-native6400-c36-98ee0f9/eonsim",
+      "-case",
+      "case.json",
+      "-checkpoint",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-native6400-c36-98ee0f9/checkpoint",
+      "-restart",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-native6400-c36-98ee0f9/checkpoint",
+      "-stop_after",
+      "7200",
+      "-solver_report",
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-snes_lag_jacobian",
+      "-2"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-native6400-c36-98ee0f9",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-l24-c36-solve-46800.scope"
+  },
+  {
+    "pid": 47776,
+    "ppid": 47769,
+    "state": "R",
+    "start_ticks": 12760033,
+    "argv": [
+      "/usr/bin/python3",
+      "-u",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-fsi-lu-mature-and-l24-extension.py"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 47914,
+    "ppid": 47908,
+    "state": "S",
+    "start_ticks": 12837864,
+    "argv": [
+      "/usr/bin/python3",
+      "-u",
+      "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f/controller.py",
+      "run",
+      "--role",
+      "fine"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 47944,
+    "ppid": 47939,
+    "state": "S",
+    "start_ticks": 12840257,
+    "argv": [
+      "/usr/bin/python3",
+      "-u",
+      "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f/controller.py",
+      "run",
+      "--role",
+      "coarse"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 47952,
+    "ppid": 47949,
+    "state": "S",
+    "start_ticks": 12842040,
+    "argv": [
+      "/usr/bin/python3",
+      "-u",
+      "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f/controller.py",
+      "budget"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 47990,
+    "ppid": 47986,
+    "state": "S",
+    "start_ticks": 12868220,
+    "argv": [
+      "/usr/bin/python3",
+      "-u",
+      "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-fsi-n800-family.py"
+    ],
+    "cwd": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current",
+    "cgroup": "0::/init.scope"
+  },
+  {
+    "pid": 48042,
+    "ppid": 47914,
+    "state": "R",
+    "start_ticks": 12925433,
+    "argv": [
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n800-lu32-c32-3b08e4f/eonsim",
+      "-case",
+      "case.json",
+      "-checkpoint",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n800-lu32-c32-3b08e4f/checkpoint",
+      "-stop_after",
+      "1600",
+      "-solver_report",
+      "-log_view",
+      ":profile.txt",
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-snes_lag_jacobian",
+      "-2",
+      "-fsi_lu_pc_reuse_window",
+      "32",
+      "-restart",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n800-lu32-c32-3b08e4f/checkpoint"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n800-lu32-c32-3b08e4f/cycle002",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-fsi-n800-fine-c2-47914.scope"
+  },
+  {
+    "pid": 48061,
+    "ppid": 47944,
+    "state": "R",
+    "start_ticks": 12937950,
+    "argv": [
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l0-n800-lu32-c32-3b08e4f/eonsim",
+      "-case",
+      "case.json",
+      "-checkpoint",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l0-n800-lu32-c32-3b08e4f/checkpoint",
+      "-stop_after",
+      "8000",
+      "-solver_report",
+      "-log_view",
+      ":profile.txt",
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-snes_lag_jacobian",
+      "-2",
+      "-fsi_lu_pc_reuse_window",
+      "32",
+      "-restart",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l0-n800-lu32-c32-3b08e4f/checkpoint"
+    ],
+    "cwd": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l0-n800-lu32-c32-3b08e4f/cycle010",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-fsi-n800-coarse-c10-47944.scope"
+  },
+  {
+    "pid": 48073,
+    "ppid": 40998,
+    "state": "R",
+    "start_ticks": 12944382,
+    "argv": [
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/alpha1-native200-lu32-recovery-a3e1c87/source/scripts/analyze_womersley.py",
+      "--work",
+      "/home/tfblab633/EONSim-prod48-20261107/womersley-a1-s48-l1-n200",
+      "--output",
+      "/home/tfblab633/EONSim-prod48-20261107/alpha1-native200-lu32-recovery-a3e1c87/middle-analysis.json"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/alpha1-native200-lu32-recovery-a3e1c87/source",
+    "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-alpha1-recovered-middle-analysis-40998.scope"
+  }
+]

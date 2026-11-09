@@ -1,0 +1,89 @@
+{
+  "coarse_definition": {
+    "schema": 1,
+    "seed": [
+      48,
+      4,
+      8
+    ],
+    "level": 2,
+    "alpha": 2.0,
+    "period": 1.5707963267948966,
+    "radius": 1.0,
+    "length": 2.0,
+    "density": 1.0,
+    "viscosity": 1.0,
+    "pressure_amplitude": 0.02,
+    "steps_per_cycle": 200,
+    "phases": 200,
+    "warmup": 2,
+    "ranks": 4,
+    "schur": false,
+    "tau": null,
+    "executable_sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+    "solver_options": [
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-fluid_lu_pc_reuse_window",
+      "8",
+      "-snes_lag_jacobian",
+      "-2"
+    ]
+  },
+  "fine_definition": {
+    "schema": 1,
+    "seed": [
+      48,
+      4,
+      8
+    ],
+    "level": 2,
+    "alpha": 2.0,
+    "period": 1.5707963267948966,
+    "radius": 1.0,
+    "length": 2.0,
+    "density": 1.0,
+    "viscosity": 1.0,
+    "pressure_amplitude": 0.02,
+    "steps_per_cycle": 400,
+    "phases": 400,
+    "warmup": 2,
+    "ranks": 4,
+    "schur": false,
+    "tau": null,
+    "executable_sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+    "solver_options": [
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-fluid_lu_pc_reuse_window",
+      "8",
+      "-snes_lag_jacobian",
+      "-2"
+    ]
+  },
+  "coarse_cycle": 6,
+  "fine_cycle": 6,
+  "common_phases": 200,
+  "reference_scales": {
+    "velocity": 0.000842003490958542,
+    "pressure": 0.008164965809277261
+  },
+  "rms": {
+    "velocity": 1.217295515723456e-07,
+    "pressure": 1.552816490771033e-06
+  },
+  "maximum_phase_rms": {
+    "velocity": 1.7014089535703445e-07,
+    "pressure": 2.172855599958937e-06
+  },
+  "relative_rms": {
+    "velocity": 0.00014457131458418056,
+    "pressure": 0.00019018040332841073
+  },
+  "relative_maximum_phase_rms": {
+    "velocity": 0.00020206673390789034,
+    "pressure": 0.0002661193752324202
+  },
+  "norm": "Exact P1 volume L2 on the nested target mesh, cycle RMS and maximum phase separately",
+  "scope": "Field difference only; interpretation requires the recorded parameter differences"
+}

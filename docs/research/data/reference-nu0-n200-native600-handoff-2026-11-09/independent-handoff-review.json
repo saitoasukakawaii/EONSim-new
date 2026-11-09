@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "decision": "continue_nu0_n200_native600_and_join_family",
+  "definition_sha256": "f9ed1bd4b30a17ec5a1d9f10c55774797d803313fd48eaa9a5a9b1593cc0dd15",
+  "controller_sha256": "9bce15b61313807b23ba4aff89488b6a0e313a360b09644fbb9b055deb6b600b",
+  "result_sha256": "0a4c913d3e2ca8f000ba69d6b4de18115aaf945e94a77ae63c381d6d57e05926",
+  "resource": {
+    "command": [
+      "/usr/bin/systemd-run",
+      "--user",
+      "--scope",
+      "--quiet",
+      "--unit=eonsim-nu0-time600-review-43290.scope",
+      "--property=MemoryMax=2G",
+      "--property=MemorySwapMax=0",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/nu0-n200-native600-handoff-fcc2956/independent-review/controller.py",
+      "--worker"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/nu0-n200-native600-handoff-fcc2956/source",
+    "unit": "eonsim-nu0-time600-review-43290.scope",
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "timeout_seconds": 1800,
+    "peak_observed_bytes": 140800000,
+    "minimum_available_bytes": 15363956736,
+    "scope_seen": true,
+    "cleanup": [],
+    "launcher_pid": 43291,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "returncode": 0,
+    "wall_seconds": 25.998091403991566,
+    "remaining_scope_members": []
+  },
+  "scope": "Separate executing-agent self-review, not external review. No stop request, numerical signal, backend adoption or physical qualification."
+}

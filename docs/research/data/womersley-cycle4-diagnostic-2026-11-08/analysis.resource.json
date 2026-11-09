@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/usr/bin/systemd-run",
+    "--user",
+    "--scope",
+    "--quiet",
+    "--unit=eonsim-cycle4-diagnostic-26005.scope",
+    "--property=MemoryMax=2G",
+    "--property=MemorySwapMax=0",
+    "/usr/bin/python3",
+    "/mnt/d/EONSim-prod48-20261107/womersley-a2-fine-cycle4-diagnostic-2367903/controller.py",
+    "--worker",
+    "/mnt/d/EONSim-prod48-20261107/womersley-a2-fine-cycle4-diagnostic-2367903"
+  ],
+  "cwd": "/mnt/d/EONSim-prod48-20261107/womersley-a2-fine-cycle4-diagnostic-2367903",
+  "unit": "eonsim-cycle4-diagnostic-26005.scope",
+  "memory_max_bytes": 2147483648,
+  "memory_swap_max_bytes": 0,
+  "timeout_seconds": 1800,
+  "peak_observed_bytes": 1320521728,
+  "minimum_available_bytes": 14557941760,
+  "scope_seen": true,
+  "cleanup": [],
+  "launcher_pid": 26018,
+  "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "returncode": 0,
+  "wall_seconds": 138.51721874199575,
+  "remaining_scope_members": []
+}

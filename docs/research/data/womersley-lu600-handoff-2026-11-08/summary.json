@@ -1,0 +1,25 @@
+{
+  "adoption": {
+    "adopted": true,
+    "target": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-lu8-m600",
+    "seed_step": 600,
+    "old_owner_terminated": true,
+    "new_waiter_pid": 25369,
+    "utc": "2026-11-08T04:28:40Z"
+  },
+  "original_cleanup": {
+    "owner_exited": true,
+    "remaining_scope_members": [],
+    "original_status": {
+      "state": "failed",
+      "pid": 21873,
+      "utc": "2026-11-08T04:28:39Z",
+      "error": "Controller interrupted",
+      "adopted": true,
+      "resumed_original_pids": []
+    }
+  },
+  "original_study": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-mumps-m460",
+  "new_study": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l2-n200-lu8-m600",
+  "scope": "Original trajectory is sealed after a planned accepted600 handoff; its later partial segment and interrupted status remain. New study is still running. Archive only immutable new inputs, source, seed and adoption receipts, with dated state observations; no long-cycle qualification."
+}

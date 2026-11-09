@@ -1,0 +1,21 @@
+{
+  "producer": {
+    "state": "completed",
+    "pid": 3212,
+    "cpu": 18,
+    "solver": "eonsim",
+    "utc": "2026-11-08T07:25:39Z",
+    "work": "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l1-n200-ramp16-c32",
+    "periodic": true,
+    "scope": "Numerical and field-audit endpoint reached; space/time and cross-code qualification still pending"
+  },
+  "audit_sha256": "2bfc98567d14496ddfbcb1577701be175c93de11bab29cd1b69926b380abe19a",
+  "mean_infinite_plane_strain_comparison": {
+    "actual": 0.00010350547184614883,
+    "infinite": 0.00010872727272727274,
+    "relative": 0.04802659673274496,
+    "limit": 0.02,
+    "passed": false
+  },
+  "scope": "Complete stored EONSim trajectory and warmup/accepted-step logs, meshes, source, commands, restart checkpoints and800-step field audit. Reference still running: its directory and logs are excluded from this capture. Period/kinematic/stage-quality pass, infinite-plane-strain mean differs4.80266% and fails2%; independent space/time/tail/sampling and cross-code qualification remain required."
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "svfsi-native-restart-chain-v1",
+  "final_step": 6400,
+  "target_work": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/reference",
+  "segments": [
+    {
+      "work": "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l1-n200-ramp16-c32/reference",
+      "log": "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l1-n200-ramp16-c32/svfsi.log",
+      "first_step": 1,
+      "last_step": 5600
+    },
+    {
+      "work": "/mnt/d/EONSim-prod48-20261107/reference-s12-native-recovery-a6643c8/reference",
+      "log": "/home/tfblab633/EONSim-prod48-20261107/s12-native-recovery-a6643c8/svfsi.log",
+      "first_step": 5601,
+      "last_step": 6400
+    }
+  ]
+}

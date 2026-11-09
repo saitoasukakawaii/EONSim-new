@@ -1,0 +1,99 @@
+{
+  "base": "054b64a",
+  "same_exact_source_hashes": {
+    "src/algebra/schur_solver.cpp": "afa1801c6255fb04e6b053e3098c1c5d4a898c36475ca913f53a3bb6279b3f2a",
+    "src/algebra/nonlinear_system.cpp": "a87cdd9d551271a4a9822c24b6920a0d26798eb16435b843fb4e01fd50212d5b",
+    "include/eonsim/schur_solver.hpp": "3600b8e049a3f561de21b5315c08a316128ac41f20cc94189aa6a8b3fa8ccfc6",
+    "tests/verify_schur_vector.cpp": "fdd713d65b2be6eb747f5d592ff66e1a01e976e93a1e02f56be0c9e03294719a",
+    "tests/verify_schur_vector.py": "89643e8f17b67dbbf3aa5f79179741e059c2fd34fe26034f94a2d02a888a3571",
+    "CMakeLists.txt": "46ed45e28385a8c417497e723c6f02d33cb9a4a766f1aa315bc069c0909fc5d6",
+    "scripts/cloud/selection.json": "aef41cacddee3e25d235c578732939bdd92dda2a42dd3d061346d7ba5acefca1"
+  },
+  "release_checks": [
+    {
+      "name": "schur_vector_mpi1",
+      "status": "passed",
+      "ranks": [
+        1
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.281494,
+      "log": "evidence/junit.xml#schur_vector_mpi1",
+      "exit_behavior": "Completed",
+      "source": "/home/tfblab633/EONSim-prod48-20261107/schur-vector-validation-054b64a-attempt2/failed-release/evidence/summary.json"
+    },
+    {
+      "name": "schur_vector_mpi2",
+      "status": "passed",
+      "ranks": [
+        2
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.296466,
+      "log": "evidence/junit.xml#schur_vector_mpi2",
+      "exit_behavior": "Completed",
+      "source": "/home/tfblab633/EONSim-prod48-20261107/schur-vector-validation-054b64a-attempt2/failed-release/evidence/summary.json"
+    },
+    {
+      "name": "schur_vector_mpi4",
+      "status": "passed",
+      "ranks": [
+        4
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 29.8753,
+      "log": "evidence/junit.xml#schur_vector_mpi4",
+      "exit_behavior": "Completed",
+      "source": "/home/tfblab633/EONSim-prod48-20261107/schur-vector-validation-054b64a-attempt2/failed-release/evidence/summary.json"
+    },
+    {
+      "name": "solver_failures_mpi",
+      "status": "passed",
+      "ranks": [
+        2
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.295162,
+      "log": "evidence/junit.xml#solver_failures_mpi",
+      "exit_behavior": "Completed",
+      "source": "/home/tfblab633/EONSim-prod48-20261107/schur-vector-validation-054b64a-attempt2/failed-release/evidence/summary.json"
+    },
+    {
+      "name": "schur_vector_verification",
+      "status": "passed",
+      "ranks": [
+        1,
+        2,
+        4
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 80.1153,
+      "log": "evidence/junit.xml#schur_vector_verification",
+      "exit_behavior": "Completed",
+      "source": "/home/tfblab633/EONSim-prod48-20261107/schur-vector-validation-054b64a-attempt2/failed-release/evidence/summary.json"
+    },
+    {
+      "name": "schur_verification",
+      "status": "passed",
+      "ranks": [
+        1,
+        2,
+        4
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 16.7033,
+      "log": "evidence/junit.xml#schur_verification",
+      "exit_behavior": "Completed",
+      "source": "/home/tfblab633/EONSim-prod48-20261107/schur-vector-validation-054b64a-attempt3/release/evidence/summary.json"
+    }
+  ],
+  "original_failure": "Default Schur domains four-rank check exceeded its100s subprocess timeout when four ranks shared one physical core with the MPI default idle spin.",
+  "recovery": "Only failed Release Schur rerun with mpi_yield_when_idle=1; passed16.7033s within unchanged timeout. Six fresh Debug checks passed. Failed data retained.",
+  "code_change_between_release_attempts": false
+}

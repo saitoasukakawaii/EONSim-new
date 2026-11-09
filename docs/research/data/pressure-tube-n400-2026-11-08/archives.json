@@ -1,0 +1,128 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 26704156,
+      "sha256": "b9429c20566574f0032f64ab7b709a390145d6944695fbeab3d82dda4fa0bc78",
+      "verified_files": 637
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 48057948,
+      "sha256": "68f56c8378135aeb77d2ec7d78af2d559767ec40b8c6af17235d90e4a47ab836",
+      "verified_files": 1157
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 8952816,
+      "sha256": "383b2abb151868c4988091a0f0f195164bc2e2a13a02fe1c8d9ab601841db995",
+      "verified_files": 511
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 7911976,
+      "sha256": "d41dd6b0a041c5989ab240cb2a7bc0bcce8253a1ba12505530d08df29d6f8e62",
+      "verified_files": 495
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 7929536,
+      "sha256": "4830f7f635670dc707f2ee2ba06df9d15b1ef9719af7a7983763c7b0c64794e0",
+      "verified_files": 495
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 7912732,
+      "sha256": "781ea5f085a63b107d6b3aac57c2e81a0e00ce68735209bc0f2426cb0d766fea",
+      "verified_files": 495
+    },
+    {
+      "file": "part007.tar.xz",
+      "bytes": 7903396,
+      "sha256": "6c565b8382e47faff9c79d41b8e5f8f251de578222ab9d20652d563d0dc643f2",
+      "verified_files": 495
+    },
+    {
+      "file": "part008.tar.xz",
+      "bytes": 7925612,
+      "sha256": "ef983b34587b947aaa966d4af86085eaec590f34095b88dd025fa2ebb03a44c9",
+      "verified_files": 495
+    },
+    {
+      "file": "part009.tar.xz",
+      "bytes": 7910084,
+      "sha256": "266e2641f3ddc6869ad8eb08c1b81109c6576dba9994058df3412936a5adbcb4",
+      "verified_files": 495
+    },
+    {
+      "file": "part010.tar.xz",
+      "bytes": 7914200,
+      "sha256": "9fd7368919a6739576db1d96bdc7c849b08dd6ce8e584cd553527e77c620e456",
+      "verified_files": 495
+    },
+    {
+      "file": "part011.tar.xz",
+      "bytes": 7926844,
+      "sha256": "5476965f9d9591308444c3989d4a0b9d6ab7c2c1525e5a3666823a677dfe2042",
+      "verified_files": 495
+    },
+    {
+      "file": "part012.tar.xz",
+      "bytes": 7894356,
+      "sha256": "268e541317741a4a40881cb5b61b90aec5345f30534e95d25c42bb7a373c6650",
+      "verified_files": 495
+    },
+    {
+      "file": "part013.tar.xz",
+      "bytes": 7917320,
+      "sha256": "eb538bc9b3aa8cd2e2d8b56fa3666ad91ea8084bf7a17d435071af39f466ee5c",
+      "verified_files": 495
+    },
+    {
+      "file": "part014.tar.xz",
+      "bytes": 7935636,
+      "sha256": "ee056b437575c01206f315b094486673bc61bca3b5e36f20e66858322395a8c8",
+      "verified_files": 495
+    },
+    {
+      "file": "part015.tar.xz",
+      "bytes": 7899100,
+      "sha256": "b9d6da0875f662e15ac6580e66199b6bc9e5e2d1ad927142ea0dd9131ac1e50c",
+      "verified_files": 507
+    },
+    {
+      "file": "part016.tar.xz",
+      "bytes": 1295696,
+      "sha256": "bfa8e6f677b2b502a00bf273547d6d82bf80ffb90a631d0b52bd004ebe79c88c",
+      "verified_files": 32
+    }
+  ],
+  "verified_files": 8289,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "work/elastic-s12-l0-n400-ramp16-c32/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/elastic-time400-fields-054b64a/summary.json",
+      "sha256": "f969928c92dc92a5023aadacd411583fac3bac356e648682acc6798622fc0467"
+    },
+    "comparison.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l0-n400-ramp16-c32/comparison.json",
+      "sha256": "17e9306e9b254a9a405d3ca8ca07af0b0c5d030fc83aa480c34abe5421a72cff"
+    },
+    "capture-production-followups.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-production-followups.py",
+      "sha256": "ae9fc23a1ac31ccfe2c5e40921578a286409da40f68b9c06d6e909ff2dd9c80a"
+    }
+  },
+  "source_checkpoint": "054b64acbdbc9aa0f9bbcfef00a137b06de5a5e6",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

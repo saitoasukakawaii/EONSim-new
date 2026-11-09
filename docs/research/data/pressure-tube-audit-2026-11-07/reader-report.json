@@ -1,0 +1,40 @@
+{
+  "synthetic_no_solver_execution": true,
+  "vtk": "9.6.1",
+  "source_commit": "2189a8c9589add9376c060ef4e4c2e871fdb0c60",
+  "maximum_field_errors": {
+    "svfsi-0-reference_position": 0.0,
+    "svfsi-0-velocity": 0.0,
+    "svfsi-0-mesh_displacement": 0.0,
+    "svfsi-0-pressure": 0.0,
+    "svfsi-1-reference_position": 0.0,
+    "svfsi-1-velocity": 0.0,
+    "svfsi-1-displacement": 0.0,
+    "eonsim-0-reference_position": 1.1102230246251565e-16,
+    "eonsim-0-velocity": 0.0,
+    "eonsim-0-mesh_displacement": 0.0,
+    "eonsim-0-pressure": 0.0,
+    "eonsim-1-reference_position": 1.1102230246251565e-16,
+    "eonsim-1-velocity": 0.0,
+    "eonsim-1-displacement": 0.0
+  },
+  "legacy_vtk_array_names": [
+    "Velocity",
+    "Pressure",
+    "Displacement"
+  ],
+  "legacy_rejection": "Missing unambiguous reference fields for mesh 1",
+  "intentionally_mismatched_interface": {
+    "interface_velocity": 0.0,
+    "interface_displacement": 0.004000000000000002,
+    "clamped_solid_velocity": 0.048059962546801886,
+    "clamped_solid_displacement": 0.0156,
+    "fixed_mesh_cap": 0.017
+  },
+  "sources": {
+    "scripts/audit_pressure_tube.py": "b610b0547e3946f607c160b970d321883119cf40ba8f11b1d098a9c1fa744a79",
+    "scripts/export_svfsi_tube.py": "3e653f0e106b594cadf87b5cac6f2b27fc3f730fd925c78948e4dffbb1299cfc",
+    "cases/fsi/generate_pressure_tube.py": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198"
+  },
+  "scope": "Independent VTK and EONSim-layout synthetic file reading; not actual coupled or physical acceptance"
+}

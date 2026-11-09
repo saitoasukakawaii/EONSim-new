@@ -1,0 +1,91 @@
+{
+  "results": [
+    {
+      "mode": "generation-first",
+      "file": "generation-first.tar.xz",
+      "bytes": 17411816,
+      "sha256": "a877c2966d4463e1b2867cb8dcac659d0ea0546d142dccd9c94a33f3954cf7b2",
+      "compression_seconds": 82.01907799300534,
+      "verified_files": 16
+    },
+    {
+      "mode": "rank-first",
+      "file": "rank-first.tar.xz",
+      "bytes": 11205436,
+      "sha256": "7870671bc73aa5d65683a3373c17d8cb73ac17749860e3201173f7becabfa2ce",
+      "compression_seconds": 62.34921918500186,
+      "verified_files": 16
+    }
+  ],
+  "source": "/mnt/d/EONSim-prod48-20261107/lu-reuse-fine-screen-e435524/new-default/checkpoint",
+  "source_bytes": 24191616,
+  "manifest": {
+    "generation_1794111704332719525/state_rank0.h5": {
+      "bytes": 1507112,
+      "sha256": "856803b8fc7c5ba1e8f30124c42fa4f5e09cddf3db483764d20047e5499caaea"
+    },
+    "generation_1794111704332719525/state_rank1.h5": {
+      "bytes": 1517928,
+      "sha256": "bec7606ad3f0c410ca64de9c102aeb9a934ab9f562741e4dab34ce0db35101bd"
+    },
+    "generation_1794111704332719525/state_rank2.h5": {
+      "bytes": 1506792,
+      "sha256": "d193d7caf73ac05e724c45efb85c1de6b91d8134de831cc4207d100c347fb9e7"
+    },
+    "generation_1794111704332719525/state_rank3.h5": {
+      "bytes": 1516072,
+      "sha256": "ba2b8961ed049652df71237c4149d3a3ec84eeaf7eb6518890ff1fcfc99183b3"
+    },
+    "generation_1794111762296836904/state_rank0.h5": {
+      "bytes": 1507112,
+      "sha256": "74b17d54ed67ead9e348a976a561dabc97ff1435653aa600ee4df1faff2925bc"
+    },
+    "generation_1794111762296836904/state_rank1.h5": {
+      "bytes": 1517928,
+      "sha256": "f382ae7e1d74db0ff4749ae30d59978333c9a3cca2a5018ff5a72dceee148570"
+    },
+    "generation_1794111762296836904/state_rank2.h5": {
+      "bytes": 1506792,
+      "sha256": "aa934f73235e1e3ec3fc82ff84a2c470fbfa491ee4ed1b67dcc2d70bbd918190"
+    },
+    "generation_1794111762296836904/state_rank3.h5": {
+      "bytes": 1516072,
+      "sha256": "7251189a5d5da874822e5758f3c0af51069cdda7254ca08895eedb092a952858"
+    },
+    "generation_1794111817632334583/state_rank0.h5": {
+      "bytes": 1507112,
+      "sha256": "90835c1680bf13d262b69a4e150154ed269568d9611b69d01ef3ddf99ce3db74"
+    },
+    "generation_1794111817632334583/state_rank1.h5": {
+      "bytes": 1517928,
+      "sha256": "3ae62e251c44438590910c0e55e253f44d4d6ab8f35f4ac4d061589b7d5f3b34"
+    },
+    "generation_1794111817632334583/state_rank2.h5": {
+      "bytes": 1506792,
+      "sha256": "1407aaa1516ce32b0ecb189c6d3430a3207b48314418dee6f4993bf76b22e081"
+    },
+    "generation_1794111817632334583/state_rank3.h5": {
+      "bytes": 1516072,
+      "sha256": "96cbe2d1a0814a60d02980e5efa614606dc17b79c54c8bfb6dd6160b805a666c"
+    },
+    "generation_1794111875364211020/state_rank0.h5": {
+      "bytes": 1507112,
+      "sha256": "9bd46074486e03dba1d14ef2dd1a2f7023dffa930021f88346489616d48b7c0c"
+    },
+    "generation_1794111875364211020/state_rank1.h5": {
+      "bytes": 1517928,
+      "sha256": "865b1700b532675f161e7bca06a35d60f17a92f3b802c09fca82eb49f1879a38"
+    },
+    "generation_1794111875364211020/state_rank2.h5": {
+      "bytes": 1506792,
+      "sha256": "d2969fd18fdd8415d100f51aca2ece6600b9117e81e0e71ee28337771c21095d"
+    },
+    "generation_1794111875364211020/state_rank3.h5": {
+      "bytes": 1516072,
+      "sha256": "0297320d3720bb604a0142a4b8f1f617c0b320abadc82652eaef416c69269ec9"
+    }
+  },
+  "ratio_rank_to_generation_bytes": 0.6435535500719741,
+  "both_reconstruct_identical_bytes": true,
+  "scope": "One sixteen-HDF-file sample of already completed fine states605-608, same tar.xz preset3 and all original bytes. Only archive member order changes. Elapsed time is under shared CPU17 with a concurrent background capture, not a general performance benchmark."
+}

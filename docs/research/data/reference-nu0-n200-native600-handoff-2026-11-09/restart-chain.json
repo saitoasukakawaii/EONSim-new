@@ -1,0 +1,28 @@
+{
+  "schema": "svfsi-native-restart-chain-v2",
+  "final_step": 6400,
+  "target_work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-ilut-native600-fcc2956/reference",
+  "segments": [
+    {
+      "work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-native5000-fce909d/reference",
+      "log": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-early-companion-family-a3e1c87/time-solve.log",
+      "first_step": 1,
+      "last_step": 600,
+      "binary_sha256": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf"
+    },
+    {
+      "work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n200-meshnu0-ilut-native600-fcc2956/reference",
+      "log": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-n200-native600-family-fcc2956/time-solve.log",
+      "first_step": 601,
+      "last_step": 6400,
+      "binary_sha256": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3",
+      "execution_transition": {
+        "kind": "svfsi-fsi-ilut-reviewed-v1",
+        "screen": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-n200-ilut-screen-af41681",
+        "review": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-n200-ilut-review-af41681",
+        "screen_report_sha256": "b2f971b5425a8aba5a373202c116a379739c664e0586fcfce44381c70d87a890",
+        "review_sha256": "7f8d7573bc58843726a613ddce4bb4cf02c988ca4eef871f1dab25611d47511a"
+      }
+    }
+  ]
+}

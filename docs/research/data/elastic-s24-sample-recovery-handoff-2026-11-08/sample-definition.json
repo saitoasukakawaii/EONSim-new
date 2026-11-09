@@ -1,0 +1,57 @@
+{
+  "base": "abec003e4df8a8444285ced8974db20ba8173862",
+  "controller_sha256": "394dc7f51b39d226837ad7f5e2889803965e606846c16cc4fb04a98b3e982bec",
+  "previous_failure": {
+    "state": "failed",
+    "pid": 7140,
+    "cpu": 22,
+    "utc": "2026-11-08T15:18:34Z",
+    "error": "Reserved physical core is occupied"
+  },
+  "previous_log_sha256": "e4120271f61cfd7690a5fece1ebb87a8c3ca73ab34b7c5ce0dc75fdd501a0dee",
+  "seed_sha256": {
+    "manifest": "b2eb5d1d49b2c04440a1c8212d13058787ca8d6650378a21d22c103d2224fa6b",
+    "state_rank0.h5": "dd8af1f6c25d003468a306a6bd1deb6042833fa9d6989c99a2c3d2b51f3b1056"
+  },
+  "seed_generation": "generation_1794151055293725710",
+  "input_hashes": {
+    "case.json": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+    "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e",
+    "fluid.msh": "05f4777e11cad498d57b87f080f9c8f2430fd6a04577963211e8c4541c70a4b2",
+    "solid.msh": "e7f6bed5613c0a62623a185847e563fc13e10f6fbc686f3e391ccd2a88a4ba9b",
+    "eonsim": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+  },
+  "source_hashes": {
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+    "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+    "scripts/audit_pressure_tube.py": "db4d0e7e21eb49132ddb43044516f844a870baf3c77bfc50a85270707de31b49",
+    "scripts/audit_svfsi_convergence.py": "ba676d551f6a3f2b31c4b891391690ec4c2132b848657c2e39a080000eb15bec",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/svfsi_restart_evidence.py": "feb097ede2ad2a7a1a6e063d6fab4f7fcbdfd4c21e14e2dc7968517191671527",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "build/prod48-20261107/s24-budget-kernel.py": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+    "build/prod48-20261107/analyze-elastic-s24-ilut-budgets.py": "896bb2313b476317718be5e1bdda577cdb4ed6d05d6b260ebd6dd3c0141193f3",
+    "build/prod48-20261107/compare-pressure-fields.py": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+    "build/prod48-20261107/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "guard_sha256": "9c97a15fa4e3cc7a653d4c13e82d6389598a479e2f74058d8615ea83a967592d",
+  "boundary": 11600,
+  "target": 12800,
+  "cpus": [
+    22
+  ],
+  "shared_guest_sibling": true,
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "options": [
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2"
+  ],
+  "scope": "Fresh sample-only continuation after old controller failed its obsolete22/23-exclusive guard. Existing nu0 reference keeps CPU23; no host physical-core isolation/performance claim. Same frozen binary, exact11600 seed, physical case, dt, tolerances and MUMPS/chord. Original failures and warmup remain untouched. Two-state split/native-history/P1 proof and independent review required before sampling. Legacy v3 clock only, no v4 compensation claim."
+}

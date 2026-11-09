@@ -1,0 +1,126 @@
+{
+  "utc": "2026-11-08T04:21:03Z",
+  "results": [
+    {
+      "study": "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l1-n200-ramp16-c32",
+      "observed_highest_step": 4519,
+      "excluded_entire_highest_step": true,
+      "inspected_steps": 4518,
+      "declared_total_steps": 6400,
+      "final_equation_rows": 9036,
+      "snapshot_iteration_rows": 27048,
+      "iteration_limit_rows": 0,
+      "maximum_iterations": {
+        "FS": 3,
+        "MS": 3
+      },
+      "maximum_final_relative_ratio": {
+        "FS": 5.6e-11,
+        "MS": 9.8e-11
+      },
+      "failed_equation_steps": [],
+      "prefix_relative_convergence_passed": true,
+      "production_qualified": false,
+      "equations": {
+        "FS": {
+          "tolerance": 1e-10,
+          "maximum_iterations": 30,
+          "minimum_iterations": 1
+        },
+        "MS": {
+          "tolerance": 1e-10,
+          "maximum_iterations": 30,
+          "minimum_iterations": 1
+        }
+      },
+      "snapshot_sha256": "c502f4eec0df04db2dd2429ab0fe946e54a3a7516db4a1a22cabffb80ed1cea0",
+      "snapshot_bytes": 2428592,
+      "unread_incomplete_tail_bytes": 0,
+      "input_manifest_sha256": "af10255cfa13086d61c12e52b8a28098d896c8ca7961305fcc5735de7b89821e",
+      "source_sha256": "c4e10a6f748730b86d336c7f2575877fa8984338452f901da8c426f7f4271564",
+      "full_run_auditor_sha256": "f20945bfa8f4ed1704c4dc78a8a0d97a23011ba6321c0502382c3fc859db6d2e",
+      "scope": "Read-only early diagnostic from an immutable log snapshot, excluding the highest observed step. Original full-run audit and every physical gate remain required."
+    },
+    {
+      "study": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32",
+      "observed_highest_step": 1759,
+      "excluded_entire_highest_step": true,
+      "inspected_steps": 1758,
+      "declared_total_steps": 12800,
+      "final_equation_rows": 3516,
+      "snapshot_iteration_rows": 10410,
+      "iteration_limit_rows": 0,
+      "maximum_iterations": {
+        "FS": 3,
+        "MS": 3
+      },
+      "maximum_final_relative_ratio": {
+        "FS": 5e-11,
+        "MS": 9.8e-11
+      },
+      "failed_equation_steps": [],
+      "prefix_relative_convergence_passed": true,
+      "production_qualified": false,
+      "equations": {
+        "FS": {
+          "tolerance": 1e-10,
+          "maximum_iterations": 30,
+          "minimum_iterations": 1
+        },
+        "MS": {
+          "tolerance": 1e-10,
+          "maximum_iterations": 30,
+          "minimum_iterations": 1
+        }
+      },
+      "snapshot_sha256": "94cec4c646cfb6a529478848da2e40f489cf114a0ef2a1f997a5d338e6ae87cd",
+      "snapshot_bytes": 937629,
+      "unread_incomplete_tail_bytes": 0,
+      "input_manifest_sha256": "f2656acae8849755b7766dfde029e16396084cd53d95a4b3d0d9da181acd69b7",
+      "source_sha256": "c4e10a6f748730b86d336c7f2575877fa8984338452f901da8c426f7f4271564",
+      "full_run_auditor_sha256": "f20945bfa8f4ed1704c4dc78a8a0d97a23011ba6321c0502382c3fc859db6d2e",
+      "scope": "Read-only early diagnostic from an immutable log snapshot, excluding the highest observed step. Original full-run audit and every physical gate remain required."
+    },
+    {
+      "study": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-meshnu0-6f202a1",
+      "observed_highest_step": 1031,
+      "excluded_entire_highest_step": true,
+      "inspected_steps": 1030,
+      "declared_total_steps": 12800,
+      "final_equation_rows": 2060,
+      "snapshot_iteration_rows": 6040,
+      "iteration_limit_rows": 0,
+      "maximum_iterations": {
+        "FS": 3,
+        "MS": 3
+      },
+      "maximum_final_relative_ratio": {
+        "FS": 4.8e-11,
+        "MS": 9.5e-11
+      },
+      "failed_equation_steps": [],
+      "prefix_relative_convergence_passed": true,
+      "production_qualified": false,
+      "equations": {
+        "FS": {
+          "tolerance": 1e-10,
+          "maximum_iterations": 30,
+          "minimum_iterations": 1
+        },
+        "MS": {
+          "tolerance": 1e-10,
+          "maximum_iterations": 30,
+          "minimum_iterations": 1
+        }
+      },
+      "snapshot_sha256": "600c88b5af9dd1c97d0e806e5c91069d7180ad311813b858af0b79e773c4c13a",
+      "snapshot_bytes": 545831,
+      "unread_incomplete_tail_bytes": 0,
+      "input_manifest_sha256": "35ee1d35e4f5f6fc6aa9e91c317f64de52529262ddae283bbb57e2921366b245",
+      "source_sha256": "c4e10a6f748730b86d336c7f2575877fa8984338452f901da8c426f7f4271564",
+      "full_run_auditor_sha256": "f20945bfa8f4ed1704c4dc78a8a0d97a23011ba6321c0502382c3fc859db6d2e",
+      "scope": "Read-only early diagnostic from an immutable log snapshot, excluding the highest observed step. Original full-run audit and every physical gate remain required."
+    }
+  ],
+  "production_qualified": false
+}

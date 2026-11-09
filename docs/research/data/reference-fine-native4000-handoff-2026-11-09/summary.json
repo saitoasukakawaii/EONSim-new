@@ -1,0 +1,21 @@
+{
+  "base": "a0a4675b561b07feabe19e52c9d993b7da3a4a83",
+  "observed_state": {
+    "state": "running",
+    "pid": 38880,
+    "utc": "2026-11-08T17:00:01Z",
+    "work": "/mnt/d/EONSim-prod48-20261107/reference-s24-l1-n400-ilut-m4000-midnight2-a0a4675",
+    "control": "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675",
+    "job": "svfsi",
+    "adopted": true
+  },
+  "original_terminal_state": {
+    "state": "failed",
+    "pid": 5055,
+    "cpu": 8,
+    "solver": "svfsi",
+    "utc": "2026-11-08T16:59:44Z",
+    "error": "Command '['/usr/bin/python3', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32/source/scripts/audit_svfsi_convergence.py', '--work', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32/reference', '--log', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32/svfsi.log', '--output', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32/svfsi-convergence.json']' returned non-zero exit status 1."
+  },
+  "scope": "Actual native4000 boundary: complete sealed old study output, original full12800 audit failure, strict prefix, exact seed and new immutable input/chain/adoption. New candidate output, active resource receipts and growing logs are excluded. Adoption is not full12800 convergence, periodicity, physics or error-budget qualification."
+}

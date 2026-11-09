@@ -1,0 +1,18 @@
+{
+  "source_commit": "b8b3a786ece0dbb86a5582eca5137c3a7e7a3501",
+  "original_status": {
+    "state": "failed",
+    "pid": 29899,
+    "cpu": 20,
+    "solver": "svfsi",
+    "utc": "2026-11-08T17:49:15Z",
+    "error": "Command '['/usr/bin/python3', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/source/scripts/audit_svfsi_convergence.py', '--work', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/reference', '--log', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/svfsi.log', '--output', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/svfsi-convergence.json']' returned non-zero exit status 1."
+  },
+  "old_budget_status": {
+    "state": "failed",
+    "pid": 39174,
+    "utc": "2026-11-08T17:49:17Z",
+    "error": "A required producer failed: svfsi"
+  },
+  "scope": "Actual native1100 adoption only. Full sealed original reference prefix, exact native seed, failed original full6400 audit and consumer, both independent review attempts, new immutable input/chain/source. Growing EON outputs and all growing new reference/consumer logs excluded. No physical qualification inferred."
+}

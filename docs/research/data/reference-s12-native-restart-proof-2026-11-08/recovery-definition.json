@@ -1,0 +1,35 @@
+{
+  "base": "a6643c8",
+  "controller_sha256": "d47bda897658db1d1f87459309c58553f90c4aa993db8c2ffbcadf3d9dce68af",
+  "review_sha256": "a970893a739f017084c968e222e01fb329e40a7a46688ff616bd964102fc2508",
+  "source_overrides": {
+    "scripts/audit_svfsi_convergence.py": "ba676d551f6a3f2b31c4b891391690ec4c2132b848657c2e39a080000eb15bec",
+    "scripts/svfsi_restart_evidence.py": "179fc78c3077fcae81751496973f5370335d4fb50982ffe26e97538d6025d09a",
+    "scripts/audit_pressure_tube.py": "db4d0e7e21eb49132ddb43044516f844a870baf3c77bfc50a85270707de31b49",
+    "tests/test_svfsi_convergence.py": "1164dc021e5308275ac453785ad5ba91c76ddb675428756ce0769f90078a9771",
+    "tests/test_svfsi_restart_evidence.py": "ce65b031069daf75e3fa0e9b916b538fbd99312352beff727236f163fd1d901d",
+    "tests/test_pressure_tube_audit.py": "6a123179c7f7e317f4b0aec6200784d1d45c6a350cf46447f0d13be28db36d54",
+    "tests/test_svfsi_export.py": "bb1754ee41a6ad7d3da586b301d164b855aa4d7061936875ae09f6e6046280fb",
+    "cases/fsi/generate_pressure_tube.py": "3d54603fbd811776315b908e3686dcbfc4edc629372783e344de2ab52732a198",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "reference_binary_sha256": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf",
+  "original_seed_sha256": "8ff753de115aa4c3ab5cfd918baf8ff24d666b0df90acb8eafd429e8162e95c3",
+  "endpoint_sha256": "130c3027d162ed78d3f928628fd900592fc891586459423a44ec576447ae5938",
+  "original_manifest_sha256": "af10255cfa13086d61c12e52b8a28098d896c8ca7961305fcc5735de7b89821e",
+  "resumed_manifest_sha256": "efdcc119b483221859921fb7c2aa0b7e7cc2f100325717fb9d6626e57d3f9836",
+  "original_timeout_log_sha256": "a396b30741434beb4b0fa5e5c59b8893b747404cb1e1f9a91f80061128bdbc98",
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "ranks": 1,
+  "cpus": [
+    13
+  ],
+  "nice": 19,
+  "shared_cpu": true,
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "solve_timeout_seconds": 18000,
+  "first_resumed_step": 5601,
+  "last_step": 6400,
+  "scope": "Authorized native recovery after independent field/full-history/time and original/prefix convergence proof. Keep original12h timeout. CPU placement is execution only; no cost comparison or physical qualification inferred."
+}

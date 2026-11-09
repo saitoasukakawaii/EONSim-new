@@ -1,0 +1,25 @@
+{
+  "attempts": [
+    {
+      "name": "womersley-polygon-reference-fa9646d",
+      "state": "failed",
+      "observation": "Stopped during S96 level3 before saving alpha1; original error message empty. Partial S48 and S96 levels1/2 retained."
+    },
+    {
+      "name": "womersley-polygon-reference-fa9646d-attempt2",
+      "state": "failed",
+      "observation": "Explicit double true residual at 86785 dofs: 2.83746e-11 initially, then 1.68e-11 floor after corrections; unchanged gate1e-11 failed."
+    },
+    {
+      "name": "womersley-polygon-reference-fa9646d-attempt3",
+      "state": "failed",
+      "observation": "Independent summation check converted its oracle to double but imposed an extended-precision bound; failed at the first manufactured test. Numerical production gates unchanged."
+    },
+    {
+      "name": "womersley-polygon-reference-fa9646d-attempt4",
+      "state": "completed",
+      "observation": "Extended state/residual with independent 80-digit decimal summation checks. S96 level3 alpha1/2 residuals9.081e-15/7.788e-15 after one correction. All original reference gates passed."
+    }
+  ],
+  "scope": "The repeated attempts repair only the independent reference. EONSim and svFSI production binaries/configuration are unchanged."
+}

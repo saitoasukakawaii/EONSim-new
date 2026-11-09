@@ -1,0 +1,90 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 24618504,
+      "sha256": "a5a1f9f2896f074a555dd263f00739fb4d55d2b8475d6faf7f21cf2069c30f62",
+      "verified_files": 44
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 25295584,
+      "sha256": "e13c584e74c2f699d72eacf817b2444395f03bda19157902c0c2b2ed3a7ab67f",
+      "verified_files": 44
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 14609676,
+      "sha256": "be90f52f7719cd173382cf20422e986b9102ce024475b47492019610ecdd76df",
+      "verified_files": 34
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 14295548,
+      "sha256": "ef515893654f5b25f7faa0fd9c5db8c0924e0a5d18d9ac495c97bc03b5445420",
+      "verified_files": 24
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 13596724,
+      "sha256": "271854518c130be734e7c52b669f2811c1d1dc607070c6752d5d893fd8c50e06",
+      "verified_files": 24
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 12598684,
+      "sha256": "94906e0a30690f3ae21c7187aaf49e7cea9d77fa53f92c817fb8086e8ae9e166",
+      "verified_files": 12
+    },
+    {
+      "file": "part007.tar.xz",
+      "bytes": 999528,
+      "sha256": "9509bf8bbdfde14d6bfcdffd1d972dc562957279e1004ec9222679380f7144e1",
+      "verified_files": 7
+    }
+  ],
+  "verified_files": 189,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/alpha1-lu8-screen-d1ad62b/eonsim-candidate": {
+      "bytes": 1607856,
+      "sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    },
+    "host-d/alpha1-lu8-screen-d1ad62b/eonsim-original": {
+      "bytes": 1599208,
+      "sha256": "162059c0a8ef8b24598a85bf2fc956bfc481d74b7f102b0e5390d652bce2958c",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/execution-screen-capture-a6643c8/alpha1/summary.json",
+      "sha256": "4199fa39d23f888d046c39537b8b7bd5a51e16c537b65c02487c1f75d6d06922"
+    },
+    "report.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/alpha1-lu8-screen-d1ad62b/report.json",
+      "sha256": "abe6fac4c569664d0aa0a5c5aa8fa3a10b75fd5a62655ad5ed7a1baf6c524b6d"
+    },
+    "definition.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/alpha1-lu8-screen-d1ad62b/definition.json",
+      "sha256": "cc7ad3f3ba1974ebaebb4a2f83e891aaedfb2b45e7c95f6d023b1dc9e1ea83df"
+    },
+    "startup-only-review.json": {
+      "source": "/mnt/d/EONSim-prod48-20261107/alpha1-lu8-screen-d1ad62b/startup-only-review.json",
+      "sha256": "8588848f5a48dd1042cea190dec812541b8e4d793473019852de0a74aa8e512b"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/womersley-alpha1-lu8-startup-2026-11-08",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "a6643c8b77c876e1ba739a0b488b83f7ea5a8e0a",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

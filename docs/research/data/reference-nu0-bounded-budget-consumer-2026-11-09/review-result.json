@@ -1,0 +1,101 @@
+{
+  "passed": true,
+  "definition_sha256": "afd9e6bf3d6f3c9fa18b086df4c2ac4d5c544521078298892bc6579518224150",
+  "old_identity": {
+    "pid": 39162,
+    "start_ticks": 9492987,
+    "state": "S",
+    "parent": 39157,
+    "argv": [
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/source/build/prod48-20261107/analyze-nu0-native5000-budgets.py"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/source",
+    "cgroup": "0::/init.scope\n"
+  },
+  "plans_unchanged": true,
+  "kernel_sha256": "8c53a40420c0dcd41615863745c6f89a16e0dbd4cf631150387d6bb75bfc01f5",
+  "budget_tail_sha256": "ead574f634cb6713581244325d3f71690796bb17b5b74b56e5422187c1dfa078",
+  "worker_changed_only_eon_path": true,
+  "routing_cases": [
+    {
+      "solver": "eonsim",
+      "role": "fine",
+      "command": [
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/source/scripts/audit_pressure_tube.py",
+        "--case",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/fine/case.json",
+        "--work",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/fine",
+        "--first-step",
+        "11601",
+        "--output",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/fine/eonsim-matched/eonsim-fine-audit.json"
+      ],
+      "passed": true
+    },
+    {
+      "solver": "svfsi",
+      "role": "fine",
+      "command": [
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/source/scripts/audit_pressure_tube.py",
+        "--case",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/fine/case.json",
+        "--work",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/fine/reference",
+        "--first-step",
+        "11601",
+        "--output",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/fine/svfsi-matched/svfsi-fine-audit.json",
+        "--svfsi",
+        "--reference-chain",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/fine/restart-chain.json"
+      ],
+      "passed": true
+    },
+    {
+      "solver": "svfsi",
+      "role": "coarse",
+      "command": [
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/source/scripts/audit_pressure_tube.py",
+        "--case",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/coarse/case.json",
+        "--work",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/coarse/reference",
+        "--first-step",
+        "11601",
+        "--output",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/coarse/svfsi-matched/svfsi-coarse-audit.json",
+        "--svfsi",
+        "--reference-log",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/family/coarse-solve.log"
+      ],
+      "passed": true
+    },
+    {
+      "solver": "svfsi",
+      "role": "time",
+      "command": [
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/source/scripts/audit_pressure_tube.py",
+        "--case",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/time/case.json",
+        "--work",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/time/reference",
+        "--first-step",
+        "11601",
+        "--output",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/time/svfsi-matched/svfsi-time-audit.json",
+        "--svfsi",
+        "--reference-log",
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/tmpnzrosd0v/family/time-solve.log"
+      ],
+      "passed": true
+    }
+  ],
+  "physical_changes_rejected": true,
+  "numerical_producers_signaled": false
+}

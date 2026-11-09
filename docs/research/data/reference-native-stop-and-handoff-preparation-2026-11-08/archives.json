@@ -1,0 +1,99 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 1426088,
+      "sha256": "715342b5308267450ab3ee7d0507df619229b9d44c5462b3397a46cff155c372",
+      "verified_files": 59
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 12688336,
+      "sha256": "a53f9a86663d0178549704e52dace60564a3f552d3fc0e7ba051b79722b6e72b",
+      "verified_files": 24
+    },
+    {
+      "file": "part003.tar.xz",
+      "bytes": 20131076,
+      "sha256": "6ad05333ae18320bbc3c4ecd7107e7c960b68c039b6c51487d82d8e076989280",
+      "verified_files": 74
+    },
+    {
+      "file": "part004.tar.xz",
+      "bytes": 161472,
+      "sha256": "60f6fb2de8a7768b965fe6c9127c0cdf44bec70f9f88452e3816549151965873",
+      "verified_files": 1
+    },
+    {
+      "file": "part005.tar.xz",
+      "bytes": 12001436,
+      "sha256": "5281da1ce3ff058796586dfa33a6685c00b13f9cc3fe235051fb0e71a7f9effb",
+      "verified_files": 23
+    },
+    {
+      "file": "part006.tar.xz",
+      "bytes": 2484532,
+      "sha256": "58234075a6ba1eecaf10a1bde7dd5710d42472664ea0377cb10bee5e4ca27542",
+      "verified_files": 42
+    },
+    {
+      "file": "part007.tar.xz",
+      "bytes": 10689072,
+      "sha256": "6aa318c702c386f7e3c9dfd910fbe89cedcff86de712db4f613789e788f3440d",
+      "verified_files": 21
+    },
+    {
+      "file": "part008.tar.xz",
+      "bytes": 2896884,
+      "sha256": "422dff4ca6e75f6b0c5b5f0f3778616f799571a94743973027da1f3cca3a6d08",
+      "verified_files": 13
+    }
+  ],
+  "verified_files": 257,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "work/reference-fine-ilut-handoff-abec003/svFSI": {
+      "bytes": 5179624,
+      "sha256": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "initial-failure.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native-stop-proof-capture-abec003/initial-failure.json",
+      "sha256": "b2975026603910e9cfb38b55ab234790e14e451c1f0ec94d57c3f24bbd29415d"
+    },
+    "stop-report.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native-stop-proof-capture-abec003/stop-report.json",
+      "sha256": "8324642ccdd35c6d65158b8a440320a973498132ad76b7b8b1268c36ac0f583e"
+    },
+    "handoff-review.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native-stop-proof-capture-abec003/handoff-review.json",
+      "sha256": "1549576617f6e0fe8d82c4bca529cced36963324fbe3abee966dcb695312c59b"
+    },
+    "review-result.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native-stop-proof-capture-abec003/review-result.json",
+      "sha256": "8b46d1271a832800690af555c4e9caa8b92d93aec49a219ae13151de76db4eb2"
+    },
+    "preparation-definition.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native-stop-proof-capture-abec003/preparation-definition.json",
+      "sha256": "2bf29d18b40a928595b7e4177b51f46abc9ae1310610ae55156efacb4503e8a2"
+    },
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native-stop-proof-capture-abec003/summary.json",
+      "sha256": "a16d8fdcecb7916903712846b4e81256d334ddf9d880f9ea6ed9a9682387ef2e"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/reference-native-stop-and-handoff-preparation-2026-11-08",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "abec003e4df8a8444285ced8974db20ba8173862",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

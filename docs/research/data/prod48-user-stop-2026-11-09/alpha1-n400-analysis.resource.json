@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/usr/bin/systemd-run",
+    "--user",
+    "--scope",
+    "--quiet",
+    "--unit=eonsim-alpha1-recovered-n400-analysis-40998.scope",
+    "--property=MemoryMax=14G",
+    "--property=MemorySwapMax=0",
+    "/usr/bin/python3",
+    "/home/tfblab633/EONSim-prod48-20261107/alpha1-native200-lu32-recovery-a3e1c87/source/scripts/analyze_womersley.py",
+    "--work",
+    "/mnt/d/EONSim-prod48-20261107/womersley-a1-s48-l2-n400-lu32-paired-retry2-a3e1c87",
+    "--output",
+    "/home/tfblab633/EONSim-prod48-20261107/alpha1-native200-lu32-recovery-a3e1c87/n400-analysis.json"
+  ],
+  "cwd": "/home/tfblab633/EONSim-prod48-20261107/alpha1-native200-lu32-recovery-a3e1c87/source",
+  "unit": "eonsim-alpha1-recovered-n400-analysis-40998.scope",
+  "memory_max_bytes": 15032385536,
+  "memory_swap_max_bytes": 0,
+  "timeout_seconds": 7200,
+  "peak_observed_bytes": 4865392640,
+  "minimum_available_bytes": 21582278656,
+  "scope_seen": true,
+  "cleanup": [],
+  "launcher_pid": 48008,
+  "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "returncode": 0,
+  "wall_seconds": 516.8028433380096,
+  "remaining_scope_members": []
+}

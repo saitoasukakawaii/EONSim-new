@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "decision": "request_native4000_then_continue_fine_serial_ilut",
+  "definition_sha256": "603227c6604d182f070ca20afe1d7141cf37b2255e75507edf3b8efeb61878b5",
+  "stop_report_sha256": "8324642ccdd35c6d65158b8a440320a973498132ad76b7b8b1268c36ac0f583e",
+  "result_sha256": "820d3ca82a03e37c4b8ab22f36c131270091eaf405c52b3d3b511a16362b0f5c",
+  "review_controller_sha256": "12a25134202621021b053c1e36225e5ca6e91552fead5e99d52ac6f722bc08f8",
+  "resource": {
+    "command": [
+      "/usr/bin/systemd-run",
+      "--user",
+      "--scope",
+      "--quiet",
+      "--unit=eonsim-fine-ilut-handoff-review-37948.scope",
+      "--property=MemoryMax=2G",
+      "--property=MemorySwapMax=0",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-recovery-abec003/review/controller.py",
+      "--worker"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-recovery-abec003/source",
+    "unit": "eonsim-fine-ilut-handoff-review-37948.scope",
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "timeout_seconds": 7200,
+    "peak_observed_bytes": 182452224,
+    "minimum_available_bytes": 11984232448,
+    "scope_seen": true,
+    "cleanup": [],
+    "launcher_pid": 37950,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "returncode": 0,
+    "wall_seconds": 41.434665925000445,
+    "remaining_scope_members": []
+  },
+  "scope": "Execution handoff eligible only. All original failures retained and long-run physics/budgets remain unqualified. No stop requested by this review."
+}

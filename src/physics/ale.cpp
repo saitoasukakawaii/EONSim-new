@@ -57,7 +57,7 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
         if(alpha) { sizes["fluid_rate"]=fluid_rate.size(); sizes["mesh_velocity"]=mesh_rate.size(); sizes["mesh_acceleration"]=mesh_acceleration.size(); sizes["time_metadata"]=1; }
         const auto saved=read_checkpoint(config.restart,mesh,signature,sizes);
         accepted=saved.fields.at("fluid"); dn=saved.fields.at("mesh");
-        clock.restore(saved.step,saved.time,saved.next_dt);
+        clock.restore(saved.step,saved.time,saved.next_dt,saved.time_correction);
         if(bdf2) {
             fluid_history.previous=saved.fields.at("previous_fluid"); mesh_history.previous=saved.fields.at("previous_mesh");
             const double previous_dt=saved.fields.at("time_metadata")[0];
@@ -186,7 +186,7 @@ AleResult solve_ale(MPI_Comm comm,const MeshPartition& mesh,const Config& config
         if(bdf2&&clock.at_event()) fluid_history.previous_dt=mesh_history.previous_dt=0;
         if(alpha&&clock.at_event()) alpha_ready=false;
         if(!config.checkpoint.empty()) {
-            Checkpoint saved{step,{{"fluid",accepted},{"mesh",dn}},clock.time,clock.next_dt};
+            Checkpoint saved{step,{{"fluid",accepted},{"mesh",dn}},clock.time,clock.next_dt,clock.correction()};
             if(bdf2) { saved.fields["previous_fluid"]=fluid_history.previous; saved.fields["previous_mesh"]=mesh_history.previous; saved.fields["time_metadata"]={fluid_history.previous_dt}; }
             if(alpha) { saved.fields["fluid_rate"]=fluid_rate; saved.fields["mesh_velocity"]=mesh_rate; saved.fields["mesh_acceleration"]=mesh_acceleration; saved.fields["time_metadata"]={alpha_ready?1.:0.}; }
             write_checkpoint(comm,config.checkpoint,mesh,signature,saved);

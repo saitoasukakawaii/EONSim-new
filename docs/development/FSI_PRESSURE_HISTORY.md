@@ -76,3 +76,27 @@ BDF2/alpha 的 Neo-Hookean 检查实际缩步并重放接受步长。
 局部压力面积切线及波形端点包含在 `fsi_element_jacobian`。
 实际执行结果见任务会话日志和 `docs/research/data/fsi-pressure-2026-11-03/`；
 测试注册或上述描述本身不表示已经通过。
+
+## 显式 LU 预条件复用
+
+`-fsi_lu_pc_reuse_window N` 默认为0，范围0..1000000。显式指定此选项仅支持
+线性弹性、周期压力、共形双网格、generalized-alpha；不支持Neo-Hookean、刚体、
+入口速度/流量、BE/BDF2或其它物理。非零窗口必须显式选择MUMPS，使用FGMRES和
+未预条件残量；与Schur、block、语义PC配方及独立PC滞后选项不相容，错误配置拒绝。
+
+在受支持的已准备算例上可追加：
+
+```text
+-pc_factor_mat_solver_type mumps -snes_lag_jacobian -2 -fsi_lu_pc_reuse_window 32
+```
+
+步内Jacobian按原选定策略装配，只有已接受求解的LU预条件因子可跨步保留。
+流体、固体、网格位移三种有效积分系数任一变化都刷新；启动、事件、步长变化因此各自
+按真实系数处理。终点几何拒绝会清除系数标记，下一次重试不能误用已拒绝状态的因子。
+LU不进入checkpoint，也不改变物理签名；恢复后新建执行缓存，完整时间/物理历史照常恢复。
+窗口不允许改变非线性、分场接受或几何门槛。
+
+[2026-11-09增量验证](../research/data/fsi-retained-lu-validation-2026-11-09/README.md)
+实际Debug/Release各三项通过，覆盖新路径1/2/4rank、重启、事件和变步长；3696 HDF
+数据集最大差9.7318e-15，v4时钟与时间元数据精确。实际细网格成本及长程资格仍须单独验证，
+不能从小算例分解次数减少推断生产加速。新缓存的真实终点几何拒绝路径未单独数值触发。

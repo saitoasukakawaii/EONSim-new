@@ -1,0 +1,8 @@
+{
+  "reason": "TarFile emitted a valid in-archive hard link for svFSI last-state. The strict regular-member assertion rejected it; source data were untouched.",
+  "member": "work/elastic-s24-l1-n400-probe-6093f01/reference/results/stFile_last.bin",
+  "target": "work/elastic-s24-l1-n400-probe-6093f01/reference/results/stFile_005.bin",
+  "original_capture_sha256": "ae9fc23a1ac31ccfe2c5e40921578a286409da40f68b9c06d6e909ff2dd9c80a",
+  "archive_sha256": "bbcec5b907fcdffc1ea85ba2e946e1ec022374fbe7c29a5366ba2259afe098dc",
+  "resolution": "Retain original failure; new capture uses dereference=True and verifies every regular member against source bytes."
+}

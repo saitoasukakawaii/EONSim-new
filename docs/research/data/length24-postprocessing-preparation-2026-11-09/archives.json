@@ -1,0 +1,41 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 624620,
+      "sha256": "9c30e883e78c15cac049942d742a2453aa845e7b106d2b16638c7587d1517721",
+      "verified_files": 48
+    }
+  ],
+  "verified_files": 48,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "host-d/elastic-s24-l1-n200-L24-ramp16-c32/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-postprocess-preparation-capture-e771355/summary.json",
+      "sha256": "33fa0e76b0ce0164fe3ee6212e834dac60371b55721e7c75a17ee0a5b053372c"
+    },
+    "execution-state-snapshot.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/length24-postprocess-preparation-capture-e771355/execution-state-snapshot.json",
+      "sha256": "df583dcbdb1de4348fbb3d85058646244244a51d3bd2cde6ce90368cbda7500b"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/length24-postprocessing-preparation-2026-11-09",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "e771355a25e66696f9320fc964eb768f86463e98",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

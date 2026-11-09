@@ -1,0 +1,34 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 10909296,
+      "sha256": "42fe8b6f609d3a0c47d0b70963072e60eae042e497ead4e62800c3ad3e8c68ec",
+      "verified_files": 79
+    }
+  ],
+  "verified_files": 79,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {
+    "work/elastic-s24-l1-n400-probe-6093f01/eonsim": {
+      "bytes": 1586600,
+      "sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12",
+      "reason": "Executable identified by ELF magic; exact hash retained, source/build evidence archived"
+    }
+  },
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/elastic-s24-l1-n400-probe-6093f01/summary.json",
+      "sha256": "160418b20ee624fc54c6b81b8ab08603d81b07dc13a0e4a747f34dfcdcc5a83b"
+    },
+    "capture-production-followups.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-production-followups.py",
+      "sha256": "3bac74e89ba9d694f294db6debec297eaf9cc1a313fb637a1540596f81325bb1"
+    }
+  },
+  "source_checkpoint": "054b64acbdbc9aa0f9bbcfef00a137b06de5a5e6",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

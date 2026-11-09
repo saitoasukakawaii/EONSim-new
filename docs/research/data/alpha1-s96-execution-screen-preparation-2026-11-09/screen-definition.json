@@ -1,0 +1,67 @@
+{
+  "base": "a341bc603cfcd13c43822d80c33cca2eba9bbfc6",
+  "controller_sha256": "91446242cd767b8dbd0b7052b14a5dd285878b23a0eedd55dc238c7479c0bfb1",
+  "source_hashes": {
+    "scripts/study_womersley.py": "1f61965ade170c5ef639d6b5e3c04cd5e04230b2252c8228bf27e804af483d3c",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "candidate_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+  "mesh_sha256": "451cab13c2ee225803076700e5ee81685252d198f90d4078ce494fb10ea64f1f",
+  "case_sha256": "49b6b1c3e78277272e313a573c0ccf191aa0c77187bb500141b62d294314917a",
+  "cap_sha256": "3ce7e1b1c29a5b2778a58f9381a3ef5aaf30fb83071049d5a322f40559441fc2",
+  "guard_sha256": "ce2d3b5f5e73a224a7f81e12bbf7d8fcb2fd5d072c99272e584ac2438b5d2565",
+  "reader_sha256": "6d125b5ddf1740c24e6d005dbd1386eaa5afc2b01e86f675f280fd38ae341e6f",
+  "reader_origin": "/mnt/d/EONSim-prod48-20261107/rounder-fine-native-serial-screen-a6643c8/controller.py",
+  "reader_origin_sha256": "bec1204cc5fabbad939c38b02daab6a97cfbc35e5e50fe66a4d20bd63b1a824b",
+  "alpha": 1,
+  "seed": [
+    96,
+    8,
+    8
+  ],
+  "level": 1,
+  "steps_per_cycle": 400,
+  "steps": 32,
+  "cpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "native_cpu": 0,
+  "ranks": [
+    4,
+    1,
+    4
+  ],
+  "windows": [
+    8,
+    32,
+    32
+  ],
+  "modes": [
+    "four8",
+    "native32",
+    "four32"
+  ],
+  "memory_max_bytes": 6442450944,
+  "swap_max_bytes": 0,
+  "admission_bytes": 23622320128,
+  "global_floor_bytes": 8589934592,
+  "timeout_seconds": 2400,
+  "node_limit": 2e-09,
+  "mass_limit": 1e-08,
+  "clock": "exact_v4",
+  "minimum_cost_reduction": 0.1,
+  "mass_velocity_scale": 0.0004166666666666667,
+  "actual_poiseuille_velocity_scale": 0.0025,
+  "scope": "Bounded startup screen only. Wait outside locks for existing S48alpha1 whole family and new S96alpha1 coarse completion. Global direct-memory/mpi/option locks; 6GiB private scopes and22GiB available admission. Complete current/history nodal and conservative P1 mass, exactv4, real5/2/2 LU, positive convergence,>=10% against both alternatives for eligibility. No automatic adoption, periodic/space/time/sampling or host-scaling claim."
+}

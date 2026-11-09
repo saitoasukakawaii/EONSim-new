@@ -1,0 +1,36 @@
+{
+  "path": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32/reference/results/STOP_SIM",
+  "sha256": "3cbd6577ddb81a5f811d900664774c8343a543385b1759297b6efd47bc22ddda",
+  "boundary": 4000,
+  "controller_identity": {
+    "pid": 5055,
+    "start_ticks": 2090032,
+    "state": "S",
+    "ppid": 5049,
+    "argv": [
+      "/usr/bin/python3",
+      "build/prod48-20261107/run-pressure-geometry.py",
+      "--part",
+      "svfsi"
+    ],
+    "cgroup": "0::/init.scope\n",
+    "cpus": [
+      8
+    ]
+  },
+  "solver_identity": {
+    "pid": 6701,
+    "start_ticks": 2254886,
+    "state": "R",
+    "ppid": 5055,
+    "argv": [
+      "/home/tfblab633/EONSim-prod48-20261107/reference/build/bin/svFSI",
+      "svFSI.inp"
+    ],
+    "cgroup": "0::/init.scope\n",
+    "cpus": [
+      8
+    ]
+  },
+  "native_stop_proof_sha256": "8324642ccdd35c6d65158b8a440320a973498132ad76b7b8b1268c36ac0f583e"
+}

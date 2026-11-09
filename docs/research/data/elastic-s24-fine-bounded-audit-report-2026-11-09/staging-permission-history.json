@@ -1,0 +1,7 @@
+{
+  "initial_attempt": "Default tool filesystem permissions rejected writing a new object through the D-store junction, before update-index. The subsequent finalize check found no indexed part and failed.",
+  "original_error": "insufficient permission for adding an object to repository database",
+  "recovery": "Reran the identical stager with approved D-store write access, then finalized by rereading every source/index byte. No data moved or deleted and no thresholds changed.",
+  "passed": true,
+  "record_source": "Transcribed tool outcomes; numerical evidence was not affected."
+}

@@ -1,0 +1,91 @@
+{
+  "producer": {
+    "state": "completed",
+    "pid": 25664,
+    "utc": "2026-11-08T05:56:47Z",
+    "target": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s48-l1-n200-lu8-m480",
+    "adopted": true,
+    "scope": "Middle trajectory and original paired diagnostics complete; finest analytic and own error-budget gates remain separate."
+  },
+  "analysis": {
+    "definition": {
+      "schema": 1,
+      "seed": [
+        48,
+        4,
+        8
+      ],
+      "level": 1,
+      "alpha": 2.0,
+      "period": 1.5707963267948966,
+      "radius": 1.0,
+      "length": 2.0,
+      "density": 1.0,
+      "viscosity": 1.0,
+      "pressure_amplitude": 0.02,
+      "steps_per_cycle": 200,
+      "phases": 200,
+      "warmup": 2,
+      "ranks": 4,
+      "schur": false,
+      "tau": null,
+      "executable_sha256": "f7bf9f3d767968dd2b04950c687a94393c46ee8c6a65e0a6d37cdff09c9c10e2",
+      "solver_options": [
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-fluid_lu_pc_reuse_window",
+        "8",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "last_cycle": 6,
+    "quadrature_order": 4,
+    "versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.17.1",
+      "h5py": "3.14.0"
+    },
+    "nodes": 12257,
+    "tetrahedra": 64512,
+    "metrics": {
+      "velocity_relative_l2_error": 0.018511161244531674,
+      "pressure_rms_over_amplitude": 0.005318232460078735,
+      "flow_amplitude_relative_error": 0.0015783925877070892,
+      "flow_phase_error_degrees": 0.1033308894814128,
+      "flow_mean": 2.0705747838523082e-10,
+      "maximum_net_flux": 5.23254603166344e-18,
+      "velocity_reference_rms": 0.0008420034908569009,
+      "pressure_reference_rms": 0.008164965809277261,
+      "flow_amplitude": [
+        0.002707722290768669,
+        -0.0017690667176799826
+      ],
+      "reference_flow_amplitude": [
+        0.002708802995093303,
+        -0.0017767515298731434
+      ]
+    },
+    "last_periodic_difference": {
+      "velocity": 5.8246757568232514e-15,
+      "pressure": 5.520384874844434e-15
+    },
+    "preceding_periodic_difference": {
+      "velocity": 8.543522196408008e-13,
+      "pressure": 7.378661003622417e-15
+    },
+    "preliminary_gates": {
+      "velocity": false,
+      "pressure": true,
+      "flow_amplitude": true,
+      "flow_phase": true,
+      "global_mass": true,
+      "periodic": true
+    },
+    "scope": "Analytic and periodic diagnostics; spatial/time/tail/sampling budgets still required"
+  },
+  "excluded": [
+    "new-n400.log"
+  ],
+  "scope": "Completed middle480\u21921200 fork and full original diagnostic outputs; velocity1% analytic gate still fails. N400 waiting child log is potentially growing and excluded. Finest qualification remains separate."
+}

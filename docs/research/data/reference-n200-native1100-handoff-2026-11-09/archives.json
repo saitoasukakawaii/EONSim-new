@@ -1,0 +1,57 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 9392832,
+      "sha256": "4da9c0516aa2e12ba93b4f9a66cef1fb454a3aae8cd7e9f1d5f5ebea10d440ac",
+      "verified_files": 60
+    },
+    {
+      "file": "part002.tar.xz",
+      "bytes": 1096040,
+      "sha256": "7503d3feb914b6cdddd13b37af575ba5be069377bdb6d5d8865e8ecd03abe5d6",
+      "verified_files": 75
+    }
+  ],
+  "verified_files": 135,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {},
+  "copied_files": {
+    "adoption.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native1100-handoff-capture-b8b3a78/adoption.json",
+      "sha256": "89637f1b2f6692fa8cbae0a6fdc9bb9f3d930f9e401194dffe50d0378ea66aa0"
+    },
+    "prefix.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native1100-handoff-capture-b8b3a78/prefix.json",
+      "sha256": "733a03f13a30c2dc86fbb3d129bc6279c341a2a91b259edcb462826f7be1d904"
+    },
+    "old-completion.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native1100-handoff-capture-b8b3a78/old-completion.json",
+      "sha256": "75276762cbe0e9444d685c962f52985192cfc5c3c64469529c799a0cf0c9940b"
+    },
+    "review.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native1100-handoff-capture-b8b3a78/review.json",
+      "sha256": "265010df9d239c0234890bbb4e2c4ad8a09f785200241906d60bfe19f6226cbe"
+    },
+    "restart-chain.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native1100-handoff-capture-b8b3a78/restart-chain.json",
+      "sha256": "32866c64ebdbca756da3685fc2e7de50301d107019f7e4857e1cd78f09af48c0"
+    },
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/reference-native1100-handoff-capture-b8b3a78/summary.json",
+      "sha256": "af20d1eebc9669e9f5d30197d789e2b0d1e3f7d71d94981fdad017fb86f62bc0"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/reference-n200-native1100-handoff-2026-11-09",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "32fb3133f1349d6f94cdcb95acd3de925fec410d",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

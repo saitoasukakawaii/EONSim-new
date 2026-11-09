@@ -1,0 +1,54 @@
+{
+  "before": {
+    "state": "waiting_for_fine_n200_producer",
+    "pid": 21907,
+    "alpha": 2,
+    "cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "utc": "2026-11-08T01:40:44Z",
+    "producer_status": "/home/tfblab633/EONSim-prod48-20261107/womersley-mumps-boundary-current.json",
+    "holds_queue_lock": false
+  },
+  "after": {
+    "state": "cancelled_before_numerical_work",
+    "pid": 21907,
+    "alpha": 2,
+    "cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "utc": "2026-11-08T04:28:39Z",
+    "producer_status": "/home/tfblab633/EONSim-prod48-20261107/womersley-mumps-boundary-current.json",
+    "holds_queue_lock": false,
+    "successor": "/home/tfblab633/EONSim-prod48-20261107/womersley-time400-a2-lu8-current.json",
+    "reason": "Reviewed explicit LU-window8 fork replaces its producer"
+  },
+  "identity": {
+    "pid": 21907,
+    "state": "S",
+    "ppid": 21901,
+    "sid": 21907,
+    "start": "3980560",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "build/prod48-20261107/queue-womersley-time400-mumps.py",
+      "--alpha",
+      "2"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "decision": "replace_idle_nu0_budget_only",
+  "definition_sha256": "afd9e6bf3d6f3c9fa18b086df4c2ac4d5c544521078298892bc6579518224150",
+  "reviewer_sha256": "72459feccbc7189e99710417feb955e62c0f8bddd3aec0e718eddc7995dd79c8",
+  "result_sha256": "0c43225c2eb422ca12b4a896a46e91499d525570c4718d8053f8e0cb139b79d9",
+  "resource": {
+    "command": [
+      "/usr/bin/systemd-run",
+      "--user",
+      "--scope",
+      "--quiet",
+      "--unit=eonsim-nu0-bounded-review-40183.scope",
+      "--property=MemoryMax=2G",
+      "--property=MemorySwapMax=0",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/independent-review/controller.py",
+      "--worker"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/nu0-bounded-budget-handoff-9d9ce99/source",
+    "unit": "eonsim-nu0-bounded-review-40183.scope",
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "timeout_seconds": 1200,
+    "peak_observed_bytes": 10969088,
+    "minimum_available_bytes": 24402755584,
+    "scope_seen": true,
+    "cleanup": [],
+    "launcher_pid": 40184,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "returncode": 0,
+    "wall_seconds": 0.6126464670087444,
+    "remaining_scope_members": []
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "records": {
+    "length24-capture": {
+      "controller_sha256": "48f2b4be1997e8b03797cd049c8c1b01bc3151dec0bd4e062f6c0963ae2809d1",
+      "original_source": "/home/tfblab633/EONSim-prod48-20261107/length24-matched-n200-capture-4f9bf6f/controller.py",
+      "status_at_capture": {
+        "state": "waiting_for_prior_cpu16_capture_and_l24_audit",
+        "pid": 43422,
+        "utc": "2026-11-08T22:42:37Z",
+        "completed_archives": []
+      }
+    },
+    "alpha1-coarse-capture": {
+      "controller_sha256": "3ee3c88896e00f7fa3f4a193e31a1d93c3b02ef1c4b9e3d19619702fb44004bd",
+      "original_source": "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-coarse-complete-capture-4f9bf6f/controller.py",
+      "status_at_capture": {
+        "state": "waiting_for_complete_coarse_and_native600_capture",
+        "pid": 43573,
+        "utc": "2026-11-08T22:45:39Z"
+      }
+    }
+  },
+  "scope": "Static full-evidence waiters and readonly progress readers only; no new numerical result, no signal or adoption."
+}

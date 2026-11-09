@@ -1,0 +1,35 @@
+{
+  "archives": [
+    {
+      "file": "part001.tar.xz",
+      "bytes": 360280,
+      "sha256": "56b79640d40499a31108bd4d91521ce3f15499f58f5a3bbf099ecda47a7cde5a",
+      "verified_files": 34
+    }
+  ],
+  "verified_files": 34,
+  "source_roots": {
+    "work": "/home/tfblab633/EONSim-prod48-20261107",
+    "host-d": "/mnt/d/EONSim-prod48-20261107"
+  },
+  "skipped_binaries": {},
+  "copied_files": {
+    "summary.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/fine-audit-alpha1-fixture-capture-dba2dd8/audit/summary.json",
+      "sha256": "5e8ea1ec6f1a2b46ab14b6147e3ecc98f45881aabe41230fbf14f981fc38dec8"
+    },
+    "source-files.json": {
+      "source": "/home/tfblab633/EONSim-prod48-20261107/fine-audit-alpha1-fixture-capture-dba2dd8/audit/source-files.json",
+      "sha256": "5c170d2692e91d5896d02478f0b5c6e5fe314be275b5a023343d1f8d390730de"
+    },
+    "capture-ranked-external-evidence.py": {
+      "source": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/capture-ranked-external-evidence.py",
+      "sha256": "81dba5d266e9cde0c74f0ae8a073e54dc6075427bd583b65ddd10ea9a2e58533"
+    }
+  },
+  "local_archive_store": "/mnt/d/EONSim-prod48-20261107/repository-archives/elastic-s24-fine-bounded-audit-report-2026-11-09",
+  "archive_member_order": "HDF files grouped by checkpoint family, rank, generation; other files by source path",
+  "git_storage_contract": "Every listed archive must be staged as a regular100644 Git blob at this metadata directory before committing. Local archive bytes stay on D; this sparse worktree need not materialize duplicate archive files.",
+  "source_checkpoint": "dba2dd8a5034be2497ad7282dcaf01f53cf78613",
+  "scope": "Immutable completed evidence; run-specific source hashes and original failures are preserved. No physical qualification implied."
+}

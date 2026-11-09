@@ -1,0 +1,156 @@
+{
+  "checks": {
+    "affine_error": 8.881784197001252e-16,
+    "sinusoid_rms": 0.0009866357858642053,
+    "exact_sinusoid_rms": 0.0009866357858642205,
+    "invalid_grid_rejected": true
+  },
+  "reports": [
+    {
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 100,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "cycle": 5,
+      "coarse_phases": 50,
+      "dense_phases": 100,
+      "reference_scales": {
+        "velocity": 0.000842003490959569,
+        "pressure": 0.008164965809277261
+      },
+      "field_differences": {
+        "velocity": {
+          "rms": 1.1664314001420685e-06,
+          "maximum_phase_rms": 2.329707765581269e-06,
+          "relative_rms": 0.0013853047079564636,
+          "relative_maximum_phase_rms": 0.002766862359354679
+        },
+        "pressure": {
+          "rms": 1.1327711515837724e-05,
+          "maximum_phase_rms": 2.2654617336332526e-05,
+          "relative_rms": 0.0013873556583625694,
+          "relative_maximum_phase_rms": 0.002774612639601224
+        }
+      },
+      "scope": "Same accepted dense history, exact P1 spatial mass and dense-phase RMS; piecewise-linear phase reconstruction only, no new solve or extrapolated bound",
+      "study": "womersley-a2-s48-l0-n100"
+    },
+    {
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 1,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 100,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "cycle": 5,
+      "coarse_phases": 50,
+      "dense_phases": 100,
+      "reference_scales": {
+        "velocity": 0.0008420034909595691,
+        "pressure": 0.008164965809277261
+      },
+      "field_differences": {
+        "velocity": {
+          "rms": 1.1670584831617368e-06,
+          "maximum_phase_rms": 2.330894422009486e-06,
+          "relative_rms": 0.0013860494590488294,
+          "relative_maximum_phase_rms": 0.0027682716841864134
+        },
+        "pressure": {
+          "rms": 1.1396130201777735e-05,
+          "maximum_phase_rms": 2.279204999477872e-05,
+          "relative_rms": 0.0013957352018338074,
+          "relative_maximum_phase_rms": 0.002791444633960593
+        }
+      },
+      "scope": "Same accepted dense history, exact P1 spatial mass and dense-phase RMS; piecewise-linear phase reconstruction only, no new solve or extrapolated bound",
+      "study": "womersley-a2-s48-l1-n100"
+    },
+    {
+      "definition": {
+        "schema": 1,
+        "seed": [
+          48,
+          4,
+          8
+        ],
+        "level": 0,
+        "alpha": 2.0,
+        "period": 1.5707963267948966,
+        "radius": 1.0,
+        "length": 2.0,
+        "density": 1.0,
+        "viscosity": 1.0,
+        "pressure_amplitude": 0.02,
+        "steps_per_cycle": 200,
+        "phases": 100,
+        "warmup": 2,
+        "ranks": 4,
+        "schur": true,
+        "tau": null,
+        "executable_sha256": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+      },
+      "cycle": 5,
+      "coarse_phases": 50,
+      "dense_phases": 100,
+      "reference_scales": {
+        "velocity": 0.000842003490959569,
+        "pressure": 0.008164965809277261
+      },
+      "field_differences": {
+        "velocity": {
+          "rms": 1.166791838784586e-06,
+          "maximum_phase_rms": 2.3304065723050473e-06,
+          "relative_rms": 0.0013857327805789493,
+          "relative_maximum_phase_rms": 0.0027676922926403256
+        },
+        "pressure": {
+          "rms": 1.136769882444865e-05,
+          "maximum_phase_rms": 2.273490922124036e-05,
+          "relative_rms": 0.0013922530834767678,
+          "relative_maximum_phase_rms": 0.0027844463470267475
+        }
+      },
+      "scope": "Same accepted dense history, exact P1 spatial mass and dense-phase RMS; piecewise-linear phase reconstruction only, no new solve or extrapolated bound",
+      "study": "womersley-a2-s48-l0-n200"
+    }
+  ],
+  "scope": "Existing 100-phase fields compared with their own 50-phase linear reconstruction; does not qualify 100 versus 200 phases",
+  "helper_sha256": "24b5462cbdf1bf86db12a7f9f074a98fbcaeee3d3794d2a0c5f95bc943b50821"
+}

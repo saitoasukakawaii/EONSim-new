@@ -1,0 +1,148 @@
+{
+  "timings": {
+    "eonsim": 34.98303788799967,
+    "svfsi": 31.634139719000814
+  },
+  "steps": 5,
+  "accepted_rows": [
+    {
+      "fsi_step": "1",
+      "time": "0.015707963267948967",
+      "accepted_dt": "0.015707963267948967",
+      "evaluation_time": "0.015707963267948967",
+      "applied_pressure": "7.6875111215068388e-13",
+      "position": "1.9007044876093604e-19",
+      "velocity": "1.2100260582398805e-17",
+      "stage_fluid_force": "-1.3116740672350784e-13",
+      "stage_body_balance": "-1.449186786697575e-27",
+      "snes_iterations": "1",
+      "stage_interface_power": "7.6664620641258367e-27",
+      "stage_body_power": "7.6664620641258123e-27",
+      "stage_power_balance": "-2.4393803666966416e-41",
+      "area_displacement_x": "1.9799005079264968e-19",
+      "area_displacement_y": "3.3820004439973519e-22",
+      "endpoint_min_fluid_j": "0.99999999999999789",
+      "endpoint_min_solid_j": "0.99999999999999734",
+      "residual": "1.3261903548499698e-27",
+      "time_order": "1"
+    },
+    {
+      "fsi_step": "2",
+      "time": "0.031415926535897934",
+      "accepted_dt": "0.015707963267948967",
+      "evaluation_time": "0.026179938779914945",
+      "applied_pressure": "3.5769596018310676e-12",
+      "position": "1.0670634026915974e-18",
+      "velocity": "9.4851861032920197e-17",
+      "stage_fluid_force": "-6.3037613972148308e-13",
+      "stage_body_balance": "5.0761227098709057e-27",
+      "snes_iterations": "1",
+      "stage_interface_power": "1.3726140417150456e-25",
+      "stage_body_power": "1.372614041715041e-25",
+      "stage_power_balance": "-4.5917748078995606e-40",
+      "area_displacement_x": "1.1115243778037417e-18",
+      "area_displacement_y": "2.943558226670558e-22",
+      "endpoint_min_fluid_j": "0.99999999999999789",
+      "endpoint_min_solid_j": "0.99999999999999656",
+      "residual": "2.7098779208879588e-27",
+      "time_order": "2"
+    },
+    {
+      "fsi_step": "3",
+      "time": "0.047123889803846901",
+      "accepted_dt": "0.015707963267948967",
+      "evaluation_time": "0.041887902047863912",
+      "applied_pressure": "1.4761282509700521e-11",
+      "position": "5.1924549030951118e-18",
+      "velocity": "4.1549207548158917e-16",
+      "stage_fluid_force": "-2.5863586727257807e-12",
+      "stage_body_balance": "1.7415682204564278e-26",
+      "snes_iterations": "1",
+      "stage_interface_power": "2.4698787541832535e-24",
+      "stage_body_power": "2.4698787541832774e-24",
+      "stage_power_balance": "2.3877229001077715e-38",
+      "area_displacement_x": "5.4088071907241711e-18",
+      "area_displacement_y": "6.9651560806117392e-21",
+      "endpoint_min_fluid_j": "0.99999999999999778",
+      "endpoint_min_solid_j": "0.9999999999999899",
+      "residual": "1.1607606190910729e-26",
+      "time_order": "2"
+    },
+    {
+      "fsi_step": "4",
+      "time": "0.062831853071795868",
+      "accepted_dt": "0.015707963267948967",
+      "evaluation_time": "0.057595865315812879",
+      "applied_pressure": "3.8659339616900107e-11",
+      "position": "1.7902314472951852e-17",
+      "velocity": "1.1764091590918143e-15",
+      "stage_fluid_force": "-6.6093228003392664e-12",
+      "stage_body_balance": "-5.6682811483750582e-26",
+      "snes_iterations": "1",
+      "stage_interface_power": "1.9181876682465238e-23",
+      "stage_body_power": "1.9181876682465129e-23",
+      "stage_power_balance": "-1.0873322745106159e-37",
+      "area_displacement_x": "1.8648244242658069e-17",
+      "area_displacement_y": "5.1008601815322449e-20",
+      "endpoint_min_fluid_j": "0.99999999999999367",
+      "endpoint_min_solid_j": "0.99999999999997624",
+      "residual": "4.0709109066943377e-26",
+      "time_order": "2"
+    },
+    {
+      "fsi_step": "5",
+      "time": "0.078539816339744828",
+      "accepted_dt": "0.01570796326794896",
+      "evaluation_time": "0.073303828583761846",
+      "applied_pressure": "8.0288712135857237e-11",
+      "position": "4.843790786375615e-17",
+      "velocity": "2.6680613398128723e-15",
+      "stage_fluid_force": "-1.3399766085148768e-11",
+      "stage_body_balance": "9.2953058184002263e-26",
+      "snes_iterations": "1",
+      "stage_interface_power": "9.3101465531896294e-23",
+      "stage_body_power": "9.3101465531894307e-23",
+      "stage_power_balance": "-1.9865854528896659e-36",
+      "area_displacement_x": "5.0456154024746609e-17",
+      "area_displacement_y": "1.6694240004520399e-19",
+      "endpoint_min_fluid_j": "0.99999999999999023",
+      "endpoint_min_solid_j": "0.99999999999995359",
+      "residual": "1.3604185953760533e-25",
+      "time_order": "2"
+    }
+  ],
+  "reference_convergence": {
+    "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "steps": 5,
+    "equations": {
+      "FS": {
+        "tolerance": 1e-10,
+        "maximum_iterations": 30,
+        "minimum_iterations": 1
+      },
+      "MS": {
+        "tolerance": 1e-10,
+        "maximum_iterations": 30,
+        "minimum_iterations": 1
+      }
+    },
+    "iteration_rows": 20,
+    "final_equation_rows": 10,
+    "iteration_limit_rows": 0,
+    "maximum_iterations": {
+      "FS": 2,
+      "MS": 2
+    },
+    "maximum_final_relative_ratio": {
+      "FS": 9.9e-13,
+      "MS": 2.8e-12
+    },
+    "failed_equation_steps": [],
+    "passed": true,
+    "input_manifest_sha256": "b010d1827b623e8b22b72c3f137078ae1f19a455d987e68eae9658aeba934051",
+    "log_sha256": "fd0462f6c8b2f417bbd02ae5377270430826b7fddf23644b5f9904e026a7681c",
+    "analysis_source_sha256": "f20945bfa8f4ed1704c4dc78a8a0d97a23011ba6321c0502382c3fc859db6d2e",
+    "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+  },
+  "scope": "Local concurrent cost observation, not a performance/scaling claim or periodic qualification"
+}

@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "ranks": 1,
+      "mumps_vs_reused_default": {
+        "compared_states": 13,
+        "compared_datasets": 65,
+        "maximum_field_history_difference": 3.469446951953614e-18,
+        "exact_clock": true
+      },
+      "chord_segmented_vs_mumps": {
+        "compared_states": 13,
+        "compared_datasets": 65,
+        "maximum_field_history_difference": 1.6134663050060283e-14,
+        "exact_clock": true
+      },
+      "changed_policy_rejected_before_mutation": true,
+      "completed_resume_noop": true
+    },
+    {
+      "ranks": 2,
+      "mumps_vs_reused_default": {
+        "compared_states": 13,
+        "compared_datasets": 130,
+        "maximum_field_history_difference": 5.204170427930421e-18,
+        "exact_clock": true
+      },
+      "chord_segmented_vs_mumps": {
+        "compared_states": 13,
+        "compared_datasets": 130,
+        "maximum_field_history_difference": 1.613639777353626e-14,
+        "exact_clock": true
+      },
+      "changed_policy_rejected_before_mutation": true,
+      "completed_resume_noop": true
+    }
+  ],
+  "source_hashes": {
+    "scripts/study_womersley.py": "a84c28bcf23916fc4e0415ae8f0c498909d8159d002710e090e571d915376055",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "invalid_combinations_rejected": [
+    "mumps+schur",
+    "mumps+block3",
+    "implicit-chord"
+  ],
+  "reused_evidence": "womersley-segments-86bbdac: unchanged physical input/default solver/executable, not rerun",
+  "scope": "Execution policy and restart identity only; no new analytic, periodic, scalability or historical PETSc qualification."
+}

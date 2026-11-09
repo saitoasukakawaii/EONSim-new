@@ -1,0 +1,147 @@
+{
+  "snapshot_utc": "2026-11-07T21:52:37Z",
+  "states": {
+    "elastic-execution-s24-current.json": {
+      "state": "running",
+      "pid": 7140,
+      "cpu": 22,
+      "utc": "2026-11-07T21:48:12Z",
+      "job": "continued-warmup",
+      "command": [
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32-mumps_chord-m400/eonsim",
+        "-case",
+        "case.json",
+        "-checkpoint",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32-mumps_chord-m400/checkpoint",
+        "-restart",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32-mumps_chord-m400/checkpoint",
+        "-stop_after",
+        "11600",
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-snes_lag_jacobian",
+        "-2"
+      ]
+    },
+    "womersley-vector-boundary-current.json": {
+      "state": "waiting_for_natural_warmup_exit",
+      "pid": 6906,
+      "scheduler_pid": 631,
+      "parent_pid": 507,
+      "scheduler_held": true,
+      "original_scheduler_terminated": false,
+      "utc": "2026-11-07T21:13:58Z",
+      "target_step": 400,
+      "launcher_pid": 632,
+      "rank_pids": [
+        635,
+        636,
+        637,
+        638
+      ],
+      "note": "Only the Python scheduler is held; all existing numerical ranks continue normally. Any pre-transfer failure resumes this same scheduler."
+    },
+    "elastic-geometry-eonsim-current.json": {
+      "state": "failed",
+      "pid": 6429,
+      "cpu": 22,
+      "solver": "eonsim",
+      "utc": "2026-11-07T21:47:32Z",
+      "error": "Command '['/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32/eonsim', '-case', 'case.json', '-checkpoint', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-ramp16-c32/checkpoint', '-stop_after', '11600']' died with <Signals.SIGINT: 2>."
+    },
+    "elastic-geometry-svfsi-current.json": {
+      "state": "running",
+      "pid": 5055,
+      "cpu": 8,
+      "solver": "svfsi",
+      "utc": "2026-11-07T20:53:07Z",
+      "job": "svfsi",
+      "command": [
+        "/home/tfblab633/EONSim-prod48-20261107/reference/build/bin/svFSI",
+        "svFSI.inp"
+      ]
+    },
+    "womersley-alpha1-current.json": {
+      "state": "running",
+      "pid": 1180,
+      "cpus": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "utc": "2026-11-07T20:33:57Z",
+      "job": "womersley-a1-s48-l1-n200",
+      "command": [
+        "/usr/bin/python3",
+        "/home/tfblab633/EONSim-prod48-20261107/womersley-alpha1-0b9e980/source/scripts/study_womersley.py",
+        "--executable",
+        "/home/tfblab633/EONSim-prod48-20261107/eonsim-b072cc8",
+        "--work",
+        "/home/tfblab633/EONSim-prod48-20261107/womersley-a1-s48-l1-n200",
+        "--seed",
+        "48",
+        "4",
+        "8",
+        "--level",
+        "1",
+        "--alpha",
+        "1",
+        "--steps-per-cycle",
+        "200",
+        "--phases",
+        "100",
+        "--warmup",
+        "2",
+        "--cycles",
+        "5",
+        "--ranks",
+        "4",
+        "--schur",
+        "--mpiexec",
+        "/home/tfblab633/EONSim-prod48-20261107/womersley-alpha1-0b9e980/mpiexec-cpus10-17",
+        "--timeout",
+        "86400"
+      ]
+    },
+    "elastic-budget-eonsim-queue-current.json": {
+      "state": "waiting_or_running_child",
+      "pid": 6658,
+      "solver": "eonsim",
+      "cpu": 18,
+      "utc": "2026-11-07T20:50:49Z",
+      "case_id": "s24-l0-n400",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/run-elastic-budget-companion.py",
+        "--part",
+        "eonsim",
+        "--case-id",
+        "s24-l0-n400"
+      ],
+      "note": "Child acquires the same CPU lock as the prior S12 worker; no duplicate or overlapping solve"
+    },
+    "elastic-budget-svfsi-queue-current.json": {
+      "state": "waiting_or_running_child",
+      "pid": 6672,
+      "solver": "svfsi",
+      "cpu": 20,
+      "utc": "2026-11-07T20:51:04Z",
+      "case_id": "s24-l0-n400",
+      "command": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/run-elastic-budget-companion.py",
+        "--part",
+        "svfsi",
+        "--case-id",
+        "s24-l0-n400"
+      ],
+      "note": "Child acquires the same CPU lock as the prior S12 worker; no duplicate or overlapping solve"
+    }
+  },
+  "scope": "S24 three-step boundary comparison is completed. Long S24 continuation and fluid boundary handoff are in progress; their states here are dated snapshots, never completion claims."
+}

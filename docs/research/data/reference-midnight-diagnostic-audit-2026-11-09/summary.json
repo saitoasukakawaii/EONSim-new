@@ -1,0 +1,23 @@
+{
+  "base": "a0a4675b561b07feabe19e52c9d993b7da3a4a83",
+  "actual_wsl_tests": {
+    "reference": 28,
+    "pressure": 8
+  },
+  "windows_tests_observed": {
+    "convergence": 6,
+    "native_restart": 16,
+    "ci_selection": 26,
+    "evidence": "Unit test output observed in tool sessions; CI raw log copied. WSL raw unit-test logs fully archived."
+  },
+  "original_baseline_numerical_returncode": 0,
+  "original_baseline_wall_seconds": 3004.3935211600037,
+  "preserved_original_audit_failure": true,
+  "source_changes": {
+    "scripts/audit_svfsi_convergence.py": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+    "scripts/svfsi_restart_evidence.py": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+    "tests/test_svfsi_convergence.py": "15e665b75312529d4cb9d06b985e3d972e2c88e319e51993e4cdf9db360fc2ac",
+    "tests/test_svfsi_restart_evidence.py": "014f6fc49e8eff625e48b84630866d8a285b1c2281d0db866c922420974398fe"
+  },
+  "scope": "Finite signed diagnostic elapsed only. Physical time/norms/history/hash binding unchanged. First validation wrongly required every MPI rank timer to wrap; failed proof and corrected master-only observation retained. Initial Windows Git ownership test failure and preparation-only naming error retained. Current candidate runs and later handoff are excluded; no numerical or physical qualification inferred."
+}

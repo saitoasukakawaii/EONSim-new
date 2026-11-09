@@ -1,0 +1,23 @@
+{
+  "base": "8297a417bbb405b5c44d93149c9a2aa6fa50af60",
+  "reader_passed": true,
+  "reader_datasets": 320,
+  "reader_maximum_field_history_difference": 5.427776067143397e-12,
+  "reader_maximum_normalized_mass_rms": 1.9164190833649605e-10,
+  "screen_state": {
+    "state": "waiting_for_n400_checkpoint_and_memory",
+    "pid": 31707,
+    "utc": "2026-11-08T09:31:22Z",
+    "adopted": false,
+    "holds_queue_lock": false,
+    "holds_memory_lock": false
+  },
+  "companion_state": {
+    "state": "running",
+    "pid": 31784,
+    "utc": "2026-11-08T09:39:28Z",
+    "target": "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l0-n400-native-serial32-8297a4",
+    "job": "study"
+  },
+  "scope": "Completed existing-startup history reader verification, queued actual-checkpoint screen immutable definition, and running coarse-N400 companion immutable definition only. Excludes growing logs/results, any future adopted checkpoint and all future qualification. Original alpha1 producer and original N400 remain active."
+}

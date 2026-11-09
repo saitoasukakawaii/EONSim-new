@@ -1,0 +1,144 @@
+{
+  "utc": "2026-11-09T02:35:06Z",
+  "stopped": true,
+  "controllers_requested": 20,
+  "initial_processes": 36,
+  "signals": [
+    {
+      "utc": "2026-11-09T02:35:04Z",
+      "pid": 40042,
+      "start_ticks": 9960295,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:04Z",
+      "pid": 42447,
+      "start_ticks": 11134483,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:04Z",
+      "pid": 43221,
+      "start_ticks": 11413359,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:04Z",
+      "pid": 43241,
+      "start_ticks": 11423463,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:04Z",
+      "pid": 43315,
+      "start_ticks": 11444932,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 43422,
+      "start_ticks": 11551911,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 43808,
+      "start_ticks": 11682379,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 44619,
+      "start_ticks": 12250920,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 47776,
+      "start_ticks": 12760033,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 47952,
+      "start_ticks": 12842040,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 47990,
+      "start_ticks": 12868220,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 38880,
+      "start_ticks": 9390530,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 39157,
+      "start_ticks": 9491956,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 39392,
+      "start_ticks": 9622670,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 40998,
+      "start_ticks": 10452294,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 41187,
+      "start_ticks": 10548551,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 43314,
+      "start_ticks": 11444848,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 46800,
+      "start_ticks": 12588137,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 47914,
+      "start_ticks": 12837864,
+      "signal": "SIGINT"
+    },
+    {
+      "utc": "2026-11-09T02:35:05Z",
+      "pid": 47944,
+      "start_ticks": 12840257,
+      "signal": "SIGINT"
+    }
+  ],
+  "remaining_processes": [],
+  "owned_scope_members": {
+    "/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-alpha1-recovered-middle-analysis-40998.scope": [],
+    "/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-fine-ilut-svfsi-38880.scope": [],
+    "/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-fsi-n800-coarse-c10-47944.scope": [],
+    "/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-fsi-n800-fine-c2-47914.scope": [],
+    "/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-l24-c36-solve-46800.scope": [],
+    "/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-n200-native1100-solve-39392.scope": [],
+    "/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-nu0-native5000-fine-solve-39157.scope": [],
+    "/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-nu0-time600-time-solve-43314.scope": [],
+    "/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-s96-n400target-fine-n800-41187.scope": []
+  },
+  "prior_results_logs_checkpoints_retained": true,
+  "incomplete_archives_not_complete": true,
+  "numerical_qualification": false,
+  "automatic_resume_authorized": false
+}

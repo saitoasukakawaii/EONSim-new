@@ -1,0 +1,21 @@
+{
+  "all_original_family_exited": true,
+  "original_failed_status": {
+    "state": "failed",
+    "pid": 20277,
+    "utc": "2026-11-08T17:58:37Z",
+    "error": "convergence"
+  },
+  "original_consumer_failed_status": {
+    "state": "failed",
+    "pid": 38384,
+    "utc": "2026-11-08T17:58:46Z",
+    "error": "Original independent nu0 family failed"
+  },
+  "original_failure": {
+    "error": "convergence",
+    "traceback": "Traceback (most recent call last):\n  File \"/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/queue-reference-nu0-s24.py\", line 179, in <module>\n    run(out,'convergence',[sys.executable,source/'scripts/audit_svfsi_convergence.py','--work',reference,\n  File \"/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/prod48-20261107/queue-reference-nu0-s24.py\", line 100, in run\n    assert result.returncode==0,label\n           ^^^^^^^^^^^^^^^^^^^^\nAssertionError: convergence\n"
+  },
+  "log_sha256": "2f890546600c02c1017e51b4d5fe0e7d677fb702ba0665c9bbe0c42b3acdc1ae",
+  "signals_sent": []
+}

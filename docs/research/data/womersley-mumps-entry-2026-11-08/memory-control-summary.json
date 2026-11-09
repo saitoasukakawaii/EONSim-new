@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "memory_max_enforced": 67108864,
+  "swap_max": 0,
+  "expected_oom_fixture_returncode": -9,
+  "expected_oom_result": "oom-kill",
+  "mpi_command": [
+    "/usr/bin/systemd-run",
+    "--user",
+    "--scope",
+    "--quiet",
+    "--unit=eonsim-memory-mpi-check-5091b68.scope",
+    "--property=MemoryMax=128M",
+    "--property=MemorySwapMax=0",
+    "/home/tfblab633/EONSim/.cloud/petsc-3.23.7/bin/mpiexec",
+    "--bind-to",
+    "none",
+    "--oversubscribe",
+    "-n",
+    "2",
+    "/usr/bin/python3",
+    "/home/tfblab633/EONSim-prod48-20261107/memory-scope-capability-5091b68/mpi-memory-fixture.py"
+  ],
+  "mpi_ranks": [
+    {
+      "rank": 1,
+      "session": 21465,
+      "group": 21469,
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-memory-mpi-check-5091b68.scope",
+      "memory_max": "134217728",
+      "swap_max": "0"
+    },
+    {
+      "rank": 0,
+      "session": 21465,
+      "group": 21468,
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/eonsim-memory-mpi-check-5091b68.scope",
+      "memory_max": "134217728",
+      "swap_max": "0"
+    }
+  ],
+  "launcher_session": 21465,
+  "failed_test_unit_reset": true,
+  "scope": "Separate64MiB deliberate memory-limit fixture and128MiB two-rank inheritance check; no simulation and no existing-job resource changes"
+}

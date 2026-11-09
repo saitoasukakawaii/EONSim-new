@@ -1,0 +1,48 @@
+{
+  "command": [
+    "/usr/bin/systemd-run",
+    "--user",
+    "--scope",
+    "--quiet",
+    "--unit=eonsim-trilinos-r2-old-34174.scope",
+    "--property=MemoryMax=2G",
+    "--property=MemorySwapMax=0",
+    "/usr/bin/mpiexec",
+    "--bind-to",
+    "none",
+    "--oversubscribe",
+    "-n",
+    "2",
+    "/usr/bin/python3",
+    "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-two-rank-screen-1374b6/execution-guard.py",
+    "/home/tfblab633/EONSim-prod48-20261107/reference/build/bin/svFSI",
+    "svFSI.inp"
+  ],
+  "cwd": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-two-rank-screen-1374b6/old",
+  "unit": "eonsim-trilinos-r2-old-34174.scope",
+  "memory_max_bytes": 2147483648,
+  "memory_swap_max_bytes": 0,
+  "timeout_seconds": 3600,
+  "peak_observed_bytes": 139681792,
+  "minimum_available_bytes": 11789991936,
+  "scope_seen": true,
+  "cleanup": [
+    {
+      "signal": "SIGINT",
+      "members_before": [
+        34175,
+        34178,
+        34179
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "launcher_pid": 34175,
+  "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "error": "Independent two-rank screen interrupted",
+  "returncode": 1,
+  "wall_seconds": 342.25870597100584,
+  "remaining_scope_members": []
+}

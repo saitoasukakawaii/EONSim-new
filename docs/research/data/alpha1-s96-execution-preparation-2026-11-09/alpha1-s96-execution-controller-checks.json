@@ -1,0 +1,119 @@
+{
+  "passed": true,
+  "controller_sha256": "795b7fea8cd6c69b648861188ba35094f24c22197b36ed2ec13d416151c2410b",
+  "preparer_sha256": "76af0c77f797dda4f4bec675488c454e7b4663e563b1fb0f6fb45b8ef709f7aa",
+  "copied_command_fragment_sha256": "5edf98fd22d15df7820950957f53e013e84f2d2999bfafcf77fd00bb61a25cc1",
+  "checks": [
+    {
+      "label": "native32-actual-preparer-commands",
+      "passed": true
+    },
+    {
+      "label": "native32-cycles",
+      "rejected": true
+    },
+    {
+      "label": "native32-cpus",
+      "rejected": true
+    },
+    {
+      "label": "native32-memory_max_bytes",
+      "rejected": true
+    },
+    {
+      "label": "native32-swap_max_bytes",
+      "rejected": true
+    },
+    {
+      "label": "native32-global_floor_bytes",
+      "rejected": true
+    },
+    {
+      "label": "native32-required_locks",
+      "rejected": true
+    },
+    {
+      "label": "native32-coarse_flow_amplitude_failed",
+      "rejected": true
+    },
+    {
+      "label": "native32-changed-alpha",
+      "rejected": true
+    },
+    {
+      "label": "native32-missing-cycle-segmentation",
+      "rejected": true
+    },
+    {
+      "label": "native32-changed-job-order",
+      "rejected": true
+    },
+    {
+      "label": "four32-actual-preparer-commands",
+      "passed": true
+    },
+    {
+      "label": "four32-cycles",
+      "rejected": true
+    },
+    {
+      "label": "four32-cpus",
+      "rejected": true
+    },
+    {
+      "label": "four32-memory_max_bytes",
+      "rejected": true
+    },
+    {
+      "label": "four32-swap_max_bytes",
+      "rejected": true
+    },
+    {
+      "label": "four32-global_floor_bytes",
+      "rejected": true
+    },
+    {
+      "label": "four32-required_locks",
+      "rejected": true
+    },
+    {
+      "label": "four32-coarse_flow_amplitude_failed",
+      "rejected": true
+    },
+    {
+      "label": "four32-changed-alpha",
+      "rejected": true
+    },
+    {
+      "label": "four32-missing-cycle-segmentation",
+      "rejected": true
+    },
+    {
+      "label": "four32-changed-job-order",
+      "rejected": true
+    }
+  ],
+  "actual_readonly_inspection": {
+    "ready": false,
+    "pending": {
+      "alpha1-native200-lu32-recovery": "running",
+      "alpha1-s96-fine-execution-screen": "waiting_for_existing_families",
+      "alpha1-s96-fine-execution-review": "waiting_for_completed_screen"
+    },
+    "plan_exists": false,
+    "execution_state": null,
+    "adopted": false
+  },
+  "paths_before": {
+    "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-fine-family-plan-b0fd881": false,
+    "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-fine-family-current.json": false
+  },
+  "paths_after": {
+    "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-fine-family-plan-b0fd881": false,
+    "/home/tfblab633/EONSim-prod48-20261107/alpha1-s96-fine-family-current.json": false
+  },
+  "numerical_runs": 0,
+  "prepared": false,
+  "adopted": false,
+  "scope": "Static orchestration and rejection fixtures only. The actual pending screen/review prevents preparation and execution. No performance, field, budget, or physical qualification evidence."
+}

@@ -19,7 +19,9 @@
 
 不要每次 Newton 迭代重新分区、重新编号或创建 KSP/Mat。首次实现可以每步重算矩阵数值和预条件；观测到开销后，再加 Jacobian 滞后或预条件复用。图结构只在网格拓扑、DoF、约束结构或耦合连接改变时重建；ALE 坐标改变通常只更新几何及矩阵数值。
 
-当前 `NonlinearSystem` 在流体、固体、ALE 和单体 FSI 的时间循环外创建，跨 accepted 步及缩步重试保留三个 ghost Vec、AIJ 矩阵及本地 trial 缓冲。每次 `solve` 都从调用者的 accepted 状态覆盖 trial，重建字段初始范数，并在 Jacobian 评价时清零和更新矩阵数值；旧约束行不会沿用为新方程。它复制本地布局，布局/图改变时需重新构造。SNES/KSP/PC 目前仍每次求解创建，不承诺预条件数值、AMG 层级或因子复用；回调只在本次调用期间借用。fatal回调导致PETSc提前返回且已共同传播错误时，替换持久trial Vec，避免PETSc遗留只读锁污染下次调用；不手动解库内部锁。旧Vec按PETSc引用计数释放（SNES及Jacobian可能暂时持有），矩阵/COO图与数值缓冲保持，下一次solve仍从accepted数据覆盖并更新ghost。
+当前 `NonlinearSystem` 在流体、固体、ALE 和单体 FSI 的时间循环外创建，跨 accepted 步及缩步重试保留三个 ghost Vec、AIJ 矩阵及本地 trial 缓冲。每次 `solve` 都从调用者的 accepted 状态覆盖 trial，重建字段初始范数，并在 Jacobian 评价时清零和更新矩阵数值；旧约束行不会沿用为新方程。它复制本地布局，布局/图改变时需重新构造。SNES/KSP 仍每次求解创建；默认关闭跨调用 PC 缓存，回调只在本次调用期间借用。fatal回调导致PETSc提前返回且已共同传播错误时，替换持久trial Vec，避免PETSc遗留只读锁污染下次调用；不手动解库内部锁。旧Vec按PETSc引用计数释放（SNES及Jacobian可能暂时持有），矩阵/COO图与数值缓冲保持，下一次solve仍从accepted数据覆盖并更新ghost。
+
+独立流体可显式启用有限窗口的 MUMPS LU 预条件器缓存，要求 FGMRES、未预条件残量范数及非原位分解；当前 Jacobian 和最终物理残量验收保持。窗口耗尽、options 改变、任一 rank 请求刷新或求解失败时共同丢弃旧因子；流体积分有效时间系数改变时请求刷新，包括 BE→BDF2 启动。因子、使用计数及上次系数都是执行缓存，不进入 checkpoint，恢复后重新构建。成功保留 PC 前先解除旧 SNES/KSP 的 reset 路径和借用回调。此选项不承诺 AMG 层级复用或 FSI/ALE 自动缓存；实现、实际分解计数与历史状态证据见 [LU 复用契约](../development/DOF_AND_PC_GROUPING.md) 和 [系数刷新验证](../research/data/lu-time-coefficient-refresh-2026-11-08/README.md)。
 
 ### 当前主线：独立场到单体 FSI
 
@@ -41,7 +43,7 @@
 
 只保证相同分区、相同 rank 数和相容配置重启。每次写入独立 generation，所有 rank 完成文件写入、flush 和显式 close 检查后，协调 rank 写该代 manifest，最后原子替换根目录 current 指针。创建目录、rank 写入和发布三个阶段分别集体传播首个失败信息，避免单 rank I/O 异常把其余进程留在 barrier；发布前不改旧指针或旧代文件。读取端只读 current 指向的完整代，也允许显式 generation 路径，不扫描未发布目录。
 
-manifest v3 记录 rank 数、accepted step/time/next_dt，各 rank 元数据与时钟必须匹配；原有局部分区/物理签名与字段尺寸检查保留。当前保留全部历史和失败目录，不做自动回收；同一根目录只允许一个 writer，重启时需指针稳定或使用显式代路径。原子替换依赖同文件系统的 rename，未实施 fsync/目录同步等断电持久性协议；不同 rank 数恢复、在线重分区与并发作业协调尚未实现。HDF5 dataset/dataspace/file 的成功关闭均在发布前检查，避免延迟写错误被析构忽略。[HDF5 文件关闭契约](https://support.hdfgroup.org/documentation/hdf5/latest/group___h5_f.html)。
+manifest v4 记录 rank 数、accepted step/time/next_dt 及时间补偿求和余量，各 rank 元数据与完整时钟必须匹配；补偿余量属于 accepted 算法状态，不得在新格式恢复时重置。原有局部分区/物理签名与字段尺寸检查保留。当前保留全部历史和失败目录，不做自动回收；同一根目录只允许一个 writer，重启时需指针稳定或使用显式代路径。原子替换依赖同文件系统的 rename，未实施 fsync/目录同步等断电持久性协议；不同 rank 数恢复、在线重分区与并发作业协调尚未实现。HDF5 dataset/dataspace/file 的成功关闭均在发布前检查，避免延迟写错误被析构忽略。[HDF5 文件关闭契约](https://support.hdfgroup.org/documentation/hdf5/latest/group___h5_f.html)。
 
 每次运行只保留一份简短摘要：代码版本/dirty 标记、构建模式、PETSc/MPI 版本、输入及分区标识、rank/线程数、时间参数、收敛原因、主要物理量和分阶段耗时。rank 0 汇总，错误按 rank 附必要信息；避免每个 rank 在积分循环刷日志。
 
@@ -88,6 +90,6 @@ manifest v3 记录 rank 数、accepted step/time/next_dt，各 rank 元数据与
 
 局部装配失败在全 communicator 汇总后，仍先完成部分 Vec/Mat 装配以排空远程插入，避免污染下一试探点。SNES 残量/Jacobian 回调中的 `StepRejected` 分别使用 PETSc function/Jacobian domain-error 协议，Release 同样显式开启 Jacobian 域检查。默认 Newton 回溯线搜索可在同一 dt 内恢复，最终非线性失败才交给时间驱动；其他 SNES 类型的恢复行为由所选算法决定。线性/PC 失败抛普通异常，报告顶层 SNES/KSP/PC reason，并附本 rank 的子求解器层级；当前覆盖 FieldSplit、ASM/BJacobi 和 MG/GAMG 粗层/下平滑器，范围见离散与算子契约。ALE 在进入求解前同样汇总几何拒绝。固体在临时位移/速度/加速度上检查能量后才提交。流体/FSI 收敛前不改 accepted 状态。
 
-checkpoint v3 在保留 accepted step、实际 time、next_dt 的基础上增加 generation 发布；恢复不以 step*初始dt 猜测时间。旧 v1/v2 检查点明确拒绝，需重新生成；同 rank/分区限制继续有效。重试次数上限属于运行策略，允许恢复时调整，物理参数仍要求匹配。
+checkpoint v4 在 v3 generation 发布基础上增加时间补偿求和余量；恢复不以 step*初始dt 猜测时间。兼容读取 v3 时明确报告补偿量缺失并初始化为0，因此不能承诺旧代后续时钟逐位相同。旧 v1/v2 检查点继续明确拒绝；同 rank/分区限制继续有效。重试次数上限属于运行策略，允许恢复时调整，物理参数仍要求匹配。
 
 `time_retry_verification` 以独立双域 Neo-Hookean FSI、P=20、dt=.04、SNES 最多两次 Newton 触发真实不收敛。缩步轨迹与直接使用最终小步长的参考轨迹对照，检查 1/2 rank、部分保存后的恢复及重试耗尽；不靠测试专用失败开关。

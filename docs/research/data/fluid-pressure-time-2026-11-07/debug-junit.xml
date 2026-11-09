@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="2"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="5"
+	timestamp="2026-11-07T22:31:37"
+	>
+	<testcase name="fsi_element_jacobian" classname="fsi_element_jacobian" time="0.0622202" status="run">
+		<properties>
+			<property name="cmake_labels" value="rank-1"/>
+		</properties>
+		<system-out>field=0 jv_relative_error=2.90591e-11
+field=1 jv_relative_error=7.7753e-11
+field=0 jv_relative_error=2.94352e-11
+field=1 jv_relative_error=8.77826e-11
+</system-out>
+	</testcase>
+	<testcase name="fluid_pressure_time" classname="fluid_pressure_time" time="5.58145" status="run">
+		<properties>
+			<property name="cmake_labels" value="rank-1;rank-2;rank-4"/>
+		</properties>
+		<system-out>{"work": "/mnt/c/Users/tfblab633/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new-current/build/cloud-3.23.7-debug/fluid_pressure_time/run-0_ct967z", "states": [{"scheme": "be", "ranks": 1, "discrete_oracle_error": 2.0816681711721685e-17, "mpi_difference": 0.0}, {"scheme": "be", "ranks": 2, "discrete_oracle_error": 2.0816681711721685e-17, "mpi_difference": 3.469446951953614e-18}, {"scheme": "be", "ranks": 4, "discrete_oracle_error": 2.0816681711721685e-17, "mpi_difference": 3.469446951953614e-18}, {"scheme": "bdf2", "ranks": 1, "discrete_oracle_error": 2.42861286636753e-17, "mpi_difference": 0.0}, {"scheme": "bdf2", "ranks": 2, "discrete_oracle_error": 2.42861286636753e-17, "mpi_difference": 6.938893903907228e-18}, {"scheme": "bdf2", "ranks": 4, "discrete_oracle_error": 2.42861286636753e-17, "mpi_difference": 1.0408340855860843e-17}, {"scheme": "generalized_alpha", "ranks": 1, "discrete_oracle_error": 1.8388068845354155e-16, "mpi_difference": 0.0}, {"scheme": "generalized_alpha", "ranks": 2, "discrete_or...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/usr/bin/systemd-run",
+    "--user",
+    "--scope",
+    "--quiet",
+    "--unit=eonsim-fsi-n800-plan-review-47901.scope",
+    "--property=MemoryMax=2G",
+    "--property=MemorySwapMax=0",
+    "/usr/bin/python3",
+    "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f/budget-guard.py",
+    "/usr/bin/python3",
+    "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f/execution-reviewer.py",
+    "worker"
+  ],
+  "cwd": "/home/tfblab633/EONSim-prod48-20261107/fsi-s24-n800-lu32-family-3b08e4f",
+  "unit": "eonsim-fsi-n800-plan-review-47901.scope",
+  "memory_max_bytes": 2147483648,
+  "memory_swap_max_bytes": 0,
+  "timeout_seconds": 600,
+  "peak_observed_bytes": 54697984,
+  "minimum_available_bytes": 16419786752,
+  "scope_seen": true,
+  "cleanup": [],
+  "launcher_pid": 47903,
+  "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "returncode": 0,
+  "wall_seconds": 1.818118504001177,
+  "remaining_scope_members": []
+}

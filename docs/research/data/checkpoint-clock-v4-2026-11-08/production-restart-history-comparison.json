@@ -1,0 +1,112 @@
+{
+  "passed": true,
+  "ranks": 2,
+  "datasets": {
+    "rank0/clock": {
+      "exact": true
+    },
+    "rank0/fluid_rate": {
+      "maximum_absolute": 9.96845970569274e-16,
+      "l2_difference": 3.8300625318552195e-15,
+      "l2_limit": 2.0294522385031277e-09
+    },
+    "rank0/mesh_acceleration": {
+      "maximum_absolute": 2.0405955435598075e-15,
+      "l2_difference": 6.326935598163515e-15,
+      "l2_limit": 2.0025670603336575e-09
+    },
+    "rank0/mesh_velocity": {
+      "maximum_absolute": 1.4399560103323106e-17,
+      "l2_difference": 3.690643365846737e-17,
+      "l2_limit": 2.002303762304997e-09
+    },
+    "rank0/metadata": {
+      "exact": true
+    },
+    "rank0/physical": {
+      "maximum_absolute": 2.5326962749261384e-16,
+      "l2_difference": 8.28478976968839e-16,
+      "l2_limit": 4.0538479334688515e-09
+    },
+    "rank0/reduced": {
+      "maximum_absolute": 2.5326962749261384e-16,
+      "l2_difference": 8.2829757628361515e-16,
+      "l2_limit": 4.053837156609495e-09
+    },
+    "rank0/rigid": {
+      "maximum_absolute": 0.0,
+      "l2_difference": 0.0,
+      "l2_limit": 2e-09
+    },
+    "rank0/solid_acceleration": {
+      "maximum_absolute": 1.8128402425043877e-15,
+      "l2_difference": 7.395159753606842e-15,
+      "l2_limit": 2.003303714777284e-09
+    },
+    "rank0/solid_displacement": {
+      "maximum_absolute": 2.0328790734103208e-19,
+      "l2_difference": 1.4941814517303355e-18,
+      "l2_limit": 2.0088456389091954e-09
+    },
+    "rank0/time_metadata": {
+      "exact": true
+    },
+    "rank1/clock": {
+      "exact": true
+    },
+    "rank1/fluid_rate": {
+      "maximum_absolute": 8.075544356486719e-16,
+      "l2_difference": 3.2905132245856927e-15,
+      "l2_limit": 2.0300594489888215e-09
+    },
+    "rank1/mesh_acceleration": {
+      "maximum_absolute": 1.6962647920396728e-15,
+      "l2_difference": 6.277689402546579e-15,
+      "l2_limit": 2.0025136298615678e-09
+    },
+    "rank1/mesh_velocity": {
+      "maximum_absolute": 9.313127255061032e-18,
+      "l2_difference": 3.6400382599093135e-17,
+      "l2_limit": 2.002190108216077e-09
+    },
+    "rank1/metadata": {
+      "exact": true
+    },
+    "rank1/physical": {
+      "maximum_absolute": 1.8908485888147197e-16,
+      "l2_difference": 6.835151873162755e-16,
+      "l2_limit": 4.0894447109601114e-09
+    },
+    "rank1/reduced": {
+      "maximum_absolute": 1.8908485888147197e-16,
+      "l2_difference": 6.833355532490571e-16,
+      "l2_limit": 4.089435231405478e-09
+    },
+    "rank1/rigid": {
+      "maximum_absolute": 0.0,
+      "l2_difference": 0.0,
+      "l2_limit": 2e-09
+    },
+    "rank1/solid_acceleration": {
+      "maximum_absolute": 2.3452004498537155e-15,
+      "l2_difference": 5.790512291885434e-15,
+      "l2_limit": 2.0028539954809527e-09
+    },
+    "rank1/solid_displacement": {
+      "maximum_absolute": 1.6263032587282567e-19,
+      "l2_difference": 9.040985356575298e-19,
+      "l2_limit": 2.0079291235852613e-09
+    },
+    "rank1/time_metadata": {
+      "exact": true
+    }
+  },
+  "input_hashes": {
+    "/mnt/d/EONSim-prod48-20261107/elastic-clock-restart-6f202a1/r2/continuous-checkpoint/generation_1794094922845021758/manifest": "c1a4191359d9015220edddc6f99c50852bf954c04fdf43cb9af20f1f7dfd9a48",
+    "/mnt/d/EONSim-prod48-20261107/elastic-clock-restart-6f202a1/r2/continuous-checkpoint/generation_1794094922845021758/state_rank0.h5": "9512f7304fb8cf03dce8579fa285e14aaec8ad033b33c5e6b851076a5e4e3535",
+    "/mnt/d/EONSim-prod48-20261107/elastic-clock-restart-6f202a1/r2/continuous-checkpoint/generation_1794094922845021758/state_rank1.h5": "eef16a8aa0db0cc99b2e1b674eab4da8b018a23b49118d2d8b92d33a0f12cec7",
+    "/mnt/d/EONSim-prod48-20261107/elastic-clock-restart-6f202a1/r2/restart-checkpoint/generation_1794095020338709862/manifest": "c1a4191359d9015220edddc6f99c50852bf954c04fdf43cb9af20f1f7dfd9a48",
+    "/mnt/d/EONSim-prod48-20261107/elastic-clock-restart-6f202a1/r2/restart-checkpoint/generation_1794095020338709862/state_rank0.h5": "a78aee6e242b95a47a9b83a4efeee468538d31711f67eb80c6c044fdb5eb4f9f",
+    "/mnt/d/EONSim-prod48-20261107/elastic-clock-restart-6f202a1/r2/restart-checkpoint/generation_1794095020338709862/state_rank1.h5": "9497ad35449da966920e5cc49e177f996ffca1e26d61137a90c85a0b1574dab6"
+  }
+}

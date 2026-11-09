@@ -1,0 +1,28 @@
+{
+  "eonsim": {
+    "relative_maximum_phase_rms": {
+      "fluid_velocity": 1.5808688596547702e-07,
+      "fluid_pressure": 8.36924415590745e-09,
+      "fluid_mesh_displacement": 1.0913233974900216e-06,
+      "solid_velocity": 1.890283244360506e-06,
+      "solid_displacement": 1.102966419765449e-06
+    },
+    "limit": 1e-05,
+    "prerequisites_passed": true,
+    "fields_within_limit": true,
+    "passed": true
+  },
+  "svfsi": {
+    "relative_maximum_phase_rms": {
+      "fluid_velocity": 1.5104680119788022e-07,
+      "fluid_pressure": 2.5330661534386444e-08,
+      "fluid_mesh_displacement": 0.002170168775266915,
+      "solid_velocity": 1.792550123230495e-06,
+      "solid_displacement": 1.0662122164611596e-06
+    },
+    "limit": 1e-05,
+    "prerequisites_passed": false,
+    "fields_within_limit": false,
+    "passed": false
+  }
+}

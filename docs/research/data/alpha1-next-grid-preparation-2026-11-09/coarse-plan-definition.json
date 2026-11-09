@@ -1,0 +1,40 @@
+{
+  "base": "fcc29568f03edb7dba8c2812469c97d2c82175a2",
+  "controller_sha256": "be9b652c21cbd88ceb09076227a5843569ed9f1fa3a1ac277c39c428053b4d65",
+  "source_hashes": {
+    "scripts/compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/study_womersley.py": "1f61965ade170c5ef639d6b5e3c04cd5e04230b2252c8228bf27e804af483d3c",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  },
+  "binary_sha256": "60eb5cc0c2ea0d03e70881b42f0219a7525461fdf3d5a63cec15333c3cb54f07",
+  "cap_sha256": "5070df17d8c299ea4bc393971e69fcc77f09821c1d0b895df6074c7a9997a939",
+  "s48_failure_sha256": "9d4272b412530fa88a8fe2b20e43f228db7ef81ef1916f019640ad791cdae0d2",
+  "prior_s96_definition_sha256": "adddcc2214f975ad075c897adc0514b37e583dc95dad65ff9a8e7b438c4eece7",
+  "mesh_sha256": "b74e491cc095ac829b4c193167283a81ee9f97fdae603a28aebcbbdc20e59ccd",
+  "alpha": 1,
+  "seed": [
+    96,
+    8,
+    8
+  ],
+  "level": 0,
+  "steps_per_cycle": 400,
+  "phases": 400,
+  "warmup": 2,
+  "cycles": 6,
+  "ranks": 1,
+  "window": 32,
+  "cpus": [
+    14
+  ],
+  "nice": 19,
+  "shared_cpu": true,
+  "memory_max_bytes": 2147483648,
+  "swap_max_bytes": 0,
+  "admission_bytes": 15032385536,
+  "running_floor_bytes": 8589934592,
+  "scope": "Fresh coarse member for an independent alpha1 S96 family. Existing verified60eb/native-rank1/window32 execution; no new performance comparison or claim. Original S48 full failures remain. Coarse analytical/tail results alone do not qualify the finest target; matching fine/time/space/sampling still required. No existing producer or frozen source changes."
+}

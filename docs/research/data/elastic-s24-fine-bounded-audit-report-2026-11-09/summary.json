@@ -1,0 +1,72 @@
+{
+  "completed": true,
+  "report_sha256": "433f0bd1ec9cba994fbbd57dc633851bceb4d9e0894ca1aeab6baa5db1f9cc87",
+  "steps": 12800,
+  "sampled_steps": 1200,
+  "periodic": true,
+  "last_two_cycle_max": 2.472977721614709e-07,
+  "quality": {
+    "kinematics": {
+      "maximum": 0.0,
+      "limit": 1e-12,
+      "passed": true
+    },
+    "stage_mass": {
+      "maximum": 9.540979117872439e-18,
+      "limit": 1e-09,
+      "passed": true
+    },
+    "stage_divergence_theorem": {
+      "maximum": 9.387627690520927e-18,
+      "limit": 1e-12,
+      "passed": true
+    }
+  },
+  "minimum_fluid_jacobian": 1.0000041479888504,
+  "minimum_solid_jacobian": 0.9999771321682042,
+  "lame_mean": {
+    "numerical_mean": 0.00010738165032703641,
+    "infinite_circular_plane_strain_mean": 0.00010872727272727274,
+    "relative_error": 0.012376125754681944,
+    "limit": 0.02,
+    "passed": true
+  },
+  "resource": {
+    "command": [
+      "/usr/bin/systemd-run",
+      "--user",
+      "--scope",
+      "--quiet",
+      "--unit=eonsim-s24-bounded-audit-39865.scope",
+      "--property=MemoryMax=2G",
+      "--property=MemorySwapMax=0",
+      "/usr/bin/python3",
+      "/home/tfblab633/EONSim-prod48-20261107/elastic-s24-bounded-audit-recovery-6bce127/source/scripts/audit_pressure_tube.py",
+      "--case",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-bounded-audit-6bce127/case.json",
+      "--work",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-bounded-audit-6bce127",
+      "--first-step",
+      "11601",
+      "--output",
+      "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n400-bounded-audit-6bce127/eonsim-audit.json"
+    ],
+    "cwd": "/home/tfblab633/EONSim-prod48-20261107/elastic-s24-bounded-audit-recovery-6bce127/source",
+    "unit": "eonsim-s24-bounded-audit-39865.scope",
+    "memory_max_bytes": 2147483648,
+    "memory_swap_max_bytes": 0,
+    "timeout_seconds": 7200,
+    "peak_observed_bytes": 90243072,
+    "minimum_available_bytes": 12791799808,
+    "scope_seen": true,
+    "cleanup": [],
+    "launcher_pid": 39963,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "returncode": 0,
+    "wall_seconds": 3313.3610355519922,
+    "remaining_scope_members": []
+  },
+  "immutable_inputs_unchanged": true,
+  "full_physical_qualification": false,
+  "scope": "Completed1200-state fine audit and provenance only. The entire unchanged numerical trajectory/meshes/old failures are separately being sealed by bounded-audit-boundary-capture-current; do not call this metadata archive the full trajectory."
+}

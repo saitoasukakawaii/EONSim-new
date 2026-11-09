@@ -1,0 +1,20 @@
+{
+  "all_original_family_exited": true,
+  "original_status": {
+    "state": "failed",
+    "pid": 29899,
+    "cpu": 20,
+    "solver": "svfsi",
+    "utc": "2026-11-08T17:49:15Z",
+    "error": "Command '['/usr/bin/python3', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/source/scripts/audit_svfsi_convergence.py', '--work', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/reference', '--log', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/svfsi.log', '--output', '/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-ramp16-c32/svfsi-convergence.json']' returned non-zero exit status 1."
+  },
+  "old_consumer_status": {
+    "state": "failed",
+    "pid": 39174,
+    "utc": "2026-11-08T17:49:17Z",
+    "error": "A required producer failed: svfsi"
+  },
+  "original_log_sha256": "f06747bd82373655e411e377767510095725766b5005e51e63a944652ae87747",
+  "orphan_helper_cleanup": [],
+  "original_numerical_signals": []
+}

@@ -1,0 +1,209 @@
+{
+  "passed": true,
+  "stop_readbacks": {
+    "serial": {
+      "states": 10,
+      "fields_exact": true,
+      "native_algorithm_exact_except_elapsed_padding": true,
+      "convergence": {
+        "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+        "steps": 10,
+        "declared_steps": 2900,
+        "first_step": 2801,
+        "last_step": 2810,
+        "restart": {
+          "step": 2800,
+          "time": 43.982297150258894,
+          "stamp": [
+            1,
+            2,
+            2,
+            6625,
+            0,
+            7,
+            1
+          ],
+          "bytes": 1113064,
+          "serialized_values": 139129,
+          "sha256": "ab5c1aa0be72914dfffa98475ddb92d1b3506ce300ab0a5431e7111b6ed1b208",
+          "input_name": "native-seed.bin",
+          "path": "/home/tfblab633/EONSim-prod48-20261107/reference-native-stop-screen-retry2-abec003/serial/native-seed.bin",
+          "scope": "Exact native saved time and complete finite Yn/An/Dn record; no v4 clock claim"
+        },
+        "excluded_tail": {
+          "final_equation_rows": 0,
+          "last_observed_step": 2810,
+          "iteration_rows": 0,
+          "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+        },
+        "equations": {
+          "FS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          },
+          "MS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          }
+        },
+        "iteration_rows": 60,
+        "final_equation_rows": 20,
+        "iteration_limit_rows": 0,
+        "maximum_iterations": {
+          "FS": 3,
+          "MS": 3
+        },
+        "maximum_final_relative_ratio": {
+          "FS": 1.8e-12,
+          "MS": 1.4e-11
+        },
+        "failed_equation_steps": [],
+        "passed": true,
+        "input_manifest_sha256": "82145996f2f125ab947c1c485fbd9a3acd019463a6de4e2c60bdc6412539f7ee",
+        "log_sha256": "f9328b14993f5587516a3bcce06f19278219ae7f6648e36d3fcb9b5b4d2d29c8",
+        "analysis_source_sha256": "ba676d551f6a3f2b31c4b891391690ec4c2132b848657c2e39a080000eb15bec",
+        "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+      }
+    },
+    "two-rank": {
+      "states": 10,
+      "fields_exact": true,
+      "native_algorithm_exact_except_elapsed_padding": true,
+      "convergence": {
+        "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+        "steps": 10,
+        "declared_steps": 2700,
+        "first_step": 2601,
+        "last_step": 2610,
+        "restart": {
+          "step": 2600,
+          "time": 40.84070449666894,
+          "stamp": [
+            2,
+            2,
+            2,
+            4225,
+            0,
+            7,
+            1
+          ],
+          "bytes": 1419728,
+          "serialized_values": 164333,
+          "sha256": "388e4babf850ff992405234205ab0b4b4db0bb4a1dabca7e8447a467b49f0970",
+          "record_bytes": 709864,
+          "rank_records": [
+            {
+              "rank": 0,
+              "stamp": [
+                2,
+                2,
+                2,
+                4225,
+                0,
+                7,
+                1
+              ],
+              "offset": 0,
+              "payload_bytes": 709864,
+              "serialized_values": 88729
+            },
+            {
+              "rank": 1,
+              "stamp": [
+                2,
+                2,
+                2,
+                3600,
+                0,
+                7,
+                1
+              ],
+              "offset": 709864,
+              "payload_bytes": 604864,
+              "serialized_values": 75604
+            }
+          ],
+          "input_name": "native-seed.bin",
+          "path": "/home/tfblab633/EONSim-prod48-20261107/reference-native-stop-screen-retry2-abec003/two-rank/native-seed.bin",
+          "scope": "Exact native saved time and complete finite Yn/An/Dn record; no v4 clock claim"
+        },
+        "excluded_tail": {
+          "final_equation_rows": 0,
+          "last_observed_step": 2610,
+          "iteration_rows": 0,
+          "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+        },
+        "equations": {
+          "FS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          },
+          "MS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          }
+        },
+        "iteration_rows": 60,
+        "final_equation_rows": 20,
+        "iteration_limit_rows": 0,
+        "maximum_iterations": {
+          "FS": 3,
+          "MS": 3
+        },
+        "maximum_final_relative_ratio": {
+          "FS": 3.4e-12,
+          "MS": 2.1e-11
+        },
+        "failed_equation_steps": [],
+        "passed": true,
+        "input_manifest_sha256": "78b0f46d1f51b8e1cdc8dd36d77ab8ec18b18cb95abe69235a393e7f41da780d",
+        "log_sha256": "9c0911387344e16ed485e34f9e5401f3166a42b82fabea0cda9761993351a596",
+        "analysis_source_sha256": "ba676d551f6a3f2b31c4b891391690ec4c2132b848657c2e39a080000eb15bec",
+        "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+      }
+    }
+  },
+  "bounded_backend_binding": {
+    "kind": "svfsi-fsi-ilut-reviewed-v1",
+    "screen": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-fine-serial-screen-243c9d0",
+    "review": "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-fine-serial-review-243c9d0",
+    "screen_report_sha256": "88387a0df4a244b0e648cc9565d4a4bc0f9c6b5846e60f97c053ca39c5b046ef",
+    "review_sha256": "106c35eb6ef300933a4e63bda1d682cdfa5c81279a2e18b4f13006bbefcf9efa",
+    "binary_hashes": {
+      "old": "f3bdbb189f6cc1600014990eb5356ab218b135d869c5c41ada7497795e9926bf",
+      "ilut": "121678f9b7a84e2ae07e5061468fbeffb39cd0468d1141517bb5dd2d816a34e3"
+    },
+    "ranks": 1,
+    "proof_first_step": 2801,
+    "proof_last_step": 2900,
+    "cost_ratio": 0.7296798992709752,
+    "scope": "Reviewed bounded execution transition only; all long-run convergence and physical gates remain required"
+  },
+  "same_numerical_budget_tail": true,
+  "numerical_budget_tail_sha256": "ead574f634cb6713581244325d3f71690796bb17b5b74b56e5422187c1dfa078",
+  "coarse_matched_audits": {
+    "eonsim": {
+      "reused_same_analyzer": false,
+      "all_physical_report_values_identical": true,
+      "original_sha256": "369330526821678c659f15aa9322873b8637d0394554de4e2f9fa4ae13e685f3",
+      "matched_sha256": "983b470400fb1a18f0c40a52c079988e853b3b842042d28c31e4d18678ad2ce7",
+      "original_analyzer": "9083406301d953607c8c71f95f2425094b4f3e21aeb273ed2a539ec1d622ef0a",
+      "matched_analyzer": "db4d0e7e21eb49132ddb43044516f844a870baf3c77bfc50a85270707de31b49"
+    },
+    "svfsi": {
+      "reused_same_analyzer": false,
+      "all_physical_report_values_identical": true,
+      "original_sha256": "c6a883bdb0f2108bc180d8c8af68c057647dae2b6512c436b13a915e5e3ec02d",
+      "matched_sha256": "f2a3f7048f9f86b1458a50c177109bde6ebfb0752f905b5f1b84422897c92b57",
+      "original_analyzer": "9083406301d953607c8c71f95f2425094b4f3e21aeb273ed2a539ec1d622ef0a",
+      "matched_analyzer": "db4d0e7e21eb49132ddb43044516f844a870baf3c77bfc50a85270707de31b49"
+    }
+  },
+  "old_controller_not_signaled": true,
+  "new_numerical_run_started": false,
+  "full_physical_qualification": false
+}

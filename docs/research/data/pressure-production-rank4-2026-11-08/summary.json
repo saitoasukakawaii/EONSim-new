@@ -1,0 +1,94 @@
+{
+  "passed": true,
+  "results": {
+    "rank1-vs4": {
+      "first_step": 11601,
+      "last_step": 12800,
+      "compared_states": 1200,
+      "maximum_absolute_nodal": {
+        "fluid_velocity": 1.4845946466526122e-17,
+        "fluid_pressure": 8.604228440844963e-16,
+        "fluid_mesh_displacement": 7.860465750519907e-19,
+        "solid_velocity": 4.766084987610497e-17,
+        "solid_displacement": 8.131516293641283e-19
+      },
+      "maximum_normalized_mass_rms": {
+        "fluid_velocity": 2.6344733163929e-15,
+        "fluid_pressure": 1.0347659799390073e-14,
+        "fluid_mesh_displacement": 9.722789208420017e-15,
+        "solid_velocity": 7.7285555319829e-14,
+        "solid_displacement": 9.833796595820735e-15
+      },
+      "passed": true,
+      "nodal_limit": 2e-09,
+      "normalized_mass_limit": 1e-08,
+      "scope": "Exact common stored states; no interpolation, fitted phase shift or pressure gauge adjustment"
+    }
+  },
+  "definition": {
+    "source_head": "f0422d0571237c2abcb6a58f043e7f881b0f735c",
+    "input_hashes": {
+      "case.json": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+      "fluid.msh": "22d804d2f3baed62cb004c447ba131df2b07aa215f4a4465b7777e9d28dc047c",
+      "solid.msh": "7a6c10842ba3ddb7929a708ac7f3f8f5c5221a572a6c519475296da1eb83b6d2",
+      "geometry.json": "8bbe7c1064667edd0aa0228b7fc7211ae8cf8c146557c3cbf9662eeae9c014f1",
+      "eonsim": "2692b6480cddebec96bd4f74479963d732aa483dc5b2be5a7635ac57e041eb12"
+    },
+    "source_hashes": {
+      "scripts/audit_pressure_tube.py": "9083406301d953607c8c71f95f2425094b4f3e21aeb273ed2a539ec1d622ef0a",
+      "scripts/study_rigid_tube.py": "e0b89fd0f28740df71ca48013ab3c01f9038b966defdcebbbf712bd355d2d799",
+      "scripts/fsi_field_cycles.py": "4c4bd1bdc3b07450f732fd4d0163f05dc62464d192b85f021e8be4d02bf0b7ec",
+      "scripts/fsi_cycle_metrics.py": "695e692a04b4ad4d6b51da504891e89d2eb2365545634bc6d01ef3b40a5e2a8d",
+      "scripts/analyze_womersley.py": "c48aa5bafa068c7a177c45d6d22b48b7b02917103279dff389b69498f6527ebd",
+      "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0",
+      "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+    },
+    "controller_sha256": "b13e2a7032578ffb634a425b970318c70102f7db98ef75f264b5919aad120fcb",
+    "original_one_rank_audit_sha256": "d56a63107dd774077527c328c2d3a0c31aec90a123efcfdfc9916480a657f0cd",
+    "original_one_rank_work": "/home/tfblab633/EONSim-prod48-20261107/elastic-s12-l0-n400-ramp16-c32",
+    "scales": [
+      {
+        "velocity": 0.0006523636363636365,
+        "pressure": 0.01,
+        "mesh_displacement": 5.436363636363637e-05
+      },
+      {
+        "velocity": 5.436363636363637e-05,
+        "displacement": 5.436363636363637e-05
+      }
+    ],
+    "ranks": [
+      1,
+      2,
+      4
+    ],
+    "options": [
+      "-pc_factor_mat_solver_type",
+      "mumps",
+      "-snes_lag_jacobian",
+      "-2"
+    ],
+    "warmup": 11600,
+    "last_step": 12800,
+    "restart_split": 12400,
+    "nodal_limit": 2e-09,
+    "mass_norm_limit": 1e-08,
+    "history_absolute_limit": 2e-09,
+    "history_relative_limit": 1e-08,
+    "cpu": 9,
+    "scope": "Only rank4 remains in this controller; reuse verified rank1/rank2 and rank4 preflight. Same frozen b072/options/readers. Original rank2 field restart passed but exact clock failed and is not relabeled. No scaling or full physical qualification.",
+    "continued_rank": 4,
+    "reused_preflight_sha256": "4c6d2776c32efd21351561e857d8a900e19f74bce8123c63a0a16da8d93a96e8",
+    "reused_rank1_vs2_sha256": "5deb2a19a54f554a8d07bf25c594ba05605f563d7686cbf700549c25bdc4b4cd",
+    "prior_controller": "/mnt/d/EONSim-prod48-20261107/elastic-mpi-s12-l0-n400-f0422d0-attempt2",
+    "partition_hashes": {
+      "manifest.yaml": "6db0e55c31893e51c9cbb008844a637307479f5a67c46e2dbde833d58b82391d",
+      "rank_0.h5": "eaa0fd4e3c1e685ca2f347a0a4b74a302e7e4fd31f1fb5c0f9abaedc42dc3e9b",
+      "rank_1.h5": "b457788e6f10fc3d1008443665328d09c1eaa2f73ef6e961120ffe446efcbf6c",
+      "rank_2.h5": "299fafe3cce8b19c790ab2cbd3fcd783fc68014e6d6fafad9f03cd6d421805c6",
+      "rank_3.h5": "e251d5e34f470ebe2c4d4a36780c43ec58760a9c91aa23e302a80ec1130a30f2"
+    },
+    "prior_restart_clock_passed": false
+  },
+  "scope": "Production clock and coarse S12 mesh execution equivalence only; no fine-grid scaling or complete physical qualification"
+}

@@ -1,0 +1,112 @@
+{
+  "status": {
+    "state": "completed",
+    "pid": 6673,
+    "cpu": 20,
+    "solver": "svfsi",
+    "utc": "2026-11-08T08:45:10Z",
+    "work": "/mnt/d/EONSim-prod48-20261107/elastic-s24-l0-n400-ramp16-c32",
+    "periodic": false,
+    "scope": "Numerical and field-audit endpoint reached; space/time and cross-code qualification still pending"
+  },
+  "reference_convergence": {
+    "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "steps": 12800,
+    "equations": {
+      "FS": {
+        "tolerance": 1e-10,
+        "maximum_iterations": 30,
+        "minimum_iterations": 1
+      },
+      "MS": {
+        "tolerance": 1e-10,
+        "maximum_iterations": 30,
+        "minimum_iterations": 1
+      }
+    },
+    "iteration_rows": 76726,
+    "final_equation_rows": 25600,
+    "iteration_limit_rows": 0,
+    "maximum_iterations": {
+      "FS": 3,
+      "MS": 3
+    },
+    "maximum_final_relative_ratio": {
+      "FS": 4.1e-11,
+      "MS": 9.4e-11
+    },
+    "failed_equation_steps": [],
+    "passed": true,
+    "input_manifest_sha256": "f1df1a88301a4dbb0787649249ac02a8c2533b27697fdaa887697bb9b6f55d7a",
+    "log_sha256": "1ec1368f2c5da1cd330bc0e8844d9fdc2b7a70d665bb2ca885695f93cd41320d",
+    "analysis_source_sha256": "f20945bfa8f4ed1704c4dc78a8a0d97a23011ba6321c0502382c3fc859db6d2e",
+    "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+  },
+  "reference_periodic": false,
+  "final_cycle_differences": {
+    "31": {
+      "fluid_velocity": {
+        "relative_max": 5.062197550644117e-08,
+        "relative_rms": 3.483119339497033e-08
+      },
+      "fluid_pressure": {
+        "relative_max": 2.7779913153174177e-09,
+        "relative_rms": 2.0443175669695994e-09
+      },
+      "fluid_mesh_displacement": {
+        "relative_max": 2.211333152140734e-05,
+        "relative_rms": 2.2111943852213884e-05
+      },
+      "solid_velocity": {
+        "relative_max": 6.03956177879334e-07,
+        "relative_rms": 4.155403642028816e-07
+      },
+      "solid_displacement": {
+        "relative_max": 3.6446356237910164e-07,
+        "relative_rms": 2.6565867547601846e-07
+      }
+    },
+    "32": {
+      "fluid_velocity": {
+        "relative_max": 4.700618096174338e-08,
+        "relative_rms": 3.4347495836677287e-08
+      },
+      "fluid_pressure": {
+        "relative_max": 2.5202975726084225e-09,
+        "relative_rms": 1.7785476603195104e-09
+      },
+      "fluid_mesh_displacement": {
+        "relative_max": 2.211282780069421e-05,
+        "relative_rms": 2.2111527957101735e-05
+      },
+      "solid_velocity": {
+        "relative_max": 5.608125807552524e-07,
+        "relative_rms": 4.0978793114527153e-07
+      },
+      "solid_displacement": {
+        "relative_max": 3.3016663323419896e-07,
+        "relative_rms": 2.297940572438207e-07
+      }
+    }
+  },
+  "quality_gates": {
+    "kinematics": {
+      "maximum": 0.0,
+      "limit": 1e-12,
+      "passed": true
+    },
+    "stage_mass": {
+      "maximum": 5.204170427930421e-18,
+      "limit": 1e-09,
+      "passed": true
+    },
+    "stage_divergence_theorem": {
+      "maximum": 5.1009382874838034e-18,
+      "limit": 1e-12,
+      "passed": true
+    }
+  },
+  "minimum_fluid_jacobian": 1.0000058098510438,
+  "minimum_solid_jacobian": 0.9999672961207949,
+  "scope": "Complete original mesh-nu0.3 S24level0 N400 reference only.12800steps,1200stored final-cycle states plus actual preceding11600. Printed convergence/kinematics/mass pass; ALE-displacement periodicity2.2113e-5 fails1e-5. EONSim side remains live and is excluded; no budget qualification."
+}

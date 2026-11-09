@@ -1,0 +1,1251 @@
+{
+  "first": {
+    "monotonic": 112447.039557358,
+    "utc": "2026-11-08T21:51:25Z",
+    "cpus": {
+      "cpu0": [
+        970741,
+        1055,
+        208866,
+        9849252,
+        4013,
+        0,
+        348424,
+        0
+      ],
+      "cpu1": [
+        8623941,
+        501,
+        206356,
+        2341931,
+        2060,
+        0,
+        28298,
+        0
+      ],
+      "cpu2": [
+        4463248,
+        2218,
+        108802,
+        6618911,
+        2921,
+        0,
+        22801,
+        0
+      ],
+      "cpu3": [
+        5465871,
+        6221,
+        127945,
+        5599288,
+        2921,
+        0,
+        16755,
+        0
+      ],
+      "cpu4": [
+        4460802,
+        918,
+        105035,
+        6632834,
+        2761,
+        0,
+        3684,
+        0
+      ],
+      "cpu5": [
+        5698460,
+        2186,
+        127258,
+        5373264,
+        3447,
+        0,
+        2722,
+        0
+      ],
+      "cpu6": [
+        5107479,
+        2544,
+        123186,
+        5965926,
+        2435,
+        0,
+        835,
+        0
+      ],
+      "cpu7": [
+        4606243,
+        474,
+        115447,
+        6476499,
+        1467,
+        0,
+        882,
+        0
+      ],
+      "cpu8": [
+        9835675,
+        0,
+        87747,
+        1256079,
+        8029,
+        0,
+        62,
+        0
+      ],
+      "cpu9": [
+        8161094,
+        38,
+        606298,
+        2444362,
+        5069,
+        0,
+        125,
+        0
+      ],
+      "cpu10": [
+        5464563,
+        330876,
+        139325,
+        5247760,
+        3247,
+        0,
+        614,
+        0
+      ],
+      "cpu11": [
+        5058750,
+        865,
+        80117,
+        6046865,
+        5471,
+        0,
+        602,
+        0
+      ],
+      "cpu12": [
+        6348490,
+        17605,
+        198996,
+        4613672,
+        4006,
+        0,
+        354,
+        0
+      ],
+      "cpu13": [
+        4146171,
+        1289012,
+        70252,
+        5643263,
+        3925,
+        0,
+        371,
+        0
+      ],
+      "cpu14": [
+        5128147,
+        787852,
+        93675,
+        5186670,
+        3461,
+        0,
+        279,
+        0
+      ],
+      "cpu15": [
+        4152046,
+        1869054,
+        112326,
+        5025097,
+        3282,
+        0,
+        194,
+        0
+      ],
+      "cpu16": [
+        5452035,
+        1827048,
+        107585,
+        3770498,
+        3895,
+        0,
+        257,
+        0
+      ],
+      "cpu17": [
+        3397292,
+        3627646,
+        151631,
+        3980355,
+        2221,
+        0,
+        292,
+        0
+      ],
+      "cpu18": [
+        9395743,
+        32,
+        242889,
+        1450932,
+        12956,
+        0,
+        145,
+        0
+      ],
+      "cpu19": [
+        7990361,
+        0,
+        439112,
+        2635707,
+        15111,
+        0,
+        135,
+        0
+      ],
+      "cpu20": [
+        9491971,
+        0,
+        53236,
+        1637203,
+        7553,
+        0,
+        116,
+        0
+      ],
+      "cpu21": [
+        7543880,
+        26724,
+        678464,
+        2915189,
+        22632,
+        0,
+        154,
+        0
+      ],
+      "cpu22": [
+        7568751,
+        59604,
+        399007,
+        3052094,
+        6089,
+        0,
+        158,
+        0
+      ],
+      "cpu23": [
+        6991250,
+        1786,
+        1035269,
+        3172397,
+        7894,
+        0,
+        103,
+        0
+      ]
+    },
+    "processes": {
+      "39183": {
+        "start_ticks": 9496328,
+        "state": "R",
+        "utime": 1684230,
+        "stime": 44975,
+        "affinity": [
+          8
+        ],
+        "last_processor": 8,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675/svFSI",
+          "svFSI.inp"
+        ]
+      },
+      "39646": {
+        "start_ticks": 9792619,
+        "state": "R",
+        "utime": 1399130,
+        "stime": 37604,
+        "affinity": [
+          20
+        ],
+        "last_processor": 20,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78/svFSI",
+          "svFSI.inp"
+        ]
+      },
+      "39815": {
+        "start_ticks": 9854433,
+        "state": "R",
+        "utime": 1248114,
+        "stime": 130548,
+        "affinity": [
+          9
+        ],
+        "last_processor": 9,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/svFSI-ilut",
+          "svFSI.inp"
+        ]
+      },
+      "39816": {
+        "start_ticks": 9854435,
+        "state": "R",
+        "utime": 1239084,
+        "stime": 142400,
+        "affinity": [
+          23
+        ],
+        "last_processor": 23,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/svFSI-ilut",
+          "svFSI.inp"
+        ]
+      },
+      "40043": {
+        "start_ticks": 9961706,
+        "state": "R",
+        "utime": 1197670,
+        "stime": 69342,
+        "affinity": [
+          18
+        ],
+        "last_processor": 18,
+        "argv": [
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/eonsim",
+          "-case",
+          "case.json",
+          "-checkpoint",
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/checkpoint",
+          "-restart",
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/checkpoint",
+          "-stop_after",
+          "5800",
+          "-pc_factor_mat_solver_type",
+          "mumps",
+          "-snes_lag_jacobian",
+          "-2"
+        ]
+      },
+      "41957": {
+        "start_ticks": 10843937,
+        "state": "R",
+        "utime": 379613,
+        "stime": 18469,
+        "affinity": [
+          10
+        ],
+        "last_processor": 10,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/nu0-early-companion-handoff-a3e1c87/svFSI-original",
+          "svFSI.inp"
+        ]
+      },
+      "41958": {
+        "start_ticks": 10843937,
+        "state": "R",
+        "utime": 345264,
+        "stime": 55439,
+        "affinity": [
+          12
+        ],
+        "last_processor": 12,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/nu0-early-companion-handoff-a3e1c87/svFSI-original",
+          "svFSI.inp"
+        ]
+      },
+      "42141": {
+        "start_ticks": 10928062,
+        "state": "R",
+        "utime": 289379,
+        "stime": 15960,
+        "affinity": [
+          19
+        ],
+        "last_processor": 19,
+        "argv": [
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/eonsim",
+          "-case",
+          "case.json",
+          "-checkpoint",
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint",
+          "-stop_after",
+          "6400",
+          "-pc_factor_mat_solver_type",
+          "mumps",
+          "-snes_lag_jacobian",
+          "-2",
+          "-restart",
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint"
+        ]
+      },
+      "42633": {
+        "start_ticks": 11211485,
+        "state": "R",
+        "utime": 32287,
+        "stime": 870,
+        "affinity": [
+          14
+        ],
+        "last_processor": 14,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-screen-8297a4/build/bin/svFSI",
+          "svFSI.inp"
+        ]
+      },
+      "42634": {
+        "start_ticks": 11211485,
+        "state": "R",
+        "utime": 32045,
+        "stime": 959,
+        "affinity": [
+          16
+        ],
+        "last_processor": 16,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-screen-8297a4/build/bin/svFSI",
+          "svFSI.inp"
+        ]
+      },
+      "42649": {
+        "start_ticks": 11214446,
+        "state": "R",
+        "utime": 29487,
+        "stime": 444,
+        "affinity": [
+          21
+        ],
+        "last_processor": 21,
+        "argv": [
+          "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n800-native-serial32-a3e1c87/eonsim",
+          "-case",
+          "attempt-002/case.json",
+          "-checkpoint",
+          "checkpoint",
+          "-stop_after",
+          "1600",
+          "-restart",
+          "checkpoint/generation_1794174380493673870",
+          "-pc_factor_mat_solver_type",
+          "mumps",
+          "-fluid_lu_pc_reuse_window",
+          "32",
+          "-snes_lag_jacobian",
+          "-2"
+        ]
+      }
+    },
+    "memory": {
+      "MemTotal": 32753820,
+      "MemAvailable": 25404456,
+      "SwapTotal": 8388608,
+      "SwapFree": 8340656
+    }
+  },
+  "last": {
+    "monotonic": 112477.047750812,
+    "utc": "2026-11-08T21:51:55Z",
+    "cpus": {
+      "cpu0": [
+        970742,
+        1055,
+        209003,
+        9852038,
+        4013,
+        0,
+        348509,
+        0
+      ],
+      "cpu1": [
+        8623950,
+        501,
+        206358,
+        2344917,
+        2060,
+        0,
+        28299,
+        0
+      ],
+      "cpu2": [
+        4463270,
+        2218,
+        108811,
+        6621872,
+        2923,
+        0,
+        22802,
+        0
+      ],
+      "cpu3": [
+        5465875,
+        6221,
+        127946,
+        5602283,
+        2921,
+        0,
+        16755,
+        0
+      ],
+      "cpu4": [
+        4460854,
+        918,
+        105050,
+        6635757,
+        2761,
+        0,
+        3684,
+        0
+      ],
+      "cpu5": [
+        5698552,
+        2186,
+        127297,
+        5376120,
+        3447,
+        0,
+        2722,
+        0
+      ],
+      "cpu6": [
+        5107540,
+        2544,
+        123206,
+        5968838,
+        2435,
+        0,
+        835,
+        0
+      ],
+      "cpu7": [
+        4606373,
+        474,
+        115491,
+        6479302,
+        1467,
+        0,
+        882,
+        0
+      ],
+      "cpu8": [
+        9838584,
+        0,
+        87836,
+        1256081,
+        8029,
+        0,
+        62,
+        0
+      ],
+      "cpu9": [
+        8163826,
+        38,
+        606563,
+        2444366,
+        5069,
+        0,
+        125,
+        0
+      ],
+      "cpu10": [
+        5467403,
+        330876,
+        139486,
+        5247761,
+        3247,
+        0,
+        614,
+        0
+      ],
+      "cpu11": [
+        5058751,
+        865,
+        80118,
+        6049862,
+        5471,
+        0,
+        602,
+        0
+      ],
+      "cpu12": [
+        6351060,
+        17605,
+        199427,
+        4613672,
+        4006,
+        0,
+        354,
+        0
+      ],
+      "cpu13": [
+        4146172,
+        1289012,
+        70263,
+        5646241,
+        3925,
+        0,
+        371,
+        0
+      ],
+      "cpu14": [
+        5128147,
+        790774,
+        93754,
+        5186670,
+        3461,
+        0,
+        279,
+        0
+      ],
+      "cpu15": [
+        4152046,
+        1871815,
+        112354,
+        5025295,
+        3282,
+        0,
+        194,
+        0
+      ],
+      "cpu16": [
+        5452035,
+        1829965,
+        107668,
+        3770498,
+        3895,
+        0,
+        257,
+        0
+      ],
+      "cpu17": [
+        3397292,
+        3630345,
+        151656,
+        3980616,
+        2221,
+        0,
+        292,
+        0
+      ],
+      "cpu18": [
+        9398566,
+        32,
+        243067,
+        1450932,
+        12956,
+        0,
+        145,
+        0
+      ],
+      "cpu19": [
+        7993107,
+        0,
+        439290,
+        2635783,
+        15111,
+        0,
+        135,
+        0
+      ],
+      "cpu20": [
+        9494877,
+        0,
+        53329,
+        1637205,
+        7553,
+        0,
+        116,
+        0
+      ],
+      "cpu21": [
+        7546855,
+        26724,
+        678489,
+        2915189,
+        22632,
+        0,
+        154,
+        0
+      ],
+      "cpu22": [
+        7568766,
+        59604,
+        399018,
+        3055060,
+        6089,
+        0,
+        158,
+        0
+      ],
+      "cpu23": [
+        6993940,
+        1786,
+        1035579,
+        3172397,
+        7894,
+        0,
+        103,
+        0
+      ]
+    },
+    "processes": {
+      "39183": {
+        "start_ticks": 9496328,
+        "state": "R",
+        "utime": 1687129,
+        "stime": 45062,
+        "affinity": [
+          8
+        ],
+        "last_processor": 8,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675/svFSI",
+          "svFSI.inp"
+        ]
+      },
+      "39646": {
+        "start_ticks": 9792619,
+        "state": "R",
+        "utime": 1402028,
+        "stime": 37692,
+        "affinity": [
+          20
+        ],
+        "last_processor": 20,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78/svFSI",
+          "svFSI.inp"
+        ]
+      },
+      "39815": {
+        "start_ticks": 9854433,
+        "state": "R",
+        "utime": 1250838,
+        "stime": 130807,
+        "affinity": [
+          9
+        ],
+        "last_processor": 9,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/svFSI-ilut",
+          "svFSI.inp"
+        ]
+      },
+      "39816": {
+        "start_ticks": 9854435,
+        "state": "R",
+        "utime": 1241775,
+        "stime": 142710,
+        "affinity": [
+          23
+        ],
+        "last_processor": 23,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/svFSI-ilut",
+          "svFSI.inp"
+        ]
+      },
+      "40043": {
+        "start_ticks": 9961706,
+        "state": "R",
+        "utime": 1200486,
+        "stime": 69516,
+        "affinity": [
+          18
+        ],
+        "last_processor": 18,
+        "argv": [
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/eonsim",
+          "-case",
+          "case.json",
+          "-checkpoint",
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/checkpoint",
+          "-restart",
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/checkpoint",
+          "-stop_after",
+          "5800",
+          "-pc_factor_mat_solver_type",
+          "mumps",
+          "-snes_lag_jacobian",
+          "-2"
+        ]
+      },
+      "41957": {
+        "start_ticks": 10843937,
+        "state": "R",
+        "utime": 382443,
+        "stime": 18626,
+        "affinity": [
+          10
+        ],
+        "last_processor": 10,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/nu0-early-companion-handoff-a3e1c87/svFSI-original",
+          "svFSI.inp"
+        ]
+      },
+      "41958": {
+        "start_ticks": 10843937,
+        "state": "R",
+        "utime": 347834,
+        "stime": 55869,
+        "affinity": [
+          12
+        ],
+        "last_processor": 12,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/nu0-early-companion-handoff-a3e1c87/svFSI-original",
+          "svFSI.inp"
+        ]
+      },
+      "42141": {
+        "start_ticks": 10928062,
+        "state": "R",
+        "utime": 292124,
+        "stime": 16134,
+        "affinity": [
+          19
+        ],
+        "last_processor": 19,
+        "argv": [
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/eonsim",
+          "-case",
+          "case.json",
+          "-checkpoint",
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint",
+          "-stop_after",
+          "6400",
+          "-pc_factor_mat_solver_type",
+          "mumps",
+          "-snes_lag_jacobian",
+          "-2",
+          "-restart",
+          "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint"
+        ]
+      },
+      "42633": {
+        "start_ticks": 11211485,
+        "state": "R",
+        "utime": 35208,
+        "stime": 947,
+        "affinity": [
+          14
+        ],
+        "last_processor": 14,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-screen-8297a4/build/bin/svFSI",
+          "svFSI.inp"
+        ]
+      },
+      "42634": {
+        "start_ticks": 11211485,
+        "state": "R",
+        "utime": 34954,
+        "stime": 1038,
+        "affinity": [
+          16
+        ],
+        "last_processor": 16,
+        "argv": [
+          "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-screen-8297a4/build/bin/svFSI",
+          "svFSI.inp"
+        ]
+      },
+      "42649": {
+        "start_ticks": 11214446,
+        "state": "R",
+        "utime": 32446,
+        "stime": 466,
+        "affinity": [
+          21
+        ],
+        "last_processor": 21,
+        "argv": [
+          "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n800-native-serial32-a3e1c87/eonsim",
+          "-case",
+          "attempt-002/case.json",
+          "-checkpoint",
+          "checkpoint",
+          "-stop_after",
+          "1600",
+          "-restart",
+          "checkpoint/generation_1794174380493673870",
+          "-pc_factor_mat_solver_type",
+          "mumps",
+          "-fluid_lu_pc_reuse_window",
+          "32",
+          "-snes_lag_jacobian",
+          "-2"
+        ]
+      }
+    },
+    "memory": {
+      "MemTotal": 32753820,
+      "MemAvailable": 23885592,
+      "SwapTotal": 8388608,
+      "SwapFree": 8340656
+    }
+  },
+  "seconds": 30.008193453992135,
+  "guest_sibling_groups": {
+    "cpu0": "0-1",
+    "cpu1": "0-1",
+    "cpu2": "2-3",
+    "cpu3": "2-3",
+    "cpu4": "4-5",
+    "cpu5": "4-5",
+    "cpu6": "6-7",
+    "cpu7": "6-7",
+    "cpu8": "8-9",
+    "cpu9": "8-9",
+    "cpu10": "10-11",
+    "cpu11": "10-11",
+    "cpu12": "12-13",
+    "cpu13": "12-13",
+    "cpu14": "14-15",
+    "cpu15": "14-15",
+    "cpu16": "16-17",
+    "cpu17": "16-17",
+    "cpu18": "18-19",
+    "cpu19": "18-19",
+    "cpu20": "20-21",
+    "cpu21": "20-21",
+    "cpu22": "22-23",
+    "cpu23": "22-23"
+  },
+  "cpu_usage": {
+    "cpu0": {
+      "busy_fraction": 0.07411100033233632,
+      "iowait_fraction": 0.0
+    },
+    "cpu1": {
+      "busy_fraction": 0.004002668445630421,
+      "iowait_fraction": 0.0
+    },
+    "cpu2": {
+      "busy_fraction": 0.010684474123539232,
+      "iowait_fraction": 0.000667779632721202
+    },
+    "cpu3": {
+      "busy_fraction": 0.0016666666666666668,
+      "iowait_fraction": 0.0
+    },
+    "cpu4": {
+      "busy_fraction": 0.022408026755852843,
+      "iowait_fraction": 0.0
+    },
+    "cpu5": {
+      "busy_fraction": 0.04385671242048878,
+      "iowait_fraction": 0.0
+    },
+    "cpu6": {
+      "busy_fraction": 0.027063147343802205,
+      "iowait_fraction": 0.0
+    },
+    "cpu7": {
+      "busy_fraction": 0.058448102116224386,
+      "iowait_fraction": 0.0
+    },
+    "cpu8": {
+      "busy_fraction": 0.9993333333333333,
+      "iowait_fraction": 0.0
+    },
+    "cpu9": {
+      "busy_fraction": 0.9986671109630123,
+      "iowait_fraction": 0.0
+    },
+    "cpu10": {
+      "busy_fraction": 0.9996668887408394,
+      "iowait_fraction": 0.0
+    },
+    "cpu11": {
+      "busy_fraction": 0.0006668889629876625,
+      "iowait_fraction": 0.0
+    },
+    "cpu12": {
+      "busy_fraction": 1.0,
+      "iowait_fraction": 0.0
+    },
+    "cpu13": {
+      "busy_fraction": 0.004013377926421404,
+      "iowait_fraction": 0.0
+    },
+    "cpu14": {
+      "busy_fraction": 1.0,
+      "iowait_fraction": 0.0
+    },
+    "cpu15": {
+      "busy_fraction": 0.933712755272849,
+      "iowait_fraction": 0.0
+    },
+    "cpu16": {
+      "busy_fraction": 1.0,
+      "iowait_fraction": 0.0
+    },
+    "cpu17": {
+      "busy_fraction": 0.9125628140703518,
+      "iowait_fraction": 0.0
+    },
+    "cpu18": {
+      "busy_fraction": 1.0,
+      "iowait_fraction": 0.0
+    },
+    "cpu19": {
+      "busy_fraction": 0.9746666666666667,
+      "iowait_fraction": 0.0
+    },
+    "cpu20": {
+      "busy_fraction": 0.9993335554815062,
+      "iowait_fraction": 0.0
+    },
+    "cpu21": {
+      "busy_fraction": 1.0,
+      "iowait_fraction": 0.0
+    },
+    "cpu22": {
+      "busy_fraction": 0.008689839572192513,
+      "iowait_fraction": 0.0
+    },
+    "cpu23": {
+      "busy_fraction": 1.0,
+      "iowait_fraction": 0.0
+    }
+  },
+  "process_usage": {
+    "39183": {
+      "argv": [
+        "/home/tfblab633/EONSim-prod48-20261107/reference-fine-ilut-handoff-midnight2-a0a4675/svFSI",
+        "svFSI.inp"
+      ],
+      "affinity_before": [
+        8
+      ],
+      "affinity_after": [
+        8
+      ],
+      "cpu_equivalents": 0.9950615669610587,
+      "start_ticks": 9496328,
+      "states": [
+        "R",
+        "R"
+      ]
+    },
+    "39646": {
+      "argv": [
+        "/home/tfblab633/EONSim-prod48-20261107/reference-n200-native1100-handoff-b8b3a78/svFSI",
+        "svFSI.inp"
+      ],
+      "affinity_before": [
+        20
+      ],
+      "affinity_after": [
+        20
+      ],
+      "cpu_equivalents": 0.9950615669610587,
+      "start_ticks": 9792619,
+      "states": [
+        "R",
+        "R"
+      ]
+    },
+    "39815": {
+      "argv": [
+        "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/svFSI-ilut",
+        "svFSI.inp"
+      ],
+      "affinity_before": [
+        9
+      ],
+      "affinity_after": [
+        9
+      ],
+      "cpu_equivalents": 0.9940618400016202,
+      "start_ticks": 9854433,
+      "states": [
+        "R",
+        "R"
+      ]
+    },
+    "39816": {
+      "argv": [
+        "/home/tfblab633/EONSim-prod48-20261107/reference-nu0-native5000-family-fce909d/svFSI-ilut",
+        "svFSI.inp"
+      ],
+      "affinity_before": [
+        23
+      ],
+      "affinity_after": [
+        23
+      ],
+      "cpu_equivalents": 1.000060201758251,
+      "start_ticks": 9854435,
+      "states": [
+        "R",
+        "R"
+      ]
+    },
+    "40043": {
+      "argv": [
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/eonsim",
+        "-case",
+        "case.json",
+        "-checkpoint",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/checkpoint",
+        "-restart",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-mumps-chord-native1600-32fb313/checkpoint",
+        "-stop_after",
+        "5800",
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-snes_lag_jacobian",
+        "-2"
+      ],
+      "affinity_before": [
+        18
+      ],
+      "affinity_after": [
+        18
+      ],
+      "cpu_equivalents": 0.9963945362403099,
+      "start_ticks": 9961706,
+      "states": [
+        "R",
+        "R"
+      ]
+    },
+    "41957": {
+      "argv": [
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-companion-handoff-a3e1c87/svFSI-original",
+        "svFSI.inp"
+      ],
+      "affinity_before": [
+        10
+      ],
+      "affinity_after": [
+        10
+      ],
+      "cpu_equivalents": 0.9953948092808717,
+      "start_ticks": 10843937,
+      "states": [
+        "R",
+        "R"
+      ]
+    },
+    "41958": {
+      "argv": [
+        "/home/tfblab633/EONSim-prod48-20261107/nu0-early-companion-handoff-a3e1c87/svFSI-original",
+        "svFSI.inp"
+      ],
+      "affinity_before": [
+        12
+      ],
+      "affinity_after": [
+        12
+      ],
+      "cpu_equivalents": 0.9997269594384381,
+      "start_ticks": 10843937,
+      "states": [
+        "R",
+        "R"
+      ]
+    },
+    "42141": {
+      "argv": [
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/eonsim",
+        "-case",
+        "case.json",
+        "-checkpoint",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint",
+        "-stop_after",
+        "6400",
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-snes_lag_jacobian",
+        "-2",
+        "-restart",
+        "/mnt/d/EONSim-prod48-20261107/elastic-s24-l1-n200-L24-ramp16-c32/checkpoint"
+      ],
+      "affinity_before": [
+        19
+      ],
+      "affinity_after": [
+        19
+      ],
+      "cpu_equivalents": 0.9727343315336003,
+      "start_ticks": 10928062,
+      "states": [
+        "R",
+        "R"
+      ]
+    },
+    "42633": {
+      "argv": [
+        "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-screen-8297a4/build/bin/svFSI",
+        "svFSI.inp"
+      ],
+      "affinity_before": [
+        14
+      ],
+      "affinity_after": [
+        14
+      ],
+      "cpu_equivalents": 0.9990604747988125,
+      "start_ticks": 11211485,
+      "states": [
+        "R",
+        "R"
+      ]
+    },
+    "42634": {
+      "argv": [
+        "/home/tfblab633/EONSim-prod48-20261107/reference-trilinos-screen-8297a4/build/bin/svFSI",
+        "svFSI.inp"
+      ],
+      "affinity_before": [
+        16
+      ],
+      "affinity_after": [
+        16
+      ],
+      "cpu_equivalents": 0.9957280516006843,
+      "start_ticks": 11211485,
+      "states": [
+        "R",
+        "R"
+      ]
+    },
+    "42649": {
+      "argv": [
+        "/mnt/d/EONSim-prod48-20261107/womersley-a2-s96-r8-a8-l1-n800-native-serial32-a3e1c87/eonsim",
+        "-case",
+        "attempt-002/case.json",
+        "-checkpoint",
+        "checkpoint",
+        "-stop_after",
+        "1600",
+        "-restart",
+        "checkpoint/generation_1794174380493673870",
+        "-pc_factor_mat_solver_type",
+        "mumps",
+        "-fluid_lu_pc_reuse_window",
+        "32",
+        "-snes_lag_jacobian",
+        "-2"
+      ],
+      "affinity_before": [
+        21
+      ],
+      "affinity_after": [
+        21
+      ],
+      "cpu_equivalents": 0.9933953553619946,
+      "start_ticks": 11214446,
+      "states": [
+        "R",
+        "R"
+      ]
+    }
+  },
+  "controller_sha256": "7b429c320b3519e28786dc2aa3e2ec5767ad944fb398473f3fd0b341bd17985a",
+  "mutations": [],
+  "scope": "Read-only30-second WSL guest utilization sample. Guest sibling groups do not establish host core isolation, causation, scaling, or a speedup. No signal, affinity, priority, solver option, input, or resource allocation was changed."
+}

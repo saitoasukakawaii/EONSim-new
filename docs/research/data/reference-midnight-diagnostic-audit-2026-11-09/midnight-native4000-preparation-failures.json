@@ -1,0 +1,20 @@
+{
+  "scope": "Observed tool execution failures before any output/control directory existed; no numerical work or signal.",
+  "failures": [
+    {
+      "command": "continue-reference-fine-ilut-midnight.py prepare",
+      "exit_code": 1,
+      "error": "UnboundLocalError: local variable previous",
+      "session": 75570
+    },
+    {
+      "command": "review-reference-fine-ilut-midnight.py",
+      "exit_code": 1,
+      "error": "FileNotFoundError: predecessor preparation created no control directory",
+      "session": 30361
+    }
+  ],
+  "inspection_control_exists": false,
+  "inspection_review_status_exists": false,
+  "original_native4000_controller_unchanged": 37988
+}
