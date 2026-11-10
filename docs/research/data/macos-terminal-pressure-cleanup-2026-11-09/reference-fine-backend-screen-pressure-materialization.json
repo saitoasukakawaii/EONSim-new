@@ -1,0 +1,58 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-fine-backend-screen",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-fine-backend-screen.tar.zst",
+  "archive_sha256": "340b6a8b60d3c055f35a5f6b927212496edc2e523872cff6fdbe5abbe61092d5",
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-fine-backend-screen-raw-manifest.json",
+  "source_manifest_sha256": "81ca6369a665e94e789bd1f442b0f3c4215771d9de444b8cef6ce6716fa6337d",
+  "selected": {
+    "startup-old/pressure-1.txt": {
+      "bytes": 96812677,
+      "sha256": "2ab6323d4b1f1bc9ebaaa32f58d68552362b852b922d901e160a78b5d4901c48",
+      "allocated_bytes": 96813056
+    },
+    "startup-old/pressure-2.txt": {
+      "bytes": 96812841,
+      "sha256": "844d26ae17a5bf61daf1d612b14de82db7855c485da28dbddabc41ca97124d79",
+      "allocated_bytes": 96813056
+    },
+    "startup-ilut/pressure-1.txt": {
+      "bytes": 96812677,
+      "sha256": "2ab6323d4b1f1bc9ebaaa32f58d68552362b852b922d901e160a78b5d4901c48",
+      "allocated_bytes": 96813056
+    },
+    "startup-ilut/pressure-2.txt": {
+      "bytes": 96812841,
+      "sha256": "844d26ae17a5bf61daf1d612b14de82db7855c485da28dbddabc41ca97124d79",
+      "allocated_bytes": 96813056
+    },
+    "startup-fsils/pressure-1.txt": {
+      "bytes": 96812677,
+      "sha256": "2ab6323d4b1f1bc9ebaaa32f58d68552362b852b922d901e160a78b5d4901c48",
+      "allocated_bytes": 96813056
+    },
+    "startup-fsils/pressure-2.txt": {
+      "bytes": 96812841,
+      "sha256": "844d26ae17a5bf61daf1d612b14de82db7855c485da28dbddabc41ca97124d79",
+      "allocated_bytes": 96813056
+    },
+    "startup-replay/pressure-1.txt": {
+      "bytes": 96812677,
+      "sha256": "2ab6323d4b1f1bc9ebaaa32f58d68552362b852b922d901e160a78b5d4901c48",
+      "allocated_bytes": 96813056
+    },
+    "startup-replay/pressure-2.txt": {
+      "bytes": 96812841,
+      "sha256": "844d26ae17a5bf61daf1d612b14de82db7855c485da28dbddabc41ca97124d79",
+      "allocated_bytes": 96813056
+    }
+  },
+  "status": "evicted",
+  "scope": "Only archived pressure inputs of previously archived terminal diagnostics; fresh expanded/archive/manifest SHA equality. All raw bytes remain in full archive. Restore before replay, input rehash or full inventory consumption. No active reference input touched.",
+  "restore_command": [
+    "python3",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-fine-backend-screen-pressure-materialization.json"
+  ],
+  "finished_unix": 1794230301.063642,
+  "removed_allocated_bytes": 774504448
+}

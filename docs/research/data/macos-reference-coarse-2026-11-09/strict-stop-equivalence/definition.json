@@ -1,0 +1,22 @@
+{
+  "source_commit": "290ef93dc9d5cbd23c45457df144b3df9e6f4c7e",
+  "upstream": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "trilinos": "4a5f7906a6420ee2f9450367e9cc95b28c00d744",
+  "old_sha256": "dfa4cab5b5a3521ee27c9629c2b148ab87de3a9fbae724b5e40a24c220ced3f8",
+  "new_sha256": "4eaeabea16abd861d0b60d9cc3f2a85d71962f6848391ef6573e23a2bd2604b9",
+  "node_limit": 2e-09,
+  "mass_relative_limit": 1e-08,
+  "history_limit": 2e-09,
+  "ranks": 1,
+  "threads": 1,
+  "scope": "Explicit strict-stop derivative vs fixed source on already converged coarseN400 startup/loaded/replay; not unmodified reference or production adoption",
+  "source_convergence_sha256": "92399fd7ed8f7f88421e8a7fa00c23e17ab9e824d00d33901d167c7e555df25d",
+  "patch": {
+    "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "changed": [
+      "Code/Source/svFSI/PIC.f"
+    ],
+    "patch_sha256": "186ecf502408857c5de60086cd9ae7676fae3d155dd6c9f78a20820136370b68",
+    "scope": "Diagnostic derivative only: disables initial-norm absolute acceptance; original equations, relative tolerances and iteration cap unchanged. Not the unmodified pinned reference; not adopted."
+  }
+}

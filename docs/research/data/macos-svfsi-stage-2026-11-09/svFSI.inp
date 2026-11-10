@@ -1,0 +1,62 @@
+Number of spatial dimensions: 3
+Number of time steps: 100
+Time step size: 0.062831853071795868
+Spectral radius of infinite time step: 0.5
+Continue previous simulation: 0
+Number of initialization time steps: 0
+Save results to VTK format: 1
+Name prefix of saved VTK files: result
+Increment in saving VTK files: 1
+Start saving after time step: 1
+Increment in saving restart files: 100
+Save results in folder: results
+Verbose: 1
+Warning: 1
+Debug: 0
+Add mesh: fluid {
+  Mesh file path: fluid/volume.vtu
+  Domain: 0
+  Add face: fluid1 {
+    Face file path: fluid/face-1.vtp
+  }
+  Add face: fluid2 {
+    Face file path: fluid/face-2.vtp
+  }
+  Add face: fluid3 {
+    Face file path: fluid/face-3.vtp
+  }
+}
+Add equation: fluid {
+  Coupled: 1
+  Min iterations: 1
+  Max iterations: 30
+  Tolerance: 1e-10
+    Density: 1
+    Viscosity: Constant { Value: 1 }
+    Backflow stabilization coefficient: 0.0
+  LS type: GMRES {
+    Preconditioner: FSILS
+    Tolerance: 1e-12
+    Absolute tolerance: 1e-14
+    Max iterations: 1000
+    Krylov space dimension: 100
+  }
+  Output: Spatial {
+    Velocity: t
+    Pressure: t
+  }
+  Add BC: fluid1 {
+    Type: Neu
+    Time dependence: Unsteady
+    Fourier coefficients file path: pressure.fcs
+  }
+  Add BC: fluid2 {
+    Type: Neu
+    Time dependence: Unsteady
+    Fourier coefficients file path: pressure.fcs
+  }
+  Add BC: fluid3 {
+    Type: Dir
+    Value: 0.0
+  }
+}

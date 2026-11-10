@@ -1,0 +1,16 @@
+{
+  "unix": 1794277310.831548,
+  "before": [
+    "83479 46377 83479 Ss   /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python build/recompute-20261109/resume-remaining-lowlevel-archives.py",
+    "87087 83479 83479 S    /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/recompress-remaining-lowlevel-chunk.py /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n1600-boundary-through48448-chunks/0008.json",
+    "87088 87087 83479 Z    <defunct>",
+    "87089 87087 83479 R    zstd -q -19 -T1 -o /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archive-recompression/elastic-s24-l1-n1600-boundary-through48448-chunks/0008/new-archive.pending"
+  ],
+  "after": [
+    "83479 46377 83479 Ts   /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python build/recompute-20261109/resume-remaining-lowlevel-archives.py",
+    "87087 83479 83479 T    /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/recompress-remaining-lowlevel-chunk.py /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n1600-boundary-through48448-chunks/0008.json",
+    "87088 87087 83479 Z    <defunct>",
+    "87089 87087 83479 T    zstd -q -19 -T1 -o /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archive-recompression/elastic-s24-l1-n1600-boundary-through48448-chunks/0008/new-archive.pending"
+  ],
+  "reason": "Prevent catalog inspection of transiently restored archived HDF during complete numerical analysis; resume only after cleanup"
+}

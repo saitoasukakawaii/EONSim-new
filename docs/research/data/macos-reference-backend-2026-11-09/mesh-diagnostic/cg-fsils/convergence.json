@@ -1,0 +1,503 @@
+{
+  "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "steps": 140,
+  "declared_steps": 540,
+  "first_step": 401,
+  "last_step": 540,
+  "restart": {
+    "step": 400,
+    "time": 3.141592653589779,
+    "stamp": [
+      1,
+      2,
+      2,
+      6625,
+      0,
+      7,
+      1
+    ],
+    "bytes": 1113064,
+    "serialized_values": 139129,
+    "sha256": "d67979db58cf99da2ec6920b2b3896578dcd20c1cf1b2353113a152e472afac7",
+    "input_name": "seed.bin",
+    "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-mesh-backend-diagnostic/cg-fsils/seed.bin",
+    "scope": "Exact native saved time and complete finite Yn/An/Dn record; no v4 clock claim"
+  },
+  "excluded_tail": {
+    "final_equation_rows": 0,
+    "last_observed_step": 540,
+    "iteration_rows": 0,
+    "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+  },
+  "equations": {
+    "FS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    },
+    "MS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    }
+  },
+  "iteration_rows": 3568,
+  "final_equation_rows": 280,
+  "iteration_limit_rows": 98,
+  "maximum_iterations": {
+    "FS": 30,
+    "MS": 30
+  },
+  "maximum_final_relative_ratio": {
+    "FS": 6.5e-12,
+    "MS": 1.4e-10
+  },
+  "failed_equation_steps": [
+    {
+      "step": 491,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.63e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 493,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.55e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 494,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.68e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 495,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.78e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 496,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.89e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 497,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.84e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 498,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.8e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 499,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.68e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 500,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.93e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 501,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.58e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 502,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.73e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 503,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.87e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 504,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.86e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 505,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 6.91e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 506,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 6.78e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 507,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 6.9e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 508,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.16e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 509,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.22e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 510,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 6.88e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 511,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.05e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 512,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 6.91e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 513,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.15e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 514,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.02e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 515,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.19e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 516,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.26e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 517,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 6.99e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 518,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.11e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 519,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.21e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 520,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.21e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 521,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.37e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 522,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.58e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 523,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.22e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 524,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.42e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 525,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.26e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 526,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.4e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 527,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.6e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 528,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.56e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 529,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.56e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 530,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.61e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 531,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 7.47e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 532,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 7.66e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 533,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 7.72e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 534,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 7.59e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 535,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 7.63e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 536,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 7.6e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 537,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 7.45e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 538,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 7.56e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 539,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 7.67e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 540,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 7.74e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    }
+  ],
+  "passed": false,
+  "input_manifest_sha256": "9451b8a1b9b1cf74a55af468fd8939cb85dfdb05bf7be8b536097c10179cf99d",
+  "log_sha256": "89622dbc3f6057b32b9af2bf12b9e78fca8f667b3e1129703ef5ab717c58fde5",
+  "analysis_source_sha256": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+  "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+}

@@ -1,0 +1,35 @@
+{
+  "steps": 12800,
+  "audited_first": 11601,
+  "audited_last": 12800,
+  "periodic": true,
+  "maximum_cycle_relative_difference": 2.4729780847999863e-07,
+  "quality_gates": {
+    "kinematics": {
+      "maximum": 5.42101344736632e-20,
+      "limit": 1e-12,
+      "passed": true
+    },
+    "stage_mass": {
+      "maximum": 7.068998164605489e-17,
+      "limit": 1e-09,
+      "passed": true
+    },
+    "stage_divergence_theorem": {
+      "maximum": 1.1891326801658162e-17,
+      "limit": 1e-12,
+      "passed": true
+    }
+  },
+  "minimum_solid_jacobian": 0.9999771321682042,
+  "minimum_fluid_jacobian": 1.0000041479888504,
+  "lame": {
+    "mean": 0.00010738165032703637,
+    "expected": 0.00010872727272727274,
+    "relative_error": 0.012376125754682292,
+    "limit": 0.02,
+    "passed": true
+  },
+  "audit_sha256": "f2a12141dddef704956bbe6ba4ba16e8acd330355fc6a5cf6b8c1f5d3e31dc27",
+  "qualification": "Local physical/period gates pass; N800 time/space/tail/sampling, geometry, finite-end and matched-reference gates incomplete"
+}

@@ -1,0 +1,81 @@
+{
+  "source_commit": "fe740dce9f3d652f38f14f4126b589e566f99a97",
+  "source_case": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/case.json",
+  "source_inputs": {
+    "case.json": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+    "fluid.msh": "5e5ac5f5a55b30719057aeef359332d9a5d4dbf2aa333c8646429aab8292b907",
+    "solid.msh": "261a05077455d92780edbbba5df520d995b5502a5eb5549f24721299b7405a85",
+    "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e"
+  },
+  "binary_sha256": "3eeacfeeb504ed1fe7f0223a23c004f7605078b7afabd21c2d6fa9f80f63c703",
+  "backend": "ilut",
+  "backend_proof": {
+    "adoption_path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-adoption.json",
+    "adoption_sha256": "59a0a05c9f0f292de3b680b4b385586dcfc81fd9380f2d5f327041aeb577fc2d",
+    "proofs": {
+      "reference-kinematic-increment-startup/definition.json": "3a06e11432e5d4c4bf0ba5740a0b55cb2a475b87ef3c6f20ac309ab9a4263921",
+      "reference-kinematic-increment-coarse-startup/definition.json": "6d558743e5b8c7b3ccc58c3c7378e1a60401527d49f0cd016ae54acc67e8b31f",
+      "reference-kinematic-increment-equivalence/definition.json": "f8fb77423066d64a79a06e60efbad34a2b3ccad2a17b7358a387cdc498b2cc0c",
+      "reference-kinematic-increment-fine-diagnostic/definition.json": "1b15e7dad6868ac54325c281de44ac6126912149520dc314fcc8b1d5b02cb843",
+      "reference-kinematic-increment-startup/cg-fsils/convergence.json": "d69cd681b339864d4653499ccd878a1a95dd7f2aead93f6e2852d3a66c679087",
+      "reference-kinematic-increment-coarse-startup/cg-fsils/convergence.json": "fe8dd3b754c99f23149dd8426bc9f1c356e2f24e01fe29c2150fae048ebe2701",
+      "reference-kinematic-increment-fine-diagnostic/cg-fsils/convergence.json": "20190ad81a4f1339e72e1e8d674ebeb6cb437c86006e004c766f172e7e6a6f2e",
+      "reference-kinematic-increment-startup/field-diagnostic.json": "1e48e6ac57884975d280aad3a389343bd200e87f74c0e0783d6ac5675c00f813",
+      "reference-kinematic-increment-fine-diagnostic/field-diagnostic.json": "a0d9fee8913775f194043ae26ea49b0650076b2ee36a9d8a47c097e1f5ccb141",
+      "reference-kinematic-increment-equivalence/field-diagnostic.json": "2d0ae1c6763babf6b5f253921cd93d4c9a2ed2ce92ced822f2e5f9663dcf2285",
+      "reference-kinematic-increment-equivalence/independent-review.json": "b524d05cbd4cdf3e321267c7d76f44402cc23070b992e698b3865bb0fb3e7d95",
+      "reference-kinematic-increment-equivalence/startup-norm-roundoff.json": "e778502dc7ebbaee3965d94f650d3addb2f4da1a011b6420d51cdbf7dceeac92",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-800/convergence.json": "48a461bd8b6c116e0fffffdfdf6810b965a270abbacda38fe1bcec8b10776f14",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-1602/convergence.json": "85eaa36b56055299a2395856029215d12f05761d1a050b4f15f347374fc81c61",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-2409/convergence.json": "d26e206c7f17bad6750dc40abbd09313c17344a8ddfb2e9787fbe0cacc1718d7",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-3213/convergence.json": "dc870e6a69a88ecf96ae222fd5df093d71521315d59851b93af8003da18277fd",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-4022/convergence.json": "ec00b092146454c93fd73f4867f518ff0b2324140e4033ede24840da7051d88e",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-4837/convergence.json": "aca9d08980f6a263e628d8a9b445c03a9623570e2c32024e1786a41b7818729d",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-5643/convergence.json": "a632e076020b39e68d0e666c45cd0a6f755d231cf636d17242400923dfaa4b88",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-6454/convergence.json": "1c473d4194324d6cb57a9529a62d136e02b028b1904e2fd84bca2d4b95bbe0c8",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-7264/convergence.json": "e0afb425fa6c1169ca05e2e40170e9114b747a2bca18ad58827ef6271ab83f77",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-8066/convergence.json": "767305ea3fbc2ad8bd7f6a58b545d52e6b400a209ef69c7963ae2a853f6b1c76",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-8875/convergence.json": "692bf952a9299ee1049940eacd25e6d0542c34ed30755bc2d408014476a939ce",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-9686/convergence.json": "53ad1a2c262a1b29ba7819ff0027a4817a02df0e95a479af869307e06ab6b8e5",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-10498/convergence.json": "feebd4f7f5434e2e414d1cfde562e4fa722c7facc99e1c1018d5bdaa7e3a3caf",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-11304/convergence.json": "595c090ef3063bd63e63aec44e60e2583ffd4034c051f3c0af8b467ef7d84d56",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-12107/convergence.json": "f39f09df3eaa8b9a90da18194428d2cf277dd7bf0e8edcc1ccc3e552e287154e",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-12920/convergence.json": "d75c4f24429285b55422f58cbd7499b86345976fec0ecbc8a88b73ec90944b5f",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-13720/convergence.json": "e31cac6b49a130f5c5fd355f795d6fd51eed6c0dab9ba45731aedeea25adf51d",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-14524/convergence.json": "fd46c577f9e5780f1fe93ddabe5405017dac924424468bb2336c700f55f605e3",
+      "reference-kinematic-long-elastic-s24-l0-n800-nu0/prefix-15339/convergence.json": "019271744f589e2a081d6cf0f6baa317e656ea860c563f0b82384825141fed6c",
+      "svfsi-kinematic-increment-definition.json": "320d427a7b16a80bf4e6b2603c6080890b3c15aedfcbfa7bfa53196e5f17acbb",
+      "svfsi-kinematic-increment-configure.log": "bad9eddd8f5847737a8b4c65cd4ac4b6658115cae253200347680f4f7f753653",
+      "svfsi-kinematic-increment-build.log": "f4240d2c83adf9ff8d391f8c15423d9f92c69ba62ed80932147804bdb6a0bcb9",
+      "svfsi-kinematic-increment-rebuild.log": "607f4736dd3a6cd38ee77a4ab38dc648632196c4c2be9a30e3e2b112cf739b19"
+    }
+  },
+  "level": 1,
+  "steps_per_cycle": 800,
+  "cycles": 32,
+  "ramp_cycles": 16,
+  "ranks": 1,
+  "threads": 1,
+  "command": [
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0/svFSI",
+    "svFSI.inp"
+  ],
+  "start_unix": 1794210399.815534,
+  "rss_limit_bytes": 3221225472,
+  "disk_floor_bytes": 21474836480,
+  "timeout_seconds": 86400,
+  "reference_build": {
+    "kind": "patched-fixed-reference",
+    "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "binary": {
+      "path": "svFSI",
+      "sha256": "3eeacfeeb504ed1fe7f0223a23c004f7605078b7afabd21c2d6fa9f80f63c703"
+    },
+    "patch": {
+      "path": "source.patch",
+      "sha256": "4c606590c4dbb9c7e87529800d364b4547f02348f4f1a74c491dbafb2b381549"
+    }
+  },
+  "user_authorization": "\u5141\u8bb8\u91c7\u7528\u6709\u8bb0\u5f55\u3001\u7ecf\u9a8c\u8bc1\u7684\u8865\u4e01",
+  "scope": "Fresh zero-state32cycles with adopted limited Newmark-increment reference patch; exact startup saved-norm identity failed by1ULP and retained, original convergence/field gates unchanged. Full convergence/physics/budgets required."
+}

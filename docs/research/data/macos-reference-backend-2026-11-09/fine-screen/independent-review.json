@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "pairs": {
+    "startup-fsils": {
+      "states": 100,
+      "maximum_node": 0.0,
+      "maximum_relative_mass": 0.0,
+      "maximum_native_history": 0.0,
+      "maximum_saved_norm": 0.0,
+      "exact_time": true,
+      "bitwise_algorithm_except_elapsed": true,
+      "passed": true
+    },
+    "startup-ilut": {
+      "states": 100,
+      "maximum_node": 9.330597309598152e-22,
+      "maximum_relative_mass": 1.155943710353267e-19,
+      "maximum_native_history": 5.868879533288233e-19,
+      "maximum_saved_norm": 2.0944257033617863e-28,
+      "exact_time": true,
+      "bitwise_algorithm_except_elapsed": false,
+      "passed": true
+    },
+    "startup-replay": {
+      "states": 10,
+      "maximum_node": 0.0,
+      "maximum_relative_mass": 0.0,
+      "maximum_native_history": 0.0,
+      "maximum_saved_norm": 0.0,
+      "exact_time": true,
+      "bitwise_algorithm_except_elapsed": true,
+      "passed": true
+    }
+  },
+  "report_sha256": "2f0c736a55dd7ad9c2822a4dc5346248494a9d153d4cd545a1d8536309ac2dd1",
+  "reviewer_sha256": "d2e2c7b96feb8a9a50a91dcb76376c1eb9df4805cdc28a5ab327add06ff1f243",
+  "scope": "Independent raw reread on actual fine startup; no long-run physical claim"
+}

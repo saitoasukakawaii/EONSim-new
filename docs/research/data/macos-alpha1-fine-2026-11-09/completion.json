@@ -1,0 +1,20 @@
+{
+  "accepted_steps": 2400,
+  "cycles": 6,
+  "numerical_exit_code": 0,
+  "analysis_exit_code": 0,
+  "preliminary_gates": {
+    "velocity": true,
+    "pressure": true,
+    "flow_amplitude": true,
+    "flow_phase": true,
+    "global_mass": true,
+    "periodic": true
+  },
+  "source_sha256": {
+    "study_womersley.py": "1f61965ade170c5ef639d6b5e3c04cd5e04230b2252c8228bf27e804af483d3c",
+    "analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "compare_womersley.py": "e5d8b3ecc90342b3dfeef65f39b6d8104068def13d75417cdd3640e86f054878"
+  },
+  "qualification": "Analytic/periodic gates pass; independent time/space/tail/sampling budget, geometry and remaining production evidence still required"
+}

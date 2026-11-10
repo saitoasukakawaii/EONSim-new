@@ -1,0 +1,32 @@
+{
+  "steps": 25600,
+  "sampled_steps": 2400,
+  "periodic": true,
+  "quality_gates": {
+    "kinematics": {
+      "maximum": 0.0,
+      "limit": 1e-12,
+      "passed": true
+    },
+    "stage_mass": {
+      "maximum": 5.204170427930421e-18,
+      "limit": 1e-09,
+      "passed": true
+    },
+    "stage_divergence_theorem": {
+      "maximum": 5.258804053028324e-18,
+      "limit": 1e-12,
+      "passed": true
+    }
+  },
+  "maximum_cycle_relative_difference": 6.525468500559574e-06,
+  "lame": {
+    "mean": 0.00010525338355838243,
+    "expected": 0.00010872727272727274,
+    "relative_error": 0.03195048566705128,
+    "limit": 0.02,
+    "passed": false
+  },
+  "audit_sha256": "ba54ce3053023855640e5d60e8cc77e7b2ee375c10007803b9f492fd7c5f32ec",
+  "scope": "Coarse physical quality and periodic gates pass; coarse Lame fails. Coarse may supply spatial difference under unchanged family budget rules, not an accurate target."
+}

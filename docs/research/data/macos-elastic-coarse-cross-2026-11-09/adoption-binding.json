@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "adoption_sha256": "59a0a05c9f0f292de3b680b4b385586dcfc81fd9380f2d5f327041aeb577fc2d",
+  "audit_sha256": "ba54ce3053023855640e5d60e8cc77e7b2ee375c10007803b9f492fd7c5f32ec",
+  "reference_build": {
+    "kind": "patched-fixed-reference",
+    "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "binary": {
+      "path": "svFSI",
+      "sha256": "3eeacfeeb504ed1fe7f0223a23c004f7605078b7afabd21c2d6fa9f80f63c703"
+    },
+    "patch": {
+      "path": "source.patch",
+      "sha256": "4c606590c4dbb9c7e87529800d364b4547f02348f4f1a74c491dbafb2b381549"
+    }
+  }
+}

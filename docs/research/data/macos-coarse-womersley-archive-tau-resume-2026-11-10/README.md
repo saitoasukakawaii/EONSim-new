@@ -1,0 +1,9 @@
+# Completed coarse state archival and automatic tau resume
+
+Base4682dbb; macOS arm64, Python3/zstd19 single-thread; no solver changes. Compression25929 exited0,733 byte-verified replacements, allocated reduction214319104B; observed free increase199999488B, concurrent work possible. Shared aliases skipped; failed v1 retained in prior evidence.
+
+Coarse HDF inventory61807 exit0:6388 interior states from completed alpha2-l0-N800 and alpha1/alpha2-l0-N400, all18 cycle endpoints retained. Original archive controller83479 paused; initial native quiescence guard refused an active child, later confirmed zombie-only child and committed boundary-through48448/0011 journal before publication.
+
+Actual `python3 build/recompute-20261109/archive-completed-coarse-womersley.py` handle68062 exit0; `python3 build/recompute-20261109/verify-completed-coarse-womersley.py`51758 exit0 full6388-member SHA/size verification in22chunks. Archive883626575B; removed allocation minus archive1968385457B. `review-current-archive-catalog.py`99118 exit0,16full/14subset inventories; original controller resumed. Future original coarse Womersley readers require receipt-based restoration; all original input and acceptance files retained. Do not rerun original coarse readers directly against evicted interiors.
+
+Tau75128 original recovery process automatically resumed above original24GiB threshold; live snapshot included, no completion claim yet. Prepared lightweight snapshot script AST checked only, not executed; it requires successful tau25600 receipt, clean committed source, and creates a new snapshot parented at existing remote92fef88, excluding new generated raw archives/fields/checkpoints and any new blob>1MiB. No push yet. User explicitly wants tau completion before one remote push; full numerical qualification is still false. Existing archival method reused, no new article.

@@ -1,0 +1,77 @@
+{
+  "mesh": "../fluid.msh",
+  "output": "solution.vtu",
+  "fluid": {
+    "mode": "transient",
+    "density": 1.0,
+    "viscosity": 1.0,
+    "boundaries": [
+      {
+        "tag": 3,
+        "type": "velocity",
+        "value": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "tag": 1,
+        "type": "pressure",
+        "value": 0.0,
+        "components": [
+          0
+        ],
+        "pressure_time": {
+          "amplitude": 0.02,
+          "period": 1.5707963267948966
+        }
+      },
+      {
+        "tag": 1,
+        "type": "velocity",
+        "value": [
+          0,
+          0,
+          0
+        ],
+        "components": [
+          1,
+          2
+        ]
+      },
+      {
+        "tag": 2,
+        "type": "pressure",
+        "value": 0.0,
+        "components": [
+          0
+        ]
+      },
+      {
+        "tag": 2,
+        "type": "velocity",
+        "value": [
+          0,
+          0,
+          0
+        ],
+        "components": [
+          1,
+          2
+        ]
+      }
+    ],
+    "dt": 0.003926990816987242,
+    "steps": 2400,
+    "checkpoint_interval": 400
+  },
+  "solver": {
+    "relative_tolerance": 1e-11,
+    "absolute_tolerance": 1e-13,
+    "maximum_iterations": 30
+  },
+  "time": {
+    "scheme": "bdf2"
+  }
+}

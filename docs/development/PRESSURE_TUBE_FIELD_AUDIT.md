@@ -7,6 +7,16 @@ Both codes use their own generalized-alpha implementation with rho_infinity=.5.
 No nonlinear vascular or large-scale qualification follows from this study.
 Implementation source: `2189a8c9589add9376c060ef4e4c2e871fdb0c60`.
 
+The reference exporter now exposes the already studied independent ALE variant
+as `--mesh-poisson 0`. The default remains0.3 and produces the original input
+and manifest layout. The opt-in changes only the mesh equation and records
+`mesh_motion_poisson_ratio` in `export.json`; the physical solid Poisson ratio,
+mesh geometry, load, time integration and convergence tolerances are unchanged.
+Only the two studied values0/0.3 are accepted; the zero variant is rejected for
+fluid-only hydrostatic checks. It is not a correction of the original0.3
+trajectory and does not inherit that trajectory's qualification. New independent
+space/time/tail/sampling checks are still required for the selected variant.
+
 The opt-in native restart chain v2 requires a binary digest per segment and an
 explicit reviewed FSI-ILUT transition descriptor. Its proof must match the exact
 physical case/input files and native rank layout and retain independent raw
@@ -263,3 +273,14 @@ The separate [static Lamé diagnostic](../research/data/lame-static-2026-11-08/R
 uses symmetry and axial-only end supports. Its improved mean-wall agreement
 cannot replace the actual clamped-end mean-response and finite-end budgets;
 the nonmonotone volume-field errors are retained explicitly.
+
+## Explicit finite-length inputs
+
+`cases/fsi/generate_pressure_tube.py --length 24 --axial 24` generates a
+length24 tube with the same seed axial spacing as default length12/axial12.
+Length is finite and positive; default12 remains byte-identical. Increasing
+length without increasing axial count also changes axial resolution, so it
+cannot by itself isolate end effects. Radius, thickness, material, pressure
+waveform and time-grid controls are unchanged by this option. Each length case
+still needs its own periodic and field-quality checks before comparing means;
+input generation alone is not finite-end qualification.

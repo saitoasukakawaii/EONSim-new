@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/compress-logged-elastic-frames.py", line 8, in <module>
+    logpath=w/'dense/solve.log';raw=logpath.read_bytes();complete=raw[:raw.rfind(b'\n')+1];text=complete.decode();accepted=list(map(int,re.findall(r'^fsi_step=(\d+) ',text,re.M)))
+                                    ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-length24/dense/solve.log'

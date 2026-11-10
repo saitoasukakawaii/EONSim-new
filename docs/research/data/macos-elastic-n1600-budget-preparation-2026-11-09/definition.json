@@ -1,0 +1,33 @@
+{
+  "source_commit": "494bbf78e0947c16f1204b5e23716aa8f3d52769",
+  "steps_per_cycle": 1600,
+  "cycles": 32,
+  "ramp_cycles": 16,
+  "seed": [
+    24,
+    2,
+    12
+  ],
+  "level": 0,
+  "ranks": 1,
+  "threads": 1,
+  "memory_rss_limit_bytes": 3221225472,
+  "disk_floor_bytes": 21474836480,
+  "binary_sha256": "04a7aa5b0b6d22e408efc6cace75d4b11a483a595ecfd222c8f4fe8d49282873",
+  "inputs": {
+    "case.json": "89939895e5a9c71b2572de0b8db81c396502fabb19cf09f9f3edb4e46f52871a",
+    "fluid.msh": "b62a8e6db6eda32acec5ed3d9226b1737a659651cf5db08aee38f4ba54a10d12",
+    "solid.msh": "5456e2a9c68f998a695a18ec9b15c23e9ee7e0dc7be63b7f5497bcc785e06289",
+    "geometry.json": "acd864c420e15296c6b394901e443811e88db5e06bf0f1b2b00a66352ccd86a4"
+  },
+  "solver_options": [
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32"
+  ],
+  "controller_sha256": "1407037dee16fd478a4768a6f6f4a0afd6695419e8d08adb21edaee95ccfe629",
+  "scope": "Fresh default-tau coarse N1600 for next temporal-refinement family after failed N800 budget;32cycles16ramp retained. This coarse member alone cannot qualify fine target. Fine N1600 not yet launched."
+}

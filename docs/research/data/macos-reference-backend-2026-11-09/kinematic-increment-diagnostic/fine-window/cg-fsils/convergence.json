@@ -1,0 +1,62 @@
+{
+  "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "reference_build": null,
+  "steps": 140,
+  "declared_steps": 540,
+  "first_step": 401,
+  "last_step": 540,
+  "restart": {
+    "step": 400,
+    "time": 3.141592653589779,
+    "stamp": [
+      1,
+      2,
+      2,
+      6625,
+      0,
+      7,
+      1
+    ],
+    "bytes": 1113064,
+    "serialized_values": 139129,
+    "sha256": "d67979db58cf99da2ec6920b2b3896578dcd20c1cf1b2353113a152e472afac7",
+    "input_name": "seed.bin",
+    "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-increment-fine-diagnostic/cg-fsils/seed.bin",
+    "scope": "Exact native saved time and complete finite Yn/An/Dn record; no v4 clock claim"
+  },
+  "excluded_tail": {
+    "final_equation_rows": 0,
+    "last_observed_step": 540,
+    "iteration_rows": 0,
+    "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+  },
+  "equations": {
+    "FS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    },
+    "MS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    }
+  },
+  "iteration_rows": 840,
+  "final_equation_rows": 280,
+  "iteration_limit_rows": 0,
+  "maximum_iterations": {
+    "FS": 3,
+    "MS": 3
+  },
+  "maximum_final_relative_ratio": {
+    "FS": 9.3e-12,
+    "MS": 1.3e-11
+  },
+  "failed_equation_steps": [],
+  "passed": true,
+  "input_manifest_sha256": "67390bffa0cf8c4c047037686dcccfb04c892587264071367fc0c6bbd7ee000d",
+  "log_sha256": "5a20ab52f72646ad4b49a5e7fcc23b2d1122e9b3627deb62d4817c00581ca68a",
+  "analysis_source_sha256": "6abbbe72fb604763818aa20e6f7216a9960d5a081e666189858db9c16d8daa92",
+  "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+}

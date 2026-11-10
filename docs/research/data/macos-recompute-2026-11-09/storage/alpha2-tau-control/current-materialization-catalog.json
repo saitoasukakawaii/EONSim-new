@@ -1,0 +1,266 @@
+{
+  "passed": true,
+  "observed_unix": 1794221085.504936,
+  "studies": [
+    {
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha1-s96-l1-n400",
+      "archive_receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n400.json",
+      "archive_receipt_sha256": "4752aef7c814cc5b0ef0fb8ba4c21ed641d034167fb81dcad615880c1b6cc35b",
+      "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n400.tar.zst",
+      "archive_sha256_from_previously_decoded_verification": "98660a13b374d229085bdd73995484c256ff17f2d5afe77bf97ff6e963379975",
+      "manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha1-fine-2026-11-09/raw-manifest.json",
+      "manifest_sha256": "80975ab21a0b1b70107dbb2f05139171197b61c796cb2028b98c16e31c3c6c73",
+      "original_members": 3250,
+      "currently_expanded_members": 1654,
+      "currently_missing_members": 1596,
+      "missing_logical_bytes": 5172840288,
+      "restoration_receipts": [
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n400-completed-consumers-materialization.json",
+          "sha256": "d6337867b7eb9a4236a4f7581f48a07f71a66053c1ab69f4894631d51f27657e",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n400-completed-consumers-materialization.json"
+          ],
+          "selected_members": 399
+        },
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n400-cycle3-materialization.json",
+          "sha256": "d9518ba3a72aa2b6acc49eaf41fa77ab081e50bba186ebe8956b86aad5e7f4a3",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-archived-womersley-cycle3.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n400-cycle3-materialization.json"
+          ],
+          "selected_members": 399
+        },
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n400-post-budget-materialization.json",
+          "sha256": "59a62e9f99d67a4f0cbcd00941509ef04a3c6c14d2901432f1ba8b45bc38425f",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n400-post-budget-materialization.json"
+          ],
+          "selected_members": 798
+        }
+      ],
+      "missing_paths_exactly_accounted": true
+    },
+    {
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha1-s96-l1-n800-tautime-n400",
+      "archive_receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800-tautime-n400.json",
+      "archive_receipt_sha256": "0ecc11c51a472057c62de2437de2ae46f0c6fdbf5702f2a6f69fc107ecb08fd1",
+      "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800-tautime-n400.tar.zst",
+      "archive_sha256_from_previously_decoded_verification": "b7b9256d824ec2b41c1fa35b386ba8a8fdb93887297389cfb91cf6259329b485",
+      "manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha1-s96-l1-n800-tautime-n400-2026-11-09/raw-manifest.json",
+      "manifest_sha256": "532cd7961bed60ebd81bdd0eb9e0e823e2d83c9b4f63bbe2694a40e1593670e5",
+      "original_members": 6450,
+      "currently_expanded_members": 3254,
+      "currently_missing_members": 3196,
+      "missing_logical_bytes": 10358645088,
+      "restoration_receipts": [
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800-tautime-n400-completed-consumers-materialization.json",
+          "sha256": "e21c1a5bf824b0a077ff519f453c258ae836079bed7d27a75055d336eee5ea16",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800-tautime-n400-completed-consumers-materialization.json"
+          ],
+          "selected_members": 3196
+        }
+      ],
+      "missing_paths_exactly_accounted": true
+    },
+    {
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha1-s96-l1-n800",
+      "archive_receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800.json",
+      "archive_receipt_sha256": "6eb8c4fba29ab0eebda8f497fd002feff0a4e300455d0fadce78121ae4f8a6b6",
+      "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800.tar.zst",
+      "archive_sha256_from_previously_decoded_verification": "de57394ce3e4b32a735d04074f0c719bb9281788fa601a0301b8e23298022af3",
+      "manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha1-s96-l1-n800-2026-11-09/raw-manifest.json",
+      "manifest_sha256": "212c56bf6ca711f0824951f647794907b294dfa149a39c7cbfb1ba92b039010c",
+      "original_members": 6450,
+      "currently_expanded_members": 3254,
+      "currently_missing_members": 3196,
+      "missing_logical_bytes": 10358645088,
+      "restoration_receipts": [
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800-completed-consumers-materialization.json",
+          "sha256": "368beef9f0aeb21489d285a8f69d30a2f3e77706ccc91e456d442c7c6f5bc1be",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800-completed-consumers-materialization.json"
+          ],
+          "selected_members": 799
+        },
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800-post-budget-materialization.json",
+          "sha256": "448e7908a808c3bc01c85989c715e6881c60e24f0e9926e335da698bc667d850",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800-post-budget-materialization.json"
+          ],
+          "selected_members": 2397
+        }
+      ],
+      "missing_paths_exactly_accounted": true
+    },
+    {
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha2-s96-l1-n400",
+      "archive_receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n400.json",
+      "archive_receipt_sha256": "0efa8b5de136261fa8a20973de52964ca9bb176790a1755b84f438d28889b12e",
+      "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n400.tar.zst",
+      "archive_sha256_from_previously_decoded_verification": "80148a1ef0e1ca6da5e42d60258265bb654bd96456749db0c6eff419aa3d1a7e",
+      "manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha2-fine-2026-11-09/raw-manifest.json",
+      "manifest_sha256": "2291921864a5942eb13a16d2dce94e7764e57f1197cd887a86a9413aa7a15c83",
+      "original_members": 3250,
+      "currently_expanded_members": 1654,
+      "currently_missing_members": 1596,
+      "missing_logical_bytes": 5172840288,
+      "restoration_receipts": [
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n400-completed-consumers-materialization.json",
+          "sha256": "d503f052acf4455867e8ccf40e5ffb863c29b3954204bf2020e02c123a6f72e6",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n400-completed-consumers-materialization.json"
+          ],
+          "selected_members": 399
+        },
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n400-cycle3-materialization.json",
+          "sha256": "7af892a91e894590fcbe5a746c52e584c8fa618d58d818937de48e75b31e3cd8",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-archived-womersley-cycle3.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n400-cycle3-materialization.json"
+          ],
+          "selected_members": 399
+        },
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n400-post-budget-materialization.json",
+          "sha256": "b247273062394e0f4668d0fcb9defd3781d2f23e6fbe8c3062da46f20f353ffa",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n400-post-budget-materialization.json"
+          ],
+          "selected_members": 798
+        }
+      ],
+      "missing_paths_exactly_accounted": true
+    },
+    {
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha2-s96-l1-n800-tautime-n400",
+      "archive_receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-tautime-n400.json",
+      "archive_receipt_sha256": "67dee1a373562ccbffc083ccef2ee006604dd9ed41e212f5a12f0dd10fcb6dab",
+      "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-tautime-n400.tar.zst",
+      "archive_sha256_from_previously_decoded_verification": "1d8dbd0cf1e8c7a1ce6d0b0d51f71575f70438327b0666ffe3a0cf408c5dca6e",
+      "manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha2-s96-l1-n800-tautime-n400-2026-11-09/raw-manifest.json",
+      "manifest_sha256": "955cd179236c9712d289e34ac4f2c7d405015eefdfc5fa2a49d782c8a0dd62f5",
+      "original_members": 6450,
+      "currently_expanded_members": 3254,
+      "currently_missing_members": 3196,
+      "missing_logical_bytes": 10358645088,
+      "restoration_receipts": [
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-tautime-n400-completed-consumers-materialization.json",
+          "sha256": "768403e2f12e7ffc5850a3179a649e908f7f45e0ab09f6e5b56b85ce0d62f36c",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-tautime-n400-completed-consumers-materialization.json"
+          ],
+          "selected_members": 3196
+        }
+      ],
+      "missing_paths_exactly_accounted": true
+    },
+    {
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha2-s96-l1-n800",
+      "archive_receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.json",
+      "archive_receipt_sha256": "0651ffd606a512b9d5bf31933e80853ec22c5fb7d8f6180427f92d00796aeb95",
+      "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst",
+      "archive_sha256_from_previously_decoded_verification": "a81377491af2afc433586682b693a12bc3cf24f5faa2ee448ce063d3615ad4d6",
+      "manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha2-s96-l1-n800-2026-11-09/raw-manifest.json",
+      "manifest_sha256": "9f516f1494b4e606c8eb2f6935b0f125ab196c2d13cf7f0819d70c51dbe64fe9",
+      "original_members": 6450,
+      "currently_expanded_members": 4852,
+      "currently_missing_members": 1598,
+      "missing_logical_bytes": 5179322544,
+      "restoration_receipts": [
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-post-budget-materialization.json",
+          "sha256": "5bbe8210c7ac9f599c38b872ce16903cb103fc71ef60170c739880e9b78bfac6",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-post-budget-materialization.json"
+          ],
+          "selected_members": 1598
+        }
+      ],
+      "missing_paths_exactly_accounted": true
+    },
+    {
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n400",
+      "archive_receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n400.json",
+      "archive_receipt_sha256": "2d2744596af1d79fe0468d8f29597bd25fb991a2e340c2c213bf7cc669706adb",
+      "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n400.tar.zst",
+      "archive_sha256_from_previously_decoded_verification": "f6a83f2cd7b042b5aca01ee970902b68ea98bac102b70fcfbe04e2e88b500e2e",
+      "manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-elastic-fine-n400-2026-11-09/raw-manifest.json",
+      "manifest_sha256": "ca2343715434983322ffa219cdca7433b7f3a3e6672c0de2708fe3d7c5c99e57",
+      "original_members": 5019,
+      "currently_expanded_members": 2561,
+      "currently_missing_members": 2458,
+      "missing_logical_bytes": 4014290637,
+      "restoration_receipts": [
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n400-boundary-materialization.json",
+          "sha256": "26d552fadca8047968224881ced7fe6ef13a78724ba0b1398f665211a72c8093",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n400-boundary-materialization.json"
+          ],
+          "selected_members": 2458
+        }
+      ],
+      "missing_paths_exactly_accounted": true
+    },
+    {
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800",
+      "archive_receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800.json",
+      "archive_receipt_sha256": "14a83be35e0a7ccbce6bc402fab3d3be10d95735af0b6b6b3ae9f7f775bd0abc",
+      "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800.tar.zst",
+      "archive_sha256_from_previously_decoded_verification": "8ab2027b9f7d0206ca33411b3c144c30bb7541cc677b1e40ee82cb8a2beb4261",
+      "manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-elastic-fine-n800-2026-11-09/raw-manifest.json",
+      "manifest_sha256": "749f9f56920f2acab5878cfb09b01f84e57d2874782a14b39830fdba1c0fbc89",
+      "original_members": 9819,
+      "currently_expanded_members": 4961,
+      "currently_missing_members": 4858,
+      "missing_logical_bytes": 7933846843,
+      "restoration_receipts": [
+        {
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-boundary-materialization.json",
+          "sha256": "c07983794338a7ac05f20c70d48e63d5eddb01b386ec06e1e7a2ceac37bd9474",
+          "restore_command": [
+            "python3",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+            "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-boundary-materialization.json"
+          ],
+          "selected_members": 4858
+        }
+      ],
+      "missing_paths_exactly_accounted": true
+    }
+  ],
+  "scope": "Current filesystem inventory reconciled against complete original manifests and nonoverlapping explicit materialization receipts. All missing paths exactly accounted; every retained file size checked. Archive bytes were independently decoded/SHA-verified at creation; this inventory review checks current archive existence/size and receipt binding, does NOT rehash/redecode every archive or retained field.",
+  "source_sha256": "7f0344e987bcfe7dfdabead988003cb624fcb79d709f89bfd03e52b31b6df5f9"
+}

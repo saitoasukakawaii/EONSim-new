@@ -1,0 +1,24 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/length-boundary-prefix-restore-probe",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-length24-boundary-through24453-chunks/0000.tar.zst",
+  "archive_sha256": "39dba80c846fa0e95e247d510fc26f0c14830d3f4a9bc5d2588383ae4d23b6dc",
+  "archive_bytes": 40619178,
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/length24-boundary-through24453-before-archive.json",
+  "source_manifest_sha256": "c2a6e7f7dfb58bce977bcb0bc42e5e80e5f008b4dc6525c171baff0b253be572",
+  "selected": {
+    "dense/solution_restart23200_step23201_boundary.vtu": {
+      "bytes": 4019608,
+      "sha256": "7c061c6397d6be5e005e957178fc423a824fb061ff6afa4c7f2b6daf6597287c",
+      "allocated_bytes": 2043904
+    },
+    "dense/solution_restart23200_step23201_solid_boundary.vtu": {
+      "bytes": 2526175,
+      "sha256": "dead2e0e9697da06ba87f7a6625c4474726a3869ef547489025fffc4f228b0fe",
+      "allocated_bytes": 1196032
+    }
+  },
+  "status": "evicted",
+  "scope": "Unfinished study immutable boundary prefix through24453 only; volume/PVD/checkpoint/logs retained. Restore this receipt with restore-womersley-materialization.py before any boundary consumer or full raw inventory replay.",
+  "removed_allocated_bytes": 67293184,
+  "finished_unix": 1794241816.817675
+}

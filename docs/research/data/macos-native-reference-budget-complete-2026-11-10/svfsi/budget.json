@@ -1,0 +1,143 @@
+{
+  "solver": "svfsi",
+  "prerequisites": {
+    "coarse": {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true,
+      "relative_convergence": true
+    },
+    "temporal": {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true,
+      "relative_convergence": true
+    },
+    "fine": {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true,
+      "relative_convergence": true
+    }
+  },
+  "eligible": true,
+  "field_budgets": {
+    "fluid_mesh_displacement": {
+      "space_relative_rms": 0.10380260230667916,
+      "terms": {
+        "time": {
+          "relative_rms": 0.00026544036741561197,
+          "ratio_to_space": 0.0025571648640501593,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "tail": {
+          "relative_rms": 7.902065678857907e-06,
+          "ratio_to_space": 7.61258918684108e-05,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 6.856830633428771e-06,
+          "ratio_to_space": 6.605644252704414e-05,
+          "limit_fraction": 0.1,
+          "passed": true
+        }
+      }
+    },
+    "fluid_pressure": {
+      "space_relative_rms": 0.011231810857976303,
+      "terms": {
+        "time": {
+          "relative_rms": 0.0005227471165286763,
+          "ratio_to_space": 0.046541659500742565,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "tail": {
+          "relative_rms": 7.246323245656083e-10,
+          "ratio_to_space": 6.451607258423592e-08,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 1.1218454192562092e-05,
+          "ratio_to_space": 0.0009988108181678713,
+          "limit_fraction": 0.1,
+          "passed": true
+        }
+      }
+    },
+    "fluid_velocity": {
+      "space_relative_rms": 0.01756739755416896,
+      "terms": {
+        "time": {
+          "relative_rms": 0.00017991946351951754,
+          "ratio_to_space": 0.010241668577530451,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "tail": {
+          "relative_rms": 1.4027940648740333e-08,
+          "ratio_to_space": 7.985212724585567e-07,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 6.703136803654289e-06,
+          "ratio_to_space": 0.0003815668645845356,
+          "limit_fraction": 0.1,
+          "passed": true
+        }
+      }
+    },
+    "solid_displacement": {
+      "space_relative_rms": 0.1384633195570811,
+      "terms": {
+        "time": {
+          "relative_rms": 0.00037420378526814823,
+          "ratio_to_space": 0.00270254812946243,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "tail": {
+          "relative_rms": 1.0423293660614154e-07,
+          "ratio_to_space": 7.527837476348514e-07,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 9.653067602879467e-06,
+          "ratio_to_space": 6.971570256843379e-05,
+          "limit_fraction": 0.1,
+          "passed": true
+        }
+      }
+    },
+    "solid_velocity": {
+      "space_relative_rms": 0.04238369592327802,
+      "terms": {
+        "time": {
+          "relative_rms": 0.00037897437964980315,
+          "ratio_to_space": 0.008941513272835237,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "tail": {
+          "relative_rms": 1.6730343602725725e-07,
+          "ratio_to_space": 3.947353631691441e-06,
+          "limit_fraction": 0.1,
+          "passed": true
+        },
+        "sampling": {
+          "relative_rms": 9.65312155094636e-06,
+          "ratio_to_space": 0.00022775553997037481,
+          "limit_fraction": 0.1,
+          "passed": true
+        }
+      }
+    }
+  },
+  "passed": true,
+  "scope": "Independent S24 level1/N800 numerical error budget; does not establish remaining physical/cross-code/geometry/end gates"
+}

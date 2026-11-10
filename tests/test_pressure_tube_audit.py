@@ -18,6 +18,30 @@ from audit_pressure_tube import Domain,eonsim_frame,fluid_metrics,harmonic,analy
 
 
 class TubeAudit(unittest.TestCase):
+    def test_length_pair_preserves_spacing_material_and_load(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            short=generate(root/'short',sectors=12,radial=1,axial=2)
+            long=generate(root/'long',sectors=12,radial=1,axial=4,length=24)
+            self.assertEqual(json.loads(short.read_text()),json.loads(long.read_text()))
+            a=json.loads((short.parent/'geometry.json').read_text())
+            b=json.loads((long.parent/'geometry.json').read_text())
+            self.assertEqual(a['length']/a['axial'],b['length']/b['axial'])
+            self.assertEqual(a['infinite_plane_strain_inner_wall_compliance'],b['infinite_plane_strain_inner_wall_compliance'])
+            for name in ('fluid.msh','solid.msh'):
+                left=Domain(short.parent/name);right=Domain(long.parent/name)
+                self.assertAlmostEqual(right.volume,2*left.volume,places=10)
+                self.assertEqual(sorted({x[0] for x in left.nodes.values()}),[0.,6.,12.])
+                self.assertEqual(sorted({x[0] for x in right.nodes.values()}),[0.,6.,12.,18.,24.])
+
+    def test_invalid_length_leaves_no_case(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory=Path(tmp)/'case'
+            for value in (0,-1,float('nan'),float('inf')):
+                with self.assertRaisesRegex(ValueError,'Length'):
+                    generate(directory,length=value)
+                self.assertFalse(directory.exists())
+
     @classmethod
     def setUpClass(cls):
         cls.directory=tempfile.TemporaryDirectory()

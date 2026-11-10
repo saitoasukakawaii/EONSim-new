@@ -1,0 +1,36 @@
+{
+  "checks": [
+    {
+      "work": "build/recompute-20261109/alpha1-s96-l1-n400",
+      "all_cycle6_and_endpoints_exist": true,
+      "actual_state_reads": [
+        2000,
+        2001,
+        2400
+      ],
+      "evicted_files": 798
+    },
+    {
+      "work": "build/recompute-20261109/alpha1-s96-l1-n800",
+      "all_cycle6_and_endpoints_exist": true,
+      "actual_state_reads": [
+        4000,
+        4001,
+        4800
+      ],
+      "evicted_files": 2397
+    }
+  ],
+  "restore_probe": {
+    "command": [
+      "python3",
+      "build/recompute-20261109/restore-womersley-materialization.py",
+      "build/recompute-20261109/archives/alpha1-post-budget-restore-probe.json"
+    ],
+    "exit_code": 0,
+    "stdout": "Restored/verified 1 members; original archival receipt retained\n",
+    "step": 3201,
+    "restored_sha256": "4f004fafc683af010ad7671c1d1866fd714d3c35f2000ba936bf32447ae66fb9",
+    "removed_only_duplicate_again": true
+  }
+}

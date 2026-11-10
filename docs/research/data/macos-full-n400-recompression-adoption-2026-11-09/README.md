@@ -1,0 +1,7 @@
+# Full N400 archive recompression adoption
+
+29458 finished0: original1354021788B→candidate1028466699B, decoded full tar SHA identical.9390 adoption exited0, saved325555089B (~24.04%, not the geometry sample41%). Original archive SHA and candidate SHA rechecked before publication; full archive receipt and both boundary/volume materialization receipts updated together with recoverable journal and old receipt copies. Old archive retained as backup until catalog and2-member actual restored SHA passed; only then removed. Historical evidence remains unchanged; current restoration must use runtime receipts.
+
+Geometry parent99010 alone was SIGSTOPed after verifying exact command; current child allowed to finish (28035 confirmed no active child). Every existing chunk journal checked committed before adopting. Actual parentT/command rechecked, SIGCONT after successful adoption. Geometry driver37578 continues; its source and running child helper unmodified. This serialization prevents simultaneous catalog publication. Numeric solvers untouched. Original staging status records historical verified candidate; candidate now moved to canonical archive, adoption journal is current authority.
+
+Old/current receipts gzip readback exactly matched input bytes; full new archive and restore probe remain local. No full raw expansion performed, no numerical gate changed, no numerical qualification claimed. Updated existing storage draft; no push/PR.

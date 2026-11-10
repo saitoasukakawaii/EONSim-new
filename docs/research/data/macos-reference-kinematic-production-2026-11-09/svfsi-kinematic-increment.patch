@@ -1,0 +1,45 @@
+--- a/Code/Source/svFSI/PIC.f
++++ b/Code/Source/svFSI/PIC.f
+@@ -267,7 +267,8 @@
+       END IF
+       r1 = eq(cEq)%FSILS%RI%iNorm/eq(cEq)%iNorm
+ 
+-      l1 = eq(cEq)%iNorm .LE. eq(cEq)%absTol
++!     Diagnostic strict-relative variant: never accept by saved initial norm.
++      l1 = .FALSE.
+       l2 = eq(cEq)%itr .GE. eq(cEq)%maxItr
+       l3 = r1 .LE. eq(cEq)%tol
+       l4 = r1 .LE. eq(cEq)%tol*eq(cEq)%pNorm
+--- a/Code/Source/svFSI/MESH.f
++++ b/Code/Source/svFSI/MESH.f
+@@ -44,7 +44,7 @@
+       REAL(KIND=RKIND), INTENT(IN) :: Ag(tDof,tnNo), Dg(tDof,tnNo)
+ 
+       INTEGER(KIND=IKIND) a, e, g, Ac, is, ie, eNoN, cPhys
+-      REAL(KIND=RKIND) w, Jac, ksix(nsd,nsd)
++      REAL(KIND=RKIND) w, Jac, ksix(nsd,nsd), meshBeta
+ 
+       INTEGER(KIND=IKIND), ALLOCATABLE :: ptr(:)
+       REAL(KIND=RKIND), ALLOCATABLE :: xl(:,:), al(:,:), dl(:,:),
+@@ -84,12 +84,20 @@
+             al(:,a)  = Ag(:,Ac)
+             dl(:,a)  = Dg(:,Ac)
+             dol(:,a) = Do(is:ie,Ac)
++!           Diagnostic Newmark increment, avoiding absolute Dn-Do.
++!           PICC copies FSI kinematics on structural nodes; its beta
++!           differs from mesh beta. Restrict qualification to linear
++!           FSI and homogeneous fixed boundary conditions.
++            meshBeta = eq(cEq)%beta
++            IF (ISDOMAIN(1,Ac,phys_lElas)) meshBeta = eq(1)%beta
++            dl(is:ie,a) = eq(cEq)%af*(dt*Yo(is:ie,Ac)
++     2         + dt*dt*((0.5_RKIND-meshBeta)*Ao(is:ie,Ac)
++     3         + meshBeta*An(is:ie,Ac)))
+          END DO
+ 
+ !        For MESH, the reference configuration is the one at the
+ !        beginning of the time step. Update displacements accordingly
+          xl(:,:) = xl(:,:) + dol(:,:)
+-         dl(is:ie,:) = dl(is:ie,:) - dol(:,:)
+ 
+ !        Gauss integration
+          lR = 0._RKIND

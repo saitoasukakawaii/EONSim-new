@@ -1,0 +1,153 @@
+{
+  "terminal_evidence": {
+    "reference-kinematic-increment-startup": {
+      "terminal_report_sha256": "142ecf460ab16e79164902f84cd552acce35378fe9a98380018a13749eccc993",
+      "runs": {
+        "cg-fsils": {
+          "convergence_passed": true,
+          "seconds": 1544.501218334306,
+          "peak_rss_bytes": 310345728,
+          "exit_code": 0,
+          "start": 0,
+          "stop": 600
+        }
+      }
+    },
+    "reference-strict-increment-startup": {
+      "terminal_report_sha256": "72b201b60b46cc463a90b7a7e26d812e5fec04916e67de28f0df5915db03bbb9",
+      "runs": {
+        "cg-fsils": {
+          "convergence_passed": true,
+          "seconds": 1253.222378041828,
+          "peak_rss_bytes": 328712192,
+          "exit_code": 0,
+          "start": 0,
+          "stop": 600
+        }
+      }
+    },
+    "reference-fine-backend-screen": {
+      "terminal_report_sha256": "2f0c736a55dd7ad9c2822a4dc5346248494a9d153d4cd545a1d8536309ac2dd1",
+      "runs": {
+        "startup-old": {
+          "seconds": 83.04955208301544,
+          "peak_rss_bytes": 152928256,
+          "exit_code": 0,
+          "start": 0,
+          "stop": 100
+        },
+        "startup-fsils": {
+          "seconds": 83.23673349991441,
+          "peak_rss_bytes": 155582464,
+          "exit_code": 0,
+          "start": 0,
+          "stop": 100
+        },
+        "startup-ilut": {
+          "seconds": 154.94259287510067,
+          "peak_rss_bytes": 308559872,
+          "exit_code": 0,
+          "start": 0,
+          "stop": 100
+        },
+        "startup-replay": {
+          "seconds": 17.6094052081462,
+          "peak_rss_bytes": 276365312,
+          "exit_code": 0,
+          "start": 90,
+          "stop": 100
+        }
+      }
+    }
+  },
+  "files": [
+    {
+      "path": "reference-kinematic-increment-startup/cg-fsils/fluid/volume.vtu",
+      "sha256": "5491ba9f4bd705ca21358def50ead55273f9f99122cc394b14119322b1e8cdc1",
+      "logical_bytes": 169444,
+      "allocated_before": 172032,
+      "allocated_after": 102400
+    },
+    {
+      "path": "reference-kinematic-increment-startup/cg-fsils/solid/volume.vtu",
+      "sha256": "0444e552cbf7885362d8aa10a18adac6397aa338ef1eae107774875e4d270eb5",
+      "logical_bytes": 116547,
+      "allocated_before": 118784,
+      "allocated_after": 69632
+    },
+    {
+      "path": "reference-strict-increment-startup/cg-fsils/fluid/volume.vtu",
+      "sha256": "5491ba9f4bd705ca21358def50ead55273f9f99122cc394b14119322b1e8cdc1",
+      "logical_bytes": 169444,
+      "allocated_before": 172032,
+      "allocated_after": 102400
+    },
+    {
+      "path": "reference-strict-increment-startup/cg-fsils/solid/volume.vtu",
+      "sha256": "0444e552cbf7885362d8aa10a18adac6397aa338ef1eae107774875e4d270eb5",
+      "logical_bytes": 116547,
+      "allocated_before": 118784,
+      "allocated_after": 69632
+    },
+    {
+      "path": "reference-fine-backend-screen/startup-fsils/fluid/volume.vtu",
+      "sha256": "5491ba9f4bd705ca21358def50ead55273f9f99122cc394b14119322b1e8cdc1",
+      "logical_bytes": 169444,
+      "allocated_before": 172032,
+      "allocated_after": 102400
+    },
+    {
+      "path": "reference-fine-backend-screen/startup-fsils/solid/volume.vtu",
+      "sha256": "0444e552cbf7885362d8aa10a18adac6397aa338ef1eae107774875e4d270eb5",
+      "logical_bytes": 116547,
+      "allocated_before": 118784,
+      "allocated_after": 69632
+    },
+    {
+      "path": "reference-fine-backend-screen/startup-ilut/fluid/volume.vtu",
+      "sha256": "5491ba9f4bd705ca21358def50ead55273f9f99122cc394b14119322b1e8cdc1",
+      "logical_bytes": 169444,
+      "allocated_before": 172032,
+      "allocated_after": 102400
+    },
+    {
+      "path": "reference-fine-backend-screen/startup-ilut/solid/volume.vtu",
+      "sha256": "0444e552cbf7885362d8aa10a18adac6397aa338ef1eae107774875e4d270eb5",
+      "logical_bytes": 116547,
+      "allocated_before": 118784,
+      "allocated_after": 69632
+    },
+    {
+      "path": "reference-fine-backend-screen/startup-old/fluid/volume.vtu",
+      "sha256": "5491ba9f4bd705ca21358def50ead55273f9f99122cc394b14119322b1e8cdc1",
+      "logical_bytes": 169444,
+      "allocated_before": 172032,
+      "allocated_after": 102400
+    },
+    {
+      "path": "reference-fine-backend-screen/startup-old/solid/volume.vtu",
+      "sha256": "0444e552cbf7885362d8aa10a18adac6397aa338ef1eae107774875e4d270eb5",
+      "logical_bytes": 116547,
+      "allocated_before": 118784,
+      "allocated_after": 69632
+    },
+    {
+      "path": "reference-fine-backend-screen/startup-replay/fluid/volume.vtu",
+      "sha256": "5491ba9f4bd705ca21358def50ead55273f9f99122cc394b14119322b1e8cdc1",
+      "logical_bytes": 169444,
+      "allocated_before": 172032,
+      "allocated_after": 102400
+    },
+    {
+      "path": "reference-fine-backend-screen/startup-replay/solid/volume.vtu",
+      "sha256": "0444e552cbf7885362d8aa10a18adac6397aa338ef1eae107774875e4d270eb5",
+      "logical_bytes": 116547,
+      "allocated_before": 118784,
+      "allocated_after": 69632
+    }
+  ],
+  "seconds": 31.999921083450317,
+  "logical_content_unchanged": true,
+  "saved_allocated_bytes": 712704,
+  "source_sha256": "405d0e6ca561b9b19b137c0408f3de9e4e4a3c22c77f063933bcee9af37de4cf"
+}

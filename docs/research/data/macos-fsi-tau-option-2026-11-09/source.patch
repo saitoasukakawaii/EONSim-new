@@ -1,0 +1,99 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 8d82132..7aa395c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -407,6 +407,12 @@ if(BUILD_TESTING)
+             --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_stabilization_time")
+     set_tests_properties(fluid_stabilization_time PROPERTIES TIMEOUT 180 PROCESSORS 2 LABELS "rank-1;rank-2"
+         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
++    add_test(NAME fsi_stabilization_time
++        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_stabilization_time.py"
++            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
++            --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_stabilization_time")
++    set_tests_properties(fsi_stabilization_time PROPERTIES TIMEOUT 300 PROCESSORS 2 LABELS "rank-1;rank-2"
++        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+     add_test(NAME restart_block_verification
+         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_restart.py"
+             --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+diff --git a/include/eonsim/config.hpp b/include/eonsim/config.hpp
+index 11ce5be..022ee5c 100644
+--- a/include/eonsim/config.hpp
++++ b/include/eonsim/config.hpp
+@@ -112,6 +112,9 @@ struct FsiConfig {
+     int checkpoint_interval=1; ///< Accepted-step cadence when checkpointing; always save a successful requested endpoint.
+     FsiDomains domains;
+     std::optional<double> stabilization_tau;
++    // Diagnostic override of only the effective time in SUPG/PSPG tau.
++    // Actual fluid/solid/ALE time maps are unchanged; exclusive with fixed tau.
++    std::optional<double> stabilization_time_scale;
+     bool elastic=false, neo_hookean=false;
+     double young=100, poisson=.3, solid_density=1, thickness=.25;
+     double dt=.02, mass=2, damping=.3, stiffness=5, pressure=1, density=1, viscosity=1;
+diff --git a/scripts/cloud/selection.json b/scripts/cloud/selection.json
+index 5ddedbf..93c8ef1 100644
+--- a/scripts/cloud/selection.json
++++ b/scripts/cloud/selection.json
+@@ -11,6 +11,7 @@
+     "schur_vector_mpi4": {"targets": ["verify_schur_vector"], "ranks": [4]},
+     "schur_vector_verification": {"targets": ["eonsim"], "ranks": [1, 2, 4]},
+     "fluid_stabilization_time": {"targets": ["eonsim"], "ranks": [1, 2]},
++    "fsi_stabilization_time": {"targets": ["eonsim"], "ranks": [1, 2]},
+     "fluid_pressure_time": {"targets": ["eonsim"], "ranks": [1, 2, 4]},
+     "rigid_tube_verification": {"targets": ["eonsim"], "ranks": [1, 2]},
+     "fsi_tube": {"targets": ["eonsim"], "ranks": [1, 2, 4]},
+@@ -99,6 +100,7 @@
+     {"paths": ["scripts/womersley_reference.py", "scripts/study_womersley.py", "scripts/analyze_womersley.py", "scripts/compare_womersley.py", "tests/test_womersley_reference.py"], "tests": [], "python": ["tests/test_womersley_reference.py"]},
+     {"paths": ["tests/verify_fluid_pressure_time.py", "src/core/config.cpp", "include/eonsim/config.hpp", "src/physics/fluid_boundary.cpp", "include/eonsim/fluid_boundary.hpp", "src/physics/fluid.cpp", "CMakeLists.txt"], "tests": ["fluid_pressure_time"], "python": []},
+     {"paths": ["tests/verify_fluid_stabilization_time.py", "tests/verify_fluid_pressure_time.py", "src/core/config.cpp", "include/eonsim/config.hpp", "src/physics/fluid.cpp", "CMakeLists.txt"], "tests": ["fluid_stabilization_time"], "python": []},
++    {"paths": ["tests/verify_fsi_stabilization_time.py", "tests/verify_fsi_lu_reuse.py", "cases/fsi/generate_pressure_tube.py", "src/core/config.cpp", "include/eonsim/config.hpp", "src/physics/fsi.cpp", "CMakeLists.txt"], "tests": ["fsi_stabilization_time"], "python": []},
+     {"paths": ["scripts/audit_rigid_tube_fields.py", "scripts/study_rigid_tube_seed.py", "tests/test_rigid_tube_fields.py"], "tests": [], "python": ["tests/test_rigid_tube_fields.py", "tests/test_rigid_tube.py"]},
+     {"paths": ["scripts/study_rigid_tube.py", "tests/test_rigid_tube.py", "cases/fsi/generate_tube.py", "src/core/config.cpp", "include/eonsim/config.hpp", "src/physics/fluid_boundary.cpp", "src/physics/fluid.cpp", "include/eonsim/fluid_residual.hpp", "CMakeLists.txt"], "tests": ["rigid_tube_verification"], "python": ["tests/test_rigid_tube.py"]},
+     {"paths": ["cases/fsi/generate_tube.py", "tests/verify_fsi_tube.py", "tests/test_tube_mesh.py"], "tests": ["fsi_tube"], "python": ["tests/test_tube_mesh.py"]},
+diff --git a/src/core/config.cpp b/src/core/config.cpp
+index 62e8d01..417841a 100644
+--- a/src/core/config.cpp
++++ b/src/core/config.cpp
+@@ -309,13 +309,20 @@ Config read_config(const std::filesystem::path& path)
+     }
+     if(config.fsi_problem) {
+         const auto f=root["fsi"];
+-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","pressure_time","output_interval","checkpoint_interval","inlet"},"fsi");
++        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","stabilization_time_scale","pressure_time","output_interval","checkpoint_interval","inlet"},"fsi");
+         if(f["stabilization_tau"]) {
+             config.fsi.stabilization_tau=f["stabilization_tau"].as<double>();
+             if(!(*config.fsi.stabilization_tau>0)||!std::isfinite(*config.fsi.stabilization_tau))
+                 throw std::runtime_error("fsi.stabilization_tau must be finite and positive");
+         }
+         auto& v=config.fsi;
++        if(f["stabilization_time_scale"]) {
++            v.stabilization_time_scale=f["stabilization_time_scale"].as<double>();
++            if(!(*v.stabilization_time_scale>0)||!std::isfinite(*v.stabilization_time_scale))
++                throw std::runtime_error("fsi.stabilization_time_scale must be finite and positive");
++            if(v.stabilization_tau)
++                throw std::runtime_error("Use only one of fsi.stabilization_tau and stabilization_time_scale");
++        }
+         if(f["output_interval"]) v.output_interval=f["output_interval"].as<int>();
+         if(v.output_interval<0) throw std::runtime_error("fsi.output_interval must be nonnegative");
+         if(f["checkpoint_interval"]) v.checkpoint_interval=f["checkpoint_interval"].as<int>();
+diff --git a/src/physics/fsi.cpp b/src/physics/fsi.cpp
+index 3aa8cf8..6b5ec28 100644
+--- a/src/physics/fsi.cpp
++++ b/src/physics/fsi.cpp
+@@ -218,6 +218,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
+     if(bdf2) signature_values.insert(signature_values.end(),{20501.,2.});
+     if(alpha) signature_values.insert(signature_values.end(),{20501.,3.,config.time_integration.rho_infinity});
+     if(f.stabilization_tau) signature_values.insert(signature_values.end(),{20503.,*f.stabilization_tau});
++    if(f.stabilization_time_scale) signature_values.insert(signature_values.end(),{20505.,*f.stabilization_time_scale});
+     if(!config.time_control.events.empty()) {
+         signature_values.push_back(20502.);
+         signature_values.insert(signature_values.end(),config.time_control.events.begin(),config.time_control.events.end());
+@@ -406,7 +407,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
+                 for(int c=0;c<Space3::dimension;++c) speed2+=physical[nc*n+c]*physical[nc*n+c]*Tet4Topology::mean_weight;
+             }
+             const double h=std::cbrt(Tet4Topology::jacobian_scale*data[e].reference_geometry.volume);
+-            const double tau=f.stabilization_tau.value_or(1/std::sqrt(4*f.density*f.density/(integration_dt*integration_dt)+4*f.density*f.density*speed2/(h*h)+16*f.viscosity*f.viscosity/(h*h*h*h)));
++            const double tau_dt=f.stabilization_time_scale.value_or(integration_dt);
++            const double tau=f.stabilization_tau.value_or(1/std::sqrt(4*f.density*f.density/(tau_dt*tau_dt)+4*f.density*f.density*speed2/(h*h)+16*f.viscosity*f.viscosity/(h*h*h*h)));
+             data[e].fluid={f.density,f.viscosity,integration_dt,tau,true};
+             data[e].mesh_dt=mesh_dt;
+             data[e].inlet_pressure=pressure;

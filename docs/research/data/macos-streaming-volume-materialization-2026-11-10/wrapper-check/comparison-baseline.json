@@ -1,0 +1,104 @@
+{
+  "left_cycle": 32,
+  "right_cycle": 32,
+  "common_phases": 4,
+  "startup_comparison": false,
+  "pressure_profiles": [
+    {
+      "amplitude": 0.01,
+      "period": 6.283185307179586,
+      "ramp_time": 100.53096491487338
+    },
+    {
+      "amplitude": 0.01,
+      "period": 6.283185307179586,
+      "ramp_time": 100.53096491487338
+    }
+  ],
+  "left_solver": "EONSim",
+  "right_solver": "EONSim",
+  "left_dt": 0.003926990816987242,
+  "right_dt": 0.007853981633974483,
+  "left_red_level": 0,
+  "right_red_level": 1,
+  "selected_cycles_periodic": [
+    true,
+    true
+  ],
+  "audit_prerequisites": [
+    {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true
+    },
+    {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true
+    }
+  ],
+  "scales": {
+    "fluid_velocity": 0.0006523636363636365,
+    "fluid_pressure": 0.01,
+    "fluid_mesh_displacement": 5.436363636363637e-05,
+    "solid_velocity": 5.436363636363637e-05,
+    "solid_displacement": 5.436363636363637e-05
+  },
+  "rms": {
+    "fluid_velocity": 8.066464512632759e-06,
+    "fluid_pressure": 0.00010023765371415408,
+    "fluid_mesh_displacement": 5.805990721121696e-06,
+    "solid_velocity": 2.293418063196601e-06,
+    "solid_displacement": 7.5240658563398045e-06
+  },
+  "maximum_phase_rms": {
+    "fluid_velocity": 8.262608158174568e-06,
+    "fluid_pressure": 0.00011449337862613213,
+    "fluid_mesh_displacement": 7.723460641140241e-06,
+    "solid_velocity": 3.023782166420312e-06,
+    "solid_displacement": 1.0033012142097275e-05
+  },
+  "relative_rms": {
+    "fluid_velocity": 0.012364981833745866,
+    "fluid_pressure": 0.010023765371415408,
+    "fluid_mesh_displacement": 0.10679916042197099,
+    "solid_velocity": 0.042186619891576266,
+    "solid_displacement": 0.13840254919688602
+  },
+  "relative_maximum_phase_rms": {
+    "fluid_velocity": 0.012665647957068036,
+    "fluid_pressure": 0.011449337862613212,
+    "fluid_mesh_displacement": 0.1420703462417101,
+    "solid_velocity": 0.05562141108799905,
+    "solid_displacement": 0.184553735055301
+  },
+  "input_files_sha256": {
+    "left": {
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600/case.json": "89939895e5a9c71b2572de0b8db81c396502fabb19cf09f9f3edb4e46f52871a",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600-audit.json": "d6663ddba12670d7681b6e99a4555c85b2d2b4211e59a423949e3cedf70175fe",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600/dense/solution_restart46400_step50000.vtu": "d19e77a6fa844429f42a7e884d8678f28876989a477f504c751d0b514c4fd7bc",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600/dense/solution_restart46400_step50000_solid.vtu": "73ca27aec45018268fa9ba7651a5da2745687bd8e7cf5d5b51681a0633d7a0b6",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600/dense/solution_restart46400_step50400.vtu": "2f3ad53d70120b15e9c5a37e33f10dfee2063be7b0677708faaf371eb64b5ac3",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600/dense/solution_restart46400_step50400_solid.vtu": "0331161866b65b6b25849a1579cd933f14b5ea1ee1771da0c6e1d73205f9a59b",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600/dense/solution_restart46400_step50800.vtu": "4037a6021f8f961d7141d61c4885d968e17fcf4b2f62b0e0983c9e38f787db3a",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600/dense/solution_restart46400_step50800_solid.vtu": "b74a22c8799e495ae151ea7e6fa0efeeb027d23c9e2520f8291b52fadb11c95f",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600/dense/solution_restart46400_step51200.vtu": "5bb5153d8f332df79bf631f2960d0b55e19ac7b093a092e33365384071f7cad2",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600/dense/solution_restart46400_step51200_solid.vtu": "1c7dabd0c931388717450650b80ece18c2672f1b08ab3981429da1ce790d30e6"
+    },
+    "right": {
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/case.json": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-audit.json": "346e4aa9ea1f1fa2aa4dd49c0e3ff8034baafb321115e76fb49ad1229c81dee1",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/dense/solution_restart23200_step25000.vtu": "971e6d3b641eaf3eb7af8aee637ff74d85a89a90701b99b18962e431e91f24f3",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/dense/solution_restart23200_step25000_solid.vtu": "388341e3c32e5ae517bcf8eae38e0967b6a249ea8246c0136431631df8d3cee9",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/dense/solution_restart23200_step25200.vtu": "d74f3134ff71489557bef221fe5ff31d124da6c3942f4188adaba0840a347abf",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/dense/solution_restart23200_step25200_solid.vtu": "73ae303089d3ce8c04c79d879dd6300db573eb89af0e47d4a705c2cb0b8faafd",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/dense/solution_restart23200_step25400.vtu": "0ee64668d155498cca811d3356de810f3b5092fe820678664cc2f4e251d76341",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/dense/solution_restart23200_step25400_solid.vtu": "574e867504d01c893a8ff3ebd11340c91a84b178fefdeb4b03cfba2ce747d866",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/dense/solution_restart23200_step25600.vtu": "869df387346fa6417be721d75279da65f84e93f30fbfbb0c9914a9dd40a0b7f9",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/dense/solution_restart23200_step25600_solid.vtu": "5d8cedb7d6e10943e0b4f2ec00339b9a921aaa3b5f249acacf2bdb743298fe74"
+    }
+  },
+  "synthetic_input": false,
+  "norm": "Exact consistent P1 mass on the verified red-refined target reference domains",
+  "qualification": "Not evaluated: pairwise differences only, with recorded parameter changes and no causal attribution"
+}

@@ -37,6 +37,35 @@ class Convergence(unittest.TestCase):
             path=Path(tmp);report=analyze(path,self.setup_case(path,self.rows('1.0e-10','2e-9')))
             self.assertFalse(report['passed'])
 
+    def test_patched_reference_binds_binary_and_patch_without_relaxing_convergence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp);log=self.setup_case(path,self.rows())
+            self.assertIsNone(analyze(path,log)['reference_build'])
+            export=json.loads((path/'export.json').read_text())
+            build=dict(kind='patched-fixed-reference',base_commit=PIN)
+            for role,name in [('binary','svFSI'),('patch','source.patch')]:
+                (path/name).write_bytes(('test '+role).encode())
+                digest=hashlib.sha256((path/name).read_bytes()).hexdigest()
+                export['files'][name]=digest;build[role]=dict(path=name,sha256=digest)
+            export['reference_build']=build
+            (path/'export.json').write_text(json.dumps(export))
+            self.assertEqual(analyze(path,log)['reference_build'],build)
+            log.write_text(self.rows('2e-9','3e-8'))
+            self.assertFalse(analyze(path,log)['passed'])
+            for role in ('patch','binary'):
+                artifact=path/build[role]['path'];original=artifact.read_bytes()
+                artifact.write_bytes(original+b' changed')
+                with self.assertRaisesRegex(ValueError,'build artifact differs'):
+                    analyze(path,log)
+                artifact.write_bytes(original)
+            for change in ('base','escape','unlisted'):
+                modified=json.loads(json.dumps(export))
+                if change=='base':modified['reference_build']['base_commit']='other'
+                if change=='escape':modified['reference_build']['patch']['path']='../source.patch'
+                if change=='unlisted':del modified['files']['source.patch']
+                (path/'export.json').write_text(json.dumps(modified))
+                with self.subTest(change=change),self.assertRaises(ValueError):analyze(path,log)
+
     def test_whitespace_does_not_drop_valid_rows(self):
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp);rows=self.rows().replace('1.0]','1.0  ]').replace('1e-12]','1e-12  ]')

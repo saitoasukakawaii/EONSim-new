@@ -1,0 +1,23 @@
+{
+  "unix": 1794276681.996464,
+  "rows": [
+    "83479 46377 83479 Ts   /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python build/recompute-20261109/resume-remaining-lowlevel-archives.py",
+    "85781 83479 83479 Z    <defunct>"
+  ],
+  "worker_journal": {
+    "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n1600-boundary-through48448-chunks/0000.json",
+    "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n1600-boundary-through48448-chunks/0000.tar.zst",
+    "old_archive_sha256": "2bb95dcab944d41fb796bcc6b612d5e97336eb38ad2c55b2a33294c3dd582260",
+    "new_archive_sha256": "911a2be5e556fb70053b8381c0916c6d12cec6c5d235692936a597cec224a766",
+    "old_bytes": 39808153,
+    "new_bytes": 33129840,
+    "decoded_tar_sha256": "3d609684b8439022b571c9faa3499e2fb43dffe649f8c1385a720ba64716384a",
+    "start_unix": 1794276573.3198972,
+    "encoding": "zstd19 single thread",
+    "status": "committed",
+    "recovery": "If interrupted after rename: retain both files; inspect current archive SHA and receipt. Restore old-archive.backup and old-receipt.json together, or finish verified new pair. Never delete the only matching pair.",
+    "global_catalog_refresh_pending": true,
+    "saved_bytes": 6678313,
+    "finished_unix": 1794276625.35572
+  }
+}

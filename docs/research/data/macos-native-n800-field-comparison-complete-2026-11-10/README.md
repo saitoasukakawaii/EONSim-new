@@ -1,0 +1,7 @@
+# Full800-phase N800 field comparison completed
+
+Base67569c4. Process86636 actually exited0, using the command recorded in ../macos-native-n800-field-comparison-start-2026-11-10/README.md. Original consistent P1 mass comparison covers every common stored phase of cycle32 on both actual level1 N800 studies, no time interpolation, phase fitting, pressure-gauge adjustment or norm subtraction. All existing audit prerequisites and selected-cycle periodicity true; no synthetic input.
+
+Physical-scale-normalized RMS differences: fluid velocity0.004107171571988948, pressure0.007992504603470115, ALE mesh displacement0.11454516081745142, solid velocity0.007096683393132617, solid displacement0.0070962638644331225. These are pairwise differences, not qualification gates or causal attribution. The known reference mesh-extension operator differs from EONSim, and the large ALE difference must not be relabeled a tolerance pass. Existing EON time-budget failures remain unresolved.
+
+All1600 EON fluid/solid members restored at original paths with recorded SHA; independently checked complete unique1600 coverage, match to comparator input hashes and every restored path absent after exit. Peak frame allocation recorded in summary. Native reference fields remain retained. Original wrapper SHA still matches report; all normalized RMS ratios checked; both gzip report roundtrips exact. No global archive-catalog consistency claim while re-encoding continues. No push/PR. Original comparison/reader methods reused; no new algorithm article.

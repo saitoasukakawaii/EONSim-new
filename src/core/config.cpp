@@ -309,13 +309,20 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","pressure_time","output_interval","checkpoint_interval","inlet"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","stabilization_time_scale","pressure_time","output_interval","checkpoint_interval","inlet"},"fsi");
         if(f["stabilization_tau"]) {
             config.fsi.stabilization_tau=f["stabilization_tau"].as<double>();
             if(!(*config.fsi.stabilization_tau>0)||!std::isfinite(*config.fsi.stabilization_tau))
                 throw std::runtime_error("fsi.stabilization_tau must be finite and positive");
         }
         auto& v=config.fsi;
+        if(f["stabilization_time_scale"]) {
+            v.stabilization_time_scale=f["stabilization_time_scale"].as<double>();
+            if(!(*v.stabilization_time_scale>0)||!std::isfinite(*v.stabilization_time_scale))
+                throw std::runtime_error("fsi.stabilization_time_scale must be finite and positive");
+            if(v.stabilization_tau)
+                throw std::runtime_error("Use only one of fsi.stabilization_tau and stabilization_time_scale");
+        }
         if(f["output_interval"]) v.output_interval=f["output_interval"].as<int>();
         if(v.output_interval<0) throw std::runtime_error("fsi.output_interval must be nonnegative");
         if(f["checkpoint_interval"]) v.checkpoint_interval=f["checkpoint_interval"].as<int>();

@@ -1,0 +1,5 @@
+# Fine N1600 final-volume lossless re-encoding — BATCH RUNNING
+
+Basebc4d15d.96016 probe exit0:old35142136B/new24308051B, identical decoded tar SHA2fffb891d78e3235771b11b363f6da9c67fba2be7698966bb93d9850d69948a9,37.634792s. Single-chunk transactional adoption exit0; independent59-member SHA/size re-decode plus2 real original-path restorations and cleanup pass. Net10834085B. Redundant staged copy removed only after matching canonical archive SHA. Original/updated receipts and journal retained here.
+
+55683 sequential batch now running for remaining108 chunks. Each transaction retains old archive until new compressed/decompressed hashes, published receipt and scoped109-receipt/6400-member catalog pass. This scoped catalog avoids reading temporary restored length-audit files. Global catalog snapshot remains STALE after changed archive hashes: full refresh must happen after no active transient restoration and after batch publication is stable. This is not a global consistency pass. Journal explicitly marks global_catalog_refresh_pending. Numerical data bytes/fields/norms/gates unchanged; no new scientific qualification.

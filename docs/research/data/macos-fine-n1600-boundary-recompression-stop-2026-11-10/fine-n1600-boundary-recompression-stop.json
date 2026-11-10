@@ -1,0 +1,17 @@
+{
+  "status": "stopped-no-gain",
+  "controller_exit_code": 143,
+  "reason": "First chunk zstd19 encoding is byte-identical to canonical archive; do not continue an already-compressed collection",
+  "chunks": [
+    {
+      "chunk": "0000",
+      "canonical_unchanged": true,
+      "removed_unadopted_temporary_bytes": 0
+    },
+    {
+      "chunk": "0001",
+      "canonical_unchanged": true,
+      "removed_unadopted_temporary_bytes": 28311552
+    }
+  ]
+}

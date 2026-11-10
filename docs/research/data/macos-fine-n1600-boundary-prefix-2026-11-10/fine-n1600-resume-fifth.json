@@ -1,0 +1,20 @@
+{
+  "status": "resumed",
+  "pid": 61510,
+  "pgid": 61510,
+  "command": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n1600/eonsim -case case.json -checkpoint /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n1600/checkpoint -stop_after 48704 -pc_factor_mat_solver_type mumps -snes_lag_jacobian -2 -fsi_lu_pc_reuse_window 32 -restart /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n1600/checkpoint/generation_1794243428083500",
+  "stage": {
+    "pid": 61510,
+    "label": "dense-009",
+    "target": 48704,
+    "start_unix": 1794243445.7185652
+  },
+  "start_unix": 1794243586.87984,
+  "accepted_last_before_hold": 48673,
+  "free_bytes": 22795321344,
+  "reason": "Preserve 20GiB controller floor during dense output; original process retained, no solver/controller change.",
+  "resume": "Verify same PID/command/T state then SIGCONT; record elapsed hold time.",
+  "resumed_unix": 1794243920.548325,
+  "held_seconds": 333.66848516464233,
+  "free_bytes_at_resume": 25001824256
+}

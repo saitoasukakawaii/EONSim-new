@@ -1,0 +1,35 @@
+{
+  "source_commit": "2c0f392821052cd711f790e4ce966e2b4f0a1282",
+  "steps_per_cycle": 800,
+  "cycles": 32,
+  "ramp_cycles": 16,
+  "seed": [
+    24,
+    2,
+    24
+  ],
+  "length": 24.0,
+  "generator_sha256": "14141598a9ec840348daeac12b2a61dcf43b5a7503258b186726c1acd6b1804c",
+  "controller_sha256": "34c34c998bcd7141beb8bd5ff4dfb8e4ae62fe6ea53a5948e974e79cb9452039",
+  "level": 1,
+  "ranks": 1,
+  "threads": 1,
+  "memory_rss_limit_bytes": 3221225472,
+  "disk_floor_bytes": 21474836480,
+  "binary_sha256": "04a7aa5b0b6d22e408efc6cace75d4b11a483a595ecfd222c8f4fe8d49282873",
+  "inputs": {
+    "case.json": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+    "fluid.msh": "796efd1064d67717b61c8494c04d6d18ffcc836182836d81258b9dff9a1d50bf",
+    "solid.msh": "78c296307eb7f09143151b9b539aa172264671d64a715d5d6a12115d0d3cd1ed",
+    "geometry.json": "d87282bffafccc431f0fed9228b3c0942a71edef02c43ade50bef12573882b2d"
+  },
+  "solver_options": [
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32"
+  ],
+  "scope": "All steps computed from zero; early output cadence does not shorten transient. Production qualification pending full audit, actual loaded replay and budgets."
+}

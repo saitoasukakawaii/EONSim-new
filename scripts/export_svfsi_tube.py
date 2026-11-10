@@ -145,8 +145,12 @@ def write_general_pressure(source,output,f,steps,offset):
         scope='Exact prescribed values at fixed-step endpoint reads; linear interpolation between knots')
 
 
-def export(case,output,hydrostatic=False,stage_pressure=False,output_start_step=1,general_pressure=False,tight_linear_atol=None):
+def export(case,output,hydrostatic=False,stage_pressure=False,output_start_step=1,general_pressure=False,tight_linear_atol=None,mesh_poisson=.3):
     cfg=json.loads(case.read_text());f=cfg['fsi'];domains=f['domains']
+    # These are the two separately studied ALE definitions. This parameter is
+    # not the physical solid Poisson ratio and must never rewrite that domain.
+    if mesh_poisson not in (0.,.3) or (hydrostatic and mesh_poisson!=.3):
+        raise ValueError('Mesh Poisson ratio must be 0 or 0.3 for a coupled reference')
     if tight_linear_atol is not None and (not math.isfinite(tight_linear_atol) or not 0<tight_linear_atol<1e-14):
         raise ValueError('Explicit tight linear absolute tolerance must be positive and below 1e-14')
     linear_atol='1e-14' if tight_linear_atol is None else format(tight_linear_atol,'.17g')
@@ -243,7 +247,7 @@ def export(case,output,hydrostatic=False,stage_pressure=False,output_start_step=
     lines += ['}']
     if not hydrostatic:
         lines += ['Add equation: mesh {','  Coupled: 1','  Min iterations: 1','  Max iterations: 30',
-            '  Tolerance: 1e-10','  Poisson ratio: 0.3',
+            '  Tolerance: 1e-10',f'  Poisson ratio: {mesh_poisson:g}',
             '  LS type: CG {','    Preconditioner: FSILS','    Tolerance: 1e-12',f'    Absolute tolerance: {linear_atol}','    Max iterations: 1000','  }',
             '  Output: Spatial {','    Displacement: t','  }',
             '  Output: Alias {','    Displacement: Mesh_displacement','  }']
@@ -260,6 +264,7 @@ def export(case,output,hydrostatic=False,stage_pressure=False,output_start_step=
     if output_start_step!=1:report['output_start_step']=output_start_step
     if general is not None:report['general_pressure']=general
     if tight_linear_atol is not None:report['tight_linear_absolute_tolerance']=tight_linear_atol
+    if mesh_poisson!=.3:report['mesh_motion_poisson_ratio']=mesh_poisson
     (output/'export.json').write_text(json.dumps(report,indent=2)+'\n')
     return report
 
@@ -272,4 +277,5 @@ if __name__=='__main__':
     p.add_argument('--output-start-step',type=int,default=1,help='First saved step, including the preceding endpoint needed for a later audit window')
     p.add_argument('--general-pressure',action='store_true',help='Explicit General table for the exact fixed-step pressure reads, including a smooth startup ramp')
     p.add_argument('--tight-linear-atol',type=float,help='Explicitly tighten both reference linear absolute stopping tolerances below 1e-14; nonlinear tolerances unchanged')
-    a=p.parse_args();print(json.dumps(export(a.case.resolve(),a.output.resolve(),a.hydrostatic_smoke,a.stage_pressure,a.output_start_step,a.general_pressure,a.tight_linear_atol)))
+    p.add_argument('--mesh-poisson',type=float,choices=(0.,.3),default=.3,help='Explicit reference mesh-motion variant; physical solid Poisson ratio is unchanged')
+    a=p.parse_args();print(json.dumps(export(a.case.resolve(),a.output.resolve(),a.hydrostatic_smoke,a.stage_pressure,a.output_start_step,a.general_pressure,a.tight_linear_atol,a.mesh_poisson)))

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/compare-elastic-control-response.py", line 55, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/compare-elastic-control-response.py", line 18, in main
+    if not all(all(v.values()) for v in prerequisites):raise ValueError('Both actual complete audits must pass periodicity, geometry and quality prerequisites')
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Both actual complete audits must pass periodicity, geometry and quality prerequisites

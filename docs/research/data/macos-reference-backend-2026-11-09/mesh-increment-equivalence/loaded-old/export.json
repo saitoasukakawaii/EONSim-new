@@ -1,0 +1,79 @@
+{
+  "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "mode": "linear elastic pressure tube",
+  "meshes": {
+    "fluid": {
+      "nodes": 637,
+      "tetrahedra": 2592,
+      "tags": [
+        1,
+        2,
+        3
+      ]
+    },
+    "solid": {
+      "nodes": 624,
+      "tetrahedra": 1728,
+      "tags": [
+        11,
+        12,
+        13,
+        14
+      ]
+    }
+  },
+  "files": {
+    "fluid/face-1.vtp": "89c1399e7bd24a2dd99dc9b69ba4a58384262bf7c22aa91a44f23fba37a56544",
+    "fluid/face-2.vtp": "ea9d72f846062fec06a7315521b782b15560581330c8fa523f649496a7dc3e6a",
+    "fluid/face-3.vtp": "7ff6a37346810b3de643f8d09a43f92265961c265f5cd1f77914359f9dac2f0f",
+    "fluid/volume.vtu": "133e677503ac23ef7d7b01840708b920b5a10946f272af81087f13ee45f08cc2",
+    "pressure-1.txt": "0b3a1a1507ffcad2112cceba1772c9d3f081ede5e8123d2542bf5910fb49087e",
+    "pressure-2.txt": "0c2ac7a21bff041a3daaca27def95cec0725d3b53073bcf1b55548e493263edf",
+    "solid/face-11.vtp": "481051dbf3f192fc53b445becf8335f2f4080b477ce1fc36492054c97b1f91ed",
+    "solid/face-12.vtp": "4b6df4138e137a43452f2aac7dc68938fa590219cf1b202153e2f0d4f480890c",
+    "solid/face-13.vtp": "40f11f5d0eb972ade0fb7937fe665c8e317237022e87b1513cdbc33e8da1556c",
+    "solid/face-14.vtp": "9a8ca54fd5afb3cd9da85af4f5a4c9eadcb097c7d971698285bd5cf5b2e4a437",
+    "solid/volume.vtu": "e139dd44d7b3f3effc9e74f1258a3d53d88209f0f29f580fd120735c131d00f9",
+    "source-case.json": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+    "svFSI.inp": "fb9dfd3ce7d4b9b6dba4ec4dc1024948d718f77dacbc22e6543f110fb3427674",
+    "seed.bin": "dcbfb642242252b63c692c9e3875d043d5fb194e0640eb9363ccc38b447a94bc"
+  },
+  "pressure_time_offset": 0.00523598775598299,
+  "load_evaluation": "alpha_f stage",
+  "scope": "Prepared input; no reference agreement is inferred from export",
+  "output_start_step": 12401,
+  "general_pressure": {
+    "kind": "General scalar normal traction",
+    "time_knots": 12802,
+    "table_end_time": 201.07763779301473,
+    "traction_sign": -1,
+    "ramp_time": 100.53096491487338,
+    "scope": "Exact prescribed values at fixed-step endpoint reads; linear interpolation between knots"
+  },
+  "tight_linear_absolute_tolerance": 1e-26,
+  "mesh_motion_poisson_ratio": 0.0,
+  "restart_provenance": {
+    "step": 12400,
+    "time": 194.77874452251748,
+    "stamp": [
+      1,
+      2,
+      2,
+      949,
+      0,
+      7,
+      1
+    ],
+    "bytes": 159496,
+    "serialized_values": 19933,
+    "sha256": "dcbfb642242252b63c692c9e3875d043d5fb194e0640eb9363ccc38b447a94bc",
+    "layout": "svFSI-7bdb74c-serial-linear-fsi-i32-f64"
+  },
+  "local_backend_screen": {
+    "ilut": false,
+    "candidate": false,
+    "start": 12400,
+    "stop": 12420,
+    "mesh_increment_derivative": false
+  }
+}

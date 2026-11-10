@@ -1,0 +1,3 @@
+# Length24 boundary prefix re-encoding
+
+Base b65fc1d. Completed length24 study has no active reader. Actual `python3 build/recompute-20261109/review-length24-boundary-prefix-recompression-catalog.py` exited0:65 receipts,2564 members, immutable subset bridged by every SHA/size to completed full raw manifest. Scripts reuse verified volume transaction with only scope/path/count changes, AST passed. `python3 build/recompute-20261109/recompress-length24-boundary-prefix-volumes.py` launched; final independent full decode and total savings pending. Global catalog becomes stale as archive hashes change. Original physics and acceptance gates unchanged.

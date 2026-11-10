@@ -1,0 +1,41 @@
+{
+  "accepted_steps": 25600,
+  "receipts": [
+    {
+      "label": "early",
+      "accepted_first": 1,
+      "accepted_last": 23200,
+      "seconds": 13295.518138290849,
+      "peak_rss_bytes": 591429632,
+      "exit_code": 0
+    },
+    {
+      "label": "dense",
+      "accepted_first": 23201,
+      "accepted_last": 25600,
+      "seconds": 1952.6865265001543,
+      "peak_rss_bytes": 597704704,
+      "exit_code": 0
+    }
+  ],
+  "input_sha256": {
+    "early/receipt.json": "5e480ff07015935c6286b25503935c24f80c1b644f2ce3e2e4bb8de7e813864a",
+    "early/command.json": "de488f66daf98b274a840fe4550dfdc84b627d125284a54cb8c0210c3371c11b",
+    "early/case.json": "bf607634db07bffbd251acd62f54b3096138948ba26d2072938f9b6ba0f7013a",
+    "early/solve.log": "d8cef1744a230fe9ed63b2a8140b2f80b08c6cff70a219c8d3367a5a6ede7d23",
+    "dense/receipt.json": "db51952637a09260acaae99d15686c6834dc85bdd0a6d4652101c5eebf54e8fa",
+    "dense/command.json": "faae8754908993bef1eacdb2a43b828e8213c85b2eaa5770906b02fd7d209f7c",
+    "dense/case.json": "db1245aa03ca9a957130aa6ea304668df56c3884c7a21809b1cde6e22432035b",
+    "dense/solve.log": "da4d75d8c7b10a1847d808564723a741901d6a9cb656b2c62902ddea6db26fef",
+    "early/solution.pvd": "ede1b0cbedd0889783e1ea89b18af9c85c69d1d089b5e4a967d49680b62be316",
+    "dense/solution_restart23200.pvd": "f70e287a344a9accc6255daecca86330b58e012b7c5957475a006ab038491bb6",
+    "early/solution_solid.pvd": "9a654ba88ac94d6a2c5f85007a57e34f2011ff442ff7c138ea7878396898ab1b",
+    "dense/solution_restart23200_solid.pvd": "f43d459b67b666c52a79fd5f9e1018126cb7931542a3cea4a4f5ba1f6d7a4145"
+  },
+  "index_sha256": {
+    "solution.pvd": "4fb2fe0ab11d0aefc37b80c8cd004e0a5c4c3de25e604c2e061dad993f2cc33f",
+    "solution_solid.pvd": "5a2240e8aed7e33953f81d94fa4b5c51fe8cedcf09fc51ee4b1b8107d6057cc7"
+  },
+  "original_failure_preserved": true,
+  "scope": "Recovered index collection after completed numerical phases; physics/audit/budgets pending"
+}

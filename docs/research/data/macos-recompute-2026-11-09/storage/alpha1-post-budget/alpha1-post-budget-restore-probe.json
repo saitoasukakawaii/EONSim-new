@@ -1,0 +1,30 @@
+{
+  "budget_sha256": "005dedf10468f7a22b905b7bab609ff73a47891b9598a19aa8bbbc20460bd933",
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha1-s96-l1-n800",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800.tar.zst",
+  "archive_sha256": "de57394ce3e4b32a735d04074f0c719bb9281788fa601a0301b8e23298022af3",
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha1-s96-l1-n800-2026-11-09/raw-manifest.json",
+  "source_manifest_sha256": "212c56bf6ca711f0824951f647794907b294dfa149a39c7cbfb1ba92b039010c",
+  "selected": {
+    "checkpoint/generation_1794206085055813/state_rank0.h5": {
+      "step": 3201,
+      "sha256": "4f004fafc683af010ad7671c1d1866fd714d3c35f2000ba936bf32447ae66fb9",
+      "bytes": 3241128,
+      "allocated_bytes": 3244032
+    }
+  },
+  "status": "evicted",
+  "dependencies": {
+    "completed": "Full analytic/periodic audit, full raw archive verification and passing alpha1 N400 independent budget",
+    "remaining": "Tau decomposition uses cycle6 only; all cycle6 states and every cycle endpoint retained. Repeated analytic/budget or any earlier-cycle consumer requires explicit archive restoration."
+  },
+  "scope": "Only redundant materialization removed. Complete original bytes remain in verified archive; restore selected HDF members before any future earlier-cycle analysis, repeated budget/analytic audit or full directory inventory audit.",
+  "restore_command": [
+    "python3",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n800-post-budget-materialization.json"
+  ],
+  "observed_free_change_bytes": 7707897856,
+  "removed_allocated_bytes": 7775944704,
+  "finished_unix": 1794210024.956488
+}

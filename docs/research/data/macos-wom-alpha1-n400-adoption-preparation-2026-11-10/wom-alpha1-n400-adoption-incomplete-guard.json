@@ -1,0 +1,6 @@
+{
+  "exit_code": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/adopt-wom-alpha1-n400-recompression.py\", line 4, in <module>\n    b=Path(__file__).resolve().parent;s=b/'wom-alpha1-n400-level19-staged';r=json.loads((s/'status.json').read_text());assert r['status']=='verified-staged';original=Path(r['original']);candidate=Path(r['candidate']);t=b/'wom-alpha1-n400-recompression-adoption';assert not t.exists()\n                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+  "no_adoption_directory_created": true,
+  "expected_incomplete_rejection": true
+}

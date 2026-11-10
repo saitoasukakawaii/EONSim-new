@@ -1,0 +1,32 @@
+{
+  "source_commit": "bd9eec2e1461c21569d8f4c6b5b9e0b1c469fafd",
+  "steps_per_cycle": 400,
+  "cycles": 32,
+  "ramp_cycles": 16,
+  "seed": [
+    24,
+    2,
+    12
+  ],
+  "level": 1,
+  "ranks": 1,
+  "threads": 1,
+  "memory_rss_limit_bytes": 3221225472,
+  "disk_floor_bytes": 21474836480,
+  "binary_sha256": "04a7aa5b0b6d22e408efc6cace75d4b11a483a595ecfd222c8f4fe8d49282873",
+  "inputs": {
+    "case.json": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+    "fluid.msh": "5e5ac5f5a55b30719057aeef359332d9a5d4dbf2aa333c8646429aab8292b907",
+    "solid.msh": "261a05077455d92780edbbba5df520d995b5502a5eb5549f24721299b7405a85",
+    "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e"
+  },
+  "solver_options": [
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32"
+  ],
+  "scope": "All steps computed from zero; early output cadence does not shorten transient. Production qualification pending full audit, actual loaded replay and budgets."
+}

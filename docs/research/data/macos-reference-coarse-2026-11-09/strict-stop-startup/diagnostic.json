@@ -1,0 +1,30 @@
+{
+  "runs": {
+    "cg-fsils": {
+      "convergence_passed": true,
+      "seconds": 15.480087250005454,
+      "peak_rss_bytes": 59129856,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 100
+    },
+    "gmres-fsils": {
+      "convergence_passed": true,
+      "seconds": 26.459144375054166,
+      "peak_rss_bytes": 59998208,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 100
+    },
+    "gmres-ilut": {
+      "convergence_passed": true,
+      "seconds": 17.024202874861658,
+      "peak_rss_bytes": 79134720,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 100
+    }
+  },
+  "scope": "Strict-stop diagnostic derivative from pinned source, not unmodified reference: coarse N800 zero-state100-step causality check only; no adoption",
+  "production_adopted": false
+}

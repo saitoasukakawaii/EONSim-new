@@ -1,0 +1,5 @@
+# Length24 numerical trajectory complete; physical audit RUNNING
+
+Base29917d8. Controller10563 exit1 solely at run-elastic-length.py line56 original PVD file-existence collection assertion. Both early1..23200 and dense23201..25600 logs contiguous and status=success, both receipts exit0; original failure retained. No solver rerun.60737 finalize-length24-archived-series.py exit0 verifies inputs/binary, both successful phases, and independently decodes all three volume-containing archive sets; reconstructs original times/paths,2429 entries per domain. completion-postflight.json and both indices retained with exact compressed readback. Index SHA rechecked after completion.
+
+14672 full original physical audit now running via audit-pressure-streaming.py, first-step23201, all last2400 frames plus real23200 endpoint, THREE --receipts directories volume-through24584-chunks,volume-tail-through25349-chunks,late-output-tail-through25550-chunks. Full audit/capture must verify4702 actual restored body members. Original formula/scales/thresholds unchanged. No physical pass, budget pass, length sensitivity conclusion or production qualification claimed yet.

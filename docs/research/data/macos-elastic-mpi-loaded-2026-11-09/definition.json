@@ -1,0 +1,34 @@
+{
+  "source_commit": "5d91a95472eba6f526be8c5cb9313b3585a3e6f0",
+  "controller_sha256": "b1a93e7e9a80a52685fc132b73c4edbb48180c60cb7f13d540c137f6859fd47a",
+  "inputs": {
+    "case.json": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+    "fluid.msh": "b62a8e6db6eda32acec5ed3d9226b1737a659651cf5db08aee38f4ba54a10d12",
+    "solid.msh": "5456e2a9c68f998a695a18ec9b15c23e9ee7e0dc7be63b7f5497bcc785e06289",
+    "eonsim": "04a7aa5b0b6d22e408efc6cace75d4b11a483a595ecfd222c8f4fe8d49282873"
+  },
+  "ranks": 2,
+  "threads_per_rank": 1,
+  "solver_options": [
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-mat_mumps_icntl_20",
+    "0",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32",
+    "-solver_report"
+  ],
+  "start_step": 19200,
+  "loaded_steps": 32,
+  "replay_steps": 16,
+  "rss_limit_bytes": 3221225472,
+  "disk_floor_bytes": 21474836480,
+  "scope": "Fresh 24-cycle transient, then 32 fully loaded steps and same-partition 16-step replay; numerical proof only, not 32-cycle physical qualification. Explicit local MUMPS ICNTL(20)=0 required.",
+  "partition_sha256": {
+    "rank_0.h5": "c44a5c3bdeb24abc180afa43193c50b6321c25bf11fbd8d7562a0c8e6c0a7583",
+    "manifest.yaml": "7784c5e7f7432f480de1c07f9f31ace08580c47e0f17b09a8a0b0ecd07c58ec5",
+    "rank_1.h5": "cb3a79f0672353a0d29db703cc88507624791b972555e6f0f15bfe326c8ebd25"
+  }
+}

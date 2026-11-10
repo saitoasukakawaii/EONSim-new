@@ -1,0 +1,722 @@
+{
+  "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "steps": 100,
+  "alpha_f": 0.6666666666666666,
+  "pressure_time_offset": 0.02094395102393196,
+  "pressure_input": {
+    "kind": "Fourier coefficients"
+  },
+  "versions": {
+    "vtk": "9.7.2",
+    "numpy": "2.5.4"
+  },
+  "maximum_velocity": 2.2583054818570648e-15,
+  "maximum_pressure_range": 3.9237363358424204e-13,
+  "maximum_endpoint_recurrence_error": 3.998398834248462e-13,
+  "maximum_stage_load_error": 1.0658141036401503e-13,
+  "passed": true,
+  "interpretation": "Stored pressure is the endpoint state; its alpha_f interpolation balances the input read at global endpoint time.",
+  "scope": "Exact discrete import/time-convention check, not elastic or spatial qualification",
+  "rows": [
+    {
+      "step": 1,
+      "time": 0.06283185307179587,
+      "load": 0.020418756537291995,
+      "pressure_mean": 0.030628134805955054,
+      "expected_endpoint_pressure": 0.030628134805937995
+    },
+    {
+      "step": 2,
+      "time": 0.12566370614359174,
+      "load": 0.021045284632676534,
+      "pressure_mean": 0.016253859546036732,
+      "expected_endpoint_pressure": 0.0162538595460458
+    },
+    {
+      "step": 3,
+      "time": 0.1884955592153876,
+      "load": 0.021667687467161023,
+      "pressure_mean": 0.02437460142768885,
+      "expected_endpoint_pressure": 0.024374601427718634
+    },
+    {
+      "step": 4,
+      "time": 0.25132741228718347,
+      "load": 0.02228350870110656,
+      "pressure_mean": 0.0212379623378506,
+      "expected_endpoint_pressure": 0.02123796233780052
+    },
+    {
+      "step": 5,
+      "time": 0.3141592653589793,
+      "load": 0.022890317969444716,
+      "pressure_mean": 0.02371649578523107,
+      "expected_endpoint_pressure": 0.02371649578526681
+    },
+    {
+      "step": 6,
+      "time": 0.3769911184307752,
+      "load": 0.023485720473218154,
+      "pressure_mean": 0.023370332817209374,
+      "expected_endpoint_pressure": 0.023370332817193824
+    },
+    {
+      "step": 7,
+      "time": 0.4398229715025711,
+      "load": 0.024067366430758002,
+      "pressure_mean": 0.024415883237531633,
+      "expected_endpoint_pressure": 0.024415883237540088
+    },
+    {
+      "step": 8,
+      "time": 0.5026548245743669,
+      "load": 0.024632960351198618,
+      "pressure_mean": 0.024741498908022574,
+      "expected_endpoint_pressure": 0.024741498908027883
+    },
+    {
+      "step": 9,
+      "time": 0.5654866776461628,
+      "load": 0.0251802700937313,
+      "pressure_mean": 0.025399655686595395,
+      "expected_endpoint_pressure": 0.025399655686583006
+    },
+    {
+      "step": 10,
+      "time": 0.6283185307179586,
+      "load": 0.025707135676844316,
+      "pressure_mean": 0.02586087567196588,
+      "expected_endpoint_pressure": 0.02586087567197497
+    },
+    {
+      "step": 11,
+      "time": 0.6911503837897546,
+      "load": 0.026211477802783104,
+      "pressure_mean": 0.026386778868178244,
+      "expected_endpoint_pressure": 0.02638677886818717
+    },
+    {
+      "step": 12,
+      "time": 0.7539822368615504,
+      "load": 0.026691306063588584,
+      "pressure_mean": 0.02684356966131476,
+      "expected_endpoint_pressure": 0.026843569661289285
+    },
+    {
+      "step": 13,
+      "time": 0.8168140899333463,
+      "load": 0.027144726796328032,
+      "pressure_mean": 0.027295305363822065,
+      "expected_endpoint_pressure": 0.027295305363847406
+    },
+    {
+      "step": 14,
+      "time": 0.8796459430051422,
+      "load": 0.027569950556517564,
+      "pressure_mean": 0.027707273152871602,
+      "expected_endpoint_pressure": 0.027707273152852638
+    },
+    {
+      "step": 15,
+      "time": 0.942477796076938,
+      "load": 0.027965299180241963,
+      "pressure_mean": 0.02809431219399847,
+      "expected_endpoint_pressure": 0.02809431219393662
+    },
+    {
+      "step": 16,
+      "time": 1.0053096491487339,
+      "load": 0.028329212407100998,
+      "pressure_mean": 0.028446662513558717,
+      "expected_endpoint_pressure": 0.028446662513683187
+    },
+    {
+      "step": 17,
+      "time": 1.0681415022205298,
+      "load": 0.028660254037844387,
+      "pressure_mean": 0.028767049800041536,
+      "expected_endpoint_pressure": 0.028767049799924987
+    },
+    {
+      "step": 18,
+      "time": 1.1309733552923256,
+      "load": 0.02895711760239413,
+      "pressure_mean": 0.029052151503539927,
+      "expected_endpoint_pressure": 0.0290521515036287
+    },
+    {
+      "step": 19,
+      "time": 1.1938052083641215,
+      "load": 0.029218631515885003,
+      "pressure_mean": 0.029301871522073697,
+      "expected_endpoint_pressure": 0.029301871522013155
+    },
+    {
+      "step": 20,
+      "time": 1.2566370614359172,
+      "load": 0.02944376370237481,
+      "pressure_mean": 0.029514709792503868,
+      "expected_endpoint_pressure": 0.029514709792555636
+    },
+    {
+      "step": 21,
+      "time": 1.3194689145077132,
+      "load": 0.029631625667976582,
+      "pressure_mean": 0.02969008360573301,
+      "expected_endpoint_pressure": 0.029690083605687055
+    },
+    {
+      "step": 22,
+      "time": 1.3823007675795091,
+      "load": 0.029781476007338055,
+      "pressure_mean": 0.029827172208129128,
+      "expected_endpoint_pressure": 0.029827172208163555
+    },
+    {
+      "step": 23,
+      "time": 1.4451326206513049,
+      "load": 0.029892723329629882,
+      "pressure_mean": 0.02992549889031577,
+      "expected_endpoint_pressure": 0.029925498890363045
+    },
+    {
+      "step": 24,
+      "time": 1.5079644737231008,
+      "load": 0.029964928592495044,
+      "pressure_mean": 0.029984643443709887,
+      "expected_endpoint_pressure": 0.029984643443561044
+    },
+    {
+      "step": 25,
+      "time": 1.5707963267948968,
+      "load": 0.029997806834748456,
+      "pressure_mean": 0.03000438853016807,
+      "expected_endpoint_pressure": 0.030004388530342162
+    },
+    {
+      "step": 26,
+      "time": 1.6336281798666925,
+      "load": 0.029991228300988583,
+      "pressure_mean": 0.02998464818645433,
+      "expected_endpoint_pressure": 0.029984648186311788
+    },
+    {
+      "step": 27,
+      "time": 1.6964600329384885,
+      "load": 0.029945218953682733,
+      "pressure_mean": 0.02992550433717872,
+      "expected_endpoint_pressure": 0.029925504337368205
+    },
+    {
+      "step": 28,
+      "time": 1.7592918860102844,
+      "load": 0.029859960370705048,
+      "pressure_mean": 0.029827188387628087,
+      "expected_endpoint_pressure": 0.029827188387373464
+    },
+    {
+      "step": 29,
+      "time": 1.8221237390820801,
+      "load": 0.029735789028731606,
+      "pressure_mean": 0.029690089349192164,
+      "expected_endpoint_pressure": 0.029690089349410677
+    },
+    {
+      "step": 30,
+      "time": 1.884955592153876,
+      "load": 0.029573194975320672,
+      "pressure_mean": 0.02951474778832736,
+      "expected_endpoint_pressure": 0.029514747788275664
+    },
+    {
+      "step": 31,
+      "time": 1.9477874452256718,
+      "load": 0.029372819894918918,
+      "pressure_mean": 0.0293018559483167,
+      "expected_endpoint_pressure": 0.02930185594824054
+    },
+    {
+      "step": 32,
+      "time": 2.0106192982974678,
+      "load": 0.02913545457642601,
+      "pressure_mean": 0.02905225389041862,
+      "expected_endpoint_pressure": 0.02905225389051874
+    },
+    {
+      "step": 33,
+      "time": 2.0734511513692637,
+      "load": 0.028862035792312148,
+      "pressure_mean": 0.028766926743294664,
+      "expected_endpoint_pressure": 0.028766926743208847
+    },
+    {
+      "step": 34,
+      "time": 2.1362830044410597,
+      "load": 0.028553642601605065,
+      "pressure_mean": 0.028447000530656543,
+      "expected_endpoint_pressure": 0.02844700053080317
+    },
+    {
+      "step": 35,
+      "time": 2.199114857512855,
+      "load": 0.02821149209133704,
+      "pressure_mean": 0.028093737871796476,
+      "expected_endpoint_pressure": 0.02809373787160397
+    },
+    {
+      "step": 36,
+      "time": 2.261946710584651,
+      "load": 0.0278369345732584,
+      "pressure_mean": 0.027708532923963254,
+      "expected_endpoint_pressure": 0.027708532924085615
+    },
+    {
+      "step": 37,
+      "time": 2.324778563656447,
+      "load": 0.027431448254773942,
+      "pressure_mean": 0.027292905920181305,
+      "expected_endpoint_pressure": 0.027292905920118106
+    },
+    {
+      "step": 38,
+      "time": 2.387610416728243,
+      "load": 0.026996633405133655,
+      "pressure_mean": 0.026848497147594748,
+      "expected_endpoint_pressure": 0.02684849714764143
+    },
+    {
+      "step": 39,
+      "time": 2.450442269800039,
+      "load": 0.026534206039901052,
+      "pressure_mean": 0.02637706048608055,
+      "expected_endpoint_pressure": 0.02637706048603086
+    },
+    {
+      "step": 40,
+      "time": 2.5132741228718345,
+      "load": 0.02604599114862375,
+      "pressure_mean": 0.025880456479878088,
+      "expected_endpoint_pressure": 0.02588045647992019
+    },
+    {
+      "step": 41,
+      "time": 2.5761059759436304,
+      "load": 0.025533915492433442,
+      "pressure_mean": 0.025360644998698695,
+      "expected_endpoint_pressure": 0.025360644998690063
+    },
+    {
+      "step": 42,
+      "time": 2.6389378290154264,
+      "load": 0.025,
+      "pressure_mean": 0.024819677500660994,
+      "expected_endpoint_pressure": 0.02481967750065497
+    },
+    {
+      "step": 43,
+      "time": 2.7017696820872223,
+      "load": 0.024446351791849275,
+      "pressure_mean": 0.02425968893745537,
+      "expected_endpoint_pressure": 0.024259688937446428
+    },
+    {
+      "step": 44,
+      "time": 2.7646015351590183,
+      "load": 0.023875155864521026,
+      "pressure_mean": 0.023682889328123284,
+      "expected_endpoint_pressure": 0.023682889328058326
+    },
+    {
+      "step": 45,
+      "time": 2.8274333882308142,
+      "load": 0.02328866646738583,
+      "pressure_mean": 0.02309155503692545,
+      "expected_endpoint_pressure": 0.023091555037049582
+    },
+    {
+      "step": 46,
+      "time": 2.8902652413026098,
+      "load": 0.022689198206152658,
+      "pressure_mean": 0.02248801979081681,
+      "expected_endpoint_pressure": 0.022488019790704198
+    },
+    {
+      "step": 47,
+      "time": 2.9530970943744057,
+      "load": 0.022079116908177595,
+      "pressure_mean": 0.021874665466834333,
+      "expected_endpoint_pressure": 0.021874665466914293
+    },
+    {
+      "step": 48,
+      "time": 3.0159289474462017,
+      "load": 0.021460830285624115,
+      "pressure_mean": 0.021253912695032823,
+      "expected_endpoint_pressure": 0.021253912694979026
+    },
+    {
+      "step": 49,
+      "time": 3.0787608005179976,
+      "load": 0.020836778433323152,
+      "pressure_mean": 0.020628211302448227,
+      "expected_endpoint_pressure": 0.020628211302495217
+    },
+    {
+      "step": 50,
+      "time": 3.1415926535897936,
+      "load": 0.020209424198833568,
+      "pressure_mean": 0.020000030647050544,
+      "expected_endpoint_pressure": 0.02000003064700274
+    },
+    {
+      "step": 51,
+      "time": 3.204424506661589,
+      "load": 0.019581243462708006,
+      "pressure_mean": 0.019371849870523213,
+      "expected_endpoint_pressure": 0.019371849870560637
+    },
+    {
+      "step": 52,
+      "time": 3.267256359733385,
+      "load": 0.018954715367323467,
+      "pressure_mean": 0.018746148115725954,
+      "expected_endpoint_pressure": 0.018746148115704884
+    },
+    {
+      "step": 53,
+      "time": 3.330088212805181,
+      "load": 0.01833231253283897,
+      "pressure_mean": 0.018125394741406523,
+      "expected_endpoint_pressure": 0.018125394741406013
+    },
+    {
+      "step": 54,
+      "time": 3.392920065876977,
+      "load": 0.017716491298893442,
+      "pressure_mean": 0.01751203957763218,
+      "expected_endpoint_pressure": 0.017512039577637157
+    },
+    {
+      "step": 55,
+      "time": 3.455751918948773,
+      "load": 0.01710968203055528,
+      "pressure_mean": 0.016908503257016195,
+      "expected_endpoint_pressure": 0.016908503257014346
+    },
+    {
+      "step": 56,
+      "time": 3.518583772020569,
+      "load": 0.016514279526781844,
+      "pressure_mean": 0.016317167661670982,
+      "expected_endpoint_pressure": 0.01631716766166559
+    },
+    {
+      "step": 57,
+      "time": 3.5814156250923643,
+      "load": 0.015932633569242,
+      "pressure_mean": 0.015740366523024303,
+      "expected_endpoint_pressure": 0.015740366523030205
+    },
+    {
+      "step": 58,
+      "time": 3.6442474781641603,
+      "load": 0.015367039648801378,
+      "pressure_mean": 0.015180376211685637,
+      "expected_endpoint_pressure": 0.015180376211686965
+    },
+    {
+      "step": 59,
+      "time": 3.7070793312359562,
+      "load": 0.014819729906268696,
+      "pressure_mean": 0.014639406753550565,
+      "expected_endpoint_pressure": 0.014639406753559561
+    },
+    {
+      "step": 60,
+      "time": 3.769911184307752,
+      "load": 0.014292864323155682,
+      "pressure_mean": 0.014119593107975314,
+      "expected_endpoint_pressure": 0.01411959310795374
+    },
+    {
+      "step": 61,
+      "time": 3.832743037379548,
+      "load": 0.013788522197216893,
+      "pressure_mean": 0.013622986741824626,
+      "expected_endpoint_pressure": 0.01362298674184847
+    },
+    {
+      "step": 62,
+      "time": 3.8955748904513436,
+      "load": 0.013308693936411417,
+      "pressure_mean": 0.013151547533717887,
+      "expected_endpoint_pressure": 0.013151547533692888
+    },
+    {
+      "step": 63,
+      "time": 3.9584067435231396,
+      "load": 0.012855273203671962,
+      "pressure_mean": 0.012707136038644606,
+      "expected_endpoint_pressure": 0.012707136038661498
+    },
+    {
+      "step": 64,
+      "time": 4.0212385965949355,
+      "load": 0.012430049443482432,
+      "pressure_mean": 0.012291506145899158,
+      "expected_endpoint_pressure": 0.012291506145892896
+    },
+    {
+      "step": 65,
+      "time": 4.084070449666731,
+      "load": 0.012034700819758035,
+      "pressure_mean": 0.011906298156698096,
+      "expected_endpoint_pressure": 0.011906298156690604
+    },
+    {
+      "step": 66,
+      "time": 4.1469023027385274,
+      "load": 0.011670787592899001,
+      "pressure_mean": 0.011553032310992644,
+      "expected_endpoint_pressure": 0.011553032311003198
+    },
+    {
+      "step": 67,
+      "time": 4.209734155810323,
+      "load": 0.011339745962155612,
+      "pressure_mean": 0.011233102787736595,
+      "expected_endpoint_pressure": 0.011233102787731819
+    },
+    {
+      "step": 68,
+      "time": 4.272566008882119,
+      "load": 0.011042882397605867,
+      "pressure_mean": 0.010947772202546118,
+      "expected_endpoint_pressure": 0.010947772202542892
+    },
+    {
+      "step": 69,
+      "time": 4.335397861953915,
+      "load": 0.010781368484114992,
+      "pressure_mean": 0.010698166624893814,
+      "expected_endpoint_pressure": 0.010698166624901043
+    },
+    {
+      "step": 70,
+      "time": 4.39822971502571,
+      "load": 0.010556236297625188,
+      "pressure_mean": 0.010485271133996011,
+      "expected_endpoint_pressure": 0.010485271133987261
+    },
+    {
+      "step": 71,
+      "time": 4.461061568097507,
+      "load": 0.010368374332023417,
+      "pressure_mean": 0.010309925931032589,
+      "expected_endpoint_pressure": 0.010309925931041495
+    },
+    {
+      "step": 72,
+      "time": 4.523893421169302,
+      "load": 0.010218523992661944,
+      "pressure_mean": 0.010172823023467878,
+      "expected_endpoint_pressure": 0.01017282302347217
+    },
+    {
+      "step": 73,
+      "time": 4.586725274241099,
+      "load": 0.010107276670370115,
+      "pressure_mean": 0.010074503493930338,
+      "expected_endpoint_pressure": 0.010074503493819088
+    },
+    {
+      "step": 74,
+      "time": 4.649557127312894,
+      "load": 0.010035071407504956,
+      "pressure_mean": 0.010015355364187515,
+      "expected_endpoint_pressure": 0.01001535536434789
+    },
+    {
+      "step": 75,
+      "time": 4.71238898038469,
+      "load": 0.010002193165251545,
+      "pressure_mean": 0.009995612065826096,
+      "expected_endpoint_pressure": 0.00999561206570337
+    },
+    {
+      "step": 76,
+      "time": 4.775220833456486,
+      "load": 0.010008771699011418,
+      "pressure_mean": 0.010015351515583058,
+      "expected_endpoint_pressure": 0.010015351515665441
+    },
+    {
+      "step": 77,
+      "time": 4.838052686528282,
+      "load": 0.010054781046317266,
+      "pressure_mean": 0.010074495811714802,
+      "expected_endpoint_pressure": 0.010074495811643179
+    },
+    {
+      "step": 78,
+      "time": 4.900884539600078,
+      "load": 0.010140039629294953,
+      "pressure_mean": 0.010172811538054065,
+      "expected_endpoint_pressure": 0.01017281153812084
+    },
+    {
+      "step": 79,
+      "time": 4.9637163926718735,
+      "load": 0.010264210971268398,
+      "pressure_mean": 0.010309910687845486,
+      "expected_endpoint_pressure": 0.010309910687842178
+    },
+    {
+      "step": 80,
+      "time": 5.026548245743669,
+      "load": 0.010426805024679327,
+      "pressure_mean": 0.010485252193054581,
+      "expected_endpoint_pressure": 0.010485252193097903
+    },
+    {
+      "step": 81,
+      "time": 5.089380098815465,
+      "load": 0.010627180105081088,
+      "pressure_mean": 0.010698144061182059,
+      "expected_endpoint_pressure": 0.01069814406107268
+    },
+    {
+      "step": 82,
+      "time": 5.152211951887261,
+      "load": 0.010864545423573993,
+      "pressure_mean": 0.010947746104716754,
+      "expected_endpoint_pressure": 0.01094774610482465
+    },
+    {
+      "step": 83,
+      "time": 5.215043804959057,
+      "load": 0.011137964207687857,
+      "pressure_mean": 0.011233073259200903,
+      "expected_endpoint_pressure": 0.01123307325911946
+    },
+    {
+      "step": 84,
+      "time": 5.277875658030853,
+      "load": 0.011446357398394936,
+      "pressure_mean": 0.011552999467977524,
+      "expected_endpoint_pressure": 0.011552999468032675
+    },
+    {
+      "step": 85,
+      "time": 5.340707511102649,
+      "load": 0.011788507908662966,
+      "pressure_mean": 0.011906262129015483,
+      "expected_endpoint_pressure": 0.011906262128978112
+    },
+    {
+      "step": 86,
+      "time": 5.403539364174445,
+      "load": 0.012163065426741606,
+      "pressure_mean": 0.012291467075597572,
+      "expected_endpoint_pressure": 0.012291467075623353
+    },
+    {
+      "step": 87,
+      "time": 5.46637121724624,
+      "load": 0.01256855174522606,
+      "pressure_mean": 0.012707094080084733,
+      "expected_endpoint_pressure": 0.012707094080027414
+    },
+    {
+      "step": 88,
+      "time": 5.529203070318037,
+      "load": 0.01300336659486636,
+      "pressure_mean": 0.013151502852193395,
+      "expected_endpoint_pressure": 0.013151502852285833
+    },
+    {
+      "step": 89,
+      "time": 5.592034923389832,
+      "load": 0.013465793960098955,
+      "pressure_mean": 0.013622939514041837,
+      "expected_endpoint_pressure": 0.013622939514005516
+    },
+    {
+      "step": 90,
+      "time": 5.6548667764616285,
+      "load": 0.01395400885137626,
+      "pressure_mean": 0.014119543520085402,
+      "expected_endpoint_pressure": 0.01411954352006163
+    },
+    {
+      "step": 91,
+      "time": 5.717698629533424,
+      "load": 0.014466084507566566,
+      "pressure_mean": 0.014639355001281619,
+      "expected_endpoint_pressure": 0.014639355001319031
+    },
+    {
+      "step": 92,
+      "time": 5.7805304826052195,
+      "load": 0.015000000000000003,
+      "pressure_mean": 0.015180322499369892,
+      "expected_endpoint_pressure": 0.015180322499340489
+    },
+    {
+      "step": 93,
+      "time": 5.843362335677016,
+      "load": 0.015553648208150733,
+      "pressure_mean": 0.01574031106253566,
+      "expected_endpoint_pressure": 0.015740311062555856
+    },
+    {
+      "step": 94,
+      "time": 5.906194188748811,
+      "load": 0.016124844135478975,
+      "pressure_mean": 0.016317110671952368,
+      "expected_endpoint_pressure": 0.016317110671940534
+    },
+    {
+      "step": 95,
+      "time": 5.969026041820608,
+      "load": 0.016711333532614177,
+      "pressure_mean": 0.016908444962945895,
+      "expected_endpoint_pressure": 0.016908444962951
+    },
+    {
+      "step": 96,
+      "time": 6.031857894892403,
+      "load": 0.01731080179384735,
+      "pressure_mean": 0.017511980209307765,
+      "expected_endpoint_pressure": 0.017511980209295525
+    },
+    {
+      "step": 97,
+      "time": 6.094689747964199,
+      "load": 0.01792088309182241,
+      "pressure_mean": 0.018125334533064568,
+      "expected_endpoint_pressure": 0.01812533453308585
+    },
+    {
+      "step": 98,
+      "time": 6.157521601035995,
+      "load": 0.0185391697143759,
+      "pressure_mean": 0.018746087305037875,
+      "expected_endpoint_pressure": 0.018746087305020927
+    },
+    {
+      "step": 99,
+      "time": 6.220353454107791,
+      "load": 0.01916322156667686,
+      "pressure_mean": 0.01937178869749072,
+      "expected_endpoint_pressure": 0.019371788697504826
+    },
+    {
+      "step": 100,
+      "time": 6.283185307179587,
+      "load": 0.01979057580116644,
+      "pressure_mean": 0.019999969352998213,
+      "expected_endpoint_pressure": 0.019999969352997245
+    }
+  ]
+}

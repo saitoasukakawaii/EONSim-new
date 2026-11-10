@@ -218,6 +218,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     if(bdf2) signature_values.insert(signature_values.end(),{20501.,2.});
     if(alpha) signature_values.insert(signature_values.end(),{20501.,3.,config.time_integration.rho_infinity});
     if(f.stabilization_tau) signature_values.insert(signature_values.end(),{20503.,*f.stabilization_tau});
+    if(f.stabilization_time_scale) signature_values.insert(signature_values.end(),{20505.,*f.stabilization_time_scale});
     if(!config.time_control.events.empty()) {
         signature_values.push_back(20502.);
         signature_values.insert(signature_values.end(),config.time_control.events.begin(),config.time_control.events.end());
@@ -406,7 +407,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 for(int c=0;c<Space3::dimension;++c) speed2+=physical[nc*n+c]*physical[nc*n+c]*Tet4Topology::mean_weight;
             }
             const double h=std::cbrt(Tet4Topology::jacobian_scale*data[e].reference_geometry.volume);
-            const double tau=f.stabilization_tau.value_or(1/std::sqrt(4*f.density*f.density/(integration_dt*integration_dt)+4*f.density*f.density*speed2/(h*h)+16*f.viscosity*f.viscosity/(h*h*h*h)));
+            const double tau_dt=f.stabilization_time_scale.value_or(integration_dt);
+            const double tau=f.stabilization_tau.value_or(1/std::sqrt(4*f.density*f.density/(tau_dt*tau_dt)+4*f.density*f.density*speed2/(h*h)+16*f.viscosity*f.viscosity/(h*h*h*h)));
             data[e].fluid={f.density,f.viscosity,integration_dt,tau,true};
             data[e].mesh_dt=mesh_dt;
             data[e].inlet_pressure=pressure;

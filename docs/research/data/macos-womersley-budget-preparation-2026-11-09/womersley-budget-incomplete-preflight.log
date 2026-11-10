@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/audit-womersley-budget.py", line 76, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/audit-womersley-budget.py", line 60, in main
+    if receipt['step']!=6*definition['steps_per_cycle']:raise ValueError('Incomplete six-cycle study: '+str(work))
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Incomplete six-cycle study: build/recompute-20261109/alpha1-s96-l1-n400

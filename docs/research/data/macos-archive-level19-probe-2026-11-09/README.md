@@ -1,0 +1,5 @@
+# Higher archive compression probe
+
+89383 exited0: one immutable128MiB-logical geometry volume chunk recompressed from zstd3 to19,1thread. Original41623357B, probe24473509B; 41.202462% smaller. Both decoded tar byte streams have SHAf1a224bb8c448771aa05411d9a722cf8776f488215bf86f9707a0076dcea1758. Original archive untouched and original restoration receipt unchanged. This is one sample, not a claim for all archives or numerical accuracy. Encoding51.606s under concurrent computation, not a controlled performance benchmark.
+
+The attempted nice priority adjustment emitted Operation not permitted; encoding still ran and exited0. Do not claim reduced priority. No escalation rejection occurred. Temporary probe retained outside canonical archives. Any adoption must verify old archive hash, decoded old/new equality, update every affected restoration receipt with a recoverable transaction, preserve historical old/new hashes, and verify the resulting current catalog. No archive migration has yet occurred. Reuses existing storage method; no new article.

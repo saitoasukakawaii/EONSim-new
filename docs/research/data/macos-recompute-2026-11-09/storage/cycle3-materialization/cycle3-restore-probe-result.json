@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "build/recompute-20261109/restore-archived-womersley-cycle3.py",
+    "build/recompute-20261109/archives/cycle3-one-member-restore-probe.json"
+  ],
+  "exit_code": 0,
+  "stdout": "Restored/verified 1 members; original archival receipt retained\n",
+  "step": 1000,
+  "restored_sha256": "2020f0555d7e40a3a23033eba2344121cbb161b77d855f3c25ed880d606aa0ff",
+  "removed_only_restored_materialization": true,
+  "archive_preserved": true
+}

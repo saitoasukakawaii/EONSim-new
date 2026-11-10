@@ -1,0 +1,80 @@
+{
+  "mesh": "fluid.msh",
+  "output": "solution.vtu",
+  "fsi": {
+    "body": "elastic",
+    "material": "linear",
+    "domains": {
+      "solid_mesh": "solid.msh",
+      "fluid_region": 10,
+      "solid_region": 20,
+      "fluid_interface": 3,
+      "solid_interface": 13,
+      "pressure_tags": [
+        1,
+        2
+      ],
+      "fluid_constraints": [],
+      "mesh_constraints": [
+        {
+          "tag": 1,
+          "components": [
+            0,
+            1,
+            2
+          ]
+        },
+        {
+          "tag": 2,
+          "components": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "solid_constraints": [
+        {
+          "tag": 11,
+          "components": [
+            0,
+            1,
+            2
+          ]
+        },
+        {
+          "tag": 12,
+          "components": [
+            0,
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    "young": 1000,
+    "poisson": 0.3,
+    "dt": 0.003926990816987242,
+    "steps": 51200,
+    "pressure": 0.02,
+    "output_interval": 1,
+    "density": 1,
+    "solid_density": 1,
+    "viscosity": 1,
+    "pressure_time": {
+      "amplitude": 0.01,
+      "period": 6.283185307179586,
+      "ramp_time": 100.53096491487338
+    },
+    "checkpoint_interval": 1600
+  },
+  "time": {
+    "scheme": "generalized_alpha",
+    "rho_infinity": 0.5
+  },
+  "solver": {
+    "relative_tolerance": 1e-11,
+    "absolute_tolerance": 1e-13,
+    "maximum_iterations": 30
+  }
+}

@@ -1,0 +1,18 @@
+[
+  "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha1-s96-l1-screen/eonsim",
+  "-case",
+  "case.json",
+  "-checkpoint",
+  "checkpoint",
+  "-stop_after",
+  "32",
+  "-solver_report",
+  "-pc_factor_mat_solver_type",
+  "mumps",
+  "-snes_lag_jacobian",
+  "-2",
+  "-log_view",
+  ":profile.txt",
+  "-fluid_lu_pc_reuse_window",
+  "32"
+]

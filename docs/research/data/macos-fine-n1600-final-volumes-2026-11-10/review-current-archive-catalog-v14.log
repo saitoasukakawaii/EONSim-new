@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/review-current-archive-catalog-v14.py", line 28, in <module>
+    r=json.loads(rp.read_text());assert r['status']=='evicted' and Path(r['work'])==w and Path(r['source_manifest'])==manifest and r['source_manifest_sha256']==mh
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

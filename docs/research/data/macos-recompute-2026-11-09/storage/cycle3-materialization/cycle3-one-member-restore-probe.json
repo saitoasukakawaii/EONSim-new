@@ -1,0 +1,29 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha1-s96-l1-n400",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n400.tar.zst",
+  "archive_sha256": "98660a13b374d229085bdd73995484c256ff17f2d5afe77bf97ff6e963379975",
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha1-fine-2026-11-09/raw-manifest.json",
+  "source_manifest_sha256": "80975ab21a0b1b70107dbb2f05139171197b61c796cb2028b98c16e31c3c6c73",
+  "selected": {
+    "checkpoint/generation_1794197757410476/state_rank0.h5": {
+      "step": 1000,
+      "sha256": "2020f0555d7e40a3a23033eba2344121cbb161b77d855f3c25ed880d606aa0ff",
+      "bytes": 3241128,
+      "allocated_bytes": 3244032
+    }
+  },
+  "status": "evicted",
+  "dependencies": {
+    "completed": "Full analytic/periodic analysis and complete raw archive verification",
+    "remaining": "Budget uses cycles5/6; tau decomposition uses cycle6; repeated analytic audit uses cycles4/5/6. All these states retained. Cycle endpoints400/800/1200/1600/2000/2400 and current receipt retained."
+  },
+  "scope": "Only redundant materialization removed. Complete original bytes remain in verified archive; restore selected HDF members before any future cycle3 analysis or full directory inventory audit.",
+  "restore_command": [
+    "python3",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-archived-womersley-cycle3.py",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha1-s96-l1-n400-cycle3-materialization.json"
+  ],
+  "observed_free_change_bytes": 1288429568,
+  "removed_allocated_bytes": 1294368768,
+  "finished_unix": 1794208728.0675101
+}

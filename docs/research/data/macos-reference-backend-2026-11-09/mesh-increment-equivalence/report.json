@@ -1,0 +1,93 @@
+{
+  "definition": {
+    "source_commit": "15282e743d000eac3a4c70dbee238b059cad400e",
+    "upstream": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "trilinos": "4a5f7906a6420ee2f9450367e9cc95b28c00d744",
+    "old_sha256": "dfa4cab5b5a3521ee27c9629c2b148ab87de3a9fbae724b5e40a24c220ced3f8",
+    "new_sha256": "29cf7cf94de9d7cbab04592566e5afb5c1a1a4c111b3f9fe13b69ec184b2c3f8",
+    "node_limit": 2e-09,
+    "mass_relative_limit": 1e-08,
+    "history_limit": 2e-09,
+    "ranks": 1,
+    "threads": 1,
+    "scope": "Explicit mesh-increment derivative vs fixed source on already converged coarseN400 startup/loaded/replay; not unmodified reference or production adoption",
+    "source_convergence_sha256": "92399fd7ed8f7f88421e8a7fa00c23e17ab9e824d00d33901d167c7e555df25d",
+    "patch": {
+      "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+      "patch_sha256": "84229b97588dd50377bd59547c7973c397a7dfdd1845d57f9853c06a3087c155",
+      "changed": [
+        "Code/Source/svFSI/MESH.f"
+      ],
+      "scope": "Diagnostic only: alpha*(Dn-Do) instead of ((1-alpha)*Do+alpha*Dn)-Do. Original stopping rules, equations, tolerances, geometry and tangent unchanged. No strict-stop patch included; not adopted."
+    }
+  },
+  "runs": {
+    "startup-old": {
+      "seconds": 3.858889291062951,
+      "peak_rss_bytes": 48726016,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "startup-increment": {
+      "seconds": 3.0058512079995126,
+      "peak_rss_bytes": 48562176,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "loaded-old": {
+      "seconds": 3.627652916125953,
+      "peak_rss_bytes": 49709056,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-increment": {
+      "seconds": 3.637360584223643,
+      "peak_rss_bytes": 48414720,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-replay": {
+      "seconds": 2.1349858338944614,
+      "peak_rss_bytes": 49561600,
+      "exit_code": 0,
+      "start": 12410,
+      "stop": 12420
+    }
+  },
+  "comparisons": {
+    "startup-increment": {
+      "pairs": 20,
+      "maximum_node_delta": 1.2116903504194741e-27,
+      "maximum_relative_mass": 1.682322506876103e-24,
+      "maximum_native_history_delta": 1.3881124654405496e-23,
+      "exact_native_time": true,
+      "exact_saved_equation_norms": true,
+      "passed": true
+    },
+    "loaded-increment": {
+      "pairs": 20,
+      "maximum_node_delta": 2.740863092043355e-16,
+      "maximum_relative_mass": 4.202303488305527e-14,
+      "maximum_native_history_delta": 8.339075957541908e-14,
+      "exact_native_time": true,
+      "exact_saved_equation_norms": true,
+      "passed": true
+    },
+    "loaded-replay": {
+      "pairs": 10,
+      "maximum_node_delta": 0.0,
+      "maximum_relative_mass": 0.0,
+      "maximum_native_history_delta": 0.0,
+      "exact_native_time": true,
+      "exact_saved_equation_norms": true,
+      "passed": true
+    }
+  },
+  "passed": true,
+  "adopted": false,
+  "scope": "Explicit mesh-increment derivative vs fixed source on already converged coarseN400 startup/loaded/replay; not unmodified reference or production adoption"
+}

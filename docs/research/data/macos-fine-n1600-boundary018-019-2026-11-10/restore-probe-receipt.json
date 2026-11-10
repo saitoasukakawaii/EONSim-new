@@ -1,0 +1,24 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/fine-n1600-boundary018-019-restore-probe",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n1600-boundary-segments018-019-chunks/0000.tar.zst",
+  "archive_sha256": "c29d71219e43ae9a2adb8d9cc14b95ff2a656e8e5ffec4fe1dca136706dd6b22",
+  "archive_bytes": 40084178,
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/fine-n1600-boundary-segments018-019-before-archive.json",
+  "source_manifest_sha256": "8638ec97d52e4ea37834b7a56ae4567cb69b51482a6dc7a06949d451a57c6df6",
+  "selected": {
+    "dense-018/solution_restart50752_step50753_boundary.vtu": {
+      "bytes": 2013487,
+      "sha256": "1d35e59e25c12a737b2bf65d17feb58fdf8b44f3a0fe8697bf28714f32a5278b",
+      "allocated_bytes": 1089536
+    },
+    "dense-018/solution_restart50752_step50753_solid_boundary.vtu": {
+      "bytes": 1254373,
+      "sha256": "3c9dcd0f338fa77c6d02a490f40354aac4c962549d6754f7f3f5835dc48d4fde",
+      "allocated_bytes": 598016
+    }
+  },
+  "status": "evicted",
+  "scope": "Completed fine N1600 final-segment boundary outputs only; volume/PVD/checkpoint/logs retained. Restore this receipt with restore-womersley-materialization.py before any boundary consumer or full raw inventory replay.",
+  "removed_allocated_bytes": 68673536,
+  "finished_unix": 1794249434.559829
+}

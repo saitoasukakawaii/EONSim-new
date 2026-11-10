@@ -1,0 +1,25 @@
+{
+  "sessions": [
+    60269,
+    43108
+  ],
+  "exit_codes": [
+    1,
+    1
+  ],
+  "source_sha256": "a5067c7a8bd4e54f5815b9a12cc5edad8182e73f20c264625b1a6fcf9ba9bc92",
+  "failure": "AssertionError at len(selected)==2*(29+3*n)",
+  "cause": "Each early/dense directory also contains two final alias boundary VTUs without _step; first selector included four extra aliases",
+  "boundary_counts": {
+    "400": {
+      "early": 60,
+      "dense": 2402
+    },
+    "800": {
+      "early": 60,
+      "dense": 4802
+    }
+  },
+  "mutation_occurred": false,
+  "proof": "Count assertion precedes archive decoding, receipt publication and every unlink. No materialization receipt exists for either study."
+}

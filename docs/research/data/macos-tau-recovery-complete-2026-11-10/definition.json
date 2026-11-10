@@ -1,0 +1,35 @@
+{
+  "source_commit": "c3215a2487bd61e11264eef797eeeffc01a6c907",
+  "steps_per_cycle": 800,
+  "cycles": 32,
+  "ramp_cycles": 16,
+  "seed": [
+    24,
+    2,
+    12
+  ],
+  "level": 1,
+  "ranks": 1,
+  "threads": 1,
+  "memory_rss_limit_bytes": 3221225472,
+  "disk_floor_bytes": 21474836480,
+  "binary_sha256": "47ed3b523bdfd68105cbf50fb2e626da73943c52765e1f7003a15edf6a2bfa06",
+  "inputs": {
+    "case.json": "b21d73801b7c7d4ccf80385e89bf99890c49201b560789e817c699ac68e7aef1",
+    "fluid.msh": "5e5ac5f5a55b30719057aeef359332d9a5d4dbf2aa333c8646429aab8292b907",
+    "solid.msh": "261a05077455d92780edbbba5df520d995b5502a5eb5549f24721299b7405a85",
+    "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e"
+  },
+  "solver_options": [
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32"
+  ],
+  "controller_sha256": "31ccc8e8ab5c6c872803e8bde5633c2eee9d29b9cba045ed40d50c9f70e3b328",
+  "preparation_sha256": "beae5400f091c1c97dbc50e3a68f3833897059df0da8936eac0c2dac76cf1c9e",
+  "stabilization_time_scale": 0.008377580409572784,
+  "scope": "Fresh32cycle N800 control; only tau time term fixed to N400 generalized-alpha fluid effective time. Also applied in BE startup. Not default qualification; all existing budget gates retained."
+}

@@ -1,0 +1,21 @@
+{
+  "material_time_load_config_equal": true,
+  "checks": {
+    "fluid.msh": {
+      "short_nodes": 4225,
+      "long_nodes": 8281,
+      "axial_spacing": 0.5,
+      "short_volume": 37.26994249476299,
+      "long_volume": 74.53988498952597
+    },
+    "solid.msh": {
+      "short_nodes": 3600,
+      "long_nodes": 7056,
+      "axial_spacing": 0.5,
+      "short_volume": 16.398774697695714,
+      "long_volume": 32.79754939539143
+    }
+  },
+  "generator_sha256": "14141598a9ec840348daeac12b2a61dcf43b5a7503258b186726c1acd6b1804c",
+  "scope": "Input geometry verification only; long-run finite-end qualification pending"
+}

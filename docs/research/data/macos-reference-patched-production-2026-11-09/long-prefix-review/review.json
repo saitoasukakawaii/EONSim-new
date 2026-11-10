@@ -1,0 +1,65 @@
+{
+  "source_commit": "8c0095b342f5a3d4650d0fa5b9d23655479ef64a",
+  "records": [
+    {
+      "work": "build/recompute-20261109/reference-patched-elastic-s24-l0-n800-nu0",
+      "last_step": 4917,
+      "passed": false,
+      "caps": 1620,
+      "max_ratio": {
+        "FS": 2.5e-11,
+        "MS": 1.6e-10
+      },
+      "first_failed": [
+        {
+          "step": 474,
+          "equation": "MS",
+          "iteration": 30,
+          "relative_to_step": 1e-10,
+          "relative_to_initial": 7.57e-05,
+          "tolerance": 1e-10,
+          "at_iteration_limit": true
+        }
+      ]
+    },
+    {
+      "work": "build/recompute-20261109/reference-patched-elastic-s24-l1-n400-nu0",
+      "last_step": 571,
+      "passed": true,
+      "caps": 0,
+      "max_ratio": {
+        "FS": 5e-11,
+        "MS": 9.9e-11
+      },
+      "first_failed": []
+    },
+    {
+      "work": "build/recompute-20261109/reference-patched-elastic-s24-l1-n800-nu0",
+      "last_step": 617,
+      "passed": true,
+      "caps": 0,
+      "max_ratio": {
+        "FS": 3.5e-11,
+        "MS": 9.9e-11
+      },
+      "first_failed": []
+    }
+  ],
+  "files": {
+    "reference-patched-elastic-s24-l1-n400-nu0/convergence.json": "494a98df6cc51d5d3656235f34b9cd56debcd6beb7dfa58cddb2eae32653cff7",
+    "reference-patched-elastic-s24-l1-n400-nu0/frozen.log": "f4076c0f4a65e38323189148b74230c7711a1ecec0de7b2485432dfa9212dcd6",
+    "reference-patched-elastic-s24-l1-n400-nu0/audit-command.json": "b58e75ec6a702a80554cb6e84609fa02e615ddd3f0aebf990a3d0191de9cb118",
+    "reference-patched-elastic-s24-l1-n400-nu0/execution.json": "3453d77e83edbb6691a16a51c6dc407ac95f6819bef143c07bf189560f3c254d",
+    "reference-patched-elastic-s24-l0-n800-nu0/convergence.json": "be29df00aedfbe27349053f18e665427034073aea834a6cf43bb702f1f05fc00",
+    "reference-patched-elastic-s24-l0-n800-nu0/qualification-stop.json": "4bc014a5df59aa477af9d6fa6fb3650f89f1a70aee60edba06075c74fb27d4f2",
+    "reference-patched-elastic-s24-l0-n800-nu0/frozen.log": "8acac1589d54616e7be503042588072c51b6b7553e4fa4a81b89b2349e5bb450",
+    "reference-patched-elastic-s24-l0-n800-nu0/audit-command.json": "6d681b549fb7c1a4ef348454db289d90bdadf033cf4275198b0a528fc51fa182",
+    "reference-patched-elastic-s24-l0-n800-nu0/process-result.json": "5696b61e580a6b672f6c435102c8e45284e145561c1ac5646ef73761dd5b2ecd",
+    "reference-patched-elastic-s24-l0-n800-nu0/failure.json": "378110212e2e5ea598c98344b01f6ddf2dcec390f7cf4a47aafb563242b64358",
+    "reference-patched-elastic-s24-l0-n800-nu0/execution.json": "ff8507ad194dfc71e72a4b601fb9b3ee3a64d1bddbd929bb0315a27fbfbabaa1",
+    "reference-patched-elastic-s24-l1-n800-nu0/convergence.json": "e84304bb4f0a6c2974eaeada85bc0f3ff076243ef8666a10100463ba1d270741",
+    "reference-patched-elastic-s24-l1-n800-nu0/frozen.log": "57d2dcbe8a0a5e545737b079bf2b717f855145cc8f51904d402e138c5a621713",
+    "reference-patched-elastic-s24-l1-n800-nu0/audit-command.json": "2fbca2602e487efac54106a5fb37b0d1b3fbf276ef08c135312a2aa94bf46b96",
+    "reference-patched-elastic-s24-l1-n800-nu0/execution.json": "c2ed810b28e8c586fe120f98ad7c68ae9c3ebaadb662441d0929d4b31e8a50ff"
+  }
+}

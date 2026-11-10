@@ -1,0 +1,103 @@
+{
+  "passed": true,
+  "rows": [
+    {
+      "family": "womersley",
+      "domain": "fluid",
+      "sectors": 96,
+      "length": 2,
+      "mesh_paths": [
+        "alpha1-s96-l0-n400/fluid.msh",
+        "alpha1-s96-l1-n400/fluid.msh"
+      ],
+      "mesh_sha256": [
+        "e655c0a9f973bd308118646bd513cf6e18bc7dee7bc655f2a71f21f231c65f55",
+        "b7bb640c013fe13d4f2d56753cfe07c6c1410a860e2d1f628e191a56f1a064ee"
+      ],
+      "nodes": [
+        6921,
+        50609
+      ],
+      "cells": [
+        34560,
+        276480
+      ],
+      "volume": [
+        6.278700406093734,
+        6.278700406093734
+      ],
+      "analytic_polygon_volume": 6.2787004060937335,
+      "analytic_circular_volume": 6.283185307179586,
+      "circular_area_volume_relative_deficit": 0.00071379417709172,
+      "maximum_boundary_radial_deficit_over_radius": 0.0005354125236343155,
+      "exact_midpoint_refinement": true,
+      "scope": "Refinement preserves the polygonal domain. Circular area/radial deficits are geometry metrics, not solution error estimates or a replacement for geometry-response refinement."
+    },
+    {
+      "family": "elastic",
+      "domain": "fluid",
+      "sectors": 24,
+      "length": 12,
+      "mesh_paths": [
+        "elastic-s24-l0-n800/fluid.msh",
+        "elastic-s24-l1-n400/fluid.msh"
+      ],
+      "mesh_sha256": [
+        "b62a8e6db6eda32acec5ed3d9226b1737a659651cf5db08aee38f4ba54a10d12",
+        "5e5ac5f5a55b30719057aeef359332d9a5d4dbf2aa333c8646429aab8292b907"
+      ],
+      "nodes": [
+        637,
+        4225
+      ],
+      "cells": [
+        2592,
+        20736
+      ],
+      "volume": [
+        37.26994249476299,
+        37.26994249476299
+      ],
+      "analytic_polygon_volume": 37.26994249476299,
+      "analytic_circular_volume": 37.69911184307752,
+      "circular_area_volume_relative_deficit": 0.011384070534630863,
+      "maximum_boundary_radial_deficit_over_radius": 0.008555138626189618,
+      "exact_midpoint_refinement": true,
+      "scope": "Refinement preserves the polygonal domain. Circular area/radial deficits are geometry metrics, not solution error estimates or a replacement for geometry-response refinement."
+    },
+    {
+      "family": "elastic",
+      "domain": "solid",
+      "sectors": 24,
+      "length": 12,
+      "mesh_paths": [
+        "elastic-s24-l0-n800/solid.msh",
+        "elastic-s24-l1-n400/solid.msh"
+      ],
+      "mesh_sha256": [
+        "5456e2a9c68f998a695a18ec9b15c23e9ee7e0dc7be63b7f5497bcc785e06289",
+        "261a05077455d92780edbbba5df520d995b5502a5eb5549f24721299b7405a85"
+      ],
+      "nodes": [
+        624,
+        3600
+      ],
+      "cells": [
+        1728,
+        13824
+      ],
+      "volume": [
+        16.398774697695714,
+        16.398774697695714
+      ],
+      "analytic_polygon_volume": 16.39877469769571,
+      "analytic_circular_volume": 16.587609210954106,
+      "circular_area_volume_relative_deficit": 0.011384070534630975,
+      "maximum_boundary_radial_deficit_over_radius": 0.008555138626189618,
+      "exact_midpoint_refinement": true,
+      "scope": "Refinement preserves the polygonal domain. Circular area/radial deficits are geometry metrics, not solution error estimates or a replacement for geometry-response refinement."
+    }
+  ],
+  "source_sha256": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+  "scope": "Actual fresh coarse/fine meshes verified against exact midpoint refinement and independent regular-polygon volume; no new PDE solve or geometry-response qualification"
+}

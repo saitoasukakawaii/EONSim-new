@@ -1,0 +1,57 @@
+{
+  "source_commit": "782d67f5b928f17d96c3a3093dd69c838b195f72",
+  "source_case": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n800/case.json",
+  "source_inputs": {
+    "case.json": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+    "fluid.msh": "b62a8e6db6eda32acec5ed3d9226b1737a659651cf5db08aee38f4ba54a10d12",
+    "solid.msh": "5456e2a9c68f998a695a18ec9b15c23e9ee7e0dc7be63b7f5497bcc785e06289",
+    "geometry.json": "acd864c420e15296c6b394901e443811e88db5e06bf0f1b2b00a66352ccd86a4"
+  },
+  "binary_sha256": "f249a3febc94ad0de49971e5bf488d08fd8b9cfc8b4fc4a4d4e09b42e2047224",
+  "backend": "fsils",
+  "backend_proof": {
+    "adoption_path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-patched-adoption.json",
+    "adoption_sha256": "d8520b6281ffba9ff67104fa900d71d63e003a4c30af38c46c4ca34641c2034c",
+    "proofs": {
+      "reference-strict-increment-startup/definition.json": "41d56935b49ee01f58716bec16bd670aeefe74d8793bbe615140a53c775c54ec",
+      "reference-strict-increment-coarse-startup/definition.json": "0aade5848aa6d904e7e8d47a5f138e474bf7c27bd62367c7ef56aedeec5e3e2e",
+      "reference-strict-increment-equivalence/definition.json": "da870435d5536c4edbd148e1648bf91ab16463c65ca567a4da4832c587eda417",
+      "reference-strict-increment-startup/cg-fsils/convergence-reviewed.json": "23df6b5112833a4285a517fad0172dda6df3d8c233dff2c2bf2652d236a06698",
+      "reference-strict-increment-coarse-startup/cg-fsils/convergence.json": "275467e54a82dc4ad68101d8fed912a11cdef0c8a51495c11df129aea7061482",
+      "reference-strict-increment-equivalence/report.json": "3f379fc4b30770be0080448da81d81144c91dcadfab59460b3072a4a658cdffd",
+      "reference-strict-increment-equivalence/independent-review.json": "acd0e6d5baea67b6c1c422ffb50085e3f20a45bddbde0ccbc4af42dbe3f10c38",
+      "reference-strict-increment-startup/field-diagnostic.json": "3aaf564bb64afba9def28e0f93312cbc019e1099959490c3b561e095aab49877",
+      "svfsi-strict-increment-configure.log": "5db22770ca81e6cd516595a44ff7d723fe8760fde6771438ee397ad76bae225e",
+      "svfsi-strict-increment-build.log": "b8d9cbc2fec090c487743372c3ec1e846b0fff9bb94bbf8f104ef4d2fd6f3f24",
+      "svfsi-strict-increment-definition.json": "8bfa4665658d30ef6f36776b9c5957a464fea0f3a9d280c15a7d55412b5544d5"
+    }
+  },
+  "level": 0,
+  "steps_per_cycle": 800,
+  "cycles": 32,
+  "ramp_cycles": 16,
+  "ranks": 1,
+  "threads": 1,
+  "command": [
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-patched-elastic-s24-l0-n800-nu0/svFSI",
+    "svFSI.inp"
+  ],
+  "start_unix": 1794206301.20705,
+  "rss_limit_bytes": 3221225472,
+  "disk_floor_bytes": 21474836480,
+  "timeout_seconds": 86400,
+  "reference_build": {
+    "kind": "patched-fixed-reference",
+    "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "binary": {
+      "path": "svFSI",
+      "sha256": "f249a3febc94ad0de49971e5bf488d08fd8b9cfc8b4fc4a4d4e09b42e2047224"
+    },
+    "patch": {
+      "path": "source.patch",
+      "sha256": "e5191d7ef1f70ea1b71fc7b8c8e1fc6df8dc696696b0035fb6da5d0208f8ab10"
+    }
+  },
+  "user_authorization": "\u5141\u8bb8\u91c7\u7528\u6709\u8bb0\u5f55\u3001\u7ecf\u9a8c\u8bc1\u7684\u8865\u4e01",
+  "scope": "Fresh zero-state full32cycles with explicitly patched pinned reference; full convergence/fields/budgets required"
+}

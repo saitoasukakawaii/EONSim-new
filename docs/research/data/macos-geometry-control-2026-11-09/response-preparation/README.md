@@ -1,0 +1,7 @@
+# Elastic control response analyzer preparation
+
+Baseline3a22d68. Runtime entry `build/recompute-20261109/compare-elastic-control-response.py` accepts --mode geometry|length, --baseline-work, --control-work, --baseline-audit, --control-audit and --output. It requires actual nonsynthetic complete final3cycle audits of32cycleN800 trajectories, matching case/solver/rank/thread definitions, and passing original quality/periodicity prerequisites. Mesh and case hashes bind each input to its audit. No fabricated acceptance limit is introduced.
+
+Geometry mode requires identical topology/tags/axial coordinates and verifies the specific24-to48 radial map. Length mode requiresL12/L24, otherwise identical physics, identical cross-section nodes and actual0.5 axial spacing. Observable means/amplitudes and wrapped phases are compared directly. An unresolved zero-amplitude phase stays undefined. Raw end flows are reported with an explicit warning that doubling compliant length also changes flow; these are response sensitivities, not exact continuum geometry/infinite-length errors.
+
+Executed `build/analysis-venv/bin/python build/recompute-20261109/test-elastic-control-response.py`: observable arithmetic,179-to-minus179 phase wrap, undefined zero-amplitude behavior and actual L12/L24 input/solver/spacing/cross-section checks pass. Full response comparison NOT RUN: baseline andL24 trajectories active, fullgeometry trajectory not started pending capacity. Existing same-polygon field-budget comparator unchanged.

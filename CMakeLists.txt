@@ -407,6 +407,12 @@ if(BUILD_TESTING)
             --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_stabilization_time")
     set_tests_properties(fluid_stabilization_time PROPERTIES TIMEOUT 180 PROCESSORS 2 LABELS "rank-1;rank-2"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME fsi_stabilization_time
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_stabilization_time.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_stabilization_time")
+    set_tests_properties(fsi_stabilization_time PROPERTIES TIMEOUT 300 PROCESSORS 2 LABELS "rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME restart_block_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_restart.py"
             --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"

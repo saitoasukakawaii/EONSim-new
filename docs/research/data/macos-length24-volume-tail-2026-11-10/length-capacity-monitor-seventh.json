@@ -1,0 +1,23 @@
+{
+  "observed_unix": 1794254859.89264,
+  "last_complete_step": 25350,
+  "free_bytes": 23539118080,
+  "through": 25331,
+  "events": [
+    {
+      "unix": 1794254752.717854,
+      "through": 25262,
+      "exit_code": 0,
+      "stdout": "{'proof': {'work': '/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-length24', 'checkpoint_generation': 'generation_1794253373664562', 'checkpoint_step': 24800, 'last_logged_step': 25263, 'accepted_log_prefix_sha256': '51eb92d8f17021fe21325272c1b85ed0ebbf6c9a1640fefd7791a06fba11701a', 'accepted_log_prefix_bytes': 1347367, 'frozen_source_commit': '2c0f392821052cd711f790e4ce966e2b4f0a1282', 'checkpoint_manifest_sha256': '8d614093df6c2541569788fa15c1f767e3c348a4e16f536b78fda982b94eff46', 'through': 25262, 'source_sha256': '756598343458a0aa85530fac7cd6ad25dbf571691ef26c81092f11bf28264cad', 'controller_sha256': '4fa2b74a42ce9d4b29e46327ff5b96fa4122a1082473777d0ad5e9f557a7637c', 'selected_frames': 82, 'selected_files': 328, 'scope': 'Frozen/current source output-before-accepted-log block matches byte-for-byte. Only tail steps25181 onward strictly before complete contiguous dense accepted-log record selected; earlier archived boundary prefix is excluded. Four files required; each replacement verifies stable source size/mtime and SHA. Current/future outputs, indexes/logs/checkpoints untouched.'}, 'saved_allocated_bytes': 507629568, 'seconds': 7.9063801765441895, 'logical_content_unchanged': True} compressed_files 328\n",
+      "stderr": ""
+    },
+    {
+      "unix": 1794254839.8752031,
+      "through": 25331,
+      "exit_code": 0,
+      "stdout": "{'proof': {'work': '/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-length24', 'checkpoint_generation': 'generation_1794253373664562', 'checkpoint_step': 24800, 'last_logged_step': 25332, 'accepted_log_prefix_sha256': '9ad38acbdb151419276ae93c01776b7942ff5d1813bd3bf810b5a06ab53267fe', 'accepted_log_prefix_bytes': 1392555, 'frozen_source_commit': '2c0f392821052cd711f790e4ce966e2b4f0a1282', 'checkpoint_manifest_sha256': '8d614093df6c2541569788fa15c1f767e3c348a4e16f536b78fda982b94eff46', 'through': 25331, 'source_sha256': '756598343458a0aa85530fac7cd6ad25dbf571691ef26c81092f11bf28264cad', 'controller_sha256': '4fa2b74a42ce9d4b29e46327ff5b96fa4122a1082473777d0ad5e9f557a7637c', 'selected_frames': 151, 'selected_files': 604, 'scope': 'Frozen/current source output-before-accepted-log block matches byte-for-byte. Only tail steps25181 onward strictly before complete contiguous dense accepted-log record selected; earlier archived boundary prefix is excluded. Four files required; each replacement verifies stable source size/mtime and SHA. Current/future outputs, indexes/logs/checkpoints untouched.'}, 'saved_allocated_bytes': 421015552, 'seconds': 7.012048959732056, 'logical_content_unchanged': True} compressed_files 276\n",
+      "stderr": ""
+    }
+  ],
+  "status": "held-for-capacity"
+}

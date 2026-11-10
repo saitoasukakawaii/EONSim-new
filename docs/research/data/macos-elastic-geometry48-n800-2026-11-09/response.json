@@ -1,0 +1,153 @@
+{
+  "mode": "geometry",
+  "prerequisites": [
+    {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true
+    },
+    {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true
+    }
+  ],
+  "observables": {
+    "mid_radial_displacement": {
+      "baseline": {
+        "mean": 0.00010738166942145435,
+        "sine": 1.0346561455109781e-05,
+        "cosine": -3.466242235054158e-05,
+        "amplitude": 3.6173676301306286e-05,
+        "phase_degrees": -73.37989615252958,
+        "higher_harmonic_rms": 4.971388046667056e-10
+      },
+      "control": {
+        "mean": 0.00010783298065269713,
+        "sine": 1.0700755105916043e-05,
+        "cosine": -3.499994491947655e-05,
+        "amplitude": 3.6599211797567175e-05,
+        "phase_degrees": -72.99970343492598,
+        "higher_harmonic_rms": 5.01265928512844e-10
+      },
+      "mean_difference": 4.513112312427766e-07,
+      "mean_relative_to_baseline": 0.004202870319248424,
+      "amplitude_difference": 4.2553549626088996e-07,
+      "amplitude_relative_to_baseline": 0.011763678447178542,
+      "phase_difference_degrees": 0.38019271760362017
+    },
+    "mid_ring_projected_area": {
+      "baseline": {
+        "mean": 3.1064994280480094,
+        "sine": 6.46451033115269e-05,
+        "cosine": -0.00021657105438213571,
+        "amplitude": 0.00022601329823341806,
+        "phase_degrees": -73.37996517941781,
+        "higher_harmonic_rms": 3.95280991660277e-09
+      },
+      "control": {
+        "mean": 3.1333052188518433,
+        "sine": 6.714605990921378e-05,
+        "cosine": -0.00021962079258973052,
+        "amplitude": 0.00022965601646609033,
+        "phase_degrees": -72.99970288473472,
+        "higher_harmonic_rms": 4.017618633316081e-09
+      },
+      "mean_difference": 0.02680579080383394,
+      "mean_relative_to_baseline": 0.008628937949194327,
+      "amplitude_difference": 3.642718232672274e-06,
+      "amplitude_relative_to_baseline": 0.016117273900008357,
+      "phase_difference_degrees": 0.38026229468309225
+    },
+    "mid_pressure": {
+      "baseline": {
+        "mean": 0.020000344186422003,
+        "sine": 0.001647665168605299,
+        "cosine": -0.006534526232892052,
+        "amplitude": 0.006739052870855779,
+        "phase_degrees": -75.84800439716102,
+        "higher_harmonic_rms": 9.755369138042656e-08
+      },
+      "control": {
+        "mean": 0.020000343644806105,
+        "sine": 0.0017056848737079103,
+        "cosine": -0.00657148896063107,
+        "amplitude": 0.006789243554925098,
+        "phase_degrees": -75.44948840569471,
+        "higher_harmonic_rms": 9.811600773457011e-08
+      },
+      "mean_difference": -5.416158979643093e-10,
+      "mean_relative_to_baseline": -2.7080328864140545e-08,
+      "amplitude_difference": 5.019068406931972e-05,
+      "amplitude_relative_to_baseline": 0.007447735613765278,
+      "phase_difference_degrees": 0.39851599146629724
+    },
+    "outward_flow_left": {
+      "baseline": {
+        "mean": -3.354929769230591e-10,
+        "sine": -0.0009240101848100772,
+        "cosine": -0.0007908090237088269,
+        "amplitude": 0.0012162128652551168,
+        "phase_degrees": -139.4416171354643,
+        "higher_harmonic_rms": 3.915697145782248e-08
+      },
+      "control": {
+        "mean": -3.4420063234584376e-10,
+        "sine": -0.0009354386883231987,
+        "cosine": -0.0008047899558696482,
+        "amplitude": 0.0012339904427022506,
+        "phase_degrees": -139.2934613849334,
+        "higher_harmonic_rms": 3.9803616345865106e-08
+      },
+      "mean_difference": -8.707655422784637e-12,
+      "mean_relative_to_baseline": -0.025954806871506055,
+      "amplitude_difference": 1.77775774471338e-05,
+      "amplitude_relative_to_baseline": 0.014617159508014838,
+      "phase_difference_degrees": 0.14815575053088992
+    },
+    "outward_flow_right": {
+      "baseline": {
+        "mean": 3.3549300637584656e-10,
+        "sine": -0.0009189010090003587,
+        "cosine": -0.0007706092506583401,
+        "amplitude": 0.0011992571373738352,
+        "phase_degrees": -140.01611242019234,
+        "higher_harmonic_rms": 3.819552809161923e-08
+      },
+      "control": {
+        "mean": 3.4420068189598155e-10,
+        "sine": -0.0009302448191897479,
+        "cosine": -0.0007844437286660788,
+        "amplitude": 0.0012168432056238417,
+        "phase_degrees": -139.8602067235872,
+        "higher_harmonic_rms": 3.885763703787693e-08
+      },
+      "mean_difference": 8.707675520134992e-12,
+      "mean_relative_to_baseline": 0.02595486449687701,
+      "amplitude_difference": 1.7586068250006548e-05,
+      "amplitude_relative_to_baseline": 0.014664134739708103,
+      "phase_difference_degrees": 0.15590569660514575
+    }
+  },
+  "input_sha256": {
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-audit.json": "346e4aa9ea1f1fa2aa4dd49c0e3ff8034baafb321115e76fb49ad1229c81dee1",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-geometry48-audit.json": "36ab476b775ec7008e7267809a5b9dd5331c62d5a6b00c4b631f57ee76b2a7e7",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/case.json": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/definition.json": "dd9c65f9b836c635304a3c38db64d3f1aca3cdb467163511180e0cf55567d16f",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/fluid.msh": "5e5ac5f5a55b30719057aeef359332d9a5d4dbf2aa333c8646429aab8292b907",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/solid.msh": "261a05077455d92780edbbba5df520d995b5502a5eb5549f24721299b7405a85",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-geometry48/case.json": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-geometry48/geometry.json": "7840542e262a77ec90d11e8d80a76bbe39f144d430770ee5526460fe3e6da5f2",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-geometry48/definition.json": "49db0bcf1efd16f53304f2f11fda434af3a35f26d10d9f2017ab0d2c7914edee",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-geometry48/fluid.msh": "08fe65c8e567044612ab14da418de50523781a5100ea1b5d61241a1a92b3ce34",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-geometry48/solid.msh": "f38057d0e01aef04b9b25a6fa52c2d9dec3f33bdde69771fa5c553356378e215"
+  },
+  "source_sha256": {
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/compare-elastic-control-response.py": "ce802036824d07087f98bd9c6f060e675d9f652c7aed542f8fb5cbc86ae50a64",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/compare-pressure-audits.py": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/scripts/audit_pressure_tube.py": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d"
+  },
+  "scope": "Fixed topology24-to48-sided polygon response sensitivity; includes geometry/basis interaction, not exact continuum geometry error.",
+  "qualification": "Response diagnostic only; full independent budgets and original Lam\u00e9/cross-solver gates remain required."
+}

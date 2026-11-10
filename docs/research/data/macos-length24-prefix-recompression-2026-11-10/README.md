@@ -1,0 +1,3 @@
+# Length24 prefix lossless re-encoding
+
+Base c911cef. Original complete length24 audit and capture finished before this operation. Actual preflight `python3 build/recompute-20261109/review-length24-prefix-recompression-catalog.py` exited 0 for 98 receipts and 2826 members, including SHA/size bridging to the completed raw manifest. Scripts reuse the verified tail transaction with separate prefix directories and output names. AST parsing passed. Batch launched with `python3 build/recompute-20261109/recompress-length24-prefix-volumes.py`; completion, independent full decode and total savings remain pending. Existing tail batch uses disjoint archives. Global catalog is stale until both batches finish. No numerical gates changed.

@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/SimVascular/svFSI.git",
+  "commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "clean": true,
+  "binary_sha256": "76b7a2c041d5002aa9cfc59b23539e5b65e26181da6c80d0b4cbacc66d854cbb",
+  "cmake": "3.31.10",
+  "fortran": "GNU16.2.0",
+  "blas": "Accelerate",
+  "ranks": 1,
+  "thread_environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "source_changes": false
+}

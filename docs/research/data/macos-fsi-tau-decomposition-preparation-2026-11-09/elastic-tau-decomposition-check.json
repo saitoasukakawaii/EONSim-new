@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "manufactured_cases": 60,
+  "maximum_quadrature_difference": 6.661338147750939e-16,
+  "rejected": [
+    "wrong-tau",
+    "changed-viscosity",
+    "changed-ramp",
+    "wrong-time-scheme",
+    "wrong-clock",
+    "fixed-whole-tau"
+  ],
+  "actual_three_case_configuration_checked": true,
+  "scope": "Independent exact degree-two quadrature versus P1 bilinear product and config guards; no claim of completed physical decomposition."
+}

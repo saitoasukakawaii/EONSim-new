@@ -1,0 +1,146 @@
+{
+  "reason": "Correct copied descriptive scope after terminal archive execution; all archive/member hashes and numerical inputs unchanged",
+  "original_controller_sha256": "6c06dcfcb08d70e28c1a844b32a57e1dd56f71c94b10096c6c326f1e381be381",
+  "receipts": [
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0000.json",
+      "old_sha256": "3e892e898ed9ac36df8d170ee3f7363956329c84c160273a56a3c5c91f4ec3ed",
+      "new_sha256": "36254b46acb5e2a0bcec53089db33302c0c6ad2486bfcae5815bdc48237ea97c",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0001.json",
+      "old_sha256": "6ceb08b34565fcffc1c7ca2d70ffa2902d764194803cfa989be3cd662934f864",
+      "new_sha256": "4d611508dd7bcf0a29a4d0e60a878e8c095a7f91bd64c412b7723b44aabddd56",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0002.json",
+      "old_sha256": "7e03a446b34dfde7fbc357ee3205ba94b54c8b0095244e3e1b6d8fead8ca024b",
+      "new_sha256": "d2a27da54d1498ccccaff723560f679a7361d2186c8946baab76b518aa081519",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0003.json",
+      "old_sha256": "c27aaa04852cdbbab10f35fc755b260f2d011c3b22b72b48265f524815112b19",
+      "new_sha256": "09660ea3b50037df178aba6e8308811a95adac6c65539b2882a74b962a4b0143",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0004.json",
+      "old_sha256": "fc17f60c71ebbf9072d35e470953fac851742278a5bf681ae5f8a463b3104db2",
+      "new_sha256": "68a77a9aa464e2e24030e11a6a3da9b68689574d1737874abcd1d6cc2c153d3f",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0005.json",
+      "old_sha256": "a67fb4f5697c1c30adc0c3f7c5af3cc6a597f91523132b34941c948b4dccaa8f",
+      "new_sha256": "017c9fb7d68fa557d6e206888e161cc59342d6d17e00100b49de214bc2f7f2fe",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0006.json",
+      "old_sha256": "ffdb661269dffac158ee8c714b54accfa03e7c189a06f28659056ec0058b94f5",
+      "new_sha256": "391a5e4d76b439cc5a887de9a7835d898e4d9b120f62f8738707028e263b2478",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0007.json",
+      "old_sha256": "18ea58f5a37e3b6903259a07045e82ac9a36556be74ac46e3fc274fe560366d9",
+      "new_sha256": "a02d91bd1432ce07a8a71f55def564be4f602b43861420647646c6ade7c3451d",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0008.json",
+      "old_sha256": "46b5519e60e2eb99d30a09682c5ffcfd695d1587465328a22bac1790513d2bd7",
+      "new_sha256": "f728b43e7f353be8061984f567c00f70e8681ca3f7d18c82a2b107c26eeb4a23",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0009.json",
+      "old_sha256": "3b540c6be4e4abe9a5b62260beac212aa456a5769499f689ff3aec990d4aa3f8",
+      "new_sha256": "917c741e96e226420fcedbff993edf78fc07e359a614fe3c1847607e292d7495",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0010.json",
+      "old_sha256": "d01855399fa8f979bc04b7da6d778b7725f0dffa75157b51ec62a0f0dcad106e",
+      "new_sha256": "285942ac7f5d67e676ff472e4536e8aecebae9b91345b2669eab97d3f441b495",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0011.json",
+      "old_sha256": "cde8117959b76799ecb073d42d2d091a10c724a02ce2157f8ad69105de7fee83",
+      "new_sha256": "0e6e002fd533638cca0473ce2c83092c9b301110158067b6cacf759a05382aa5",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0012.json",
+      "old_sha256": "bb2eb6de206328b74f696536d168fa50229651c629b152eb220cc6ec6dabb624",
+      "new_sha256": "ddcdb915dfdf75788242d8fbef3ea226a0f4c6ebaced43daec377917b714035a",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0013.json",
+      "old_sha256": "ccf3e653b8ac13e305ed75d98e920a417c2e0e8c48db19345068454f1fad0b23",
+      "new_sha256": "3d3a7f4e88dbae60bfacc0a35c612a9857ab7b4ae4ca92df9ed9863900220b38",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0014.json",
+      "old_sha256": "fb22a52dfc1ae7a1752068e26f246dd69632c8c34942c1c986e9539067619b29",
+      "new_sha256": "e125308900022c2d1ca9dd46096ccdb060d839166b1fc6300391c8d617c680db",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0015.json",
+      "old_sha256": "431db67a7f37f96c6cd48322069f836907109a02598ff0f515e73b2df95119be",
+      "new_sha256": "fdd6fcf8b181ed3f9f83bdcc81481caccaafb6636df3cc97dc12dd96e2507aac",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0016.json",
+      "old_sha256": "6bc4b1907d08791080f6557ef6345012c83f1050e58f3a3d8b73f9a76fcf0510",
+      "new_sha256": "a838b61897e4a365a50bdc84466ea6dd0a4c93bbb7f2ce9d337ab046c91d259c",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0017.json",
+      "old_sha256": "ad79f8ab2d3c0e2650842bfc3878cfdb8bbce38549d3350004cf900765119e5b",
+      "new_sha256": "6e7c3c7f597cfe3115773273dfc1ec02659d4784e7f5286781080005291f803e",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0018.json",
+      "old_sha256": "c1fced0c2fdebd81afd3660ea930401e6cbd017a40281f2edb3d32bd965be0de",
+      "new_sha256": "75b85e626021d24a263702fc6bb6a7a4e7ce01c907720d9658e11bbc8335c5dc",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    },
+    {
+      "path": "build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle5-prefix7200-chunks/0019.json",
+      "old_sha256": "584197551f8f7bc675159dbd032e00bfcfa19f424e2e95d78c117194ec493df7",
+      "new_sha256": "d3208ea488d8e6fd51541290fa4136445a72cd6488b4a36a977cf96b5ad7e4e1",
+      "old_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay.",
+      "new_scope": "Immutable cycle5-prefix7200 internal HDF only; endpoints/current and steps7201 onward retained; earlier cycle3/4 interiors separately archived. Restore using restore-womersley-materialization.py before cycle5-prefix7200 analysis or a full raw directory replay."
+    }
+  ]
+}

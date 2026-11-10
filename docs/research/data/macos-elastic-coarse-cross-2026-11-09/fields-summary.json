@@ -1,0 +1,39 @@
+{
+  "common_phases": 800,
+  "left_cycle": 32,
+  "right_cycle": 32,
+  "selected_cycles_periodic": [
+    true,
+    true
+  ],
+  "audit_prerequisites": [
+    {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true
+    },
+    {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true,
+      "relative_convergence": true
+    }
+  ],
+  "relative_rms": {
+    "fluid_velocity": 0.009120045929286138,
+    "fluid_pressure": 0.015856170470809748,
+    "fluid_mesh_displacement": 0.11746757027820413,
+    "solid_velocity": 0.011992147869419843,
+    "solid_displacement": 0.011991708875099873
+  },
+  "relative_maximum_phase_rms": {
+    "fluid_velocity": 0.012560656554508292,
+    "fluid_pressure": 0.017091490416372326,
+    "fluid_mesh_displacement": 0.15410522334131477,
+    "solid_velocity": 0.014406198164590494,
+    "solid_displacement": 0.014405171457413353
+  },
+  "norm": "Exact consistent P1 mass on the verified red-refined target reference domains",
+  "qualification": "Not evaluated: pairwise differences only, with recorded parameter changes and no causal attribution",
+  "full_report_sha256": "44c1103ea133edf837ff3ac9b2cb758727c71862c2accd59e6ce544ed95e2cc2"
+}

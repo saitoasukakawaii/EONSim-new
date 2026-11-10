@@ -1,0 +1,28 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-strict-increment-startup",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-strict-increment-startup.tar.zst",
+  "archive_sha256": "89e2d8b21204ad4ee2e8317791fa567c68ad43796328da31cf3ee9ee903a03b8",
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-strict-increment-startup-raw-manifest.json",
+  "source_manifest_sha256": "e53ed36f75fa3ea46d6eafe266bab1d2804305b323bd60e73005654dc67f3078",
+  "selected": {
+    "cg-fsils/pressure-1.txt": {
+      "bytes": 96812677,
+      "sha256": "2ab6323d4b1f1bc9ebaaa32f58d68552362b852b922d901e160a78b5d4901c48",
+      "allocated_bytes": 96813056
+    },
+    "cg-fsils/pressure-2.txt": {
+      "bytes": 96812841,
+      "sha256": "844d26ae17a5bf61daf1d612b14de82db7855c485da28dbddabc41ca97124d79",
+      "allocated_bytes": 96813056
+    }
+  },
+  "status": "evicted",
+  "scope": "Only archived pressure inputs of previously archived terminal diagnostics; fresh expanded/archive/manifest SHA equality. All raw bytes remain in full archive. Restore before replay, input rehash or full inventory consumption. No active reference input touched.",
+  "restore_command": [
+    "python3",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-strict-increment-startup-pressure-materialization.json"
+  ],
+  "finished_unix": 1794230303.64664,
+  "removed_allocated_bytes": 193626112
+}

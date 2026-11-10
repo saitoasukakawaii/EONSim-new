@@ -1,0 +1,43 @@
+{
+  "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "steps": 12800,
+  "declared_steps": 12800,
+  "first_step": 1,
+  "last_step": 12800,
+  "restart": null,
+  "excluded_tail": {
+    "final_equation_rows": 0,
+    "last_observed_step": 12800,
+    "iteration_rows": 0,
+    "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+  },
+  "equations": {
+    "FS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    },
+    "MS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    }
+  },
+  "iteration_rows": 76738,
+  "final_equation_rows": 25600,
+  "iteration_limit_rows": 0,
+  "maximum_iterations": {
+    "FS": 3,
+    "MS": 3
+  },
+  "maximum_final_relative_ratio": {
+    "FS": 3.7e-11,
+    "MS": 9.6e-11
+  },
+  "failed_equation_steps": [],
+  "passed": true,
+  "input_manifest_sha256": "585d7a69a82307934a0658c75859f37b152e624d5c3a24d0b3684f618f01513e",
+  "log_sha256": "d1c0d079cba067951dfa513aed9e21037a230460af7a03fa540963ab05c809c2",
+  "analysis_source_sha256": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+  "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+}

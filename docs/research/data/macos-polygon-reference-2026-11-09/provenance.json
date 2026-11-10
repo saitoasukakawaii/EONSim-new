@@ -1,0 +1,28 @@
+{
+  "source_commit": "204c5f6",
+  "platform": "macOS arm64",
+  "threads": 1,
+  "source_sha256": {
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f",
+    "scripts/womersley_reference.py": "098e9e947f228f9944dc864e4c14dfcdbe79bea57568192ea5ed31119e6c84e0"
+  },
+  "commands": [
+    "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 build/analysis-venv/bin/python build/recompute-20261109/test-polygon-reference-dd.py",
+    "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 build/analysis-venv/bin/python build/recompute-20261109/test-polygon-reference-fem.py",
+    "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 build/analysis-venv/bin/python build/recompute-20261109/verify-polygon-nested.py",
+    "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 build/analysis-venv/bin/python build/recompute-20261109/recompute-polygon-reference.py --sectors 48",
+    "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 build/analysis-venv/bin/python build/recompute-20261109/recompute-polygon-reference.py --sectors 96"
+  ],
+  "sessions": {
+    "s48": 86513,
+    "s96": 84055
+  },
+  "scope": "Newly computed data; no omitted historical raw inputs used",
+  "versions": {
+    "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "platform": "macOS-26.3-arm64-arm-64bit-Mach-O"
+  }
+}

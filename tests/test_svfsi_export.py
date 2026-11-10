@@ -42,6 +42,31 @@ def read_vtk(path):
 
 
 class ExportTests(unittest.TestCase):
+    def test_mesh_motion_variant_does_not_change_physical_solid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp=Path(tmp);case=generate(tmp/'eonsim',axial=2)
+            before=case.read_bytes()
+            original=export(case,tmp/'original',stage_pressure=True)
+            zero=export(case,tmp/'zero',stage_pressure=True,mesh_poisson=0.)
+            self.assertEqual(case.read_bytes(),before)
+            a=(tmp/'original/svFSI.inp').read_text()
+            b=(tmp/'zero/svFSI.inp').read_text()
+            physics,mesh=a.split('Add equation: mesh {')
+            changed_physics,changed_mesh=b.split('Add equation: mesh {')
+            self.assertEqual(physics,changed_physics)
+            self.assertIn('Poisson ratio: 0.29999999999999999',physics)
+            self.assertEqual(changed_mesh,mesh.replace('Poisson ratio: 0.3','Poisson ratio: 0'))
+            for name in original['files']:
+                if name!='svFSI.inp':self.assertEqual(original['files'][name],zero['files'][name])
+            self.assertNotIn('mesh_motion_poisson_ratio',original)
+            self.assertEqual(zero['mesh_motion_poisson_ratio'],0.)
+            for value in (float('nan'),float('inf'),.5,-1.,.2):
+                with self.assertRaisesRegex(ValueError,'Mesh Poisson'):
+                    export(case,tmp/'bad',mesh_poisson=value)
+                self.assertFalse((tmp/'bad').exists())
+            with self.assertRaisesRegex(ValueError,'Mesh Poisson'):
+                export(case,tmp/'bad',hydrostatic=True,mesh_poisson=0.)
+
     def test_divergence_geometry_and_interface(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp=Path(tmp);case=generate(tmp/'eonsim',sectors=12,axial=2,level=1)

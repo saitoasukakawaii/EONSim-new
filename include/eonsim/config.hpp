@@ -112,6 +112,9 @@ struct FsiConfig {
     int checkpoint_interval=1; ///< Accepted-step cadence when checkpointing; always save a successful requested endpoint.
     FsiDomains domains;
     std::optional<double> stabilization_tau;
+    // Diagnostic override of only the effective time in SUPG/PSPG tau.
+    // Actual fluid/solid/ALE time maps are unchanged; exclusive with fixed tau.
+    std::optional<double> stabilization_time_scale;
     bool elastic=false, neo_hookean=false;
     double young=100, poisson=.3, solid_density=1, thickness=.25;
     double dt=.02, mass=2, damping=.3, stiffness=5, pressure=1, density=1, viscosity=1;

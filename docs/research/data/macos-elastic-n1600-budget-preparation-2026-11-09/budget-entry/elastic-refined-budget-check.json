@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "original_kernel_sha256": "5bfe84ef1fb7263145bec3d3e7764c3b6e5aa3628ed5d7441750d7a32bb0ea57",
+  "generalized_kernel_sha256": "078c70d196dfc9010883df49ffa9e95daa96d9169e9fbe35cd444f0e7fb8c3ba",
+  "index_and_report_changes_only": true,
+  "original_failed_budget_decisions_recomputed": {
+    "fluid_mesh_displacement": {
+      "time": true,
+      "tail": true,
+      "sampling": true
+    },
+    "fluid_pressure": {
+      "time": false,
+      "tail": true,
+      "sampling": true
+    },
+    "fluid_velocity": {
+      "time": false,
+      "tail": true,
+      "sampling": true
+    },
+    "solid_displacement": {
+      "time": true,
+      "tail": true,
+      "sampling": true
+    },
+    "solid_velocity": {
+      "time": false,
+      "tail": true,
+      "sampling": true
+    }
+  },
+  "incomplete_command": [
+    "python3",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/analyze-elastic-n1600-budget.py",
+    "--solver",
+    "eonsim",
+    "--output",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-n1600-budgets"
+  ],
+  "incomplete_exit_code": 1,
+  "incomplete_stderr": "Traceback (most recent call last):\n  File \"/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/analyze-elastic-n1600-budget.py\", line 16, in <module>\n    if not audit.is_file() or not receipt.is_file():raise RuntimeError(f'Incomplete {role}: need {audit} and {receipt}; no analysis output created')\n                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: Incomplete coarse: need /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600-audit.json and /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n1600/completion-postflight.json; no analysis output created\n",
+  "no_output_created": true,
+  "scope": "Source-equivalence check outside target indices/report labels and replay of original actual budget decisions; not a new N1600 numerical result or rerun of original fields."
+}

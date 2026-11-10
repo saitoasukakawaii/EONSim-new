@@ -1,0 +1,45 @@
+{
+  "command": [
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-tautime-n400/eonsim",
+    "-case",
+    "case.json",
+    "-checkpoint",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-tautime-n400/dense-replay-probe/checkpoint",
+    "-stop_after",
+    "23208",
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32",
+    "-restart",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-tautime-n400/checkpoint/generation_1794255856894343"
+  ],
+  "original_command": [
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-tautime-n400/eonsim",
+    "-case",
+    "case.json",
+    "-checkpoint",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-tautime-n400/checkpoint",
+    "-stop_after",
+    "25600",
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32",
+    "-restart",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-tautime-n400/checkpoint/generation_1794255856894343"
+  ],
+  "seed": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-tautime-n400/checkpoint/generation_1794255856894343",
+  "seed_sha256": {
+    "state_rank0.h5": "70bd09470ce6e3f51e231d932cef471ec6d9a887fd2f44c00da173a746e42a20",
+    "manifest": "7c07fd6826c1b242bb0c1f29a55223b57b7c0360b4d8b73bf7f3f0aa3dc21120"
+  },
+  "binary_sha256": "47ed3b523bdfd68105cbf50fb2e626da73943c52765e1f7003a15edf6a2bfa06",
+  "case_sha256": "5898373e375611221ce69fc90d91b716fafb30da42ea339857e71244579539a4",
+  "controller_sha256": "c10b49044f2d2135c19ff2099a0c874a4972e3419f574339318d27e52dc3e995",
+  "scope": "Eight production overlap steps23201..23208; same binary, input and exact v4 checkpoint. Not full trajectory completion."
+}

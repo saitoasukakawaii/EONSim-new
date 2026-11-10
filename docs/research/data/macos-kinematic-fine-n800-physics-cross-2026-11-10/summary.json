@@ -1,0 +1,41 @@
+{
+  "base_commit": "9a1ff77",
+  "audit_session": 59777,
+  "audit_exit_code": 0,
+  "audit_sha256": "a83633c07bb9a9818a0eed4f1952f953ae201ff60ba92b8667bcafd53f6936be",
+  "steps": 25600,
+  "first_step": 23201,
+  "sampled_steps": 2400,
+  "periodic": true,
+  "worst_periodic_relative_max": 7.902866325498221e-06,
+  "quality_gates": {
+    "kinematics": {
+      "maximum": 0.0,
+      "limit": 1e-12,
+      "passed": true
+    },
+    "stage_mass": {
+      "maximum": 1.1492543028346347e-17,
+      "limit": 1e-09,
+      "passed": true
+    },
+    "stage_divergence_theorem": {
+      "maximum": 1.1463598324351891e-17,
+      "limit": 1e-12,
+      "passed": true
+    }
+  },
+  "minimum_solid_jacobian": 0.9999771963004654,
+  "minimum_fluid_jacobian": 1.0000086929218452,
+  "lame": {
+    "numerical_mean": 0.00010738167626561915,
+    "infinite_circular_plane_strain_mean": 0.00010872727272727274,
+    "relative_difference": 0.01237588718912157,
+    "limit": 0.02,
+    "within_limit": true,
+    "scope": "Diagnostic only until polygon geometry and finite-end effects are bounded"
+  },
+  "cross_observable_gates_passed": true,
+  "raw_files": 2435,
+  "raw_logical_bytes": 2372320431
+}

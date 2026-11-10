@@ -1,0 +1,14 @@
+{
+  "inputs": {
+    "s48-completion.json": "df13c30623a23fa8edcab4cf334d7087bd96d0f29e583b00910d3db0cb16a21c",
+    "s96-completion.json": "80cf5413d23152b25c2852afdd3ad8ecd9c9eca27f7888b88b8298155ba77a55"
+  },
+  "outputs": {
+    "polygon-reference.png": "9f41475ed098b7e5677f5a187951521dd63ebb9248d26f5554d266acde6bd3e9",
+    "polygon-reference.svg": "9bc00d9f3c8b7f8a117222d2b64abe42cf39ae9056ecc0debf57ad2e4293487f"
+  },
+  "source_sha256": "c9810fc5fd3af9bd6d055ce3c969cb6d78b6e4414babc4e4805c2e3f72d88e27",
+  "matplotlib": "3.11.2",
+  "visual_review": "PNG inspected: labels readable, four series and unchanged1e-4 line visible, no clipping. Fontconfig cache warnings occurred; renderer exit0 and outputs inspected.",
+  "command": "MPLCONFIGDIR=/tmp/eonsim-mplconfig OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 build/analysis-venv/bin/python build/recompute-20261109/plot-polygon-reference.py"
+}

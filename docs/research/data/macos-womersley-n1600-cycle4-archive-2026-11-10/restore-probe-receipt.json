@@ -1,0 +1,24 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/womersley-n1600-cycle4-restore-probe",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n1600-cycle4-chunks/0000.tar.zst",
+  "archive_sha256": "d26cbbfa3c1dcac9c4025d0d75eda36c108d81da5993b796118c7af934806394",
+  "archive_bytes": 105517546,
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha2-s96-l1-n1600-cycle4-before-archive.json",
+  "source_manifest_sha256": "9b77a8d8d271b06aa8f5e1d074a0796de4a8c24c0e0bc2a8ce6de890a7d93fbd",
+  "selected": {
+    "checkpoint/generation_1794223105290327/state_rank0.h5": {
+      "bytes": 3241128,
+      "sha256": "093d726fc7f6f240ff0f36d7360ff5831b0e757f573b9f67e7b87e2e8cca74fe",
+      "allocated_bytes": 3244032
+    },
+    "checkpoint/generation_1794223106841794/state_rank0.h5": {
+      "bytes": 3241128,
+      "sha256": "bcea5e51a5ee37d1fa5a14e4549225cb2ed37d82f1bde50a5902fc098c80666f",
+      "allocated_bytes": 3244032
+    }
+  },
+  "status": "evicted",
+  "scope": "Immutable cycle4 internal HDF only; endpoints/current and cycles5/6 retained; cycle3 previously archived. Restore using restore-womersley-materialization.py before cycle4 analysis or a full raw directory replay.",
+  "removed_allocated_bytes": 133005312,
+  "finished_unix": 1794249684.878357
+}

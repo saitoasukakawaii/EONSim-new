@@ -1,0 +1,3 @@
+# Fine N1600 early volume re-encoding completed
+
+Base dc70233. Batch 41563 exited 0. Independent `python3 build/recompute-20261109/verify-fine-n1600-volumes-through48000.py` session 44965 exited 0, fully decoding all 3258 members in 56 archives against the original full raw manifest. Current archive SHA/bytes agree with committed journals and receipts; old backups are absent. Compressed proofs were decoded and checked for exact readback. Global catalog refresh remains pending while length24 tail re-encoding runs. This changes storage encoding only, not numerical results or acceptance thresholds. Existing restoration implementation evidence is reused; no restoration test was rerun here.

@@ -1,0 +1,24 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/geometry-boundary-chunk-restore-probe",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-geometry48-boundary-chunks/0000.tar.zst",
+  "archive_sha256": "45e101ca53b5bed5fb30221d686e2c24e682af1c9eb8e903ce93dfab48fd3524",
+  "archive_bytes": 48186471,
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-geometry48-raw-before-archive.json",
+  "source_manifest_sha256": "df9ba3f37ff0f1f40fc3b3af2090f14a037a452b5cdca745ee0959d30213aa1a",
+  "selected": {
+    "dense/solution_restart23200_step23201_boundary.vtu": {
+      "bytes": 2013511,
+      "sha256": "287209ad9340efa655aca46d2f8e02e51c70c3fce7fa4f634ea884402e293ef1",
+      "allocated_bytes": 1024000
+    },
+    "dense/solution_restart23200_step23201_solid_boundary.vtu": {
+      "bytes": 1254666,
+      "sha256": "bcb7b157fea9382278f9702da16cacae649b39488c218d1d36cae6625be624a1",
+      "allocated_bytes": 598016
+    }
+  },
+  "status": "evicted",
+  "scope": "Boundary snapshots only; volume/PVD/checkpoint/logs retained. Restore this receipt with restore-womersley-materialization.py before any boundary consumer or full raw inventory replay.",
+  "removed_allocated_bytes": 66363392,
+  "finished_unix": 1794225926.929491
+}

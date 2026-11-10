@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/verify-womersley-n1600-cycle3-archives.py", line 28, in <module>
+    rows=verified_archived_rows(Path(__file__).resolve().parent);print('Verified archived cycle3',len(rows),sum(r['bytes'] for r in rows))
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/verify-womersley-n1600-cycle3-archives.py", line 23, in verified_archived_rows
+    assert accounted==set(rows)
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError

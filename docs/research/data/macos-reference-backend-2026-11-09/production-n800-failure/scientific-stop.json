@@ -1,0 +1,55 @@
+{
+  "reason": "Frozen complete prefix 1..526 failed original convergence; prevent wasting full run on invalid trajectory",
+  "prefix_report": "prefix-convergence.json",
+  "pid": 88153,
+  "command": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-elastic-s24-l1-n800-nu0/svFSI svFSI.inp",
+  "signal": "SIGTERM",
+  "time_unix": 1794199828.474598,
+  "first_failures": [
+    {
+      "step": 491,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.63e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 493,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.55e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 494,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.68e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 495,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.78e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 496,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.89e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    }
+  ]
+}

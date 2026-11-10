@@ -1,0 +1,2123 @@
+{
+  "proof": {
+    "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-length24",
+    "checkpoint_generation": "generation_1794230680262890",
+    "checkpoint_step": 24000,
+    "last_logged_step": 24660,
+    "accepted_log_prefix_sha256": "0670e44cb6af8fbe9744d3194cd7a6d819a75397fb54b8632f7e8cf67f1ae5da",
+    "accepted_log_prefix_bytes": 953871,
+    "frozen_source_commit": "2c0f392821052cd711f790e4ce966e2b4f0a1282",
+    "checkpoint_manifest_sha256": "baf03416829e859e34464054d0107cf282f33f123f1c93e56b3c4a488da8a337",
+    "through": 24659,
+    "source_sha256": "756598343458a0aa85530fac7cd6ad25dbf571691ef26c81092f11bf28264cad",
+    "controller_sha256": "fb4dea6b6182b6224a7f49165afe21f4f8a3222f424fd9e6197d5e4f7c5e5bd4",
+    "selected_frames": 75,
+    "selected_files": 300,
+    "scope": "Frozen/current source output-before-accepted-log block matches byte-for-byte. Only tail steps24585 onward strictly before complete contiguous dense accepted-log record selected; earlier archived boundary prefix is excluded. Four files required; each replacement verifies stable source size/mtime and SHA. Current/future outputs, indexes/logs/checkpoints untouched."
+  },
+  "files": [
+    {
+      "path": "dense/solution_restart23200_step24585.vtu",
+      "sha256": "71a7cb6129997dfb6a7f2335eb74980565d6a79e2ef607182a85dfc81c47610b",
+      "logical_bytes": 5605808,
+      "allocated_before": 5607424,
+      "allocated_after": 3153920
+    },
+    {
+      "path": "dense/solution_restart23200_step24585_boundary.vtu",
+      "sha256": "b57a30ad858c1154e684187a01865b117e052e81cb3b04e07f58e110905f6587",
+      "logical_bytes": 4020440,
+      "allocated_before": 4022272,
+      "allocated_after": 2293760
+    },
+    {
+      "path": "dense/solution_restart23200_step24585_solid.vtu",
+      "sha256": "d0bd2d43ee791283924f4582913c51e0fc2cb7d4aa521a3bab614693acec00c5",
+      "logical_bytes": 3489228,
+      "allocated_before": 3489792,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense/solution_restart23200_step24585_solid_boundary.vtu",
+      "sha256": "ce2be080de49d29800bfb61b2d4de6346f1cbfd3ca2c6d1912da4969898dd09e",
+      "logical_bytes": 2526757,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24586.vtu",
+      "sha256": "460626bb7639075a29971ae21a406e7345b351972011a034f4f8486d8d6a50d8",
+      "logical_bytes": 5605714,
+      "allocated_before": 5607424,
+      "allocated_after": 3473408
+    },
+    {
+      "path": "dense/solution_restart23200_step24586_boundary.vtu",
+      "sha256": "560d5919ea7e73a2c3ac172b15cf5e84b7569b790bc3d4d489bd99e46edf7b24",
+      "logical_bytes": 4020346,
+      "allocated_before": 4022272,
+      "allocated_after": 2142208
+    },
+    {
+      "path": "dense/solution_restart23200_step24586_solid.vtu",
+      "sha256": "1a5ca6907e3b041319767bd56f094875c67d70abe787f94b9aaa7782cc060d59",
+      "logical_bytes": 3489332,
+      "allocated_before": 3489792,
+      "allocated_after": 2105344
+    },
+    {
+      "path": "dense/solution_restart23200_step24586_solid_boundary.vtu",
+      "sha256": "0a7e3bb34a748f52bc75f7d428782d15412d078da9f7ce75ba0d309beb8d306b",
+      "logical_bytes": 2526861,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24587.vtu",
+      "sha256": "338758b3680f8e65f122e521a750f98bbcf9c9f322177830c93da9bcd5da936e",
+      "logical_bytes": 5605897,
+      "allocated_before": 5607424,
+      "allocated_after": 3166208
+    },
+    {
+      "path": "dense/solution_restart23200_step24587_boundary.vtu",
+      "sha256": "b6adacf72867cc979e8726c3d8437603c55e05d8de7b8361ac63257b6fca5788",
+      "logical_bytes": 4020529,
+      "allocated_before": 4022272,
+      "allocated_after": 2445312
+    },
+    {
+      "path": "dense/solution_restart23200_step24587_solid.vtu",
+      "sha256": "9607685079a60800fa1c121f4a588ef04abf500bc363dd72d119ba646c1cd396",
+      "logical_bytes": 3489363,
+      "allocated_before": 3489792,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense/solution_restart23200_step24587_solid_boundary.vtu",
+      "sha256": "35ac666b36c7dbc114f66ad05816452af6e227a91e07ce22deea209c6c44632e",
+      "logical_bytes": 2526892,
+      "allocated_before": 2527232,
+      "allocated_after": 2109440
+    },
+    {
+      "path": "dense/solution_restart23200_step24588.vtu",
+      "sha256": "feb0dd60b30922231b8583d44d0543228644a597e70b41ec95af0c7a941ab4d8",
+      "logical_bytes": 5605819,
+      "allocated_before": 5607424,
+      "allocated_after": 3190784
+    },
+    {
+      "path": "dense/solution_restart23200_step24588_boundary.vtu",
+      "sha256": "2a107031c81b100fed81c2ecf6b7bd2b09ccdd19a6f39e34ced43632b43cdc1b",
+      "logical_bytes": 4020451,
+      "allocated_before": 4022272,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense/solution_restart23200_step24588_solid.vtu",
+      "sha256": "b3d3fc7fac624eb30dfbeb94e15e3465a6fe12a695e27bd0fc5ef6a3b0cb8874",
+      "logical_bytes": 3489386,
+      "allocated_before": 3489792,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense/solution_restart23200_step24588_solid_boundary.vtu",
+      "sha256": "b196acfcb3adcf75e9043fc932b5d6b597f260099002aceb2507692e702715ee",
+      "logical_bytes": 2526915,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24589.vtu",
+      "sha256": "e110500f730e84cd3f05d3126508951344013a17aeceab3539de41c0c77fe996",
+      "logical_bytes": 5606035,
+      "allocated_before": 5607424,
+      "allocated_after": 3248128
+    },
+    {
+      "path": "dense/solution_restart23200_step24589_boundary.vtu",
+      "sha256": "b87637c624d2524369a95d86b2ef7204e231929e2dcc7186dd62366cad4071f1",
+      "logical_bytes": 4020667,
+      "allocated_before": 4022272,
+      "allocated_after": 2183168
+    },
+    {
+      "path": "dense/solution_restart23200_step24589_solid.vtu",
+      "sha256": "14b97b6d739af0cac71eb4b4b152949df8b43a89f79dba9aefde0f57172ef202",
+      "logical_bytes": 3489355,
+      "allocated_before": 3489792,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense/solution_restart23200_step24589_solid_boundary.vtu",
+      "sha256": "57c02cb8ff5bb0c513bbeb954923542e411d3d4e3b0b07b70169d2d87cceafc6",
+      "logical_bytes": 2526884,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24590.vtu",
+      "sha256": "c67d1f704ff808f9b10a0dcfeb70b1266a34f0228783ae54ae1013a31bd925e1",
+      "logical_bytes": 5605744,
+      "allocated_before": 5607424,
+      "allocated_after": 3174400
+    },
+    {
+      "path": "dense/solution_restart23200_step24590_boundary.vtu",
+      "sha256": "f66d9a92d5e1eb659623deafa6a59976ba2466fcdae1841e9f90b8805ff2e10b",
+      "logical_bytes": 4020376,
+      "allocated_before": 4022272,
+      "allocated_after": 2105344
+    },
+    {
+      "path": "dense/solution_restart23200_step24590_solid.vtu",
+      "sha256": "523b61b37b00cbff59691992b78209835708b318d22f532361fddb220a1022a6",
+      "logical_bytes": 3489324,
+      "allocated_before": 3489792,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense/solution_restart23200_step24590_solid_boundary.vtu",
+      "sha256": "bcd41ae5e134eb2d7640e3e5aca0311bc5795a14d92239b619cee52b650432f1",
+      "logical_bytes": 2526853,
+      "allocated_before": 2527232,
+      "allocated_after": 1191936
+    },
+    {
+      "path": "dense/solution_restart23200_step24591.vtu",
+      "sha256": "c829d8d716abc949d252f9a06a514952a8caf815a90f02fc580bdc46d735a0cc",
+      "logical_bytes": 5605674,
+      "allocated_before": 5607424,
+      "allocated_after": 3198976
+    },
+    {
+      "path": "dense/solution_restart23200_step24591_boundary.vtu",
+      "sha256": "829d613fc40040459dba69fcd52ba8690e006a1bd653f97c8283f39d82f44737",
+      "logical_bytes": 4020306,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24591_solid.vtu",
+      "sha256": "0ddeedfb2f140bb9a29687a643c6f5b8d203d1f6393a266602fbeff3e1e08930",
+      "logical_bytes": 3489228,
+      "allocated_before": 3489792,
+      "allocated_after": 2224128
+    },
+    {
+      "path": "dense/solution_restart23200_step24591_solid_boundary.vtu",
+      "sha256": "31eb03a521cdac4191ce3d2d215b23d8856cce51edf623987b72d8f46875abd6",
+      "logical_bytes": 2526757,
+      "allocated_before": 2527232,
+      "allocated_after": 2183168
+    },
+    {
+      "path": "dense/solution_restart23200_step24592.vtu",
+      "sha256": "14ac2c24b821b02e6ca65142a9847fc32c2c704ed6de91a3d794ffd37b4098f2",
+      "logical_bytes": 5605938,
+      "allocated_before": 5607424,
+      "allocated_after": 3186688
+    },
+    {
+      "path": "dense/solution_restart23200_step24592_boundary.vtu",
+      "sha256": "f2eea07962b01d9ce9b9888f740af57b3113065c58c4d0dfb98eeee2e5824d35",
+      "logical_bytes": 4020570,
+      "allocated_before": 4022272,
+      "allocated_after": 2367488
+    },
+    {
+      "path": "dense/solution_restart23200_step24592_solid.vtu",
+      "sha256": "83bc3fc6149bb39a1feeb983e981d4311fb15cec52862d3db6389ebf1c3f1ffa",
+      "logical_bytes": 3489320,
+      "allocated_before": 3489792,
+      "allocated_after": 2154496
+    },
+    {
+      "path": "dense/solution_restart23200_step24592_solid_boundary.vtu",
+      "sha256": "db34e6d3b6d1d8c84b2c0b4190b75d6edc068f20333e4e566e4938e00a1f61ca",
+      "logical_bytes": 2526849,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24593.vtu",
+      "sha256": "b0436be6531e0699d4306c22dcea2bf0487b29ffb066c2e77422bcee0cb72a48",
+      "logical_bytes": 5606216,
+      "allocated_before": 5607424,
+      "allocated_after": 3473408
+    },
+    {
+      "path": "dense/solution_restart23200_step24593_boundary.vtu",
+      "sha256": "49f416fec4d652761e81838c6046d4972b4174ffa6a6bf7d02f386a746c39450",
+      "logical_bytes": 4020848,
+      "allocated_before": 4022272,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24593_solid.vtu",
+      "sha256": "4302ca628bac2deb71a3e2cf0ef1a5db1601d7b3430674f2ba48b2b76c17fa1d",
+      "logical_bytes": 3489292,
+      "allocated_before": 3489792,
+      "allocated_after": 2297856
+    },
+    {
+      "path": "dense/solution_restart23200_step24593_solid_boundary.vtu",
+      "sha256": "9f175624f0597c404ac911a89237634d1090abb7b362d7a69d527f05541af00f",
+      "logical_bytes": 2526821,
+      "allocated_before": 2527232,
+      "allocated_after": 2174976
+    },
+    {
+      "path": "dense/solution_restart23200_step24594.vtu",
+      "sha256": "6491de4caaf5e59a55eabb70c0d1fc46c648e5f62a11edd9bc0c066f944122fa",
+      "logical_bytes": 5605966,
+      "allocated_before": 5607424,
+      "allocated_after": 3194880
+    },
+    {
+      "path": "dense/solution_restart23200_step24594_boundary.vtu",
+      "sha256": "bc355c05f77da67030892ab3136fec60ab5bdbe821a45374baf60822e6c440d7",
+      "logical_bytes": 4020598,
+      "allocated_before": 4022272,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense/solution_restart23200_step24594_solid.vtu",
+      "sha256": "405b0e76aa37f8faa1acca53691c171d5ea3dbc15df2565388f7399b479ecada",
+      "logical_bytes": 3489281,
+      "allocated_before": 3489792,
+      "allocated_after": 2404352
+    },
+    {
+      "path": "dense/solution_restart23200_step24594_solid_boundary.vtu",
+      "sha256": "e50ce1a25c88cfc6c2869e0877abe9ce8dc50062660b8f09ca5f5cbbfd7a520c",
+      "logical_bytes": 2526810,
+      "allocated_before": 2527232,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24595.vtu",
+      "sha256": "2f2ef275551572d437bc68715e81a71e962cc9d128a17bf7db8d90f9e5ed2f4d",
+      "logical_bytes": 5605876,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24595_boundary.vtu",
+      "sha256": "5ba31046230a4cb1b5e510d96f39c54961c25e881ec6f784e36596b6ab942324",
+      "logical_bytes": 4020508,
+      "allocated_before": 4022272,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24595_solid.vtu",
+      "sha256": "1756a38945602dda0a454af5993c42433c81f2345efd4ef715c3702caef0572c",
+      "logical_bytes": 3489357,
+      "allocated_before": 3489792,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense/solution_restart23200_step24595_solid_boundary.vtu",
+      "sha256": "818fe3a3458102bb1d531896dd96c7d1fe4071e9c90f3e916762469cc99f4899",
+      "logical_bytes": 2526886,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24596.vtu",
+      "sha256": "87ddfc6dbad879b51a1dc835d75a65a69f73362653eff47f5e66391a4ee539d5",
+      "logical_bytes": 5605595,
+      "allocated_before": 5607424,
+      "allocated_after": 3391488
+    },
+    {
+      "path": "dense/solution_restart23200_step24596_boundary.vtu",
+      "sha256": "55f0b9e4462bffe3d8ddcf2eee395e4be9581f5449dfd0102f6986285262a123",
+      "logical_bytes": 4020227,
+      "allocated_before": 4022272,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense/solution_restart23200_step24596_solid.vtu",
+      "sha256": "d6474e77d9799d9daea095adda07d5fd92a9a819b48412c4f7e1cc082d17f87c",
+      "logical_bytes": 3489053,
+      "allocated_before": 3489792,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24596_solid_boundary.vtu",
+      "sha256": "23836301f95e37ad43a3482dd4d62330f76b55bba9bc08d5a681841329b6fd57",
+      "logical_bytes": 2526582,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24597.vtu",
+      "sha256": "70f528d59f6d2e18385d4d30671c97982a65e19197d84e9f06dad7e9b942b77e",
+      "logical_bytes": 5605784,
+      "allocated_before": 5607424,
+      "allocated_after": 2654208
+    },
+    {
+      "path": "dense/solution_restart23200_step24597_boundary.vtu",
+      "sha256": "af1c87eb84d7198db7ce1845613bb6d5ae860f88bc6a73edb8dd41c698234a64",
+      "logical_bytes": 4020416,
+      "allocated_before": 4022272,
+      "allocated_after": 2232320
+    },
+    {
+      "path": "dense/solution_restart23200_step24597_solid.vtu",
+      "sha256": "97bbfec7b4fae6a3c5fac64928c2e86a7234c531e4a0b2aec8f4ff4d0fd7ecf8",
+      "logical_bytes": 3489315,
+      "allocated_before": 3489792,
+      "allocated_after": 2134016
+    },
+    {
+      "path": "dense/solution_restart23200_step24597_solid_boundary.vtu",
+      "sha256": "50cd0e6603c72f7509dfe1453087fbe91c9effb99b68ffa971c15891982fe3b2",
+      "logical_bytes": 2526844,
+      "allocated_before": 2527232,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense/solution_restart23200_step24598.vtu",
+      "sha256": "5f8a6ee4a5d7df6eabc123ea1bd90451f6cf80a5b8093a7837fcc3d945d6afd9",
+      "logical_bytes": 5605851,
+      "allocated_before": 5607424,
+      "allocated_after": 3194880
+    },
+    {
+      "path": "dense/solution_restart23200_step24598_boundary.vtu",
+      "sha256": "13faaa761f80a247382c7fe9ff9f76b7b69cbab5c5542ae643bc86020679e6bd",
+      "logical_bytes": 4020483,
+      "allocated_before": 4022272,
+      "allocated_after": 2101248
+    },
+    {
+      "path": "dense/solution_restart23200_step24598_solid.vtu",
+      "sha256": "a40a7daa1613f6003370c9682806496b809cb98b84f7605e8913979b3c933d70",
+      "logical_bytes": 3489165,
+      "allocated_before": 3489792,
+      "allocated_after": 2330624
+    },
+    {
+      "path": "dense/solution_restart23200_step24598_solid_boundary.vtu",
+      "sha256": "581d433808d0b97b3cd944be1e64cd5c03dbe1e24fcb41b26fe4d129c7d2109f",
+      "logical_bytes": 2526694,
+      "allocated_before": 2527232,
+      "allocated_after": 2220032
+    },
+    {
+      "path": "dense/solution_restart23200_step24599.vtu",
+      "sha256": "588ba7819dca361aa0bb52fe8e1924bddfea998d059426b288d37ebeb56bff1c",
+      "logical_bytes": 5605740,
+      "allocated_before": 5607424,
+      "allocated_after": 3260416
+    },
+    {
+      "path": "dense/solution_restart23200_step24599_boundary.vtu",
+      "sha256": "4b04e5a8aeb5977d0270987f899ab5d558e75b52c5b56399f277b7bfb73364a4",
+      "logical_bytes": 4020372,
+      "allocated_before": 4022272,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense/solution_restart23200_step24599_solid.vtu",
+      "sha256": "21e5f80512628c33c05ca09ae1c83b1bef0e3b25604a5338ac077c790273860f",
+      "logical_bytes": 3489240,
+      "allocated_before": 3489792,
+      "allocated_after": 2101248
+    },
+    {
+      "path": "dense/solution_restart23200_step24599_solid_boundary.vtu",
+      "sha256": "9a292ea0493e26f5fcd18f2b6d5add12095f3836435fc7a74ad1bc4c927f4e74",
+      "logical_bytes": 2526769,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24600.vtu",
+      "sha256": "4c762096f6ca58c79959a2e6664222d31aa95b075a387b060b4df2709b0b1bd8",
+      "logical_bytes": 5605676,
+      "allocated_before": 5607424,
+      "allocated_after": 3264512
+    },
+    {
+      "path": "dense/solution_restart23200_step24600_boundary.vtu",
+      "sha256": "b7c5e16aa31f0c62b7c083c08048fb9d37c57768e86d66f79b7408170353476c",
+      "logical_bytes": 4020308,
+      "allocated_before": 4022272,
+      "allocated_after": 2101248
+    },
+    {
+      "path": "dense/solution_restart23200_step24600_solid.vtu",
+      "sha256": "0de8f0a2e49342165bbc511b45724802e4e4120f7ae988fd088a42b68a811d7a",
+      "logical_bytes": 3489204,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24600_solid_boundary.vtu",
+      "sha256": "3766d2e64d7af780747cc26986cf4307e954a9c0bd009c69a9e3da490db384b1",
+      "logical_bytes": 2526733,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24601.vtu",
+      "sha256": "e49a4096656cb33b3774da5e05d865bb5efa61b52e40a803efe7cade1a210bb4",
+      "logical_bytes": 5605592,
+      "allocated_before": 5607424,
+      "allocated_after": 3158016
+    },
+    {
+      "path": "dense/solution_restart23200_step24601_boundary.vtu",
+      "sha256": "197aebc88c1945837b1039bda910371ea0c2b3642b0164a1a62ca448fb79df61",
+      "logical_bytes": 4020224,
+      "allocated_before": 4022272,
+      "allocated_after": 2293760
+    },
+    {
+      "path": "dense/solution_restart23200_step24601_solid.vtu",
+      "sha256": "974743bfdade2996fa424d5eacaff94cdee1b94d3229235f1d444d2a2d2b1623",
+      "logical_bytes": 3489205,
+      "allocated_before": 3489792,
+      "allocated_after": 2293760
+    },
+    {
+      "path": "dense/solution_restart23200_step24601_solid_boundary.vtu",
+      "sha256": "41ebabf28c6a176ecdbf3de05699e69db3213a1e6cf99305fb43f44d959ec68e",
+      "logical_bytes": 2526734,
+      "allocated_before": 2527232,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense/solution_restart23200_step24602.vtu",
+      "sha256": "8294243d70819c07e59a11ac8729b325a6e8b59fe4b84101b83c3de769930615",
+      "logical_bytes": 5605929,
+      "allocated_before": 5607424,
+      "allocated_after": 2822144
+    },
+    {
+      "path": "dense/solution_restart23200_step24602_boundary.vtu",
+      "sha256": "d062ab0c8cddc45980539c6b5e9eb5747a7129362d05f4282b262b5307c060b5",
+      "logical_bytes": 4020561,
+      "allocated_before": 4022272,
+      "allocated_after": 2199552
+    },
+    {
+      "path": "dense/solution_restart23200_step24602_solid.vtu",
+      "sha256": "06b6dcddfc80b21ebf85041c65357f859c3bf7593b4b5350627d5e617b0b7163",
+      "logical_bytes": 3489274,
+      "allocated_before": 3489792,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense/solution_restart23200_step24602_solid_boundary.vtu",
+      "sha256": "2266335581657cb01c822e5e37adffb1f037b92b2e22fb15e9cb018fe70c5607",
+      "logical_bytes": 2526803,
+      "allocated_before": 2527232,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense/solution_restart23200_step24603.vtu",
+      "sha256": "9239f4dc211bace9cc7523580fd8181577243060bf08a0b8b180bb2a54482c03",
+      "logical_bytes": 5606012,
+      "allocated_before": 5607424,
+      "allocated_after": 2736128
+    },
+    {
+      "path": "dense/solution_restart23200_step24603_boundary.vtu",
+      "sha256": "2814407adb7b25e0387974047df996f307bc40048021757b5a4a77477979c787",
+      "logical_bytes": 4020644,
+      "allocated_before": 4022272,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense/solution_restart23200_step24603_solid.vtu",
+      "sha256": "5e4858d1921dba8464408d22c9fb17c5eeb2130306c5813e29f6b9b67afe7e12",
+      "logical_bytes": 3489318,
+      "allocated_before": 3489792,
+      "allocated_after": 2138112
+    },
+    {
+      "path": "dense/solution_restart23200_step24603_solid_boundary.vtu",
+      "sha256": "554c93cfb29c8afaa8d73cb7e3b7908493fdcbe7ce4994817872a8ec9819cf3f",
+      "logical_bytes": 2526847,
+      "allocated_before": 2527232,
+      "allocated_after": 2105344
+    },
+    {
+      "path": "dense/solution_restart23200_step24604.vtu",
+      "sha256": "08565627313cb26d2fafa7f31535f79a8ebb1148ae7f0a11dd6092af35a46d69",
+      "logical_bytes": 5605660,
+      "allocated_before": 5607424,
+      "allocated_after": 3174400
+    },
+    {
+      "path": "dense/solution_restart23200_step24604_boundary.vtu",
+      "sha256": "19cacf34b1d11758717faa9dfe0b0eeae2590add15af181492c41fbe7cf52ee7",
+      "logical_bytes": 4020292,
+      "allocated_before": 4022272,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense/solution_restart23200_step24604_solid.vtu",
+      "sha256": "70ff9baa777b28452d356b41cae8a92f3088bbddc282a3a273258754dba2bdf3",
+      "logical_bytes": 3489356,
+      "allocated_before": 3489792,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24604_solid_boundary.vtu",
+      "sha256": "e0c72bd592c06b1141ae63be439fe7d63cfe9dcccaa282fe3e20e1ee5260208a",
+      "logical_bytes": 2526885,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24605.vtu",
+      "sha256": "6f199f5c3c0e5b2d39dac0f022a44a65b6b05180658efa5105203ad25a35cf56",
+      "logical_bytes": 5605672,
+      "allocated_before": 5607424,
+      "allocated_after": 3534848
+    },
+    {
+      "path": "dense/solution_restart23200_step24605_boundary.vtu",
+      "sha256": "cdb7aef7add35fc5f2078f177d08fb937df6a27e30bcbf5e5fddba4dc989723c",
+      "logical_bytes": 4020304,
+      "allocated_before": 4022272,
+      "allocated_after": 2224128
+    },
+    {
+      "path": "dense/solution_restart23200_step24605_solid.vtu",
+      "sha256": "683c49d3717145af35ab0d91e913179eade4605f51618fcd0febe2b24fbb8e5b",
+      "logical_bytes": 3489398,
+      "allocated_before": 3489792,
+      "allocated_after": 2211840
+    },
+    {
+      "path": "dense/solution_restart23200_step24605_solid_boundary.vtu",
+      "sha256": "8486476340bec015d17c1767c8e80a60a63338a8c45d58f6cfdd4a8428612bc4",
+      "logical_bytes": 2526927,
+      "allocated_before": 2527232,
+      "allocated_after": 2113536
+    },
+    {
+      "path": "dense/solution_restart23200_step24606.vtu",
+      "sha256": "41e29712904e6d87255f54e7c08794f3df11160ec4eace1873d851a706cd37e1",
+      "logical_bytes": 5605917,
+      "allocated_before": 5607424,
+      "allocated_after": 3174400
+    },
+    {
+      "path": "dense/solution_restart23200_step24606_boundary.vtu",
+      "sha256": "d3d69155096d5e9e484310f76bf2030b2d3e17250649d2a12714e0dfb201f7c7",
+      "logical_bytes": 4020549,
+      "allocated_before": 4022272,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24606_solid.vtu",
+      "sha256": "b97c616614d31e3050a70fe740b8b51fb65f90c80e01b1dfcca9ca247c2b6b6a",
+      "logical_bytes": 3489452,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24606_solid_boundary.vtu",
+      "sha256": "9787bff457a528cb3d2cf5c525c817b533a186b6d848eff31776a1e622134eae",
+      "logical_bytes": 2526981,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24607.vtu",
+      "sha256": "23b16c70d7aab46afce3334d36359dc9781835621c26b009083fabfa2ff2ceaa",
+      "logical_bytes": 5606113,
+      "allocated_before": 5607424,
+      "allocated_after": 3522560
+    },
+    {
+      "path": "dense/solution_restart23200_step24607_boundary.vtu",
+      "sha256": "493c4bae0dc77d70d2904590660285eb36c117b7b672ebb145c1c1b957375282",
+      "logical_bytes": 4020745,
+      "allocated_before": 4022272,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense/solution_restart23200_step24607_solid.vtu",
+      "sha256": "78e28096b5d0c350223dcd774d4c0b47c228b61e55d11b615ef65ab2d1aa5f92",
+      "logical_bytes": 3489549,
+      "allocated_before": 3489792,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense/solution_restart23200_step24607_solid_boundary.vtu",
+      "sha256": "8acac783463e22ef0fea6f394cd0486b72b03c24116ba2224ef0e5823583ef6a",
+      "logical_bytes": 2527078,
+      "allocated_before": 2527232,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24608.vtu",
+      "sha256": "69b7c64ad1c3783c7ae0efdcce4e034a07c1afdd74713b320433fd12fca59621",
+      "logical_bytes": 5605850,
+      "allocated_before": 5607424,
+      "allocated_after": 3149824
+    },
+    {
+      "path": "dense/solution_restart23200_step24608_boundary.vtu",
+      "sha256": "0a2dad4bdde781a740761f6176421847a0181d02910172f78a9048f6a078a7cd",
+      "logical_bytes": 4020482,
+      "allocated_before": 4022272,
+      "allocated_after": 2154496
+    },
+    {
+      "path": "dense/solution_restart23200_step24608_solid.vtu",
+      "sha256": "00ab3dcb15b2b67244db28754d6887d315cf68f43429dc9b4c35a99b770a8ebc",
+      "logical_bytes": 3489398,
+      "allocated_before": 3489792,
+      "allocated_after": 2449408
+    },
+    {
+      "path": "dense/solution_restart23200_step24608_solid_boundary.vtu",
+      "sha256": "e1bf5e9db19c470e507b3a3cfbe8170bcfab99a90c5d0fec2ab1b82eee614bf6",
+      "logical_bytes": 2526927,
+      "allocated_before": 2527232,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense/solution_restart23200_step24609.vtu",
+      "sha256": "7c1c531dc70af27dea1db2388c10e7862f219f4446dad23e7228662912f889ae",
+      "logical_bytes": 5605773,
+      "allocated_before": 5607424,
+      "allocated_after": 3162112
+    },
+    {
+      "path": "dense/solution_restart23200_step24609_boundary.vtu",
+      "sha256": "1ec52a07be9cd33b1378439daacbe315af10f4393c93ed9840750aabcbc9f1ef",
+      "logical_bytes": 4020405,
+      "allocated_before": 4022272,
+      "allocated_after": 2433024
+    },
+    {
+      "path": "dense/solution_restart23200_step24609_solid.vtu",
+      "sha256": "c48fd9e5d44e37dfa9f063c6e04a71f2b7fb2492915d3cc63f875ecba53192c0",
+      "logical_bytes": 3489263,
+      "allocated_before": 3489792,
+      "allocated_after": 2134016
+    },
+    {
+      "path": "dense/solution_restart23200_step24609_solid_boundary.vtu",
+      "sha256": "9f45323088cb6c08917d010a81f72a6334773f1da50f0510207e745b721bab7a",
+      "logical_bytes": 2526792,
+      "allocated_before": 2527232,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense/solution_restart23200_step24610.vtu",
+      "sha256": "1b0eb2052f3dc4de572e4a588e9bd7658238ddc86cccc52f641ed5d3cc3e01e7",
+      "logical_bytes": 5606010,
+      "allocated_before": 5607424,
+      "allocated_after": 3207168
+    },
+    {
+      "path": "dense/solution_restart23200_step24610_boundary.vtu",
+      "sha256": "b26e4d06c524a81deb75d93d048c2ecc306cc6c842ee8c95108f6594c4e7268e",
+      "logical_bytes": 4020642,
+      "allocated_before": 4022272,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense/solution_restart23200_step24610_solid.vtu",
+      "sha256": "a456844c6882d3bdaf0a7820d7d2227cafc94e005b4dc3824dda11ce9997a86c",
+      "logical_bytes": 3489507,
+      "allocated_before": 3489792,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense/solution_restart23200_step24610_solid_boundary.vtu",
+      "sha256": "535e7e4a391ea6eeff3a28aa47919f114a0d189861f967a5970592492a8c6531",
+      "logical_bytes": 2527036,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24611.vtu",
+      "sha256": "1fd76a22199c432f913284ecf602f3c19db5727e9385b69360df6fcea310713d",
+      "logical_bytes": 5605759,
+      "allocated_before": 5607424,
+      "allocated_after": 3162112
+    },
+    {
+      "path": "dense/solution_restart23200_step24611_boundary.vtu",
+      "sha256": "0aef44520481612353b3fddae9574f1fe1dd1a528082e6ca0ed17f27bac0e16d",
+      "logical_bytes": 4020391,
+      "allocated_before": 4022272,
+      "allocated_after": 2154496
+    },
+    {
+      "path": "dense/solution_restart23200_step24611_solid.vtu",
+      "sha256": "5cc814289966536ad58e7bf7910340fc86e5f9fc66b74d90f7bb621b4bcd3777",
+      "logical_bytes": 3489352,
+      "allocated_before": 3489792,
+      "allocated_after": 2154496
+    },
+    {
+      "path": "dense/solution_restart23200_step24611_solid_boundary.vtu",
+      "sha256": "366bdf11395d96ea86b838e23247575687d802051d424f27a4c817ae110a3997",
+      "logical_bytes": 2526881,
+      "allocated_before": 2527232,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense/solution_restart23200_step24612.vtu",
+      "sha256": "569744f75265893aa93030a262b6c2b12158e35b43c5a7b7420221b78465c46c",
+      "logical_bytes": 5605910,
+      "allocated_before": 5607424,
+      "allocated_after": 3186688
+    },
+    {
+      "path": "dense/solution_restart23200_step24612_boundary.vtu",
+      "sha256": "9ddb419ff235bb7a8fb043167c1d5db19fcb8dafd9cfe3cf904450cea022e248",
+      "logical_bytes": 4020542,
+      "allocated_before": 4022272,
+      "allocated_after": 2134016
+    },
+    {
+      "path": "dense/solution_restart23200_step24612_solid.vtu",
+      "sha256": "440c01e06841474ad677e0b583edea6de7c9ffd8e90a4ff39512fa1751bc24a7",
+      "logical_bytes": 3489202,
+      "allocated_before": 3489792,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense/solution_restart23200_step24612_solid_boundary.vtu",
+      "sha256": "c5ecd90314400eb1f191405f84ae875e8e93936c62fe52fb056f6c1fe97289cf",
+      "logical_bytes": 2526731,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24613.vtu",
+      "sha256": "084bc7d2377e51a2b4cc5c2ace01d41fba2091d4af029911fe23cbc17d07bb0c",
+      "logical_bytes": 5605616,
+      "allocated_before": 5607424,
+      "allocated_after": 3207168
+    },
+    {
+      "path": "dense/solution_restart23200_step24613_boundary.vtu",
+      "sha256": "b8a9401c2f98d294f24f5c38610a9b332656a370ae7d021c6a703c0a5077c5ea",
+      "logical_bytes": 4020248,
+      "allocated_before": 4022272,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense/solution_restart23200_step24613_solid.vtu",
+      "sha256": "e1e2fdf2da6d57fa619c2ed04699cd41da1f9615e2b8cc7e69f26f60458f7305",
+      "logical_bytes": 3489169,
+      "allocated_before": 3489792,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense/solution_restart23200_step24613_solid_boundary.vtu",
+      "sha256": "11b1b5b92697f3b7c30d04a272fc0d3266126ab4f11e4b078644e150067a855b",
+      "logical_bytes": 2526698,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24614.vtu",
+      "sha256": "4b9d4f207d4893e93198bfb22a2b5a1bc069584328ec1932b8e6b80243114ec5",
+      "logical_bytes": 5605693,
+      "allocated_before": 5607424,
+      "allocated_after": 3215360
+    },
+    {
+      "path": "dense/solution_restart23200_step24614_boundary.vtu",
+      "sha256": "bd8a1a9e2dd4470458e848207e612641ab37f65de0a8693397beb59796e6f5d8",
+      "logical_bytes": 4020325,
+      "allocated_before": 4022272,
+      "allocated_after": 2105344
+    },
+    {
+      "path": "dense/solution_restart23200_step24614_solid.vtu",
+      "sha256": "17ad18531b8d6282c1b86d7674a2bb4f636dad099d680c28a29de658f41360d3",
+      "logical_bytes": 3489249,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24614_solid_boundary.vtu",
+      "sha256": "42761975ef94122c67d3d4ae0922d15b27c44db21c2b3df9b6cd0f1af235c62e",
+      "logical_bytes": 2526778,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24615.vtu",
+      "sha256": "7d6699fb385ce80914ad1e9ca88c1d2b0c116ff0a2d5c41dbde903df4a66fc7f",
+      "logical_bytes": 5605818,
+      "allocated_before": 5607424,
+      "allocated_after": 3203072
+    },
+    {
+      "path": "dense/solution_restart23200_step24615_boundary.vtu",
+      "sha256": "a10fbc84232c91977445907f6d59ac88a4b7db0a54329426405497ecff9e14a0",
+      "logical_bytes": 4020450,
+      "allocated_before": 4022272,
+      "allocated_after": 2154496
+    },
+    {
+      "path": "dense/solution_restart23200_step24615_solid.vtu",
+      "sha256": "16a900b5cf45dd29bb1dfa7b0d06052cbe0d8c5bf09a27412a26dff588366c17",
+      "logical_bytes": 3489225,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24615_solid_boundary.vtu",
+      "sha256": "235dbaeee1f878f7ed374c4d05ef7a25e30384d64499c0adf76501efb8cf1280",
+      "logical_bytes": 2526754,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24616.vtu",
+      "sha256": "55a282a99032c788eca0d9f9e136539cddd645c3b3d491dd5bfcbe894bae3d03",
+      "logical_bytes": 5605509,
+      "allocated_before": 5607424,
+      "allocated_after": 3153920
+    },
+    {
+      "path": "dense/solution_restart23200_step24616_boundary.vtu",
+      "sha256": "e21ac051f2d0daae51fa35260786f36a7f4d4c27b2aec42633b29612bd392e75",
+      "logical_bytes": 4020141,
+      "allocated_before": 4022272,
+      "allocated_after": 2404352
+    },
+    {
+      "path": "dense/solution_restart23200_step24616_solid.vtu",
+      "sha256": "8e1c1ee2bdf5fcb70da12364e87bbf311f0bcc14cd88c213b8e3d20ab311b9cf",
+      "logical_bytes": 3489118,
+      "allocated_before": 3489792,
+      "allocated_after": 2224128
+    },
+    {
+      "path": "dense/solution_restart23200_step24616_solid_boundary.vtu",
+      "sha256": "5395be28836c2d4baece9fabbd75efa79e63dbe7abc9753aa93469b07eb58fce",
+      "logical_bytes": 2526647,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24617.vtu",
+      "sha256": "7105caa575531610421080b17b0eea5c6b5e1695b01105dbdfec6f5307080a95",
+      "logical_bytes": 5605613,
+      "allocated_before": 5607424,
+      "allocated_after": 3342336
+    },
+    {
+      "path": "dense/solution_restart23200_step24617_boundary.vtu",
+      "sha256": "24be360bbe4552e07f3f36c276b7481c0ba938bc9c3e893a9a050fcd1ef37e8b",
+      "logical_bytes": 4020245,
+      "allocated_before": 4022272,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense/solution_restart23200_step24617_solid.vtu",
+      "sha256": "dcfc28b49adfd441b6c9937e3639eebb7df7ad7a6b355a47070cb155a1720ffc",
+      "logical_bytes": 3489161,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24617_solid_boundary.vtu",
+      "sha256": "d33072aa7e14aa35d60d0144a010c3627e7d2d8a0e0608532dd6a74ecc2bb731",
+      "logical_bytes": 2526690,
+      "allocated_before": 2527232,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense/solution_restart23200_step24618.vtu",
+      "sha256": "d44385c241cb03cbdd4477ebd0e0df18142b1c508c035deb96d48f0bc2b6f520",
+      "logical_bytes": 5605574,
+      "allocated_before": 5607424,
+      "allocated_after": 3346432
+    },
+    {
+      "path": "dense/solution_restart23200_step24618_boundary.vtu",
+      "sha256": "c31a016f08098b1857b20d47bc9e3da45b52f181003dd8589e58b8984d246aa9",
+      "logical_bytes": 4020206,
+      "allocated_before": 4022272,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense/solution_restart23200_step24618_solid.vtu",
+      "sha256": "7019d4e985e46ac31ccc99af6bdaadda067d02927249d918889b66f2d0f28cb4",
+      "logical_bytes": 3489364,
+      "allocated_before": 3489792,
+      "allocated_after": 2318336
+    },
+    {
+      "path": "dense/solution_restart23200_step24618_solid_boundary.vtu",
+      "sha256": "15a0c1e8c116dd9bb91a77b3c81d9621fdb3067a8e1b17bcae1137da97d00ea8",
+      "logical_bytes": 2526893,
+      "allocated_before": 2527232,
+      "allocated_after": 2109440
+    },
+    {
+      "path": "dense/solution_restart23200_step24619.vtu",
+      "sha256": "a2b11e876a6154bd907f7e5d969e85e7f75dc39de12a5bbbff79e90b10d1d12a",
+      "logical_bytes": 5606024,
+      "allocated_before": 5607424,
+      "allocated_after": 3182592
+    },
+    {
+      "path": "dense/solution_restart23200_step24619_boundary.vtu",
+      "sha256": "7a2b8bdddb527e61d9a714f59f5c21067564497cc12e9223277c2f17a8cbe441",
+      "logical_bytes": 4020656,
+      "allocated_before": 4022272,
+      "allocated_after": 2699264
+    },
+    {
+      "path": "dense/solution_restart23200_step24619_solid.vtu",
+      "sha256": "6c54d52c71d93292dea2b38d48b52626b43b0f9c3c42b36bb6a53ab64ba7f74c",
+      "logical_bytes": 3489361,
+      "allocated_before": 3489792,
+      "allocated_after": 2338816
+    },
+    {
+      "path": "dense/solution_restart23200_step24619_solid_boundary.vtu",
+      "sha256": "1590c7565850a7d2ae0f60a2e08371ff8c107ad8e4d698aeb45a9fabcc52ae73",
+      "logical_bytes": 2526890,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24620.vtu",
+      "sha256": "83e82051e8ee63fbc31572113bfc6e0076b046414c6561e072767cbb01a8d91f",
+      "logical_bytes": 5605652,
+      "allocated_before": 5607424,
+      "allocated_after": 3198976
+    },
+    {
+      "path": "dense/solution_restart23200_step24620_boundary.vtu",
+      "sha256": "2d26ea22e901596a652fb3d2020219ba4a4b96f55ac4feff48b0b1d2d0ba9d6d",
+      "logical_bytes": 4020284,
+      "allocated_before": 4022272,
+      "allocated_after": 2420736
+    },
+    {
+      "path": "dense/solution_restart23200_step24620_solid.vtu",
+      "sha256": "933f41a0f59228a7ce29b792765007da8b9d9a1ebb45b04b0cd5ec28bafcff68",
+      "logical_bytes": 3489502,
+      "allocated_before": 3489792,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense/solution_restart23200_step24620_solid_boundary.vtu",
+      "sha256": "ff5de5511a74eeacc8f0f3b0cda50f24abcc0c6feaf50e8ecd9e016b95ec1846",
+      "logical_bytes": 2527031,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24621.vtu",
+      "sha256": "122ad5ea4d9ca521428a86ac7d6e9e79148169861796375061c0bafbbcaebfa0",
+      "logical_bytes": 5605847,
+      "allocated_before": 5607424,
+      "allocated_after": 3141632
+    },
+    {
+      "path": "dense/solution_restart23200_step24621_boundary.vtu",
+      "sha256": "eaa1abd0b18dc4d26e8f2cfaedab0bbaefb7cac057e744eea4b63568dcfe72f3",
+      "logical_bytes": 4020479,
+      "allocated_before": 4022272,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense/solution_restart23200_step24621_solid.vtu",
+      "sha256": "8fe378c8dcb0065ba09c200ec9a0d9aafd501a965eb2150d3e72c997b0bd797b",
+      "logical_bytes": 3489127,
+      "allocated_before": 3489792,
+      "allocated_after": 2293760
+    },
+    {
+      "path": "dense/solution_restart23200_step24621_solid_boundary.vtu",
+      "sha256": "0b77c07c3ff891fe4a12f3f97872822e7995d2eedaa9b56e71edfa80ce9186db",
+      "logical_bytes": 2526656,
+      "allocated_before": 2527232,
+      "allocated_after": 1191936
+    },
+    {
+      "path": "dense/solution_restart23200_step24622.vtu",
+      "sha256": "ea8014787e02ec164902c9ce70c76e81cf71008552f55fc27954d28e1e5c8053",
+      "logical_bytes": 5605906,
+      "allocated_before": 5607424,
+      "allocated_after": 3178496
+    },
+    {
+      "path": "dense/solution_restart23200_step24622_boundary.vtu",
+      "sha256": "bf27fd295feef133323e7b2ccacbd3b3d91f40bd758e6351f327eca0cd14976b",
+      "logical_bytes": 4020538,
+      "allocated_before": 4022272,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense/solution_restart23200_step24622_solid.vtu",
+      "sha256": "53813344b26f812d66873f65766234c9bb33498bb2b024d1180e9c103bba11e2",
+      "logical_bytes": 3489406,
+      "allocated_before": 3489792,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24622_solid_boundary.vtu",
+      "sha256": "89732bb55ca33641f09911352bc4ea5fba74fef4b8845d185e883738a3469857",
+      "logical_bytes": 2526935,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24623.vtu",
+      "sha256": "1b97030fe2e43d3440e480b20797f353917542889c0468c176882cd5b150c7d9",
+      "logical_bytes": 5605516,
+      "allocated_before": 5607424,
+      "allocated_after": 3182592
+    },
+    {
+      "path": "dense/solution_restart23200_step24623_boundary.vtu",
+      "sha256": "c23befd5d6b08070f87fca83a1cf54b28085407f6a40ae506c5c8ed8dc4d15c2",
+      "logical_bytes": 4020148,
+      "allocated_before": 4022272,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense/solution_restart23200_step24623_solid.vtu",
+      "sha256": "aa8e819253988e10f69bc621275a900b4196c6c7003d3335e4033e0ff4017a63",
+      "logical_bytes": 3489204,
+      "allocated_before": 3489792,
+      "allocated_after": 2465792
+    },
+    {
+      "path": "dense/solution_restart23200_step24623_solid_boundary.vtu",
+      "sha256": "21ca0def4e7068370654fe6d9e2160a0a936e75d888fbc7e4c44f414a6500768",
+      "logical_bytes": 2526733,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24624.vtu",
+      "sha256": "e87f4b9355644a12128792ed371bdfcfc0b8cac945a2ede0df03534dfb204e93",
+      "logical_bytes": 5605779,
+      "allocated_before": 5607424,
+      "allocated_after": 3465216
+    },
+    {
+      "path": "dense/solution_restart23200_step24624_boundary.vtu",
+      "sha256": "57193282e1647a38a5a5cc5923acbef86b3eab2bb162d825130759fad2fbe84f",
+      "logical_bytes": 4020411,
+      "allocated_before": 4022272,
+      "allocated_after": 2293760
+    },
+    {
+      "path": "dense/solution_restart23200_step24624_solid.vtu",
+      "sha256": "a3dc89656e0b137ac61bc594b30db5c81bf72d8bb8678b5b40b9109045e7ab10",
+      "logical_bytes": 3489363,
+      "allocated_before": 3489792,
+      "allocated_after": 2134016
+    },
+    {
+      "path": "dense/solution_restart23200_step24624_solid_boundary.vtu",
+      "sha256": "2891cdc3a420ae0198eb32632b10368a0a091e5b1a80517abefa4a934000f02c",
+      "logical_bytes": 2526892,
+      "allocated_before": 2527232,
+      "allocated_after": 2113536
+    },
+    {
+      "path": "dense/solution_restart23200_step24625.vtu",
+      "sha256": "7d80a6a38f81b66025cdb604f3609ae4ab070f73f06778da0ce9b1dbdf8d2414",
+      "logical_bytes": 5605864,
+      "allocated_before": 5607424,
+      "allocated_after": 3198976
+    },
+    {
+      "path": "dense/solution_restart23200_step24625_boundary.vtu",
+      "sha256": "5eb8ce45c56587e89723ef0f6007754587feb3456779bf61a4525af93db7efde",
+      "logical_bytes": 4020496,
+      "allocated_before": 4022272,
+      "allocated_after": 2101248
+    },
+    {
+      "path": "dense/solution_restart23200_step24625_solid.vtu",
+      "sha256": "e907dccc6351211174df979046defa9bd880549e50da4ab870aabe0732ce2250",
+      "logical_bytes": 3489317,
+      "allocated_before": 3489792,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense/solution_restart23200_step24625_solid_boundary.vtu",
+      "sha256": "4f6df4bd9589c962c1f61f1beac840976299ce87d6b08215198c89c9f7424405",
+      "logical_bytes": 2526846,
+      "allocated_before": 2527232,
+      "allocated_after": 2138112
+    },
+    {
+      "path": "dense/solution_restart23200_step24626.vtu",
+      "sha256": "e32517a39b3e99410990156fc7da937dbb48af341d0b3f0c1292b841b16810f3",
+      "logical_bytes": 5605612,
+      "allocated_before": 5607424,
+      "allocated_after": 3190784
+    },
+    {
+      "path": "dense/solution_restart23200_step24626_boundary.vtu",
+      "sha256": "639099c4a060c5aa535d2e719e5a12f520954055245c7a42744f8039c151f665",
+      "logical_bytes": 4020244,
+      "allocated_before": 4022272,
+      "allocated_after": 2109440
+    },
+    {
+      "path": "dense/solution_restart23200_step24626_solid.vtu",
+      "sha256": "ff4843fdd7575a3df7538d897789bf935172dbc65cd0f626e47a818f461d7667",
+      "logical_bytes": 3489402,
+      "allocated_before": 3489792,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense/solution_restart23200_step24626_solid_boundary.vtu",
+      "sha256": "ca7507c260b3f3e78721dc7a45962de927f9c1c76c8d6f008869b3de14d04e93",
+      "logical_bytes": 2526931,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24627.vtu",
+      "sha256": "c11380290454e6c34b458b8bde03c35d0058b6d13ce1370b212ec48e4f98cb7a",
+      "logical_bytes": 5605372,
+      "allocated_before": 5607424,
+      "allocated_after": 2666496
+    },
+    {
+      "path": "dense/solution_restart23200_step24627_boundary.vtu",
+      "sha256": "be43dbe0e44943ffbaf74ae1648f7300dfdeb002a6a0a747bf7fecb8319880c6",
+      "logical_bytes": 4020004,
+      "allocated_before": 4022272,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense/solution_restart23200_step24627_solid.vtu",
+      "sha256": "2312150122e48013b7363fa35d4bd46e39b7a97785364b6ca299165bc44ac08b",
+      "logical_bytes": 3489432,
+      "allocated_before": 3489792,
+      "allocated_after": 2142208
+    },
+    {
+      "path": "dense/solution_restart23200_step24627_solid_boundary.vtu",
+      "sha256": "368e48f44984c7eb4e38f3cad8fc8c6b4c49a4dcad5cf96e5fa4a8aef217c377",
+      "logical_bytes": 2526961,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24628.vtu",
+      "sha256": "5dbc5c7aaa18cbcd9bd4063f4ebbb7ff2844ccdad7cd42808720c6449154d240",
+      "logical_bytes": 5605497,
+      "allocated_before": 5607424,
+      "allocated_after": 3211264
+    },
+    {
+      "path": "dense/solution_restart23200_step24628_boundary.vtu",
+      "sha256": "cefa60781f51d75662451b9c702770b8c5078d7a1a26d3c24385d0ee05871ade",
+      "logical_bytes": 4020129,
+      "allocated_before": 4022272,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24628_solid.vtu",
+      "sha256": "fa56921f32e01ed52f1bb829b77a48dcb4df6dcc8df5e1077e0b2d85e97e383f",
+      "logical_bytes": 3489281,
+      "allocated_before": 3489792,
+      "allocated_after": 2301952
+    },
+    {
+      "path": "dense/solution_restart23200_step24628_solid_boundary.vtu",
+      "sha256": "7debda20812f4d6634cbf0db0c0bfce8de0286b4094602fd88534b894911a441",
+      "logical_bytes": 2526810,
+      "allocated_before": 2527232,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense/solution_restart23200_step24629.vtu",
+      "sha256": "499e3cfe93f2b9f512757d50587ae2c7cf5c2b53e8c7eb61aa68d2783ee33eeb",
+      "logical_bytes": 5605936,
+      "allocated_before": 5607424,
+      "allocated_after": 3149824
+    },
+    {
+      "path": "dense/solution_restart23200_step24629_boundary.vtu",
+      "sha256": "a7e2c9b99e714d7a02d4a12d060fd20272f2076caac4f006dc1ece759087dbea",
+      "logical_bytes": 4020568,
+      "allocated_before": 4022272,
+      "allocated_after": 2326528
+    },
+    {
+      "path": "dense/solution_restart23200_step24629_solid.vtu",
+      "sha256": "25a393182807a4fe2f538ecd35a008302235674332bc191f5756a8400cf9fe65",
+      "logical_bytes": 3489348,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24629_solid_boundary.vtu",
+      "sha256": "64ff8292391471369b4a4c0f4e556769e36f9ecdf6a695042978242e34cbdbac",
+      "logical_bytes": 2526877,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24630.vtu",
+      "sha256": "5abf6afd2253b95ec42e98878f80b1a56241807e5211210d19414c339685319c",
+      "logical_bytes": 5605454,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24630_boundary.vtu",
+      "sha256": "035ced2df0258ae8fec84607ddecb3fbcdabe25efcefefec4319fdc6525802ba",
+      "logical_bytes": 4020086,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24630_solid.vtu",
+      "sha256": "a74bfe511155da0ed4e1b018437a88d21f8ee953f00fbc76e22a18ac153270fe",
+      "logical_bytes": 3489310,
+      "allocated_before": 3489792,
+      "allocated_after": 1458176
+    },
+    {
+      "path": "dense/solution_restart23200_step24630_solid_boundary.vtu",
+      "sha256": "269c796acd98ba51b36459648f0738459fa384619ec1cf07205afdcc7dbc6078",
+      "logical_bytes": 2526839,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24631.vtu",
+      "sha256": "a2309381bb4bab0d138428e7c6b48a3c0a3f7a5c733e77a2c289f64e91efce98",
+      "logical_bytes": 5605747,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24631_boundary.vtu",
+      "sha256": "4707a9fdb9baf45c61a6cdaf57080a56b4bd0b6b8fd9c156e4db97ffa7feb8bb",
+      "logical_bytes": 4020379,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24631_solid.vtu",
+      "sha256": "91d6fb583fb5a8ad1b42ed3dc9d6cbe10d447356761f7fdbc5204238e403910b",
+      "logical_bytes": 3489295,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24631_solid_boundary.vtu",
+      "sha256": "07ceebcc8a382d96e04fa497ce54b94e5e7598f1e6d4837eff154dfdfe2cdb3f",
+      "logical_bytes": 2526824,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24632.vtu",
+      "sha256": "c9da21b0ca03d9c56199947b078f122ef6b3dbee16859582ef8eee2b04adcd3e",
+      "logical_bytes": 5605588,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24632_boundary.vtu",
+      "sha256": "3f78a87cc80ed40d9fe59e185050535bde3576ff531ea9b97385dd26ea080680",
+      "logical_bytes": 4020220,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24632_solid.vtu",
+      "sha256": "8c41ea5cbb78cb947f8b4909f5b7640796e4387840eed7585311ec16c71231ef",
+      "logical_bytes": 3489240,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24632_solid_boundary.vtu",
+      "sha256": "b573800c77c5f1f24b9823c31c156284d32a991c977b0498c372659d37f5e887",
+      "logical_bytes": 2526769,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24633.vtu",
+      "sha256": "2ddb77903042b287b6e9229560fca9632b51a8e88cd3e99a973baad3dd047e7a",
+      "logical_bytes": 5605541,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24633_boundary.vtu",
+      "sha256": "a8e9935ceb13b3a8f1ef271f9da6bf729734189d9b19bff81e786924b2c5889a",
+      "logical_bytes": 4020173,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24633_solid.vtu",
+      "sha256": "bed4424ea5d831a811a7c11d95700d64427c7a932418667b8da6718e834a5066",
+      "logical_bytes": 3489314,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24633_solid_boundary.vtu",
+      "sha256": "78909077120915815308f3d767a22453d5003a52ae994bcdc65ce125578b76ed",
+      "logical_bytes": 2526843,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24634.vtu",
+      "sha256": "4e8c4af774b0fd28e73b7935784d06ad5975d166dfb18e10f5f81cf5b69d78a8",
+      "logical_bytes": 5605702,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24634_boundary.vtu",
+      "sha256": "6890171d333f2258a47d516101e5310fb434e2c09e1d4e31917391bf674515bb",
+      "logical_bytes": 4020334,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24634_solid.vtu",
+      "sha256": "7a6b1a91fa07c13357106592d66445b948d0a76715787f9be3c365f86c33ca14",
+      "logical_bytes": 3489237,
+      "allocated_before": 3489792,
+      "allocated_after": 1458176
+    },
+    {
+      "path": "dense/solution_restart23200_step24634_solid_boundary.vtu",
+      "sha256": "dbe3acf79c5f841028caa993c8aedc360a64e39c421dadcb1aec5a5c81f8eeae",
+      "logical_bytes": 2526766,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24635.vtu",
+      "sha256": "0b1e00acef004e392284d6c2a1c470d61cbce964ee0b781439be9db9c68290a6",
+      "logical_bytes": 5605616,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24635_boundary.vtu",
+      "sha256": "ac81ebcbfb0a32dc2d7dc22aeff70637d90b670e83ccdef836fdd6103f32b14c",
+      "logical_bytes": 4020248,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24635_solid.vtu",
+      "sha256": "d148ca04c7ca3cface517a1e1c2b220f1dd206855c5d1b555a7715e4feb41561",
+      "logical_bytes": 3489209,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24635_solid_boundary.vtu",
+      "sha256": "3892808182408a21d6bbf178953649f152f62f79653179a72f1600af49789db0",
+      "logical_bytes": 2526738,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24636.vtu",
+      "sha256": "52d6ce72fd3106d27ce4a19bece075afc3360b6221de18d1e28506afe5249a83",
+      "logical_bytes": 5605890,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24636_boundary.vtu",
+      "sha256": "8c44a2c567f5f261756df8a457f055cf09b005023fc36fbd6d0379f73b73a034",
+      "logical_bytes": 4020522,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24636_solid.vtu",
+      "sha256": "6996668b163f5dc27d414a4b020a4cab03ab6d58a38406c47f51e6aafccda2d1",
+      "logical_bytes": 3489204,
+      "allocated_before": 3489792,
+      "allocated_after": 1458176
+    },
+    {
+      "path": "dense/solution_restart23200_step24636_solid_boundary.vtu",
+      "sha256": "deeb094fdff064ce7af86a355c58e215a8f21606ca5224b9d4c3269940b94b77",
+      "logical_bytes": 2526733,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24637.vtu",
+      "sha256": "1cfaf4566a32c84bf78996a0e787d5495cc810a7a49976efe8fb7b8e5cf02d6c",
+      "logical_bytes": 5605764,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24637_boundary.vtu",
+      "sha256": "ccbd844c8d0ebd6d68b155aefa77da5534d8d98d6dd39f8db2bb097581006eea",
+      "logical_bytes": 4020396,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24637_solid.vtu",
+      "sha256": "f3012da8b82f93b4b47c47803660699a21a49afb39d36776a699eac71a32cb15",
+      "logical_bytes": 3489261,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24637_solid_boundary.vtu",
+      "sha256": "5ebbc28588165b013cd8f89cf8c2cc80a7be0d68632421da92227d424314987c",
+      "logical_bytes": 2526790,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24638.vtu",
+      "sha256": "e7a072bdb336a455a13594bcc7ee9e236c6d9cb9681fdee6b6996f8dd8cb9e50",
+      "logical_bytes": 5605680,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24638_boundary.vtu",
+      "sha256": "cf38cb4211a998be1fe70460cf3076729b882f136098085e904508c05998248e",
+      "logical_bytes": 4020312,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24638_solid.vtu",
+      "sha256": "3436295d99ebec45f6ab133e604df4686c254b29792aac427f5fd1e6fe560fe1",
+      "logical_bytes": 3489366,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24638_solid_boundary.vtu",
+      "sha256": "e4fef2e60cd4818400fd93552473bf64f5c1c315472469e5026db316355ef0d3",
+      "logical_bytes": 2526895,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24639.vtu",
+      "sha256": "8ceefb7d80f5333e0c8bc2bccbf392867dc0504217359f2bfcf24c47929ce308",
+      "logical_bytes": 5605547,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24639_boundary.vtu",
+      "sha256": "cf9ca4f5b899c951b435f1885a871f99fd100915844fe62f64f409a844783fd6",
+      "logical_bytes": 4020179,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24639_solid.vtu",
+      "sha256": "608d711274f4093e3aade48f8325b858e0eddd7b9e3aa1a4f292761773049ed2",
+      "logical_bytes": 3489370,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24639_solid_boundary.vtu",
+      "sha256": "1967ecd24c88ea46766c7e991c120bbc3c071ce0eae2821ca585887e704bbe80",
+      "logical_bytes": 2526899,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24640.vtu",
+      "sha256": "477cc8bc584c3537f77f6660ffa9d20fa33bc01affcfd4a42271c9eec23e4611",
+      "logical_bytes": 5605547,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24640_boundary.vtu",
+      "sha256": "2a0ba8ce8273e1e32a52a572a832c88634b035913bf305960a7d7120d22cbdc3",
+      "logical_bytes": 4020179,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24640_solid.vtu",
+      "sha256": "34ad95a272f4f277e1d3a8c9f8cec7bb0885020e5e0d45e4082fcf37041498c4",
+      "logical_bytes": 3489466,
+      "allocated_before": 3489792,
+      "allocated_after": 1458176
+    },
+    {
+      "path": "dense/solution_restart23200_step24640_solid_boundary.vtu",
+      "sha256": "9dfbae5b28b3550b258b19b0b89a8c9b9f19b00b366d48ca32d79f6503aaf7bc",
+      "logical_bytes": 2526995,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24641.vtu",
+      "sha256": "a267d3f8389e121c04db054e95eaa588863869f0db94f33d017f4e8908482a7a",
+      "logical_bytes": 5605521,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24641_boundary.vtu",
+      "sha256": "502756d191977c04d290b4b6696fe715645a8d046dda4f00b8a2ff7c434f1880",
+      "logical_bytes": 4020153,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24641_solid.vtu",
+      "sha256": "bcecc8e4e7c5e88e4fabf96d25274a1e0169ae6d3d5324aac73eb37e1db4d5b1",
+      "logical_bytes": 3489412,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24641_solid_boundary.vtu",
+      "sha256": "76ed1d2267c6b6169302e8b0f11a2fc13e5a112accb785148aa222fa29e4958e",
+      "logical_bytes": 2526941,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24642.vtu",
+      "sha256": "622437a9fd0fd8af26f636a93e8187301e3e0f65979418134d94c9337ba2fb11",
+      "logical_bytes": 5605616,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24642_boundary.vtu",
+      "sha256": "a67729c6c3f287ecbc98bbbd028dfa047e584544c8619caa48dafb4e5cd6573f",
+      "logical_bytes": 4020248,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24642_solid.vtu",
+      "sha256": "da82f832d607dbac32d1e001bf1a636378affd78c12165dadea43bc3a7eda752",
+      "logical_bytes": 3489607,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24642_solid_boundary.vtu",
+      "sha256": "39be4de0ae23af5374a92467d13148058389b57087897039f050490744f9fd8b",
+      "logical_bytes": 2527136,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24643.vtu",
+      "sha256": "de5175ecc4e2346871946ef1914bf2ab37abcfc21fd47371cf14f6fb45fbee0f",
+      "logical_bytes": 5605867,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24643_boundary.vtu",
+      "sha256": "1b786804875e6c24893487b9980f0ff976b7b99ba244ac0c767106034b25072a",
+      "logical_bytes": 4020499,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24643_solid.vtu",
+      "sha256": "8c8e856c19fcb7490ab2abc2ece769d30f572107bbf277312a9e9ca02251b056",
+      "logical_bytes": 3489371,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24643_solid_boundary.vtu",
+      "sha256": "d22eab9948d64084fc629f952d55a5848efe76ecf0493cd3291f673a66641e1e",
+      "logical_bytes": 2526900,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24644.vtu",
+      "sha256": "71a22f9e07c2c9a4b6b6a7993d09aade0418c9d4c90b291cac75f554d8259a1c",
+      "logical_bytes": 5605745,
+      "allocated_before": 5607424,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24644_boundary.vtu",
+      "sha256": "9680d7c13e2c2cd07b6f19d816727d23d5ff5dbdd01405d7c70d17e49b8beb00",
+      "logical_bytes": 4020377,
+      "allocated_before": 4022272,
+      "allocated_after": 2043904
+    },
+    {
+      "path": "dense/solution_restart23200_step24644_solid.vtu",
+      "sha256": "a0a2f1aa71c6731dcb00358eab8a3f82319e371ade5a494c536645708c7a3b8e",
+      "logical_bytes": 3489314,
+      "allocated_before": 3489792,
+      "allocated_after": 1454080
+    },
+    {
+      "path": "dense/solution_restart23200_step24644_solid_boundary.vtu",
+      "sha256": "a2fd020ebb86ca8161bc855f1fcbb05a41fdc3ba53f8d02759e48ba65bda9daf",
+      "logical_bytes": 2526843,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24645.vtu",
+      "sha256": "f007b1039fdfd2f796c2b44745d5ba5ffd1070ae3cabaa1035ce7c3991ecdd0c",
+      "logical_bytes": 5605830,
+      "allocated_before": 5607424,
+      "allocated_after": 3129344
+    },
+    {
+      "path": "dense/solution_restart23200_step24645_boundary.vtu",
+      "sha256": "d60a833ccd89554cb42cefbe7ee617ce86697bcec9b38f2dcb7c9b1b8462975c",
+      "logical_bytes": 4020462,
+      "allocated_before": 4022272,
+      "allocated_after": 2174976
+    },
+    {
+      "path": "dense/solution_restart23200_step24645_solid.vtu",
+      "sha256": "ff478dd0631f19af7dcc54af9f09d46ef987b206ead1bc7a777f96c95a50bd9e",
+      "logical_bytes": 3489383,
+      "allocated_before": 3489792,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense/solution_restart23200_step24645_solid_boundary.vtu",
+      "sha256": "211c278eafc6e601165351ac2cd686ef0ce2a577e873ebc0998cfa338a071b6d",
+      "logical_bytes": 2526912,
+      "allocated_before": 2527232,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24646.vtu",
+      "sha256": "0df1f775f0928ee6cc9099ebd3edc56fb995427329bc92f95ba9e55dc419e4c2",
+      "logical_bytes": 5605659,
+      "allocated_before": 5607424,
+      "allocated_after": 3194880
+    },
+    {
+      "path": "dense/solution_restart23200_step24646_boundary.vtu",
+      "sha256": "d234838f2bb6b181df1fb9b3b00a2c453315939d375e8c9511f272acf95f27d1",
+      "logical_bytes": 4020291,
+      "allocated_before": 4022272,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24646_solid.vtu",
+      "sha256": "8e16804166f3e24c443c035561ee14f3d84fffbb3c3fe766a87dc58a9d8eb148",
+      "logical_bytes": 3489384,
+      "allocated_before": 3489792,
+      "allocated_after": 2142208
+    },
+    {
+      "path": "dense/solution_restart23200_step24646_solid_boundary.vtu",
+      "sha256": "3602203d6b332a657567161c238684bd45f43431a41d1d09916a189e28ada8e1",
+      "logical_bytes": 2526913,
+      "allocated_before": 2527232,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense/solution_restart23200_step24647.vtu",
+      "sha256": "73e7bec631c45120aa80e26e10d6731c52e2912df5e280964d345aa08ee6fbb9",
+      "logical_bytes": 5605610,
+      "allocated_before": 5607424,
+      "allocated_after": 3166208
+    },
+    {
+      "path": "dense/solution_restart23200_step24647_boundary.vtu",
+      "sha256": "24c0d629c6f5941c1ab5d4858b3122558a0fc4198e9dd5005396299fc90157ba",
+      "logical_bytes": 4020242,
+      "allocated_before": 4022272,
+      "allocated_after": 2113536
+    },
+    {
+      "path": "dense/solution_restart23200_step24647_solid.vtu",
+      "sha256": "3d24077d8fa0917008a55a4d6193225900a61d054018ca17c74014518ffcc26b",
+      "logical_bytes": 3489341,
+      "allocated_before": 3489792,
+      "allocated_after": 2113536
+    },
+    {
+      "path": "dense/solution_restart23200_step24647_solid_boundary.vtu",
+      "sha256": "76af14433ac744177aa0754f54f38bb48e8268ad5d5677b2f1d0f4f02a9f286a",
+      "logical_bytes": 2526870,
+      "allocated_before": 2527232,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense/solution_restart23200_step24648.vtu",
+      "sha256": "910591d5e8ed364838f73c4fff0f52b5daefdc68c42e8ec50b701c2f6f665a09",
+      "logical_bytes": 5605767,
+      "allocated_before": 5607424,
+      "allocated_after": 3198976
+    },
+    {
+      "path": "dense/solution_restart23200_step24648_boundary.vtu",
+      "sha256": "a67b1b8e82ac3459db4d540b0724fd730e9048a7f934713739e95ee77db6153d",
+      "logical_bytes": 4020399,
+      "allocated_before": 4022272,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense/solution_restart23200_step24648_solid.vtu",
+      "sha256": "7eb0ecb1241a2fe4fdfac510f62517ce837fb48e2729e73935ac687b31edb8be",
+      "logical_bytes": 3489346,
+      "allocated_before": 3489792,
+      "allocated_after": 2109440
+    },
+    {
+      "path": "dense/solution_restart23200_step24648_solid_boundary.vtu",
+      "sha256": "d5b3d8d3b517f9200e477a24fa15619dd21c596d09d69dfd019302507ec7a09e",
+      "logical_bytes": 2526875,
+      "allocated_before": 2527232,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense/solution_restart23200_step24649.vtu",
+      "sha256": "95d5f2b50a4f3ca01e9f422053bd6c4912a0c616ac5d274a57ffb5266c4f1c21",
+      "logical_bytes": 5605785,
+      "allocated_before": 5607424,
+      "allocated_after": 3198976
+    },
+    {
+      "path": "dense/solution_restart23200_step24649_boundary.vtu",
+      "sha256": "bb855d02af9c43ab161abe814601de83a647a48aecb5b98f4f6a8d8e21999f79",
+      "logical_bytes": 4020417,
+      "allocated_before": 4022272,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense/solution_restart23200_step24649_solid.vtu",
+      "sha256": "8dc8d5bdffbdfcea4a56cdd324ff7bb8b01c74848897e5c80091258695a24030",
+      "logical_bytes": 3489358,
+      "allocated_before": 3489792,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense/solution_restart23200_step24649_solid_boundary.vtu",
+      "sha256": "275adf563f4c5a48a345fe9e0e8b78fd165c6eb5da41a91fcd25b0af3ac2f470",
+      "logical_bytes": 2526887,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24650.vtu",
+      "sha256": "7ef71526d007daee9de7ac2ea6037d46f0129866a6dd46d612e4691dd0bad59b",
+      "logical_bytes": 5605405,
+      "allocated_before": 5607424,
+      "allocated_after": 2998272
+    },
+    {
+      "path": "dense/solution_restart23200_step24650_boundary.vtu",
+      "sha256": "10bfa6de618734f51794d48c9d83840282cb1b5d603eabdb4cd9f01371161be0",
+      "logical_bytes": 4020037,
+      "allocated_before": 4022272,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24650_solid.vtu",
+      "sha256": "763287ffea29fa77b939e330284195e4f603bfd88abda72c2d115a3b97488cdb",
+      "logical_bytes": 3489157,
+      "allocated_before": 3489792,
+      "allocated_after": 2134016
+    },
+    {
+      "path": "dense/solution_restart23200_step24650_solid_boundary.vtu",
+      "sha256": "b62bfdedacd5295f560e6c83286c07af1680b880e99ca25210a9741f5775a189",
+      "logical_bytes": 2526686,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24651.vtu",
+      "sha256": "d84797942fef3c76b882f3f0cf7b931303d4563bd96dff4f5ca13e8892e608c7",
+      "logical_bytes": 5605647,
+      "allocated_before": 5607424,
+      "allocated_after": 3170304
+    },
+    {
+      "path": "dense/solution_restart23200_step24651_boundary.vtu",
+      "sha256": "00413bb9a9be1eff33e90883cdae16120b8b67cdccb4284a0cf047c991a6d3b6",
+      "logical_bytes": 4020279,
+      "allocated_before": 4022272,
+      "allocated_after": 2617344
+    },
+    {
+      "path": "dense/solution_restart23200_step24651_solid.vtu",
+      "sha256": "4360d41448f989c9ff459c50330ebad0ba65297135b00abfc0f23694311bdada",
+      "logical_bytes": 3489230,
+      "allocated_before": 3489792,
+      "allocated_after": 2228224
+    },
+    {
+      "path": "dense/solution_restart23200_step24651_solid_boundary.vtu",
+      "sha256": "c5fbff0fda98dc627190a117c943c25073f948afc68b3693b79c0aae247c9855",
+      "logical_bytes": 2526759,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24652.vtu",
+      "sha256": "ffd1d181addf35c7441daa9c78ce8b6f1645ca3479ee059ef49e82b872e621d7",
+      "logical_bytes": 5605582,
+      "allocated_before": 5607424,
+      "allocated_after": 2629632
+    },
+    {
+      "path": "dense/solution_restart23200_step24652_boundary.vtu",
+      "sha256": "7f39a05e263920d59f95badc61669968825cd7a97060afd7be760fb97a829d3b",
+      "logical_bytes": 4020214,
+      "allocated_before": 4022272,
+      "allocated_after": 2338816
+    },
+    {
+      "path": "dense/solution_restart23200_step24652_solid.vtu",
+      "sha256": "1435ad07c987dd9882c795cf216d5baa2faca5135fdf1bb1eca8cf40d7811130",
+      "logical_bytes": 3489308,
+      "allocated_before": 3489792,
+      "allocated_after": 1458176
+    },
+    {
+      "path": "dense/solution_restart23200_step24652_solid_boundary.vtu",
+      "sha256": "87fb5941bcd41f6331489341d7c21cb0a23f881722e5fa800b5952a9b067ad09",
+      "logical_bytes": 2526837,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24653.vtu",
+      "sha256": "c77266ae869791d448a82a54d580c267b4768e0b68326b40120954ceaecbb71b",
+      "logical_bytes": 5605480,
+      "allocated_before": 5607424,
+      "allocated_after": 3362816
+    },
+    {
+      "path": "dense/solution_restart23200_step24653_boundary.vtu",
+      "sha256": "522deefe3935a7958cdafe6313a3146b3a5db45ac52f2f5844efd092e2a52e30",
+      "logical_bytes": 4020112,
+      "allocated_before": 4022272,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense/solution_restart23200_step24653_solid.vtu",
+      "sha256": "1afad6360d3a9af9171230356e78514f671da1da5ede14e9308518de3453226a",
+      "logical_bytes": 3489325,
+      "allocated_before": 3489792,
+      "allocated_after": 2490368
+    },
+    {
+      "path": "dense/solution_restart23200_step24653_solid_boundary.vtu",
+      "sha256": "da8baf209bbad24b87a0e4e011607a330cf8e456c48cff0bc8506bd04a2d6c61",
+      "logical_bytes": 2526854,
+      "allocated_before": 2527232,
+      "allocated_after": 2228224
+    },
+    {
+      "path": "dense/solution_restart23200_step24654.vtu",
+      "sha256": "4d234348ae6576de064db1f1533bde754bd26b6187ecfdeb9de543eb1790ecf6",
+      "logical_bytes": 5605447,
+      "allocated_before": 5607424,
+      "allocated_after": 3244032
+    },
+    {
+      "path": "dense/solution_restart23200_step24654_boundary.vtu",
+      "sha256": "514018e5f75542943cf4e021b5933bdffba0c6c85953df44dbf456091953356a",
+      "logical_bytes": 4020079,
+      "allocated_before": 4022272,
+      "allocated_after": 2494464
+    },
+    {
+      "path": "dense/solution_restart23200_step24654_solid.vtu",
+      "sha256": "533e6ac734392df89aff20c22e00011fa5b056435276ffff5c6dc57e1c40a6db",
+      "logical_bytes": 3489330,
+      "allocated_before": 3489792,
+      "allocated_after": 2224128
+    },
+    {
+      "path": "dense/solution_restart23200_step24654_solid_boundary.vtu",
+      "sha256": "3c6c0aca2ba7dcface971f205f31ac65d67ab4f677f5fe31aa8b035dcd9da899",
+      "logical_bytes": 2526859,
+      "allocated_before": 2527232,
+      "allocated_after": 2154496
+    },
+    {
+      "path": "dense/solution_restart23200_step24655.vtu",
+      "sha256": "9988558a9f59a76d5d5eae5d778f5800926f1f8d10ad942968eac1d6d857a572",
+      "logical_bytes": 5605338,
+      "allocated_before": 5607424,
+      "allocated_after": 2781184
+    },
+    {
+      "path": "dense/solution_restart23200_step24655_boundary.vtu",
+      "sha256": "9951190fce9fb49ace12e0e3aa333afaae1e8b3a2171d0f2676289086a52bd19",
+      "logical_bytes": 4019970,
+      "allocated_before": 4022272,
+      "allocated_after": 2555904
+    },
+    {
+      "path": "dense/solution_restart23200_step24655_solid.vtu",
+      "sha256": "737d824cad3d3e40bcedbceefd194323411e55370daf85e6fb1ede7d30a18980",
+      "logical_bytes": 3489137,
+      "allocated_before": 3489792,
+      "allocated_after": 2465792
+    },
+    {
+      "path": "dense/solution_restart23200_step24655_solid_boundary.vtu",
+      "sha256": "1eb835a91049c86c2288f464ca065ebdbed0f4158bfd63a125722ed7000ea1fc",
+      "logical_bytes": 2526666,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24656.vtu",
+      "sha256": "a192200ab17def584918792247c261212b75aac9b6312acb12086c0cf4823229",
+      "logical_bytes": 5605293,
+      "allocated_before": 5607424,
+      "allocated_after": 2793472
+    },
+    {
+      "path": "dense/solution_restart23200_step24656_boundary.vtu",
+      "sha256": "9f75ba44f3fd53571eb87992276b3d3ecba2ff757aac9bf9b014b1e8a9c318b0",
+      "logical_bytes": 4019925,
+      "allocated_before": 4022272,
+      "allocated_after": 2584576
+    },
+    {
+      "path": "dense/solution_restart23200_step24656_solid.vtu",
+      "sha256": "0a23bc4c5cfd03e27c1b9419e9945912632efeb104cdada70e5f7dec61bbf8ac",
+      "logical_bytes": 3489027,
+      "allocated_before": 3489792,
+      "allocated_after": 2494464
+    },
+    {
+      "path": "dense/solution_restart23200_step24656_solid_boundary.vtu",
+      "sha256": "c3d0fb7202459b84df942cef653b275e09538ccd7fc84e17232237aa9a57e287",
+      "logical_bytes": 2526556,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24657.vtu",
+      "sha256": "9493c158e91e726fd75b7a7e08a60a49c581a2c6544b7975015a74b620da70b2",
+      "logical_bytes": 5605817,
+      "allocated_before": 5607424,
+      "allocated_after": 3342336
+    },
+    {
+      "path": "dense/solution_restart23200_step24657_boundary.vtu",
+      "sha256": "e60128c3f1c1d778bd4883ece12e710b32908246208c13b56e720a81a55b8e2f",
+      "logical_bytes": 4020449,
+      "allocated_before": 4022272,
+      "allocated_after": 2101248
+    },
+    {
+      "path": "dense/solution_restart23200_step24657_solid.vtu",
+      "sha256": "09bad951a374c80bb0f2ac0603ec0418bfdd435418a3ac247c5427c97f2e5b85",
+      "logical_bytes": 3489361,
+      "allocated_before": 3489792,
+      "allocated_after": 2293760
+    },
+    {
+      "path": "dense/solution_restart23200_step24657_solid_boundary.vtu",
+      "sha256": "6841e3eea9f2cf90dd88de443e1f00d85f8df3fef625bf3c5cca35e93c1dafe6",
+      "logical_bytes": 2526890,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    },
+    {
+      "path": "dense/solution_restart23200_step24658.vtu",
+      "sha256": "e18fd12492f4d0ad2b1082edf89d52998a5df07e5994a783fa4dc5ce6a09f966",
+      "logical_bytes": 5605486,
+      "allocated_before": 5607424,
+      "allocated_after": 2924544
+    },
+    {
+      "path": "dense/solution_restart23200_step24658_boundary.vtu",
+      "sha256": "07dcebb65822a6dd61f86bc4180166d5afa3785fcd58b16f52c3b3fab4b5c6fd",
+      "logical_bytes": 4020118,
+      "allocated_before": 4022272,
+      "allocated_after": 2859008
+    },
+    {
+      "path": "dense/solution_restart23200_step24658_solid.vtu",
+      "sha256": "5b28d4cc3320326109e9425f2cf2330e547c6c64d33c95da6b41fcaa0a9f0131",
+      "logical_bytes": 3489273,
+      "allocated_before": 3489792,
+      "allocated_after": 2334720
+    },
+    {
+      "path": "dense/solution_restart23200_step24658_solid_boundary.vtu",
+      "sha256": "902482920c9f3602f6ec51dc15d97df0db6a6eb357430e091bc6ecdbd1e24c53",
+      "logical_bytes": 2526802,
+      "allocated_before": 2527232,
+      "allocated_after": 2105344
+    },
+    {
+      "path": "dense/solution_restart23200_step24659.vtu",
+      "sha256": "0adaf367d470e8055035d47c444b0f5441c6444cdeefd9a2029138bea2d573d9",
+      "logical_bytes": 5605598,
+      "allocated_before": 5607424,
+      "allocated_after": 2605056
+    },
+    {
+      "path": "dense/solution_restart23200_step24659_boundary.vtu",
+      "sha256": "7d55a2004e0b149f0f35da0e35d40e3be66c935b0971a95dfd83b03a14ff7e4a",
+      "logical_bytes": 4020230,
+      "allocated_before": 4022272,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense/solution_restart23200_step24659_solid.vtu",
+      "sha256": "a64423b2b52da35b903ab913c6608d1360d55ada390041271727e1f48edc84ab",
+      "logical_bytes": 3489185,
+      "allocated_before": 3489792,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense/solution_restart23200_step24659_solid_boundary.vtu",
+      "sha256": "bfeaa98527bdfc4cb39d2744fc0fbac6ba9b36f041ecd7853fba7f637ce4bb2a",
+      "logical_bytes": 2526714,
+      "allocated_before": 2527232,
+      "allocated_after": 1196032
+    }
+  ],
+  "saved_allocated_bytes": 519303168,
+  "seconds": 7.866807222366333,
+  "logical_content_unchanged": true
+}

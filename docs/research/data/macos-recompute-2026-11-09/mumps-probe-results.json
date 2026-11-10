@@ -1,0 +1,80 @@
+[
+  {
+    "ranks": 1,
+    "mode": "default",
+    "command": [
+      "mpiexec",
+      "-n",
+      "1",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/mumps_rhs_probe"
+    ],
+    "exit_code": 0,
+    "log": "mumps-rhs-1-default.log"
+  },
+  {
+    "ranks": 1,
+    "mode": "centralized",
+    "command": [
+      "mpiexec",
+      "-n",
+      "1",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/mumps_rhs_probe",
+      "-mat_mumps_icntl_20",
+      "0"
+    ],
+    "exit_code": 0,
+    "log": "mumps-rhs-1-centralized.log"
+  },
+  {
+    "ranks": 2,
+    "mode": "default",
+    "command": [
+      "mpiexec",
+      "-n",
+      "2",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/mumps_rhs_probe"
+    ],
+    "exit_code": 2,
+    "log": "mumps-rhs-2-default.log"
+  },
+  {
+    "ranks": 2,
+    "mode": "centralized",
+    "command": [
+      "mpiexec",
+      "-n",
+      "2",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/mumps_rhs_probe",
+      "-mat_mumps_icntl_20",
+      "0"
+    ],
+    "exit_code": 0,
+    "log": "mumps-rhs-2-centralized.log"
+  },
+  {
+    "ranks": 4,
+    "mode": "default",
+    "command": [
+      "mpiexec",
+      "-n",
+      "4",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/mumps_rhs_probe"
+    ],
+    "exit_code": 2,
+    "log": "mumps-rhs-4-default.log"
+  },
+  {
+    "ranks": 4,
+    "mode": "centralized",
+    "command": [
+      "mpiexec",
+      "-n",
+      "4",
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/mumps_rhs_probe",
+      "-mat_mumps_icntl_20",
+      "0"
+    ],
+    "exit_code": 0,
+    "log": "mumps-rhs-4-centralized.log"
+  }
+]

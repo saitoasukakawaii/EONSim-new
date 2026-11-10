@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "build/recompute-20261109/capture-womersley-n1600.py",
+    "--alpha",
+    "2"
+  ],
+  "exit_code": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/capture-womersley-n1600.py\", line 11, in <module>\n    if not (w/'receipt.json').exists() or json.loads((w/'receipt.json').read_text())['step']!=9600:raise RuntimeError('Incomplete N1600 trajectory; no completion evidence written')\n                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: Incomplete N1600 trajectory; no completion evidence written\n",
+  "no_evidence_directory": true,
+  "script_sha256": "99faf74542a48a9842c270cc9f79bfa8563f6b877e279c90eff2cc090bae723c",
+  "scope": "Actual incomplete trajectory rejected before any completion evidence write. Full capture not yet run."
+}

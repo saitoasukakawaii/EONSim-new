@@ -1,0 +1,24 @@
+{
+  "status": "committed",
+  "original": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800.tar.zst",
+  "original_sha256": "8ab2027b9f7d0206ca33411b3c144c30bb7541cc677b1e40ee82cb8a2beb4261",
+  "candidate": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/full-n800-level19-staged/candidate.pending",
+  "candidate_sha256": "d030b213237c4ea92ecdc292390b9abbfc7cee996b257a80dc446c766b3a17db",
+  "original_bytes": 2652590605,
+  "candidate_bytes": 2008610787,
+  "decoded_tar_sha256": "feda28b5d8e5bd3fe2ea69bd5f94f9bf869086a244b83a5cb8d7f78db3932382",
+  "start_unix": 1794235148.4206579,
+  "finished_unix": 1794238709.5820968,
+  "scope": "Canonical archive and all receipts untouched. Staged only. Adoption requires updating every matching archive/materialization receipt with a recoverable transaction and catalog check.",
+  "receipts": [
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-boundary-materialization.json",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800.json",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-volume-materialization.json"
+  ],
+  "recovery": "Retain old-archive.backup and old-receipts until validated new pair; reconcile journal if interrupted.",
+  "saved_bytes": 643979818,
+  "restored_members": [
+    "dense/solution_restart23200_step23201.vtu",
+    "early/solution_step9600_solid.vtu"
+  ]
+}

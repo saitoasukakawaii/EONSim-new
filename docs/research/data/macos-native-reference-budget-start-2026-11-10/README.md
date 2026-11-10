@@ -1,0 +1,9 @@
+# Native reference independent budget started; tau controller terminal evidence
+
+Base c5741d0. New explicit-input wrapper uses the preserved N800 budget kernel and comparison sources unchanged, including all original 10% gates. Corrects the N400 audit location and binds N800 to its final native continuation directory. Before creating output, freshly re-evaluates original/coarse and time logs plus the native chain; requires exact equality to each physical audit convergence record, complete 1..32N coverage, and the adopted base/binary/patch identity for every segment. AST check passed. Actual launch passed these prerequisites and wrote definition/producer receipts; process 69359 was polled live. Full budget remains running, not passed.
+
+Command (single thread): `OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 build/analysis-venv/bin/python build/recompute-20261109/analyze-native-kinematic-elastic-budget.py --solver svfsi --output build/recompute-20261109/reference-native-n800-budget`. Output log: `build/recompute-20261109/reference-native-n800-budget.log`.
+
+Polling tau controller 60952 returned terminal exit1. Its original traceback and failure record explicitly report Disk floor; the exact trigger-time free capacity was not recorded. Dense log has complete accepted rows through23639 and a truncated23640 row. Current v4 manifest records23200, so a future restart must use that actual saved state, preserve this failed dense branch and compare overlap; the previously prepared signal-resume script is no longer applicable. No restart launched. Early receipt remains successful. Womersley6194 and archive recompression47974 were polled live; free disk approximately22GiB remains below23GiB resume threshold. Original failures retained; no push/PR.
+
+This reuses existing convergence and provenance methods; no new numerical method or publication claim.

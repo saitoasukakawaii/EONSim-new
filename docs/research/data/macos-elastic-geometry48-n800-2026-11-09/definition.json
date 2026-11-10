@@ -1,0 +1,37 @@
+{
+  "source_commit": "b56f173e231423eac010e65c6e016e44e7420b5c",
+  "steps_per_cycle": 800,
+  "cycles": 32,
+  "ramp_cycles": 16,
+  "seed": [
+    24,
+    2,
+    12
+  ],
+  "length": 12,
+  "generator_sha256": "14141598a9ec840348daeac12b2a61dcf43b5a7503258b186726c1acd6b1804c",
+  "controller_sha256": "90ffe5a8d1b3b3bd040bf8a46c9d32abde7fc15654ab5a590c98d81d39e70572",
+  "level": 1,
+  "ranks": 1,
+  "threads": 1,
+  "memory_rss_limit_bytes": 3221225472,
+  "disk_floor_bytes": 21474836480,
+  "binary_sha256": "04a7aa5b0b6d22e408efc6cace75d4b11a483a595ecfd222c8f4fe8d49282873",
+  "inputs": {
+    "case.json": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+    "fluid.msh": "08fe65c8e567044612ab14da418de50523781a5100ea1b5d61241a1a92b3ce34",
+    "solid.msh": "f38057d0e01aef04b9b25a6fa52c2d9dec3f33bdde69771fa5c553356378e215",
+    "geometry.json": "7840542e262a77ec90d11e8d80a76bbe39f144d430770ee5526460fe3e6da5f2"
+  },
+  "solver_options": [
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32"
+  ],
+  "geometry_control_preparation_sha256": "36febc480091aa1daaa5b0e61b61f796f354e6a9af2ce1f9fb4936a7dc113a1b",
+  "startup_probe_sha256": "3dc03895cae60b3f21b07f53d7256de18aaa673b68fb3bfb93d9851ff3385455",
+  "scope": "Fresh fixed-topology24-to48 polygon geometry control; same node/cell counts and physical/time settings as S24 level1 N800. Not a nested field-refinement budget member; full32cycle response comparison pending."
+}

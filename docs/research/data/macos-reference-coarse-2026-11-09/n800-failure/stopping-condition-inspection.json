@@ -1,0 +1,34 @@
+{
+  "source_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "sources": {
+    "MOD.f": {
+      "sha256": "47cb5a57cf1379399da959cd544a72311387cbeda5a3770b0b5b7121b6541a91",
+      "lines": [
+        700,
+        714
+      ],
+      "excerpt": "!        \\gamma\n         REAL(KIND=RKIND) gam\n!        Initial norm of residual\n         REAL(KIND=RKIND) iNorm\n!        First iteration preconditioned relative residual norm\n         REAL(KIND=RKIND) pNorm\n!        \\rho_{infinity}\n         REAL(KIND=RKIND) roInf\n!        Accepted relative tolerance\n         REAL(KIND=RKIND) :: tol\n!        Accepted absolute tolerance\n         REAL(KIND=RKIND) :: absTol = 1.E-15_RKIND\n!        Equation symbol\n         CHARACTER(LEN=2) :: sym = \"NA\"\n!        type of linear solver"
+    },
+    "PIC.f": {
+      "sha256": "4870648a003a48478294dab2209ed7be315191f1238e5ff7bf0d5147a4280162",
+      "lines": [
+        263,
+        275
+      ],
+      "excerpt": "      IF (ISZERO(eq(cEq)%FSILS%RI%iNorm)) eq(cEq)%FSILS%RI%iNorm = eps\n      IF (ISZERO(eq(cEq)%iNorm)) eq(cEq)%iNorm = eq(cEq)%FSILS%RI%iNorm\n      IF (eq(cEq)%itr .EQ. 1) THEN\n         eq(cEq)%pNorm = eq(cEq)%FSILS%RI%iNorm/eq(cEq)%iNorm\n      END IF\n      r1 = eq(cEq)%FSILS%RI%iNorm/eq(cEq)%iNorm\n\n      l1 = eq(cEq)%iNorm .LE. eq(cEq)%absTol\n      l2 = eq(cEq)%itr .GE. eq(cEq)%maxItr\n      l3 = r1 .LE. eq(cEq)%tol\n      l4 = r1 .LE. eq(cEq)%tol*eq(cEq)%pNorm\n      l5 = eq(cEq)%itr .GE. eq(cEq)%minItr\n      IF (l1 .OR. l2 .OR. ((l3.OR.l4).AND.l5)) eq(cEq)%ok = .TRUE."
+    },
+    "READFILES.f": {
+      "sha256": "1d531de2bac9acd0a1b74c2c1b86ecd3ffe45f13b340e5d5dbcbfa15d9ef72ea",
+      "lines": [
+        844,
+        850
+      ],
+      "excerpt": "      CASE ('mesh')\n         lEq%phys = phys_mesh\n\n         propL(1,1) = poisson_ratio\n         CALL READDOMAIN(lEq, propL, list)\n         lEq%dmn%prop(solid_density) = 0._RKIND\n         lEq%dmn%prop(elasticity_modulus) = 1._RKIND"
+    }
+  },
+  "native100_saved_norms": {
+    "FS": 9.052441156667991e-14,
+    "MS": 1.8580032716317855e-16
+  },
+  "finding": "PIC absolute branch compares saved initial equation norm to default1e-15; coarse N800 MS saved norm1.858e-16 satisfies it regardless of current relative ratio. READFILES has no eq absTol input setting; linear Absolute tolerance is separate."
+}

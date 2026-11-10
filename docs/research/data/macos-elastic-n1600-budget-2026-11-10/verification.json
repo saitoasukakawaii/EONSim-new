@@ -1,0 +1,62 @@
+{
+  "source_commit": "552274d",
+  "session": 65569,
+  "exit_code": 1,
+  "expected_reason": "Independent N1600 error budget failed",
+  "report_manifest": {
+    "eonsim/budget.json": {
+      "sha256": "9d4b6e41f57ea1a431d33f92ff337df876e3cb5ce15b9c968e33e261d8764856",
+      "bytes": 3915,
+      "compressed_sha256": "fd677e7f0d01576b2cf66165c53a76b83311a882e0a10f8c76f87f5c88ad2712"
+    },
+    "eonsim/producer-receipts.json": {
+      "sha256": "51e05a7e009fe4404dc7ed3690d0a579aaecb74304a6b07d1d19b8ae69385dff",
+      "bytes": 1002,
+      "compressed_sha256": "061ad622db6cae06a41ad6f7b197f16e7bd60abac95433e47c92e2b59e6f64a1"
+    },
+    "eonsim/sampling.json": {
+      "sha256": "211f6b46c41cad0d97fdb14ffbd9d854360ef62576c86dd16b0cfaf966345f54",
+      "bytes": 1511714,
+      "compressed_sha256": "3ec890a8a14fa722a7bbe62ae7bc37ed9d79d7e5b7301a93f0a58642e8951388"
+    },
+    "eonsim/space.json": {
+      "sha256": "cca740884ca6999ef76c51fb8b2b1b4aff8edd7824d20b34c1c18235b937d249",
+      "bytes": 2275189,
+      "compressed_sha256": "59da9531086513e2bdb91094ee758acc135f0f8608beb2eb10d9890a3b67d0ed"
+    },
+    "eonsim/tail.json": {
+      "sha256": "9f83e69f2d53b692a914f7284d9e3adf6b5785b02d2999b9897307d1451f41cb",
+      "bytes": 3049609,
+      "compressed_sha256": "f718cd644d473ce551cc20ec30615460c631f5d8eb474916f857f71b0c339219"
+    },
+    "eonsim/time.json": {
+      "sha256": "535ead6d3c3d1760c038e2261c3732c467f65d2e53cab395810f9a151038788f",
+      "bytes": 1899198,
+      "compressed_sha256": "47f2f77f622306bb158b3630930d7bc53293422948e0a9d9a5fef75d20fc3713"
+    },
+    "eonsim-definition.json": {
+      "sha256": "ab37da3d11425f42207feab5aa3e6d4a99fc66e5ef8b7579858a6f298cff7426",
+      "bytes": 3687,
+      "compressed_sha256": "73c525f938d46b3ca64ed18a889572159a023fbaefb06f134bfcf0284f36d593"
+    },
+    "eonsim-materialization-proof.json": {
+      "sha256": "7f8e356ae4a9cb1dc40f1eb74b342fa7982ccf1c851ca525e478f9ba93e78bab",
+      "bytes": 2520536,
+      "compressed_sha256": "0fa484be65291503172b432e464f6fda1eeafd2d40250af4b4d1cfb243198cbd"
+    }
+  },
+  "materialization": {
+    "elastic-s24-l0-n1600": {
+      "restored_members": 3200,
+      "all_member_receipts_matched": true,
+      "all_created_copies_removed": true,
+      "peak_frame_bytes": 597422
+    },
+    "elastic-s24-l1-n800": {
+      "restored_members": 1600,
+      "all_member_receipts_matched": true,
+      "all_created_copies_removed": true,
+      "peak_frame_bytes": 4479210
+    }
+  }
+}

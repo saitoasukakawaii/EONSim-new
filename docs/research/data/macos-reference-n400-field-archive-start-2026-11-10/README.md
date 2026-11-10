@@ -1,0 +1,7 @@
+# Completed adopted reference N400 field archival started
+
+Base4bc4e4a. Independent reference budget69359 terminal0/all gates passed, and N400 physical audit/cross-observable analysis previously complete. The currently active cross-solver field comparison86636 reads N800 only. Selected exactly1200 original N400 fields11600..12799 from its complete raw SHA manifest; no symbolic links or shared hardlinks. Final12800 field, checkpoint, export/input/build evidence and logs retained.
+
+AST passed. Actual command `build/analysis-venv/bin/python build/recompute-20261109/archive-completed-reference-n400-fields.py`, redirected to same stem `.log`, launched3556. Reuses prior bounded128MiB chunk transaction with single-thread zstd19,20GiB floor plus chunk and256MiB reserve. Each source SHA is checked; archive is fully decoded with unique member names, exact sizes and per-member SHA; receipt published before source unlink and each source SHA rechecked. Final independent archive review, net savings and global catalog update pending. No completion claim yet.
+
+Future direct N400 field consumers must restore the receipt archives using `restore-womersley-materialization.py` or use an appropriately validated streaming reader. Existing direct budget wrapper now requires restoration before rerun; historical completed results remain valid. Global catalog is stale while these and the three re-encoding batches run. No push/PR. Existing archive method reused, no new algorithm article.

@@ -1,0 +1,25 @@
+{
+  "user_authorization": "\u5141\u8bb8\u91c7\u7528\u6709\u8bb0\u5f55\u3001\u7ecf\u9a8c\u8bc1\u7684\u8865\u4e01",
+  "tests": [
+    {
+      "command": "python3 tests/test_svfsi_convergence.py",
+      "count": 7,
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/test_svfsi_restart_evidence.py",
+      "count": 16,
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/test_pressure_tube_audit.py",
+      "count": 11,
+      "exit_code": 0
+    }
+  ],
+  "source_sha256": {
+    "scripts/audit_svfsi_convergence.py": "6abbbe72fb604763818aa20e6f7216a9960d5a081e666189858db9c16d8daa92",
+    "tests/test_svfsi_convergence.py": "9258812b35e6b768768a9608c284d31fdd62bdf232b47043aad744f67133e627"
+  },
+  "scope": "Provenance-only extension. Actual derivative binaries/patches are bound to exported manifest, convergence thresholds unchanged. No C++ or full-suite rerun."
+}

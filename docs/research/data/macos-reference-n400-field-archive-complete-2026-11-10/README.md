@@ -1,0 +1,5 @@
+# Completed N400 reference archive independently verified
+
+Baseb4d7508. Archive process3556 actually exited0. Actual independent verification command `build/analysis-venv/bin/python build/recompute-20261109/verify-completed-reference-n400-fields.py` exited0,9 archives/1200 members. Every current compressed archive SHA/size and every fully decoded member SHA/size matches its receipt and original complete raw manifest; coverage exactly11600..12799, no duplicates, original paths absent. Retained final12800 SHA matches original manifest. Verification gzip roundtrip exact.
+
+Removed allocated bytes1086255104; archive bytes746403931; difference339851173 bytes (~324MiB). Current free space22.2646GiB remains below23GiB resume threshold. This is measured archive accounting, not an assertion that all global free-space changes came from this task. Global catalog refresh remains pending while three length24 batches re-encode. Future direct N400 field consumers require receipt restoration; original completed audits/budget evidence retained. No push/PR. Reuses existing archive verification method; no new algorithm article.

@@ -1,0 +1,143 @@
+{
+  "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "steps": 98,
+  "declared_steps": 540,
+  "first_step": 401,
+  "last_step": 498,
+  "restart": {
+    "step": 400,
+    "time": 3.141592653589779,
+    "stamp": [
+      1,
+      2,
+      2,
+      6625,
+      0,
+      7,
+      1
+    ],
+    "bytes": 1113064,
+    "serialized_values": 139129,
+    "sha256": "d67979db58cf99da2ec6920b2b3896578dcd20c1cf1b2353113a152e472afac7",
+    "input_name": "seed.bin",
+    "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-mesh-backend-diagnostic/gmres-ilut/seed.bin",
+    "scope": "Exact native saved time and complete finite Yn/An/Dn record; no v4 clock claim"
+  },
+  "excluded_tail": {
+    "final_equation_rows": 2,
+    "last_observed_step": 499,
+    "iteration_rows": 44,
+    "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+  },
+  "equations": {
+    "FS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    },
+    "MS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    }
+  },
+  "iteration_rows": 1172,
+  "final_equation_rows": 196,
+  "iteration_limit_rows": 18,
+  "maximum_iterations": {
+    "FS": 30,
+    "MS": 30
+  },
+  "maximum_final_relative_ratio": {
+    "FS": 6.3e-12,
+    "MS": 1.1e-10
+  },
+  "failed_equation_steps": [
+    {
+      "step": 490,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.67e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 491,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.78e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 492,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.72e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 493,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.54e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 494,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.65e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 495,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.73e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 496,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.78e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 497,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.74e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 498,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.75e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    }
+  ],
+  "passed": false,
+  "input_manifest_sha256": "e1d7158f3df57ab90b57def291e15ec3da091faa86be4bfbcec1ef6ef5d70f96",
+  "log_sha256": "62e3274ba8c008974126adfae96de432cdc9a7f5f95f64e4e9309b36f6134bbd",
+  "analysis_source_sha256": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+  "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+}

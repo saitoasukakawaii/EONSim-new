@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/run-elastic-length.py", line 56, in <module>
+    values=dict(data.attrib);values['file']=label+'/'+values['file'];assert (work/values['file']).exists();times.append(float(values['timestep']));ET.SubElement(collection,'DataSet',values)
+                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+AssertionError

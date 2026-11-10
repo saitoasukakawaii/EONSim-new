@@ -1,0 +1,38 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/full-n400-recompression-adoption/restore-probe",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n400.tar.zst",
+  "archive_sha256": "40a26d8003a3f34c928a9e4fea3d3f2ff83850e964b06b4ac279de0402666abd",
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-elastic-fine-n400-2026-11-09/raw-manifest.json",
+  "source_manifest_sha256": "ca2343715434983322ffa219cdca7433b7f3a3e6672c0de2708fe3d7c5c99e57",
+  "selected": {
+    "dense/solution_restart11600_step11601.vtu": {
+      "step": 11601,
+      "bytes": 2774084,
+      "sha256": "c3da36de1b7fc82289e7e93e2e2cec3f745dc7810d58cbdedd727de1f919a407",
+      "allocated_bytes": 1245184
+    },
+    "early/solution_step9600_solid.vtu": {
+      "step": 9600,
+      "bytes": 1702778,
+      "sha256": "44b8f6d9e4d2d886e2c159867bb8de7b4e5a137060b1974f3714b4c1ca391bae",
+      "allocated_bytes": 720896
+    }
+  },
+  "status": "evicted",
+  "completion_sha256": "e0038d33faa6e52adecaa4cb88b19cb949c9533902d155d1d16f1c4c85afea2c",
+  "scope": "User authorized cleanup of redundant prior calculation files. Every selected immutable volume freshly decoded and SHA-verified against original manifest and expanded bytes. PVD indexes retained but selected targets archived. Mandatory restore before future/repeated physics, cross-program, tau, or budget field consumers. Checkpoints, aliases, meshes, logs and reports retained. No unique raw bytes discarded.",
+  "restore_command": [
+    "python3",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n400-volume-materialization.json"
+  ],
+  "removed_allocated_bytes": 2415939584,
+  "observed_free_change_bytes": 2417537024,
+  "finished_unix": 1794229816.4611142,
+  "recompression": {
+    "previous_archive_sha256": "f6a83f2cd7b042b5aca01ee970902b68ea98bac102b70fcfbe04e2e88b500e2e",
+    "previous_archive_bytes": 1354021788,
+    "decoded_tar_sha256": "65c734dfa8134992f20760c9dae9164b2d98effeb549b13776cc20831b093181",
+    "journal": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/full-n400-recompression-adoption/journal.json"
+  }
+}

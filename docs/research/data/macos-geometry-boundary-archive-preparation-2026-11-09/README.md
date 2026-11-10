@@ -1,0 +1,7 @@
+# Geometry boundary chunk archival preparation
+
+Source baseline b5ec7b8. Complete geometry audit handle 81210 still running. Prepared bounded 128 MiB logical batches to avoid requiring a complete raw dataset of temporary free space. Only 4858 immutable step-specific boundary VTU paths are eligible; volume fields, final aliases, checkpoints, logs and every actual PVD target retained. Full physical capture/raw manifest required before any output directory is created. Each batch requires 20 GiB floor plus its raw size and 256 MiB margin, stores independent tar member contents, verifies every decoded size/SHA, writes restoration receipt before removing verified duplicate materializations. No gate relaxation or numerical change.
+
+Actual command: `python3 build/recompute-20261109/archive-geometry-boundary-chunks.py`. Exit 1 because required raw-manifest.json does not yet exist; precondition.log retained. AST parsing passed; output directory absence checked. Real archival, deletion, restart behavior and restoration are NOT yet executed/verified. Existing restore-womersley-materialization.py accepts the per-chunk selected/bytes/SHA receipt format; actual restoration still required after first successful batch. Partial receipts deliberately fail closed for manual reconciliation.
+
+Next: finish full audit and capture, run chunk archival, verify restoration and update materialization catalog. No push/PR. This reuses existing lossless archival method; no new knowledge article.

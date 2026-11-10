@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "chain_still_exactly_matches_physical_audit": true,
+  "restored_paths": [
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0-native25500/results/result_23201.vtu",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0/results/result_23201.vtu"
+  ],
+  "independent_regular_files": true,
+  "restored_copies_removed": true,
+  "materialization": {
+    "receipt_sha256": {
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-native-n800-dual-path-chunks/0000.json": "494f250f37f4281f40f3dddd417c3d6ae0d9acbb2b328cc235537eaed38e0795"
+    },
+    "source_manifest_sha256": {
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-native-n800-dual-path-before-archive.json": "ebca4858a71bc51ea73fdc9a4491dc61cea902242bdafef9eaa95084dd4c721a"
+    },
+    "restored_members": [
+      {
+        "path": "reference-kinematic-elastic-s24-l1-n800-nu0-native25500/results/result_23201.vtu",
+        "sha256": "353ee64b7a3f22a894bf132a67c722ed696ea4ae8000569b6b77e893e7643490",
+        "bytes": 902155,
+        "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-native-n800-dual-path-chunks/0000.tar.zst",
+        "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-native-n800-dual-path-chunks/0000.json"
+      },
+      {
+        "path": "reference-kinematic-elastic-s24-l1-n800-nu0/results/result_23201.vtu",
+        "sha256": "353ee64b7a3f22a894bf132a67c722ed696ea4ae8000569b6b77e893e7643490",
+        "bytes": 902155,
+        "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-native-n800-dual-path-chunks/0000.tar.zst",
+        "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-native-n800-dual-path-chunks/0000.json"
+      }
+    ],
+    "peak_frame_bytes": 1804310,
+    "archive_sha256": {
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/reference-native-n800-dual-path-chunks/0000.tar.zst": "e351e745990daafda2fcf13d9d62be7e0e8586074e7d6b3ee898f84a6b52fb95"
+    },
+    "scope": "Only requested members are decoded/restored; archive SHA verified before streaming. Original comparison reader used inside frame context; created raw copies removed only after SHA recheck. No norm/phase/gate changes."
+  }
+}

@@ -1,0 +1,132 @@
+Number of spatial dimensions: 3
+Number of time steps: 12800
+Time step size: 0.015707963267948967
+Spectral radius of infinite time step: 0.5
+Continue previous simulation: 0
+Number of initialization time steps: 0
+Save results to VTK format: 1
+Name prefix of saved VTK files: result
+Increment in saving VTK files: 1
+Start saving after time step: 11600
+Increment in saving restart files: 100
+Save results in folder: results
+Verbose: 1
+Warning: 1
+Debug: 0
+Add mesh: fluid {
+  Mesh file path: fluid/volume.vtu
+  Domain: 0
+  Add face: fluid1 {
+    Face file path: fluid/face-1.vtp
+  }
+  Add face: fluid2 {
+    Face file path: fluid/face-2.vtp
+  }
+  Add face: fluid3 {
+    Face file path: fluid/face-3.vtp
+  }
+}
+Add mesh: solid {
+  Mesh file path: solid/volume.vtu
+  Domain: 1
+  Add face: solid11 {
+    Face file path: solid/face-11.vtp
+  }
+  Add face: solid12 {
+    Face file path: solid/face-12.vtp
+  }
+  Add face: solid13 {
+    Face file path: solid/face-13.vtp
+  }
+  Add face: solid14 {
+    Face file path: solid/face-14.vtp
+  }
+}
+Add projection: solid13 {
+  Project from face: fluid3
+}
+Add equation: FSI {
+  Coupled: 1
+  Min iterations: 1
+  Max iterations: 30
+  Tolerance: 1e-10
+  Domain: 0 {
+    Equation: fluid
+    Density: 1
+    Viscosity: Constant { Value: 1 }
+    Backflow stabilization coefficient: 0.0
+  }
+  Domain: 1 {
+    Equation: lElas
+    Density: 1
+    Elasticity modulus: 1000
+    Poisson ratio: 0.29999999999999999
+  }
+  LS type: GMRES {
+    Preconditioner: Trilinos-ILUT
+    Use Trilinos for assembly: 0
+    Tolerance: 1e-12
+    Absolute tolerance: 1e-26
+    Max iterations: 1000
+    Krylov space dimension: 100
+  }
+  Output: Spatial {
+    Velocity: t
+    Pressure: t
+    Displacement: t
+  }
+  Output: Alias {
+    Displacement: Solid_displacement
+  }
+  Add BC: fluid1 {
+    Type: Neu
+    Time dependence: General
+    Temporal and spatial values file path: pressure-1.txt
+  }
+  Add BC: fluid2 {
+    Type: Neu
+    Time dependence: General
+    Temporal and spatial values file path: pressure-2.txt
+  }
+  Add BC: solid11 {
+    Type: Dir
+    Value: 0.0
+    Impose on state variable integral: t
+    Zero out perimeter: f
+    Effective direction: (1,1,1)
+  }
+  Add BC: solid12 {
+    Type: Dir
+    Value: 0.0
+    Impose on state variable integral: t
+    Zero out perimeter: f
+    Effective direction: (1,1,1)
+  }
+}
+Add equation: mesh {
+  Coupled: 1
+  Min iterations: 1
+  Max iterations: 30
+  Tolerance: 1e-10
+  Poisson ratio: 0
+  LS type: CG {
+    Preconditioner: FSILS
+    Tolerance: 1e-12
+    Absolute tolerance: 1e-26
+    Max iterations: 1000
+  }
+  Output: Spatial {
+    Displacement: t
+  }
+  Output: Alias {
+    Displacement: Mesh_displacement
+  }
+  Add BC: fluid1 {
+    Type: Dir
+    Value: 0.0
+  }
+  Add BC: fluid2 {
+    Type: Dir
+    Value: 0.0
+  }
+}

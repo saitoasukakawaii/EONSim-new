@@ -1,0 +1,7 @@
+# Adopted reference coarse N800 full equation convergence
+
+Controller39080 completed0 from zero:25600steps/32cycles,3432.044s,peakRSS58671104B. Frozen convergence auditor checks51200terminal equation rows, all pass; maximum final relative ratios FS2.5e-11/MS9.7e-11, maximum3iterations each, no iteration-limit rows. Binary3eeacfee and patch4c606590 match adopted family. Original diagnostic execution label and later explicit qualification adoption are both retained.
+
+Full raw solve log, convergence report and provenance are captured; large files gzip-compressed with exact decoded readback. Full-field audit81752 is running; no claim that coarse Lamé or final production qualification passes. Command: `OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 build/analysis-venv/bin/python scripts/audit_pressure_tube.py --case build/recompute-20261109/elastic-s24-l0-n800/case.json --work build/recompute-20261109/reference-kinematic-long-elastic-s24-l0-n800-nu0 --svfsi --reference-log build/recompute-20261109/reference-kinematic-long-elastic-s24-l0-n800-nu0/solve.log --first-step 23201 --output build/recompute-20261109/reference-kinematic-long-elastic-s24-l0-n800-nu0-audit.json`.
+
+Full-field audit81752 completed0: all2400final frames, periodic worst6.52547e-6, quality gates pass and positive Jacobians. Coarse Lamé relative error3.1950486% fails original2%; preserved as failure, not a qualified target. See physical-summary.json and complete compressed audit.

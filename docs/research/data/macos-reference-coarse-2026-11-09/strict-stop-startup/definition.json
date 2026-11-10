@@ -1,0 +1,24 @@
+{
+  "source_commit": "458d78ea88031ffd65fec17cd72d452b40ce1983",
+  "upstream": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "trilinos": "4a5f7906a6420ee2f9450367e9cc95b28c00d744",
+  "old_sha256": "76b7a2c041d5002aa9cfc59b23539e5b65e26181da6c80d0b4cbacc66d854cbb",
+  "new_sha256": "4eaeabea16abd861d0b60d9cc3f2a85d71962f6848391ef6573e23a2bd2604b9",
+  "node_limit": 2e-09,
+  "mass_relative_limit": 1e-08,
+  "history_limit": 2e-09,
+  "saved_norm_limit": 2e-09,
+  "saved_norm_limit_source": "scripts/svfsi_restart_evidence.py:reviewed_backend_transition existing bound",
+  "ranks": 1,
+  "threads": 1,
+  "scope": "Strict-stop diagnostic derivative from pinned source, not unmodified reference: coarse N800 zero-state100-step causality check only; no adoption",
+  "patch": {
+    "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "changed": [
+      "Code/Source/svFSI/PIC.f"
+    ],
+    "patch_sha256": "186ecf502408857c5de60086cd9ae7676fae3d155dd6c9f78a20820136370b68",
+    "scope": "Diagnostic derivative only: disables initial-norm absolute acceptance; original equations, relative tolerances and iteration cap unchanged. Not the unmodified pinned reference; not adopted."
+  },
+  "patch_sha256": "186ecf502408857c5de60086cd9ae7676fae3d155dd6c9f78a20820136370b68"
+}

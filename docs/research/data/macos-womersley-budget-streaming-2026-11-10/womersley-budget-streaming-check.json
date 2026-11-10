@@ -1,0 +1,200 @@
+{
+  "passed": true,
+  "exact_arrays": true,
+  "sequences": [
+    [
+      3201,
+      4001
+    ],
+    [
+      3201,
+      4001
+    ],
+    [
+      4001,
+      4000,
+      4002
+    ]
+  ],
+  "archived_hashes": {
+    "checkpoint/generation_1794207655495714/state_rank0.h5": "e3b5e1f1de0b2d75a63df032002f8e7c2d5ec3aa610410a86fd38768bb7d50a4",
+    "checkpoint/generation_1794209462403705/state_rank0.h5": "81087a27a13cacd995ace1eb6fbc563d8e64aacd45a836e6ff0a6008f4fb1866",
+    "checkpoint/generation_1794209464348464/state_rank0.h5": "049480aa7bf9449542f8d401d96d466ebc765b5f5470c3d98176febadedde8b3"
+  },
+  "baseline": {
+    "receipt_sha256": {
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json": "240e8d9cee249dc9517b5098555db28fbc72164eb3ab47a62c389a23078cdf38"
+    },
+    "source_manifest_sha256": {
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha2-s96-l1-n800-2026-11-09/raw-manifest.json": "9f516f1494b4e606c8eb2f6935b0f125ab196c2d13cf7f0819d70c51dbe64fe9"
+    },
+    "restored_members": [
+      {
+        "path": "checkpoint/generation_1794207655495714/state_rank0.h5",
+        "sha256": "e3b5e1f1de0b2d75a63df032002f8e7c2d5ec3aa610410a86fd38768bb7d50a4",
+        "bytes": 3241128,
+        "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst",
+        "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json"
+      },
+      {
+        "path": "checkpoint/generation_1794209462403705/state_rank0.h5",
+        "sha256": "81087a27a13cacd995ace1eb6fbc563d8e64aacd45a836e6ff0a6008f4fb1866",
+        "bytes": 3241128,
+        "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst",
+        "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json"
+      },
+      {
+        "path": "checkpoint/generation_1794209464348464/state_rank0.h5",
+        "sha256": "049480aa7bf9449542f8d401d96d466ebc765b5f5470c3d98176febadedde8b3",
+        "bytes": 3241128,
+        "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst",
+        "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json"
+      }
+    ],
+    "peak_frame_bytes": 3241128,
+    "archive_sha256": {
+      "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst": "a81377491af2afc433586682b693a12bc3cf24f5faa2ee448ce063d3615ad4d6"
+    },
+    "scope": "Only requested members are decoded/restored; archive SHA verified before streaming. Original comparison reader used inside frame context; created raw copies removed only after SHA recheck. No norm/phase/gate changes."
+  },
+  "passes": [
+    {
+      "pass_id": 1,
+      "cycle": 4,
+      "report": {
+        "receipt_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json": "240e8d9cee249dc9517b5098555db28fbc72164eb3ab47a62c389a23078cdf38"
+        },
+        "source_manifest_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha2-s96-l1-n800-2026-11-09/raw-manifest.json": "9f516f1494b4e606c8eb2f6935b0f125ab196c2d13cf7f0819d70c51dbe64fe9"
+        },
+        "restored_members": [
+          {
+            "path": "checkpoint/generation_1794207655495714/state_rank0.h5",
+            "sha256": "e3b5e1f1de0b2d75a63df032002f8e7c2d5ec3aa610410a86fd38768bb7d50a4",
+            "bytes": 3241128,
+            "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst",
+            "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json"
+          }
+        ],
+        "peak_frame_bytes": 3241128,
+        "archive_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst": "a81377491af2afc433586682b693a12bc3cf24f5faa2ee448ce063d3615ad4d6"
+        },
+        "scope": "Only requested members are decoded/restored; archive SHA verified before streaming. Original comparison reader used inside frame context; created raw copies removed only after SHA recheck. No norm/phase/gate changes."
+      }
+    },
+    {
+      "pass_id": 1,
+      "cycle": 5,
+      "report": {
+        "receipt_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json": "240e8d9cee249dc9517b5098555db28fbc72164eb3ab47a62c389a23078cdf38"
+        },
+        "source_manifest_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha2-s96-l1-n800-2026-11-09/raw-manifest.json": "9f516f1494b4e606c8eb2f6935b0f125ab196c2d13cf7f0819d70c51dbe64fe9"
+        },
+        "restored_members": [
+          {
+            "path": "checkpoint/generation_1794209462403705/state_rank0.h5",
+            "sha256": "81087a27a13cacd995ace1eb6fbc563d8e64aacd45a836e6ff0a6008f4fb1866",
+            "bytes": 3241128,
+            "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst",
+            "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json"
+          }
+        ],
+        "peak_frame_bytes": 3241128,
+        "archive_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst": "a81377491af2afc433586682b693a12bc3cf24f5faa2ee448ce063d3615ad4d6"
+        },
+        "scope": "Only requested members are decoded/restored; archive SHA verified before streaming. Original comparison reader used inside frame context; created raw copies removed only after SHA recheck. No norm/phase/gate changes."
+      }
+    },
+    {
+      "pass_id": 2,
+      "cycle": 4,
+      "report": {
+        "receipt_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json": "240e8d9cee249dc9517b5098555db28fbc72164eb3ab47a62c389a23078cdf38"
+        },
+        "source_manifest_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha2-s96-l1-n800-2026-11-09/raw-manifest.json": "9f516f1494b4e606c8eb2f6935b0f125ab196c2d13cf7f0819d70c51dbe64fe9"
+        },
+        "restored_members": [
+          {
+            "path": "checkpoint/generation_1794207655495714/state_rank0.h5",
+            "sha256": "e3b5e1f1de0b2d75a63df032002f8e7c2d5ec3aa610410a86fd38768bb7d50a4",
+            "bytes": 3241128,
+            "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst",
+            "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json"
+          }
+        ],
+        "peak_frame_bytes": 3241128,
+        "archive_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst": "a81377491af2afc433586682b693a12bc3cf24f5faa2ee448ce063d3615ad4d6"
+        },
+        "scope": "Only requested members are decoded/restored; archive SHA verified before streaming. Original comparison reader used inside frame context; created raw copies removed only after SHA recheck. No norm/phase/gate changes."
+      }
+    },
+    {
+      "pass_id": 2,
+      "cycle": 5,
+      "report": {
+        "receipt_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json": "240e8d9cee249dc9517b5098555db28fbc72164eb3ab47a62c389a23078cdf38"
+        },
+        "source_manifest_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha2-s96-l1-n800-2026-11-09/raw-manifest.json": "9f516f1494b4e606c8eb2f6935b0f125ab196c2d13cf7f0819d70c51dbe64fe9"
+        },
+        "restored_members": [
+          {
+            "path": "checkpoint/generation_1794209462403705/state_rank0.h5",
+            "sha256": "81087a27a13cacd995ace1eb6fbc563d8e64aacd45a836e6ff0a6008f4fb1866",
+            "bytes": 3241128,
+            "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst",
+            "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json"
+          }
+        ],
+        "peak_frame_bytes": 3241128,
+        "archive_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst": "a81377491af2afc433586682b693a12bc3cf24f5faa2ee448ce063d3615ad4d6"
+        },
+        "scope": "Only requested members are decoded/restored; archive SHA verified before streaming. Original comparison reader used inside frame context; created raw copies removed only after SHA recheck. No norm/phase/gate changes."
+      }
+    },
+    {
+      "pass_id": 3,
+      "cycle": 5,
+      "report": {
+        "receipt_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json": "240e8d9cee249dc9517b5098555db28fbc72164eb3ab47a62c389a23078cdf38"
+        },
+        "source_manifest_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha2-s96-l1-n800-2026-11-09/raw-manifest.json": "9f516f1494b4e606c8eb2f6935b0f125ab196c2d13cf7f0819d70c51dbe64fe9"
+        },
+        "restored_members": [
+          {
+            "path": "checkpoint/generation_1794209462403705/state_rank0.h5",
+            "sha256": "81087a27a13cacd995ace1eb6fbc563d8e64aacd45a836e6ff0a6008f4fb1866",
+            "bytes": 3241128,
+            "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst",
+            "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json"
+          },
+          {
+            "path": "checkpoint/generation_1794209464348464/state_rank0.h5",
+            "sha256": "049480aa7bf9449542f8d401d96d466ebc765b5f5470c3d98176febadedde8b3",
+            "bytes": 3241128,
+            "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst",
+            "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json"
+          }
+        ],
+        "peak_frame_bytes": 3241128,
+        "archive_sha256": {
+          "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst": "a81377491af2afc433586682b693a12bc3cf24f5faa2ee448ce063d3615ad4d6"
+        },
+        "scope": "Only requested members are decoded/restored; archive SHA verified before streaming. Original comparison reader used inside frame context; created raw copies removed only after SHA recheck. No norm/phase/gate changes."
+      }
+    }
+  ],
+  "scope": "Actual archived target repeated passes, interleaved cycles, retained endpoint and sampling read order; full numerical budget pending."
+}

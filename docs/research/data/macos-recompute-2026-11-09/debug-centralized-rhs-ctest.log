@@ -1,0 +1,20 @@
+Test project /Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/macos-debug
+    Start  1: lu_reuse_mpi1
+1/4 Test  #1: lu_reuse_mpi1 ....................   Passed    1.21 sec
+    Start  2: lu_reuse_mpi2
+2/4 Test  #2: lu_reuse_mpi2 ....................   Passed    0.13 sec
+    Start 66: fluid_lu_reuse
+3/4 Test #66: fluid_lu_reuse ...................   Passed    4.87 sec
+    Start 67: fsi_lu_reuse
+4/4 Test #67: fsi_lu_reuse .....................   Passed    5.32 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+core           =  42.22 sec*proc (4 tests)
+mpi-failure    =   1.47 sec*proc (2 tests)
+rank-1         =  41.96 sec*proc (3 tests)
+rank-2         =  41.00 sec*proc (3 tests)
+rank-4         =  40.75 sec*proc (2 tests)
+
+Total Test time (real) =  11.53 sec

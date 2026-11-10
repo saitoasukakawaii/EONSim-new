@@ -1,0 +1,24 @@
+{
+  "process": {
+    "exit_code": 0,
+    "seconds": 3432.0443275840953,
+    "peak_rss_bytes": 58671104,
+    "finished_unix": 1794211649.972013
+  },
+  "steps": 25600,
+  "full_equation_convergence_passed": true,
+  "source_case_sha256": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+  "reference_build": {
+    "kind": "patched-fixed-reference",
+    "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "binary": {
+      "path": "svFSI",
+      "sha256": "3eeacfeeb504ed1fe7f0223a23c004f7605078b7afabd21c2d6fa9f80f63c703"
+    },
+    "patch": {
+      "path": "source.patch",
+      "sha256": "4c606590c4dbb9c7e87529800d364b4547f02348f4f1a74c491dbafb2b381549"
+    }
+  },
+  "scope": "Numerical and equation convergence complete; full-field/physics/budgets pending"
+}

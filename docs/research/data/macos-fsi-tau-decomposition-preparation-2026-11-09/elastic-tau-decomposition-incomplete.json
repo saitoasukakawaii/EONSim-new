@@ -1,0 +1,25 @@
+{
+  "command": [
+    "build/analysis-venv/bin/python",
+    "build/recompute-20261109/decompose-elastic-tau-time.py",
+    "--target",
+    "build/recompute-20261109/elastic-s24-l1-n400",
+    "--target-audit",
+    "build/recompute-20261109/elastic-s24-l1-n400-audit.json",
+    "--control",
+    "build/recompute-20261109/elastic-s24-l1-n800-tautime-n400",
+    "--control-audit",
+    "build/recompute-20261109/elastic-s24-l1-n800-tautime-n400-audit.json",
+    "--fine",
+    "build/recompute-20261109/elastic-s24-l1-n800",
+    "--fine-audit",
+    "build/recompute-20261109/elastic-s24-l1-n800-audit.json",
+    "--default-budget-time",
+    "build/recompute-20261109/elastic-n800-budgets/eonsim/time.json",
+    "--output",
+    "build/recompute-20261109/elastic-tau-decomposition.json"
+  ],
+  "exit_code": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/decompose-elastic-tau-time.py\", line 76, in <module>\n    if __name__=='__main__':main()\n                            ~~~~^^\n  File \"/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/decompose-elastic-tau-time.py\", line 44, in main\n    if not path.exists():raise ValueError('Incomplete numerical study')\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: Incomplete numerical study\n",
+  "no_output": true
+}

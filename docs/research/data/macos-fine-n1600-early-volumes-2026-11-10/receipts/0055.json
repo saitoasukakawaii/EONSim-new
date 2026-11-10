@@ -1,0 +1,79 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n1600",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n1600-volume-through48000-chunks/0055.tar.zst",
+  "archive_sha256": "a816ad1519ab6f6bb6eee1d27d88b68692a1dc2021694fc557b8c299588e98a7",
+  "archive_bytes": 7534985,
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-elastic-fine-n1600-2026-11-10/raw-manifest.json",
+  "source_manifest_sha256": "8d44fccd8fd11d6f18b8e8279260afba763ddcc1c80e703c8bb81cc2c0161753",
+  "selected": {
+    "early/solution_step43200_solid.vtu": {
+      "bytes": 1702708,
+      "sha256": "59d89a78b9c09a61fe384419e781b337b0ab44f9f0e146588beb7d6dd8f8bfaa",
+      "allocated_bytes": 720896
+    },
+    "early/solution_step44800.vtu": {
+      "bytes": 2773827,
+      "sha256": "70be74bb1cc1d73e40252b151223966a1316ed537dcf29873805c877e167acdd",
+      "allocated_bytes": 1245184
+    },
+    "early/solution_step44800_solid.vtu": {
+      "bytes": 1702623,
+      "sha256": "1a0250a08f1cec6fc36f41fff1383202c5cbadffaa4fba03f270150211a2eeee",
+      "allocated_bytes": 720896
+    },
+    "early/solution_step46400.vtu": {
+      "bytes": 2774001,
+      "sha256": "8b9ba89787c16234a7da9b63552c95f2ab5a86293e74876b676c40431c76e33f",
+      "allocated_bytes": 1245184
+    },
+    "early/solution_step46400_solid.vtu": {
+      "bytes": 1702856,
+      "sha256": "56ef377faaf030c80282d33481057456a0215c22e9194f11c5ad270fb8a901ae",
+      "allocated_bytes": 720896
+    },
+    "early/solution_step4800.vtu": {
+      "bytes": 2782417,
+      "sha256": "7c2bf46ade23bf9c8b8c531415c4c9f47de56b825b62eda89f2978342406fd75",
+      "allocated_bytes": 1241088
+    },
+    "early/solution_step4800_solid.vtu": {
+      "bytes": 1702837,
+      "sha256": "951968fcdc7ec2801d4af0ad0375ae047b4213e1ea9cd71ce806722ecca65b95",
+      "allocated_bytes": 712704
+    },
+    "early/solution_step6400.vtu": {
+      "bytes": 2777910,
+      "sha256": "b72596347dfcb87781d6f7b026177a4baf4f3a65c30e2dca0564fb919b0b9a6e",
+      "allocated_bytes": 1236992
+    },
+    "early/solution_step6400_solid.vtu": {
+      "bytes": 1702442,
+      "sha256": "f2a5f1c1fc30ab551d6ffe934680de4cafe7c4121757c821078b14b073a31cf4",
+      "allocated_bytes": 716800
+    },
+    "early/solution_step8000.vtu": {
+      "bytes": 2777348,
+      "sha256": "1555dc259b4620a57fec821f1738e66651461365b92509a68d31e7c6b8fd4d8a",
+      "allocated_bytes": 1241088
+    },
+    "early/solution_step8000_solid.vtu": {
+      "bytes": 1702090,
+      "sha256": "ab950211b3aa032fefb32b27c3d0a7a01c7487586c358f270bec1be7011dd209",
+      "allocated_bytes": 716800
+    },
+    "early/solution_step9600.vtu": {
+      "bytes": 2776803,
+      "sha256": "0c1c9a6548a4e6c4006b72da76df5037827a8fd1ec5f829b4062db4339cd5bcb",
+      "allocated_bytes": 1245184
+    },
+    "early/solution_step9600_solid.vtu": {
+      "bytes": 1702048,
+      "sha256": "17a8169c669ed78df5d91bde373b7bd36a36903325b6ca50e785d1e67e1210bc",
+      "allocated_bytes": 716800
+    }
+  },
+  "status": "evicted",
+  "scope": "Completed fine N1600 volumes through48000 only. Active frozen budget reads fine steps48001..51200; these inputs remain materialized. Restore these receipts before full physical replay or any early-field consumer. Original full manifest and audit retained; no numerical task waived.",
+  "removed_allocated_bytes": 12480512,
+  "finished_unix": 1794252272.213346
+}

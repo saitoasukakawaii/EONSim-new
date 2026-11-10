@@ -1,0 +1,57 @@
+{
+  "accepted_steps": 25600,
+  "receipts": [
+    {
+      "label": "early",
+      "accepted_first": 1,
+      "accepted_last": 23200,
+      "seconds": 40000.59062545933,
+      "peak_rss_bytes": 549945344,
+      "exit_code": 0
+    },
+    {
+      "exit_code": 0,
+      "accepted_first": 23201,
+      "accepted_last": 25600,
+      "seconds": 6278.173717021942,
+      "elapsed_original_seconds": 22782.872429847717,
+      "peak_rss_bytes": 596606976,
+      "events": [
+        {
+          "action": "hold",
+          "unix": 1794273454.571369,
+          "free_bytes": 23611928576
+        },
+        {
+          "action": "resume",
+          "unix": 1794278245.666961,
+          "free_bytes": 25803702272
+        }
+      ],
+      "scope": "Dense numerical trajectory complete; merged inventory and physics/decomposition remain pending."
+    }
+  ],
+  "input_sha256": {
+    "early/receipt.json": "3d41583ced86b375de59893da5574d3ccc82c6cede92e7ebe58b36baba20fb30",
+    "early/command.json": "dc11ce25ec036747e1a5c24ffdf8d7dceef8a5d101d0d6172b5579cb8a225343",
+    "early/case.json": "033bdcaf085897cef07fea919a4c4e0d6c36bae9a252c08fa8b2ee0b5e4a8fac",
+    "early/solve.log": "4d68a73741320e1e00e6b57163bae922dc736f8afdff8ebb6baabe836e865a88",
+    "dense-recovery/receipt.json": "440dea1af7d5ec0610180d763f5319f6742a69304a32418d1f1ef0cf019eee50",
+    "dense-recovery/command.json": "b2fb5146d780e3e8a9b62cc30491955dc51d3661b2f599a1b2a7d6536ef440ea",
+    "dense-recovery/case.json": "5898373e375611221ce69fc90d91b716fafb30da42ea339857e71244579539a4",
+    "dense-recovery/solve.log": "9c431605ed852023e5b8554e308f4a9092c00f5436ce038e00dcfc4513131f43",
+    "dense-recovery/definition.json": "ea610b112889e90adb7b1c2f4a641595ef677706800b8bd10d2ffa9e8705a4ad",
+    "dense-recovery/overlap.json": "e766620a1ec367c6d5eec265ddb2a5998c8b8dc5dacda8115e2fb25be89d91a6",
+    "original-failure.json": "f53dac4b5bae20ec6b97b3b28b6ce45be4a9f22ecee8c6a864d06a65c8d909e7",
+    "early/solution.pvd": "ede1b0cbedd0889783e1ea89b18af9c85c69d1d089b5e4a967d49680b62be316",
+    "dense-recovery/solution_restart23200.pvd": "f70e287a344a9accc6255daecca86330b58e012b7c5957475a006ab038491bb6",
+    "early/solution_solid.pvd": "9a654ba88ac94d6a2c5f85007a57e34f2011ff442ff7c138ea7878396898ab1b",
+    "dense-recovery/solution_restart23200_solid.pvd": "f43d459b67b666c52a79fd5f9e1018126cb7931542a3cea4a4f5ba1f6d7a4145"
+  },
+  "index_sha256": {
+    "solution.pvd": "db7aae1886c4ef1f0a44f67ef7e1478ee4c1511da51ec3fee2b4317d8a62da66",
+    "solution_solid.pvd": "71528a13b1a3d8f4153e2ad48d96d48559804aace68abb3940486832a98f0ade"
+  },
+  "original_failure_preserved": true,
+  "scope": "Original successful early1..23200 plus independent recovered dense23201..25600; failed original dense preserved and878 overlapping body files byte-identical. Physics/audit/budgets pending"
+}

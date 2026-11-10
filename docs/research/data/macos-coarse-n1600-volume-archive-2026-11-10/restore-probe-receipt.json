@@ -1,0 +1,24 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/coarse-n1600-volume-restore-probe",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l0-n1600-volume-chunks/0000.tar.zst",
+  "archive_sha256": "10035b5e67f40bf4a874540c91feddca476f293f798b12a746b9c459bf907b78",
+  "archive_bytes": 28451838,
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-elastic-coarse-n1600-2026-11-09/raw-manifest.json",
+  "source_manifest_sha256": "4de63ba614268856d2999163124d682eedfca7d68875b42286d400f7af27c764",
+  "selected": {
+    "dense/solution_restart46400_step46401.vtu": {
+      "bytes": 363696,
+      "sha256": "6b4b99a96e151403ddd0a45f435407dc2cf8cbd2edf05737e05c1cedd82cb6d5",
+      "allocated_bytes": 172032
+    },
+    "dense/solution_restart46400_step46401_solid.vtu": {
+      "bytes": 233271,
+      "sha256": "4674e67a8e39eeb3956cb2007797e6e3d3658d6fffed1a9a6723743ad61e751a",
+      "allocated_bytes": 106496
+    }
+  },
+  "status": "evicted",
+  "scope": "Terminal coarse N1600 step volumes only; PVD/logs/checkpoints retained. MUST restore all volume receipts before pending N1600 independent budget, physical replay or full raw inventory replay. Complete original byte manifest remains authoritative; no numerical task waived.",
+  "removed_allocated_bytes": 63234048,
+  "finished_unix": 1794247759.707802
+}

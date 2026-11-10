@@ -1,0 +1,22 @@
+{
+  "status": "held",
+  "pid": 4832,
+  "pgid": 4832,
+  "command": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n1600/eonsim -case case.json -checkpoint /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n1600/checkpoint -stop_after 51008 -pc_factor_mat_solver_type mumps -snes_lag_jacobian -2 -fsi_lu_pc_reuse_window 32 -restart /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n1600/checkpoint/generation_1794247920381545",
+  "stage": {
+    "pid": 4832,
+    "label": "dense-018",
+    "target": 51008,
+    "start_unix": 1794247926.14213
+  },
+  "start_unix": 1794247952.3515751,
+  "accepted_last_before_hold": 50789,
+  "free_bytes": 22769688576,
+  "reason": "Preserve 20GiB controller floor during dense output; original process retained, no solver/controller change.",
+  "resume": "Verify same PID/command/T state then SIGCONT; record elapsed hold time.",
+  "resumed_unix": 1794248124.385857,
+  "free_bytes_at_resume": 23718498304,
+  "resume_threshold_bytes": 23622320128,
+  "capacity_policy": "Resume hysteresis reduced from 23 to 22GiB; original 20GiB controller floor and 21.25GiB early hold unchanged; same solver process and numerical thresholds.",
+  "held_seconds": 172.03428196907043
+}

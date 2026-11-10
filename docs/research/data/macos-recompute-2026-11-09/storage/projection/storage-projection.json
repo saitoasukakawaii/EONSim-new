@@ -1,0 +1,66 @@
+{
+  "observed_unix": 1794203524.458696,
+  "free_bytes": 71455125504,
+  "disk_floor_bytes": 21474836480,
+  "studies": [
+    {
+      "work": "alpha1-s96-l1-n800",
+      "observed_logical_bytes": 1298693607,
+      "observed_allocated_bytes": 1301368832,
+      "projected_final_logical_bytes": 10587807056,
+      "projected_final_allocated_after_vtu_compression": 10587807056,
+      "remaining_allocated_change_estimate": 9286438224
+    },
+    {
+      "work": "alpha2-s96-l1-n400",
+      "observed_logical_bytes": 3853389936,
+      "observed_allocated_bytes": 3861381120,
+      "projected_final_logical_bytes": 5402002256,
+      "projected_final_allocated_after_vtu_compression": 5402002256,
+      "remaining_allocated_change_estimate": 1540621136
+    },
+    {
+      "work": "alpha2-s96-l1-n800",
+      "observed_logical_bytes": 55128445,
+      "observed_allocated_bytes": 55209984,
+      "projected_final_logical_bytes": 10587807056,
+      "projected_final_allocated_after_vtu_compression": 10587807056,
+      "remaining_allocated_change_estimate": 10532597072
+    },
+    {
+      "work": "alpha1-s96-l1-n800-tautime-n400",
+      "observed_logical_bytes": 17430837,
+      "observed_allocated_bytes": 17506304,
+      "projected_final_logical_bytes": 10587807056,
+      "projected_final_allocated_after_vtu_compression": 10587807056,
+      "remaining_allocated_change_estimate": 10570300752
+    },
+    {
+      "work": "elastic-s24-l1-n400",
+      "observed_logical_bytes": 8553795825,
+      "observed_allocated_bytes": 8565825536,
+      "projected_final_logical_bytes": 9610068090,
+      "projected_final_allocated_after_vtu_compression": 4688213919,
+      "remaining_allocated_change_estimate": -3877611617
+    },
+    {
+      "work": "elastic-s24-l1-n800",
+      "observed_logical_bytes": 167754071,
+      "observed_allocated_bytes": 168607744,
+      "projected_final_logical_bytes": 18923170950,
+      "projected_final_allocated_after_vtu_compression": 9194923811,
+      "remaining_allocated_change_estimate": 9026316067
+    },
+    {
+      "work": "elastic-s24-l1-n800-length24",
+      "observed_logical_bytes": 103902531,
+      "observed_allocated_bytes": 105607168,
+      "projected_final_logical_bytes": 38200102715,
+      "projected_final_allocated_after_vtu_compression": 18549239454,
+      "remaining_allocated_change_estimate": 18443632286
+    }
+  ],
+  "projected_free_after_these_studies": 15932831584,
+  "scope": "Estimate only; current representative VTU sizes and measured coarse compression ratio; excludes future replacement reference jobs. Native HDF uncompressed; active files untouched.",
+  "next_action": "After required audits and budgets complete, losslessly archive finished raw family with hash/readback verification before removing redundant materialized copies. Preserve inputs and designated restart states. Never drop phases or change numerical gates."
+}

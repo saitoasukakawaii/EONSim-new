@@ -1,0 +1,7 @@
+# Length24 boundary prefix independently verified; global catalog refreshed
+
+Basead06ce0. Recompression47974 actually exited0. Independent `build/analysis-venv/bin/python build/recompute-20261109/verify-length-boundary-prefix.py` handle87987 exited0,65 archives/2564 members fully decoded, every size/SHA bound to original source manifest and current receipts. All65 current compressed archive hashes/sizes match committed journals, old backups absent. Bytes2600772268→2084159591, net516612677B. Captured gzip artifacts read back exactly.
+
+All re-encoding batches terminal, no temporary field-analysis restorations active. Added Womersley800-state cycle5-prefix subset to current catalog alongside completed N400 full inventory. Actual `build/analysis-venv/bin/python build/recompute-20261109/review-current-archive-catalog.py` handle56668 exited0:16 complete inventories,9 recorded subsets,908 archive files,58577967883B. Scope: current existence/size, source/receipt binding and exact missing-path accounting; unchanged zstd hashes/full decode reused from prior verified evidence,4 supplemental gzip archives actually hashed. This is not a fresh full decode/hash of every global retained field or archive. Womersley production can advance outside its recorded subsets without changing these immutable scopes.
+
+Womersley6194 and capacity monitor21664 remain active. Original numerical qualification gaps unchanged. No push/PR. Existing transaction/catalog methods reused; no new algorithm article.

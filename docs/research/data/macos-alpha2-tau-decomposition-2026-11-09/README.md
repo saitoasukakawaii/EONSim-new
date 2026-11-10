@@ -1,0 +1,11 @@
+# Alpha2 actual-field tau-time decomposition
+
+On source HEAD 32cf81c, diagnostic N800 control completed 4800 steps (execution 0), analytic analysis 29359 and raw capture 10627 completed 0; all preliminary gates pass. Decomposition handle 46523 and independent verification 90596 completed 0. All 2409 consumed files independently rehashed; energy identity checked and total matches the original default N400 time-budget term.
+
+Actual cycle6 fields at400 common phases: x=N400 default, y=N800 fixed explicit N400 tau-time, z=N800 default. t=y-x, q=z-y, total=z-x. Exact P1 mass inner products preserve the cross term. Velocity RMS: t=3.48157322069e-5, q=3.42744581426e-4, total=3.44483482636e-4, cross=-8.55674862490e-12. Pressure RMS: t=1.74097580257e-7, q=1.44694319742e-3, total=1.44688305083e-3, cross=-8.70420406183e-11.
+
+Within this specific path, the tau-time difference norm is larger than the fixed-tau-time timestep difference. This is not a pure continuum temporal truncation estimate: velocity-dependent tau terms still evolve and startup BE uses the explicit override too. Default N400 time/space ratios18.8955% and26.9906% remain failures against10%; no gate is relaxed. Default N1600 is still running for a new N800 target budget.
+
+Reproduce with `build/analysis-venv/bin/python build/recompute-20261109/decompose-womersley-tau-time.py --target build/recompute-20261109/alpha2-s96-l1-n400 --control build/recompute-20261109/alpha2-s96-l1-n800-tautime-n400 --fine build/recompute-20261109/alpha2-s96-l1-n800 --target-analysis build/recompute-20261109/alpha2-s96-l1-n400-analysis.json --control-analysis build/recompute-20261109/alpha2-s96-l1-n800-tautime-n400-analysis.json --fine-analysis build/recompute-20261109/alpha2-s96-l1-n800-analysis.json --output NEW_OUTPUT.json`, with BLAS threads1. Restore all evicted materializations before rerun. The saved checker includes original input rehashing and rejects any mismatch.
+
+After verification, handle16284 removed399 archived duplicate N400 HDF materializations (1294368768 allocated bytes), preserving all endpoints and manifests. Receipt included; restore with generic restore-womersley-materialization.py before future N400 field consumers. Default N800 fields remain expanded for its pending budget. Complete tau-control archive started; not yet claimed verified.

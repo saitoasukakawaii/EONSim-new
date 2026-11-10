@@ -1,0 +1,98 @@
+{
+  "definition": {
+    "source_commit": "1294a4ed450a6264aa435751004120ca2ea9278d",
+    "upstream": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "trilinos": "4a5f7906a6420ee2f9450367e9cc95b28c00d744",
+    "old_sha256": "dfa4cab5b5a3521ee27c9629c2b148ab87de3a9fbae724b5e40a24c220ced3f8",
+    "new_sha256": "f249a3febc94ad0de49971e5bf488d08fd8b9cfc8b4fc4a4d4e09b42e2047224",
+    "node_limit": 2e-09,
+    "mass_relative_limit": 1e-08,
+    "history_limit": 2e-09,
+    "ranks": 1,
+    "threads": 1,
+    "scope": "Explicit combined strict-stop and mesh-increment derivative vs fixed source on already converged coarseN400 startup/loaded/replay; not unmodified reference or production adoption",
+    "source_convergence_sha256": "92399fd7ed8f7f88421e8a7fa00c23e17ab9e824d00d33901d167c7e555df25d",
+    "patch": {
+      "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+      "patch_sha256": "e5191d7ef1f70ea1b71fc7b8c8e1fc6df8dc696696b0035fb6da5d0208f8ab10",
+      "changed": [
+        "Code/Source/svFSI/PIC.f",
+        "Code/Source/svFSI/MESH.f"
+      ],
+      "components": [
+        "svfsi-strict-stop.patch",
+        "svfsi-mesh-increment.patch"
+      ],
+      "scope": "Combined diagnostic derivative only: disable initial-norm absolute acceptance and evaluate mesh stage displacement as af*(Dn-Do). Original equations, relative tolerance and cap unchanged; not adopted for production."
+    }
+  },
+  "runs": {
+    "startup-old": {
+      "seconds": 3.762047166004777,
+      "peak_rss_bytes": 48922624,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "startup-increment": {
+      "seconds": 2.9296278750989586,
+      "peak_rss_bytes": 48988160,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "loaded-old": {
+      "seconds": 3.3536493750289083,
+      "peak_rss_bytes": 49496064,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-increment": {
+      "seconds": 3.354081291006878,
+      "peak_rss_bytes": 48545792,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-replay": {
+      "seconds": 1.8978842501528561,
+      "peak_rss_bytes": 47235072,
+      "exit_code": 0,
+      "start": 12410,
+      "stop": 12420
+    }
+  },
+  "comparisons": {
+    "startup-increment": {
+      "pairs": 20,
+      "maximum_node_delta": 1.2116903504194741e-27,
+      "maximum_relative_mass": 1.682322506876103e-24,
+      "maximum_native_history_delta": 1.3881124654405496e-23,
+      "exact_native_time": true,
+      "exact_saved_equation_norms": true,
+      "passed": true
+    },
+    "loaded-increment": {
+      "pairs": 20,
+      "maximum_node_delta": 2.740863092043355e-16,
+      "maximum_relative_mass": 4.202303488305527e-14,
+      "maximum_native_history_delta": 8.339075957541908e-14,
+      "exact_native_time": true,
+      "exact_saved_equation_norms": true,
+      "passed": true
+    },
+    "loaded-replay": {
+      "pairs": 10,
+      "maximum_node_delta": 0.0,
+      "maximum_relative_mass": 0.0,
+      "maximum_native_history_delta": 0.0,
+      "exact_native_time": true,
+      "exact_saved_equation_norms": true,
+      "passed": true
+    }
+  },
+  "passed": true,
+  "adopted": false,
+  "scope": "Explicit combined strict-stop and mesh-increment derivative vs fixed source on already converged coarseN400 startup/loaded/replay; not unmodified reference or production adoption"
+}

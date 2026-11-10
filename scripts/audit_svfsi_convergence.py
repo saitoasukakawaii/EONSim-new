@@ -17,9 +17,37 @@ PIN='7bdb74cdd517310d6bf32c0bb7d42072aeac8658'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 
 
+def reference_build_evidence(work, export):
+    """Bind a declared derivative to its local patch and executed binary.
+
+    This records provenance, not mathematical validation of a patch. Existing
+    fixed-source inputs remain unchanged; derivative inputs must be explicit.
+    """
+    build=export.get('reference_build')
+    if build is None:return None
+    if (not isinstance(build,dict) or
+            set(build)!={'kind','base_commit','patch','binary'} or
+            build['kind']!='patched-fixed-reference' or build['base_commit']!=PIN):
+        raise ValueError('Invalid reference build declaration')
+    for role in ('patch','binary'):
+        record=build[role]
+        if (not isinstance(record,dict) or set(record)!={'path','sha256'} or
+                not isinstance(record['path'],str) or not record['path']):
+            raise ValueError('Invalid reference build artifact')
+        relative=Path(record['path']);path=work/relative
+        if (relative.is_absolute() or '..' in relative.parts or path.is_symlink() or
+                not path.resolve().is_relative_to(work.resolve()) or not path.is_file()):
+            raise ValueError('Reference build artifact must be a local file')
+        if (export['files'].get(record['path'])!=record['sha256'] or
+                sha(path)!=record['sha256']):
+            raise ValueError('Reference build artifact differs from manifest')
+    return build
+
+
 def analyze(work,log,*,first_step=None,last_step=None):
     export=json.loads((work/'export.json').read_text())
     if export['svfsi_commit']!=PIN:raise ValueError('Unsupported reference version')
+    build=reference_build_evidence(work,export)
     for name,digest in export['files'].items():
         if sha(work/name)!=digest:raise ValueError('Reference input changed: '+name)
     inputs=(work/'svFSI.inp').read_text()
@@ -79,7 +107,7 @@ def analyze(work,log,*,first_step=None,last_step=None):
         cap_rows+=row['iteration']==config['maximum_iterations']
         if row['iteration']<config['minimum_iterations'] or not ratio<config['tolerance']:
             failures.append(dict(**row,tolerance=config['tolerance'],at_iteration_limit=row['iteration']==config['maximum_iterations']))
-    return dict(svfsi_commit=PIN,steps=last_step-first_step+1,declared_steps=steps,
+    return dict(svfsi_commit=PIN,reference_build=build,steps=last_step-first_step+1,declared_steps=steps,
         first_step=first_step,last_step=last_step,restart=restart,
         excluded_tail=dict(final_equation_rows=len(excluded),last_observed_step=last_observed,
             iteration_rows=sum(row['iteration'] for row in excluded.values()),

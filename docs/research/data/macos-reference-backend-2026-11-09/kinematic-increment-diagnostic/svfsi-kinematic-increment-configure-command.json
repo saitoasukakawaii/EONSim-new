@@ -1,0 +1,13 @@
+[
+  "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/analysis-venv/lib/python3.14/site-packages/cmake/data/bin/cmake",
+  "-S",
+  "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/svfsi-kinematic-increment-source/Code",
+  "-B",
+  "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/svfsi-kinematic-increment-build",
+  "-DCMAKE_BUILD_TYPE=Release",
+  "-DCMAKE_Fortran_COMPILER=/opt/homebrew/bin/gfortran",
+  "-DCMAKE_Fortran_FLAGS=-fallow-argument-mismatch",
+  "-DSV_USE_TRILINOS=ON",
+  "-DTrilinos_DIR=/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/trilinos-install/lib/cmake/Trilinos",
+  "-DSV_USE_SYSTEM_ZLIB=ON"
+]

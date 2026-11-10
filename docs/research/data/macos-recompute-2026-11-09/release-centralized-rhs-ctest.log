@@ -1,0 +1,94 @@
+Start testing: Nov 09 11:15 CST
+----------------------------------------------------------
+2/85 Testing: lu_reuse_mpi2
+2/85 Test: lu_reuse_mpi2
+Command: "/opt/homebrew/bin/mpiexec" "-n" "2" "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/macos-release/verify_lu_reuse"
+Directory: /Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/macos-release
+"lu_reuse_mpi2" start time: Nov 09 11:15 CST
+Output:
+----------------------------------------------------------
+factor_count coo=0 phase=0 numeric=1
+factor_count coo=0 phase=1 numeric=0
+factor_count coo=0 phase=2 numeric=0
+factor_count coo=0 phase=3 numeric=1
+factor_count coo=1 phase=0 numeric=1
+factor_count coo=1 phase=1 numeric=0
+factor_count coo=1 phase=2 numeric=0
+factor_count coo=1 phase=3 numeric=1
+Current nonlinear operators, independent LU counts, empty owner, COO, invalidation and recovery passed on 2 ranks
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"lu_reuse_mpi2" end time: Nov 09 11:15 CST
+"lu_reuse_mpi2" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/85 Testing: lu_reuse_mpi4
+3/85 Test: lu_reuse_mpi4
+Command: "/opt/homebrew/bin/mpiexec" "-n" "4" "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/macos-release/verify_lu_reuse"
+Directory: /Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/macos-release
+"lu_reuse_mpi4" start time: Nov 09 11:15 CST
+Output:
+----------------------------------------------------------
+factor_count coo=0 phase=0 numeric=1
+factor_count coo=0 phase=1 numeric=0
+factor_count coo=0 phase=2 numeric=0
+factor_count coo=0 phase=3 numeric=1
+factor_count coo=1 phase=0 numeric=1
+factor_count coo=1 phase=1 numeric=0
+factor_count coo=1 phase=2 numeric=0
+factor_count coo=1 phase=3 numeric=1
+Current nonlinear operators, independent LU counts, empty owner, COO, invalidation and recovery passed on 4 ranks
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"lu_reuse_mpi4" end time: Nov 09 11:15 CST
+"lu_reuse_mpi4" time elapsed: 00:00:00
+----------------------------------------------------------
+
+66/85 Testing: fluid_lu_reuse
+66/85 Test: fluid_lu_reuse
+Command: "/opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14" "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/tests/verify_fluid_lu_reuse.py" "--executable" "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/macos-release/eonsim" "--mpiexec" "/opt/homebrew/bin/mpiexec" "--work" "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/macos-release/fluid_lu_reuse"
+Directory: /Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/macos-release
+"fluid_lu_reuse" start time: Nov 09 11:15 CST
+Output:
+----------------------------------------------------------
+[{"ranks": 1, "cached_vs_direct": 1.465082395679662e-14, "direct_vs_serial": 0.0, "restart_vs_uninterrupted": 0.0, "restart_logged_clocks_exact": true, "startup_cached_vs_direct": 5.412337245047638e-16, "actual_variable_step_factorizations": 6, "actual_constant_step_factorizations": 2}, {"ranks": 2, "cached_vs_direct": 1.4649739754624136e-14, "direct_vs_serial": 1.734723475976807e-18, "restart_vs_uninterrupted": 0.0, "restart_logged_clocks_exact": true, "startup_cached_vs_direct": 5.412337245047638e-16, "actual_variable_step_factorizations": 6, "actual_constant_step_factorizations": 2, "extra_coefficient_checks": {"event": {"cached_vs_direct": 2.735713131724049e-16, "actual_factorizations": 4}, "alpha": {"cached_vs_direct": 1.7550522667109103e-16, "actual_factorizations": 2}}}, {"ranks": 4, "cached_vs_direct": 1.4649306073755142e-14, "direct_vs_serial": 5.204170427930421e-18, "restart_vs_uninterrupted": 1.734723475976807e-18, "restart_logged_clocks_exact": true, "startup_cached_vs_direct": 5.401224172779662e-16, "actual_variable_step_factorizations": 6, "actual_constant_step_factorizations": 2}]
+<end of output>
+Test time =   3.94 sec
+----------------------------------------------------------
+Test Passed.
+"fluid_lu_reuse" end time: Nov 09 11:15 CST
+"fluid_lu_reuse" time elapsed: 00:00:03
+----------------------------------------------------------
+
+67/85 Testing: fsi_lu_reuse
+67/85 Test: fsi_lu_reuse
+Command: "/opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14" "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/tests/verify_fsi_lu_reuse.py" "--executable" "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/macos-release/eonsim" "--mpiexec" "/opt/homebrew/bin/mpiexec" "--work" "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/macos-release/fsi_lu_reuse"
+Directory: /Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/macos-release
+"fsi_lu_reuse" start time: Nov 09 11:15 CST
+Output:
+----------------------------------------------------------
+[{"ranks": 1, "cached_vs_direct": 1.1032841307212493e-15, "direct_vs_serial": 0.0, "actual_factors": 2, "restart_vs_cached": 1.7208456881689926e-15}, {"ranks": 2, "cached_vs_direct": 1.1102230246251565e-15, "direct_vs_serial": 3.469446951953614e-17, "actual_factors": 2, "restart_vs_cached": 1.7277845820728999e-15, "extra_checks": {"window4": {"cached_vs_direct": 1.8388068845354155e-15, "actual_factors": 4}, "event": {"cached_vs_direct": 1.1102230246251565e-15, "actual_factors": 4}, "variable": {"cached_vs_direct": 9.735268147181841e-15, "actual_factors": 4}}}, {"ranks": 4, "cached_vs_direct": 1.1032841307212493e-15, "direct_vs_serial": 2.7755575615628914e-17, "actual_factors": 2, "restart_vs_cached": 1.7277845820728999e-15}]
+<end of output>
+Test time =   4.26 sec
+----------------------------------------------------------
+Test Passed.
+"fsi_lu_reuse" end time: Nov 09 11:16 CST
+"fsi_lu_reuse" time elapsed: 00:00:04
+----------------------------------------------------------
+
+End testing: Nov 09 11:16 CST
+
+core =  33.60 sec*proc
+
+mpi-failure =   0.79 sec*proc
+
+rank-1 =  32.81 sec*proc
+
+rank-2 =  33.06 sec*proc
+
+rank-4 =  33.34 sec*proc
+

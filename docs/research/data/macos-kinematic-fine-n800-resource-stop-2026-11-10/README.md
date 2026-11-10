@@ -1,0 +1,3 @@
+# Adopted fine N800 reference resource stop
+
+Base 927d582. Session 38893 exited 1 with Resource limit; no completion receipt. Peak RSS 296140800 bytes and elapsed 55708.502 seconds exclude memory and 86400-second timeout; disk-floor trigger is inferred from the controller condition, not a captured instantaneous disk reading. Frozen original log retained. Actual frozen convergence auditor with --last-step 25534 passed all 51068 final equation rows, maximum 3 iterations, FS ratio 3.5e-11 and MS 9.9e-11; partial step 25535 is explicitly excluded. Native checkpoint parser verified last checkpoint step 25500 and SHA in summary. Native continuation and full physical audit remain pending. Original failure must not be overwritten or reported as completion.

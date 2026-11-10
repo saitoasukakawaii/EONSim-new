@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/analyze-reference-backend.py", line 26, in <module>
+    records=[native_checkpoint(actual(folder,'stFile',step)) for folder in folders]
+                               ~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/analyze-reference-backend.py", line 11, in actual
+    matches=[p for p in folder.glob(kind+'_*') if int(p.stem.rsplit('_',1)[1])==step]
+                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'last'

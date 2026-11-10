@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/macos-release/eonsim",
+    "-case",
+    "case.json",
+    "-checkpoint",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-geometry48-probe/checkpoint",
+    "-stop_after",
+    "8",
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32"
+  ],
+  "source_preparation_sha256": "36febc480091aa1daaa5b0e61b61f796f354e6a9af2ce1f9fb4936a7dc113a1b",
+  "binary_sha256": "04a7aa5b0b6d22e408efc6cace75d4b11a483a595ecfd222c8f4fe8d49282873",
+  "inputs": {
+    "case.json": "d4835262453dbeb7bc7282d8ffd12eddc3834c3e9712cab0be60f2098e8babc8",
+    "fluid.msh": "08fe65c8e567044612ab14da418de50523781a5100ea1b5d61241a1a92b3ce34",
+    "solid.msh": "f38057d0e01aef04b9b25a6fa52c2d9dec3f33bdde69771fa5c553356378e215",
+    "geometry.json": "7840542e262a77ec90d11e8d80a76bbe39f144d430770ee5526460fe3e6da5f2"
+  },
+  "scope": "Eight-step fresh input/solver smoke only; no periodic or geometry-response qualification"
+}

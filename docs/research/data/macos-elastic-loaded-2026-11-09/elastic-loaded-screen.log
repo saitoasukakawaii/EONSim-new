@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/review-loaded-elastic.py", line 70, in <module>
+    left=dict(series(w/'direct-first'/('solution'+suffix+'.pvd')))
+              ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/scripts/fsi_field_cycles.py", line 57, in series
+    return [(float(p.attrib['timestep']),path.parent/p.attrib['file']) for p in ET.parse(path).findall('.//DataSet')]
+                                                                                ~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/xml/etree/ElementTree.py", line 1227, in parse
+    tree.parse(source, parser)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/xml/etree/ElementTree.py", line 570, in parse
+    source = open(source, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/elastic-loaded-screen/direct-first/solution.pvd'

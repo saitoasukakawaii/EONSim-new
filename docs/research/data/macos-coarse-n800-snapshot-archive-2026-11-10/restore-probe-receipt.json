@@ -1,0 +1,24 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/coarse-n800-snapshot-restore-probe",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l0-n800-snapshot-chunks/0000.tar.zst",
+  "archive_sha256": "e885af02a8c0f72ca8a8ecce546113052e777b2f28ac8a95240183dd87c0622d",
+  "archive_bytes": 16119583,
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/coarse-n800-raw-before-archive.json",
+  "source_manifest_sha256": "57d33b0d1fbe0672c5a2a78ffafa0399d27511982237eb5398f2382befb09652",
+  "selected": {
+    "dense/solution_restart23200_step23201.vtu": {
+      "bytes": 363587,
+      "sha256": "a6302cb4b1c988437e621625f38e7f59ff9c5f6d88c53df9fd0f75b10f7cd0ad",
+      "allocated_bytes": 172032
+    },
+    "dense/solution_restart23200_step23201_boundary.vtu": {
+      "bytes": 284095,
+      "sha256": "90c97fdb1dceea77a2c5a66fbccbf19c179334c1067bc3bcc8102ded8b826fc3",
+      "allocated_bytes": 147456
+    }
+  },
+  "status": "evicted",
+  "scope": "Terminal coarse N800 step snapshots only; PVD/logs/checkpoints retained. MUST restore all snapshot receipts before any repeated original N800 budget, matched coarse field comparison, physical replay or full raw inventory replay. Complete original byte manifest remains authoritative; no numerical task waived.",
+  "removed_allocated_bytes": 65167360,
+  "finished_unix": 1794248073.808608
+}

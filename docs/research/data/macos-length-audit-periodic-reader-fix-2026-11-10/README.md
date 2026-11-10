@@ -1,0 +1,9 @@
+# Physical periodic audit archived-reader correction
+
+Base12cc332.14672 full audit terminatedexit1 at audit_pressure_tube.py:381 while reading previous[phase]. Wrapper used one dense cursor, but original analyzer first reads current24001 then re-reads prior23201. Materializer correctly rejected repeated archived frame. Failed report absent; failure log, old wrapper and sidecar preserved.1604 restored members (2 early+1602 dense) all created paths absent after failure. Not a physical gate failure; no success claim.
+
+Fix keeps original analyzer SHA unchanged and separates initial early, current dense, and periodic previous dense streams. Per-path occurrence routes second dense access to dense-repeat; unexpected additional multiplicity rejected. No norm, sample, prior-period or gate dropped. Capture now requires4702 unique archived body files and7902 actual restorations:3200 prior-period rereads additional, exact per-path multiplicity checked. Earlier one/two/three-phase tests never exercised repeated periodic access and did not validate this path.
+
+48242 actual integration testexit0: sequence23200,23201,23202,24001,23201,24002,23202,24801,24001,24802,24002 in both domains exactly matches pre-restored original reader.22 restorations (2 early,12 current,8 repeat) and cleanup passed, including verification of failed-run cleanup. Command: analysis-venv Python test-length-periodic-restored-reader.py with OMP/OPENBLAS/VECLIB1. This is targeted repeated-read integration, not full audit.
+
+44871 complete original2400-phase audit restarted with same case/work/first-step23201 and all three receipt directories; pending. Old failure retained; solver not rerun. Full capture and physical acceptance still required. Current global catalog remains pending during temporary restorations and fine archive re-encoding.

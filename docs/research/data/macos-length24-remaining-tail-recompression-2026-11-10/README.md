@@ -1,0 +1,7 @@
+# Remaining length24 tail archives: lossless re-encoding started
+
+Base1dfae63. Reused the prior verified transaction and scoped catalog implementation, changing only explicit collection/output names and expected counts. AST checks passed. Actual preflight commands `build/analysis-venv/bin/python build/recompute-20261109/review-length24-boundary-tail-recompression-catalog.py` and `build/analysis-venv/bin/python build/recompute-20261109/review-length24-late-output-tail-recompression-catalog.py` exited0:37 archives/1454 members and33 archives/1142 members. Every expected member SHA and length matches the completed length24 raw manifest; archived original paths are absent. No running length24 solver or reader uses these collections.
+
+Launched the corresponding `recompress-length24-*-volumes.py` drivers with stdout/stderr in matching `.log` files. Handles83227 and51638 respectively. Each transaction checks old compressed SHA, decodes old/new tar streams fully and compares SHA, publishes new archive/receipt, then removes old backup only after scoped catalog success. Original20GiB reserve plus archive scratch checks retained; single compression thread each. Existing boundary prefix47974 operates on a disjoint collection. Full independent member decode and global archive catalog refresh remain pending; no savings/completion claim yet.
+
+Reference independent budget69359 and Womersley6194 were polled live; tau60952 was already terminal in the previous evidence. Numerical failure gates unchanged; no push/PR. Reuses existing method, no new algorithm article.

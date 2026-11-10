@@ -1,0 +1,79 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-length24",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-length24-volume-through24584-chunks/0097.tar.zst",
+  "archive_sha256": "8d9103cf8fdeff133b1d6f3ba249959657c83195275b42fffc6be7d1e59cba9a",
+  "archive_bytes": 15931674,
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/length24-volumes-through24584-before-archive.json",
+  "source_manifest_sha256": "77af2bdbc2ff62d93cb55c4d8a3b5d893b4968da38c25c4b1b1361cf02e2e0fe",
+  "selected": {
+    "early/solution_step5600_solid.vtu": {
+      "bytes": 3488964,
+      "sha256": "a5169f06c9cb89d745cdd0782eb338431e9cbe21e99e04c2b1a453f9df2097e7",
+      "allocated_bytes": 1445888
+    },
+    "early/solution_step6400.vtu": {
+      "bytes": 5613512,
+      "sha256": "e8dbd4931fb15325057d9badf6c95d15cb8c1bc701776b3c0e81abdda7b9ca86",
+      "allocated_bytes": 2486272
+    },
+    "early/solution_step6400_solid.vtu": {
+      "bytes": 3488846,
+      "sha256": "dc891d0383a9e85d451c6f048b7a0f021481454e4cf8aa263664e79952ae593a",
+      "allocated_bytes": 1445888
+    },
+    "early/solution_step7200.vtu": {
+      "bytes": 5612078,
+      "sha256": "0cb50dbb808d4eb9ba8b8aa6a0fdd630c356ae76b153edcd1419abd00fae8093",
+      "allocated_bytes": 2490368
+    },
+    "early/solution_step7200_solid.vtu": {
+      "bytes": 3488739,
+      "sha256": "475fe6e2ec8672d33573d0834fa21cd2af51509e5691b0b690131693abcd5d88",
+      "allocated_bytes": 1449984
+    },
+    "early/solution_step800.vtu": {
+      "bytes": 5622504,
+      "sha256": "6746c325a2bdfeea6e076edb2b70a29178daf7b59b5854ba4d0f32c0fbbabd6c",
+      "allocated_bytes": 2449408
+    },
+    "early/solution_step8000.vtu": {
+      "bytes": 5604516,
+      "sha256": "e7fc4d5824b587e9bae8f520b4427ea0ea1b858cd6445f5e9a685a89a60dc928",
+      "allocated_bytes": 3473408
+    },
+    "early/solution_step8000_solid.vtu": {
+      "bytes": 3488358,
+      "sha256": "0a67bfca027813f6b004825c4e2644217bea371da77372de12b6480c467cd113",
+      "allocated_bytes": 1449984
+    },
+    "early/solution_step800_solid.vtu": {
+      "bytes": 3489307,
+      "sha256": "c857c2aa5cfc9799d94b02556af37fa72d4d33abc152b8a84a982ba34672f24b",
+      "allocated_bytes": 1413120
+    },
+    "early/solution_step8800.vtu": {
+      "bytes": 5604011,
+      "sha256": "59db9b4b87af6bdd7f0591816b5c345d73600d7ec7eed8de70e6c3e3916bc269",
+      "allocated_bytes": 2904064
+    },
+    "early/solution_step8800_solid.vtu": {
+      "bytes": 3488035,
+      "sha256": "75c56a2dfdfeb8136c6506d4eb4184e978f9dff1e283bd9619363457f94d44c3",
+      "allocated_bytes": 1449984
+    },
+    "early/solution_step9600.vtu": {
+      "bytes": 5603928,
+      "sha256": "9c69ab5c4e638f9e5de2f09ea791ff31aa1ba0bb24a3a9d2f10ee6dbae3fe450",
+      "allocated_bytes": 2588672
+    },
+    "early/solution_step9600_solid.vtu": {
+      "bytes": 3487955,
+      "sha256": "c19d0230bfdccc1ea93b84e41b37e9189f43edd6ad3b0d68142cebc66443b9ba",
+      "allocated_bytes": 1454080
+    }
+  },
+  "status": "evicted",
+  "scope": "Immutable length24 body prefix through24584; current checkpoint and later fields retained. Full physical audit must restore every required archived frame with audit-pressure-streaming.py or full restoration; no phases or gates waived.",
+  "removed_allocated_bytes": 26501120,
+  "finished_unix": 1794253064.274668
+}

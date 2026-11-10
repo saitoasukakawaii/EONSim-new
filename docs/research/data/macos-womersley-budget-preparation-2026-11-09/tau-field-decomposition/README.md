@@ -1,0 +1,5 @@
+# Tau-time vector-field decomposition preparation
+
+Baseline7c3191d. Runtime analyzer requires complete six-cycle N400 default, N800 fixed N400 tau-time, N800 default studies on identical meshes with identical solver/physical definitions, plus actual full periodic and conservation audits. It computes cycle6 common400-phase differences directly: t=u_control-u_target, q=u_fine-u_control, total=u_fine-u_target. Exact P1 inner products give squared norms and cross term; both vector and energy closure are recorded. Other tau terms remain dynamic; this path decomposition is not a pure continuum time-error estimate or a substitute for the independent10% budget.
+
+Executed `build/analysis-venv/bin/python build/recompute-20261109/test-womersley-tau-decomposition.py`: constant P1 integral and exact cancellation checks pass; mismatched intervention and incomplete six-cycle receipts are rejected. Synthetic full receipts in the validation test do not assert completion of actual studies. Formal decomposition NOT RUN; N800 data still active. No scientific acceptance limit changed.

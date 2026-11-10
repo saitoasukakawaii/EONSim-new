@@ -1,0 +1,11 @@
+# Alpha1 default N400 independent budget: pass
+
+Numerical source binary04a7aa5b, capture baseline1f917c6; audit session33504 exited0. Complete six-cycle default-tau family: coarseS96L0N400, targetS96L1N400, time-controlS96L1N800. Every original target and time-control analytic/periodic gate passes; coarse mass/periodic prerequisites pass while its original Qamplitude failure remains preserved. The coarse solution is used for the refinement difference, not declared accurate.
+
+Exact P1 field differences on the nested fixed polygon, cycle6, without subtracting scalar analytic error norms. Velocity space relativeRMS0.004008226551; time/space1.327191825%, sampling/space2.171853353%, tail/space1.7567e-11%. Pressure space relativeRMS0.012665255028; time/space1.829261838%, sampling/space0.688777811%, tail/space1.8607e-11%. Each independent term meets the original strict10% of spatial difference criterion.
+
+Sampling uses actual every-other target states with the real cycle5 endpoint, not a synthetic sinusoid. Tail compares cycles5/6. All consumed states, input analyses and helper sources are SHA bound in budget.json. Current analysis/source hashes and ratio arithmetic independently checked at capture. No solver, tau or tolerance changed.
+
+Actual command: `OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 build/analysis-venv/bin/python build/recompute-20261109/audit-womersley-budget.py --coarse build/recompute-20261109/alpha1-s96-l0-n400 --target build/recompute-20261109/alpha1-s96-l1-n400 --time-fine build/recompute-20261109/alpha1-s96-l1-n800 --coarse-analysis build/recompute-20261109/alpha1-s96-l0-n400-analysis.json --target-analysis build/recompute-20261109/alpha1-s96-l1-n400-analysis.json --time-analysis build/recompute-20261109/alpha1-s96-l1-n800-analysis.json --output build/recompute-20261109/alpha1-n400-budget.json`.
+
+This qualifies only this target's numerical budget. Tau-time path decomposition, alpha2, geometry/elastic/reference and the rest of production acceptance remain incomplete. N800 time control is not independently spatially qualified. Future replay of earlier-cycle consumers must restore any explicitly archived materializations; full raw bytes remain preserved.

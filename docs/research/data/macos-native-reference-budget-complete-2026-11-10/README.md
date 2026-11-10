@@ -1,0 +1,7 @@
+# Adopted reference N800 independent budget: all original gates passed
+
+Base928bfcf. Process69359 actually exited0. Actual single-thread local command is recorded in ../macos-native-reference-budget-start-2026-11-10/README.md. Preserved N800 kernel and comparison implementation unchanged; current source/wrapper hashes still match execution definition. Three studies meet existing periodicity/positive-geometry/quality/relative-convergence prerequisites. All15 original10% tests pass:5fields × time/tail/sampling.
+
+Time/space ratios: fluid velocity0.010241668577530451 (1.02416686%), pressure0.046541659500742565 (4.65416595%), ALE displacement0.0025571648640501593 (0.25571649%), solid displacement0.00270254812946243 (0.27025481%), solid velocity0.008941513272835237 (0.89415133%). All periodic-tail and sampling ratios below0.1. Space uses800 shared phases; time400; tail800; sampling reconstructs400 stored phases onto actual800 with real cycle31 endpoint. Full reports retain all input hashes and prerequisites. Every recorded ratio recomputed from its numerator/denominator, all limits retained, gzip report readback exact.
+
+This is the adopted svFSI reference budget, not EONSim time-budget qualification. Coarse Lamé failure and existing EON time-budget failures are not superseded. Native N800 full cross-solver nodal comparison86636 still pending, as are tau recovery/decomposition, Womersley completion, length periodicity and locked Linux environment. No push/PR. Reuses original numerical method; no new algorithm article.

@@ -1,0 +1,9 @@
+[  2%] Built target _simvascular_thirdparty_tetgen
+[ 14%] Built target _simvascular_svfsils
+[ 42%] Built target _simvascular_thirdparty_metis_svfsi
+[ 66%] Built target _simvascular_thirdparty_parmetis_svfsi
+[ 67%] Building Fortran object Source/svFSI/CMakeFiles/svFSI.dir/MESH.f.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 68%] Linking CXX executable ../../bin/svFSI
+ld: warning: ignoring duplicate libraries: '../../lib/lib_simvascular_thirdparty_metis_svfsi.a'
+[100%] Built target svFSI

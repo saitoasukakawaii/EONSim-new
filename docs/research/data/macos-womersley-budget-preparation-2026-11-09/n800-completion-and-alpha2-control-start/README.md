@@ -1,0 +1,7 @@
+# Alpha1 N800 numerical completion and alpha2 tau control start
+
+Baseline5c5fcfb. Alpha1 default S96L1N800 session57815 exited0 after11033.52s, peak groupRSS3879534592B. All4800 accepted steps from zero were checked contiguous in six original successful logs. Full analytic/periodic audit41073 is running with original `scripts/analyze_womersley.py --work build/recompute-20261109/alpha1-s96-l1-n800 --quadrature4 --output ...-analysis.json` (actual CLI has separate --quadrature 4 arguments). No scientific pass is asserted yet. Independent N400 time-budget still requires this report.
+
+Alpha2 tau-time control41770 started via `build/analysis-venv/bin/python build/recompute-20261109/run-womersley-tau-control.py --alpha 2 --n 800`, after alpha1 default numerical completion freed a production slot. It uses the existing validated executable/options, full six cycles from zero, N800 time integration and tau time term fixed to the N400 effective BDF2 scale. Full tau is NOT fixed: velocity/geometry terms evolve. FirstBE startup also uses the explicit scale, so full warmup/periodicity checks remain required. This diagnostic cannot substitute for default-tau qualification.
+
+Capture entry is prepared for completed N800 studies and deliberately retains failed analytic gates; it does not assert scientific pass just because numerical execution succeeded. Complete raw-manifest capture is pending the analytic report. No solver source or tolerance changed.

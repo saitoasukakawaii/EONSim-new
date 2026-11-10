@@ -1,0 +1,39 @@
+{
+  "source_commit": "c3215a2487bd61e11264eef797eeeffc01a6c907",
+  "binary_sha256": "47ed3b523bdfd68105cbf50fb2e626da73943c52765e1f7003a15edf6a2bfa06",
+  "source_definition_sha256": "dd9c65f9b836c635304a3c38db64d3f1aca3cdb467163511180e0cf55567d16f",
+  "inputs": {
+    "case.json": "b21d73801b7c7d4ccf80385e89bf99890c49201b560789e817c699ac68e7aef1",
+    "fluid.msh": "5e5ac5f5a55b30719057aeef359332d9a5d4dbf2aa333c8646429aab8292b907",
+    "solid.msh": "261a05077455d92780edbbba5df520d995b5502a5eb5549f24721299b7405a85",
+    "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e"
+  },
+  "tau_time_scale": 0.008377580409572784,
+  "formula": "fluid alpha_f*gamma/alpha_m * (2*pi/400) = (8/15)*(2*pi/400)",
+  "startup_scope": "Same fixed scale also applies during initial BE step; not claiming exact matching of N400 startup tau.",
+  "command": [
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/macos-fsi-tau-diagnostic/eonsim",
+    "-case",
+    "case.json",
+    "-stop_after",
+    "8",
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32"
+  ],
+  "probe_steps": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "probe_exit_code": 0,
+  "probe_log_sha256": "e9bd1364ba281ea07d6d6990421505368bf74c78b94f0bb5dc5c4a11db4c1312"
+}

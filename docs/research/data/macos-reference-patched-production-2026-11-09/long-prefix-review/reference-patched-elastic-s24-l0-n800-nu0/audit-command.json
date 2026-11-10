@@ -1,0 +1,17 @@
+{
+  "command": [
+    "python3",
+    "build/recompute-20261109/reference-patched-elastic-s24-l0-n800-nu0/audit-sources/audit_svfsi_convergence.py",
+    "--work",
+    "build/recompute-20261109/reference-patched-elastic-s24-l0-n800-nu0",
+    "--log",
+    "build/recompute-20261109/reference-patched-elastic-s24-l0-n800-nu0/prefix-4917/frozen.log",
+    "--last-step",
+    "4917",
+    "--output",
+    "build/recompute-20261109/reference-patched-elastic-s24-l0-n800-nu0/prefix-4917/convergence.json"
+  ],
+  "exit_code": 1,
+  "stdout": "{\"svfsi_commit\": \"7bdb74cdd517310d6bf32c0bb7d42072aeac8658\", \"reference_build\": {\"kind\": \"patched-fixed-reference\", \"base_commit\": \"7bdb74cdd517310d6bf32c0bb7d42072aeac8658\", \"binary\": {\"path\": \"svFSI\", \"sha256\": \"f249a3febc94ad0de49971e5bf488d08fd8b9cfc8b4fc4a4d4e09b42e2047224\"}, \"patch\": {\"path\": \"source.patch\", \"sha256\": \"e5191d7ef1f70ea1b71fc7b8c8e1fc6df8dc696696b0035fb6da5d0208f8ab10\"}}, \"steps\": 4917, \"declared_steps\": 25600, \"first_step\": 1, \"last_step\": 4917, \"restart\": null, \"excluded_tail\": {\"final_equation_rows\": 2, \"last_observed_step\": 4918, \"iteration_rows\": 26, \"scope\": \"Explicitly excluded tail; its completeness and convergence are not asserted\"}, \"equations\": {\"FS\": {\"tolerance\": 1e-10, \"maximum_iterations\": 30, \"minimum_iterations\": 1}, \"MS\": {\"tolerance\": 1e-10, \"maximum_iterations\": 30, \"minimum_iterations\": 1}}, \"iteration_rows\": 73416, \"final_equation_rows\": 9834, \"iteration_limit_rows\": 1620, \"maximum_iterations\": {\"FS\": 30, \"MS\": 30}, \"maximum_final_relative_ratio\": {\"FS\": 2.5e-11, \"MS\": 1.6e-10}, \"passed\": false, \"input_manifest_sha256\": \"6788ac3df386215db0f3d8d399fc899671f470f254818492cde4bd2e33738661\", \"log_sha256\": \"8acac1589d54616e7be503042588072c51b6b7553e4fa4a81b89b2349e5bb450\", \"analysis_source_sha256\": \"6abbbe72fb604763818aa20e6f7216a9960d5a081e666189858db9c16d8daa92\", \"scope\": \"Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven\"}\n",
+  "stderr": "Reference convergence is not established for every equation/step\n"
+}

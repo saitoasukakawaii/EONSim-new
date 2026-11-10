@@ -1,0 +1,36 @@
+{
+  "steps": 25600,
+  "audited_first": 23201,
+  "audited_last": 25600,
+  "periodic": false,
+  "maximum_cycle_relative_difference": 1.0880790653213303e-05,
+  "quality_gates": {
+    "kinematics": {
+      "maximum": 5.421010862427522e-20,
+      "limit": 1e-12,
+      "passed": true
+    },
+    "stage_mass": {
+      "maximum": 1.6046192152785466e-17,
+      "limit": 1e-09,
+      "passed": true
+    },
+    "stage_divergence_theorem": {
+      "maximum": 1.2752119071221669e-17,
+      "limit": 1e-12,
+      "passed": true
+    }
+  },
+  "minimum_solid_jacobian": 0.9999807231980814,
+  "minimum_fluid_jacobian": 1.0000024861287005,
+  "lame": {
+    "mean": 0.00010703153440108523,
+    "expected": 0.00010872727272727274,
+    "relative_error": 0.0155962555084135,
+    "limit": 0.02,
+    "passed": true
+  },
+  "audit_sha256": "0300809c6036dc6f35b28c2c22f654d57a85d2acefba8f0620aa8d50b2f5339d",
+  "qualification": "Physical checks only; independent numerical budgets, geometry/end controls and matched reference still required. Any failed gate remains failed.",
+  "all_local_physical_checks_passed": false
+}

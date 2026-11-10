@@ -1,0 +1,21 @@
+{
+  "error": "AssertionError(('gmres-ilut', -15))",
+  "completed": {
+    "cg-fsils": {
+      "convergence_passed": false,
+      "seconds": 1696.125990333967,
+      "peak_rss_bytes": 300318720,
+      "exit_code": 0,
+      "start": 400,
+      "stop": 540
+    },
+    "gmres-fsils": {
+      "start": 400,
+      "stop": 518,
+      "convergence_passed": false,
+      "scientific_stop": true,
+      "intended_stop": 540,
+      "scope": "Only frozen completed prefix included; later partial tail excluded"
+    }
+  }
+}

@@ -1,0 +1,291 @@
+
+Configuring Trilinos build directory
+
+-- PROJECT_SOURCE_DIR='/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/trilinos-source'
+-- PROJECT_BINARY_DIR='/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/trilinos-build'
+-- Trilinos_TRIBITS_DIR='/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/trilinos-source/cmake/tribits'
+-- TriBITS_VERSION_STRING='0.9 (Dev)'
+-- CMAKE_VERSION='3.31.10'
+-- CMAKE_GENERATOR='Unix Makefiles'
+-- CMAKE_HOST_SYSTEM_NAME='Darwin'
+-- Trilinos_HOSTNAME='chendeMacBook-Pro.local'
+CMake Warning (dev) at cmake/tribits/core/package_arch/TribitsFindPythonInterp.cmake:64 (find_package):
+  Policy CMP0148 is not set: The FindPythonInterp and FindPythonLibs modules
+  are removed.  Run "cmake --help-policy CMP0148" for policy details.  Use
+  the cmake_policy command to set the policy and suppress this warning.
+
+Call Stack (most recent call first):
+  cmake/tribits/core/package_arch/TribitsFindPythonInterp.cmake:80 (tribits_find_python)
+  cmake/tribits/core/package_arch/TribitsProjectImpl.cmake:102 (tribits_find_python_interp)
+  cmake/tribits/core/package_arch/TribitsProject.cmake:93 (tribits_project_impl)
+  CMakeLists.txt:109 (TRIBITS_PROJECT)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Could NOT find PythonInterp (missing: PYTHON_EXECUTABLE) (Required is at least version "2.6")
+-- PYTHON_EXECUTABLE='PYTHON_EXECUTABLE-NOTFOUND'
+-- Found Git: /usr/bin/git (found version "2.50.1 (Apple Git-155)")
+
+Setting up major user options ...
+
+-- Setting Trilinos_ENABLE_TriKota=OFF because '/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/trilinos-source/packages/TriKota/Dakota' does not exist!
+
+Trilinos repos versions:
+--------------------------------------------------------------------------------
+*** Base Git Repo: Trilinos
+4a5f7906 [Fri Oct 29 14:03:17 2021 -0600] <trilinos@sandia.gov>
+Merge Pull Request #9843 from jwillenbring/Trilinos/ifpackHyprexSDKdepr
+ --------------------------------------------------------------------------------
+
+
+Reading list of native TPLs from /Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/trilinos-source/TPLsList.cmake
+
+-- Trilinos_NUM_TPLS='116'
+
+Reading list of native packages from /Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/trilinos-source/PackagesList.cmake
+
+-- Trilinos_NUM_PACKAGES='64'
+
+Processing Project, Repository, and Package dependency files and building internal dependencies graph ...
+
+-- Trilinos_NUM_SE_PACKAGES='160'
+-- Tentatively enabling TPL 'DLlib'
+
+Explicitly enabled packages on input (by user):  AztecOO Ifpack ML 3
+
+Explicitly enabled SE packages on input (by user):  AztecOO Ifpack ML 3
+
+Explicitly disabled packages on input (by user or by default):  TriKota NewPackage 2
+
+Explicitly disabled SE packages on input (by user or by default):  ShyLU_NodeBasker ShyLU_NodeFastILU SEACASExotec2 SEACASSlice TriKota ShyLU_DDCore PanzerExprEval NewPackage 8
+
+Explicitly enabled TPLs on input (by user):  MPI DLlib 2
+
+Explicitly disabled TPLs on input (by user or by default):  HWLOC 1
+
+Disabling all packages that have a required dependency on disabled TPLs and optional package TPL support based on TPL_ENABLE_<TPL>=OFF ...
+
+
+Disabling subpackages for hard disables of parent packages due to Trilinos_ENABLE_<PARENT_PACKAGE>=OFF ...
+
+
+Disabling forward required SE packages and optional intra-package support that have a dependency on disabled SE packages Trilinos_ENABLE_<TRIBITS_PACKAGE>=OFF ...
+
+
+Enabling subpackages for hard enables of parent packages due to Trilinos_ENABLE_<PARENT_PACKAGE>=ON ...
+
+
+Enabling all required upstream SE packages for current set of enabled packages (Trilinos_ENABLE_SECONDARY_TESTED_CODE=ON) ...
+
+-- Setting Trilinos_ENABLE_Teuchos=ON because Ifpack has a required dependence on Teuchos
+-- Setting Trilinos_ENABLE_Epetra=ON because Ifpack has a required dependence on Epetra
+-- Setting Trilinos_ENABLE_Triutils=ON because AztecOO has a required dependence on Triutils
+-- Setting Trilinos_ENABLE_TeuchosCore=ON because Triutils has a required dependence on TeuchosCore
+-- Setting Trilinos_ENABLE_TeuchosParser=ON because Teuchos has a required dependence on TeuchosParser
+-- Setting Trilinos_ENABLE_TeuchosParameterList=ON because Teuchos has a required dependence on TeuchosParameterList
+-- Setting Trilinos_ENABLE_TeuchosComm=ON because Teuchos has a required dependence on TeuchosComm
+-- Setting Trilinos_ENABLE_TeuchosNumerics=ON because Teuchos has a required dependence on TeuchosNumerics
+-- Setting Trilinos_ENABLE_TeuchosRemainder=ON because Teuchos has a required dependence on TeuchosRemainder
+
+Enabling all optional intra-package enables <TRIBITS_PACKAGE>_ENABLE_<DEPPACKAGE> that are not currently disabled if both sets of packages are enabled ...
+
+-- NOT setting TeuchosCore_ENABLE_KokkosCore=ON since KokkosCore is NOT enabled at this point!
+-- NOT setting Teuchos_ENABLE_TeuchosKokkosCompat=ON since TeuchosKokkosCompat is NOT enabled at this point!
+-- NOT setting Teuchos_ENABLE_TeuchosKokkosComm=ON since TeuchosKokkosComm is NOT enabled at this point!
+-- Setting Epetra_ENABLE_Teuchos=ON since Trilinos_ENABLE_Epetra=ON AND Trilinos_ENABLE_Teuchos=ON
+-- Setting Triutils_ENABLE_Epetra=ON since Trilinos_ENABLE_Triutils=ON AND Trilinos_ENABLE_Epetra=ON
+-- Setting AztecOO_ENABLE_Teuchos=ON since Trilinos_ENABLE_AztecOO=ON AND Trilinos_ENABLE_Teuchos=ON
+-- NOT setting Ifpack_ENABLE_Amesos=ON since Amesos is NOT enabled at this point!
+-- NOT setting Ifpack_ENABLE_EpetraExt=ON since EpetraExt is NOT enabled at this point!
+-- Setting Ifpack_ENABLE_AztecOO=ON since Trilinos_ENABLE_Ifpack=ON AND Trilinos_ENABLE_AztecOO=ON
+-- NOT setting Ifpack_ENABLE_Galeri=ON since Galeri is NOT enabled at this point!
+-- Setting ML_ENABLE_Teuchos=ON since Trilinos_ENABLE_ML=ON AND Trilinos_ENABLE_Teuchos=ON
+-- Setting ML_ENABLE_Epetra=ON since Trilinos_ENABLE_ML=ON AND Trilinos_ENABLE_Epetra=ON
+-- NOT setting ML_ENABLE_Zoltan=ON since Zoltan is NOT enabled at this point!
+-- NOT setting ML_ENABLE_Galeri=ON since Galeri is NOT enabled at this point!
+-- NOT setting ML_ENABLE_Amesos=ON since Amesos is NOT enabled at this point!
+-- Setting ML_ENABLE_Ifpack=ON since Trilinos_ENABLE_ML=ON AND Trilinos_ENABLE_Ifpack=ON
+-- Setting ML_ENABLE_AztecOO=ON since Trilinos_ENABLE_ML=ON AND Trilinos_ENABLE_AztecOO=ON
+-- NOT setting ML_ENABLE_EpetraExt=ON since EpetraExt is NOT enabled at this point!
+-- NOT setting ML_ENABLE_Isorropia=ON since Isorropia is NOT enabled at this point!
+
+Enabling all remaining required TPLs for current set of enabled packages ...
+
+-- Setting TPL_ENABLE_BLAS=ON because it is required by the enabled package TeuchosNumerics
+-- Setting TPL_ENABLE_LAPACK=ON because it is required by the enabled package TeuchosNumerics
+
+Enabling all optional package TPL support <TRIBITS_PACKAGE>_ENABLE_<DEPTPL> not currently disabled for enabled TPLs ...
+
+-- Setting TeuchosCore_ENABLE_MPI=ON since TPL_ENABLE_MPI=ON
+-- Setting Epetra_ENABLE_MPI=ON since TPL_ENABLE_MPI=ON
+-- Setting ML_ENABLE_MPI=ON since TPL_ENABLE_MPI=ON
+
+Enabling TPLs based on <TRIBITS_PACKAGE>_ENABLE_<TPL>=ON if TPL is not explicitly disabled ...
+
+
+Set cache entries for optional packages/TPLs and tests/examples for packages actually enabled ...
+
+
+Enabling the shell of non-enabled parent packages (mostly for show) that have at least one subpackage enabled ...
+
+
+Final set of enabled packages:  Teuchos Epetra Triutils AztecOO Ifpack ML 6
+
+Final set of enabled SE packages:  TeuchosCore TeuchosParser TeuchosParameterList TeuchosComm TeuchosNumerics TeuchosRemainder Teuchos Epetra Triutils AztecOO Ifpack ML 12
+
+Final set of non-enabled packages:  TrilinosFrameworkTests TrilinosATDMConfigTests Gtest Kokkos KokkosKernels RTOp Sacado MiniTensor Zoltan Shards EpetraExt Tpetra TrilinosSS Domi Thyra Xpetra Isorropia Pliris Galeri Amesos Pamgen Zoltan2Core Belos ShyLU_Node Amesos2 SEACAS Komplex Anasazi Ifpack2 Stratimikos FEI Teko TriKota Intrepid Intrepid2 Compadre STK Percept Phalanx NOX Moertel MueLu Zoltan2Sphynx Zoltan2 ShyLU_DD ShyLU Rythmos Tempus Stokhos ROL Piro Panzer PyTrilinos NewPackage Adelus TrilinosCouplings Pike TrilinosBuildStats 58
+
+Final set of non-enabled SE packages:  TrilinosFrameworkTests TrilinosATDMConfigTests Gtest KokkosCore KokkosContainers KokkosAlgorithms Kokkos TeuchosKokkosCompat TeuchosKokkosComm KokkosKernels RTOp Sacado MiniTensor Zoltan Shards EpetraExt TpetraClassic TpetraTSQR TpetraCore Tpetra TrilinosSS Domi ThyraCore ThyraEpetraAdapters ThyraEpetraExtAdapters ThyraTpetraAdapters Thyra Xpetra Isorropia Pliris Galeri Amesos Pamgen Zoltan2Core Belos ShyLU_NodeHTS ShyLU_NodeTacho ShyLU_NodeBasker ShyLU_NodeFastILU ShyLU_Node Amesos2 SEACASExodus SEACASExodus_for SEACASExoIIv2for32 SEACASNemesis SEACASIoss SEACASChaco SEACASAprepro_lib SEACASSupes SEACASSuplib SEACASSuplibC SEACASSuplibCpp SEACASSVDI SEACASPLT SEACASAlgebra SEACASAprepro SEACASBlot SEACASConjoin SEACASEjoin SEACASEpu SEACASExo2mat SEACASExodiff SEACASExomatlab SEACASExotxt SEACASExo_format SEACASEx1ex2v2 SEACASExotec2 SEACASFastq SEACASGjoin SEACASGen3D SEACASGenshell SEACASGrepos SEACASExplore SEACASMapvarlib SEACASMapvar SEACASMapvar-kd SEACASMat2exo SEACASNas2exo SEACASZellij SEACASNemslice SEACASNemspread SEACASNumbers SEACASSlice SEACASTxtexo SEACASEx2ex1v2 SEACAS Komplex Anasazi Ifpack2 Stratimikos FEI Teko TriKota Intrepid Intrepid2 Compadre STKUtil STKEmend STKCoupling STKMath STKSimd STKNGP_TEST STKTopology STKMesh STKIO STKSearch STKTransfer STKTools STKBalance STKUnit_test_utils STKSearchUtil STKUnit_tests STKDoc_tests STKExprEval STK Percept Phalanx NOX Moertel MueLu Zoltan2Sphynx Zoltan2 ShyLU_DDBDDC ShyLU_DDFROSch ShyLU_DDCore ShyLU_DDCommon ShyLU_DD ShyLU Rythmos Tempus Stokhos ROL Piro PanzerCore PanzerDofMgr PanzerDiscFE PanzerAdaptersSTK PanzerMiniEM PanzerExprEval Panzer PyTrilinos NewPackage Adelus TrilinosCouplings PikeBlackBox PikeImplicit Pike TrilinosBuildStats 148
+
+Final set of enabled TPLs:  MPI BLAS LAPACK DLlib 4
+
+Final set of non-enabled TPLs:  MKL yaml-cpp Peano CUDA CUBLAS CUSOLVER CUSPARSE Thrust Cusp TBB Pthread HWLOC QTHREAD BinUtils ARPREC QD Boost Scotch OVIS gpcd METIS MTMETIS ParMETIS PuLP TopoManager LibTopoMap PaToH CppUnit ADOLC ADIC TVMET MF ExodusII Nemesis XDMF Zlib HDF5 CGNS Pnetcdf Netcdf ADIOS2 y12m SuperLUDist SuperLUMT SuperLU Cholmod UMFPACK MA28 AMD CSparse HYPRE PETSC BLACS SCALAPACK MUMPS STRUMPACK PARDISO_MKL PARDISO Oski TAUCS ForUQTK Dakota HIPS MATLAB CASK SPARSKIT QT gtest BoostLib BoostAlbLib OpenNURBS Portals CrayPortals Gemini InfiniBand BGPDCMF BGQPAMI Pablo HPCToolkit Clp GLPK qpOASES Matio PAPI MATLABLib Eigen X11 Lemon GLM quadmath CAMAL RTlib AmgX CGAL CGALCore VTune TASMANIAN ArrayFireCPU SimMesh SimModel SimParasolid SimAcis SimField Valgrind QUO ViennaCL Avatar mlpack pebbl MAGMASparse Check SARMA 112
+
+Setting up export dependencies for all enabled SE packages ...
+
+
+Probing the environment ...
+
+-- USE_XSDK_DEFAULTS='FALSE'
+-- BUILD_SHARED_LIBS='ON'
+-- CMAKE_BUILD_TYPE='Release'
+-- MPI_USE_COMPILER_WRAPPERS='ON'
+-- Leaving current CMAKE_C_COMPILER=/opt/homebrew/bin/mpicc since it is already set!
+-- Leaving current CMAKE_CXX_COMPILER=/opt/homebrew/bin/mpicxx since it is already set!
+-- Leaving current CMAKE_Fortran_COMPILER=/opt/homebrew/bin/mpifort since it is already set!
+-- MPI_EXEC='/opt/homebrew/bin/mpiexec'
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/homebrew/bin/mpicc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- CMAKE_C_COMPILER_ID='AppleClang'
+-- CMAKE_C_COMPILER_VERSION='21.0.0.21000101'
+-- The CXX compiler identification is AppleClang 21.0.0.21000101
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /opt/homebrew/bin/mpicxx - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- CMAKE_CXX_COMPILER_ID='AppleClang'
+-- CMAKE_CXX_COMPILER_VERSION='21.0.0.21000101'
+-- The Fortran compiler identification is GNU 16.2.0
+-- Checking whether Fortran compiler has -isysroot
+-- Checking whether Fortran compiler has -isysroot - yes
+-- Checking whether Fortran compiler supports OSX deployment target flag
+-- Checking whether Fortran compiler supports OSX deployment target flag - yes
+-- Detecting Fortran compiler ABI info
+-- Detecting Fortran compiler ABI info - done
+-- Check for working Fortran compiler: /opt/homebrew/bin/mpifort - skipped
+-- Trilinos_SET_INSTALL_RPATH='TRUE'
+-- CMAKE_INSTALL_RPATH_USE_LINK_PATH='TRUE'
+-- Setting default for CMAKE_INSTALL_RPATH pointing to Trilinos_INSTALL_LIB_DIR
+-- Setting default CMAKE_MACOSX_RPATH=TRUE
+-- CMAKE_MACOSX_RPATH='TRUE'
+-- CMAKE_INSTALL_RPATH='/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/trilinos-install/lib'
+-- Looking for C++ include sys/time.h
+-- Looking for C++ include sys/time.h - found
+-- Looking for C++ include time.h
+-- Looking for C++ include time.h - found
+-- Looking for C++ include stdint.h
+-- Looking for C++ include stdint.h - found
+-- Looking for C++ include inttypes.h
+-- Looking for C++ include inttypes.h - found
+-- Found Perl: /usr/bin/perl (found version "5.34.1")
+-- Fortran name mangling: LOWER UNDER
+-- Detecting Fortran/C Interface
+-- Detecting Fortran/C Interface - Found GLOBAL and MODULE mangling
+-- Verifying Fortran/CXX Compiler Compatibility
+-- Verifying Fortran/CXX Compiler Compatibility - Success
+-- Performing Test MATH_LIBRARY_IS_SUPPLIED
+-- Performing Test MATH_LIBRARY_IS_SUPPLIED - Success
+-- Performing Test FINITE_VALUE_HAVE_GLOBAL_ISNAN
+-- Performing Test FINITE_VALUE_HAVE_GLOBAL_ISNAN - Success
+-- Performing Test FINITE_VALUE_HAVE_STD_ISNAN
+-- Performing Test FINITE_VALUE_HAVE_STD_ISNAN - Success
+-- Performing Test FINITE_VALUE_HAVE_GLOBAL_ISINF
+-- Performing Test FINITE_VALUE_HAVE_GLOBAL_ISINF - Success
+-- Performing Test FINITE_VALUE_HAVE_STD_ISINF
+-- Performing Test FINITE_VALUE_HAVE_STD_ISINF - Success
+-- Could NOT find Doxygen (missing: DOXYGEN_EXECUTABLE) 
+
+Getting information for all enabled TPLs ...
+
+Processing enabled TPL: MPI (enabled explicitly, disable with -DTPL_ENABLE_MPI=OFF)
+Processing enabled TPL: BLAS (enabled by TeuchosNumerics, disable with -DTPL_ENABLE_BLAS=OFF)
+-- BLAS_LIBRARY_NAMES='blas blas_win32'
+-- TPL_BLAS_LIBRARIES='/System/Library/Frameworks/Accelerate.framework'
+Processing enabled TPL: LAPACK (enabled by TeuchosNumerics, disable with -DTPL_ENABLE_LAPACK=OFF)
+-- LAPACK_LIBRARY_NAMES='lapack lapack_win32'
+-- TPL_LAPACK_LIBRARIES='/System/Library/Frameworks/Accelerate.framework'
+Processing enabled TPL: DLlib (enabled explicitly, disable with -DTPL_ENABLE_DLlib=OFF)
+-- Attempting to tentatively enable TPL 'DLlib' ...
+-- DLlib_LIBRARY_NAMES='dl'
+-- Searching for libs in DLlib_LIBRARY_DIRS=''
+-- Searching for a lib in the set "dl":
+--   Searching for lib 'dl' ...
+--     Found lib '/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib/libdl.tbd'
+-- TPL_DLlib_LIBRARIES='/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib/libdl.tbd'
+-- Attempt to tentatively enable TPL 'DLlib' passed!
+
+Setting up testing support ...
+
+-- CTEST_DROP_METHOD='http'
+-- CTEST_DROP_SITE='testing.sandia.gov'
+-- CTEST_PROJECT_NAME='Trilinos'
+-- CTEST_DROP_LOCATION='/cdash/submit.php?project=Trilinos'
+-- CTEST_TRIGGER_SITE=''
+-- CTEST_DROP_SITE_CDASH='TRUE'
+-- TRIBITS_2ND_CTEST_DROP_SITE='testing-dev.sandia.gov'
+-- TRIBITS_2ND_CTEST_DROP_LOCATION='/cdash/submit.php?project=Trilinos'
+
+Configuring individual enabled Trilinos packages ...
+
+Processing enabled package: Teuchos (Core, Parser, ParameterList, Comm, Numerics, Remainder)
+-- Performing Test HAVE_GCC_ABI_DEMANGLE
+-- Performing Test HAVE_GCC_ABI_DEMANGLE - Success
+-- Performing Test HAVE_TEUCHOS_BLASFLOAT
+-- Performing Test HAVE_TEUCHOS_BLASFLOAT - Failed
+-- Performing Test HAVE_TEUCHOS_BLASFLOAT_APPLE_VECLIB_BUGFIX
+-- Performing Test HAVE_TEUCHOS_BLASFLOAT_APPLE_VECLIB_BUGFIX - Success
+-- Performing Test LAPACK_SLAPY2_WORKS
+-- Performing Test LAPACK_SLAPY2_WORKS - Failed
+-- Performing Test LAPACK_SLAPY2_WITH_DOUBLE_WORKS
+-- Performing Test LAPACK_SLAPY2_WITH_DOUBLE_WORKS - Success
+-- Performing Test HAVE_TEUCHOS_LAPACKLARND
+-- Performing Test HAVE_TEUCHOS_LAPACKLARND - Failed
+-- Performing Test HAVE_CXX_ATTRIBUTE_CONSTRUCTOR
+-- Performing Test HAVE_CXX_ATTRIBUTE_CONSTRUCTOR - Success
+-- C++ compiler supports __attribute__((constructor)) syntax
+-- Performing Test HAVE_CXX_ATTRIBUTE_WEAK
+-- Performing Test HAVE_CXX_ATTRIBUTE_WEAK - Failed
+-- C++ compiler does NOT support __attribute__((weak)) syntax and testing weak functions
+-- Performing Test HAVE_CXX_PRAGMA_WEAK
+-- Performing Test HAVE_CXX_PRAGMA_WEAK - Failed
+-- C++ compiler does NOT support #pragma weak syntax and testing weak functions
+Processing enabled package: Epetra (Libs)
+-- Looking for dggsvd3
+-- Looking for dggsvd3 - not found
+-- Looking for dggsvd3_
+-- Looking for dggsvd3_ - not found
+-- Looking for DGGSVD3
+-- Looking for DGGSVD3 - not found
+-- Looking for DGGSVD3_
+-- Looking for DGGSVD3_ - not found
+Did not find new version of lapack. dggsvd3 is not available.
+Processing enabled package: Triutils (Libs)
+Processing enabled package: AztecOO (Libs)
+Processing enabled package: Ifpack (Libs)
+Processing enabled package: ML (Libs)
+
+No ETI support requested by packages.
+
+
+Set up for creating a distribution ...
+
+
+Finished configuring Trilinos!
+
+-- Configuring done (12.7s)
+-- Generating done (0.3s)
+-- Build files have been written to: /Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/trilinos-build

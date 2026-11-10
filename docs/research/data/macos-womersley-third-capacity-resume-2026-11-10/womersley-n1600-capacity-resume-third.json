@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "observed_unix": 1794274335.257785,
+  "free_bytes": 24770621440,
+  "capacity_ready": true,
+  "remaining_original_seconds": 25069.068359851837,
+  "members": [
+    {
+      "pid": 32871,
+      "ppid": 32860,
+      "pgid": 32871,
+      "state": "Ts",
+      "command": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python scripts/study_womersley.py --work /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha2-s96-l1-n1600 --executable build/macos-release/eonsim --seed 96 8 8 --level 1 --alpha 2 --steps-per-cycle 1600 --phases 1600 --warmup 2 --cycles 6 --ranks 1 --mumps --lu-reuse-window 32 --chord --cycles-per-solve 1 --timeout 86400"
+    },
+    {
+      "pid": 72317,
+      "ppid": 32871,
+      "pgid": 32871,
+      "state": "T",
+      "command": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha2-s96-l1-n1600/eonsim -case attempt-006/case.json -checkpoint checkpoint -stop_after 9600 -restart checkpoint/generation_1794272536130704 -pc_factor_mat_solver_type mumps -fluid_lu_pc_reuse_window 32 -snes_lag_jacobian -2"
+    }
+  ],
+  "hold_seconds": 839.611738204956,
+  "resumed_unix": 1794274335.257935,
+  "hold_receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/womersley-n1600-capacity-hold-third.json",
+  "scope": "Same original group resumed. Original whole-study86400s clock, memory and20GiB floor unchanged; preemptive hold below22GiB."
+}

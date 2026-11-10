@@ -1,0 +1,296 @@
+{
+  "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "steps": 118,
+  "declared_steps": 540,
+  "first_step": 401,
+  "last_step": 518,
+  "restart": {
+    "step": 400,
+    "time": 3.141592653589779,
+    "stamp": [
+      1,
+      2,
+      2,
+      6625,
+      0,
+      7,
+      1
+    ],
+    "bytes": 1113064,
+    "serialized_values": 139129,
+    "sha256": "d67979db58cf99da2ec6920b2b3896578dcd20c1cf1b2353113a152e472afac7",
+    "input_name": "seed.bin",
+    "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-mesh-backend-diagnostic/gmres-fsils/seed.bin",
+    "scope": "Exact native saved time and complete finite Yn/An/Dn record; no v4 clock claim"
+  },
+  "excluded_tail": {
+    "final_equation_rows": 2,
+    "last_observed_step": 519,
+    "iteration_rows": 55,
+    "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+  },
+  "equations": {
+    "FS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    },
+    "MS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    }
+  },
+  "iteration_rows": 2295,
+  "final_equation_rows": 236,
+  "iteration_limit_rows": 52,
+  "maximum_iterations": {
+    "FS": 30,
+    "MS": 30
+  },
+  "maximum_final_relative_ratio": {
+    "FS": 6.4e-12,
+    "MS": 1.4e-10
+  },
+  "failed_equation_steps": [
+    {
+      "step": 493,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.76e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 494,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.46e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 495,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.78e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 496,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.84e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 497,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.58e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 498,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1e-10,
+      "relative_to_initial": 6.61e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 499,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.74e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 500,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 7.13e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 501,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.7e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 502,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.82e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 503,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.82e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 504,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.1e-10,
+      "relative_to_initial": 6.72e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 505,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 6.91e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 506,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 7.15e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 507,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 6.99e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 508,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 6.88e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 509,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.05e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 510,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.2e-10,
+      "relative_to_initial": 6.85e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 511,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.13e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 512,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.16e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 513,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.02e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 514,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.3e-10,
+      "relative_to_initial": 7.25e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 515,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.34e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 516,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.22e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 517,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.24e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    },
+    {
+      "step": 518,
+      "equation": "MS",
+      "iteration": 30,
+      "relative_to_step": 1.4e-10,
+      "relative_to_initial": 7.26e-05,
+      "tolerance": 1e-10,
+      "at_iteration_limit": true
+    }
+  ],
+  "passed": false,
+  "input_manifest_sha256": "5f466d721aa723f0bc3d0ddcf7b5a5f1709b02bb8a2e3be7641fa13dce002cb7",
+  "log_sha256": "e54323c0bae6fa8bf262dd5fe518083ca80f3e3c8fe2d286f5e3397bfc8b3cc4",
+  "analysis_source_sha256": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+  "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+}

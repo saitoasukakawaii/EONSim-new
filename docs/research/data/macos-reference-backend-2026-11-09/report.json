@@ -1,0 +1,126 @@
+{
+  "definition": {
+    "source_commit": "39b40112632dab6377a927384278b35e64a6bc2b",
+    "upstream": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "trilinos": "4a5f7906a6420ee2f9450367e9cc95b28c00d744",
+    "old_sha256": "76b7a2c041d5002aa9cfc59b23539e5b65e26181da6c80d0b4cbacc66d854cbb",
+    "new_sha256": "dfa4cab5b5a3521ee27c9629c2b148ab87de3a9fbae724b5e40a24c220ced3f8",
+    "node_limit": 2e-09,
+    "mass_relative_limit": 1e-08,
+    "history_limit": 2e-09,
+    "ranks": 1,
+    "threads": 1,
+    "scope": "Coarse local startup/loaded/replay backend proof; not fine or long-run qualification"
+  },
+  "runs": {
+    "startup-old": {
+      "seconds": 3.595923125045374,
+      "peak_rss_bytes": 42860544,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "startup-fsils": {
+      "seconds": 7.401014874922112,
+      "peak_rss_bytes": 48447488,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "startup-ilut": {
+      "seconds": 3.7902293750084937,
+      "peak_rss_bytes": 66748416,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "loaded-old": {
+      "seconds": 3.1825254580471665,
+      "peak_rss_bytes": 42729472,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-fsils": {
+      "seconds": 3.175103292101994,
+      "peak_rss_bytes": 47087616,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-ilut": {
+      "seconds": 5.26437500002794,
+      "peak_rss_bytes": 67518464,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-replay": {
+      "seconds": 2.7438154581468552,
+      "peak_rss_bytes": 67321856,
+      "exit_code": 0,
+      "start": 12410,
+      "stop": 12420
+    }
+  },
+  "comparisons": {
+    "startup-fsils": {
+      "pairs": 20,
+      "maximum_node_delta": 0.0,
+      "maximum_relative_mass": 0.0,
+      "maximum_native_history_delta": 0.0,
+      "exact_native_time": true,
+      "exact_saved_equation_norms": true,
+      "maximum_saved_norm_delta": 0.0,
+      "field_and_history_tolerances_passed": true,
+      "passed": true
+    },
+    "startup-ilut": {
+      "pairs": 20,
+      "maximum_node_delta": 5.169878828456423e-24,
+      "maximum_relative_mass": 9.451734726606009e-22,
+      "maximum_native_history_delta": 9.959254575138453e-22,
+      "exact_native_time": true,
+      "exact_saved_equation_norms": false,
+      "maximum_saved_norm_delta": 8.066102755884846e-28,
+      "field_and_history_tolerances_passed": true,
+      "passed": false
+    },
+    "loaded-fsils": {
+      "pairs": 20,
+      "maximum_node_delta": 0.0,
+      "maximum_relative_mass": 0.0,
+      "maximum_native_history_delta": 0.0,
+      "exact_native_time": true,
+      "exact_saved_equation_norms": true,
+      "maximum_saved_norm_delta": 0.0,
+      "field_and_history_tolerances_passed": true,
+      "passed": true
+    },
+    "loaded-ilut": {
+      "pairs": 20,
+      "maximum_node_delta": 2.393918396847994e-16,
+      "maximum_relative_mass": 4.1888294913590035e-14,
+      "maximum_native_history_delta": 7.580915062366245e-14,
+      "exact_native_time": true,
+      "exact_saved_equation_norms": true,
+      "maximum_saved_norm_delta": 0.0,
+      "field_and_history_tolerances_passed": true,
+      "passed": true
+    },
+    "loaded-replay": {
+      "pairs": 10,
+      "maximum_node_delta": 0.0,
+      "maximum_relative_mass": 0.0,
+      "maximum_native_history_delta": 0.0,
+      "exact_native_time": true,
+      "exact_saved_equation_norms": true,
+      "maximum_saved_norm_delta": 0.0,
+      "field_and_history_tolerances_passed": true,
+      "passed": true
+    }
+  },
+  "passed": false,
+  "adopted": false,
+  "scope": "Coarse local startup/loaded/replay backend proof; not fine or long-run qualification"
+}

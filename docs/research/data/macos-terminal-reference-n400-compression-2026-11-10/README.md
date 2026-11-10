@@ -1,0 +1,5 @@
+# Terminal reference VTU compression — COMPLETE, NO GAIN
+
+Base5187c4c.73947 native compression running for original and adopted fineN400 terminal reference VTU results. Requires completion12800/exit0/convergence and no matching active process before selecting files. Per replacement native ditto compression, original size/mtime/SHA checked before replace and SHA after, only reduced allocation retained. No path/content deletion or numerical change. Complete result and independent post-verification pending; no space saving claimed yet.
+
+73947 exit0 after24.522384s:2402 uncompressed candidates tested,0 replacements,0 allocated bytes saved. Logical content unchanged; no independent replacement rehash needed because no file was replaced. Do not count this as recovered space.96016 now stages one fineN1600 completed volume chunk with zstd19 and exact decoded tar SHA comparison; original archive/receipt untouched, no probe result yet and no capacity gain claimed. Adoption must wait until current catalog can safely be reconciled, including temporary audit restoration copies.

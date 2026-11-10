@@ -1,0 +1,30 @@
+{
+  "runs": {
+    "cg-fsils": {
+      "convergence_passed": false,
+      "seconds": 15.028056499781087,
+      "peak_rss_bytes": 57327616,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 100
+    },
+    "gmres-fsils": {
+      "convergence_passed": false,
+      "seconds": 21.170810249866918,
+      "peak_rss_bytes": 60588032,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 100
+    },
+    "gmres-ilut": {
+      "convergence_passed": false,
+      "seconds": 17.176412167027593,
+      "peak_rss_bytes": 66748416,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 100
+    }
+  },
+  "scope": "Coarse N800 from-zero mesh solver normalization diagnostic; unchanged physics and tolerances, no production adoption",
+  "production_adopted": false
+}

@@ -1,0 +1,92 @@
+{
+  "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "steps": 25600,
+  "declared_steps": 25600,
+  "first_step": 1,
+  "last_step": 25600,
+  "restart": null,
+  "excluded_tail": {
+    "final_equation_rows": 0,
+    "last_observed_step": 25600,
+    "iteration_rows": 0,
+    "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+  },
+  "equations": {
+    "FS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    },
+    "MS": {
+      "tolerance": 1e-10,
+      "maximum_iterations": 30,
+      "minimum_iterations": 1
+    }
+  },
+  "iteration_rows": 127558,
+  "final_equation_rows": 51200,
+  "iteration_limit_rows": 0,
+  "maximum_iterations": {
+    "FS": 3,
+    "MS": 2
+  },
+  "maximum_final_relative_ratio": {
+    "FS": 9.8e-11,
+    "MS": 1.0
+  },
+  "passed": false,
+  "input_manifest_sha256": "1f54f24548ee17632b6ae305ccd8b2ac3c461c87531ec5549c3906054ee0f201",
+  "log_sha256": "aa7cedcac1c98b6e3d2b8e71f2962683ecf8449da23291fe6f2dde304da869f2",
+  "analysis_source_sha256": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+  "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven",
+  "failed_equation_steps_count": 25600,
+  "first_failures": [
+    {
+      "step": 1,
+      "equation": "MS",
+      "iteration": 2,
+      "relative_to_step": 2.91e-07,
+      "relative_to_initial": 2.91e-07,
+      "tolerance": 1e-10,
+      "at_iteration_limit": false
+    },
+    {
+      "step": 2,
+      "equation": "MS",
+      "iteration": 2,
+      "relative_to_step": 2.91e-07,
+      "relative_to_initial": 4.55e-06,
+      "tolerance": 1e-10,
+      "at_iteration_limit": false
+    },
+    {
+      "step": 3,
+      "equation": "MS",
+      "iteration": 1,
+      "relative_to_step": 1.0,
+      "relative_to_initial": 63.61,
+      "tolerance": 1e-10,
+      "at_iteration_limit": false
+    },
+    {
+      "step": 4,
+      "equation": "MS",
+      "iteration": 1,
+      "relative_to_step": 1.0,
+      "relative_to_initial": 160.5,
+      "tolerance": 1e-10,
+      "at_iteration_limit": false
+    },
+    {
+      "step": 5,
+      "equation": "MS",
+      "iteration": 1,
+      "relative_to_step": 1.0,
+      "relative_to_initial": 318.9,
+      "tolerance": 1e-10,
+      "at_iteration_limit": false
+    }
+  ],
+  "full_report_sha256": "20247ada02e812c8a984a79340eab687c96239d4bddf77ef2efcc53d8145ab3c",
+  "compressed_report_sha256": "1c1c9ab7cb58bf89b2b53ed0024324a926450270023f3dc34c88e51a6abe58c1"
+}

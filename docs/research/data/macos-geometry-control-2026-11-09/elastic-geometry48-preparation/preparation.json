@@ -1,0 +1,48 @@
+{
+  "source": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800",
+  "source_inputs": {
+    "case.json": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+    "fluid.msh": "5e5ac5f5a55b30719057aeef359332d9a5d4dbf2aa333c8646429aab8292b907",
+    "solid.msh": "261a05077455d92780edbbba5df520d995b5502a5eb5549f24721299b7405a85",
+    "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e"
+  },
+  "prepared_inputs": {
+    "case.json": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+    "fluid.msh": "08fe65c8e567044612ab14da418de50523781a5100ea1b5d61241a1a92b3ce34",
+    "solid.msh": "f38057d0e01aef04b9b25a6fa52c2d9dec3f33bdde69771fa5c553356378e215",
+    "geometry.json": "7840542e262a77ec90d11e8d80a76bbe39f144d430770ee5526460fe3e6da5f2"
+  },
+  "projection_formula": "For theta in seed sector with midpoint theta_c: (y,z) *= cos(theta-theta_c)/cos(pi/24); x unchanged. Center unchanged.",
+  "domains": [
+    {
+      "domain": "fluid",
+      "nodes": 4225,
+      "cells": 20736,
+      "boundary_faces": 2880,
+      "volume": 37.59154335937487,
+      "expected_volume": 37.59154335937485,
+      "min_cell_volume": 0.0012898559813260848,
+      "source_sha256": "5e5ac5f5a55b30719057aeef359332d9a5d4dbf2aa333c8646429aab8292b907",
+      "projected_sha256": "08fe65c8e567044612ab14da418de50523781a5100ea1b5d61241a1a92b3ce34",
+      "topology_and_tags_identical": true,
+      "axial_coordinates_identical": true
+    },
+    {
+      "domain": "solid",
+      "nodes": 3600,
+      "cells": 13824,
+      "boundary_faces": 4992,
+      "volume": 16.54027907812494,
+      "expected_volume": 16.540279078124932,
+      "min_cell_volume": 0.0008829954958887035,
+      "source_sha256": "261a05077455d92780edbbba5df520d995b5502a5eb5549f24721299b7405a85",
+      "projected_sha256": "f38057d0e01aef04b9b25a6fa52c2d9dec3f33bdde69771fa5c553356378e215",
+      "topology_and_tags_identical": true,
+      "axial_coordinates_identical": true
+    }
+  ],
+  "matching_interface_nodes": 1200,
+  "source_area_relative_deficit": 0.011384070534630863,
+  "projected_area_relative_deficit": 0.0028533426503631887,
+  "scope": "Prepared input only. Same nodes/cells/tags/physics/time, different polygon geometry24->48; solver/response not yet tested. Old nested-space budget stays unchanged; projected mesh must not enter that budget as a field refinement."
+}

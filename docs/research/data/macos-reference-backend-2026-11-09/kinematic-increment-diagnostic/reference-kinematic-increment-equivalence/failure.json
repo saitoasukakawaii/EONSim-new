@@ -1,0 +1,40 @@
+{
+  "error": "AssertionError()",
+  "completed": {
+    "startup-old": {
+      "seconds": 3.3499963339418173,
+      "peak_rss_bytes": 48906240,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "startup-increment": {
+      "seconds": 3.360618374776095,
+      "peak_rss_bytes": 48955392,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "loaded-old": {
+      "seconds": 3.9907710417173803,
+      "peak_rss_bytes": 49758208,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-increment": {
+      "seconds": 3.989489750005305,
+      "peak_rss_bytes": 49905664,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-replay": {
+      "seconds": 2.120558666996658,
+      "peak_rss_bytes": 48676864,
+      "exit_code": 0,
+      "start": 12410,
+      "stop": 12420
+    }
+  }
+}

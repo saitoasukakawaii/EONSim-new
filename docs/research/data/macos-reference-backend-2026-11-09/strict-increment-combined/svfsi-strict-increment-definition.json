@@ -1,0 +1,13 @@
+{
+  "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "patch_sha256": "e5191d7ef1f70ea1b71fc7b8c8e1fc6df8dc696696b0035fb6da5d0208f8ab10",
+  "changed": [
+    "Code/Source/svFSI/PIC.f",
+    "Code/Source/svFSI/MESH.f"
+  ],
+  "components": [
+    "svfsi-strict-stop.patch",
+    "svfsi-mesh-increment.patch"
+  ],
+  "scope": "Combined diagnostic derivative only: disable initial-norm absolute acceptance and evaluate mesh stage displacement as af*(Dn-Do). Original equations, relative tolerance and cap unchanged; not adopted for production."
+}

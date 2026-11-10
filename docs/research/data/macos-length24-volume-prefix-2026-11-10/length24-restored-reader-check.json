@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "step": 23201,
+  "domains": 2,
+  "exact_field_equality": true,
+  "wrapper_sha256": "7534da2aecb28c7a61973e50893c7b75c23926d6bc52ff6534d1e3305ea12d34",
+  "proof": {
+    "early": {
+      "receipt_sha256": {
+        "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-length24-volume-through24584-chunks/0000.json": "82164e135a361f6091caf8ee7eb62c55581b7a3da84f02c340e5547a00fb37a2"
+      },
+      "source_manifest_sha256": {
+        "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/length24-volumes-through24584-before-archive.json": "77af2bdbc2ff62d93cb55c4d8a3b5d893b4968da38c25c4b1b1361cf02e2e0fe"
+      },
+      "restored_members": [],
+      "peak_frame_bytes": 0,
+      "archive_sha256": {
+        "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-length24-volume-through24584-chunks/0000.tar.zst": "488519af0f81cc3ca5c025d92948e80fb17628332a7580acefd47fdaa1769475"
+      },
+      "scope": "Only requested members are decoded/restored; archive SHA verified before streaming. Original comparison reader used inside frame context; created raw copies removed only after SHA recheck. No norm/phase/gate changes."
+    },
+    "dense": {
+      "receipt_sha256": {
+        "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-length24-volume-through24584-chunks/0000.json": "82164e135a361f6091caf8ee7eb62c55581b7a3da84f02c340e5547a00fb37a2"
+      },
+      "source_manifest_sha256": {
+        "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/length24-volumes-through24584-before-archive.json": "77af2bdbc2ff62d93cb55c4d8a3b5d893b4968da38c25c4b1b1361cf02e2e0fe"
+      },
+      "restored_members": [
+        {
+          "path": "dense/solution_restart23200_step23201.vtu",
+          "sha256": "ad46e346c6c197e2255acade1c0e702acfdb0796ae960c6cab5e7acff2db4d2f",
+          "bytes": 5604976,
+          "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-length24-volume-through24584-chunks/0000.tar.zst",
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-length24-volume-through24584-chunks/0000.json"
+        },
+        {
+          "path": "dense/solution_restart23200_step23201_solid.vtu",
+          "sha256": "81a533eb2714012f0131d2c56909147284b052622a129c7a6febef6cac5183d6",
+          "bytes": 3488646,
+          "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-length24-volume-through24584-chunks/0000.tar.zst",
+          "receipt": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-length24-volume-through24584-chunks/0000.json"
+        }
+      ],
+      "peak_frame_bytes": 5604976,
+      "archive_sha256": {
+        "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-length24-volume-through24584-chunks/0000.tar.zst": "488519af0f81cc3ca5c025d92948e80fb17628332a7580acefd47fdaa1769475"
+      },
+      "scope": "Only requested members are decoded/restored; archive SHA verified before streaming. Original comparison reader used inside frame context; created raw copies removed only after SHA recheck. No norm/phase/gate changes."
+    }
+  },
+  "scope": "One real length24 accepted phase through the production physical-reader wrapper; complete physical audit still required"
+}

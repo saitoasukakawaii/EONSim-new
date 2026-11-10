@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "changes": {
+    "dt": [
+      0.007853981633974483,
+      0.003926990816987242
+    ],
+    "steps": [
+      25600,
+      51200
+    ],
+    "checkpoint_interval": [
+      800,
+      1600
+    ]
+  },
+  "mesh_identical": true,
+  "source_binary_sha256": "04a7aa5b0b6d22e408efc6cace75d4b11a483a595ecfd222c8f4fe8d49282873",
+  "scope": "Only timestep, total step count and checkpoint cadence changed; same32cycles16ramp physics and solver."
+}

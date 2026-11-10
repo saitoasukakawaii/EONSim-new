@@ -1,0 +1,17 @@
+{
+  "command": [
+    "python3",
+    "build/recompute-20261109/reference-patched-elastic-s24-l1-n400-nu0/audit-sources/audit_svfsi_convergence.py",
+    "--work",
+    "build/recompute-20261109/reference-patched-elastic-s24-l1-n400-nu0",
+    "--log",
+    "build/recompute-20261109/reference-patched-elastic-s24-l1-n400-nu0/prefix-571/frozen.log",
+    "--last-step",
+    "571",
+    "--output",
+    "build/recompute-20261109/reference-patched-elastic-s24-l1-n400-nu0/prefix-571/convergence.json"
+  ],
+  "exit_code": 0,
+  "stdout": "{\"svfsi_commit\": \"7bdb74cdd517310d6bf32c0bb7d42072aeac8658\", \"reference_build\": {\"kind\": \"patched-fixed-reference\", \"base_commit\": \"7bdb74cdd517310d6bf32c0bb7d42072aeac8658\", \"binary\": {\"path\": \"svFSI\", \"sha256\": \"f249a3febc94ad0de49971e5bf488d08fd8b9cfc8b4fc4a4d4e09b42e2047224\"}, \"patch\": {\"path\": \"source.patch\", \"sha256\": \"e5191d7ef1f70ea1b71fc7b8c8e1fc6df8dc696696b0035fb6da5d0208f8ab10\"}}, \"steps\": 571, \"declared_steps\": 12800, \"first_step\": 1, \"last_step\": 571, \"restart\": null, \"excluded_tail\": {\"final_equation_rows\": 2, \"last_observed_step\": 572, \"iteration_rows\": 2, \"scope\": \"Explicitly excluded tail; its completeness and convergence are not asserted\"}, \"equations\": {\"FS\": {\"tolerance\": 1e-10, \"maximum_iterations\": 30, \"minimum_iterations\": 1}, \"MS\": {\"tolerance\": 1e-10, \"maximum_iterations\": 30, \"minimum_iterations\": 1}}, \"iteration_rows\": 3284, \"final_equation_rows\": 1142, \"iteration_limit_rows\": 0, \"maximum_iterations\": {\"FS\": 3, \"MS\": 3}, \"maximum_final_relative_ratio\": {\"FS\": 5e-11, \"MS\": 9.9e-11}, \"passed\": true, \"input_manifest_sha256\": \"0e51b57c4c74b52bedf9965d0f4b11a730b520545f6bc4d58ec1733b419325b1\", \"log_sha256\": \"f4076c0f4a65e38323189148b74230c7711a1ecec0de7b2485432dfa9212dcd6\", \"analysis_source_sha256\": \"6abbbe72fb604763818aa20e6f7216a9960d5a081e666189858db9c16d8daa92\", \"scope\": \"Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven\"}\n",
+  "stderr": ""
+}

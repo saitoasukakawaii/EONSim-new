@@ -1,0 +1,11 @@
+# Complete reference diagnostics archived with recoverable materializations
+
+Source baseline9cd0e4e. Three terminal diagnostics only: reference-kinematic-increment-startup, reference-strict-increment-startup, reference-fine-backend-screen. Each terminal run exit0 checked and no executable under these diagnostic roots active. Production directories and running auditors untouched. This storage action does not change numerical conclusions.
+
+First archive41138 exited1 before any original removal: tar encoded stFile_last.bin as a hardlink to stFile_600.bin; strict regular-member verifier refused it. Failure source/log/manifest and failed-archive SHA retained; redundant rejected archive removed only after recording it. Read-only diagnosis found exactly one hardlink; an evidence-copy-loop TypeError afterward changed no original data. V2 explicitly dereferences hardlinks, ensuring generic per-file restoration works.
+
+44980 completed0. Full archives contain1227/1228/714 files respectively, every member decoded and SHA-verified. Archives834879461/834705814/446716484 bytes. Then only bin/VTU duplicate materializations removed:1203/1203/633 files, freeing1212866560/1212874752/633987072 allocated bytes. Net before unrelated concurrent writes is943426625 bytes (about0.88GiB). All logs/configuration/reports remain expanded. Restore receipts list every removed path; full original byte streams remain in archives. Future raw equivalence/adoption provenance replays or restarts must restore first.
+
+68377 completed0: each diagnostic actually restored one bin and one VTU to separate probe directories using the existing generic restoration helper and rehashed both;11-study inventory has all missing paths exactly accounted by nonoverlapping receipts. Catalog checks retained sizes and archive binding; it does not repeat full decoding done above. Runtime command: `python3 build/recompute-20261109/archive-terminal-reference-diagnostics-v2.py`; source and restoration helper included.
+
+An earlier old Womersley HDF transparent-compression probe retained identical bytes but saved zero allocated space; no rollout or original replacement. Evidence retained. Geometry physical audit81210 remains running; seven numerical studies continue. No push/PR or full qualification claim.

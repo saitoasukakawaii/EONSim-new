@@ -1,0 +1,7 @@
+# Fresh elastic coarse N1600 physical audit
+
+All51200steps/32cycles from zero,16-cycle ramp. Both numerical phases completed0; contiguous accepted steps, original input and executable hashes independently checked. No numerical rerun. Full last4800frames plus preceding46400endpoint audited. summary.json records actual passed/failed physical gates without changing any threshold. Full audit compressed and decoded readback exact, complete raw manifest retained.
+
+Audit command: `OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 build/analysis-venv/bin/python scripts/audit_pressure_tube.py --case build/recompute-20261109/elastic-s24-l0-n1600/case.json --work build/recompute-20261109/elastic-s24-l0-n1600 --first-step 46401 --output build/recompute-20261109/elastic-s24-l0-n1600-audit.json`. All physical checks passing would still not establish independent budgets or final production qualification.
+
+Terminal audit31914 and capture87454 both exited0. Periodic maximum6.34479687303e-7, interface mismatch5.42101086243e-20, mass5.63785129692e-18, divergence-theorem5.35293058929e-18; minimum solid/fluid Jacobians0.999967326869/1.000003329983. Lamé relative error0.0319501869094 fails original0.02 threshold. Captured result explicitly marks all_local_physical_checks_passed=false. This coarse spatial-budget member is not a qualified fine target; default fine N1600 and its independent budget remain incomplete. Rejected zero-byte compression temporary is excluded from raw manifest; its separate failure record is retained.

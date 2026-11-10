@@ -1,0 +1,27 @@
+{
+  "source_commit": "4181ed97d7b6594ee6ec42e9a51ba038a9ca71f6",
+  "upstream": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "trilinos": "4a5f7906a6420ee2f9450367e9cc95b28c00d744",
+  "old_sha256": "dfa4cab5b5a3521ee27c9629c2b148ab87de3a9fbae724b5e40a24c220ced3f8",
+  "new_sha256": "3eeacfeeb504ed1fe7f0223a23c004f7605078b7afabd21c2d6fa9f80f63c703",
+  "node_limit": 2e-09,
+  "mass_relative_limit": 1e-08,
+  "history_limit": 2e-09,
+  "saved_norm_limit": 2e-09,
+  "saved_norm_limit_source": "scripts/svfsi_restart_evidence.py:reviewed_backend_transition existing bound",
+  "ranks": 1,
+  "threads": 1,
+  "scope": "Newmark increment diagnostic derivative: fine N800 fresh zero-state600 steps; strict relative stopping and kinematic increment with distinct FSI/mesh beta, no production adoption",
+  "component_proofs": {
+    "reference-kinematic-increment-fine-diagnostic/cg-fsils/convergence.json": "20190ad81a4f1339e72e1e8d674ebeb6cb437c86006e004c766f172e7e6a6f2e",
+    "reference-kinematic-increment-fine-diagnostic/field-diagnostic.json": "a0d9fee8913775f194043ae26ea49b0650076b2ee36a9d8a47c097e1f5ccb141",
+    "reference-kinematic-increment-equivalence/independent-review.json": "b524d05cbd4cdf3e321267c7d76f44402cc23070b992e698b3865bb0fb3e7d95"
+  },
+  "patch": {
+    "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+    "patch_sha256": "4c606590c4dbb9c7e87529800d364b4547f02348f4f1a74c491dbafb2b381549",
+    "scope": "Diagnostic only, not adopted: strict-relative stopping plus Newmark mesh increment; linear FSI homogeneous fixed BC only. Mesh interior uses mesh beta; structural/interface nodes use FSI beta because PICC copies FSI kinematics.",
+    "derivation": "PICP/PICC yield Dn-Do=dt*Yo+dt^2*((1/2-beta)*Ao+beta*An) in exact arithmetic. INITIALIZE assigns distinct FSI/mesh beta, common af. PICC copies FSI An,Yn,Dn on phys_lElas nodes, requiring FSI beta there."
+  },
+  "patch_sha256": "4c606590c4dbb9c7e87529800d364b4547f02348f4f1a74c491dbafb2b381549"
+}

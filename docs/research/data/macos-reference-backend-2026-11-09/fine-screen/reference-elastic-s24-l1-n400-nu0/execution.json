@@ -1,0 +1,31 @@
+{
+  "source_commit": "028d6aac4a79f2dc141397e7dab0a374e6c42842",
+  "source_case": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n400/case.json",
+  "source_inputs": {
+    "case.json": "2af49abe25bcfe57ab0bbdd8159f02c6e1ab74086818e224ee13d22ae54cafe0",
+    "fluid.msh": "5e5ac5f5a55b30719057aeef359332d9a5d4dbf2aa333c8646429aab8292b907",
+    "solid.msh": "261a05077455d92780edbbba5df520d995b5502a5eb5549f24721299b7405a85",
+    "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e"
+  },
+  "binary_sha256": "dfa4cab5b5a3521ee27c9629c2b148ab87de3a9fbae724b5e40a24c220ced3f8",
+  "backend": "ilut",
+  "backend_proof": {
+    "report.json": "2f0c736a55dd7ad9c2822a4dc5346248494a9d153d4cd545a1d8536309ac2dd1",
+    "independent-review.json": "7c2ecd7e044d7ed7fab79e28a67cb83a1c840364db0ee5548264c06cc3d057b0"
+  },
+  "level": 1,
+  "steps_per_cycle": 400,
+  "cycles": 32,
+  "ramp_cycles": 16,
+  "ranks": 1,
+  "threads": 1,
+  "command": [
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-elastic-s24-l1-n400-nu0/svFSI",
+    "svFSI.inp"
+  ],
+  "start_unix": 1794197922.7776918,
+  "rss_limit_bytes": 3221225472,
+  "disk_floor_bytes": 21474836480,
+  "timeout_seconds": 86400,
+  "scope": "Fresh zero-state full32cycles; qualification requires full convergence/fields/budgets"
+}

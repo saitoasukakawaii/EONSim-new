@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/check-womersley-cycle5-prefix-reader.py", line 10, in <module>
+    with store.frame([path]):expected[step]=baseline.state(step)
+         ~~~~~~~~~~~^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/streaming-hdf-materialization.py", line 51, in frame
+    if rel not in self.index:raise ValueError('No restoration receipt for requested path')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: No restoration receipt for requested path

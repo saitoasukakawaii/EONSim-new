@@ -1,0 +1,9 @@
+# Womersley old HDF archives: level19 probe and batch launch
+
+Basee6a53a8. Capacity monitor21664 exited0 after protecting original20GiB floor with a second hold below22GiB, recorded free23329386496B at1794271663.194292. Original solver log complete through7585 (next row partial), not a numerical failure. Original controller6194 remains live. New same-process recovery entry uses second hold and writes separate resume/monitor/third-hold receipts. AST passed; native `.../resume-womersley-n1600-capacity-second.py --check` exited0 confirming exact original PID/commands/held states, no terminal receipt and deadline still future; capacity_ready=false, no second SIGCONT yet.
+
+Actual scoped preflight for cycle3 and cycle4 each39 receipts/1599 immutable HDF states passed, including bound checkpoint manifest SHA and exact phase coverage. Single cycle3 chunk probe44772 exited0:105550760→47976175B, saving57574585B, full decoded tar hashes identical. Committed transaction and old/new receipts retained here; original backup removed only after scoped catalog passed. This is lossless encoding, no HDF field or numerical change.
+
+Launched `build/analysis-venv/bin/python build/recompute-20261109/recompress-womersley-cycle3-volumes.py` (17139) and cycle4 equivalent (15092), single-thread zstd19 with original20GiB+scratch floor. Independent full-member decode and global catalog refresh pending; cycle3 skips its already committed first chunk. No analytic reader active. Original numerical failures unchanged, no push/PR. Existing transaction method reused; no new algorithm article.
+
+Subsequent actual second resume: native execution handle98613 started after fresh identity/capacity checks, SIGCONT at1794271839.772521; free25223974912B, original remaining27564.55377292633s, held176.57807993888855s. Monitor running; no timeout reset. Complete post-resume accepted-step advance not yet asserted in this receipt.

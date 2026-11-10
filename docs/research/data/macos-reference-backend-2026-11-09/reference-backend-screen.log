@@ -1,0 +1,17 @@
+2026-11-09 12:06:53.051 (   0.769s) [         22C5E22]       vtkExecutive.cxx:730    ERR| vtkCompositeDataPipeline (0x100f93150): Algorithm vtkXMLUnstructuredGridReader (0x79742a300) returned failure for request: vtkInformation (0x797cac840)
+  Debug: Off
+  Modified Time: 228
+  Reference Count: 1
+  Registered Events: (none)
+  Request: REQUEST_INFORMATION
+  ALGORITHM_AFTER_FORWARD: 1
+  FORWARD_DIRECTION: 0
+
+
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/screen-reference-backend.py", line 63, in <module>
+    folders=[w/baseline/'results',w/name/'results'];frames=[svfsi_frame(folder/f'result_{step}.vtu',domains) for folder in folders]
+                                                            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/scripts/audit_pressure_tube.py", line 130, in svfsi_frame
+    raise ValueError(f'Invalid VTK output: {path}: {errors}')
+ValueError: Invalid VTK output: /Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/reference-backend-screen/startup-old/results/result_1.vtu: ["(<vtkmodules.vtkIOXML.vtkXMLUnstructuredGridReader(0x79742a300) at 0x106632800>, 'ErrorEvent')"]

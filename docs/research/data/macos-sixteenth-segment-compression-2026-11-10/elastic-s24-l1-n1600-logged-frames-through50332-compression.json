@@ -1,0 +1,2599 @@
+{
+  "proof": {
+    "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n1600",
+    "checkpoint_generation": "generation_1794246855371697",
+    "checkpoint_step": 50240,
+    "last_logged_step": 50333,
+    "accepted_log_prefix_sha256": "ae58d270407efbd62e70e86e15fee6c09728058cc75ab72d73bb09db90b5f1bd",
+    "accepted_log_prefix_bytes": 60870,
+    "frozen_source_commit": "fe927b15535f9503935f83032550162db979c256",
+    "checkpoint_manifest_sha256": "7e20b47d49e3fe43c1c5752db19a04539aa8dee5c262899d369628b494f23da0",
+    "through": 50332,
+    "source_sha256": "756598343458a0aa85530fac7cd6ad25dbf571691ef26c81092f11bf28264cad",
+    "controller_sha256": "abd427cac64cf4b14e58b72fe7c46931292335456b03abd5d8cf1a9136f23ea2",
+    "selected_frames": 92,
+    "selected_files": 368,
+    "scope": "Frozen/current source output-before-accepted-log block matches byte-for-byte. Only steps strictly before complete contiguous dense accepted-log record selected. Four files required; each replacement verifies stable source size/mtime and SHA. Current/future outputs, indexes/logs/checkpoints untouched."
+  },
+  "files": [
+    {
+      "path": "dense-016/solution_restart50240_step50241.vtu",
+      "sha256": "7c6bc86f6e1cad629a665d41bc68e60f91056feeffab280bb2570a5573304744",
+      "logical_bytes": 2774220,
+      "allocated_before": 2777088,
+      "allocated_after": 2113536
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50241_boundary.vtu",
+      "sha256": "f72877cffad3655e9e987e56a11a51f8b40ac91db22cf158f9eea5be04682a07",
+      "logical_bytes": 2013060,
+      "allocated_before": 2015232,
+      "allocated_after": 1056768
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50241_solid.vtu",
+      "sha256": "5c055702b1a9e2e3e2e9737060dbf90a15d968b0adcc789bf6bbb5c35fd694e5",
+      "logical_bytes": 1702996,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50241_solid_boundary.vtu",
+      "sha256": "ffc09afc3af98542d7da42a1a76ef52648d025e02111d149bc55ca49cf0d1581",
+      "logical_bytes": 1253838,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50242.vtu",
+      "sha256": "4a6b9f69b5d38a5ba0ef9c7ce8795a20eb2c49a5470a2da8eba3be046d14c5dd",
+      "logical_bytes": 2774070,
+      "allocated_before": 2777088,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50242_boundary.vtu",
+      "sha256": "beb37de1633045b8f7ce8fdb170ccabfb3b3323d7343e5b9631a8de52dba4e60",
+      "logical_bytes": 2012910,
+      "allocated_before": 2015232,
+      "allocated_after": 1044480
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50242_solid.vtu",
+      "sha256": "1c62dd3fb8832e405a2110d707ac4acd2e8b4098288c9062f244226cb2a7e64d",
+      "logical_bytes": 1702887,
+      "allocated_before": 1703936,
+      "allocated_after": 782336
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50242_solid_boundary.vtu",
+      "sha256": "3975fc3c93728bf76638e3024e93adb48f0669150fe5aed9637ff01e0f65a8d1",
+      "logical_bytes": 1253729,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50243.vtu",
+      "sha256": "3bc6b539199286049c00f212c370f198788f8fde91e6742c09629191572d6c08",
+      "logical_bytes": 2774123,
+      "allocated_before": 2777088,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50243_boundary.vtu",
+      "sha256": "3ddcdd529939065ca7f441fe161668902e140fc377ce8330dd76c8404b13fc5a",
+      "logical_bytes": 2012963,
+      "allocated_before": 2015232,
+      "allocated_after": 1044480
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50243_solid.vtu",
+      "sha256": "fca49a89beb392d6390c4ee8e7fc227a50d52b6b3b31dfb908d2da79db4df2df",
+      "logical_bytes": 1702976,
+      "allocated_before": 1703936,
+      "allocated_after": 778240
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50243_solid_boundary.vtu",
+      "sha256": "4d4758c3ceab6a22846e62ffddbe237a428ffda3b1e52d300fe13d321cf29ec3",
+      "logical_bytes": 1253818,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50244.vtu",
+      "sha256": "f5d5f52943fae16a33e4d7eaeac7ca23a9e5f369eb78a939460a526fa7b3a5be",
+      "logical_bytes": 2774181,
+      "allocated_before": 2777088,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50244_boundary.vtu",
+      "sha256": "17746b22ad63d6712c236186eb299a66ccb12800d3ad3852e50f737ca27ae240",
+      "logical_bytes": 2013021,
+      "allocated_before": 2015232,
+      "allocated_after": 1048576
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50244_solid.vtu",
+      "sha256": "90970794b6f28d482afaa9afa624b948d4aedbe2d352fd56a96f880d8fc4f3dc",
+      "logical_bytes": 1702907,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50244_solid_boundary.vtu",
+      "sha256": "a6097146123241560f1242057de7a86d432725991c222393442535b647135e17",
+      "logical_bytes": 1253749,
+      "allocated_before": 1257472,
+      "allocated_after": 655360
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50245.vtu",
+      "sha256": "a6b6d5a2b888cd99466dde807763b8bafdbc1a4862e6c54755e63bbe6fb10fad",
+      "logical_bytes": 2774233,
+      "allocated_before": 2777088,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50245_boundary.vtu",
+      "sha256": "bf36ed103a8dfd2696881d3e881ae2dc8d3c3ae7297fab80864d92fdb389bb9c",
+      "logical_bytes": 2013073,
+      "allocated_before": 2015232,
+      "allocated_after": 1044480
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50245_solid.vtu",
+      "sha256": "956bfa6a9241235a2fbc97af47bd921ae5eff40a1f3794be8c7684889e2c73cb",
+      "logical_bytes": 1702993,
+      "allocated_before": 1703936,
+      "allocated_after": 782336
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50245_solid_boundary.vtu",
+      "sha256": "0fa003f6f602a327eb92183b7bdf07d90b65742e609d1f9842f32338826ed92f",
+      "logical_bytes": 1253835,
+      "allocated_before": 1257472,
+      "allocated_after": 651264
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50246.vtu",
+      "sha256": "93c448a4a4ea78283da191e8ef05e3fb3727f6e00b8aef75df11ce7d237b5505",
+      "logical_bytes": 2774218,
+      "allocated_before": 2777088,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50246_boundary.vtu",
+      "sha256": "c234adcdeb0c732d436d4ee3a6f7018eb6885f36c8d96941c52dde4690c95e8b",
+      "logical_bytes": 2013058,
+      "allocated_before": 2015232,
+      "allocated_after": 1044480
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50246_solid.vtu",
+      "sha256": "10df7a41255c4591bd409c148a0f0fcb99692a41851f09a10ccae4993afeee1f",
+      "logical_bytes": 1702919,
+      "allocated_before": 1703936,
+      "allocated_after": 782336
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50246_solid_boundary.vtu",
+      "sha256": "ee511632f7bb7a629820ded3658bfdd0471ed708fad36c0406d8131640a3648e",
+      "logical_bytes": 1253761,
+      "allocated_before": 1257472,
+      "allocated_after": 651264
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50247.vtu",
+      "sha256": "37cf85aec4ee9dbe507eb6471fc7dfcf15f4e4707836feefc2fd2e933b04b6b2",
+      "logical_bytes": 2774036,
+      "allocated_before": 2777088,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50247_boundary.vtu",
+      "sha256": "651a0d5ef0d3f6d816ae71c9fc470110f50263a63227996d16407936a0e1601d",
+      "logical_bytes": 2012876,
+      "allocated_before": 2015232,
+      "allocated_after": 1040384
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50247_solid.vtu",
+      "sha256": "24d03a961867f552c5b28dc2d08f087ddab4ef7e74ace0de8ae5e97893b1a630",
+      "logical_bytes": 1702968,
+      "allocated_before": 1703936,
+      "allocated_after": 778240
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50247_solid_boundary.vtu",
+      "sha256": "a0b160a9ed41cb4cd22797fc35e140c192dcea3b92c00b118146cb2f0a8e2e5f",
+      "logical_bytes": 1253810,
+      "allocated_before": 1257472,
+      "allocated_after": 647168
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50248.vtu",
+      "sha256": "fc4629a30c2be23486cf48ea3d69b452f0af2af168413396562a6f124a307cfd",
+      "logical_bytes": 2774250,
+      "allocated_before": 2777088,
+      "allocated_after": 2154496
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50248_boundary.vtu",
+      "sha256": "8dd739c8e05603d0ec6c504e2bb3a88553ce8ac66c3bfa726750b13ff2578743",
+      "logical_bytes": 2013090,
+      "allocated_before": 2015232,
+      "allocated_after": 1040384
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50248_solid.vtu",
+      "sha256": "a82b6260766bdd6cb15434044059b6045c45303b6f2bb47cfcb7398a59fe4e9c",
+      "logical_bytes": 1703029,
+      "allocated_before": 1703936,
+      "allocated_after": 774144
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50248_solid_boundary.vtu",
+      "sha256": "f3c00fb15c1d5b64c0cb2d801cf49b9492988cadeafe133e729154283c05cd98",
+      "logical_bytes": 1253871,
+      "allocated_before": 1257472,
+      "allocated_after": 643072
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50249.vtu",
+      "sha256": "b72ca41a3dba70c2b41c7bef45c4049c5ed8eaae7769bc370524182bed266c5e",
+      "logical_bytes": 2774277,
+      "allocated_before": 2777088,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50249_boundary.vtu",
+      "sha256": "52d1ed4a5ca79fc2dc26f8049084c8c506bc6eb22fa38cd3873728c88f7cf547",
+      "logical_bytes": 2013117,
+      "allocated_before": 2015232,
+      "allocated_after": 1036288
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50249_solid.vtu",
+      "sha256": "7889b7251fbb0b41776d06576b98675975ec16462fc51be15ea4f52e1dc963d9",
+      "logical_bytes": 1702910,
+      "allocated_before": 1703936,
+      "allocated_after": 774144
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50249_solid_boundary.vtu",
+      "sha256": "1e9636a9f11b8debb3a6430548e7ca95dc41e8035ec7c7cb22c0ce981fc41598",
+      "logical_bytes": 1253752,
+      "allocated_before": 1257472,
+      "allocated_after": 643072
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50250.vtu",
+      "sha256": "f1e880888625cde1b8f67df3103d98946dc9ad5939e6c026c3f74a12c1b114a1",
+      "logical_bytes": 2774321,
+      "allocated_before": 2777088,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50250_boundary.vtu",
+      "sha256": "ac9d57042b246b4c52843cd93b9c9521ceebc2284f26f6485c51b1a24d3ca20d",
+      "logical_bytes": 2013161,
+      "allocated_before": 2015232,
+      "allocated_after": 1036288
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50250_solid.vtu",
+      "sha256": "87dec048b2ce08fa7728a74d146d337515f949726bda5fb60a95eadb91b56797",
+      "logical_bytes": 1702991,
+      "allocated_before": 1703936,
+      "allocated_after": 774144
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50250_solid_boundary.vtu",
+      "sha256": "ac2a25bf98383762fb9a6a9508119787810be9118a54b2818894fa28fbc4a796",
+      "logical_bytes": 1253833,
+      "allocated_before": 1257472,
+      "allocated_after": 638976
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50251.vtu",
+      "sha256": "dbebbbb002df5f01a1dfedb38015d38f34cdb2353af34ea63c05b41d4b242142",
+      "logical_bytes": 2774316,
+      "allocated_before": 2777088,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50251_boundary.vtu",
+      "sha256": "ecbd30e74ae0e3fe07446163537e1a61536942dca7b89fd3ff5362039413b9c3",
+      "logical_bytes": 2013156,
+      "allocated_before": 2015232,
+      "allocated_after": 1032192
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50251_solid.vtu",
+      "sha256": "bbd8e90c3c8b94a52028828c6afca8d73e0211b6b97c8311aa9fe2087a159cc6",
+      "logical_bytes": 1702907,
+      "allocated_before": 1703936,
+      "allocated_after": 770048
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50251_solid_boundary.vtu",
+      "sha256": "5cfe333fbf7d6c7bf827ad2d5046a4057561a9ed7a54a6f90397551511c84de0",
+      "logical_bytes": 1253749,
+      "allocated_before": 1257472,
+      "allocated_after": 638976
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50252.vtu",
+      "sha256": "f58b24c0c4c19c32d80a68ca7457343c9c96f858f686a0666ee411c9a2bbd2a3",
+      "logical_bytes": 2774184,
+      "allocated_before": 2777088,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50252_boundary.vtu",
+      "sha256": "7dfa17f87cc6cf0c207fd22c75cb85dc57c3161fcb940c3548dacf89b0118b91",
+      "logical_bytes": 2013024,
+      "allocated_before": 2015232,
+      "allocated_after": 1032192
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50252_solid.vtu",
+      "sha256": "2dd1c1d82c05afbb72d26f96d3b9f912bbaeef0210445c569229740ced7c2e7f",
+      "logical_bytes": 1703027,
+      "allocated_before": 1703936,
+      "allocated_after": 765952
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50252_solid_boundary.vtu",
+      "sha256": "741c3a514f00b88c698d7792a09e34160d6e9842c34cb94cd9c468bc6b4a02b3",
+      "logical_bytes": 1253869,
+      "allocated_before": 1257472,
+      "allocated_after": 634880
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50253.vtu",
+      "sha256": "0309b5fb19e5a8efc139a0d2eb8cdb26f44aa25eadd7c99ca27db9c1659cc004",
+      "logical_bytes": 2774169,
+      "allocated_before": 2777088,
+      "allocated_after": 2142208
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50253_boundary.vtu",
+      "sha256": "67212108c715c5f4f42bdd63486d224608d25426d242281af1e6c0854c87c944",
+      "logical_bytes": 2013009,
+      "allocated_before": 2015232,
+      "allocated_after": 1028096
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50253_solid.vtu",
+      "sha256": "25a90751b5370f9f0e664f17a6f9cf5f72d9bf0f4db88a78bdb5f78aac1a4893",
+      "logical_bytes": 1703043,
+      "allocated_before": 1703936,
+      "allocated_after": 765952
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50253_solid_boundary.vtu",
+      "sha256": "9e264581fcf3d64850df95ebb4d4bd1ac7e5f6806f40903caf37b0d3f9b14c8b",
+      "logical_bytes": 1253885,
+      "allocated_before": 1257472,
+      "allocated_after": 634880
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50254.vtu",
+      "sha256": "e6ded5c0def2235ce23bb429627e4171a032a04b61354080c44e7e9cf420b698",
+      "logical_bytes": 2774388,
+      "allocated_before": 2777088,
+      "allocated_after": 2142208
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50254_boundary.vtu",
+      "sha256": "032ad0f2e615cf9aafd89dde3ced9ff396dbe73f340238f6a8758152acbaf58a",
+      "logical_bytes": 2013228,
+      "allocated_before": 2015232,
+      "allocated_after": 1028096
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50254_solid.vtu",
+      "sha256": "bec39f93917c9178a70736836614191d678668a7dade3ba98ff73e1ed0483bc6",
+      "logical_bytes": 1703005,
+      "allocated_before": 1703936,
+      "allocated_after": 765952
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50254_solid_boundary.vtu",
+      "sha256": "a852db3ee37ddc0f493436f37ea34b554bc9bde4955cf522242019924e3adcf6",
+      "logical_bytes": 1253847,
+      "allocated_before": 1257472,
+      "allocated_after": 630784
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50255.vtu",
+      "sha256": "5527efcb65b42ecb65dce27456fa199c3447cdedb8e84e5544eeb2f58ecdb385",
+      "logical_bytes": 2774024,
+      "allocated_before": 2777088,
+      "allocated_after": 2138112
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50255_boundary.vtu",
+      "sha256": "b04528c4220091a35d98696e3a25b825d09520889521efb67318c934e8f79c50",
+      "logical_bytes": 2012864,
+      "allocated_before": 2015232,
+      "allocated_after": 1024000
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50255_solid.vtu",
+      "sha256": "3cd486867aa8601969f540b4279ca95e786c8eb3acef310152266b65464dc142",
+      "logical_bytes": 1703026,
+      "allocated_before": 1703936,
+      "allocated_after": 761856
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50255_solid_boundary.vtu",
+      "sha256": "8566e347bcbb390d6a1eb0e974b3bbf34d437c87e3ab0b37387644e18ea037a3",
+      "logical_bytes": 1253868,
+      "allocated_before": 1257472,
+      "allocated_after": 630784
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50256.vtu",
+      "sha256": "cc40e52edd35396cbe0892122ad9362eaafab6c93a4281002e42cd43b3cb2ec5",
+      "logical_bytes": 2774088,
+      "allocated_before": 2777088,
+      "allocated_after": 2138112
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50256_boundary.vtu",
+      "sha256": "8ac1934ff508d08cfa4f3dc7ad30adeb72add158f61fdb09594c61e7f35e5bac",
+      "logical_bytes": 2012928,
+      "allocated_before": 2015232,
+      "allocated_after": 1085440
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50256_solid.vtu",
+      "sha256": "9628f7ae810fe600c62dab7323f93c464ec6d0dc339dc5574d2479230f8fedfa",
+      "logical_bytes": 1702952,
+      "allocated_before": 1703936,
+      "allocated_after": 757760
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50256_solid_boundary.vtu",
+      "sha256": "3364f5b1cb9ccb09b9441bf2740fd97dbdaa9980889b96954d8081dfed33febf",
+      "logical_bytes": 1253794,
+      "allocated_before": 1257472,
+      "allocated_after": 622592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50257.vtu",
+      "sha256": "76c82a65150270596a7d61e5102c70d74b7e3dff4552408d61b9a01bef042c82",
+      "logical_bytes": 2774098,
+      "allocated_before": 2777088,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50257_boundary.vtu",
+      "sha256": "fbc2f91a3c2c66924d30a4afc9dc3083a7280fc79b66c8a23ea76176eabf1e46",
+      "logical_bytes": 2012938,
+      "allocated_before": 2015232,
+      "allocated_after": 1081344
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50257_solid.vtu",
+      "sha256": "ca88b51ab963cc40d5bb31e48fca3dfe60463fa3f15555fb4589e412bf286289",
+      "logical_bytes": 1702940,
+      "allocated_before": 1703936,
+      "allocated_after": 753664
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50257_solid_boundary.vtu",
+      "sha256": "35f409ec89d79e5b02c5a05feb3c98e286e29a1e700a71070bac02348538a3be",
+      "logical_bytes": 1253782,
+      "allocated_before": 1257472,
+      "allocated_after": 622592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50258.vtu",
+      "sha256": "dedd36ccbecfd85bbcb7b10309c2d944ea29211e566952051645876655eeb4f7",
+      "logical_bytes": 2774232,
+      "allocated_before": 2777088,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50258_boundary.vtu",
+      "sha256": "47ed8f8bd345f67b53d3b93961bc0ef7499798a912dbd80d0f292564d89e22fb",
+      "logical_bytes": 2013072,
+      "allocated_before": 2015232,
+      "allocated_after": 1077248
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50258_solid.vtu",
+      "sha256": "a2ee1bc76fa8ccbfe2f646e460857ec33c8bdc2b4ebbefb80ce8f178fa55f523",
+      "logical_bytes": 1702957,
+      "allocated_before": 1703936,
+      "allocated_after": 749568
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50258_solid_boundary.vtu",
+      "sha256": "f4d89feffec2d41fcef37d3b09687c9010681f6bea1f60a939b47680df77be74",
+      "logical_bytes": 1253799,
+      "allocated_before": 1257472,
+      "allocated_after": 618496
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50259.vtu",
+      "sha256": "b7dc79ef53c8770b65b476b2b8499289b5db012a7d7f2f0c32bf3ea9198dfd60",
+      "logical_bytes": 2774181,
+      "allocated_before": 2777088,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50259_boundary.vtu",
+      "sha256": "0f1ff5ffb0c54d4b622b38ee4cf0b4d07069d7e93534b6258da7a37da527063f",
+      "logical_bytes": 2013021,
+      "allocated_before": 2015232,
+      "allocated_after": 1077248
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50259_solid.vtu",
+      "sha256": "18d422f39df351f18cbb1bb4be361da673d143ac36556add2ab2e96811192c2c",
+      "logical_bytes": 1703068,
+      "allocated_before": 1703936,
+      "allocated_after": 749568
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50259_solid_boundary.vtu",
+      "sha256": "b49226ebc4c8a4e2e18fd4e51f49e4a31af2699157337e960a8c79dcb3fb8b69",
+      "logical_bytes": 1253910,
+      "allocated_before": 1257472,
+      "allocated_after": 614400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50260.vtu",
+      "sha256": "31e799b38569031d0effa20d0a58ea9ef22791433156d319d96d141fe7c8cf79",
+      "logical_bytes": 2774088,
+      "allocated_before": 2777088,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50260_boundary.vtu",
+      "sha256": "08d6053c18ac4a827939999263a2985f0836c3281532061fb4dd43a96965dc42",
+      "logical_bytes": 2012928,
+      "allocated_before": 2015232,
+      "allocated_after": 1073152
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50260_solid.vtu",
+      "sha256": "afc94853e5de21cffa97b3fc45182b9611d9e6cb188ac8d36f53be2be1d56710",
+      "logical_bytes": 1702914,
+      "allocated_before": 1703936,
+      "allocated_after": 745472
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50260_solid_boundary.vtu",
+      "sha256": "aa834f840aa03f03d9bdc1611e4bcbb9a2f2fd6f7d7f9022b0fe857fd6ba3788",
+      "logical_bytes": 1253756,
+      "allocated_before": 1257472,
+      "allocated_after": 614400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50261.vtu",
+      "sha256": "47b34ac9da2bc98a15b543d01b63cf73c41d2ca82c7636d40ebcb0e9d4b3e2d8",
+      "logical_bytes": 2774172,
+      "allocated_before": 2777088,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50261_boundary.vtu",
+      "sha256": "7b1c8c0fd6de397fc4bb18643b37cc1e19704f2a81f4b7f217e6016ef1cc6da0",
+      "logical_bytes": 2013012,
+      "allocated_before": 2015232,
+      "allocated_after": 1073152
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50261_solid.vtu",
+      "sha256": "05459da488c1df28073d00eff968852594b06ecc20fb35c0bffc7b3fe9ad89ae",
+      "logical_bytes": 1702931,
+      "allocated_before": 1703936,
+      "allocated_after": 741376
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50261_solid_boundary.vtu",
+      "sha256": "ba31e52ec07323083be706319c1db7a0a95b7cf52ada2d7d3d5043c20f5d541b",
+      "logical_bytes": 1253773,
+      "allocated_before": 1257472,
+      "allocated_after": 610304
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50262.vtu",
+      "sha256": "6cf1d6feff24f827e36d059b40b665c1a444a71c410020a6a0d96a79ca869ff3",
+      "logical_bytes": 2774283,
+      "allocated_before": 2777088,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50262_boundary.vtu",
+      "sha256": "a9c2f00ef50412fe7e7edab3247292c13660fbbed5e442ffd8720c1f54b66a0c",
+      "logical_bytes": 2013123,
+      "allocated_before": 2015232,
+      "allocated_after": 1069056
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50262_solid.vtu",
+      "sha256": "fc995ce28081bd127f73984ca6822b00d1e69509b46c46724c4c08331d134f3a",
+      "logical_bytes": 1703033,
+      "allocated_before": 1703936,
+      "allocated_after": 741376
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50262_solid_boundary.vtu",
+      "sha256": "1b65e062d9790c4556eb76970cf55427d5d53a5f3f30551c8e0f653f6736c03d",
+      "logical_bytes": 1253875,
+      "allocated_before": 1257472,
+      "allocated_after": 606208
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50263.vtu",
+      "sha256": "11d501dbfa40ae947f6cd06b154d86bb5447ce8faae4f2b6511620eae4b8a502",
+      "logical_bytes": 2774186,
+      "allocated_before": 2777088,
+      "allocated_after": 2109440
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50263_boundary.vtu",
+      "sha256": "76b5ccb8755cdef2aa26770558ab3361ea830955c006cad12b4d000f2640cfe8",
+      "logical_bytes": 2013026,
+      "allocated_before": 2015232,
+      "allocated_after": 1077248
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50263_solid.vtu",
+      "sha256": "7d450e57ea01f3d67c2f7ad1fe385ab02b4b8ecbad08fe4a2b573230c2164bad",
+      "logical_bytes": 1703036,
+      "allocated_before": 1703936,
+      "allocated_after": 770048
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50263_solid_boundary.vtu",
+      "sha256": "548b8666238ebd4e14ff7e3d47534744e44d34042f90ae4a7d898cfb43219e6e",
+      "logical_bytes": 1253878,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50264.vtu",
+      "sha256": "7f35a8a26ee8bae4ace4c77d6e22b1cde90b0ec42052d5d8c8f230271a2eda50",
+      "logical_bytes": 2774262,
+      "allocated_before": 2777088,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50264_boundary.vtu",
+      "sha256": "75bde6c98d84cf33719e163d506b6c97d5c0c68285d6c5859906fe66ee84bd70",
+      "logical_bytes": 2013102,
+      "allocated_before": 2015232,
+      "allocated_after": 1048576
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50264_solid.vtu",
+      "sha256": "c188cb4fd11c78aa8f9426b1e70741c77ae28f0ac0a487dafc6a42c306d27aa2",
+      "logical_bytes": 1703023,
+      "allocated_before": 1703936,
+      "allocated_after": 716800
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50264_solid_boundary.vtu",
+      "sha256": "1e179e3dc3c4f16b89f411158b389c8070c26e9747e5a6e58fd7b84ee868efe2",
+      "logical_bytes": 1253865,
+      "allocated_before": 1257472,
+      "allocated_after": 647168
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50265.vtu",
+      "sha256": "acf7e9115c1fe028b20093ff649c504d968e21198614dc8ccbe294ee224e7d3f",
+      "logical_bytes": 2774315,
+      "allocated_before": 2777088,
+      "allocated_after": 2154496
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50265_boundary.vtu",
+      "sha256": "45d9c7cd2bc0fe4acdea3fce81d351dd4a22bf008c5e3b9ab169a75b116789d0",
+      "logical_bytes": 2013155,
+      "allocated_before": 2015232,
+      "allocated_after": 1036288
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50265_solid.vtu",
+      "sha256": "d4e7e05d4fe504a96b43ed8cda76e1254ee54c01b31bf57cccec2f6f4bfca0c8",
+      "logical_bytes": 1702884,
+      "allocated_before": 1703936,
+      "allocated_after": 774144
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50265_solid_boundary.vtu",
+      "sha256": "229106889281a019169cbf241c7d2c428a2815d441b718f8316392376c2de9df",
+      "logical_bytes": 1253726,
+      "allocated_before": 1257472,
+      "allocated_after": 634880
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50266.vtu",
+      "sha256": "0c914f751c273e73d09c67070e45fcdcf96fe6220c42d1126d441f7bce905b7d",
+      "logical_bytes": 2774158,
+      "allocated_before": 2777088,
+      "allocated_after": 2138112
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50266_boundary.vtu",
+      "sha256": "f9e7d87e86cd7fcade6f1a1973ed329f9b1eaaa7e92e1bf0b8dea0a4c76a97be",
+      "logical_bytes": 2012998,
+      "allocated_before": 2015232,
+      "allocated_after": 1085440
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50266_solid.vtu",
+      "sha256": "7a895360221f6434fe05375e13f2371150118fbf4fb5601a6170ac810de5abe2",
+      "logical_bytes": 1703007,
+      "allocated_before": 1703936,
+      "allocated_after": 753664
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50266_solid_boundary.vtu",
+      "sha256": "71de7ce2ce5ff3b5c4be58ec576638db9573e4e4bace6f47b6dfc1dd12352e21",
+      "logical_bytes": 1253849,
+      "allocated_before": 1257472,
+      "allocated_after": 618496
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50267.vtu",
+      "sha256": "b6f169ab17892c791f2aaabec158751c48c20377e820b4eb05aff7a5f30f4431",
+      "logical_bytes": 2774186,
+      "allocated_before": 2777088,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50267_boundary.vtu",
+      "sha256": "d355f5776666279508746f01da9c074f4e5e45ab892aff868c0e0f77fd1adc7f",
+      "logical_bytes": 2013026,
+      "allocated_before": 2015232,
+      "allocated_after": 1069056
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50267_solid.vtu",
+      "sha256": "9bd86d06453b97ce02d2e769f6dbb86fb1b0b9cc9377d8aafb0a6837d17ae3be",
+      "logical_bytes": 1702924,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50267_solid_boundary.vtu",
+      "sha256": "c2c02aad2c8fe21d4268af0eca706f5e15acb9f70eedeef2b5f1ef39029282d8",
+      "logical_bytes": 1253766,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50268.vtu",
+      "sha256": "76fb7f0dd8f8ef29884d8ec525d0e5e6ac6cedff0640cbc7f98709faef12d1d8",
+      "logical_bytes": 2774168,
+      "allocated_before": 2777088,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50268_boundary.vtu",
+      "sha256": "90f8d3e44bc8330bb2c3a6e13aeefc84c5fbbaf6ab7458105ce1cc4d5adff2b5",
+      "logical_bytes": 2013008,
+      "allocated_before": 2015232,
+      "allocated_after": 1048576
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50268_solid.vtu",
+      "sha256": "7d17e3d709f942f761c3cac6f6669833fd7fd571e8e000c8ca4226e050b68438",
+      "logical_bytes": 1702957,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50268_solid_boundary.vtu",
+      "sha256": "c9e00b30758ed6c1ea0ad5923a3a74b20bf76eae387a02c698c4dc85588688ee",
+      "logical_bytes": 1253799,
+      "allocated_before": 1257472,
+      "allocated_after": 655360
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50269.vtu",
+      "sha256": "aab4575d1e3e4dadaf1507a68f1cf6afd9c76491e51e6090763e4f1e801fdf39",
+      "logical_bytes": 2774121,
+      "allocated_before": 2777088,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50269_boundary.vtu",
+      "sha256": "43e2273af88207a9519dbd2a4e8c51a20e36c8e874ac86a5bd9257fe4f22d2da",
+      "logical_bytes": 2012961,
+      "allocated_before": 2015232,
+      "allocated_after": 1048576
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50269_solid.vtu",
+      "sha256": "1c63d4255ddbf814ae3c1b2c1dde2e8d40f90318e248a9a89c674e5c63a87b5c",
+      "logical_bytes": 1702966,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50269_solid_boundary.vtu",
+      "sha256": "7bd14835354a974eb75ade30d473e562ff2f5486e40f9836226a98062ac14d1b",
+      "logical_bytes": 1253808,
+      "allocated_before": 1257472,
+      "allocated_after": 651264
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50270.vtu",
+      "sha256": "9a13fb49b068762da88e4fae018330b82756f0571c5cec4bdf7855a27365cee3",
+      "logical_bytes": 2773914,
+      "allocated_before": 2777088,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50270_boundary.vtu",
+      "sha256": "ab7218c53cfc2aa92a6ffd75dffbd66294334572185e2141dc282a0836b99757",
+      "logical_bytes": 2012754,
+      "allocated_before": 2015232,
+      "allocated_after": 1044480
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50270_solid.vtu",
+      "sha256": "96982664152f1b6e796703db800f02655823244e6e7c777450a93d5d91da1176",
+      "logical_bytes": 1702886,
+      "allocated_before": 1703936,
+      "allocated_after": 778240
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50270_solid_boundary.vtu",
+      "sha256": "d337726574bb90d59060c0312c97b8225edb2bba52d3d8f84066f9b3a67cad94",
+      "logical_bytes": 1253728,
+      "allocated_before": 1257472,
+      "allocated_after": 647168
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50271.vtu",
+      "sha256": "513d88e1cc427c237ccf8d11e55b71640eda816f51d51039afca3090820b26c0",
+      "logical_bytes": 2774204,
+      "allocated_before": 2777088,
+      "allocated_after": 2154496
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50271_boundary.vtu",
+      "sha256": "a89b8224e843f06b334162cbf7d71d87cf416ef1630d35613ebfe0ea5b46815d",
+      "logical_bytes": 2013044,
+      "allocated_before": 2015232,
+      "allocated_after": 1032192
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50271_solid.vtu",
+      "sha256": "e5adb952d9dd3af239218b8e1b674edbb85a91f9623bba020d0cf7bfce0bce6c",
+      "logical_bytes": 1703070,
+      "allocated_before": 1703936,
+      "allocated_after": 770048
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50271_solid_boundary.vtu",
+      "sha256": "5f1e02eeb6fef08c9247e54e840ee9ddb9ee21cf807643468d6b1372caaa518c",
+      "logical_bytes": 1253912,
+      "allocated_before": 1257472,
+      "allocated_after": 634880
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50272.vtu",
+      "sha256": "9cbfe020e062622ad52d0e1c6f39a06075d10499ca077dbd81eb5002a937bd35",
+      "logical_bytes": 2774129,
+      "allocated_before": 2777088,
+      "allocated_after": 2142208
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50272_boundary.vtu",
+      "sha256": "526c4b9823e69cd280d2c61a21acff8cda0736bb87e96006de9518c4e6425bdc",
+      "logical_bytes": 2012969,
+      "allocated_before": 2015232,
+      "allocated_after": 1024000
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50272_solid.vtu",
+      "sha256": "d03d7e6096bd84aa0a9127de9e2183884e787ef909133a14826840f04126f71b",
+      "logical_bytes": 1703073,
+      "allocated_before": 1703936,
+      "allocated_after": 761856
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50272_solid_boundary.vtu",
+      "sha256": "3c539528347366fb567c06e18fc222e973bf228c43ef3894f9d7f52f395f91f1",
+      "logical_bytes": 1253915,
+      "allocated_before": 1257472,
+      "allocated_after": 626688
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50273.vtu",
+      "sha256": "6a59d36961960b5daf7af43def0f3e0fd2711a6dedbfe9df44ca6b77a5848f63",
+      "logical_bytes": 2774233,
+      "allocated_before": 2777088,
+      "allocated_after": 2134016
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50273_boundary.vtu",
+      "sha256": "8403acf76195edcfee42474a432dcbef87bcd5e6fb938c4fb1ed36112fd92c41",
+      "logical_bytes": 2013073,
+      "allocated_before": 2015232,
+      "allocated_after": 1081344
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50273_solid.vtu",
+      "sha256": "9f18bafbc3a149736fb59fda9f2e7047a6810fe47c4333db1ea56964dc730acf",
+      "logical_bytes": 1702883,
+      "allocated_before": 1703936,
+      "allocated_after": 749568
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50273_solid_boundary.vtu",
+      "sha256": "1a648a1721df9d48337c5cb74f75a018335b760466e27be6233063b8ecc0355b",
+      "logical_bytes": 1253725,
+      "allocated_before": 1257472,
+      "allocated_after": 614400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50274.vtu",
+      "sha256": "f6bbdc3711b997b7964cc19eb46877846053d511b8f7333e63638354497e65e7",
+      "logical_bytes": 2774089,
+      "allocated_before": 2777088,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50274_boundary.vtu",
+      "sha256": "ac990a18f7618c16b56c8c2204af2172d19ee0636ade00d9b1385dff6073e270",
+      "logical_bytes": 2012929,
+      "allocated_before": 2015232,
+      "allocated_after": 1073152
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50274_solid.vtu",
+      "sha256": "cf0bf92af3eb9c96bc32c2468b8805b6ca3e83606174162cf2946140c468f94f",
+      "logical_bytes": 1703039,
+      "allocated_before": 1703936,
+      "allocated_after": 745472
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50274_solid_boundary.vtu",
+      "sha256": "ae71907b489fc658cc37f675906f81d0511c507155a06ff008df9f5d78688451",
+      "logical_bytes": 1253881,
+      "allocated_before": 1257472,
+      "allocated_after": 610304
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50275.vtu",
+      "sha256": "07bdb49d1dd455fca2445f90f832139c95795672d331371430514abbec75ace0",
+      "logical_bytes": 2774151,
+      "allocated_before": 2777088,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50275_boundary.vtu",
+      "sha256": "d0508b67f49d073110e0a44ca6150e1805883337f6f8188faf13647608c1d620",
+      "logical_bytes": 2012991,
+      "allocated_before": 2015232,
+      "allocated_after": 1069056
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50275_solid.vtu",
+      "sha256": "2f6495e01bf32c5c1620737186e607daacaa9b62ef22cdc06745a56ebe12475a",
+      "logical_bytes": 1702953,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50275_solid_boundary.vtu",
+      "sha256": "de6a27cdf38836ce9597cd3de97c0ed51f6148997c1a2a2cdd69f6bc2e62b18b",
+      "logical_bytes": 1253795,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50276.vtu",
+      "sha256": "9e392c105391700e39b7ff3d3bed16da898fdffb669339e633d5ab247c998278",
+      "logical_bytes": 2774374,
+      "allocated_before": 2777088,
+      "allocated_after": 2109440
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50276_boundary.vtu",
+      "sha256": "02b07d6e8616a5e2074760408832c13d4dc1489d84b1b0b2db3f807c09e492b7",
+      "logical_bytes": 2013214,
+      "allocated_before": 2015232,
+      "allocated_after": 1081344
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50276_solid.vtu",
+      "sha256": "6e279612cde17c42796e441ab55d4b30345a678202b3e4555c0276dcb4a845ad",
+      "logical_bytes": 1702998,
+      "allocated_before": 1703936,
+      "allocated_after": 745472
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50276_solid_boundary.vtu",
+      "sha256": "4d39fd65729d625db5aadeaf02ba62ee214f4f535b7d8267e5f2e435d6242697",
+      "logical_bytes": 1253840,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50277.vtu",
+      "sha256": "67e3afdb7e0eb536bf619962786b6950689e92a0f315847bf928f2d5cf8fa659",
+      "logical_bytes": 2774300,
+      "allocated_before": 2777088,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50277_boundary.vtu",
+      "sha256": "f2d4c94d9790de3e7eb4d0aed91561dacbb3cea2b2433b94b9004200354f7d1b",
+      "logical_bytes": 2013140,
+      "allocated_before": 2015232,
+      "allocated_after": 1073152
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50277_solid.vtu",
+      "sha256": "6f9685a8aadf9ace255d99da84968924e852096467cb925de56c5c6af1e7fd97",
+      "logical_bytes": 1702995,
+      "allocated_before": 1703936,
+      "allocated_after": 741376
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50277_solid_boundary.vtu",
+      "sha256": "94d819afa4bd9851e408cb198d3aac35d45f0b139d8b4833d7554495d894a61f",
+      "logical_bytes": 1253837,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50278.vtu",
+      "sha256": "11d8a75f6bf9fc71e3c3268ecd437c17180833df092c36950367f984f1ecf6af",
+      "logical_bytes": 2774348,
+      "allocated_before": 2777088,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50278_boundary.vtu",
+      "sha256": "422fef70ee66b0c7f85e485979b595c708ba6e9211420564992d581f5f5d239e",
+      "logical_bytes": 2013188,
+      "allocated_before": 2015232,
+      "allocated_after": 1064960
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50278_solid.vtu",
+      "sha256": "b811f9374ac1a33274c56ad728216a61d052e0d55e3e5f49ce17da061037a470",
+      "logical_bytes": 1702948,
+      "allocated_before": 1703936,
+      "allocated_after": 729088
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50278_solid_boundary.vtu",
+      "sha256": "115e604e2dd1778c2ed166331b63407da4a71176e9afbced3552e74a53dc62f9",
+      "logical_bytes": 1253790,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50279.vtu",
+      "sha256": "a1a44797a48feb3e6e582b862fc0f1ee87dde131af220bf058ed80ef2f1ea40e",
+      "logical_bytes": 2774135,
+      "allocated_before": 2777088,
+      "allocated_after": 2105344
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50279_boundary.vtu",
+      "sha256": "76fc740fc0d6c9bcd3ee353c3a45e1822e0fd700ad53946dce794c5149367a87",
+      "logical_bytes": 2012975,
+      "allocated_before": 2015232,
+      "allocated_after": 1048576
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50279_solid.vtu",
+      "sha256": "cdb6aab5488296143fa9e4a6e3958c79982a5b428c6000cc58852faff35ae0db",
+      "logical_bytes": 1702960,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50279_solid_boundary.vtu",
+      "sha256": "24fd8aebd4c392db04a23cb1247d3c221b7d469e3d13c3fd9cb7edf05d62a531",
+      "logical_bytes": 1253802,
+      "allocated_before": 1257472,
+      "allocated_after": 655360
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50280.vtu",
+      "sha256": "efd8ce424a293911bd34418ebaf698d6623db427a08d1fd5c4383e95903434bd",
+      "logical_bytes": 2774383,
+      "allocated_before": 2777088,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50280_boundary.vtu",
+      "sha256": "f92141d6af2c2b0211896108abfbd2add0fbfbf43fc88d8216260909059607f3",
+      "logical_bytes": 2013223,
+      "allocated_before": 2015232,
+      "allocated_after": 1044480
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50280_solid.vtu",
+      "sha256": "6599cfaf11413eff485fdc1c9c092e6940c81c3d694ad924fea347f7eebf1051",
+      "logical_bytes": 1702934,
+      "allocated_before": 1703936,
+      "allocated_after": 782336
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50280_solid_boundary.vtu",
+      "sha256": "7faf0d7f84c3777d72fb5497a4fccfca31aaf1fb3ad082f39d0fa09e6929e21b",
+      "logical_bytes": 1253776,
+      "allocated_before": 1257472,
+      "allocated_after": 651264
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50281.vtu",
+      "sha256": "55d06b05f514af099b63a933ff5db39e294ee47d9a66d6d4186c06df0b124cb0",
+      "logical_bytes": 2774117,
+      "allocated_before": 2777088,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50281_boundary.vtu",
+      "sha256": "f48ab91d13627ca161561d26d87aaef460dcc33e2edc6fa95ea351ac9bb7fc8a",
+      "logical_bytes": 2012957,
+      "allocated_before": 2015232,
+      "allocated_after": 1040384
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50281_solid.vtu",
+      "sha256": "0d6e24f4f7bbe1e27266bd5ed189109a7e252b9479943d9bdbd1a5ec93824b5f",
+      "logical_bytes": 1702889,
+      "allocated_before": 1703936,
+      "allocated_after": 778240
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50281_solid_boundary.vtu",
+      "sha256": "8921f0d25db6eecf83e9813d8453def2d652c18e1df89ed0990b05463b52e953",
+      "logical_bytes": 1253731,
+      "allocated_before": 1257472,
+      "allocated_after": 643072
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50282.vtu",
+      "sha256": "bc7c14a6b0f708af1e34dd66871894224899bd1233c2b8e820281997c9861e81",
+      "logical_bytes": 2774204,
+      "allocated_before": 2777088,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50282_boundary.vtu",
+      "sha256": "a7ac58db7a103d1a775160fddf622d834063c2de94c740cd8c365d9695d42695",
+      "logical_bytes": 2013044,
+      "allocated_before": 2015232,
+      "allocated_after": 1036288
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50282_solid.vtu",
+      "sha256": "e7a5f54a558e5310da215c2a5c9b46a6fd215cc667670852ddf80b8ed42e3d09",
+      "logical_bytes": 1702921,
+      "allocated_before": 1703936,
+      "allocated_after": 770048
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50282_solid_boundary.vtu",
+      "sha256": "901029f288a6842d6132b3e290f76b63ee9f882367fc1dc4efcc4688326e45ea",
+      "logical_bytes": 1253763,
+      "allocated_before": 1257472,
+      "allocated_after": 638976
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50283.vtu",
+      "sha256": "50399f1e7aebfd7d06cbd4b2af68975bae9cc170260bb0dd7c16c0b35ceb93c3",
+      "logical_bytes": 2774017,
+      "allocated_before": 2777088,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50283_boundary.vtu",
+      "sha256": "7a59266198b59fc59676aa769b75f7abe3a7b5d35d1eb07c6cbbff776897e6ad",
+      "logical_bytes": 2012857,
+      "allocated_before": 2015232,
+      "allocated_after": 1028096
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50283_solid.vtu",
+      "sha256": "0918daa9257faaa36ea9919834060ca4d0724dd5f27142172d7439cc4f39e7f8",
+      "logical_bytes": 1703042,
+      "allocated_before": 1703936,
+      "allocated_after": 761856
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50283_solid_boundary.vtu",
+      "sha256": "92e4cebac643c86b5404e3252e8abe7e00362d81c0d512e7fd4730a27b40be34",
+      "logical_bytes": 1253884,
+      "allocated_before": 1257472,
+      "allocated_after": 630784
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50284.vtu",
+      "sha256": "703ff1ef9485048a264aea0addf2dfd9e0fc807084fb46ef61e746e7119b7719",
+      "logical_bytes": 2774068,
+      "allocated_before": 2777088,
+      "allocated_after": 2138112
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50284_boundary.vtu",
+      "sha256": "e70381e2ec453f9223d887155553b43ee80190f4becd0a85a3bf6f7e47996251",
+      "logical_bytes": 2012908,
+      "allocated_before": 2015232,
+      "allocated_after": 1085440
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50284_solid.vtu",
+      "sha256": "5a57a7e2188f833fdcc780f634d2f3928402b6d7e91c76125b55c08303c15e7d",
+      "logical_bytes": 1703040,
+      "allocated_before": 1703936,
+      "allocated_after": 753664
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50284_solid_boundary.vtu",
+      "sha256": "212eda31c9cab1e63e43fcf27c07e64311ae8f3f620dbaaad47d235f9b3b464e",
+      "logical_bytes": 1253882,
+      "allocated_before": 1257472,
+      "allocated_after": 622592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50285.vtu",
+      "sha256": "34f8857ae0a6cf8d74bc7f9532ea46a2c8225fc1bf87b72bda8ca29d5d0dd40a",
+      "logical_bytes": 2774190,
+      "allocated_before": 2777088,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50285_boundary.vtu",
+      "sha256": "5c2b917735495200708637d8530c6466a158ad8ecbcd2b4989b59f3ba86f0c3e",
+      "logical_bytes": 2013030,
+      "allocated_before": 2015232,
+      "allocated_after": 1077248
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50285_solid.vtu",
+      "sha256": "86130d1d7ece04d54071479f695a68ceb6fe10f932a90d4928b1cf0d0c743bce",
+      "logical_bytes": 1702935,
+      "allocated_before": 1703936,
+      "allocated_after": 745472
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50285_solid_boundary.vtu",
+      "sha256": "709f7c76baaddfe0645017d8b704f16a233dfb7f4f7d3dfb3ec3ff656ef05f9e",
+      "logical_bytes": 1253777,
+      "allocated_before": 1257472,
+      "allocated_after": 610304
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50286.vtu",
+      "sha256": "ee8cba93442d20dc5257a0facc12c5801917dc977e4203ad576af64d622830af",
+      "logical_bytes": 2774153,
+      "allocated_before": 2777088,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50286_boundary.vtu",
+      "sha256": "eb36d1dbe8ade9bfd349e44d62b1c60b5409ef52c53d6549e79e4929240df695",
+      "logical_bytes": 2012993,
+      "allocated_before": 2015232,
+      "allocated_after": 1069056
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50286_solid.vtu",
+      "sha256": "678e9bc81111d958a2bd1e71664df2a8ba346145f1bf47ec8999f5551228bca7",
+      "logical_bytes": 1703059,
+      "allocated_before": 1703936,
+      "allocated_after": 741376
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50286_solid_boundary.vtu",
+      "sha256": "52c33d3cbe0cbd5966e6633336a0e53766edb70c264bd1370eca19c366f0b3aa",
+      "logical_bytes": 1253901,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50287.vtu",
+      "sha256": "93e2b1cc1882d4bd0a5e561a87b59c38f357cb6a0558bc1c61dbe43ef907ec20",
+      "logical_bytes": 2774089,
+      "allocated_before": 2777088,
+      "allocated_after": 2113536
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50287_boundary.vtu",
+      "sha256": "360a5951a1af5cb696a796fa75c27545b90447703066589446507c54c1b1e984",
+      "logical_bytes": 2012929,
+      "allocated_before": 2015232,
+      "allocated_after": 1044480
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50287_solid.vtu",
+      "sha256": "58037aec47d29fd3290376f2f235766e1391db94352af1a0d7750c57bb676c42",
+      "logical_bytes": 1702847,
+      "allocated_before": 1703936,
+      "allocated_after": 716800
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50287_solid_boundary.vtu",
+      "sha256": "c71f67ad2c99315c4cc0480882b725529dfc9845c0783254f70d0522d153a981",
+      "logical_bytes": 1253689,
+      "allocated_before": 1257472,
+      "allocated_after": 647168
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50288.vtu",
+      "sha256": "60d7611f2150b9bee19e44908c3730473f5af85f28c3d2c016426fa46b6e7d0f",
+      "logical_bytes": 2774199,
+      "allocated_before": 2777088,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50288_boundary.vtu",
+      "sha256": "aca7ac4fbc6b155933925388bce1e74b411c06ca64f4eb07ad0d65b704f7360a",
+      "logical_bytes": 2013039,
+      "allocated_before": 2015232,
+      "allocated_after": 1024000
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50288_solid.vtu",
+      "sha256": "bfe85ae32fd18e8456abc958dc4b8f0dd2174d705263f960ab0061686d397b55",
+      "logical_bytes": 1703013,
+      "allocated_before": 1703936,
+      "allocated_after": 716800
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50288_solid_boundary.vtu",
+      "sha256": "148a25b245b0f7968ec5c38cc54d19a3efea3c59bd37319c016c8767aad8b706",
+      "logical_bytes": 1253855,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50289.vtu",
+      "sha256": "22f3934527915f928136267d2e1ec0934f9429ce557b1249a3064ff0fa0ed91a",
+      "logical_bytes": 2774130,
+      "allocated_before": 2777088,
+      "allocated_after": 2134016
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50289_boundary.vtu",
+      "sha256": "a031964fc5f10398cbf5513d58154acf691c20ea3638f0e86ebeba8cc0934696",
+      "logical_bytes": 2012970,
+      "allocated_before": 2015232,
+      "allocated_after": 1032192
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50289_solid.vtu",
+      "sha256": "3b073a0f9f73c5cd0c8638f436d582fae2e777e3d07a3a2959eec555352f17b4",
+      "logical_bytes": 1703045,
+      "allocated_before": 1703936,
+      "allocated_after": 757760
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50289_solid_boundary.vtu",
+      "sha256": "47b8d1cdcd176ea7ff271f9dc53d6b76320c84712f6af88fcbb8e1682e8abaab",
+      "logical_bytes": 1253887,
+      "allocated_before": 1257472,
+      "allocated_after": 622592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50290.vtu",
+      "sha256": "00b76fec634d69b4a58fca6549fe22d4a67c34e7247fd07ede857588a89042a0",
+      "logical_bytes": 2774089,
+      "allocated_before": 2777088,
+      "allocated_after": 2195456
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50290_boundary.vtu",
+      "sha256": "adca9c3188695effe485840a1e2d5efad6a15fd0ba8e0c2db032bdd0d79c3f9e",
+      "logical_bytes": 2012929,
+      "allocated_before": 2015232,
+      "allocated_after": 1048576
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50290_solid.vtu",
+      "sha256": "e024d505c62e4a21c6c4a8dede35f83d2edf5d0e3268977af64298cb9d357a02",
+      "logical_bytes": 1702851,
+      "allocated_before": 1703936,
+      "allocated_after": 737280
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50290_solid_boundary.vtu",
+      "sha256": "7474a028b76296a12f9e445fdd34967a9958c427a700fdab45c0fdc505ccb38a",
+      "logical_bytes": 1253693,
+      "allocated_before": 1257472,
+      "allocated_after": 606208
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50291.vtu",
+      "sha256": "5d34cd2f41ead9bf74bc4d947be38411f2f4f8a722435b23995c402c1216b134",
+      "logical_bytes": 2774254,
+      "allocated_before": 2777088,
+      "allocated_after": 2113536
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50291_boundary.vtu",
+      "sha256": "bb238ecedb4dccd931a1dc2cf9c0f09d7ef53e4700a3e0a1e96963bb8eb3adac",
+      "logical_bytes": 2013094,
+      "allocated_before": 2015232,
+      "allocated_after": 1073152
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50291_solid.vtu",
+      "sha256": "d9f73d69eecb6b6c3ca0d54ad2e5222b953601bc8511b2fc20dcbb0822964cfd",
+      "logical_bytes": 1702954,
+      "allocated_before": 1703936,
+      "allocated_after": 716800
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50291_solid_boundary.vtu",
+      "sha256": "46c7dbcc1f27fb1e2f538c3bf208972eca1bcea7c8b2df7cb5ebfb27d9f4b483",
+      "logical_bytes": 1253796,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50292.vtu",
+      "sha256": "1c425c56ec11f67f86026fe4be5ebbd1057ee3b74fcac2858d6c73bc706d36f5",
+      "logical_bytes": 2774031,
+      "allocated_before": 2777088,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50292_boundary.vtu",
+      "sha256": "8b609fedae784c352b0f6a1ab46e66649bebcc9bf72e8b663eab4d9978c49798",
+      "logical_bytes": 2012871,
+      "allocated_before": 2015232,
+      "allocated_after": 1024000
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50292_solid.vtu",
+      "sha256": "780cded4ad4f0dd2047417c14c600d549320dc5dfa94da3f54481d265e5f8dff",
+      "logical_bytes": 1703015,
+      "allocated_before": 1703936,
+      "allocated_after": 761856
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50292_solid_boundary.vtu",
+      "sha256": "94d7f1307306c5d5c191533dd3a190a57a1f911f98bd328b6ce5ea3377bf04f2",
+      "logical_bytes": 1253857,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50293.vtu",
+      "sha256": "3ca59315ee57b725fb24190680abd9a86c011aded98f5ce827faa28a55a68cd1",
+      "logical_bytes": 2774130,
+      "allocated_before": 2777088,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50293_boundary.vtu",
+      "sha256": "2fa51d7e81b69212df9b092cb01504888e532b8d13020a3e05bbdd1c7b2213d1",
+      "logical_bytes": 2012970,
+      "allocated_before": 2015232,
+      "allocated_after": 1052672
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50293_solid.vtu",
+      "sha256": "e117150a12dde39019c95667da7110f955f66445a736103c4bc7523191ac8dba",
+      "logical_bytes": 1703027,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50293_solid_boundary.vtu",
+      "sha256": "cb5a29e33cc477189aaa32cbcac3f132aaa5bb6e610bd1857649dcb768068dc3",
+      "logical_bytes": 1253869,
+      "allocated_before": 1257472,
+      "allocated_after": 651264
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50294.vtu",
+      "sha256": "b7bae6bd634d1ea2e4116a910232cc8e4e348a5bf94fcecf198223bb41f7c349",
+      "logical_bytes": 2774128,
+      "allocated_before": 2777088,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50294_boundary.vtu",
+      "sha256": "3c138154c10d65f7b94a24228ef8e2924f33f875604f704812fc60a3a1f56f83",
+      "logical_bytes": 2012968,
+      "allocated_before": 2015232,
+      "allocated_after": 1036288
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50294_solid.vtu",
+      "sha256": "cabb03a4479e17c967ba692eb2adff00e1d018ddf2beec869749e78dced60f34",
+      "logical_bytes": 1702997,
+      "allocated_before": 1703936,
+      "allocated_after": 770048
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50294_solid_boundary.vtu",
+      "sha256": "8d7f5cd73d8f171980167b6ed6c4b43def948bdaeba1d543893458ba51b79273",
+      "logical_bytes": 1253839,
+      "allocated_before": 1257472,
+      "allocated_after": 634880
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50295.vtu",
+      "sha256": "3351ba0ceaa92f776d90de60a402c49c818334a96a5f1e9324fd0274cd0c6ba2",
+      "logical_bytes": 2774212,
+      "allocated_before": 2777088,
+      "allocated_after": 2138112
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50295_boundary.vtu",
+      "sha256": "50bc74ec5a8f5dba642c1ecfaf09945856615dc7ce2f0433114f34e97a9957f5",
+      "logical_bytes": 2013052,
+      "allocated_before": 2015232,
+      "allocated_after": 1081344
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50295_solid.vtu",
+      "sha256": "8cf12dea93984847d329fe719e9123d90d81cea4b61797e289e59610aff6889e",
+      "logical_bytes": 1703021,
+      "allocated_before": 1703936,
+      "allocated_after": 753664
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50295_solid_boundary.vtu",
+      "sha256": "8ac42347f0397a89707e1884a77b66fa0b0cab086c4c1734253197894eb64a8f",
+      "logical_bytes": 1253863,
+      "allocated_before": 1257472,
+      "allocated_after": 618496
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50296.vtu",
+      "sha256": "e8e7b8099b8a3b7a30b4cf1982fa475dae717d2ec2ad68202ec114e097330f63",
+      "logical_bytes": 2774144,
+      "allocated_before": 2777088,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50296_boundary.vtu",
+      "sha256": "00c12fe2fce2853290d250d8765c4d7e7020220090d4cd200c6eff0d4ab5b6e1",
+      "logical_bytes": 2012984,
+      "allocated_before": 2015232,
+      "allocated_after": 1073152
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50296_solid.vtu",
+      "sha256": "542de0b89625379c8e4a1dde27ebf3e600f2bf4a0c7db08f60dec7f12ea7c7ad",
+      "logical_bytes": 1702932,
+      "allocated_before": 1703936,
+      "allocated_after": 745472
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50296_solid_boundary.vtu",
+      "sha256": "9c7cc64d7f90db20c2a0e23dc58bfd36b5931b3d3d1eae62e28fa22f423830ea",
+      "logical_bytes": 1253774,
+      "allocated_before": 1257472,
+      "allocated_after": 614400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50297.vtu",
+      "sha256": "91ac40a49c8acd21b91ef5971afe24d795a989edf4df4bdd65d27b596ae56d86",
+      "logical_bytes": 2774118,
+      "allocated_before": 2777088,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50297_boundary.vtu",
+      "sha256": "53e0477db0ac8a0f7685f1b9d5f281dbc79fedf953f1fe838fc485dab26c301b",
+      "logical_bytes": 2012958,
+      "allocated_before": 2015232,
+      "allocated_after": 1019904
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50297_solid.vtu",
+      "sha256": "f0f27e502e5de92d42bb147907ad0101e9fbaa6208845ddf0b96ca882717956c",
+      "logical_bytes": 1703011,
+      "allocated_before": 1703936,
+      "allocated_after": 716800
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50297_solid_boundary.vtu",
+      "sha256": "6c8eeadbaf32b8a88e02ac2fcbce79e74127ba3e6953e3b6bf6c5d7a41d0b99d",
+      "logical_bytes": 1253853,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50298.vtu",
+      "sha256": "db518af261c963424e0992820790a2b7b1e6fce8d22913c83a91e7bf35a4160c",
+      "logical_bytes": 2774171,
+      "allocated_before": 2777088,
+      "allocated_after": 2109440
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50298_boundary.vtu",
+      "sha256": "0cf6cea29987159e8940277ebf814f25cbb03b973896f17ed6cb36bf2ffa0652",
+      "logical_bytes": 2013011,
+      "allocated_before": 2015232,
+      "allocated_after": 1036288
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50298_solid.vtu",
+      "sha256": "6355b24ffccd038044d6f09dada58ab5779edded8c8a0a25742439948a92e909",
+      "logical_bytes": 1702967,
+      "allocated_before": 1703936,
+      "allocated_after": 716800
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50298_solid_boundary.vtu",
+      "sha256": "6b051e9f26c5b242fab519c3392aa3e545032d7b405ddf8f422c6dfb2b35ec34",
+      "logical_bytes": 1253809,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50299.vtu",
+      "sha256": "c5db7442aadff1965da5774c609f326c3ac72d896224208ae08eed995509e8fb",
+      "logical_bytes": 2774235,
+      "allocated_before": 2777088,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50299_boundary.vtu",
+      "sha256": "bf39523834d7f5ca508e9561636cdc8880a86b7f4441429057975afb4c9a3dbe",
+      "logical_bytes": 2013075,
+      "allocated_before": 2015232,
+      "allocated_after": 1024000
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50299_solid.vtu",
+      "sha256": "cb5185c45227393b33984da85960369e056c7bdfea5f0f8dfbd3320e366fc801",
+      "logical_bytes": 1703043,
+      "allocated_before": 1703936,
+      "allocated_after": 716800
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50299_solid_boundary.vtu",
+      "sha256": "2b36df75fb7f4164b63120f99a105aee043d191b194f9a8f05f260f837d1646d",
+      "logical_bytes": 1253885,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50300.vtu",
+      "sha256": "8bfeb5b9efb01c41039025e67bbde793ecab9724aef8b97181db6ef316934c50",
+      "logical_bytes": 2774062,
+      "allocated_before": 2777088,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50300_boundary.vtu",
+      "sha256": "694af163fd5125e587d9c3856972a0ce3071d467c00e383834c5d2a7612117b6",
+      "logical_bytes": 2012902,
+      "allocated_before": 2015232,
+      "allocated_after": 1073152
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50300_solid.vtu",
+      "sha256": "0181d7e8834c1ef3f2481629bdd26c7525dd63c7f2be5f98648a9229b5a07a6f",
+      "logical_bytes": 1702818,
+      "allocated_before": 1703936,
+      "allocated_after": 741376
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50300_solid_boundary.vtu",
+      "sha256": "75c0581ed3c190640cc8f36f36a1c3522f8e0fc24d3725b2fddff063abb40ec6",
+      "logical_bytes": 1253660,
+      "allocated_before": 1257472,
+      "allocated_after": 651264
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50301.vtu",
+      "sha256": "4734b256897df202d4b1bd51588b1c042eed1fdd737d784207b00b1fce3dda55",
+      "logical_bytes": 2774288,
+      "allocated_before": 2777088,
+      "allocated_after": 2154496
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50301_boundary.vtu",
+      "sha256": "bd3d9f7b6afa27f799a940bfd99636e5fe69df7b2df1dcec2ddacbbcfe42acf5",
+      "logical_bytes": 2013128,
+      "allocated_before": 2015232,
+      "allocated_after": 1032192
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50301_solid.vtu",
+      "sha256": "5a964a2dd52b01f32857e6013493ebc5a282488e5fe85fa35dd6c17f7db0a939",
+      "logical_bytes": 1702976,
+      "allocated_before": 1703936,
+      "allocated_after": 765952
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50301_solid_boundary.vtu",
+      "sha256": "616340c164c426128b801501b8ee597ba2c88ca3c47900c48f0d3425ba1fbefa",
+      "logical_bytes": 1253818,
+      "allocated_before": 1257472,
+      "allocated_after": 630784
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50302.vtu",
+      "sha256": "1d4019180bafa1f8109187b1f3ff590aa21be9158672fa38211d75cdb251e197",
+      "logical_bytes": 2774132,
+      "allocated_before": 2777088,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50302_boundary.vtu",
+      "sha256": "835bb53fb10d37ae3aab46410d201ec36c9332c49692af43d09a63e4fd34cf5b",
+      "logical_bytes": 2012972,
+      "allocated_before": 2015232,
+      "allocated_after": 1073152
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50302_solid.vtu",
+      "sha256": "8c828ef791888e9b543c6a7980f1bbd8b57822c11a91dbd6f7fe82c7f9e32611",
+      "logical_bytes": 1703026,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50302_solid_boundary.vtu",
+      "sha256": "88311b0291b9bf8a7b015d71c732d07766b2a8cf6307e6a7e8d2c2afff343bf5",
+      "logical_bytes": 1253868,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50303.vtu",
+      "sha256": "af3b826219aa9cae8560ad032405fe7f37b80742e6b470049f273d76aab9c981",
+      "logical_bytes": 2774270,
+      "allocated_before": 2777088,
+      "allocated_after": 2142208
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50303_boundary.vtu",
+      "sha256": "bbc90f0c115e92e4861111c194b67e63ec3ae81c041487ed2029f20622ad8da9",
+      "logical_bytes": 2013110,
+      "allocated_before": 2015232,
+      "allocated_after": 1032192
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50303_solid.vtu",
+      "sha256": "7bb038fde2d832279abdd8ab57272dbf18006269aa86b88ce90b26ad01bb1f1b",
+      "logical_bytes": 1702906,
+      "allocated_before": 1703936,
+      "allocated_after": 765952
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50303_solid_boundary.vtu",
+      "sha256": "fdacd6bf7100fc54677b32ee67cbd0b69864f7fb499c9f165777733357b85884",
+      "logical_bytes": 1253748,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50304.vtu",
+      "sha256": "7410f22ad587c05e5affa580bebef10b80e0c0b5200b365e29724a2fd417d953",
+      "logical_bytes": 2774191,
+      "allocated_before": 2777088,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50304_boundary.vtu",
+      "sha256": "1cdb85f3ebec6d7bf893269c84c6fa3ceb0b5f1f37d83bd41ba5f974727b307a",
+      "logical_bytes": 2013031,
+      "allocated_before": 2015232,
+      "allocated_after": 1056768
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50304_solid.vtu",
+      "sha256": "fabe305444be1c987a2fa6c9e60a52a53e0d4033e488dd70b1f0042eafc54568",
+      "logical_bytes": 1702850,
+      "allocated_before": 1703936,
+      "allocated_after": 729088
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50304_solid_boundary.vtu",
+      "sha256": "dfb5c15d0d0831d2905057687dc771935385f241ef0578466b7e2c507ceaabba",
+      "logical_bytes": 1253692,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50305.vtu",
+      "sha256": "ffd29c76fa51f0c0adee911912c7c4484013987c8b5df66f825d9c51b1d9ace4",
+      "logical_bytes": 2774112,
+      "allocated_before": 2777088,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50305_boundary.vtu",
+      "sha256": "fa508bd501167d086a521840c8c1d07b788dbb1469f46f5dd995deb2cd43c1c1",
+      "logical_bytes": 2012952,
+      "allocated_before": 2015232,
+      "allocated_after": 1040384
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50305_solid.vtu",
+      "sha256": "fb3be6f049d501439b49f47693b7f2f58beb67db886bfcc8a032e2499cd59aee",
+      "logical_bytes": 1702961,
+      "allocated_before": 1703936,
+      "allocated_after": 778240
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50305_solid_boundary.vtu",
+      "sha256": "3830974e9a875c490f2ce1e0384e82b68f8a0eddfe10fbb794cfbae448471975",
+      "logical_bytes": 1253803,
+      "allocated_before": 1257472,
+      "allocated_after": 647168
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50306.vtu",
+      "sha256": "344d8ae000b622d3fdc64b2da0b57f04a993eb644545bd484602ffcd1f615413",
+      "logical_bytes": 2774302,
+      "allocated_before": 2777088,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50306_boundary.vtu",
+      "sha256": "3adcb8d21676a68fd68dd7cac91618b70d1bf6651ef72049243c8349ffb652ef",
+      "logical_bytes": 2013142,
+      "allocated_before": 2015232,
+      "allocated_after": 1036288
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50306_solid.vtu",
+      "sha256": "85d6020763a4244d7e00924ce77421096a57798a105c4d1998a4d1285445d72a",
+      "logical_bytes": 1703088,
+      "allocated_before": 1703936,
+      "allocated_after": 765952
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50306_solid_boundary.vtu",
+      "sha256": "ad3e36493d11d0ead08c8653ad6df07e933e948a2715aaafe2d4716b153f7681",
+      "logical_bytes": 1253930,
+      "allocated_before": 1257472,
+      "allocated_after": 630784
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50307.vtu",
+      "sha256": "60c38b2abde34e83d07a4947eee7feb66c89bd2761e0a9fc6eae6b0b2c5beec5",
+      "logical_bytes": 2774198,
+      "allocated_before": 2777088,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50307_boundary.vtu",
+      "sha256": "6df2047ad6158e1b5410c717f7ee6d3f4535d347bc52e3f80abe8d350d43c20f",
+      "logical_bytes": 2013038,
+      "allocated_before": 2015232,
+      "allocated_after": 1073152
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50307_solid.vtu",
+      "sha256": "04b08644d0e81b3a2aaad4e8626148e749d5c4e3a9e3d1c27fbddc59314c7720",
+      "logical_bytes": 1703099,
+      "allocated_before": 1703936,
+      "allocated_after": 741376
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50307_solid_boundary.vtu",
+      "sha256": "44a60f3088bbb6750023002dcdbadac5695dd9aaf5b0895244ee877850a6d939",
+      "logical_bytes": 1253941,
+      "allocated_before": 1257472,
+      "allocated_after": 606208
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50308.vtu",
+      "sha256": "fa922d0e7f0682ee6f194fedb39c20c9f1470332fed05e82059104ec7fe79172",
+      "logical_bytes": 2774005,
+      "allocated_before": 2777088,
+      "allocated_after": 2101248
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50308_boundary.vtu",
+      "sha256": "de2349cb03729c5d3d1ee2d972f3b70957c05dd5f19d1c8d2f7d3e5469a05421",
+      "logical_bytes": 2012845,
+      "allocated_before": 2015232,
+      "allocated_after": 1024000
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50308_solid.vtu",
+      "sha256": "75083a133cebebda6cb5c3eb849d966009376e516f4b0c2de051819e5668661b",
+      "logical_bytes": 1702874,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50308_solid_boundary.vtu",
+      "sha256": "b74d2cbf77a6eb6aeb86c0a9c68a8e5aed5a2dcc6af71078477bb0ddd33a06af",
+      "logical_bytes": 1253716,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50309.vtu",
+      "sha256": "aa9be81ace39d6eed3ec9315c0013bcc670538e98186e2a0b5688f7e273099e6",
+      "logical_bytes": 2774038,
+      "allocated_before": 2777088,
+      "allocated_after": 2134016
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50309_boundary.vtu",
+      "sha256": "13b6b3a8aa6255d34a2aec85fb96312a55c28ee28f731399bef558e333d183ff",
+      "logical_bytes": 2012878,
+      "allocated_before": 2015232,
+      "allocated_after": 1077248
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50309_solid.vtu",
+      "sha256": "7e5cec1cf9b59754468b0f1ea0442f9971c395d9a5b2df2dd679c368d8566f53",
+      "logical_bytes": 1702850,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50309_solid_boundary.vtu",
+      "sha256": "5b2a07b768d9da0e5355b33202ff235ac9bd90b6f10a32d471c02c5a1385bc3a",
+      "logical_bytes": 1253692,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50310.vtu",
+      "sha256": "385afd2dd050689ddcb4f221582c10dcdb346bfee7c2ff4639b6e3c8b4990caa",
+      "logical_bytes": 2774070,
+      "allocated_before": 2777088,
+      "allocated_after": 2146304
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50310_boundary.vtu",
+      "sha256": "b921f2d61e60b02c52d245ede017dd15fad5f0f3df46ad3494e28b25906729b4",
+      "logical_bytes": 2012910,
+      "allocated_before": 2015232,
+      "allocated_after": 1085440
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50310_solid.vtu",
+      "sha256": "c2afe91fe2e183019bffb011dcf9fef08c075d20af36597d4ddb143168bdf1f4",
+      "logical_bytes": 1702985,
+      "allocated_before": 1703936,
+      "allocated_after": 753664
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50310_solid_boundary.vtu",
+      "sha256": "f67ae1d6b6136cf2978c601c7a6085ea2f26c6732f2256baa1f0c43ae50498c6",
+      "logical_bytes": 1253827,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50311.vtu",
+      "sha256": "e10fa94b2c4f78e56ccd063b27b9baf158ff7b8d0f7fa24c5c6793b85eb85df3",
+      "logical_bytes": 2774019,
+      "allocated_before": 2777088,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50311_boundary.vtu",
+      "sha256": "d92e94da3228371922b2a9d1c762db4d4e66600e5e6920535b3fa3a38eeb3517",
+      "logical_bytes": 2012859,
+      "allocated_before": 2015232,
+      "allocated_after": 1048576
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50311_solid.vtu",
+      "sha256": "25503007956cf76afa7cf37ffcfddf250da5c99481532fdcbe3e0140d021abfa",
+      "logical_bytes": 1702939,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50311_solid_boundary.vtu",
+      "sha256": "90fee51ca27a10d2e9a7ff4ea0633b7e479aafd230947aaf57cee60514dc0b73",
+      "logical_bytes": 1253781,
+      "allocated_before": 1257472,
+      "allocated_after": 655360
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50312.vtu",
+      "sha256": "ef9fedf4a19165410b4c09e9c36592ab9f1e767b012fe7b4ad59e58a0ee96b5f",
+      "logical_bytes": 2774120,
+      "allocated_before": 2777088,
+      "allocated_after": 2162688
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50312_boundary.vtu",
+      "sha256": "e6a063e78c67a3b04dda486486cf8416ec14ddbfbb77d3cc396fe76f8a60d7a3",
+      "logical_bytes": 2012960,
+      "allocated_before": 2015232,
+      "allocated_after": 1048576
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50312_solid.vtu",
+      "sha256": "69d50352203f6b3f183aebbcb2c76476c2bb128049660d9b4d44e1e702d4c5e9",
+      "logical_bytes": 1702969,
+      "allocated_before": 1703936,
+      "allocated_after": 782336
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50312_solid_boundary.vtu",
+      "sha256": "06e127c6233795b7aa900301e6f21bf24e973e1b35bbcb1db46f48cbbe905775",
+      "logical_bytes": 1253811,
+      "allocated_before": 1257472,
+      "allocated_after": 651264
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50313.vtu",
+      "sha256": "815ce1123efa4c9b81aee211a53d816360c4bbcd5c2ff13af7a9645a096ca4ff",
+      "logical_bytes": 2774187,
+      "allocated_before": 2777088,
+      "allocated_after": 2150400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50313_boundary.vtu",
+      "sha256": "56f0266b7210b8a60fb35b859c0f67dfef4d89d6da28018df7041f0d3845207c",
+      "logical_bytes": 2013027,
+      "allocated_before": 2015232,
+      "allocated_after": 1036288
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50313_solid.vtu",
+      "sha256": "2e1936106749bb218f9cd8ea4f6133ba03215e2a5e48e518c05238d1f27a3a98",
+      "logical_bytes": 1702926,
+      "allocated_before": 1703936,
+      "allocated_after": 770048
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50313_solid_boundary.vtu",
+      "sha256": "c908559adc9955f1a36f17c457abcb4514bfdc6bd4f20fbabd3227731cc52d63",
+      "logical_bytes": 1253768,
+      "allocated_before": 1257472,
+      "allocated_after": 638976
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50314.vtu",
+      "sha256": "93cf6338399bca8f2d207a876824df612e46bc5f3a9b75fec10521767cf761de",
+      "logical_bytes": 2774172,
+      "allocated_before": 2777088,
+      "allocated_after": 2142208
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50314_boundary.vtu",
+      "sha256": "a9071c1eb842cac540cd8303872a475caaa88b6a1b9a44c300366fa27f6d7b08",
+      "logical_bytes": 2013012,
+      "allocated_before": 2015232,
+      "allocated_after": 1024000
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50314_solid.vtu",
+      "sha256": "1c64cb719b97b5c2183b877b37289263459b2e0b9c47f328e0cb3c8980919f73",
+      "logical_bytes": 1703005,
+      "allocated_before": 1703936,
+      "allocated_after": 761856
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50314_solid_boundary.vtu",
+      "sha256": "2a61bd14de78c17a73a331ee582fb1bb553a2e35a9c0c706d803af7feeafcc25",
+      "logical_bytes": 1253847,
+      "allocated_before": 1257472,
+      "allocated_after": 630784
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50315.vtu",
+      "sha256": "aa999d19b184fee20c3debf61afc4ebdcd938fcc7d8132de6015affce8f73f1e",
+      "logical_bytes": 2774020,
+      "allocated_before": 2777088,
+      "allocated_after": 2134016
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50315_boundary.vtu",
+      "sha256": "42f917c1187786612ae41ee1b610122f254f6a5fff07ef049da311d578ec8915",
+      "logical_bytes": 2012860,
+      "allocated_before": 2015232,
+      "allocated_after": 1085440
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50315_solid.vtu",
+      "sha256": "2f80ce9faff5c5d603c1e7bf75e8233cebef6a77d1bf476f266ddbbb81eb813f",
+      "logical_bytes": 1702903,
+      "allocated_before": 1703936,
+      "allocated_after": 757760
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50315_solid_boundary.vtu",
+      "sha256": "9bfa30776fce3fdc4e50b503ed10cd501f994693a8e654866949dacac0314de8",
+      "logical_bytes": 1253745,
+      "allocated_before": 1257472,
+      "allocated_after": 626688
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50316.vtu",
+      "sha256": "e26e3f4a26ab2ffe554b45b845b48c5ee32d644013668d55f5855991f186398b",
+      "logical_bytes": 2774227,
+      "allocated_before": 2777088,
+      "allocated_after": 2134016
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50316_boundary.vtu",
+      "sha256": "a2f194652260e0b6fef73ec10b40f9d285738c88d8c1d12014b288c4316dccf7",
+      "logical_bytes": 2013067,
+      "allocated_before": 2015232,
+      "allocated_after": 1085440
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50316_solid.vtu",
+      "sha256": "b856edb331f360ad55eeebd61ce396e5a0e3c8dda3bd4279540c75cfa010218a",
+      "logical_bytes": 1703052,
+      "allocated_before": 1703936,
+      "allocated_after": 757760
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50316_solid_boundary.vtu",
+      "sha256": "a03e96833dce522f4df9e11bf455648ca238471a6c927ebb780eb062e5107ccd",
+      "logical_bytes": 1253894,
+      "allocated_before": 1257472,
+      "allocated_after": 626688
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50317.vtu",
+      "sha256": "0d96b566d8d1075d4cb52744ba4ef508f7434c83335c5b18eaae131f9e3eb9c2",
+      "logical_bytes": 2774084,
+      "allocated_before": 2777088,
+      "allocated_after": 2134016
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50317_boundary.vtu",
+      "sha256": "793ce90a86643898d0c2551d2608ef55a16f53224138ed90c3d632f78025d657",
+      "logical_bytes": 2012924,
+      "allocated_before": 2015232,
+      "allocated_after": 1081344
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50317_solid.vtu",
+      "sha256": "ff55ee547aa45618c9500803fdba571136b8087c6d7e70fd514eb1d1f668e31b",
+      "logical_bytes": 1702911,
+      "allocated_before": 1703936,
+      "allocated_after": 753664
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50317_solid_boundary.vtu",
+      "sha256": "7bc97f6e0bfee572d7e1ccda0fb36b4064e7ba18271f6d6896f8b16af6e1df28",
+      "logical_bytes": 1253753,
+      "allocated_before": 1257472,
+      "allocated_after": 622592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50318.vtu",
+      "sha256": "0e0b0afbd665d890431dc719118a6057a7b79f03450e86ded59146aa223878fe",
+      "logical_bytes": 2774157,
+      "allocated_before": 2777088,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50318_boundary.vtu",
+      "sha256": "38107f593341107272c4ff82492aa8cdc36003e45b8595e9f811574eaab67d23",
+      "logical_bytes": 2012997,
+      "allocated_before": 2015232,
+      "allocated_after": 1081344
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50318_solid.vtu",
+      "sha256": "18e723e4ca3b69bcb910a107de81e41bd61c6b9c1f0d903254f7abd5c677bc2a",
+      "logical_bytes": 1702933,
+      "allocated_before": 1703936,
+      "allocated_after": 753664
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50318_solid_boundary.vtu",
+      "sha256": "6898618f93a08b8a6a5f4d00303ddf4f8a1af5f8d80dce404a09bb5a2bf972b7",
+      "logical_bytes": 1253775,
+      "allocated_before": 1257472,
+      "allocated_after": 622592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50319.vtu",
+      "sha256": "4cfb0036642a753d95b921c2321c063f52526dc477d5fafc34dc936e194aa480",
+      "logical_bytes": 2774265,
+      "allocated_before": 2777088,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50319_boundary.vtu",
+      "sha256": "7a42a29378bdea1f0f19521056b1157a05a560f699db65e618c5b01327b5e198",
+      "logical_bytes": 2013105,
+      "allocated_before": 2015232,
+      "allocated_after": 1081344
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50319_solid.vtu",
+      "sha256": "2b0481272d992b406e5f58acd1b3335059dd76e695ec215ed2823ea588faf3a1",
+      "logical_bytes": 1703012,
+      "allocated_before": 1703936,
+      "allocated_after": 753664
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50319_solid_boundary.vtu",
+      "sha256": "9363ee2994d1e54c4dca2f8493b4390c55af31fe709145502dd0103e1ad582be",
+      "logical_bytes": 1253854,
+      "allocated_before": 1257472,
+      "allocated_after": 622592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50320.vtu",
+      "sha256": "9ab19d0e2066f3752b491076a48315f3bbf99aeba8f923fb1b488313b9ff6dee",
+      "logical_bytes": 2774191,
+      "allocated_before": 2777088,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50320_boundary.vtu",
+      "sha256": "a46bfab2e6e69375b2bae95a2cfe8a102a8a86272ec7ddec7026289890caff29",
+      "logical_bytes": 2013031,
+      "allocated_before": 2015232,
+      "allocated_after": 1077248
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50320_solid.vtu",
+      "sha256": "22be42a65d46a1aadf00c9c264c6fe2d6b2aee0b6c8e07a44503afe916bc1942",
+      "logical_bytes": 1702920,
+      "allocated_before": 1703936,
+      "allocated_after": 749568
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50320_solid_boundary.vtu",
+      "sha256": "711b44cda88279518843bc6f2295a2ca1005eb6c8673868c2aa4a0c82c52a81a",
+      "logical_bytes": 1253762,
+      "allocated_before": 1257472,
+      "allocated_after": 618496
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50321.vtu",
+      "sha256": "e38ac13dca650b05e85855ea47182b21e6169284bf04df9dcf520e9a87b68f0a",
+      "logical_bytes": 2774222,
+      "allocated_before": 2777088,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50321_boundary.vtu",
+      "sha256": "95e8c8ea4ae6da2b590408f9fc6f1bb62a617826a4e341953a38ebfd93d8bda8",
+      "logical_bytes": 2013062,
+      "allocated_before": 2015232,
+      "allocated_after": 1077248
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50321_solid.vtu",
+      "sha256": "1f0dd042acf9ceabd3cc64a2a14f3c6bc12bc4ea2189aba369cd361b86e44015",
+      "logical_bytes": 1702985,
+      "allocated_before": 1703936,
+      "allocated_after": 749568
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50321_solid_boundary.vtu",
+      "sha256": "57bccc330c4e82da41b95978aac8fdd6aa546a309bb73ee781098103719b3334",
+      "logical_bytes": 1253827,
+      "allocated_before": 1257472,
+      "allocated_after": 618496
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50322.vtu",
+      "sha256": "06fd2e720d86bd4279a1e9ec6f4050db11d839c60044310e7ba564a53efa3f26",
+      "logical_bytes": 2774071,
+      "allocated_before": 2777088,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50322_boundary.vtu",
+      "sha256": "93333edeeff72e57b475477f5105487887a9822a6bcb33fe43b987dc98a49802",
+      "logical_bytes": 2012911,
+      "allocated_before": 2015232,
+      "allocated_after": 1073152
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50322_solid.vtu",
+      "sha256": "b9f8b36cc08117f873d65497a60f1cdba8185ae5239005a9785efba509f87c49",
+      "logical_bytes": 1702946,
+      "allocated_before": 1703936,
+      "allocated_after": 745472
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50322_solid_boundary.vtu",
+      "sha256": "074e542763f36eec2a2edddf26e295d1b81c0d8779db7a8517bf9f20ffaf32c6",
+      "logical_bytes": 1253788,
+      "allocated_before": 1257472,
+      "allocated_after": 614400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50323.vtu",
+      "sha256": "e9a44420c4b53e11b61f1ccd8248c38315a4d20a8f31ac8753a3ebb424fb6ef0",
+      "logical_bytes": 2773952,
+      "allocated_before": 2777088,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50323_boundary.vtu",
+      "sha256": "2e54792f13c68c5586a43eaa8a2f62151affa58a309a8cb00208750fea4ffc5e",
+      "logical_bytes": 2012792,
+      "allocated_before": 2015232,
+      "allocated_after": 1073152
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50323_solid.vtu",
+      "sha256": "adb9c91e709be325908a21d7b58b0dccfcf858ef3a1205fd71001fbf7fea92c1",
+      "logical_bytes": 1703004,
+      "allocated_before": 1703936,
+      "allocated_after": 745472
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50323_solid_boundary.vtu",
+      "sha256": "63e3bc62c7b04150ead5cf5bce35b3aae383055366e453739fffd597c058af1b",
+      "logical_bytes": 1253846,
+      "allocated_before": 1257472,
+      "allocated_after": 610304
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50324.vtu",
+      "sha256": "732ae66fd1286348af0d1d583f16861b78bda3eaf42c77392169214a660d3e94",
+      "logical_bytes": 2773964,
+      "allocated_before": 2777088,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50324_boundary.vtu",
+      "sha256": "c7396790048f63039994da8ba09eb26c0f4376d3e5cb7b56955c57455fd5e2b9",
+      "logical_bytes": 2012804,
+      "allocated_before": 2015232,
+      "allocated_after": 1069056
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50324_solid.vtu",
+      "sha256": "da1356699cfcb184ba923b950b59462190d45045bbb87234a9fa7ae4261fb84a",
+      "logical_bytes": 1703124,
+      "allocated_before": 1703936,
+      "allocated_after": 741376
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50324_solid_boundary.vtu",
+      "sha256": "8d1513f67d94540e2ca07baaba27a1bcd6d462a316d651b2fe66380c364d3874",
+      "logical_bytes": 1253966,
+      "allocated_before": 1257472,
+      "allocated_after": 606208
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50325.vtu",
+      "sha256": "336df730777b50baab45975c7db1250792a821feb4682e1ee6dd5ce8713a1d87",
+      "logical_bytes": 2774102,
+      "allocated_before": 2777088,
+      "allocated_after": 2138112
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50325_boundary.vtu",
+      "sha256": "a15594f1b11833c09b33106899688f70b695015cc7846033ee99a402a31fb29e",
+      "logical_bytes": 2012942,
+      "allocated_before": 2015232,
+      "allocated_after": 1081344
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50325_solid.vtu",
+      "sha256": "af1bb8ce6978292175f70905142ac679f6deb2a188070971020182271d14071c",
+      "logical_bytes": 1703121,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50325_solid_boundary.vtu",
+      "sha256": "7bccd401d6804063672055b0620252136f2439de6c7fa5918bb6d69bb27f440f",
+      "logical_bytes": 1253963,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50326.vtu",
+      "sha256": "290bb7332a47967446549a2b352832781ab781b69d27ca8b419e0e0b472dbb68",
+      "logical_bytes": 2774459,
+      "allocated_before": 2777088,
+      "allocated_after": 2129920
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50326_boundary.vtu",
+      "sha256": "00fc62229c4cf2433d1c015c28b55789eab4b0d8bd4ab964a71d60851211cac4",
+      "logical_bytes": 2013299,
+      "allocated_before": 2015232,
+      "allocated_after": 1069056
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50326_solid.vtu",
+      "sha256": "11eed89dfad32d2c22f8e4a73f918896fa1e3141edf3431f8bbdbad6469a50cd",
+      "logical_bytes": 1703031,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50326_solid_boundary.vtu",
+      "sha256": "c524ee8b36cf7b848a2b98a3f599906334da8db29d5feb8429a3ee07550b126b",
+      "logical_bytes": 1253873,
+      "allocated_before": 1257472,
+      "allocated_after": 651264
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50327.vtu",
+      "sha256": "d62320b359329b70ff38af15af99657ad9c285ea25aeb14ee8a83bae3884a51c",
+      "logical_bytes": 2774324,
+      "allocated_before": 2777088,
+      "allocated_after": 2158592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50327_boundary.vtu",
+      "sha256": "bcbc8863d4f56b3ddd3014d9119a5311c90533ec652e52cb34f8c670e9e4a57a",
+      "logical_bytes": 2013164,
+      "allocated_before": 2015232,
+      "allocated_after": 1032192
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50327_solid.vtu",
+      "sha256": "9599dd95cfc6a6a0ecffcc2db3537feb8fada1ae082c4e13d0b765345ab0402f",
+      "logical_bytes": 1703027,
+      "allocated_before": 1703936,
+      "allocated_after": 765952
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50327_solid_boundary.vtu",
+      "sha256": "6260eec9772598a14af90fa4bbfd6a2330883d96a9ab491fd873e41db936b17f",
+      "logical_bytes": 1253869,
+      "allocated_before": 1257472,
+      "allocated_after": 634880
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50328.vtu",
+      "sha256": "a6070029e568e2f49dbe901c36bd907a19cff30a178c80132ca8be24fa22bca3",
+      "logical_bytes": 2774228,
+      "allocated_before": 2777088,
+      "allocated_after": 2138112
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50328_boundary.vtu",
+      "sha256": "5263eabb4a6a9cedb0ec9014d228864a881dbf80bd9cbb5c5ee00e1280812a10",
+      "logical_bytes": 2013068,
+      "allocated_before": 2015232,
+      "allocated_after": 1085440
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50328_solid.vtu",
+      "sha256": "178da78a627d6cca2a339e5d18dd512427d293eb2fd2d9ff00b8092197368801",
+      "logical_bytes": 1703076,
+      "allocated_before": 1703936,
+      "allocated_after": 753664
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50328_solid_boundary.vtu",
+      "sha256": "7bf1c50d51665e97b77fcc57760b500be8f4fe9426d24bf61898b78923a50833",
+      "logical_bytes": 1253918,
+      "allocated_before": 1257472,
+      "allocated_after": 622592
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50329.vtu",
+      "sha256": "6f351f07ea13ba8d32de62cdb3156054c5af29e1b4c49b0fb923db66be324638",
+      "logical_bytes": 2774456,
+      "allocated_before": 2777088,
+      "allocated_after": 2125824
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50329_boundary.vtu",
+      "sha256": "55092d9eaf7450dc22e92f3d93cc2619ed7e5aadab8343d4207fb33eee210505",
+      "logical_bytes": 2013296,
+      "allocated_before": 2015232,
+      "allocated_after": 1077248
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50329_solid.vtu",
+      "sha256": "100cb6ac512e701be461ba9a507df4a9572fac94c9a27c9c7d52aa2e673d357a",
+      "logical_bytes": 1703089,
+      "allocated_before": 1703936,
+      "allocated_after": 745472
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50329_solid_boundary.vtu",
+      "sha256": "391a06230c2136ba4c6355adbfb335d2a41b3c948dab58d9b1736f23da0619bc",
+      "logical_bytes": 1253931,
+      "allocated_before": 1257472,
+      "allocated_after": 614400
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50330.vtu",
+      "sha256": "7ed48150b2f73cb408010dcfccf444444db50f9e598ececad890913666899b37",
+      "logical_bytes": 2774307,
+      "allocated_before": 2777088,
+      "allocated_after": 2121728
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50330_boundary.vtu",
+      "sha256": "0a1b4b5d77c1d670036bb1ebeeee8b76df2cf58709f2b6459fbc36b7e3e65c81",
+      "logical_bytes": 2013147,
+      "allocated_before": 2015232,
+      "allocated_after": 1069056
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50330_solid.vtu",
+      "sha256": "ecaa997143f8e35287658efe11cc7288298fab1298d21a60e9ec994ba188746d",
+      "logical_bytes": 1703198,
+      "allocated_before": 1703936,
+      "allocated_after": 741376
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50330_solid_boundary.vtu",
+      "sha256": "e6e1ae49fbc00fe64394963387b60b929674f52ba0d3d371bcf447b03029932d",
+      "logical_bytes": 1254040,
+      "allocated_before": 1257472,
+      "allocated_after": 610304
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50331.vtu",
+      "sha256": "f452af318858646cd27e98aadb6f9e41334b22a1ff297190e6f531ec49a2f3fd",
+      "logical_bytes": 2774393,
+      "allocated_before": 2777088,
+      "allocated_after": 2117632
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50331_boundary.vtu",
+      "sha256": "d9b032077612e210e366737a5e4f0fc737baaa5041562cc7fa65b8637f89d662",
+      "logical_bytes": 2013233,
+      "allocated_before": 2015232,
+      "allocated_after": 1081344
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50331_solid.vtu",
+      "sha256": "af78006ab01d2cb7d42425a89722e297fb52bd0cea9225b54ffb61b960bd3732",
+      "logical_bytes": 1703146,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50331_solid_boundary.vtu",
+      "sha256": "316ae11d0066260d70f45a8ecf1e61bb2b8640c74b9dc5013c1f769f7982bc9b",
+      "logical_bytes": 1253988,
+      "allocated_before": 1257472,
+      "allocated_after": 598016
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50332.vtu",
+      "sha256": "95305c2467bffdaf1199ba8d85c3f29356dfcb961ac7a35a0880258c6673baaa",
+      "logical_bytes": 2774533,
+      "allocated_before": 2777088,
+      "allocated_after": 2109440
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50332_boundary.vtu",
+      "sha256": "a29c4327b1730afa56d9921efcb8b547d62b7cd25dc4d2028baa061a34d0cafa",
+      "logical_bytes": 2013373,
+      "allocated_before": 2015232,
+      "allocated_after": 1036288
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50332_solid.vtu",
+      "sha256": "54e7faa23fe730a4356c479c89c33f88d309126794e2527521ae8105593eeffd",
+      "logical_bytes": 1703234,
+      "allocated_before": 1703936,
+      "allocated_after": 720896
+    },
+    {
+      "path": "dense-016/solution_restart50240_step50332_solid_boundary.vtu",
+      "sha256": "95d9e70b709eb193ec5f9eda6cf31b338b727f957fdf80f42a726d78921142ec",
+      "logical_bytes": 1254076,
+      "allocated_before": 1257472,
+      "allocated_after": 593920
+    }
+  ],
+  "saved_allocated_bytes": 293621760,
+  "seconds": 6.401508092880249,
+  "logical_content_unchanged": true
+}

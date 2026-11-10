@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/analyze-reference-backend.py", line 29, in <module>
+    assert values[0].shape==values[1].shape and np.array_equal(values[0][2:4],values[1][2:4])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

@@ -1,0 +1,53 @@
+{
+  "plan": {
+    "coarse": {
+      "case": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n800/case.json",
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n800",
+      "audit": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n800-audit.json"
+    },
+    "time": {
+      "case": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n400/case.json",
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n400",
+      "audit": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n400-audit.json"
+    },
+    "fine": {
+      "case": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/case.json",
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800",
+      "audit": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-audit.json"
+    }
+  },
+  "producer_receipts": {
+    "coarse": {
+      "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n800/completion-postflight.json",
+      "sha256": "2b7e437e55f62fc76f47bc7e50339fb19637a22bf3622fa12c44ab20d01ec57f",
+      "audit_sha256": "daf902f8a7cd88d0283ebc0b49086ebaf145204a260d774d0ead35098f1893ed"
+    },
+    "time": {
+      "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n400/completion-postflight.json",
+      "sha256": "e0038d33faa6e52adecaa4cb88b19cb949c9533902d155d1d16f1c4c85afea2c",
+      "audit_sha256": "f2a12141dddef704956bbe6ba4ba16e8acd330355fc6a5cf6b8c1f5d3e31dc27"
+    },
+    "fine": {
+      "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/completion-postflight.json",
+      "sha256": "432d1a9c9d8e1e20b0ffeb6db786831adaa67072c8f577c349f75946a13c86e7",
+      "audit_sha256": "346e4aa9ea1f1fa2aa4dd49c0e3ff8034baafb321115e76fb49ad1229c81dee1"
+    }
+  },
+  "kernel_source": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/prod48-user-stop-2026-11-09/n800-family/source/build/prod48-20261107/s24-n800-budget-kernel.py",
+  "kernel_sha256": "5bfe84ef1fb7263145bec3d3e7764c3b6e5aa3628ed5d7441750d7a32bb0ea57",
+  "comparison_sources": {
+    "compare-pressure-fields.py": {
+      "source": "docs/research/data/prod48-user-stop-2026-11-09/n800-family/source/build/prod48-20261107/compare-pressure-fields.py",
+      "sha256": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+      "unchanged": true
+    },
+    "compare-pressure-audits.py": {
+      "source": "docs/research/data/prod48-user-stop-2026-11-09/n800-family/source/build/prod48-20261107/compare-pressure-audits.py",
+      "sha256": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+      "unchanged": true
+    }
+  },
+  "analyzer_sha256": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+  "wrapper_sha256": "d8b4d1e733f77ed432d65693a91479e57cda706c76a6170e562e0a00ae9c22e5",
+  "scope": "Original N800 arithmetic and10% gates unchanged; only fresh local completed inputs"
+}

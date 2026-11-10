@@ -1,0 +1,30 @@
+{
+  "source_commit": "fe927b15535f9503935f83032550162db979c256",
+  "binary_sha256": "04a7aa5b0b6d22e408efc6cace75d4b11a483a595ecfd222c8f4fe8d49282873",
+  "controller_sha256": "49adc13b91bcb4935ab5ba8ecf286614643a7312d329db346a0eec683736ee94",
+  "inputs": {
+    "case.json": "89939895e5a9c71b2572de0b8db81c396502fabb19cf09f9f3edb4e46f52871a",
+    "fluid.msh": "5e5ac5f5a55b30719057aeef359332d9a5d4dbf2aa333c8646429aab8292b907",
+    "solid.msh": "261a05077455d92780edbbba5df520d995b5502a5eb5549f24721299b7405a85",
+    "geometry.json": "b8e08aa3c420e465534fafd092b318c67d07777460837c488924697637cafe8e"
+  },
+  "probe": false,
+  "steps_per_cycle": 1600,
+  "cycles": 32,
+  "level": 1,
+  "ranks": 1,
+  "threads": 1,
+  "dense_segment_steps": 256,
+  "solver_options": [
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32"
+  ],
+  "disk_floor_bytes": 21474836480,
+  "memory_rss_limit_bytes": 3221225472,
+  "scope": "All physical steps retained; restart every bounded dense output segment, compress terminal VTU bytes only; no field deletion or sampling reduction.",
+  "loaded_segment_probe_sha256": "e409de49ad6413a8d253172171a46630aa16a6f441d43fb291ea16e3679832a5"
+}

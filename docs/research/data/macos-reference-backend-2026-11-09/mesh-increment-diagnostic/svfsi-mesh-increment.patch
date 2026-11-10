@@ -1,0 +1,18 @@
+--- a/Code/Source/svFSI/MESH.f
++++ b/Code/Source/svFSI/MESH.f
+@@ -84,12 +84,14 @@
+             al(:,a)  = Ag(:,Ac)
+             dl(:,a)  = Dg(:,Ac)
+             dol(:,a) = Do(is:ie,Ac)
++!           Evaluate the same alpha-stage increment before adding Do.
++!           Diagnostic derivative: avoid weighted-total cancellation.
++            dl(is:ie,a) = eq(cEq)%af*(Dn(is:ie,Ac)-Do(is:ie,Ac))
+          END DO
+ 
+ !        For MESH, the reference configuration is the one at the
+ !        beginning of the time step. Update displacements accordingly
+          xl(:,:) = xl(:,:) + dol(:,:)
+-         dl(is:ie,:) = dl(is:ie,:) - dol(:,:)
+ 
+ !        Gauss integration
+          lR = 0._RKIND

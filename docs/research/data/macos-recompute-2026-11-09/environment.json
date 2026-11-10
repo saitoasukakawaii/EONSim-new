@@ -1,0 +1,52 @@
+{
+  "source_commit": "92fef88ec6c7dad48cfe8a25ecdb79db48f9a8cc",
+  "platform": "macOS-26.3-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "petsc": "3.25.6",
+  "compiler": "AppleClang 21.0.0.21000101",
+  "memory_bytes": 25769803776,
+  "logical_cpus": 12,
+  "production_ranks": 1,
+  "production_threads": 1,
+  "build_type": "Release",
+  "binary_sha256": "04a7aa5b0b6d22e408efc6cace75d4b11a483a595ecfd222c8f4fe8d49282873",
+  "production_work": "build/recompute-20261109/alpha1-s96-l0-n400",
+  "production_session": 87191,
+  "debug_build_session": 58470,
+  "historical_data_policy": "User explicitly requested fresh computation instead of missing raw data",
+  "qualification": "not evaluated",
+  "initial_ctest": {
+    "passed": [
+      "lu_reuse_mpi1",
+      "fluid_pressure_time"
+    ],
+    "failed": [
+      "lu_reuse_mpi2",
+      "fluid_lu_reuse",
+      "fsi_lu_reuse"
+    ],
+    "cause_status": "Parallel MUMPS RHS path isolated by option comparison; upstream root cause not established"
+  },
+  "centralized_rhs_ctest": {
+    "environment": {
+      "PETSC_OPTIONS": "-mat_mumps_icntl_20 0"
+    },
+    "passed": [
+      "lu_reuse_mpi2",
+      "lu_reuse_mpi4",
+      "fluid_lu_reuse",
+      "fsi_lu_reuse"
+    ]
+  },
+  "debug_validation": {
+    "passed": [
+      "lu_reuse_mpi1",
+      "lu_reuse_mpi2",
+      "fluid_lu_reuse",
+      "fsi_lu_reuse"
+    ],
+    "environment": {
+      "PETSC_OPTIONS": "-mat_mumps_icntl_20 0"
+    }
+  }
+}

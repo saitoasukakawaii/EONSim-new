@@ -1,0 +1,29 @@
+{
+  "source_commit": "e6a01a75f0948f8cd475d4b305d70e277e1bad79",
+  "binary_sha256": "04a7aa5b0b6d22e408efc6cace75d4b11a483a595ecfd222c8f4fe8d49282873",
+  "mesh_sha256": "b7bb640c013fe13d4f2d56753cfe07c6c1410a860e2d1f628e191a56f1a064ee",
+  "seed": [
+    96,
+    8,
+    8
+  ],
+  "level": 1,
+  "alpha": 1,
+  "steps": 32,
+  "steps_per_cycle": 400,
+  "physical_final_steps": 2400,
+  "ranks": 1,
+  "threads": 1,
+  "memory_rss_limit_bytes": 6442450944,
+  "disk_floor_bytes": 21474836480,
+  "timeout_seconds": 1800,
+  "node_limit": 2e-09,
+  "mass_relative_limit": 1e-08,
+  "minimum_cost_reduction": 0.1,
+  "scope": "Bounded startup only; no periodic or physical qualification",
+  "sources": {
+    "scripts/study_rigid_tube.py": "7343695345c141a28edb1529bd790a89d9b795ce9befa49076428480b87313eb",
+    "scripts/analyze_womersley.py": "2b52e10be477fc78aae12fc81c238decbaed3347b8e8557a8a271aacdc99af13",
+    "cases/fsi/generate_tube.py": "05323d940b59cc55bf84176b5c3aec92ef010daca08f8a4aaa6803f93a138a2f"
+  }
+}

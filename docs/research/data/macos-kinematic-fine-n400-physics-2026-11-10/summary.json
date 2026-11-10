@@ -1,0 +1,36 @@
+{
+  "source_commit": "ea6dfff",
+  "steps": 12800,
+  "first_step": 11601,
+  "sampled_steps": 1200,
+  "periodic": true,
+  "maximum_cycle_relative_difference": 7.918474733852182e-06,
+  "quality_gates": {
+    "kinematics": {
+      "maximum": 0.0,
+      "limit": 1e-12,
+      "passed": true
+    },
+    "stage_mass": {
+      "maximum": 1.235990476633475e-17,
+      "limit": 1e-09,
+      "passed": true
+    },
+    "stage_divergence_theorem": {
+      "maximum": 1.2295331738996411e-17,
+      "limit": 1e-12,
+      "passed": true
+    }
+  },
+  "minimum_solid_jacobian": 0.9999771947595143,
+  "minimum_fluid_jacobian": 1.000008695998648,
+  "lame": {
+    "mean": 0.00010738167693843096,
+    "expected": 0.00010872727272727274,
+    "relative_error": 0.012375881001053092,
+    "limit": 0.02,
+    "passed": true
+  },
+  "audit_sha256": "7033a387d92bbad5217e158ce39e2dc1d132e6bc15ff6d67f49e671988c97afd",
+  "qualification": "Local physical audit only; independent budgets and matched solver comparison incomplete."
+}

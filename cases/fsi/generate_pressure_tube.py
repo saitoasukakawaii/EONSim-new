@@ -14,14 +14,16 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'scripts'))
 import study_rigid_tube as tube
 
 
-def generate(directory,sectors=12,radial=2,axial=12,level=0,steps_per_cycle=100,cycles=6):
+def generate(directory,sectors=12,radial=2,axial=12,level=0,steps_per_cycle=100,cycles=6,length=12):
     directory=Path(directory)
     if level not in (0,1,2,3) or steps_per_cycle<4 or cycles<1:
         raise ValueError('Invalid refinement/time parameters')
+    if not math.isfinite(length) or length<=0:
+        raise ValueError('Length must be finite and positive')
     directory.mkdir(parents=True,exist_ok=True)
     if any(directory.iterdir()):
         raise ValueError('Pressure tube generation requires an empty directory')
-    base=tube.generate(directory/'base',sectors=sectors,radial=radial,axial=axial,radius=1,thickness=.2,length=12)
+    base=tube.generate(directory/'base',sectors=sectors,radial=radial,axial=axial,radius=1,thickness=.2,length=length)
     cfg=json.loads(base.read_text())
     for domain in ('fluid','solid'):
         mesh=tube.read_mesh(directory/'base'/f'{domain}.msh')
@@ -51,4 +53,5 @@ if __name__=='__main__':
     p.add_argument('--sectors',type=int,default=12);p.add_argument('--radial',type=int,default=2)
     p.add_argument('--axial',type=int,default=12);p.add_argument('--level',type=int,default=0)
     p.add_argument('--steps-per-cycle',type=int,default=100);p.add_argument('--cycles',type=int,default=6)
-    a=p.parse_args();print(generate(a.output,a.sectors,a.radial,a.axial,a.level,a.steps_per_cycle,a.cycles))
+    p.add_argument('--length',type=float,default=12,help='Tube length; adjust --axial separately to retain axial mesh spacing')
+    a=p.parse_args();print(generate(a.output,a.sectors,a.radial,a.axial,a.level,a.steps_per_cycle,a.cycles,a.length))

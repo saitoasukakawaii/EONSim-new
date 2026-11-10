@@ -1,0 +1,32 @@
+{
+  "pid": 32871,
+  "pgid": 32871,
+  "solver_pid": 70820,
+  "members_before": [
+    {
+      "pid": 32871,
+      "ppid": 32860,
+      "pgid": 32871,
+      "state": "Ss",
+      "command": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python scripts/study_womersley.py --work /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha2-s96-l1-n1600 --executable build/macos-release/eonsim --seed 96 8 8 --level 1 --alpha 2 --steps-per-cycle 1600 --phases 1600 --warmup 2 --cycles 6 --ranks 1 --mumps --lu-reuse-window 32 --chord --cycles-per-solve 1 --timeout 86400"
+    },
+    {
+      "pid": 70820,
+      "ppid": 32871,
+      "pgid": 32871,
+      "state": "R",
+      "command": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha2-s96-l1-n1600/eonsim -case attempt-005/case.json -checkpoint checkpoint -stop_after 8000 -restart checkpoint/generation_1794226270023757 -pc_factor_mat_solver_type mumps -fluid_lu_pc_reuse_window 32 -snes_lag_jacobian -2"
+    }
+  ],
+  "accepted_last_before_hold": 7220,
+  "free_bytes": 22816182272,
+  "status": "held",
+  "start_unix": 1794227855.145673,
+  "reason": "Protect global20GiB disk floor; continuing dense HDF production cannot complete within current headroom. Five other numerical jobs continue. Length24 already held; additional storage request pending.",
+  "resume": "Validate same PID/PGID and both commands/stopped states, then SIGCONT to PGID32871. No restart/recomputation needed while same processes remain alive.",
+  "timing": "Outer controller24h whole-study elapsed timeout and inner subprocess timeout still advance; record held duration and resume before timeout. Wall performance includes capacity hold.",
+  "states": {
+    "32871": "Ts",
+    "70820": "T"
+  }
+}

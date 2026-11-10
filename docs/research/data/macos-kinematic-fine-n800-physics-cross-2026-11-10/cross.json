@@ -1,0 +1,196 @@
+{
+  "prerequisites": {
+    "EONSim": {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true
+    },
+    "svFSI": {
+      "periodic": true,
+      "positive_geometry": true,
+      "quality": true,
+      "relative_convergence": true
+    }
+  },
+  "synthetic_input": false,
+  "comparison_eligible": true,
+  "observables": {
+    "mid_radial_displacement": {
+      "eonsim": {
+        "mean": 0.00010738166942145435,
+        "sine": 1.0346561455109781e-05,
+        "cosine": -3.466242235054158e-05,
+        "amplitude": 3.6173676301306286e-05,
+        "phase_degrees": -73.37989615252958,
+        "higher_harmonic_rms": 4.971388046667056e-10
+      },
+      "svfsi": {
+        "mean": 0.00010738167626561915,
+        "sine": 9.785488790124566e-06,
+        "cosine": -3.4192848970164975e-05,
+        "amplitude": 3.5565527010831225e-05,
+        "phase_degrees": -74.02965985906631,
+        "higher_harmonic_rms": 4.981396176029628e-10
+      },
+      "reference_amplitude_denominator": 3.5565527010831225e-05,
+      "physical_scale": 5.436363636363637e-05,
+      "unresolved_amplitude_floor": 5.4363636363636365e-17,
+      "relative_amplitude_difference": 0.017099403315178025,
+      "amplitude_limit": 0.05,
+      "amplitude_passed": true,
+      "phase_difference_degrees": 0.6497637065367314,
+      "phase_limit_degrees": null,
+      "phase_passed": null,
+      "mean_difference": -6.844164801957445e-12,
+      "passed": true
+    },
+    "mid_ring_projected_area": {
+      "eonsim": {
+        "mean": 3.1064994280480094,
+        "sine": 6.46451033115269e-05,
+        "cosine": -0.00021657105438213571,
+        "amplitude": 0.00022601329823341806,
+        "phase_degrees": -73.37996517941781,
+        "higher_harmonic_rms": 3.95280991660277e-09
+      },
+      "svfsi": {
+        "mean": 3.106499428022005,
+        "sine": 6.113954625284401e-05,
+        "cosine": -0.000213637143556426,
+        "amplitude": 0.00022221357569453902,
+        "phase_degrees": -74.0297222235406,
+        "higher_harmonic_rms": 3.919602613995151e-09
+      },
+      "reference_amplitude_denominator": 0.00022221357569453902,
+      "physical_scale": 0.0003415768012448539,
+      "unresolved_amplitude_floor": 3.4157680124485387e-16,
+      "relative_amplitude_difference": 0.017099416752567098,
+      "amplitude_limit": 0.05,
+      "amplitude_passed": true,
+      "phase_difference_degrees": 0.6497570441227936,
+      "phase_limit_degrees": null,
+      "phase_passed": null,
+      "mean_difference": 2.6004531861190117e-11,
+      "passed": true
+    },
+    "mid_pressure": {
+      "eonsim": {
+        "mean": 0.020000344186422003,
+        "sine": 0.001647665168605299,
+        "cosine": -0.006534526232892052,
+        "amplitude": 0.006739052870855779,
+        "phase_degrees": -75.84800439716102,
+        "higher_harmonic_rms": 9.755369138042656e-08
+      },
+      "svfsi": {
+        "mean": 0.020000349208844373,
+        "sine": 0.0015420570288388656,
+        "cosine": -0.006440743947298861,
+        "amplitude": 0.006622773020031584,
+        "phase_degrees": -76.53557377633835,
+        "higher_harmonic_rms": 9.684711788616797e-08
+      },
+      "reference_amplitude_denominator": 0.006622773020031584,
+      "physical_scale": 0.01,
+      "unresolved_amplitude_floor": 1e-14,
+      "relative_amplitude_difference": 0.017557577539270692,
+      "amplitude_limit": 0.02,
+      "amplitude_passed": true,
+      "phase_difference_degrees": 0.6875693791773188,
+      "phase_limit_degrees": 1.0,
+      "phase_passed": true,
+      "mean_difference": -5.022422370354329e-09,
+      "passed": true
+    },
+    "outward_flow_left": {
+      "eonsim": {
+        "mean": -3.354929769230591e-10,
+        "sine": -0.0009240101848100772,
+        "cosine": -0.0007908090237088269,
+        "amplitude": 0.0012162128652551168,
+        "phase_degrees": -139.4416171354643,
+        "higher_harmonic_rms": 3.915697145782248e-08
+      },
+      "svfsi": {
+        "mean": -3.792213973581997e-10,
+        "sine": -0.0009202560549753053,
+        "cosine": -0.0007750748249636634,
+        "amplitude": 0.0012031675656412808,
+        "phase_degrees": -139.89463549577638,
+        "higher_harmonic_rms": 3.873700568472707e-08
+      },
+      "reference_amplitude_denominator": 0.0012031675656412808,
+      "physical_scale": 0.0020494608074691236,
+      "unresolved_amplitude_floor": 2.0494608074691234e-15,
+      "relative_amplitude_difference": 0.010842462834246206,
+      "amplitude_limit": 0.05,
+      "amplitude_passed": true,
+      "phase_difference_degrees": 0.4530183603120861,
+      "phase_limit_degrees": 2.0,
+      "phase_passed": true,
+      "mean_difference": 4.372842043514059e-11,
+      "passed": true
+    },
+    "outward_flow_right": {
+      "eonsim": {
+        "mean": 3.3549300637584656e-10,
+        "sine": -0.0009189010090003587,
+        "cosine": -0.0007706092506583401,
+        "amplitude": 0.0011992571373738352,
+        "phase_degrees": -140.01611242019234,
+        "higher_harmonic_rms": 3.819552809161923e-08
+      },
+      "svfsi": {
+        "mean": 3.7921961719346575e-10,
+        "sine": -0.0009148786756623297,
+        "cosine": -0.0007533090228352506,
+        "amplitude": 0.0011851065247760043,
+        "phase_degrees": -140.53203628722832,
+        "higher_harmonic_rms": 3.7396537094890694e-08
+      },
+      "reference_amplitude_denominator": 0.0011851065247760043,
+      "physical_scale": 0.0020494608074691236,
+      "unresolved_amplitude_floor": 2.0494608074691234e-15,
+      "relative_amplitude_difference": 0.011940371858559671,
+      "amplitude_limit": 0.05,
+      "amplitude_passed": true,
+      "phase_difference_degrees": 0.5159238670359798,
+      "phase_limit_degrees": 2.0,
+      "phase_passed": true,
+      "mean_difference": -4.372661081761919e-11,
+      "passed": true
+    }
+  },
+  "observable_gates_passed": true,
+  "lame_mean_diagnostics": {
+    "EONSim": {
+      "numerical_mean": 0.00010738166942145435,
+      "infinite_circular_plane_strain_mean": 0.00010872727272727274,
+      "relative_difference": 0.012375950137125601,
+      "limit": 0.02,
+      "within_limit": true,
+      "scope": "Diagnostic only until polygon geometry and finite-end effects are bounded"
+    },
+    "svFSI": {
+      "numerical_mean": 0.00010738167626561915,
+      "infinite_circular_plane_strain_mean": 0.00010872727272727274,
+      "relative_difference": 0.01237588718912157,
+      "limit": 0.02,
+      "within_limit": true,
+      "scope": "Diagnostic only until polygon geometry and finite-end effects are bounded"
+    }
+  },
+  "qualification": "Incomplete: independent space/time/tail/sampling, geometry, MPI and restart evidence remains required",
+  "scope": "Same-mesh cross-solver observables only; endpoint values, fixed absolute phase, svFSI amplitude denominator",
+  "input_files": {
+    "eonsim": {
+      "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-audit.json",
+      "sha256": "346e4aa9ea1f1fa2aa4dd49c0e3ff8034baafb321115e76fb49ad1229c81dee1"
+    },
+    "svfsi": {
+      "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0-native25500/audit.json",
+      "sha256": "a83633c07bb9a9818a0eed4f1952f953ae201ff60ba92b8667bcafd53f6936be"
+    }
+  },
+  "helper_sha256": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6"
+}

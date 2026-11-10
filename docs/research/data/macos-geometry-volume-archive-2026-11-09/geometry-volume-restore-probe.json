@@ -1,0 +1,24 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/geometry-volume-restore-probe",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n800-geometry48-volume-chunks/0000.tar.zst",
+  "archive_sha256": "467de6247e8129974c4190ae90c839d5a9c38ab5f2eee24b4ce852d506ca63fa",
+  "archive_bytes": 41623357,
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-geometry48-raw-before-archive.json",
+  "source_manifest_sha256": "df9ba3f37ff0f1f40fc3b3af2090f14a037a452b5cdca745ee0959d30213aa1a",
+  "selected": {
+    "dense/solution_restart23200_step23201.vtu": {
+      "bytes": 2774671,
+      "sha256": "205c551dbec8117722f571ff987d502271adaa10ebdbf82f18a4a67dfe59d4fe",
+      "allocated_bytes": 1245184
+    },
+    "dense/solution_restart23200_step23201_solid.vtu": {
+      "bytes": 1703824,
+      "sha256": "516d371585120b5f7cb4a637fda3ae2edcd9eb27674e325fd69fed2f7d631088",
+      "allocated_bytes": 720896
+    }
+  },
+  "status": "evicted",
+  "scope": "Completed geometry step-specific volume snapshots. Full physics capture and response consumers completed first. PVD files remain but these targets are archived; restore receipts with restore-womersley-materialization.py before VTU visualization, repeat physics audits or whole-directory replay. Checkpoints/logs/meshes/final aliases retained.",
+  "removed_allocated_bytes": 75378688,
+  "finished_unix": 1794226537.159522
+}

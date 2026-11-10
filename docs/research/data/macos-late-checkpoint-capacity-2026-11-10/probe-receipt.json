@@ -1,0 +1,36 @@
+{
+  "budget_sha256": "c7d1d31c82ad6a77c61d79d17a921a376f714a9ff36d70bb60078321b64a3709",
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/alpha2-n800-late-restore-probe",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800.tar.zst",
+  "archive_sha256": "a81377491af2afc433586682b693a12bc3cf24f5faa2ee448ce063d3615ad4d6",
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-alpha2-s96-l1-n800-2026-11-09/raw-manifest.json",
+  "source_manifest_sha256": "9f516f1494b4e606c8eb2f6935b0f125ab196c2d13cf7f0819d70c51dbe64fe9",
+  "selected": {
+    "checkpoint/generation_1794207655495714/state_rank0.h5": {
+      "step": 3201,
+      "sha256": "e3b5e1f1de0b2d75a63df032002f8e7c2d5ec3aa610410a86fd38768bb7d50a4",
+      "bytes": 3241128,
+      "allocated_bytes": 3244032
+    },
+    "checkpoint/generation_1794211434283058/state_rank0.h5": {
+      "step": 4799,
+      "sha256": "c859160d5baf405975fcdaf83d1961d30351392616f6cbfb2f4440be704431ce",
+      "bytes": 3241128,
+      "allocated_bytes": 3244032
+    }
+  },
+  "status": "evicted",
+  "dependencies": {
+    "completed": "Full analytic/periodic audit, full raw archive verification and completed failed alpha2 N400 independent budget; failure retained unchanged",
+    "remaining": "All cycle endpoints retained. Cycles5/6 internal HDF temporarily evicted for capacity. BEFORE future N800/N1600 budget, tau replay, or full analytic replay, restore this entire receipt; future consumer remains required, not waived. Existing original complete archive retained."
+  },
+  "scope": "Only restorable materialization removed; outstanding consumers explicitly require restoration. Complete original bytes remain in verified archive; restore selected HDF members before any future earlier-cycle analysis, repeated budget/analytic audit or full directory inventory audit.",
+  "restore_command": [
+    "python3",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/restore-womersley-materialization.py",
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/alpha2-s96-l1-n800-late-capacity-materialization.json"
+  ],
+  "observed_free_change_bytes": 5184720896,
+  "removed_allocated_bytes": 5183963136,
+  "finished_unix": 1794242613.943239
+}

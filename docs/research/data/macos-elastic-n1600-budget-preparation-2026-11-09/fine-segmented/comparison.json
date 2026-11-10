@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "maximum_all_field_difference": 3.95516952522712e-16,
+  "maximum_applied_pressure": 0.06972609476841367,
+  "steps": 16,
+  "segments": 4,
+  "all_fluid_solid_phases": 32,
+  "compressed_attempt_files_rehashed": 80,
+  "command": [
+    "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-segment-probe/eonsim",
+    "-case",
+    "case.json",
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-snes_lag_jacobian",
+    "-2",
+    "-fsi_lu_pc_reuse_window",
+    "32"
+  ],
+  "scope": "Actual loaded generalized-alpha run with LU reuse: segmented/restarted/compressed fields versus uninterrupted run; original tolerance2e-9."
+}

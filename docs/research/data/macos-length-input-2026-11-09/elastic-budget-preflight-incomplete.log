@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/analyze-fresh-elastic-budget.py", line 16, in <module>
+    if not audit.is_file() or not receipt.is_file():raise RuntimeError(f'Incomplete {role}: need {audit} and {receipt}; no analysis output created')
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Incomplete time: need /Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/elastic-s24-l1-n400-audit.json and /Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/elastic-s24-l1-n400/completion-postflight.json; no analysis output created

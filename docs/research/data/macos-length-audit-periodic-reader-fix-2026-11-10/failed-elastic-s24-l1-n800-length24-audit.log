@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/audit-pressure-streaming.py", line 41, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/audit-pressure-streaming.py", line 34, in main
+    result=original.analyze(case,work,first_step=a.first_step)
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/scripts/audit_pressure_tube.py", line 381, in analyze
+    for domain,a,b,scale,prefix in zip((fluid,solid),read(previous[phase]),(ff,sf),scales,('fluid','solid')):
+                                                     ~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/scripts/audit_pressure_tube.py", line 348, in read
+    return svfsi_frame(path,(fluid,solid)) if reference else (eonsim_frame(path[0],fluid),eonsim_frame(path[1],solid,True))
+                                                              ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/audit-pressure-streaming.py", line 18, in read
+    with store.frame([path]):return saved(path,domain,solid)
+         ~~~~~~~~~~~^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/streaming-volume-materialization.py", line 58, in frame
+    data=self._read(rel);pending=p.with_name(p.name+'.stream-restore-pending')
+  File "/Users/chen/Documents/ChatGPT/数值计算/EONSim-new/build/recompute-20261109/streaming-volume-materialization.py", line 30, in _read
+    if rel in self.used:raise ValueError('Repeated archived frame: monotone streaming only')
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Repeated archived frame: monotone streaming only

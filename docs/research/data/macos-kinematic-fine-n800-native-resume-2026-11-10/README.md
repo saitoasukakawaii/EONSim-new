@@ -1,0 +1,5 @@
+# Fine N800 native reference continuation
+
+Base d34485e. AST passed; actual controller `python3 build/recompute-20261109/resume-kinematic-fine-n800-native.py` launched as session 7872. Original session 38893 had terminated; no concurrent original writer. Seed step25500 SHA checked against preserved evidence and named original checkpoint. All hashed inputs and binary checked before copying. Only explicit continuation/seed settings change; equivalent_input equality is asserted. Original 20GiB/3GiB/86400s resource limits retained, timeout measured from original execution start. Logs observed completed step25501 and subsequent progress. Full chain, overlap review and physics remain pending. Original failure remains intact. Controller records resource readings if a limit triggers.
+
+At base75ae753, actual SHA256 comparison of all34 complete VTU pairs for steps25501..25534 passed byte-identically. This is overlap output evidence only; full25600-step chain and physical audit remain pending. Original partial25535 excluded.

@@ -1,0 +1,54 @@
+{
+  "error": "ValueError('Invalid VTK output: /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-backend-screen/startup-old/results/result_1.vtu: [\"(<vtkmodules.vtkIOXML.vtkXMLUnstructuredGridReader(0x79742a300) at 0x106632800>, \\'ErrorEvent\\')\"]')",
+  "completed": {
+    "startup-old": {
+      "seconds": 3.595923125045374,
+      "peak_rss_bytes": 42860544,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "startup-fsils": {
+      "seconds": 7.401014874922112,
+      "peak_rss_bytes": 48447488,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "startup-ilut": {
+      "seconds": 3.7902293750084937,
+      "peak_rss_bytes": 66748416,
+      "exit_code": 0,
+      "start": 0,
+      "stop": 20
+    },
+    "loaded-old": {
+      "seconds": 3.1825254580471665,
+      "peak_rss_bytes": 42729472,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-fsils": {
+      "seconds": 3.175103292101994,
+      "peak_rss_bytes": 47087616,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-ilut": {
+      "seconds": 5.26437500002794,
+      "peak_rss_bytes": 67518464,
+      "exit_code": 0,
+      "start": 12400,
+      "stop": 12420
+    },
+    "loaded-replay": {
+      "seconds": 2.7438154581468552,
+      "peak_rss_bytes": 67321856,
+      "exit_code": 0,
+      "start": 12410,
+      "stop": 12420
+    }
+  }
+}

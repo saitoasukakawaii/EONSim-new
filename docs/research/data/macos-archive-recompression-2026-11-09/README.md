@@ -1,0 +1,7 @@
+# Transactional lossless archive recompression
+
+15767 exited0: geometry volume chunk0000 adopted after fresh old archive/manifest SHA, decoded old/new tar SHA equality. Original41623357B→24473509B;17149848B saved. Old receipt and old/new hashes preserved in journal. Original archive retained as backup until new archive/receipt pair and full current catalog passed; then backup released. The redundant24.5MB probe copy was removed only after its hash matched the adopted archive.
+
+New receipt records previous hash/size and journal path. Generic restore actually restored2 members to a separate directory and independently matched original member SHA. Historical evidence receipts remain historical; restoration uses current runtime receipt. If interrupted in the two-file transaction, retain backup/journal and reconcile the old pair or verified new pair before continuing; never blindly rerun. No running solver/controller/auditor edited.
+
+37578 started sequential processing of83 volume and60 boundary geometry chunks, with the committed first chunk skipped after journal validation. Each remaining chunk freshly rehashes original, recompresses at19 single-thread, compares decoded tar stream, updates its receipt and reruns the global catalog before releasing backup. Larger outputs retain original. Entire143 batch is not yet complete; no whole-batch savings claimed. All logical raw data and numerical gates unchanged. No push/PR.

@@ -1,0 +1,42 @@
+{
+  "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "mode": "uniform-pressure import check",
+  "meshes": {
+    "fluid": {
+      "nodes": 325,
+      "tetrahedra": 1296,
+      "tags": [
+        1,
+        2,
+        3
+      ]
+    },
+    "solid": {
+      "nodes": 312,
+      "tetrahedra": 864,
+      "tags": [
+        11,
+        12,
+        13,
+        14
+      ]
+    }
+  },
+  "files": {
+    "fluid/face-1.vtp": "f9bdaf61c913ed54e5d035670c0f0a84629764e2cdd3e22cd1506b60d973839b",
+    "fluid/face-2.vtp": "fcdefa42336a253564b1026e79c1365dbb961da288d11a055a440f1e722cbaf0",
+    "fluid/face-3.vtp": "016c3f01c5b7c6d3c8f7f94ed85c5e160fd181beaee00f656f8369e9a8395c22",
+    "fluid/volume.vtu": "1855cee745930b0502528e544552c2339fd5b57f1b50d49d034db4b0ced9c252",
+    "pressure.fcs": "c2d4fa3e8f7c9988e4690d63a76d1975a2594e0d8cabd4917b8e9bed4a76301e",
+    "solid/face-11.vtp": "78fae93c314d435e94e4cf5039198e4e441dac1bf481fd42411296710d932067",
+    "solid/face-12.vtp": "decfb48530dbdae4c5bbff5b12c6b4c2ec51e08814f0f4d3eba1cefbf137aebb",
+    "solid/face-13.vtp": "b69b5ae5187dfeefccb14b83ab9c60177ea75ce851d3367f49e3055362fadd19",
+    "solid/face-14.vtp": "a3f613f3f24c598102a2dcffce23ded39fdfc45e91cc1d783fc51b3956d96e0f",
+    "solid/volume.vtu": "f63be58768b1672d287efd0f670a374e74d3d94a22ed48711a6ade0461bc3b3c",
+    "source-case.json": "aa42d4e20646dea16b181a62f18e4afc4be20d15c64f36c5bbd73e593e9a1edb",
+    "svFSI.inp": "3f43630cad9969002ba2571686ad08a2b4f25dd78093b2af1f5ebdac5874ef95"
+  },
+  "pressure_time_offset": 0.02094395102393196,
+  "load_evaluation": "alpha_f stage",
+  "scope": "Prepared input; no reference agreement is inferred from export"
+}

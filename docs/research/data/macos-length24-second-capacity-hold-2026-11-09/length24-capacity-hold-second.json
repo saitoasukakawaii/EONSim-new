@@ -1,0 +1,11 @@
+{
+  "pid": 73679,
+  "pgid": 73679,
+  "command": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-length24/eonsim -case case.json -checkpoint /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-length24/checkpoint -stop_after 25600 -pc_factor_mat_solver_type mumps -snes_lag_jacobian -2 -fsi_lu_pc_reuse_window 32 -restart /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-length24/checkpoint/generation_1794226789061141",
+  "status": "held",
+  "start_unix": 1794230917.7722712,
+  "accepted_last_before_hold": 24172,
+  "free_bytes": 23513808896,
+  "reason": "Length-only monitor protects 20GiB shared controller floor; current immutable frames compressed. Resume same process after further verified cleanup.",
+  "resume": "Verify same PID/command/stopped state, SIGCONT; record hold duration."
+}

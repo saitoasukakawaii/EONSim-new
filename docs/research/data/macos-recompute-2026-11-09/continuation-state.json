@@ -1,0 +1,150 @@
+{
+  "timestamp_utc": "2026-11-09T03:39:38.950224+00:00",
+  "completed": [
+    "alpha1-s96-l0-n400: 2400 steps, analysis/tail complete; flow amplitude FAIL1%",
+    "alpha2-s96-l0-n400: 2400 steps, analysis/tail complete; preliminary gates pass, budgets pending",
+    "pinned svFSI build and 100-step exact stage-pressure audit"
+  ],
+  "active": [
+    {
+      "session": 67474,
+      "work": "build/recompute-20261109/alpha1-s96-l1-screen",
+      "task": "32-step default/window8/window32/default and 16-step restart, complete HDF comparison pending"
+    },
+    {
+      "session": 82357,
+      "work": "build/recompute-20261109/elastic-s24-l0-n800",
+      "task": "Fresh 25600-step EONSim coarse study, sparse early/dense last3 cycle output"
+    },
+    {
+      "session": 17103,
+      "work": "build/recompute-20261109/reference-elastic-s24-l0-n400-nu0",
+      "task": "Fresh12800-step pinned svFSI coarse mesh-nu0; first100 equations pass, full trajectory pending"
+    }
+  ],
+  "scope": "Observed active handles this goal turn; re-poll before acting, do not restart from this file alone",
+  "source_hashes": {
+    "scripts/export_svfsi_tube.py": "22f989bd4e7de49c5d7242706ccd4ce5fd08ffbfe76392037b3f2f315d50fcdc",
+    "tests/test_svfsi_export.py": "6f93de556bfdadc1bcfbef8ab769928d815cd627b3e5f9afbeb4aae939be4311",
+    "build/recompute-20261109/screen-alpha1-fine.py": "36706a76340839bb5a671da7cef17e4d823aca21fe78c6145ab9084b613c1d1a",
+    "build/recompute-20261109/run-elastic.py": "48c7d0a1f2206b31529a2993579e22e1d925a5d73e8467bff6e420574d0e62b1"
+  },
+  "latest_checkpoint_unix": 1794198598.254286,
+  "fine_startup_completed": true,
+  "fine_startup_session": {
+    "id": 67474,
+    "status": "exit 0; do not restart"
+  },
+  "fine_production": {
+    "session": 93103,
+    "work": "build/recompute-20261109/alpha1-s96-l1-n400",
+    "status": "running; repoll before any action"
+  },
+  "elastic_fine_n400": {
+    "session": 52281,
+    "work": "build/recompute-20261109/elastic-s24-l1-n400",
+    "observed": "running; actual early solver pid65129 RSS570928KiB; fresh zero32cycles"
+  },
+  "comparison_sources": {
+    "compare-pressure-fields.py": {
+      "source": "docs/research/data/prod48-user-stop-2026-11-09/n800-family/source/build/prod48-20261107/compare-pressure-fields.py",
+      "sha256": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+      "unchanged": true
+    },
+    "compare-pressure-audits.py": {
+      "source": "docs/research/data/prod48-user-stop-2026-11-09/n800-family/source/build/prod48-20261107/compare-pressure-audits.py",
+      "sha256": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+      "unchanged": true
+    }
+  },
+  "elastic_fine_n800": {
+    "session": 85945,
+    "work": "build/recompute-20261109/elastic-s24-l1-n800",
+    "observed": "launched; re-poll handle before any restart"
+  },
+  "elastic_coarse_completion": {
+    "solver_steps": 25600,
+    "controller_session": 82357,
+    "controller_exit": 1,
+    "cause": "Restart output stem mismatch in final collection",
+    "postflight_exit": 0,
+    "audit_session": 88973,
+    "audit_status": "exit0; periodic/quality pass; Lame mean3.1950247% fails2%"
+  },
+  "trilinos": {
+    "source_commit": "4a5f7906a6420ee2f9450367e9cc95b28c00d744",
+    "version": "13.2.0",
+    "clone_session": 59611,
+    "clone_exit": 0,
+    "configure_session": 43892,
+    "configure_exit": 0,
+    "status": "coarse bounded proof exact norm failed; independent fine proof running, not adopted",
+    "build_session": 22858,
+    "build_exit": 0,
+    "svfsi_configure_session": 40750,
+    "svfsi_build_session": 69447,
+    "svfsi_build_exit": 0
+  },
+  "reference_coarse": {
+    "session": 17103,
+    "exit_code": 0,
+    "steps": 12800,
+    "convergence_passed": true,
+    "audit_session": 51289,
+    "audit_status": "exit0; periodic/quality pass; Lame3.1950432% fails2%"
+  },
+  "reference_fine_screen": {
+    "session": 25864,
+    "work": "build/recompute-20261109/reference-fine-backend-screen",
+    "status": "exit0; independent review54208 exit0,210 pairs passed; candidate adopted for new fine runs"
+  },
+  "reference_coarse_n800": {
+    "session": 95639,
+    "work": "build/recompute-20261109/reference-elastic-s24-l0-n800-nu0",
+    "backend": "original FSILS",
+    "status": "running; fresh zero32cycles"
+  },
+  "storage_compression": {
+    "session": 57102,
+    "status": "exit0;9756 verified files,1359437824 bytes saved"
+  },
+  "reference_fine_runs": [
+    {
+      "session": 75644,
+      "work": "build/recompute-20261109/reference-elastic-s24-l1-n400-nu0",
+      "status": "running; repoll"
+    },
+    {
+      "session": 61527,
+      "work": "build/recompute-20261109/reference-elastic-s24-l1-n800-nu0",
+      "status": "running; repoll"
+    }
+  ],
+  "length24": {
+    "session": 10563,
+    "work": "build/recompute-20261109/elastic-s24-l1-n800-length24",
+    "status": "running; fresh32cycles; actual input spacing and geometry checked"
+  },
+  "budget_wrapper": {
+    "path": "build/recompute-20261109/analyze-fresh-elastic-budget.py",
+    "status": "prepared; actual missing-data preflight refused before output; no budget computed"
+  },
+  "awake_guard": {
+    "session": 4354,
+    "pid": 90516,
+    "status": "live; pmset confirmed PreventUserIdleSystemSleep1",
+    "end_unix": 1794366660
+  },
+  "additional_womersley": [
+    {
+      "session": 57815,
+      "work": "build/recompute-20261109/alpha1-s96-l1-n800",
+      "status": "launched; repoll"
+    },
+    {
+      "session": 94599,
+      "work": "build/recompute-20261109/alpha2-s96-l1-n400",
+      "status": "launched; repoll"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "seed": [
+    96,
+    8,
+    8
+  ],
+  "level": 0,
+  "alpha": 2.0,
+  "period": 1.5707963267948966,
+  "radius": 1.0,
+  "length": 2.0,
+  "density": 1.0,
+  "viscosity": 1.0,
+  "pressure_amplitude": 0.02,
+  "steps_per_cycle": 800,
+  "phases": 800,
+  "warmup": 2,
+  "ranks": 1,
+  "schur": false,
+  "tau": null,
+  "executable_sha256": "04a7aa5b0b6d22e408efc6cace75d4b11a483a595ecfd222c8f4fe8d49282873",
+  "solver_options": [
+    "-pc_factor_mat_solver_type",
+    "mumps",
+    "-fluid_lu_pc_reuse_window",
+    "32",
+    "-snes_lag_jacobian",
+    "-2"
+  ]
+}

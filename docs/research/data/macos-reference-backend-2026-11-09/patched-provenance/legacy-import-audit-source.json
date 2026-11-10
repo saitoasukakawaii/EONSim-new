@@ -1,0 +1,16 @@
+{
+  "original_source_commit": "1294a4e",
+  "original_source_sha256": "f99b725a5012cc1da77c0f2de8db60b0682aa7520405ff044746bd0f3a5d5b92",
+  "affected_already_imported_controllers": [
+    {
+      "session": 82743,
+      "work": "reference-strict-increment-startup"
+    },
+    {
+      "session": 75644,
+      "work": "reference-elastic-s24-l1-n400-nu0"
+    }
+  ],
+  "reason": "These controllers imported the old analyzer before the provenance-only extension. Its runtime source hash reads the current file; retain its output and independently rerun the current auditor after termination. Never cite the old in-process hash as the executed implementation.",
+  "next_action": "Save fresh convergence-reviewed.json from an actual new Python process; future patched production freezes audit sources before launch."
+}

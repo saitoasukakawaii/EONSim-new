@@ -1,0 +1,33 @@
+{
+  "records": [
+    {
+      "name": "startup-old",
+      "path": "build/recompute-20261109/reference-kinematic-increment-equivalence/startup-old/results/stFile_001.bin",
+      "norms": [
+        5.976490211753883e-13,
+        2.6084653640137432e-15
+      ],
+      "bits": [
+        4423950063672478410,
+        4388615682800225745
+      ]
+    },
+    {
+      "name": "startup-increment",
+      "path": "build/recompute-20261109/reference-kinematic-increment-equivalence/startup-increment/results/stFile_001.bin",
+      "norms": [
+        5.976490211753883e-13,
+        2.608465364013743e-15
+      ],
+      "bits": [
+        4423950063672478410,
+        4388615682800225744
+      ]
+    }
+  ],
+  "positive_norm_ulp_distances": [
+    0,
+    1
+  ],
+  "scope": "Quantifies preserved exact-norm mismatch; not a new scientific tolerance or convergence gate."
+}

@@ -1,0 +1,7 @@
+{
+  "exit_code": 1,
+  "expected_rejection": true,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/finalize-tau-recovered-series.py\", line 6, in <module>\n    if not (w/'dense-recovery/receipt.json').is_file():raise ValueError('Recovered dense trajectory is incomplete; no index published')\n                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: Recovered dense trajectory is incomplete; no index published\n",
+  "no_indexes_or_completion_created": true
+}

@@ -1,0 +1,348 @@
+{
+  "plan": {
+    "coarse": {
+      "case": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l0-n800/case.json",
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-long-elastic-s24-l0-n800-nu0",
+      "audit": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-long-elastic-s24-l0-n800-nu0-audit.json"
+    },
+    "time": {
+      "case": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n400/case.json",
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n400-nu0",
+      "audit": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n400-nu0/audit.json"
+    },
+    "fine": {
+      "case": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800/case.json",
+      "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0-native25500",
+      "audit": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0-native25500/audit.json"
+    }
+  },
+  "producer_receipts": {
+    "coarse": {
+      "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-long-elastic-s24-l0-n800-nu0/completion.json",
+      "sha256": "7db63d6b8ac58fa10f29336aa3051952fa66b54809d25dfcff40bae3092899dd",
+      "audit_sha256": "ba54ce3053023855640e5d60e8cc77e7b2ee375c10007803b9f492fd7c5f32ec",
+      "fresh_convergence": {
+        "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+        "reference_build": {
+          "kind": "patched-fixed-reference",
+          "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+          "binary": {
+            "path": "svFSI",
+            "sha256": "3eeacfeeb504ed1fe7f0223a23c004f7605078b7afabd21c2d6fa9f80f63c703"
+          },
+          "patch": {
+            "path": "source.patch",
+            "sha256": "4c606590c4dbb9c7e87529800d364b4547f02348f4f1a74c491dbafb2b381549"
+          }
+        },
+        "steps": 25600,
+        "declared_steps": 25600,
+        "first_step": 1,
+        "last_step": 25600,
+        "restart": null,
+        "excluded_tail": {
+          "final_equation_rows": 0,
+          "last_observed_step": 25600,
+          "iteration_rows": 0,
+          "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+        },
+        "equations": {
+          "FS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          },
+          "MS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          }
+        },
+        "iteration_rows": 153450,
+        "final_equation_rows": 51200,
+        "iteration_limit_rows": 0,
+        "maximum_iterations": {
+          "FS": 3,
+          "MS": 3
+        },
+        "maximum_final_relative_ratio": {
+          "FS": 2.5e-11,
+          "MS": 9.7e-11
+        },
+        "failed_equation_steps": [],
+        "passed": true,
+        "input_manifest_sha256": "01d48e01acdf120744ce0bea430eee7d8b19f0c0c731ef1f50cda44fda2005eb",
+        "log_sha256": "5d74cd5273495f4d76a0a5eb92345b1fe35b70f26a23aa45d6fbe912192b10e3",
+        "analysis_source_sha256": "6abbbe72fb604763818aa20e6f7216a9960d5a081e666189858db9c16d8daa92",
+        "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+      }
+    },
+    "time": {
+      "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n400-nu0/completion.json",
+      "sha256": "16e30ad5ed705667266a1db03bd687067ba9af7af881cd5326b1f53799562baa",
+      "audit_sha256": "7033a387d92bbad5217e158ce39e2dc1d132e6bc15ff6d67f49e671988c97afd",
+      "fresh_convergence": {
+        "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+        "reference_build": {
+          "kind": "patched-fixed-reference",
+          "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+          "binary": {
+            "path": "svFSI",
+            "sha256": "3eeacfeeb504ed1fe7f0223a23c004f7605078b7afabd21c2d6fa9f80f63c703"
+          },
+          "patch": {
+            "path": "source.patch",
+            "sha256": "4c606590c4dbb9c7e87529800d364b4547f02348f4f1a74c491dbafb2b381549"
+          }
+        },
+        "steps": 12800,
+        "declared_steps": 12800,
+        "first_step": 1,
+        "last_step": 12800,
+        "restart": null,
+        "excluded_tail": {
+          "final_equation_rows": 0,
+          "last_observed_step": 12800,
+          "iteration_rows": 0,
+          "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+        },
+        "equations": {
+          "FS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          },
+          "MS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          }
+        },
+        "iteration_rows": 76656,
+        "final_equation_rows": 25600,
+        "iteration_limit_rows": 0,
+        "maximum_iterations": {
+          "FS": 3,
+          "MS": 3
+        },
+        "maximum_final_relative_ratio": {
+          "FS": 5e-11,
+          "MS": 9.9e-11
+        },
+        "failed_equation_steps": [],
+        "passed": true,
+        "input_manifest_sha256": "7da3e1b95e8e7312e71f43f5ed2a0e9f159b2b4e364958ff01640772274e9469",
+        "log_sha256": "b26e0223f0ebcc183aa3343310d75217fb2b1ddc8d99c268659d7c4d11fbf74f",
+        "analysis_source_sha256": "6abbbe72fb604763818aa20e6f7216a9960d5a081e666189858db9c16d8daa92",
+        "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+      }
+    },
+    "fine": {
+      "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0-native25500/completion.json",
+      "sha256": "78d6452f275db8756494ea238769c64d393cf1eb48f2b3c9832a28c862f2cf9e",
+      "audit_sha256": "a83633c07bb9a9818a0eed4f1952f953ae201ff60ba92b8667bcafd53f6936be",
+      "fresh_convergence": {
+        "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+        "steps": 25600,
+        "first_step": 1,
+        "last_step": 25600,
+        "passed": true,
+        "segments": [
+          {
+            "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0",
+            "log": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0/solve.log",
+            "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+            "reference_build": {
+              "kind": "patched-fixed-reference",
+              "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+              "binary": {
+                "path": "svFSI",
+                "sha256": "3eeacfeeb504ed1fe7f0223a23c004f7605078b7afabd21c2d6fa9f80f63c703"
+              },
+              "patch": {
+                "path": "source.patch",
+                "sha256": "4c606590c4dbb9c7e87529800d364b4547f02348f4f1a74c491dbafb2b381549"
+              }
+            },
+            "steps": 25500,
+            "declared_steps": 25600,
+            "first_step": 1,
+            "last_step": 25500,
+            "restart": null,
+            "excluded_tail": {
+              "final_equation_rows": 70,
+              "last_observed_step": 25535,
+              "iteration_rows": 208,
+              "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+            },
+            "equations": {
+              "FS": {
+                "tolerance": 1e-10,
+                "maximum_iterations": 30,
+                "minimum_iterations": 1
+              },
+              "MS": {
+                "tolerance": 1e-10,
+                "maximum_iterations": 30,
+                "minimum_iterations": 1
+              }
+            },
+            "iteration_rows": 152882,
+            "final_equation_rows": 51000,
+            "iteration_limit_rows": 0,
+            "maximum_iterations": {
+              "FS": 3,
+              "MS": 3
+            },
+            "maximum_final_relative_ratio": {
+              "FS": 3.5e-11,
+              "MS": 9.9e-11
+            },
+            "failed_equation_steps": [],
+            "passed": true,
+            "input_manifest_sha256": "f3050030d2c8c772a0199733b9e9eed05def9ce7fdc771a922f429cdce8f75c6",
+            "log_sha256": "0f9ca94f78e0b05f013013c22dd6255463f411ffc060c96af734c50ddff23424",
+            "analysis_source_sha256": "6abbbe72fb604763818aa20e6f7216a9960d5a081e666189858db9c16d8daa92",
+            "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+          },
+          {
+            "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0-native25500",
+            "log": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0-native25500/solve.log",
+            "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+            "reference_build": {
+              "kind": "patched-fixed-reference",
+              "base_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+              "binary": {
+                "path": "svFSI",
+                "sha256": "3eeacfeeb504ed1fe7f0223a23c004f7605078b7afabd21c2d6fa9f80f63c703"
+              },
+              "patch": {
+                "path": "source.patch",
+                "sha256": "4c606590c4dbb9c7e87529800d364b4547f02348f4f1a74c491dbafb2b381549"
+              }
+            },
+            "steps": 100,
+            "declared_steps": 25600,
+            "first_step": 25501,
+            "last_step": 25600,
+            "restart": {
+              "step": 25500,
+              "time": 200.27653166641394,
+              "stamp": [
+                1,
+                2,
+                2,
+                6625,
+                0,
+                7,
+                1
+              ],
+              "bytes": 1113064,
+              "serialized_values": 139129,
+              "sha256": "7ed3a3a1be8deb1584c90a636ec50b3c9c69204775d773836d6e63e4f3d488a2",
+              "input_name": "seed.bin",
+              "path": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0-native25500/seed.bin",
+              "scope": "Exact native saved time and complete finite Yn/An/Dn record; no v4 clock claim"
+            },
+            "excluded_tail": {
+              "final_equation_rows": 0,
+              "last_observed_step": 25600,
+              "iteration_rows": 0,
+              "scope": "Explicitly excluded tail; its completeness and convergence are not asserted"
+            },
+            "equations": {
+              "FS": {
+                "tolerance": 1e-10,
+                "maximum_iterations": 30,
+                "minimum_iterations": 1
+              },
+              "MS": {
+                "tolerance": 1e-10,
+                "maximum_iterations": 30,
+                "minimum_iterations": 1
+              }
+            },
+            "iteration_rows": 600,
+            "final_equation_rows": 200,
+            "iteration_limit_rows": 0,
+            "maximum_iterations": {
+              "FS": 3,
+              "MS": 3
+            },
+            "maximum_final_relative_ratio": {
+              "FS": 3.2e-12,
+              "MS": 4.2e-12
+            },
+            "failed_equation_steps": [],
+            "passed": true,
+            "input_manifest_sha256": "79b2d5d1cd178c731854bbd6ec85c72063da172a4a77abe3fd205f35994fd5db",
+            "log_sha256": "4d23695c8353a026f136077d8bc3a19dbea4e7dc8d9d19e0f91c82785fb54559",
+            "analysis_source_sha256": "6abbbe72fb604763818aa20e6f7216a9960d5a081e666189858db9c16d8daa92",
+            "scope": "Printed relative convergence for every equation/step, not physical qualification; equality after rounding is unproven"
+          }
+        ],
+        "equations": {
+          "FS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          },
+          "MS": {
+            "tolerance": 1e-10,
+            "maximum_iterations": 30,
+            "minimum_iterations": 1
+          }
+        },
+        "final_equation_rows": 51200,
+        "iteration_rows": 153274,
+        "iteration_limit_rows": 0,
+        "failed_equation_steps": [],
+        "maximum_iterations": {
+          "FS": 3,
+          "MS": 3
+        },
+        "maximum_final_relative_ratio": {
+          "FS": 3.5e-11,
+          "MS": 9.9e-11
+        },
+        "input_manifest_sha256": "79b2d5d1cd178c731854bbd6ec85c72063da172a4a77abe3fd205f35994fd5db",
+        "boundaries": [
+          {
+            "step": 25500,
+            "checkpoint": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0/results/stFile_25500.bin",
+            "checkpoint_sha256": "7ed3a3a1be8deb1584c90a636ec50b3c9c69204775d773836d6e63e4f3d488a2",
+            "output": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/reference-kinematic-elastic-s24-l1-n800-nu0/results/result_25500.vtu",
+            "output_sha256": "469e9ebea753ddfd9dcb8b3153ff66905f3df16b2adf56a9df61c40e891e09f5"
+          }
+        ],
+        "full_source_study": true,
+        "chain_sha256": "66e6737cd37e4b7882a8d5915687f6574560b66959a7a06dccb9c9f53a69c8ae",
+        "analysis_source_sha256": "695cdc7eda098693acd2890ef3e51ef8299b9e7ee1a9e9b6f0f49b5136e1df1c",
+        "scope": "Contiguous original/resumed segments with unchanged physical inputs, exact native seeds and explicitly reviewed execution transitions; excluded tails retained; no physical qualification",
+        "execution_binary_sha256": [
+          "3eeacfeeb504ed1fe7f0223a23c004f7605078b7afabd21c2d6fa9f80f63c703",
+          "3eeacfeeb504ed1fe7f0223a23c004f7605078b7afabd21c2d6fa9f80f63c703"
+        ],
+        "execution_transitions": []
+      }
+    }
+  },
+  "kernel_source": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/prod48-user-stop-2026-11-09/n800-family/source/build/prod48-20261107/s24-n800-budget-kernel.py",
+  "kernel_sha256": "5bfe84ef1fb7263145bec3d3e7764c3b6e5aa3628ed5d7441750d7a32bb0ea57",
+  "comparison_sources": {
+    "compare-pressure-fields.py": {
+      "source": "docs/research/data/prod48-user-stop-2026-11-09/n800-family/source/build/prod48-20261107/compare-pressure-fields.py",
+      "sha256": "5d191e3d017b64580b1035b615ff3b4f9befc872afe637a9c6bca6b8122e421d",
+      "unchanged": true
+    },
+    "compare-pressure-audits.py": {
+      "source": "docs/research/data/prod48-user-stop-2026-11-09/n800-family/source/build/prod48-20261107/compare-pressure-audits.py",
+      "sha256": "2e53c82a04ba5ef82bb69bccaefe54b2218ed2b088480c7dba62e62741d8e2a6",
+      "unchanged": true
+    }
+  },
+  "analyzer_sha256": "6fdd2a4a8d82c4a40a51235c51129f1c4bc0a26d2609793540ee4402849e5e3d",
+  "wrapper_sha256": "68449b3942e33efea20e3040d91ad8713fb155e11d8cb146132106dc87995fd5",
+  "reference_adoption_sha256": "59a0a05c9f0f292de3b680b4b385586dcfc81fd9380f2d5f327041aeb577fc2d",
+  "scope": "Original N800 arithmetic and10% gates unchanged; only fresh completed inputs with one explicitly patched reference binary and patch"
+}

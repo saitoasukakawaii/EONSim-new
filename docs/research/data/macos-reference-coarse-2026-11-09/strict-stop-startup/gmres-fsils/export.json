@@ -1,0 +1,62 @@
+{
+  "svfsi_commit": "7bdb74cdd517310d6bf32c0bb7d42072aeac8658",
+  "mode": "linear elastic pressure tube",
+  "meshes": {
+    "fluid": {
+      "nodes": 637,
+      "tetrahedra": 2592,
+      "tags": [
+        1,
+        2,
+        3
+      ]
+    },
+    "solid": {
+      "nodes": 624,
+      "tetrahedra": 1728,
+      "tags": [
+        11,
+        12,
+        13,
+        14
+      ]
+    }
+  },
+  "files": {
+    "fluid/face-1.vtp": "89c1399e7bd24a2dd99dc9b69ba4a58384262bf7c22aa91a44f23fba37a56544",
+    "fluid/face-2.vtp": "ea9d72f846062fec06a7315521b782b15560581330c8fa523f649496a7dc3e6a",
+    "fluid/face-3.vtp": "7ff6a37346810b3de643f8d09a43f92265961c265f5cd1f77914359f9dac2f0f",
+    "fluid/volume.vtu": "133e677503ac23ef7d7b01840708b920b5a10946f272af81087f13ee45f08cc2",
+    "pressure-1.txt": "707e001d0f6e4e9e77e3c28fa59f4aa016e30a93757436112c666d80fc865bf5",
+    "pressure-2.txt": "8e26f6ee7a3ceb57a46ca975f47abb48d84173d20a497d43f9e3e0244ed0a240",
+    "solid/face-11.vtp": "481051dbf3f192fc53b445becf8335f2f4080b477ce1fc36492054c97b1f91ed",
+    "solid/face-12.vtp": "4b6df4138e137a43452f2aac7dc68938fa590219cf1b202153e2f0d4f480890c",
+    "solid/face-13.vtp": "40f11f5d0eb972ade0fb7937fe665c8e317237022e87b1513cdbc33e8da1556c",
+    "solid/face-14.vtp": "9a8ca54fd5afb3cd9da85af4f5a4c9eadcb097c7d971698285bd5cf5b2e4a437",
+    "solid/volume.vtu": "e139dd44d7b3f3effc9e74f1258a3d53d88209f0f29f580fd120735c131d00f9",
+    "source-case.json": "87bf1e76d4dc4aa85f17f8a399e33976bf77d04d140c1c76feb0348e4f99ac57",
+    "svFSI.inp": "8f5837d17a55031f1ffc986d9fb9e2a9e6302d98a498c19aed6d74952a281051"
+  },
+  "pressure_time_offset": 0.002617993877991495,
+  "load_evaluation": "alpha_f stage",
+  "scope": "Prepared input; no reference agreement is inferred from export",
+  "output_start_step": 1,
+  "general_pressure": {
+    "kind": "General scalar normal traction",
+    "time_knots": 25602,
+    "table_end_time": 201.06978381138074,
+    "traction_sign": -1,
+    "ramp_time": 100.53096491487338,
+    "scope": "Exact prescribed values at fixed-step endpoint reads; linear interpolation between knots"
+  },
+  "tight_linear_absolute_tolerance": 1e-26,
+  "mesh_motion_poisson_ratio": 0.0,
+  "local_backend_screen": {
+    "ilut": false,
+    "candidate": true,
+    "start": 0,
+    "stop": 100,
+    "diagnostic_derivative": true,
+    "patch_sha256": "186ecf502408857c5de60086cd9ae7676fae3d155dd6c9f78a20820136370b68"
+  }
+}

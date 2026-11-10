@@ -1,0 +1,24 @@
+{
+  "work": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/fine-n1600-volume-through48000-restore-probe",
+  "archive": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/archives/elastic-s24-l1-n1600-volume-through48000-chunks/0000.tar.zst",
+  "archive_sha256": "38f8bac7af78a7dab75dd4fede224e02790119a3ea4a249848a1535710348ad9",
+  "archive_bytes": 35163740,
+  "source_manifest": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/docs/research/data/macos-elastic-fine-n1600-2026-11-10/raw-manifest.json",
+  "source_manifest_sha256": "8d44fccd8fd11d6f18b8e8279260afba763ddcc1c80e703c8bb81cc2c0161753",
+  "selected": {
+    "dense-001/solution_restart46400_step46401.vtu": {
+      "bytes": 2773850,
+      "sha256": "2c6ab1d5d7c78fa9fba683af7061c6b49adf01bddec9633fcc4c30b86ee4f7d0",
+      "allocated_bytes": 1245184
+    },
+    "dense-001/solution_restart46400_step46401_solid.vtu": {
+      "bytes": 1702658,
+      "sha256": "4c0f766e7c13e44b9a9267f8fdf8ec8602457c5c15c524e6ce7f69fbc467c60c",
+      "allocated_bytes": 720896
+    }
+  },
+  "status": "evicted",
+  "scope": "Completed fine N1600 volumes through48000 only. Active frozen budget reads fine steps48001..51200; these inputs remain materialized. Restore these receipts before full physical replay or any early-field consumer. Original full manifest and audit retained; no numerical task waived.",
+  "removed_allocated_bytes": 58253312,
+  "finished_unix": 1794252160.773603
+}

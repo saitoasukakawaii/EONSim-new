@@ -1,0 +1,19 @@
+{
+  "pid": 55410,
+  "pgid": 55410,
+  "command": "/Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-tautime-n400/eonsim -case case.json -checkpoint /Users/chen/Documents/ChatGPT/\u6570\u503c\u8ba1\u7b97/EONSim-new/build/recompute-20261109/elastic-s24-l1-n800-tautime-n400/checkpoint -stop_after 23200 -pc_factor_mat_solver_type mumps -snes_lag_jacobian -2 -fsi_lu_pc_reuse_window 32",
+  "live": {
+    "pid": 55410,
+    "label": "early",
+    "target": 23200,
+    "start_unix": 1794215857.182365
+  },
+  "accepted_last_before_hold": 23043,
+  "free_bytes": 22456193024,
+  "status": "held",
+  "start_unix": 1794228639.3586812,
+  "reason": "Remaining free space near shared20GiB floor cannot support upcoming dense23201..25600 trajectory. Preserve early-stage solver before transition. Four other numerical jobs continue; length24 and Womersley already held; extra capacity question pending.",
+  "resume": "Verify same PID/command/stopped state, then SIGCONT to this process group when capacity permits; do not relaunch.",
+  "timing": "Original early-stage24h elapsed limit still advances; record hold duration. Wall time includes scheduling hold.",
+  "state": "Ts"
+}
