@@ -5,8 +5,8 @@ from pathlib import Path
 import subprocess
 from urllib.parse import urlencode
 
-CORE_JOBS = {'Select affected checks', 'PETSc 3.23.7 / debug',
-             'PETSc 3.23.7 / release', 'Record incremental evidence'}
+CORE_JOBS = {'Select affected checks', 'PETSc 3.23.7 / release',
+             'Record incremental evidence'}
 SITE_JOBS = {'Build VitePress'}
 REQUIRED_JOBS = CORE_JOBS | SITE_JOBS
 HOLD_LABELS = {'manual-review', 'do-not-merge', 'no-automerge'}
@@ -70,7 +70,9 @@ def branch_ready(branch):
     checks = branch.get('protection', {}).get('required_status_checks', {})
     contexts = set(checks.get('contexts', []))
     contexts.update(item['context'] for item in checks.get('checks', []))
-    return branch.get('protected') is True and REQUIRED_JOBS <= contexts
+    # Stale required Debug check cannot pass automatic PR CI.
+    return (branch.get('protected') is True and REQUIRED_JOBS <= contexts
+            and 'PETSc 3.23.7 / debug' not in contexts)
 
 
 def run_passed(run, jobs, pr, required, repository):
@@ -112,7 +114,7 @@ def merge_one(client, number):
         print(f'PR #{number}: held: {reason}')
         return False
     if not branch_ready(client.api('branches/main')):
-        print(f'PR #{number}: held: protect main and require all five documented checks')
+        print(f'PR #{number}: held: protect main with four required checks and remove the legacy Debug requirement')
         return False
     if not ci_passed(client, pr):
         print(f'PR #{number}: waiting for successful checks on current head')

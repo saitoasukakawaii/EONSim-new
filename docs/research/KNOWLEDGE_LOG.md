@@ -1,5 +1,9 @@
 # EONSim Knowledge Log
 
+## 2026-11-13 / Release 验收与 Debug 故障定位分离
+
+PR 日常正确性依靠 Release 增量 CTest 和复用证据；Debug/GDB/LLDB/sanitizer 仅用于定位实际故障。删除默认 Debug 前必须同步更新 receipt 来源校验和自动合并保护检查，保持 fail-closed；此流程经验已纳入工程规范，不新建知识文章。
+
 ## 2026-11-07 / 全场误差与局部质量审计
 
 新增[算法草稿](../../website/drafts/tube-field-errors-and-local-mass.md)，实现

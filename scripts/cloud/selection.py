@@ -92,7 +92,7 @@ def reusable(previous, context, catalog, ancestor):
         if set(origins) != set(names):
             return False
         for name in names:
-            if set(origins[name]) != {'debug', 'release'}:
+            if set(origins[name]) != {'release'}:
                 return False
             for origin in origins[name].values():
                 if not isinstance(origin.get('run_id'), int) or origin['run_id'] <= 0:

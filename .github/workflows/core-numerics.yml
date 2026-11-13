@@ -14,6 +14,11 @@ on:
         description: "Exact CTest names separated by commas or whitespace (explicit only)"
         type: string
         default: ""
+      mode:
+        description: "Release by default; Debug only on manual dispatch"
+        type: choice
+        options: [release, debug]
+        default: release
       base_ref:
         description: "Comparison ref for manual incremental selection"
         type: string
@@ -63,21 +68,11 @@ jobs:
           retention-days: 14
 
   numerics:
-    name: PETSc 3.23.7 / ${{ matrix.mode }}
+    name: PETSc 3.23.7 / release
     needs: selection
-    if: always()
+    if: ${{ always() && (github.event_name != 'workflow_dispatch' || inputs.mode != 'debug') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 35
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - mode: debug
-            compiler: gcc-15.3.0
-            abi: openmpi-5-real-double-int32-v3
-          - mode: release
-            compiler: gcc-15.3.0
-            abi: openmpi-5-real-double-int32-v3
     steps:
       # Keep the required check names even when nothing numerical is selected.
       # A failed selector must fail these checks, never become a green skipped job.
@@ -102,7 +97,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .cloud/mamba/pkgs
-          key: deps-${{ runner.os }}-${{ runner.arch }}-${{ matrix.compiler }}-${{ matrix.abi }}-${{ hashFiles('environments/petsc-3.23.7-linux-64.lock') }}
+          key: deps-${{ runner.os }}-${{ runner.arch }}-gcc-15.3.0-openmpi-5-real-double-int32-v3-${{ hashFiles('environments/petsc-3.23.7-linux-64.lock') }}
       - name: Restore locked environment
         if: needs.selection.outputs.run_numerics == 'true'
         shell: bash
@@ -112,12 +107,67 @@ jobs:
           scripts/cloud/restore.sh '3.23.7' 2>&1 | tee build/restore-evidence/restore.log
       - name: Build and verify selected numerical contracts
         if: needs.selection.outputs.run_numerics == 'true'
-        run: scripts/cloud/run.sh '3.23.7' '${{ matrix.mode }}' explicit .cloud build/ci/plan.json
+        run: scripts/cloud/run.sh '3.23.7' 'release' explicit .cloud build/ci/plan.json
       - name: Preserve evidence even on failure
         if: always() && needs.selection.outputs.run_numerics == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: numerics-3.23.7-${{ matrix.mode }}-${{ github.sha }}
+          name: numerics-3.23.7-release-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            build/restore-evidence/
+            build/cloud-*/evidence/
+            build/cloud-*/CMakeCache.txt
+            build/cloud-*/CMakeFiles/CMakeConfigureLog.yaml
+            build/cloud-*/Testing/
+            build/cloud-*/**/*.log
+            build/cloud-*/**/results.json
+
+  debug_manual:
+    name: PETSc 3.23.7 / debug (manual diagnostics)
+    needs: selection
+    if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.mode == 'debug' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Require successful selection
+        env:
+          SELECTION_RESULT: ${{ needs.selection.result }}
+        run: test "$SELECTION_RESULT" = success
+      - name: No Debug tests selected
+        if: needs.selection.outputs.run_numerics != 'true'
+        run: echo 'No Debug tests selected; choose explicit test names for targeted diagnostics.'
+      - uses: actions/checkout@v4
+        if: needs.selection.outputs.run_numerics == 'true'
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        if: needs.selection.outputs.run_numerics == 'true'
+        with:
+          name: incremental-plan
+          path: build/ci
+      - name: Dependency package cache
+        if: needs.selection.outputs.run_numerics == 'true'
+        uses: actions/cache@v4
+        with:
+          path: .cloud/mamba/pkgs
+          key: deps-${{ runner.os }}-${{ runner.arch }}-gcc-15.3.0-openmpi-5-real-double-int32-v3-${{ hashFiles('environments/petsc-3.23.7-linux-64.lock') }}
+      - name: Restore locked Debug environment
+        if: needs.selection.outputs.run_numerics == 'true'
+        shell: bash
+        run: |
+          mkdir -p build/restore-evidence
+          set -o pipefail
+          scripts/cloud/restore.sh '3.23.7' 2>&1 | tee build/restore-evidence/restore.log
+      - name: Build and run selected Debug diagnostics
+        if: needs.selection.outputs.run_numerics == 'true'
+        run: scripts/cloud/run.sh '3.23.7' 'debug' explicit .cloud build/ci/plan.json
+      - name: Preserve Debug diagnostics
+        if: always() && needs.selection.outputs.run_numerics == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostics-3.23.7-debug-${{ github.sha }}
           if-no-files-found: error
           retention-days: 14
           path: |
@@ -132,9 +182,15 @@ jobs:
   receipt:
     name: Record incremental evidence
     needs: [selection, numerics]
+    if: ${{ always() && (github.event_name != 'workflow_dispatch' || inputs.mode != 'debug') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
+      - name: Require successful selection and Release validation
+        env:
+          SELECTION_RESULT: ${{ needs.selection.result }}
+          RELEASE_RESULT: ${{ needs.numerics.result }}
+        run: test "$SELECTION_RESULT" = success && test "$RELEASE_RESULT" = success
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
