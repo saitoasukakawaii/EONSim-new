@@ -92,8 +92,8 @@ def finish(plan, summaries, catalog, lock_sha256):
         raise ValueError('Missing inherited origins')
     origins = json.loads(json.dumps(plan['origins']))
     if selected:
-        if set(summaries) != {'debug', 'release'}:
-            raise ValueError('Both selected mode summaries are required')
+        if set(summaries) != {'release'}:
+            raise ValueError('Exactly one selected Release summary is required')
         for mode, summary in summaries.items():
             if (summary.get('status') != 'passed' or summary.get('commit') != plan['commit'] or
                     summary.get('mode') != mode or summary.get('petsc') != '3.23.7' or
@@ -137,7 +137,7 @@ def main():
     if os.environ.get('GITHUB_STEP_SUMMARY'):
         with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
             f.write('### Validation evidence\n\n'+
-                    f"Executed this run: {len(result['executed'])} tests per mode; "
+                    f"Executed this run: {len(result['executed'])} tests in Release; "
                     f"reused: {len(result['reused'])}; disposition: {result['disposition']}.\n\n"+
                     'Reused results are historical evidence, not new numerical passes.\n')
 

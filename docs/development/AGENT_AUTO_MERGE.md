@@ -1,5 +1,7 @@
 # Agent PR 自动合并
 
+2026-11-13 策略更新：PR 自动数值验证只执行 Release 增量测试；Debug 改为手动故障诊断。管理员必须将 main 必需检查从五项改为下列四项，并移除旧 Debug 必需项；源码修改不代表分支保护已完成部署。
+
 ## 授权与部署边界
 
 2026-11-13：用户授权将普通研发 PR 改为 CI 通过后自动合并。开发基线为
@@ -15,7 +17,7 @@
 
 - 启用 Require a pull request before merging，但不要求人工 Approvals。
 - 启用 Require status checks to pass before merging，并开启 Require branches to be up to date before merging。
-- 选择下列五个必需检查；检查来源选择 GitHub Actions。
+- 选择下列四个必需检查；检查来源选择 GitHub Actions。
 - 开启 Do not allow bypassing the above settings 和 Require conversation resolution before merging。
 - 不允许 force push 或删除 main。
 
@@ -23,7 +25,6 @@
 
 ```
 Select affected checks
-PETSc 3.23.7 / debug
 PETSc 3.23.7 / release
 Record incremental evidence
 Build VitePress
@@ -33,7 +34,7 @@ Settings → General 保持 Allow squash merging / Allow auto-merge 开启；开
 
 自动合并作业只申请 `contents: write`、`pull-requests: write`、`actions: read`。普通 CI 保持只读。不需要额外 PAT、自动 Approve 或将全仓默认 GITHUB_TOKEN 权限改成写入。若账户/组织策略禁止上述作业权限，需管理员允许该工作流使用这些权限。
 
-控制器从公开分支元数据核对五项必需检查；未显示这些检查的其它 ruleset 配置会保持关闭，不能以删掉保护检查来解决。
+控制器从公开分支元数据核对四项必需检查，并拒绝旧 Debug 仍为必需项的配置；未显示这些检查的其它 ruleset 配置会保持关闭，不能以删掉保护检查来解决。
 
 ## 运行方式与安全边界
 
@@ -41,7 +42,7 @@ Settings → General 保持 Allow squash merging / Allow auto-merge 开启；开
 
 只接受同仓库 `codex/*` → `main`、非 Draft、无暂停标签的 PR。`workflow_run.pull_requests` 可能为空，因此按精确源分支查询开放 PR，再独立核验最新 head。不会执行 PR 分支中的合并脚本，不读取其缓存或 artifacts；特权作业仅检出可信 main 上的控制器。
 
-两项工作流必须在当前 head 上成功；四个核心 job 和网站 job 必须明确 success，missing/skipped/neutral/cancelled/failed 均不能替代。读取最新 workflow run，而不是挑选历史成功结果。合并前重新读取 PR、文件列表、标签及 main 保护，确认 head/base 未变、无冲突且 GitHub 状态 clean，再用带 `sha` 的 REST Squash merge；不使用管理员绕过，不预先排队合并后续未检查提交。
+两项工作流必须在当前 head 上成功；三个核心 job 和网站 job 必须明确 success，missing/skipped/neutral/cancelled/failed 均不能替代。读取最新 workflow run，而不是挑选历史成功结果。合并前重新读取 PR、文件列表、标签及 main 保护，确认 head/base 未变、无冲突且 GitHub 状态 clean，再用带 `sha` 的 REST Squash merge；不使用管理员绕过，不预先排队合并后续未检查提交。
 
 必需检查保护仍由 GitHub 在合并时强制执行。多 PR 并行时，main 前进导致另一分支落后，应更新其分支并重新选测，不得关闭 strict 检查来合并。
 

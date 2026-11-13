@@ -24,7 +24,7 @@ CONTEXT = dict(repository='owner/repo', pr=1, base='a'*40, head='b'*40,
 
 def receipt(names=('poisson_verification',)):
     return dict(schema=1, **{**CONTEXT, 'run_id': 10}, status='passed', covered=list(names),
-                origins={n: {m: dict(run_id=10, commit='c'*40) for m in ('debug','release')} for n in names})
+                origins={n: {'release': dict(run_id=10, commit='c'*40)} for n in names})
 
 
 def summary(mode, names=('poisson_verification',)):
@@ -161,22 +161,25 @@ class ReceiptTests(unittest.TestCase):
         self.assertFalse(s.reusable(receipt(),CONTEXT,POLICY['tests'],lambda *_:False))
         old=receipt();del old['origins']['poisson_verification']['release']
         self.assertFalse(s.reusable(old,CONTEXT,POLICY['tests'],lambda *_:True))
+        old=receipt();old['origins']['poisson_verification']['debug']={'run_id':10,'commit':'c'*40}
+        self.assertFalse(s.reusable(old,CONTEXT,POLICY['tests'],lambda *_:True))
 
-    def test_finish_requires_both_modes_and_exact_results(self):
+    def test_finish_requires_release_only_and_exact_results(self):
         plan=s.make_plan(CONTEXT,POLICY,['scripts/cloud/validate.py'])
-        result=r.finish(plan,{m:summary(m) for m in ('debug','release')},POLICY['tests'],'lock')
+        result=r.finish(plan,{'release':summary('release')},POLICY['tests'],'lock')
         self.assertEqual(result['executed'],['poisson_verification'])
-        self.assertEqual(result['origins']['poisson_verification']['debug']['run_id'],20)
-        for modes in ({}, {'debug':summary('debug')}):
+        self.assertEqual(result['origins']['poisson_verification']['release']['run_id'],20)
+        for modes in ({}, {'debug':summary('debug')},
+                      {'release':summary('release'), 'debug':summary('debug')}):
             with self.assertRaises(ValueError):r.finish(plan,modes,POLICY['tests'],'lock')
         for field,value in [('status','failed'),('commit','f'*40),('dirty',True),('mode','wrong'),
                             ('petsc','3.19.6'),('lock_sha256','other'),('tests',[]),
-                            ('tests',summary('debug')['tests']*2)]:
-            modes={m:summary(m) for m in ('debug','release')};modes['debug'][field]=value
+                            ('tests',summary('release')['tests']*2)]:
+            modes={'release':summary('release')};modes['release'][field]=value
             with self.subTest(field=field),self.assertRaises(ValueError):
                 r.finish(plan,modes,POLICY['tests'],'lock')
         for field,value in [('status','skipped'),('status','failed'),('exit_code',1),('timeout',True)]:
-            modes={m:summary(m) for m in ('debug','release')};modes['debug']['tests'][0][field]=value
+            modes={'release':summary('release')};modes['release']['tests'][0][field]=value
             with self.assertRaises(ValueError):r.finish(plan,modes,POLICY['tests'],'lock')
 
     def test_reuse_preserves_original_provenance(self):

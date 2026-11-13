@@ -1,5 +1,9 @@
 # EONSim Codex Session Log
 
+## 2026-11-13 / CI-DEBUG-ON-DEMAND / 源码修改
+
+基线 main `f34658082644eb5238ee4cc651d71823fe5d1587`。发现 core-numerics 双模式测试、receipt.py 强制双模式、selection.py 双模式历史来源、agent 自动合并五项必需检查彼此关联；不能简单删除 Debug job。同步修改 Release-only PR、手动 Debug、收据复用和自动合并检查。未执行 PETSc/MPI 求解，CI 结果须读取实际工作流，不能从文件存在推断通过。
+
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 
 Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main

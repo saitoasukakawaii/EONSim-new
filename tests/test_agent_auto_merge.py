@@ -122,12 +122,17 @@ class PolicyTests(unittest.TestCase):
         self.assertIsNotNone(m.hold_reason(pull(), [], REPO))
 
     def test_branch_requires_all_checks(self):
+        self.assertEqual(len(m.REQUIRED_JOBS), 4)
+        self.assertNotIn('PETSc 3.23.7 / debug', m.REQUIRED_JOBS)
         self.assertTrue(m.branch_ready(branch()))
         for name in m.REQUIRED_JOBS:
             data = branch()
             data['protection']['required_status_checks']['contexts'].remove(name)
             self.assertFalse(m.branch_ready(data))
         self.assertFalse(m.branch_ready({'protected': False}))
+        legacy = branch()
+        legacy['protection']['required_status_checks']['contexts'].append('PETSc 3.23.7 / debug')
+        self.assertFalse(m.branch_ready(legacy))
 
     def test_successful_current_jobs(self):
         self.assertTrue(m.run_passed(run(), jobs(m.CORE_JOBS), pull(), m.CORE_JOBS, REPO))

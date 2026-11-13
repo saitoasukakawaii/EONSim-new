@@ -1,5 +1,7 @@
 # L3：构建模式与最小验证
 
+2026-11-13 策略更新：PR 默认 Release 增量数值验收；Debug 仅供故障定位，不重复运行相同数值测试。Debug 构建和断言保留，性能评估另使用 Release Benchmark。
+
 状态：采用。适用范围：构建、诊断、错误传播和验证。实际入口为现有debug/release presets、eonsim及CTest目标；INFRA-01新增锁定云环境入口，复用原provider与测试。
 
 ## Debug / Release 的明确设计
@@ -41,15 +43,24 @@ PetscCall(KSPGetConvergedReason(ksp, &reason));
 
 ### 构建与依赖配置
 
-仓库已提供 `debug`、`release` presets，手工环境可执行：
+仓库提供 debug/release presets。常规数值验收使用 Release：
+
+```sh
+cmake --preset release -DBUILD_TESTING=ON
+cmake --build --preset release --parallel 2
+ctest --preset release -R 'solver_failures|nonlinear_acceptance' --output-on-failure
+```
+
+发生具体错误再用 Debug 最小复现和 debugger：
 
 ```sh
 cmake --preset debug -DBUILD_TESTING=ON
 cmake --build --preset debug --parallel 2
-ctest --preset debug -R 'solver_failures|nonlinear_acceptance' --output-on-failure
+ctest --preset debug -R '^solver_failures$' --output-on-failure
+# gdb --args ./build/debug/eonsim -case <故障算例.yaml>
 ```
 
-手工并行度需按机器配额调整；云端优先使用下节自动配额入口。Release将preset换为release。
+手工并行度需按机器配额调整；云端优先使用下节自动配额入口。Debug 不承担与 Release 对称的默认回归套件。
 
 PETSc 调试构建与优化构建分别记录。应用 Debug 可在 ABI 相容时使用优化依赖以降低环境成本；排查 PETSc 内部问题再切换其调试构建。正式性能数据使用优化 PETSc，不能只把应用设为 Release。[PETSc 性能文档](https://petsc.org/release/manual/performance/)
 
@@ -62,11 +73,12 @@ git clone https://github.com/saitoasukakawaii/EONSim-new.git
 cd EONSim-new
 # 可指定任意可写的云端前缀；不依赖/workspace/.eonsim-tools。
 scripts/cloud/restore.sh 3.23.7 /opt/eonsim-cloud
-scripts/cloud/run.sh 3.23.7 debug core /opt/eonsim-cloud
 scripts/cloud/run.sh 3.23.7 release core /opt/eonsim-cloud
-# 以下全量命令仅在用户明确要求全量验证时运行，不是基础设施交付的默认步骤
-scripts/cloud/run.sh 3.23.7 debug all /opt/eonsim-cloud
+# 仅在诊断故障时执行 Debug 小检查
+scripts/cloud/run.sh 3.23.7 debug core /opt/eonsim-cloud
+# 全量仅在明确要求时运行
 scripts/cloud/run.sh 3.23.7 release all /opt/eonsim-cloud
+scripts/cloud/run.sh 3.23.7 debug all /opt/eonsim-cloud
 # 仅当本次修改涉及 PETSc 3.19.6 兼容路径时，才按需运行旧版专项检查
 scripts/cloud/restore.sh 3.19.6 /opt/eonsim-cloud
 scripts/cloud/run.sh 3.19.6 release mpi-failure /opt/eonsim-cloud
@@ -100,25 +112,25 @@ cat build/cloud-3.23.7-release/evidence/ctest.log
 
 ### PR 增量 CI 与精确清单
 
-GitHub Actions `core-numerics.yml` 仅在面向 main 的 PR 自动运行；分支 Push 与合入 main 不重复触发数值 CI。保留 PETSc 3.23.7 Debug/Release 的原检查名称。纯文档/网站改动仍生成选测结果，但不恢复 PETSc、不编译、不执行数值检查；网站工作流独立且未修改。
+GitHub Actions `core-numerics.yml` 仅在面向 main 的 PR 自动运行；分支 Push 与合入 main 不重复触发数值 CI。PR 必需数值检查只保留 PETSc 3.23.7 Release；Debug 通过 workflow_dispatch 手动运行。纯文档/网站改动仍生成选测结果，但不恢复 PETSc、不编译、不执行数值检查；网站工作流独立且未修改。
 
 `scripts/cloud/selection.json` 记录路径到 CTest 名称、构建目标及 rank 的显式映射。共享代码映射到受影响入口的代表性检查，不代表完整下游验证。新增生产文件、测试或 CMake 注册项须同步映射；未知非文档路径直接失败，禁止自动回退 `all`。重命名按旧路径删除和新路径新增分别判断。旧版锁变化不启动主锁数值检查，仍需开发者按兼容策略选择手动旧版专项。
 
 首次按 PR base 与实际合并预览的差异选测。后续只复用同仓库、同 PR、相同 base SHA、相同规则/构建/依赖指纹、且旧 head 为当前 head 祖先的成功 workflow receipt。查询最近最多 90 个成功 PR runs；无可用凭据、artifact 缺失/过期、非祖先历史或基线变化时，重新选择当前完整 PR 差异涉及的项，仍不运行全量。当前不跨 PR 复用，也不缓存编译产物。
 
-复用证据保留每项 Debug/Release 的原 run/提交；新 head 的文档改动不会重跑这些数值项。受影响项重新运行，其他项标为历史证据复用；失败、取消、未知或不完整记录不参与复用。选测、实际运行、继承来源分别保存在 `incremental-plan`、`numerics-*`、`incremental-receipt` artifacts，保留 14 天；长期验收另存精简记录。
+复用证据只要求每项 Release 的原 run/提交；新 head 的文档改动不会重跑这些数值项。受影响项重新运行，其他项标为历史证据复用；失败、取消、未知或不完整记录不参与复用。选测、实际运行、继承来源分别保存在 `incremental-plan`、`numerics-*`、`incremental-receipt` artifacts，保留 14 天；长期验收另存精简记录。
 
 云入口支持第五参数传入 JSON 清单，形如 `{"tests": ["poisson_verification"]}`：
 
 ```bash
-scripts/cloud/run.sh 3.23.7 debug explicit .cloud build/ci/plan.json
+scripts/cloud/run.sh 3.23.7 release explicit .cloud build/ci/plan.json
 ```
 
 执行器配置后读取真实 CTest inventory，核对映射完整性、名称唯一性及清单非空；只构建所选测试对应的目标和锁定运行时探针。`eonsim_core` 仍是一个库，构建 eonsim 会编译整个核心库，不声称已有逐源增量构建缓存。运行时探针按所选最大 rank 检查一次；若已选中 runtime_mpi，不额外执行同一探针。JUnit 必须与选择清单完全对应，缺失、重复、意外跳过或失败均拒绝通过。
 
-`workflow_dispatch` 的 `selection` 提供 `incremental`（默认，比较 `base_ref`）、`explicit`（逗号/空白分隔的精确 `tests` 名称）、`all`（用户显式全量）。PR 不允许切换为 explicit/all。手动全量仍经过精确 inventory 与结果核对；只有勾选 `run_legacy_petsc` 才运行 3.19.6 Release 的 mpi-failure 专项。手动运行不作为 PR 历史复用基线。
+`workflow_dispatch` 的 `selection` 提供 `incremental`（默认，比较 `base_ref`）、`explicit`（逗号/空白分隔的精确 `tests` 名称）、`all`（用户显式全量）。PR 不允许切换为 explicit/all。workflow_dispatch 的 mode 默认 release，针对故障可选择 debug 配合 selection=explicit 的精确测试名；Debug 只保存专项 evidence，不产生 PR receipt。手动全量仍经过精确 inventory 与结果核对；只有勾选 `run_legacy_petsc` 才运行 3.19.6 Release 的 mpi-failure 专项。手动运行不作为 PR 历史复用基线。
 
-工作流不使用顶层 paths-ignore 跳过必需检查；选测失败时原 Debug/Release 检查也失败，不能以依赖 job 被跳过掩盖错误。不修改仓库保护规则，不用 `[skip ci]` 作为跳过数值测试的实现。改造尚未合入 main 时，远程默认分支仍使用旧配置；实际 PR/验收状态见 CODEX_PROGRESS。
+工作流不使用顶层 paths-ignore 跳过必需检查；选测失败时 Release 和 receipt 检查也失败，不能以依赖 job 被跳过掩盖错误。不修改仓库保护规则，不用 `[skip ci]` 作为跳过数值测试的实现。改造尚未合入 main 时，远程默认分支仍使用旧配置；实际 PR/验收状态见 CODEX_PROGRESS。
 
 
 

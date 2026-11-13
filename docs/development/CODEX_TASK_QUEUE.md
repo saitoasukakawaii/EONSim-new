@@ -1,5 +1,11 @@
 # EONSim Codex Task Queue
 
+## CI-DEBUG-ON-DEMAND / 2026-11-13
+
+- 执行范围：默认 Release 增量数值验证、手动 Debug、Release-only 收据及自动合并四项检查。
+- 验收：`python tests/test_ci_selection.py`、`python tests/test_agent_auto_merge.py`、`python tests/test_cloud_evidence.py` 和 PR Release 最小算例；实际状态由 Actions 证明。
+- 管理员待办：main 必需检查移除旧 Debug、保留四项；当前连接无法访问保护规则管理 API。
+
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 
 Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main
