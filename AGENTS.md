@@ -1,5 +1,18 @@
 # FEM 项目开发约定
 
+## Agent PR 自动合并（2026-11-13）
+
+用户已授权普通研发 PR 在验证通过后自动合并，不再逐个等待人工点击 Merge。此规则取代历史任务记录中的普通代码 PR“不自动合并”默认值；公开网站发布仍需人工审核。
+
+- 使用本仓库 `codex/*` 分支向 `main` 提交非 Draft PR，交由 `Agent PR Auto Merge` 工作流处理。
+- 保留 PETSc 3.23.7 Debug/Release 的既有增量选测与证据复用，不增加默认全量或 PETSc 3.19.6 验证。
+- 最新提交的选测、Debug、Release、证据收据和网站检查必须成功；`main` 必须配置对应必需检查。未完成保护配置时自动合并保持关闭，不得绕过。
+- 仅以锁定 PR head SHA 的 Squash 合并；禁止管理员绕过、自动伪造批准、跳过 CI、放宽数值门槛或强推 main。
+- Draft、外部 fork、非 `codex/*` 分支、`manual-review` / `do-not-merge` / `no-automerge` 标签均不自动合并。
+- 公开网站内容、CI/权限/自动合并实现、AGENTS/Skill 规则变更继续人工审查；网站 drafts/templates 可随普通代码 PR 自动合并，但不得自动晋升为公开文章。
+- 失败或冲突在原 PR 修复；合并状态必须从 GitHub 核实，不能将“工作流已添加”写成“PR 已合并”。
+- 部署设置、暂停/重试方式及本次验证记录见 [自动合并说明](docs/development/AGENT_AUTO_MERGE.md)。
+
 ## 当前状态与目标
 
 2026-10-31最新交付：G0B/G0/G5/G1已通过PR #23合入main。具备DoF语义与三种PC树、BE/变步BDF2/两类generalized-alpha及适用ALE/FSI接入、Gmsh4.1与Tri3/Quad4相容混合二维标量闭环。本地及云端主锁Debug/Release各60项、兼容锁13项通过；数量为该检查点实际inventory，后续执行应重新读取。详细适用范围见[集成验收](docs/development/FEM_INTEGRATION_VALIDATION.md)。下文20项等记录为B5历史，不覆盖本次交付；验证仍最多4rank。

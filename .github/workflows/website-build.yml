@@ -3,9 +3,6 @@ name: Website Build Check
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "website/**"
-      - ".github/workflows/website-build.yml"
   push:
     branches: [main]
     paths:
@@ -15,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: website-build-${{ github.ref }}
@@ -24,20 +22,59 @@ jobs:
   build:
     name: Build VitePress
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
+      - name: Select website work
+        id: selection
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
+          needed = True
+          if os.environ['GITHUB_EVENT_NAME'] == 'pull_request':
+              pr = event['pull_request']
+              files = []
+              for page in range(1, 101):
+                  endpoint = (f"repos/{os.environ['GITHUB_REPOSITORY']}/pulls/{pr['number']}"
+                              f"/files?per_page=100&page={page}")
+                  items = json.loads(subprocess.check_output(['gh', 'api', endpoint]))
+                  files.extend(items)
+                  if len(items) < 100:
+                      break
+              if not files or len(files) != pr['changed_files']:
+                  raise RuntimeError('Incomplete changed-file list')
+              paths = [p for f in files for p in (f['filename'], f.get('previous_filename', ''))]
+              needed = any(p.startswith('website/') or p == '.github/workflows/website-build.yml'
+                           for p in paths)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'needed={str(needed).lower()}\n')
+          print('Build website' if needed else 'No website changes; required check succeeds without a build')
+          PY
+
       - name: Checkout
+        if: steps.selection.outputs.needed == 'true'
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
+        if: steps.selection.outputs.needed == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
       - name: Install website dependencies
+        if: steps.selection.outputs.needed == 'true'
         working-directory: website
         run: npm install --no-audit --no-fund
 
       - name: Add draft and template isolation sentinels
+        if: steps.selection.outputs.needed == 'true'
         working-directory: website
         run: |
           mkdir -p drafts templates
@@ -45,9 +82,11 @@ jobs:
           printf "# EONSIM_PRIVATE_TEMPLATE_SENTINEL_20261030\n" > templates/ci-isolation-probe.md
 
       - name: Build public website
+        if: steps.selection.outputs.needed == 'true'
         working-directory: website
         run: npm run docs:build
 
       - name: Check Markdown and unpublished content isolation
+        if: steps.selection.outputs.needed == 'true'
         working-directory: website
         run: npm run docs:check

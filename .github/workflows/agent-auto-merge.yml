@@ -1,0 +1,46 @@
+name: Agent PR Auto Merge
+
+on:
+  workflow_run:
+    workflows: ["Core numerical validation", "Website Build Check"]
+    types: [completed]
+  pull_request_target:
+    branches: [main]
+    types: [ready_for_review, reopened, unlabeled, edited]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Recheck this PR after configuring protection or resolving a blocker"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  merge:
+    if: >-
+      (github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main') &&
+      (github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.event == 'pull_request' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+    steps:
+      # Privileged job: fetch ONLY trusted main, never PR code, caches or artifacts.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+          sparse-checkout: scripts/cloud/agent_auto_merge.py
+          sparse-checkout-cone-mode: false
+      - name: Verify current evidence and merge eligible PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number || '' }}
+        run: python3 scripts/cloud/agent_auto_merge.py
