@@ -6,7 +6,7 @@
 - 验收：`python tests/test_ci_selection.py`、`python tests/test_agent_auto_merge.py`、`python tests/test_cloud_evidence.py` 和 PR Release 最小算例；实际状态由 Actions 证明。
 - 管理员待办：main 必需检查移除旧 Debug、保留四项；当前连接无法访问保护规则管理 API。
 
-## FSI-PROD-02C / in_progress / 2026-11-20
+## FSI-PROD-02C / review / 2026-11-20
 
 Check the isolated linear elastic wall against the plane-strain Lamé solution
 for a pressurized quarter annulus. Use a=1, b=1.2, L=2, E=100, ν=0.3,
@@ -38,6 +38,12 @@ spectral radius zero. A floating-point trap identified the division in
 `PICP` where this FSI equation has γ=1. For the next paired runs use 0.5
 in both programs, as in the upstream 3D pipe example. The wall, pressure,
 time step and quantitative criteria are unchanged.
+
+Observed 0.1894% worst-section area error for the finest isolated wall,
+0.5684% for the fine coupled BE case and 0.0000227% maximum inter-code
+difference relative to analytical expansion for the 48-sector paired case.
+The 24-sector cross-code pair misses the analytical gate. The next physical
+question is the dynamic pressure–area response. [Measurements and replay](../research/data/lame-wall-2026-11-20/README.md)
 
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 

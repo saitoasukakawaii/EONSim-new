@@ -1,0 +1,3361 @@
+{
+  "comparisons": {
+    "coupled_48_to_72_area_change": 0.006019737699707872,
+    "coupled_dt_area_change": 1.1293529987854711e-06,
+    "coupled_half_pressure_area_compliance_change": 0.0005446021358015418,
+    "coupled_mpi2_differences": {
+      "fluid_displacement": 4.336808689942018e-19,
+      "fluid_pressure": 3.469446951953614e-18,
+      "fluid_velocity": 1.1918812359052074e-18,
+      "solid_displacement": 6.505213034913027e-19,
+      "solid_velocity": 1.629334048492651e-18
+    },
+    "coupled_vs_isolated_48_area_change": 0.0010875024043075499,
+    "double_pressure_max_displacement_difference": 0.0,
+    "last_two_static_area_change": 0.0020393252807860973,
+    "static_mpi2_max_displacement_difference": 2.3548871186385156e-16,
+    "static_mpi4_max_displacement_difference": 2.1588633658531364e-15
+  },
+  "coupled": {
+    "s24-w2-r3-a3-dt05": {
+      "axial": 3,
+      "dt": 0.5,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "final_max_fluid_speed": 1.5012598107935596e-06,
+      "fluid_tetrahedra": 270,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 0.00021598070887344568,
+      "min_jacobian_ratio": 1.000059999943398,
+      "passed": false,
+      "pressure": 0.02,
+      "pressure_rms_relative": 0.00023187263987370517,
+      "radial": 3,
+      "ranks": 1,
+      "scheme": "be",
+      "sections": [
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0020936046428084256,
+          "linear_area_strain": 0.002092510004399225,
+          "previous_linear_area_strain": 0.0020920403445304748,
+          "radial_displacement": 0.0010462550021996125,
+          "x": 0.0
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.002125502691931467,
+          "linear_area_strain": 0.0021243743869976007,
+          "previous_linear_area_strain": 0.0021239840439230885,
+          "radial_displacement": 0.0010621871934988003,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.002153129285123958,
+          "linear_area_strain": 0.002151971528544925,
+          "previous_linear_area_strain": 0.002151607531251427,
+          "radial_displacement": 0.0010759857642724626,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021812622550012096,
+          "linear_area_strain": 0.002180073719029242,
+          "previous_linear_area_strain": 0.0021796722682079703,
+          "radial_displacement": 0.001090036859514621,
+          "x": 2.0
+        }
+      ],
+      "sectors": 24,
+      "solid_tetrahedra": 216,
+      "steps": 16,
+      "time": 8.0,
+      "wall_layers": 2,
+      "worst_area_relative_error": 0.037725332425105784
+    },
+    "s48-w4-r4-a6-dt025": {
+      "axial": 6,
+      "dt": 0.25,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "final_max_fluid_speed": 9.961941363636013e-08,
+      "fluid_tetrahedra": 1512,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 9.579846581836279e-08,
+      "min_jacobian_ratio": 1.0000043096347682,
+      "passed": true,
+      "pressure": 0.02,
+      "pressure_rms_relative": 2.8884735487090353e-06,
+      "radial": 4,
+      "ranks": 1,
+      "scheme": "be",
+      "sections": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002150252725614764,
+          "linear_area_strain": 0.0021490980671370107,
+          "previous_linear_area_strain": 0.0021490978588188923,
+          "radial_displacement": 0.0010745490335685053,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021581640140245517,
+          "linear_area_strain": 0.0021570008454761033,
+          "previous_linear_area_strain": 0.0021570006732843715,
+          "radial_displacement": 0.0010785004227380514,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021639168974727702,
+          "linear_area_strain": 0.0021627475226746536,
+          "previous_linear_area_strain": 0.0021627473838269217,
+          "radial_displacement": 0.0010813737613373268,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.00216820882455476,
+          "linear_area_strain": 0.0021670348103715953,
+          "previous_linear_area_strain": 0.002167034689012979,
+          "radial_displacement": 0.0010835174051857974,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021724230225559538,
+          "linear_area_strain": 0.0021712444448209562,
+          "previous_linear_area_strain": 0.0021712443246408486,
+          "radial_displacement": 0.0010856222224104781,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002177702144195605,
+          "linear_area_strain": 0.0021765178376699644,
+          "previous_linear_area_strain": 0.0021765177052713606,
+          "radial_displacement": 0.0010882589188349822,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021845306943569227,
+          "linear_area_strain": 0.0021833388847466062,
+          "previous_linear_area_strain": 0.002183338736194985,
+          "radial_displacement": 0.0010916694423733031,
+          "x": 2.0
+        }
+      ],
+      "sectors": 48,
+      "solid_tetrahedra": 1728,
+      "steps": 48,
+      "time": 12.0,
+      "wall_layers": 4,
+      "worst_area_relative_error": 0.011702393875120731
+    },
+    "s48-w4-r4-a6-dt05": {
+      "axial": 6,
+      "dt": 0.5,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "final_max_fluid_speed": 1.0718735159146662e-07,
+      "fluid_tetrahedra": 1512,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 1.1020008047392446e-06,
+      "min_jacobian_ratio": 1.0000562759726048,
+      "passed": true,
+      "pressure": 0.02,
+      "pressure_rms_relative": 3.2471714738042605e-06,
+      "radial": 4,
+      "ranks": 1,
+      "scheme": "be",
+      "sections": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021502502672348938,
+          "linear_area_strain": 0.0021490956113075807,
+          "previous_linear_area_strain": 0.00214909321495674,
+          "radial_displacement": 0.00107454780565379,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021581619011539726,
+          "linear_area_strain": 0.002156998734899706,
+          "previous_linear_area_strain": 0.0021569966839035935,
+          "radial_displacement": 0.0010784993674498528,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021639151351229326,
+          "linear_area_strain": 0.0021627457622208704,
+          "previous_linear_area_strain": 0.002162744057374527,
+          "radial_displacement": 0.0010813728811104354,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021682072327192706,
+          "linear_area_strain": 0.002167033220227836,
+          "previous_linear_area_strain": 0.0021670316853357233,
+          "radial_displacement": 0.001083516610113918,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021724213851778804,
+          "linear_area_strain": 0.0021712428091641587,
+          "previous_linear_area_strain": 0.002171241236107518,
+          "radial_displacement": 0.001085621404582079,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002177700280041078,
+          "linear_area_strain": 0.002176515975461919,
+          "previous_linear_area_strain": 0.0021765141900110937,
+          "radial_displacement": 0.0010882579877309591,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002184528595615277,
+          "linear_area_strain": 0.0021833367883214716,
+          "previous_linear_area_strain": 0.002183334778933129,
+          "radial_displacement": 0.001091668394160736,
+          "x": 2.0
+        }
+      ],
+      "sectors": 48,
+      "solid_tetrahedra": 1728,
+      "steps": 24,
+      "time": 12.0,
+      "wall_layers": 4,
+      "worst_area_relative_error": 0.011703523228119517
+    },
+    "s48-w4-r4-a6-dt05-half": {
+      "axial": 6,
+      "dt": 0.5,
+      "exact_linear_area_strain": 0.0010872727272727275,
+      "final_max_fluid_speed": 5.4952319592580776e-08,
+      "fluid_tetrahedra": 1512,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 1.1013937144716485e-06,
+      "min_jacobian_ratio": 1.0000281383192748,
+      "passed": true,
+      "pressure": 0.01,
+      "pressure_rms_relative": 3.3282118792017088e-06,
+      "radial": 4,
+      "ranks": 1,
+      "scheme": "be",
+      "sections": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.001074255255817265,
+          "linear_area_strain": 0.0010739669038599957,
+          "previous_linear_area_strain": 0.001073965706344648,
+          "radial_displacement": 0.000536983451929998,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0010782067677970494,
+          "linear_area_strain": 0.001077916290574422,
+          "previous_linear_area_strain": 0.001077915265778863,
+          "radial_displacement": 0.0005389581452872112,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0010810800173666653,
+          "linear_area_strain": 0.001080787990302012,
+          "previous_linear_area_strain": 0.0010807871385345564,
+          "radial_displacement": 0.0005403939951510059,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0010832231980926563,
+          "linear_area_strain": 0.0010829300126831247,
+          "previous_linear_area_strain": 0.001082929245874564,
+          "radial_displacement": 0.0005414650063415622,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.001085327405180458,
+          "linear_area_strain": 0.0010850330804458715,
+          "previous_linear_area_strain": 0.0010850322946532396,
+          "radial_displacement": 0.0005425165402229357,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0010879636074852326,
+          "linear_area_strain": 0.0010876678523716828,
+          "previous_linear_area_strain": 0.0010876669605660654,
+          "radial_displacement": 0.0005438339261858413,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.001091373891793627,
+          "linear_area_strain": 0.0010910762631112642,
+          "previous_linear_area_strain": 0.001091075259373409,
+          "radial_displacement": 0.000545538131555632,
+          "x": 2.0
+        }
+      ],
+      "sectors": 48,
+      "solid_tetrahedra": 1728,
+      "steps": 24,
+      "time": 12.0,
+      "wall_layers": 4,
+      "worst_area_relative_error": 0.012237797453181432
+    },
+    "s48-w4-r4-a6-dt05-mpi2": {
+      "axial": 6,
+      "dt": 0.5,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "final_max_fluid_speed": 1.0718735159085879e-07,
+      "fluid_tetrahedra": 1512,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 1.1020008045398094e-06,
+      "min_jacobian_ratio": 1.0000562759726048,
+      "passed": true,
+      "pressure": 0.02,
+      "pressure_rms_relative": 3.2471714737997395e-06,
+      "radial": 4,
+      "ranks": 2,
+      "scheme": "be",
+      "sections": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021502502672348933,
+          "linear_area_strain": 0.0021490956113075802,
+          "previous_linear_area_strain": 0.00214909321495674,
+          "radial_displacement": 0.00107454780565379,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021581619011539726,
+          "linear_area_strain": 0.002156998734899706,
+          "previous_linear_area_strain": 0.0021569966839035935,
+          "radial_displacement": 0.0010784993674498528,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021639151351229326,
+          "linear_area_strain": 0.0021627457622208704,
+          "previous_linear_area_strain": 0.0021627440573745273,
+          "radial_displacement": 0.0010813728811104354,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021682072327192706,
+          "linear_area_strain": 0.002167033220227836,
+          "previous_linear_area_strain": 0.0021670316853357233,
+          "radial_displacement": 0.001083516610113918,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021724213851778804,
+          "linear_area_strain": 0.0021712428091641587,
+          "previous_linear_area_strain": 0.0021712412361075176,
+          "radial_displacement": 0.0010856214045820791,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021777002800410774,
+          "linear_area_strain": 0.0021765159754619187,
+          "previous_linear_area_strain": 0.0021765141900110933,
+          "radial_displacement": 0.0010882579877309591,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021845285956152774,
+          "linear_area_strain": 0.0021833367883214725,
+          "previous_linear_area_strain": 0.002183334778933129,
+          "radial_displacement": 0.001091668394160736,
+          "x": 2.0
+        }
+      ],
+      "sectors": 48,
+      "solid_tetrahedra": 1728,
+      "steps": 24,
+      "time": 12.0,
+      "wall_layers": 4,
+      "worst_area_relative_error": 0.011703523228119628
+    },
+    "s72-w6-r5-a8-dt05": {
+      "axial": 8,
+      "dt": 0.5,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "final_max_fluid_speed": 8.006431227466796e-08,
+      "fluid_tetrahedra": 3888,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 8.774898440934354e-07,
+      "min_jacobian_ratio": 1.0000575792055417,
+      "passed": true,
+      "pressure": 0.02,
+      "pressure_rms_relative": 2.655518058961563e-06,
+      "radial": 5,
+      "ranks": 1,
+      "scheme": "be",
+      "sections": [
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.0021633545695009526,
+          "linear_area_strain": 0.0021621858045600363,
+          "previous_linear_area_strain": 0.0021621838964184844,
+          "radial_displacement": 0.0010810929022800184,
+          "x": 0.0
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.002167351171072735,
+          "linear_area_strain": 0.0021661780881706972,
+          "previous_linear_area_strain": 0.0021661764032037422,
+          "radial_displacement": 0.0010830890440853484,
+          "x": 0.25
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.002170134483805356,
+          "linear_area_strain": 0.0021689583873047685,
+          "previous_linear_area_strain": 0.0021689569778857447,
+          "radial_displacement": 0.0010844791936523844,
+          "x": 0.5
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.0021721601429505934,
+          "linear_area_strain": 0.0021709818511496787,
+          "previous_linear_area_strain": 0.0021709806449013167,
+          "radial_displacement": 0.0010854909255748398,
+          "x": 0.75
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.002173648801460338,
+          "linear_area_strain": 0.002172468895159183,
+          "previous_linear_area_strain": 0.002172467776871276,
+          "radial_displacement": 0.001086234447579592,
+          "x": 1.0
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.002175133149387546,
+          "linear_area_strain": 0.002173951632230263,
+          "previous_linear_area_strain": 0.002173950481013496,
+          "radial_displacement": 0.0010869758161151316,
+          "x": 1.25
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.00217708379287984,
+          "linear_area_strain": 0.0021759001571960888,
+          "previous_linear_area_strain": 0.0021758988608429025,
+          "radial_displacement": 0.0010879500785980444,
+          "x": 1.5
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.0021795863310980863,
+          "linear_area_strain": 0.002178399974654329,
+          "previous_linear_area_strain": 0.002178398463747363,
+          "radial_displacement": 0.001089199987327165,
+          "x": 1.75
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.0021830832506582573,
+          "linear_area_strain": 0.002181893063524814,
+          "previous_linear_area_strain": 0.002181891389831727,
+          "radial_displacement": 0.0010909465317624075,
+          "x": 2.0
+        }
+      ],
+      "sectors": 72,
+      "solid_tetrahedra": 5184,
+      "steps": 24,
+      "time": 12.0,
+      "wall_layers": 6,
+      "worst_area_relative_error": 0.0056837855284116445
+    },
+    "sv-s24": {
+      "axial": 3,
+      "dt": 0.5,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "final_max_fluid_speed": 8.55334842440424e-09,
+      "fluid_tetrahedra": 270,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 5.080347195178728e-08,
+      "min_jacobian_ratio": 1.0001200068934373,
+      "passed": false,
+      "pressure": 0.02,
+      "pressure_rms_relative": 1.5713146196166783e-07,
+      "radial": 3,
+      "ranks": 1,
+      "scheme": "generalized_alpha",
+      "sections": [
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0020942539639027444,
+          "linear_area_strain": 0.00209315864714802,
+          "previous_linear_area_strain": 0.002093158536673561,
+          "radial_displacement": 0.00104657932357401,
+          "x": 0.0
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.002126041741087951,
+          "linear_area_strain": 0.002124912863609198,
+          "previous_linear_area_strain": 0.0021249127842383835,
+          "radial_displacement": 0.001062456431804599,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021536314555750374,
+          "linear_area_strain": 0.0021524731630064315,
+          "previous_linear_area_strain": 0.0021524730985258943,
+          "radial_displacement": 0.0010762365815032158,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021818159409518504,
+          "linear_area_strain": 0.0021806268047753724,
+          "previous_linear_area_strain": 0.002180626736638266,
+          "radial_displacement": 0.0010903134023876862,
+          "x": 2.0
+        }
+      ],
+      "sectors": 24,
+      "solid_tetrahedra": 216,
+      "steps": 24,
+      "time": 12.0,
+      "wall_layers": 2,
+      "worst_area_relative_error": 0.03742704353560977
+    },
+    "sv-s48": {
+      "axial": 6,
+      "dt": 0.5,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "final_max_fluid_speed": 8.215702978231204e-08,
+      "fluid_tetrahedra": 1512,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 2.8667180852183893e-08,
+      "min_jacobian_ratio": 1.0001125492753833,
+      "passed": true,
+      "pressure": 0.02,
+      "pressure_rms_relative": 2.3681260930660596e-06,
+      "radial": 4,
+      "ranks": 1,
+      "scheme": "generalized_alpha",
+      "sections": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002150253258182863,
+          "linear_area_strain": 0.002149098599340993,
+          "previous_linear_area_strain": 0.002149098537002905,
+          "radial_displacement": 0.001074549299670496,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002158164454972865,
+          "linear_area_strain": 0.002157001285910633,
+          "previous_linear_area_strain": 0.0021570012449725474,
+          "radial_displacement": 0.0010785006429553166,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002163917252622075,
+          "linear_area_strain": 0.002162747877460836,
+          "previous_linear_area_strain": 0.00216274785094686,
+          "radial_displacement": 0.0010813739387304179,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002168209134119575,
+          "linear_area_strain": 0.0021670351196764748,
+          "previous_linear_area_strain": 0.0021670351016446045,
+          "radial_displacement": 0.0010835175598382374,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021724233285687145,
+          "linear_area_strain": 0.0021712447506308397,
+          "previous_linear_area_strain": 0.0021712447397287666,
+          "radial_displacement": 0.0010856223753154196,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021777024814015377,
+          "linear_area_strain": 0.002176518174697879,
+          "previous_linear_area_strain": 0.0021765181704632938,
+          "radial_displacement": 0.0010882590873489391,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002184531073140802,
+          "linear_area_strain": 0.002183339263055463,
+          "previous_linear_area_strain": 0.0021833392593943036,
+          "radial_displacement": 0.0010916696315277316,
+          "x": 2.0
+        }
+      ],
+      "sectors": 48,
+      "solid_tetrahedra": 1728,
+      "steps": 24,
+      "time": 12.0,
+      "wall_layers": 4,
+      "worst_area_relative_error": 0.011702149132486794
+    },
+    "sv05-s24": {
+      "axial": 3,
+      "dt": 0.5,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "final_max_fluid_speed": 9.66282975616657e-09,
+      "fluid_tetrahedra": 270,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 6.574072535186879e-08,
+      "min_jacobian_ratio": 1.0001200068934373,
+      "passed": false,
+      "pressure": 0.02,
+      "pressure_rms_relative": 1.9211175856194317e-07,
+      "radial": 3,
+      "ranks": 1,
+      "scheme": "generalized_alpha",
+      "sections": [
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.002094254018013098,
+          "linear_area_strain": 0.002093158701199954,
+          "previous_linear_area_strain": 0.0020931585582437584,
+          "radial_displacement": 0.0010465793505999772,
+          "x": 0.0
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021260417327204953,
+          "linear_area_strain": 0.0021249128552516335,
+          "previous_linear_area_strain": 0.0021249128132824952,
+          "radial_displacement": 0.001062456427625817,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.002153631440048989,
+          "linear_area_strain": 0.002152473147481351,
+          "previous_linear_area_strain": 0.002152473181868641,
+          "radial_displacement": 0.0010762365737406758,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.002181815976191075,
+          "linear_area_strain": 0.002180626839965912,
+          "previous_linear_area_strain": 0.0021806268275114866,
+          "radial_displacement": 0.001090313419982956,
+          "x": 2.0
+        }
+      ],
+      "sectors": 24,
+      "solid_tetrahedra": 216,
+      "steps": 24,
+      "time": 12.0,
+      "wall_layers": 2,
+      "worst_area_relative_error": 0.03742701867895115
+    },
+    "sv05-s48": {
+      "axial": 6,
+      "dt": 0.5,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "final_max_fluid_speed": 8.005414391887746e-08,
+      "fluid_tetrahedra": 1512,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 4.9771240321481965e-08,
+      "min_jacobian_ratio": 1.0001125492753833,
+      "passed": true,
+      "pressure": 0.02,
+      "pressure_rms_relative": 2.308748587837165e-06,
+      "radial": 4,
+      "ranks": 1,
+      "scheme": "generalized_alpha",
+      "sections": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021502532590252964,
+          "linear_area_strain": 0.0021490986002076,
+          "previous_linear_area_strain": 0.0021490984919777757,
+          "radial_displacement": 0.0010745493001037998,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021581644470306405,
+          "linear_area_strain": 0.0021570012779725954,
+          "previous_linear_area_strain": 0.002157001229658573,
+          "radial_displacement": 0.0010785006389862977,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002163917234577738,
+          "linear_area_strain": 0.0021627478594387142,
+          "previous_linear_area_strain": 0.002162747889236595,
+          "radial_displacement": 0.0010813739297193567,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021682091138688106,
+          "linear_area_strain": 0.002167035099456884,
+          "previous_linear_area_strain": 0.002167035156807858,
+          "radial_displacement": 0.001083517549728442,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021724233158465587,
+          "linear_area_strain": 0.0021712447379381656,
+          "previous_linear_area_strain": 0.0021712447533937035,
+          "radial_displacement": 0.0010856223689690823,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021777024815332066,
+          "linear_area_strain": 0.0021765181748521914,
+          "previous_linear_area_strain": 0.0021765181293736374,
+          "radial_displacement": 0.0010882590874260955,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.00218453108027022,
+          "linear_area_strain": 0.0021833392701698534,
+          "previous_linear_area_strain": 0.002183339201028623,
+          "radial_displacement": 0.0010916696350849265,
+          "x": 2.0
+        }
+      ],
+      "sectors": 48,
+      "solid_tetrahedra": 1728,
+      "steps": 24,
+      "time": 12.0,
+      "wall_layers": 4,
+      "worst_area_relative_error": 0.011702148733963358
+    },
+    "sv05-s48-half": {
+      "axial": 6,
+      "dt": 0.5,
+      "exact_linear_area_strain": 0.0010872727272727275,
+      "final_max_fluid_speed": 4.1375508809566756e-08,
+      "fluid_tetrahedra": 1512,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 5.0303460427882086e-08,
+      "min_jacobian_ratio": 1.0000562759726048,
+      "passed": true,
+      "pressure": 0.01,
+      "pressure_rms_relative": 2.3898411887460784e-06,
+      "radial": 4,
+      "ranks": 1,
+      "scheme": "generalized_alpha",
+      "sections": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0010742567500035029,
+          "linear_area_strain": 0.0010739683973261598,
+          "previous_linear_area_strain": 0.0010739683426325792,
+          "radial_displacement": 0.0005369841986630799,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0010782080390320063,
+          "linear_area_strain": 0.0010779175611092563,
+          "previous_linear_area_strain": 0.00107791753663983,
+          "radial_displacement": 0.0005389587805546278,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.00108108106559077,
+          "linear_area_strain": 0.0010807890379680273,
+          "previous_linear_area_strain": 0.0010807890527916176,
+          "radial_displacement": 0.0005403945189840138,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0010832241372906001,
+          "linear_area_strain": 0.0010829309514024334,
+          "previous_linear_area_strain": 0.001082930980117266,
+          "radial_displacement": 0.0005414654757012167,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0010853283691071094,
+          "linear_area_strain": 0.0010850340439007597,
+          "previous_linear_area_strain": 0.0010850340516530615,
+          "radial_displacement": 0.0005425170219503796,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0010879647066480648,
+          "linear_area_strain": 0.001087668951011491,
+          "previous_linear_area_strain": 0.0010876689282638301,
+          "radial_displacement": 0.0005438344755057455,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0010913751323959112,
+          "linear_area_strain": 0.0010910775030126977,
+          "previous_linear_area_strain": 0.0010910774683615026,
+          "radial_displacement": 0.0005455387515063487,
+          "x": 2.0
+        }
+      ],
+      "sectors": 48,
+      "solid_tetrahedra": 1728,
+      "steps": 24,
+      "time": 12.0,
+      "wall_layers": 4,
+      "worst_area_relative_error": 0.012236423863900003
+    },
+    "sv05-s72": {
+      "axial": 8,
+      "dt": 0.5,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "final_max_fluid_speed": 6.563743641922063e-08,
+      "fluid_tetrahedra": 3888,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 2.6477901282209943e-08,
+      "min_jacobian_ratio": 1.000115156203395,
+      "passed": true,
+      "pressure": 0.02,
+      "pressure_rms_relative": 2.109156797337335e-06,
+      "radial": 5,
+      "ranks": 1,
+      "scheme": "generalized_alpha",
+      "sections": [
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.002163356839927297,
+          "linear_area_strain": 0.0021621880726901154,
+          "previous_linear_area_strain": 0.00216218809309224,
+          "radial_displacement": 0.0010810940363450581,
+          "x": 0.0
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.0021673531821485227,
+          "linear_area_strain": 0.002166180097048063,
+          "previous_linear_area_strain": 0.0021661801005504076,
+          "radial_displacement": 0.0010830900485240315,
+          "x": 0.25
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.0021701361742263296,
+          "linear_area_strain": 0.002168960075890093,
+          "previous_linear_area_strain": 0.0021689600515149626,
+          "radial_displacement": 0.0010844800379450465,
+          "x": 0.5
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.002172161598995785,
+          "linear_area_strain": 0.0021709833056318805,
+          "previous_linear_area_strain": 0.0021709832546708586,
+          "radial_displacement": 0.00108549165281594,
+          "x": 0.75
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.002173650153552853,
+          "linear_area_strain": 0.002172470245817801,
+          "previous_linear_area_strain": 0.0021724701882404013,
+          "radial_displacement": 0.0010862351229089006,
+          "x": 1.0
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.002175134530962629,
+          "linear_area_strain": 0.0021739530123552403,
+          "previous_linear_area_strain": 0.002173952976628818,
+          "radial_displacement": 0.0010869765061776203,
+          "x": 1.25
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.002177085335595496,
+          "linear_area_strain": 0.002175901698304289,
+          "previous_linear_area_strain": 0.002175901693781673,
+          "radial_displacement": 0.001087950849152145,
+          "x": 1.5
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.0021795881244354364,
+          "linear_area_strain": 0.002178401766127394,
+          "previous_linear_area_strain": 0.0021784017822875606,
+          "radial_displacement": 0.0010892008830636975,
+          "x": 1.75
+        },
+        {
+          "area": 0.7844016847289237,
+          "deformed_area_strain": 0.002183085237420358,
+          "linear_area_strain": 0.00218189504802949,
+          "previous_linear_area_strain": 0.002181895073402751,
+          "radial_displacement": 0.0010909475240147453,
+          "x": 2.0
+        }
+      ],
+      "sectors": 72,
+      "solid_tetrahedra": 5184,
+      "steps": 24,
+      "time": 12.0,
+      "wall_layers": 6,
+      "worst_area_relative_error": 0.005682742492003956
+    }
+  },
+  "mass": {
+    "s48-w4-r4-a6-dt025": {
+      "cumulative_end_balance_over_gain": -6.444007348961478e-05,
+      "dt": 0.25,
+      "final_volume": 1.5697101491940053,
+      "history": [
+        {
+          "ale_mass_rate": -3.075717567896548e-09,
+          "ends_outward_flow": -0.00027976389408312767,
+          "euler_net_outward_flow": -3.848917712323541e-18,
+          "kinematic_wall_velocity_difference": 0.0,
+          "moving_wall_outward_flow": 0.0002797638940831238,
+          "section_linear_area_strain": 4.5560707573590456e-05,
+          "section_x": 1.0,
+          "step": 1,
+          "symmetry_flow": 0.0,
+          "time": 0.25,
+          "volume": 1.5663842468452105,
+          "volume_secant_rate": 0.00027976081836555977
+        },
+        {
+          "ale_mass_rate": -7.272307039592543e-08,
+          "ends_outward_flow": -0.0013603684726818913,
+          "euler_net_outward_flow": -1.5363144784119598e-15,
+          "kinematic_wall_velocity_difference": 5.421010862427522e-20,
+          "moving_wall_outward_flow": 0.001360368472680355,
+          "section_linear_area_strain": 0.0002708130957190919,
+          "section_x": 1.0,
+          "step": 2,
+          "symmetry_flow": 0.0,
+          "time": 0.5,
+          "volume": 1.5667243207826134,
+          "volume_secant_rate": 0.0013602957496114954
+        },
+        {
+          "ale_mass_rate": -2.2942588071960673e-07,
+          "ends_outward_flow": -0.0024120500183479705,
+          "euler_net_outward_flow": -6.034669292054318e-15,
+          "kinematic_wall_velocity_difference": 1.0842021724855044e-19,
+          "moving_wall_outward_flow": 0.002412050018341936,
+          "section_linear_area_strain": 0.0006796538461533736,
+          "section_x": 1.0,
+          "step": 3,
+          "symmetry_flow": 0.0,
+          "time": 0.75,
+          "volume": 1.5673272759307302,
+          "volume_secant_rate": 0.002411820592467251
+        },
+        {
+          "ale_mass_rate": -2.4015787719773585e-07,
+          "ends_outward_flow": -0.0024575538997751462,
+          "euler_net_outward_flow": -7.359564346831604e-16,
+          "kinematic_wall_velocity_difference": 2.168404344971009e-19,
+          "moving_wall_outward_flow": 0.0024575538997744103,
+          "section_linear_area_strain": 0.0011004375793791808,
+          "section_x": 1.0,
+          "step": 4,
+          "symmetry_flow": 0.0,
+          "time": 1.0,
+          "volume": 1.5679416043662047,
+          "volume_secant_rate": 0.0024573137418979485
+        },
+        {
+          "ale_mass_rate": -1.5637615126667254e-07,
+          "ends_outward_flow": -0.00197943122694712,
+          "euler_net_outward_flow": 4.2587461335230614e-16,
+          "kinematic_wall_velocity_difference": 2.168404344971009e-19,
+          "moving_wall_outward_flow": 0.001979431226947546,
+          "section_linear_area_strain": 0.0014293048280634693,
+          "section_x": 1.0,
+          "step": 5,
+          "symmetry_flow": 0.0,
+          "time": 1.25,
+          "volume": 1.5684364230789036,
+          "volume_secant_rate": 0.0019792748507958535
+        },
+        {
+          "ale_mass_rate": -8.590941094708399e-08,
+          "ends_outward_flow": -0.0014710407158353986,
+          "euler_net_outward_flow": 1.9992688060632702e-16,
+          "kinematic_wall_velocity_difference": 2.168404344971009e-19,
+          "moving_wall_outward_flow": 0.0014710407158355985,
+          "section_linear_area_strain": 0.0016595097163610059,
+          "section_x": 1.0,
+          "step": 6,
+          "symmetry_flow": 0.0,
+          "time": 1.5,
+          "volume": 1.5688041617805097,
+          "volume_secant_rate": 0.0014709548064244515
+        },
+        {
+          "ale_mass_rate": -4.393979770658807e-08,
+          "ends_outward_flow": -0.0010568428907992318,
+          "euler_net_outward_flow": 4.90059381963448e-17,
+          "kinematic_wall_velocity_difference": 2.168404344971009e-19,
+          "moving_wall_outward_flow": 0.0010568428907992808,
+          "section_linear_area_strain": 0.0018150944688620847,
+          "section_x": 1.0,
+          "step": 7,
+          "symmetry_flow": 0.0,
+          "time": 1.75,
+          "volume": 1.5690683615182601,
+          "volume_secant_rate": 0.0010567989510015252
+        },
+        {
+          "ale_mass_rate": -2.1908810636343812e-08,
+          "ends_outward_flow": -0.0007493123239113815,
+          "euler_net_outward_flow": 9.432558900623889e-18,
+          "kinematic_wall_velocity_difference": 2.168404344971009e-19,
+          "moving_wall_outward_flow": 0.0007493123239113909,
+          "section_linear_area_strain": 0.0019204524635214578,
+          "section_x": 1.0,
+          "step": 8,
+          "symmetry_flow": 0.0,
+          "time": 2.0,
+          "volume": 1.5692556841220353,
+          "volume_secant_rate": 0.0007492904151007451
+        },
+        {
+          "ale_mass_rate": -1.0883187705418643e-08,
+          "ends_outward_flow": -0.0005294559158883982,
+          "euler_net_outward_flow": 1.951563910473908e-18,
+          "kinematic_wall_velocity_difference": 4.336808689942018e-19,
+          "moving_wall_outward_flow": 0.0005294559158884001,
+          "section_linear_area_strain": 0.001992915935172874,
+          "section_x": 1.0,
+          "step": 9,
+          "symmetry_flow": 0.0,
+          "time": 2.25,
+          "volume": 1.5693880453802105,
+          "volume_secant_rate": 0.0005294450327006928
+        },
+        {
+          "ale_mass_rate": -5.428761957115488e-09,
+          "ends_outward_flow": -0.0003743404858408022,
+          "euler_net_outward_flow": 2.710505431213761e-19,
+          "kinematic_wall_velocity_difference": 4.2012834183813297e-19,
+          "moving_wall_outward_flow": 0.00037434048584080245,
+          "section_linear_area_strain": 0.0020435399174581147,
+          "section_x": 1.0,
+          "step": 10,
+          "symmetry_flow": 0.0,
+          "time": 2.5,
+          "volume": 1.5694816291444802,
+          "volume_secant_rate": 0.00037433505707884507
+        },
+        {
+          "ale_mass_rate": -2.721915335159898e-09,
+          "ends_outward_flow": -0.00026511679196803176,
+          "euler_net_outward_flow": 5.421010862427522e-20,
+          "kinematic_wall_velocity_difference": 4.2012834183813297e-19,
+          "moving_wall_outward_flow": 0.0002651167919680318,
+          "section_linear_area_strain": 0.002079280571654519,
+          "section_x": 1.0,
+          "step": 11,
+          "symmetry_flow": 0.0,
+          "time": 2.75,
+          "volume": 1.5695479076619934,
+          "volume_secant_rate": 0.0002651140700526966
+        },
+        {
+          "ale_mass_rate": -1.3697388751932136e-09,
+          "ends_outward_flow": -0.0001880407898296994,
+          "euler_net_outward_flow": 1.3552527156068805e-19,
+          "kinematic_wall_velocity_difference": 4.2690460541616737e-19,
+          "moving_wall_outward_flow": 0.00018804078982969952,
+          "section_linear_area_strain": 0.002104648600176203,
+          "section_x": 1.0,
+          "step": 12,
+          "symmetry_flow": 0.0,
+          "time": 3.0,
+          "volume": 1.569594917517016,
+          "volume_secant_rate": 0.0001880394200908242
+        },
+        {
+          "ale_mass_rate": -6.906369439828221e-10,
+          "ends_outward_flow": -0.00013349867900742298,
+          "euler_net_outward_flow": 2.710505431213761e-20,
+          "kinematic_wall_velocity_difference": 4.2690460541616737e-19,
+          "moving_wall_outward_flow": 0.000133498679007423,
+          "section_linear_area_strain": 0.002122688760532382,
+          "section_x": 1.0,
+          "step": 13,
+          "symmetry_flow": 0.0,
+          "time": 3.25,
+          "volume": 1.5696282920141087,
+          "volume_secant_rate": 0.000133497988370479
+        },
+        {
+          "ale_mass_rate": -3.484824108560035e-10,
+          "ends_outward_flow": -9.482178879266627e-05,
+          "euler_net_outward_flow": 5.421010862427522e-20,
+          "kinematic_wall_velocity_difference": 4.1674021004911577e-19,
+          "moving_wall_outward_flow": 9.482178879266632e-05,
+          "section_linear_area_strain": 0.0021355204807704704,
+          "section_x": 1.0,
+          "step": 14,
+          "symmetry_flow": 0.0,
+          "time": 3.5,
+          "volume": 1.5696519973741863,
+          "volume_secant_rate": 9.482144031025541e-05
+        },
+        {
+          "ale_mass_rate": -1.7584157919895219e-10,
+          "ends_outward_flow": -6.736237564643378e-05,
+          "euler_net_outward_flow": -2.710505431213761e-20,
+          "kinematic_wall_velocity_difference": 4.3029273720518457e-19,
+          "moving_wall_outward_flow": 6.736237564643376e-05,
+          "section_linear_area_strain": 0.0021446440457721276,
+          "section_x": 1.0,
+          "step": 15,
+          "symmetry_flow": 0.0,
+          "time": 3.75,
+          "volume": 1.5696688379241375,
+          "volume_secant_rate": 6.736219980485458e-05
+        },
+        {
+          "ale_mass_rate": -8.869709517366191e-11,
+          "ends_outward_flow": -4.785653483812097e-05,
+          "euler_net_outward_flow": -1.3552527156068805e-20,
+          "kinematic_wall_velocity_difference": 4.3029273720518457e-19,
+          "moving_wall_outward_flow": 4.785653483812096e-05,
+          "section_linear_area_strain": 0.002151128276842712,
+          "section_x": 1.0,
+          "step": 16,
+          "symmetry_flow": 0.0,
+          "time": 4.0,
+          "volume": 1.5696808020356727,
+          "volume_secant_rate": 4.78564461410258e-05
+        },
+        {
+          "ale_mass_rate": -4.470962945842764e-11,
+          "ends_outward_flow": -3.3998232401415544e-05,
+          "euler_net_outward_flow": 6.776263578034403e-21,
+          "kinematic_wall_velocity_difference": 4.3198680309969317e-19,
+          "moving_wall_outward_flow": 3.399823240141555e-05,
+          "section_linear_area_strain": 0.0021557353411116994,
+          "section_x": 1.0,
+          "step": 17,
+          "symmetry_flow": 0.0,
+          "time": 4.25,
+          "volume": 1.5696893015825957,
+          "volume_secant_rate": 3.3998187691786086e-05
+        },
+        {
+          "ale_mass_rate": -2.251230824071868e-11,
+          "ends_outward_flow": -2.415231283379682e-05,
+          "euler_net_outward_flow": 2.710505431213761e-20,
+          "kinematic_wall_velocity_difference": 4.2351647362715017e-19,
+          "moving_wall_outward_flow": 2.4152312833796847e-05,
+          "section_linear_area_strain": 0.00215900817295729,
+          "section_x": 1.0,
+          "step": 18,
+          "symmetry_flow": 0.0,
+          "time": 4.5,
+          "volume": 1.569695339655176,
+          "volume_secant_rate": 2.415229032148858e-05
+        },
+        {
+          "ale_mass_rate": -1.1316104544162103e-11,
+          "ends_outward_flow": -1.715739411860633e-05,
+          "euler_net_outward_flow": 0.0,
+          "kinematic_wall_velocity_difference": 4.3113977015243887e-19,
+          "moving_wall_outward_flow": 1.715739411860633e-05,
+          "section_linear_area_strain": 0.002161333041321691,
+          "section_x": 1.0,
+          "step": 19,
+          "symmetry_flow": 0.0,
+          "time": 4.75,
+          "volume": 1.5696996290008767,
+          "volume_secant_rate": 1.7157382802501786e-05
+        },
+        {
+          "ale_mass_rate": -5.67059229840362e-12,
+          "ends_outward_flow": -1.2188155627441102e-05,
+          "euler_net_outward_flow": -1.6940658945086007e-21,
+          "kinematic_wall_velocity_difference": 4.307162536788117e-19,
+          "moving_wall_outward_flow": 1.21881556274411e-05,
+          "section_linear_area_strain": 0.0021629845059732505,
+          "section_x": 1.0,
+          "step": 20,
+          "symmetry_flow": 0.0,
+          "time": 5.0,
+          "volume": 1.5697026760383659,
+          "volume_secant_rate": 1.2188149956848804e-05
+        },
+        {
+          "ale_mass_rate": -2.826148732084418e-12,
+          "ends_outward_flow": -8.658079114063883e-06,
+          "euler_net_outward_flow": 3.3881317890172014e-21,
+          "kinematic_wall_velocity_difference": 4.298692207315574e-19,
+          "moving_wall_outward_flow": 8.658079114063886e-06,
+          "section_linear_area_strain": 0.002164157629713887,
+          "section_x": 1.0,
+          "step": 21,
+          "symmetry_flow": 0.0,
+          "time": 5.25,
+          "volume": 1.5697048405574379,
+          "volume_secant_rate": 8.65807628791515e-06
+        },
+        {
+          "ale_mass_rate": -1.3947308638353746e-12,
+          "ends_outward_flow": -6.150405005136283e-06,
+          "euler_net_outward_flow": 8.470329472543003e-22,
+          "kinematic_wall_velocity_difference": 4.188577924172515e-19,
+          "moving_wall_outward_flow": 6.150405005136284e-06,
+          "section_linear_area_strain": 0.0021649909707293583,
+          "section_x": 1.0,
+          "step": 22,
+          "symmetry_flow": 0.0,
+          "time": 5.5,
+          "volume": 1.5697063781583405,
+          "volume_secant_rate": 6.150403610405419e-06
+        },
+        {
+          "ale_mass_rate": -6.771303827433732e-13,
+          "ends_outward_flow": -4.3690350078949035e-06,
+          "euler_net_outward_flow": 0.0,
+          "kinematic_wall_velocity_difference": 4.3219856133650675e-19,
+          "moving_wall_outward_flow": 4.3690350078949035e-06,
+          "section_linear_area_strain": 0.00216558294765868,
+          "section_x": 1.0,
+          "step": 23,
+          "symmetry_flow": 0.0,
+          "time": 5.75,
+          "volume": 1.5697074704169232,
+          "volume_secant_rate": 4.369034330764521e-06
+        },
+        {
+          "ale_mass_rate": -3.178533545511431e-13,
+          "ends_outward_flow": -3.1036146256289696e-06,
+          "euler_net_outward_flow": 2.117582368135751e-21,
+          "kinematic_wall_velocity_difference": 4.3029273720518457e-19,
+          "moving_wall_outward_flow": 3.1036146256289718e-06,
+          "section_linear_area_strain": 0.0021660034696875125,
+          "section_x": 1.0,
+          "step": 24,
+          "symmetry_flow": 0.0,
+          "time": 6.0,
+          "volume": 1.5697082463205,
+          "volume_secant_rate": 3.103614307775615e-06
+        },
+        {
+          "ale_mass_rate": -1.394062007656707e-13,
+          "ends_outward_flow": -2.20470952601686e-06,
+          "euler_net_outward_flow": 4.235164736271502e-22,
+          "kinematic_wall_velocity_difference": 4.33574989875795e-19,
+          "moving_wall_outward_flow": 2.2047095260168605e-06,
+          "section_linear_area_strain": 0.002166302196635954,
+          "section_x": 1.0,
+          "step": 25,
+          "symmetry_flow": 0.0,
+          "time": 6.25,
+          "volume": 1.5697087974978468,
+          "volume_secant_rate": 2.2047093866106593e-06
+        },
+        {
+          "ale_mass_rate": -5.2684030962547304e-14,
+          "ends_outward_flow": -1.5661644357551424e-06,
+          "euler_net_outward_flow": -4.235164736271502e-22,
+          "kinematic_wall_velocity_difference": 4.283604432942607e-19,
+          "moving_wall_outward_flow": 1.566164435755142e-06,
+          "section_linear_area_strain": 0.0021665144049350413,
+          "section_x": 1.0,
+          "step": 26,
+          "symmetry_flow": 0.0,
+          "time": 6.5,
+          "volume": 1.5697091890389425,
+          "volume_secant_rate": 1.5661643830711114e-06
+        },
+        {
+          "ale_mass_rate": -1.0148293482482537e-14,
+          "ends_outward_flow": -1.1125692770849961e-06,
+          "euler_net_outward_flow": -2.117582368135751e-22,
+          "kinematic_wall_velocity_difference": 4.192134800806493e-19,
+          "moving_wall_outward_flow": 1.112569277084996e-06,
+          "section_linear_area_strain": 0.0021666651537672102,
+          "section_x": 1.0,
+          "step": 27,
+          "symmetry_flow": 0.0,
+          "time": 6.75,
+          "volume": 1.5697094671812593,
+          "volume_secant_rate": 1.1125692669367027e-06
+        },
+        {
+          "ale_mass_rate": 3.04721934483483e-14,
+          "ends_outward_flow": -7.90354877270403e-07,
+          "euler_net_outward_flow": 2.239303723749537e-14,
+          "kinematic_wall_velocity_difference": 4.276457592450149e-19,
+          "moving_wall_outward_flow": 7.903548996634402e-07,
+          "section_linear_area_strain": 0.002166772244284145,
+          "section_x": 1.0,
+          "step": 28,
+          "symmetry_flow": 0.0,
+          "time": 7.0,
+          "volume": 1.5697096647699862,
+          "volume_secant_rate": 7.903549077425964e-07
+        },
+        {
+          "ale_mass_rate": 2.7356995262573338e-14,
+          "ends_outward_flow": -5.614675819376572e-07,
+          "euler_net_outward_flow": 1.1079630030790281e-14,
+          "kinematic_wall_velocity_difference": 4.33310292079778e-19,
+          "moving_wall_outward_flow": 5.614675930172872e-07,
+          "section_linear_area_strain": 0.0021668483217234425,
+          "section_x": 1.0,
+          "step": 29,
+          "symmetry_flow": 0.0,
+          "time": 7.25,
+          "volume": 1.5697098051368885,
+          "volume_secant_rate": 5.614676092946524e-07
+        },
+        {
+          "ale_mass_rate": 2.344122886301954e-14,
+          "ends_outward_flow": -3.98875433667032e-07,
+          "euler_net_outward_flow": 5.410116854055529e-15,
+          "kinematic_wall_velocity_difference": 4.325161986917271e-19,
+          "moving_wall_outward_flow": 3.988754390771489e-07,
+          "section_linear_area_strain": 0.002166902368705525,
+          "section_x": 1.0,
+          "step": 30,
+          "symmetry_flow": 0.0,
+          "time": 7.5,
+          "volume": 1.5697099048557528,
+          "volume_secant_rate": 3.988754571082609e-07
+        },
+        {
+          "ale_mass_rate": 2.166611610326057e-14,
+          "ends_outward_flow": -2.8337612132933456e-07,
+          "euler_net_outward_flow": 2.5798693397037433e-15,
+          "kinematic_wall_velocity_difference": 4.2971040205394724e-19,
+          "moving_wall_outward_flow": 2.833761239092039e-07,
+          "section_linear_area_strain": 0.002166940766059651,
+          "section_x": 1.0,
+          "step": 31,
+          "symmetry_flow": 0.0,
+          "time": 7.75,
+          "volume": 1.5697099756997885,
+          "volume_secant_rate": 2.8337614299545066e-07
+        },
+        {
+          "ale_mass_rate": 1.790939120392164e-14,
+          "ends_outward_flow": -2.013292286980378e-07,
+          "euler_net_outward_flow": 1.1759798334468432e-15,
+          "kinematic_wall_velocity_difference": 4.1705784740433613e-19,
+          "moving_wall_outward_flow": 2.0132922987401764e-07,
+          "section_linear_area_strain": 0.00216696804641571,
+          "section_x": 1.0,
+          "step": 32,
+          "symmetry_flow": 0.0,
+          "time": 8.0,
+          "volume": 1.5697100260321002,
+          "volume_secant_rate": 2.0132924660742901e-07
+        },
+        {
+          "ale_mass_rate": 1.6600506765913355e-14,
+          "ends_outward_flow": -1.4304528611352206e-07,
+          "euler_net_outward_flow": 4.871092456175001e-16,
+          "kinematic_wall_velocity_difference": 4.2547523731767574e-19,
+          "moving_wall_outward_flow": 1.430452866006313e-07,
+          "section_linear_area_strain": 0.002166987429531785,
+          "section_x": 1.0,
+          "step": 33,
+          "symmetry_flow": 0.0,
+          "time": 8.25,
+          "volume": 1.5697100617934259,
+          "volume_secant_rate": 1.4304530271402882e-07
+        },
+        {
+          "ale_mass_rate": 1.3156308780856428e-14,
+          "ends_outward_flow": -1.0164139679896881e-07,
+          "euler_net_outward_flow": 1.5545488478350787e-16,
+          "kinematic_wall_velocity_difference": 4.3225150089571014e-19,
+          "moving_wall_outward_flow": 1.016413969544237e-07,
+          "section_linear_area_strain": 0.002167001202569082,
+          "section_x": 1.0,
+          "step": 34,
+          "symmetry_flow": 0.0,
+          "time": 8.5,
+          "volume": 1.5697100872037784,
+          "volume_secant_rate": 1.016414099552776e-07
+        },
+        {
+          "ale_mass_rate": 1.2841308980354697e-14,
+          "ends_outward_flow": -7.222831447781478e-08,
+          "euler_net_outward_flow": 1.2841548875967227e-18,
+          "kinematic_wall_velocity_difference": 4.265340285017436e-19,
+          "moving_wall_outward_flow": 7.222831447909894e-08,
+          "section_linear_area_strain": 0.002167010990221279,
+          "section_x": 1.0,
+          "step": 35,
+          "symmetry_flow": 0.0,
+          "time": 8.75,
+          "volume": 1.5697101052608602,
+          "volume_secant_rate": 7.222832731912376e-08
+        },
+        {
+          "ale_mass_rate": 1.0498576744804611e-14,
+          "ends_outward_flow": -5.133297802797669e-08,
+          "euler_net_outward_flow": -6.550469740587028e-17,
+          "kinematic_wall_velocity_difference": 4.2637520982413343e-19,
+          "moving_wall_outward_flow": 5.1332977962471994e-08,
+          "section_linear_area_strain": 0.0021670179466004654,
+          "section_x": 1.0,
+          "step": 36,
+          "symmetry_flow": 0.0,
+          "time": 9.0,
+          "volume": 1.5697101180941073,
+          "volume_secant_rate": 5.1332988526553436e-08
+        },
+        {
+          "ale_mass_rate": 8.448849094194994e-15,
+          "ends_outward_flow": -3.648830791952803e-08,
+          "euler_net_outward_flow": -8.99408435454382e-17,
+          "kinematic_wall_velocity_difference": 4.2809574549824373e-19,
+          "moving_wall_outward_flow": 3.648830782958719e-08,
+          "section_linear_area_strain": 0.0021670228915425444,
+          "section_x": 1.0,
+          "step": 37,
+          "symmetry_flow": 0.0,
+          "time": 9.25,
+          "volume": 1.5697101272161864,
+          "volume_secant_rate": 3.648831636837713e-08
+        },
+        {
+          "ale_mass_rate": 8.448138215176566e-15,
+          "ends_outward_flow": -2.5941818904799492e-08,
+          "euler_net_outward_flow": -9.441762112119154e-17,
+          "kinematic_wall_velocity_difference": 4.2282825935750605e-19,
+          "moving_wall_outward_flow": 2.594181881038187e-08,
+          "section_linear_area_strain": 0.002167026407431046,
+          "section_x": 1.0,
+          "step": 38,
+          "symmetry_flow": 0.0,
+          "time": 9.5,
+          "volume": 1.5697101337016433,
+          "volume_secant_rate": 2.5941827352937707e-08
+        },
+        {
+          "ale_mass_rate": 6.563643002123519e-15,
+          "ends_outward_flow": -1.8448634273577862e-08,
+          "euler_net_outward_flow": -8.998345327315203e-17,
+          "kinematic_wall_velocity_difference": 4.3151034706686263e-19,
+          "moving_wall_outward_flow": 1.844863418359441e-08,
+          "section_linear_area_strain": 0.0021670289079754085,
+          "section_x": 1.0,
+          "step": 39,
+          "symmetry_flow": 0.0,
+          "time": 9.75,
+          "volume": 1.5697101383138035,
+          "volume_secant_rate": 1.8448640837220864e-08
+        },
+        {
+          "ale_mass_rate": 5.971964571243437e-15,
+          "ends_outward_flow": -1.312445465743441e-08,
+          "euler_net_outward_flow": -8.201727714907029e-17,
+          "kinematic_wall_velocity_difference": 4.250252510644469e-19,
+          "moving_wall_outward_flow": 1.3124454575417133e-08,
+          "section_linear_area_strain": 0.0021670306870672468,
+          "section_x": 1.0,
+          "step": 40,
+          "symmetry_flow": 0.0,
+          "time": 10.0,
+          "volume": 1.5697101415949186,
+          "volume_secant_rate": 1.3124460629398982e-08
+        },
+        {
+          "ale_mass_rate": 5.483924651483864e-15,
+          "ends_outward_flow": -9.341115281857656e-09,
+          "euler_net_outward_flow": -7.307788994709542e-17,
+          "kinematic_wall_velocity_difference": 4.285192619718709e-19,
+          "moving_wall_outward_flow": 9.341115208779766e-09,
+          "section_linear_area_strain": 0.002167031953485196,
+          "section_x": 1.0,
+          "step": 41,
+          "symmetry_flow": 0.0,
+          "time": 10.25,
+          "volume": 1.5697101439301988,
+          "volume_secant_rate": 9.341120765782307e-09
+        },
+        {
+          "ale_mass_rate": 4.73049070274882e-15,
+          "ends_outward_flow": -6.652395677822794e-09,
+          "euler_net_outward_flow": -6.433097443877184e-17,
+          "kinematic_wall_velocity_difference": 4.1414617164814947e-19,
+          "moving_wall_outward_flow": 6.65239561349182e-09,
+          "section_linear_area_strain": 0.0021670328555473523,
+          "section_x": 1.0,
+          "step": 42,
+          "symmetry_flow": 0.0,
+          "time": 10.5,
+          "volume": 1.569710145593299,
+          "volume_secant_rate": 6.652400408313497e-09
+        },
+        {
+          "ale_mass_rate": 3.869628203896945e-15,
+          "ends_outward_flow": -4.741319020228088e-09,
+          "euler_net_outward_flow": -5.626232883476826e-17,
+          "kinematic_wall_velocity_difference": 4.281751548370488e-19,
+          "moving_wall_outward_flow": 4.741318963965759e-09,
+          "section_linear_area_strain": 0.002167033498623064,
+          "section_x": 1.0,
+          "step": 43,
+          "symmetry_flow": 0.0,
+          "time": 10.75,
+          "volume": 1.5697101467786296,
+          "volume_secant_rate": 4.741322889856292e-09
+        },
+        {
+          "ale_mass_rate": 3.3925881906529257e-15,
+          "ends_outward_flow": -3.382716489395385e-09,
+          "euler_net_outward_flow": -4.903247663193734e-17,
+          "kinematic_wall_velocity_difference": 4.300015696295659e-19,
+          "moving_wall_outward_flow": 3.3827164403629085e-09,
+          "section_linear_area_strain": 0.0021670339575724095,
+          "section_x": 1.0,
+          "step": 44,
+          "symmetry_flow": 0.0,
+          "time": 11.0,
+          "volume": 1.5697101476243096,
+          "volume_secant_rate": 3.3827198819835758e-09
+        },
+        {
+          "ale_mass_rate": 2.5208038206773053e-15,
+          "ends_outward_flow": -2.4166350359308925e-09,
+          "euler_net_outward_flow": -4.2651573126659394e-17,
+          "kinematic_wall_velocity_difference": 4.3181474953228214e-19,
+          "moving_wall_outward_flow": 2.4166349932793193e-09,
+          "section_linear_area_strain": 0.002167034285582564,
+          "section_x": 1.0,
+          "step": 45,
+          "symmetry_flow": 0.0,
+          "time": 11.25,
+          "volume": 1.569710148228469,
+          "volume_secant_rate": 2.416637556734713e-09
+        },
+        {
+          "ale_mass_rate": 2.6624331181263248e-15,
+          "ends_outward_flow": -1.7294476982659293e-09,
+          "euler_net_outward_flow": -3.7065165019210056e-17,
+          "kinematic_wall_velocity_difference": 4.2190181707144666e-19,
+          "moving_wall_outward_flow": 1.7294476612007643e-09,
+          "section_linear_area_strain": 0.0021670345204447316,
+          "section_x": 1.0,
+          "step": 46,
+          "symmetry_flow": 0.0,
+          "time": 11.5,
+          "volume": 1.5697101486608316,
+          "volume_secant_rate": 1.7294503606990475e-09
+        },
+        {
+          "ale_mass_rate": 2.5894661417256393e-15,
+          "ends_outward_flow": -1.2404353850928305e-09,
+          "euler_net_outward_flow": -3.219530066981871e-17,
+          "kinematic_wall_velocity_difference": 4.3301912450415935e-19,
+          "moving_wall_outward_flow": 1.2404353528975298e-09,
+          "section_linear_area_strain": 0.002167034689012979,
+          "section_x": 1.0,
+          "step": 47,
+          "symmetry_flow": 0.0,
+          "time": 11.75,
+          "volume": 1.569710148970941,
+          "volume_secant_rate": 1.2404379745589722e-09
+        },
+        {
+          "ale_mass_rate": 1.6520016065887593e-15,
+          "ends_outward_flow": -8.922552830017816e-10,
+          "euler_net_outward_flow": -2.795951223936534e-17,
+          "kinematic_wall_velocity_difference": 4.1840780616402267e-19,
+          "moving_wall_outward_flow": 8.922552550422694e-10,
+          "section_linear_area_strain": 0.0021670348103715953,
+          "section_x": 1.0,
+          "step": 48,
+          "symmetry_flow": 0.0,
+          "time": 12.0,
+          "volume": 1.5697101491940053,
+          "volume_secant_rate": 8.922569350033882e-10
+        }
+      ],
+      "initial_volume": 1.566314306640619,
+      "integrated_end_inflow": 0.0033960613817299074,
+      "max_abs_ale_mass_rate": 2.4015787719773585e-07,
+      "max_abs_euler_flux": 2.239303723749537e-14,
+      "max_abs_symmetry_flow": 0.0,
+      "max_wall_kinematic_difference": 4.336808689942018e-19,
+      "steps": 48,
+      "volume_gain": 0.003395842553386208
+    },
+    "s48-w4-r4-a6-dt05": {
+      "cumulative_end_balance_over_gain": -0.00011076049026858539,
+      "dt": 0.5,
+      "final_volume": 1.5697101462608298,
+      "history": [
+        {
+          "ale_mass_rate": -1.2297965588502907e-07,
+          "ends_outward_flow": -0.0012475058308095517,
+          "euler_net_outward_flow": -1.2219825845649623e-14,
+          "kinematic_wall_velocity_difference": 0.0,
+          "moving_wall_outward_flow": 0.0012475058307973319,
+          "section_linear_area_strain": 0.00041611661863505395,
+          "section_x": 1.0,
+          "step": 1,
+          "symmetry_flow": 0.0,
+          "time": 0.5,
+          "volume": 1.566937998066196,
+          "volume_secant_rate": 0.0012473828511536666
+        },
+        {
+          "ale_mass_rate": -3.742512222279504e-07,
+          "ends_outward_flow": -0.0021709109226894993,
+          "euler_net_outward_flow": -5.027662314249781e-14,
+          "kinematic_wall_velocity_difference": 1.0842021724855044e-19,
+          "moving_wall_outward_flow": 0.0021709109226392227,
+          "section_linear_area_strain": 0.0011402237769815322,
+          "section_x": 1.0,
+          "step": 2,
+          "symmetry_flow": 0.0,
+          "time": 1.0,
+          "volume": 1.5680232664019296,
+          "volume_secant_rate": 0.0021705366714672714
+        },
+        {
+          "ale_mass_rate": -1.7242210375700145e-07,
+          "ends_outward_flow": -0.00147067327073241,
+          "euler_net_outward_flow": 4.100886297209172e-15,
+          "kinematic_wall_velocity_difference": 1.0842021724855044e-19,
+          "moving_wall_outward_flow": 0.001470673270736511,
+          "section_linear_area_strain": 0.0016177627070342107,
+          "section_x": 1.0,
+          "step": 3,
+          "symmetry_flow": 0.0,
+          "time": 1.5,
+          "volume": 1.568758516826244,
+          "volume_secant_rate": 0.001470500848628653
+        },
+        {
+          "ale_mass_rate": -5.7575090180476615e-08,
+          "ends_outward_flow": -0.0008535603281025056,
+          "euler_net_outward_flow": 4.912520043531821e-16,
+          "kinematic_wall_velocity_difference": 1.0842021724855044e-19,
+          "moving_wall_outward_flow": 0.0008535603281029969,
+          "section_linear_area_strain": 0.0018755546626866776,
+          "section_x": 1.0,
+          "step": 4,
+          "symmetry_flow": 0.0,
+          "time": 2.0,
+          "volume": 1.56918526820275,
+          "volume_secant_rate": 0.0008535027530123251
+        },
+        {
+          "ale_mass_rate": -1.7526877250646604e-08,
+          "ends_outward_flow": -0.000473440365313017,
+          "euler_net_outward_flow": -7.37257477290143e-18,
+          "kinematic_wall_velocity_difference": 2.168404344971009e-19,
+          "moving_wall_outward_flow": 0.00047344036531300965,
+          "section_linear_area_strain": 0.0020100036266381197,
+          "section_x": 1.0,
+          "step": 5,
+          "symmetry_flow": 0.0,
+          "time": 2.5,
+          "volume": 1.569421979621968,
+          "volume_secant_rate": 0.0004734228384357664
+        },
+        {
+          "ale_mass_rate": -5.241337309102537e-09,
+          "ends_outward_flow": -0.00025972194199991354,
+          "euler_net_outward_flow": -4.4994390158148434e-18,
+          "kinematic_wall_velocity_difference": 2.168404344971009e-19,
+          "moving_wall_outward_flow": 0.00025972194199990904,
+          "section_linear_area_strain": 0.002081300811208495,
+          "section_x": 1.0,
+          "step": 6,
+          "symmetry_flow": 0.0,
+          "time": 3.0,
+          "volume": 1.5695518379722992,
+          "volume_secant_rate": 0.00025971670066260444
+        },
+        {
+          "ale_mass_rate": -1.5730952406044045e-09,
+          "ends_outward_flow": -0.00014245235505086815,
+          "euler_net_outward_flow": -4.87890977618477e-19,
+          "kinematic_wall_velocity_difference": 2.168404344971009e-19,
+          "moving_wall_outward_flow": 0.00014245235505086766,
+          "section_linear_area_strain": 0.0021199114418685066,
+          "section_x": 1.0,
+          "step": 7,
+          "symmetry_flow": 0.0,
+          "time": 3.5,
+          "volume": 1.569623063363277,
+          "volume_secant_rate": 0.00014245078195562755
+        },
+        {
+          "ale_mass_rate": -4.747753028938075e-10,
+          "ends_outward_flow": -7.828131185180824e-05,
+          "euler_net_outward_flow": -9.486769009248164e-20,
+          "kinematic_wall_velocity_difference": 2.1006417091906648e-19,
+          "moving_wall_outward_flow": 7.828131185180815e-05,
+          "section_linear_area_strain": 0.002141075414626752,
+          "section_x": 1.0,
+          "step": 8,
+          "symmetry_flow": 0.0,
+          "time": 4.0,
+          "volume": 1.5696622037818153,
+          "volume_secant_rate": 7.828083707650535e-05
+        },
+        {
+          "ale_mass_rate": -1.4368995233840064e-10,
+          "ends_outward_flow": -4.3078833436020105e-05,
+          "euler_net_outward_flow": -2.710505431213761e-20,
+          "kinematic_wall_velocity_difference": 2.168404344971009e-19,
+          "moving_wall_outward_flow": 4.307883343602008e-05,
+          "section_linear_area_strain": 0.0021527294175131637,
+          "section_x": 1.0,
+          "step": 9,
+          "symmetry_flow": 0.0,
+          "time": 4.5,
+          "volume": 1.5696837431266883,
+          "volume_secant_rate": 4.3078689746067766e-05
+        },
+        {
+          "ale_mass_rate": -4.347612753071188e-11,
+          "ends_outward_flow": -2.3722651642426428e-05,
+          "euler_net_outward_flow": 1.0164395367051604e-20,
+          "kinematic_wall_velocity_difference": 2.1429933565533799e-19,
+          "moving_wall_outward_flow": 2.372265164242644e-05,
+          "section_linear_area_strain": 0.00215915292250841,
+          "section_x": 1.0,
+          "step": 10,
+          "symmetry_flow": 0.0,
+          "time": 5.0,
+          "volume": 1.5696956044307715,
+          "volume_secant_rate": 2.3722608166298897e-05
+        },
+        {
+          "ale_mass_rate": -1.3105170674172838e-11,
+          "ends_outward_flow": -1.3066559176531493e-05,
+          "euler_net_outward_flow": 3.3881317890172014e-21,
+          "kinematic_wall_velocity_difference": 2.1175823681357508e-19,
+          "moving_wall_outward_flow": 1.3066559176531496e-05,
+          "section_linear_area_strain": 0.0021626928911329018,
+          "section_x": 1.0,
+          "step": 11,
+          "symmetry_flow": 0.0,
+          "time": 5.5,
+          "volume": 1.5697021377038072,
+          "volume_secant_rate": 1.3066546071360818e-05
+        },
+        {
+          "ale_mass_rate": -3.907512567467408e-12,
+          "ends_outward_flow": -7.19743355090333e-06,
+          "euler_net_outward_flow": -1.6940658945086007e-21,
+          "kinematic_wall_velocity_difference": 2.1451109389215156e-19,
+          "moving_wall_outward_flow": 7.197433550903328e-06,
+          "section_linear_area_strain": 0.002164643202477155,
+          "section_x": 1.0,
+          "step": 12,
+          "symmetry_flow": 0.0,
+          "time": 6.0,
+          "volume": 1.5697057364186289,
+          "volume_secant_rate": 7.1974296433907625e-06
+        },
+        {
+          "ale_mass_rate": -1.1323970190366128e-12,
+          "ends_outward_flow": -3.964521441327039e-06,
+          "euler_net_outward_flow": 2.541098841762901e-21,
+          "kinematic_wall_velocity_difference": 2.0000565467042167e-19,
+          "moving_wall_outward_flow": 3.964521441327041e-06,
+          "section_linear_area_strain": 0.0021657175324301795,
+          "section_x": 1.0,
+          "step": 13,
+          "symmetry_flow": 0.0,
+          "time": 6.5,
+          "volume": 1.5697077186787833,
+          "volume_secant_rate": 3.96452030893002e-06
+        },
+        {
+          "ale_mass_rate": -3.029082544078114e-13,
+          "ends_outward_flow": -2.183737560596533e-06,
+          "euler_net_outward_flow": 0.0,
+          "kinematic_wall_velocity_difference": 2.166286762602873e-19,
+          "moving_wall_outward_flow": 2.183737560596533e-06,
+          "section_linear_area_strain": 0.0021663092944796897,
+          "section_x": 1.0,
+          "step": 14,
+          "symmetry_flow": 0.0,
+          "time": 7.0,
+          "volume": 1.5697088105474122,
+          "volume_secant_rate": 2.1837372576882785e-06
+        },
+        {
+          "ale_mass_rate": -5.988491215704029e-14,
+          "ends_outward_flow": -1.2028524668967018e-06,
+          "euler_net_outward_flow": 6.352747104407253e-22,
+          "kinematic_wall_velocity_difference": 2.1313466535286332e-19,
+          "moving_wall_outward_flow": 1.2028524668967024e-06,
+          "section_linear_area_strain": 0.0021666352488874546,
+          "section_x": 1.0,
+          "step": 15,
+          "symmetry_flow": 0.0,
+          "time": 7.5,
+          "volume": 1.5697094119736157,
+          "volume_secant_rate": 1.2028524070117896e-06
+        },
+        {
+          "ale_mass_rate": 5.7740143842945936e-15,
+          "ends_outward_flow": -6.625730910583607e-07,
+          "euler_net_outward_flow": 2.117582368135751e-22,
+          "kinematic_wall_velocity_difference": 2.1677426004809664e-19,
+          "moving_wall_outward_flow": 6.625730910583609e-07,
+          "section_linear_area_strain": 0.0021668147962357024,
+          "section_x": 1.0,
+          "step": 16,
+          "symmetry_flow": 0.0,
+          "time": 8.0,
+          "volume": 1.569709743260164,
+          "volume_secant_rate": 6.625730968323751e-07
+        },
+        {
+          "ale_mass_rate": 2.0291140596053787e-14,
+          "ends_outward_flow": -3.6498413771664557e-07,
+          "euler_net_outward_flow": 0.0,
+          "kinematic_wall_velocity_difference": 2.1469638234936344e-19,
+          "moving_wall_outward_flow": 3.6498413771664557e-07,
+          "section_linear_area_strain": 0.0021669137023197175,
+          "section_x": 1.0,
+          "step": 17,
+          "symmetry_flow": 0.0,
+          "time": 8.5,
+          "volume": 1.569709925752243,
+          "volume_secant_rate": 3.6498415800778616e-07
+        },
+        {
+          "ale_mass_rate": 2.4388920294049786e-14,
+          "ends_outward_flow": -2.0106948332145161e-07,
+          "euler_net_outward_flow": 4.290826421139354e-15,
+          "kinematic_wall_velocity_difference": 2.1636397846427034e-19,
+          "moving_wall_outward_flow": 2.0106948761227804e-07,
+          "section_linear_area_strain": 0.0021669681904636848,
+          "section_x": 1.0,
+          "step": 18,
+          "symmetry_flow": 0.0,
+          "time": 9.0,
+          "volume": 1.569710026286997,
+          "volume_secant_rate": 2.010695077103719e-07
+        },
+        {
+          "ale_mass_rate": 1.7480424179158028e-14,
+          "ends_outward_flow": -1.1078232581844109e-07,
+          "euler_net_outward_flow": 7.264140394320793e-16,
+          "kinematic_wall_velocity_difference": 2.1556988507621944e-19,
+          "moving_wall_outward_flow": 1.1078232654485513e-07,
+          "section_linear_area_strain": 0.002166998212284993,
+          "section_x": 1.0,
+          "step": 19,
+          "symmetry_flow": 0.0,
+          "time": 9.5,
+          "volume": 1.5697100816781686,
+          "volume_secant_rate": 1.1078234329886527e-07
+        },
+        {
+          "ale_mass_rate": 1.3147302769219196e-14,
+          "ends_outward_flow": -6.104895628795951e-08,
+          "euler_net_outward_flow": -2.0813358430892692e-16,
+          "kinematic_wall_velocity_difference": 2.125787999812277e-19,
+          "moving_wall_outward_flow": 6.104895607982593e-08,
+          "section_linear_area_strain": 0.0021670147570834,
+          "section_x": 1.0,
+          "step": 20,
+          "symmetry_flow": 0.0,
+          "time": 10.0,
+          "volume": 1.5697101122026533,
+          "volume_secant_rate": 6.104896943526228e-08
+        },
+        {
+          "ale_mass_rate": 9.969200872756477e-15,
+          "ends_outward_flow": -3.365260050685285e-08,
+          "euler_net_outward_flow": -3.8485259595854356e-16,
+          "kinematic_wall_velocity_difference": 2.1435227521454138e-19,
+          "moving_wall_outward_flow": 3.3652600122000255e-08,
+          "section_linear_area_strain": 0.0021670238777821713,
+          "section_x": 1.0,
+          "step": 21,
+          "symmetry_flow": 0.0,
+          "time": 10.5,
+          "volume": 1.5697101290289586,
+          "volume_secant_rate": 3.3652610476053724e-08
+        },
+        {
+          "ale_mass_rate": 7.361044397940588e-15,
+          "ends_outward_flow": -1.8559618919234564e-08,
+          "euler_net_outward_flow": -3.595338580315489e-16,
+          "kinematic_wall_velocity_difference": 2.1527871750060077e-19,
+          "moving_wall_outward_flow": 1.8559618559700706e-08,
+          "section_linear_area_strain": 0.0021670289083852807,
+          "section_x": 1.0,
+          "step": 22,
+          "symmetry_flow": 0.0,
+          "time": 11.0,
+          "volume": 1.5697101383087717,
+          "volume_secant_rate": 1.8559626280278962e-08
+        },
+        {
+          "ale_mass_rate": 5.906382969201657e-15,
+          "ends_outward_flow": -1.0243572079463772e-08,
+          "euler_net_outward_flow": -2.9289679834356907e-16,
+          "kinematic_wall_velocity_difference": 2.1562282463542283e-19,
+          "moving_wall_outward_flow": 1.0243571786566974e-08,
+          "section_linear_area_strain": 0.0021670316853357233,
+          "section_x": 1.0,
+          "step": 23,
+          "symmetry_flow": 0.0,
+          "time": 11.5,
+          "volume": 1.5697101434305607,
+          "volume_secant_rate": 1.0243577985846741e-08
+        },
+        {
+          "ale_mass_rate": 4.3713205982188216e-15,
+          "ends_outward_flow": -5.66053388902303e-09,
+          "euler_net_outward_flow": -2.2833693062159462e-16,
+          "kinematic_wall_velocity_difference": 2.0887303083699012e-19,
+          "moving_wall_outward_flow": 5.6605336606860994e-09,
+          "section_linear_area_strain": 0.002167033220227836,
+          "section_x": 1.0,
+          "step": 24,
+          "symmetry_flow": 0.0,
+          "time": 12.0,
+          "volume": 1.5697101462608298,
+          "volume_secant_rate": 5.660538260343628e-09
+        }
+      ],
+      "initial_volume": 1.566314306640619,
+      "integrated_end_inflow": 0.0033962157450719357,
+      "max_abs_ale_mass_rate": 3.742512222279504e-07,
+      "max_abs_euler_flux": 5.027662314249781e-14,
+      "max_abs_symmetry_flow": 0.0,
+      "max_wall_kinematic_difference": 2.168404344971009e-19,
+      "steps": 24,
+      "volume_gain": 0.0033958396202107277
+    }
+  },
+  "static": {
+    "s12-w1-a2": {
+      "area_relative_error": 0.1038539178649055,
+      "axial": 2,
+      "displacement_relative_l2": 0.09755410522346274,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.108199060799756e-05,
+      "nodes": 24,
+      "passed": false,
+      "pressure": 0.02,
+      "radius_relative_error": 0.1038539178649055,
+      "ranks": 1,
+      "relative_work_energy_residual": 2.2187435316317855e-16,
+      "sectors": 12,
+      "slices": [
+        {
+          "area": 0.75,
+          "deformed_area_strain": 0.001949659663823482,
+          "linear_area_strain": 0.0019487103895155877,
+          "radial_displacement": 0.0009743551947577939,
+          "x": 0.0
+        },
+        {
+          "area": 0.75,
+          "deformed_area_strain": 0.0020349787762128663,
+          "linear_area_strain": 0.0020339444161884762,
+          "radial_displacement": 0.0010169722080942381,
+          "x": 1.0
+        },
+        {
+          "area": 0.75,
+          "deformed_area_strain": 0.00210745539798978,
+          "linear_area_strain": 0.002106345888131099,
+          "radial_displacement": 0.0010531729440655493,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.054099530399879e-05,
+      "tetrahedra": 36,
+      "wall_layers": 1
+    },
+    "s192-w12-a16": {
+      "area_relative_error": 0.0018941222931568857,
+      "axial": 16,
+      "displacement_relative_l2": 0.000799647510340639,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.82781225716011e-05,
+      "nodes": 10829,
+      "passed": true,
+      "pressure": 0.02,
+      "radius_relative_error": 0.0018941222931574409,
+      "ranks": 1,
+      "relative_work_energy_residual": 1.5541769989463016e-13,
+      "sectors": 192,
+      "slices": [
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.0021716042877400208,
+          "linear_area_strain": 0.0021704265995225176,
+          "radial_displacement": 0.0010852132997612582,
+          "x": 0.0
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.0021727066549868295,
+          "linear_area_strain": 0.002171527771785786,
+          "radial_displacement": 0.0010857638858928923,
+          "x": 0.125
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.002173263620674755,
+          "linear_area_strain": 0.0021720841332815905,
+          "radial_displacement": 0.001086042066640795,
+          "x": 0.25
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.0021737386948996002,
+          "linear_area_strain": 0.0021725586920530184,
+          "radial_displacement": 0.001086279346026509,
+          "x": 0.375
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.002174138809014703,
+          "linear_area_strain": 0.002172958371967375,
+          "radial_displacement": 0.001086479185983687,
+          "x": 0.5
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.0021744467374175164,
+          "linear_area_strain": 0.0021732659661573323,
+          "radial_displacement": 0.0010866329830786661,
+          "x": 0.625
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.002174668093984454,
+          "linear_area_strain": 0.0021734870824457234,
+          "radial_displacement": 0.0010867435412228608,
+          "x": 0.75
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.002174825347059229,
+          "linear_area_strain": 0.0021736441648120652,
+          "radial_displacement": 0.001086822082406032,
+          "x": 0.875
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.0021749496326138383,
+          "linear_area_strain": 0.0021737683154392394,
+          "radial_displacement": 0.0010868841577196195,
+          "x": 1.0
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.0021750751827958902,
+          "linear_area_strain": 0.0021738937293133433,
+          "radial_displacement": 0.0010869468646566712,
+          "x": 1.125
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.0021752352128751344,
+          "linear_area_strain": 0.0021740535856378134,
+          "radial_displacement": 0.001087026792818906,
+          "x": 1.25
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.002175457691000759,
+          "linear_area_strain": 0.00217427582218211,
+          "radial_displacement": 0.0010871379110910543,
+          "x": 1.375
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.0021757593866736633,
+          "linear_area_strain": 0.002174577190213898,
+          "radial_displacement": 0.0010872885951069482,
+          "x": 1.5
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.002176137355637244,
+          "linear_area_strain": 0.0021749547486404975,
+          "radial_displacement": 0.001087477374320248,
+          "x": 1.625
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.002176565372546107,
+          "linear_area_strain": 0.002175382300564471,
+          "radial_displacement": 0.0010876911502822354,
+          "x": 1.75
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.0021770516041802602,
+          "linear_area_strain": 0.0021758680037891366,
+          "radial_displacement": 0.0010879340018945679,
+          "x": 1.875
+        },
+        {
+          "area": 0.7852579877226271,
+          "deformed_area_strain": 0.002178059948456153,
+          "linear_area_strain": 0.0021768752502611104,
+          "radial_displacement": 0.0010884376251305544,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.413906128580586e-05,
+      "tetrahedra": 55296,
+      "wall_layers": 12
+    },
+    "s24-w2-a3": {
+      "area_relative_error": 0.038450503669793634,
+      "axial": 3,
+      "displacement_relative_l2": 0.02838978281927983,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.636008824497975e-05,
+      "nodes": 84,
+      "passed": false,
+      "pressure": 0.02,
+      "radius_relative_error": 0.038450503669793634,
+      "ranks": 1,
+      "relative_work_energy_residual": 1.225362489516648e-15,
+      "sectors": 24,
+      "slices": [
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.002092026075283889,
+          "linear_area_strain": 0.002090933086565322,
+          "radial_displacement": 0.001045466543282661,
+          "x": 0.0
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021237741970911274,
+          "linear_area_strain": 0.0021226477251119896,
+          "radial_displacement": 0.0010613238625559948,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021513240072853312,
+          "linear_area_strain": 0.0021501681948335296,
+          "radial_displacement": 0.0010750840974167646,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021794722452245616,
+          "linear_area_strain": 0.0021782856619201275,
+          "radial_displacement": 0.0010891428309600638,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.318004412248983e-05,
+      "tetrahedra": 216,
+      "wall_layers": 2
+    },
+    "s24-w4-a6": {
+      "area_relative_error": 0.022031737136304685,
+      "axial": 6,
+      "displacement_relative_l2": 0.022997546190634023,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.656996581666234e-05,
+      "nodes": 245,
+      "passed": false,
+      "pressure": 0.02,
+      "radius_relative_error": 0.022031737136304685,
+      "ranks": 1,
+      "relative_work_energy_residual": 4.051305826842786e-14,
+      "sectors": 24,
+      "slices": [
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.002127767104508079,
+          "linear_area_strain": 0.0021266364406999634,
+          "radial_displacement": 0.0010633182203499817,
+          "x": 0.0
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021355369208860492,
+          "linear_area_strain": 0.002134397992787344,
+          "radial_displacement": 0.0010671989963936723,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.002140445569543062,
+          "linear_area_strain": 0.002139301398569849,
+          "radial_displacement": 0.0010696506992849248,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021442037315278373,
+          "linear_area_strain": 0.002143055544880535,
+          "radial_displacement": 0.0010715277724402674,
+          "x": 1.0
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021482227682953965,
+          "linear_area_strain": 0.002147070283420401,
+          "radial_displacement": 0.0010735351417102005,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021535165261297113,
+          "linear_area_strain": 0.0021523583702681183,
+          "radial_displacement": 0.0010761791851340591,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7764571353075623,
+          "deformed_area_strain": 0.0021594415714064953,
+          "linear_area_strain": 0.002158276833913754,
+          "radial_displacement": 0.0010791384169568771,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.328498290833252e-05,
+      "tetrahedra": 864,
+      "wall_layers": 4
+    },
+    "s48-w1-a6": {
+      "area_relative_error": 0.0555972602015854,
+      "axial": 6,
+      "displacement_relative_l2": 0.02984121342430066,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.651452815460037e-05,
+      "nodes": 182,
+      "passed": false,
+      "pressure": 0.02,
+      "radius_relative_error": 0.05559726020158573,
+      "ranks": 1,
+      "relative_work_energy_residual": 2.8525404216047276e-15,
+      "sectors": 48,
+      "slices": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002054700930403613,
+          "linear_area_strain": 0.0020536466850889167,
+          "radial_displacement": 0.001026823342544458,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002086643483326046,
+          "linear_area_strain": 0.0020855561416302,
+          "radial_displacement": 0.0010427780708151,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002111153957682507,
+          "linear_area_strain": 0.0021100409524307424,
+          "radial_displacement": 0.0010550204762153712,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021282235063026502,
+          "linear_area_strain": 0.0021270924678718165,
+          "radial_displacement": 0.0010635462339359083,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002143169282828497,
+          "linear_area_strain": 0.002142022342055268,
+          "radial_displacement": 0.0010710111710276339,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021584271387980634,
+          "linear_area_strain": 0.002157263839311674,
+          "radial_displacement": 0.001078631919655837,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.00218143670940514,
+          "linear_area_strain": 0.0021802483258653122,
+          "radial_displacement": 0.0010901241629326561,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.325726407730028e-05,
+      "tetrahedra": 432,
+      "wall_layers": 1
+    },
+    "s48-w2-a6": {
+      "area_relative_error": 0.024959441441042896,
+      "axial": 6,
+      "displacement_relative_l2": 0.013664088806780432,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.754063996380742e-05,
+      "nodes": 273,
+      "passed": false,
+      "pressure": 0.02,
+      "radius_relative_error": 0.024959441441042896,
+      "ranks": 1,
+      "relative_work_energy_residual": 2.0467051698944126e-14,
+      "sectors": 48,
+      "slices": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002121393871068734,
+          "linear_area_strain": 0.0021202700146118417,
+          "radial_displacement": 0.0010601350073059209,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021374850116987858,
+          "linear_area_strain": 0.002136344016198047,
+          "radial_displacement": 0.0010681720080990237,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002149598659448292,
+          "linear_area_strain": 0.002148444705062315,
+          "radial_displacement": 0.0010742223525311578,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002158315104804842,
+          "linear_area_strain": 0.0021571517842396033,
+          "radial_displacement": 0.0010785758921198014,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021663909553259826,
+          "linear_area_strain": 0.002165218924438435,
+          "radial_displacement": 0.0010826094622192175,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021757880576628867,
+          "linear_area_strain": 0.002174605848589507,
+          "radial_displacement": 0.0010873029242947536,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021887363766653948,
+          "linear_area_strain": 0.002187539953414326,
+          "radial_displacement": 0.0010937699767071627,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.37703199819044e-05,
+      "tetrahedra": 864,
+      "wall_layers": 2
+    },
+    "s48-w4-a6": {
+      "area_relative_error": 0.012769947935746484,
+      "axial": 6,
+      "displacement_relative_l2": 0.007992798501513947,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.780662690600658e-05,
+      "nodes": 455,
+      "passed": true,
+      "pressure": 0.02,
+      "radius_relative_error": 0.012769947935746484,
+      "ranks": 1,
+      "relative_work_energy_residual": 0.0,
+      "sectors": 48,
+      "slices": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021479287862482526,
+          "linear_area_strain": 0.0021467766223069954,
+          "radial_displacement": 0.0010733883111534977,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.00215583112721951,
+          "linear_area_strain": 0.002154670470466335,
+          "radial_displacement": 0.0010773352352331674,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021615765581859694,
+          "linear_area_strain": 0.0021604097102918794,
+          "radial_displacement": 0.0010802048551459395,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002165861540687098,
+          "linear_area_strain": 0.002164690066268625,
+          "radial_displacement": 0.0010823450331343123,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021700687623275885,
+          "linear_area_strain": 0.002168892737185909,
+          "radial_displacement": 0.0010844463685929547,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021753406041304453,
+          "linear_area_strain": 0.0021741588646769054,
+          "radial_displacement": 0.0010870794323384531,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021821611921520735,
+          "linear_area_strain": 0.0021809719649113772,
+          "radial_displacement": 0.0010904859824556884,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.390331345300329e-05,
+      "tetrahedra": 1728,
+      "wall_layers": 4
+    },
+    "s48-w8-a6": {
+      "area_relative_error": 0.0076819720092301536,
+      "axial": 6,
+      "displacement_relative_l2": 0.0061886599084675885,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.787384901212982e-05,
+      "nodes": 819,
+      "passed": true,
+      "pressure": 0.02,
+      "radius_relative_error": 0.0076819720092301536,
+      "ranks": 1,
+      "relative_work_energy_residual": 8.08672791965424e-14,
+      "sectors": 48,
+      "slices": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021590047399867598,
+          "linear_area_strain": 0.002157840657230838,
+          "radial_displacement": 0.001078920328615419,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021629551730704744,
+          "linear_area_strain": 0.0021617868413486086,
+          "radial_displacement": 0.001080893420674304,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002165657658624208,
+          "linear_area_strain": 0.0021644864063575806,
+          "radial_displacement": 0.00108224320317879,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021677482011899668,
+          "linear_area_strain": 0.0021665746883941434,
+          "radial_displacement": 0.0010832873441970717,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021699160154672915,
+          "linear_area_strain": 0.002168740156953683,
+          "radial_displacement": 0.0010843700784768414,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002172758150771993,
+          "linear_area_strain": 0.002171579214241358,
+          "radial_displacement": 0.001085789607120679,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002176195705160602,
+          "linear_area_strain": 0.0021750129877796944,
+          "radial_displacement": 0.001087506493889847,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.393692450606766e-05,
+      "tetrahedra": 3456,
+      "wall_layers": 8
+    },
+    "s96-w4-a6": {
+      "area_relative_error": 0.010570753272529987,
+      "axial": 6,
+      "displacement_relative_l2": 0.004976543796240725,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.811724028898871e-05,
+      "nodes": 875,
+      "passed": true,
+      "pressure": 0.02,
+      "radius_relative_error": 0.010570753272530209,
+      "ranks": 1,
+      "relative_work_energy_residual": 4.396990378330655e-14,
+      "sectors": 96,
+      "slices": [
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021527161718056156,
+          "linear_area_strain": 0.0021515588710655535,
+          "radial_displacement": 0.0010757794355327765,
+          "x": 0.0
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021607431978755056,
+          "linear_area_strain": 0.002159577253068646,
+          "radial_displacement": 0.0010797886265343224,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021667990448529296,
+          "linear_area_strain": 0.0021656265592467686,
+          "radial_displacement": 0.0010828132796233845,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021712832050045446,
+          "linear_area_strain": 0.0021701058647327544,
+          "radial_displacement": 0.001085052932366377,
+          "x": 1.0
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021755833150463887,
+          "linear_area_strain": 0.0021744013101451247,
+          "radial_displacement": 0.0010872006550725621,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002180878088670077,
+          "linear_area_strain": 0.0021796903276858326,
+          "radial_displacement": 0.0010898451638429163,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021880354862765608,
+          "linear_area_strain": 0.002186839901567722,
+          "radial_displacement": 0.001093419950783861,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.405862014449585e-05,
+      "tetrahedra": 3456,
+      "wall_layers": 4
+    },
+    "s96-w8-a12": {
+      "area_relative_error": 0.003933447573942983,
+      "axial": 12,
+      "displacement_relative_l2": 0.002130684109507484,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.818600658117628e-05,
+      "nodes": 2925,
+      "passed": true,
+      "pressure": 0.02,
+      "radius_relative_error": 0.003933447573943205,
+      "ranks": 1,
+      "relative_work_energy_residual": 1.0792569641080761e-13,
+      "sectors": 96,
+      "slices": [
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021671648752572673,
+          "linear_area_strain": 0.0021659919940028444,
+          "radial_displacement": 0.001082995997001422,
+          "x": 0.0
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021692536868804222,
+          "linear_area_strain": 0.002168078545554467,
+          "radial_displacement": 0.001084039272777233,
+          "x": 0.16666666666666666
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021705063155956455,
+          "linear_area_strain": 0.0021693298172312868,
+          "radial_displacement": 0.0010846649086156434,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002171526626740287,
+          "linear_area_strain": 0.002170349022635105,
+          "radial_displacement": 0.0010851745113175527,
+          "x": 0.5
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021722817156552233,
+          "linear_area_strain": 0.0021711032929489418,
+          "radial_displacement": 0.0010855516464744704,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002172804970564372,
+          "linear_area_strain": 0.0021716259804483093,
+          "radial_displacement": 0.0010858129902241544,
+          "x": 0.8333333333333334
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002173200757384408,
+          "linear_area_strain": 0.002172021338009972,
+          "radial_displacement": 0.001086010669004986,
+          "x": 1.0
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002173600773227652,
+          "linear_area_strain": 0.0021724209199324254,
+          "radial_displacement": 0.0010862104599662127,
+          "x": 1.1666666666666667
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021741292072756154,
+          "linear_area_strain": 0.0021729487806220853,
+          "radial_displacement": 0.0010864743903110429,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021748664021029778,
+          "linear_area_strain": 0.0021736851753396593,
+          "radial_displacement": 0.0010868425876698297,
+          "x": 1.5
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021758058725825985,
+          "linear_area_strain": 0.0021746236257799223,
+          "radial_displacement": 0.0010873118128899607,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002176888099807787,
+          "linear_area_strain": 0.0021757046771709197,
+          "radial_displacement": 0.0010878523385854598,
+          "x": 1.8333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021787193366343692,
+          "linear_area_strain": 0.0021775339134620813,
+          "radial_displacement": 0.0010887669567310404,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.409300329059182e-05,
+      "tetrahedra": 13824,
+      "wall_layers": 8
+    },
+    "s96-w8-a12-double": {
+      "area_relative_error": 0.003933447573942983,
+      "axial": 12,
+      "displacement_relative_l2": 0.002130684109507484,
+      "exact_linear_area_strain": 0.00434909090909091,
+      "exact_radius_displacement": 0.002174545454545455,
+      "external_load_work": 0.0002727440263247051,
+      "nodes": 2925,
+      "passed": true,
+      "pressure": 0.04,
+      "radius_relative_error": 0.003933447573943205,
+      "ranks": 1,
+      "relative_work_energy_residual": 1.0812445459940947e-13,
+      "sectors": 96,
+      "slices": [
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0043366755130233815,
+          "linear_area_strain": 0.004331983988005689,
+          "radial_displacement": 0.002165991994002844,
+          "x": 0.0
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.004340857656412754,
+          "linear_area_strain": 0.004336157091108934,
+          "radial_displacement": 0.002168078545554466,
+          "x": 0.16666666666666666
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.004343365627920009,
+          "linear_area_strain": 0.0043386596344625735,
+          "radial_displacement": 0.0021693298172312868,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0043454084616909375,
+          "linear_area_strain": 0.00434069804527021,
+          "radial_displacement": 0.0021703490226351054,
+          "x": 0.5
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.004346920276723011,
+          "linear_area_strain": 0.0043422065858978835,
+          "radial_displacement": 0.002171103292948941,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.004347967921360869,
+          "linear_area_strain": 0.004343251960896619,
+          "radial_displacement": 0.002171625980448309,
+          "x": 0.8333333333333334
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0043487603535176875,
+          "linear_area_strain": 0.004344042676019944,
+          "radial_displacement": 0.002172021338009972,
+          "x": 1.0
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.004349561253045757,
+          "linear_area_strain": 0.004344841839864851,
+          "radial_displacement": 0.0021724209199324254,
+          "x": 1.1666666666666667
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.004350619267858291,
+          "linear_area_strain": 0.0043458975612441705,
+          "radial_displacement": 0.0021729487806220857,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0043520952577325925,
+          "linear_area_strain": 0.004347370350679319,
+          "radial_displacement": 0.0021736851753396593,
+          "x": 1.5
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.004353976238770551,
+          "linear_area_strain": 0.004349247251559845,
+          "radial_displacement": 0.0021746236257799215,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.004356143044889309,
+          "linear_area_strain": 0.004351409354341839,
+          "radial_displacement": 0.0021757046771709197,
+          "x": 1.8333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.004359809519613314,
+          "linear_area_strain": 0.004355067826924163,
+          "radial_displacement": 0.002177533913462081,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 0.0001363720131623673,
+      "tetrahedra": 13824,
+      "wall_layers": 8
+    },
+    "s96-w8-a12-mpi2": {
+      "area_relative_error": 0.003933447573934101,
+      "axial": 12,
+      "displacement_relative_l2": 0.002130684109499286,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.8186006581177e-05,
+      "nodes": 2925,
+      "passed": true,
+      "pressure": 0.02,
+      "radius_relative_error": 0.003933447573934101,
+      "ranks": 2,
+      "relative_work_energy_residual": 1.1349092569165838e-13,
+      "sectors": 96,
+      "slices": [
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002167164875257287,
+          "linear_area_strain": 0.002165991994002864,
+          "radial_displacement": 0.001082995997001432,
+          "x": 0.0
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002169253686880452,
+          "linear_area_strain": 0.0021680785455544973,
+          "radial_displacement": 0.0010840392727772482,
+          "x": 0.16666666666666666
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021705063155956937,
+          "linear_area_strain": 0.002169329817231335,
+          "radial_displacement": 0.001084664908615667,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021715266267403484,
+          "linear_area_strain": 0.0021703490226351665,
+          "radial_displacement": 0.0010851745113175833,
+          "x": 0.5
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002172281715655296,
+          "linear_area_strain": 0.002171103292949014,
+          "radial_displacement": 0.0010855516464745069,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021728049705644526,
+          "linear_area_strain": 0.0021716259804483895,
+          "radial_displacement": 0.0010858129902241945,
+          "x": 0.8333333333333334
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002173200757384476,
+          "linear_area_strain": 0.00217202133801004,
+          "radial_displacement": 0.0010860106690050199,
+          "x": 1.0
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021736007732276953,
+          "linear_area_strain": 0.0021724209199324683,
+          "radial_displacement": 0.0010862104599662337,
+          "x": 1.1666666666666667
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021741292072756406,
+          "linear_area_strain": 0.0021729487806221104,
+          "radial_displacement": 0.001086474390311055,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021748664021029626,
+          "linear_area_strain": 0.002173685175339644,
+          "radial_displacement": 0.0010868425876698216,
+          "x": 1.5
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002175805872582548,
+          "linear_area_strain": 0.0021746236257798716,
+          "radial_displacement": 0.0010873118128899358,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021768880998077117,
+          "linear_area_strain": 0.0021757046771708442,
+          "radial_displacement": 0.0010878523385854217,
+          "x": 1.8333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021787193366342933,
+          "linear_area_strain": 0.0021775339134620054,
+          "radial_displacement": 0.0010887669567310025,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.409300329059237e-05,
+      "tetrahedra": 13824,
+      "wall_layers": 8
+    },
+    "s96-w8-a12-mpi4": {
+      "area_relative_error": 0.0039334475739005725,
+      "axial": 12,
+      "displacement_relative_l2": 0.002130684109898635,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "exact_radius_displacement": 0.0010872727272727275,
+      "external_load_work": 6.818600658117715e-05,
+      "nodes": 2925,
+      "passed": true,
+      "pressure": 0.02,
+      "radius_relative_error": 0.003933447573900906,
+      "ranks": 4,
+      "relative_work_energy_residual": 1.1726733127509334e-13,
+      "sectors": 96,
+      "slices": [
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021671648752573597,
+          "linear_area_strain": 0.0021659919940029367,
+          "radial_displacement": 0.001082995997001468,
+          "x": 0.0
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002169253686880515,
+          "linear_area_strain": 0.00216807854555456,
+          "radial_displacement": 0.00108403927277728,
+          "x": 0.16666666666666666
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021705063155957297,
+          "linear_area_strain": 0.002169329817231371,
+          "radial_displacement": 0.001084664908615685,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021715266267403523,
+          "linear_area_strain": 0.0021703490226351705,
+          "radial_displacement": 0.0010851745113175852,
+          "x": 0.5
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021722817156552723,
+          "linear_area_strain": 0.0021711032929489903,
+          "radial_displacement": 0.001085551646474495,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021728049705644274,
+          "linear_area_strain": 0.002171625980448365,
+          "radial_displacement": 0.0010858129902241822,
+          "x": 0.8333333333333334
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021732007573844504,
+          "linear_area_strain": 0.0021720213380100146,
+          "radial_displacement": 0.0010860106690050073,
+          "x": 1.0
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002173600773227668,
+          "linear_area_strain": 0.0021724209199324414,
+          "radial_displacement": 0.0010862104599662207,
+          "x": 1.1666666666666667
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021741292072756215,
+          "linear_area_strain": 0.0021729487806220913,
+          "radial_displacement": 0.0010864743903110457,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021748664021029613,
+          "linear_area_strain": 0.002173685175339643,
+          "radial_displacement": 0.001086842587669821,
+          "x": 1.5
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021758058725825607,
+          "linear_area_strain": 0.0021746236257798846,
+          "radial_displacement": 0.0010873118128899423,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.002176888099807733,
+          "linear_area_strain": 0.0021757046771708655,
+          "radial_displacement": 0.0010878523385854327,
+          "x": 1.8333333333333333
+        },
+        {
+          "area": 0.7848375507617167,
+          "deformed_area_strain": 0.0021787193366343094,
+          "linear_area_strain": 0.0021775339134620215,
+          "radial_displacement": 0.0010887669567310105,
+          "x": 2.0
+        }
+      ],
+      "strain_energy": 3.409300329059257e-05,
+      "tetrahedra": 13824,
+      "wall_layers": 8
+    }
+  },
+  "svfsi": {
+    "alpha05-fine-k450": {
+      "dt": 0.5,
+      "eonsim_passed": true,
+      "gmres_krylov_dimension": 450,
+      "passed": true,
+      "sections": [
+        {
+          "area_strain": 0.002162188399385006,
+          "eonsim_area_strain": 0.0021621880726901154,
+          "previous": 0.0021621874155682923,
+          "x": 0.0
+        },
+        {
+          "area_strain": 0.0021661799636681503,
+          "eonsim_area_strain": 0.002166180097048063,
+          "previous": 0.002166179991468281,
+          "x": 0.25
+        },
+        {
+          "area_strain": 0.0021689602944485816,
+          "eonsim_area_strain": 0.002168960075890093,
+          "previous": 0.0021689597849405546,
+          "x": 0.5
+        },
+        {
+          "area_strain": 0.0021709837271874353,
+          "eonsim_area_strain": 0.0021709833056318805,
+          "previous": 0.0021709826392819643,
+          "x": 0.75
+        },
+        {
+          "area_strain": 0.0021724700241113736,
+          "eonsim_area_strain": 0.002172470245817801,
+          "previous": 0.002172470437296851,
+          "x": 1.0
+        },
+        {
+          "area_strain": 0.002173952689527086,
+          "eonsim_area_strain": 0.0021739530123552403,
+          "previous": 0.002173953376705878,
+          "x": 1.25
+        },
+        {
+          "area_strain": 0.002175901882947889,
+          "eonsim_area_strain": 0.002175901698304289,
+          "previous": 0.002175901323179905,
+          "x": 1.5
+        },
+        {
+          "area_strain": 0.002178402012329058,
+          "eonsim_area_strain": 0.002178401766127394,
+          "previous": 0.0021784013942797026,
+          "x": 1.75
+        },
+        {
+          "area_strain": 0.0021818948303309878,
+          "eonsim_area_strain": 0.00218189504802949,
+          "previous": 0.002181895373122606,
+          "x": 2.0
+        }
+      ],
+      "steps": 24,
+      "svfsi": {
+        "final_max_fluid_speed": 7.867976982971382e-08,
+        "interface_displacement_difference": 0.0,
+        "interface_velocity_difference": 0.0,
+        "last_step_area_change_relative": 5.002909774684135e-07,
+        "pressure_rms_relative": 7.757960670215612e-06,
+        "worst_area_relative_error": 0.005682592256059271
+      },
+      "svfsi_executable_sha256": "76fa8bccbe419b4c8cf95d40c74b64290d2b55079750e7f44ef270f7c8760c06",
+      "svfsi_max_final_normalized_residual": {
+        "FS": 9.21e-09,
+        "MS": 9.15e-09
+      },
+      "svfsi_min_endpoint_jacobian_ratio": 1.0004393028317295,
+      "svfsi_target_revision": "94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571",
+      "svfsi_zero_corrections": {
+        "FS": 0,
+        "MS": 0
+      },
+      "worst_cross_code_area_difference": 1.938591598099148e-07
+    },
+    "alpha05-half-checked": {
+      "dt": 0.5,
+      "eonsim_passed": true,
+      "gmres_krylov_dimension": 150,
+      "passed": true,
+      "sections": [
+        {
+          "area_strain": 0.001073968380011179,
+          "eonsim_area_strain": 0.0010739683973261598,
+          "previous": 0.0010739680319394522,
+          "x": 0.0
+        },
+        {
+          "area_strain": 0.0010779175293787176,
+          "eonsim_area_strain": 0.0010779175611092563,
+          "previous": 0.0010779173834811438,
+          "x": 0.3333333333333333
+        },
+        {
+          "area_strain": 0.0010807891990979406,
+          "eonsim_area_strain": 0.0010807890379680273,
+          "previous": 0.0010807885643181463,
+          "x": 0.6666666666666666
+        },
+        {
+          "area_strain": 0.001082930862843177,
+          "eonsim_area_strain": 0.0010829309514024334,
+          "previous": 0.001082930699822908,
+          "x": 1.0
+        },
+        {
+          "area_strain": 0.001085033798273273,
+          "eonsim_area_strain": 0.0010850340439007597,
+          "previous": 0.0010850340957525256,
+          "x": 1.3333333333333333
+        },
+        {
+          "area_strain": 0.0010876689174569084,
+          "eonsim_area_strain": 0.001087668951011491,
+          "previous": 0.0010876687973655893,
+          "x": 1.6666666666666667
+        },
+        {
+          "area_strain": 0.0010910773740342085,
+          "eonsim_area_strain": 0.0010910775030126977,
+          "previous": 0.0010910774488784411,
+          "x": 2.0
+        }
+      ],
+      "steps": 24,
+      "svfsi": {
+        "final_max_fluid_speed": 5.51099416332067e-08,
+        "interface_displacement_difference": 0.0,
+        "interface_velocity_difference": 0.0,
+        "last_step_area_change_relative": 5.838275699777431e-07,
+        "pressure_rms_relative": 8.129937175773817e-06,
+        "worst_area_relative_error": 0.012236439789049647
+      },
+      "svfsi_executable_sha256": "76fa8bccbe419b4c8cf95d40c74b64290d2b55079750e7f44ef270f7c8760c06",
+      "svfsi_max_final_normalized_residual": {
+        "FS": 9.29e-09,
+        "MS": 8.84e-09
+      },
+      "svfsi_min_endpoint_jacobian_ratio": 1.000213827175375,
+      "svfsi_target_revision": "94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571",
+      "svfsi_zero_corrections": {
+        "FS": 0,
+        "MS": 0
+      },
+      "worst_cross_code_area_difference": 2.259115680040352e-07
+    },
+    "alpha05-medium": {
+      "dt": 0.5,
+      "eonsim_passed": true,
+      "gmres_krylov_dimension": 150,
+      "passed": true,
+      "sections": [
+        {
+          "area_strain": 0.0021490985632769567,
+          "eonsim_area_strain": 0.0021490986002076,
+          "previous": 0.0021490978661756186,
+          "x": 0.0
+        },
+        {
+          "area_strain": 0.0021570012129924596,
+          "eonsim_area_strain": 0.0021570012779725954,
+          "previous": 0.0021570009187531144,
+          "x": 0.3333333333333333
+        },
+        {
+          "area_strain": 0.0021627481802484892,
+          "eonsim_area_strain": 0.0021627478594387142,
+          "previous": 0.0021627469089058123,
+          "x": 0.6666666666666666
+        },
+        {
+          "area_strain": 0.0021670349204013484,
+          "eonsim_area_strain": 0.002167035099456884,
+          "previous": 0.002167034594946854,
+          "x": 1.0
+        },
+        {
+          "area_strain": 0.0021712442453405067,
+          "eonsim_area_strain": 0.0021712447379381656,
+          "previous": 0.0021712448397234363,
+          "x": 1.3333333333333333
+        },
+        {
+          "area_strain": 0.0021765181072354754,
+          "eonsim_area_strain": 0.0021765181748521914,
+          "previous": 0.002176517864620966,
+          "x": 1.6666666666666667
+        },
+        {
+          "area_strain": 0.0021833390141024135,
+          "eonsim_area_strain": 0.0021833392701698534,
+          "previous": 0.0021833391591718244,
+          "x": 2.0
+        }
+      ],
+      "steps": 24,
+      "svfsi": {
+        "final_max_fluid_speed": 1.0723170893921805e-07,
+        "interface_displacement_difference": 0.0,
+        "interface_velocity_difference": 0.0,
+        "last_step_area_change_relative": 5.846475521170549e-07,
+        "pressure_rms_relative": 8.043878299935848e-06,
+        "worst_area_relative_error": 0.011702165717118795
+      },
+      "svfsi_executable_sha256": "76fa8bccbe419b4c8cf95d40c74b64290d2b55079750e7f44ef270f7c8760c06",
+      "svfsi_max_final_normalized_residual": {
+        "FS": 7.07e-09,
+        "MS": 8.76e-09
+      },
+      "svfsi_min_endpoint_jacobian_ratio": 1.0004275943505976,
+      "svfsi_target_revision": "94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571",
+      "svfsi_zero_corrections": {
+        "FS": 0,
+        "MS": 0
+      },
+      "worst_cross_code_area_difference": 2.2652902371579258e-07
+    },
+    "alpha05-small": {
+      "dt": 0.5,
+      "eonsim_passed": false,
+      "gmres_krylov_dimension": 150,
+      "passed": false,
+      "sections": [
+        {
+          "area_strain": 0.0020931536360892142,
+          "eonsim_area_strain": 0.002093158701199954,
+          "previous": 0.0020931542476944746,
+          "x": 0.0
+        },
+        {
+          "area_strain": 0.002124910869496243,
+          "eonsim_area_strain": 0.0021249128552516335,
+          "previous": 0.0021249081065976127,
+          "x": 0.6666666666666666
+        },
+        {
+          "area_strain": 0.002152471995356901,
+          "eonsim_area_strain": 0.002152473147481351,
+          "previous": 0.002152468175632003,
+          "x": 1.3333333333333333
+        },
+        {
+          "area_strain": 0.0021806235615939736,
+          "eonsim_area_strain": 0.002180626839965912,
+          "previous": 0.0021806239104957188,
+          "x": 2.0
+        }
+      ],
+      "steps": 24,
+      "svfsi": {
+        "final_max_fluid_speed": 2.982086426374054e-08,
+        "interface_displacement_difference": 0.0,
+        "interface_velocity_difference": 0.0,
+        "last_step_area_change_relative": 1.7565624530591846e-06,
+        "pressure_rms_relative": 5.303919638140246e-06,
+        "worst_area_relative_error": 0.0374293479522847
+      },
+      "svfsi_executable_sha256": "76fa8bccbe419b4c8cf95d40c74b64290d2b55079750e7f44ef270f7c8760c06",
+      "svfsi_max_final_normalized_residual": {
+        "FS": 7.02e-09,
+        "MS": 8.24e-09
+      },
+      "svfsi_min_endpoint_jacobian_ratio": 1.0004033304181268,
+      "svfsi_target_revision": "94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571",
+      "svfsi_zero_corrections": {
+        "FS": 0,
+        "MS": 0
+      },
+      "worst_cross_code_area_difference": 2.3292733334680073e-06
+    }
+  }
+}

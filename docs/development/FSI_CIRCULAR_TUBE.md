@@ -45,6 +45,11 @@ Its units are internally consistent, not calibrated to a patient. The wall's
 outer surface has zero natural traction. It uses fixed stabilization tau=.05.
 The mesh consists of flat Tet4 facets, not curved high-order elements.
 
+Use `--wall-layers N` to place N radial layers through the solid thickness.
+The default is one layer. The fluid mesh, interface and original default
+files are preserved. A pressure-driven quarter-tube benchmark uses the
+additional layers to resolve thick-wall compliance. [Pressure–area study](PRESSURIZED_ELASTIC_TUBE.md)
+
 `tests/test_tube_mesh.py` independently verifies positive volumes, exterior
 face incidence, exact matching of the two interface triangulations and polygon
 volume convergence. `fsi_tube` checks the coupled response, three time schemes,
