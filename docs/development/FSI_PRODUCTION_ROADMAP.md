@@ -7,13 +7,13 @@ problem class, hardware and operating envelope, not a single global feature flag
 | Stage | Deliverable | Acceptance / current status |
 |---|---|---|
 | FSI-PROD-01 | Circular volume-flow inlet and conforming 3D solid-wall tube | Done: [PR #37](https://github.com/saitoasukakawaii/EONSim-new/pull/37) merged; independent mesh topology/volume checks; actual wall response; flux, interface, positive geometry; BE/BDF2/alpha; 1/2/4 rank; restart and rejection. This is an enabling benchmark, not physiological validation. |
-| FSI-PROD-02 | Quantitative tube qualification | In progress. [PROD-02A](RIGID_TUBE_QUALIFICATION.md) locally qualifies steady rigid-tube flow only (1.264676% circular-flow error); pressure remains 3.993089% off the imposed stress drop. Womersley, elastic-tube response, temporal/default-stabilization qualification and pinned svFSI comparison remain open. |
+| FSI-PROD-02 | Quantitative tube qualification | In progress. Steady rigid-tube flow is in main via PR #38. The α=2 oscillatory study met the flow gates and the rigid-wall svFSI comparison. Its computed end-pressure amplitude is 7.58% low on 48/8/12. Compliant-wall pressure/area response, matched FSI comparison and broader temporal/stabilization qualification remain open. [Steady study](RIGID_TUBE_QUALIFICATION.md) · [Oscillatory study](WOMERSLEY_FLOW.md) |
 | FSI-PROD-03 | Vascular boundary coupling | Multiple RCR outlets with shared stage and accepted 0D history, consistent flow-pressure Jacobian, retry/restart; external Robin tissue support. Verify circuit limit, interface work and MPI invariance. |
 | FSI-PROD-04 | Physiological geometry and robustness | Curved/branched conforming vascular cases, arbitrary planar inlet orientation/profile; backflow behavior, loading/initial stress and material envelope selected from actual case requirements. Validate before recommending use. |
 | FSI-PROD-05 | Distributed production qualification | Growing meshes, 1/2/4/8/16/32 ranks and at least two nodes; strong/weak scaling, iterations, max-rank memory, I/O and failure recovery. No inference from single-node small tests. |
 
 Each independently accepted stage increment uses one branch and one reviewable PR after its local acceptance;
-fix CI in that PR, do not merge main automatically. Use repository build scripts
+fix CI in that PR and follow the repository's protected merge workflow. Use repository build scripts
 and PETSc 3.23.7; validate affected paths incrementally. Preserve failed attempts
 and original tolerances. Record both passed and unverified behavior.
 

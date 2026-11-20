@@ -1,5 +1,13 @@
 # EONSim Codex Development Progress
 
+## FSI-PROD-02B / 2026-11-20
+
+基线 `89a1a3d` 已含稳态刚性管 PR #38。新增固定网格标签压力的正弦加载及接受步通量、压力历史。
+48/8/12 网格的 Womersley 流量幅值误差 1.5047%，相位误差 0.2858°，波形相对 RMS 误差 1.5864%。
+同网格与固定版本 svFSI 的复数流量差为解析幅值的 2.0395%，粗网格为 8.7814%。
+端面压差幅值仍低 7.58%，弹性壁压力–面积响应和完整 FSI 对照待验收。
+[复现与原始证据](../research/data/womersley-2026-11-20/README.md)
+
 ## CI-DEBUG-ON-DEMAND / 2026-11-13 / review
 
 按用户要求改为 Release-only PR 增量数值 CI；Debug 由手动工作流专项启动。receipt 与历史复用只认 Release；自动合并改为四项必需检查并拒绝仍要求旧 Debug 的分支保护。未改数值模型、容差或 CTest 清单。源码修改不代表 CI 已通过；以 PR Actions 为准，分支保护仍需管理员确认。

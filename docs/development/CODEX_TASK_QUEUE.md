@@ -1,6 +1,6 @@
 # EONSim Codex Task Queue
 
-## FSI-PROD-02B / in_progress / 2026-11-20
+## FSI-PROD-02B / review / 2026-11-20
 
 Baseline `89a1a3d` includes the steady rigid-tube work from PR #38. This
 increment targets the low-frequency, pressure-driven Womersley flow in a rigid
@@ -24,6 +24,11 @@ This value approximates the default coefficient at the mean cell volume, zero
 velocity and 64 samples per cycle. It is fixed before the control solves.
 Report the cycle-change floor alongside the differences. The default study
 changes the stabilization operator along with the time step.
+
+Local flow and rigid-wall svFSI gates passed on 48/8/12. The pressure trace,
+uniform-coefficient control and spatial refinement are documented as separate
+observations. The compliant-wall milestone remains open.
+[Inputs, measurements and replay](../research/data/womersley-2026-11-20/README.md)
 
 ## CI-DEBUG-ON-DEMAND / 2026-11-13
 
