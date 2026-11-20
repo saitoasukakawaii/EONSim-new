@@ -35,6 +35,8 @@ def boundary_fluxes(xyz,faces,opposite,state):
 
 def audit(directory, ranks=1):
     result=fsi.analyze(directory,ranks)
+    if result['scheme']!='be':
+        raise ValueError('Endpoint displacement differences reproduce wall velocity for BE')
     mesh=tube.read_mesh(directory/'fluid.msh')
     nodes,cells,faces=mesh
     opposite=boundary_neighbors(cells,faces)
@@ -44,7 +46,7 @@ def audit(directory, ranks=1):
     end_outflow_integral=0.
     wall_ids={n for tag,face in faces if tag==3 for n in face}
     xlevels=sorted({nodes[n][0] for n in wall_ids})
-    mid=xlevels[len(xlevels)//2]
+    mid=min(xlevels,key=lambda x:abs(x-wall.LENGTH/2))
     midring=[n for n in wall_ids if nodes[n][0]==mid]
     rows=[]
     for step in range(1,result['steps']+1):
@@ -65,8 +67,8 @@ def audit(directory, ranks=1):
         rows.append(dict(step=step,time=step*dt,volume=volume,volume_secant_rate=rate,
                          ends_outward_flow=qends,moving_wall_outward_flow=flux[3],symmetry_flow=qsym,
                          euler_net_outward_flow=qends+flux[3]+qsym,ale_mass_rate=rate+qends+qsym,
-                         kinematic_wall_velocity_difference=kinematic,midplane_x=mid,
-                         midplane_linear_area_strain=section['linear_area_strain']))
+                         kinematic_wall_velocity_difference=kinematic,section_x=mid,
+                         section_linear_area_strain=section['linear_area_strain']))
         previous_volume,previous_d=volume,displacement
     volume_gain=previous_volume-initial_volume
     if volume_gain<=0: raise ValueError('Expected a positive final bore volume gain')

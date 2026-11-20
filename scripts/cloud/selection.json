@@ -127,7 +127,7 @@
     {"paths": ["tests/verify_scalar2d.py"], "tests": ["scalar2d_failure", "scalar2d_space", "scalar2d_time"], "python": []},
     {"paths": ["tests/verify_schur.py"], "tests": ["pc_recipe_hybrid", "pc_recipe_physics", "pc_recipe_quantity", "schur_verification"], "python": []},
     {"paths": ["tests/verify_solid.py"], "tests": ["solid_verification"], "python": []},
-    {"paths": ["tests/test_lame_wall.py"], "tests": [], "python": ["tests/test_lame_wall.py"]},
+    {"paths": ["scripts/svfsi_mesh.py", "scripts/svfsi_history.py", "scripts/compare_svfsi_wall.py", "tests/test_lame_wall.py"], "tests": [], "python": ["tests/test_lame_wall.py"]},
     {"paths": ["cases/fsi/generate_tube.py", "scripts/study_lame_wall.py", "scripts/study_hydrostatic_fsi.py", "scripts/audit_hydrostatic_mass.py", "scripts/study_rigid_tube.py", "scripts/audit_rigid_tube_fields.py", "tests/verify_lame_wall.py", "src/physics/solid.cpp", "src/physics/solid_element.cpp", "src/physics/fluid_boundary.cpp", "src/physics/fsi.cpp", "src/core/config.cpp", "CMakeLists.txt"], "tests": ["lame_wall"], "python": ["tests/test_lame_wall.py"]},
     {"paths": ["tests/verify_solid_element.cpp"], "tests": ["solid_element_jacobian"], "python": []},
     {"paths": ["tests/verify_solid_time.py"], "tests": ["solid_alpha_verification", "solid_time_verification"], "python": []},

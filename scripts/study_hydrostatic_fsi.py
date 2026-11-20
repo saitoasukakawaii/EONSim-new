@@ -18,7 +18,7 @@ LIMITS = dict(worst_area_relative_error=.03, last_step_area_change_relative=.001
               interface_velocity_difference=1e-9,interface_displacement_difference=1e-9)
 
 
-def case_config(dt, duration, pressure):
+def case_config(dt, duration, pressure, matched_rho=None):
     if not all(math.isfinite(v) and v>0 for v in (dt,duration,pressure)):
         raise ValueError('Pressure, duration and time step must be finite and positive')
     steps=round(duration/dt)
@@ -30,18 +30,25 @@ def case_config(dt, duration, pressure):
                  solid_interface=13,pressure_tags=[1,2],fluid_constraints=rollers([(5,1),(6,2)]),
                  mesh_constraints=rollers([(1,0),(2,0),(5,1),(6,2)]),
                  solid_constraints=rollers([(11,0),(12,0),(15,1),(16,2)]))
-    return dict(mesh='fluid.msh',output='tube.vtu',time=dict(scheme='be'),
+    config=dict(mesh='fluid.msh',output='tube.vtu',time=dict(scheme='be'),
                 fsi=dict(body='elastic',material='linear',domains=domains,young=wall.YOUNG,
                          poisson=wall.POISSON,density=1.,viscosity=1.,solid_density=1.,
                          dt=dt,steps=steps,output_interval=1,pressure=pressure,
                          pressure_time=dict(amplitude=0.,period=1.,ramp_time=1.)),
                 solver=dict(relative_tolerance=1e-11,absolute_tolerance=1e-13,maximum_iterations=30))
+    if matched_rho is not None:
+        if not 0<=matched_rho<=1:
+            raise ValueError('Generalized-alpha spectral radius must be in [0,1]')
+        config['time']=dict(scheme='generalized_alpha',rho_infinity=matched_rho)
+        del config['fsi']['pressure_time']
+    return config
 
 
-def solve(directory, executable, mpiexec, ranks, sectors, layers, radial, axial, dt, duration, pressure):
+def solve(directory, executable, mpiexec, ranks, sectors, layers, radial, axial, dt, duration,
+          pressure, matched_rho=None):
     if sectors<8 or sectors%4:
         raise ValueError('Full-circle sector count must be divisible by four and at least eight')
-    cfg=case_config(dt,duration,pressure)
+    cfg=case_config(dt,duration,pressure,matched_rho)
     directory.mkdir(parents=True)
     with tempfile.TemporaryDirectory(dir=directory) as tmp:
         tube.generate(tmp,sectors=sectors,radial=radial,axial=axial,radius=wall.INNER,
@@ -116,7 +123,7 @@ def analyze(directory, ranks=1):
     cfg=json.loads((directory/'case.json').read_text())
     f=cfg['fsi']
     n,dt,pressure=f['steps'],f['dt'],f['pressure']
-    if cfg!=case_config(dt,n*dt,pressure):
+    if cfg!=case_config(dt,n*dt,pressure,cfg['time'].get('rho_infinity')):
         raise ValueError('Unexpected hydrostatic FSI configuration')
     if (directory/'solve.log').read_text().splitlines()[-1:]!=['status=success']:
         raise ValueError('Coupled solve did not finish successfully')
@@ -173,7 +180,7 @@ def analyze(directory, ranks=1):
                  final_max_fluid_speed=max(math.hypot(*v.velocity) for v in fluid.values()),
                  pressure_rms_relative=math.sqrt(error2/volume)/pressure,
                  interface_velocity_difference=jump_u,interface_displacement_difference=jump_d)
-    return dict(**g,ranks=ranks,steps=n,dt=dt,time=n*dt,pressure=pressure,
+    return dict(**g,scheme=cfg['time']['scheme'],ranks=ranks,steps=n,dt=dt,time=n*dt,pressure=pressure,
                 fluid_tetrahedra=len(fm[1]),solid_tetrahedra=len(sm[1]),min_jacobian_ratio=jac,
                 exact_linear_area_strain=exact,sections=sections,**metrics,
                 passed=all(value<LIMITS[name] for name,value in metrics.items()))
@@ -189,13 +196,14 @@ def main():
     p.add_argument('--dt',type=float,default=.5)
     p.add_argument('--duration',type=float,default=8.)
     p.add_argument('--pressure',type=float,default=wall.PRESSURE)
+    p.add_argument('--matched-svfsi-rho',type=float,help='Apply constant pressure and use generalized-alpha with this spectral radius')
     p.add_argument('--analyze-only',action='store_true')
     p.add_argument('--check',action='store_true')
     a=p.parse_args()
     if a.ranks<1 or (not a.analyze_only and a.executable is None):
         p.error('Supply a positive rank count and a solver for a new run')
     if not a.analyze_only:
-        solve(a.work,a.executable,a.mpiexec,a.ranks,*a.mesh,a.dt,a.duration,a.pressure)
+        solve(a.work,a.executable,a.mpiexec,a.ranks,*a.mesh,a.dt,a.duration,a.pressure,a.matched_svfsi_rho)
     result=analyze(a.work,a.ranks)
     print(json.dumps(result,indent=2,allow_nan=False))
     if a.check and not result['passed']:

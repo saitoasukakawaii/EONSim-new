@@ -27,6 +27,18 @@ speed <1e−6 m/s, pressure RMS error <1% of the applied pressure and interface
 velocity/displacement differences <1e−9. Compare two step sizes to the same
 physical endpoint. A dynamic pulse and an external coupled solution are separate.
 
+For the external equilibrium check, run both codes from rest with a constant
+0.02 Pa end pressure, dt=0.5 and generalized-alpha spectral radius zero.
+Compare the worst-section difference in linearized area strain to 2% of the
+analytic expansion. Require each solution to settle and check its area against
+the 3% circular target. Retain any rejected external inputs or solves.
+
+The first svFSI run encountered nonfinite arithmetic in its predictor at
+spectral radius zero. A floating-point trap identified the division in
+`PICP` where this FSI equation has γ=1. For the next paired runs use 0.5
+in both programs, as in the upstream 3D pipe example. The wall, pressure,
+time step and quantitative criteria are unchanged.
+
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 
 Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main

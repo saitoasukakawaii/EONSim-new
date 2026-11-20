@@ -10,6 +10,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 import study_lame_wall as wall
 import study_rigid_tube as tube
 import study_hydrostatic_fsi as fsi
+import compare_svfsi_wall as sv
 from audit_hydrostatic_mass import boundary_fluxes, boundary_neighbors
 
 
@@ -80,6 +81,31 @@ class LameWallTest(unittest.TestCase):
                 self.assertAlmostEqual(flux[2],volume if axial else 0.,places=12)
                 self.assertAlmostEqual(flux[3],0. if axial else 2*volume,places=12)
                 self.assertAlmostEqual(abs(flux[5])+abs(flux[6]),0.,places=13)
+
+    def test_external_domain_settings_and_convergence(self):
+        for eq in ('FS','MS'):
+            first=f' {eq} 1-1 0.3 [ 0 1.0 1.0 1e-10] [ 24 -30 82]'
+            last=f' {eq} 1-2s 0.4 [-120 1e-9 3e-9 1.0] [ 2 -20 0]'
+            self.assertEqual(sv.check_convergence(first+'\n'+last,1,eq),(1e-9,0))
+            for corrupt in (last.replace('[ 2 -20','! 5 -20'),last.replace('1e-9','NaN')):
+                with self.assertRaises(ValueError):
+                    sv.check_convergence(first+'\n'+corrupt,1,eq)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            tube.generate(root/'full',sectors=12,radial=2,axial=2,length=2.,wall_layers=2)
+            for domain,tags,region in [('fluid',(5,6),10),('solid',(15,16),20)]:
+                wall.quarter_mesh(root/'full'/(domain+'.msh'),root/(domain+'.msh'),tags,region)
+            (root/'case.json').write_text(json.dumps(fsi.case_config(.5,2.,.02,.5)))
+            sv.prepare(root,root/'external')
+            inp=(root/'external/svFSI.inp').read_text()
+            self.assertIn('Equation: lElas',inp)
+            self.assertIn('Spectral radius of infinite time step: 0.5',inp)
+            self.assertIn('Project from face: interface_fluid',inp)
+            self.assertEqual(inp.count('Type: Neu'),2)
+            self.assertEqual(len(list((root/'external').glob('*.vtp'))),11)
+            (root/'case.json').write_text(json.dumps(fsi.case_config(.5,2.,.02)))
+            with self.assertRaises(ValueError):
+                sv.prepare(root,root/'incorrect')
 
 
 if __name__=='__main__':
