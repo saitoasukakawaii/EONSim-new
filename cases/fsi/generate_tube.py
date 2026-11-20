@@ -10,18 +10,20 @@ import math
 from pathlib import Path
 
 
-def generate(directory, sectors=12, axial=4, radial=2, radius=1., thickness=.2, length=4.):
-    if sectors<6 or axial<2 or radial<1 or not all(math.isfinite(x) and x>0 for x in (radius,thickness,length)):
+def generate(directory, sectors=12, axial=4, radial=2, radius=1., thickness=.2, length=4.,
+             wall_layers=1):
+    if (sectors<6 or axial<2 or radial<1 or wall_layers<1 or not isinstance(wall_layers,int)
+            or not all(math.isfinite(x) and x>0 for x in (radius,thickness,length))):
         raise ValueError('Invalid tube dimensions or subdivisions')
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     points=[(0.,0.)]
-    for layer in range(1,radial+2):
-        r=radius*layer/radial if layer<=radial else radius+thickness
+    for layer in range(1,radial+wall_layers+1):
+        r=radius*layer/radial if layer<=radial else radius+thickness*(layer-radial)/wall_layers
         points.extend((r*math.cos(2*math.pi*j/sectors),r*math.sin(2*math.pi*j/sectors)) for j in range(sectors))
     def ring(layer,j):return 1+(layer-1)*sectors+j%sectors
     fluid=[(0,ring(1,j),ring(1,j+1)) for j in range(sectors)]
     solid=[]
-    for layer in range(1,radial+1):
+    for layer in range(1,radial+wall_layers):
         target=fluid if layer<radial else solid
         for j in range(sectors):
             a,b,c,d=ring(layer,j),ring(layer,j+1),ring(layer+1,j),ring(layer+1,j+1)
@@ -67,13 +69,17 @@ def generate(directory, sectors=12, axial=4, radial=2, radius=1., thickness=.2, 
                                                    mean=.01,amplitude=.005,period=.04))),
         time=dict(scheme='generalized_alpha'),solver=dict(relative_tolerance=1e-11,absolute_tolerance=1e-13,maximum_iterations=30))
     path=directory/'case.json';path.write_text(json.dumps(cfg,indent=2)+'\n')
-    (directory/'geometry.json').write_text(json.dumps(dict(sectors=sectors,axial=axial,radial=radial,radius=radius,
+    geometry=dict(sectors=sectors,axial=axial,radial=radial,radius=radius,
         thickness=thickness,length=length,interface_area=2*sectors*radius*math.sin(math.pi/sectors)*length,
-        fluid_volume=sectors*radius**2*math.sin(2*math.pi/sectors)*length/2),indent=2)+'\n')
+        fluid_volume=sectors*radius**2*math.sin(2*math.pi/sectors)*length/2)
+    if wall_layers!=1:
+        geometry['wall_layers']=wall_layers
+    (directory/'geometry.json').write_text(json.dumps(geometry,indent=2)+'\n')
     return path
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--output',type=Path,default=Path('build/fsi-tube'))
     p.add_argument('--sectors',type=int,default=12);p.add_argument('--axial',type=int,default=4);p.add_argument('--radial',type=int,default=2)
-    a=p.parse_args();print(generate(a.output,a.sectors,a.axial,a.radial))
+    p.add_argument('--wall-layers',type=int,default=1,help='Radial Tet4 layers through the solid annulus')
+    a=p.parse_args();print(generate(a.output,a.sectors,a.axial,a.radial,wall_layers=a.wall_layers))

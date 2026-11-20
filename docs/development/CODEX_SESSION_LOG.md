@@ -4,6 +4,29 @@
 
 基线 main `f34658082644eb5238ee4cc651d71823fe5d1587`。发现 core-numerics 双模式测试、receipt.py 强制双模式、selection.py 双模式历史来源、agent 自动合并五项必需检查彼此关联；不能简单删除 Debug job。同步修改 Release-only PR、手动 Debug、收据复用和自动合并检查。未执行 PETSc/MPI 求解，CI 结果须读取实际工作流，不能从文件存在推断通过。
 
+## 2026-11-20 / FSI-PROD-02C / pressure–area study
+
+Base `89a1a3d823396df02fa9e8acb5ded36b70938e9c`. Study source
+`d08958e1e968640a35315b0571a849fc234ef36a`. The wall branch adds an optional
+layer count to the existing tube generator, with byte-identical default
+output. Thirteen isolated wall solves include single-direction refinements,
+two pressures and 1/2/4 ranks. Coupled runs include two BE step sizes,
+an MPI repeat and separate generalized-alpha pairs. Local locked Release
+receipts cover `fsi_tube` and `lame_wall`. EONSim/svFSI cases use identical
+volume cells and projected conforming interfaces. The archive preserves
+failed numerical cases and the native predictor diagnosis. Five paired runs include
+two common-pressure time steps with all saved wall states. The largest startup
+difference is 9.947% at Δt=0.5 s and 8.444% at Δt=0.25 s. All 547 inputs and
+fields are included in the expanded archive. [PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42) · [Results](../research/data/lame-wall-2026-11-20/README.md)
+
+The initial PR policy mapped 31 Release CTests. GitHub completed the
+selection, locked Release job, evidence receipt and website checks for the
+expanded data at `749739d`. A fresh extraction reproduced every recorded
+field metric with the original external binary VTUs. The selection mapping
+requires human review under the repository's merge rules.
+[Initial numerical run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/44723204965)
+· [Expanded data numerical run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/44724685272)
+
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 
 Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main
