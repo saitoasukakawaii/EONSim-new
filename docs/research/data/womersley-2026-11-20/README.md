@@ -67,7 +67,7 @@ uninterrupted endpoint fields with zero difference after restoration.
 ![Spatial refinement at fixed angular resolution and temporal phasor changes on a fixed mesh](refinement.svg)
 
 Each point on the right compares two successive time resolutions. The dashed
-line has a slope of two on this log–log scale and is anchored at the first
+line decreases as the inverse square of the number of steps per cycle and is anchored at the first
 uniform-τ difference. [Plot source](plot_refinement.py)
 
 At a fixed polygon with 48 sectors, increasing radial and axial resolution
