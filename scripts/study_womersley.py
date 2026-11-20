@@ -108,11 +108,12 @@ def study_parameters(directory):
     if (geometry['radius'] != tube.RADIUS or geometry['length'] != tube.LENGTH
             or sectors < 6 or geometry['radial'] < 1 or geometry['axial'] < 2):
         raise ValueError('Geometry differs from the declared Womersley study')
-    return fluid, geometry, samples, cycles, scheme
+    return config, geometry, samples, cycles
 
 
 def analyze(directory):
-    fluid, geometry, samples, cycles, scheme = study_parameters(directory)
+    config, geometry, samples, cycles = study_parameters(directory)
+    fluid = config['fluid']
     sectors = geometry['sectors']
     area = sectors*tube.RADIUS**2*math.sin(2*math.pi/sectors)/2
     wall_area = 2*sectors*tube.RADIUS*tube.LENGTH*math.sin(math.pi/sectors)
@@ -150,7 +151,7 @@ def analyze(directory):
         max_net_outward_flux=max_net)
     if not all(map(math.isfinite, metrics.values())):
         raise ValueError('Nonfinite Womersley metric')
-    return dict(scheme=scheme, samples_per_cycle=samples, cycles=cycles, dt=fluid['dt'],
+    return dict(scheme=config['time']['scheme'], samples_per_cycle=samples, cycles=cycles, dt=fluid['dt'],
                 sectors=sectors, radial=geometry['radial'], axial=geometry['axial'],
                 flow_amplitude=abs(observed), flow_phase_degrees=math.degrees(cmath.phase(observed)),
                 reference_amplitude=abs(q), reference_phase_degrees=math.degrees(cmath.phase(q)),

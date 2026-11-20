@@ -50,7 +50,8 @@ def quadrature(order):
 
 
 def audit(directory, snapshot, ranks=1, order=3):
-    fluid, geometry, _, _, _ = study.study_parameters(directory)
+    config, geometry, _, _ = study.study_parameters(directory)
+    fluid = config['fluid']
     rows = study.boundary_history((snapshot/'solve.log').read_text())
     if not rows:
         raise ValueError('Missing accepted endpoint')
@@ -60,7 +61,7 @@ def audit(directory, snapshot, ranks=1, order=3):
     time = rows[step][1].time
     phase = cmath.exp(1j*study.OMEGA*time)
     drop = tube.DROP*phase.imag
-    nodes,cells,faces = tube.read_mesh(directory/fluid['mesh'])
+    nodes,cells,faces = tube.read_mesh(directory/config['mesh'])
     state = tube.fields(snapshot,ranks)
     if nodes.keys()!=state.keys():
         raise ValueError('Endpoint and reference mesh IDs differ')
