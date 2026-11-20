@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'scripts'))
 import compare_svfsi_womersley as sv
-from compare_womersley_runs import phasor_refinement
+from compare_womersley_runs import bdf2_stabilization, phasor_refinement
 import study_rigid_tube as tube
 import study_womersley as study
 from audit_womersley_fields import axial_sections, axial_velocity, quadrature
@@ -196,6 +196,18 @@ class WomersleyTest(unittest.TestCase):
             table.write_text('\n'.join(bad))
             with self.subTest(rows=bad), self.assertRaises(ValueError):
                 sv.read_table(table,areas,1)
+
+    def test_bdf2_endpoint_stabilization(self):
+        nodes = {0:(0,0,0),1:(1,0,0),2:(0,1,0),3:(0,0,1)}
+        tet = (0,1,2,3)
+        # The accepted mean velocity is (0,2,0). Opposite x components cancel.
+        field = {i:((-1)**i,2,0,0) for i in nodes}
+        measured = bdf2_stabilization(nodes,[tet],field,.5,1,2)
+        expected = 1/math.sqrt(6**2+4**2+8**2)
+        for key in ('minimum','maximum','volume_weighted_mean'):
+            self.assertAlmostEqual(measured[key],expected)
+        self.assertAlmostEqual(measured['max_advective_fraction_of_default_inverse_tau_squared'],16/116)
+        self.assertEqual(bdf2_stabilization(nodes,[tet],field,.5,1,2,.003)['maximum'],.003)
 
     def test_temporal_phasor_and_stabilization_controls(self):
         rows = []

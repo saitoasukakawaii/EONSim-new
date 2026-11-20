@@ -21,6 +21,9 @@ def replay(root, field_audits=False):
     result = dict(flow={name:study.analyze(runs/name) for name in dataset['runs']})
     result['time'] = {name:compare.time_refinement([runs/n for n in family])
                       for name,family in dataset['time'].items()}
+    if dataset.get('stabilization'):
+        result['stabilization'] = {name:compare.endpoint_stabilization(runs/name)
+                                   for name in dataset['stabilization']}
     result['mpi'] = {str(n):compare.mpi_comparison(runs/dataset['reference'],runs/case,n)
                      for case,n in dataset['mpi'].items()}
     result['svfsi'] = {name:external.compare(runs/case,root/'svfsi'/name)

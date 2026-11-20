@@ -15,6 +15,49 @@ def mesh_digest(directory):
     return hashlib.sha256((directory/config['mesh']).read_bytes()).hexdigest()
 
 
+def bdf2_stabilization(nodes, cells, state, dt, density, viscosity, prescribed=None):
+    """Reconstruct the coefficient for the next equal step from an accepted P1 velocity."""
+    # For equal steps after BDF2 startup, the effective step in the momentum
+    # operator is 2*dt/3. The Tet4 Jacobian determinant equals six times its volume.
+    temporal = 3*density/dt
+    minimum, maximum = math.inf, 0.
+    weighted = volume = max_advective_fraction = 0.
+    for tet in cells:
+        jacobian = tube.determinant(nodes,tet)
+        if not math.isfinite(jacobian) or jacobian<=0:
+            raise ValueError('Expected a positive Tet4 determinant')
+        h = jacobian**(1/3)
+        velocity = [sum(state[n][j] for n in tet)/4 for j in range(3)]
+        advective = 2*density*math.hypot(*velocity)/h
+        viscous = 4*viscosity/h**2
+        inverse = math.hypot(temporal,advective,viscous)
+        tau = 1/inverse if prescribed is None else prescribed
+        minimum,maximum = min(minimum,tau),max(maximum,tau)
+        weighted += jacobian*tau
+        volume += jacobian
+        max_advective_fraction = max(max_advective_fraction,(advective/inverse)**2)
+    if not cells:
+        raise ValueError('Expected a nonempty tetrahedral mesh')
+    return dict(minimum=minimum,maximum=maximum,volume_weighted_mean=weighted/volume,
+                max_advective_fraction_of_default_inverse_tau_squared=max_advective_fraction)
+
+
+def endpoint_stabilization(directory):
+    config,_,samples,_ = study.study_parameters(directory)
+    if config['time']['scheme']!='bdf2':
+        raise ValueError('Endpoint stabilization reconstruction requires uniform-step BDF2')
+    # Validate the endpoint history and the complete field before reconstructing tau.
+    study.analyze(directory)
+    fluid = config['fluid']
+    nodes,cells,_ = tube.read_mesh(directory/config['mesh'])
+    state = tube.fields(directory,1)
+    if state.keys()!=nodes.keys():
+        raise ValueError('Endpoint field does not cover the mesh')
+    prescribed = fluid.get('stabilization_tau')
+    return dict(samples_per_cycle=samples,prescribed=prescribed,
+                **bdf2_stabilization(nodes,cells,state,fluid['dt'],fluid['density'],fluid['viscosity'],prescribed))
+
+
 def time_refinement(directories):
     if len({mesh_digest(d) for d in directories})>1:
         raise ValueError('Temporal comparisons require identical tetrahedra and coordinates')
@@ -79,9 +122,15 @@ def main():
     mpi.add_argument('serial',type=Path)
     mpi.add_argument('parallel',type=Path)
     mpi.add_argument('--ranks',type=int,required=True)
+    tau = modes.add_parser('tau',help='Reconstruct the next equal BDF2 step coefficient from a serial endpoint')
+    tau.add_argument('case',type=Path)
     args = parser.parse_args()
-    result = (time_refinement(args.cases) if args.operation=='time'
-              else mpi_comparison(args.serial,args.parallel,args.ranks))
+    if args.operation=='time':
+        result = time_refinement(args.cases)
+    elif args.operation=='mpi':
+        result = mpi_comparison(args.serial,args.parallel,args.ranks)
+    else:
+        result = endpoint_stabilization(args.case)
     print(json.dumps(result,indent=2,allow_nan=False))
     if result.get('passed') is False:
         raise SystemExit('MPI field or history tolerance exceeded')
