@@ -9,6 +9,8 @@ import unittest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 import study_lame_wall as wall
 import study_rigid_tube as tube
+import study_hydrostatic_fsi as fsi
+from audit_hydrostatic_mass import boundary_fluxes, boundary_neighbors
 
 
 class LameWallTest(unittest.TestCase):
@@ -57,6 +59,27 @@ class LameWallTest(unittest.TestCase):
             for bad in (0,-1,1.5):
                 with self.assertRaises(ValueError):
                     tube.generate(root/'bad',wall_layers=bad)
+
+    def test_quarter_disk_flux_and_time_control(self):
+        for dt,end in [(0.,2.),(.7,1.),(1.,.5),(math.inf,2.)]:
+            with self.assertRaises(ValueError):
+                fsi.case_config(dt,end,.02)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            tube.generate(root/'full',sectors=16,radial=2,axial=3,length=2.)
+            wall.quarter_mesh(root/'full/fluid.msh',root/'quarter.msh',(5,6),10)
+            nodes,cells,faces=tube.read_mesh(root/'quarter.msh')
+            neighbors=boundary_neighbors(cells,faces)
+            volume=sum(tube.determinant(nodes,t)/6 for t in cells)
+            for axial in (True,False):
+                fields={n:fsi.PointState((0,0,0),(x,0,0) if axial else (0,y,z),0.)
+                        for n,(x,y,z) in nodes.items()}
+                flux=boundary_fluxes(nodes,faces,neighbors,fields)
+                self.assertAlmostEqual(sum(flux.values()),volume*(1 if axial else 2),places=12)
+                self.assertAlmostEqual(flux[1],0.)
+                self.assertAlmostEqual(flux[2],volume if axial else 0.,places=12)
+                self.assertAlmostEqual(flux[3],0. if axial else 2*volume,places=12)
+                self.assertAlmostEqual(abs(flux[5])+abs(flux[6]),0.,places=13)
 
 
 if __name__=='__main__':

@@ -36,16 +36,9 @@ def config(pressure):
                 solver=dict(relative_tolerance=1e-11,absolute_tolerance=1e-13,maximum_iterations=20))
 
 
-def make_case(directory, sectors, layers, axial, pressure):
-    """Keep a quarter of the structured FSI wall; classify its two new symmetry faces."""
-    if sectors<8 or sectors%4:
-        raise ValueError('Use a full-circle sector count divisible by four and at least eight')
-    cfg = config(pressure)
-    directory.mkdir(parents=True)
-    with tempfile.TemporaryDirectory(dir=directory) as temp:
-        tube.generate(temp,sectors=sectors,radial=1,axial=axial,radius=INNER,
-                      thickness=OUTER-INNER,length=LENGTH,wall_layers=layers)
-        full,cells,tagged = tube.read_mesh(Path(temp)/'solid.msh')
+def quarter_mesh(source, target, symmetry_tags, region):
+    """Preserve volume cells and inherited face tags, then tag the two new symmetry planes."""
+    full,cells,tagged = tube.read_mesh(source)
     nodes = {n:tuple(0. if abs(v)<1e-14 else v for v in p)
              for n,p in full.items() if p[1]>=-1e-14 and p[2]>=-1e-14}
     quarter = [tet for tet in cells if all(n in nodes for n in tet)]
@@ -60,13 +53,24 @@ def make_case(directory, sectors, layers, axial, pressure):
         tag = exterior.get(f)
         if tag is None:
             if all(nodes[n][1]==0 for n in f):
-                tag = 15
+                tag = symmetry_tags[0]
             elif all(nodes[n][2]==0 for n in f):
-                tag = 16
+                tag = symmetry_tags[1]
             else:
                 raise ValueError('Unexpected exposed face inside the quarter wall')
         faces.append((tag,f))
-    tube.write_mesh(directory/cfg['mesh'],nodes,quarter,faces,region=20)
+    tube.write_mesh(target,nodes,quarter,faces,region=region)
+
+
+def make_case(directory, sectors, layers, axial, pressure):
+    if sectors<8 or sectors%4:
+        raise ValueError('Use a full-circle sector count divisible by four and at least eight')
+    cfg = config(pressure)
+    directory.mkdir(parents=True)
+    with tempfile.TemporaryDirectory(dir=directory) as temp:
+        tube.generate(temp,sectors=sectors,radial=1,axial=axial,radius=INNER,
+                      thickness=OUTER-INNER,length=LENGTH,wall_layers=layers)
+        quarter_mesh(Path(temp)/'solid.msh',directory/cfg['mesh'],(15,16),20)
     (directory/'case.json').write_text(json.dumps(cfg,indent=2)+'\n')
     (directory/'geometry.json').write_text(json.dumps(dict(sectors=sectors,wall_layers=layers,
                                               axial=axial,inner=INNER,outer=OUTER,length=LENGTH),indent=2)+'\n')

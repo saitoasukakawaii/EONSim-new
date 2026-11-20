@@ -18,6 +18,15 @@ two refined resolutions. Check a second pressure and 1/2/4-rank invariance
 (maximum displacement difference <1e−10 m). This structural constitutive
 reference will support a subsequent coupled pressure–area comparison.
 
+For a bounded monolithic hydrostatic check, apply the same positive pressure
+on both fluid end faces, leave the outside of the solid traction-free, and
+keep the quarter-domain symmetries and axial rollers. After a smooth startup
+and relaxation, require <3% worst-section linearized area error against Lamé,
+<0.1% last-step area change relative to the exact expansion, final fluid
+speed <1e−6 m/s, pressure RMS error <1% of the applied pressure and interface
+velocity/displacement differences <1e−9. Compare two step sizes to the same
+physical endpoint. A dynamic pulse and an external coupled solution are separate.
+
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 
 Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main

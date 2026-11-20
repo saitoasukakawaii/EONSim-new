@@ -7,7 +7,9 @@ import tempfile
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 import study_lame_wall as wall
+import study_hydrostatic_fsi as fsi
 import study_rigid_tube as tube
+from audit_hydrostatic_mass import audit
 
 
 def main():
@@ -42,6 +44,14 @@ def main():
                   for v,ref in zip(state[n],(0.,strain*y,strain*z)))
         assert error<1e-12, (ranks,error)
         print('Hydrostatic patch',ranks,'rank(s), max displacement error',error)
+    coupled=work/'coupled'
+    fsi.solve(coupled,executable,args.mpiexec,1,12,1,2,2,.5,2.,wall.PRESSURE)
+    endpoint=fsi.analyze(coupled)
+    assert endpoint['min_jacobian_ratio']>0 and endpoint['interface_displacement_difference']<1e-10
+    assert endpoint['interface_velocity_difference']<1e-10
+    assert all(r['linear_area_strain']>0 for r in endpoint['sections'])
+    mass=audit(coupled)
+    assert mass['volume_gain']>0 and mass['max_wall_kinematic_difference']<1e-10
 
 
 if __name__=='__main__':
