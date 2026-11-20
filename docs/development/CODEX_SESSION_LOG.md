@@ -19,6 +19,14 @@ two common-pressure time steps with all saved wall states. The largest startup
 difference is 9.947% at Δt=0.5 s and 8.444% at Δt=0.25 s. All 547 inputs and
 fields are included in the expanded archive. [PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42) · [Results](../research/data/lame-wall-2026-11-20/README.md)
 
+The initial PR policy mapped 31 Release CTests. GitHub completed the
+selection, locked Release job, evidence receipt and website checks for the
+expanded data at `749739d`. A fresh extraction reproduced every recorded
+field metric with the original external binary VTUs. The selection mapping
+requires human review under the repository's merge rules.
+[Initial numerical run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/44723204965)
+· [Expanded data numerical run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/44724685272)
+
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 
 Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main

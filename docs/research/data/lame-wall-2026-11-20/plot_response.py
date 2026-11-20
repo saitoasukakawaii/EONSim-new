@@ -60,7 +60,7 @@ def main():
         area.plot([r['time'] for r in records], [r[key]/exact for r in records],
                   color=color, marker=marker, lw=1.4, ms=3, label=label)
     area.axhline(1., color='#484848', ls='--', lw=1, label='Lamé equilibrium')
-    area.set(ylabel='Midplane area strain / analytical equilibrium')
+    area.set(ylabel='Midplane strain / static reference')
     area.legend(frameon=False, fontsize=8, loc='lower right')
     for name, color, marker in (('alpha05-medium', colors[0], 'o'),
                                 ('alpha05-medium-dt025', colors[1], 's')):
@@ -70,7 +70,7 @@ def main():
                      [100*r['max_cross_code_difference'] for r in positive],
                      color=color, marker=marker, ms=2.5, lw=1.2, label=f"Δt = {pair['dt']} s")
     gap.legend(frameon=False, fontsize=8)
-    gap.set(ylabel='Largest sectional difference (% of exact expansion)')
+    gap.set(ylabel='Max. sectional difference (% of static strain)')
     for ax in (area, gap):
         ax.set(xlabel='Time after pressure step (s)')
         ax.spines[['top', 'right']].set_visible(False)
