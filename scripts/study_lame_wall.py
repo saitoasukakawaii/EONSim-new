@@ -129,6 +129,24 @@ def bore_section(nodes, state, ring):
                 deformed_area_strain=(area_change+quadratic)/area)
 
 
+def check_wall_dimensions(nodes, faces):
+    """The analytic compliance assumes these radii, end positions and symmetry planes."""
+    measurements = {
+        11: (lambda x, y, z: x, 0.),
+        12: (lambda x, y, z: x, LENGTH),
+        13: (lambda x, y, z: math.hypot(y,z), INNER),
+        14: (lambda x, y, z: math.hypot(y,z), OUTER),
+        15: (lambda x, y, z: y, 0.),
+        16: (lambda x, y, z: z, 0.),
+    }
+    if {tag for tag,_ in faces} != measurements.keys():
+        raise ValueError('Missing or unexpected wall surface tags')
+    for tag,face in faces:
+        measure,expected = measurements[tag]
+        if any(not math.isclose(measure(*nodes[n]),expected,rel_tol=0.,abs_tol=2e-12) for n in face):
+            raise ValueError(f'Wall surface {tag} differs from the analytic cylinder')
+
+
 def analyze(directory, ranks=1):
     cfg = json.loads((directory/'case.json').read_text())
     p = next(b['value'] for b in cfg['solid']['boundaries'] if b['tag']==13)
@@ -139,9 +157,9 @@ def analyze(directory, ranks=1):
     if (g['inner'],g['outer'],g['length'])!=(INNER,OUTER,LENGTH) or s%4 or m<1 or k<2:
         raise ValueError('Inconsistent quarter-annulus specification')
     nodes,cells,faces = tube.read_mesh(directory/cfg['mesh'])
-    if (len(cells)!=6*(s//4)*m*k or len(nodes)!=(s//4+1)*(m+1)*(k+1)
-            or {tag for tag,_ in faces}!={11,12,13,14,15,16}):
-        raise ValueError('Resolution or boundary tags differ from the quarter-wall mesh')
+    if len(cells)!=6*(s//4)*m*k or len(nodes)!=(s//4+1)*(m+1)*(k+1):
+        raise ValueError('Resolution differs from the quarter-wall mesh')
+    check_wall_dimensions(nodes, faces)
     log = (directory/'solve.log').read_text().splitlines()
     if not log or log[-1]!='status=success':
         raise ValueError('Missing successful solid solve')

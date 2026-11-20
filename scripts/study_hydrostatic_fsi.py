@@ -129,6 +129,7 @@ def analyze(directory, ranks=1):
         raise ValueError('Coupled solve did not finish successfully')
     g=json.loads((directory/'geometry.json').read_text())
     fm,sm=(tube.read_mesh(directory/name) for name in ('fluid.msh','solid.msh'))
+    wall.check_wall_dimensions(sm[0],sm[2])
     s,m,r,k=(g[name] for name in ('sectors','wall_layers','radial','axial'))
     if (s<8 or s%4 or m<1 or r<1 or k<2
             or len(fm[1])!=3*(s//4)*(2*r-1)*k or len(sm[1])!=6*(s//4)*m*k):
@@ -194,7 +195,7 @@ def main():
     p.add_argument('--ranks',type=int,default=1)
     p.add_argument('--mesh',type=int,nargs=4,metavar=('FULL_SECTORS','WALL_LAYERS','FLUID_RINGS','AXIAL'),default=(48,4,4,6))
     p.add_argument('--dt',type=float,default=.5)
-    p.add_argument('--duration',type=float,default=8.)
+    p.add_argument('--duration',type=float,default=12.)
     p.add_argument('--pressure',type=float,default=wall.PRESSURE)
     p.add_argument('--matched-svfsi-rho',type=float,help='Apply constant pressure and use generalized-alpha with this spectral radius')
     p.add_argument('--analyze-only',action='store_true')

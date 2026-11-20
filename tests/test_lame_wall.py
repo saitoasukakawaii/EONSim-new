@@ -61,6 +61,17 @@ class LameWallTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     tube.generate(root/'bad',wall_layers=bad)
 
+    def test_analytic_dimensions_reject_rescaled_wall(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory=Path(tmp)/'wall'
+            wall.make_case(directory,16,2,3,.02)
+            nodes,_,faces=tube.read_mesh(directory/'wall.msh')
+            wall.check_wall_dimensions(nodes,faces)
+            for altered in ({n:(x,1.02*y,1.02*z) for n,(x,y,z) in nodes.items()},
+                            {n:(.9*x,y,z) for n,(x,y,z) in nodes.items()}):
+                with self.assertRaisesRegex(ValueError,'analytic cylinder'):
+                    wall.check_wall_dimensions(altered,faces)
+
     def test_quarter_disk_flux_and_time_control(self):
         for dt,end in [(0.,2.),(.7,1.),(1.,.5),(math.inf,2.)]:
             with self.assertRaises(ValueError):
