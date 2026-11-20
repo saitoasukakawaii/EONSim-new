@@ -61,11 +61,34 @@ coupled fluid/structure and mesh equations. The minimum endpoint fluid
 Jacobian ratio was 1.0004393. The archived field and histories permit an
 independent check of all these numbers.
 
+### Pressure-step histories
+
+![Matched 48-sector midplane expansion and the maximum cross-code difference over all axial sections](paired-settling.svg)
+
+The left panel shows the two measured midplane strains for Δt = 0.5 s.
+The right panel uses every saved solid field for two step sizes and shows
+the largest sectional difference divided by the analytical static expansion.
+The two meshes, end pressures, duration and constitutive properties are
+identical across these paired runs.
+
+| Δt (s) | Largest difference during the transient | Time of largest difference | Difference at 0.5 s | Difference at 1 s | Difference at 12 s |
+|---:|---:|---:|---:|---:|---:|
+| 0.50 | 9.947% | 0.50 s | 9.947% | 5.321% | 0.00002265% |
+| 0.25 | 8.444% | 0.25 s | 6.196% | 8.429% | 0.00001747% |
+
+The first time after which the midplane strain stayed within 1% of its own
+endpoint was 3.0 s in EONSim and 3.5 s in svFSI at both step sizes.
+Halving Δt improves the inter-code difference at 0.5 s and increases it
+at 1 s. EONSim starts generalized-alpha with a BE step. The runs also use
+different stabilization and mesh-motion implementations. These measurements
+establish agreement in the settled equilibrium. They leave the transient
+pressure–area response as a separate qualification target.
+
 Two failed attempts are archived. Spectral radius zero gave nonfinite arithmetic in the native coupled predictor where the factor `γ−1` vanishes. The floating-point-trap backtrace and original input are in `failed/`. An initial 72-sector external solve exhausted the GMRES subspace at 150 while the residual still exceeded tolerance. The alternative subspace setting preserves the linear and nonlinear convergence tolerances. [Pinned predictor](https://github.com/SimVascular/svFSI/blob/94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571/Code/Source/svFSI/PIC.f#L96) · [Upstream coupled input](https://github.com/SimVascular/svFSI-Tests/blob/c38514ff7d7128583ec530971080dd0fac8026bf/07-fsi/ale/03-pipe_3D/svFSI.inp)
 
 ## Reproduction and provenance
 
-The study used the unchanged Release solver from main `89a1a3d823396df02fa9e8acb5ded36b70938e9c`, executable SHA-256 `4cbc4dccc584da8cab684b5721226feadf262323ca92a0e1a0c6ae0196c3546f`, locked PETSc 3.23.7. Case generation, comparison and replay are in `d08958e1e968640a35315b0571a849fc234ef36a`. The wall branch was also built and its `lame_wall` and existing `fsi_tube` CTests ran in Release. Default one-layer output from the generator was compared byte-for-byte with the main version. The receipts, mesh hashes, exact case files, runtime preflight and full iteration logs accompany the raw fields.
+The study used the unchanged Release solver from main `89a1a3d823396df02fa9e8acb5ded36b70938e9c`, executable SHA-256 `4cbc4dccc584da8cab684b5721226feadf262323ca92a0e1a0c6ae0196c3546f`, locked PETSc 3.23.7. Case generation, comparison and replay are in `d08958e1e968640a35315b0571a849fc234ef36a`. The dimension checks and transient-field comparison are in `7800abe` and `ba6230b`. The wall branch was also built and its `lame_wall` and existing `fsi_tube` CTests ran in Release. Default one-layer output from the generator was compared byte-for-byte with the main version. The receipts, mesh hashes, exact case files, runtime preflight and full iteration logs accompany the raw fields.
 
 The external executable was built from unmodified SimVascular/svFSI release 2022.09.26, commit `94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571`, with SHA-256 `76fa8bccbe419b4c8cf95d40c74b64290d2b55079750e7f44ef270f7c8760c06`. Read its compressed binary VTUs with Python VTK 9.3.1. All EONSim replay calculations use the Python standard library. Run from the repository root. [Upstream source](https://github.com/SimVascular/svFSI/tree/94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571)
 
@@ -76,7 +99,7 @@ tar -xJf "$data/raw.tar.xz" -C build/lame-replay
 python3 "$data/replay.py" build/lame-replay --verify --external --output build/lame-checked.json
 ~~~
 
-`--verify` checks all 381 files in the manifest and all measured values against the recorded output. The archive contains 13 isolated EONSim wall solves, 12 coupled EONSim solves, four cross-code pairs and both rejected upstream inputs. Its SHA-256 is `57a3e188cee7f9bae30ed5c54ccc5b311dbb28786474610440b243e19d843092`. Omit `--external` for the EONSim-only replay. The analytical and cross-code evidence covers the equilibrium of a straight, small-strain tube at two pressures. Dynamic pressure–area phase, pulse-wave speed, curved vessels, tissue support and scaling to multiple nodes require additional measurements. [Manifest](manifest.json) · [Measured values](results.json) · [Raw fields and logs](raw.tar.xz)
+`--verify` checks all 547 files in the manifest and all measured values against the recorded output. The archive contains 13 isolated EONSim wall solves, 13 coupled EONSim solves, five cross-code pairs and both rejected upstream inputs. Its SHA-256 is `f7047b66e0d67fcf6bf966ed21754e666a5bb9dd65ba249ed0541700c51a7b77`. Omit `--external` for the EONSim-only replay. The analytical and cross-code evidence covers the equilibrium of a straight, small-strain tube at two pressures. Dynamic pressure–area phase, pulse-wave speed, curved vessels, tissue support and scaling to multiple nodes require additional measurements. [Manifest](manifest.json) · [Measured values](results.json) · [Raw fields and logs](raw.tar.xz)
 
 In a disposable local merge, the rigid-tube implementation at `f8d30f1` and
 the wall implementation at `7800abe` merged cleanly. Both Python suites

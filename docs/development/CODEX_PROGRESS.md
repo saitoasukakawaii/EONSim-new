@@ -13,6 +13,9 @@ comparison. The finest isolated wall gives 0.1894% radius/area error and
 0.5684% area error. On 48 sectors the matched EONSim/svFSI equilibrium
 area differs by at most 0.0000227% of the analytical expansion. The
 external singular predictor and failed fine GMRES attempt are archived.
+Complete step histories at 48 sectors show transient discrepancies up to
+9.947% of the static expansion despite close equilibrium agreement.
+[PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42) · [Initial Release CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/44723204965) ·
 [Equations](PRESSURIZED_ELASTIC_TUBE.md) · [Data](../research/data/lame-wall-2026-11-20/README.md)
 
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07

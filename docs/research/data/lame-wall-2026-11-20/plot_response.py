@@ -9,8 +9,17 @@ import matplotlib.pyplot as plt
 HERE = Path(__file__).resolve().parent
 
 
+def save_figure(figure, filename):
+    output = HERE / filename
+    figure.savefig(output, metadata={'Date': None})
+    output.write_text('\n'.join(line.rstrip() for line in output.read_text().splitlines())+'\n')
+    plt.close(figure)
+
+
 def main():
     data = json.loads((HERE / 'results.json').read_text())
+    matplotlib.rcParams['svg.hashsalt'] = 'eonsim-lame-2026-11-20'
+    matplotlib.rcParams['svg.fonttype'] = 'none'
     fig, (history, errors) = plt.subplots(1, 2, figsize=(9.2, 3.6), layout='constrained')
     colors = ('#245882', '#a74728')
     for name, style, color in zip(('s48-w4-r4-a6-dt05', 's48-w4-r4-a6-dt025'),
@@ -40,11 +49,33 @@ def main():
     for ax in (history, errors):
         ax.spines[['top', 'right']].set_visible(False)
         ax.grid(axis='y', color='#d7dce1', lw=.55)
-    matplotlib.rcParams['svg.hashsalt'] = 'eonsim-lame-2026-11-20'
-    matplotlib.rcParams['svg.fonttype'] = 'none'
-    output = HERE / 'pressure-area.svg'
-    fig.savefig(output, metadata={'Date': None})
-    output.write_text('\n'.join(line.rstrip() for line in output.read_text().splitlines())+'\n')
+    save_figure(fig, 'pressure-area.svg')
+
+    records = data['svfsi']['alpha05-medium']['settling']['history']
+    exact = data['coupled']['sv05-s48']['exact_linear_area_strain']
+    fig, (area, gap) = plt.subplots(1, 2, figsize=(9.2, 3.2), layout='constrained')
+    for key, label, color, marker in (
+            ('eonsim_midplane', 'EONSim', colors[0], 'o'),
+            ('svfsi_midplane', 'svFSI', colors[1], 's')):
+        area.plot([r['time'] for r in records], [r[key]/exact for r in records],
+                  color=color, marker=marker, lw=1.4, ms=3, label=label)
+    area.axhline(1., color='#484848', ls='--', lw=1, label='Lamé equilibrium')
+    area.set(ylabel='Midplane area strain / analytical equilibrium')
+    area.legend(frameon=False, fontsize=8, loc='lower right')
+    for name, color, marker in (('alpha05-medium', colors[0], 'o'),
+                                ('alpha05-medium-dt025', colors[1], 's')):
+        pair = data['svfsi'][name]
+        positive = [r for r in pair['settling']['history'] if r['max_cross_code_difference']>0]
+        gap.semilogy([r['time'] for r in positive],
+                     [100*r['max_cross_code_difference'] for r in positive],
+                     color=color, marker=marker, ms=2.5, lw=1.2, label=f"Δt = {pair['dt']} s")
+    gap.legend(frameon=False, fontsize=8)
+    gap.set(ylabel='Largest sectional difference (% of exact expansion)')
+    for ax in (area, gap):
+        ax.set(xlabel='Time after pressure step (s)')
+        ax.spines[['top', 'right']].set_visible(False)
+        ax.grid(axis='y', color='#d7dce1', lw=.55)
+    save_figure(fig, 'paired-settling.svg')
 
 
 if __name__ == '__main__':

@@ -14,7 +14,10 @@ two pressures and 1/2/4 ranks. Coupled runs include two BE step sizes,
 an MPI repeat and separate generalized-alpha pairs. Local locked Release
 receipts cover `fsi_tube` and `lame_wall`. EONSim/svFSI cases use identical
 volume cells and projected conforming interfaces. The archive preserves
-failed numerical cases and the native predictor diagnosis. [Results](../research/data/lame-wall-2026-11-20/README.md)
+failed numerical cases and the native predictor diagnosis. Five paired runs include
+two common-pressure time steps with all saved wall states. The largest startup
+difference is 9.947% at Δt=0.5 s and 8.444% at Δt=0.25 s. All 547 inputs and
+fields are included in the expanded archive. [PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42) · [Results](../research/data/lame-wall-2026-11-20/README.md)
 
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 

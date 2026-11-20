@@ -43,7 +43,10 @@ Observed 0.1894% worst-section area error for the finest isolated wall,
 0.5684% for the fine coupled BE case and 0.0000227% maximum inter-code
 difference relative to analytical expansion for the 48-sector paired case.
 The 24-sector cross-code pair misses the analytical gate. The next physical
-question is the dynamic pressure–area response. [Measurements and replay](../research/data/lame-wall-2026-11-20/README.md)
+question is the dynamic pressure–area response. At fixed 48-sector resolution,
+complete pressure-step histories on Δt = 0.5 and 0.25 s have peak inter-code
+differences of 9.947% and 8.444% of the static expansion.
+[PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42) · [Measurements and replay](../research/data/lame-wall-2026-11-20/README.md)
 
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 

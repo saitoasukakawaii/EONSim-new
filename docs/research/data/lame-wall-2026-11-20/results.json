@@ -771,6 +771,87 @@
       "wall_layers": 4,
       "worst_area_relative_error": 0.011702148733963358
     },
+    "sv05-s48-dt025": {
+      "axial": 6,
+      "dt": 0.25,
+      "exact_linear_area_strain": 0.002174545454545455,
+      "final_max_fluid_speed": 7.978799347253266e-08,
+      "fluid_tetrahedra": 1512,
+      "interface_displacement_difference": 0.0,
+      "interface_velocity_difference": 0.0,
+      "last_step_area_change_relative": 1.4492228948009616e-08,
+      "min_jacobian_ratio": 1.0000416270896353,
+      "passed": true,
+      "pressure": 0.02,
+      "pressure_rms_relative": 2.30680763182692e-06,
+      "radial": 4,
+      "ranks": 1,
+      "scheme": "generalized_alpha",
+      "sections": [
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021502532390360158,
+          "linear_area_strain": 0.0021490985802422157,
+          "previous_linear_area_strain": 0.002149098548728205,
+          "radial_displacement": 0.0010745492901211079,
+          "x": 0.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002158164436397535,
+          "linear_area_strain": 0.0021570012673505145,
+          "previous_linear_area_strain": 0.0021570012463889903,
+          "radial_displacement": 0.0010785006336752573,
+          "x": 0.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021639172363648105,
+          "linear_area_strain": 0.002162747861224114,
+          "previous_linear_area_strain": 0.0021627478480175976,
+          "radial_displacement": 0.0010813739306120569,
+          "x": 0.6666666666666666
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.00216820911928593,
+          "linear_area_strain": 0.002167035104869039,
+          "previous_linear_area_strain": 0.002167035096572122,
+          "radial_displacement": 0.0010835175524345198,
+          "x": 1.0
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.002172423312702655,
+          "linear_area_strain": 0.0021712447347992177,
+          "previous_linear_area_strain": 0.0021712447304285043,
+          "radial_displacement": 0.0010856223673996088,
+          "x": 1.3333333333333333
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021777024621306706,
+          "linear_area_strain": 0.002176518155473022,
+          "previous_linear_area_strain": 0.002176518154456134,
+          "radial_displacement": 0.0010882590777365109,
+          "x": 1.6666666666666667
+        },
+        {
+          "area": 0.7831571533203094,
+          "deformed_area_strain": 0.0021845310512163415,
+          "linear_area_strain": 0.0021833392411470766,
+          "previous_linear_area_strain": 0.002183339240446936,
+          "radial_displacement": 0.0010916696205735383,
+          "x": 2.0
+        }
+      ],
+      "sectors": 48,
+      "solid_tetrahedra": 1728,
+      "steps": 48,
+      "time": 12.0,
+      "wall_layers": 4,
+      "worst_area_relative_error": 0.011702157915369216
+    },
     "sv05-s48-half": {
       "axial": 6,
       "dt": 0.5,
@@ -3282,6 +3363,165 @@
           "x": 2.0
         }
       ],
+      "settling": {
+        "eonsim_settled_time": 3.0,
+        "history": [
+          {
+            "eonsim_midplane": 0.0,
+            "max_cross_code_difference": 0.0,
+            "svfsi_midplane": 0.0,
+            "time": 0.0
+          },
+          {
+            "eonsim_midplane": 0.0008324769387942104,
+            "max_cross_code_difference": 0.09946630400661403,
+            "svfsi_midplane": 0.0006203730202079764,
+            "time": 0.5
+          },
+          {
+            "eonsim_midplane": 0.0015818263365616246,
+            "max_cross_code_difference": 0.05321093053766809,
+            "svfsi_midplane": 0.0015895938321124094,
+            "time": 1.0
+          },
+          {
+            "eonsim_midplane": 0.001997767106766263,
+            "max_cross_code_difference": 0.05391005936971919,
+            "svfsi_midplane": 0.001969506264789482,
+            "time": 1.5
+          },
+          {
+            "eonsim_midplane": 0.0020803034519594333,
+            "max_cross_code_difference": 0.044845690510764945,
+            "svfsi_midplane": 0.0020003135880474004,
+            "time": 2.0
+          },
+          {
+            "eonsim_midplane": 0.0021188196561860513,
+            "max_cross_code_difference": 0.02864264523725731,
+            "svfsi_midplane": 0.002089955818631766,
+            "time": 2.5
+          },
+          {
+            "eonsim_midplane": 0.0021561521372726778,
+            "max_cross_code_difference": 0.016639032208002114,
+            "svfsi_midplane": 0.0021428445233024587,
+            "time": 3.0
+          },
+          {
+            "eonsim_midplane": 0.002162740400721955,
+            "max_cross_code_difference": 0.007614571318940677,
+            "svfsi_midplane": 0.002147553579756118,
+            "time": 3.5
+          },
+          {
+            "eonsim_midplane": 0.002162946667418151,
+            "max_cross_code_difference": 0.0050597585081714235,
+            "svfsi_midplane": 0.0021577563954396192,
+            "time": 4.0
+          },
+          {
+            "eonsim_midplane": 0.0021661013633560242,
+            "max_cross_code_difference": 0.0027409595929357854,
+            "svfsi_midplane": 0.0021638129299607965,
+            "time": 4.5
+          },
+          {
+            "eonsim_midplane": 0.0021669881578440316,
+            "max_cross_code_difference": 0.0010461495399283693,
+            "svfsi_midplane": 0.0021647132581172055,
+            "time": 5.0
+          },
+          {
+            "eonsim_midplane": 0.002166722694537027,
+            "max_cross_code_difference": 0.0008156367894801335,
+            "svfsi_midplane": 0.0021659919135358532,
+            "time": 5.5
+          },
+          {
+            "eonsim_midplane": 0.002166912392559374,
+            "max_cross_code_difference": 0.000357203998477095,
+            "svfsi_midplane": 0.0021665724220118246,
+            "time": 6.0
+          },
+          {
+            "eonsim_midplane": 0.002167059800728588,
+            "max_cross_code_difference": 0.00017284620768908714,
+            "svfsi_midplane": 0.002166769420060417,
+            "time": 6.5
+          },
+          {
+            "eonsim_midplane": 0.002167018471113225,
+            "max_cross_code_difference": 0.00012701896670368792,
+            "svfsi_midplane": 0.002166916166549816,
+            "time": 7.0
+          },
+          {
+            "eonsim_midplane": 0.002167017547172353,
+            "max_cross_code_difference": 4.2386950979114e-05,
+            "svfsi_midplane": 0.0021669701466136473,
+            "time": 7.5
+          },
+          {
+            "eonsim_midplane": 0.002167038427070623,
+            "max_cross_code_difference": 2.4876926727100654e-05,
+            "svfsi_midplane": 0.002167004201813016,
+            "time": 8.0
+          },
+          {
+            "eonsim_midplane": 0.0021670353976698266,
+            "max_cross_code_difference": 1.529463866375222e-05,
+            "svfsi_midplane": 0.002167022604247494,
+            "time": 8.5
+          },
+          {
+            "eonsim_midplane": 0.0021670329471715024,
+            "max_cross_code_difference": 7.656500261186333e-06,
+            "svfsi_midplane": 0.0021670246910140056,
+            "time": 9.0
+          },
+          {
+            "eonsim_midplane": 0.002167035109002102,
+            "max_cross_code_difference": 4.41103367464308e-06,
+            "svfsi_midplane": 0.002167032287045155,
+            "time": 9.5
+          },
+          {
+            "eonsim_midplane": 0.0021670353628566287,
+            "max_cross_code_difference": 2.6183915096639644e-06,
+            "svfsi_midplane": 0.002167033550872902,
+            "time": 10.0
+          },
+          {
+            "eonsim_midplane": 0.0021670348797104048,
+            "max_cross_code_difference": 1.0741214528868582e-06,
+            "svfsi_midplane": 0.0021670332088671537,
+            "time": 10.5
+          },
+          {
+            "eonsim_midplane": 0.002167035026264659,
+            "max_cross_code_difference": 6.44590661620912e-07,
+            "svfsi_midplane": 0.0021670352136095015,
+            "time": 11.0
+          },
+          {
+            "eonsim_midplane": 0.002167035156807858,
+            "max_cross_code_difference": 4.508210121100504e-07,
+            "svfsi_midplane": 0.002167034594946854,
+            "time": 11.5
+          },
+          {
+            "eonsim_midplane": 0.002167035099456884,
+            "max_cross_code_difference": 2.2652902371579258e-07,
+            "svfsi_midplane": 0.0021670349204013484,
+            "time": 12.0
+          }
+        ],
+        "near_midplane_x": 1.0,
+        "peak_cross_code_difference": 0.09946630400661403,
+        "peak_time": 0.5,
+        "svfsi_settled_time": 3.5
+      },
       "steps": 24,
       "svfsi": {
         "final_max_fluid_speed": 1.0723170893921805e-07,
@@ -3303,6 +3543,380 @@
         "MS": 0
       },
       "worst_cross_code_area_difference": 2.2652902371579258e-07
+    },
+    "alpha05-medium-dt025": {
+      "dt": 0.25,
+      "eonsim_passed": true,
+      "gmres_krylov_dimension": 150,
+      "passed": true,
+      "sections": [
+        {
+          "area_strain": 0.0021490982002500478,
+          "eonsim_area_strain": 0.0021490985802422157,
+          "previous": 0.0021490980499322943,
+          "x": 0.0
+        },
+        {
+          "area_strain": 0.002157000950325831,
+          "eonsim_area_strain": 0.0021570012673505145,
+          "previous": 0.0021570008289952787,
+          "x": 0.3333333333333333
+        },
+        {
+          "area_strain": 0.0021627476010032337,
+          "eonsim_area_strain": 0.002162747861224114,
+          "previous": 0.0021627475050998934,
+          "x": 0.6666666666666666
+        },
+        {
+          "area_strain": 0.002167034890776422,
+          "eonsim_area_strain": 0.002167035104869039,
+          "previous": 0.002167034812226985,
+          "x": 1.0
+        },
+        {
+          "area_strain": 0.002171244551917636,
+          "eonsim_area_strain": 0.0021712447347992177,
+          "previous": 0.00217124448260179,
+          "x": 1.3333333333333333
+        },
+        {
+          "area_strain": 0.002176517964904156,
+          "eonsim_area_strain": 0.002176518155473022,
+          "previous": 0.0021765178959539085,
+          "x": 1.6666666666666667
+        },
+        {
+          "area_strain": 0.0021833390037646404,
+          "eonsim_area_strain": 0.0021833392411470766,
+          "previous": 0.002183338927029504,
+          "x": 2.0
+        }
+      ],
+      "settling": {
+        "eonsim_settled_time": 3.0,
+        "history": [
+          {
+            "eonsim_midplane": 0.0,
+            "max_cross_code_difference": 0.0,
+            "svfsi_midplane": 0.0,
+            "time": 0.0
+          },
+          {
+            "eonsim_midplane": 0.0004402830840221717,
+            "max_cross_code_difference": 0.0844440050024057,
+            "svfsi_midplane": 0.0002566557567805767,
+            "time": 0.25
+          },
+          {
+            "eonsim_midplane": 0.0009548749625343991,
+            "max_cross_code_difference": 0.06196185973919596,
+            "svfsi_midplane": 0.000831890843725442,
+            "time": 0.5
+          },
+          {
+            "eonsim_midplane": 0.0014557874564991994,
+            "max_cross_code_difference": 0.07541883265464382,
+            "svfsi_midplane": 0.001352022363644928,
+            "time": 0.75
+          },
+          {
+            "eonsim_midplane": 0.001750354154653254,
+            "max_cross_code_difference": 0.08428611743059494,
+            "svfsi_midplane": 0.0016284133103869212,
+            "time": 1.0
+          },
+          {
+            "eonsim_midplane": 0.0018847706158864569,
+            "max_cross_code_difference": 0.08262213544390974,
+            "svfsi_midplane": 0.0017734467929111323,
+            "time": 1.25
+          },
+          {
+            "eonsim_midplane": 0.0019664591746841637,
+            "max_cross_code_difference": 0.07495675120081244,
+            "svfsi_midplane": 0.0018825582093018691,
+            "time": 1.5
+          },
+          {
+            "eonsim_midplane": 0.002032740183862526,
+            "max_cross_code_difference": 0.06207094491848086,
+            "svfsi_midplane": 0.0019657511404172316,
+            "time": 1.75
+          },
+          {
+            "eonsim_midplane": 0.0020810594436871943,
+            "max_cross_code_difference": 0.04814037170804225,
+            "svfsi_midplane": 0.0020244419409091077,
+            "time": 2.0
+          },
+          {
+            "eonsim_midplane": 0.002111546801282263,
+            "max_cross_code_difference": 0.037343678722566054,
+            "svfsi_midplane": 0.002065901908320908,
+            "time": 2.25
+          },
+          {
+            "eonsim_midplane": 0.0021301103074069126,
+            "max_cross_code_difference": 0.029233750488341807,
+            "svfsi_midplane": 0.002095128243337743,
+            "time": 2.5
+          },
+          {
+            "eonsim_midplane": 0.0021422748441028722,
+            "max_cross_code_difference": 0.02222593420460399,
+            "svfsi_midplane": 0.002115886228154764,
+            "time": 2.75
+          },
+          {
+            "eonsim_midplane": 0.0021506749993745813,
+            "max_cross_code_difference": 0.016642654586523895,
+            "svfsi_midplane": 0.0021306055109148927,
+            "time": 3.0
+          },
+          {
+            "eonsim_midplane": 0.0021563152416057855,
+            "max_cross_code_difference": 0.012423158440423868,
+            "svfsi_midplane": 0.002141116093545094,
+            "time": 3.25
+          },
+          {
+            "eonsim_midplane": 0.0021599883642143525,
+            "max_cross_code_difference": 0.00921773781978154,
+            "svfsi_midplane": 0.002148614249115649,
+            "time": 3.5
+          },
+          {
+            "eonsim_midplane": 0.002162376302500919,
+            "max_cross_code_difference": 0.006829600046365937,
+            "svfsi_midplane": 0.0021539226038925136,
+            "time": 3.75
+          },
+          {
+            "eonsim_midplane": 0.0021639500516072397,
+            "max_cross_code_difference": 0.0050244537438285984,
+            "svfsi_midplane": 0.002157702662800331,
+            "time": 4.0
+          },
+          {
+            "eonsim_midplane": 0.002164998732046201,
+            "max_cross_code_difference": 0.0036883016799398056,
+            "svfsi_midplane": 0.002160397463584775,
+            "time": 4.25
+          },
+          {
+            "eonsim_midplane": 0.002165693462242969,
+            "max_cross_code_difference": 0.0026977135880912836,
+            "svfsi_midplane": 0.00216231160995445,
+            "time": 4.5
+          },
+          {
+            "eonsim_midplane": 0.0021661502130642875,
+            "max_cross_code_difference": 0.0019674251913635167,
+            "svfsi_midplane": 0.0021636751994271257,
+            "time": 4.75
+          },
+          {
+            "eonsim_midplane": 0.0021664507322246276,
+            "max_cross_code_difference": 0.0014319462544343001,
+            "svfsi_midplane": 0.002164642626637953,
+            "time": 5.0
+          },
+          {
+            "eonsim_midplane": 0.002166649028834203,
+            "max_cross_code_difference": 0.001040674716427774,
+            "svfsi_midplane": 0.0021653340615389967,
+            "time": 5.25
+          },
+          {
+            "eonsim_midplane": 0.0021667802188895416,
+            "max_cross_code_difference": 0.0007543281520971166,
+            "svfsi_midplane": 0.0021658243092192294,
+            "time": 5.5
+          },
+          {
+            "eonsim_midplane": 0.0021668668926056647,
+            "max_cross_code_difference": 0.0005456076963236581,
+            "svfsi_midplane": 0.002166173336128609,
+            "time": 5.75
+          },
+          {
+            "eonsim_midplane": 0.002166924001524444,
+            "max_cross_code_difference": 0.0003946944016491878,
+            "svfsi_midplane": 0.0021664219827568563,
+            "time": 6.0
+          },
+          {
+            "eonsim_midplane": 0.002166961678287702,
+            "max_cross_code_difference": 0.000284629065982059,
+            "svfsi_midplane": 0.002166598729309623,
+            "time": 6.25
+          },
+          {
+            "eonsim_midplane": 0.002166986570636007,
+            "max_cross_code_difference": 0.0002053875345370848,
+            "svfsi_midplane": 0.0021667245394747054,
+            "time": 6.5
+          },
+          {
+            "eonsim_midplane": 0.0021670030051809497,
+            "max_cross_code_difference": 0.00014774742199765662,
+            "svfsi_midplane": 0.0021668139781513556,
+            "time": 6.75
+          },
+          {
+            "eonsim_midplane": 0.0021670138547094375,
+            "max_cross_code_difference": 0.00010643272849736604,
+            "svfsi_midplane": 0.0021668777547081837,
+            "time": 7.0
+          },
+          {
+            "eonsim_midplane": 0.0021670210223780437,
+            "max_cross_code_difference": 7.644641156561379e-05,
+            "svfsi_midplane": 0.0021669230194692837,
+            "time": 7.25
+          },
+          {
+            "eonsim_midplane": 0.0021670257591018594,
+            "max_cross_code_difference": 5.495514834260052e-05,
+            "svfsi_midplane": 0.0021669553138455194,
+            "time": 7.5
+          },
+          {
+            "eonsim_midplane": 0.002167028889608159,
+            "max_cross_code_difference": 3.94448514556805e-05,
+            "svfsi_midplane": 0.0021669782349549886,
+            "time": 7.75
+          },
+          {
+            "eonsim_midplane": 0.0021670309603937414,
+            "max_cross_code_difference": 2.831541743694978e-05,
+            "svfsi_midplane": 0.0021669946064955866,
+            "time": 8.0
+          },
+          {
+            "eonsim_midplane": 0.002167032332533634,
+            "max_cross_code_difference": 2.0316615927649632e-05,
+            "svfsi_midplane": 0.002167006213073787,
+            "time": 8.25
+          },
+          {
+            "eonsim_midplane": 0.0021670332426535297,
+            "max_cross_code_difference": 1.4566981426094479e-05,
+            "svfsi_midplane": 0.002167014508198054,
+            "time": 8.5
+          },
+          {
+            "eonsim_midplane": 0.0021670338470985216,
+            "max_cross_code_difference": 1.0458611637419937e-05,
+            "svfsi_midplane": 0.0021670203968097187,
+            "time": 8.75
+          },
+          {
+            "eonsim_midplane": 0.002167034249959488,
+            "max_cross_code_difference": 7.495174207392526e-06,
+            "svfsi_midplane": 0.0021670246021149872,
+            "time": 9.0
+          },
+          {
+            "eonsim_midplane": 0.002167034519629068,
+            "max_cross_code_difference": 5.387366032945259e-06,
+            "svfsi_midplane": 0.00216702759126033,
+            "time": 9.25
+          },
+          {
+            "eonsim_midplane": 0.0021670347009240206,
+            "max_cross_code_difference": 3.86465220804589e-06,
+            "svfsi_midplane": 0.0021670297265606446,
+            "time": 9.5
+          },
+          {
+            "eonsim_midplane": 0.002167034823666254,
+            "max_cross_code_difference": 2.783587260738732e-06,
+            "svfsi_midplane": 0.0021670312476872854,
+            "time": 9.75
+          },
+          {
+            "eonsim_midplane": 0.002167034907637001,
+            "max_cross_code_difference": 2.0029449753414463e-06,
+            "svfsi_midplane": 0.00216703233367469,
+            "time": 10.0
+          },
+          {
+            "eonsim_midplane": 0.0021670349657931616,
+            "max_cross_code_difference": 1.4479371088585063e-06,
+            "svfsi_midplane": 0.0021670331103428556,
+            "time": 10.25
+          },
+          {
+            "eonsim_midplane": 0.0021670350066878095,
+            "max_cross_code_difference": 1.0482948038018216e-06,
+            "svfsi_midplane": 0.0021670336650019724,
+            "time": 10.5
+          },
+          {
+            "eonsim_midplane": 0.0021670350360291075,
+            "max_cross_code_difference": 7.629222550633494e-07,
+            "svfsi_midplane": 0.0021670340637271667,
+            "time": 10.75
+          },
+          {
+            "eonsim_midplane": 0.0021670350575921267,
+            "max_cross_code_difference": 5.581304540435646e-07,
+            "svfsi_midplane": 0.002167034348810929,
+            "time": 11.0
+          },
+          {
+            "eonsim_midplane": 0.002167035073857605,
+            "max_cross_code_difference": 4.1097788929687055e-07,
+            "svfsi_midplane": 0.0021670345554218404,
+            "time": 11.25
+          },
+          {
+            "eonsim_midplane": 0.0021670350864806853,
+            "max_cross_code_difference": 3.056538954019434e-07,
+            "svfsi_midplane": 0.002167034703648926,
+            "time": 11.5
+          },
+          {
+            "eonsim_midplane": 0.002167035096572122,
+            "max_cross_code_difference": 2.2937939042951624e-07,
+            "svfsi_midplane": 0.002167034812226985,
+            "time": 11.75
+          },
+          {
+            "eonsim_midplane": 0.002167035104869039,
+            "max_cross_code_difference": 1.747455621796851e-07,
+            "svfsi_midplane": 0.002167034890776422,
+            "time": 12.0
+          }
+        ],
+        "near_midplane_x": 1.0,
+        "peak_cross_code_difference": 0.0844440050024057,
+        "peak_time": 0.25,
+        "svfsi_settled_time": 3.5
+      },
+      "steps": 48,
+      "svfsi": {
+        "final_max_fluid_speed": 1.0057093334948615e-07,
+        "interface_displacement_difference": 0.0,
+        "interface_velocity_difference": 0.0,
+        "last_step_area_change_relative": 6.912605719784079e-08,
+        "pressure_rms_relative": 4.493986183175735e-06,
+        "worst_area_relative_error": 0.011702332660931458
+      },
+      "svfsi_executable_sha256": "76fa8bccbe419b4c8cf95d40c74b64290d2b55079750e7f44ef270f7c8760c06",
+      "svfsi_max_final_normalized_residual": {
+        "FS": 8.02e-09,
+        "MS": 8.52e-09
+      },
+      "svfsi_min_endpoint_jacobian_ratio": 1.0004275963955094,
+      "svfsi_target_revision": "94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571",
+      "svfsi_zero_corrections": {
+        "FS": 0,
+        "MS": 0
+      },
+      "worst_cross_code_area_difference": 1.747455621796851e-07
     },
     "alpha05-small": {
       "dt": 0.5,
