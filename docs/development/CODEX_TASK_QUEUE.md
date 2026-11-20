@@ -1,5 +1,39 @@
 # EONSim Codex Task Queue
 
+## FSI-PROD-02B / review / 2026-11-20
+
+Baseline `89a1a3d` includes the steady rigid-tube work from PR #38. This
+increment targets the low-frequency, pressure-driven Womersley flow in a rigid
+circular tube (R=1, L=2, rho=mu=1, alpha=2, sinusoidal pressure drop of
+amplitude 0.02 and zero mean). Use the existing component-split end conditions.
+Compare a full cycle of accepted endpoint fluxes against the complex analytical
+solution after startup. Target amplitude error <2%, phase error <2 degrees,
+waveform relative RMS error <3%, last-two-cycle maximum flow change <0.1% of
+reference amplitude and maximum net outward flux <1e-10. Check the default
+transient stabilization, time/mesh sensitivity, MPI and same-partition restart
+separately. For a rigid-wall cross-code check, use svFSI 2022.09.26 at
+`94a2ff5`, identical Tet4 connectivity, pressure waveform, end constraints,
+time step and generalized-alpha spectral radius zero. Compare the complex
+fundamental flow difference against 5% of the circular reference amplitude.
+The companion elastic-wall comparison is tracked in
+[PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42).
+
+For a time-discretization control, hold the 48/8/12 mesh and BDF2 fixed and
+compare successive first-harmonic differences on doubling the samples per
+cycle. Repeat with one spatially uniform `fluid.stabilization_tau = 0.003`.
+This value approximates the default coefficient at the mean cell volume, zero
+velocity and 64 samples per cycle. It is fixed before the control solves.
+Report the cycle-change floor alongside the differences. The default study
+changes the stabilization operator along with the time step.
+
+Local flow and rigid-wall svFSI gates passed on 48/8/12. The pressure trace,
+uniform-coefficient control and spatial refinement are documented as separate
+observations. The 48/12/18 mesh gives 0.7554% amplitude error and
+0.2097° phase error. On that mesh the inter-code complex flow difference
+is 1.3046%. The fixed-τ control gives phasor orders 1.960 and 1.991.
+[PR #41](https://github.com/saitoasukakawaii/EONSim-new/pull/41) ·
+[Inputs, measurements and replay](../research/data/womersley-2026-11-20/README.md)
+
 ## CI-DEBUG-ON-DEMAND / 2026-11-13
 
 - 执行范围：默认 Release 增量数值验证、手动 Debug、Release-only 收据及自动合并四项检查。

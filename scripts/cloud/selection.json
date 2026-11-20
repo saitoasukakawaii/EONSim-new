@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "tests": {
+    "womersley_flow": {"targets": ["eonsim"], "ranks": [1, 2]},
     "rigid_tube_verification": {"targets": ["eonsim"], "ranks": [1, 2]},
     "fsi_tube": {"targets": ["eonsim"], "ranks": [1, 2, 4]},
     "fsi_periodic": {"targets": ["eonsim"], "ranks": [1, 2, 4]},
@@ -80,6 +81,9 @@
   },
   "rules": [
     {"paths": [".github/workflows/agent-auto-merge.yml", "scripts/cloud/agent_auto_merge.py", "tests/test_agent_auto_merge.py"], "tests": [], "python": ["tests/test_agent_auto_merge.py"]},
+    {"paths": ["scripts/study_womersley.py", "tests/verify_womersley.py", "scripts/study_rigid_tube.py", "cases/fsi/generate_tube.py", "src/core/config.cpp", "include/eonsim/config.hpp", "src/physics/fluid_boundary.cpp", "include/eonsim/fluid_boundary.hpp", "src/physics/fluid.cpp", "CMakeLists.txt"], "tests": ["womersley_flow"], "python": ["tests/test_womersley.py"]},
+    {"paths": ["scripts/svfsi_history.py", "scripts/svfsi_mesh.py", "scripts/compare_svfsi_womersley.py", "scripts/compare_svfsi_womersley_fields.py", "scripts/compare_womersley_runs.py", "tests/test_womersley.py"], "tests": [], "python": ["tests/test_womersley.py"]},
+    {"paths": ["scripts/audit_womersley_fields.py", "scripts/audit_rigid_tube_fields.py"], "tests": ["womersley_flow"], "python": ["tests/test_womersley.py"]},
     {"paths": ["scripts/audit_rigid_tube_fields.py", "scripts/study_rigid_tube_seed.py", "tests/test_rigid_tube_fields.py"], "tests": [], "python": ["tests/test_rigid_tube_fields.py", "tests/test_rigid_tube.py"]},
     {"paths": ["scripts/study_rigid_tube.py", "tests/test_rigid_tube.py", "cases/fsi/generate_tube.py", "src/core/config.cpp", "include/eonsim/config.hpp", "src/physics/fluid_boundary.cpp", "src/physics/fluid.cpp", "include/eonsim/fluid_residual.hpp", "CMakeLists.txt"], "tests": ["rigid_tube_verification"], "python": ["tests/test_rigid_tube.py"]},
     {"paths": ["cases/fsi/generate_tube.py", "tests/verify_fsi_tube.py", "tests/test_tube_mesh.py"], "tests": ["fsi_tube"], "python": ["tests/test_tube_mesh.py"]},

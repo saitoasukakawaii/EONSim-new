@@ -39,7 +39,12 @@ def velocity_integrals(points, values, volume):
     return volume*max(0., error), volume*reference
 
 
-def element_metrics(points, values):
+def p1_square(values, volume):
+    """Exact square integral from int(N_i N_j) = V(1 + delta_ij)/20."""
+    return volume*(sum(values)**2+sum(x*x for x in values))/20
+
+
+def element_metrics(points, values, pressure_drop=tube.DROP):
     """Exact P1 pressure-error integral and constant velocity divergence."""
     a, b, c = [tube.sub(p, points[0]) for p in points[1:]]
     cofactors = (tube.cross(b, c), tube.cross(c, a), tube.cross(a, b))
@@ -50,10 +55,9 @@ def element_metrics(points, values):
         raise ValueError('Nonfinite field')
     divergence = sum((values[j+1][i]-values[0][i])*cofactors[j][i]
                      for i in range(3) for j in range(3))/det
-    errors = [v[3]-tube.DROP*(1-p[0]/tube.LENGTH) for p, v in zip(points, values)]
+    errors = [v[3]-pressure_drop*(1-p[0]/tube.LENGTH) for p, v in zip(points, values)]
     volume = det/6
-    # int(N_i N_j) = V(1 + delta_ij)/20 for a tetrahedron.
-    pressure_error_squared = volume*(sum(errors)**2+sum(e*e for e in errors))/20
+    pressure_error_squared = p1_square(errors,volume)
     return volume, divergence, pressure_error_squared, volume*sum(errors)/4
 
 

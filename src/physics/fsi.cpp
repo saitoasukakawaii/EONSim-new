@@ -48,14 +48,7 @@ void publish_series(const std::filesystem::path& path,const std::vector<std::pai
 }
 }
 double fsi_pressure(const FsiConfig& config,double time) {
-    if(!config.pressure_time) return config.pressure;
-    const auto& p=*config.pressure_time;
-    const double x=p.ramp_time>0?std::clamp(time/p.ramp_time,0.,1.):1.;
-    const double scale=x*x*x*(10+x*(-15+6*x));
-    // Reduce before multiplying by 2*pi so finite small periods do not overflow.
-    const double pressure=scale*(config.pressure+p.amplitude*std::sin(2*std::acos(-1.)*(std::fmod(time,p.period)/p.period)));
-    if(!std::isfinite(pressure)) throw std::runtime_error("Nonfinite FSI pressure");
-    return pressure;
+    return config.pressure_time?config.pressure_time->value_at(config.pressure,time):config.pressure;
 }
 void write_fsi_fields(MPI_Comm comm,const std::filesystem::path& path,const FsiResult& result) {
     const auto solid=path.parent_path()/(path.stem().string()+"_solid.vtu");

@@ -1,0 +1,1483 @@
+{
+  "equivalent_schemes": {
+    "s48-r12-a18-n64": {
+      "max_flux_history_difference": 1.734723475976807e-18,
+      "max_pressure_difference": 8.54656243779589e-19,
+      "max_velocity_difference": 2.168404344971009e-19
+    },
+    "s48-r8-a12-n64": {
+      "max_flux_history_difference": 1.3010426069826053e-18,
+      "max_pressure_difference": 6.780498742770674e-19,
+      "max_velocity_difference": 2.168404344971009e-19
+    }
+  },
+  "field": {
+    "negative-peak": {
+      "axial_sections": [
+        {
+          "axial_flow": -0.002758523982277833,
+          "mean_pressure": -0.019212852427867775,
+          "reference_pressure": -0.02,
+          "x": 0.0
+        },
+        {
+          "axial_flow": -0.0026829030348086372,
+          "mean_pressure": -0.018245625165983374,
+          "reference_pressure": -0.018333333333333333,
+          "x": 0.16666666666666666
+        },
+        {
+          "axial_flow": -0.002677181615197471,
+          "mean_pressure": -0.016647287255041242,
+          "reference_pressure": -0.016666666666666666,
+          "x": 0.3333333333333333
+        },
+        {
+          "axial_flow": -0.0026757555473862628,
+          "mean_pressure": -0.015001591013591995,
+          "reference_pressure": -0.015,
+          "x": 0.5
+        },
+        {
+          "axial_flow": -0.002675424064159966,
+          "mean_pressure": -0.013343474555116815,
+          "reference_pressure": -0.013333333333333336,
+          "x": 0.6666666666666666
+        },
+        {
+          "axial_flow": -0.0026753426663127535,
+          "mean_pressure": -0.01168229717040943,
+          "reference_pressure": -0.011666666666666665,
+          "x": 0.8333333333333334
+        },
+        {
+          "axial_flow": -0.0026753288850776403,
+          "mean_pressure": -0.010020290844718699,
+          "reference_pressure": -0.01,
+          "x": 1.0
+        },
+        {
+          "axial_flow": -0.002675344520536985,
+          "mean_pressure": -0.008358168674088243,
+          "reference_pressure": -0.008333333333333333,
+          "x": 1.1666666666666667
+        },
+        {
+          "axial_flow": -0.002675410872879088,
+          "mean_pressure": -0.006696470589719682,
+          "reference_pressure": -0.006666666666666668,
+          "x": 1.3333333333333333
+        },
+        {
+          "axial_flow": -0.0026756395601724345,
+          "mean_pressure": -0.005036454161470395,
+          "reference_pressure": -0.005,
+          "x": 1.5
+        },
+        {
+          "axial_flow": -0.002676696270232903,
+          "mean_pressure": -0.003385265605241301,
+          "reference_pressure": -0.0033333333333333327,
+          "x": 1.6666666666666667
+        },
+        {
+          "axial_flow": -0.0026797177465141893,
+          "mean_pressure": -0.0017487248714663504,
+          "reference_pressure": -0.0016666666666666674,
+          "x": 1.8333333333333333
+        },
+        {
+          "axial_flow": -0.0027585239822778343,
+          "mean_pressure": -0.0007367105175245473,
+          "reference_pressure": -0.0,
+          "x": 2.0
+        }
+      ],
+      "circular_flow": -0.0027088029950932996,
+      "divergence_rms": 6.699372530236587e-05,
+      "end_flow": -0.0027585239822778334,
+      "gauss_points_per_axis": 3,
+      "max_wall_speed": 0.0,
+      "nodes": 5005,
+      "pressure_rms_over_drop_amplitude": 0.01052244971505629,
+      "ranks": 1,
+      "step": 176,
+      "tetrahedra": 25920,
+      "time": 4.319689898685965,
+      "velocity_relative_l2": 0.01185493760569307,
+      "volume_mean_flow": -0.002683605439188821
+    },
+    "positive-peak": {
+      "axial_sections": [
+        {
+          "axial_flow": 0.002758523885314212,
+          "mean_pressure": 0.019212836340436124,
+          "reference_pressure": 0.02,
+          "x": 0.0
+        },
+        {
+          "axial_flow": 0.002682902141713627,
+          "mean_pressure": 0.0182456442123847,
+          "reference_pressure": 0.018333333333333333,
+          "x": 0.16666666666666666
+        },
+        {
+          "axial_flow": 0.0026771816123705495,
+          "mean_pressure": 0.016647306442522398,
+          "reference_pressure": 0.016666666666666666,
+          "x": 0.3333333333333333
+        },
+        {
+          "axial_flow": 0.002675755495632143,
+          "mean_pressure": 0.015001614550857571,
+          "reference_pressure": 0.015,
+          "x": 0.5
+        },
+        {
+          "axial_flow": 0.0026754239903006923,
+          "mean_pressure": 0.01334350019852906,
+          "reference_pressure": 0.013333333333333336,
+          "x": 0.6666666666666666
+        },
+        {
+          "axial_flow": 0.002675342580378691,
+          "mean_pressure": 0.01168232385106801,
+          "reference_pressure": 0.011666666666666665,
+          "x": 0.8333333333333334
+        },
+        {
+          "axial_flow": 0.0026753287937113447,
+          "mean_pressure": 0.010020317985734844,
+          "reference_pressure": 0.01,
+          "x": 1.0
+        },
+        {
+          "axial_flow": 0.002675344424549958,
+          "mean_pressure": 0.00835819588200228,
+          "reference_pressure": 0.008333333333333333,
+          "x": 1.1666666666666667
+        },
+        {
+          "axial_flow": 0.002675410766901277,
+          "mean_pressure": 0.006696497341416331,
+          "reference_pressure": 0.006666666666666668,
+          "x": 1.3333333333333333
+        },
+        {
+          "axial_flow": 0.0026756394379173994,
+          "mean_pressure": 0.005036479477766174,
+          "reference_pressure": 0.005,
+          "x": 1.5
+        },
+        {
+          "axial_flow": 0.00267669603884079,
+          "mean_pressure": 0.003385286228321627,
+          "reference_pressure": 0.0033333333333333327,
+          "x": 1.6666666666666667
+        },
+        {
+          "axial_flow": 0.00267971847422574,
+          "mean_pressure": 0.001748746595445016,
+          "reference_pressure": 0.0016666666666666674,
+          "x": 1.8333333333333333
+        },
+        {
+          "axial_flow": 0.002758523885314218,
+          "mean_pressure": 0.0007366940210634047,
+          "reference_pressure": 0.0,
+          "x": 2.0
+        }
+      ],
+      "circular_flow": 0.002708802995093303,
+      "divergence_rms": 6.699372847203168e-05,
+      "end_flow": 0.002758523885314215,
+      "gauss_points_per_axis": 3,
+      "max_wall_speed": 0.0,
+      "nodes": 5005,
+      "pressure_rms_over_drop_amplitude": 0.010522549650558427,
+      "ranks": 1,
+      "step": 144,
+      "tetrahedra": 25920,
+      "time": 3.5342917352885173,
+      "velocity_relative_l2": 0.011854958105496865,
+      "volume_mean_flow": 0.0026836053468752975
+    },
+    "positive-peak-quadrature4": {
+      "axial_sections": [
+        {
+          "axial_flow": 0.002758523885314212,
+          "mean_pressure": 0.019212836340436124,
+          "reference_pressure": 0.02,
+          "x": 0.0
+        },
+        {
+          "axial_flow": 0.002682902141713627,
+          "mean_pressure": 0.0182456442123847,
+          "reference_pressure": 0.018333333333333333,
+          "x": 0.16666666666666666
+        },
+        {
+          "axial_flow": 0.0026771816123705495,
+          "mean_pressure": 0.016647306442522398,
+          "reference_pressure": 0.016666666666666666,
+          "x": 0.3333333333333333
+        },
+        {
+          "axial_flow": 0.002675755495632143,
+          "mean_pressure": 0.015001614550857571,
+          "reference_pressure": 0.015,
+          "x": 0.5
+        },
+        {
+          "axial_flow": 0.0026754239903006923,
+          "mean_pressure": 0.01334350019852906,
+          "reference_pressure": 0.013333333333333336,
+          "x": 0.6666666666666666
+        },
+        {
+          "axial_flow": 0.002675342580378691,
+          "mean_pressure": 0.01168232385106801,
+          "reference_pressure": 0.011666666666666665,
+          "x": 0.8333333333333334
+        },
+        {
+          "axial_flow": 0.0026753287937113447,
+          "mean_pressure": 0.010020317985734844,
+          "reference_pressure": 0.01,
+          "x": 1.0
+        },
+        {
+          "axial_flow": 0.002675344424549958,
+          "mean_pressure": 0.00835819588200228,
+          "reference_pressure": 0.008333333333333333,
+          "x": 1.1666666666666667
+        },
+        {
+          "axial_flow": 0.002675410766901277,
+          "mean_pressure": 0.006696497341416331,
+          "reference_pressure": 0.006666666666666668,
+          "x": 1.3333333333333333
+        },
+        {
+          "axial_flow": 0.0026756394379173994,
+          "mean_pressure": 0.005036479477766174,
+          "reference_pressure": 0.005,
+          "x": 1.5
+        },
+        {
+          "axial_flow": 0.00267669603884079,
+          "mean_pressure": 0.003385286228321627,
+          "reference_pressure": 0.0033333333333333327,
+          "x": 1.6666666666666667
+        },
+        {
+          "axial_flow": 0.00267971847422574,
+          "mean_pressure": 0.001748746595445016,
+          "reference_pressure": 0.0016666666666666674,
+          "x": 1.8333333333333333
+        },
+        {
+          "axial_flow": 0.002758523885314218,
+          "mean_pressure": 0.0007366940210634047,
+          "reference_pressure": 0.0,
+          "x": 2.0
+        }
+      ],
+      "circular_flow": 0.002708802995093303,
+      "divergence_rms": 6.699372847203168e-05,
+      "end_flow": 0.002758523885314215,
+      "gauss_points_per_axis": 4,
+      "max_wall_speed": 0.0,
+      "nodes": 5005,
+      "pressure_rms_over_drop_amplitude": 0.010522549650558427,
+      "ranks": 1,
+      "step": 144,
+      "tetrahedra": 25920,
+      "time": 3.5342917352885173,
+      "velocity_relative_l2": 0.011888402639355995,
+      "volume_mean_flow": 0.0026836053468752975
+    },
+    "s24-r8-a12-n64": {
+      "axial_sections": [
+        {
+          "axial_flow": -0.0017552405452585897,
+          "mean_pressure": 0.0003385110986412228,
+          "reference_pressure": -1.4695761589768237e-17,
+          "x": 0.0
+        },
+        {
+          "axial_flow": -0.0017140771748250293,
+          "mean_pressure": 2.256534043940468e-05,
+          "reference_pressure": -1.3471114790620883e-17,
+          "x": 0.16666666666666666
+        },
+        {
+          "axial_flow": -0.001711555254678819,
+          "mean_pressure": -2.3665738374984053e-07,
+          "reference_pressure": -1.2246467991473531e-17,
+          "x": 0.3333333333333333
+        },
+        {
+          "axial_flow": -0.0017111063602405412,
+          "mean_pressure": -4.282992456320718e-06,
+          "reference_pressure": -1.1021821192326178e-17,
+          "x": 0.5
+        },
+        {
+          "axial_flow": -0.001710938049355881,
+          "mean_pressure": -4.7440680511388925e-06,
+          "reference_pressure": -9.797174393178826e-18,
+          "x": 0.6666666666666666
+        },
+        {
+          "axial_flow": -0.0017108634593665049,
+          "mean_pressure": -3.841454343008569e-06,
+          "reference_pressure": -8.57252759403147e-18,
+          "x": 0.8333333333333334
+        },
+        {
+          "axial_flow": -0.001710831699428073,
+          "mean_pressure": -2.334218562850961e-06,
+          "reference_pressure": -7.347880794884118e-18,
+          "x": 1.0
+        },
+        {
+          "axial_flow": -0.001710823982691802,
+          "mean_pressure": -5.919939134535184e-07,
+          "reference_pressure": -6.123233995736765e-18,
+          "x": 1.1666666666666667
+        },
+        {
+          "axial_flow": -0.0017108448660027235,
+          "mean_pressure": 1.0931341778400364e-06,
+          "reference_pressure": -4.898587196589413e-18,
+          "x": 1.3333333333333333
+        },
+        {
+          "axial_flow": -0.001710949023421889,
+          "mean_pressure": 2.1113730971152638e-06,
+          "reference_pressure": -3.673940397442059e-18,
+          "x": 1.5
+        },
+        {
+          "axial_flow": -0.0017114296172158867,
+          "mean_pressure": 7.13990300499923e-08,
+          "reference_pressure": -2.4492935982947056e-18,
+          "x": 1.6666666666666667
+        },
+        {
+          "axial_flow": -0.001714496608958708,
+          "mean_pressure": -1.9735449103827925e-05,
+          "reference_pressure": -1.2246467991473536e-18,
+          "x": 1.8333333333333333
+        },
+        {
+          "axial_flow": -0.0017552405452585906,
+          "mean_pressure": -0.00032268078689940587,
+          "reference_pressure": -0.0,
+          "x": 2.0
+        }
+      ],
+      "circular_flow": -0.0017767515298731454,
+      "divergence_rms": 3.563157930339312e-05,
+      "end_flow": -0.0017552405452585902,
+      "gauss_points_per_axis": 3,
+      "max_wall_speed": 0.0,
+      "nodes": 2509,
+      "pressure_rms_over_drop_amplitude": 0.004208967254024036,
+      "ranks": 1,
+      "step": 192,
+      "tetrahedra": 12960,
+      "time": 4.71238898038469,
+      "velocity_relative_l2": 0.031232633461021973,
+      "volume_mean_flow": -0.0017152712651748922
+    },
+    "s48-r12-a18-n64": {
+      "axial_sections": [
+        {
+          "axial_flow": -0.001780171595788094,
+          "mean_pressure": 0.00021323367441905975,
+          "reference_pressure": -1.4695761589768237e-17,
+          "x": 0.0
+        },
+        {
+          "axial_flow": -0.0017619044522276662,
+          "mean_pressure": 1.1907096789554519e-05,
+          "reference_pressure": -1.387933039033667e-17,
+          "x": 0.1111111111111111
+        },
+        {
+          "axial_flow": -0.0017610504372970405,
+          "mean_pressure": 1.5975216781677619e-06,
+          "reference_pressure": -1.3062899190905099e-17,
+          "x": 0.2222222222222222
+        },
+        {
+          "axial_flow": -0.0017608938809278427,
+          "mean_pressure": -8.496384571424002e-07,
+          "reference_pressure": -1.2246467991473531e-17,
+          "x": 0.3333333333333333
+        },
+        {
+          "axial_flow": -0.0017608466842006817,
+          "mean_pressure": -1.6092812954153047e-06,
+          "reference_pressure": -1.1430036792041962e-17,
+          "x": 0.4444444444444444
+        },
+        {
+          "axial_flow": -0.0017608218925831253,
+          "mean_pressure": -1.8527404235736415e-06,
+          "reference_pressure": -1.0613605592610394e-17,
+          "x": 0.5555555555555556
+        },
+        {
+          "axial_flow": -0.0017608080301998153,
+          "mean_pressure": -1.8170635993846355e-06,
+          "reference_pressure": -9.797174393178826e-18,
+          "x": 0.6666666666666666
+        },
+        {
+          "axial_flow": -0.0017608001482512822,
+          "mean_pressure": -1.6191965108400754e-06,
+          "reference_pressure": -8.980743193747256e-18,
+          "x": 0.7777777777777778
+        },
+        {
+          "axial_flow": -0.001760795601535593,
+          "mean_pressure": -1.3246124192958367e-06,
+          "reference_pressure": -8.164311994315688e-18,
+          "x": 0.8888888888888888
+        },
+        {
+          "axial_flow": -0.0017607928765737322,
+          "mean_pressure": -9.712931550017025e-07,
+          "reference_pressure": -7.347880794884118e-18,
+          "x": 1.0
+        },
+        {
+          "axial_flow": -0.0017607911305234877,
+          "mean_pressure": -5.815105983512851e-07,
+          "reference_pressure": -6.5314495954525496e-18,
+          "x": 1.1111111111111112
+        },
+        {
+          "axial_flow": -0.0017607900168076973,
+          "mean_pressure": -1.6954608968671791e-07,
+          "reference_pressure": -5.71501839602098e-18,
+          "x": 1.2222222222222223
+        },
+        {
+          "axial_flow": -0.0017607897570032002,
+          "mean_pressure": 2.508554639387105e-07,
+          "reference_pressure": -4.898587196589413e-18,
+          "x": 1.3333333333333333
+        },
+        {
+          "axial_flow": -0.0017607916963292096,
+          "mean_pressure": 6.541871785509147e-07,
+          "reference_pressure": -4.082155997157844e-18,
+          "x": 1.4444444444444444
+        },
+        {
+          "axial_flow": -0.0017608005234382956,
+          "mean_pressure": 9.70931127696667e-07,
+          "reference_pressure": -3.2657247977262748e-18,
+          "x": 1.5555555555555556
+        },
+        {
+          "axial_flow": -0.001760834013899487,
+          "mean_pressure": 9.8375931292344e-07,
+          "reference_pressure": -2.4492935982947056e-18,
+          "x": 1.6666666666666667
+        },
+        {
+          "axial_flow": -0.0017610267032085185,
+          "mean_pressure": -9.200515061938609e-07,
+          "reference_pressure": -1.6328623988631382e-18,
+          "x": 1.7777777777777777
+        },
+        {
+          "axial_flow": -0.0017620878680983227,
+          "mean_pressure": -9.798967364881667e-06,
+          "reference_pressure": -8.164311994315691e-19,
+          "x": 1.8888888888888888
+        },
+        {
+          "axial_flow": -0.0017801715957880939,
+          "mean_pressure": -0.00020867635740839125,
+          "reference_pressure": -0.0,
+          "x": 2.0
+        }
+      ],
+      "circular_flow": -0.0017767515298731454,
+      "divergence_rms": 1.8992578409682296e-05,
+      "end_flow": -0.0017801715957880939,
+      "gauss_points_per_axis": 3,
+      "max_wall_speed": 0.0,
+      "nodes": 10963,
+      "pressure_rms_over_drop_amplitude": 0.002210478480997245,
+      "ranks": 1,
+      "step": 192,
+      "tetrahedra": 59616,
+      "time": 4.71238898038469,
+      "velocity_relative_l2": 0.007657007168902931,
+      "volume_mean_flow": -0.0017620465307369916
+    },
+    "s48-r4-a6-n64": {
+      "axial_sections": [
+        {
+          "axial_flow": -0.0018068604634719975,
+          "mean_pressure": 0.0004706897019603196,
+          "reference_pressure": -1.4695761589768237e-17,
+          "x": 0.0
+        },
+        {
+          "axial_flow": -0.0017382374844433354,
+          "mean_pressure": -7.78256006662846e-05,
+          "reference_pressure": -1.2246467991473531e-17,
+          "x": 0.3333333333333333
+        },
+        {
+          "axial_flow": -0.0017483970266613416,
+          "mean_pressure": -2.566576451938504e-06,
+          "reference_pressure": -9.797174393178826e-18,
+          "x": 0.6666666666666666
+        },
+        {
+          "axial_flow": -0.0017464597482617578,
+          "mean_pressure": -9.854709317632944e-06,
+          "reference_pressure": -7.347880794884118e-18,
+          "x": 1.0
+        },
+        {
+          "axial_flow": -0.001747699475707237,
+          "mean_pressure": -8.957145032306317e-06,
+          "reference_pressure": -4.898587196589413e-18,
+          "x": 1.3333333333333333
+        },
+        {
+          "axial_flow": -0.0017384454805707207,
+          "mean_pressure": 6.02701159121412e-05,
+          "reference_pressure": -2.4492935982947056e-18,
+          "x": 1.6666666666666667
+        },
+        {
+          "axial_flow": -0.0018068604634719982,
+          "mean_pressure": -0.00037202577637310974,
+          "reference_pressure": -0.0,
+          "x": 2.0
+        }
+      ],
+      "circular_flow": -0.0017767515298731454,
+      "divergence_rms": 4.44284675695266e-05,
+      "end_flow": -0.0018068604634719977,
+      "gauss_points_per_axis": 3,
+      "max_wall_speed": 0.0,
+      "nodes": 1351,
+      "pressure_rms_over_drop_amplitude": 0.00680539329660093,
+      "ranks": 1,
+      "step": 192,
+      "tetrahedra": 6048,
+      "time": 4.71238898038469,
+      "velocity_relative_l2": 0.01763390417641317,
+      "volume_mean_flow": -0.001754426078055856
+    },
+    "s48-r8-a12-n64": {
+      "axial_sections": [
+        {
+          "axial_flow": -0.0017897508014686739,
+          "mean_pressure": 0.0002837340316606931,
+          "reference_pressure": -1.4695761589768237e-17,
+          "x": 0.0
+        },
+        {
+          "axial_flow": -0.0017578581572608454,
+          "mean_pressure": -3.930017592069519e-06,
+          "reference_pressure": -1.3471114790620883e-17,
+          "x": 0.16666666666666666
+        },
+        {
+          "axial_flow": -0.0017585285182454525,
+          "mean_pressure": -1.053801951801904e-06,
+          "reference_pressure": -1.2246467991473531e-17,
+          "x": 0.3333333333333333
+        },
+        {
+          "axial_flow": -0.001758285978704919,
+          "mean_pressure": -3.772262443363737e-06,
+          "reference_pressure": -1.1021821192326178e-17,
+          "x": 0.5
+        },
+        {
+          "axial_flow": -0.0017582110646630776,
+          "mean_pressure": -3.957089029021061e-06,
+          "reference_pressure": -9.797174393178826e-18,
+          "x": 0.6666666666666666
+        },
+        {
+          "axial_flow": -0.0017581745190367655,
+          "mean_pressure": -3.3158668097784594e-06,
+          "reference_pressure": -8.57252759403147e-18,
+          "x": 0.8333333333333334
+        },
+        {
+          "axial_flow": -0.001758157221976234,
+          "mean_pressure": -2.2554449171860307e-06,
+          "reference_pressure": -7.347880794884118e-18,
+          "x": 1.0
+        },
+        {
+          "axial_flow": -0.0017581472290059132,
+          "mean_pressure": -9.83057522339815e-07,
+          "reference_pressure": -6.123233995736765e-18,
+          "x": 1.1666666666666667
+        },
+        {
+          "axial_flow": -0.0017581425350054157,
+          "mean_pressure": 3.880219988278071e-07,
+          "reference_pressure": -4.898587196589413e-18,
+          "x": 1.3333333333333333
+        },
+        {
+          "axial_flow": -0.0017581518469020078,
+          "mean_pressure": 1.729114232227555e-06,
+          "reference_pressure": -3.673940397442059e-18,
+          "x": 1.5
+        },
+        {
+          "axial_flow": -0.0017583541115335736,
+          "mean_pressure": 9.506710913913919e-07,
+          "reference_pressure": -2.4492935982947056e-18,
+          "x": 1.6666666666666667
+        },
+        {
+          "axial_flow": -0.0017581574307844376,
+          "mean_pressure": 6.851440087083497e-06,
+          "reference_pressure": -1.2246467991473536e-18,
+          "x": 1.8333333333333333
+        },
+        {
+          "axial_flow": -0.001789750801468675,
+          "mean_pressure": -0.00026894576858954355,
+          "reference_pressure": -0.0,
+          "x": 2.0
+        }
+      ],
+      "circular_flow": -0.0017767515298731454,
+      "divergence_rms": 2.7309583900277317e-05,
+      "end_flow": -0.0017897508014686745,
+      "gauss_points_per_axis": 3,
+      "max_wall_speed": 0.0,
+      "nodes": 5005,
+      "pressure_rms_over_drop_amplitude": 0.003375856615634131,
+      "ranks": 1,
+      "step": 192,
+      "tetrahedra": 25920,
+      "time": 4.71238898038469,
+      "velocity_relative_l2": 0.009179385684703483,
+      "volume_mean_flow": -0.001760835555810631
+    },
+    "s96-r8-a12-n64": {
+      "axial_sections": [
+        {
+          "axial_flow": -0.00179189928949366,
+          "mean_pressure": 0.00023137807223878236,
+          "reference_pressure": -1.4695761589768237e-17,
+          "x": 0.0
+        },
+        {
+          "axial_flow": -0.001768627174649489,
+          "mean_pressure": -2.4898859081391366e-05,
+          "reference_pressure": -1.3471114790620883e-17,
+          "x": 0.16666666666666666
+        },
+        {
+          "axial_flow": -0.0017713568474585295,
+          "mean_pressure": 2.1589613851922316e-06,
+          "reference_pressure": -1.2246467991473531e-17,
+          "x": 0.3333333333333333
+        },
+        {
+          "axial_flow": -0.0017708980728243728,
+          "mean_pressure": -3.3989260243641904e-06,
+          "reference_pressure": -1.1021821192326178e-17,
+          "x": 0.5
+        },
+        {
+          "axial_flow": -0.001770916558690956,
+          "mean_pressure": -3.075506305380718e-06,
+          "reference_pressure": -9.797174393178826e-18,
+          "x": 0.6666666666666666
+        },
+        {
+          "axial_flow": -0.0017708931443438914,
+          "mean_pressure": -2.820554563496316e-06,
+          "reference_pressure": -8.57252759403147e-18,
+          "x": 0.8333333333333334
+        },
+        {
+          "axial_flow": -0.0017708855868705862,
+          "mean_pressure": -2.1791759752277397e-06,
+          "reference_pressure": -7.347880794884118e-18,
+          "x": 1.0
+        },
+        {
+          "axial_flow": -0.0017708763891542587,
+          "mean_pressure": -1.3465462073162086e-06,
+          "reference_pressure": -6.123233995736765e-18,
+          "x": 1.1666666666666667
+        },
+        {
+          "axial_flow": -0.0017708730701408092,
+          "mean_pressure": -4.7019313721228075e-07,
+          "reference_pressure": -4.898587196589413e-18,
+          "x": 1.3333333333333333
+        },
+        {
+          "axial_flow": -0.0017708063586620545,
+          "mean_pressure": 1.4597006694329473e-06,
+          "reference_pressure": -3.673940397442059e-18,
+          "x": 1.5
+        },
+        {
+          "axial_flow": -0.0017711645376632882,
+          "mean_pressure": -2.1981995039864215e-06,
+          "reference_pressure": -2.4492935982947056e-18,
+          "x": 1.6666666666666667
+        },
+        {
+          "axial_flow": -0.0017688400322892401,
+          "mean_pressure": 2.746179842448361e-05,
+          "reference_pressure": -1.2246467991473536e-18,
+          "x": 1.8333333333333333
+        },
+        {
+          "axial_flow": -0.0017918992894936593,
+          "mean_pressure": -0.00021708424278900433,
+          "reference_pressure": -0.0,
+          "x": 2.0
+        }
+      ],
+      "circular_flow": -0.0017767515298731454,
+      "divergence_rms": 2.004823839114018e-05,
+      "end_flow": -0.0017918992894936595,
+      "gauss_points_per_axis": 3,
+      "max_wall_speed": 0.0,
+      "nodes": 9997,
+      "pressure_rms_over_drop_amplitude": 0.0026516910802322027,
+      "ranks": 1,
+      "step": 192,
+      "tetrahedra": 51840,
+      "time": 4.71238898038469,
+      "velocity_relative_l2": 0.004257289661457055,
+      "volume_mean_flow": -0.0017723460165462491
+    }
+  },
+  "flow": {
+    "alpha0-s12-r2-a3-n16": {
+      "amplitude_relative_error": 0.005675858061196637,
+      "axial": 3,
+      "cycle_max_change_relative": 4.775973902909178e-06,
+      "cycles": 3,
+      "dt": 0.09817477042468103,
+      "flow_amplitude": 0.003221128314892513,
+      "flow_phase_degrees": -31.76940423885141,
+      "max_net_outward_flux": 2.168404344971009e-18,
+      "mean_flow": -3.266109742538115e-09,
+      "passed": true,
+      "phase_error_degrees": 1.4921691974377123,
+      "pressure_drop_amplitude": 0.013892937172996753,
+      "pressure_drop_phase_degrees": 9.138039515925982,
+      "radial": 2,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "rho_infinity": 0.0,
+      "samples_per_cycle": 16,
+      "scheme": "generalized_alpha",
+      "sectors": 12,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.026581558783967014
+    },
+    "alpha0-s48-r12-a18-n64": {
+      "amplitude_relative_error": 0.00755373878696064,
+      "axial": 18,
+      "cycle_max_change_relative": 4.8799103969891234e-05,
+      "cycles": 3,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.0032639857968793425,
+      "flow_phase_degrees": -33.05187463307777,
+      "max_net_outward_flux": 2.688821387764051e-17,
+      "mean_flow": 7.673424941689403e-11,
+      "passed": true,
+      "phase_error_degrees": 0.20969880321135217,
+      "pressure_drop_amplitude": 0.018864154599807732,
+      "pressure_drop_phase_degrees": 1.2815671690618557,
+      "radial": 12,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "rho_infinity": 0.0,
+      "samples_per_cycle": 64,
+      "scheme": "generalized_alpha",
+      "sectors": 48,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.008399717779709168
+    },
+    "alpha0-s48-r8-a12-n64": {
+      "amplitude_relative_error": 0.015047335462631484,
+      "axial": 12,
+      "cycle_max_change_relative": 4.8726999928983595e-05,
+      "cycles": 3,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.003288261418293223,
+      "flow_phase_degrees": -32.97581020895799,
+      "max_net_outward_flux": 1.951563910473908e-17,
+      "mean_flow": 1.0760258837105729e-10,
+      "passed": true,
+      "phase_error_degrees": 0.2857632273311341,
+      "pressure_drop_amplitude": 0.018484406468245722,
+      "pressure_drop_phase_degrees": 1.713387136723539,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "rho_infinity": 0.0,
+      "samples_per_cycle": 64,
+      "scheme": "generalized_alpha",
+      "sectors": 48,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.015864167371511313
+    },
+    "s24-r4-a4-n48": {
+      "amplitude_relative_error": 0.02645584127121592,
+      "axial": 4,
+      "cycle_max_change_relative": 3.8050590432406244e-05,
+      "cycles": 3,
+      "dt": 0.032724923474893676,
+      "flow_amplitude": 0.0033252194479142204,
+      "flow_phase_degrees": -32.53761282730759,
+      "max_net_outward_flux": 1.0842021724855044e-17,
+      "mean_flow": -2.825950584306167e-10,
+      "passed": false,
+      "phase_error_degrees": 0.723960608981534,
+      "pressure_drop_amplitude": 0.016931365395142735,
+      "pressure_drop_phase_degrees": 3.7615330363746673,
+      "radial": 4,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 48,
+      "scheme": "bdf2",
+      "sectors": 24,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.02939028667735502
+    },
+    "s24-r8-a12-n64": {
+      "amplitude_relative_error": 0.0067811240809467765,
+      "axial": 12,
+      "cycle_max_change_relative": 4.2246274331744246e-05,
+      "cycles": 3,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.0032614828996840772,
+      "flow_phase_degrees": -32.55932651570688,
+      "max_net_outward_flux": 1.431146867680866e-17,
+      "mean_flow": 6.627949217164555e-11,
+      "passed": true,
+      "phase_error_degrees": 0.7022469205822482,
+      "pressure_drop_amplitude": 0.018211369125446013,
+      "pressure_drop_phase_degrees": 2.0806692569358587,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 64,
+      "scheme": "bdf2",
+      "sectors": 24,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.014043601098165133
+    },
+    "s32-r6-a6-n64": {
+      "amplitude_relative_error": 0.023349308182403217,
+      "axial": 6,
+      "cycle_max_change_relative": 4.5959466275142586e-05,
+      "cycles": 3,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.0033151557863058297,
+      "flow_phase_degrees": -32.72604228437711,
+      "max_net_outward_flux": 1.214306433183765e-17,
+      "mean_flow": 1.3531496623101857e-11,
+      "passed": false,
+      "phase_error_degrees": 0.535531151912013,
+      "pressure_drop_amplitude": 0.01777710500173378,
+      "pressure_drop_phase_degrees": 2.602784941003679,
+      "radial": 6,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 64,
+      "scheme": "bdf2",
+      "sectors": 32,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.025191104037883747
+    },
+    "s48-r12-a18-n64": {
+      "amplitude_relative_error": 0.00755373878696064,
+      "axial": 18,
+      "cycle_max_change_relative": 4.87991039698243e-05,
+      "cycles": 3,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.0032639857968793425,
+      "flow_phase_degrees": -33.05187463307777,
+      "max_net_outward_flux": 2.688821387764051e-17,
+      "mean_flow": 7.673424945236354e-11,
+      "passed": true,
+      "phase_error_degrees": 0.20969880321135217,
+      "pressure_drop_amplitude": 0.018864154599807732,
+      "pressure_drop_phase_degrees": 1.2815671690618557,
+      "radial": 12,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 64,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.008399717779709123
+    },
+    "s48-r4-a6-n64": {
+      "amplitude_relative_error": 0.02537228241952394,
+      "axial": 6,
+      "cycle_max_change_relative": 4.773313673503666e-05,
+      "cycles": 3,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.0033217092423878493,
+      "flow_phase_degrees": -32.95329047423828,
+      "max_net_outward_flux": 1.214306433183765e-17,
+      "mean_flow": -9.704851433120989e-12,
+      "passed": false,
+      "phase_error_degrees": 0.30828296205084754,
+      "pressure_drop_amplitude": 0.017647804235513643,
+      "pressure_drop_phase_degrees": 2.737022360874554,
+      "radial": 4,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 64,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.025950674894997975
+    },
+    "s48-r7-a8-n64": {
+      "amplitude_relative_error": 0.0212350631432503,
+      "axial": 8,
+      "cycle_max_change_relative": 4.87752120158146e-05,
+      "cycles": 3,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.0033083066570601524,
+      "flow_phase_degrees": -32.921530187509504,
+      "max_net_outward_flux": 2.0383000842727483e-17,
+      "mean_flow": 9.45555114859826e-11,
+      "passed": false,
+      "phase_error_degrees": 0.3400432487796241,
+      "pressure_drop_amplitude": 0.01818344326908773,
+      "pressure_drop_phase_degrees": 2.0632962681170683,
+      "radial": 7,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 64,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.02206577646318351
+    },
+    "s48-r8-a12-n128": {
+      "amplitude_relative_error": 0.011395643000183364,
+      "axial": 12,
+      "cycle_max_change_relative": 5.4080252020166614e-05,
+      "cycles": 3,
+      "dt": 0.01227184630308513,
+      "flow_amplitude": 0.0032764317045289207,
+      "flow_phase_degrees": -32.98871199051794,
+      "max_net_outward_flux": 2.862293735361732e-17,
+      "mean_flow": 1.1798644235425175e-10,
+      "passed": true,
+      "phase_error_degrees": 0.2728614457711826,
+      "pressure_drop_amplitude": 0.018641724343187054,
+      "pressure_drop_phase_degrees": 1.5517403562715313,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 128,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.0123611844051812
+    },
+    "s48-r8-a12-n256": {
+      "amplitude_relative_error": 0.005002465651925192,
+      "axial": 12,
+      "cycle_max_change_relative": 5.627627636108307e-05,
+      "cycles": 3,
+      "dt": 0.006135923151542565,
+      "flow_amplitude": 0.003255720908411219,
+      "flow_phase_degrees": -33.062002140933366,
+      "max_net_outward_flux": 1.951563910473908e-17,
+      "mean_flow": 1.4330967637794962e-10,
+      "passed": true,
+      "phase_error_degrees": 0.19957129535575802,
+      "pressure_drop_amplitude": 0.01889847224722291,
+      "pressure_drop_phase_degrees": 1.2658066576916587,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 256,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.006100644161882762
+    },
+    "s48-r8-a12-n32": {
+      "amplitude_relative_error": 0.013094104488592162,
+      "axial": 12,
+      "cycle_max_change_relative": 3.512676399580548e-05,
+      "cycles": 3,
+      "dt": 0.04908738521234052,
+      "flow_amplitude": 0.0032819338965821084,
+      "flow_phase_degrees": -33.15298205766974,
+      "max_net_outward_flux": 1.3010426069826053e-17,
+      "mean_flow": 1.0308071824196815e-10,
+      "passed": true,
+      "phase_error_degrees": 0.10859137861938355,
+      "pressure_drop_amplitude": 0.018428725354517547,
+      "pressure_drop_phase_degrees": 1.7747342207098538,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 32,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.013232334697766853
+    },
+    "s48-r8-a12-n64": {
+      "amplitude_relative_error": 0.015047335462631484,
+      "axial": 12,
+      "cycle_max_change_relative": 4.8726999928983595e-05,
+      "cycles": 3,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.003288261418293223,
+      "flow_phase_degrees": -32.97581020895799,
+      "max_net_outward_flux": 1.9949319973733282e-17,
+      "mean_flow": 1.0760258838683328e-10,
+      "passed": true,
+      "phase_error_degrees": 0.2857632273311341,
+      "pressure_drop_amplitude": 0.018484406468245722,
+      "pressure_drop_phase_degrees": 1.713387136723539,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 64,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.015864167371511268
+    },
+    "s48-r8-a12-n64-mpi2": {
+      "amplitude_relative_error": 0.015047335462631706,
+      "axial": 12,
+      "cycle_max_change_relative": 4.872699992784568e-05,
+      "cycles": 3,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.0032882614182932236,
+      "flow_phase_degrees": -32.975810208957995,
+      "max_net_outward_flux": 1.3010426069826053e-17,
+      "mean_flow": 1.0760258838683328e-10,
+      "passed": true,
+      "phase_error_degrees": 0.2857632273311246,
+      "pressure_drop_amplitude": 0.018484406468245666,
+      "pressure_drop_phase_degrees": 1.713387136723541,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 64,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.01586416737151131
+    },
+    "s48-r8-a12-n64-mpi4": {
+      "amplitude_relative_error": 0.015047335462631706,
+      "axial": 12,
+      "cycle_max_change_relative": 4.872699992844811e-05,
+      "cycles": 3,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.0032882614182932236,
+      "flow_phase_degrees": -32.975810208958,
+      "max_net_outward_flux": 5.204170427930421e-18,
+      "mean_flow": 1.0760258826920158e-10,
+      "passed": true,
+      "phase_error_degrees": 0.2857632273311214,
+      "pressure_drop_amplitude": 0.01848440646824568,
+      "pressure_drop_phase_degrees": 1.713387136723536,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 64,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.01586416737151122
+    },
+    "s96-r8-a12-n64": {
+      "amplitude_relative_error": 0.011679963148006456,
+      "axial": 12,
+      "cycle_max_change_relative": 5.030948564326002e-05,
+      "cycles": 3,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.003277352764010451,
+      "flow_phase_degrees": -33.14447939417557,
+      "max_net_outward_flux": 3.252606517456513e-17,
+      "mean_flow": 1.4191215932626272e-10,
+      "passed": true,
+      "phase_error_degrees": 0.11709404211355627,
+      "pressure_drop_amplitude": 0.018749762013718353,
+      "pressure_drop_phase_degrees": 1.3705482228146892,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 64,
+      "scheme": "bdf2",
+      "sectors": 96,
+      "stabilization_tau": null,
+      "waveform_relative_rms_error": 0.011859466020519852
+    },
+    "tau-s48-r8-a12-n128": {
+      "amplitude_relative_error": 0.013748729407224491,
+      "axial": 12,
+      "cycle_max_change_relative": 5.752531200277559e-09,
+      "cycles": 4,
+      "dt": 0.01227184630308513,
+      "flow_amplitude": 0.003284054564050696,
+      "flow_phase_degrees": -33.01364807559439,
+      "max_net_outward_flux": 3.0357660829594124e-17,
+      "mean_flow": 9.402089018961387e-11,
+      "passed": true,
+      "phase_error_degrees": 0.24792536069473514,
+      "pressure_drop_amplitude": 0.01858732643722874,
+      "pressure_drop_phase_degrees": 1.7332077682192422,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 128,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": 0.003,
+      "waveform_relative_rms_error": 0.01442251278187647
+    },
+    "tau-s48-r8-a12-n16": {
+      "amplitude_relative_error": 0.007792448381897743,
+      "axial": 12,
+      "cycle_max_change_relative": 2.4445455355965283e-11,
+      "cycles": 4,
+      "dt": 0.09817477042468103,
+      "flow_amplitude": 0.0032142715880712734,
+      "flow_phase_degrees": -33.935244189262384,
+      "max_net_outward_flux": 1.7780915628762273e-17,
+      "mean_flow": 8.547941270553496e-11,
+      "passed": true,
+      "phase_error_degrees": 0.673670752973265,
+      "pressure_drop_amplitude": 0.018613997543837302,
+      "pressure_drop_phase_degrees": 1.7395737339978508,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 16,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": 0.003,
+      "waveform_relative_rms_error": 0.0140672890783865
+    },
+    "tau-s48-r8-a12-n32": {
+      "amplitude_relative_error": 0.009137295804896306,
+      "axial": 12,
+      "cycle_max_change_relative": 2.6711576765610137e-09,
+      "cycles": 4,
+      "dt": 0.04908738521234052,
+      "flow_amplitude": 0.003269115754137318,
+      "flow_phase_degrees": -33.27888947084433,
+      "max_net_outward_flux": 1.8214596497756474e-17,
+      "mean_flow": 9.248469831900927e-11,
+      "passed": true,
+      "phase_error_degrees": 0.017316034555204474,
+      "pressure_drop_amplitude": 0.018593682702431145,
+      "pressure_drop_phase_degrees": 1.7378413115889835,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 32,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": 0.003,
+      "waveform_relative_rms_error": 0.009142338171303914
+    },
+    "tau-s48-r8-a12-n64": {
+      "amplitude_relative_error": 0.01289005161871315,
+      "axial": 12,
+      "cycle_max_change_relative": 4.897668728097656e-09,
+      "cycles": 4,
+      "dt": 0.02454369260617026,
+      "flow_amplitude": 0.003281272864179113,
+      "flow_phase_degrees": -33.070471226067845,
+      "max_net_outward_flux": 2.0816681711721685e-17,
+      "mean_flow": 9.376918140847377e-11,
+      "passed": true,
+      "phase_error_degrees": 0.19110221022128132,
+      "pressure_drop_amplitude": 0.018588579750953634,
+      "pressure_drop_phase_degrees": 1.7344221082610336,
+      "radial": 8,
+      "reference_amplitude": 0.003239515344173108,
+      "reference_phase_degrees": -33.261573436289126,
+      "samples_per_cycle": 64,
+      "scheme": "bdf2",
+      "sectors": 48,
+      "stabilization_tau": 0.003,
+      "waveform_relative_rms_error": 0.01331996480425392
+    }
+  },
+  "legacy_restart": {
+    "1": {
+      "max_field_difference": 0.0,
+      "nodes": 100
+    },
+    "2": {
+      "max_field_difference": 0.0,
+      "nodes": 100
+    }
+  },
+  "mpi": {
+    "2": {
+      "max_boundary_differences": {
+        "area": 1.3677947663381929e-13,
+        "flow": 1.951563910473908e-17,
+        "pressure": 1.942890293094024e-16,
+        "time": 0.0
+      },
+      "max_pressure_difference": 1.0194041520205505e-18,
+      "max_velocity_difference": 2.168404344971009e-19,
+      "nodes": 5005,
+      "passed": true,
+      "ranks": 2,
+      "steps": 192
+    },
+    "4": {
+      "max_boundary_differences": {
+        "area": 2.717825964282383e-13,
+        "flow": 1.734723475976807e-17,
+        "pressure": 2.8449465006019636e-16,
+        "time": 0.0
+      },
+      "max_pressure_difference": 1.1007193149569633e-18,
+      "max_velocity_difference": 2.168404344971009e-19,
+      "nodes": 5005,
+      "passed": true,
+      "ranks": 4,
+      "steps": 192
+    }
+  },
+  "stabilization": {
+    "s48-r8-a12-n128": {
+      "max_advective_fraction_of_default_inverse_tau_squared": 2.2661014480247662e-09,
+      "maximum": 0.003132407798382499,
+      "minimum": 0.0011670312515600946,
+      "prescribed": null,
+      "samples_per_cycle": 128,
+      "volume_weighted_mean": 0.0026623722394786714
+    },
+    "s48-r8-a12-n256": {
+      "max_advective_fraction_of_default_inverse_tau_squared": 1.4603914990619962e-09,
+      "maximum": 0.0018857815555594249,
+      "minimum": 0.0010462633023461123,
+      "prescribed": null,
+      "samples_per_cycle": 256,
+      "volume_weighted_mean": 0.0017436672316170462
+    },
+    "s48-r8-a12-n32": {
+      "max_advective_fraction_of_default_inverse_tau_squared": 3.017466081431672e-09,
+      "maximum": 0.004668125010311045,
+      "minimum": 0.0012142788628874109,
+      "prescribed": null,
+      "samples_per_cycle": 32,
+      "volume_weighted_mean": 0.003569154839410954
+    },
+    "s48-r8-a12-n64": {
+      "max_advective_fraction_of_default_inverse_tau_squared": 2.807483791780116e-09,
+      "maximum": 0.0041850532123124074,
+      "minimum": 0.0012043703593839791,
+      "prescribed": null,
+      "samples_per_cycle": 64,
+      "volume_weighted_mean": 0.0033069097482811343
+    },
+    "tau-s48-r8-a12-n64": {
+      "max_advective_fraction_of_default_inverse_tau_squared": 2.817060264932235e-09,
+      "maximum": 0.003,
+      "minimum": 0.003,
+      "prescribed": 0.003,
+      "samples_per_cycle": 64,
+      "volume_weighted_mean": 0.002999999999999975
+    }
+  },
+  "svfsi": {
+    "fine": {
+      "axial": 18,
+      "eonsim_flow_amplitude": 0.0032639857968793425,
+      "eonsim_flow_phase_degrees": -33.05187463307777,
+      "passed": true,
+      "radial": 12,
+      "ranks": 1,
+      "relative_phasor_difference": 0.01304556278288772,
+      "samples_per_cycle": 64,
+      "sectors": 48,
+      "steps": 192,
+      "svfsi_amplitude_relative_error": 0.005196435051176729,
+      "svfsi_cycle_max_change_relative": 5.556386708393892e-05,
+      "svfsi_executable_sha256": "76fa8bccbe419b4c8cf95d40c74b64290d2b55079750e7f44ef270f7c8760c06",
+      "svfsi_flow_amplitude": 0.003222681413089822,
+      "svfsi_flow_phase_degrees": -33.209850620926375,
+      "svfsi_max_final_normalized_residual": 9.9e-09,
+      "svfsi_phase_error_degrees": 0.051722815362743965,
+      "svfsi_pressure_drop_amplitude": 0.019180623780453203,
+      "svfsi_pressure_drop_phase_degrees": 0.8972409925422266,
+      "svfsi_target_revision": "94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571",
+      "svfsi_zero_corrections": 142
+    },
+    "medium": {
+      "axial": 12,
+      "eonsim_flow_amplitude": 0.003288261418293223,
+      "eonsim_flow_phase_degrees": -32.97581020895799,
+      "passed": true,
+      "radial": 8,
+      "ranks": 1,
+      "relative_phasor_difference": 0.020394694529638543,
+      "samples_per_cycle": 64,
+      "sectors": 48,
+      "steps": 192,
+      "svfsi_amplitude_relative_error": 0.00494699615117522,
+      "svfsi_cycle_max_change_relative": 5.5563867083871984e-05,
+      "svfsi_executable_sha256": "76fa8bccbe419b4c8cf95d40c74b64290d2b55079750e7f44ef270f7c8760c06",
+      "svfsi_flow_amplitude": 0.0032234894742338106,
+      "svfsi_flow_phase_degrees": -33.205063341909,
+      "svfsi_max_final_normalized_residual": 4.85e-09,
+      "svfsi_phase_error_degrees": 0.05651009438012438,
+      "svfsi_pressure_drop_amplitude": 0.018901475014811004,
+      "svfsi_pressure_drop_phase_degrees": 1.1339468076868016,
+      "svfsi_target_revision": "94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571",
+      "svfsi_zero_corrections": 50
+    },
+    "small": {
+      "axial": 3,
+      "eonsim_flow_amplitude": 0.003221128314892513,
+      "eonsim_flow_phase_degrees": -31.76940423885141,
+      "passed": false,
+      "radial": 2,
+      "ranks": 1,
+      "relative_phasor_difference": 0.08781394856412308,
+      "samples_per_cycle": 16,
+      "sectors": 12,
+      "steps": 48,
+      "svfsi_amplitude_relative_error": 0.09291896480230877,
+      "svfsi_cycle_max_change_relative": 3.241225579896995e-06,
+      "svfsi_executable_sha256": "76fa8bccbe419b4c8cf95d40c74b64290d2b55079750e7f44ef270f7c8760c06",
+      "svfsi_flow_amplitude": 0.002938502931931348,
+      "svfsi_flow_phase_degrees": -32.372498649259846,
+      "svfsi_max_final_normalized_residual": 6.65e-09,
+      "svfsi_phase_error_degrees": 0.8890747870292788,
+      "svfsi_pressure_drop_amplitude": 0.014039339473903366,
+      "svfsi_pressure_drop_phase_degrees": 7.875973101036972,
+      "svfsi_target_revision": "94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571",
+      "svfsi_zero_corrections": 1
+    }
+  },
+  "svfsi_field": {
+    "fine": {
+      "nodes": 10963,
+      "pressure_rms_difference_over_drop_amplitude": 0.0008342455676183426,
+      "step": 192,
+      "svfsi_vtu_end_flow": -0.0017651023897981523,
+      "svfsi_vtu_pressure_drop": 0.00030037477467810374,
+      "tetrahedra": 59616,
+      "velocity_l2_difference_over_eonsim_norm": 0.0016221918430585757
+    },
+    "medium": {
+      "nodes": 5005,
+      "pressure_rms_difference_over_drop_amplitude": 0.0013995699860887478,
+      "step": 192,
+      "svfsi_vtu_end_flow": -0.001765320999796974,
+      "svfsi_vtu_pressure_drop": 0.0003740693688518655,
+      "tetrahedra": 25920,
+      "velocity_l2_difference_over_eonsim_norm": 0.0031595928965318784
+    },
+    "small": {
+      "nodes": 100,
+      "pressure_rms_difference_over_drop_amplitude": 0.003305954825423007,
+      "step": 48,
+      "svfsi_vtu_end_flow": -0.001573358378058805,
+      "svfsi_vtu_pressure_drop": 0.0019237752786778655,
+      "tetrahedra": 324,
+      "velocity_l2_difference_over_eonsim_norm": 0.04143241426565408
+    }
+  },
+  "time": {
+    "default": {
+      "cycles": 3,
+      "observed_orders": [
+        0.01393167331332891,
+        -0.8339284550759939
+      ],
+      "scheme": "bdf2",
+      "stabilization_tau": null,
+      "successive_pairs": [
+        {
+          "coarse_samples": 32,
+          "fine_samples": 64,
+          "max_cycle_change": 4.8726999928983595e-05,
+          "relative_phasor_change": 0.0036943162271153625
+        },
+        {
+          "coarse_samples": 64,
+          "fine_samples": 128,
+          "max_cycle_change": 5.4080252020166614e-05,
+          "relative_phasor_change": 0.0036588130211188505
+        },
+        {
+          "coarse_samples": 128,
+          "fine_samples": 256,
+          "max_cycle_change": 5.627627636108307e-05,
+          "relative_phasor_change": 0.006521953457222888
+        }
+      ]
+    },
+    "uniform": {
+      "cycles": 4,
+      "observed_orders": [
+        1.9601868975300527,
+        1.9909601211076944
+      ],
+      "scheme": "bdf2",
+      "stabilization_tau": 0.003,
+      "successive_pairs": [
+        {
+          "coarse_samples": 16,
+          "fine_samples": 32,
+          "max_cycle_change": 2.6711576765610137e-09,
+          "relative_phasor_change": 0.020445331685269855
+        },
+        {
+          "coarse_samples": 32,
+          "fine_samples": 64,
+          "max_cycle_change": 4.897668728097656e-09,
+          "relative_phasor_change": 0.005254351316899949
+        },
+        {
+          "coarse_samples": 64,
+          "fine_samples": 128,
+          "max_cycle_change": 5.752531200277559e-09,
+          "relative_phasor_change": 0.0013218445678546884
+        }
+      ]
+    }
+  }
+}
