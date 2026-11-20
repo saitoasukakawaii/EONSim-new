@@ -6,6 +6,18 @@
 - 验收：`python tests/test_ci_selection.py`、`python tests/test_agent_auto_merge.py`、`python tests/test_cloud_evidence.py` 和 PR Release 最小算例；实际状态由 Actions 证明。
 - 管理员待办：main 必需检查移除旧 Debug、保留四项；当前连接无法访问保护规则管理 API。
 
+## FSI-PROD-02C / in_progress / 2026-11-20
+
+Check the isolated linear elastic wall against the plane-strain Lamé solution
+for a pressurized quarter annulus. Use a=1, b=1.2, L=2, E=100, ν=0.3,
+internal pressure 0.02, zero exterior pressure and axial end rollers. Preserve
+the existing default one-layer FSI mesh. Before solving, set targets of <2%
+relative error in inner radius displacement and linearized bore area change,
+<3% displacement L² error and <1% change in area compliance at the last
+two refined resolutions. Check a second pressure and 1/2/4-rank invariance
+(maximum displacement difference <1e−10 m). This structural constitutive
+reference will support a subsequent coupled pressure–area comparison.
+
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 
 Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main
