@@ -49,4 +49,10 @@ python3 scripts/study_hydrostatic_fsi.py --executable "$exe" --work build/paired
 python3 scripts/compare_svfsi_wall.py --case build/paired48 --work build/external48 --executable /path/to/svFSI --check
 ~~~
 
+Add `--history` to compare every saved wall state during the pressure step.
+At each time the diagnostic divides the largest sectional strain difference
+by the analytical steady expansion. It also records the trace nearest the
+midplane and the earliest output after which it stays within 1% of its own
+final value. The equilibrium acceptance criteria use the final output.
+
 The measured convergence, MPI checks, time histories, failed attempts and raw field archive are available together. [Results and replay](../research/data/lame-wall-2026-11-20/README.md)

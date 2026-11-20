@@ -94,6 +94,8 @@ class LameWallTest(unittest.TestCase):
                 self.assertAlmostEqual(abs(flux[5])+abs(flux[6]),0.,places=13)
 
     def test_external_domain_settings_and_convergence(self):
+        transient=[dict(time=i*.5,area=x) for i,x in enumerate((0.,1.,1.1,.997,1.))]
+        self.assertEqual(sv.settled_time(transient,'area'),1.5)
         for eq in ('FS','MS'):
             first=f' {eq} 1-1 0.3 [ 0 1.0 1.0 1e-10] [ 24 -30 82]'
             last=f' {eq} 1-2s 0.4 [-120 1e-9 3e-9 1.0] [ 2 -20 0]'

@@ -82,7 +82,7 @@ def replay(root,external=False):
                 mass={name:mass.audit(coupled/name) for name in spec['mass']})
     if external:
         from compare_svfsi_wall import compare
-        result['svfsi']={name:compare(coupled/case,root/'svfsi'/name)
+        result['svfsi']={name:compare(coupled/case,root/'svfsi'/name,name in spec.get('settling',[]))
                          for name,case in spec['svfsi'].items()}
     return result
 

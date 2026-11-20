@@ -172,7 +172,42 @@ def external_fields(path, meshes):
     return result
 
 
-def compare(case,directory):
+def settled_time(samples,key):
+    """Earliest saved time after which the trace stays within 1% of its own endpoint."""
+    final=samples[-1][key]
+    if final<=0:
+        raise ValueError('Expected a positive final bore area change')
+    earliest=samples[-1]['time']
+    for row in reversed(samples):
+        if abs(row[key]-final)>.01*final:
+            break
+        earliest=row['time']
+    return earliest
+
+
+def settling_history(case,outputs,meshes,rings,endpoint):
+    nodes=meshes[1][0]
+    mid=min(rings,key=lambda x:abs(x-wall.LENGTH/2))
+    exact=endpoint['exact_linear_area_strain']
+    samples=[dict(time=0.,eonsim_midplane=0.,svfsi_midplane=0.,max_cross_code_difference=0.)]
+    for step in range(1,endpoint['steps']+1):
+        eon=fsi.recovered_state(case,f'tube_step{step}_solid',meshes[1],True,1)
+        external=external_fields(outputs/f'result_{step:03d}.vtu',meshes)[1]
+        areas=[]
+        for state in (eon,external):
+            displacement={n:row.displacement for n,row in state.items()}
+            areas.append({x:wall.bore_section(nodes,displacement,ring)['linear_area_strain']
+                          for x,ring in rings.items()})
+        left,right=areas
+        samples.append(dict(time=step*endpoint['dt'],eonsim_midplane=left[mid],svfsi_midplane=right[mid],
+                            max_cross_code_difference=max(abs(left[x]-right[x]) for x in rings)/exact))
+    peak=max(samples,key=lambda row:row['max_cross_code_difference'])
+    return dict(near_midplane_x=mid,history=samples,peak_cross_code_difference=peak['max_cross_code_difference'],
+                peak_time=peak['time'],eonsim_settled_time=settled_time(samples,'eonsim_midplane'),
+                svfsi_settled_time=settled_time(samples,'svfsi_midplane'))
+
+
+def compare(case,directory,with_history=False):
     eon=fsi.analyze(case)
     sizes=re.findall(r'^\s*Krylov space dimension: (\d+)\s*$',(directory/'svFSI.inp').read_text(),re.M)
     if len(sizes)!=1: raise ValueError('Expected one FSI GMRES space dimension')
@@ -196,11 +231,12 @@ def compare(case,directory):
     def interface(mesh,tag):
         return {mesh[0][n]:n for t,f in mesh[2] if t==tag for n in f}
     fi,si=(interface(m,t) for m,t in zip(meshes,(3,13)))
+    rings={row['x']:[n for p,n in si.items() if p[0]==row['x']] for row in eon['sections']}
     disps=[{n:v.displacement for n,v in field.items()} for field in (previous,solid)]
     areas=[]
     for section in eon['sections']:
         x=section['x']
-        ring=[n for p,n in si.items() if p[0]==x]
+        ring=rings[x]
         old,end=(wall.bore_section(sc,d,ring) for d in disps)
         areas.append(dict(x=x,previous=old['linear_area_strain'],area_strain=end['linear_area_strain'],
                           eonsim_area_strain=section['linear_area_strain']))
@@ -226,13 +262,16 @@ def compare(case,directory):
                  interface_velocity_difference=max(abs(a-b) for x in fi for a,b in zip(fluid[fi[x]].velocity,solid[si[x]].velocity)),
                  interface_displacement_difference=max(abs(a-b) for x in fi for a,b in zip(fluid[fi[x]].displacement,solid[si[x]].displacement)))
     difference=max(abs(a['area_strain']-a['eonsim_area_strain']) for a in areas)/exact
-    return dict(svfsi_target_revision=SVFSI_REVISION,svfsi_executable_sha256=digest,
+    result=dict(svfsi_target_revision=SVFSI_REVISION,svfsi_executable_sha256=digest,
                 steps=n,dt=eon['dt'],gmres_krylov_dimension=krylov,
                 sections=areas,eonsim_passed=eon['passed'],svfsi=metrics,
                 svfsi_max_final_normalized_residual={eq:v[0] for eq,v in convergence.items()},
                 svfsi_zero_corrections={eq:v[1] for eq,v in convergence.items()},
                 svfsi_min_endpoint_jacobian_ratio=jac,worst_cross_code_area_difference=difference,
                 passed=eon['passed'] and difference<.02 and all(v<fsi.LIMITS[k] for k,v in metrics.items()))
+    if with_history:
+        result['settling']=settling_history(case,outputs,meshes,rings,eon)
+    return result
 
 
 def main():
@@ -243,6 +282,7 @@ def main():
     mode.add_argument('--executable',type=Path)
     mode.add_argument('--analyze-only',action='store_true')
     p.add_argument('--check',action='store_true')
+    p.add_argument('--history',action='store_true',help='Compare all saved wall states during settling')
     p.add_argument('--krylov-dimension',type=int,default=150,help='External FSI GMRES subspace size for a new solve')
     a=p.parse_args()
     if a.check and not (a.executable or a.analyze_only):
@@ -255,7 +295,7 @@ def main():
         with (a.work/'solve.log').open('w') as log:
             subprocess.run([binary,'svFSI.inp'],cwd=a.work,stdout=log,stderr=subprocess.STDOUT,check=True)
     if a.executable or a.analyze_only:
-        result=compare(a.case,a.work)
+        result=compare(a.case,a.work,a.history)
         print(json.dumps(result,indent=2,allow_nan=False))
         if a.check and not result['passed']: raise SystemExit('Missed a matched coupled criterion')
     else:
