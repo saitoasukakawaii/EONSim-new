@@ -115,7 +115,7 @@ class WomersleyTest(unittest.TestCase):
         mesh = self.directory/'generated'
         tube.generate(mesh, sectors=8, radial=2, axial=2, radius=1., length=2.)
         nodes, tets, faces = tube.read_mesh(mesh/'fluid.msh')
-        sv.export_mesh(mesh/'fluid.msh',self.directory)
+        sv.export_mesh(mesh/'fluid.msh',self.directory,'fluid',sv.FACE_NAMES)
 
         def arrays(path):
             root = ET.parse(path)
