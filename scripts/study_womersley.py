@@ -17,21 +17,30 @@ LIMITS = dict(amplitude_relative_error=.02, phase_error_degrees=2.,
               max_net_outward_flux=1e-10)
 
 
-def case_config(samples, cycles, scheme):
+def case_config(samples, cycles, scheme, rho_infinity=None, stabilization_tau=None):
     config = tube.case_config()
     config['mesh'] = 'mesh/fluid.msh'
     config['time'] = dict(scheme=scheme)
+    if rho_infinity is not None:
+        if scheme!='generalized_alpha' or not 0 <= rho_infinity <= 1:
+            raise ValueError('rho_infinity in [0,1] requires generalized_alpha')
+        config['time']['rho_infinity'] = rho_infinity
     config['fluid'].update(mode='transient', dt=PERIOD/samples, steps=samples*cycles)
+    if stabilization_tau is not None:
+        if not math.isfinite(stabilization_tau) or stabilization_tau<=0:
+            raise ValueError('stabilization_tau must be finite and positive')
+        config['fluid']['stabilization_tau'] = stabilization_tau
     inlet = next(b for b in config['fluid']['boundaries'] if b['tag']==1 and b['type']=='pressure')
     inlet.update(value=0., pressure_time=dict(amplitude=tube.DROP, period=PERIOD))
     return config
 
 
-def solve(directory, executable, mpiexec, ranks, sectors, radial, axial, samples, cycles, scheme):
+def solve(directory, executable, mpiexec, ranks, sectors, radial, axial, samples, cycles, scheme,
+          rho_infinity=None, stabilization_tau=None):
     directory.mkdir(parents=True)  # Preserve prior runs, including a failed solve.
     tube.generate(directory/'mesh', sectors=sectors, radial=radial, axial=axial,
                   radius=tube.RADIUS, length=tube.LENGTH)
-    config = case_config(samples, cycles, scheme)
+    config = case_config(samples, cycles, scheme, rho_infinity, stabilization_tau)
     (directory/'case.json').write_text(json.dumps(config, indent=2)+'\n')
     command = [executable.resolve(), '-case', 'case.json', '-fluid_boundary_history']
     if ranks > 1:
@@ -101,7 +110,8 @@ def study_parameters(directory):
     cycles, remainder = divmod(fluid['steps'], samples)
     scheme = config['time']['scheme']
     if (cycles < 2 or remainder or scheme not in ('be','bdf2','generalized_alpha')
-            or config != case_config(samples, cycles, scheme)):
+            or config != case_config(samples, cycles, scheme, config['time'].get('rho_infinity'),
+                                     fluid.get('stabilization_tau'))):
         raise ValueError('Case differs from the declared Womersley study')
     geometry = json.loads((directory/'mesh/geometry.json').read_text())
     sectors = geometry['sectors']
@@ -151,7 +161,8 @@ def analyze(directory):
         max_net_outward_flux=max_net)
     if not all(map(math.isfinite, metrics.values())):
         raise ValueError('Nonfinite Womersley metric')
-    return dict(scheme=config['time']['scheme'], samples_per_cycle=samples, cycles=cycles, dt=fluid['dt'],
+    return dict(**config['time'], stabilization_tau=fluid.get('stabilization_tau'),
+                samples_per_cycle=samples, cycles=cycles, dt=fluid['dt'],
                 sectors=sectors, radial=geometry['radial'], axial=geometry['axial'],
                 flow_amplitude=abs(observed), flow_phase_degrees=math.degrees(cmath.phase(observed)),
                 reference_amplitude=abs(q), reference_phase_degrees=math.degrees(cmath.phase(q)),
@@ -171,6 +182,8 @@ def main():
     parser.add_argument('--samples', type=int, default=64, help='Equal steps per forcing cycle')
     parser.add_argument('--cycles', type=int, default=3)
     parser.add_argument('--scheme', choices=('be','bdf2','generalized_alpha'), default='bdf2')
+    parser.add_argument('--rho-infinity', type=float, help='Generalized-alpha spectral radius')
+    parser.add_argument('--tau', type=float, help='Use the same positive stabilization coefficient for every cell and step')
     parser.add_argument('--analyze-only', action='store_true', help='Replay the recorded case and log')
     parser.add_argument('--check', action='store_true', help='Exit nonzero if a flow target is missed')
     args = parser.parse_args()
@@ -180,7 +193,7 @@ def main():
         if args.samples < 8 or args.cycles < 2 or args.ranks < 1:
             parser.error('Require samples >=8, cycles >=2, ranks >=1')
         solve(args.work, args.executable, args.mpiexec, args.ranks, *args.mesh,
-              args.samples, args.cycles, args.scheme)
+              args.samples, args.cycles, args.scheme, args.rho_infinity, args.tau)
     result = analyze(args.work)
     print(json.dumps(result, indent=2, allow_nan=False), flush=True)
     if args.check and not result['passed']:

@@ -11,7 +11,19 @@ solution after startup. Target amplitude error <2%, phase error <2 degrees,
 waveform relative RMS error <3%, last-two-cycle maximum flow change <0.1% of
 reference amplitude and maximum net outward flux <1e-10. Check the default
 transient stabilization, time/mesh sensitivity, MPI and same-partition restart
-separately. Elastic walls and the external solver comparison remain queued.
+separately. For a rigid-wall cross-code check, use svFSI 2022.09.26 at
+`94a2ff5`, identical Tet4 connectivity, pressure waveform, end constraints,
+time step and generalized-alpha spectral radius zero. Compare the complex
+fundamental flow difference against 5% of the circular reference amplitude.
+The matched compliant-wall FSI comparison remains queued.
+
+For a time-discretization control, hold the 48/8/12 mesh and BDF2 fixed and
+compare successive first-harmonic differences on doubling the samples per
+cycle. Repeat with one spatially uniform `fluid.stabilization_tau = 0.003`.
+This value approximates the default coefficient at the mean cell volume, zero
+velocity and 64 samples per cycle. It is fixed before the control solves.
+Report the cycle-change floor alongside the differences. The default study
+changes the stabilization operator along with the time step.
 
 ## CI-DEBUG-ON-DEMAND / 2026-11-13
 

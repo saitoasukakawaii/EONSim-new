@@ -2,6 +2,7 @@
 import argparse
 import cmath
 from functools import lru_cache
+from itertools import combinations
 import json
 import math
 from pathlib import Path
@@ -49,6 +50,40 @@ def quadrature(order):
             for u,wu in rule for v,wv in rule for w,ww in rule]
 
 
+def axial_sections(nodes, cells, state, geometry, drop):
+    """Integrate each complete mesh layer once, with axial flow positive along x."""
+    axial,sectors = geometry['axial'],geometry['sectors']
+    planes = sorted({xyz[0] for xyz in nodes.values()})
+    if len(planes)!=axial+1 or any(not math.isclose(x,i*tube.LENGTH/axial,abs_tol=1e-13)
+                                   for i,x in enumerate(planes)):
+        raise ValueError('Expected the axial planes of the generated tube')
+    faces = {}
+    for tet in cells:
+        for a,b,c in combinations(tet,3):
+            if nodes[a][0]==nodes[b][0]==nodes[c][0]:
+                face = tuple(sorted((a,b,c)))
+                faces[face] = faces.get(face,0)+1
+    sums = {x:[0.,0.,0.] for x in planes}
+    for face,count in faces.items():
+        a,b,c = (nodes[n] for n in face)
+        x = a[0]
+        if count!=(1 if x in (planes[0],planes[-1]) else 2):
+            raise ValueError('Invalid axial triangle incidence')
+        area = abs((b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]))/2
+        totals = sums[x]
+        totals[0] += area
+        totals[1] += area*sum(state[n][0] for n in face)/3
+        totals[2] += area*sum(state[n][3] for n in face)/3
+    expected = sectors*tube.RADIUS**2*math.sin(2*math.pi/sectors)/2
+    levels = []
+    for x,(area,flux,p) in sums.items():
+        if not math.isclose(area,expected,rel_tol=1e-11):
+            raise ValueError('Incomplete axial cross section')
+        levels.append(dict(x=x,axial_flow=flux,mean_pressure=p/area,
+                           reference_pressure=drop*(1-x/tube.LENGTH)))
+    return levels
+
+
 def audit(directory, snapshot, ranks=1, order=3):
     config, geometry, _, _ = study.study_parameters(directory)
     fluid = config['fluid']
@@ -62,6 +97,9 @@ def audit(directory, snapshot, ranks=1, order=3):
     phase = cmath.exp(1j*study.OMEGA*time)
     drop = tube.DROP*phase.imag
     nodes,cells,faces = tube.read_mesh(directory/config['mesh'])
+    s,r,a = (geometry[key] for key in ('sectors','radial','axial'))
+    if len(nodes)!=(a+1)*(1+s*r) or len(cells)!=3*a*s*(2*r-1):
+        raise ValueError('Resolution metadata differs from the generated tube mesh')
     state = tube.fields(snapshot,ranks)
     if nodes.keys()!=state.keys():
         raise ValueError('Endpoint and reference mesh IDs differ')
@@ -104,7 +142,8 @@ def audit(directory, snapshot, ranks=1, order=3):
     if not all(map(math.isfinite,metrics.values())):
         raise ValueError('Nonfinite Womersley field diagnostic')
     return dict(step=step, time=time, ranks=ranks, nodes=len(nodes), tetrahedra=len(cells),
-                gauss_points_per_axis=order, **metrics)
+                gauss_points_per_axis=order, axial_sections=axial_sections(nodes,cells,state,geometry,drop),
+                **metrics)
 
 
 def main():

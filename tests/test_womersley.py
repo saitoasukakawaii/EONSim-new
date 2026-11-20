@@ -1,16 +1,22 @@
 """Independent harmonic and accepted-history oracles. Python standard library only."""
+import base64
 import cmath
 import json
 import math
 from pathlib import Path
 import sys
+import struct
 import tempfile
 import unittest
 from itertools import product
+import xml.etree.ElementTree as ET
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'scripts'))
+import compare_svfsi_womersley as sv
+from compare_womersley_runs import phasor_refinement
+import study_rigid_tube as tube
 import study_womersley as study
-from audit_womersley_fields import axial_velocity, quadrature
+from audit_womersley_fields import axial_sections, axial_velocity, quadrature
 
 
 # 60-digit radial integration of r*(1-J0(z*r)/J0(z)) for alpha=2, R=1.
@@ -104,6 +110,109 @@ class WomersleyTest(unittest.TestCase):
         (self.directory/'case.json').write_text(json.dumps(self.config))
         with self.assertRaisesRegex(ValueError, 'declared Womersley'):
             self.analyze(self.history())
+
+    def test_external_mesh_preserves_cells_coordinates_and_oriented_faces(self):
+        mesh = self.directory/'generated'
+        tube.generate(mesh, sectors=8, radial=2, axial=2, radius=1., length=2.)
+        nodes, tets, faces = tube.read_mesh(mesh/'fluid.msh')
+        sv.export_mesh(mesh/'fluid.msh',self.directory)
+
+        def arrays(path):
+            root = ET.parse(path)
+            encoded = root.find('AppendedData').text.strip()[1:]
+            arrays = root.findall('.//DataArray')
+            bounds = [int(a.attrib['offset']) for a in arrays]+[len(encoded)]
+            result = {}
+            for field,first,last in zip(arrays,bounds,bounds[1:]):
+                block = base64.b64decode(encoded[first:last],validate=True)
+                self.assertEqual(struct.unpack('<I',block[:4])[0],len(block)-4)
+                dtype = {'Float64':'d','Int32':'i','UInt8':'B'}[field.attrib['type']]
+                name = field.attrib['Name']
+                self.assertEqual(field.get('NumberOfComponents','1'),'3' if name=='Points' else '1')
+                result[name] = [v for v, in struct.iter_unpack('<'+dtype,block[4:])]
+            return result
+
+        volume = arrays(self.directory/'fluid.vtu')
+        node_ids = sorted(nodes)
+        self.assertEqual(volume['Points'],[x for n in node_ids for x in nodes[n]])
+        self.assertEqual(volume['GlobalNodeID'],list(range(1,len(nodes)+1)))
+        self.assertEqual(volume['GlobalElementID'],list(range(1,len(tets)+1)))
+        self.assertEqual(volume['types'],[10]*len(tets))
+        self.assertEqual(volume['offsets'],list(range(4,4*len(tets)+1,4)))
+        self.assertEqual([node_ids[i] for i in volume['connectivity']],[n for t in tets for n in t])
+        recovered = []
+        for tag,name in sv.FACE_NAMES.items():
+            surface = arrays(self.directory/(name+'.vtp'))
+            ids = [node_ids[i-1] for i in surface['GlobalNodeID']]
+            self.assertEqual(surface['Points'],[x for n in ids for x in nodes[n]])
+            owners = surface['GlobalElementID']
+            self.assertEqual(surface['offsets'],list(range(3,3*len(owners)+1,3)))
+            for i,owner in enumerate(owners):
+                face = [ids[j] for j in surface['connectivity'][3*i:3*i+3]]
+                tet = tets[owner-1]
+                self.assertTrue(set(face).issubset(tet))
+                a,b,c = (nodes[n] for n in face)
+                opposite, = set(tet)-set(face)
+                normal = tube.cross(tube.sub(b,a),tube.sub(c,a))
+                self.assertLess(sum(x*y for x,y in zip(normal,tube.sub(nodes[opposite],a))),0.)
+                recovered.append((tag,tuple(sorted(face))))
+        self.assertCountEqual(recovered,[(tag,tuple(sorted(f))) for tag,f in faces])
+
+    def test_external_iteration_acceptance(self):
+        first = ' NS 1-1 0.3 [ 0 1.0 1.0 1e-10] [ 24 -30 82]'
+        second = ' NS 1-2 0.4 [-120 2e-9 3e-9 1.0] ! 0 -20 0]'
+        self.assertEqual(sv.check_convergence(first+'\n'+second,1),(2e-9,1))
+        for history,steps in [(first,1),(second,1),(first+'\n'+second,2),
+                              (first+'\n'+second+'\n'+second,1),
+                              (first+'\n'+second.replace('! 0','! 7'),1),
+                              (first+'\n'+second.replace('2e-9','NaN'),1),
+                              (first+'\n'+second+'\nSingular matrix detected',1)]:
+            with self.subTest(history=history,steps=steps), self.assertRaises(ValueError):
+                sv.check_convergence(history,steps)
+
+    def test_axial_sections_integrate_oriented_p1_fields(self):
+        mesh = self.directory/'section-mesh'
+        tube.generate(mesh,sectors=8,radial=2,axial=3,radius=1.,length=2.)
+        nodes,cells,_ = tube.read_mesh(mesh/'fluid.msh')
+        state = {n:(2+x+3*y,0.,0.,.02*(1-x/2)+z) for n,(x,y,z) in nodes.items()}
+        geometry = json.loads((mesh/'geometry.json').read_text())
+        rows = axial_sections(nodes,cells,state,geometry,.02)
+        self.assertEqual(len(rows),4)
+        area = 4*math.sin(math.pi/4)
+        for row in rows:
+            self.assertAlmostEqual(row['axial_flow'],area*(2+row['x']),places=12)
+            self.assertAlmostEqual(row['mean_pressure'],row['reference_pressure'],places=13)
+        with self.assertRaisesRegex(ValueError,'axial'):
+            axial_sections(nodes,cells[:-1],state,geometry,.02)
+
+    def test_external_integral_table(self):
+        table = self.directory/'flux.txt'
+        areas = dict(inlet=3.,outlet=3.,wall=12.)
+        rows = ['wall outlet inlet','12 3 3','0 .001 -.001']
+        table.write_text('\n'.join(rows))
+        self.assertEqual(sv.read_table(table,areas,1),[dict(wall=0.,outlet=.001,inlet=-.001)])
+        for bad in [rows[:-1],['wall inlet inlet',*rows[1:]],
+                    [rows[0],'12 3.1 3',rows[2]],[*rows[:2],'0 inf 0']]:
+            table.write_text('\n'.join(bad))
+            with self.subTest(rows=bad), self.assertRaises(ValueError):
+                sv.read_table(table,areas,1)
+
+    def test_temporal_phasor_and_stabilization_controls(self):
+        rows = []
+        for n in (16,32,64,128):
+            q = Q + (.02-.01j)/n**2
+            rows.append(dict(flow_amplitude=abs(q),flow_phase_degrees=math.degrees(cmath.phase(q)),
+                             scheme='bdf2',cycles=4,samples_per_cycle=n,stabilization_tau=.003,
+                             cycle_max_change_relative=1e-9))
+        result = phasor_refinement(rows)
+        for order in result['observed_orders']:
+            self.assertAlmostEqual(order,2.,places=11)
+        for change in (dict(stabilization_tau=None),dict(cycles=3),dict(samples_per_cycle=48)):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                phasor_refinement([rows[0],{**rows[1],**change},*rows[2:]])
+        for tau in (0.,-1.,math.inf,math.nan):
+            with self.subTest(tau=tau), self.assertRaises(ValueError):
+                study.case_config(16,4,'bdf2',stabilization_tau=tau)
 
 
 if __name__ == '__main__':
