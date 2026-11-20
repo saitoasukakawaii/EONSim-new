@@ -16,7 +16,7 @@ import compare_svfsi_womersley as sv
 from compare_womersley_runs import bdf2_stabilization, phasor_refinement
 import study_rigid_tube as tube
 import study_womersley as study
-from audit_womersley_fields import axial_sections, axial_velocity, quadrature
+from audit_womersley_fields import axial_sections, axial_velocity, quadrature, verified_endpoint_flux
 
 
 # 60-digit radial integration of r*(1-J0(z*r)/J0(z)) for alpha=2, R=1.
@@ -173,8 +173,14 @@ class WomersleyTest(unittest.TestCase):
     def test_axial_sections_integrate_oriented_p1_fields(self):
         mesh = self.directory/'section-mesh'
         tube.generate(mesh,sectors=8,radial=2,axial=3,radius=1.,length=2.)
-        nodes,cells,_ = tube.read_mesh(mesh/'fluid.msh')
+        nodes,cells,faces = tube.read_mesh(mesh/'fluid.msh')
         state = {n:(2+x+3*y,0.,0.,.02*(1-x/2)+z) for n,(x,y,z) in nodes.items()}
+        flow,areas,pressure = tube.surface_integrals(nodes,faces,state)
+        end = {tag:study.BoundarySample(2.,a,flow[tag],pressure[tag]/a) for tag,a in areas.items()}
+        self.assertEqual(verified_endpoint_flux(nodes,faces,state,end,2.),flow)
+        end[2] = end[2]._replace(flow=end[2].flow+.001)
+        with self.assertRaisesRegex(ValueError,'boundary history'):
+            verified_endpoint_flux(nodes,faces,state,end,2.)
         geometry = json.loads((mesh/'geometry.json').read_text())
         rows = axial_sections(nodes,cells,state,geometry,.02)
         self.assertEqual(len(rows),4)

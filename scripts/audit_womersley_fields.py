@@ -84,6 +84,20 @@ def axial_sections(nodes, cells, state, geometry, drop):
     return levels
 
 
+def verified_endpoint_flux(nodes,faces,state,samples,expected_time):
+    """Align a VTU endpoint with the time and all integral boundary observations."""
+    if nodes.keys()!=state.keys() or set(samples)!={1,2,3}:
+        raise ValueError('Endpoint mesh IDs or boundary tags differ')
+    flux,area,pressure = tube.surface_integrals(nodes,faces,state)
+    for tag,row in samples.items():
+        if (not math.isclose(row.time,expected_time,rel_tol=2e-13,abs_tol=1e-14)
+                or not math.isclose(area[tag],row.area,rel_tol=2e-11)
+                or abs(flux[tag]-row.flow)>1e-11
+                or abs(pressure[tag]/area[tag]-row.pressure)>1e-10):
+            raise ValueError(f'VTU and accepted boundary history disagree at tag {tag}')
+    return flux
+
+
 def audit(directory, snapshot, ranks=1, order=3):
     config, geometry, _, _ = study.study_parameters(directory)
     fluid = config['fluid']
@@ -101,15 +115,7 @@ def audit(directory, snapshot, ranks=1, order=3):
     if len(nodes)!=(a+1)*(1+s*r) or len(cells)!=3*a*s*(2*r-1):
         raise ValueError('Resolution metadata differs from the generated tube mesh')
     state = tube.fields(snapshot,ranks)
-    if nodes.keys()!=state.keys():
-        raise ValueError('Endpoint and reference mesh IDs differ')
-    flux,area,pressure = tube.surface_integrals(nodes,faces,state)
-    for tag,row in rows[step].items():
-        if (not math.isclose(row.time, step*fluid['dt'], rel_tol=2e-13, abs_tol=1e-14)
-                or not math.isclose(area[tag],row.area,rel_tol=2e-11)
-                or abs(flux[tag]-row.flow)>1e-11
-                or abs(pressure[tag]/area[tag]-row.pressure)>1e-10):
-            raise ValueError(f'VTU and accepted boundary history disagree at tag {tag}')
+    flux = verified_endpoint_flux(nodes,faces,state,rows[step],step*fluid['dt'])
     volume = velocity_error2 = reference2 = pressure2 = divergence2 = axial_integral = 0.
     rule = quadrature(order)
     for tet in cells:

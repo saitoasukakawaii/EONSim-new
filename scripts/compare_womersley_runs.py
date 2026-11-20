@@ -6,6 +6,7 @@ import json
 import math
 from pathlib import Path
 
+from audit_womersley_fields import verified_endpoint_flux
 import study_rigid_tube as tube
 import study_womersley as study
 
@@ -49,10 +50,11 @@ def endpoint_stabilization(directory):
     # Validate the endpoint history and the complete field before reconstructing tau.
     study.analyze(directory)
     fluid = config['fluid']
-    nodes,cells,_ = tube.read_mesh(directory/config['mesh'])
+    nodes,cells,faces = tube.read_mesh(directory/config['mesh'])
     state = tube.fields(directory,1)
-    if state.keys()!=nodes.keys():
-        raise ValueError('Endpoint field does not cover the mesh')
+    step = fluid['steps']
+    samples_at_end = study.boundary_history((directory/'solve.log').read_text())[step]
+    verified_endpoint_flux(nodes,faces,state,samples_at_end,step*fluid['dt'])
     prescribed = fluid.get('stabilization_tau')
     return dict(samples_per_cycle=samples,prescribed=prescribed,
                 **bdf2_stabilization(nodes,cells,state,fluid['dt'],fluid['density'],fluid['viscosity'],prescribed))
