@@ -83,7 +83,7 @@ throughout all cells and all steps.
 `python scripts/compare_womersley_runs.py tau CASE` reads a complete serial
 BDF2 endpoint. From the accepted velocities it reconstructs the coefficients
 that another equal step would use. With element volume V and constant time
-step Δt, h=(6V)⅓ and the temporal, advective and viscous terms are
+step Δt, `h = (6V)^(1/3)` and the temporal, advective and viscous terms are
 3ρ/Δt, 2ρ|mean(u)|/h and 4μ/h². The default τ is the inverse Euclidean
 norm of the three terms. The report records cell extrema, a volume-weighted
 mean and the largest fractional contribution of advection to the squared

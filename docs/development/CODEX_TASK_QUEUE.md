@@ -15,7 +15,8 @@ separately. For a rigid-wall cross-code check, use svFSI 2022.09.26 at
 `94a2ff5`, identical Tet4 connectivity, pressure waveform, end constraints,
 time step and generalized-alpha spectral radius zero. Compare the complex
 fundamental flow difference against 5% of the circular reference amplitude.
-The matched compliant-wall FSI comparison remains queued.
+The companion elastic-wall comparison is tracked in
+[PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42).
 
 For a time-discretization control, hold the 48/8/12 mesh and BDF2 fixed and
 compare successive first-harmonic differences on doubling the samples per
@@ -27,7 +28,10 @@ changes the stabilization operator along with the time step.
 
 Local flow and rigid-wall svFSI gates passed on 48/8/12. The pressure trace,
 uniform-coefficient control and spatial refinement are documented as separate
-observations. The compliant-wall milestone remains open.
+observations. The 48/12/18 mesh gives 0.7554% amplitude error and
+0.2097° phase error. On that mesh the inter-code complex flow difference
+is 1.3046%. The fixed-τ control gives phasor orders 1.960 and 1.991.
+[PR #41](https://github.com/saitoasukakawaii/EONSim-new/pull/41) ·
 [Inputs, measurements and replay](../research/data/womersley-2026-11-20/README.md)
 
 ## CI-DEBUG-ON-DEMAND / 2026-11-13

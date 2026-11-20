@@ -15,10 +15,28 @@ import study_rigid_tube as tube
 import study_womersley as study
 
 
+def audit_equal_step_schemes(bdf2,alpha):
+    base,other=(study.study_parameters(d)[0] for d in (bdf2,alpha))
+    if (base['time']!={'scheme':'bdf2'} or other['time']!={'scheme':'generalized_alpha','rho_infinity':0}
+            or {**base,'time':other['time']}!=other or compare.mesh_digest(bdf2)!=compare.mesh_digest(alpha)):
+        raise ValueError('Expected identical uniform-step BDF2 and zero-spectral-radius alpha cases')
+    first,second=(tube.fields(d,1) for d in (bdf2,alpha))
+    if first.keys()!=second.keys():
+        raise ValueError('The two scheme endpoints cover different mesh nodes')
+    a,b=(study.boundary_history((d/'solve.log').read_text()) for d in (bdf2,alpha))
+    return dict(max_velocity_difference=max(abs(x-y) for n in first for x,y in zip(first[n][:3],second[n][:3])),
+                max_pressure_difference=max(abs(first[n][3]-second[n][3]) for n in first),
+                max_flux_history_difference=max(abs(row.flow-b[step][tag].flow)
+                                                for step,rows in a.items() for tag,row in rows.items()))
+
+
 def replay(root, field_audits=False):
     dataset = json.loads((root/'dataset.json').read_text())
     runs = root/'runs'
     result = dict(flow={name:study.analyze(runs/name) for name in dataset['runs']})
+    if dataset.get('equivalent_schemes'):
+        result['equivalent_schemes']={name:audit_equal_step_schemes(runs/name,runs/alpha)
+                                      for name,alpha in dataset['equivalent_schemes'].items()}
     result['time'] = {name:compare.time_refinement([runs/n for n in family])
                       for name,family in dataset['time'].items()}
     if dataset.get('stabilization'):

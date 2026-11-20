@@ -6,7 +6,7 @@ Womersley 的圆管解提供复数流量参照。新增末周期投影、三相�
 svFSI 核验。实现 `62c0b2f`，比较工具 `bef75bd`。已核验 48/8/12
 上的流量门槛，计算端面压力仍比施加幅值低 7.58%。草稿待审问题包括
 端面压力和内部压力的适用指标，以及时间加密同时改变默认稳定化系数的影响。
-尚无弹性管与多节点性能结论。稿件保留在草稿目录。
+刚性管在固定 48 扇区上的细化将端流幅值误差降到 0.7554%，在 24 扇区上仅看端流则会低估域内速度误差。弹性壁的独立平衡试验见 [PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42)。稿件保留在草稿目录。
 [基准草稿](../../website/drafts/womersley-flow-and-pressure-traces.md) · [原始证据](data/womersley-2026-11-20/README.md)
 
 ## 2026-11-13 / Release 验收与 Debug 故障定位分离

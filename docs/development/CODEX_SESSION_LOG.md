@@ -9,7 +9,8 @@
 svFSI 输入和迭代失败，以及两处已修复的本地回归脚本故障。
 
 独立从正负峰值与周期终点 VTU 积分速度、压力、散度、分截面通量。固定版本 svFSI 在相同
-几何、负载、时间步和端面分量约束下跑完三个周期。刚性流量对照通过，压力迹与管壁响应仍需单独研究。
+几何、负载、时间步和端面分量约束下跑完三个周期。细化后的 59,616 个四面体给出 0.7554% 幅值误差，压力迹的幅值偏差仍有 5.68%。该网格上 EONSim 与 svFSI 的复流量差为 1.3046%。20 组 EONSim 和 3 组外部运行共归档 200 个文件。默认稳定化的相邻步复流量变化为 0.3694%、0.3659%、0.6522%，固定 τ 的独立时间细化给出 1.960 和 1.991 阶。两、四进程均与串行端点吻合。源提交 `f802fa3` 的 Release 增量检查和证据收据已通过。[数值 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/44724492072)
+[刚性管 PR #41](https://github.com/saitoasukakawaii/EONSim-new/pull/41) · [静压管壁 PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42) ·
 [数值、命令、失败记录与原始场](../research/data/womersley-2026-11-20/README.md)
 
 ## 2026-11-13 / CI-DEBUG-ON-DEMAND / 源码修改

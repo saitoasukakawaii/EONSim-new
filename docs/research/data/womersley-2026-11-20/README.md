@@ -4,6 +4,8 @@ The reference BDF2 run on 48 sectors, 8 radial rings and 12 axial slabs had
 1.5047% amplitude error, 0.2858° phase error and 1.5864% relative waveform
 RMS error. On the same 25,920 tetrahedra, a separate generalized-alpha run
 and upstream svFSI differed by 2.0395% of the analytical flow amplitude.
+On the finer 59,616-cell mesh the EONSim flow amplitude error fell to
+0.7554% and the matched cross-code complex difference fell to 1.3046%.
 These results apply to the synthetic rigid circular-tube problem at α=2.
 [Boundary model, reference solution and commands](../../../development/WOMERSLEY_FLOW.md)
 
@@ -52,6 +54,74 @@ divergence at this phase was 6.6994e−5 s⁻¹. The fitted end-flux target and
 the local velocity, pressure and divergence diagnostics address different
 quantities. The pressure trace has no acceptance claim.
 
+The 5,005-node, 192-step reference also ran on two and four MPI processes.
+The largest velocity-component difference from serial was 2.17e−19 m/s
+on both decompositions. Pressure differed by up to 1.02e−18 and 1.11e−18 Pa.
+Across all steps and tags the maximum differences were 1.96e−17 m³/s in
+flow and 2.85e−16 Pa in mean pressure. Separate one- and two-process
+checkpoints generated with the original main executable reproduced the
+uninterrupted endpoint fields with zero difference after restoration.
+
+## Mesh and time sensitivity
+
+![Spatial refinement at fixed angular resolution and temporal phasor changes on a fixed mesh](refinement.svg)
+
+Each point on the right compares two successive time resolutions. The dashed
+line has a slope of two on this log–log scale and is anchored at the first
+uniform-τ difference. [Plot source](plot_refinement.py)
+
+At a fixed polygon with 48 sectors, increasing radial and axial resolution
+reduces both the flow amplitude error and the discrepancy in the computed
+pressure trace. All three runs use BDF2, 64 steps per cycle, three cycles,
+the default stabilization and the same pressure waveform.
+
+| Sectors / radial / axial | Tet4 cells | Flow amplitude error | Flow phase error | Waveform RMS error | End-pressure amplitude deficit |
+|---|---:|---:|---:|---:|---:|
+| 48 / 4 / 6 | 6,048 | 2.5372% | 0.3083° | 2.5951% | 11.7610% |
+| 48 / 8 / 12 | 25,920 | 1.5047% | 0.2858° | 1.5864% | 7.5780% |
+| 48 / 12 / 18 | 59,616 | 0.7554% | 0.2097° | 0.8400% | 5.6792% |
+
+At the final zero-pressure phase, the 59,616-cell mesh gives velocity
+L² error 0.7657%, volume RMS pressure error 0.2210% of the imposed amplitude
+and element-divergence RMS 1.8993e−5 s⁻¹. At fixed eight radial rings and
+12 axial slabs the 24-sector mesh has a smaller end-flow amplitude error
+(0.6781%) than the 48-sector mesh. Its velocity L² error is substantially
+larger (3.1233% versus 0.9179%) and its phase error is 0.7022°. Agreement
+of a single end-flow quantity can conceal error in the interior profile.
+
+| Full sectors at fixed 8 radial / 12 axial | Flow amplitude error | Phase error | Endpoint velocity L² error | Endpoint pressure RMS / imposed amplitude |
+|---:|---:|---:|---:|---:|
+| 24 | 0.6781% | 0.7022° | 3.1233% | 0.4209% |
+| 48 | 1.5047% | 0.2858° | 0.9179% | 0.3376% |
+| 96 | 1.1680% | 0.1171° | 0.4257% | 0.2652% |
+
+The temporal study uses the complex flow coefficient, including phase. Each
+reported difference is the change between successive step sizes divided by
+the analytical amplitude. In the default formula the effective integration
+step enters the stabilization coefficient. With 32, 64, 128 and 256 steps
+per cycle the successive differences are 0.3694%, 0.3659% and 0.6522%.
+Their ratio orders are 0.014 and −0.834. The maximum last-cycle change
+over this family is 0.00563% of the analytical amplitude. To hold the
+spatial operator fixed a separate four-cycle control
+uses the same uniform coefficient 0.003 at all resolutions. With 16, 32,
+64 and 128 steps per cycle the differences are 2.0445%, 0.5254% and 0.1322%,
+giving observed orders 1.960 and 1.991. The maximum last-cycle change in
+this four-cycle control is 5.76e−9 of the analytical amplitude. Its measured order applies to this mesh,
+stabilization choice and first-harmonic observable.
+
+Evaluating the solver's coefficient formula cell by cell at the same final
+phase quantifies the change. The coefficient below is for an additional
+equal BDF2 step from each saved endpoint. At every listed resolution the
+advective term contributes at most 3.02e−9 of the squared default inverse
+coefficient on any cell. The time and viscous terms dominate in this regime.
+
+| Steps per cycle | Minimum default τ | Volume-weighted mean τ | Maximum default τ |
+|---:|---:|---:|---:|
+| 32 | 0.0012143 | 0.0035692 | 0.0046681 |
+| 64 | 0.0012044 | 0.0033069 | 0.0041851 |
+| 128 | 0.0011670 | 0.0026624 | 0.0031324 |
+| 256 | 0.0010463 | 0.0017437 | 0.0018858 |
+
 ## Independent solver
 
 Both solvers used the identical Tet4 connectivity, coordinates, zero initial
@@ -71,6 +141,7 @@ zeroth coefficient. Its original linear and nonlinear solvers were used.
 |---|---:|---|---:|---:|
 | 12/2/3, 16 | 8.7814% | Miss | 4.1432% | 0.3306% |
 | 48/8/12, 64 | 2.0395% | Pass | 0.3160% | 0.1400% |
+| 48/12/18, 64 | 1.3046% | Pass | 0.1622% | 0.0834% |
 
 For the 48/8/12 case, svFSI's error against the circular reference was
 0.4947% in amplitude and 0.0565° in phase. Its maximum last-cycle change
@@ -82,10 +153,28 @@ linear solve, missing step or unconverged final normalization. The final
 binary VTU independently reproduced the external end-flow and mean-pressure
 tables to their printed precision.
 
+On 48/12/18 the native svFSI result had 0.5196% amplitude error and
+0.0517° phase error against the circular solution. Its maximum final
+normalized residual across 192 steps was 9.9e−9. The history includes
+142 zero-iteration corrections already beneath the nonlinear target.
+An early cross-code postprocessing attempt encountered the still-running
+EONSim job and correctly rejected its incomplete endpoint. The successful
+comparison uses both completed solves and their final fields.
+
+For EONSim's first-order generalized-alpha method, spectral radius zero gives
+`α_m = 3/2`, `α_f = 1` and `γ = 1`. Substituting the preceding accepted rate gives
+`(3uₙ₊₁ − 4uₙ + uₙ₋₁)/(2Δt)` after the common BE startup on a uniform
+time grid. Thus the EONSim BDF2 and generalized-alpha runs in these two
+pairs are algebraically equivalent. On 48/8/12 and 48/12/18 their maximum
+final velocity differences were 2.17e−19 m/s. Pressure differed by at most
+8.55e−19 Pa and the largest per-tag flow history difference was 1.74e−18 m³/s.
+The independent implementation in this comparison is the upstream svFSI run.
+
 ## Reproduce and inspect
 
 The EONSim C++ solver used commit `62c0b2fc0b59d5377e1a085a8f4e94ac4b5eb209`.
-The field and cross-code tools used `bef75bda4c6674452757cee3629a38854f34807e`.
+The initial field and cross-code tools used `bef75bda4c6674452757cee3629a38854f34807e`.
+Endpoint stabilization reconstruction and the shared flux check are in `f802fa3`.
 The baseline checkpoint binary came from `89a1a3d823396df02fa9e8acb5ded36b70938e9c`.
 PETSc 3.23.7 was real/double with 32-bit indices, Open MPI 5.0.8 and GCC
 15.3.0. The shared machine had four CPU cores of quota and 16 GiB of memory.
@@ -103,12 +192,16 @@ python "$d/replay.py" /tmp/eonsim-womersley-raw --verify --output /tmp/wom-integ
 # The additional external VTU audit used vtk 9.3.1.
 python "$d/replay.py" /tmp/eonsim-womersley-raw --verify --fields --output /tmp/wom-fields.json
 python "$d/plot_waveform.py" /tmp/eonsim-womersley-raw /tmp/wom-waveform.svg
+python "$d/plot_refinement.py" /tmp/wom-fields.json /tmp/wom-refinement.svg
 ```
 
 The raw archive contains the Gmsh volume meshes, case inputs, every accepted
 boundary row, the audited VTU fields, the matched external inputs and
 histories, the baseline checkpoint generations and both legacy endpoints.
-The manifest authenticates each extracted file. The JSON results include
+The archive contains 200 authenticated files covering 20 EONSim runs and
+three matched external runs. Its SHA-256 is
+`bf6035d02ae0cbb4881c69e9adda3c0662d01aa22cfb743e42fe5b86a3f0824b`.
+The JSON results include
 the coarse misses as well as the gated cases.
 [Inputs and raw outputs](raw.tar.xz) · [File digests](manifest.json) · [Recomputed metrics](results.json)
 
@@ -135,7 +228,8 @@ appended binary arrays, GMRES and explicit convergence checks. Two local
 regression harness faults (a non-string argument and an incorrect mesh lookup)
 are also retained with the corrected test receipts.
 
-The current study measures flow, pressure and velocity for a stationary rigid
-wall. The production roadmap retains compliant-wall pressure/area response,
-material matching and multi-node verification as separate work.
-[Production FSI roadmap](../../../development/FSI_PRODUCTION_ROADMAP.md)
+The current study measures flow, pressure and velocity for a stationary
+rigid wall. A companion benchmark covers hydrostatic elastic-wall
+pressure–area response. Dynamic compliance and multi-node scaling remain
+open. [Elastic-wall PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42)
+· [Production FSI roadmap](../../../development/FSI_PRODUCTION_ROADMAP.md)
