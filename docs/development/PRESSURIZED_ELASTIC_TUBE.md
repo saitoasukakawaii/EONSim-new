@@ -40,6 +40,10 @@ For the external pair, use a constant pressure from the initial step, the same c
 
 Use fresh case directories, the locked Release build and its MPI launcher. The study writes the generated mesh, physical parameters, solver output and diagnostics. The external executable must be built from svFSI 2022.09.26 at commit `94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571`. Python VTK 9.3.1 reads its binary VTU files.
 
+The rigid and elastic comparisons used the same upstream executable. Its
+compiler, MPI, CMake options and binary digest are recorded with commands.
+[Pinned external build instructions](https://github.com/saitoasukakawaii/EONSim-new/blob/6210dfc36cd223ce537c8a16fdd3781a657b13c5/docs/research/data/womersley-2026-11-20/README.md#reproduce-and-inspect)
+
 ~~~bash
 exe=build/cloud-3.23.7-release/eonsim
 python3 scripts/study_lame_wall.py --executable "$exe" --work build/lame48 --mesh 48 4 6 --check
@@ -48,6 +52,12 @@ python3 scripts/audit_hydrostatic_mass.py --work build/hydro48
 python3 scripts/study_hydrostatic_fsi.py --executable "$exe" --work build/paired48 --mesh 48 4 4 6 --dt 0.5 --duration 12 --matched-svfsi-rho 0.5 --check
 python3 scripts/compare_svfsi_wall.py --case build/paired48 --work build/external48 --executable /path/to/svFSI --check
 ~~~
+
+To reproduce the 72-sector comparison, change the paired EONSim case to
+`--mesh 72 6 5 8` and use distinct case directories. Add
+`--krylov-dimension 450` when generating the external input. This selects
+the subspace used in the successful fine-grid run and preserves its original
+linear and nonlinear tolerances.
 
 Add `--history` to compare every saved wall state during the pressure step.
 At each time the diagnostic divides the largest sectional strain difference
