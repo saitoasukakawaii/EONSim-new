@@ -1,5 +1,18 @@
 # EONSim Codex Task Queue
 
+## FSI-PROD-02B / in_progress / 2026-11-20
+
+Baseline `89a1a3d` includes the steady rigid-tube work from PR #38. This
+increment targets the low-frequency, pressure-driven Womersley flow in a rigid
+circular tube (R=1, L=2, rho=mu=1, alpha=2, sinusoidal pressure drop of
+amplitude 0.02 and zero mean). Use the existing component-split end conditions.
+Compare a full cycle of accepted endpoint fluxes against the complex analytical
+solution after startup. Target amplitude error <2%, phase error <2 degrees,
+waveform relative RMS error <3%, last-two-cycle maximum flow change <0.1% of
+reference amplitude and maximum net outward flux <1e-10. Check the default
+transient stabilization, time/mesh sensitivity, MPI and same-partition restart
+separately. Elastic walls and the external solver comparison remain queued.
+
 ## CI-DEBUG-ON-DEMAND / 2026-11-13
 
 - 执行范围：默认 Release 增量数值验证、手动 Debug、Release-only 收据及自动合并四项检查。

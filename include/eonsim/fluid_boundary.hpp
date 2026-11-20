@@ -9,7 +9,7 @@ using TriangleVector=NodalLayout<Tri3Topology,Space3::dimension>;
 struct SurfaceLoad {
     TriangleVector::State<PetscInt> ids;
     TriangleVector::State<double> residual{}; // -integral N*t dA，独立于 trial
-    double ramp_time;
+    std::size_t boundary_index; // Index into the sorted conditions for this face's time dependence.
 };
 struct FluidBoundaryPlan {
     std::vector<PrescribedDof> constraints; // 仅 owned DoF、已合并相交面的相同条件
