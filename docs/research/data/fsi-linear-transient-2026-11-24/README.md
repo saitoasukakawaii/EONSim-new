@@ -47,3 +47,5 @@ done
 The [axisymmetric continuum reference](axisymmetric.md) provides an independent space refinement, stage power and mass checks, and a comparison of both tetrahedral solvers at common axial stations.
 
 [Dependence of the native Tet4 momentum stabilization on the time step](discrete-metric.md)
+
+[Frequency-dependent area compliance, phase and total inward flux](harmonic.md)
