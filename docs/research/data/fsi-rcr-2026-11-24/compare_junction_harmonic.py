@@ -87,8 +87,14 @@ def pack(root,exe,readers):
         if (abs(closure-r['stage_closure'])>1e-15 or abs(checked['volume_gain']-r['last_vtu']['volume_gain'])>1e-12
                 or max(abs(a-b) for a,b in zip(checked['flux'],r['last_vtu']['flux']))>1e-15):
             raise ValueError('Independent VTU or stage balance differs')
-        cols=['time']+[f'endpoint_{s}_{t}' for t in (2,3) for s in ('rcr_flow','rcr_pressure','capacitor_pressure','distal_pressure')]
-        all_runs.append(dict(case=case.name,report=r,previous_and_last_cycles=[{k:row[k] for k in cols} for row in rows[-2*n:]]))
+        cols=['time','stage_inlet_flow','stage_outlet_flow','stage_wall_flux','stage_divergence',
+              'endpoint_inlet_flow','endpoint_outlet_flow','endpoint_wall_flux','endpoint_divergence',
+              'endpoint_volume','volume_secant_rate','stage_mass_residual','secant_mass_residual',
+              'stage_rcr_flow_2','stage_rcr_flow_3']
+        cols.extend(f'endpoint_{s}_{t}' for t in (2,3) for s in
+                    ('rcr_flow','rcr_pressure','capacitor_pressure','distal_pressure'))
+        all_runs.append(dict(case=case.name,report=r,reference_volume=geo['reference_fluid_volume'],
+                             previous_and_last_cycles=[{k:row[k] for k in cols} for row in rows[-2*n:]]))
     startups=[]
     for path in sorted((root/'junction-startup').glob('*/result.json')):
         case=path.parent
@@ -157,6 +163,35 @@ def reference_rows(refs):
     return sorted(rows,key=lambda r:(r['grid'],r['order'],r['tau'] or 0,r['hz'],r['steps_per_cycle'])),lookup
 
 
+def storage_balance(samples,reference_volume,hz,n,elastic):
+    dt=1/(hz*n)
+    last=samples[-n:]
+    ports=[fourier(last,f'endpoint_rcr_flow_{tag}',hz) for tag in (2,3)]
+    scale=max(map(abs,ports))
+    net=sum(ports)
+    wall=fourier(last,'endpoint_wall_flux',hz)
+    gains=[dict(time=row['time'],gain=row['endpoint_volume']-reference_volume) for row in last]
+    volume=fourier(gains,'gain',hz)
+    rate,_=generalized_alpha_symbol(hz,n)
+    for i,row in enumerate(samples):
+        for level in ('stage','endpoint'):
+            paired=sum(row[f'{level}_rcr_flow_{tag}'] for tag in (2,3))
+            if abs(paired-row[f'{level}_outlet_flow'])>1e-11*scale or row[f'{level}_inlet_flow']!=0.:
+                raise ValueError('Terminal fluxes do not reproduce the closed-inlet mass history')
+        stage=-row['stage_outlet_flow']-row['stage_wall_flux']
+        secant=-row['stage_outlet_flow']-row['volume_secant_rate']
+        if max(abs(stage-row['stage_mass_residual']),abs(secant-row['secant_mass_residual']))>1e-11*scale:
+            raise ValueError('Signed stage or secant balance differs from the recorded fluxes')
+        if i:
+            delta=(row['endpoint_volume']-samples[i-1]['endpoint_volume'])/dt
+            if abs(delta-row['volume_secant_rate'])>128*np.finfo(float).eps*reference_volume/dt:
+                raise ValueError('The recorded secant rate disagrees with the endpoint volumes')
+    return dict(net_outflow_amplitude=abs(net),wall_flux_amplitude=abs(wall),volume_amplitude=abs(volume),
+                wall_plus_ports_pct_largest_port=100*abs(net+wall)/scale,
+                continuous_volume_rate_gap_pct_net=100*abs(net+2j*np.pi*hz*volume)/abs(net) if elastic else None,
+                discrete_volume_rate_gap_pct_net=100*abs(net+rate*volume)/abs(net) if elastic else None)
+
+
 def tables(data):
     refs,lookup=reference_rows(data['references'])
     results=[]
@@ -165,6 +200,7 @@ def tables(data):
         g,hz,n,tau=r['refinement'],r['frequency_hz'],r['samples'],r.get('fixed_pspg',.01)
         samples=run['previous_and_last_cycles']
         if len(samples)!=2*n:raise ValueError('Missing measured cycles')
+        storage=storage_balance(samples,run['reference_volume'],hz,n,r['elastic'])
         def pick(order,coefficient,steps):
             return lookup.get((g,order,coefficient,hz,steps))
         continuous=pick(1,tau,0)
@@ -197,7 +233,8 @@ def tables(data):
                                 continuous_p1_flow_gap_pct=error(continuous,'flow'),discrete_p1_flow_gap_pct=error(discrete,'flow'),
                                 continuous_p2_flow_gap_pct=error(taylor,'flow'),discrete_p1_pressure_gap_pct=error(discrete,'pressure'),
                                 max_net_outflow_over_amplitude=r['max_net_outflow_over_amplitude'],
-                                max_volume_change=r['max_volume_change'],max_stage_defect=r['stage_closure'],vtu_flux_error=r['history_vtu_flow_error']))
+                                max_volume_change=r['max_volume_change'],max_stage_defect=r['stage_closure'],
+                                vtu_flux_error=r['history_vtu_flow_error'],**storage))
     startup=[]
     for case in data['startups']:
         r=case['report']

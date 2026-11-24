@@ -47,9 +47,13 @@ The same tube also receives a positive mean plus a sinusoid. Pressure and flow i
 | 0.4 ± 0.2 | svFSI | 1.000000000 | 40.0000003 | 40.05024 | 0.094537% |
 | 0.4 ± 0.2 | Circular steady solution | 1 | 40 | 40.04857 | 0.102477% |
 | 2 ± 1 | EONSim | 1.000000002 | 200.0000006 | 200.24989 | 0.473467% |
+| 2 ± 1 | svFSI | 0.999999984 | 200.0000000 | 200.24675 | 0.473469% |
+| 2 ± 1 | svFSI, stage-aligned traction | 0.999999973 | 200.0000063 | 200.24670 | 0.473468% |
 | 2 ± 1 | Circular steady solution | 1 | 200 | 200.24283 | 0.512387% |
 
 At 0.4 ± 0.2 mL/s the lowest sampled inlet flow is 0.2000 mL/s. The minimum endpoint outlet flows on the two 3D runs are 0.2285 and 0.2268 mL/s. Their complex outlet-flow difference is 1.2710% of the inlet sinusoidal amplitude. The zero-mean measurement on this mesh gave 1.2700%. This intercode difference persists with forward flow throughout the cycle. Cross-code agreement on mean area also leaves a 0.00794 percentage point difference from the steady circular midspan value. [Measured DC component, positive minima and circular reference](perfused-forward.csv)
+
+Increasing both the mean and oscillatory inlet flows fivefold raises the mean terminal pressure to 200 Pa. On the same clamped mesh the unmodified native–EONSim outlet phasor difference is 1.2752% of the inlet oscillatory amplitude. Applying the native RCR traction at the fluid stage lowers that difference to 0.03479%. The EONSim and native midspan mean area increases agree within 0.000002 percentage points. Their difference from the circular steady response is about 0.039 percentage points. This comparison measures the mean and the oscillatory components independently. [Mean flows and areas](perfused-forward.csv) · [Complex amplitude and phase](perfused-pairs.csv)
 
 ## Reproduction
 
