@@ -320,13 +320,20 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","grad_div_viscosity","pressure_time","output_interval","pressure_face_history","checkpoint_interval","inlet"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","stabilization_time_scale","grad_div_viscosity","pressure_time","output_interval","pressure_face_history","checkpoint_interval","inlet"},"fsi");
         if(f["stabilization_tau"]) {
             config.fsi.stabilization_tau=f["stabilization_tau"].as<double>();
             if(!(*config.fsi.stabilization_tau>0)||!std::isfinite(*config.fsi.stabilization_tau))
                 throw std::runtime_error("fsi.stabilization_tau must be finite and positive");
         }
         auto& v=config.fsi;
+        if(const auto scale=f["stabilization_time_scale"]) {
+            if(v.stabilization_tau) throw std::runtime_error("fsi.stabilization_time_scale excludes stabilization_tau");
+            const double seconds=scale.as<double>();
+            if(!(seconds>0)||!std::isfinite(seconds))
+                throw std::runtime_error("fsi.stabilization_time_scale must be finite and positive");
+            v.stabilization_time_scale=seconds;
+        }
         v.grad_div_viscosity=read_grad_div_viscosity(f,"fsi");
         if(f["output_interval"]) v.output_interval=f["output_interval"].as<int>();
         if(f["pressure_face_history"]) v.pressure_face_history=f["pressure_face_history"].as<bool>();

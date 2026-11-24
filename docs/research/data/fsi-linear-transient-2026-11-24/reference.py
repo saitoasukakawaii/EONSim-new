@@ -92,7 +92,7 @@ def pressure_load(mesh,velocity,selected,size):
 
 
 class Tube:
-    def __init__(self,directory,tau,grad_div):
+    def __init__(self,directory,tau,grad_div,time_scale=None):
         cfg=json.loads((directory/"case.json").read_text())["fsi"]
         self.meshes=fm,sm=[read_mesh(directory/name) for name in ("fluid.msh","solid.msh")]
         dom=cfg["domains"]
@@ -136,7 +136,8 @@ class Tube:
         self.size=int(sd.max()+1)
         M=Entries(self.size)
         K=Entries(self.size)
-        self.tau=tau
+        if (tau is None)==(time_scale is None):
+            raise ValueError("Specify one stabilization control")
         self.grad_div=grad_div
         rho=cfg["density"]
         mu=cfg["viscosity"]
@@ -146,6 +147,12 @@ class Tube:
         lame=young*nu/((1+nu)*(1-2*nu))
         for region,(mesh,velocity) in enumerate(zip((fm,sm),(vf,vs))):
             vol,gn=geometry(mesh)
+            if region==0:
+                # Linearization around rest removes the previous-velocity contribution.
+                h=np.cbrt(6*vol)
+                cell_tau=np.broadcast_to(tau,vol.shape) if time_scale is None else (
+                    4*rho**2/time_scale**2+16*mu**2/h**4)**(-.5)
+                self.tau_range=[float(cell_tau.min()),float(cell_tau.max())]
             cells=mesh[1]
             v=velocity[cells]
             d=(vf if region==0 else sd)[cells]
@@ -159,14 +166,14 @@ class Tube:
                         if region==0:
                             K.add(v[:,a,i],pv[cells[:,b]],-vol*gn[:,a,i]/4.)
                             K.add(pv[cells[:,a]],v[:,b,i],vol*gn[:,b,i]/4.)
-                            M.add(pv[cells[:,a]],v[:,b,i],vol*tau*rho*gn[:,a,i]/4.)
+                            M.add(pv[cells[:,a]],v[:,b,i],vol*cell_tau*rho*gn[:,a,i]/4.)
                         for j in range(3):
                             sym=gn[:,a,j]*gn[:,b,i]+(dot if i==j else 0.)
                             div=gn[:,a,i]*gn[:,b,j]
                             coeff=mu*sym+grad_div*div if region==0 else shear*sym+lame*div
                             K.add(v[:,a,i],d[:,b,j],vol*coeff)
                     if region==0:
-                        K.add(pv[cells[:,a]],pv[cells[:,b]],vol*tau*dot)
+                        K.add(pv[cells[:,a]],pv[cells[:,b]],vol*cell_tau*dot)
         M.add(sd[~fixed],sd[~fixed],1.)
         K.add(sd[~fixed],vs[~fixed],-1.)
         self.mass=M.matrix()
@@ -277,22 +284,29 @@ def main():
     cli=argparse.ArgumentParser(description=__doc__)
     cli.add_argument("--case",type=Path,required=True)
     cli.add_argument("--output",type=Path,required=True)
-    cli.add_argument("--tau",type=float,required=True)
+    controls=cli.add_mutually_exclusive_group(required=True)
+    controls.add_argument("--tau",type=float,help="Spatially uniform PSPG coefficient")
+    controls.add_argument("--stabilization-time-scale",type=float,help="Fixed temporal scale in seconds in the cellwise PSPG coefficient")
+    cli.add_argument("--stage-solver",choices=("real-block","complex-pair"),default="real-block")
     cli.add_argument("--grad-div",type=float,required=True)
     cli.add_argument("--pressure",type=float,default=.02)
     cli.add_argument("--steps",type=int,nargs="+",required=True)
     args=cli.parse_args()
-    if not args.tau>0 or not args.grad_div>=0 or any(n<2 or n%2 for n in args.steps):
-        cli.error("Positive fixed PSPG tau, nonnegative grad-div viscosity and even step counts required")
-    tube=Tube(args.case,args.tau,args.grad_div)
+    control=args.tau if args.tau is not None else args.stabilization_time_scale
+    if (not np.isfinite([control,args.grad_div,args.pressure]).all() or control<=0 or
+            args.grad_div<0 or args.pressure<=0 or any(n<2 or n%2 for n in args.steps)):
+        cli.error("Positive PSPG control and pressure, nonnegative grad-div viscosity and even step counts required")
+    tube=Tube(args.case,args.tau,args.grad_div,args.stabilization_time_scale)
     result=dict(unknowns=tube.size,mass_nnz=tube.mass.nnz,operator_nnz=tube.operator.nnz,
-                fixed_tau=args.tau,grad_div_viscosity=args.grad_div,pressure=args.pressure,
+                fixed_tau=args.tau,stabilization_time_scale=args.stabilization_time_scale,
+                pspg_coefficient_range=tube.tau_range,stage_solver=args.stage_solver,
+                grad_div_viscosity=args.grad_div,pressure=args.pressure,
                 x=tube.positions,static=tube.hydrostatic_check(),
-                manufactured_max_error=integrate(tube,4,1.,True),runs=[],
+                manufactured_max_error=integrate(tube,4,1.,True,stage_solver=args.stage_solver),runs=[],
                 case_sha256={k:hashlib.sha256((args.case/k).read_bytes()).hexdigest()
                              for k in ("case.json","fluid.msh","solid.msh")})
     for n in args.steps:
-        result["runs"].append(integrate(tube,n,args.pressure))
+        result["runs"].append(integrate(tube,n,args.pressure,stage_solver=args.stage_solver))
         args.output.write_text(json.dumps(result,indent=2,allow_nan=False)+"\n")
         print(n,result["runs"][-1]["samples"][-1]["section_area_strain"],flush=True)
 

@@ -47,7 +47,11 @@ def main():
     env=dict(os.environ,OMP_NUM_THREADS="1",OPENBLAS_NUM_THREADS="1",MKL_NUM_THREADS="1",
              OMPI_MCA_pml="ob1",OMPI_MCA_btl="self,sm,tcp")
     result=dict(executable_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),reference_steps=finest["steps"],
-                reference_step_doubling_delta=floor,fixed_tau=ref["fixed_tau"],grad_div_viscosity=ref["grad_div_viscosity"],cases=[])
+                reference_step_doubling_delta=floor,fixed_tau=ref["fixed_tau"],
+                stabilization_time_scale=ref.get("stabilization_time_scale"),grad_div_viscosity=ref["grad_div_viscosity"],cases=[])
+    scale_time=ref.get("stabilization_time_scale")
+    if (ref["fixed_tau"] is None)==(scale_time is None):
+        raise ValueError("The reference must specify a unique stabilization control")
     for n in a.steps:
         if n<2 or n%2: raise ValueError("An even step count is needed")
         for pressure in a.pressures:
@@ -59,7 +63,13 @@ def main():
             cfg=json.loads((a.case/"case.json").read_text())
             cfg["fsi"].update(dt=1./n,steps=n,output_interval=n//2,pressure=pressure,
                               pressure_time=dict(amplitude=0.,period=1.,ramp_time=1.),
-                              stabilization_tau=ref["fixed_tau"],grad_div_viscosity=ref["grad_div_viscosity"])
+                              grad_div_viscosity=ref["grad_div_viscosity"])
+            if scale_time is None:
+                cfg["fsi"]["stabilization_tau"]=ref["fixed_tau"]
+                cfg["fsi"].pop("stabilization_time_scale",None)
+            else:
+                cfg["fsi"]["stabilization_time_scale"]=scale_time
+                cfg["fsi"].pop("stabilization_tau",None)
             cfg["solver"]["absolute_tolerance"]*=pressure/scale
             (directory/"case.json").write_text(json.dumps(cfg,indent=2)+"\n")
             with (directory/"solve.log").open("w") as out:
