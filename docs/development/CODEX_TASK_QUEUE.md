@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 双端升压、空间加密与求解成本（进行中）
 
+生产路线 FSI-PROD-03 固定单端口和外壁支撑已验证。多个独立 RCR 端口仍需分别验收。[耦合方程与阻抗对照](../research/data/fsi-rcr-2026-11-24/README.md)
+
 外壁支撑的 Lamé 平衡、黏性功及参考面积能量验收完成。[四级空间结果与独立功核查](../research/data/fsi-wall-support-2026-11-24/README.md)
 
 双端同压瞬态的独立轴对称参考、全长对半长检验及小振幅对照已完成。[验收](../research/data/fsi-linear-transient-2026-11-24/axisymmetric.md)

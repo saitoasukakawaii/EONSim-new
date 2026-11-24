@@ -346,7 +346,7 @@ Config read_config(const std::filesystem::path& path)
             v.elastic=body=="elastic";
         }
         if(const auto d=f["domains"]) {
-            keys(d,{"solid_mesh","fluid_region","solid_region","fluid_interface","solid_interface","match_tolerance","pressure_tags","fluid_constraints","mesh_constraints","solid_constraints","wall_supports"},"fsi.domains");
+            keys(d,{"solid_mesh","fluid_region","solid_region","fluid_interface","solid_interface","match_tolerance","pressure_tags","fluid_constraints","mesh_constraints","solid_constraints","wall_supports","rcr_outlet"},"fsi.domains");
             auto& domain=v.domains;
             domain.solid_mesh=(directory/d["solid_mesh"].as<std::string>()).lexically_normal();
             domain.fluid_region=d["fluid_region"].as<int>(); domain.solid_region=d["solid_region"].as<int>();
@@ -357,6 +357,20 @@ Config read_config(const std::filesystem::path& path)
             std::set<int> pressure_seen;
             for(int tag:domain.pressure_tags) if(tag<=0||!pressure_seen.insert(tag).second||tag==domain.fluid_interface) throw std::runtime_error("Invalid FSI pressure tags");
             if(domain.pressure_tags.empty()) throw std::runtime_error("FSI needs pressure boundary");
+            if(const auto r=d["rcr_outlet"]) {
+                keys(r,{"tag","proximal_resistance","distal_resistance","compliance","distal_pressure","initial_capacitor_pressure"},
+                     "fsi.domains.rcr_outlet");
+                const double distal=r["distal_pressure"].as<double>(0.);
+                const RcrOutlet outlet{r["tag"].as<int>(),r["proximal_resistance"].as<double>(),
+                    r["distal_resistance"].as<double>(),r["compliance"].as<double>(),distal,
+                    r["initial_capacitor_pressure"].as<double>(distal)};
+                if(!pressure_seen.count(outlet.tag)) throw std::runtime_error("RCR outlet must use a declared pressure tag");
+                for(double value:{outlet.proximal_resistance,outlet.distal_resistance,outlet.compliance})
+                    if(!(value>0)||!std::isfinite(value)) throw std::runtime_error("RCR resistances and compliance must be finite and positive");
+                if(!std::isfinite(distal)||!std::isfinite(outlet.initial_capacitor_pressure))
+                    throw std::runtime_error("RCR pressures must be finite");
+                domain.rcr_outlet=outlet;
+            }
             auto constraints=[&](const char* key,std::vector<ComponentConstraint>& output) {
                 const auto entries=d[key]; if(!entries.IsSequence()) throw std::runtime_error(std::string(key)+" must be a sequence");
                 std::set<int> seen;

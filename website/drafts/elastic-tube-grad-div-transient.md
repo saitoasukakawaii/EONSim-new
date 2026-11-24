@@ -34,3 +34,7 @@ EONSim 也可以使用常系数 grad-div 项。在同一工况分别取 0、1、
 在固定 PSPG 系数、256 个 EONSim 时间步及 128 个 Radau 时间步下，将峰值压力从 0.02 Pa 减至 0.0002 Pa，默认零 grad-div 的最大一秒截面差由解析稳态面积应变的 0.02017% 降至 0.000187%。该基准验证了同一网格的小振幅实现。判断哪种离散更接近连续弹性管的瞬态响应还需要空间参照，Lamé 解能够检验的是静态极限。[独立方程、方法与 30 次运行](../../docs/research/data/fsi-linear-transient-2026-11-24/README.md)
 
 Independent axisymmetric refinement estimates the 1 s left-end expansion at 0.0788759% of initial area. On the 48-sector mesh the two native values are 0.0733993% and 0.0644891%. The independently calculated tiny-amplitude limit separates model accuracy from intercode agreement. See [the continuum reference](../../docs/research/data/fsi-linear-transient-2026-11-24/axisymmetric.md).
+
+## A fixed RCR outlet
+
+Keeping the pressure of a vascular outlet as a scalar unknown gives an integral flux row and a sparse traction column. A clamped tube isolates the analytic impedance, while a second flexible tube exercises reverse flow and rollback. [Derivation and measured complex impedance](../../docs/research/data/fsi-rcr-2026-11-24/README.md)

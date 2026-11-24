@@ -43,6 +43,9 @@ struct ReducedLayout {
                 local.at(i)<0?0:(mesh_trace?displacement_from_velocity:1),mesh_trace?interface_lifting:0};
     }
     PetscInt body=-1,body_local=-1;
+    PetscInt outlet_pressure=-1,outlet_pressure_local=-1;
+    /// Contributions to outward flow from boundary faces owned by this rank, keyed by physical velocity slot.
+    std::vector<std::pair<std::size_t,double>> outlet_flux_weights;
 };
 /// collective；只交换 ghost 编号和 rank 计数，稀疏图通过 PETSc 分布式预分配器装配。
 ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh);

@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 def generate(directory, sectors=12, axial=4, radial=2, radius=1., thickness=.2, length=4.):
-    if sectors<6 or axial<2 or radial<1 or not all(math.isfinite(x) and x>0 for x in (radius,thickness,length)):
+    if sectors<6 or axial<1 or radial<1 or not all(math.isfinite(x) and x>0 for x in (radius,thickness,length)):
         raise ValueError('Invalid tube dimensions or subdivisions')
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     points=[(0.,0.)]

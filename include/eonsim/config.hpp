@@ -94,6 +94,12 @@ struct WallSupport {
     double stiffness=0; ///< Normal traction per unit reference-normal displacement, Pa/m.
     double damping=0;   ///< Normal traction per unit reference-normal velocity, Pa s/m.
 };
+/** Fixed outlet, outward flux positive. Rp/Rd [Pa s/m³], C [m³/Pa], pressures [Pa]. */
+struct RcrOutlet {
+    int tag;
+    double proximal_resistance,distal_resistance,compliance,distal_pressure,initial_capacitor_pressure;
+};
+
 struct FsiDomains {
     std::filesystem::path solid_mesh;
     int fluid_region=10,solid_region=20,fluid_interface=2,solid_interface=12;
@@ -101,6 +107,7 @@ struct FsiDomains {
     std::vector<int> pressure_tags;
     std::vector<ComponentConstraint> fluid_constraints,mesh_constraints,solid_constraints;
     std::map<int,WallSupport> wall_supports; ///< Solid exterior physical tags.
+    std::optional<RcrOutlet> rcr_outlet; ///< One stationary pressure tag can use a three-element termination.
 };
 using FsiPressureTime=PressureTime;
 struct FsiFlowRate {

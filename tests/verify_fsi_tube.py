@@ -1,6 +1,7 @@
 """Circular FSI inlet, curved conforming wall, MPI and restart acceptance."""
 import argparse
 import copy
+import cmath
 import csv
 import json
 import math
@@ -75,13 +76,183 @@ def verify_wall_support(run, base):
     return results
 
 
+def check_rcr_history(run, label, model, rows, restart=None, sole_pressure=True):
+    prefix = label + (f'_restart{restart}' if restart is not None else '')
+    with (run.work/(prefix+'_pressure_faces.csv')).open() as stream:
+        faces = [dict((k, float(v)) for k, v in face.items()) for face in csv.DictReader(stream)
+                 if int(face['tag']) == model['tag']]
+    assert len(faces) == len(rows) and rows
+    rp, rd, c, pd = (model[k] for k in ('proximal_resistance','distal_resistance','compliance','distal_pressure'))
+    worst = 0.
+    for row, face in zip(rows, faces):
+        assert row['step'] == face['step'] and row['time'] == face['time']
+        for kind in ('stage','endpoint'):
+            q = face[kind+'_outward_flow']
+            pc = row[kind+'_capacitor_pressure']
+            pb = face[kind+'_prescribed_pressure']
+            errors = [row[kind+'_rcr_flow']-q, row[kind+'_rcr_pressure']-pb,
+                      pb-pc-rp*q, face[kind+'_pressure_power']+q*pb]
+            if kind == 'stage':
+                errors.append(c*row['stage_capacitor_rate']-q+(pc-pd)/rd)
+                if sole_pressure:
+                    errors.append(row['applied_pressure']-pb)
+            worst = max(worst, *map(abs, errors))
+    assert worst < 2e-10, worst
+    return worst
+
+
+def verify_rcr(run, base):
+    model = dict(tag=2,proximal_resistance=4.,distal_resistance=16.,compliance=.005,
+                 distal_pressure=.03,initial_capacitor_pressure=.06)
+    cfg = copy.deepcopy(base)
+    cfg['fsi'].update(steps=7, pressure_face_history=True, output_interval=7)
+    cfg['fsi']['domains']['rcr_outlet'] = model
+    cfg['time_control'] = dict(step_sizes=[.002,.002,.0015,.0025,.002,.0015,.0025])
+    report = {}
+    for scheme in ('be','bdf2','generalized_alpha'):
+        cfg['time'] = dict(scheme=scheme)
+        prefix = 'rcr-'+scheme
+        one, rows, _ = run.solve(prefix+'-one', cfg)
+        two, parallel, _ = run.solve(prefix+'-two', cfg, 2)
+        assert min(r['stage_rcr_flow'] for r in rows) < -1e-5
+        residual = check_rcr_history(run, prefix+'-two', model, parallel)
+        checkpoint = run.work/(prefix+'-checkpoint')
+        run.solve(prefix+'-start', cfg, 2, ['-stop_after',3,'-checkpoint',checkpoint])
+        resumed, tail, _ = run.solve(prefix+'-resumed', cfg, 2, ['-restart',checkpoint])
+        check_rcr_history(run, prefix+'-resumed', model, tail, restart=3)
+        assert len(tail) == len(parallel)-3
+        assert error(one,two)<2e-9 and error(resumed,two)<2e-9
+        for full, restarted in zip(parallel[3:],tail):
+            for column in ('stage_rcr_flow','endpoint_rcr_pressure','endpoint_capacitor_pressure','stage_capacitor_rate'):
+                assert abs(full[column]-restarted[column])<2e-9
+        report[scheme] = dict(mpi=error(one,two),restart=error(resumed,two),circuit_residual=residual)
+    four, _, log = run.solve('rcr-four-fd', cfg, 4, ['-snes_test_jacobian','-stop_after',2])
+    ref, _, _ = run.solve('rcr-direct-two', cfg, 2, ['-stop_after',2])
+    ratios = [float(v) for v in re.findall(r'\|\|J - Jfd\|\|_F/\|\|J\|\|_F\s*=\s*([\deE.+-]+)',log)]
+    assert ratios and max(ratios)<1e-6 and error(four,ref)<2e-9
+    iterative, hybrid_rows, _ = run.solve('rcr-hybrid',cfg,2,['-pc_recipe','hybrid','-stop_after',2])
+    check_rcr_history(run,'rcr-hybrid',model,hybrid_rows)
+    assert error(iterative,ref)<2e-8
+    report['jacobian_relative_error'] = max(ratios)
+    report['hybrid_field_error'] = error(iterative,ref)
+    changed=copy.deepcopy(cfg)
+    changed['fsi']['domains']['rcr_outlet']['compliance']*=1.2
+    run.solve('rcr-changed',changed,2,['-restart',checkpoint],fail='Checkpoint mesh/partition/physics mismatch')
+    for key,value,why in [('tag',14,'declared pressure tag'),('distal_resistance',0,'finite and positive'),
+                          ('compliance',-1,'finite and positive'),('proximal_resistance','.inf','finite and positive'),
+                          ('distal_pressure','.nan','pressures must be finite')]:
+        bad=copy.deepcopy(cfg)
+        bad['fsi']['domains']['rcr_outlet'][key]=value
+        run.solve('rcr-invalid-'+key,bad,2,fail=why)
+    moving=copy.deepcopy(cfg)
+    moving['fsi']['domains']['mesh_constraints']=[dict(tag=1,components=[0,1,2])]
+    run.solve('rcr-moving',moving,2,fail='stationary fluid exterior')
+    mixed=copy.deepcopy(cfg)
+    del mixed['fsi']['inlet']
+    mixed['fsi']['pressure']=.08
+    mixed['fsi']['domains']['pressure_tags']=[1,2]
+    _, rows, _ = run.solve('rcr-and-prescribed',mixed,2,['-stop_after',3])
+    check_rcr_history(run,'rcr-and-prescribed',model,rows,sole_pressure=False)
+    with (run.work/'rcr-and-prescribed_pressure_faces.csv').open() as stream:
+        common=[r for r in csv.DictReader(stream) if int(r['tag'])==1]
+    assert len(common)==len(rows) and all(float(r['stage_prescribed_pressure'])==.08 for r in common)
+    assert all(r['applied_pressure']==.08 for r in rows)
+    return report
+
+
+def verify_rcr_retry(exe,mpi,work):
+    cfg=json.loads(generate(work,sectors=8,axial=2).read_text())
+    area=json.loads((work/'geometry.json').read_text())['interface_area']
+    run=Runner(exe,mpi,work,interface_area=area)
+    cfg['fsi'].update(steps=5,dt=.004,pressure_face_history=True,output_interval=5)
+    cfg['fsi']['inlet']['flow_rate'].update(mean=1.,amplitude=.1)
+    model=dict(tag=2,proximal_resistance=1.,distal_resistance=8.,compliance=.03,distal_pressure=.02)
+    cfg['fsi']['domains']['rcr_outlet']=model
+    report={}
+    for scheme in ('bdf2','generalized_alpha'):
+        cfg['time']=dict(scheme=scheme)
+        cfg.pop('time_control',None)
+        checkpoint=work/('checkpoint-'+scheme)
+        run.solve('start-'+scheme,cfg,2,['-checkpoint',checkpoint,'-stop_after',2])
+        cfg['time_control']=dict(max_retries=16,minimum_dt=1e-10,reduction=.5)
+        actual,rows,log=run.solve('retry-'+scheme,cfg,2,['-restart',checkpoint,'-snes_max_it',2,'-stop_after',3])
+        assert 'step_retry=' in log and len(rows)==1 and rows[0]['accepted_dt']<.004
+        check_rcr_history(run,'retry-'+scheme,model,rows,restart=2)
+        cfg['time_control']['step_sizes']=[.004,.004,rows[0]['accepted_dt']]
+        replay,other,_=run.solve('replay-'+scheme,cfg,2,['-stop_after',3])
+        assert error(actual,replay)<2e-9
+        for key in ('stage_rcr_flow','stage_capacitor_rate','endpoint_rcr_pressure','endpoint_capacitor_pressure'):
+            assert abs(rows[0][key]-other[-1][key])<2e-9
+        report[scheme]=dict(retries=log.count('step_retry='),accepted_dt=rows[0]['accepted_dt'],
+                            replay_field_error=error(actual,replay))
+    return report
+
+
+def verify_rcr_harmonic(exe, mpi, work):
+    # All solid nodes of one axial slab lie on clamped ends. Continuity makes Qout=Qin.
+    # The complete 3D saddle point problem still determines the outlet traction.
+    cfg = json.loads(generate(work,sectors=8,axial=1,radial=2).read_text())
+    geometry = json.loads((work/'geometry.json').read_text())
+    run = Runner(exe,mpi,work,interface_area=geometry['interface_area'])
+    cfg['fsi'].update(pressure_face_history=True,output_interval=10000,stabilization_tau=.01)
+    cfg['fsi']['inlet']['ramp_time'] = 0.
+    cfg['fsi']['inlet']['flow_rate'].update(mean=0.,amplitude=.01,period=1.)
+    omega, tau = 2*math.pi, .2
+    def exact(t):
+        s, c = math.sin(omega*t), math.cos(omega*t)
+        pc = .03+.08*(s-omega*tau*c)/(1+(omega*tau)**2)
+        return pc+.03*s
+    model = dict(tag=2,proximal_resistance=3.,distal_resistance=8.,compliance=.025,
+                 distal_pressure=.03,initial_capacitor_pressure=exact(0.))
+    cfg['fsi']['domains']['rcr_outlet'] = model
+    report = {}
+    for scheme in ('be','bdf2','generalized_alpha'):
+        cfg['time'] = dict(scheme=scheme)
+        errors, impedance = [], []
+        exact_z = 3+8/(1+1j*omega*tau)
+        for n in (32,64,128):
+            cfg['fsi'].update(steps=n,dt=1/n)
+            label=f'harmonic-{scheme}-{n}'
+            _,rows,_ = run.solve(label,cfg)
+            check_rcr_history(run,label,model,rows)
+            flux_error=max(abs(r['endpoint_rcr_flow']-.01*math.sin(omega*r['time'])) for r in rows)
+            assert flux_error<5e-13
+            errors.append(max(abs(r['endpoint_rcr_pressure']-exact(r['time'])) for r in rows))
+            def harmonic(column):
+                return sum(r[column]*cmath.exp(-1j*omega*r['time']) for r in rows)
+            z=harmonic('endpoint_rcr_pressure')/harmonic('endpoint_rcr_flow')
+            ratio=z/exact_z
+            impedance.append(dict(real=z.real,imag=z.imag,amplitude_error_fraction=abs(ratio)-1,
+                                  phase_error_degrees=math.degrees(cmath.phase(ratio))))
+        orders=[math.log2(a/b) for a,b in zip(errors,errors[1:])]
+        assert min(orders)>(.9 if scheme=='be' else 1.55), (scheme,orders)
+        assert abs(impedance[-1]['amplitude_error_fraction']) < (.01 if scheme=='be' else .0005)
+        assert abs(impedance[-1]['phase_error_degrees']) < (.6 if scheme=='be' else .01)
+        report[scheme]=dict(max_pressure_errors=errors,observed_orders=orders,impedance=impedance)
+    cfg['time'] = dict(scheme='be')
+    cfg['fsi'].update(steps=32,dt=1/32)
+    cfg['fsi']['inlet']['flow_rate'].update(mean=.01,amplitude=0.)
+    del model['initial_capacitor_pressure']   # The default is the distal reservoir pressure.
+    _,rows,_=run.solve('rcr-constant-flow',cfg)
+    q=.01
+    for j,row in enumerate(rows,1):
+        pc=model['distal_pressure']+model['distal_resistance']*q*(1-(1+1/(32*tau))**(-j))
+        assert abs(row['endpoint_rcr_flow']-q) < 5e-13
+        assert abs(row['endpoint_capacitor_pressure']-pc) < 2e-12
+        assert abs(row['endpoint_rcr_pressure']-pc-model['proximal_resistance']*q) < 2e-12
+    report['constant_flow_be']=dict(steps=len(rows),endpoint_pressure=rows[-1]['endpoint_rcr_pressure'])
+    return report
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',required=True)
     a=p.parse_args();work=Path(a.work).resolve()
     base=json.loads(generate(work).read_text());geometry=json.loads((work/'geometry.json').read_text())
     base['fsi']['pressure_face_history']=True
     run=Runner(a.executable,a.mpiexec,work,interface_area=geometry['interface_area'])
-    report={'wall_support':verify_wall_support(run,base)}
+    report={'wall_support':verify_wall_support(run,base),'rcr':verify_rcr(run,base),
+            'rcr_harmonic':verify_rcr_harmonic(a.executable,a.mpiexec,work/'rcr-harmonic'),
+            'rcr_retry':verify_rcr_retry(a.executable,a.mpiexec,work/'rcr-retry')}
     for scheme in ('be','bdf2','generalized_alpha'):
         cfg=copy.deepcopy(base);cfg['time']=dict(scheme=scheme)
         one,rows,_=run.solve(scheme+'-one',cfg)
