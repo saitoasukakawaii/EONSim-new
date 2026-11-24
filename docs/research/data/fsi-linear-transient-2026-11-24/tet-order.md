@@ -32,7 +32,16 @@ The largest pointwise pressure change for vertex 0 is 12.84% of the 0.02 Pa driv
 
 With the same regular metric the nonlinear left-end values differ by 0.000002827 percentage points of initial area. Their maximum across all seven stations at 1 s is 0.001300% of the static strain. Each of the four local vertex choices gives these values to the digits shown. The DAE has no moving geometry or nonlinear convection. At 0.02 Pa its maximum seven-station error against nonlinear EONSim is 0.016585% of static strain at 1 s. At 0.0002 Pa the corresponding error is 0.001090%. With that amplitude and the stabilization time held fixed at 1/128 s, using 64 and 512 time-integration steps gives errors of 0.004904% and 0.000100% of static strain. The native metric control isolates a discrete operator effect on this mesh. The distance to the circular meridian remains visible in the last row. [Per-station and curve receipts](tet-order.json.xz) · [Nonlinear EONSim and DAE](tet-order-eonsim.csv) · [Native and DAE](tet-order-svfsi.csv) · [Radius, Lamé normalization and equations](discrete-metric.md)
 
-At 1,024 steps, native right-simplex results became more sensitive to the vertex choice. Choosing vertex 0 gave 0.0552703% left-end expansion, vertex 2 gave 0.0525620%, and the original vertex 3 gave 0.0548186%. The independently assembled DAE gave 0.0552778%, 0.0525714% and 0.0548269% in the same order. With the label-invariant metric the two nonlinear codes gave 0.0531849% and 0.0531814%, and the DAE gave 0.0531904%. The two EONSim regular-metric runs with vertices 0 and 3 agreed in the last displayed digit. Stabilization parameters must accompany a reported time-step refinement. [Native measurements](tet-order-svfsi.csv) · [Regular metric cross-checks](tet-order-eonsim.csv)
+At 1,024 steps the native right-simplex metric gives the following left-end expansions. The native nonlinear and independent DAE solutions in each row use the identical local connectivity. The DAE integrates the same stabilized spatial equations about the initial configuration.
+
+| Dependent vertex | Native svFSI, % of initial area | Independent DAE, % of initial area |
+|---:|---:|---:|
+| 0 | 0.0552703 | 0.0552778 |
+| 1 | 0.0548492 | 0.0548567 |
+| 2 | 0.0525620 | 0.0525714 |
+| 3 (original) | 0.0548186 | 0.0548269 |
+
+Switching from vertex 3 to 0 changed the native left-end expansion by 0.00045170 percentage points. Turning off only grad-div on both meshes reduced the same vertex contrast to 0.00005241 percentage points, an 88.4% reduction. Other metric-dependent stabilization terms are still active. With the label-invariant metric the two nonlinear codes gave 0.0531849% and 0.0531814%, and the DAE gave 0.0531904%. The two EONSim regular-metric runs with vertices 0 and 3 agreed in the last displayed digit. [Native measurements and coefficient controls](tet-order-svfsi.csv) · [Regular metric cross-checks](tet-order-eonsim.csv)
 
 ## Reproduction
 
