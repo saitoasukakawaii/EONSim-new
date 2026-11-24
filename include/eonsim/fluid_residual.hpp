@@ -1,15 +1,16 @@
 #pragma once
 /** @file @brief 单一残量表达，double 求值与固定宽度几何链式求导共用。 */
 #include "eonsim/fluid_element.hpp"
+#include "eonsim/dual.hpp"
 #include <cmath>
 #include <stdexcept>
 namespace eonsim {
-template<class Scalar>
+template<class Scalar,class Coefficient>
 Tet4Flow::State<Scalar> fluid_residual(const SimplexGeometry<Tet4Topology,Scalar>& g,const FluidParameters& p,
     const Tet4Flow::State<Scalar>& x,const Tet4Flow::State<double>& old,
-    const Tet4Topology::Nodal<Space3::Vector<Scalar>>& w)
+    const Tet4Topology::Nodal<Space3::Vector<Scalar>>& w,const Coefficient& tau,const Coefficient& grad_div)
 {
-    if(!(p.density>0&&p.viscosity>0&&p.dt>=0&&p.tau>=0&&p.grad_div_viscosity>=0)||!std::isfinite(p.density+p.viscosity+p.dt+p.tau+p.grad_div_viscosity)) throw std::runtime_error("Invalid fluid material/time/stabilization");
+    if(!(p.density>0&&p.viscosity>0&&p.dt>=0&&primal(tau)>=0&&primal(grad_div)>=0)||!std::isfinite(p.density+p.viscosity+p.dt+primal(tau)+primal(grad_div))) throw std::runtime_error("Invalid fluid material/time/stabilization");
     Tet4Flow::State<Scalar> result{};
     Scalar grad[Space3::dimension][Space3::dimension]{},gradp[Space3::dimension]{},divergence{};
     for(int a=0;a<Tet4Topology::nodes;++a) for(int j=0;j<Space3::dimension;++j) {
@@ -27,12 +28,12 @@ Tet4Flow::State<Scalar> fluid_residual(const SimplexGeometry<Tet4Topology,Scalar
             result[Tet4Flow::dof(a,i)]+=integrated_stress*g.gradients[a][j];
     }
     // An affine P1 velocity has constant divergence on the current cell.
-    if(p.grad_div_viscosity>0) {
-        const Scalar penalty=g.volume*p.grad_div_viscosity*divergence;
+    if(primal(grad_div)>0) {
+        const Scalar penalty=g.volume*grad_div*divergence;
         for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i)
             result[Tet4Flow::dof(a,i)]+=penalty*g.gradients[a][i];
     }
-    // For affine Tet4 with frozen cellwise tau, the advective velocity and
+    // For affine Tet4 with spatially constant cellwise tau, the advective velocity and
     // strong momentum residual are P1. Their products use the exact P1 mass
     // moments, integral(N_a N_b)/V = (1 + delta_ab)/20.
     const double mass=p.dt>0?p.density/p.dt:0;
@@ -59,23 +60,31 @@ Tet4Flow::State<Scalar> fluid_residual(const SimplexGeometry<Tet4Topology,Scalar
     for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i) {
         const Scalar tested_momentum=off_diagonal_mass*(momentum_sum[i]+momentum[a][i]);
         result[Tet4Flow::dof(a,i)]+=g.volume*(tested_momentum-mean_pressure*g.gradients[a][i]);
-        if(p.convection && p.tau>0) {
+        if(p.convection && primal(tau)>0) {
             const Scalar tested_strong=tested_momentum+mean_shape*gradp[i];
             for(int j=0;j<Space3::dimension;++j) supg_flux[i][j]+=transport[a][j]*tested_strong;
         }
     }
     for(int a=0;a<Tet4Topology::nodes;++a) {
         Scalar continuity=mean_shape*divergence;
-        if(p.tau>0) {
-            for(int j=0;j<Space3::dimension;++j) continuity+=p.tau*g.gradients[a][j]*mean_strong[j];
+        if(primal(tau)>0) {
+            for(int j=0;j<Space3::dimension;++j) continuity+=tau*g.gradients[a][j]*mean_strong[j];
             if(p.convection) for(int i=0;i<Space3::dimension;++i) {
                 Scalar streamline{};
                 for(int j=0;j<Space3::dimension;++j) streamline+=g.gradients[a][j]*supg_flux[i][j];
-                result[Tet4Flow::dof(a,i)]+=g.volume*p.tau*streamline;
+                result[Tet4Flow::dof(a,i)]+=g.volume*tau*streamline;
             }
         }
         result[Tet4Flow::dof(a,Tet4Flow::pressure)]+=g.volume*continuity;
     }
     return result;
 }
+template<class Scalar>
+Tet4Flow::State<Scalar> fluid_residual(const SimplexGeometry<Tet4Topology,Scalar>& g,const FluidParameters& p,
+    const Tet4Flow::State<Scalar>& x,const Tet4Flow::State<double>& old,
+    const Tet4Topology::Nodal<Space3::Vector<Scalar>>& w)
+{
+    return fluid_residual(g,p,x,old,w,p.tau,p.grad_div_viscosity);
+}
+
 }

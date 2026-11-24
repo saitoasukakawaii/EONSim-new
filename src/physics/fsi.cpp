@@ -426,6 +426,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     if(alpha) signature_values.insert(signature_values.end(),{20501.,3.,config.time_integration.rho_infinity});
     if(f.stabilization_tau) signature_values.insert(signature_values.end(),{20503.,*f.stabilization_tau});
     if(f.stabilization_time_scale) signature_values.insert(signature_values.end(),{20512.,*f.stabilization_time_scale});
+    if(f.regular_tet_stabilization) signature_values.insert(signature_values.end(),{20514.,1.});
     if(f.grad_div_viscosity>0) signature_values.insert(signature_values.end(),{20509.,f.grad_div_viscosity});
     for(const auto& outlet:outlets) signature_values.insert(signature_values.end(),{20511.,double(outlet.tag),outlet.proximal_resistance,
         outlet.distal_resistance,outlet.compliance,outlet.distal_pressure,outlet.initial_capacitor_pressure});
@@ -602,7 +603,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         const double stage_inlet_scale=(1-af)*inlet_scale(clock.time)+af*endpoint_inlet_scale;
         const double pressure=fsi_pressure(f,evaluation_time);
         const double integration_dt=alpha_step?fluid_map.effective_dt():derivative.effective_dt;
-        const double stabilization_dt=f.stabilization_time_scale.value_or(integration_dt);
+        const double stabilization_dt=f.stabilization_time_scale.value_or(f.regular_tet_stabilization?dt:integration_dt);
         const double solid_dt=alpha_step?solid_map.effective_dt():derivative.effective_dt;
         const double mesh_dt=alpha_step?solid_map.displacement_dt():derivative.effective_dt;
         std::vector<RcrStage> outlet_stages;
@@ -651,17 +652,24 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         try {
         for(std::size_t e=0;e<data.size();++e) {
             if(!fluid_cell[e]) continue;
-            double speed2=0;
             for(int a=0;a<Tet4Topology::nodes;++a) {
                 const auto n=mesh.cells[e].nodes[a];
                 for(int c=0;c<Tet4Flow::components;++c) data[e].previous_fluid[Tet4Flow::components*a+c]=reference_physical[nc*n+c];
                 for(int c=0;c<Space3::dimension;++c) data[e].previous_mesh[a][c]=reference_physical[Layout::dof(n,Layout::mesh_offset+c)];
-                for(int c=0;c<Space3::dimension;++c) speed2+=physical[nc*n+c]*physical[nc*n+c]*Tet4Topology::mean_weight;
             }
-            const double h=std::cbrt(Tet4Topology::jacobian_scale*data[e].reference_geometry.volume);
-            const double tau=f.stabilization_tau.value_or(1/std::sqrt(4*f.density*f.density/(stabilization_dt*stabilization_dt)
-                +4*f.density*f.density*speed2/(h*h)+16*f.viscosity*f.viscosity/(h*h*h*h)));
-            data[e].fluid={f.density,f.viscosity,integration_dt,tau,true,f.grad_div_viscosity};
+            data[e].fluid={f.density,f.viscosity,integration_dt,0.,true,f.grad_div_viscosity};
+            if(f.regular_tet_stabilization) {
+                data[e].regular_metric_dt=stabilization_dt;
+            } else if(f.stabilization_tau) {
+                data[e].fluid.tau=*f.stabilization_tau;
+            } else {
+                double speed2=0;
+                for(auto n:mesh.cells[e].nodes) for(int c=0;c<Space3::dimension;++c)
+                    speed2+=physical[nc*n+c]*physical[nc*n+c]*Tet4Topology::mean_weight;
+                const double h=std::cbrt(Tet4Topology::jacobian_scale*data[e].reference_geometry.volume);
+                data[e].fluid.tau=1/std::sqrt(4*f.density*f.density/(stabilization_dt*stabilization_dt)
+                    +4*f.density*f.density*speed2/(h*h)+16*f.viscosity*f.viscosity/(h*h*h*h));
+            }
             data[e].mesh_dt=mesh_dt;
             data[e].inlet_pressure=pressure;
         }

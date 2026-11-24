@@ -130,7 +130,8 @@ struct FsiConfig {
     int checkpoint_interval=1; ///< Accepted-step cadence when checkpointing; always save a successful requested endpoint.
     FsiDomains domains;
     std::optional<double> stabilization_tau;
-    std::optional<double> stabilization_time_scale; ///< Fixed time in the cellwise SUPG/PSPG model, in seconds.
+    std::optional<double> stabilization_time_scale; ///< Fixed time in the cellwise model, in seconds.
+    bool regular_tet_stabilization=false; ///< Current, permutation-invariant metric for SUPG/PSPG and grad-div.
     double grad_div_viscosity=0; ///< Optional spatially uniform grad-div coefficient, Pa s.
     bool elastic=false, neo_hookean=false;
     double young=100, poisson=.3, solid_density=1, thickness=.25;

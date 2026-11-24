@@ -120,3 +120,21 @@ $$
 $$
 
 给出 `stabilization_time_scale` 时，$T$ 为该输入。省略时使用当前离散导数的有效步长，包括后退欧拉起步及重试步骤。动量惯性、固体和网格运动、RCR 电路仍使用各自的实际离散时间系数。已有的 `fsi.stabilization_tau` 指定统一的整个系数，两种输入互斥。固定时间尺度随物理参数存入检查点。[同网格独立线性化和步长检验](../research/data/fsi-linear-transient-2026-11-24/time-scale.md)
+
+### 使用当前四面体几何的稳定化
+
+在 `fsi` 下设置 `stabilization_model: regular_tet` 可根据当前变形的 Tet4 同时计算 SUPG/PSPG 的 $\tau_M$ 和动量散度项的 $\tau_C$。默认的 `volume` 继续使用参考体积定义的标量单元长度。两种模式可独立用于时间和空间敏感性研究。
+
+令 $b_a=\nabla_xN_a$ 为当前四个重心形函数梯度，$a_h=u_h-w_h$ 为流体相对 ALE 网格速度。新选项使用
+
+$$
+G_*=4^{-1/3}\sum_{a=1}^{4} b_a b_a^T,\qquad
+\tau_M^{-1}=\rho\sqrt{(2/T)^2+\langle a_h^T G_* a_h\rangle_K+36\nu^2(G_*:G_*)},
+\qquad \tau_C=\frac{1}{\tau_M\,\mathrm{tr}\,G_*}.
+$$
+
+四个节点对 $G_*$ 的贡献对称，比例因子使其行列式与单位直角参考四面体的度量相同。$\langle\cdot\rangle_K$ 是当前单元的体积平均，程序用 P1 质量矩精确积分。$\tau_M$ 的单位为 m³ s/kg，$\tau_C$ 为 Pa s。两者在单元内取常数。在每次残量评价中重新计算，Newton 切线包含流速、网格速度以及当前物理梯度对二者的导数。
+
+`regular_tet` 默认令 $T$ 取当前实际步长。指定正值 `stabilization_time_scale` 可将 $T$ 固定为给定的秒数。它与显式给定 `stabilization_tau` 或 `grad_div_viscosity` 互斥。切换度量模型或固定时间参数会改变物理检查点签名。默认模式下已有检查点的身份计算沿用原约定。
+
+局部验收覆盖全部 12 种正定向节点排列、独立四点积分、流体与 ALE 两组方向导数。弹性通道在 BE、变步 BDF2、generalized-α、1/2 进程及续算路径上验收。完整研究使用相同四面体连接关系的独立线性 DAE，并在两个载荷幅值下区分线性化与时间离散造成的差别。

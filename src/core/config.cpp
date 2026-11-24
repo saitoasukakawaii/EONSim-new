@@ -346,13 +346,20 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","stabilization_time_scale","grad_div_viscosity","pressure_time","output_interval","pressure_face_history","checkpoint_interval","inlet"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","stabilization_time_scale","stabilization_model","grad_div_viscosity","pressure_time","output_interval","pressure_face_history","checkpoint_interval","inlet"},"fsi");
         if(f["stabilization_tau"]) {
             config.fsi.stabilization_tau=f["stabilization_tau"].as<double>();
             if(!(*config.fsi.stabilization_tau>0)||!std::isfinite(*config.fsi.stabilization_tau))
                 throw std::runtime_error("fsi.stabilization_tau must be finite and positive");
         }
         auto& v=config.fsi;
+        if(const auto model=f["stabilization_model"]) {
+            const auto name=model.as<std::string>();
+            if(name!="volume"&&name!="regular_tet") throw std::runtime_error("FSI stabilization_model requires volume or regular_tet");
+            v.regular_tet_stabilization=name=="regular_tet";
+            if(v.regular_tet_stabilization&&(v.stabilization_tau||f["grad_div_viscosity"]))
+                throw std::runtime_error("FSI regular_tet computes both stabilization_tau and grad_div_viscosity");
+        }
         if(const auto scale=f["stabilization_time_scale"]) {
             if(v.stabilization_tau) throw std::runtime_error("fsi.stabilization_time_scale excludes stabilization_tau");
             const double seconds=scale.as<double>();

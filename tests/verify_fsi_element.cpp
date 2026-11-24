@@ -1,6 +1,7 @@
 /** @file @brief 全 ALE 局部耦合切线，独立方向扰动覆盖几何/压力面积/网格速度。 */
 #include "eonsim/fsi_element.hpp"
 #include "eonsim/fsi.hpp"
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <ctime>
@@ -8,6 +9,76 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+namespace {
+using namespace eonsim;
+
+void verify_regular_metric() {
+    const Tet4Topology::Nodal<Point> xyz{{{0,0,0},{1,0,0},{0,1,0},{0,0,1}}};
+    FsiElementData cell(xyz);
+    cell.fluid={1.7,.14,.053,0.,true,0.};
+    cell.regular_metric_dt=.073;
+    Tet4Ale::State<double> x{};
+    Tet4Topology::Nodal<Point> rel{};
+    for(int a=0;a<4;++a) {
+        for(int i=0;i<3;++i) {
+            const double u=.12*(a+1)*(i+2)-.44*i;
+            const double w=.21*a-.13*i;
+            x[Tet4Ale::dof(a,i)]=u;
+            x[Tet4Ale::dof(a,Tet4Ale::mesh_offset+i)]=.001*(i+1);
+            cell.previous_mesh[a][i]=.001*(i+1)-cell.fluid.dt*w;
+            rel[a][i]=u-w;
+        }
+        x[Tet4Ale::dof(a,Tet4Flow::pressure)]=.17*a;
+    }
+    // On the unit right tetrahedron G = c (I + 11^T), with eigenvalues c,c,4c.
+    // Four symmetric degree-two quadrature points independently integrate the relative transport term.
+    const double c=std::cbrt(.25),lo=(5-std::sqrt(5.))/20,hi=1-3*lo;
+    double adv=0;
+    for(int q=0;q<4;++q) {
+        Point v{};
+        for(int a=0;a<4;++a) for(int i=0;i<3;++i) v[i]+=(a==q?hi:lo)*rel[a][i];
+        const double sum=v[0]+v[1]+v[2];
+        adv+=.25*c*(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]+sum*sum);
+    }
+    auto frozen=cell;
+    frozen.regular_metric_dt=0.;
+    const double nu=cell.fluid.viscosity/cell.fluid.density;
+    const double inv=cell.fluid.density*std::sqrt(4/std::pow(cell.regular_metric_dt,2)+adv+36*nu*nu*18*c*c);
+    frozen.fluid.tau=1/inv;
+    frozen.fluid.grad_div_viscosity=inv/(6*c);
+    const auto expected=fsi_element_residual(frozen,x),actual=fsi_element_residual(cell,x);
+    for(int i=0;i<Tet4Ale::dofs;++i) if(std::abs(actual[i]-expected[i])>2e-13)
+        throw std::runtime_error("Regular-Tet4 stabilization disagrees with independent quadrature");
+    const auto jac=fsi_element_tangent(cell,x);
+    std::array<int,4> order{0,1,2,3};
+    int positive=0;
+    do {
+        unsigned inversions=0;
+        for(int i=0;i<4;++i) for(int j=i+1;j<4;++j) inversions+=order[i]>order[j];
+        if(inversions%2) continue;
+        ++positive;
+        auto permuted_xyz=xyz;
+        for(int a=0;a<4;++a) permuted_xyz[a]=xyz[order[a]];
+        FsiElementData other(permuted_xyz);
+        other.fluid=cell.fluid;
+        other.regular_metric_dt=cell.regular_metric_dt;
+        Tet4Ale::State<double> trial{};
+        auto mapped=[&](int i){return Tet4Ale::dof(order[i/Tet4Ale::components],i%Tet4Ale::components);};
+        for(int i=0;i<Tet4Ale::dofs;++i) trial[i]=x[mapped(i)];
+        for(int a=0;a<4;++a) other.previous_mesh[a]=cell.previous_mesh[order[a]];
+        const auto rp=fsi_element_residual(other,trial);
+        const auto jp=fsi_element_tangent(other,trial);
+        for(int i=0;i<Tet4Ale::dofs;++i) {
+            if(std::abs(rp[i]-actual[mapped(i)])>2e-13) throw std::runtime_error("Vertex order changed the metric residual");
+            for(int j=0;j<Tet4Ale::dofs;++j)
+                if(std::abs(jp[Tet4Ale::matrix(i,j)]-jac[Tet4Ale::matrix(mapped(i),mapped(j))])>2e-12)
+                    throw std::runtime_error("Vertex order changed the metric tangent");
+        }
+    } while(std::next_permutation(order.begin(),order.end()));
+    if(positive!=12) throw std::runtime_error("Incomplete Tet4 permutation check");
+}
+}
+
 int main(int argc,char** argv) {
     using namespace eonsim;
     FsiConfig load; load.pressure=2; load.pressure_time=FsiPressureTime{1,4,1};
@@ -23,8 +94,10 @@ int main(int argc,char** argv) {
     for(int i=0;i<Tet4Flow::dofs;++i) data.previous_fluid[i]=.03*std::cos(i+.2);
     for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) data.previous_mesh[a][c]=.002*std::sin(a+c+.1);
     if(argc!=1) {
-        if(argc!=3 || std::string(argv[1])!="--kernel-samples")
-            throw std::runtime_error("Expected --kernel-samples count");
+        const std::string option=argv[1];
+        if(argc!=3 || (option!="--kernel-samples"&&option!="--metric-kernel-samples"))
+            throw std::runtime_error("Expected --kernel-samples count or --metric-kernel-samples count");
+        if(option=="--metric-kernel-samples") data.regular_metric_dt=.011;
         const std::string count=argv[2];
         std::size_t consumed=0;
         const int samples=std::stoi(count,&consumed);
@@ -48,7 +121,9 @@ int main(int argc,char** argv) {
         }
         return 0;
     }
-    for(double mesh_dt:{0.,.043}) for(double gd:{0.,.7}) {
+    verify_regular_metric();
+    for(double mesh_dt:{0.,.043}) for(auto [gd,metric_dt]:{std::pair{0.,0.},std::pair{.7,0.},std::pair{0.,.011}}) {
+    data.regular_metric_dt=metric_dt;
     data.fluid.grad_div_viscosity=gd;
     data.mesh_dt=mesh_dt;
     const auto jac=fsi_element_tangent(data,x);

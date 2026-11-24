@@ -8,6 +8,41 @@ FsiElementData::FsiElementData(const Tet4Topology::Nodal<Point>& coordinates)
     :reference(coordinates),reference_geometry(tet4_geometry(reference)),
      mesh_stiffness(poisson_element(reference_geometry,1,0).stiffness) {}
 namespace {
+// Integral mean of the quadratic relative transport speed on an affine P1 cell.
+// The four barycentric gradient dyads give the same metric under any vertex order.
+// Both coefficients remain functions of the current fluid and ALE Newton unknowns.
+template<class S>
+auto metric_fluid_residual(const FsiElementData& data,const SimplexGeometry<Tet4Topology,S>& geometry,
+                           const Tet4Flow::State<S>& fluid,const Tet4Topology::Nodal<Space3::Vector<S>>& mesh_velocity) {
+    static const double scale=std::cbrt(.25);
+    Tet4Topology::Nodal<Space3::Vector<S>> relative{};
+    Space3::Vector<S> sum{};
+    if(data.fluid.convection) for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i) {
+        relative[a][i]=fluid[Tet4Flow::dof(a,i)]-mesh_velocity[a][i];
+        sum[i]+=relative[a][i];
+    }
+    S trace{},square{},advection{};
+    for(int i=0;i<Space3::dimension;++i) for(int j=i;j<Space3::dimension;++j) {
+        S metric{};
+        S transport=sum[i]*sum[j];
+        for(int a=0;a<Tet4Topology::nodes;++a) {
+            metric+=geometry.gradients[a][i]*geometry.gradients[a][j];
+            transport+=relative[a][i]*relative[a][j];
+        }
+        metric=scale*metric;
+        const double multiplicity=i==j?1.:2.;
+        if(i==j) trace+=metric;
+        square+=multiplicity*metric*metric;
+        advection+=multiplicity*metric*transport/20.;
+    }
+    const double frequency=2/data.regular_metric_dt;
+    const double nu=data.fluid.viscosity/data.fluid.density;
+    using std::sqrt;
+    const S inverse_tau=data.fluid.density*sqrt(frequency*frequency+advection+36*nu*nu*square);
+    const S tau=1/inverse_tau,grad_div=inverse_tau/trace;
+    return fluid_residual(geometry,data.fluid,fluid,data.previous_fluid,mesh_velocity,tau,grad_div);
+}
+
 template<class S>
 Tet4Ale::State<S> residual(const FsiElementData& data,const Tet4Ale::State<S>& x,const SimplexGeometry<Tet4Topology,S>& geometry)
 {
@@ -20,7 +55,8 @@ Tet4Ale::State<S> residual(const FsiElementData& data,const Tet4Ale::State<S>& x
         }
         for(int c=0;c<Tet4Flow::components;++c) fluid[Tet4Flow::dof(a,c)]=x[Tet4Ale::dof(a,c)];
     }
-    const auto r=fluid_residual(geometry,data.fluid,fluid,data.previous_fluid,velocity);
+    const auto r=data.regular_metric_dt>0 ? metric_fluid_residual(data,geometry,fluid,velocity) :
+        fluid_residual(geometry,data.fluid,fluid,data.previous_fluid,velocity);
     Tet4Ale::State<S> result{};
     for(int a=0;a<Tet4Topology::nodes;++a) {
         for(int c=0;c<Tet4Flow::components;++c) result[Tet4Ale::dof(a,c)]=r[Tet4Flow::dof(a,c)];
@@ -50,7 +86,7 @@ Tet4Ale::State<S> residual(const FsiElementData& data,const Tet4Ale::State<S>& x
     return result;
 }
 Tet4Geometry current_geometry(const FsiElementData& data,const Tet4Ale::State<double>& x) {
-    if(!(data.fluid.dt>0)||data.mesh_dt<0||!std::isfinite(data.mesh_dt)) throw std::runtime_error("FSI requires valid inertia and mesh time coefficients");
+    if(!(data.fluid.dt>0)||!(data.mesh_dt>=0&&data.regular_metric_dt>=0)||!std::isfinite(data.mesh_dt+data.regular_metric_dt)) throw std::runtime_error("FSI requires valid inertia and mesh time coefficients");
     auto coordinates=data.reference;
     for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) coordinates[a][c]+=x[Tet4Ale::dof(a,Tet4Ale::mesh_offset+c)];
     return tet4_geometry(coordinates);

@@ -200,7 +200,9 @@ if(BUILD_TESTING)
     add_test(NAME fsi_sampled_inlet COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_curved_fsi.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --mesh 8 1 3 --ranks 2 --sampled
         --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_sampled_inlet")
-    set_tests_properties(fsi_branched_rcr fsi_curved_inlet fsi_sampled_inlet PROPERTIES TIMEOUT 600 PROCESSORS 2
+    add_test(NAME fsi_metric_stabilization COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_metric.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_metric")
+    set_tests_properties(fsi_branched_rcr fsi_curved_inlet fsi_sampled_inlet fsi_metric_stabilization PROPERTIES TIMEOUT 600 PROCESSORS 2
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1" LABELS "rank-1;rank-2")
     add_test(NAME fsi_inlet COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_inlet.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_inlet")
