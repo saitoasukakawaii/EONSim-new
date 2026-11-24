@@ -22,6 +22,12 @@ def boundary(name, block):
     return '   Add BC: '+name+' {\n'+''.join('      '+line+'\n' for line in block)+'   }\n'
 
 
+def native_waveform(period, mean, amplitude):
+    # The outward normal points upstream. svFSI's inverse transform subtracts the sine coefficient.
+    offset = -mean/4 if mean else 0.
+    return f'0\n{period:.17g}\n{offset:.17g}\n0\n2\n0 0\n0 {amplitude/4:.17g}\n'
+
+
 def deck(helpers, m, n, dt, interval, rigid, moving_outlet=False):
     text = f"""Continue previous simulation: 0
 Number of spatial dimensions: 3
@@ -149,14 +155,16 @@ def main():
     p.add_argument('--steps-per-cycle',type=int,default=32)
     p.add_argument('--cycles',type=int,default=6)
     p.add_argument('--samples',type=int,default=8)
+    p.add_argument('--mean',type=float,default=0.,help='Cycle-mean full-circle inlet flow in m³/s')
+    p.add_argument('--amplitude',type=float,default=AMPLITUDE,help='Sinusoidal full-circle flow amplitude in m³/s')
     p.add_argument('--rigid',action='store_true')
     p.add_argument('--audit-only',action='store_true')
     p.add_argument('--moving-outlet',action='store_true')
     p.add_argument('--load',choices=('native','endpoint-observer','stage'),default='native',
                    help='Executable variant; observed variants must print the applied residual traction')
     args=p.parse_args()
-    n,hz,peak=args.steps_per_cycle,args.hz,AMPLITUDE
-    if min(n,hz,peak)<=0 or args.samples<8 or n%args.samples or args.cycles<4:
+    n,hz,peak=args.steps_per_cycle,args.hz,args.amplitude
+    if not np.isfinite([hz,peak,args.mean]).all() or min(n,hz,peak)<=0 or args.samples<8 or n%args.samples or args.cycles<4:
         p.error('Need paired complete cycles and at least eight equally spaced fields per cycle')
     sys.path.append(str(args.reference_scripts.resolve()))
     import compare_svfsi_wall as helpers
@@ -190,14 +198,15 @@ def main():
                 raise ValueError('Invalid native inlet node or position')
             profile[node]=max(0.,1-(y*y+z*z)/m.radius**2)
         (work/'profile.dat').write_text(''.join(f'{i} {v:.17g}\n' for i,v in sorted(profile.items())))
-        (work/'flow.fcs').write_text(f'0\n{period:.17g}\n0\n0\n2\n0 0\n0 {peak/4:.17g}\n')
+        (work/'flow.fcs').write_text(native_waveform(period, args.mean, peak))
         (work/'svFSI.inp').write_text(inp)
         (work/'executable.sha256').write_text(digest(args.executable)+'\n')
         env=dict(os.environ,LD_LIBRARY_PATH=str(args.libs.resolve()),OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',
                  OMPI_MCA_pml='ob1',OMPI_MCA_btl='self,sm,tcp')
         with (work/'solve.log').open('w') as stream:
             subprocess.run([args.executable.resolve(),'svFSI.inp'],cwd=work,env=env,stdout=stream,stderr=subprocess.STDOUT,check=True,timeout=14400)
-    if inp!=(work/'svFSI.inp').read_text() or digest(args.executable)!=(work/'executable.sha256').read_text().strip():
+    if (inp!=(work/'svFSI.inp').read_text() or native_waveform(period,args.mean,peak)!=(work/'flow.fcs').read_text()
+            or digest(args.executable)!=(work/'executable.sha256').read_text().strip()):
         raise ValueError('Different native equation or binary')
     data=work/'1-procs'
     logs=(data/'histor.dat').read_text()
@@ -250,7 +259,7 @@ def main():
         ports=audit.observe(src,pout,m.viscosity)
         pos,area=measured_ring_strains(mesh[1],state[1])
         qi,qo=-4*ports[1]['outward_flow'],4*ports[2]['outward_flow']
-        checks['inlet_flux_relative']=max(checks['inlet_flux_relative'],abs(qi/peak-math.sin(2*np.pi*hz*time)))
+        checks['inlet_flux_relative']=max(checks['inlet_flux_relative'],abs((qi-args.mean)/peak-math.sin(2*np.pi*hz*time)))
         if not args.moving_outlet:
             checks['outlet_vtu_relative']=max(checks['outlet_vtu_relative'],abs(qo-4*q)/peak)
         samples.append(dict(step=step,time=time,full_inlet=qi,full_outlet=qo,full_wall_flux=4*ports[3]['outward_flow'],
@@ -261,7 +270,7 @@ def main():
         raise ValueError('Native capacitor, imposed inlet or field flux differs: '+str(checks))
     modes,change=periodic_modes(samples,hz,peak,pscale,m.lame_area_strain(pscale))
     report=dict(parameters=asdict(m),frequency_hz=hz,steps_per_cycle=n,cycles=args.cycles,samples_per_cycle=args.samples,
-                rigid=args.rigid,model=args.load,outlet_tangential_motion=args.moving_outlet,full_amplitude=peak,full_rcr_si=[RP,RD,C],quarter_fraction=.25,
+                rigid=args.rigid,model=args.load,outlet_tangential_motion=args.moving_outlet,full_amplitude=peak,full_mean=args.mean,full_rcr_si=[RP,RD,C],quarter_fraction=.25,
                 sections=pos,observations=samples,phasors=modes,checks=checks,last_cycle_change=change,
                 periodic_pass=max(change.values())<1e-3,convergence=conv,executable_sha256=digest(args.executable),
                 files={k:digest(work/k) for k in ('fluid.msh','solid.msh','svFSI.inp','flow.fcs','profile.dat','1-procs/histor.dat','1-procs/RCR.dat')})

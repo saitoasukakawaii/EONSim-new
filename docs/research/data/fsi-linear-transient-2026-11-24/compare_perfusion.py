@@ -3,6 +3,7 @@ import argparse
 import cmath
 import csv
 from dataclasses import asdict
+import hashlib
 import json
 import lzma
 import math
@@ -13,7 +14,7 @@ import sys
 import numpy as np
 from harmonic_eon import SurfaceAudit, digest
 from perfused_eon import history, periodic_modes
-from perfused_svfsi import deck, observed_loads, read_native_fields
+from perfused_svfsi import deck, native_waveform, observed_loads, read_native_fields
 from perfused_tube import AMPLITUDE, C, RD, RP
 from scaled_tube import problem
 from audit_reflection import measured_ring_strains
@@ -27,6 +28,7 @@ def check_inputs(path, report, solver):
     total = n*cycles
     warm = total-2*n
     peak = report['full_amplitude']
+    mean = report.get('full_mean', 0.)
     moving = report.get('outlet_tangential_motion',False)
     if (report['parameters'] != asdict(m) or report['full_rcr_si'] != [RP,RD,C]
             or report['quarter_fraction'] != .25 or not peak > 0):
@@ -42,7 +44,7 @@ def check_inputs(path, report, solver):
         if full != first or f['dt'] != 1/hz/n or f['steps'] != total:
             raise ValueError('Changed FSI integration or restart deck')
         if f['inlet']['flow_rate'] != dict(profile='circle', axis=0, center=[0,0,0], radius=m.radius,
-                mean=0., amplitude=peak/4, period=1/hz):
+                mean=mean/4, amplitude=peak/4, period=1/hz):
             raise ValueError('Different imposed inlet')
         expected = dict(tag=2,proximal_resistance=4*RP,distal_resistance=4*RD,compliance=C/4,
                         distal_pressure=0.,initial_capacitor_pressure=0.)
@@ -74,7 +76,8 @@ def check_inputs(path, report, solver):
         return table
     import compare_svfsi_wall
     eqs = ('NS',) if report['rigid'] else ('FS','MS')
-    if deck(compare_svfsi_wall,m,total,1/hz/n,1 if moving else n//report['samples_per_cycle'],report['rigid'],moving) != (path/'svFSI.inp').read_text():
+    if (deck(compare_svfsi_wall,m,total,1/hz/n,1 if moving else n//report['samples_per_cycle'],report['rigid'],moving) != (path/'svFSI.inp').read_text()
+            or native_waveform(1/hz,mean,peak) != (path/'flow.fcs').read_text()):
         raise ValueError('Native deck disagrees with experiment')
     log=(path/'1-procs/histor.dat').read_text()
     for eq in eqs:
@@ -87,6 +90,55 @@ def check_inputs(path, report, solver):
     if loads != report.get('applied_load'):
         raise ValueError('Applied native pressure differs from receipt')
     return table
+
+
+def verify_native_circuit(path, report, mesh, audit, rows):
+    """Rebuild the piecewise-linear-in-flow capacitor evolution and both geometry time levels."""
+    dt = 1/(report['frequency_hz']*report['steps_per_cycle'])
+    decay = -math.expm1(-dt/(RD*C))
+    peak = report['full_amplitude']
+    pressure_scale = peak*(RP+RD)
+    moving = report.get('outlet_tangential_motion', False)
+    previous_area = None
+    previous_flow = previous_pc = integrated_pc = 0.
+    max_circuit = max_flow = max_load = max_lag = 0.
+    snapshots = hashlib.sha256()
+    for step, (t,pc,pb,q) in enumerate(rows, 1):
+        if abs(t-step*dt)>6e-7*max(1.,abs(t)):
+            raise ValueError('Mismatched native capacitor time')
+        old = previous_flow
+        if moving:
+            vtu = path/f'1-procs/result_{step:03d}.vtu'
+            snapshots.update(bytes.fromhex(digest(vtu)))
+            state = audit.array(read_native_fields(vtu,mesh,report['rigid'])[0])
+            face = audit.ports[2][:,:3]
+            coordinates = (audit.reference+state[:,:3])[face]
+            edges = coordinates[:,1:]-coordinates[:,:1]
+            areas = .5*np.abs(np.cross(edges[:,0],edges[:,1])[:,0])
+            if previous_area is None:
+                initial = audit.reference[face]
+                previous_area = .5*np.abs(np.cross(initial[:,1]-initial[:,0],initial[:,2]-initial[:,0])[:,0])
+            if min(areas)<=0 or np.ptp(coordinates[:,:,0])>1e-13:
+                raise ValueError('Invalid physical outlet face during independent circuit replay')
+            normal_velocity = np.mean(state[face,3],axis=1)
+            native_q = previous_area@normal_velocity
+            previous_flow = areas@normal_velocity
+            max_flow=max(max_flow,4*abs(native_q-q)/peak)
+            max_lag=max(max_lag,4*abs(native_q-previous_flow)/peak)
+            previous_area=areas
+            old_pressure=previous_pc+4*RP*old
+            max_load=max(max_load,abs(old_pressure-report['previous_port_pressures_pa'][step-1])/pressure_scale)
+        else:
+            previous_flow=q
+        integrated_pc=(1-decay)*integrated_pc+4*RD*(decay*old+(1-RD*C*decay/dt)*(q-old))
+        max_circuit=max(max_circuit,abs(integrated_pc-pc)/pressure_scale,abs(pc+4*RP*q-pb)/pressure_scale)
+        previous_pc=pc
+    if (max(max_circuit,max_flow,max_load)>2e-6 or
+            (moving and abs(max_lag-report['maximum_geometry_flux_change_over_inlet'])>2e-10)):
+        raise ValueError('Independent native circuit, lagged cap flux or prior pressure disagrees')
+    return dict(recurrence_or_ohm_defect_over_RQ=max_circuit,lagged_flow_defect_over_inlet=max_flow,
+                prior_load_defect_over_RQ=max_load,maximum_geometry_effect_over_inlet=max_lag,
+                all_step_vtu_hash_digest=snapshots.hexdigest() if moving else None)
 
 
 def verify_raw(path, report, solver):
@@ -135,7 +187,15 @@ def verify_raw(path, report, solver):
         worst['volume_relative']=max(worst['volume_relative'],abs(4*audit.volume(field)/s['full_volume']-1))
     if max(worst.values())>1e-8:
         raise ValueError(f'Raw fields differ from reported measurements in {path}: {worst}')
-    return worst, cap_stresses
+    terminal = []
+    for step, row in enumerate(history_rows[-2*n:], warm+1):
+        if solver == 'EONSim':
+            pc, pb, q = [row[k] for k in ('endpoint_capacitor_pressure','endpoint_rcr_pressure','endpoint_rcr_flow')]
+        else:
+            _, pc, pb, q = row
+        terminal.append([step, pc, pb, 4*q])
+    native_trace = verify_native_circuit(path,report,meshes,audit,history_rows) if solver=='svFSI' else None
+    return worst, cap_stresses, terminal, native_trace
 
 
 def pack(root, reference_scripts, native_binary):
@@ -146,23 +206,30 @@ def pack(root, reference_scripts, native_binary):
             ('perfused-endpoint','svFSI',root/'svfsi-observer-build/bin/svFSI'),
             ('perfused-plane-sv','svFSI',native_binary),
             ('perfused-plane-stage','svFSI',root/'sv-rcr-stage-build/bin/svFSI'),
-            ('perfused-stage','svFSI',root/'sv-rcr-stage-build/bin/svFSI')]
-    data=dict(meridians=[],runs=[])
+            ('perfused-stage','svFSI',root/'sv-rcr-stage-build/bin/svFSI'),
+            ('perfused-forward-eon','EONSim',root/'moving-plane-eonsim'),
+            ('perfused-forward-sv','svFSI',native_binary),
+            ('perfused-forward-stage','svFSI',root/'sv-rcr-stage-build/bin/svFSI')]
+    data=dict(meridians=[],steady_meridians=[],runs=[])
     for group,solver,exe in groups:
         for path in sorted((root/group).glob('s*/result.json')):
             d=json.loads(path.read_text())
             if digest(exe)!=d['executable_sha256']:
                 raise ValueError('Changed solver binary')
-            defects, stresses = verify_raw(path.parent, d, solver)
+            defects, stresses, terminal, native_trace = verify_raw(path.parent, d, solver)
             data['runs'].append(dict(group=group,case=path.parent.name,solver=solver,report=d,
-                                      raw_defect=defects,outlet_normal_stress_pressure_pa=stresses))
-    sources=[*(root/'perfused-meridian').glob('x*.json'),*(root/'perfused-plane-meridian').glob('x*.json')]
+                                      raw_defect=defects,outlet_normal_stress_pressure_pa=stresses,
+                                      endpoint_port_steps_pc_pb_full_q=terminal,native_trace=native_trace))
+    sources=[*(root/'perfused-meridian').glob('x*.json'),*(root/'perfused-plane-meridian').glob('x*.json'),
+             *(root/'perfused-forward-meridian').glob('x*.json')]
     for f in sorted(sources):
         r=json.loads(f.read_text())
-        if len(r['runs'])!=3 or not (r['parameters']==asdict(problem('arterial')[0]) and
+        steady = f.parent.name == 'perfused-forward-meridian'
+        expected = [0.] if steady else [.5,1.,2.]
+        if [v['frequency_hz'] for v in r['runs']] != expected or not (r['parameters']==asdict(problem('arterial')[0]) and
                 r['full_rcr_si']==[RP,RD,C] and r['amplitude_m3_s']==AMPLITUDE and len(r['sections'])==97):
             raise ValueError('Incomplete reference or different physical system')
-        data['meridians'].append(dict(case=f.stem,sha256=digest(f),report=r))
+        data['steady_meridians' if steady else 'meridians'].append(dict(case=f.stem,sha256=digest(f),report=r))
     return data
 
 
@@ -213,6 +280,7 @@ def tables(data):
         warm=(r['cycles']-2)*n
         for i,s in enumerate(samples,1):
             if (s['step']!=warm+i*n//nobs or abs(s['time']-s['step']/(n*hz))>1e-11/hz
+                    or abs(s['full_inlet']-r.get('full_mean',0.)-peak*math.sin(2*np.pi*hz*s['time']))>2e-6*peak
                     or max(abs(s['area_strain'][j]) for j in fixed_ends)>1e-10 or len(s['area_strain'])!=len(r['sections'])):
                 raise ValueError('Noncoincident time, axial stations or boundary')
         phasors,period_change=periodic_modes(samples,hz,peak,p0,area0)
@@ -260,7 +328,7 @@ def tables(data):
         factor=2/3+(1/3)*cmath.exp(-2j*np.pi/n)
         def degrees(z):return math.degrees(cmath.phase(z))
         results.append(dict(group=run['group'],solver=run['solver'],model=r['model'],case=run['case'],rigid=r['rigid'],moving_plane=moving,hz=hz,
-                    steps_per_cycle=n,cycles=r['cycles'],peak_full_m3_s=peak,periodic_pass=passed,meridian_unknowns=grid['unknowns'],
+                    steps_per_cycle=n,cycles=r['cycles'],samples_per_cycle=nobs,peak_full_m3_s=peak,mean_full_m3_s=r.get('full_mean',0.),periodic_pass=passed,meridian_unknowns=grid['unknowns'],
                     cycle_change_pct_scale=100*max(period_change.values()),waveform_change_pct_scale=100*waveform_change,outlet_gain=abs(qo/qi),outlet_phase_deg=degrees(qo/qi),
                     ref_outlet_gain=abs(qo_ref)/peak,outlet_complex_gap_pct_inlet=100*abs(qo-qo_ref)/peak,
                     wall_flux_gain=abs(qw/qi),inlet_mean_pressure_pa=abs(pi),inlet_pressure_phase_deg=degrees(pi/qi),
@@ -290,10 +358,10 @@ def direct_pairs(data, accepted):
         if (item['group'],item['case']) not in accepted:
             continue
         mesh=tuple(r['files'][k] for k in ('fluid.msh','solid.msh'))
-        key=(mesh,r['rigid'],r['frequency_hz'],r['steps_per_cycle'],r['full_amplitude'],r['samples_per_cycle'])
+        key=(mesh,r['rigid'],r['frequency_hz'],r['steps_per_cycle'],r['full_amplitude'],r.get('full_mean',0.),r['samples_per_cycle'])
         grouped.setdefault(key,[]).append(item)
     pairs=[]
-    for (_,rigid,hz,n,peak,_),items in grouped.items():
+    for (_,rigid,hz,n,peak,mean,nobs),items in grouped.items():
         p0=peak*(RP+RD)
         area_scale=problem('arterial')[0].lame_area_strain(p0)
         for i,first in enumerate(items):
@@ -329,7 +397,7 @@ def direct_pairs(data, accepted):
                 worst=max(range(len(errors)),key=errors.__getitem__)
                 pairs.append(dict(comparison=kind,first_group=first['group'],first_case=first['case'],first_model=x['model'],
                                   second_group=second['group'],second_case=second['case'],second_model=y['model'],
-                                  rigid=rigid,first_moving=moving_x,second_moving=moving_y,hz=hz,steps=n,inlet_peak_m3_s=peak,
+                                  rigid=rigid,first_moving=moving_x,second_moving=moving_y,hz=hz,steps=n,samples_per_cycle=nobs,inlet_peak_m3_s=peak,inlet_mean_m3_s=mean,
                                   outlet_complex_difference_pct_inlet=100*abs(qy-qx)/peak,
                                   outlet_gain_difference_percentage_points=100*(abs(qy)-abs(qx))/peak,
                                   outlet_phase_difference_deg=math.degrees(cmath.phase(qy/qx)),
@@ -337,6 +405,79 @@ def direct_pairs(data, accepted):
                                   circuit_difference_pct_RQ=100*abs(z(y,'circuit_pressure')-z(x,'circuit_pressure'))/p0,
                                   max_complex_section_difference_pct_static=errors[worst],worst_station_m=x['sections'][worst]))
     return pairs
+
+
+def forward_flow(data, accepted):
+    """Compare the cycle mean with a separate steady Stokes–elastic–resistance solve."""
+    refs = {}
+    for item in data.get('steady_meridians', []):
+        grid = item['report']
+        row, = grid['runs']
+        mean = grid['amplitude_m3_s']
+        pressure = (RP + RD)*mean
+        checks = [row[k] for k in ('relative_complex_power','relative_flux_balance','relative_terminal_power',
+                                   'relative_circuit_pressure','kinematic_error','max_free_row_residual')]
+        if (row['frequency_hz'] != 0 or not np.isfinite(checks).all() or max(checks)>3e-8
+                or abs(cpair(row['outlet_phasor_m3_s'])/mean - 1)>1e-8
+                or abs(cpair(row['outlet_load_pa'])/pressure - 1)>1e-8):
+            raise ValueError('Unbalanced steady meridian')
+        key = grid['rigid'], grid['outlet_tangential_motion']
+        refs.setdefault(key, []).append((grid, row))
+    results = []
+    for item in data['runs']:
+        r = item['report']
+        mean = r.get('full_mean', 0.)
+        if mean <= 0. or (item['group'],item['case']) not in accepted:
+            continue
+        key = r['rigid'], r['outlet_tangential_motion']
+        levels = sorted(refs[key], key=lambda g:g[0]['unknowns'])
+        if len(levels)<2:
+            raise ValueError('Forward flow requires two independent steady reference grids')
+        grid, ref = levels[-1]
+        coarse_grid, old = levels[-2]
+        if grid['sections'] != coarse_grid['sections']:
+            raise ValueError('Steady meridian observation coordinates differ')
+        n, nobs = r['steps_per_cycle'], r['samples_per_cycle']
+        cycle = r['observations'][-nobs:]
+        flow = np.asarray([s['full_outlet'] for s in cycle])
+        area = np.mean([s['area_strain'] for s in cycle],axis=0)
+        pressure = (RP+RD)*mean
+        target_area = problem('arterial')[0].lame_area_strain(pressure)
+        scale = mean/grid['amplitude_m3_s']
+        ids = positions(grid['sections'],r['sections'])
+        exact = scale*np.array([cpair(v).real for v in ref['area_strain']])
+        previous = scale*np.array([cpair(v).real for v in old['area_strain']])
+        old_pin = cpair(old['inlet_mean_pressure_pa']).real*scale
+        pin = np.mean([s['inlet_mean_pressure'] for s in cycle])
+        target_pin = cpair(ref['inlet_mean_pressure_pa']).real*scale
+        terminal = np.array(item['endpoint_port_steps_pc_pb_full_q'])
+        last = n*r['cycles']
+        if (terminal.shape != (2*n,4) or not np.isfinite(terminal).all()
+                or not np.array_equal(terminal[:,0],np.arange(last-2*n+1,last+1))):
+            raise ValueError('Incomplete dense terminal history')
+        _, pc, pb, q = terminal[-n:].T
+        mid = len(r['sections'])//2
+        inlet = np.array([s['full_inlet'] for s in cycle])
+        peak = r['full_amplitude']
+        # At equispaced full-period endpoints, the prescribed sine sets the phase without interpolation.
+        phase = 2j*np.exp(-2j*np.pi*np.arange(1,n+1)/n)/n
+        results.append(dict(group=item['group'],case=item['case'],solver=item['solver'],model=r['model'],
+                            rigid=key[0],moving_plane=key[1],steps=n,samples=nobs,mean_m3_s=mean,amplitude_m3_s=peak,
+                            min_sampled_inlet_m3_s=min(inlet),min_dense_terminal_flow_m3_s=min(q),
+                            mean_outlet_over_mean_inlet=flow.mean()/mean,mean_dense_terminal_over_mean_inlet=q.mean()/mean,
+                            mean_outlet_wall_flux_over_inlet=np.mean([s['full_wall_flux'] for s in cycle])/mean,
+                            mean_terminal_pressure_pa=pb.mean(),mean_capacitor_pressure_pa=pc.mean(),target_RQ_pa=pressure,
+                            mean_terminal_gap_pct_RQ=100*abs(pb.mean()-pressure)/pressure,
+                            mean_capacitor_gap_pct_RdQ=100*abs(pc.mean()-RD*mean)/(RD*mean),
+                            mean_inlet_pressure_pa=pin,ref_steady_inlet_pressure_pa=target_pin,
+                            mean_inlet_gap_pct_RQ=100*abs(pin-target_pin)/pressure,
+                            mean_mid_area_pct=100*area[mid],ref_steady_mid_area_pct=100*exact[ids[mid]],
+                            mean_max_section_gap_pct_static=100*np.max(abs(area-exact[ids]))/target_area,
+                            current_field_to_dense_port_ac_gap_pct_peak=100*abs(cpair(r['phasors']['full_outlet'])-phase@q)/peak,
+                            ref_steady_unknowns=grid['unknowns'],ref_previous_unknowns=coarse_grid['unknowns'],
+                            ref_steady_grid_pressure_change_pct_RQ=100*abs(target_pin-old_pin)/pressure,
+                            ref_steady_grid_area_change_pct_static=100*np.max(abs(exact-previous))/target_area))
+    return results
 
 
 def main():
@@ -350,15 +491,18 @@ def main():
     p.add_argument('--meridian-csv',type=Path,required=True)
     p.add_argument('--solver-csv',type=Path,required=True)
     p.add_argument('--pairs-csv',type=Path)
+    p.add_argument('--forward-csv',type=Path)
     args=p.parse_args()
     if args.runs and not (args.reference_scripts and args.native_executable):
         p.error('Raw validation requires the pinned field readers and native solver')
     data=pack(args.runs,args.reference_scripts,args.native_executable) if args.runs else json.loads(lzma.decompress(args.archive.read_bytes()))
     meridian,results=tables(data)
     outputs=[(meridian,args.meridian_csv),(results,args.solver_csv)]
+    accepted={(r['group'],r['case']) for r in results if r['periodic_pass']}
     if args.pairs_csv:
-        accepted={(r['group'],r['case']) for r in results if r['periodic_pass']}
         outputs.append((direct_pairs(data,accepted),args.pairs_csv))
+    if args.forward_csv:
+        outputs.append((forward_flow(data,accepted),args.forward_csv))
     for rows,path in outputs:
         if not rows:raise ValueError('No validated observations')
         with path.open('w',newline='') as f:

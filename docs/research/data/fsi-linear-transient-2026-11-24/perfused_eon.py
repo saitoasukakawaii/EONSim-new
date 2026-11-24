@@ -54,9 +54,10 @@ def main():
     p.add_argument('--rigid',action='store_true')
     p.add_argument('--moving-outlet',action='store_true',help='Apply the terminal on a radially expanding fixed axial plane')
     p.add_argument('--amplitude',type=float,default=AMPLITUDE,help='Full-circle inlet peak in m³/s')
+    p.add_argument('--mean',type=float,default=0.,help='Cycle-mean full-circle inlet flow in m³/s')
     args=p.parse_args()
     n, hz, peak = args.steps_per_cycle, args.hz, args.amplitude
-    if min(n,hz,peak)<=0 or args.cycles<4 or args.samples<8 or n%args.samples:
+    if not np.isfinite([hz,peak,args.mean]).all() or min(n,hz,peak)<=0 or args.cycles<4 or args.samples<8 or n%args.samples:
         p.error('Expected full cycles with at least eight evenly spaced samples')
     sys.path.append(str(args.reference_scripts.resolve()))
     from study_hydrostatic_fsi import recovered_state
@@ -81,7 +82,7 @@ def main():
              stabilization_model=args.model)
     fraction=.25
     f['inlet']=dict(tag=1,ramp_time=period,flow_rate=dict(profile='circle',axis=0,center=[0,0,0],
-                    radius=material.radius,mean=0.,amplitude=fraction*peak,period=period))
+                    radius=material.radius,mean=fraction*args.mean,amplitude=fraction*peak,period=period))
     f.pop('pressure_time',None)
     domains=f['domains']
     domains['pressure_tags']=[2]
@@ -141,7 +142,7 @@ def main():
         positions,area=measured_ring_strains(meshes[1],state[1])
         qin=-fields[1]['outward_flow']/fraction
         qout=fields[2]['outward_flow']/fraction
-        checks['prescribed_inlet_relative']=max(checks['prescribed_inlet_relative'],abs(qin/peak-math.sin(2*np.pi*hz*t)))
+        checks['prescribed_inlet_relative']=max(checks['prescribed_inlet_relative'],abs((qin-args.mean)/peak-math.sin(2*np.pi*hz*t)))
         checks['vtu_flux_relative']=max(checks['vtu_flux_relative'],abs(qout-r['endpoint_rcr_flow']/fraction)/peak,
                                         abs(qin-r['endpoint_inlet_flow']/fraction)/peak)
         checks['vtu_wall_flux_relative']=max(checks['vtu_wall_flux_relative'],
@@ -157,7 +158,7 @@ def main():
         raise ValueError('Applied inlet, terminal equation, raw fields or clamped ends differ: '+str(checks))
     mode,change=periodic_modes(samples,hz,peak,pscale,material.lame_area_strain(pscale))
     result=dict(parameters=asdict(material),frequency_hz=hz,steps_per_cycle=n,cycles=args.cycles,samples_per_cycle=args.samples,
-                rigid=args.rigid,outlet_tangential_motion=args.moving_outlet,model=args.model,full_amplitude=peak,full_rcr_si=[RP,RD,C],quarter_fraction=fraction,
+                rigid=args.rigid,outlet_tangential_motion=args.moving_outlet,model=args.model,full_amplitude=peak,full_mean=args.mean,full_rcr_si=[RP,RD,C],quarter_fraction=fraction,
                 sections=positions,observations=samples,phasors=mode,checks=checks,last_cycle_change=change,
                 periodic_pass=max(change.values())<1e-3,residuals=norms,executable_sha256=digest(args.executable),
                 files={k:digest(work/k) for k in ('fluid.msh','solid.msh','warm.json','measure.json','warm.log','measure.log',stem+'.csv',stem+'_pressure_faces.csv')})

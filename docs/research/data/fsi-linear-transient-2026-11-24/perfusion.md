@@ -15,6 +15,7 @@ The table uses six 1 Hz cycles with 32 time steps per cycle and both rings clamp
 | svFSI, stage-aligned RCR traction, same mesh | 85.808 | −9.998 | 10.645 | 0.02558 |
 | EONSim, 24 sectors, 12 axial layers | 82.976 | −11.755 | 10.274 | 0.02603 |
 | EONSim, 24 sectors, 24 axial layers | 81.720 | −12.531 | 10.115 | 0.02562 |
+| EONSim, 24 sectors, 48 axial layers | 81.197 | −12.852 | 10.048 | 0.02547 |
 | EONSim, 48 sectors, 6 axial layers | 85.482 | −10.161 | 10.616 | 0.02585 |
 | Circular meridian, 128,044 unknowns | 79.999 | −13.569 | 9.966 | 0.02596 |
 
@@ -34,14 +35,30 @@ On the deformable coarse tube the same intervention reduced the EONSim–svFSI *
 
 Changing only the 3D outlet annulus from a clamp to an axial roller at 1 Hz and 32 steps changes EONSim's coarse flow gain from 85.779% to 82.531%. The outlet area then oscillates by 0.02756% of its initial area. Native svFSI gives 83.452% and 0.02800% on the same released mesh. The independent meridian predicts about 79.57% flow transmission for a radially free outlet. EONSim integrates the normal fluid velocity on the current fixed plane at each evaluation. For the native moving-mesh comparison the observer independently checks the circuit flow on the old geometry using the new velocity and measures the physical endpoint flow on the new geometry. [EONSim equations and MPI checks](../fsi-rcr-2026-11-24/planar-outlets.md) · [Native surface geometry](https://github.com/SimVascular/svFSI/blob/94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571/Code/Source/svFSI/NN.f#L1919-L1927)
 
+At 32 steps, aligning the native traction on the moving outlet reduced the intercode complex flow difference from 1.4641% to 0.03978% of inlet amplitude. The unmodified native difference was 0.71761% at 64 steps. The raw audit repeats the capacitor integration from zero using the piecewise-linear measured flow. For an expanding port it reopens the velocity field at every accepted step, integrates that velocity over the previous and current cap, and compares the previous-geometry flux with the value printed by the native circuit. The native cap areas have a separate checksum covering the complete sequence of source VTUs. [Paired measurements](perfused-pairs.csv) · [Circuit recurrence and surface quadrature](compare_perfusion.py)
+
+## Forward perfusion throughout the cycle
+
+The same tube also receives a positive mean plus a sinusoid. Pressure and flow include a startup from the resting state. The table uses the last of eight cycles, 32 time steps per cycle and 16 saved field samples per cycle. Both ends of the wall are clamped. The mean distal pressure is zero. The steady prediction gives $\bar p_b=(R_p+R_d)\bar Q$ and $\bar p_c=R_d\bar Q$. The steady circular meridian independently solves the fluid and wall under the prescribed mean flow. Each pressure below is in pascals. An area of 0.09454% means an increase relative to the initial lumen area.
+
+| Mean ± amplitude (mL/s) | Solver | Mean outlet/inlet flow | Mean terminal pressure | Mean inlet pressure | Mean midspan area increase |
+|---|---|---:|---:|---:|---:|
+| 0.4 ± 0.2 | EONSim | 1.000000007 | 40.0000004 | 40.05103 | 0.094537% |
+| 0.4 ± 0.2 | svFSI | 1.000000000 | 40.0000003 | 40.05024 | 0.094537% |
+| 0.4 ± 0.2 | Circular steady solution | 1 | 40 | 40.04857 | 0.102477% |
+| 2 ± 1 | EONSim | 1.000000002 | 200.0000006 | 200.24989 | 0.473467% |
+| 2 ± 1 | Circular steady solution | 1 | 200 | 200.24283 | 0.512387% |
+
+At 0.4 ± 0.2 mL/s the lowest sampled inlet flow is 0.2000 mL/s. The minimum endpoint outlet flows on the two 3D runs are 0.2285 and 0.2268 mL/s. Their complex outlet-flow difference is 1.2710% of the inlet sinusoidal amplitude. The zero-mean measurement on this mesh gave 1.2700%. This intercode difference persists with forward flow throughout the cycle. Cross-code agreement on mean area also leaves a 0.00794 percentage point difference from the steady circular midspan value. [Measured DC component, positive minima and circular reference](perfused-forward.csv)
+
 ## Reproduction
 
-Build EONSim with the repository Release script and the pinned PETSc 3.23.7 environment. Build the external executable with the pressure-face build script at svFSI commit 94a2ff5. In separate worktrees build the observer-only executable and the observer plus the RCR stage patch. The 3D runners use the same pair of mesh files. The reference solver checks complex wall and fluid energy balance, terminal dissipation, capacitor storage, kinematic continuity and mass on every grid. Raw audit reopens the accepted histories, checks native fluid/structure and mesh convergence separately and reconstructs the observations from VTU files. The archived replay regenerates the three tables without a solver install. [Full measured periods and provenance](perfused-tube.json.xz) · [EONSim runner](perfused_eon.py) · [svFSI runner](perfused_svfsi.py) · [Independent meridian](perfused_tube.py)
+Build EONSim with the repository Release script and the pinned PETSc 3.23.7 environment. Build the external executable with the pressure-face build script at svFSI commit 94a2ff5. In separate worktrees build the observer-only executable and the observer plus the RCR stage patch. The 3D runners use the same pair of mesh files. The reference solver checks complex wall and fluid energy balance, terminal dissipation, capacitor storage, kinematic continuity and mass on every grid. Raw audit reopens the accepted histories, checks native fluid/structure and mesh convergence separately and reconstructs the observations from VTU files. The archived replay regenerates the frequency, solver, pair and forward-perfusion tables without a solver install. [Full measured periods and provenance](perfused-tube.json.xz) · [EONSim runner](perfused_eon.py) · [svFSI runner](perfused_svfsi.py) · [Independent meridian](perfused_tube.py)
 
 ```bash
 export OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1
 python perfused_tube.py --mesh 32 32 10 --corner-levels 3 --output "$work/circular.json"
 python compare_perfusion.py --archive perfused-tube.json.xz \
-  --meridian-csv "$work/meridian.csv" --solver-csv "$work/solvers.csv" --pairs-csv "$work/pairs.csv"
+  --meridian-csv "$work/meridian.csv" --solver-csv "$work/solvers.csv" --pairs-csv "$work/pairs.csv" --forward-csv "$work/forward.csv"
 python plot_perfusion.py --archive perfused-tube.json.xz --output "$work/sections.png"
 ```

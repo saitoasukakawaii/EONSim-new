@@ -35,7 +35,7 @@ def main():
             d=item['report']
             if ((item['group'],item['case']) not in accepted or item['solver']!='EONSim' or d['model']!='volume' or d['rigid']
                     or d.get('outlet_tangential_motion',False)!=moving or d['frequency_hz']!=1. or d['steps_per_cycle']!=32
-                    or d['full_amplitude']!=2e-7):
+                    or d['full_amplitude']!=2e-7 or d.get('full_mean', 0.) != 0.):
                 continue
             m=re.match(r's24-r3-w2-a(\d+)-',item['case'])
             if m:eligible.setdefault(int(m[1]),d)

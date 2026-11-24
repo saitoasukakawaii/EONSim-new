@@ -125,6 +125,7 @@ def main():
     p.add_argument('--mesh',type=int,nargs=3,required=True,help='Axial cells per half, fluid and wall radial cells before grading')
     p.add_argument('--corner-levels',type=int,default=2)
     p.add_argument('--hz',type=float,nargs='+',default=(.5,1.,2.))
+    p.add_argument('--steady-only',action='store_true',help='Solve the zero-frequency pressure, steady flow and elastic displacement')
     p.add_argument('--rigid',action='store_true')
     p.add_argument('--moving-outlet',action='store_true',help='Allow radial wall displacement at the fixed axial outlet plane')
     p.add_argument('--output',type=Path,required=True)
@@ -135,7 +136,7 @@ def main():
     tube=MeridianTube(*args.mesh,5,m,args.corner_levels,True,97)
     raw=dict(parameters=asdict(m), mesh=args.mesh, corner_levels=args.corner_levels, rigid=args.rigid,
              unknowns=tube.size, sections=tube.positions, outlet_tangential_motion=args.moving_outlet, amplitude_m3_s=AMPLITUDE, full_rcr_si=[RP,RD,C], runs=[])
-    for hz in args.hz:
+    for hz in ([0.] if args.steady_only else args.hz):
         row=harmonic(tube,hz,args.rigid,moving_outlet=args.moving_outlet)
         raw['runs'].append(row)
         print(hz, row['inlet_mean_pressure_pa'], row['outlet_load_pa'], row['relative_complex_power'],flush=True)
