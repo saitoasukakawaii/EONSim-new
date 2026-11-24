@@ -517,51 +517,62 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         }
         // 相同局部残量同时用于 SNES 装配和收敛后界面力检查。
         const auto local_residual=[&](std::size_t e,const std::vector<double>& full,bool tangent,
-                                       std::vector<double>& r,std::vector<double>& j,const FsiAssemblyEvents& log) {
+                                       FsiCellComponents active,std::vector<double>& r,std::vector<double>& j,const FsiAssemblyEvents& log) {
             Tet4Ale::State<double> state;
             Tet4Vector::State<double> vs,dn,vn;
-            constexpr int nd=Layout::dofs;
+            const int nd=active.dofs();
             r.assign(nd,0); if(tangent) j.assign(nd*nd,0);
             for(int a=0;a<Tet4Topology::nodes;++a) {
                 const auto n=mesh.cells[e].nodes[a];
-                for(int c=0;c<Tet4Ale::components;++c) state[Tet4Ale::components*a+c]=full[nc*n+c];
-                if(Elastic) for(int c=0;c<Space3::dimension;++c) {
-                    vs[Tet4Vector::components*a+c]=full[Layout::dof(n,Layout::structure_offset+c)]; dn[Tet4Vector::components*a+c]=reference_d[Tet4Vector::components*n+c]; vn[Tet4Vector::components*a+c]=reference_physical[Layout::dof(n,Layout::structure_offset+c)];
+                if(fluid_cell[e]) for(int c=0;c<Tet4Ale::components;++c)
+                    state[Tet4Ale::dof(a,c)]=full[Layout::dof(n,c)];
+                if(solid_cell[e]) for(int c=0;c<Space3::dimension;++c) {
+                    vs[Tet4Vector::dof(a,c)]=full[Layout::dof(n,Layout::structure_offset+c)];
+                    dn[Tet4Vector::dof(a,c)]=reference_d[Tet4Vector::dof(n,c)];
+                    vn[Tet4Vector::dof(a,c)]=reference_physical[Layout::dof(n,Layout::structure_offset+c)];
                 }
             }
             if(fluid_cell[e]) {
                 measured(log.fluid_residual,[&] {
                     const auto fr=fsi_element_residual(data[e],state);
-                    for(int i=0;i<Tet4Ale::dofs;++i)
-                        r[Layout::dof(Tet4Ale::node(i),Tet4Ale::component(i))]=fr[i];
+                    if(active.count==Tet4Ale::components) std::copy(fr.begin(),fr.end(),r.begin());
+                    else for(int i=0;i<Tet4Ale::dofs;++i)
+                        r[active.index(Tet4Ale::node(i),Tet4Ale::component(i))]=fr[i];
                 });
                 if(tangent) measured(log.fluid_ale_tangent,[&] {
                     const auto fj=finite_difference?fsi_element_tangent_fd(data[e],state):fsi_element_tangent(data[e],state);
-                    for(int i=0;i<Tet4Ale::dofs;++i) for(int k=0;k<Tet4Ale::dofs;++k)
-                        j[Layout::dof(Tet4Ale::node(i),Tet4Ale::component(i))*nd+Layout::dof(Tet4Ale::node(k),Tet4Ale::component(k))]=fj[Tet4Ale::matrix(i,k)];
+                    if(active.count==Tet4Ale::components) std::copy(fj.begin(),fj.end(),j.begin());
+                    else for(int i=0;i<Tet4Ale::dofs;++i) for(int k=0;k<Tet4Ale::dofs;++k)
+                        j[active.index(Tet4Ale::node(i),Tet4Ale::component(i))*nd+active.index(Tet4Ale::node(k),Tet4Ale::component(k))]=fj[Tet4Ale::matrix(i,k)];
                 });
             }
             if(solid_cell[e]) measured(tangent?log.solid_tangent:log.solid_residual,[&] {
                 const auto sr=solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,solid_dt,f.neo_hookean,mesh_dt},vs,dn,vn,tangent);
-                for(int i=0;i<Tet4Vector::dofs;++i)
-                    r[Layout::dof(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i))]=sr.residual[i];
-                if(tangent) for(int i=0;i<Tet4Vector::dofs;++i) for(int k=0;k<Tet4Vector::dofs;++k)
-                    j[Layout::dof(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i))*nd+Layout::dof(Tet4Vector::node(k),Layout::structure_offset+Tet4Vector::component(k))]=sr.tangent[Tet4Vector::matrix(i,k)];
+                if(active.count==Tet4Vector::components) {
+                    std::copy(sr.residual.begin(),sr.residual.end(),r.begin());
+                    if(tangent) std::copy(sr.tangent.begin(),sr.tangent.end(),j.begin());
+                } else {
+                    const auto slot=[&](int i) { return active.index(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i)); };
+                    for(int i=0;i<Tet4Vector::dofs;++i) r[slot(i)]=sr.residual[i];
+                    if(tangent) for(int i=0;i<Tet4Vector::dofs;++i) for(int k=0;k<Tet4Vector::dofs;++k)
+                        j[slot(i)*nd+slot(k)]=sr.tangent[Tet4Vector::matrix(i,k)];
+                }
             });
         };
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
             const auto full=expand(x);
-            constexpr int nd=Layout::dofs;
-            std::vector<double> residual,tangent,chain(nd);
-            std::vector<PetscInt> rows(nd),cols(nd);
+            std::vector<double> residual,tangent;
+            typename Layout::template State<double> chain;
+            typename Layout::template State<PetscInt> rows,cols;
             for(std::size_t e=0;e<data.size();++e) {
-                for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<nc;++c) {
-                    const auto n=mesh.cells[e].nodes[a],i=nc*n+c;
-                    const auto mapping=reduced.slot(i,mesh_dt);
-                    rows[nc*a+c]=mapping.test_row; cols[nc*a+c]=mapping.column;
-                    chain[nc*a+c]=mapping.trial_weight;
+                const auto active=fsi_cell_components(nc,dual?&domains:nullptr,mesh.cells[e].physical_tag);
+                const int nd=active.dofs();
+                for(int a=0;a<Tet4Topology::nodes;++a) for(int c=active.first;c<active.first+active.count;++c) {
+                    const auto mapping=reduced.slot(Layout::dof(mesh.cells[e].nodes[a],c),mesh_dt);
+                    const int slot=active.index(a,c);
+                    rows[slot]=mapping.test_row; cols[slot]=mapping.column; chain[slot]=mapping.trial_weight;
                 }
-                local_residual(e,full,j!=nullptr,residual,tangent,events);
+                local_residual(e,full,j!=nullptr,active,residual,tangent,events);
                 measured(events.insert,[&] {
                     EONSIM_PETSC(VecSetValues(r,nd,rows.data(),residual.data(),ADD_VALUES));
                     if(j) {
@@ -583,7 +594,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         measured(events.force_replay,[&] {
             for(std::size_t e=0;e<data.size();++e) {
                 std::vector<double> r,j;
-                local_residual(e,next,false,r,j,unmeasured);
+                local_residual(e,next,false,{0,nc},r,j,unmeasured);
                 for(int a=0;a<Tet4Topology::nodes;++a) if(interface[mesh.cells[e].nodes[a]]) {
                     local[0]-=r[nc*a];
                     if(Elastic&&reduced.global[Layout::dof(mesh.cells[e].nodes[a],Layout::structure_offset)]>=0)

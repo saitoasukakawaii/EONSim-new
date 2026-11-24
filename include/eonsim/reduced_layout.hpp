@@ -4,6 +4,20 @@
 #include "eonsim/mesh.hpp"
 #include "eonsim/linear_system.hpp"
 namespace eonsim {
+/** Contiguous physical components of one node that a cell equation can read or test.
+ * A solid-side interface velocity still maps to the same reduced column as the
+ * fluid trace. The single-mesh elastic benchmark evaluates both kernels on a cell.
+ */
+struct FsiCellComponents {
+    int first, count;
+    int index(int node,int component) const { return node*count+component-first; }
+    int dofs() const { return Tet4Topology::nodes*count; }
+};
+inline FsiCellComponents fsi_cell_components(int components,const FsiDomains* domains,int tag) {
+    if(!domains) return {0,components};
+    if(tag==domains->solid_region) return {Tet4Ale::components,Tet4Vector::components};
+    return {0,Tet4Ale::components};
+}
 /** One physical slot's affine trial map and independent test-row projection.
  * x_slot = trial_weight*q[local] + lifting; test_row=-1 discards its equation.
  * The mapping is fixed during one Newton solve. Kernel-internal time derivatives

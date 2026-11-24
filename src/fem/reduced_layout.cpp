@@ -125,7 +125,11 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     EONSIM_PETSC(MatSetType(graph.get(),MATPREALLOCATOR)); EONSIM_PETSC(MatSetUp(graph.get()));
     for(const auto& cell:mesh.cells) {
         std::set<PetscInt> unique;
-        for(auto n:cell.nodes) for(int c=0;c<nc;++c) if(reduced.global[nc*n+c]>=0) unique.insert(reduced.global[nc*n+c]);
+        const auto active=fsi_cell_components(nc,domains,cell.physical_tag);
+        for(auto n:cell.nodes) for(int c=active.first;c<active.first+active.count;++c) {
+            const auto id=reduced.global[nc*n+c];
+            if(id>=0) unique.insert(id);
+        }
         std::vector<PetscInt> dofs(unique.begin(),unique.end());
         EONSIM_PETSC(MatSetValues(graph.get(),dofs.size(),dofs.data(),dofs.size(),dofs.data(),nullptr,INSERT_VALUES));
     }
