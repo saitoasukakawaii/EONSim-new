@@ -54,7 +54,18 @@ def main():
         assert len(tail)==13 and error(two,resumed)<2e-9
         report[scheme]=dict(mpi_error=error(one,two),restart_error=error(two,resumed),
             maximum_radial_displacement=maximum_radial,maximum_mass_residual=max(abs(r['stage_mass_residual']) for r in rows))
-    four,four_rows,_=run.solve('alpha-four',cfg,4)
+    profile=work/'alpha-four-events.csv'
+    four,four_rows,_=run.solve('alpha-four',cfg,4,['-log_view',f':{profile}:ascii_csv'])
+    wanted={'FSIFluidRes','FSIFluidAleJac','FSISolidRes','FSISolidJac','FSIInsert','FSIForceReplay'}
+    with profile.open() as stream:
+        observed=[r for r in csv.DictReader(stream) if r['Stage Name']=='Main Stage' and r['Event Name'] in wanted]
+    assert {(r['Event Name'],int(r['Rank'])) for r in observed}=={(e,i) for e in wanted for i in range(4)}
+    for name in wanted:
+        entries=[r for r in observed if r['Event Name']==name]
+        assert len(entries)==4 and sum(int(r['Count']) for r in entries)>0
+        assert all(math.isfinite(float(r['Time'])) and float(r['Time'])>=0 for r in entries)
+        if name=='FSIForceReplay':
+            assert all(int(r['Count'])==len(four_rows) for r in entries)
     assert error(one,four)<2e-9
     report['four_rank_error']=error(one,four)
     with (work/'alpha-four_pressure_faces.csv').open() as stream:
