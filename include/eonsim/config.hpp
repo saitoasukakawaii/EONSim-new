@@ -30,6 +30,14 @@ struct SolverConfig {
     std::map<std::string,FieldTolerance> fields; ///< 非空时须覆盖该非线性布局的全部字段。
 };
 
+/** @brief Absolute pressure amplitude, period, and optional smooth startup time.
+ * The ramp multiplies both the mean and the sinusoid. Time is physical solver time.
+ */
+struct PressureTime {
+    double amplitude=0,period=1,ramp_time=0;
+    double value_at(double mean,double time) const;
+};
+
 /** @brief 按 physical tag 的固定网格流体边界。
  * velocity/traction: value + gradient*(x-origin)，gradient 按行存储；pressure: t=-pressure*n。
  * ramp_time=0 表示立即施加，否则乘 min(t/ramp_time,1)；稳态忽略 ramp。
@@ -43,6 +51,7 @@ struct FluidBoundary {
     Space3::Vector<double> value{},origin{};
     Space3::Tensor<double> gradient{};
     double pressure=0,ramp_time=0;
+    std::optional<PressureTime> pressure_time; ///< Transient pressure only. pressure is the mean.
 };
 struct PressureGauge { std::int64_t node; double value; }; // 原始网格 ID，非 PETSc 编号
 
@@ -87,7 +96,7 @@ struct FsiDomains {
     std::vector<int> pressure_tags;
     std::vector<ComponentConstraint> fluid_constraints,mesh_constraints,solid_constraints;
 };
-struct FsiPressureTime { double amplitude=0, period=1, ramp_time=0; };
+using FsiPressureTime=PressureTime;
 struct FsiFlowRate {
     bool circular=false; ///< Circular parabolic profile; default preserves rectangle.
     Space3::Vector<double> center{};

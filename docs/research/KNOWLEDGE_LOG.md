@@ -4,6 +4,15 @@
 
 在 `4095e4b` 保留 ALE 几何导数，将单元内恒定的黏性应力及速度切线精确积分一次。局部公式和有限差分、1/2-rank 成对实测、#41/#42 集成证据见[调研报告](HPC_UPSTREAM_REVIEW_2026-11-24.md)。[教学草稿](../../website/drafts/tet4-viscous-work-and-ale-tangents.md)的审阅重点是常黏度仿射假设，以及单元核与全 FSI 计时边界。
 
+## 2026-11-20 / 振荡刚性管的相位与压力迹
+
+Womersley 的圆管解提供复数流量参照。新增末周期投影、三相位全场积分与同网格
+svFSI 核验。实现 `62c0b2f`，比较工具 `bef75bd`。已核验 48/8/12
+上的流量门槛，计算端面压力仍比施加幅值低 7.58%。草稿待审问题包括
+端面压力和内部压力的适用指标，以及时间加密同时改变默认稳定化系数的影响。
+刚性管在固定 48 扇区上的细化将端流幅值误差降到 0.7554%，在 24 扇区上仅看端流则会低估域内速度误差。弹性壁的独立平衡试验见 [PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42)。稿件保留在草稿目录。
+[基准草稿](../../website/drafts/womersley-flow-and-pressure-traces.md) · [原始证据](data/womersley-2026-11-20/README.md)
+
 ## 2026-11-13 / Release 验收与 Debug 故障定位分离
 
 PR 日常正确性依靠 Release 增量 CTest 和复用证据；Debug/GDB/LLDB/sanitizer 仅用于定位实际故障。删除默认 Debug 前必须同步更新 receipt 来源校验和自动合并保护检查，保持 fail-closed；此流程经验已纳入工程规范，不新建知识文章。

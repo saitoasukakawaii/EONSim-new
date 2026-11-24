@@ -6,6 +6,21 @@
 
 首轮通过带超时的文件重定向子进程测量墙钟，发现短算例读数在轮询时间隔附近聚集。改用管道等待输出结束，将日志写盘置于计时区间外，重新执行全部 6 对和预热，报告仅用修正后的样本。最终逐对比较全部 owned 节点数据，流体、弹性 FSI 各 1/2 rank，各步迭代数一致。1 rank 固定流体单元核变化 −29.6%，弹性 FSI 的端到端配对范围跨零。后续先对齐 #42 的瞬态，再实测 FSI 各子阶段成本。[完整报告](../research/HPC_UPSTREAM_REVIEW_2026-11-24.md)
 
+提交审阅前同步已合入 #41 的 `main@f7ec770`。以该主线为基准运行 `scripts/cloud/selection.py --offline` 得到 10 项增量选测，加入 `womersley_flow` 后用 `scripts/cloud/run.sh 3.23.7 release explicit` 编译并执行，11/11 项通过。公开数值提交 `7a0416d` 的源码树与配对测量使用的本地提交相同。
+
+## 2026-11-20 / FSI-PROD-02B / 振荡刚性管
+
+从 `89a1a3d` 建立独立分支，求解器实现为 `62c0b2f`，场审计与跨程序工具为 `bef75bd`。
+执行锁定 PETSc 3.23.7 Release 相关小算例，核验三种格式的压力加载时刻、1/2 rank
+重启、参数变化拒绝和旧 main 的真实检查点。同一旧检查点按原分区在新程序上续算，
+1 和 2 rank 两组终点场的最大差均为零。归档了粗网格误差超过事前门槛的结果、
+svFSI 输入和迭代失败，以及两处已修复的本地回归脚本故障。
+
+独立从正负峰值与周期终点 VTU 积分速度、压力、散度、分截面通量。固定版本 svFSI 在相同
+几何、负载、时间步和端面分量约束下跑完三个周期。细化后的 59,616 个四面体给出 0.7554% 幅值误差，压力迹的幅值偏差仍有 5.68%。该网格上 EONSim 与 svFSI 的复流量差为 1.3046%。20 组 EONSim 和 3 组外部运行共归档 200 个文件。默认稳定化的相邻步复流量变化为 0.3694%、0.3659%、0.6522%，固定 τ 的独立时间细化给出 1.960 和 1.991 阶。两、四进程均与串行端点吻合。源提交 `f802fa3` 的 Release 增量检查和证据收据已通过。[数值 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/44724492072)
+[刚性管 PR #41](https://github.com/saitoasukakawaii/EONSim-new/pull/41) · [静压管壁 PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42) ·
+[数值、命令、失败记录与原始场](../research/data/womersley-2026-11-20/README.md)
+
 ## 2026-11-13 / CI-DEBUG-ON-DEMAND / 源码修改
 
 基线 main `f34658082644eb5238ee4cc651d71823fe5d1587`。发现 core-numerics 双模式测试、receipt.py 强制双模式、selection.py 双模式历史来源、agent 自动合并五项必需检查彼此关联；不能简单删除 Debug job。同步修改 Release-only PR、手动 Debug、收据复用和自动合并检查。未执行 PETSc/MPI 求解，CI 结果须读取实际工作流，不能从文件存在推断通过。

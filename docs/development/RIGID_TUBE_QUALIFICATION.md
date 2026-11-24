@@ -1,5 +1,10 @@
 # Rigid tube: mixed end conditions and steady flow qualification
 
+The transient companion uses the same mixed end conditions with a sinusoidal
+normal load. It records pressure and flow at accepted endpoints and compares
+the periodic solution with Womersley's circular-tube reference.
+[Oscillatory tube study](WOMERSLEY_FLOW.md)
+
 FSI-PROD-02A is a bounded first increment of PROD-02. It verifies the steady
 pressure-to-flow quantity in a fixed tube. It does not qualify transient FSI,
 the pressure field, elastic-wall response, physiological parameters or svFSI
