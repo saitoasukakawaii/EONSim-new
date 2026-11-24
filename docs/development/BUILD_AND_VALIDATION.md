@@ -216,3 +216,5 @@ Linux 下 `peak_rss_*` 使用 getrusage 的进程高水位值；`rss_*` 是求�
 实现边界与证据见 [整体实施记录](FEM_INTEGRATION_VALIDATION.md)。
 
 `-linear_report` 用实际的未缩放 KSP 算子重新计算 `A*x-b`。迭代次数用尽时，最后一个 Krylov 近似仍有定义。此时报告 `linear_iteration_limit_residual` 的 2-范数、右端 2-范数和独立标记的逐物理场残量，保留原 KSP 失败原因。正常收敛的修正继续输出 `linear_residual`。当 PETSc 启用内部对角缩放，或预条件器失败导致近似解无可靠含义时，程序记录无法测量的原因。默认执行路径无需额外的矩阵乘法。零次和一次迭代的 GMRES 制造解在一、两个 MPI 进程均核对了真实范数。
+
+共享主机需要固定 MPI 核心时，可在同一个编译脚本前设置 `PRTE_MCA_rmaps_default_mapping_policy=core`、`PRTE_MCA_hwloc_default_binding_policy=core` 和符合实际 CPU 配额的 `PRTE_MCA_hwloc_default_cpu_list`。脚本会保留调用方指定的映射。未指定时使用 CI 原有的 oversubscribe 设置。

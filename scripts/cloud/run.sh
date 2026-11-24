@@ -35,8 +35,9 @@ unset PETSC_ARCH PYTHONOPTIMIZE
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 # CTest runs one test at a time; some existing tests explicitly need four ranks.
 export OMPI_MCA_rmaps_base_oversubscribe=1
-# OpenMPI 5 delegates mapping to PRRTE; the old OMPI variable is ignored there.
-export PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe
+# Open MPI 5 delegates rank mapping to PRRTE. A caller may place ranks on
+# distinct cores on a shared host; preserve the CI oversubscription default.
+export PRTE_MCA_rmaps_default_mapping_policy="${PRTE_MCA_rmaps_default_mapping_policy:-:oversubscribe}"
 # Compiler activation supplies optimized CXXFLAGS: let existing presets choose flags.
 unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
 args=(--mode "$mode" --selection "$selection" --version "$version")
