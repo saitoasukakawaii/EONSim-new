@@ -90,12 +90,17 @@ struct MotionConfig {
 };
 
 struct ComponentConstraint { int tag; std::vector<int> components; };
+struct WallSupport {
+    double stiffness=0; ///< Normal traction per unit reference-normal displacement, Pa/m.
+    double damping=0;   ///< Normal traction per unit reference-normal velocity, Pa s/m.
+};
 struct FsiDomains {
     std::filesystem::path solid_mesh;
     int fluid_region=10,solid_region=20,fluid_interface=2,solid_interface=12;
     double match_tolerance=1e-10;
     std::vector<int> pressure_tags;
     std::vector<ComponentConstraint> fluid_constraints,mesh_constraints,solid_constraints;
+    std::map<int,WallSupport> wall_supports; ///< Solid exterior physical tags.
 };
 using FsiPressureTime=PressureTime;
 struct FsiFlowRate {

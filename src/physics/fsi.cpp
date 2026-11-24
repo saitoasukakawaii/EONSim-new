@@ -83,6 +83,25 @@ struct TaggedPressureFace {
     int opposite;
 };
 
+struct CellWallSupport {
+    std::size_t cell;
+    WallSupportFace face;
+};
+
+template<class Layout>
+WallSupportBalance observe_wall_support(const MeshPartition& mesh,const CellWallSupport& support,
+    const std::vector<double>& displacement,const std::vector<double>& state,double displacement_dt)
+{
+    Tet4Vector::State<double> d{},v{};
+    const auto& cell=mesh.cells[support.cell];
+    for(int a:support.face.nodes) for(int i=0;i<Space3::dimension;++i) {
+        const auto node=cell.nodes[a];
+        d[Tet4Vector::dof(a,i)]=displacement[Tet4Vector::dof(node,i)];
+        v[Tet4Vector::dof(a,i)]=state[Layout::dof(node,Layout::structure_offset+i)];
+    }
+    return support.face.evaluate(d,v,displacement_dt);
+}
+
 template<class Layout>
 void write_pressure_faces(MPI_Comm comm,const MeshPartition& mesh,const std::vector<int>& tags,
     const std::vector<TaggedPressureFace>& faces,const std::vector<double>& stage,
@@ -257,7 +276,14 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     std::vector<Tet4Geometry> solid_geometry;
     const std::vector<int> pressure_tags=dual?f.domains.pressure_tags:std::vector<int>{1};
     std::vector<TaggedPressureFace> pressure_faces;
+    const auto& supports=domains.wall_supports;
+    std::vector<std::size_t> support_offsets;
+    std::vector<CellWallSupport> support_faces;
+    std::set<int> local_support_tags;
+    bool support_on_fluid=false;
+    if(!supports.empty()) support_offsets.reserve(mesh.cells.size()+1);
     for(const auto& cell:mesh.cells) {
+        if(!supports.empty()) support_offsets.push_back(support_faces.size());
         fluid_cell.push_back(!dual||cell.physical_tag==f.domains.fluid_region);
         solid_cell.push_back(Elastic&&(!dual||cell.physical_tag==f.domains.solid_region));
         Tet4Topology::Nodal<Point> reference,solid_xyz;
@@ -277,7 +303,21 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             for(int a=0;a<Tet4Topology::nodes;++a) if(a!=skip) { face[i]=a; key[i++]=cell.nodes[a]; }
             std::sort(key.begin(),key.end());
             const auto boundary_face=boundary.find(key);
-            if(!fluid_cell.back()||boundary_face==boundary.end()) continue;
+            if(boundary_face==boundary.end()) continue;
+            if(!supports.empty()) {
+                const auto support=supports.find(boundary_face->second);
+                if(support!=supports.end()) {
+                    if(!solid_cell.back()) support_on_fluid=true;
+                    else {
+                        local_support_tags.insert(support->first);
+                        Tri3Topology::Nodal<Point> points;
+                        for(int a=0;a<Tri3Topology::nodes;++a) points[a]=reference[face[a]];
+                        support_faces.push_back({data.size(),{face,triangle_geometry(points,reference[skip]),
+                                                            support->second.stiffness,support->second.damping}});
+                    }
+                }
+            }
+            if(!fluid_cell.back()) continue;
             const auto tag=std::find(pressure_tags.begin(),pressure_tags.end(),boundary_face->second);
             if(tag==pressure_tags.end()) continue;
             e.inlet_faces.push_back(face);
@@ -285,6 +325,15 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 pressure_faces.push_back({data.size(),static_cast<std::size_t>(tag-pressure_tags.begin()),skip});
         }
         e.inlet_pressure=f.pressure; data.push_back(e);
+    }
+    if(!supports.empty()) {
+        support_offsets.push_back(support_faces.size());
+        std::vector<int> local{int(support_on_fluid)};
+        for(const auto& support:supports) local.push_back(local_support_tags.count(support.first)?1:0);
+        std::vector<int> global(local.size());
+        MPI_Allreduce(local.data(),global.data(),static_cast<int>(local.size()),MPI_INT,MPI_MAX,comm);
+        if(global[0]||std::find(global.begin()+1,global.end(),0)!=global.end())
+            throw std::runtime_error("FSI wall support requires a solid exterior tag on the partition");
     }
     std::vector<double> accepted(layout.local_to_global.size(),0),physical(mesh.nodes.size()*nc,0);
     std::vector<double> solid_d(mesh.nodes.size()*Tet4Vector::components,0);
@@ -311,6 +360,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     if(alpha) signature_values.insert(signature_values.end(),{20501.,3.,config.time_integration.rho_infinity});
     if(f.stabilization_tau) signature_values.insert(signature_values.end(),{20503.,*f.stabilization_tau});
     if(f.grad_div_viscosity>0) signature_values.insert(signature_values.end(),{20509.,f.grad_div_viscosity});
+    for(const auto& [tag,support]:supports)
+        if(support.stiffness>0||support.damping>0)
+            signature_values.insert(signature_values.end(),{20510.,double(tag),support.stiffness,support.damping});
     if(!config.time_control.events.empty()) {
         signature_values.push_back(20502.);
         signature_values.insert(signature_values.end(),config.time_control.events.begin(),config.time_control.events.end());
@@ -446,6 +498,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         history.open(history_path(".csv")); history<<std::setprecision(17);
         history<<"step,time,accepted_dt,evaluation_time,applied_pressure,endpoint_position,endpoint_velocity,evaluation_fluid_force,evaluation_body_balance,evaluation_interface_power,evaluation_body_power,evaluation_power_balance,snes_iterations,residual,time_order,reference_interface_area,current_interface_area,area_displacement_x,area_displacement_y,area_displacement_z,area_velocity_x,area_velocity_y,area_velocity_z,stage_min_fluid_j,stage_min_solid_j,endpoint_min_fluid_j,endpoint_min_solid_j";
         if(f.inlet_flow) history<<",stage_volume,stage_inlet_flow,stage_outlet_flow,stage_wall_flux,stage_divergence,endpoint_volume,endpoint_inlet_flow,endpoint_outlet_flow,endpoint_wall_flux,endpoint_divergence,volume_secant_rate,stage_mass_residual,secant_mass_residual,target_endpoint_flow";
+        if(!supports.empty()) history<<",stage_support_spring_energy,stage_support_dissipation,stage_support_power,endpoint_support_spring_energy,step_support_work";
         history<<'\n';
         history.flush();
     });
@@ -548,7 +601,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 });
             }
             if(solid_cell[e]) measured(tangent?log.solid_tangent:log.solid_residual,[&] {
-                const auto sr=solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,solid_dt,f.neo_hookean,mesh_dt},vs,dn,vn,tangent);
+                auto sr=solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,solid_dt,f.neo_hookean,mesh_dt},vs,dn,vn,tangent);
+                if(!supports.empty())
+                    for(std::size_t i=support_offsets[e];i<support_offsets[e+1];++i)
+                        support_faces[i].face.evaluate(dn,vs,mesh_dt,&sr,tangent);
                 if(active.count==Tet4Vector::components) {
                     std::copy(sr.residual.begin(),sr.residual.end(),r.begin());
                     if(tangent) std::copy(sr.tangent.begin(),sr.tangent.end(),j.begin());
@@ -709,6 +765,23 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         }
         std::array<double,5> stage_mass{},endpoint_mass{},old_mass{};
         if(f.inlet_flow) {stage_mass=mass_observation(next); endpoint_mass=mass_observation(next_physical); old_mass=mass_observation(physical);}
+        std::array<double,5> support_history{};
+        if(!supports.empty()&&f.output_interval>0) {
+            std::array<double,5> local_work{};
+            for(const auto& face:support_faces) {
+                const auto stage=observe_wall_support<Layout>(mesh,face,reference_d,next,mesh_dt);
+                const auto old=observe_wall_support<Layout>(mesh,face,solid_d,physical,0);
+                const auto end=observe_wall_support<Layout>(mesh,face,next_solid,next_physical,0);
+                local_work[0]+=stage.spring_energy;
+                local_work[1]+=stage.dissipation;
+                local_work[2]+=stage.power_on_wall;
+                local_work[3]+=end.spring_energy;
+                local_work[4]+=old.spring_energy-end.spring_energy-dt*stage.dissipation;
+            }
+            MPI_Allreduce(local_work.data(),support_history.data(),5,MPI_DOUBLE,MPI_SUM,comm);
+            for(double value:support_history) if(!std::isfinite(value))
+                throw std::runtime_error("Nonfinite FSI wall support history");
+        }
         const double body_power=Elastic?global[3]:(result.balance+result.fluid_force)*solved.values[reduced.body_local];
         if(bdf2) { physical_history.commit(physical,dt); displacement_history.commit(solid_d,dt); body_history.commit({body.position,body.velocity},dt); }
         accepted=std::move(next_reduced); physical=std::move(next_physical); solid_d=std::move(next_solid); body=next_body;
@@ -764,6 +837,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     history<<','<<rate<<','<<stage_mass[1]-stage_mass[2]-stage_mass[3]
                         <<','<<stage_mass[1]-stage_mass[2]-rate<<','<<inlet_scale(time);
                 }
+                if(!supports.empty()) for(double value:support_history) history<<','<<value;
                 history<<'\n';
                 history.flush();
             });

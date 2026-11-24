@@ -346,7 +346,7 @@ Config read_config(const std::filesystem::path& path)
             v.elastic=body=="elastic";
         }
         if(const auto d=f["domains"]) {
-            keys(d,{"solid_mesh","fluid_region","solid_region","fluid_interface","solid_interface","match_tolerance","pressure_tags","fluid_constraints","mesh_constraints","solid_constraints"},"fsi.domains");
+            keys(d,{"solid_mesh","fluid_region","solid_region","fluid_interface","solid_interface","match_tolerance","pressure_tags","fluid_constraints","mesh_constraints","solid_constraints","wall_supports"},"fsi.domains");
             auto& domain=v.domains;
             domain.solid_mesh=(directory/d["solid_mesh"].as<std::string>()).lexically_normal();
             domain.fluid_region=d["fluid_region"].as<int>(); domain.solid_region=d["solid_region"].as<int>();
@@ -368,6 +368,21 @@ Config read_config(const std::filesystem::path& path)
                 }
             };
             constraints("fluid_constraints",domain.fluid_constraints); constraints("mesh_constraints",domain.mesh_constraints); constraints("solid_constraints",domain.solid_constraints);
+            if(const auto supports=d["wall_supports"]) {
+                if(!supports.IsSequence()) throw std::runtime_error("fsi.domains.wall_supports must be a sequence");
+                for(const auto& entry:supports) {
+                    keys(entry,{"tag","stiffness","damping"},"fsi.domains.wall_supports");
+                    const int tag=entry["tag"].as<int>();
+                    const auto spring=entry["stiffness"],dashpot=entry["damping"];
+                    if(tag<=0||tag==domain.solid_interface||(!spring&&!dashpot))
+                        throw std::runtime_error("Invalid FSI wall support tag or missing coefficient");
+                    WallSupport value{spring?spring.as<double>():0.,dashpot?dashpot.as<double>():0.};
+                    if(!std::isfinite(value.stiffness)||!std::isfinite(value.damping)||value.stiffness<0||value.damping<0)
+                        throw std::runtime_error("FSI wall support coefficients must be finite and nonnegative");
+                    if(!domain.wall_supports.emplace(tag,value).second)
+                        throw std::runtime_error("Duplicate FSI wall support tag");
+                }
+            }
         }
         if(const auto b=f["inlet"]) {
             keys(b,{"tag","value","origin","gradient","ramp_time","flow_rate"},"fsi.inlet");

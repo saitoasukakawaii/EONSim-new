@@ -11,13 +11,77 @@ from verify_fsi_inlet import Runner, error
 from generate_tube import generate
 
 
+def verify_wall_support(run, base):
+    free = copy.deepcopy(base)
+    free['fsi']['steps'] = 6
+    free['time'] = dict(scheme='generalized_alpha', rho_infinity=0.5)
+    baseline, _, _ = run.solve('support-free', free, 2)
+    zero = copy.deepcopy(free)
+    zero['fsi']['domains']['wall_supports'] = [dict(tag=14, stiffness=0, damping=0)]
+    same, zero_rows, _ = run.solve('support-zero', zero, 2)
+    assert error(baseline, same) < 1e-14
+    assert all(row['step_support_work'] == 0 for row in zero_rows)
+    free_checkpoint = run.work/'support-free-checkpoint'
+    run.solve('support-free-part', free, 2, ['-checkpoint', free_checkpoint, '-stop_after', 3])
+    zero_resumed, _, _ = run.solve('support-zero-resume', zero, 2, ['-restart', free_checkpoint])
+    assert error(baseline, zero_resumed) < 2e-9
+
+    results = {}
+    for scheme in ('be', 'bdf2', 'generalized_alpha'):
+        cfg = copy.deepcopy(free)
+        cfg['time'] = dict(scheme=scheme)
+        cfg['fsi']['domains']['wall_supports'] = [dict(tag=14, stiffness=200, damping=15)]
+        one, rows, _ = run.solve('support-'+scheme+'-one', cfg)
+        two, parallel_rows, _ = run.solve('support-'+scheme+'-two', cfg, 2)
+        assert error(one, two) < 2e-9
+        peak = max(r['endpoint_support_spring_energy'] for r in rows)
+        assert peak > 1e-12 and max(r['stage_support_dissipation'] for r in rows) > 1e-9
+        previous = 0.
+        for row, pair in zip(rows, parallel_rows):
+            assert min(row['stage_support_spring_energy'], row['stage_support_dissipation']) >= 0
+            energy = row['endpoint_support_spring_energy']
+            assert abs(row['step_support_work'] + energy - previous
+                       + row['accepted_dt']*row['stage_support_dissipation']) < 1e-12*peak
+            for key in ('stage_support_spring_energy','stage_support_power','stage_support_dissipation',
+                        'endpoint_support_spring_energy','step_support_work'):
+                assert math.isclose(row[key],pair[key],rel_tol=1e-7,abs_tol=1e-14)
+            previous = energy
+        results[scheme] = dict(peak_energy=peak, mpi_error=error(one, two))
+    assert error(baseline, two) > 1e-8
+    checkpoint = run.work/'support-checkpoint'
+    run.solve('support-part', cfg, 2, ['-checkpoint', checkpoint, '-stop_after', 3])
+    resumed, tail, _ = run.solve('support-resume', cfg, 2, ['-restart', checkpoint])
+    assert error(resumed, two) < 2e-9 and len(tail) == 3
+    for row, full in zip(tail, parallel_rows[3:]):
+        assert math.isclose(row['step_support_work'], full['step_support_work'], rel_tol=1e-7, abs_tol=1e-14)
+    four, _, log = run.solve('support-four', cfg, 4, ['-snes_test_jacobian'])
+    ratios = [float(v) for v in re.findall(r'\|\|J - Jfd\|\|_F/\|\|J\|\|_F\s*=\s*([\deE.+-]+)', log)]
+    assert ratios and max(ratios) < 1e-6 and error(four, two) < 2e-9
+    cfg['fsi']['domains']['wall_supports'][0]['damping'] = 16
+    run.solve('support-restart-change', cfg, 2, ['-restart', checkpoint], fail='Checkpoint mesh/partition/physics mismatch')
+    cfg['fsi']['domains']['wall_supports'] = [dict(tag=14, damping=15)]
+    _, damped, _ = run.solve('support-pure-damper', cfg, 2)
+    assert all(row['endpoint_support_spring_energy']==0 and
+               math.isclose(row['stage_support_power'], -row['stage_support_dissipation'], rel_tol=2e-13)
+               for row in damped)
+    for label, supports, message in (
+        ('tag', [dict(tag=2, stiffness=5)], 'solid exterior tag'),
+        ('interface', [dict(tag=13, stiffness=5)], 'Invalid FSI wall support'),
+        ('negative', [dict(tag=14, damping=-1)], 'finite and nonnegative'),
+        ('nonfinite', [dict(tag=14, stiffness='.inf')], 'finite and nonnegative'),
+        ('duplicate', [dict(tag=14, damping=1),dict(tag=14, stiffness=1)], 'Duplicate FSI wall support')):
+        cfg['fsi']['domains']['wall_supports'] = supports
+        run.solve('invalid-wall-support-'+label, cfg, 2, fail=message)
+    return results
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',required=True)
     a=p.parse_args();work=Path(a.work).resolve()
     base=json.loads(generate(work).read_text());geometry=json.loads((work/'geometry.json').read_text())
     base['fsi']['pressure_face_history']=True
     run=Runner(a.executable,a.mpiexec,work,interface_area=geometry['interface_area'])
-    report={}
+    report={'wall_support':verify_wall_support(run,base)}
     for scheme in ('be','bdf2','generalized_alpha'):
         cfg=copy.deepcopy(base);cfg['time']=dict(scheme=scheme)
         one,rows,_=run.solve(scheme+'-one',cfg)

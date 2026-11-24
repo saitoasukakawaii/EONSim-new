@@ -107,3 +107,5 @@ BDF2/alpha 的 Neo-Hookean 检查实际缩步并重放接受步长。
 `fsi.grad_div_viscosity` 和独立流体的 `fluid.grad_div_viscosity` 接受空间均匀、有限且非负的系数 γ，单位为 Pa·s。两者默认取 0。对于仿射 Tet4，将 $V_e\gamma(\nabla\!\cdot u)\,\partial_i N_a$ 加到动量行，连续性残量和已有 SUPG/PSPG 系数沿用原定义。该项对离散速度所作的功为 $\sum_e V_e\gamma(\nabla\!\cdot u)^2$。固定网格切线和 ALE 的当前体积、空间梯度及其导数都包含此项。接受步的端面 `mean_normal_traction` 仍按物理牛顿应力 $-pI+2\mu\epsilon(u)$ 计算。
 
 可用同一时刻的空间散度 RMS 和截面位移一起衡量系数的影响。均匀 γ 与 svFSI 每个积分点的 τC 定义不同，不能从一个工况直接移植数值。显式 0 可恢复旧格式检查点；改变非零系数会触发物理签名不匹配。[相同载荷下的实测结果](../research/data/fsi-smooth-load-2026-11-24/README.md)
+
+弹性管还可按固体外表面标签配置参考法向支撑。其接受步历史包含弹簧储能、阻尼耗散和对壁做功。[支撑模型与输出列](FSI_WALL_SUPPORT.md)
