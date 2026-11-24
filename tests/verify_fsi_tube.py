@@ -219,15 +219,8 @@ def verify_rcr_harmonic(exe, mpi, work):
     return report
 
 
-def main():
-    p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',required=True)
-    a=p.parse_args();work=Path(a.work).resolve()
-    base=json.loads(generate(work).read_text());geometry=json.loads((work/'geometry.json').read_text())
-    base['fsi']['pressure_face_history']=True
-    run=Runner(a.executable,a.mpiexec,work,interface_area=geometry['interface_area'])
-    report={'wall_support':verify_wall_support(run,base),'rcr':verify_rcr(run,base),
-            'rcr_harmonic':verify_rcr_harmonic(a.executable,a.mpiexec,work/'rcr-harmonic'),
-            'rcr_retry':verify_rcr_retry(a.executable,a.mpiexec,work/'rcr-retry')}
+def verify_tube(run, base, work):
+    report = {}
     for scheme in ('be','bdf2','generalized_alpha'):
         cfg=copy.deepcopy(base);cfg['time']=dict(scheme=scheme)
         one,rows,_=run.solve(scheme+'-one',cfg)
@@ -300,7 +293,35 @@ def main():
         ('profile',dict(profile='unknown'),'Invalid FSI flow_rate profile')):
         bad=copy.deepcopy(base);bad['fsi']['inlet']['flow_rate'].update(change)
         run.solve('invalid-'+label,bad,2,fail=message)
-    (work/'metrics.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))
+    return report
 
 
-if __name__=='__main__':main()
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--executable', required=True)
+    parser.add_argument('--mpiexec', required=True)
+    parser.add_argument('--work', type=Path, required=True)
+    parser.add_argument('--group', choices=('all', 'tube', 'tube_wall_support', 'tube_rcr', 'tube_rcr_response'),
+                        default='all', help='Run an independent fixture, or all fixtures in the original CLI')
+    args = parser.parse_args()
+    work = args.work.resolve()
+    base = json.loads(generate(work).read_text())
+    geometry = json.loads((work/'geometry.json').read_text())
+    base['fsi']['pressure_face_history'] = True
+    run = Runner(args.executable, args.mpiexec, work, interface_area=geometry['interface_area'])
+    report = {}
+    if args.group in ('all', 'tube_wall_support'):
+        report['wall_support'] = verify_wall_support(run, base)
+    if args.group in ('all', 'tube_rcr'):
+        report['rcr'] = verify_rcr(run, base)
+    if args.group in ('all', 'tube_rcr_response'):
+        report['rcr_harmonic'] = verify_rcr_harmonic(args.executable, args.mpiexec, work/'rcr-harmonic')
+        report['rcr_retry'] = verify_rcr_retry(args.executable, args.mpiexec, work/'rcr-retry')
+    if args.group in ('all', 'tube'):
+        report.update(verify_tube(run, base, work))
+    (work/'metrics.json').write_text(json.dumps(report, indent=2)+'\n')
+    print(json.dumps(report))
+
+
+if __name__ == '__main__':
+    main()
