@@ -1,24 +1,11 @@
 # EONSim Codex Task Queue
 
-## 2026-11-24 · 双端升压、空间加密与求解成本（进行中）
+## 2026-11-24 · 血管 FSI 后续验收
 
-已验收弯管圆形入口的离散通量与坐标旋转对称性。继续检查更细弯管和八进程重复结果。[算例、命令与节点场](../research/data/fsi-rcr-2026-11-24/curved.md)
-
-已建立 97 个物理截面的直接对照。继续分开考察端口角点加密与主体网格加密。[空间参考](../research/data/fsi-linear-transient-2026-11-24/axisymmetric.md#direct-measurements-at-97-physical-stations)
-
-镜像截面负对照 #46 已修复。续期工作继续在本分支核验弯管入口方向、分叉储量、阶段收敛与空间参考。[验收](../research/data/fsi-smooth-load-2026-11-24/reflection-negative-controls.json)
-
-单端口原版 svFSI 与解析阻抗对照已完成。弹性分叉的长时储量和通量分配仍在验证。[单端口证据](../research/data/fsi-rcr-2026-11-24/svfsi-single-port.json)
-
-FSI-PROD-03 的固定多出口耦合、外壁支撑、雅可比、同分区续算和重试已验收。[完整路线](FSI_PRODUCTION_ROADMAP.md)。[固定多端口方程、算例与实测](../research/data/fsi-rcr-2026-11-24/README.md)
-
-生产路线 FSI-PROD-03 固定单端口和外壁支撑已验证。多个独立 RCR 端口仍需分别验收。[耦合方程与阻抗对照](../research/data/fsi-rcr-2026-11-24/README.md)
-
-外壁支撑的 Lamé 平衡、黏性功及参考面积能量验收完成。[四级空间结果与独立功核查](../research/data/fsi-wall-support-2026-11-24/README.md)
-
-双端同压瞬态的独立轴对称参考、全长对半长检验及小振幅对照已完成。[验收](../research/data/fsi-linear-transient-2026-11-24/axisymmetric.md)
-
-分支 `codex/fsi-smooth-load-six-hour`，北京时间 11 月 24 日 16:12 开始，18:35 按新请求续期至 11 月 25 日 00:35。已归档同载时间细化、稳定项消融、独立小振幅瞬态、材料域装配以及直接和 Schur 求解的 MPI 配对测量。下一步核对空间加密下同一轴向位置的误差、两方程逐步收敛和不同速度块预条件器的实际收敛成本。窗口末用仓库编译脚本按最终改动集运行 Release 增量选测，汇总为同一 PR。[瞬态结果](../research/data/fsi-smooth-load-2026-11-24/README.md)
+1. **灌流管空间收敛。** 在 20 mm 直管保持轴向分辨率的同时加密入口边界层和圆周，复测流量、端面法向应力、近端面积与壁面储量。现有 48 个轴向单元已将出口传递振幅带到 81.20%，独立参考为 80.00%。[可复用的物性、流量与端口](../research/data/fsi-linear-transient-2026-11-24/perfusion.md)
+2. **分叉与出口。** 转入一般斜面上的可变面积出口、影像几何、初始预应力及更宽的雷诺数范围。固定斜面入口、三个坐标法轴上的可动出口、独立下游压力、理想化 T 分叉长时储量与恒流分配已有实测。[弯管](../research/data/fsi-rcr-2026-11-24/curved.md) · [出口运动](../research/data/fsi-rcr-2026-11-24/planar-outlets.md) · [分叉](../research/data/fsi-rcr-2026-11-24/branched.md)
+3. **并行规模。** 在至少两台物理节点上补充网格、迭代、最大进程内存和 I/O 随并行度的变化，核验跨分区续算。单机进程数、通信条件与各算例的规模已分开记录。[路线图](FSI_PRODUCTION_ROADMAP.md) · [求解器与预条件实测](../research/data/fsi-phase-costs-2026-11-24/pc-recipes.csv)
+4. **线性求解与并行退出。** 对 20 mm 两套随附网格，在更大分区上复核真实线性残量、每秩归约和实际进程退出状态，并继续定位多作业并发时的秩内信号。粗网格的 64 次线性修正与同网格直接解可逐步对照。[真实残量与求解选项](../research/data/fsi-linear-transient-2026-11-24/arterial-solvers.md)
 
 ## 2026-11-24 · 弹性管加载瞬态
 

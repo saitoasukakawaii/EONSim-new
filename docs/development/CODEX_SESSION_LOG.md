@@ -1,28 +1,17 @@
 # EONSim Codex Session Log
 
-## 2026-11-24 · 六小时弹性管开发，阶段记录
+## 2026-11-24 · 弹性管与 RCR 连续开发记录
 
-原弯管验证按变形后坐标匹配节点，截面转动时误把物理位移当作拓扑变化。改用各材料的参考坐标建立节点双射，再旋转全部向量场。旧轴向输入写出的检查点可用同向向量继续计算。[算例、命令与节点场](../research/data/fsi-rcr-2026-11-24/curved.md)
-
-两个 Radau 实阶段可由一个复数分解恢复。原型在强分级网格上的制造解压力误差 4.66e−8；加入一次原实方程残差修正后，全部制造阶段分量误差不超过 4.94e−11。实分块与复解在 97 截面的直接对照已归档。[阶段数据](../research/data/fsi-linear-transient-2026-11-24/radau-stage-check.json)
-
-原镜像工具只对节点场设拒绝条件，截面缓存单点增加 0.001 仍可退出成功。改为从 0.5 s 和 1 s 的固体 VTU 直接对截面多边形面积求导，正反两套原始输出与四项反例均已重放。[命令和证据](../research/data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area)
-
-以完整的 1,008 个 svFSI 双精度速度场复核进出口流量，修正了历史 ASCII 面表正负号所致的小数保留位数差异。原版 svFSI 的电容压力与按线性端点流量精确积分的值相差至多 5.70e−9 Pa。两边的原始残量及时间误差门槛保持独立。[复算命令与六级数据](../research/data/fsi-rcr-2026-11-24/README.md#independent-rcr-calculation-in-native-svfsi)
-
-多个端口按标签排序后共享同一个流体残量阶段。分叉交换两组阻抗后按反射核对完整速度、位移、加速度和压力。单端口旧检查点与新数组读取路径一致。[固定多端口方程、算例与实测](../research/data/fsi-rcr-2026-11-24/README.md)
-
-单轴向层的两端全约束使管腔严格刚性，可用离散连续性把 3D 求得的出口压力直接与已知流量驱动的 RCR 比较。广义 α 的 128 步阻抗幅值误差为 −0.00817%，相位差 +0.00560°。[耦合方程与阻抗对照](../research/data/fsi-rcr-2026-11-24/README.md)
-
-完成四种网格、六种阻尼或刚度的 24 次独立计算，复查保存场与材料表面三点积分。[四级空间结果与独立功核查](../research/data/fsi-wall-support-2026-11-24/README.md)
-
-基线为 `6a5ac9601ee0da066c9afb94d8f5c6ea6fb21d38`。在独立分支上用 `scripts/cloud/run.sh 3.23.7 release explicit` 编译。受观测的固定版本 svFSI 在四个接受步上重现了未插桩程序的全部节点场。小步长时早期 MS 校正遭遇线性绝对容差，原结果被剔除，收紧线性绝对容差至 1e−19 后通过原非线性门槛。上游 `OUTPUT.f` 使用一个单独的末列感叹号标识线性不收敛，行中临时残量增长使用另一对感叹号。修正历史解析器后重查两个方程的每个接受步。[配对加载及失败证据](../research/data/fsi-smooth-load-2026-11-24/README.md)
-
-用独立的轴对称 Q2/Q1 流体、Q2 固体和 Radau IIA 对照相同压力载荷。细网格有 64,056 个未知量；在 1 s 的左端，参考面积增加 0.0788759%，两个 48 扇区解分别为 0.0733993% 和 0.0644891%。按 1/100 压力重做后，七截面的归一化误差基本相同。[控制方程、网格收敛与独立能量核对](../research/data/fsi-linear-transient-2026-11-24/axisymmetric.md)
-
-在圆管外壁实现单位参考面积的法向弹簧和阻尼。斜面一致积分用独立三点求积及方向差分核查。BE、BDF2 和 generalized-α 在 1/2 rank 的最大节点场差为 6.42e−15，4 rank 有完整 SNES 切线核对。零系数续算和非零阻尼变更的拒绝路径分别通过。厚壁管不同刚度的 16 s 终态与带弹性外压的 Lamé 解独立比较。
-
-按实际材料域装配 28 或 12 个单元自由度，配对比较 1/2/4 rank 两种求解方式的全部节点场。新加的常系数 grad-div 对速度和 ALE 几何均使用完整切线，关停时旧续算签名可读。独立 SciPy 算子在 48 扇区网格上满足静压平衡和二次制造轨迹，两个系数各以 5 个步长、3 个压力核对 EONSim 的 7 个截面。[计时与原始场核对](../research/data/fsi-phase-costs-2026-11-24/README.md) · [线性参考极限](../research/data/fsi-linear-transient-2026-11-24/README.md)
+- 基线为 main 的 `6a5ac96`，工作分支为 `codex/fsi-smooth-load-six-hour`。沿用 PETSc 3.23.7 Release 和仓库编译脚本，外部 svFSI 固定为 `94a2ff5`。外部数值干预各有独立程序、输入和原始求解历史。[外部编译方法](../research/data/fsi-pressure-faces-2026-11-24/build-svfsi.sh)
+- 先在两端同步升压的圆管中核对载荷时间层、镜像截面、角点空间加密、不同时间尺度和单元度量。随后加入固定几何的独立线性 DAE 与圆形子午面，分别检查离散方程和物理几何。[时间尺度控制](../research/data/fsi-linear-transient-2026-11-24/time-scale.md) · [空间和时间证据](../research/data/fsi-smooth-load-2026-11-24/README.md)
+- 实施固定与面内移动的多 RCR、流量入口曲线、组织支撑、独立储液压力和压力采样曲线。每项检查涵盖实际接受步和端面场，关键路径包括同分区续算及缩步重试。[端口与流量符号](../research/data/fsi-rcr-2026-11-24/README.md) · [外壁边界功](../research/data/fsi-wall-support-2026-11-24/README.md)
+- 以 20 mm 物性管分别复核双端增压、有反向流量的正弦灌流、全周期正向灌流。保持同网格同边界，只改外部程序 RCR 牵引的时间层，分离了端口阶段误差与轴向网格误差。[实测端口压力与流量](../research/data/fsi-linear-transient-2026-11-24/perfusion.md)
+- 对 Tet4 精确矩、单体分块预条件和接受步质量历史作配对测量，保存两域场和每次求解状态。单机测量期间存在资源竞争，阶段时间与端到端时间分别报告。[阶段成本](../research/data/fsi-phase-costs-2026-11-24/README.md) · [质量守恒诊断](../research/data/fsi-phase-costs-2026-11-24/mass-history.md)
+- 核对 20 mm 管真实的 $Ax-b$ 与四组物理行 RMS 的合成值，区分线性迭代用尽、非线性线搜索停滞、消减误差和进程信号。按相同输入检查修改正交化后的解与直接解；外部 BIPN 在同一上游提交上保留独立的观察、重算及 QR 版本。[可运行网格与 PETSc 参数](../research/data/fsi-linear-transient-2026-11-24/arterial-solvers.md) · [BIPN 各步证据](../research/data/fsi-linear-transient-2026-11-24/bipn-residual.md)
+- 核对分叉两端的频率响应和容积谐波。曾有两个不同周期数的研究进程使用同一输出目录，原始摘要发现输入已改变。用单独目录重新运行 16 周期计算，增加输入与程序摘要、写入锁和完成结果校验。同输入复用、不同周期数拒绝均已实测。[刚性及弹性分叉](../research/data/fsi-rcr-2026-11-24/junction-harmonic.md)
+- 单机四进程独立复算内径 20 mm 的压力管，逐秩退出码和启动器退出码均为零。32 个物理步内的 64 次线性修正全部满足真实残量界限，8 个输出时相的各场与直接解的最大差为对应场峰值的 1.99e−10。固定上游 svFSI 的粗、细两网格各做五种 BIPN 对照；收紧两个内层绝对容差后，粗网格 120/120、细网格 129/129 次修正达标。[四进程逐步记录](../research/data/fsi-linear-transient-2026-11-24/arterial-four-ranks.json) · [原始 BIPN 真实残量](../research/data/fsi-linear-transient-2026-11-24/bipn-residual.csv)
+- 用原始 VTU 重新核对七个镜像截面并复测 #46 的四种负对照。单点应变加 0.001、缺失截面、移动截面和错时刻均在对应检查处失败；正例复现已归档的每项节点场指标。[镜像验证与失败原因](../research/data/fsi-smooth-load-2026-11-24/README.md#axial-reflection-control)
+- 双进程周期回归曾在第 28 步后发出信号 11。用同一程序和分区三次跑完 80 步，三次均逐字节复现故障前的 224 份两域与边界 VTU。另在单进程小计算中由父进程和各秩分别记录退出码，区分求解器返回零与 MPI 启动器退出异常。[周期回放](../research/data/fsi-smooth-load-2026-11-24/mpi-periodic-replay.json)
 
 ## 2026-11-24 · 压力端面历史、惯性缩步与独立管壁对照
 

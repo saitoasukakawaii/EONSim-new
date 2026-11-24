@@ -1,24 +1,16 @@
 # EONSim Knowledge Log
 
-## 2026-11-24 · 等端压弹性管的离散散度与瞬态参考
+## 2026-11-24 · 如何解读同网格 FSI 与独立空间参考
 
-平面斜入口可将径向抛物线投影到自身截面后，按网格三角形的法向通量统一归一化；刚体旋转同时检验边界、分区和向量输出。[算例、命令与节点场](data/fsi-rcr-2026-11-24/curved.md)
-
-有不可压压力约束的 Radau DAE 也可用复共轭模态减少阶段矩阵规模。用原始实方程做迭代改进，并独立检验压力分量，可控制分级网格上的代数误差。[方法与实测](data/fsi-linear-transient-2026-11-24/axisymmetric.md#direct-measurements-at-97-physical-stations)
-
-场对称性和据此生成的截面表要分别核验。对面积多边形的顶点求导，可不依赖已存截面值重建线性面积应变。[镜像负对照](data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area)
-
-相同阻抗与流量下，不同的电路时间离散会产生可加密消除的瞬态压力差。双精度三维面求积与电路常微分方程的独立积分能分别检验通量和压力。[原版 svFSI 六级时间加密](data/fsi-rcr-2026-11-24/README.md#independent-rcr-calculation-in-native-svfsi)
-
-对称弹性分叉可通过交换两组 RCR 参数检验端口归属、所有向量场的反射符号及独立电容状态。[固定多端口方程、算例与实测](data/fsi-rcr-2026-11-24/README.md)
-
-把出口压力保留为额外未知量可以隐式处理积分流量牵引，同时保持雅可比只有一条额外的稀疏行和列。[耦合方程与阻抗对照](data/fsi-rcr-2026-11-24/README.md)
-
-带外壁法向弹簧的厚壁管可用 Lamé 内、外压顺应量给出静压真值；阻尼的耗散功可用独立面求积查验。[四级空间结果与独立功核查](data/fsi-wall-support-2026-11-24/README.md)
-
-相同四面体离散上的小程序间差异仍可伴随较大的共同空间误差。独立轴对称解提供参考，网格反射检验端部非对称性。[证据](data/fsi-linear-transient-2026-11-24/axisymmetric.md)
-
-[技术草稿](../../website/drafts/elastic-tube-grad-div-transient.md)说明截面百分比的三个分母、相同阶段载荷的比较、残量 grad-div 对管壁的影响，以及固定半离散的小振幅 Radau 参照。独立静态与时间收敛、非线性压力扫描和两程序原始记录可用于复算。审阅重点是区分瞬态跨程序差、同网格离散误差与 Lamé 静态基准。[单项消融](data/fsi-smooth-load-2026-11-24/README.md) · [独立组装及 30 次对照](data/fsi-linear-transient-2026-11-24/README.md)
+| 提问 | 控制与结果 |
+|---|---|
+| 为什么人工管的相对差能到两位数？ | 1 s 时两程序的端面积增加相差 0.008910 个百分点。相对 svFSI 的小瞬态为 13.82%，相对静态 Lamé 膨胀为 4.0975%。按相同稳定化度量计算，两个非线性程序的端面差缩到 0.00000283 个百分点。[稳定化与四面体编号](data/fsi-linear-transient-2026-11-24/tet-order.md) |
+| 换为 20 mm 管是否重现？ | 在同一 80 Pa 缓升压力下，两程序粗网格端部面积增加均约 0.18680%，独立圆形参考为 0.20300%。网格误差大于同网格程序差。[尺度变换与空间参考](data/fsi-linear-transient-2026-11-24/scaled-tubes.md) |
+| 流量入口接 RCR 时，哪项影响出口相位？ | 32 步/周期时，仅在 svFSI 离散牵引中对齐阶段，粗网格两程序的复流量差从入口振幅的 1.270% 降为 0.0343%。轴向从 6 层加到 48 层另行改变传递振幅。全周期正向灌流的平均端压遵循总阻力乘平均流量。[流量、相位、压力和储量](data/fsi-linear-transient-2026-11-24/perfusion.md) |
+| 两个出口能否只用末端阻力比分流？ | T 形管内腔本身有压损。独立的差压 Stokes 实验预测了同网格恒流分叉结果。充盈阶段还要核对净流量、壁面储量和起始时刻。[分叉验证与储量](data/fsi-rcr-2026-11-24/branched.md) |
+| 如何验证端口历史跨拒绝步和重启？ | 用独立解析或分段精确的电容压力、从 VTU 重积的实际端口通量、静默 checkpoint 后的下一步和人工改变曲线的负例分别检验。[压力驱动及采样数据](data/fsi-rcr-2026-11-24/reservoir-pressure.md) |
+| Krylov 输出收敛时解实际满足什么？ | 在每次修正后代回相应程序的矩阵。svFSILS 的内外绝对容差与外层投影影响真实残量。EONSim 提供分块和正交化对照，收敛标记、全场误差和进程退出逐项记录。[BIPN](data/fsi-linear-transient-2026-11-24/bipn-residual.md) · [PETSc 场分块](data/fsi-linear-transient-2026-11-24/arterial-solvers.md) |
+| 分叉双端流量为何也会相差一半？ | 关闭父支并固定几何，对同一网格改变 PSPG 系数，两个空间算子各自与匹配的独立解一致，终端振幅之间却相差 52.31%。[同网格双端导纳](data/fsi-rcr-2026-11-24/junction-harmonic.md) |
 
 ## 2026-11-24 · 压力端面功率与弹性管启动
 

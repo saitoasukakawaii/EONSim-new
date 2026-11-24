@@ -1,26 +1,22 @@
 # EONSim Codex Development Progress
 
-## 2026-11-24 · 两端同步升压的弹性管、稳定化与装配
+## 2026-11-24 · 弹性管瞬态、血管端口与装配
 
-弯管现支持任意朝向的固定平面圆形流量入口。75° 弯管与其旋转平移副本在单机 1、2、4、8 个进程上复核了壁面支撑、反向流量和 RCR 压力。[算例、命令与节点场](../research/data/fsi-rcr-2026-11-24/curved.md)
+同一张 48/4/4/6 四面体网格上，两个求解器对人工厚壁管的左端面积增长给出 0.073399% 和 0.064489%。两者相差 0.008910 个百分点，即该载荷静态 Lamé 膨胀量的 4.0975%。逐项控制定位到稳定化系数、端面约束和空间分辨率。改用相同的正四面体参考度量，两个非线性程序给出 0.0646177% 和 0.0646149%，独立同网格线性 DAE 给出 0.0646137%。[分母与离散算子](../research/data/fsi-linear-transient-2026-11-24/tet-order.md)
 
-97 截面轴对称参考已补至 99,875 个未知量。1 s 端部与中点面积扩张分别为原面积的 0.0788461%、0.1071817%。[直接采样与阶段求解验收](../research/data/fsi-linear-transient-2026-11-24/axisymmetric.md#direct-measurements-at-97-physical-stations)
+把半径、物性和时间一起作严格相似变换，八个时刻的全场结果按理论比例复现。另用内径 20 mm、壁厚 2 mm、长度 120 mm、弹性模量 0.4 MPa 的直管作独立对照，80 Pa 双端升压下，两程序的粗网格端面扩张为 0.18680312% 和 0.18680355%。同一根管改成流量入口与 RCR 出口后，1 Hz 出口流量振幅随轴向网格由 6 层加密至 48 层，从入口振幅的 85.78% 降至 81.20%，圆形子午面参考为 80.00%。[尺度与升压](../research/data/fsi-linear-transient-2026-11-24/scaled-tubes.md) · [有均值与无均值的灌流](../research/data/fsi-linear-transient-2026-11-24/perfusion.md)
 
-修正 [#46](https://github.com/saitoasukakawaii/EONSim-new/issues/46) 的截面镜像验收。两个求解器的原始位移场通过复算，单点篡改、缺站点、错位置、错时刻四种负例均被拒绝。[镜像复核](../research/data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area)
+单体 FSI 支持独立的多出口三元 RCR、各出口下游压力、参考法向组织弹簧和阻尼。固定平面的出口可沿全局法轴约束并在面内变形。定流量圆形入口支持空间转向及周期采样曲线。固定网格流体压力、FSI 压力牵引和下游储液压力均可由采样曲线驱动。独立方程、接受步数据、续算、拒绝步与 MPI 对照分别归档。[端口与分叉](../research/data/fsi-rcr-2026-11-24/README.md) · [面内移动出口](../research/data/fsi-rcr-2026-11-24/planar-outlets.md) · [下游压力](../research/data/fsi-rcr-2026-11-24/reservoir-pressure.md) · [弯管](../research/data/fsi-rcr-2026-11-24/curved.md) · [组织支撑](../research/data/fsi-wall-support-2026-11-24/README.md)
 
-单 RCR 出口的原版 svFSI、EONSim 与解析阻抗完成六级时间加密。每周期 16 至 512 步时，最大程序间端压差从 1.787e−3 Pa 降至 3.047e−6 Pa。[完整波形与压力误差](../research/data/fsi-rcr-2026-11-24/README.md#independent-rcr-calculation-in-native-svfsi)
+接口力重算、流体/ALE 切线、结构切线、装配与 PETSc 预条件各有分项计时。解析 Tet4 矩的开发保留了前后版本的真实节点场和线性收敛记录。质量历史现复用上一个接受步体积并合并阶段与端点的归约。四十组前后配对的节点场和输出历史逐项一致。[核与装配成本](../research/data/fsi-phase-costs-2026-11-24/moments.md) · [质量历史计时](../research/data/fsi-phase-costs-2026-11-24/mass-history.md)
 
-单体 FSI 现支持多个固定 RCR 端口。对称及交换阻抗的 T 形分叉已验证；单机 8 MPI rank 的四步完整节点场与串行最大差 1.78e−15。[固定多端口方程、算例与实测](../research/data/fsi-rcr-2026-11-24/README.md)
+在 20 mm 管上，直接解与分块迭代的全场结果逐节点复核。24 扇区网格上，改用外层 MGS 后，1 和 2 个 MPI 进程的 64 次 Newton 修正均满足实际矩阵残量界限。48 扇区网格的单进程复核同样为 64/64。原版 svFSILS BIPN 在粗、细网格上分别有 92、117 次报告收敛时未达到其自身缩放矩阵的残量要求。提供了两套可直接运行的输入、PETSc 选项和逐修正原始记录。[EONSim 场分块与可运行算例](../research/data/fsi-linear-transient-2026-11-24/arterial-solvers.md) · [svFSI 的停止准则](../research/data/fsi-linear-transient-2026-11-24/bipn-residual.md)
 
-固定单出口 RCR 已通过三种积分器的恒流及谐波、回流、1/2/4 rank、切线与失败重试验收。[耦合方程与阻抗对照](../research/data/fsi-rcr-2026-11-24/README.md)
+关闭父支入口，用两端储液压力差驱动刚性 T 分叉。独立三维混合有限元逐步复现了双端流量。网格 2 上仅把固定 PSPG 系数由 0.0025 改为 0.01，1 Hz 的终端流量振幅就增加 52.31%。弹性分叉另以两个端面和壁面的带符号通量核对储量。[分叉导纳和壁面储量](../research/data/fsi-rcr-2026-11-24/junction-harmonic.md)
 
-四级厚壁管 16 s 平衡扩张的最大截面误差，在外壁刚度 0、10、50 Pa/m 的最细网格上分别为 0.2851%、0.2242%、0.1910%。[四级空间结果与独立功核查](../research/data/fsi-wall-support-2026-11-24/README.md)
+[#46](https://github.com/saitoasukakawaii/EONSim-new/issues/46) 的镜像核查现从实际 VTU 位移重算七个内腔截面。原场解通过，单点改值、缺截面、错位置和错时刻四个负例均失败。[复算与四个负对照](../research/data/fsi-smooth-load-2026-11-24/reflection-negative-controls.json)
 
-独立轴对称空间参考已完成，其两级截面扩张最大变化为静态 Lamé 扩张的 0.00369%。[数值与复现](../research/data/fsi-linear-transient-2026-11-24/axisymmetric.md)
-
-外壁现可按标签施加参考法向弹簧和阻尼，三个时间格式均有功率与储能验证，1/2/4 进程覆盖了支持的装配和续算路径。[外壁支撑](FSI_WALL_SUPPORT.md)
-
-从 `main@6a5ac96` 开始。两个求解器在同一网格和相同阶段载荷下计算至 1 s，48 扇区、128 步的七截面最大差为 Lamé 稳态面积应变的 4.0975%。仅在 svFSI 中去掉动量 grad-div 项，这个差降至 0.4967%。EONSim 增加可选的常系数 grad-div 并验证完整 ALE 切线。独立线性化 Radau 参照与 30 次非线性运行给出了固定半离散的小振幅极限。实际 1/2/4 rank 计时和节点场验证覆盖了按材料域压缩的局部矩阵装配。[两程序的瞬态对照](../research/data/fsi-smooth-load-2026-11-24/README.md) · [独立瞬态参照](../research/data/fsi-linear-transient-2026-11-24/README.md) · [性能配对记录](../research/data/fsi-phase-costs-2026-11-24/README.md)
+本分支完成了 #46 的镜像截面复核。从两域节点场重算七个截面后，原始计算通过，单点应变加 0.001 与另外三种损坏输入均在相应检查处被识别。[原始场与负对照](../research/data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area) · [问题记录](https://github.com/saitoasukakawaii/EONSim-new/issues/46)
 
 ## 2026-11-24 · 单体 FSI 的受压面功率与第一秒面积响应
 

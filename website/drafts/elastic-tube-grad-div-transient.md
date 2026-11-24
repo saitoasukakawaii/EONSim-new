@@ -4,7 +4,7 @@ description: "用四分之一厚壁圆管区分面积应变的分母、时间加
 contentStatus: draft
 benchmark: "弹性管两端同步平滑升压"
 sourceReference: "svFSI 2022.09.26, 94a2ff5"
-eonsimCommit: "85546ef04a707764e27a5b06adfc5b20b858e4cb"
+eonsimCommit: "8b410019bb39e6c61095c01c4e39514f5aaeb7a8"
 ---
 
 # 为什么相同端压会得到不同的弹性管扩张量
@@ -33,8 +33,23 @@ EONSim 也可以使用常系数 grad-div 项。在同一工况分别取 0、1、
 
 在固定 PSPG 系数、256 个 EONSim 时间步及 128 个 Radau 时间步下，将峰值压力从 0.02 Pa 减至 0.0002 Pa，默认零 grad-div 的最大一秒截面差由解析稳态面积应变的 0.02017% 降至 0.000187%。该基准验证了同一网格的小振幅实现。判断哪种离散更接近连续弹性管的瞬态响应还需要空间参照，Lamé 解能够检验的是静态极限。[独立方程、方法与 30 次运行](../../docs/research/data/fsi-linear-transient-2026-11-24/README.md)
 
-Independent axisymmetric refinement estimates the 1 s left-end expansion at 0.0788759% of initial area. On the 48-sector mesh the two native values are 0.0733993% and 0.0644891%. The independently calculated tiny-amplitude limit separates model accuracy from intercode agreement. See [the continuum reference](../../docs/research/data/fsi-linear-transient-2026-11-24/axisymmetric.md).
+在圆形轴对称子午面上，沿轴向、壁厚及端口角点独立加密，得到 1 s 端面扩张约 0.07883%、中点扩张约 0.10718%。这个空间参考还能检验两套程序共有的网格误差。统一稳定化度量后，两个非线性程序的端面积都约为 0.06462%，与圆形参考仍有可分辨的距离。[角点与主体网格的收敛](../../docs/research/data/fsi-linear-transient-2026-11-24/axisymmetric.md) · [同度量对照](../../docs/research/data/fsi-linear-transient-2026-11-24/tet-order.md)
 
-## A fixed RCR outlet
+## 20 mm 弹性管上的两个独立对照
 
-Keeping the pressure of a vascular outlet as a scalar unknown gives an integral flux row and a sparse traction column. A clamped tube isolates the analytic impedance, while a second flexible tube exercises reverse flow and rollback. [Derivation and measured complex impedance](../../docs/research/data/fsi-rcr-2026-11-24/README.md)
+内径 20 mm、壁厚 2 mm、长度 120 mm 的直管采用血液近似物性与线性弹性壁。把静止流体两端的压力在 1 s 内同时升到 80 Pa，同一粗网格上 EONSim 和 svFSI 的端面面积分别增加 0.18680312% 和 0.18680355%。两者相差 0.00000043 个百分点。独立圆形参考得到 0.20300062%，细化 3D 网格能缩小这部分空间误差。静态解析解与两套离散程序在这里各回答一个不同的问题。[几何、物性、截面与误差](../../docs/research/data/fsi-linear-transient-2026-11-24/scaled-tubes.md)
+
+换成一端施加流量、一端接三元 RCR 后，入口压力、出口流量和壁面储量都有相位差。以 1 Hz 振荡为例，粗网格和每周期 32 步时，EONSim 与原版 svFSI 的出口**复流量**相差入口振幅的 1.270%。在同一外部程序中只调整 RCR 压力施加到流体牵引的时间层，重新求解后，差值降至 0.0343%。这里的复流量同时计入振幅和相位。[实测压力时间层与求解结果](../../docs/research/data/fsi-linear-transient-2026-11-24/perfusion.md#time-level-of-the-rcr-pressure)
+
+| 轴向网格层数 | EONSim 出口/入口流量振幅 | 圆形参考 |
+|---:|---:|---:|
+| 6 | 85.78% | 80.00% |
+| 12 | 82.98% | 80.00% |
+| 24 | 81.72% | 80.00% |
+| 48 | 81.20% | 80.00% |
+
+表内只改变轴向分辨率，保持 24 个圆周扇区、同一材料、同一 RCR 和时间步。两个程序的时间层对齐之后，有限轴向分辨率仍可显著影响预测。在另一组全周期正向灌流对照中，平均入口 0.4 mL/s、振幅 0.2 mL/s，两程序得到的平均出口压力都是 40.0000 Pa，振荡分量还保留了可测的相位差。[全场流量与压力数据](../../docs/research/data/fsi-linear-transient-2026-11-24/perfusion.md#forward-perfusion-throughout-the-cycle)
+
+## 同一个面积结果，还要看线性修正
+
+在这根 20 mm 管的粗网格上，svFSI 原版 BIPN 有 92 次返回收敛时，重新代入矩阵得到的残量超过原先设定的界限。改为用显式残量判断停止，再把两个内层绝对容差从 $10^{-23}$ 收紧到 $10^{-24}$，实验版本的 120 次线性修正全部达标，端部面积依然增加约 0.186804%。加密到 48 个周向扇区后，129 次修正也全部达标，端部面积增长为 0.194951%。在 EONSim 粗网格实验中，外层改用修正 Gram–Schmidt，独立运行的 1、2、4 进程计算各有 64 次修正达标。四进程最终面积增长为 0.18680312%。两套程序对矩阵采用不同的缩放，因此跨程序比较使用有量纲的面积、压力和流量，每个线性残量则在本程序的系统内核对。[BIPN 停止条件](../../docs/research/data/fsi-linear-transient-2026-11-24/bipn-residual.md) · [两套可运行的 EONSim 输入](../../docs/research/data/fsi-linear-transient-2026-11-24/arterial-solvers.md)
