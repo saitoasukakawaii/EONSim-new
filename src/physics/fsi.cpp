@@ -714,7 +714,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             });
         }
         if(f.pressure_face_history)
-            write_pressure_faces<Layout>(comm,mesh,pressure_tags,pressure_faces,next,physical,af!=1.,f.viscosity,
+            write_pressure_faces<Layout>(comm,mesh,pressure_tags,pressure_faces,next,physical,alpha_step,f.viscosity,
                 step,time,dt,evaluation_time,pressure,fsi_pressure(f,time),pressure_history);
         const std::string stage=alpha?"stage_":"";
         if(mesh.rank==0) std::cout << std::setprecision(17) << "fsi_step=" << step << " time=" << time << " accepted_dt=" << dt << " evaluation_time=" << evaluation_time << " applied_pressure=" << pressure

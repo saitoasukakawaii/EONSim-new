@@ -1,6 +1,7 @@
 """Circular FSI inlet, curved conforming wall, MPI and restart acceptance."""
 import argparse
 import copy
+import csv
 import json
 import math
 from pathlib import Path
@@ -14,6 +15,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',required=True)
     a=p.parse_args();work=Path(a.work).resolve()
     base=json.loads(generate(work).read_text());geometry=json.loads((work/'geometry.json').read_text())
+    base['fsi']['pressure_face_history']=True
     run=Runner(a.executable,a.mpiexec,work,interface_area=geometry['interface_area'])
     report={}
     for scheme in ('be','bdf2','generalized_alpha'):
@@ -52,9 +54,16 @@ def main():
         assert len(tail)==13 and error(two,resumed)<2e-9
         report[scheme]=dict(mpi_error=error(one,two),restart_error=error(two,resumed),
             maximum_radial_displacement=maximum_radial,maximum_mass_residual=max(abs(r['stage_mass_residual']) for r in rows))
-    four,_,_=run.solve('alpha-four',cfg,4)
+    four,four_rows,_=run.solve('alpha-four',cfg,4)
     assert error(one,four)<2e-9
     report['four_rank_error']=error(one,four)
+    with (work/'alpha-four_pressure_faces.csv').open() as stream:
+        faces=list(csv.DictReader(stream))
+    assert len(faces)==len(four_rows)
+    for face,row in zip(faces,four_rows):
+        assert int(face['tag'])==cfg['fsi']['domains']['pressure_tags'][0]
+        for sample in ('stage','endpoint'):
+            assert abs(float(face[sample+'_outward_flow'])-row[sample+'_outlet_flow'])<1e-12
     _,_,log=run.solve('jacobian',cfg,2,['-stop_after',3,'-snes_test_jacobian'])
     ratios=list(map(float,re.findall(r'\|\|J - Jfd\|\|_F/\|\|J\|\|_F\s*=\s*([\deE.+-]+)',log)))
     assert ratios and max(ratios)<1e-6,ratios
