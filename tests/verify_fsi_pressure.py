@@ -13,6 +13,24 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'cases/fsi'))
 from generate_domains import generate
 
 
+def prescribed_pressure(fsi, time):
+    profile = fsi.get('pressure_time')
+    if not profile:
+        return fsi['pressure']
+    ramp = profile.get('ramp_time', 0)
+    x = min(time / ramp, 1) if ramp else 1
+    return x**3 * (10 - 15*x + 6*x*x) * (
+        fsi['pressure'] + profile['amplitude'] * math.sin(2*math.pi*time/profile['period']))
+
+
+def assert_same_faces(left, right):
+    assert len(left) == len(right)
+    for a, b in zip(left, right):
+        assert a.keys() == b.keys()
+        for key in a:
+            assert math.isclose(a[key], b[key], rel_tol=1e-10, abs_tol=2e-11), (key, a, b)
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--executable', required=True)
@@ -26,6 +44,10 @@ def main():
     base['fsi'].update(dt=.004, steps=10, stabilization_tau=.05,
                        pressure_time=dict(amplitude=.25, period=.02, ramp_time=.01), output_interval=3)
     base['solver'].update(relative_tolerance=1e-11, absolute_tolerance=1e-13)
+
+    def face_rows(stem):
+        with (a.work / (stem + '_pressure_faces.csv')).open() as stream:
+            return [{k: float(v) for k, v in row.items()} for row in csv.DictReader(stream)]
 
     def command(args, label, fail=None):
         r = subprocess.run(list(map(str, args)), text=True, stdout=subprocess.PIPE,
@@ -60,12 +82,7 @@ def main():
             assert all(x['time'] < y['time'] for x, y in zip(rows, rows[1:]))
             for row in rows:
                 t = row['evaluation_time']
-                profile = cfg['fsi'].get('pressure_time')
-                pressure = cfg['fsi']['pressure']
-                if profile:
-                    ramp = profile.get('ramp_time', 0)
-                    x = min(t / ramp, 1) if ramp else 1
-                    pressure = x**3 * (10 - 15*x + 6*x*x) * (pressure + profile['amplitude'] * math.sin(2*math.pi*t/profile['period']))
+                pressure = prescribed_pressure(cfg['fsi'], t)
                 assert abs(pressure-row['applied_pressure']) < 1e-12, row
                 af = 1
                 if cfg.get('time', {}).get('scheme') == 'generalized_alpha' and row['time_order'] == 2:
@@ -151,10 +168,28 @@ def main():
         cfg = copy.deepcopy(base)
         cfg['time'] = dict(scheme=scheme)
         cfg['time_control'] = dict(step_sizes=[.003, .005]*5)
+        cfg['fsi']['pressure_face_history'] = True
         one, rows, _ = solve(scheme+'-r1', cfg)
         assert max(r['endpoint_position'] for r in rows) > 0
         two, rows2, _ = solve(scheme+'-r2', cfg, ranks=2)
         assert error(one, two) < 2e-9
+        faces = face_rows(scheme+'-r1')
+        assert len(faces) == len(rows)
+        assert_same_faces(faces, face_rows(scheme+'-r2'))
+        for r, face in zip(rows, faces):
+            assert face['tag'] == 1 and all(face[k] == r[k] for k in ('step','time','evaluation_time','accepted_dt'))
+            for sample, t in [('stage', r['evaluation_time']), ('endpoint', r['time'])]:
+                assert abs(face[sample+'_area'] - 1) < 1e-12  # fixed unit square
+                load = prescribed_pressure(cfg['fsi'], t)
+                assert abs(face[sample+'_prescribed_pressure'] - load) < 1e-12
+                flow = face[sample+'_outward_flow']
+                assert abs(face[sample+'_pressure_power'] + load*flow) < 1e-12
+            if r['evaluation_time'] == r['time']:
+                for k, value in face.items():
+                    if k.startswith('stage_'):
+                        assert face['endpoint_'+k[6:]] == value
+        if scheme == 'generalized_alpha':
+            assert any(abs(f['stage_mean_pressure']-f['endpoint_mean_pressure']) > 1e-5 for f in faces)
         for r, s in zip(rows, rows2):
             for k in ('endpoint_position', 'endpoint_velocity', 'evaluation_fluid_force'):
                 assert abs(r[k]-s[k]) < 2e-9
@@ -166,6 +201,7 @@ def main():
             resumed, resumed_rows, _ = solve(label, cfg, ranks=2, extra=['-restart', chk], restart_step=stop)
             assert error(two, resumed) < 2e-9
             assert resumed_rows[0]['step'] == stop+1
+            assert_same_faces(faces[stop:], face_rows(label+f'_restart{stop}'))
             assert (a.work/(label+'.pvd')).read_bytes() == original
             changed = copy.deepcopy(cfg)
             changed['fsi']['pressure_time']['amplitude'] += .1
@@ -179,9 +215,25 @@ def main():
             cfg['solver'].pop('fields')
         cfg['fsi'].pop('pressure_time')
         old, _, _ = solve(body+'-constant', cfg)
+        assert not (a.work/(body+'-constant_pressure_faces.csv')).exists()
         cfg['fsi']['pressure_time'] = dict(amplitude=0, period=1)
+        cfg['fsi']['pressure_face_history'] = True
         new, _, _ = solve(body+'-constant-profile', cfg)
         assert error(old, new) < 1e-13
+        assert {r['tag'] for r in face_rows(body+'-constant-profile')} == {1}
+
+    # Standalone history with two tags in input order and no intermediate VTUs.
+    cfg = copy.deepcopy(base)
+    cfg['fsi'].update(pressure_face_history=True, output_interval=0, steps=2)
+    cfg['fsi']['domains']['pressure_tags'] = [4, 1]
+    solve('ports-only', cfg, ranks=2)
+    ports = face_rows('ports-only')
+    assert [(r['step'],r['tag']) for r in ports] == [(1,4),(1,1),(2,4),(2,1)]
+    assert not (a.work/'ports-only.pvd').exists()
+    for wall, inlet in zip(ports[::2], ports[1::2]):
+        # Tag 4 has zero normal velocity, while tag 1 supplies the moving wall.
+        assert abs(wall['endpoint_outward_flow']) < 1e-13
+        assert abs(inlet['endpoint_outward_flow']) > 1e-7
     # Existing full-system Jacobian checker at a nonzero stage pressure.
     cfg = copy.deepcopy(base)
     cfg['time'] = dict(scheme='generalized_alpha')
@@ -207,9 +259,11 @@ def main():
         cfg['fsi']['pressure_time'] = dict(amplitude=2, period=.02, ramp_time=.001)
         chk = a.work/('retry-'+scheme)
         solve('start-'+scheme, cfg, extra=['-checkpoint', chk, '-stop_after', 2])
+        cfg['fsi']['pressure_face_history'] = True
         cfg['time_control'] = dict(max_retries=16, minimum_dt=1e-10, reduction=.5)
         actual, rows, log = solve('retry-'+scheme, cfg, extra=['-restart', chk, '-snes_max_it', 2, '-stop_after', 3], restart_step=2)
         assert 'step_retry=' in log and len(rows) == 1
+        assert [r['step'] for r in face_rows('retry-'+scheme+'_restart2')] == [3]
         cfg['time_control']['step_sizes'] = [.004, .004, rows[0]['accepted_dt']]
         replay, _, _ = solve('replay-'+scheme, cfg, extra=['-stop_after', 3])
         assert error(actual, replay) < 2e-9

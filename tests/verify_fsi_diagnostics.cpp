@@ -12,6 +12,24 @@ int main(int argc,char** argv) {
         Tet4Topology::Nodal<Point> ref{Point{0,0,0},Point{1,0,0},Point{0,1,0},Point{0,0,1}},current=ref;
         for(auto& x:current){x[0]*=2;x[1]*=3;x[2]*=4;}
         check(std::abs(fsi_volume_ratio(ref,current)-24)<1e-12);
+        // The inclined face has area sqrt(61) and outward normal (6,4,3)/sqrt(61).
+        // Off-diagonal velocity gradients contribute to its normal viscous stress.
+        Tet4Topology::Nodal<Point> flow;
+        Tet4Topology::Nodal<double> pressure;
+        for(int a=0;a<4;++a) {
+            const auto& x=current[a];
+            flow[a]={1+2*x[1],-1+x[2],2-x[0]};
+            pressure[a]=1+x[0]+2*x[1]-x[2];
+        }
+        const double area=std::sqrt(61.);
+        const auto inclined=fsi_pressure_face_integrals(current,flow,pressure,0,1.5);
+        const auto left=fsi_pressure_face_integrals(current,flow,pressure,1,1.5);
+        const std::array<double,4> inclined_exact{area,area*7/3,area*(-7./3+126./61),70./3};
+        const std::array<double,4> left_exact{6,10,-10,-18};
+        for(std::size_t i=0;i<inclined.size();++i) {
+            check(std::abs(inclined[i]-inclined_exact[i])<1e-12);
+            check(std::abs(left[i]-left_exact[i])<1e-12);
+        }
         // Three-axis moving tetrahedron: V(t) is cubic, unlike the coarse wall pilot.
         const double t=.37;Tet4Topology::Nodal<Point> moving{},speed{};
         for(int a=0;a<4;++a) for(int c=0;c<3;++c) {
