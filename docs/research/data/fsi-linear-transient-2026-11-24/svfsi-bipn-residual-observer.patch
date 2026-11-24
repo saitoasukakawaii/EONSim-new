@@ -1,0 +1,51 @@
+diff --git a/Code/Source/svFSILS/NSSOLVER.f b/Code/Source/svFSILS/NSSOLVER.f
+index 1785e75..3af67be 100755
+--- a/Code/Source/svFSILS/NSSOLVER.f
++++ b/Code/Source/svFSILS/NSSOLVER.f
+@@ -57,6 +57,8 @@
+       REAL(KIND=LSRP), INTENT(IN) :: Val(dof*dof,lhs%nnz)
+       REAL(KIND=LSRP), INTENT(INOUT) :: Ri(dof,lhs%nNo)
+
++      REAL(KIND=LSRP) projected, trueNorm, maxNorm
++      REAL(KIND=LSRP), ALLOCATABLE :: xcheck(:,:), axcheck(:,:)
+       LOGICAL GE
+       INTEGER(KIND=LSIP) nNo, nnz, mynNo, i, j, k, iB, iBB, nB, nsd, c
+       REAL(KIND=LSRP) FSILS_CPUT, FSILS_NORMS, FSILS_NORMV, FSILS_DOTS, &
+@@ -98,6 +100,7 @@
+       ls%RI%suc   = .FALSE.
+       eps         = MAX(ls%RI%absTol,ls%RI%relTol*eps)
+
++      projected = ls%RI%fNorm
+       CALL DEPART
+       CALL BCPRE
+
+@@ -175,6 +178,7 @@
+          END IF
+
+          ls%RI%fNorm = ls%RI%iNorm**2._LSRP - SUM(xB(1:iBB)*B(1:iBB))
++         projected = ls%RI%fNorm
+          IF(ls%RI%fNorm .LT. eps*eps) THEN
+             ls%RI%suc = .TRUE.
+             EXIT
+@@ -226,7 +230,21 @@
+       END IF
+       ls%RI%fNorm = SQRT(ls%RI%fNorm)
+
++!     Independent matvec in the original scaled full operator. Include
++!     the same coupled boundary action used by the momentum block.
++      ALLOCATE(xcheck(dof,nNo), axcheck(dof,nNo))
++      xcheck(1:nsd,:) = Rmi
++      xcheck(dof,:) = Rci
++      CALL FSILS_SPARMULVV(lhs,lhs%rowPtr,lhs%colPtr,dof,Val,           &
++     &   xcheck,axcheck)
++      CALL ADDBCMUL(lhs,BCOP_TYPE_ADD,dof,xcheck,axcheck)
++      axcheck = Ri - axcheck
++      trueNorm = FSILS_NORMV(dof,mynNo,lhs%commu,axcheck)
++      maxNorm = MAX(ls%RI%absTol,ls%RI%relTol*ls%RI%iNorm)
++      IF (lhs%commu%masF) WRITE(*,'(A,1X,I6,1X,L1,5(1X,ES24.16))')      &
++     &   "bipn_residual",ls%RI%itr,ls%RI%suc,ls%RI%iNorm,projected,     &
++     &   ls%RI%fNorm,trueNorm,maxNorm
+       Ri(1:nsd,:) = Rmi
+       Ri(dof,:) = Rci
+
+       IF (lhs%commu%masF) CALL LOGFILE

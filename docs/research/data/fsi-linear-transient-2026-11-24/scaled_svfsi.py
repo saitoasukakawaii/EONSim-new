@@ -4,6 +4,7 @@ from dataclasses import asdict
 import json
 from pathlib import Path
 import sys
+import re
 
 import numpy as np
 from scaled_tube import SurfaceAudit, digest, problem, write_mesh
@@ -28,9 +29,14 @@ def main():
     for name in ('case', 'work', 'executable', 'libs', 'reference-scripts'):
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--steps', type=int, required=True)
+    parser.add_argument('--krylov',type=int,default=450)
+    parser.add_argument('--outer-iterations',type=int,default=10,help='GMRES restart cycles or BIPN outer iterations')
+    parser.add_argument('--linear-solver',choices=('gmres','bipn'),default='gmres')
     parser.add_argument('--problem', choices=('artificial', 'similar', 'arterial'), required=True)
     args = parser.parse_args()
     n = args.steps
+    if min(args.krylov,args.outer_iterations)<1:
+        parser.error('Positive linear solver budgets required')
     if n < 8 or n % 8:
         parser.error('Expected eight equally spaced observations')
     sys.path.insert(0, str(args.reference_scripts.resolve()))
@@ -58,6 +64,20 @@ def main():
     if deck.count('   Max iterations: 12\n') != 2:
         raise ValueError('Missing FS/MS iteration budgets')
     deck = deck.replace('   Max iterations: 12\n', '   Max iterations: 40\n')
+    # Isolate the fluid/structure solver block. The separate harmonic mesh solve remains CG.
+    expr=r'(?ms)^   LS type: GMRES \{\n(.*?)^   \}'
+    match=re.search(expr,deck)
+    if not match or len(re.findall(expr,deck))!=1:
+        raise ValueError('Missing unique coupled GMRES declaration')
+    controls=match[1]
+    controls,count=re.subn(r'(?m)^      Max iterations: \d+$',f'      Max iterations: {args.outer_iterations}',controls)
+    if count!=1:raise ValueError('Missing native iteration budget')
+    controls,count=re.subn(r'(?m)^      Krylov space dimension: \d+$',f'      Krylov space dimension: {args.krylov}',controls)
+    if count!=1:raise ValueError('Missing native Krylov basis size')
+    if args.linear_solver=='bipn':
+        controls+='      NS-GM tolerance: 1e-3\n      NS-GM max iterations: 3\n      NS-CG tolerance: 1e-3\n      NS-CG max iterations: 1000\n'
+    block='   LS type: '+args.linear_solver.upper()+' {\n'+controls+'   }'
+    deck=deck[:match.start()]+block+deck[match.end():]
     (template / 'svFSI.inp').write_text(deck)
     dt = duration / n
     external_input(template, work, n, dt, 'matched', 1e-23, peak, duration)
@@ -78,12 +98,12 @@ def main():
         state = external.external_fields(path, meshes)
         positions, strain = measured_ring_strains(meshes[1],state[1])
         measured = audit.array(state[0])
-        ports = audit.observe(measured, smooth_pressure(step / n, peak))
+        ports = audit.observe(measured, smooth_pressure(step / n, peak),m.viscosity)
         samples.append(dict(phase=step / n, time=step * dt, strains=strain,
                             outward_flow=[ports[k]['outward_flow'] for k in (1, 2)],
                             relative_volume_change=audit.volume(measured) / initial - 1,
                             vtu_sha256=digest(path)))
-    result = dict(problem=args.problem, steps=n, parameters=asdict(m), pressure=peak, duration=duration,
+    result = dict(problem=args.problem, steps=n, linear_solver=args.linear_solver, krylov=args.krylov, outer_iterations=args.outer_iterations, parameters=asdict(m), pressure=peak, duration=duration,
                   static_area_strain=m.lame_area_strain(peak), xs=positions, load_error=load_error,
                   convergence=convergence, executable_sha256=digest(args.executable),
                   input_sha256={k: digest(work / k) for k in ('fluid.msh', 'solid.msh', 'svFSI.inp',

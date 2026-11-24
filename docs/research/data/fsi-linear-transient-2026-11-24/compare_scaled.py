@@ -14,7 +14,7 @@ import numpy as np
 from scaled_tube import SurfaceAudit, problem
 from audit_reflection import measured_ring_strains
 sys.path.insert(0,str(Path(__file__).resolve().parents[4]/"scripts"))
-from svfsi_history import check_convergence
+from svfsi_history import check_convergence, equation_iterations
 
 
 def digest(path):
@@ -146,12 +146,18 @@ def pack(root, reference_scripts):
     from study_hydrostatic_fsi import recovered_state
     from compare_svfsi_wall import external_fields
     from study_rigid_tube import read_mesh
-    inputs = [('eonsim', 'scaled-eon'), ('eonsim-tight', 'scaled-eon-atol'), ('svfsi', 'scaled-sv')]
+    inputs = [('eonsim', 'scaled-eon'), ('eonsim-tight', 'scaled-eon-atol'), ('svfsi', 'scaled-sv'), ('svfsi-krylov','scaled-sv-krylov'),
+              *[(f'svfsi-bipn-{m}',f'scaled-sv-bipn-{m}') for m in ('explicit','qr','explicit-floor','qr-floor')]]
     observations, twins, raw = [], [], {}
     for name, group in inputs:
         for path in sorted((root / group).glob('*/result.json')):
             grid, variant = path.parent.name.split('-n')[0], path.parent.name.rsplit('-', 1)[1]
-            build = ('sv-current-native-build/bin/svFSI' if variant == 'native' else 'sv-regular-metric-build/bin/svFSI') if name == 'svfsi' else 'regular-tet-eonsim'
+            if name.startswith('svfsi-bipn-'):
+                build='sv-bipn-'+name.removeprefix('svfsi-bipn-')+'-build/bin/svFSI'
+            elif name.startswith('svfsi'):
+                build='sv-current-native-build/bin/svFSI' if variant=='native' else 'sv-regular-metric-build/bin/svFSI'
+            else:
+                build='regular-tet-eonsim'
             data = read_result(path, name, root / build, recovered_state, external_fields, read_mesh)
             d = data[0]
             if name.startswith('eonsim') and d['model'] != variant:
@@ -175,9 +181,30 @@ def pack(root, reference_scripts):
         if log[-1:] != ['status=failed']:
             raise ValueError('Unexpected terminal status in rejected run')
         cfg = json.loads((case/'case.json').read_text())
-        failed.append(dict(case=case.name, absolute_tolerance=cfg['solver']['absolute_tolerance'],
+        failed.append(dict(solver='EONSim',case=case.name, absolute_tolerance=cfg['solver']['absolute_tolerance'],
                            last_accepted_step=sum(s.startswith('fsi_step=') for s in log), reason=log[-2],
                            log_sha256=digest(case/'case.log')))
+    for group in (group for name,group in inputs if name.startswith('svfsi')):
+        for case in sorted((root/group).glob('s*/')):
+            log=case.with_name(case.name+'.log')
+            if (case/'result.json').is_file() or not log.exists() or 'Traceback' not in log.read_text():
+                continue
+            hist=case/'1-procs/histor.dat'
+            terminal=log.read_text().splitlines()[-1]
+            detail={}
+            if hist.is_file():
+                for equation in ('FS','MS'):
+                    try:
+                        rows=list(equation_iterations(hist.read_text(),equation))
+                        if not rows:continue
+                        bad=[r for r in rows if r.linear_failed and (r.linear_iterations or r.residual>1e-8)]
+                        caps=[v for v in {r.step for r in rows} if next(r for r in reversed(rows) if r.step==v).residual>1e-8]
+                        detail[equation]=dict(last_step=rows[-1].step,linear_failures=len(bad),
+                                              first_failed_linear=bad[0]._asdict() if bad else None,unconverged_final_steps=sorted(caps))
+                    except ValueError as exc:
+                        detail[equation]=dict(parser_error=str(exc))
+            failed.append(dict(solver='svFSI',case=case.name,group=group,reason=terminal,equations=detail,
+                               log_sha256=digest(log),history_sha256=digest(hist) if hist.is_file() else None))
     return dict(runs=observations, independently_scaled_twins=twins, meridians=refs, rejected=failed)
 
 
@@ -212,6 +239,9 @@ def tables(data):
                     raise ValueError('Need directly coincident reference sections')
                 error = 100*max(abs(a-ideal[i]) for a,i in zip(strains,indices))/d['static_area_strain']
             rows.append(dict(solver=item['solver'], model=item['variant'], grid=item['grid'], steps=d['steps'],
+                             native_linear_solver=d.get('linear_solver','gmres') if item['solver'].startswith('svfsi') else None,
+                             native_krylov=d.get('krylov',450) if item['solver'].startswith('svfsi') else None,
+                             native_outer_budget=d.get('outer_iterations',10) if item['solver'].startswith('svfsi') else None,
                              problem=physical, time_s=sample['time'], phase=sample['phase'], peak_pa=d['pressure'],
                              static_pct_area=100*d['static_area_strain'], left_pct_area=100*end, mid_pct_area=100*mid,
                              meridian_left_pct_area=ref_end, meridian_mid_pct_area=ref_mid,
