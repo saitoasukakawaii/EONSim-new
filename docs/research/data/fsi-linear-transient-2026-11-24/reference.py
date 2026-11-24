@@ -213,7 +213,9 @@ class Tube:
         return dict(max_residual=error,area_strain_per_pascal=self.sections(y))
 
 
-def radau_stage_solver(mass, operator, h, method, displacement_begin=None, factor_stats=None):
+def radau_stage_solver(mass, operator, h, method, displacement_begin=None, factor_stats=None, pivot_threshold=None):
+    if pivot_threshold is not None and (method!="condensed-pair" or not 0<=pivot_threshold<=1):
+        raise ValueError("A SuperLU pivot threshold in [0,1] requires the condensed complex stage solver")
     if method == "real-block":
         block=sparse.bmat([[mass+h*A[0,0]*operator,h*A[0,1]*operator],
                            [h*A[1,0]*operator,mass+h*A[1,1]*operator]],format="csc")
@@ -241,7 +243,7 @@ def radau_stage_solver(mass, operator, h, method, displacement_begin=None, facto
         lower=matrix[k:,:k].tocsr()
         reduced=(matrix[:k,:k]-upper@lower).tocsc()
         reduced.eliminate_zeros()
-        factor=splu(reduced)
+        factor=splu(reduced,diag_pivot_thresh=pivot_threshold)
         def solve_complex(rhs):
             dynamics=factor.solve(rhs[:k]-upper@rhs[k:])
             return np.concatenate((dynamics,rhs[k:]-lower@dynamics))
@@ -263,11 +265,11 @@ def radau_stage_solver(mass, operator, h, method, displacement_begin=None, facto
     return solve
 
 
-def integrate(tube,steps,amplitude,manufactured=False,observe=None,stage_solver="real-block",factor_stats=None):
+def integrate(tube,steps,amplitude,manufactured=False,observe=None,stage_solver="real-block",factor_stats=None,pivot_threshold=None):
     h=1./steps
     M,K=tube.mass,tube.operator
     displacement_begin=int(tube.pressure.max())+1 if stage_solver=="condensed-pair" else None
-    solve=radau_stage_solver(M,K,h,stage_solver,displacement_begin,factor_stats)
+    solve=radau_stage_solver(M,K,h,stage_solver,displacement_begin,factor_stats,pivot_threshold)
     y=np.zeros(tube.size)
     if manufactured:
         rng=np.random.default_rng(4241)

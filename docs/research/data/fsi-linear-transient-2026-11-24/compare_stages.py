@@ -19,16 +19,18 @@ def main():
         for h in (.05,.005):
             # A known state gives a consistent RHS including algebraic pressure rows.
             rhs=(tube.mass@physical_rhs.T).T+h*(A@(tube.operator@physical_rhs.T).T)
-            stages=[radau_stage_solver(tube.mass,tube.operator,h,method,int(tube.pressure.max())+1)(rhs)
-                    for method in ('real-block','complex-pair','condensed-pair')]
+            choices=(('real-block',None),('complex-pair',None),('condensed-pair',None),('condensed-pair',0.))
+            stages=[radau_stage_solver(tube.mass,tube.operator,h,method,int(tube.pressure.max())+1,pivot_threshold=pivot)(rhs)
+                    for method,pivot in choices]
             differences=[float(np.max(np.abs(s-physical_rhs))) for s in stages]
             mutual=max(float(np.max(np.abs(stages[0]-r))) for r in stages[1:])
             if max(differences+[mutual])>2e-8:raise ValueError('Inconsistent coupled stage fields')
             cases.append(dict(full_length=full,support=[stiff,dash],dt=h,unknowns=tube.size,
-                              max_real_field_error=differences[0],max_complex_field_error=differences[1],max_condensed_field_error=differences[2],max_stage_difference=mutual))
-        for method in ('real-block','complex-pair','condensed-pair'):
-            error=integrate(tube,8,.02,manufactured=True,stage_solver=method)
-            cases.append(dict(full_length=full,support=[stiff,dash],method=method,manufactured_quadratic_error=error))
+                              max_real_field_error=differences[0],max_complex_field_error=differences[1],max_condensed_field_error=differences[2],
+                              max_zero_threshold_field_error=differences[3],max_stage_difference=mutual))
+        for method,pivot in choices:
+            error=integrate(tube,8,.02,manufactured=True,stage_solver=method,pivot_threshold=pivot)
+            cases.append(dict(full_length=full,support=[stiff,dash],method=method,pivot_threshold=pivot,manufactured_quadratic_error=error))
     args.output.write_text(json.dumps(cases,indent=2,allow_nan=False)+'\n')
 
 

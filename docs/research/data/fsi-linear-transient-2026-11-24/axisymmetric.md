@@ -64,14 +64,17 @@ At the loaded end, increasing the number of subdivisions towards the interface c
 | 96 / 96 / 24 | 5 | 139,683 | 0.07884176 | 0.10718178 |
 | 96 / 96 / 24 | 6 | 143,616 | 0.07882925 | 0.10718192 |
 | 112 / 112 / 28 | 6 | 190,688 | 0.07882698 | 0.10718196 |
+| 128 / 128 / 32 | 6 | 244,416 | 0.07882518 | 0.10718199 |
 
-The last two meshes differ by at most 0.001045% of the static Lamé strain at 1 s. This measures a grid change. An earlier 128 / 128 / 32 uncondensed calculation ended with signal 9. Its measured peak RSS was 3,879,260 KiB. The archive keeps the process receipt separately from completed refinements. [Grid and process table](corner-refinement.csv) · [97-station fields](reference-corner.json)
+The last two meshes differ by at most 0.0008314% of the static Lamé strain over all 97 stations at 1 s. Doubling the finest run from 128 to 256 time steps changed these stations by at most 0.000004157% of static strain. Two earlier runs at the same 244,416 unknowns ended with signal 9. Their recorded peak resident memory was 3,879,260 KiB for the full complex stage and 4,707,276 KiB after condensing displacement with default pivoting. [Grid and process table](corner-refinement.csv) · [97-station fields](reference-corner.json)
 
 In the complex Radau stage matrix the displacement-rate row has an exact identity diagonal. Eliminating it gives a smaller Schur system for velocity and pressure. Back-substitution restores displacement before the full real-equation residual correction. On the 41,496-unknown case this reduced the complex factorization dimension to 32,968 and the SuperLU-reported nonzeros from 24.43 to 21.33 million. The observed process peak RSS went from 627.7 to 597.3 MiB and CPU time from 88.0 to 72.7 s. Shared-host elapsed time increased from 169 to 255 s. On the 143,616-unknown grid the two algebraic routes differ by at most 1.57e−11% of the static strain across 97 stations, both sample times and both step counts. [Manufactured full-vector checks](radau-stage-check.json) · [Packaged refinement and rejected run](corner-refinement.json.xz)
 
+On this graded mesh, permitting SuperLU to accept any nonzero diagonal pivot (threshold zero) reduced fill sufficiently to finish the 244,416-unknown calculation. At 256 steps, the condensed stage had 203,144 unknowns and 134.48 million reported factor entries. The process over both time resolutions peaked at 3,243 MiB and consumed 482.5 CPU seconds. The original full equations were checked after back-substitution and residual correction. The normalized power and volume-flux defects were at most 3.81e−12 and 1.22e−14. On the 41,496-unknown mesh lowering this threshold took the reported factor from 21.33 to 14.32 million entries. The default threshold remains available for matrices with different pivot behavior.
+
 ```bash
-OPENBLAS_NUM_THREADS=1 python axisymmetric.py --mesh 112 112 28 --corner-levels 6 \
-  --section-count 97 --stage-solver condensed-pair --steps 128 256 --output "$work/meridian.json"
+OPENBLAS_NUM_THREADS=1 python axisymmetric.py --mesh 128 128 32 --corner-levels 6 \
+  --section-count 97 --stage-solver condensed-pair --pivot-threshold 0 --steps 128 256 --output "$work/meridian.json"
 python compare_corner.py --archive corner-refinement.json.xz \
   --csv "$work/corner-refinement.csv" --finest "$work/finest.json"
 ```

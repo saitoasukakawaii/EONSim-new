@@ -26,7 +26,7 @@ def pack(root):
 def compare(data):
     refs=[r['reference'] for r in data['completed']]
     if not refs:raise ValueError('No successful meridian calculations')
-    fine=max(refs,key=lambda d:(d['unknowns'],d['corner_levels'],d['stage_solver']=='condensed-pair'))
+    fine=max(refs,key=lambda d:(d['unknowns'],d['corner_levels'],d['stage_solver']=='condensed-pair',d.get('pivot_threshold') is None))
     if len(fine['sections'])!=97 or not math.isclose(fine['sections'][48],1.):raise ValueError('Incorrect physical sections')
     m=fine['parameters']
     a,b,nu,e=m['radius'],m['outer_radius'],m['poisson'],m['young']
@@ -50,7 +50,9 @@ def compare(data):
         if d['static']['equilibrium_residual']>1e-8 or d['static']['relative_lame_area_error']>1e-5:
             raise ValueError('Failed static Lamé check')
         v=run(d,256);old=run(d,128)
-        same=[x for x in refs if x['mesh']==d['mesh'] and x['corner_levels']==d['corner_levels'] and x['stage_solver']!=d['stage_solver']]
+        alternate = ('condensed-pair' if d.get('pivot_threshold') is not None or d['stage_solver']=='complex-pair' else 'complex-pair')
+        same=[x for x in refs if x['mesh']==d['mesh'] and x['corner_levels']==d['corner_levels']
+              and x.get('pivot_threshold') is None and x['stage_solver']==alternate]
         if len(same)>1:raise ValueError('Ambiguous paired stage solver')
         for step in (old,v):
             if max(step['max_power_residual_over_peak'],step['max_flux_residual_over_peak'])>1e-7 or step['stage_residual_max']>1e-9:
@@ -65,7 +67,7 @@ def compare(data):
                 if paired>1e-5:raise ValueError('Stage condensation changed a measured area above numerical roundoff')
             q=r['resource']
             rows.append(dict(case=r['case'],axial_per_half=d['mesh'][0],radial_fluid=d['mesh'][1],radial_wall=d['mesh'][2],
-                        corner_levels=d['corner_levels'],solver=d['stage_solver'],full_unknowns=d['unknowns'],
+                        corner_levels=d['corner_levels'],solver=d['stage_solver'],pivot_threshold=d.get('pivot_threshold'),full_unknowns=d['unknowns'],
                         factored_unknowns=stats.get('factored_size'),superlu_reported_nnz=stats.get('superlu_reported_nnz'),
                         time=t,end_pct_initial_area=100*y[0],mid_pct_initial_area=100*y[48],
                         max_difference_to_finest_pct_static=abs(dx[j]),worst_station_m=d['sections'][j],

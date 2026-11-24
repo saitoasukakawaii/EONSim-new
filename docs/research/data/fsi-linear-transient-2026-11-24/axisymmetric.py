@@ -272,6 +272,7 @@ def main():
     cli.add_argument("--pressure", type=float, default=0.02)
     cli.add_argument("--output", type=Path, required=True)
     cli.add_argument("--stage-solver",choices=("real-block","complex-pair","condensed-pair"),default="real-block")
+    cli.add_argument("--pivot-threshold",type=float,help="Optional SuperLU diagonal pivot threshold for the condensed stage system")
     args = cli.parse_args()
     if min(args.mesh) < 1 or args.quadrature < 3 or any(n < 2 or n % 2 for n in args.steps):
         cli.error("Positive mesh counts, quadrature of at least order 3, and positive even step counts required")
@@ -281,16 +282,21 @@ def main():
         cli.error("Use an odd number of at least three stations to retain the midplane")
     if args.corner_levels < 0 or not np.all(np.isfinite(args.support)) or min(args.support)<0:
         cli.error("Corner subdivision levels and both support coefficients must be nonnegative")
+    if args.pivot_threshold is not None and (args.stage_solver!="condensed-pair" or not 0<=args.pivot_threshold<=1):
+        cli.error("The pivot threshold requires the condensed-pair solver and a value in [0, 1]")
     material = TubeParameters(support_stiffness=args.support[0],support_damping=args.support[1])
     tube = MeridianTube(*args.mesh, args.quadrature, material,args.corner_levels,args.full_length,args.section_count)
     result = dict(parameters=asdict(material), mesh=args.mesh, quadrature=args.quadrature,
                   corner_levels=args.corner_levels,full_length=args.full_length,stage_solver=args.stage_solver,stage_refinement_steps=int(args.stage_solver!="real-block"),
                   unknowns=tube.size, pressure=args.pressure, sections=tube.positions,
                   static=tube.hydrostatic_check(), runs=[])
+    if args.pivot_threshold is not None:
+        result["pivot_threshold"]=args.pivot_threshold
     for n in args.steps:
         balance = StageBalance(tube, args.pressure)
         factor={}
-        row = integrate(tube, n, args.pressure, observe=balance,stage_solver=args.stage_solver,factor_stats=factor)
+        row = integrate(tube, n, args.pressure, observe=balance,stage_solver=args.stage_solver,factor_stats=factor,
+                        pivot_threshold=args.pivot_threshold)
         if factor:row["stage_factor"]=factor
         row.update(balance.report())
         result["runs"].append(row)
