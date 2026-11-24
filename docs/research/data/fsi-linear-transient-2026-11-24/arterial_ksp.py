@@ -106,7 +106,9 @@ def run_trajectory(target,case,part,executable,mpiexec,mode,env,metadata):
         start=time.monotonic()
         with (target/'solve.log').open('w') as stream:
             proc=subprocess.run(command,cwd=target,env=env,stdout=stream,stderr=stream)
-        signature.update(exit_code=proc.returncode,seconds=time.monotonic()-start,log_sha256=digest(target/'solve.log'))
+        signature.update(exit_code=proc.returncode,seconds=time.monotonic()-start,log_sha256=digest(target/'solve.log'),
+                         mpi_runtime={k:env[k] for k in ('OMPI_MCA_pml','OMPI_MCA_btl','OMPI_MCA_smsc','OMPI_MCA_mpi_yield_when_idle') if k in env},
+                         launcher_sha256=digest(mpiexec))
         if mode in PROFILE_MODES and (target/'events.csv').is_file():
             signature['profile_sha256']=digest(target/'events.csv')
         save_receipt(receipt,signature)

@@ -132,13 +132,15 @@ def pack(root,reference,exe,scripts):
     sys.path.append(str(scripts.resolve()))
     out=[]
     for directory in sorted(root.iterdir()):
-        if not directory.is_dir():continue
+        receipts=sorted(directory.glob('r*-*/run.json'))
+        if not receipts:
+            continue
         case=reference/(directory.name+'-n32-arterial-volume')
         hashes={n:digest(case/n) for n in ('case.json','fluid.msh','solid.msh')}
         meshes=[read_mesh(case/n) for n in ('fluid.msh','solid.msh')]
         ref=json.loads((case/'result.json').read_text())
         if ref['problem']!='arterial' or ref['steps']!=32 or ref['model']!='volume':raise ValueError('Different direct trajectory')
-        for receipt in sorted(directory.glob('r*-*/run.json')):
+        for receipt in receipts:
             d=json.loads(receipt.read_text())
             path=receipt.parent
             if (d['inputs']!=hashes or d['flags']!=options(d['mode']) or d['executable']!=digest(exe)
@@ -153,7 +155,7 @@ def pack(root,reference,exe,scripts):
             solved=log.splitlines().count('status=success')==1
             if good and not solved:
                 raise ValueError('Launcher returned success without an accepted solver status')
-            d.update(grid=directory.name,direct_reference_sha256=digest(case/'result.json'),solver_completed=solved)
+            d.update(campaign=root.name,grid=directory.name,direct_reference_sha256=digest(case/'result.json'),solver_completed=solved)
             d.update(parse(log,solved,d['ranks']))
             if d['mode'] in PROFILE_MODES:
                 if 'profile_sha256' in d:
@@ -216,7 +218,7 @@ def table(data):
         orthog_events=d.get('profile',{}).get('KSPGMRESOrthog',[])
         if solve_events and d['solver_completed'] and any(v['Count']!=len(cor) for v in solve_events):
             raise ValueError('PETSc outer solve count and true correction histories disagree')
-        rows.append(dict(grid=d['grid'],ranks=d['ranks'],method=d['mode'],complete=d['exit_code']==0,
+        rows.append(dict(campaign=d.get('campaign','arterial-ksp-final'),grid=d['grid'],ranks=d['ranks'],method=d['mode'],complete=d['exit_code']==0,
                          process_exit=d['exit_code'],solver_completed=d['solver_completed'],steps=len(d['steps']),
                          corrections=len(cor),within_comparison_target=sum(v<=1 for v in ratios),worst_true_norm_over_target=max(ratios,default=None),
                          worst_step=cor[worst]['step'] if worst is not None else None,
@@ -241,12 +243,17 @@ def table(data):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     group=p.add_mutually_exclusive_group(required=True)
-    group.add_argument('--runs',type=Path);group.add_argument('--archive',type=Path)
+    group.add_argument('--runs',type=Path,nargs='+');group.add_argument('--archive',type=Path)
     p.add_argument('--reference',type=Path);p.add_argument('--executable',type=Path);p.add_argument('--reference-scripts',type=Path)
     p.add_argument('--write-archive',type=Path);p.add_argument('--csv',type=Path,required=True)
     a=p.parse_args()
     if a.runs and not all((a.reference,a.executable,a.reference_scripts)):p.error('Raw mode requires source cases, executable and field readers')
-    data=pack(a.runs,a.reference,a.executable,a.reference_scripts) if a.runs else json.loads(lzma.decompress(a.archive.read_bytes()))
+    if a.runs:
+        if len({p.resolve() for p in a.runs})!=len(a.runs) or len({p.name for p in a.runs})!=len(a.runs):
+            p.error('Each run directory must represent a distinct campaign')
+        data=[run for directory in a.runs for run in pack(directory,a.reference,a.executable,a.reference_scripts)]
+    else:
+        data=json.loads(lzma.decompress(a.archive.read_bytes()))
     rows=table(data)
     if not rows:raise ValueError('No completed attempts')
     with a.csv.open('w',newline='') as f:
