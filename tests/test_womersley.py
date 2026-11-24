@@ -162,7 +162,13 @@ class WomersleyTest(unittest.TestCase):
         first = ' NS 1-1 0.3 [ 0 1.0 1.0 1e-10] [ 24 -30 82]'
         second = ' NS 1-2 0.4 [-120 2e-9 3e-9 1.0] ! 0 -20 0]'
         self.assertEqual(sv.check_convergence(first+'\n'+second,1),(2e-9,1))
+        growth = ' NS 1-2 0.3 ! 24 1.752E1 4.317E3 8.0E-11! [ 78 -232 58]'
+        recovered = second.replace('1-2','1-3')
+        self.assertEqual(sv.check_convergence('\n'.join((first,growth,recovered)),1),(2e-9,1))
         for history,steps in [(first,1),(second,1),(first+'\n'+second,2),
+                              ('\n'.join((first,growth)),1),
+                              ('\n'.join((first,growth.replace('8.0E-11!','8.0E-11]'),recovered)),1),
+                              ('\n'.join((first,growth.replace('[ 78','! 78'),recovered)),1),
                               (first+'\n'+second+'\n'+second,1),
                               (first+'\n'+second.replace('! 0','! 7'),1),
                               (first+'\n'+second.replace('2e-9','NaN'),1),

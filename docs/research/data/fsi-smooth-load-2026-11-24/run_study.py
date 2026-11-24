@@ -87,9 +87,6 @@ def external_input(source, directory, steps, dt, mode, linear_atol):
 
 
 def eon_input(source, directory, steps, dt):
-    for name, digest in INPUT_SHA256.items():
-        if file_sha(source/name) != digest:
-            raise ValueError(f"Unexpected EONSim reference input {name}")
     for mesh in ("fluid.msh","solid.msh"):
         shutil.copyfile(source/mesh, directory/mesh)
     cfg = json.loads((source/"case.json").read_text())
@@ -120,7 +117,11 @@ def main():
         directory = args.work/f"{args.mode}-{steps}"
         directory.mkdir(parents=True)
         if args.mode == "eon":
-            eon_input(args.archive/"coupled/sv05-s48", directory, steps, dt)
+            source = args.archive/"coupled/sv05-s48"
+            for name, digest in INPUT_SHA256.items():
+                if file_sha(source/name) != digest:
+                    raise ValueError(f"Unexpected EONSim reference input {name}")
+            eon_input(source, directory, steps, dt)
             command = [exe, "-case", "case.json"]
         else:
             external_input(args.archive/"svfsi/alpha05-medium-dt025", directory, steps, dt, args.mode, args.linear_atol)
