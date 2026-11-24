@@ -15,6 +15,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"fsi-pressure-faces-2
 from audit import SurfaceAudit
 
 
+def fluid_cell_divergence(surface, state):
+    points = (surface.reference + state[:, :3])[surface.tets]
+    edges = points[:, 1:] - points[:, :1]
+    volumes = np.linalg.det(edges) / 6
+    if not np.all(volumes > 0):
+        raise ValueError("Invalid deformed fluid cell")
+    velocity = state[surface.tets, 3:6]
+    gradient = np.linalg.solve(edges, velocity[:, 1:] - velocity[:, :1])
+    divergence = np.trace(gradient, axis1=1, axis2=2)
+    if not np.all(np.isfinite(divergence)):
+        raise ValueError("Nonfinite fluid divergence")
+    return volumes, divergence
+
+
 def close(x, y, tol, context):
     if not math.isfinite(x) or not math.isfinite(y) or abs(x-y) > tol:
         raise ValueError(f"{context}: {x} vs {y}")
@@ -32,7 +46,7 @@ def write_csv(path, rows):
         writer.writerows(rows)
 
 
-def external_loads(directory, steps, mode):
+def external_loads(directory, steps, mode, peak=PEAK):
     log = (directory/"1-procs/histor.dat").read_text()
     expected = [(int(s),int(i),p) for s,i in re.findall(r"^\s*FS\s+(\d+)-(\d+)s?\s",log,re.M)
                 for p in PORTS]
@@ -48,7 +62,7 @@ def external_loads(directory, steps, mode):
         close(time,step*dt,2e-13,"svFSI lookup time")
         close(af,2./3.,2e-15,"svFSI state weight")
         source_time = eon_stage(step,dt) if mode == "matched" else time
-        p = smooth_pressure(source_time)
+        p = smooth_pressure(source_time, peak)
         for load in (lo,hi):
             close(load,p,3e-15,"svFSI residual-side pressure")
         key = (step,PORTS.index(face)+1)
@@ -61,7 +75,7 @@ def external_loads(directory, steps, mode):
     return stages
 
 
-def eon_loads(directory, steps):
+def eon_loads(directory, steps, peak=PEAK):
     log = (directory/"solve.log").read_text()
     if log.splitlines()[-1:] != ["status=success"]:
         raise ValueError(f"Unsuccessful EONSim run {directory}")
@@ -78,9 +92,9 @@ def eon_loads(directory, steps):
         close(row["evaluation_time"],time,2e-13,"EONSim evaluation time")
         close(row["time"],step/steps,2e-13,"EONSim accepted time")
         close(row["accepted_dt"],1./steps,2e-14,"EONSim dt")
-        close(pressure,smooth_pressure(time),3e-15,"EONSim stage pressure")
+        close(pressure,smooth_pressure(time,peak),3e-15,"EONSim stage pressure")
         close(pressure,accepted[step-1]["applied_pressure"],3e-15,"EONSim accepted assembly load")
-        close(row["endpoint_prescribed_pressure"],smooth_pressure(step/steps),3e-15,"EONSim endpoint load")
+        close(row["endpoint_prescribed_pressure"],smooth_pressure(step/steps,peak),3e-15,"EONSim endpoint load")
         result[step,tag] = dict(lookup_time=time,source_time=time,solver_state_time=time,
                                 min_pressure=pressure,max_pressure=pressure,observations=1)
     return result

@@ -8,7 +8,7 @@ import sys
 
 import numpy as np
 
-from audit_study import SurfaceAudit, eon_loads
+from audit_study import SurfaceAudit, eon_loads, fluid_cell_divergence
 from run_study import eon_input, file_sha, INPUT_SHA256
 
 
@@ -70,12 +70,7 @@ def main():
                 displacement={i:s.displacement for i,s in solid.items()}
                 eps=np.array([wall.bore_section(nodes,displacement,rings[x])["linear_area_strain"] for x in sections])
                 state=audit.array(fluid)
-                points=(audit.reference+state[:,:3])[audit.tets]
-                edges=points[:,1:]-points[:,:1]
-                grad=np.linalg.solve(edges,state[audit.tets[:,1:],3:6]-state[audit.tets[:,:1],3:6])
-                volumes=np.linalg.det(edges)/6
-                if min(volumes)<=0: raise ValueError("Invalid deformed element volume")
-                divergence=np.trace(grad,axis1=1,axis2=2)
+                volumes,divergence=fluid_cell_divergence(audit,state)
                 diff=(eps-reference[step])/scale
                 j=int(np.argmax(abs(diff)))
                 samples.append(dict(time=step/n,area_strain=eps.tolist(),native_area_strain=reference[step],

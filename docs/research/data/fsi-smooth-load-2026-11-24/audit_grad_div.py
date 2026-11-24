@@ -7,7 +7,7 @@ import sys
 
 import numpy as np
 
-from audit_study import SurfaceAudit, eon_loads, external_loads, write_csv
+from audit_study import SurfaceAudit, eon_loads, external_loads, fluid_cell_divergence, write_csv
 from run_study import file_sha
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[4]/"scripts"))
@@ -74,10 +74,8 @@ def main():
                     raise ValueError("Invalid sectional displacement")
                 strains[mode]=strain
                 state=surface.array(fluid)
-                points=(surface.reference+state[:,:3])[surface.tets]
-                gradu=np.linalg.solve(points[:,1:]-points[:,:1],state[surface.tets[:,1:],3:6]-state[surface.tets[:,:1],3:6])
-                vols=np.linalg.det(points[:,1:]-points[:,:1])/6
-                div_rms=float(np.sqrt(np.average(np.trace(gradu,axis1=1,axis2=2)**2,weights=vols)))
+                vols,divergence=fluid_cell_divergence(surface,state)
+                div_rms=float(np.sqrt(np.average(divergence**2,weights=vols)))
                 sample[mode]=dict(volume_gain=surface.volume(state)-volume,
                                   fluid_divergence_rms=div_rms,section_area_strain=strain.tolist())
             for mode in ("native","no_grad_div"):

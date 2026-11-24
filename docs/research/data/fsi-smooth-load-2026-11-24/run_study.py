@@ -17,9 +17,9 @@ INPUT_SHA256 = {
 }
 
 
-def smooth_pressure(time):
+def smooth_pressure(time, peak=PEAK):
     x = min(1., max(0., time))
-    return PEAK * x**3 * (10. + x * (-15. + 6.*x))
+    return peak * x**3 * (10. + x * (-15. + 6.*x))
 
 
 def eon_stage(step, dt):
@@ -45,13 +45,13 @@ def face_ids(path):
     return nodes
 
 
-def external_input(source, directory, steps, dt, mode, linear_atol):
+def external_input(source, directory, steps, dt, mode, linear_atol, peak=PEAK):
     for mesh in (*source.glob("*.vtp"), *source.glob("*.vtu")):
         shutil.copyfile(mesh, directory/mesh.name)
     # svFSI repeats general tables at their final timestamp. Add one hold
     # sample past the requested run so its last accepted step cannot wrap.
     times = [i*dt for i in range(steps+2)]
-    values = [smooth_pressure(eon_stage(i,dt) if mode == "matched" and i else t)
+    values = [smooth_pressure(eon_stage(i,dt) if mode == "matched" and i else t, peak)
               for i,t in enumerate(times)]
     values[-1] = values[-2]
     deck = (source/"svFSI.inp").read_text()

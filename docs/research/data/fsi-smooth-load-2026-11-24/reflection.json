@@ -1,0 +1,182 @@
+{
+  "mesh": [
+    48,
+    4,
+    4,
+    6
+  ],
+  "steps": 32,
+  "peak_pressure": 0.02,
+  "source_executables": {
+    "eon": "6799aa1d8bfc8e31dafa94f64250c063b6cba86551c59abf72f79b8c094ce7c4",
+    "svfsi": "e26c3c3828e08b4711e161e3d228e7a34171abefe78acfc38466bfaf078b76f8"
+  },
+  "mesh_sha256": [
+    [
+      "6a2eddd7ee53d6cd43d6c0706d21a3295b99d79431ec037e21a5d1149d8b8f7f",
+      "ca61d566c848adb2bc41b9bbbebf5dff3454818008b921960d135e05a1a27016"
+    ],
+    [
+      "30ea832967d8cd940e52dee0d39be37ff8081f77fc80ea766dfdfc980c48fbfe",
+      "200f937843314bc3d177a2da17d673b8d975ba65f07e95f7ad958259eb71be98"
+    ]
+  ],
+  "samples": [
+    {
+      "time": 0.5,
+      "solver": "eon",
+      "fields": {
+        "fluid": {
+          "displacement": {
+            "max_absolute_difference": 2.710505431213761e-20,
+            "max_original_absolute_value": 6.843476407188844e-05
+          },
+          "velocity": {
+            "max_absolute_difference": 8.673617379884035e-19,
+            "max_original_absolute_value": 0.0013979289421486485
+          },
+          "pressure": {
+            "max_absolute_difference": 9.974659986866641e-18,
+            "max_original_absolute_value": 0.008503727724422145
+          }
+        },
+        "solid": {
+          "displacement": {
+            "max_absolute_difference": 3.3881317890172014e-20,
+            "max_original_absolute_value": 6.843476407188844e-05
+          },
+          "velocity": {
+            "max_absolute_difference": 4.553649124439119e-18,
+            "max_original_absolute_value": 0.00047479979124768736
+          }
+        }
+      },
+      "original_ends": [
+        0.0001033049113074077,
+        0.00012285643013173485
+      ],
+      "reflected_ends": [
+        0.00012285643013173485,
+        0.0001033049113074077
+      ],
+      "max_reflected_strain_delta": 2.710505431213761e-20
+    },
+    {
+      "time": 0.5,
+      "solver": "svfsi",
+      "fields": {
+        "fluid": {
+          "displacement": {
+            "max_absolute_difference": 1.2376845425279837e-16,
+            "max_original_absolute_value": 6.467090532737966e-05
+          },
+          "velocity": {
+            "max_absolute_difference": 1.6211532984089505e-15,
+            "max_original_absolute_value": 0.0013776470304993338
+          },
+          "pressure": {
+            "max_absolute_difference": 2.956836164802468e-14,
+            "max_original_absolute_value": 0.01028136839779589
+          }
+        },
+        "solid": {
+          "displacement": {
+            "max_absolute_difference": 1.3980109387842776e-16,
+            "max_original_absolute_value": 6.467090532737966e-05
+          },
+          "velocity": {
+            "max_absolute_difference": 2.397116793256826e-15,
+            "max_original_absolute_value": 0.0004485207384877583
+          }
+        }
+      },
+      "original_ends": [
+        8.590535443669248e-05,
+        0.00012702315889034834
+      ],
+      "reflected_ends": [
+        0.0001270231588902686,
+        8.59053544366817e-05
+      ],
+      "max_reflected_strain_delta": 8.426961385643583e-17
+    },
+    {
+      "time": 1.0,
+      "solver": "eon",
+      "fields": {
+        "fluid": {
+          "displacement": {
+            "max_absolute_difference": 2.710505431213761e-19,
+            "max_original_absolute_value": 0.000516895856636332
+          },
+          "velocity": {
+            "max_absolute_difference": 8.890457814381136e-18,
+            "max_original_absolute_value": 0.003352979516540003
+          },
+          "pressure": {
+            "max_absolute_difference": 1.491862189340054e-16,
+            "max_original_absolute_value": 0.017568761128007232
+          }
+        },
+        "solid": {
+          "displacement": {
+            "max_absolute_difference": 3.2526065174565133e-19,
+            "max_original_absolute_value": 0.000516895856636332
+          },
+          "velocity": {
+            "max_absolute_difference": 4.4885969940899884e-17,
+            "max_original_absolute_value": 0.0010528076984375636
+          }
+        }
+      },
+      "original_ends": [
+        0.0007502692474471457,
+        0.0008472629032057924
+      ],
+      "reflected_ends": [
+        0.0008472629032057925,
+        0.0007502692474471458
+      ],
+      "max_reflected_strain_delta": 2.168404344971009e-19
+    },
+    {
+      "time": 1.0,
+      "solver": "svfsi",
+      "fields": {
+        "fluid": {
+          "displacement": {
+            "max_absolute_difference": 4.3156667475785504e-15,
+            "max_original_absolute_value": 0.0004708931050362386
+          },
+          "velocity": {
+            "max_absolute_difference": 2.5681496859664144e-14,
+            "max_original_absolute_value": 0.003223959706583116
+          },
+          "pressure": {
+            "max_absolute_difference": 2.9166014221815306e-13,
+            "max_original_absolute_value": 0.021494123027990135
+          }
+        },
+        "solid": {
+          "displacement": {
+            "max_absolute_difference": 4.3156667475785504e-15,
+            "max_original_absolute_value": 0.0004708931050362386
+          },
+          "velocity": {
+            "max_absolute_difference": 5.910262852585647e-14,
+            "max_original_absolute_value": 0.0009583773949985084
+          }
+        }
+      },
+      "original_ends": [
+        0.0006490576958393888,
+        0.0008547844196358122
+      ],
+      "reflected_ends": [
+        0.0008547844196352864,
+        0.0006490576958406544
+      ],
+      "max_reflected_strain_delta": 1.2655891959423293e-15
+    }
+  ]
+}
