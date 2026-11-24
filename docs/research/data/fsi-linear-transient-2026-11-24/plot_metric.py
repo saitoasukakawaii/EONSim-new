@@ -21,7 +21,7 @@ def main():
     target=max(meridian['runs'],key=lambda r:r['steps'])['samples'][-1]
     if target['time']!=1. or meridian['sections'][0]!=0. or meridian['pressure']!=linear['pressure']:
         raise ValueError('Time, station or pressure differs in the independent meridian')
-    valid=[r for r in records if r['group'] in ('current-time','reference-div')
+    valid=[r for r in records if r['group'] in ('current-time','reference-div','mesh-increment','relative-controls')
            and r['report']['mesh_sha256']==[linear['input_sha256'][k] for k in ('fluid.msh','solid.msh')]
            and r['peak_pressure']==linear['pressure']]
     styles=[('current-equations','native','svFSI standard','#b34323','s'),
@@ -29,17 +29,28 @@ def main():
             ('current-equations-grad-div-time-1over128','fixed-div-time','svFSI with grad-div time fixed','#8156a3','D')]
     fig,(left,right)=plt.subplots(1,2,figsize=(10.8,4.65),gridspec_kw={'width_ratios':(1.45,1.)})
     available=set()
+    patched={'native':'current-equations-relative-mesh-stage','zero':'current-equations-relative-mesh-stage-grad-div-off',
+             'fixed-div-time':'current-equations-relative-mesh-stage-fixed-div-time'}
+    marked=False
     for variant,mode,label,color,marker in styles:
-        rows=sorted((v['report'] for v in valid if v['sv_variant']==variant),key=lambda v:v['steps'])
-        if not rows:raise ValueError('Missing observations for '+label)
-        steps=[v['steps'] for v in rows]
+        primary={v['report']['steps']:v['report'] for v in valid if v['sv_variant']==variant}
+        relative={v['report']['steps']:v['report'] for v in valid if v['sv_variant']==patched[mode]}
+        if not primary:raise ValueError('Missing observations for '+label)
+        if any(primary[n]['mesh_sha256']!=relative[n]['mesh_sha256'] for n in primary.keys()&relative.keys()):
+            raise ValueError('Different mesh in relative displacement control')
+        steps=sorted(primary.keys()|relative.keys())
         available.update(steps)
-        samples=[v['results'][-1] for v in rows]
+        samples=[(primary[n] if n in primary else relative[n])['results'][-1] for n in steps]
         if any(v['time']!=1. for v in samples):raise ValueError('Run does not finish at 1 s')
         if mode=='native':
             left.plot(steps,[100*v['eon']['strains'][0] for v in samples],color='#214e80',marker='o',linewidth=1.7,label='EONSim')
-        left.plot(steps,[100*v['svfsi']['strains'][0] for v in samples],color=color,marker=marker,
-                  linestyle='-' if mode!='fixed-div-time' else '--',markersize=5,linewidth=1.45,label=label)
+        values=[100*v['svfsi']['strains'][0] for v in samples]
+        left.plot(steps,values,color=color,marker=marker,linestyle='-' if mode!='fixed-div-time' else '--',
+                  markersize=5,linewidth=1.45,label=label)
+        for n in sorted(relative.keys()-primary.keys()):
+            left.scatter(n,values[steps.index(n)],marker='o',facecolors='none',edgecolors='#252525',s=80,
+                         linewidths=.9,zorder=5,label='Relative ALE stage only' if not marked else None)
+            marked=True
     left.axhline(100*target['section_area_strain'][0],color='#444444',linestyle=':',label='Axisymmetric Q2/Q1')
     ns=sorted(available)
     if not ns:raise ValueError('No matched observations')

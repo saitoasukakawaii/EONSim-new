@@ -11,6 +11,8 @@ from axisymmetric import TubeParameters
 
 MODES={"native":"native", "grad-div-off":"zero", "current-equations":"native",
        "current-equations-grad-div-off":"zero","current-equations-relative-mesh-stage":"native",
+       "current-equations-relative-mesh-stage-fixed-div-time":"fixed-div-time",
+       "current-equations-relative-mesh-stage-grad-div-off":"zero",
        "current-equations-grad-div-time-1over128":"fixed-div-time","current-equations-regular-simplex":"native"}
 
 
@@ -67,12 +69,14 @@ def compare(linear, pairs):
                              max_abs_discrete_gap_pct_static=abs(difference[worst]),worst_station=data["axial_sections"][worst],
                              radau_temporal_change_pct_static=floor,grad_div_volume_median_pa_s=ref["grad_div_pa_s"]["volume_median"],
                              fraction_volume_temporal_term_larger=ref["fraction_volume_time_term_larger"]))
-        if pair["group"] in ("current-time","reference-div") and math.isclose(peak,.02):
-            group=focused.setdefault(data["steps"],{})
+        families={"current-time":"absolute coordinates","reference-div":"absolute coordinates",
+                  "mesh-increment":"relative displacement","relative-controls":"relative displacement"}
+        if pair["group"] in families and math.isclose(peak,.02):
+            group=focused.setdefault((families[pair["group"]],data["steps"]),{})
             if mode in group:raise ValueError("Duplicate paired intervention")
             group[mode]=pair
     controls=[]
-    for n,group in sorted(focused.items()):
+    for (family,n),group in sorted(focused.items()):
         if set(group)!={"native","zero","fixed-div-time"}:continue
         for k in ("eon_case_sha256","sv_deck_sha256"):
             if len({g[k] for g in group.values()})!=1:raise ValueError("Unmatched decks in controlled grad-div intervention")
@@ -82,7 +86,7 @@ def compare(linear, pairs):
             if any(r["eon"]["strains"]!=source for r in records.values()):
                 raise ValueError("The EONSim control changed during the svFSI intervention")
             ref=modes[n,"native"]
-            row=dict(steps=n,time=records["native"]["time"],eon_x0_pct_area=100*source[0],
+            row=dict(mesh_stage=family,steps=n,time=records["native"]["time"],eon_x0_pct_area=100*source[0],
                      grad_div_median_pa_s=ref["grad_div_pa_s"]["volume_median"],
                      temporal_dominant_volume_pct=100*ref["fraction_volume_time_term_larger"])
             for mode,r in records.items():

@@ -9,12 +9,14 @@ from pathlib import Path
 import re
 
 
-GROUPS=('spatial','extra-space','controls','symmetric','symmetric-tight','time-tail','time-tight','current-time','reference-div','vertex-order','regular-metric','mesh-increment')
+GROUPS=('spatial','extra-space','controls','symmetric','symmetric-tight','time-tail','time-tight','current-time','reference-div','vertex-order','regular-metric','mesh-increment','relative-controls')
 VARIANTS={'native':'svfsi-observer-build','grad-div-off':'svfsi-no-grad-div-build',
           'current-equations':'sv-current-native-build','current-equations-grad-div-off':'sv-current-zero-build',
           'current-equations-grad-div-time-1over128':'sv-reference-div-build',
           'current-equations-regular-simplex':'sv-regular-metric-build',
-          'current-equations-relative-mesh-stage':'sv-mesh-increment-build'}
+          'current-equations-relative-mesh-stage':'sv-mesh-increment-build',
+          'current-equations-relative-mesh-stage-fixed-div-time':'sv-relative-fixed-build',
+          'current-equations-relative-mesh-stage-grad-div-off':'sv-relative-zero-build'}
 
 
 def digest(path):
