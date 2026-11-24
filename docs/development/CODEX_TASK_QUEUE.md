@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 双端升压、空间加密与求解成本（进行中）
 
+外壁支撑的 Lamé 平衡、黏性功及参考面积能量验收完成。[四级空间结果与独立功核查](../research/data/fsi-wall-support-2026-11-24/README.md)
+
 双端同压瞬态的独立轴对称参考、全长对半长检验及小振幅对照已完成。[验收](../research/data/fsi-linear-transient-2026-11-24/axisymmetric.md)
 
 分支 `codex/fsi-smooth-load-six-hour`，本轮窗口为北京时间 16:12 至 22:12。已归档同载时间细化、稳定项消融、独立小振幅瞬态、材料域装配以及直接和 Schur 求解的 MPI 配对测量。下一步核对空间加密下同一轴向位置的误差、两方程逐步收敛和不同速度块预条件器的实际收敛成本。窗口末用仓库编译脚本按最终改动集运行 Release 增量选测，汇总为同一 PR。[瞬态结果](../research/data/fsi-smooth-load-2026-11-24/README.md)

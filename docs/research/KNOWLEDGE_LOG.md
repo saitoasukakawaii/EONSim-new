@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 等端压弹性管的离散散度与瞬态参考
 
+带外壁法向弹簧的厚壁管可用 Lamé 内、外压顺应量给出静压真值；阻尼的耗散功可用独立面求积查验。[四级空间结果与独立功核查](data/fsi-wall-support-2026-11-24/README.md)
+
 相同四面体离散上的小程序间差异仍可伴随较大的共同空间误差。独立轴对称解提供参考，网格反射检验端部非对称性。[证据](data/fsi-linear-transient-2026-11-24/axisymmetric.md)
 
 [技术草稿](../../website/drafts/elastic-tube-grad-div-transient.md)说明截面百分比的三个分母、相同阶段载荷的比较、残量 grad-div 对管壁的影响，以及固定半离散的小振幅 Radau 参照。独立静态与时间收敛、非线性压力扫描和两程序原始记录可用于复算。审阅重点是区分瞬态跨程序差、同网格离散误差与 Lamé 静态基准。[单项消融](data/fsi-smooth-load-2026-11-24/README.md) · [独立组装及 30 次对照](data/fsi-linear-transient-2026-11-24/README.md)
