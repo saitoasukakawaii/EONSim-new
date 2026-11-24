@@ -1,5 +1,9 @@
 # EONSim Knowledge Log
 
+## 2026-11-24 · 网站知识选编
+
+[草稿目录](../../website/drafts/README.md)逐篇登记了 34 份材料。九篇进入四个专题或教程的选稿范围；另从现有调研编成[上游源码阅读指南](../../website/learning/open-source-hpc.md)。主线归档为数值依据，编辑稿用原始波形、节点力、时间步数据和 P2 制造解说明读数。待人工审阅的栏目入口见[知识专题](../../website/knowledge/index.md)和[实践教程](../../website/tutorials/index.md)。
+
 ## 2026-11-24 · 仿射 Tet4 黏性核及 50 个上游项目复查
 
 在 `4095e4b` 保留 ALE 几何导数，将单元内恒定的黏性应力及速度切线精确积分一次。局部公式和有限差分、1/2-rank 成对实测、#41/#42 集成证据见[调研报告](HPC_UPSTREAM_REVIEW_2026-11-24.md)。[教学草稿](../../website/drafts/tet4-viscous-work-and-ale-tangents.md)的审阅重点是常黏度仿射假设，以及单元核与全 FSI 计时边界。
