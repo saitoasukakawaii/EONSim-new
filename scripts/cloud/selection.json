@@ -161,6 +161,7 @@
     {"paths": ["include/eonsim/mesh.hpp", "src/mesh/partition.cpp"], "tests": ["checkpoint_publication_mpi", "domains_verification", "fluid_verification", "mesh_import_verification", "poisson_parallel", "rigid_fsi_verification", "scalar2d_space", "solid_verification"], "python": []},
     {"paths": ["src/mesh/gmsh.cpp"], "tests": ["domains_verification", "mesh_import_verification", "poisson_parallel"], "python": []},
     {"paths": ["include/eonsim/mesh_import.hpp", "src/mesh/mesh_import.cpp"], "tests": ["domains_verification", "mesh_import_verification", "poisson_parallel", "scalar2d_space"], "python": []},
+    {"paths": ["include/eonsim/fsi_domains.hpp", "src/mesh/fsi_domains.cpp", "include/eonsim/solid_element.hpp", "src/physics/solid_element.cpp"], "tests": ["fsi_tube_wall_support"], "python": []},
     {"paths": ["include/eonsim/fsi_domains.hpp", "src/mesh/fsi_domains.cpp"], "tests": ["domains_alpha_verification", "domains_bdf2_verification", "domains_verification"], "python": []},
     {"paths": ["include/eonsim/tet4.hpp", "src/fem/tet4.cpp"], "tests": ["boundary_geometry", "domains_verification", "fluid_verification", "fsi_element_jacobian", "poisson_parallel", "quadrature_moments", "rigid_fsi_verification", "scalar2d_space", "solid_verification"], "python": []},
     {"paths": ["include/eonsim/boundary_geometry.hpp", "src/fem/boundary_geometry.cpp"], "tests": ["boundary_geometry", "domains_verification", "regions_verification", "tagged_fluid_verification"], "python": []},
