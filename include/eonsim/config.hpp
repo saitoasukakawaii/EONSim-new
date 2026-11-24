@@ -31,12 +31,16 @@ struct SolverConfig {
     std::map<std::string,FieldTolerance> fields; ///< 非空时须覆盖该非线性布局的全部字段。
 };
 
-/** @brief Absolute pressure amplitude, period, and optional smooth startup time.
- * The ramp multiplies both the mean and the sinusoid. Time is physical solver time.
+using PeriodicSamples=std::vector<std::array<double,2>>;
+
+/** @brief Periodic pressure increment and optional smooth startup time.
+ * The ramp multiplies the base pressure plus the sinusoidal or tabulated increment. Time is physical solver time.
  */
 struct PressureTime {
     double amplitude=0,period=1,ramp_time=0;
-    double value_at(double mean,double time) const;
+    PeriodicSamples offset_samples{}; ///< Time in s and additive pressure in Pa, closed at period.
+    double value_at(double base,double time) const;
+    void append_sample_signature(std::vector<double>& values) const;
 };
 
 /** @brief 按 physical tag 的固定网格流体边界。
@@ -52,7 +56,7 @@ struct FluidBoundary {
     Space3::Vector<double> value{},origin{};
     Space3::Tensor<double> gradient{};
     double pressure=0,ramp_time=0;
-    std::optional<PressureTime> pressure_time; ///< Transient pressure only. pressure is the mean.
+    std::optional<PressureTime> pressure_time; ///< Transient pressure only. pressure is the base value.
 };
 struct PressureGauge { std::int64_t node; double value; }; // 原始网格 ID，非 PETSc 编号
 
@@ -122,7 +126,8 @@ struct FsiFlowRate {
     double radius=0;
     double mean=0, amplitude=0, period=1;
     /// Optional periodic (time in s, signed flow in m³/s) knots, closed at period.
-    std::vector<std::array<double,2>> samples;
+    PeriodicSamples samples;
+    double value_at(double time) const;
     int axis=0; ///< Cartesian axis, or -1 for an oriented circle with unit direction in inlet.value.
     Space3::Vector<double> lower{},upper{}; ///< Fixed axis-aligned rectangular inlet bounds.
 };

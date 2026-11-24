@@ -56,38 +56,60 @@ ScalarFunction scalar_function(const YAML::Node& node,const std::string& locatio
 }
 // Store the closing knot explicitly so an omitted and a supplied periodic
 // endpoint produce identical interpolation and checkpoint identities.
+PeriodicSamples read_periodic_samples(const YAML::Node& input,double period,const std::string& location,
+                                      const std::string& quantity) {
+    const std::string shape_error=location+" requires time/"+quantity+" pairs";
+    if(!input.IsSequence()||input.size()==0) throw std::runtime_error(shape_error);
+    PeriodicSamples samples;
+    for(const auto& pair:input) {
+        if(!pair.IsSequence()||pair.size()!=2) throw std::runtime_error(shape_error);
+        const double t=pair[0].as<double>(),value=pair[1].as<double>();
+        if(!std::isfinite(t)||!std::isfinite(value)||t>period||(samples.empty()?t!=0:t<=samples.back()[0]))
+            throw std::runtime_error(location+" requires finite, increasing times from zero within one period and finite "+quantity+"s");
+        samples.push_back({t,value});
+    }
+    const double first=samples.front()[1];
+    if(samples.back()[0]<period) samples.push_back({period,first});
+    else if(samples.back()[1]!=first) throw std::runtime_error(location+" values differ at the two ends of the period");
+    return samples;
+}
+
+double interpolate_samples(const PeriodicSamples& samples,double phase) {
+    // The canonicalized table includes its closing knot. The caller supplies a phase in [0,period).
+    const auto next=std::upper_bound(samples.begin(),samples.end(),phase,
+        [](double t,const auto& sample){return t<sample[0];});
+    const auto& left=*(next-1);
+    const double weight=(phase-left[0])/((*next)[0]-left[0]);
+    return (1-weight)*left[1]+weight*(*next)[1];
+}
+
 void read_flow_waveform(const YAML::Node& q,FsiFlowRate& flow) {
     flow.period=q["period"].as<double>();
     if(!std::isfinite(flow.period)||flow.period<=0) throw std::runtime_error("Invalid FSI flow_rate period");
-    const auto samples=q["samples"];
-    if(!samples) {
+    if(q["samples"]) {
+        if(q["mean"]||q["amplitude"]) throw std::runtime_error("FSI flow_rate.samples excludes mean and amplitude");
+        flow.samples=read_periodic_samples(q["samples"],flow.period,"FSI flow_rate.samples","flow");
+    } else {
         flow.mean=q["mean"].as<double>();
         flow.amplitude=q["amplitude"].as<double>();
         if(!std::isfinite(flow.mean)||!std::isfinite(flow.amplitude)) throw std::runtime_error("Invalid FSI flow_rate");
-        return;
     }
-    if(q["mean"]||q["amplitude"]) throw std::runtime_error("FSI flow_rate.samples excludes mean and amplitude");
-    if(!samples.IsSequence()||samples.size()==0) throw std::runtime_error("FSI flow_rate.samples requires time/flow pairs");
-    for(const auto& pair:samples) {
-        if(!pair.IsSequence()||pair.size()!=2) throw std::runtime_error("FSI flow_rate.samples requires time/flow pairs");
-        const double t=pair[0].as<double>(),value=pair[1].as<double>();
-        if(!std::isfinite(t)||!std::isfinite(value)||t>flow.period||
-           (flow.samples.empty()?t!=0:t<=flow.samples.back()[0]))
-            throw std::runtime_error("FSI flow_rate.samples requires finite, increasing times from zero within one period and finite flows");
-        flow.samples.push_back({t,value});
-    }
-    const double first=flow.samples.front()[1];
-    if(flow.samples.back()[0]<flow.period) flow.samples.push_back({flow.period,first});
-    else if(flow.samples.back()[1]!=first) throw std::runtime_error("FSI flow_rate.samples values differ at the two ends of the period");
 }
+
 PressureTime read_pressure_time(const YAML::Node& node,const std::string& location)
 {
-    keys(node,{"amplitude","period","ramp_time"},location);
-    PressureTime profile{node["amplitude"].as<double>(),node["period"].as<double>(),0};
+    keys(node,{"amplitude","period","ramp_time","offset_samples"},location);
+    if(bool(node["amplitude"])==bool(node["offset_samples"]))
+        throw std::runtime_error(location+" requires exactly one of amplitude and offset_samples");
+    PressureTime profile;
+    profile.period=node["period"].as<double>();
+    if(node["amplitude"]) profile.amplitude=node["amplitude"].as<double>();
     if(node["ramp_time"]) profile.ramp_time=node["ramp_time"].as<double>();
     if(!std::isfinite(profile.amplitude)||!std::isfinite(profile.period)||profile.period<=0||
        !std::isfinite(profile.ramp_time)||profile.ramp_time<0)
         throw std::runtime_error("Invalid "+location);
+    if(node["offset_samples"])
+        profile.offset_samples=read_periodic_samples(node["offset_samples"],profile.period,location+".offset_samples","pressure");
     return profile;
 }
 void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
@@ -162,15 +184,35 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
 }
 } // namespace
 
-double PressureTime::value_at(double mean,double time) const
+double FsiFlowRate::value_at(double time) const {
+    const double phase=std::fmod(time,period);
+    if(!std::isfinite(phase)||phase<0) throw std::runtime_error("Invalid FSI inlet evaluation time");
+    if(samples.empty()) return mean+amplitude*std::sin(2*std::acos(-1.)*(phase/period));
+    return interpolate_samples(samples,phase);
+}
+
+double PressureTime::value_at(double base,double time) const
 {
     const double x=ramp_time>0?std::clamp(time/ramp_time,0.,1.):1.;
     const double scale=x*x*x*(10+x*(-15+6*x));
-    // Reduce physical time before multiplying by 2*pi, including for small periods.
-    const double phase=2*std::acos(-1.)*(std::fmod(time,period)/period);
-    const double pressure=scale*(mean+amplitude*std::sin(phase));
+    const double phase=std::fmod(time,period);
+    if(!std::isfinite(phase)) throw std::runtime_error("Nonfinite periodic pressure");
+    double offset;
+    if(offset_samples.empty()) offset=amplitude*std::sin(2*std::acos(-1.)*(phase/period));
+    else {
+        // For a negative phase very close to zero, addition can round up to the period.
+        const double t=phase<0?phase+period:phase;
+        offset=t==period?offset_samples.front()[1]:interpolate_samples(offset_samples,t);
+    }
+    const double pressure=scale*(base+offset);
     if(!std::isfinite(pressure)) throw std::runtime_error("Nonfinite periodic pressure");
     return pressure;
+}
+
+void PressureTime::append_sample_signature(std::vector<double>& values) const {
+    if(offset_samples.empty()) return;
+    values.insert(values.end(),{20517.,double(offset_samples.size())});
+    for(const auto& knot:offset_samples) values.insert(values.end(),knot.begin(),knot.end());
 }
 
 Config read_config(const std::filesystem::path& path)

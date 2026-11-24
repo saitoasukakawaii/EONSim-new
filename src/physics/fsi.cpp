@@ -89,19 +89,6 @@ struct CellWallSupport {
     WallSupportFace face;
 };
 
-double prescribed_flow(const FsiFlowRate& flow,double time) {
-    const double phase=std::fmod(time,flow.period);
-    if(!std::isfinite(phase)||phase<0) throw std::runtime_error("Invalid FSI inlet evaluation time");
-    if(flow.samples.empty())
-        return flow.mean+flow.amplitude*std::sin(2*std::acos(-1.)*(phase/flow.period));
-    const auto next=std::upper_bound(flow.samples.begin(),flow.samples.end(),phase,
-        [](double t,const auto& sample){return t<sample[0];});
-    // The validated table starts at zero and ends at period, strictly beyond phase.
-    const auto& left=*(next-1);
-    const double weight=(phase-left[0])/((*next)[0]-left[0]);
-    return (1-weight)*left[1]+weight*(*next)[1];
-}
-
 // The circular profile is radial within its own plane. Evaluate it once per
 // node before normalizing the complete discrete face flux over all ranks.
 double inlet_profile(const FsiFlowRate& flow,const Point& x,const Point& inward) {
@@ -363,7 +350,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     const auto inlet_scale=[&](double t) {
         const double x=f.inlet&&f.inlet->ramp_time>0?std::clamp(t/f.inlet->ramp_time,0.,1.):1.;
         double scale=x*x*x*(10+x*(-15+6*x));
-        if(f.inlet_flow) scale*=prescribed_flow(*f.inlet_flow,t);
+        if(f.inlet_flow) scale*=f.inlet_flow->value_at(t);
         if(!std::isfinite(scale)) throw std::runtime_error("Nonfinite FSI inlet waveform");
         return scale;
     };
@@ -485,6 +472,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     for(const auto& outlet:outlets) if(outlet.distal_pressure_time) {
         const auto& wave=*outlet.distal_pressure_time;
         signature_values.insert(signature_values.end(),{20516.,double(outlet.tag),wave.amplitude,wave.period,wave.ramp_time});
+        wave.append_sample_signature(signature_values);
     }
     for(const auto& [tag,support]:supports)
         if(support.stiffness>0||support.damping>0)
@@ -497,7 +485,11 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         signature_values.insert(signature_values.end(),{20504.,double(config.time_control.step_sizes.size())});
         signature_values.insert(signature_values.end(),config.time_control.step_sizes.begin(),config.time_control.step_sizes.end());
     }
-    if(f.pressure_time) signature_values.insert(signature_values.end(),{20505.,f.pressure_time->amplitude,f.pressure_time->period,f.pressure_time->ramp_time});
+    if(f.pressure_time) {
+        const auto& wave=*f.pressure_time;
+        signature_values.insert(signature_values.end(),{20505.,wave.amplitude,wave.period,wave.ramp_time});
+        wave.append_sample_signature(signature_values);
+    }
     if(f.inlet) {
         signature_values.insert(signature_values.end(),{20506.,double(f.inlet->tag),f.inlet->ramp_time});
         for(const auto& a:{std::vector<double>(f.inlet->value.begin(),f.inlet->value.end()),std::vector<double>(f.inlet->origin.begin(),f.inlet->origin.end()),std::vector<double>(f.inlet->gradient.begin(),f.inlet->gradient.end())}) signature_values.insert(signature_values.end(),a.begin(),a.end());

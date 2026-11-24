@@ -11,6 +11,7 @@ import sys
 import xml.etree.ElementTree as ET
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'cases/fsi'))
 from generate_wall import generate
+from verify_fsi_pressure import periodic_sample
 
 
 class Runner:
@@ -104,7 +105,9 @@ def check_rcr_history(run, label, model, rows, restart=None, sole_pressure=True)
                 t = row['evaluation_time' if kind=='stage' else 'time']
                 ramp = wave.get('ramp_time',0)
                 x = min(t/ramp,1.) if ramp else 1.
-                pd = (mean + wave['amplitude']*math.sin(2*math.pi*t/wave['period']))*x**3*(10-15*x+6*x*x)
+                offset=(periodic_sample(wave['offset_samples'],wave['period'],t) if 'offset_samples' in wave else
+                        wave['amplitude']*math.sin(2*math.pi*t/wave['period']))
+                pd = (mean+offset)*x**3*(10-15*x+6*x*x)
                 errors.append(row[kind+'_distal_pressure'+suffix]-pd)
             if kind == 'stage':
                 errors.append(c*row['stage_capacitor_rate'+suffix]-q+(pc-pd)/rd)

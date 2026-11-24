@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'scripts'))
 import study_womersley as study
 import study_rigid_tube as tube
 from audit_womersley_fields import audit
+from verify_fsi_pressure import periodic_sample
 
 
 def compare_states(actual, expected):
@@ -33,14 +34,18 @@ def check_patch(directory, executable):
     # Equal pressures at both open ends admit u=0 and uniform p. This gives
     # an exact oracle for the load stage independently of a pipe flow formula.
     mean, amplitude, period, ramp = .013, .026, .37, .16
-    for scheme in ('be','bdf2','generalized_alpha'):
+    for scheme,sampled in [('be',False),('bdf2',False),('generalized_alpha',False),('generalized_alpha',True)]:
         config = study.case_config(16, 2, scheme)
+        knots=[[0,.007],[.093,-.016],[.217,.029]]
+        profile=dict(period=period,ramp_time=ramp)
+        if sampled:profile['offset_samples']=knots
+        else:profile['amplitude']=amplitude
         config['fluid'].update(dt=.071, steps=7)
         for b in config['fluid']['boundaries']:
             if b['type']=='pressure':
-                b.update(value=mean, pressure_time=dict(amplitude=amplitude, period=period, ramp_time=ramp))
+                b.update(value=mean, pressure_time=profile)
         (directory/'patch.json').write_text(json.dumps(config))
-        log = f'patch-{scheme}.log'
+        log = f'patch-{scheme}-sampled{int(sampled)}.log'
         tube.run([executable,'-case','patch.json','-fluid_boundary_history'],directory,log)
         rows = study.boundary_history((directory/log).read_text())
         assert set(rows)==set(range(1,8))
@@ -49,7 +54,8 @@ def check_patch(directory, executable):
             af = 2/3 if scheme=='generalized_alpha' and step>1 else 1.
             stage_time = (step-1+af)*.071
             x = min(stage_time/ramp,1.)
-            stage = x**3*(10-15*x+6*x*x)*(mean+amplitude*math.sin(2*math.pi*stage_time/period))
+            offset=periodic_sample(knots,period,stage_time) if sampled else amplitude*math.sin(2*math.pi*stage_time/period)
+            stage = x**3*(10-15*x+6*x*x)*(mean+offset)
             endpoint = previous+(stage-previous)/af
             assert set(rows[step])=={1,2,3}
             for row in rows[step].values():
@@ -58,6 +64,17 @@ def check_patch(directory, executable):
             previous = endpoint
         for vx,vy,vz,p in tube.fields(directory,1).values():
             assert max(abs(vx),abs(vy),abs(vz),abs(p-previous))<2e-9
+        if sampled:
+            checkpoint='sampled-patch-checkpoint'
+            tube.run([executable,'-case','patch.json','-stop_after',3,'-checkpoint',checkpoint],directory,'sampled-part.log')
+            profile['offset_samples']=[*knots,[period,knots[0][1]]]
+            (directory/'closed-patch.json').write_text(json.dumps(config))
+            tube.run([executable,'-case','closed-patch.json','-restart',checkpoint,'-fluid_boundary_history'],directory,'sampled-restart.log')
+            resumed=study.boundary_history((directory/'sampled-restart.log').read_text())
+            compare_history(resumed,{step:r for step,r in rows.items() if step>3})
+            profile['offset_samples'][1]=[knots[1][0],knots[1][1]+.001]
+            (directory/'changed-patch.json').write_text(json.dumps(config))
+            rejected([executable,'-case','changed-patch.json','-restart',checkpoint],directory,'Checkpoint mesh/partition/physics mismatch')
 
 
 def rejected(command, directory, expected):

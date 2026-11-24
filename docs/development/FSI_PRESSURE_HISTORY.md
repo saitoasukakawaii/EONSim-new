@@ -5,7 +5,7 @@
 
 ## 载荷配置
 
-保留数值 `fsi.pressure` 作为均值 p0。可选配置：
+`fsi.pressure` 给出基准压力 p0。以下配置在其上叠加正弦载荷。
 
 ```yaml
 fsi:
@@ -14,10 +14,9 @@ fsi:
   output_interval: 5
 ```
 
-`amplitude`、`period` 必填，`ramp_time` 默认 0；参数有限、周期正、启动时间非负。
-允许有符号压力。所有既有 pressure_tags 共用同一波形；不支持表格、逐标签波形或表达式。
+正弦波指定 `amplitude` 和正周期 `period`。采样波指定 `period` 和 `offset_samples`，例如 `{period: 1.0, offset_samples: [[0, 0.01], [0.125, 0.08], [0.375, -0.026], [0.75, 0.023]]}`。每一行给出周期内的时刻（s）和加在标量基准压力上的压力增量（Pa）。首时刻为 0，后续时刻严格增加。省略终点时程序用首值补齐闭合段，显式提供周期终点时其值须与首值相同。程序在积分阶段按物理时刻线性插值。外加的 `ramp_time` 默认为 0，正值会平滑缩放整个压力。直接指定的 FSI 端面共用该压力，各 RCR 可独立配置下游压力曲线。[单端口、分叉与采样波形验证](../research/data/fsi-rcr-2026-11-24/reservoir-pressure.md)
 
-压力为 `p(t) = s(t) * (p0 + amplitude*sin(2*pi*t/period))`。
+正弦压力为 `p(t) = s(t) * (p0 + amplitude*sin(2*pi*t/period))`。
 启动时间正时，`x=clamp(t/ramp_time,0,1)`，`s=x^3*(10-15*x+6*x^2)`；否则 `s=1`。
 未设置 pressure_time 时始终保持原恒压路径，包括 checkpoint 签名。
 启用时波形参数参与签名，修改波形不能恢复旧 checkpoint；输出频率不影响物理签名。

@@ -13,14 +13,25 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'cases/fsi'))
 from generate_domains import generate
 
 
+def periodic_sample(samples,period,time):
+    knots=list(samples)
+    if knots[-1][0]<period:knots.append([period,knots[0][1]])
+    phase=time%period
+    for (ta,pa),(tb,pb) in zip(knots,knots[1:]):
+        if phase<=tb:
+            return pa+(pb-pa)*(phase-ta)/(tb-ta)
+    raise ValueError('Missing periodic closing interval')
+
+
 def prescribed_pressure(fsi, time):
     profile = fsi.get('pressure_time')
     if not profile:
         return fsi['pressure']
     ramp = profile.get('ramp_time', 0)
     x = min(time / ramp, 1) if ramp else 1
-    return x**3 * (10 - 15*x + 6*x*x) * (
-        fsi['pressure'] + profile['amplitude'] * math.sin(2*math.pi*time/profile['period']))
+    increment=(periodic_sample(profile['offset_samples'],profile['period'],time) if 'offset_samples' in profile else
+               profile['amplitude']*math.sin(2*math.pi*time/profile['period']))
+    return x**3*(10-15*x+6*x*x)*(fsi['pressure']+increment)
 
 
 def assert_same_faces(left, right):
@@ -261,6 +272,25 @@ def main():
         new, _, _ = solve(body+'-constant-profile', cfg)
         assert error(old, new) < 1e-13
         assert {r['tag'] for r in face_rows(body+'-constant-profile')} == {1}
+
+    # An asymmetric measured pressure crosses a corner and wraps during a staged solve.
+    cfg=copy.deepcopy(base)
+    cfg['time']=dict(scheme='generalized_alpha',rho_infinity=.5)
+    cfg['fsi'].update(pressure=.03,pressure_face_history=True,
+                      pressure_time=dict(period=.023,ramp_time=.014,
+                                         offset_samples=[[0,.04],[.005,-.11],[.015,.18]]))
+    chk=a.work/'sampled-pressure-checkpoint'
+    expected,_,_=solve('measured-load',cfg,ranks=2)
+    solve('measured-seed',cfg,ranks=2,extra=['-stop_after',4,'-checkpoint',chk])
+    same=copy.deepcopy(cfg)
+    same['fsi']['pressure_time']['offset_samples'].append([.023,.04])
+    resumed,_,_=solve('measured-resume',same,ranks=2,extra=['-restart',chk],restart_step=4)
+    assert error(expected,resumed)<2e-10
+    same['fsi']['pressure_time']['offset_samples'][1][1]+=.005
+    solve('measured-change',same,ranks=2,extra=['-restart',chk],fail='Checkpoint mesh/partition/physics mismatch')
+    for row in face_rows('measured-load'):
+        for phase,t in [('stage',row['evaluation_time']),('endpoint',row['time'])]:
+            assert abs(row[phase+'_prescribed_pressure']-prescribed_pressure(cfg['fsi'],t))<2e-13
 
     # Standalone history with two tags in input order and no intermediate VTUs.
     cfg = copy.deepcopy(base)

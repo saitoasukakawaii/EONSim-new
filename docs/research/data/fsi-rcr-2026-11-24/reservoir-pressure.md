@@ -33,3 +33,31 @@ The original 32–64-step BDF2 pressure refinement gave order 1.597, with only 1
 ## Unequal downstream pressures at a junction
 
 Two daughter reservoirs use different means, amplitudes and periods. One daughter expands in its fixed axial plane and the other remains clamped. The two-rank field differs from the one-rank field by at most 8.77e−13 in native nodal units. Reordering the two input tags gave identical restarted fields. A checkpoint taken without diagnostics during the startup ramp reproduced the subsequent port histories within 1.39e−17. In a separate expanding tube, three rejected trials reduced an attempted step from 0.1 s to 0.0125 s. Explicit replay of that accepted step recovered both fields and pressure exactly. [Measured responses and restart differences](reservoir-pressure.json) · [Physical test and accepted-step audit](../../../../tests/verify_fsi_reservoir.py)
+
+
+## Sampled distal pressure and sampled inflow
+
+A tagged fluid pressure, the FSI prescribed end pressure, and each RCR reservoir can use a periodic table of **pressure increments in Pa**. The scalar pressure supplies the datum. Each pair contains phase time in seconds and the pressure increment at that time. Linear interpolation supplies intermediate values. A positive ramp duration multiplies the sum of the datum and interpolated value. Canonical closure makes an explicitly repeated first value at the end of the period equivalent to omitting that final row. The existing inlet table specifies signed flow in m³/s.
+
+```yaml
+distal_pressure: 0.04
+distal_pressure_time:
+  period: 1.0
+  offset_samples: [[0.0, 0.01], [0.125, 0.08], [0.375, -0.026], [0.75, 0.023]]
+```
+
+With this profile the initial reservoir pressure is 0.05 Pa and the first peak is 0.12 Pa. The clamped 3D tube also receives a non-sinusoidal inlet with four flow knots per second. The solution for the capacitor on each interval between consecutive knots is explicit. Write $g(t)=p_d(t)+R_d Q(t)$, its constant slope on the interval as $m$, and $T_c=R_d C$. For an interval of length $h$,
+
+$$
+p_c(t+h)=p_c(t)+(1-e^{-h/T_c})[g(t)-p_c(t)]+m[h-T_c(1-e^{-h/T_c})].
+$$
+
+The periodic fixed point of this recurrence gives $p_c(0)=0.0559842260$ Pa. Adding $R_p Q$ gives the independently predicted fluid boundary pressure throughout the cycle. The maximum errors cover every accepted endpoint.
+
+| Time integrator | Maximum pressure error at 32 / 64 / 128 steps, Pa | Last observed order |
+|---|---|---:|
+| Backward Euler | 3.169e−3 / 1.644e−3 / 8.379e−4 | 0.972 |
+| BDF2 | 1.421e−3 / 4.335e−4 / 1.240e−4 | 1.806 |
+| Generalized-alpha | 1.245e−3 / 3.515e−4 / 9.553e−5 | 1.879 |
+
+A separate two-rank restart at 0.244 s falls between pressure knots. Explicit and implicit periodic closure reproduced the subsequent capacitor history and node fields exactly. Changing one interior ordinate was detected on restart. Direct pressure loading on fixed fluid and elastic FSI faces is covered by two additional physical regressions. [Full measurements](sampled-pressure.json) · [Sampled RCR and inlet](../../../../tests/verify_fsi_reservoir.py) · [Fixed fluid](../../../../tests/verify_womersley.py) · [Moving-domain FSI](../../../../tests/verify_fsi_pressure.py)

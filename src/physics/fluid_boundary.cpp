@@ -145,6 +145,7 @@ std::vector<double> fluid_boundary_signature(const FluidConfig& config)
         if(b.pressure_time) {
             const auto& p=*b.pressure_time;
             values.insert(values.end(),{20505.,p.amplitude,p.period,p.ramp_time});
+            p.append_sample_signature(values);
         }
     }
     values.push_back(config.mean_pressure?1:0);
