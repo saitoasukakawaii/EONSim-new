@@ -38,11 +38,15 @@ The frequency control uses the same clamped mesh, a zero-mean sinusoidal inlet o
 | 0.5 Hz | 0.9815% | 0.4812% | 0.03888% |
 | 2 Hz | 1.4843% | 0.7327% | 0.02864% |
 
+On the clamped 48-sector tube at 1 Hz, the two codes transmitted 85.4824% and 86.3247% of the inlet flow amplitude. Native svFSI lagged EONSim by 0.649° and the complex difference was 1.2868% of inlet amplitude. The corresponding unmodified pair on the 24-sector mesh differed by 1.2700%. Both 48-sector trajectories passed the last-two-cycle check. [Mesh-matched solver fields](perfused-solvers.csv)
+
 ## Expanding outlet plane
 
 Changing only the 3D outlet annulus from a clamp to an axial roller at 1 Hz and 32 steps changes EONSim's coarse flow gain from 85.779% to 82.531%. The outlet area then oscillates by 0.02756% of its initial area. Native svFSI gives 83.452% and 0.02800% on the same released mesh. The independent meridian predicts about 79.57% flow transmission for a radially free outlet. EONSim integrates the normal fluid velocity on the current fixed plane at each evaluation. For the native moving-mesh comparison the observer independently checks the circuit flow on the old geometry using the new velocity and measures the physical endpoint flow on the new geometry. [EONSim equations and MPI checks](../fsi-rcr-2026-11-24/planar-outlets.md) · [Native surface geometry](https://github.com/SimVascular/svFSI/blob/94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571/Code/Source/svFSI/NN.f#L1919-L1927)
 
 At 32 steps, aligning the native traction on the moving outlet reduced the intercode complex flow difference from 1.4641% to 0.03978% of inlet amplitude. The unmodified native difference was 0.71761% at 64 steps. The raw audit repeats the capacitor integration from zero using the piecewise-linear measured flow. For an expanding port it reopens the velocity field at every accepted step, integrates that velocity over the previous and current cap, and compares the previous-geometry flux with the value printed by the native circuit. The native cap areas have a separate checksum covering the complete sequence of source VTUs. [Paired measurements](perfused-pairs.csv) · [Circuit recurrence and surface quadrature](compare_perfusion.py)
+
+With the moving outlet and positive inlet flow throughout the cycle (0.4 ± 0.2 mL/s), the same comparison gives a complex gap of 1.4610% for the upstream traction and 0.03656% after stage alignment. The outlet area oscillation is 0.027580% of initial area in EONSim and 0.027590% in the stage-aligned native run. Each run reconstructs the actual moving cap. [Positive-flow moving-outlet pairs](perfused-pairs.csv) · [Measured period means and minima](perfused-forward.csv)
 
 ## Forward perfusion throughout the cycle
 
