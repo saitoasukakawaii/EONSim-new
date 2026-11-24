@@ -69,6 +69,7 @@ struct FluidConfig {
     // Fixed SUPG/PSPG coefficient (units time/density) for a time-step-independent
     // spatial discretization. Unset preserves the original transient estimate.
     std::optional<double> stabilization_tau;
+    double grad_div_viscosity=0; ///< Optional spatially uniform grad-div coefficient, Pa s.
     double density=1, viscosity=1, pressure_drop=1, dt=.05, ramp_time=.1;
     int steps=10;
 };
@@ -114,6 +115,7 @@ struct FsiConfig {
     int checkpoint_interval=1; ///< Accepted-step cadence when checkpointing; always save a successful requested endpoint.
     FsiDomains domains;
     std::optional<double> stabilization_tau;
+    double grad_div_viscosity=0; ///< Optional spatially uniform grad-div coefficient, Pa s.
     bool elastic=false, neo_hookean=false;
     double young=100, poisson=.3, solid_density=1, thickness=.25;
     double dt=.02, mass=2, damping=.3, stiffness=5, pressure=1, density=1, viscosity=1;

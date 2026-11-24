@@ -206,6 +206,20 @@ def main():
             changed = copy.deepcopy(cfg)
             changed['fsi']['pressure_time']['amplitude'] += .1
             solve(label+'-mismatch', changed, ranks=2, extra=['-restart', chk], fail='Checkpoint mesh/partition/physics mismatch')
+    # The coefficient is part of the persisted physical model. Zero interoperates
+    # with a checkpoint written without the key; a positive coefficient changes it.
+    cfg = copy.deepcopy(base)
+    cfg['fsi'].update(steps=4, output_interval=1)
+    checkpoint = a.work/'grad-div-checkpoint'
+    plain, _, _ = solve('grad-div-default', cfg, ranks=2)
+    solve('grad-div-start', cfg, ranks=2, extra=['-stop_after',2,'-checkpoint',checkpoint])
+    cfg['fsi']['grad_div_viscosity'] = 0.
+    resumed, _, _ = solve('grad-div-zero', cfg, ranks=2, extra=['-restart',checkpoint], restart_step=2)
+    assert error(plain,resumed) < 2e-9
+    cfg['fsi']['grad_div_viscosity'] = 4.
+    solve('grad-div-mismatch', cfg, ranks=2, extra=['-restart',checkpoint], fail='Checkpoint mesh/partition/physics mismatch')
+    penalized, _, _ = solve('grad-div-active', cfg, ranks=2)
+    assert error(plain,penalized) > 1e-10
     # Constant legacy path equals an explicitly constant waveform, including rigid FSI.
     for body in ('elastic', 'rigid'):
         cfg = copy.deepcopy(base)

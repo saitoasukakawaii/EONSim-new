@@ -10,6 +10,13 @@
 
 namespace eonsim {
 namespace {
+double read_grad_div_viscosity(const YAML::Node& physics,const char* location) {
+    const auto node=physics["grad_div_viscosity"];
+    const double value=node?node.as<double>():0.;
+    if(!std::isfinite(value)||value<0)
+        throw std::runtime_error(std::string(location)+".grad_div_viscosity must be finite and nonnegative");
+    return value;
+}
 void keys(const YAML::Node& node, std::initializer_list<const char*> allowed,
           const std::string& location)
 {
@@ -215,13 +222,14 @@ Config read_config(const std::filesystem::path& path)
     if (tags.empty()) throw std::runtime_error("At least one Dirichlet physical tag is required");
     } else if(config.fluid_problem) {
         const auto f=root["fluid"];
-        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet","boundaries","pressure_gauge","pressure_normalization","regions","stabilization_tau"},"fluid");
+        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet","boundaries","pressure_gauge","pressure_normalization","regions","stabilization_tau","grad_div_viscosity"},"fluid");
         const auto mode=f["mode"].as<std::string>();
         if(mode=="stokes") config.fluid.mode=FluidConfig::Mode::stokes;
         else if(mode=="steady") config.fluid.mode=FluidConfig::Mode::steady;
         else if(mode=="transient") config.fluid.mode=FluidConfig::Mode::transient;
         else throw std::runtime_error("Unknown fluid mode");
         auto& v=config.fluid;
+        v.grad_div_viscosity=read_grad_div_viscosity(f,"fluid");
         if(f["stabilization_tau"]) {
             v.stabilization_tau=f["stabilization_tau"].as<double>();
             if(!(*v.stabilization_tau>0)||!std::isfinite(*v.stabilization_tau))
@@ -312,13 +320,14 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","pressure_time","output_interval","pressure_face_history","checkpoint_interval","inlet"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","grad_div_viscosity","pressure_time","output_interval","pressure_face_history","checkpoint_interval","inlet"},"fsi");
         if(f["stabilization_tau"]) {
             config.fsi.stabilization_tau=f["stabilization_tau"].as<double>();
             if(!(*config.fsi.stabilization_tau>0)||!std::isfinite(*config.fsi.stabilization_tau))
                 throw std::runtime_error("fsi.stabilization_tau must be finite and positive");
         }
         auto& v=config.fsi;
+        v.grad_div_viscosity=read_grad_div_viscosity(f,"fsi");
         if(f["output_interval"]) v.output_interval=f["output_interval"].as<int>();
         if(f["pressure_face_history"]) v.pressure_face_history=f["pressure_face_history"].as<bool>();
         if(v.output_interval<0) throw std::runtime_error("fsi.output_interval must be nonnegative");

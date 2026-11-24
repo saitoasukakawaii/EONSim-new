@@ -51,8 +51,27 @@ int main() {
     std::array<Point,4> w{};
     for(int i=0;i<16;++i) { x[i]=.3*std::sin(i+1); old[i]=.2*std::cos(i+1); direction[i]=std::sin(3*i+.7); }
     for(int a=0;a<4;++a) for(int c=0;c<3;++c) w[a][c]=.03*std::cos(a+c);
-    for(bool convection:{false,true}) for(double dt:{0.,.07}) {
-        const FluidParameters p{1.3,.6,dt,.02,convection};
+    // Manufactured affine field with div u = 3. Verify the weak sign, the
+    // zero pressure rows, and the work V * gamma * (div u)^2 independently.
+    Tet4Flow::State<double> dilation{};
+    for(int a=0;a<4;++a) for(int i=0;i<3;++i) dilation[Tet4Flow::dof(a,i)]=unit[a][i];
+    const auto base=fluid_element(unit_geometry,{1.,1.,0.,0.,false},dilation,{},{});
+    const auto penalized=fluid_element(unit_geometry,{1.,1.,0.,0.,false,.7},dilation,{},{});
+    double work=0;
+    for(int a=0;a<4;++a) {
+        if(base.residual[Tet4Flow::dof(a,3)]!=penalized.residual[Tet4Flow::dof(a,3)])
+            throw std::runtime_error("Grad-div changed the continuity equation");
+        for(int i=0;i<3;++i) {
+            const auto row=Tet4Flow::dof(a,i);
+            const double added=penalized.residual[row]-base.residual[row];
+            if(std::abs(added-unit_geometry.volume*.7*3*unit_geometry.gradients[a][i])>1e-14)
+                throw std::runtime_error("Incorrect grad-div force on affine flow");
+            work+=dilation[row]*added;
+        }
+    }
+    if(std::abs(work-unit_geometry.volume*.7*9)>1e-14) throw std::runtime_error("Incorrect grad-div work");
+    for(bool convection:{false,true}) for(double dt:{0.,.07}) for(double gd:{0.,.7}) {
+        const FluidParameters p{1.3,.6,dt,.02,convection,gd};
         const auto e=fluid_element(g,p,x,old,w);
         const auto residual_only=fluid_element(g,p,x,old,w,false);
         if(residual_only.residual!=e.residual) throw std::runtime_error("Residual-only fluid response changed");

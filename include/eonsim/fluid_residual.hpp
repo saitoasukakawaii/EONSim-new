@@ -10,7 +10,7 @@ Tet4Flow::State<Scalar> fluid_residual(const SimplexGeometry<Tet4Topology,Scalar
     const Tet4Flow::State<Scalar>& x,const Tet4Flow::State<double>& old,
     const Tet4Topology::Nodal<Space3::Vector<Scalar>>& w)
 {
-    if(!(p.density>0&&p.viscosity>0&&p.dt>=0&&p.tau>=0)||!std::isfinite(p.density+p.viscosity+p.dt+p.tau)) throw std::runtime_error("Invalid fluid material/time/stabilization");
+    if(!(p.density>0&&p.viscosity>0&&p.dt>=0&&p.tau>=0&&p.grad_div_viscosity>=0)||!std::isfinite(p.density+p.viscosity+p.dt+p.tau+p.grad_div_viscosity)) throw std::runtime_error("Invalid fluid material/time/stabilization");
     Tet4Flow::State<Scalar> result{};
     Scalar grad[Space3::dimension][Space3::dimension]{},gradp[Space3::dimension]{},divergence{};
     for(int a=0;a<Tet4Topology::nodes;++a) for(int j=0;j<Space3::dimension;++j) {
@@ -26,6 +26,12 @@ Tet4Flow::State<Scalar> fluid_residual(const SimplexGeometry<Tet4Topology,Scalar
         const Scalar integrated_stress=viscous_weight*(grad[i][j]+grad[j][i]);
         for(int a=0;a<Tet4Topology::nodes;++a)
             result[Tet4Flow::dof(a,i)]+=integrated_stress*g.gradients[a][j];
+    }
+    // An affine P1 velocity has constant divergence on the current cell.
+    if(p.grad_div_viscosity>0) {
+        const Scalar penalty=g.volume*p.grad_div_viscosity*divergence;
+        for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i)
+            result[Tet4Flow::dof(a,i)]+=penalty*g.gradients[a][i];
     }
     const double mass=p.dt>0?p.density/p.dt:0;
     for(const auto& q:FluidQuadrature::points) {
