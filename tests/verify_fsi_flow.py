@@ -31,11 +31,49 @@ def reflected_field_error(left, right):
     return worst
 
 
+def verify_interface_constraints(run,config):
+    cfg=copy.deepcopy(config)
+    cfg['fsi'].update(steps=3,output_interval=3)
+    dom=cfg['fsi']['domains']
+    solid_tag,fluid_tag=dom['solid_interface'],dom['fluid_interface']
+    dom['solid_constraints'].append(dict(tag=solid_tag,components=[1]))
+    fields,_,_=run.solve('interface-slide',cfg,2)
+    ids=[n for (solid,n,name) in fields if solid and name=='velocity' and (False,n,'velocity') in fields]
+    assert ids
+    names=[(True,'velocity'),(True,'displacement'),(False,'velocity'),(False,'mesh_displacement')]
+    for solid,name in names:
+        assert all(abs(fields[solid,n,name][1])<1e-14 for n in ids)
+    transverse=max(abs(fields[True,n,'displacement'][j]) for n in ids for j in (0,2))
+    assert transverse>1e-10
+    checkpoint=run.work/'sliding-interface-checkpoint'
+    run.solve('slide-start',cfg,2,['-checkpoint',checkpoint,'-stop_after',1])
+    resumed,_,_=run.solve('slide-resume',cfg,2,['-restart',checkpoint])
+    restart_error=error(fields,resumed)
+    assert restart_error<2e-9
+    changed=copy.deepcopy(cfg)
+    changed['fsi']['domains']['solid_constraints'][-1]['components']=[0,1]
+    run.solve('slide-changed',changed,2,['-restart',checkpoint],fail='Checkpoint mesh/partition/physics mismatch')
+    dom['fluid_constraints'].append(dict(tag=fluid_tag,components=[0,1,2]))
+    dom['mesh_constraints'].append(dict(tag=fluid_tag,components=[0,1,2]))
+    run.solve('incompatible-interface-master',cfg,2,fail='Interface constraints conflict with free structure component')
+    dom['solid_constraints'][-1]['components']=[0,1,2]
+    one,_,_=run.solve('interface-clamped-one',cfg)
+    two,rows,_=run.solve('interface-clamped-two',cfg,2)
+    assert error(one,two)<2e-9
+    assert all(abs(v)<1e-14 for n in ids for solid,name in names for v in two[solid,n,name])
+    volume_error=max(abs(r['endpoint_volume']-rows[0]['endpoint_volume']) for r in rows)
+    flux_error=max(abs(r['endpoint_inlet_flow']-r['endpoint_outlet_flow']) for r in rows)
+    assert volume_error<1e-12 and flux_error<2e-12
+    return dict(partially_free_displacement=transverse,sliding_restart_error=restart_error,clamped_mpi_error=error(one,two),
+                clamped_volume_change=volume_error,clamped_flux_error=flux_error)
+
+
 def verify_branched_outlets(exe,mpi,work):
     import generate_branched
     cfg=json.loads(generate_branched.generate(work).read_text())
     geometry=json.loads((work/'geometry.json').read_text())
     run=Runner(exe,mpi,work,interface_area=geometry['interface_area'])
+    constraints=verify_interface_constraints(run,cfg)
     cfg['fsi'].update(steps=12,output_interval=12)
     models=cfg['fsi']['domains']['rcr_outlets']
     def check(label,model_list,rows,restart=None):
@@ -101,7 +139,7 @@ def verify_branched_outlets(exe,mpi,work):
         if mode=='mixed':dom['rcr_outlet']=models[0]
         if mode=='moving':dom['mesh_constraints']=[bc for bc in dom['mesh_constraints'] if bc['tag']!=3]
         run.solve('invalid-'+mode,bad,2,fail=why)
-    return dict(mpi=error(one,two),symmetric_field_error=symmetric_error,exchanged_field_error=mirror_error,
+    return dict(interface_constraints=constraints,mpi=error(one,two),symmetric_field_error=symmetric_error,exchanged_field_error=mirror_error,
                 restart_field_error=error(two,resumed),jacobian_relative_error=max(ratios),hybrid_field_error=error(hybrid,fd),
                 circuit_residual=circuit,final_flows=[rows[-1]['endpoint_rcr_flow_2'],rows[-1]['endpoint_rcr_flow_3']],
                 final_pressures=[rows[-1]['endpoint_rcr_pressure_2'],rows[-1]['endpoint_rcr_pressure_3']])

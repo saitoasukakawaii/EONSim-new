@@ -58,9 +58,17 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
             interface_nodes[n]=fluid&&solid;
             if(!fluid) for(int c=0;c<Layout::structure_offset;++c) alias[nc*n+c]=-1;
             if(!solid) for(int c=Layout::structure_offset;c<nc;++c) alias[nc*n+c]=-1;
-            auto constrain=[&](const auto& entries,int offset) { for(const auto& bc:entries) if(has(bc.tag)) for(int c:bc.components) alias[nc*n+offset+c]=-1; };
-            if(fluid) { constrain(domains->fluid_constraints,0); constrain(domains->mesh_constraints,Layout::mesh_offset); }
-            if(solid) constrain(domains->solid_constraints,Layout::structure_offset);
+            // The joined mesh stores the shared interface through region incidence.
+            // Its two original face tags are absent from the exterior boundary list.
+            auto constrain=[&](const auto& entries,int offset,int interface_tag) {
+                for(const auto& bc:entries) if(has(bc.tag)||(interface_nodes[n]&&bc.tag==interface_tag))
+                    for(int c:bc.components) alias[nc*n+offset+c]=-1;
+            };
+            if(fluid) {
+                constrain(domains->fluid_constraints,0,domains->fluid_interface);
+                constrain(domains->mesh_constraints,Layout::mesh_offset,domains->fluid_interface);
+            }
+            if(solid) constrain(domains->solid_constraints,Layout::structure_offset,domains->solid_interface);
             if(fluid&&solid) for(int c=0;c<Space3::dimension;++c) {
                 const auto master=alias[nc*n+Layout::structure_offset+c];
                 if(master>=0&&(alias[nc*n+c]<0||alias[nc*n+Layout::mesh_offset+c]<0)) conflict=1;
@@ -215,7 +223,12 @@ ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const
     if(all[3]) throw std::runtime_error("Unexpected FSI partition region");
     for(int i=0;i<3;++i) if(all[i]==0) throw std::runtime_error("FSI partition missing domain or shared interface");
     std::set<int> required(domains.pressure_tags.begin(),domains.pressure_tags.end());
-    for(const auto* list:{&domains.fluid_constraints,&domains.mesh_constraints,&domains.solid_constraints}) for(const auto& c:*list) required.insert(c.tag);
+    auto require_exterior=[&](const auto& entries,int interface_tag) {
+        for(const auto& bc:entries) if(bc.tag!=interface_tag) required.insert(bc.tag);
+    };
+    require_exterior(domains.fluid_constraints,domains.fluid_interface);
+    require_exterior(domains.mesh_constraints,domains.fluid_interface);
+    require_exterior(domains.solid_constraints,domains.solid_interface);
     for(int tag:required) {
         int local=0,global=0; for(const auto& face:mesh.boundary) if(face.physical_tag==tag) local=1;
         MPI_Allreduce(&local,&global,1,MPI_INT,MPI_MAX,comm);

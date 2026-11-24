@@ -30,6 +30,7 @@ class Runner:
         if not part.exists():self.command([self.exe,'-case',case,'-prepare',part,'-parts',ranks],label+'-prepare')
         log=self.command([self.mpi,'-n',ranks,self.exe,'-case',case,'-partition',part,*extra],label,fail)
         if fail:return {},[],log
+        assert log.count('status=success')==1,log[-5000:]
         fields={}
         for solid in (False,True):
             for rank in range(ranks):
@@ -38,8 +39,17 @@ class Runner:
                 arrays={a.attrib['Name']:(int(a.attrib.get('NumberOfComponents',1)),list(map(float,a.text.split()))) for a in tree.findall('.//PointData/DataArray')}
                 used=set(map(int,tree.find('.//Cells/DataArray[@Name="connectivity"]').text.split()))
                 xyz=list(map(float,tree.find('.//Points/DataArray').text.split()))
+                count=len(xyz)//3
+                assert len(xyz)==3*count and all(map(math.isfinite,xyz))
+                assert all(0<=i<count for i in used)
+                assert all(width>0 and len(values)==width*count and all(map(math.isfinite,values))
+                           for width,values in arrays.values())
                 for i in used:
-                    node=int(arrays['mesh_node_id'][1][i]);fields[(solid,node,'coordinates')]=xyz[3*i:3*i+3]
+                    node=int(arrays['mesh_node_id'][1][i])
+                    coord_key=(solid,node,'coordinates')
+                    position=xyz[3*i:3*i+3]
+                    if coord_key in fields:assert all(abs(v-w)<2e-9 for v,w in zip(fields[coord_key],position))
+                    fields[coord_key]=position
                     for name,(width,values) in arrays.items():
                         if name in ('owner','mesh_node_id','algebra_node_id'):continue
                         key=(solid,node,name);value=values[width*i:width*(i+1)]
@@ -64,7 +74,7 @@ class Runner:
 
 
 def error(a,b):
-    assert a.keys()==b.keys()
+    assert a.keys()==b.keys() and all(len(a[k])==len(b[k]) for k in a)
     return max(abs(v-w) for k in a for v,w in zip(a[k],b[k]))
 
 

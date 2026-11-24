@@ -5,6 +5,130 @@
       {
         "ranks": 1,
         "geometry": {
+          "sectors": 8,
+          "radial": 1,
+          "axial": 4,
+          "lumen_radius": 0.25,
+          "wall_thickness": 0.05,
+          "arc_length": 1.5,
+          "bend_degrees": 75.0,
+          "inlet_center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "inward_direction": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "outlet_center": [
+            1.1068694633810063,
+            0.8493308114220357,
+            0.0
+          ],
+          "outlet_direction": [
+            0.25881904510252074,
+            0.9659258262890683,
+            0.0
+          ],
+          "fluid_tetrahedra": 96,
+          "fluid_volume": 0.26045747574232714,
+          "interface_area": 2.2706285759599822,
+          "solid_tetrahedra": 192,
+          "solid_volume": 0.11460128932662389
+        },
+        "cap_flow": {
+          "1": 0.002,
+          "2": 3.034747341934327e-05
+        },
+        "maximum_circuit_defect": 2.168404344971009e-19,
+        "min_fluid_j": 0.9994603999385187,
+        "min_solid_j": 0.9985230331766627,
+        "maximum_mass_defect": 1.2607102861661446e-15,
+        "maximum_support_energy": 1.0884735189701101e-06
+      },
+      {
+        "ranks": 1,
+        "geometry": {
+          "sectors": 8,
+          "radial": 1,
+          "axial": 4,
+          "lumen_radius": 0.25,
+          "wall_thickness": 0.05,
+          "arc_length": 1.5,
+          "bend_degrees": 75.0,
+          "inlet_center": [
+            1.25,
+            -2.5,
+            0.6
+          ],
+          "inward_direction": [
+            0.2672612419124244,
+            0.5345224838248488,
+            -0.8017837257372732
+          ],
+          "outlet_center": [
+            1.4022601976290752,
+            -1.19053783621835,
+            0.14321940711277453
+          ],
+          "outlet_direction": [
+            -0.09409896494338532,
+            0.954700920689739,
+            0.2822968948301561
+          ],
+          "fluid_tetrahedra": 96,
+          "fluid_volume": 0.26045747574232714,
+          "interface_area": 2.2706285759599822,
+          "solid_tetrahedra": 192,
+          "solid_volume": 0.11460128932662395
+        },
+        "cap_flow": {
+          "1": 0.002,
+          "2": 3.0347473419341702e-05
+        },
+        "maximum_circuit_defect": 2.168404344971009e-19,
+        "min_fluid_j": 0.9994603999385191,
+        "min_solid_j": 0.9985230331766621,
+        "maximum_mass_defect": 1.2602766052971504e-15,
+        "maximum_support_energy": 1.0884735189701046e-06
+      }
+    ],
+    "field_errors": {
+      "velocity": 2.9698465908722937e-15,
+      "pressure": 2.811639809863209e-14,
+      "mesh_displacement": 9.107298248878237e-18,
+      "mesh_velocity": 8.01659086335782e-16,
+      "fluid_algorithmic_acceleration": 3.0662191535801853e-13,
+      "mesh_algorithmic_acceleration": 1.743258315478613e-13,
+      "displacement": 1.3064636178450328e-17,
+      "algorithmic_acceleration": 8.928552341913587e-13
+    },
+    "history_errors": {
+      "stage_inlet_flow": 8.673617379884035e-19,
+      "endpoint_inlet_flow": 8.673617379884035e-19,
+      "stage_rcr_flow": 1.6141059842877947e-17,
+      "endpoint_rcr_flow": 2.4543626679640607e-17,
+      "stage_rcr_pressure": 4.811147140404426e-17,
+      "endpoint_rcr_pressure": 7.489126506443622e-17,
+      "endpoint_capacitor_pressure": 3.3406979439709605e-18,
+      "stage_volume": 1.6653345369377348e-16,
+      "endpoint_volume": 1.1102230246251565e-16,
+      "endpoint_support_spring_energy": 1.461131834013668e-20,
+      "stage_support_dissipation": 2.2378610466458615e-18,
+      "endpoint_min_fluid_j": 1.4432899320127035e-15,
+      "endpoint_min_solid_j": 4.551914400963142e-15
+    },
+    "executable_sha256": "2ec370697f32cdc1e982d77a00b5b5dee75a7cb4f805ddb86021dc65e3469b42",
+    "axis_restart_field_error": 0.0
+  },
+  {
+    "steps": 20,
+    "meshes": [
+      {
+        "ranks": 1,
+        "geometry": {
           "sectors": 12,
           "radial": 2,
           "axial": 6,
@@ -253,9 +377,9 @@
       {
         "ranks": 1,
         "geometry": {
-          "sectors": 8,
-          "radial": 1,
-          "axial": 4,
+          "sectors": 12,
+          "radial": 2,
+          "axial": 6,
           "lumen_radius": 0.25,
           "wall_thickness": 0.05,
           "arc_length": 1.5,
@@ -280,28 +404,28 @@
             0.9659258262890683,
             0.0
           ],
-          "fluid_tetrahedra": 96,
-          "fluid_volume": 0.26045747574232714,
-          "interface_area": 2.2706285759599822,
-          "solid_tetrahedra": 192,
-          "solid_volume": 0.11460128932662389
+          "fluid_tetrahedra": 648,
+          "fluid_volume": 0.27902421895711954,
+          "interface_area": 2.3178509468408848,
+          "solid_tetrahedra": 432,
+          "solid_volume": 0.12277065634113259
         },
         "cap_flow": {
           "1": 0.002,
-          "2": 3.034747341934327e-05
+          "2": 4.637644547748077e-05
         },
-        "maximum_circuit_defect": 2.168404344971009e-19,
-        "min_fluid_j": 0.9994603999385187,
-        "min_solid_j": 0.9985230331766627,
-        "maximum_mass_defect": 1.2607102861661446e-15,
-        "maximum_support_energy": 1.0884735189701101e-06
+        "maximum_circuit_defect": 2.710505431213761e-19,
+        "min_fluid_j": 0.9993680969158678,
+        "min_solid_j": 0.9991659670142079,
+        "maximum_mass_defect": 9.941700240823081e-15,
+        "maximum_support_energy": 1.106698563775529e-06
       },
       {
-        "ranks": 1,
+        "ranks": 8,
         "geometry": {
-          "sectors": 8,
-          "radial": 1,
-          "axial": 4,
+          "sectors": 12,
+          "radial": 2,
+          "axial": 6,
           "lumen_radius": 0.25,
           "wall_thickness": 0.05,
           "arc_length": 1.5,
@@ -326,47 +450,171 @@
             0.954700920689739,
             0.2822968948301561
           ],
-          "fluid_tetrahedra": 96,
-          "fluid_volume": 0.26045747574232714,
-          "interface_area": 2.2706285759599822,
-          "solid_tetrahedra": 192,
-          "solid_volume": 0.11460128932662395
+          "fluid_tetrahedra": 648,
+          "fluid_volume": 0.27902421895711954,
+          "interface_area": 2.3178509468408848,
+          "solid_tetrahedra": 432,
+          "solid_volume": 0.12277065634113259
         },
         "cap_flow": {
-          "1": 0.002,
-          "2": 3.0347473419341702e-05
+          "1": 0.002000000000000001,
+          "2": 4.637644547748543e-05
         },
-        "maximum_circuit_defect": 2.168404344971009e-19,
-        "min_fluid_j": 0.9994603999385191,
-        "min_solid_j": 0.9985230331766621,
-        "maximum_mass_defect": 1.2602766052971504e-15,
-        "maximum_support_energy": 1.0884735189701046e-06
+        "maximum_circuit_defect": 3.2526065174565133e-19,
+        "min_fluid_j": 0.9993680969158675,
+        "min_solid_j": 0.9991659670142112,
+        "maximum_mass_defect": 9.944736006906041e-15,
+        "maximum_support_energy": 1.1066985637755388e-06
       }
     ],
     "field_errors": {
-      "velocity": 2.9698465908722937e-15,
-      "pressure": 2.811639809863209e-14,
-      "mesh_displacement": 9.107298248878237e-18,
-      "mesh_velocity": 8.01659086335782e-16,
-      "fluid_algorithmic_acceleration": 3.0662191535801853e-13,
-      "mesh_algorithmic_acceleration": 1.743258315478613e-13,
-      "displacement": 1.3064636178450328e-17,
-      "algorithmic_acceleration": 8.928552341913587e-13
+      "velocity": 4.1642037040823254e-15,
+      "pressure": 2.1566082253343666e-14,
+      "mesh_displacement": 7.209944447028604e-18,
+      "mesh_velocity": 8.701806636368659e-16,
+      "fluid_algorithmic_acceleration": 3.346420363037339e-13,
+      "mesh_algorithmic_acceleration": 1.8620521791135047e-13,
+      "displacement": 1.5687050183149642e-17,
+      "algorithmic_acceleration": 9.078571228116061e-13
     },
     "history_errors": {
-      "stage_inlet_flow": 8.673617379884035e-19,
-      "endpoint_inlet_flow": 8.673617379884035e-19,
-      "stage_rcr_flow": 1.6141059842877947e-17,
-      "endpoint_rcr_flow": 2.4543626679640607e-17,
-      "stage_rcr_pressure": 4.811147140404426e-17,
-      "endpoint_rcr_pressure": 7.489126506443622e-17,
-      "endpoint_capacitor_pressure": 3.3406979439709605e-18,
-      "stage_volume": 1.6653345369377348e-16,
-      "endpoint_volume": 1.1102230246251565e-16,
-      "endpoint_support_spring_energy": 1.461131834013668e-20,
-      "stage_support_dissipation": 2.2378610466458615e-18,
-      "endpoint_min_fluid_j": 1.4432899320127035e-15,
-      "endpoint_min_solid_j": 4.551914400963142e-15
+      "stage_inlet_flow": 3.469446951953614e-18,
+      "endpoint_inlet_flow": 4.336808689942018e-18,
+      "stage_rcr_flow": 1.530080315920168e-17,
+      "endpoint_rcr_flow": 2.4421653935235987e-17,
+      "stage_rcr_pressure": 4.537386091851836e-17,
+      "endpoint_rcr_pressure": 7.421363870663278e-17,
+      "endpoint_capacitor_pressure": 3.698145847712275e-18,
+      "stage_volume": 4.440892098500626e-16,
+      "endpoint_volume": 4.440892098500626e-16,
+      "endpoint_support_spring_energy": 1.3129010682441655e-20,
+      "stage_support_dissipation": 1.8990478677441414e-18,
+      "endpoint_min_fluid_j": 1.6653345369377348e-15,
+      "endpoint_min_solid_j": 3.9968028886505635e-15
+    },
+    "executable_sha256": "2ec370697f32cdc1e982d77a00b5b5dee75a7cb4f805ddb86021dc65e3469b42",
+    "axis_restart_field_error": 0.0
+  },
+  {
+    "steps": 20,
+    "meshes": [
+      {
+        "ranks": 1,
+        "geometry": {
+          "sectors": 24,
+          "radial": 3,
+          "axial": 10,
+          "lumen_radius": 0.25,
+          "wall_thickness": 0.05,
+          "arc_length": 1.5,
+          "bend_degrees": 75.0,
+          "inlet_center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "inward_direction": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "outlet_center": [
+            1.1068694633810063,
+            0.8493308114220357,
+            0.0
+          ],
+          "outlet_direction": [
+            0.25881904510252074,
+            0.9659258262890683,
+            0.0
+          ],
+          "fluid_tetrahedra": 3600,
+          "fluid_volume": 0.29034061389270394,
+          "interface_area": 2.345281690270804,
+          "solid_tetrahedra": 1440,
+          "solid_volume": 0.1277498701127897
+        },
+        "cap_flow": {
+          "1": 0.0019999999999999927,
+          "2": 5.709953060147012e-05
+        },
+        "maximum_circuit_defect": 7.589415207398531e-19,
+        "min_fluid_j": 0.9993081441716628,
+        "min_solid_j": 0.9992318605189848,
+        "maximum_mass_defect": 2.5411530518715253e-14,
+        "maximum_support_energy": 1.0958462526415917e-06
+      },
+      {
+        "ranks": 4,
+        "geometry": {
+          "sectors": 24,
+          "radial": 3,
+          "axial": 10,
+          "lumen_radius": 0.25,
+          "wall_thickness": 0.05,
+          "arc_length": 1.5,
+          "bend_degrees": 75.0,
+          "inlet_center": [
+            1.25,
+            -2.5,
+            0.6
+          ],
+          "inward_direction": [
+            0.2672612419124244,
+            0.5345224838248488,
+            -0.8017837257372732
+          ],
+          "outlet_center": [
+            1.4022601976290752,
+            -1.19053783621835,
+            0.14321940711277453
+          ],
+          "outlet_direction": [
+            -0.09409896494338532,
+            0.954700920689739,
+            0.2822968948301561
+          ],
+          "fluid_tetrahedra": 3600,
+          "fluid_volume": 0.290340613892704,
+          "interface_area": 2.345281690270804,
+          "solid_tetrahedra": 1440,
+          "solid_volume": 0.1277498701127897
+        },
+        "cap_flow": {
+          "1": 0.0020000000000000018,
+          "2": 5.7099530601485976e-05
+        },
+        "maximum_circuit_defect": 2.710505431213761e-19,
+        "min_fluid_j": 0.9993081441716622,
+        "min_solid_j": 0.9992318605189842,
+        "maximum_mass_defect": 2.5409362114370282e-14,
+        "maximum_support_energy": 1.095846252641603e-06
+      }
+    ],
+    "field_errors": {
+      "velocity": 5.5945916302424514e-15,
+      "pressure": 1.5865780911283878e-14,
+      "mesh_displacement": 6.179952383167375e-18,
+      "mesh_velocity": 7.100440027607569e-16,
+      "fluid_algorithmic_acceleration": 2.9581892491137296e-13,
+      "mesh_algorithmic_acceleration": 1.893138423803009e-13,
+      "displacement": 1.3715157481941631e-17,
+      "algorithmic_acceleration": 1.2850397829167193e-12
+    },
+    "history_errors": {
+      "stage_inlet_flow": 2.3418766925686896e-17,
+      "endpoint_inlet_flow": 2.7755575615628914e-17,
+      "stage_rcr_flow": 1.1045309632196076e-17,
+      "endpoint_rcr_flow": 1.587000929975657e-17,
+      "stage_rcr_pressure": 3.642919299551295e-17,
+      "endpoint_rcr_pressure": 5.182486384480711e-17,
+      "endpoint_capacitor_pressure": 4.2148359455373985e-18,
+      "stage_volume": 1.27675647831893e-15,
+      "endpoint_volume": 1.0547118733938987e-15,
+      "endpoint_support_spring_energy": 1.4399560103323106e-20,
+      "stage_support_dissipation": 4.828087799349512e-19,
+      "endpoint_min_fluid_j": 3.552713678800501e-15,
+      "endpoint_min_solid_j": 4.9960036108132044e-15
     },
     "executable_sha256": "2ec370697f32cdc1e982d77a00b5b5dee75a7cb4f805ddb86021dc65e3469b42",
     "axis_restart_field_error": 0.0
