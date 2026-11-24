@@ -114,7 +114,7 @@ def graded_widths(length, count, corner_levels):
 
 
 class MeridianTube:
-    def __init__(self, nx, fluid_radial, wall_radial, quadrature_order, material, corner_levels=0, full_length=False):
+    def __init__(self, nx, fluid_radial, wall_radial, quadrature_order, material, corner_levels=0, full_length=False, section_count=7):
         self.material = material
         self.full_length = full_length
         widths = graded_widths(material.length/2, nx, corner_levels)
@@ -196,7 +196,7 @@ class MeridianTube:
         self.kinetic_mass = self.mass[:self.nv, :self.nv]
         self.viscous = self.operator[:self.nv, :self.nv]
         self.elastic = self.operator[self.solid_v][:, self.solid_d].tocsc()
-        self.positions = np.linspace(0, material.length, 7).tolist()
+        self.positions = np.linspace(0, material.length, section_count).tolist()
 
     def sections(self, state):
         result = []
@@ -261,27 +261,31 @@ def main():
     cli.add_argument("--quadrature", type=int, default=5)
     cli.add_argument("--corner-levels",type=int,default=0,
                      help="Dyadically split the end cell and cells adjoining the fluid-wall interface")
+    cli.add_argument("--section-count",type=int,default=7,help="Number of equally spaced output stations, including both end caps")
     cli.add_argument("--full-length",action="store_true",help="Solve both loaded ends without imposing midplane symmetry")
     cli.add_argument("--support",type=float,nargs=2,metavar=("STIFFNESS","DAMPING"),default=(0.,0.))
     cli.add_argument("--steps", nargs="+", type=int, required=True)
     cli.add_argument("--pressure", type=float, default=0.02)
     cli.add_argument("--output", type=Path, required=True)
+    cli.add_argument("--stage-solver",choices=("real-block","complex-pair"),default="real-block")
     args = cli.parse_args()
     if min(args.mesh) < 1 or args.quadrature < 3 or any(n < 2 or n % 2 for n in args.steps):
         cli.error("Positive mesh counts, quadrature of at least order 3, and positive even step counts required")
     if not np.isfinite(args.pressure) or args.pressure <= 0:
         cli.error("Peak pressure must be finite and positive")
+    if args.section_count<3 or args.section_count%2!=1:
+        cli.error("Use an odd number of at least three stations to retain the midplane")
     if args.corner_levels < 0 or not np.all(np.isfinite(args.support)) or min(args.support)<0:
         cli.error("Corner subdivision levels and both support coefficients must be nonnegative")
     material = TubeParameters(support_stiffness=args.support[0],support_damping=args.support[1])
-    tube = MeridianTube(*args.mesh, args.quadrature, material,args.corner_levels,args.full_length)
+    tube = MeridianTube(*args.mesh, args.quadrature, material,args.corner_levels,args.full_length,args.section_count)
     result = dict(parameters=asdict(material), mesh=args.mesh, quadrature=args.quadrature,
-                  corner_levels=args.corner_levels,full_length=args.full_length,
+                  corner_levels=args.corner_levels,full_length=args.full_length,stage_solver=args.stage_solver,stage_refinement_steps=int(args.stage_solver=="complex-pair"),
                   unknowns=tube.size, pressure=args.pressure, sections=tube.positions,
                   static=tube.hydrostatic_check(), runs=[])
     for n in args.steps:
         balance = StageBalance(tube, args.pressure)
-        row = integrate(tube, n, args.pressure, observe=balance)
+        row = integrate(tube, n, args.pressure, observe=balance,stage_solver=args.stage_solver)
         row.update(balance.report())
         result["runs"].append(row)
         args.output.write_text(json.dumps(result, indent=2, allow_nan=False)+"\n")

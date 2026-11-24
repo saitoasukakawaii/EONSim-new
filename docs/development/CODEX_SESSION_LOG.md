@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 六小时弹性管开发，阶段记录
 
+两个 Radau 实阶段可由一个复数分解恢复。原型在强分级网格上的制造解压力误差 4.66e−8；加入一次原实方程残差修正后，全部制造阶段分量误差不超过 4.94e−11。实分块与复解在 97 截面的直接对照已归档。[阶段数据](../research/data/fsi-linear-transient-2026-11-24/radau-stage-check.json)
+
 原镜像工具只对节点场设拒绝条件，截面缓存单点增加 0.001 仍可退出成功。改为从 0.5 s 和 1 s 的固体 VTU 直接对截面多边形面积求导，正反两套原始输出与四项反例均已重放。[命令和证据](../research/data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area)
 
 以完整的 1,008 个 svFSI 双精度速度场复核进出口流量，修正了历史 ASCII 面表正负号所致的小数保留位数差异。原版 svFSI 的电容压力与按线性端点流量精确积分的值相差至多 5.70e−9 Pa。两边的原始残量及时间误差门槛保持独立。[复算命令与六级数据](../research/data/fsi-rcr-2026-11-24/README.md#independent-rcr-calculation-in-native-svfsi)

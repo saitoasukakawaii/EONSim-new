@@ -40,3 +40,15 @@ tar -xf axisym-3d-reports.tar.xz -C reports
 python compare_axisymmetric.py --reference finest.json --previous-mesh previous.json \
   --native reports/native/*.json --ablated reports/no-grad-div/*.json --output comparison.json
 ```
+
+## Direct measurements at 97 physical stations
+
+A 97-station output samples every axial Tet4 plane in the current spatial study, including the 6-, 8-, 12- and 16-layer meshes. The 41,496- and 64,056-unknown cases differ at 1 s by at most 0.00369% of the static area expansion. Refining the bulk mesh to 99,875 unknowns **and** adding a fifth subdivision at the end/interface corner changes the 1 s result by up to 0.01369% of the static expansion. Both maxima occur at an end. The 99,875-unknown end and midpoint expansions are 0.0788461% and 0.1071817% of the original area. On this grid doubling the time resolution from 128 to 256 Radau steps changes all measured sections by at most 0.00000417% of the static reference over the two sampling times. [Full spatial histories and process measurements](dense-grids.json.xz) · [Dense reference](reference-dense.json)
+
+The two-stage Radau IIA stage matrix has conjugate eigenvalues. Transforming its real stage equations gives one complex sparse solve with `M + h λ K`. Recover both real stages from the mode and its conjugate, then apply one correction using the residual of the original real equations. The mass matrix may contain algebraic pressure rows. Omitting the correction in the initial prototype produced a manufactured-field error of 4.66e−8 on the graded half-tube. With the correction, complete stage vectors on full and half tubes agree with their prescribed manufactured values within 4.94e−11 and the integrated quadratic trajectory error is at most 3.09e−11. The existing real doubled system independently reproduces the 97-station strains on the 41,496-unknown grid within 8.9e−14 absolute strain. A simultaneous attempt at the larger real-block solve was killed under memory pressure; it contributed no samples. The 99,875-unknown corrected complex run peaked at 1,751,108 KiB on the measured Linux process. [Algebra and complete field tests](compare_stages.py) · [Recorded controls](radau-stage-check.json)
+
+```bash
+OPENBLAS_NUM_THREADS=1 python compare_stages.py --output "$work/stages.json"
+OPENBLAS_NUM_THREADS=1 python axisymmetric.py --mesh 80 80 20 --corner-levels 5 \
+  --section-count 97 --stage-solver complex-pair --steps 128 256 --output "$work/dense.json"
+```

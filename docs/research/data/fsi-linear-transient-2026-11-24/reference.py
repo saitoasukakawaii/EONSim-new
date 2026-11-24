@@ -206,11 +206,39 @@ class Tube:
         return dict(max_residual=error,area_strain_per_pascal=self.sections(y))
 
 
-def integrate(tube,steps,amplitude,manufactured=False,observe=None):
+def radau_stage_solver(mass, operator, h, method):
+    if method == "real-block":
+        block=sparse.bmat([[mass+h*A[0,0]*operator,h*A[0,1]*operator],
+                           [h*A[1,0]*operator,mass+h*A[1,1]*operator]],format="csc")
+        factor=splu(block)
+        return lambda rhs: factor.solve(rhs.ravel()).reshape(rhs.shape)
+    if method != "complex-pair":
+        raise ValueError(f"Unknown Radau stage solver: {method}")
+    # A real two-stage Radau matrix has complex conjugate eigenvalues. Its
+    # two coupled stage systems can be recovered from one complex LU solve,
+    # even when the pressure block of M is singular.
+    values,vectors=np.linalg.eig(A)
+    j=int(np.argmax(values.imag))
+    mode=vectors[:,j]
+    basis=np.column_stack([mode,mode.conjugate()])
+    weights=np.linalg.inv(basis)[0]
+    factor=splu((mass+h*values[j]*operator).tocsc())
+    def recover(rhs):
+        transformed=factor.solve(weights @ rhs)
+        return 2*(mode[:,None]*transformed).real
+    def solve(rhs):
+        stages=recover(rhs)
+        # A small backward error in the stiff wall rows can still pollute the
+        # algebraic pressure. Refine once in the original real equations.
+        defect=rhs-(mass@stages.T).T-h*(A@(operator@stages.T).T)
+        return stages+recover(defect)
+    return solve
+
+
+def integrate(tube,steps,amplitude,manufactured=False,observe=None,stage_solver="real-block"):
     h=1./steps
     M,K=tube.mass,tube.operator
-    operator=sparse.bmat([[M+h*A[0,0]*K,h*A[0,1]*K],[h*A[1,0]*K,M+h*A[1,1]*K]],format="csc")
-    factor=splu(operator)
+    solve=radau_stage_solver(M,K,h,stage_solver)
     y=np.zeros(tube.size)
     if manufactured:
         rng=np.random.default_rng(4241)
@@ -225,15 +253,16 @@ def integrate(tube,steps,amplitude,manufactured=False,observe=None):
     for step in range(steps):
         previous=M@y
         forces=np.stack([forcing((step+c)*h) for c in C])
-        rhs=(previous+h*(A@forces)).ravel()
-        stages=factor.solve(rhs)
-        max_residual=max(max_residual,float(np.max(np.abs(operator@stages-rhs))))
+        rhs=previous+h*(A@forces)
+        stages=solve(rhs)
+        # Check the original real stage equations irrespective of the factorization.
+        residual=(M@stages.T).T+h*(A@(K@stages.T).T)-rhs
+        max_residual=max(max_residual,float(np.max(np.abs(residual))))
         if observe is not None:
-            stage_values=stages.reshape(2,tube.size)
-            rates=inverse_a @ (stage_values-y) / h
-            for c,value,rate in zip(C,stage_values,rates):
+            rates=inverse_a @ (stages-y) / h
+            for c,value,rate in zip(C,stages,rates):
                 observe((step+c)*h,value,rate)
-        y=stages[tube.size:]
+        y=stages[-1]
         if (step+1)*2==steps or step+1==steps:
             rows.append(dict(time=(step+1)*h,section_area_strain=tube.sections(y)))
     if max_residual>2e-10: raise ValueError(f"Radau stage residual {max_residual}")

@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 等端压弹性管的离散散度与瞬态参考
 
+有不可压压力约束的 Radau DAE 也可用复共轭模态减少阶段矩阵规模。用原始实方程做迭代改进，并独立检验压力分量，可控制分级网格上的代数误差。[方法与实测](data/fsi-linear-transient-2026-11-24/axisymmetric.md#direct-measurements-at-97-physical-stations)
+
 场对称性和据此生成的截面表要分别核验。对面积多边形的顶点求导，可不依赖已存截面值重建线性面积应变。[镜像负对照](data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area)
 
 相同阻抗与流量下，不同的电路时间离散会产生可加密消除的瞬态压力差。双精度三维面求积与电路常微分方程的独立积分能分别检验通量和压力。[原版 svFSI 六级时间加密](data/fsi-rcr-2026-11-24/README.md#independent-rcr-calculation-in-native-svfsi)

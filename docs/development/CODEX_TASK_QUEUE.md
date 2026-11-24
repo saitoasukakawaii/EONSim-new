@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 双端升压、空间加密与求解成本（进行中）
 
+已建立 97 个物理截面的直接对照。继续分开考察端口角点加密与主体网格加密。[空间参考](../research/data/fsi-linear-transient-2026-11-24/axisymmetric.md#direct-measurements-at-97-physical-stations)
+
 镜像截面负对照 #46 已修复。续期工作继续在本分支核验弯管入口方向、分叉储量、阶段收敛与空间参考。[验收](../research/data/fsi-smooth-load-2026-11-24/reflection-negative-controls.json)
 
 单端口原版 svFSI 与解析阻抗对照已完成。弹性分叉的长时储量和通量分配仍在验证。[单端口证据](../research/data/fsi-rcr-2026-11-24/svfsi-single-port.json)
