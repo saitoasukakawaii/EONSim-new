@@ -12,6 +12,10 @@ The primary run uses symmetry at the midplane; separate full-length runs with bo
 
 At 1 s the reference left-end area increase is 0.0788759% of the initial area; the midplane increase is 0.1071810%. At the same pressure and time the 48-sector 3D grid gives 0.0733993% (EONSim) and 0.0644891% (standard svFSI) at the left end. The right end of each 3D mesh samples a different tetrahedral orientation. Reflecting the entire mesh interchanges the ends in both solvers. The continuum reference is symmetric.
 
+![Area increase at seven common axial sections on the two meshes](section-expansion.png)
+
+The plotted points are the measured seven sections. Lines connect samples; the ordinate is percentage of the initial lumen area. [Plotting script](plot_sections.py)
+
 The following errors are maxima over the same seven axial sections at 1 s, expressed as percentages of the static Lamé area strain for the given pressure. The 3D models retain finite amplitude. Reducing the peak pressure from 0.02 to 0.0002 Pa tests proximity to the small-amplitude limit. The table uses the unmodified stabilization of both codes.
 
 | 3D mesh (sectors / fluid radial / wall radial / axial) | Peak pressure (Pa) | Steps | EONSim error | svFSI error |
