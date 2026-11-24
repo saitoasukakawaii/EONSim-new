@@ -115,7 +115,9 @@ def main():
     base['fsi'].update(steps=20)
     base['fsi']['inlet']['ramp_time']=.004
     base['fsi']['inlet']['flow_rate']['period']=.02
-    report={"branched_outlets":verify_branched_outlets(a.executable,a.mpiexec,run.work/"branched")}
+    from verify_curved_fsi import pair as curved_pair
+    report={"branched_outlets":verify_branched_outlets(a.executable,a.mpiexec,run.work/"branched"),
+            "oriented_circular_inlet":curved_pair(a.executable,a.mpiexec,run.work/"curved",(8,1,3),3,2)}
     for scheme in ('be','bdf2','generalized_alpha'):
         cfg=copy.deepcopy(base);cfg['time']=dict(scheme=scheme)
         one,rows,_=run.solve(scheme+'-one',cfg)

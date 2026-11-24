@@ -115,7 +115,7 @@ struct FsiFlowRate {
     Space3::Vector<double> center{};
     double radius=0;
     double mean=0, amplitude=0, period=1;
-    int axis=0;
+    int axis=0; ///< Cartesian axis, or -1 for an oriented circle with unit direction in inlet.value.
     Space3::Vector<double> lower{},upper{}; ///< Fixed axis-aligned rectangular inlet bounds.
 };
 struct FsiConfig {

@@ -21,7 +21,7 @@ class Runner:
         r=subprocess.run(list(map(str,args)),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=self.timeout)
         (self.work/(label+'.log')).write_text(r.stdout)
         if fail: assert r.returncode!=0 and fail in r.stdout,r.stdout[-5000:]
-        else: assert r.returncode==0,r.stdout[-5000:]
+        else: assert r.returncode==0,f'{label} exited with {r.returncode}:\n{r.stdout[-5000:]}'
         return r.stdout
     def solve(self,label,cfg,ranks=1,extra=(),fail=None):
         cfg=copy.deepcopy(cfg);cfg['output']=str(self.work/(label+'.vtu'))

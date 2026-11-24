@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 两端同步升压的弹性管、稳定化与装配
 
+弯管现支持任意朝向的固定平面圆形流量入口。75° 弯管与其旋转平移副本在 1、2、4 个进程上复核了壁面支撑、反向流量和 RCR 压力。[算例、命令与节点场](../research/data/fsi-rcr-2026-11-24/curved.md)
+
 97 截面轴对称参考已补至 99,875 个未知量。1 s 端部与中点面积扩张分别为原面积的 0.0788461%、0.1071817%。[直接采样与阶段求解验收](../research/data/fsi-linear-transient-2026-11-24/axisymmetric.md#direct-measurements-at-97-physical-stations)
 
 修正 [#46](https://github.com/saitoasukakawaii/EONSim-new/issues/46) 的截面镜像验收。两个求解器的原始位移场通过复算，单点篡改、缺站点、错位置、错时刻四种负例均被拒绝。[镜像复核](../research/data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area)

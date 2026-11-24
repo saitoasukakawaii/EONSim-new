@@ -88,6 +88,38 @@ struct CellWallSupport {
     WallSupportFace face;
 };
 
+// The circular profile is radial within its own plane. Evaluate it once per
+// node before normalizing the complete discrete face flux over all ranks.
+double inlet_profile(const FsiFlowRate& flow,const Point& x,const Point& inward) {
+    if(flow.circular) {
+        Point offset{};
+        double distance=0,scale=std::max(1.0,flow.radius);
+        for(int j=0;j<3;++j) {
+            offset[j]=x[j]-flow.center[j];
+            distance+=offset[j]*inward[j];
+            scale=std::max({scale,std::abs(x[j]),std::abs(flow.center[j])});
+        }
+        const double tolerance=std::max(1e-12,32*std::numeric_limits<double>::epsilon()*scale);
+        if(std::abs(distance)>tolerance) throw std::runtime_error("FSI flow inlet outside circle plane");
+        double radial_square=0;
+        for(int j=0;j<3;++j) {
+            const double radial=(offset[j]-distance*inward[j])/flow.radius;
+            radial_square+=radial*radial;
+        }
+        if(!std::isfinite(radial_square)||radial_square>1+1e-12) throw std::runtime_error("FSI flow inlet outside circle");
+        return std::max(0.,1-radial_square);
+    }
+    double shape=1;
+    for(int j=0;j<3;++j) {
+        if(x[j]<flow.lower[j]-1e-12||x[j]>flow.upper[j]+1e-12) throw std::runtime_error("FSI flow inlet outside rectangle");
+        if(j!=flow.axis) {
+            const double r=std::clamp((x[j]-flow.lower[j])/(flow.upper[j]-flow.lower[j]),0.,1.);
+            shape*=r*(1-r);
+        }
+    }
+    return shape;
+}
+
 struct OutletState {
     double capacitor=0,previous=0,rate=0;
 };
@@ -239,27 +271,11 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             if(!has(f.inlet->tag)) continue;
             if(!node_in_region(mesh,n,f.domains.fluid_region)) throw std::runtime_error("FSI inlet must belong to fluid");
             inlet_nodes[n]=true;
+            const double shape=f.inlet_flow ? inlet_profile(*f.inlet_flow,mesh.nodes[n].position,f.inlet->value) : 1.;
             for(int c=0;c<3;++c) {
                 double value=f.inlet->value[c];
                 for(int j=0;j<3;++j) value+=f.inlet->gradient[3*c+j]*(mesh.nodes[n].position[j]-f.inlet->origin[j]);
-                if(f.inlet_flow) {
-                    const auto& q=*f.inlet_flow;
-                    if(q.circular) {
-                        double r2=0;
-                        for(int j=0;j<3;++j) {
-                            const double dx=mesh.nodes[n].position[j]-q.center[j];
-                            if(j==q.axis) {
-                                if(std::abs(dx)>1e-12) throw std::runtime_error("FSI flow inlet outside circle plane");
-                            } else r2+=(dx/q.radius)*(dx/q.radius);
-                        }
-                        if(!std::isfinite(r2)||r2>1+1e-12) throw std::runtime_error("FSI flow inlet outside circle");
-                        value*=std::max(0.,1-r2);
-                    } else for(int j=0;j<3;++j) {
-                        const double x=mesh.nodes[n].position[j];
-                        if(x<q.lower[j]-1e-12||x>q.upper[j]+1e-12) throw std::runtime_error("FSI flow inlet outside rectangle");
-                        if(j!=q.axis) {const double r=std::clamp((x-q.lower[j])/(q.upper[j]-q.lower[j]),0.,1.); value*=r*(1-r);}
-                    }
-                }
+                value*=shape;
                 if(!std::isfinite(value)) throw std::runtime_error("Nonfinite FSI inlet value");
                 bool zero=interface[n];
                 for(const auto& bc:f.domains.fluid_constraints)
@@ -281,7 +297,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     Tri3Topology::Nodal<Point> xyz;
                     for(int a=0;a<3;++a) xyz[a]=mesh.nodes[nodes[a]].position;
                     const auto g=triangle_geometry(xyz,mesh.nodes[cell.nodes[skip]].position);
-                    if(std::abs(g.normal[f.inlet_flow->axis]+1)>1e-10) throw std::runtime_error("FSI flow inlet requires negative axis outward normal");
+                    double dot=0;
+                    for(int c=0;c<3;++c) dot+=g.normal[c]*f.inlet->value[c];
+                    if(std::abs(dot+1)>1e-10) throw std::runtime_error("FSI flow inlet direction must oppose the outward normal");
                     for(auto n:nodes) for(int c=0;c<3;++c) local-=g.area*g.normal[c]*inlet_values[n][c]/3;
                 }
         });

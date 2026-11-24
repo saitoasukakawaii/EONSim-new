@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 等端压弹性管的离散散度与瞬态参考
 
+平面斜入口可将径向抛物线投影到自身截面后，按网格三角形的法向通量统一归一化；刚体旋转同时检验边界、分区和向量输出。[算例、命令与节点场](data/fsi-rcr-2026-11-24/curved.md)
+
 有不可压压力约束的 Radau DAE 也可用复共轭模态减少阶段矩阵规模。用原始实方程做迭代改进，并独立检验压力分量，可控制分级网格上的代数误差。[方法与实测](data/fsi-linear-transient-2026-11-24/axisymmetric.md#direct-measurements-at-97-physical-stations)
 
 场对称性和据此生成的截面表要分别核验。对面积多边形的顶点求导，可不依赖已存截面值重建线性面积应变。[镜像负对照](data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area)
