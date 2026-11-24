@@ -3,6 +3,7 @@
  * @brief YAML 物理参数与命令行覆盖的运行控制；每个算例只选择一种入口。 */
 
 #include "eonsim/discretization.hpp"
+#include <array>
 #include <cstdint>
 #include <optional>
 #include <map>
@@ -115,6 +116,8 @@ struct FsiFlowRate {
     Space3::Vector<double> center{};
     double radius=0;
     double mean=0, amplitude=0, period=1;
+    /// Optional periodic (time in s, signed flow in m³/s) knots, closed at period.
+    std::vector<std::array<double,2>> samples;
     int axis=0; ///< Cartesian axis, or -1 for an oriented circle with unit direction in inlet.value.
     Space3::Vector<double> lower{},upper{}; ///< Fixed axis-aligned rectangular inlet bounds.
 };

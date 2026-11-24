@@ -23,3 +23,20 @@ python tests/test_tube_mesh.py
 python tests/verify_curved_fsi.py --executable "$eonsim" --mpiexec "$mpi" \
   --work /tmp/eon-curved-frame --ranks 2 --mesh 12 2 6 --steps 20
 ```
+
+## Nonuniform periodic flow
+
+The same oblique tube accepts periodic, nonuniform time/flow pairs with a late reversal. The three grids traverse five knots, a sign change and a period boundary using 13 unequal time steps. Each run has an independent piecewise formula for the prescribed inlet, a reconstruction of both cap fluxes from the final velocity field and an independent check of the outlet circuit. BE uses one rank. The other two schemes use the listed decomposition. The fourth column is the maximum error over all schemes and steps against the stage and endpoint flow targets.
+
+| Sectors / radial / axial | Ranks | Peak prescribed flow (m³/s, before startup) | Maximum flow error (m³/s) | Maximum restart field difference |
+|---|---:|---:|---:|---:|
+| 8 / 1 / 3 | 1, 2 | 0.010 | 1.74e−18 | 0 |
+| 12 / 2 / 6 | 1, 4 | 0.010 | 1.22e−17 | 8.75e−13 |
+| 24 / 3 / 10 | 1, 2 | 0.010 | 8.68e−18 | 0 |
+
+The startup lasts 4/1024 s and the period is 16/1024 s. A checkpoint precedes the period boundary. Resuming with an explicitly closed table reproduces the result obtained with implicit closure. Changing one internal knot fails restart validation. The test also exercises a constant one-knot table and the existing zero-amplitude sinusoid. [Case data, measured fluxes and executable identity](sampled-inlet.json) · [User input example](../../../development/FSI_PERIODIC_FLOW.md#非等间隔流量表)
+
+```bash
+python tests/verify_curved_fsi.py --sampled --executable "$eonsim" --mpiexec "$mpi" \
+  --mesh 12 2 6 --ranks 4 --work /tmp/eonsim-sampled-inlet
+```

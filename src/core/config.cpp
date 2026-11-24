@@ -54,6 +54,32 @@ ScalarFunction scalar_function(const YAML::Node& node,const std::string& locatio
     if(!std::isfinite(f.rate))throw std::runtime_error(location+" rate must be finite");
     return f;
 }
+// Store the closing knot explicitly so an omitted and a supplied periodic
+// endpoint produce identical interpolation and checkpoint identities.
+void read_flow_waveform(const YAML::Node& q,FsiFlowRate& flow) {
+    flow.period=q["period"].as<double>();
+    if(!std::isfinite(flow.period)||flow.period<=0) throw std::runtime_error("Invalid FSI flow_rate period");
+    const auto samples=q["samples"];
+    if(!samples) {
+        flow.mean=q["mean"].as<double>();
+        flow.amplitude=q["amplitude"].as<double>();
+        if(!std::isfinite(flow.mean)||!std::isfinite(flow.amplitude)) throw std::runtime_error("Invalid FSI flow_rate");
+        return;
+    }
+    if(q["mean"]||q["amplitude"]) throw std::runtime_error("FSI flow_rate.samples excludes mean and amplitude");
+    if(!samples.IsSequence()||samples.size()==0) throw std::runtime_error("FSI flow_rate.samples requires time/flow pairs");
+    for(const auto& pair:samples) {
+        if(!pair.IsSequence()||pair.size()!=2) throw std::runtime_error("FSI flow_rate.samples requires time/flow pairs");
+        const double t=pair[0].as<double>(),value=pair[1].as<double>();
+        if(!std::isfinite(t)||!std::isfinite(value)||t>flow.period||
+           (flow.samples.empty()?t!=0:t<=flow.samples.back()[0]))
+            throw std::runtime_error("FSI flow_rate.samples requires finite, increasing times from zero within one period and finite flows");
+        flow.samples.push_back({t,value});
+    }
+    const double first=flow.samples.front()[1];
+    if(flow.samples.back()[0]<flow.period) flow.samples.push_back({flow.period,first});
+    else if(flow.samples.back()[1]!=first) throw std::runtime_error("FSI flow_rate.samples values differ at the two ends of the period");
+}
 PressureTime read_pressure_time(const YAML::Node& node,const std::string& location)
 {
     keys(node,{"amplitude","period","ramp_time"},location);
@@ -420,9 +446,9 @@ Config read_config(const std::filesystem::path& path)
             FluidBoundary inlet; inlet.tag=b["tag"].as<int>();
             if(const auto q=b["flow_rate"]) {
                 if(b["value"]||b["origin"]||b["gradient"]) throw std::runtime_error("FSI flow_rate excludes affine inlet parameters");
-                keys(q,{"mean","amplitude","period","axis","direction","lower","upper","profile","center","radius"},"fsi.inlet.flow_rate");
+                keys(q,{"mean","amplitude","period","samples","axis","direction","lower","upper","profile","center","radius"},"fsi.inlet.flow_rate");
                 FsiFlowRate flow;
-                flow.mean=q["mean"].as<double>(); flow.amplitude=q["amplitude"].as<double>(); flow.period=q["period"].as<double>();
+                read_flow_waveform(q,flow);
                 const auto profile=q["profile"]?q["profile"].as<std::string>():"rectangle";
                 if(profile!="rectangle"&&profile!="circle") throw std::runtime_error("Invalid FSI flow_rate profile");
                 flow.circular=profile=="circle";
@@ -454,8 +480,6 @@ Config read_config(const std::filesystem::path& path)
                     if(q["center"]||q["radius"]) throw std::runtime_error("Rectangular FSI flow_rate excludes circle parameters");
                     flow.lower=vector3(q["lower"],"flow_rate.lower"); flow.upper=vector3(q["upper"],"flow_rate.upper");
                 }
-                if(!std::isfinite(flow.mean)||!std::isfinite(flow.amplitude)||!std::isfinite(flow.period)||flow.period<=0)
-                    throw std::runtime_error("Invalid FSI flow_rate");
                 if(!flow.circular) for(int c=0;c<3;++c) if(c==flow.axis?flow.lower[c]!=flow.upper[c]:flow.lower[c]>=flow.upper[c])
                     throw std::runtime_error("Invalid FSI flow_rate rectangle");
                 v.inlet_flow=flow;

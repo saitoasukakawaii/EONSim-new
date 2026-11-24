@@ -88,6 +88,19 @@ struct CellWallSupport {
     WallSupportFace face;
 };
 
+double prescribed_flow(const FsiFlowRate& flow,double time) {
+    const double phase=std::fmod(time,flow.period);
+    if(!std::isfinite(phase)||phase<0) throw std::runtime_error("Invalid FSI inlet evaluation time");
+    if(flow.samples.empty())
+        return flow.mean+flow.amplitude*std::sin(2*std::acos(-1.)*(phase/flow.period));
+    const auto next=std::upper_bound(flow.samples.begin(),flow.samples.end(),phase,
+        [](double t,const auto& sample){return t<sample[0];});
+    // The validated table starts at zero and ends at period, strictly beyond phase.
+    const auto& left=*(next-1);
+    const double weight=(phase-left[0])/((*next)[0]-left[0]);
+    return (1-weight)*left[1]+weight*(*next)[1];
+}
+
 // The circular profile is radial within its own plane. Evaluate it once per
 // node before normalizing the complete discrete face flux over all ranks.
 double inlet_profile(const FsiFlowRate& flow,const Point& x,const Point& inward) {
@@ -310,10 +323,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     const auto inlet_scale=[&](double t) {
         const double x=f.inlet&&f.inlet->ramp_time>0?std::clamp(t/f.inlet->ramp_time,0.,1.):1.;
         double scale=x*x*x*(10+x*(-15+6*x));
-        if(f.inlet_flow) {
-            const auto& q=*f.inlet_flow;
-            scale*=q.mean+q.amplitude*std::sin(2*std::acos(-1.)*(std::fmod(t,q.period)/q.period));
-        }
+        if(f.inlet_flow) scale*=prescribed_flow(*f.inlet_flow,t);
         if(!std::isfinite(scale)) throw std::runtime_error("Nonfinite FSI inlet waveform");
         return scale;
     };
@@ -393,8 +403,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     }
     std::vector<double> solid_d(mesh.nodes.size()*Tet4Vector::components,0);
     // A zero-ramp inlet is present in the initial physical state as well.
+    const double initial_inlet_scale=inlet_scale(0);
     for(std::size_t n=0;n<mesh.nodes.size();++n) if(inlet_nodes[n])
-        for(int c=0;c<3;++c) physical[nc*n+c]=inlet_scale(0)*inlet_values[n][c];
+        for(int c=0;c<3;++c) physical[nc*n+c]=initial_inlet_scale*inlet_values[n][c];
     RigidState body;
     std::vector<double> fluid_rate(alpha?solid_d.size():0,0),mesh_velocity(fluid_rate),mesh_acceleration(fluid_rate);
     std::vector<double> solid_acceleration(alpha&&Elastic?solid_d.size():0,0);
@@ -439,6 +450,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         signature_values.insert(signature_values.end(),{20507.,q.mean,q.amplitude,q.period,double(q.axis)});
         signature_values.insert(signature_values.end(),q.lower.begin(),q.lower.end());
         signature_values.insert(signature_values.end(),q.upper.begin(),q.upper.end());
+        if(!q.samples.empty()) {
+            signature_values.insert(signature_values.end(),{20513.,double(q.samples.size())});
+            for(const auto& knot:q.samples) signature_values.insert(signature_values.end(),knot.begin(),knot.end());
+        }
         // Preserve old rectangle checkpoint signatures; circle geometry is additional physics.
         if(q.circular) {
             signature_values.insert(signature_values.end(),{20508.,q.radius});
@@ -583,6 +598,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         const AlphaStep fluid_map(dt,config.time_integration.rho_infinity,false),solid_map(dt,config.time_integration.rho_infinity,true);
         const double af=alpha_step?fluid_map.p.alpha_f:1;
         const double evaluation_time=clock.time+af*dt;
+        const double endpoint_inlet_scale=inlet_scale(time);
+        const double stage_inlet_scale=(1-af)*inlet_scale(clock.time)+af*endpoint_inlet_scale;
         const double pressure=fsi_pressure(f,evaluation_time);
         const double integration_dt=alpha_step?fluid_map.effective_dt():derivative.effective_dt;
         const double stabilization_dt=f.stabilization_time_scale.value_or(integration_dt);
@@ -627,7 +644,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 (Elastic?reference_d[Tet4Vector::components*n+c-Layout::mesh_offset]:
                  (c==Layout::mesh_offset?reference_body.position:0)):0;
             full[i]=reduced.slot(i,mesh_dt,lifting).expand(x);
-            if(c<3&&inlet_nodes[n]) full[i]=((1-af)*inlet_scale(clock.time)+af*inlet_scale(time))*inlet_values[n][c];
+            if(c<3&&inlet_nodes[n]) full[i]=stage_inlet_scale*inlet_values[n][c];
         }
         return full;
     };
@@ -950,7 +967,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     for(double v:endpoint_mass) history<<','<<v;
                     const double rate=(endpoint_mass[0]-old_mass[0])/dt;
                     history<<','<<rate<<','<<stage_mass[1]-stage_mass[2]-stage_mass[3]
-                        <<','<<stage_mass[1]-stage_mass[2]-rate<<','<<inlet_scale(time);
+                        <<','<<stage_mass[1]-stage_mass[2]-rate<<','<<endpoint_inlet_scale;
                 }
                 if(!supports.empty()) for(double value:support_history) history<<','<<value;
                 for(std::size_t i=0;i<outlets.size();++i) {
