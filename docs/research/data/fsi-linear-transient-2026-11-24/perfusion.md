@@ -31,6 +31,13 @@ In the rigid tube, the raw difference between the fluid outlet and circuit endpo
 
 On the deformable coarse tube the same intervention reduced the EONSim–svFSI **complex** outlet-flow gap from 1.2700% to 0.0343% of the inlet peak. The inlet-pressure gap fell from 3.223% to 0.104% of 20 Pa. The remaining distance to the independent circular solution follows a different trend under spatial refinement. [Same-mesh pair differences](perfused-pairs.csv)
 
+The frequency control uses the same clamped mesh, a zero-mean sinusoidal inlet of 0.2 mL/s amplitude and the same terminal parameters. The differences below are the magnitudes of complex outlet-flow differences divided by the prescribed inlet amplitude. Each pair passed the intercycle check. At 0.5 and 2 Hz, halving the time step nearly halves the difference with the upstream traction. Changing the applied traction time level at the original step size gives a smaller difference at both frequencies. [Frequency and time-level pairs](perfused-pairs.csv)
+
+| Frequency | Upstream traction, 32 steps/cycle | Upstream traction, 64 steps/cycle | Stage-aligned traction, 32 steps/cycle |
+|---:|---:|---:|---:|
+| 0.5 Hz | 0.9815% | 0.4812% | 0.03888% |
+| 2 Hz | 1.4843% | 0.7327% | 0.02864% |
+
 ## Expanding outlet plane
 
 Changing only the 3D outlet annulus from a clamp to an axial roller at 1 Hz and 32 steps changes EONSim's coarse flow gain from 85.779% to 82.531%. The outlet area then oscillates by 0.02756% of its initial area. Native svFSI gives 83.452% and 0.02800% on the same released mesh. The independent meridian predicts about 79.57% flow transmission for a radially free outlet. EONSim integrates the normal fluid velocity on the current fixed plane at each evaluation. For the native moving-mesh comparison the observer independently checks the circuit flow on the old geometry using the new velocity and measures the physical endpoint flow on the new geometry. [EONSim equations and MPI checks](../fsi-rcr-2026-11-24/planar-outlets.md) · [Native surface geometry](https://github.com/SimVascular/svFSI/blob/94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571/Code/Source/svFSI/NN.f#L1919-L1927)
