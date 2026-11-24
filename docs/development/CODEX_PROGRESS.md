@@ -1,5 +1,9 @@
 # EONSim Codex Development Progress
 
+## 2026-11-24 · 开源 HPC 复查与 Tet4 黏性积分
+
+main 核对到 `89a1a3d`。数值提交 `4095e4b` 已在本地完成。PETSc 3.23.7 Release 的 9/9 项通过，独立合成 #41/#42 和新切线的圆管回归 2/2 通过。历史精细网格、外部求解器结果沿用两 PR 的归档。单进程固定网格流体单元核配对时间 −29.6%，整次墙钟 −2.6%；弹性 FSI 整次墙钟暂未显示稳定收益。[调研与后续验收](../research/HPC_UPSTREAM_REVIEW_2026-11-24.md) · [原始配对数据](../research/data/tet4-viscosity-2026-11-24/pairs.json)
+
 ## CI-DEBUG-ON-DEMAND / 2026-11-13 / review
 
 按用户要求改为 Release-only PR 增量数值 CI；Debug 由手动工作流专项启动。receipt 与历史复用只认 Release；自动合并改为四项必需检查并拒绝仍要求旧 Debug 的分支保护。未改数值模型、容差或 CTest 清单。源码修改不代表 CI 已通过；以 PR Actions 为准，分支保护仍需管理员确认。

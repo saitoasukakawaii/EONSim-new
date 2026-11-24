@@ -1,5 +1,11 @@
 # EONSim Codex Session Log
 
+## 2026-11-24 · HPC 开源项目复查、仿射 Tet4 黏性积分
+
+基线 main `89a1a3d823396df02fa9e8acb5ded36b70938e9c`，本地分支 `codex/hpc-survey-tet4-tangent`，数值提交 `4095e4bd4e18a350e62fd2e295d88de3a6d48640`。抽查上游实现/接口和公开说明，恢复锁定 PETSc 3.23.7。用 `scripts/cloud/run.sh 3.23.7 release explicit` 编译与选测，对照 4/4、候选 9/9；独立合成 #41 `10197d0` 与 #42 `0c8f6fb` 后应用数值改动，圆管选测 2/2。在畸变四面体上检查简单剪切和刚体转动的解析节点力，保留 FSI 几何种子求导。实际命令、选测文件和逐项结果见[复现记录](../research/data/tet4-viscosity-2026-11-24/README.md)。
+
+首轮通过带超时的文件重定向子进程测量墙钟，发现短算例读数在轮询时间隔附近聚集。改用管道等待输出结束，将日志写盘置于计时区间外，重新执行全部 6 对和预热，报告仅用修正后的样本。最终逐对比较全部 owned 节点数据，流体、弹性 FSI 各 1/2 rank，各步迭代数一致。1 rank 固定流体单元核变化 −29.6%，弹性 FSI 的端到端配对范围跨零。后续先对齐 #42 的瞬态，再实测 FSI 各子阶段成本。[完整报告](../research/HPC_UPSTREAM_REVIEW_2026-11-24.md)
+
 ## 2026-11-13 / CI-DEBUG-ON-DEMAND / 源码修改
 
 基线 main `f34658082644eb5238ee4cc651d71823fe5d1587`。发现 core-numerics 双模式测试、receipt.py 强制双模式、selection.py 双模式历史来源、agent 自动合并五项必需检查彼此关联；不能简单删除 Debug job。同步修改 Release-only PR、手动 Debug、收据复用和自动合并检查。未执行 PETSc/MPI 求解，CI 结果须读取实际工作流，不能从文件存在推断通过。

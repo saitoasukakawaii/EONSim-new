@@ -1,5 +1,9 @@
 # EONSim Knowledge Log
 
+## 2026-11-24 · 仿射 Tet4 黏性核及 50 个上游项目复查
+
+在 `4095e4b` 保留 ALE 几何导数，将单元内恒定的黏性应力及速度切线精确积分一次。局部公式和有限差分、1/2-rank 成对实测、#41/#42 集成证据见[调研报告](HPC_UPSTREAM_REVIEW_2026-11-24.md)。[教学草稿](../../website/drafts/tet4-viscous-work-and-ale-tangents.md)的审阅重点是常黏度仿射假设，以及单元核与全 FSI 计时边界。
+
 ## 2026-11-13 / Release 验收与 Debug 故障定位分离
 
 PR 日常正确性依靠 Release 增量 CTest 和复用证据；Debug/GDB/LLDB/sanitizer 仅用于定位实际故障。删除默认 Debug 前必须同步更新 receipt 来源校验和自动合并保护检查，保持 fail-closed；此流程经验已纳入工程规范，不新建知识文章。

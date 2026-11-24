@@ -7,8 +7,8 @@ int main() {
     using namespace eonsim;
     const Tet4Topology::Nodal<Point> coordinates{Point{0,0,0},Point{1.1,.1,0},Point{.2,.9,.1},Point{.1,.2,1.2}};
     const auto g=tet4_geometry(coordinates);
-    // Simple shear gives a known nodal force; a superposed counter-rotation
-    // makes the symmetric gradient vanish. Check all rows, including pressure.
+    // Simple shear gives a known nodal force. Setting u_y = -shear*x
+    // together with u_x = shear*y gives rigid rotation and zero viscous stress.
     const FluidParameters stokes{1.0,.6,0.0,0.0,false};
     const double shear=1.7;
     for(double y_slope:{0.0,-shear}) {
