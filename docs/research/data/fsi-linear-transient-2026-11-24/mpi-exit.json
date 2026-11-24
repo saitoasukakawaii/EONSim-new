@@ -1,0 +1,760 @@
+{
+  "problem": "20 mm tube, 48 sectors, 32-step dimensional pressure ramp",
+  "solver_sha256": "59a06d3f3d73dcda8f5516bfe4bfac2055f56d50c1cbe24162844cd30f2fadd7",
+  "original_launcher_exit": -11,
+  "original_application_reported_success": true,
+  "original_profile_sha256": "1541d6fab0495075bbb63c539e2a1ca68a4a544eca4161119061bdd041db962c",
+  "original_log_sha256": "c8ccde5e90c19e110c5dc65b01b42e3b95df191e9ad638613e2daeb8efdcf4e2",
+  "reference_domain_vtu_sha256": {
+    "tube_step4.vtu": "2a14eb3f1bdd8a008fef3128f8fc3bcfb3d88bc6bc6646ff2c5a431543b29d83",
+    "tube_step4_solid.vtu": "9f8b6d67e5d97ca945d8bedec58d5161b1cbaa121acf2808450f1450587202ae",
+    "tube_step8.vtu": "d33805d367ce934ce64c718fedb8187b01cf5bd0098535db2fb7a44e5e4fb8e8",
+    "tube_step8_solid.vtu": "dcbc049926265d05b1d0feac28a78ee18b8a6bedb71ca9ef99dbb55497dbd70d",
+    "tube_step12.vtu": "64c661ff8e50657988c9d3452df426cff74ceb494a385c367302c96d7ba871f6",
+    "tube_step12_solid.vtu": "75dc9ddd0eadea3cf55f1a2702a8d7aa3f1f0187a4e0f76f968812f2efcc7ff5",
+    "tube_step16.vtu": "a14a5bbc17c0bba0bac13948f6965fdee5a9bb94a42cecf5a8f69df2da5a66a1",
+    "tube_step16_solid.vtu": "208610ef1fa86cf3944a310e890995472177707518d8dbdcb383b0ecbd1c40df",
+    "tube_step20.vtu": "cdce5ac519d5f98de7cef00fe5a62af789be2db1879542a3ed0f9904b3b3b943",
+    "tube_step20_solid.vtu": "88508e4e40bb821ceb3472ebd6762166b9f6430f4955967fa0d48fdffde5b890",
+    "tube_step24.vtu": "ed9fea4bd65b8144fd60a439c0e6ec61f6cdf4efdc1ba6e34aea58d6e5b83483",
+    "tube_step24_solid.vtu": "cb3574eb8d5a303b863bb5f70e65d9d5c4f51a453c8d54fd60a7b9b9d05433a1",
+    "tube_step28.vtu": "b41e19b76678db112c3d6d7334a29f720a39c2949d20d8e5523b50a2e3863fa3",
+    "tube_step28_solid.vtu": "d4fa0ac98e0bfb084f5afb79d75dfad65af0f264f44990bc762efaea021ea4af",
+    "tube_step32.vtu": "35f4c2bffff9433aa45746dc0cbf94c49f127be41006d302ff30b8bfd294f5b1",
+    "tube_step32_solid.vtu": "041d18d2bf8f05a3004205d7089215582e663a86435e94f2d498075905047287"
+  },
+  "solver_controls": [
+    {
+      "trial": "n2-mpi-cgs-always-1",
+      "expected_steps": 2,
+      "accepted_steps": 2,
+      "launch": "mpi",
+      "launcher_exit": 0,
+      "child_exit": 0,
+      "log_sha256": "cae37079a5b23a8d3240dd546eb0458c4865e122258d17645972b1cc80109d12"
+    },
+    {
+      "trial": "n2-mpi-cgs-always-2",
+      "expected_steps": 2,
+      "accepted_steps": 2,
+      "launch": "mpi",
+      "launcher_exit": -11,
+      "child_exit": 0,
+      "log_sha256": "384388ac73b3199ee9e084b29fb5b4c218a6d0a4ca38e02326f18b3b9cafad4b"
+    },
+    {
+      "trial": "n2-mpi-inner-1",
+      "expected_steps": 2,
+      "accepted_steps": 2,
+      "launch": "mpi",
+      "launcher_exit": 0,
+      "child_exit": 0,
+      "log_sha256": "68749443e638ebe6bc2557544cb97e1a42a51d484fe54a6dc80468f62bfe17d9"
+    },
+    {
+      "trial": "n2-singleton-cgs-always-1",
+      "expected_steps": 2,
+      "accepted_steps": 2,
+      "launch": "singleton",
+      "launcher_exit": 0,
+      "child_exit": 0,
+      "log_sha256": "fe1d0152993b91531ad3a8a35798226684143e228b766b9c92495ae52a33b9eb"
+    },
+    {
+      "trial": "n32-mpi-cgs-always-1",
+      "expected_steps": 32,
+      "accepted_steps": 32,
+      "launch": "mpi",
+      "launcher_exit": 0,
+      "child_exit": 0,
+      "log_sha256": "03dae385db9b3fb246b06eaf121d072b03b92318d0326919e73ebd7601b526f0",
+      "byte_identical_domain_fields": 0,
+      "node_comparison": {
+        "fields": {
+          "fluid_velocity": {
+            "base": 0.00031698300394807284,
+            "difference": 3.065202171942394e-15
+          },
+          "fluid_displacement": {
+            "base": 1.0814073641893061e-05,
+            "difference": 2.7435397161566788e-18
+          },
+          "fluid_pressure": {
+            "base": 80.00405256316492,
+            "difference": 3.510081114654895e-12
+          },
+          "wall_velocity": {
+            "base": 2.0348413253869624e-05,
+            "difference": 7.258733544790452e-17
+          },
+          "wall_displacement": {
+            "base": 1.0814073641893061e-05,
+            "difference": 3.4897757426877174e-19
+          }
+        },
+        "end_areas_pct": [
+          0.00300939634775193,
+          0.020012575557534846,
+          0.05351707205465955,
+          0.09741646617209376,
+          0.1413384393820439,
+          0.17488635016894774,
+          0.1919381914953875,
+          0.19495028870711148
+        ],
+        "vtu_sha256": {
+          "tube_step4.vtu": "32d406bc12822b394ec4c1cffa85bec73423230c9500ca5a83c8ef064efe186a",
+          "tube_step4_solid.vtu": "aa7db4a70589c3d5bc259539fc0a52394e9963cc21088dcbad92522a87791452",
+          "tube_step8.vtu": "d4e357d3ea926101c0194a8efa2bb0f7a4e8d1f86ac92bd92409c9b5ade33a8e",
+          "tube_step8_solid.vtu": "2d66981df3da269fee1a909e16753589c24a064a4fe8328111de486ac1cf0e1a",
+          "tube_step12.vtu": "54296c2d33906e0a70439928b9ef2b0ccfee90ae338d599388d6c52ab1e5516a",
+          "tube_step12_solid.vtu": "94c7e3b37c207099794ae66eb3d01926ebb38193ecfd914340be0b7667014c99",
+          "tube_step16.vtu": "15cd8518a37443c6ecfb0478b8885decf5a3fdbd58f6aec5171a00902458d4f4",
+          "tube_step16_solid.vtu": "fcd4795e4989e5688d9226dd9bf47ba5560693952f51682ba9425f7f59706e37",
+          "tube_step20.vtu": "6eb772da50eaee79f2f3b4873dd519f318ae79348322c34b6d7122109a702ae7",
+          "tube_step20_solid.vtu": "4662e9a8c692cad5cd7227ac18279af1ab3a2ec545c47dd37988740ae4f1c763",
+          "tube_step24.vtu": "07bcbd130677d52f4dc986272a5a16f68bfd8fc056f2b093a29f1030c24d2bb4",
+          "tube_step24_solid.vtu": "99479cfb3f327a10fa0ca6bdb48970b2f5bb13471b55eb869bbb2f1a2da8c02e",
+          "tube_step28.vtu": "a8a8ed9a19563e6de537621cf4d5bdef85f08367be26d6d2d0479c1f68cb25ac",
+          "tube_step28_solid.vtu": "a0e1d25b7c729b9f699e5388c2db3926cd73768e1a1f0b00895651e55528a6bb",
+          "tube_step32.vtu": "33fb53a90c461004f211b6ce23e24c52c5a9cd804eace0d6e83b281445d22c15",
+          "tube_step32_solid.vtu": "7e4058663eac5daa8bcb1bc5cbf4bc8b6ca6d91a0edf66e267792c1dd8c6c528"
+        }
+      },
+      "max_difference_over_each_field_peak": 9.669925938504026e-12
+    },
+    {
+      "trial": "n32-singleton-cgs-always-1",
+      "expected_steps": 32,
+      "accepted_steps": 32,
+      "launch": "singleton",
+      "launcher_exit": 0,
+      "child_exit": 0,
+      "log_sha256": "9c0f391dc7a8dc670b13a8b0b200278c3a2699258d0bc56ef87129d450420ab1",
+      "byte_identical_domain_fields": 0,
+      "node_comparison": {
+        "fields": {
+          "fluid_velocity": {
+            "base": 0.00031698300394807284,
+            "difference": 1.9929414699472806e-15
+          },
+          "fluid_displacement": {
+            "base": 1.0814073641893061e-05,
+            "difference": 2.3513634615779377e-18
+          },
+          "fluid_pressure": {
+            "base": 80.00405256316492,
+            "difference": 2.6716406864579767e-12
+          },
+          "wall_velocity": {
+            "base": 2.0348413253869624e-05,
+            "difference": 8.328027937404281e-17
+          },
+          "wall_displacement": {
+            "base": 1.0814073641893061e-05,
+            "difference": 1.8126505071242027e-19
+          }
+        },
+        "end_areas_pct": [
+          0.0030093963477519367,
+          0.020012575557535533,
+          0.053517072054658534,
+          0.0974164661720925,
+          0.14133843938204585,
+          0.17488635016894727,
+          0.19193819149539035,
+          0.19495028870711045
+        ],
+        "vtu_sha256": {
+          "tube_step4.vtu": "dc1ab58ef27885bcf72ccf2ef2559f27afea460d651738d0bfa2535ad5ee9baf",
+          "tube_step4_solid.vtu": "017ddb5c2f6e78f72b226dbc929ad332e60a12bb1530c4709ad325c34e3ec7fa",
+          "tube_step8.vtu": "87b2adf640a8ff3737b045a34f5021d35d07809e3cc96feeddc7a211dcd4ea00",
+          "tube_step8_solid.vtu": "527befe2c4249717b6886963490ac5c618668d2ddfccf72d929f14325f9e481f",
+          "tube_step12.vtu": "dd9781a8c8fb4c7049a0840b9f6d1fe3c28b848c9f345db692cab928998b3780",
+          "tube_step12_solid.vtu": "5b3de6d9dda05ef28b2dbf3cfafff42ecfe99da443ca33726eeded17b43d070c",
+          "tube_step16.vtu": "0f4c9e8ce3c93203e4f05323fed5e74c8176f93bd13b7687a11970e6647428c6",
+          "tube_step16_solid.vtu": "2a2aa4f9d2f981eea8233314340b5f5d809e5b34c34551093f22184486f6a040",
+          "tube_step20.vtu": "3fa63eff7631f6e8de09262183c942e69735d50d7b1185c1bfa48e076550c4c3",
+          "tube_step20_solid.vtu": "3dabf256ad479fcef202b0817fb7ba9dc5c4d706cfb90b4af64c61ecc2dfa88d",
+          "tube_step24.vtu": "ab64b937c029e74ad2f1ba136f654a3620efecc0a101dce5eab0bf807bb5b47e",
+          "tube_step24_solid.vtu": "a23fb6ebe9ea7a2c0e1c267b78d3aa78361dd13859b443a737eec55b97f59186",
+          "tube_step28.vtu": "09fcff9d3ea8361476bb4c7a46fd4eba747928d81f8a580770cb450f255a57f5",
+          "tube_step28_solid.vtu": "9d81aa5bb486897e524fbbd3bb6d53705dfb3079a40ec4bf30480e89b2f14961",
+          "tube_step32.vtu": "9d17f39355c7d8eafdf002b03835007d4628e4842a748a030ba4679555bafe1f",
+          "tube_step32_solid.vtu": "9b5f27a0dba7f44d20829f0d5875aa808720d007db266fe5ca8c6d08423882ae"
+        }
+      },
+      "max_difference_over_each_field_peak": 6.287218699819496e-12
+    }
+  ],
+  "mpi_smoke_sha256": "022ef205bde7e2e963108c7bceda182f5494428898725b118b393672651783db",
+  "mpiexec_sha256": "073079d0a86571396dfc26fc347b4c3fdec25b657dba94a9d6d2654670586574",
+  "runtime_controls": [
+    {
+      "trial": 0,
+      "private_session": false,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "28760eb390f51560438d918d86146f92fe917e7154c027c7f271c1a59d046ebe"
+    },
+    {
+      "trial": 0,
+      "private_session": true,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "a84006706672ad20a533967e84cd77a7693e693a0f7a8ff00f7a43c1250e8de7"
+    },
+    {
+      "trial": 0,
+      "private_session": false,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "0a41fd477c0a902254ea7f802bd353746eeb62251c31695b6ada36d90d5c07f4"
+    },
+    {
+      "trial": 0,
+      "private_session": true,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "aca61ba98470f4e9b307a8dc4175dab4d62074717ac8379d2d64490c8cb1ef4a"
+    },
+    {
+      "trial": 1,
+      "private_session": false,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "1f8aeee7545baa4db80f6a922a124a747d92d76973b27ff92a1cc77799ea3a87"
+    },
+    {
+      "trial": 1,
+      "private_session": true,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "ee2867efad0ec7063e241e56208b450b427f69b6efa3a591dec5fd5b7539f6f7"
+    },
+    {
+      "trial": 1,
+      "private_session": false,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "ff476a4d3fae968b9fab9e66b5568e23b86afa2f4330202fafec5aff825bdce7"
+    },
+    {
+      "trial": 1,
+      "private_session": true,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "7573a250604512b580a704fb7fef3789a95c916dbef5a3490b9323b43032bed6"
+    },
+    {
+      "trial": 2,
+      "private_session": false,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "4271f9a2b51594e99cff4c25f17da13a33583bd3370b222454a5c86bd2cc3d98"
+    },
+    {
+      "trial": 2,
+      "private_session": true,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "8ace1c568c06d8d5aeba7198b79221baef480c6d82929ef1e1b657825a1bde47"
+    },
+    {
+      "trial": 2,
+      "private_session": false,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "ec0e1b738075d5df883e81d9008445682d344b1c096f9db24337825978e0cc55"
+    },
+    {
+      "trial": 2,
+      "private_session": true,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "2c2b35ec7417fc7fae6e22e80a1e689ae39d0d6d277248fd3092c4195a335d8e"
+    },
+    {
+      "trial": 3,
+      "private_session": false,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "6dadd19c5013c00d3fa05815e775f805c7d21f58dc2744ad872a7807ce157b9f"
+    },
+    {
+      "trial": 3,
+      "private_session": true,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "92ab144f38dadebd4db977e71b03868153a3c7a26d3532fdc2b0ccd8eaa63fe8"
+    },
+    {
+      "trial": 3,
+      "private_session": false,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "dca1ec554d6144c6d10841c7aed3294eb7584318ee986aefe624280000f8e17d"
+    },
+    {
+      "trial": 3,
+      "private_session": true,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "c3c0efecdd4e730be95c9e05918eb7a4f40656bd3a96cdc09bf299d73b8c1322"
+    },
+    {
+      "trial": 4,
+      "private_session": false,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "178a5bcb5660df9e232d7b446f0645fbd8802ec5a5f73e492dc9142f5ea8bff2"
+    },
+    {
+      "trial": 4,
+      "private_session": true,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "57c8d035788bc115735ba6b0657e68c9d625895a279d1a1eab85e0d4bf81df80"
+    },
+    {
+      "trial": 4,
+      "private_session": false,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "e3afe5701b60968ce1751c58df1807fc9278a552f233f86c0bf5047a4c7b1b55"
+    },
+    {
+      "trial": 4,
+      "private_session": true,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "3f8e87f120607f6176d75ba6e0052dad13ba1c7e4dc4b6eb181e7390a3019228"
+    },
+    {
+      "trial": 5,
+      "private_session": false,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "d082b4fd3cb8ed08c1bc307bb750f25b928b3ac02cb8e79b837acba3954e0ef2"
+    },
+    {
+      "trial": 5,
+      "private_session": true,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "956e407ee590521f4f052debc16269815ab2d019c8177cc58c739c6349b7501d"
+    },
+    {
+      "trial": 5,
+      "private_session": false,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "4211699e7e60159ea700f6072094b1972508eca13af25716788ede9ba12828de"
+    },
+    {
+      "trial": 5,
+      "private_session": true,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "40feb011d2043faddcf557fc11107c35ecebde21798e8eddbcbe083638ff1ba0"
+    },
+    {
+      "trial": 6,
+      "private_session": false,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "5122bb460f3590fe80ab4c80b0c1ccf4fbb93d5d056d57b442e3198f15a39c15"
+    },
+    {
+      "trial": 6,
+      "private_session": true,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "68aef9f4e900cdf6e44a4fd6ff0b60f813017cf578d5be505f34950237c3de2c"
+    },
+    {
+      "trial": 6,
+      "private_session": false,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "25d7f2fe051ce8b8609e584c1414330a71ea9830df287e3decf4b5e0ea24c57a"
+    },
+    {
+      "trial": 6,
+      "private_session": true,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "417cc02d3b3517fbc17d21a8608375493d21a244768bdb9d1d94702ee4310b6e"
+    },
+    {
+      "trial": 7,
+      "private_session": false,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "a3eac149c5e5ef67351512d8cb3c4cdab1a5441100728677e841acd65586ca1a"
+    },
+    {
+      "trial": 7,
+      "private_session": true,
+      "ranks": 1,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "e14411132d6884c5afc57d7e9d60fb2f13f930872c971ca8f7c60719e4343cee"
+    },
+    {
+      "trial": 7,
+      "private_session": false,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "339f7353933d6a631c571756f4ac631645850eaa15db69fa12f00bf893597f57"
+    },
+    {
+      "trial": 7,
+      "private_session": true,
+      "ranks": 2,
+      "launcher_exit": 0,
+      "child_exits": [
+        {
+          "rank": 0,
+          "child_exit": 0
+        },
+        {
+          "rank": 1,
+          "child_exit": 0
+        }
+      ],
+      "application_valid": true,
+      "sha256": "46fbee1cc9b678db1d5e5d62c5ad7482447bc1d3053e4fa4e2f2e4df0443fa87"
+    }
+  ],
+  "portable_recorder_checks": {
+    "mpi-exit-portable-r1": {
+      "launcher_exit": 0,
+      "ranks": [
+        {
+          "rank": 0,
+          "exit_code": 0
+        }
+      ],
+      "expected_ranks": 1,
+      "application_reported_success": false,
+      "elapsed_seconds": 1.0125135720008984,
+      "accepted_steps": 0,
+      "clean_exit": true,
+      "executable_sha256": "022ef205bde7e2e963108c7bceda182f5494428898725b118b393672651783db",
+      "log_sha256": "3853b6889da8328b1fb4ca0b53e81321a278433cd2f9fc347a6aaf831e1e0fba"
+    },
+    "mpi-exit-portable-r2": {
+      "launcher_exit": 0,
+      "ranks": [
+        {
+          "rank": 0,
+          "exit_code": 0
+        },
+        {
+          "rank": 1,
+          "exit_code": 0
+        }
+      ],
+      "expected_ranks": 2,
+      "application_reported_success": false,
+      "elapsed_seconds": 1.039462580003601,
+      "accepted_steps": 0,
+      "clean_exit": true,
+      "executable_sha256": "022ef205bde7e2e963108c7bceda182f5494428898725b118b393672651783db",
+      "log_sha256": "f146abe999c1317f60a498c091dc853c8f5652abd412b991e025362497bc5833"
+    },
+    "mpi-exit-portable-nonzero": {
+      "launcher_exit": 7,
+      "ranks": [
+        {
+          "rank": 0,
+          "exit_code": 7
+        }
+      ],
+      "expected_ranks": 1,
+      "application_reported_success": false,
+      "elapsed_seconds": 0.18538265600363957,
+      "accepted_steps": 0,
+      "clean_exit": false,
+      "executable_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}
