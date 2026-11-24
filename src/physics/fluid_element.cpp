@@ -36,13 +36,13 @@ FluidElement fluid_element(const Tet4Geometry& g, const FluidParameters& p,
     // SUPG 的三次对流项用四点规则近似，残量与切线使用完全相同规则。
     for (const auto& point:FluidQuadrature::points) {
         const auto& N=point.shape;
-        double u[Space3::dimension]{},un[Space3::dimension]{},c[Space3::dimension]{},rm[Space3::dimension]{};
+        double velocity_increment[Space3::dimension]{},c[Space3::dimension]{},rm[Space3::dimension]{};
         for (int a=0;a<Tet4Topology::nodes;++a) for (int i=0;i<Space3::dimension;++i) {
-            u[i]+=N[a]*x[Tet4Flow::dof(a,i)]; un[i]+=N[a]*old[Tet4Flow::dof(a,i)];
+            velocity_increment[i]+=N[a]*(x[Tet4Flow::dof(a,i)]-old[Tet4Flow::dof(a,i)]);
             if(p.convection) c[i]+=N[a]*(x[Tet4Flow::dof(a,i)]-w[a][i]);
         }
         for(int i=0;i<Space3::dimension;++i) {
-            rm[i]=mass*(u[i]-un[i])+gradp[i];
+            rm[i]=mass*velocity_increment[i]+gradp[i];
             for(int j=0;j<Space3::dimension;++j) rm[i]+=p.density*c[j]*grad[i][j];
         }
         const double weight=g.volume*point.weight;

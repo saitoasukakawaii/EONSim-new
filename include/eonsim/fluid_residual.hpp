@@ -30,17 +30,18 @@ Tet4Flow::State<Scalar> fluid_residual(const SimplexGeometry<Tet4Topology,Scalar
     const double mass=p.dt>0?p.density/p.dt:0;
     for(const auto& q:FluidQuadrature::points) {
         const auto& N=q.shape;
-        Scalar u[Space3::dimension]{},c[Space3::dimension]{},rm[Space3::dimension]{},pressure{};
-        double un[Space3::dimension]{};
+        Scalar velocity_increment[Space3::dimension]{},c[Space3::dimension]{},rm[Space3::dimension]{},pressure{};
         for(int a=0;a<Tet4Topology::nodes;++a) {
             pressure+=N[a]*x[Tet4Flow::dof(a,Tet4Flow::pressure)];
             for(int i=0;i<Space3::dimension;++i) {
-                u[i]+=N[a]*x[Tet4Flow::dof(a,i)]; un[i]+=N[a]*old[Tet4Flow::dof(a,i)];
+                // Difference before interpolation: division by a short retry step
+                // would magnify cancellation between two separately interpolated velocities.
+                velocity_increment[i]+=N[a]*(x[Tet4Flow::dof(a,i)]-old[Tet4Flow::dof(a,i)]);
                 if(p.convection) c[i]+=N[a]*(x[Tet4Flow::dof(a,i)]-w[a][i]);
             }
         }
         for(int i=0;i<Space3::dimension;++i) {
-            rm[i]=mass*(u[i]-un[i])+gradp[i];
+            rm[i]=mass*velocity_increment[i]+gradp[i];
             for(int j=0;j<Space3::dimension;++j) rm[i]+=p.density*c[j]*grad[i][j];
         }
         for(int a=0;a<Tet4Topology::nodes;++a) {

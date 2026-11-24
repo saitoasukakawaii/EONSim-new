@@ -33,6 +33,20 @@ int main() {
             }
         }
     }
+    // A representable one-ULP velocity increment over the same dt gives unit
+    // acceleration everywhere, including at quadrature points.
+    const Tet4Topology::Nodal<Point> unit{Point{0,0,0},Point{1,0,0},Point{0,1,0},Point{0,0,1}};
+    const auto unit_geometry=tet4_geometry(unit);
+    const double initial=1.5,updated=std::nextafter(initial,2.);
+    Tet4Flow::State<double> uniform{},previous{};
+    for(int a=0;a<Tet4Topology::nodes;++a) {
+        uniform[Tet4Flow::dof(a,0)]=updated;
+        previous[Tet4Flow::dof(a,0)]=initial;
+    }
+    const auto inertia=fluid_element(unit_geometry,{1.,1.,updated-initial,0.,false},uniform,previous,{},false);
+    for(int a=0;a<Tet4Topology::nodes;++a)
+        if(!(std::abs(inertia.residual[Tet4Flow::dof(a,0)]-unit_geometry.volume/4)<1e-15))
+            throw std::runtime_error("Uniform small-step inertia mismatch");
     std::array<double,16> x{},old{},direction{};
     std::array<Point,4> w{};
     for(int i=0;i<16;++i) { x[i]=.3*std::sin(i+1); old[i]=.2*std::cos(i+1); direction[i]=std::sin(3*i+.7); }
