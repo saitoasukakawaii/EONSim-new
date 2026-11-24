@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 双端升压、空间加密与求解成本（进行中）
 
+单端口原版 svFSI 与解析阻抗对照已完成。弹性分叉的长时储量和通量分配仍在验证。[单端口证据](../research/data/fsi-rcr-2026-11-24/svfsi-single-port.json)
+
 FSI-PROD-03 的固定多出口耦合、外壁支撑、雅可比、同分区续算和重试已验收。[完整路线](FSI_PRODUCTION_ROADMAP.md)。[固定多端口方程、算例与实测](../research/data/fsi-rcr-2026-11-24/README.md)
 
 生产路线 FSI-PROD-03 固定单端口和外壁支撑已验证。多个独立 RCR 端口仍需分别验收。[耦合方程与阻抗对照](../research/data/fsi-rcr-2026-11-24/README.md)

@@ -57,3 +57,26 @@ python cases/fsi/generate_branched.py --output "$work/case" --refinement 1
 python docs/research/data/fsi-rcr-2026-11-24/extended.py --work "$work/extended" \
   --executable "$eonsim" --mpiexec "$prefix/bin/mpiexec" --ranks 2 4 8
 ```
+
+## Independent RCR calculation in native svFSI
+
+A fixed tube isolates the three-element outlet from wall storage. Both programs solve 3D flow on the same Tet4 connectivity. Prescribe zero-mean sinusoidal inflow of amplitude 0.01 m³/s and period 1 s, initialize the capacitor at its periodic pressure and run one cycle with generalized-α spectral radius 0.5. The fluid face is stationary. Values below are in Pa and use each accepted endpoint. The pinned Fortran svFSI revision is `94a2ff5`, with its original RCR update. EONSim is the multiple-port implementation from `32e7673` in single-port mode.
+
+| Steps per period | Max EONSim–svFSI pressure difference | Max EONSim–analytic error | Max svFSI–analytic error |
+|---:|---:|---:|---:|
+| 16 | 1.787e−3 | 1.733e−3 | 7.134e−4 |
+| 32 | 5.798e−4 | 5.762e−4 | 1.782e−4 |
+| 64 | 1.650e−4 | 1.647e−4 | 4.452e−5 |
+| 128 | 4.492e−5 | 4.486e−5 | 1.114e−5 |
+| 256 | 1.186e−5 | 1.186e−5 | 2.819e−6 |
+| 512 | 3.047e−6 | 3.046e−6 | 7.388e−7 |
+
+The two circuit schemes differ in time. EONSim evaluates the circuit with the generalized-α fluid stage. In `SETBC.f` svFSI advances the circuit with 100 explicit fourth-order substeps and linearly interpolates the step-end flows. Integrating that linear interpolant exactly matches the printed native capacitor pressure within 5.70e−9 Pa over all six runs. The 512-step harmonic pressure lags calculated by the two schemes differ from the exact impedance phase by +0.000368° and +0.0000704°, respectively.
+
+Native boundary tables truncate at a sign-dependent precision. Checking them against one absolute threshold initially rejected valid output. Independently integrating the double-precision velocity from all 1,008 native VTUs against both cap surfaces agrees with EONSim flux to 4.83e−15 m³/s; the native text values are also checked at their actual printed resolution. Each deck, executable and mesh hash accompanies the measurements. [Results](svfsi-single-port.json) · [All paired samples](svfsi-single-port.csv.xz) · [Source and checks](compare_svfsi.py)
+
+```bash
+python docs/research/data/fsi-rcr-2026-11-24/compare_svfsi.py \
+  --work "$work/independent-rcr" --eon "$eonsim" --mpiexec "$prefix/bin/mpiexec" \
+  --svfsi "$svbuild/bin/svFSI" --svfsi-libs "$svprefix/lib" --steps 16 32 64 128 256 512
+```
