@@ -1,0 +1,426 @@
+{
+  "baseline": {
+    "local_commit": "951064dbb7d6681f2044ef7111e624499a3698d4",
+    "mode": "release",
+    "petsc": "3.23.7",
+    "status": "failed",
+    "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+    "tests": [
+      {
+        "name": "fluid_element_jacobian",
+        "status": "failed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_pressure_state",
+        "status": "failed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 1
+      }
+    ],
+    "baseline_test_change": "Applied only the new uniform-increment element oracle. The pressure retry driver was the unchanged main version.",
+    "element_failure": "Uniform small-step inertia mismatch",
+    "pressure_failure": "Time-step retries exhausted: SNES did not converge: reason=-5"
+  },
+  "incremental": {
+    "local_commit": "79319bcf0010b778d8f4f15175c687638640592f",
+    "mode": "release",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+    "tests": [
+      {
+        "name": "scalar_p2_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "scalar_p2_time",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "scalar_p2_restart",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "scalar_p2_failure",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "p2_space_oracles",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "tri_p2_oracles",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_diagnostics",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_diagnostics_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_periodic",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_tube",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_flow",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_inlet",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fluid_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "layout_policy_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "scalar2d_space",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fluid_alpha_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "ale_time_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_pressure_state",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_pressure_convergence",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_alpha_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_time_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fluid_time_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fluid_coo_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "pc_recipe_retry",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "pc_recipe_restart",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "domains_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "tagged_fluid_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "rigid_tube_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "womersley_flow",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "hyperelastic_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "elastic_fsi_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "rigid_fsi_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "solid_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fluid_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "poisson_parallel",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      }
+    ],
+    "published_source_commit": "ae6c8f61ca882ed7baa7c4296eb99d03e66e60e9"
+  },
+  "final_pressure_checks": {
+    "local_commit": "241ff1f184ef27aeff59dc6f5c93bfeb9d9ebafe",
+    "mode": "release",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+    "tests": [
+      {
+        "name": "fsi_diagnostics",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_diagnostics_mpi",
+        "status": "passed",
+        "ranks": [
+          2
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_tube",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "fsi_pressure_state",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "exit_code": 0
+      }
+    ],
+    "published_source_commit": "369720401450298b18808e50ec6a31423c3500ce",
+    "executable_sha256": "5130995a1d4a6ccc2b24ad6a4a7a10beaa402314a76af623d3d930412eb96ab2"
+  },
+  "forced_retry": {
+    "scheme": "generalized_alpha",
+    "starting_time": 0.008,
+    "snes_max_it": 2,
+    "newton_relative_tolerance": 1e-11,
+    "newton_absolute_tolerance": 1e-13,
+    "baseline_retry_count": 16,
+    "baseline_last_two_iteration_residual": 9.377360284227e-11,
+    "corrected_retry_count": 16,
+    "corrected_accepted_dt": 6.103515625e-08,
+    "corrected_residual": 3.8061382863248865e-11
+  }
+}

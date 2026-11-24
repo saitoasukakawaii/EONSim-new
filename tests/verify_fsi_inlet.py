@@ -47,7 +47,9 @@ class Runner:
                         fields[key]=value
         hist=self.work/(label+'.csv')
         if '-restart' in extra:
-            candidates=list(self.work.glob(label+'_restart*.csv'));assert len(candidates)==1;hist=candidates[0]
+            prefix=label+'_restart'
+            candidates=[p for p in self.work.glob(prefix+'*.csv') if p.stem[len(prefix):].isdigit()]
+            assert len(candidates)==1;hist=candidates[0]
         rows=[]
         if cfg['fsi'].get('output_interval',0):
             with hist.open() as source:rows=[{k:float(v) for k,v in row.items()} for row in csv.DictReader(source)]

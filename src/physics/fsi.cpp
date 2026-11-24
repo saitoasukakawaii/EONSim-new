@@ -46,6 +46,63 @@ void publish_series(const std::filesystem::path& path,const std::vector<std::pai
     for(const auto& e:entries) out<<"<DataSet timestep=\""<<e.first<<"\" file=\""<<xml_filename(e.second)<<"\"/>\n";
     out<<"</Collection></VTKFile>\n"; out.close(); std::filesystem::rename(path.string()+".tmp",path);
 }
+
+struct TaggedPressureFace {
+    std::size_t cell,tag_index;
+    int opposite;
+};
+
+template<class Layout>
+void write_pressure_faces(MPI_Comm comm,const MeshPartition& mesh,const std::vector<int>& tags,
+    const std::vector<TaggedPressureFace>& faces,const std::vector<double>& stage,
+    const std::vector<double>& endpoint,bool distinct_stage,double viscosity,
+    int step,double time,double dt,double stage_time,double stage_load,double endpoint_load,std::ostream& out)
+{
+    constexpr std::size_t integrals_per_face=4;
+    const std::size_t stride=tags.size()*integrals_per_face;
+    const int samples=distinct_stage?2:1;
+    std::vector<double> local(samples*stride,0.),total(local.size());
+    output_stage(comm,"pressure face integration",[&] {
+        for(int s=0;s<samples;++s) {
+            const auto& state=s==0?stage:endpoint;
+            for(const auto& face:faces) {
+                const auto& cell=mesh.cells[face.cell];
+                Tet4Topology::Nodal<Point> current,velocity;
+                Tet4Topology::Nodal<double> pressure;
+                for(int a=0;a<Tet4Topology::nodes;++a) {
+                    const auto n=cell.nodes[a];
+                    for(int c=0;c<Space3::dimension;++c) {
+                        current[a][c]=mesh.nodes[n].position[c]+state[Layout::dof(n,Layout::mesh_offset+c)];
+                        velocity[a][c]=state[Layout::dof(n,c)];
+                    }
+                    pressure[a]=state[Layout::dof(n,Layout::pressure)];
+                }
+                const auto values=fsi_pressure_face_integrals(current,velocity,pressure,face.opposite,viscosity);
+                const auto offset=s*stride+integrals_per_face*face.tag_index;
+                for(std::size_t i=0;i<values.size();++i) local[offset+i]+=values[i];
+            }
+        }
+    });
+    MPI_Reduce(local.data(),total.data(),static_cast<int>(total.size()),MPI_DOUBLE,MPI_SUM,0,comm);
+    output_stage(comm,"pressure face history row",[&] {
+        if(mesh.rank!=0) return;
+        for(std::size_t i=0;i<tags.size();++i) {
+            out<<step<<','<<time<<','<<dt<<','<<stage_time<<','<<tags[i];
+            for(int s=0;s<2;++s) {
+                const auto offset=(distinct_stage?s*stride:0)+i*integrals_per_face;
+                const double area=total[offset],flow=total[offset+3];
+                if(!(area>0)) throw std::runtime_error("Empty FSI pressure face tag "+std::to_string(tags[i]));
+                const double load=s==0?stage_load:endpoint_load;
+                for(double value:{area,total[offset+1]/area,total[offset+2]/area,flow,load,-load*flow}) {
+                    if(!std::isfinite(value)) throw std::runtime_error("Nonfinite FSI pressure face observation");
+                    out<<','<<value;
+                }
+            }
+            out<<'\n';
+        }
+        out.flush();
+    });
+}
 }
 double fsi_pressure(const FsiConfig& config,double time) {
     return config.pressure_time?config.pressure_time->value_at(config.pressure,time):config.pressure;
@@ -167,6 +224,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     std::vector<bool> fluid_cell,solid_cell;
     std::vector<FsiElementData> data;
     std::vector<Tet4Geometry> solid_geometry;
+    const std::vector<int> pressure_tags=dual?f.domains.pressure_tags:std::vector<int>{1};
+    std::vector<TaggedPressureFace> pressure_faces;
     for(const auto& cell:mesh.cells) {
         fluid_cell.push_back(!dual||cell.physical_tag==f.domains.fluid_region);
         solid_cell.push_back(Elastic&&(!dual||cell.physical_tag==f.domains.solid_region));
@@ -186,7 +245,13 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             Tri3Topology::Nodal<int> face; Tri3Topology::Nodal<LocalId> key; int i=0;
             for(int a=0;a<Tet4Topology::nodes;++a) if(a!=skip) { face[i]=a; key[i++]=cell.nodes[a]; }
             std::sort(key.begin(),key.end());
-            if(fluid_cell.back()&&boundary.count(key)&&(dual?std::find(f.domains.pressure_tags.begin(),f.domains.pressure_tags.end(),boundary.at(key))!=f.domains.pressure_tags.end():boundary.at(key)==1)) e.inlet_faces.push_back(face);
+            const auto boundary_face=boundary.find(key);
+            if(!fluid_cell.back()||boundary_face==boundary.end()) continue;
+            const auto tag=std::find(pressure_tags.begin(),pressure_tags.end(),boundary_face->second);
+            if(tag==pressure_tags.end()) continue;
+            e.inlet_faces.push_back(face);
+            if(f.pressure_face_history)
+                pressure_faces.push_back({data.size(),static_cast<std::size_t>(tag-pressure_tags.begin()),skip});
         }
         e.inlet_pressure=f.pressure; data.push_back(e);
     }
@@ -330,10 +395,21 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     const std::string history_stem=config.output.stem().string()+(config.restart.empty()?"":"_restart"+std::to_string(clock.step));
     const auto history_path=[&](const std::string& suffix) {return config.output.parent_path()/(history_stem+suffix);};
     std::ofstream history;
+    std::ofstream pressure_history;
     std::vector<std::pair<double,std::string>> fluid_series,solid_series;
-    if(f.output_interval>0) output_stage(comm,"history open",[&] {
+    if(f.output_interval>0||f.pressure_face_history) output_stage(comm,"history open",[&] {
         if(mesh.rank!=0) return;
         if(!config.output.parent_path().empty()) std::filesystem::create_directories(config.output.parent_path());
+        if(f.pressure_face_history) {
+            pressure_history.exceptions(std::ios::badbit|std::ios::failbit);
+            pressure_history.open(history_path("_pressure_faces.csv"));
+            pressure_history<<std::setprecision(17)<<"step,time,accepted_dt,evaluation_time,tag";
+            for(const auto* sample:{"stage","endpoint"})
+                for(const auto* name:{"area","mean_pressure","mean_normal_traction","outward_flow","prescribed_pressure","pressure_power"})
+                    pressure_history<<','<<sample<<'_'<<name;
+            pressure_history<<'\n';
+        }
+        if(f.output_interval==0) return;
         history.exceptions(std::ios::badbit|std::ios::failbit);
         history.open(history_path(".csv")); history<<std::setprecision(17);
         history<<"step,time,accepted_dt,evaluation_time,applied_pressure,endpoint_position,endpoint_velocity,evaluation_fluid_force,evaluation_body_balance,evaluation_interface_power,evaluation_body_power,evaluation_power_balance,snes_iterations,residual,time_order,reference_interface_area,current_interface_area,area_displacement_x,area_displacement_y,area_displacement_z,area_velocity_x,area_velocity_y,area_velocity_z,stage_min_fluid_j,stage_min_solid_j,endpoint_min_fluid_j,endpoint_min_solid_j";
@@ -637,6 +713,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 history.flush();
             });
         }
+        if(f.pressure_face_history)
+            write_pressure_faces<Layout>(comm,mesh,pressure_tags,pressure_faces,next,physical,alpha_step,f.viscosity,
+                step,time,dt,evaluation_time,pressure,fsi_pressure(f,time),pressure_history);
         const std::string stage=alpha?"stage_":"";
         if(mesh.rank==0) std::cout << std::setprecision(17) << "fsi_step=" << step << " time=" << time << " accepted_dt=" << dt << " evaluation_time=" << evaluation_time << " applied_pressure=" << pressure
             << " position=" << result.position << " velocity=" << result.velocity << " " << stage << "fluid_force=" << result.fluid_force
@@ -650,7 +729,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             if(mesh.rank==0) std::cout << "step_retry=" << clock.retries << " time=" << clock.time << " next_dt=" << clock.next_dt << '\n';
         }
     }
-    if(f.output_interval>0) output_stage(comm,"history close",[&] {if(mesh.rank==0) history.close();});
+    if(f.output_interval>0||f.pressure_face_history) output_stage(comm,"history close",[&] {
+        if(history.is_open()) history.close();
+        if(pressure_history.is_open()) pressure_history.close();
+    });
     output_stage(comm,"final snapshot",snapshot);
     return result;
 }

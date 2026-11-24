@@ -67,6 +67,31 @@ ParaView 同时打开 `solution.pvd` 和 `solution_solid.pvd`，按时间播放�
 输出坐标已经包含位移，不要再次 Warp By Vector。压力载荷驱动弹性端块响应；
 该示例不是 Turek–Hron 基准或实验验证。
 
+## 每个受压面的压力、流量与载荷功率
+
+在算例的 `fsi` 段设置 `pressure_face_history: true`。程序在每个接受步为每个受压标签写一行到
+`<stem>_pressure_faces.csv`。共形双域使用 `domains.pressure_tags` 的配置顺序，旧立方体使用标签 1。
+此开关默认为关闭，可以与任意 `output_interval` 配合，也可以从已有检查点开始启用。
+续算写入 `<stem>_restart<N>_pressure_faces.csv`，其中 N 是恢复步号。
+
+`stage_` 列使用 `evaluation_time` 的位形、速度、压强与边界载荷。`endpoint_` 列使用 `time` 的相应量。
+BE、BDF2 和 generalized-α 的 BE 启动步在终点加载。后续 generalized-α 步在共同阶段加载，
+终点的 `prescribed_pressure` 是同一波形在输出时刻的取值。
+
+| 后缀 | 定义和 SI 单位 |
+|---|---|
+| `area` | 当前构形各三角面的面积和，m² |
+| `mean_pressure` | 有限元静压的面积均值，Pa |
+| `mean_normal_traction` | 流体侧 Cauchy 正应力 $n^T\sigma n$ 的面积均值，拉为正，Pa |
+| `outward_flow` | $Q=\int_\Gamma u\cdot n\,dA$，相对于空间坐标，流出为正，m³/s |
+| `prescribed_pressure` | 配置的外加压力 $p_b(t)$，Pa |
+| `pressure_power` | 外压对流体做功的速率 $-p_b Q$，W，输入能量为正 |
+
+这里 $n$ 是当前流体外法向，$\sigma=-pI+\mu(\nabla u+\nabla u^T)$。每个平面三角形的 P1 压力、速度面均值
+由三个顶点精确积分，速度梯度来自相邻流体 Tet4。跨进程先按标签求积分和，再用全局面积归一化。
+弱式施加的压力牵引与单元侧恢复应力可以分别比较。功率取流体材料速度，移动端面的相对流量还需要扣除网格速度。
+端面功率的时间积分应记录所用求积规则，特别是从静止启动的第一个 BE 步。
+
 ## 针对性检查
 
 `fsi_pressure_state` 覆盖三时间格式的载荷取值、1/2 rank、启动段/周期段恢复、

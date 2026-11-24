@@ -60,6 +60,29 @@ std::array<double,6> fsi_tet_mass_observation(const Tet4Topology::Nodal<Point>& 
     }
     return result;
 }
+std::array<double,4> fsi_pressure_face_integrals(const Tet4Topology::Nodal<Point>& current,
+    const Tet4Topology::Nodal<Point>& velocity,const Tet4Topology::Nodal<double>& pressure,
+    int opposite,double viscosity)
+{
+    const auto& inside=current.at(opposite);
+    Tri3Topology::Nodal<Point> face;
+    int vertex=0;
+    for(int a=0;a<Tet4Topology::nodes;++a) if(a!=opposite) face[vertex++]=current[a];
+    const auto surface=triangle_geometry(face,inside);
+    const auto geometry=tet4_geometry(current);
+    double mean_pressure=0,mean_normal_velocity=0,normal_strain_rate=0;
+    for(int a=0;a<Tet4Topology::nodes;++a) {
+        const double normal_velocity=std::inner_product(velocity[a].begin(),velocity[a].end(),surface.normal.begin(),0.);
+        const auto& grad=geometry.gradients[a];
+        normal_strain_rate+=normal_velocity*std::inner_product(grad.begin(),grad.end(),surface.normal.begin(),0.);
+        if(a!=opposite) {
+            mean_pressure+=Tri3Topology::mean_weight*pressure[a];
+            mean_normal_velocity+=Tri3Topology::mean_weight*normal_velocity;
+        }
+    }
+    const double normal_traction=-mean_pressure+2*viscosity*normal_strain_rate;
+    return {surface.area,surface.area*mean_pressure,surface.area*normal_traction,surface.area*mean_normal_velocity};
+}
 double fsi_volume_ratio(const Tet4Topology::Nodal<Point>& reference,const Tet4Topology::Nodal<Point>& current) {
     return tet4_geometry(current).volume/tet4_geometry(reference).volume;
 }
