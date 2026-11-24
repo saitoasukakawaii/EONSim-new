@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 双端升压、空间加密与求解成本（进行中）
 
+镜像截面负对照 #46 已修复。续期工作继续在本分支核验弯管入口方向、分叉储量、阶段收敛与空间参考。[验收](../research/data/fsi-smooth-load-2026-11-24/reflection-negative-controls.json)
+
 单端口原版 svFSI 与解析阻抗对照已完成。弹性分叉的长时储量和通量分配仍在验证。[单端口证据](../research/data/fsi-rcr-2026-11-24/svfsi-single-port.json)
 
 FSI-PROD-03 的固定多出口耦合、外壁支撑、雅可比、同分区续算和重试已验收。[完整路线](FSI_PRODUCTION_ROADMAP.md)。[固定多端口方程、算例与实测](../research/data/fsi-rcr-2026-11-24/README.md)
@@ -12,7 +14,7 @@ FSI-PROD-03 的固定多出口耦合、外壁支撑、雅可比、同分区续�
 
 双端同压瞬态的独立轴对称参考、全长对半长检验及小振幅对照已完成。[验收](../research/data/fsi-linear-transient-2026-11-24/axisymmetric.md)
 
-分支 `codex/fsi-smooth-load-six-hour`，本轮窗口为北京时间 16:12 至 22:12。已归档同载时间细化、稳定项消融、独立小振幅瞬态、材料域装配以及直接和 Schur 求解的 MPI 配对测量。下一步核对空间加密下同一轴向位置的误差、两方程逐步收敛和不同速度块预条件器的实际收敛成本。窗口末用仓库编译脚本按最终改动集运行 Release 增量选测，汇总为同一 PR。[瞬态结果](../research/data/fsi-smooth-load-2026-11-24/README.md)
+分支 `codex/fsi-smooth-load-six-hour`，北京时间 11 月 24 日 16:12 开始，18:35 按新请求续期至 11 月 25 日 00:35。已归档同载时间细化、稳定项消融、独立小振幅瞬态、材料域装配以及直接和 Schur 求解的 MPI 配对测量。下一步核对空间加密下同一轴向位置的误差、两方程逐步收敛和不同速度块预条件器的实际收敛成本。窗口末用仓库编译脚本按最终改动集运行 Release 增量选测，汇总为同一 PR。[瞬态结果](../research/data/fsi-smooth-load-2026-11-24/README.md)
 
 ## 2026-11-24 · 弹性管加载瞬态
 

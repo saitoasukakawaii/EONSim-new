@@ -60,7 +60,7 @@ python docs/research/data/fsi-rcr-2026-11-24/extended.py --work "$work/extended"
 
 ## Independent RCR calculation in native svFSI
 
-A fixed tube isolates the three-element outlet from wall storage. Both programs solve 3D flow on the same Tet4 connectivity. Prescribe zero-mean sinusoidal inflow of amplitude 0.01 m³/s and period 1 s, initialize the capacitor at its periodic pressure and run one cycle with generalized-α spectral radius 0.5. The fluid face is stationary. Values below are in Pa and use each accepted endpoint. The pinned Fortran svFSI revision is `94a2ff5`, with its original RCR update. EONSim is the multiple-port implementation from `32e7673` in single-port mode.
+A fixed tube isolates the three-element outlet from wall storage. Both programs solve 3D flow on the same Tet4 connectivity. Prescribe zero-mean sinusoidal inflow of amplitude 0.01 m³/s and period 1 s, initialize the capacitor at its periodic pressure and run one cycle with generalized-α spectral radius 0.5. The fluid face is stationary. Values below are in Pa and use each accepted endpoint. The pinned Fortran svFSI revision is `94a2ff5`, with its original RCR update. EONSim is the multiple-port implementation from [the tagged multiple-port commit](https://github.com/saitoasukakawaii/EONSim-new/commit/5ac87ebab12553c1faadd3dc89093470df1703b2) in single-port mode.
 
 | Steps per period | Max EONSim–svFSI pressure difference | Max EONSim–analytic error | Max svFSI–analytic error |
 |---:|---:|---:|---:|

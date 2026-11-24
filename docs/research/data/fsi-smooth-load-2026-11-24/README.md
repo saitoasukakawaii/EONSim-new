@@ -86,3 +86,12 @@ The equal end pressures, identical rollers, uniform materials and geometry imply
 Reflecting back all seven sections at 0.5 and 1 s gave maximum absolute strain differences of 2.17e−19 for EONSim and 1.27e−15 for svFSI. The audit also compares the reflected fluid pressure, all three velocity and displacement components, and both mesh connectivities. This isolates the left–right asymmetry of this mesh from any bias specific to the inlet or outlet label. Averaging both ends can hide the local error. [Node and section comparisons](reflection.json)
 
 To reproduce, run `space_study.py` twice with identical `--mesh 48 4 4 6 --steps 32 --nonlinear-limit 30`, adding `--reflect` to one run. Supply the same observer binary to both. Then run `audit_reflection.py --original <base> --mirrored <mirror> --reference-scripts <PR42-scripts> --output reflection.json`. The metadata distinguishes solver binaries recorded at process launch from executable hashes supplied when retrospectively auditing early runs.
+
+### Independent mirror audit of the bore area
+
+The audit reconstructs each quarter-section directly from tag 13 on the reference solid mesh. It differentiates the polygon area with respect to each vertex and contracts that gradient with the transverse solid displacements read from the matching VTU. Both time stamps and every station position, count and cached value must agree. The cache tolerance is 2e−14 plus 2e−12 times strain. The independent comparison of mirrored VTU strains uses 5e−12 plus 1e−8 times strain. Each of four corruptions in an isolated copy was rejected, including adding 0.001 strain to a single midpoint. All original field checks continue to pass. [Recorded measured fields and areas](reflection.json) · [Negative controls](reflection-negative-controls.json)
+
+```bash
+python check_reflection_controls.py --original "$original" --mirrored "$mirrored" \
+  --reference-scripts "$pr42_scripts" --output "$work/reflection-controls.json"
+```

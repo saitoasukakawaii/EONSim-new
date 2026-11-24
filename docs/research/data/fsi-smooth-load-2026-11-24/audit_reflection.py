@@ -42,6 +42,45 @@ def compare_field(base, mirror, name):
     return dict(max_absolute_difference=difference, max_original_absolute_value=scale)
 
 
+def ring_geometry(mesh, divisions):
+    nodes, _, faces = mesh
+    interface = {i for tag, tri in faces if tag == 13 for i in tri}
+    coordinates = sorted({nodes[i][0] for i in interface})
+    if len(coordinates) != divisions[3] + 1:
+        raise ValueError("Incomplete axial ring geometry")
+    rings = []
+    for x in coordinates:
+        ids = sorted((i for i in interface if nodes[i][0] == x),
+                     key=lambda i: np.arctan2(nodes[i][2], nodes[i][1]))
+        points = np.array([nodes[i][1:] for i in ids])
+        if len(ids) != divisions[0] // 4 + 1 or len(ids) < 2:
+            raise ValueError("Incomplete quarter-circle ring")
+        # Close the reference quarter-section on the two symmetry axes. Its
+        # origin is fixed. Differentiate the polygon area w.r.t. each vertex.
+        polygon = np.vstack((np.zeros(2), points, np.zeros(2)))
+        twice_area = np.sum(polygon[:-1,0]*polygon[1:,1] - polygon[:-1,1]*polygon[1:,0])
+        if twice_area <= 0 or abs(points[0,1]) > 1e-12 or abs(points[-1,0]) > 1e-12:
+            raise ValueError("Invalid quarter-section orientation or cut plane")
+        neighbours = polygon[2:] - polygon[:-2]
+        gradient = np.column_stack((neighbours[:,1], -neighbours[:,0])) / twice_area
+        rings.append((ids, gradient))
+    return np.array(coordinates), rings
+
+
+def checked_strains(report, index, time, mode, geometry, state):
+    positions, rings = geometry
+    cached_positions = np.asarray(report["axial_sections"], dtype=float)
+    if (cached_positions.shape != positions.shape or not np.allclose(cached_positions, positions, rtol=0, atol=5e-15)
+            or len(report["results"]) != 2 or report["results"][index]["time"] != time):
+        raise ValueError("Cached cross-section positions or times differ from the solved geometry")
+    cached = np.asarray(report["results"][index][mode]["strains"], dtype=float)
+    computed = np.array([np.sum(gradient * [state[i].displacement[1:] for i in ids]) for ids, gradient in rings])
+    if (cached.shape != computed.shape or not np.isfinite(cached).all() or not np.isfinite(computed).all()
+            or not np.allclose(cached, computed, rtol=2e-12, atol=2e-14)):
+        raise ValueError("Cached section strains disagree with the independently integrated VTU displacements")
+    return computed, float(np.max(np.abs(cached - computed)))
+
+
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     for name in ("original", "mirrored", "reference-scripts", "output"):
@@ -70,6 +109,11 @@ def main():
               for root in roots]
     for original_mesh, mirror_mesh in zip(*meshes):
         reflected_mesh(original_mesh, mirror_mesh)
+    geometry = [ring_geometry(mesh[1], report["mesh"]) for mesh, report in zip(meshes, reports)]
+    positions, reflected = (item[0] for item in geometry)
+    if (reflected.shape != positions.shape or
+            not np.allclose(positions, positions[0]+positions[-1]-reflected[::-1], rtol=0, atol=5e-15)):
+        raise ValueError("Reflected sample locations differ")
     records = []
     for index, step in enumerate((base["steps"]//2, base["steps"])):
         solvers = []
@@ -86,13 +130,14 @@ def main():
                 record["fields"][region] = {
                     q: compare_field(solvers[0][mode][i], solvers[1][mode][i], q) for q in quantities
                 }
-            original = np.array(base["results"][index][mode]["strains"])
-            measured = np.array(mirror["results"][index][mode]["strains"])
-            if not np.allclose(base["axial_sections"], 2-np.array(mirror["axial_sections"][::-1]),
-                               rtol=0, atol=4e-16):
-                raise ValueError("Reflected sample locations differ")
+            samples = [checked_strains(report, index, record["time"], mode, geom, fields[mode][1])
+                       for report, geom, fields in zip(reports, geometry, solvers)]
+            (original, cached_original), (measured, cached_mirror) = samples
+            delta = float(np.max(np.abs(original-measured[::-1])))
+            if not np.allclose(original, measured[::-1], rtol=1e-8, atol=5e-12):
+                raise ValueError(f"Reflected VTU section strain differs from the original by {delta}")
             record.update(original_ends=original[[0, -1]].tolist(), reflected_ends=measured[[0, -1]].tolist(),
-                          max_reflected_strain_delta=float(np.max(np.abs(original-measured[::-1]))))
+                          max_reflected_strain_delta=delta, max_cached_strain_delta=max(cached_original,cached_mirror))
             records.append(record)
     result = dict(mesh=base["mesh"], steps=base["steps"], peak_pressure=base["peak_pressure"],
                   source_executables=base["source_executables"], mesh_sha256=[r["mesh_sha256"] for r in reports],

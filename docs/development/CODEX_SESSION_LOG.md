@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 六小时弹性管开发，阶段记录
 
+原镜像工具只对节点场设拒绝条件，截面缓存单点增加 0.001 仍可退出成功。改为从 0.5 s 和 1 s 的固体 VTU 直接对截面多边形面积求导，正反两套原始输出与四项反例均已重放。[命令和证据](../research/data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area)
+
 以完整的 1,008 个 svFSI 双精度速度场复核进出口流量，修正了历史 ASCII 面表正负号所致的小数保留位数差异。原版 svFSI 的电容压力与按线性端点流量精确积分的值相差至多 5.70e−9 Pa。两边的原始残量及时间误差门槛保持独立。[复算命令与六级数据](../research/data/fsi-rcr-2026-11-24/README.md#independent-rcr-calculation-in-native-svfsi)
 
 多个端口按标签排序后共享同一个流体残量阶段。分叉交换两组阻抗后按反射核对完整速度、位移、加速度和压力。单端口旧检查点与新数组读取路径一致。[固定多端口方程、算例与实测](../research/data/fsi-rcr-2026-11-24/README.md)

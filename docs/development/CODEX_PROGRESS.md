@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 两端同步升压的弹性管、稳定化与装配
 
+修正 [#46](https://github.com/saitoasukakawaii/EONSim-new/issues/46) 的截面镜像验收。两个求解器的原始位移场通过复算，单点篡改、缺站点、错位置、错时刻四种负例均被拒绝。[镜像复核](../research/data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area)
+
 单 RCR 出口的原版 svFSI、EONSim 与解析阻抗完成六级时间加密。每周期 16 至 512 步时，最大程序间端压差从 1.787e−3 Pa 降至 3.047e−6 Pa。[完整波形与压力误差](../research/data/fsi-rcr-2026-11-24/README.md#independent-rcr-calculation-in-native-svfsi)
 
 单体 FSI 现支持多个固定 RCR 端口。对称及交换阻抗的 T 形分叉已验证；单机 8 MPI rank 的四步完整节点场与串行最大差 1.78e−15。[固定多端口方程、算例与实测](../research/data/fsi-rcr-2026-11-24/README.md)
