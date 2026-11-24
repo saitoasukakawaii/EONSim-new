@@ -292,13 +292,14 @@ PetscErrorCode linear_end(KSP ksp,Vec b,Vec x,void* pointer)
     ++d.completed;
     if(!d.fields) return PETSC_SUCCESS;
     // 使用实际 KSP 算子和右端项；独立副本不改变非线性验收基线。
-    // 失败或对角缩放后的坐标含义不确定时明确跳过，不输出伪真实残量。
+    // An exhausted KSP returns its last iterate. Other failures may leave x undefined; diagonal scaling changes coordinates.
     try {
         KSPConvergedReason reason; PetscBool scaled;
         EONSIM_PETSC(KSPGetConvergedReason(ksp,&reason));
         EONSIM_PETSC(KSPGetDiagonalScale(ksp,&scaled));
         int rank; MPI_Comm_rank(d.fields->comm,&rank);
-        if(reason<=0||scaled) {
+        const bool iteration_limit=reason==KSP_DIVERGED_ITS;
+        if((reason<=0&&!iteration_limit)||scaled) {
             if(rank==0) std::cout<<"linear_residual_unavailable solve="<<d.completed
                 <<" reason="<<(scaled?"diagonal_scaling":"unconverged")<<'\n';
         } else {
@@ -311,9 +312,10 @@ PetscErrorCode linear_end(KSP ksp,Vec b,Vec x,void* pointer)
             d.fields->measure(d.residual.get());
             if(rank==0) {
                 std::ostringstream out; out<<std::setprecision(16);
-                out<<"linear_residual solve="<<d.completed<<" norm="<<norm<<" rhs_norm="<<rhs<<'\n';
+                const char* prefix=iteration_limit?"linear_iteration_limit":"linear";
+                out<<prefix<<"_residual solve="<<d.completed<<" norm="<<norm<<" rhs_norm="<<rhs<<'\n';
                 for(const auto& f:d.fields->values)
-                    out<<"linear_field_residual solve="<<d.completed<<" name="<<f.name
+                    out<<prefix<<"_field_residual solve="<<d.completed<<" name="<<f.name
                        <<" rms="<<f.rms<<" constraint_max="<<f.constraint_max
                        <<" residual_scale="<<f.tolerance.residual_scale
                        <<" constraint_scale="<<f.tolerance.constraint_scale<<'\n';
