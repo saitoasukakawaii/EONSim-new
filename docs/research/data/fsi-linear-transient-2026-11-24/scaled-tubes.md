@@ -46,6 +46,8 @@ At the left end on the coarse dimensional mesh the two default solutions differ 
 
 On the 48-sector mesh, extending the native GMRES subspace to 850 directions and allowing 24 restart cycles completed all 32 dimensional steps. The full fluid/structure and mesh histories passed the independent checks, including every nonzero linear correction. A shorter native restart budget had exhausted its limit. On the 24-sector mesh, two experimental BIPN residual treatments with separate inner tolerances reproduced the same accepted native left-end area of 0.18680355%. Their full linear residuals were independently recomputed before accepting the results. [Native BIPN residuals, failure measurements and controlled fixes](bipn-residual.md)
 
+On the same dimensional input, EONSim records the actual matrix residual on completed Newton corrections and on Krylov iteration exhaustion. The 24-sector tube distinguishes a 500-iteration failure from converged field-split solves and shows the effects of inner subsolves and outer orthogonalization. [Dimensional EONSim preconditioner comparison](arterial-solvers.md)
+
 Raw-mode validation reopens every observed VTU, recomputes polygon area, current cap flux and volume, checks EONSim stage and endpoint loads and verifies every accepted external fluid/structure and mesh solve. The compressed archive preserves input, binary, history and field hashes, sampled sections, cap fluxes and the complete similarity comparison. [Accepted runs and failed controls](scaled-tubes.json.xz) · [Paired section and flow table](scaled-tubes.csv) · [EONSim case generator](scaled_tube.py) · [svFSI case generator](scaled_svfsi.py)
 
 ```bash
