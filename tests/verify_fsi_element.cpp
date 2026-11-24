@@ -1,10 +1,14 @@
 /** @file @brief 全 ALE 局部耦合切线，独立方向扰动覆盖几何/压力面积/网格速度。 */
 #include "eonsim/fsi_element.hpp"
 #include "eonsim/fsi.hpp"
+#include <chrono>
 #include <cmath>
+#include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
-int main() {
+#include <string>
+int main(int argc,char** argv) {
     using namespace eonsim;
     FsiConfig load; load.pressure=2; load.pressure_time=FsiPressureTime{1,4,1};
     for(const auto& sample: {std::pair<double,double>{0,0},{1,3},{2,2},{3,1},{5,3}})
@@ -18,6 +22,32 @@ int main() {
     for(int i=0;i<Tet4Ale::dofs;++i) { x[i]=.015*std::sin(i+1); direction[i]=std::sin(3*i+.7); }
     for(int i=0;i<Tet4Flow::dofs;++i) data.previous_fluid[i]=.03*std::cos(i+.2);
     for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) data.previous_mesh[a][c]=.002*std::sin(a+c+.1);
+    if(argc!=1) {
+        if(argc!=3 || std::string(argv[1])!="--kernel-samples")
+            throw std::runtime_error("Expected --kernel-samples count");
+        const std::string count=argv[2];
+        std::size_t consumed=0;
+        const int samples=std::stoi(count,&consumed);
+        if(samples<1 || consumed!=count.size()) throw std::runtime_error("Expected a positive kernel sample count");
+        for(bool pressure_face:{false,true}) {
+            data.inlet_faces.clear();
+            if(pressure_face) data.inlet_faces.push_back({0,2,3});
+            double checksum=0;
+            auto sample=x;
+            const std::clock_t cpu=std::clock();
+            const auto start=std::chrono::steady_clock::now();
+            for(int iteration=0;iteration<samples;++iteration) {
+                sample[0]=x[0]+1e-6*(iteration%97);
+                const auto jac=fsi_element_tangent(data,sample);
+                checksum+=jac[static_cast<std::size_t>(iteration)%jac.size()];
+            }
+            const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+            const double cpu_seconds=static_cast<double>(std::clock()-cpu)/CLOCKS_PER_SEC;
+            std::cout<<std::setprecision(17)<<"pressure_face="<<pressure_face<<" samples="<<samples
+                     <<" cpu_seconds="<<cpu_seconds<<" wall_seconds="<<seconds<<" checksum="<<checksum<<'\n';
+        }
+        return 0;
+    }
     for(double mesh_dt:{0.,.043}) for(double gd:{0.,.7}) {
     data.fluid.grad_div_viscosity=gd;
     data.mesh_dt=mesh_dt;

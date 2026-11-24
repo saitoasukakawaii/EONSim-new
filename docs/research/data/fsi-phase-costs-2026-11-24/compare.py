@@ -3,10 +3,28 @@ import argparse
 import csv
 import json
 import lzma
+import math
+import re
 from pathlib import Path
 import statistics
 
 from profile_case import PHASES, field_diff, fields
+
+
+def accepted_outcomes(directory,steps):
+    text=(directory/"solve.log").read_text()
+    step_rows=[dict(re.findall(r"(\w+)=([^\s]+)",line)) for line in text.splitlines() if line.startswith("fsi_step=")]
+    solver_rows=[dict(re.findall(r"(\w+)=([^\s]+)",line)) for line in text.splitlines() if line.startswith("solver_report ")]
+    if ([int(r["fsi_step"]) for r in step_rows]!=list(range(1,steps+1)) or len(solver_rows)!=steps or
+            text.count("status=success")!=1 or "step_retry=" in text or
+            any(min(int(r["snes_reason"]),int(r["ksp_reason"]))<=0 or int(r["domain_rejections"]) for r in solver_rows)):
+        raise ValueError(f"Incomplete nonlinear or linear solve in {directory}")
+    norms=[float(r["residual"]) for r in step_rows]
+    if not all(math.isfinite(v) and 0<=v<=1e-12 for v in norms):
+        raise ValueError(f"Final residual exceeds the tube comparison tolerance in {directory}")
+    return dict(linear_iterations=sum(int(r["linear_iterations"]) for r in solver_rows),
+                nonlinear_iterations=sum(int(r["snes_iterations"]) for r in step_rows),
+                largest_accepted_residual=max(norms))
 
 
 def main():
@@ -14,6 +32,8 @@ def main():
     cli.add_argument("--work",type=Path,required=True,help="Contains rN-baseline and rN-compact")
     cli.add_argument("--output",type=Path,required=True)
     cli.add_argument("--pairs",type=int,default=5)
+    cli.add_argument("--element-moments",action="store_true",
+                     help="Compare algebraically equivalent moment residuals, retaining separate Krylov counts and verifying each accepted residual")
     args=cli.parse_args()
     if args.pairs<3: cli.error("Need at least three independent pairs")
     rows=[]
@@ -34,9 +54,17 @@ def main():
             cand=run["compact"][ranks,pc,logging]
             row=dict(pair=repeat,ranks=ranks,pc=pc,logging=logging,baseline_nnz=base["nnz"],compact_nnz=cand["nnz"],
                      linear_iterations=cand["linear_iterations"],dofs=cand["dofs"])
-            if cand["dofs"]!=base["dofs"] or cand["linear_iterations"]!=base["linear_iterations"]:
+            if cand["dofs"]!=base["dofs"] or (not args.element_moments and cand["linear_iterations"]!=base["linear_iterations"]):
                 raise ValueError("Paired algebra dimension or iteration count differs")
             stem=f"r{ranks}-{pc}-0-log{int(logging)}"
+            if args.element_moments:
+                if cand["nnz"]!=base["nnz"]:
+                    raise ValueError("The element moment expansion changed the sparse pattern")
+                for version,original in (("baseline",base),("compact",cand)):
+                    outcomes=accepted_outcomes(args.work/f"r{repeat}-{version}"/stem,info["steps"])
+                    if outcomes["linear_iterations"]!=original["linear_iterations"]:
+                        raise ValueError("Saved Krylov count differs from the solver report")
+                    row.update({version+"_"+k:v for k,v in outcomes.items()})
             for label,suffix in (("fluid","tube.vtu"),("solid","tube_solid.vtu")):
                 a,b=[fields(args.work/f"r{repeat}-{version}"/stem/suffix,ranks) for version in ("baseline","compact")]
                 row[label+"_max_field_delta"]=field_diff(a,b)

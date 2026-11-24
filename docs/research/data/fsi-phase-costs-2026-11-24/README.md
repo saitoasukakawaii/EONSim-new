@@ -39,3 +39,5 @@ for pair in 0 1 2 3 4; do
 done
 python3 "$data/compare.py" --work "$pairs" --output "$pairs/audit"
 ```
+
+The subsequent [exact affine-moment study](moments.md) isolates the full ALE tangent, checks the residual with independent Duffy quadrature and records a scalar-overload prototype that increased cost.

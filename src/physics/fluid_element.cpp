@@ -34,8 +34,9 @@ FluidElement fluid_element(const Tet4Geometry& g, const FluidParameters& p,
         for (int i=0;i<Space3::dimension;++i) grad[i][j] += x[Tet4Flow::dof(a,i)]*g.gradients[a][j];
     }
     const double mass=p.dt>0 ? p.density/p.dt : 0;
-    // 对称四点积分精确积分本核固定 tau 下的三次以下被积项中的二次项；
-    // SUPG 的三次对流项用四点规则近似，残量与切线使用完全相同规则。
+    // With affine P1 velocity, its gradient is constant. The fixed-tau
+    // tangent integrands have degree at most two, so this four-point rule
+    // integrates the same moments as the residual.
     for (const auto& point:FluidQuadrature::points) {
         const auto& N=point.shape;
         double velocity_increment[Space3::dimension]{},c[Space3::dimension]{},rm[Space3::dimension]{};
