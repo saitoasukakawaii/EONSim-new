@@ -10,7 +10,7 @@ from axisymmetric import TubeParameters
 
 
 MODES={"native":"native", "grad-div-off":"zero", "current-equations":"native",
-       "current-equations-grad-div-off":"zero",
+       "current-equations-grad-div-off":"zero","current-equations-relative-mesh-stage":"native",
        "current-equations-grad-div-time-1over128":"fixed-div-time","current-equations-regular-simplex":"native"}
 
 

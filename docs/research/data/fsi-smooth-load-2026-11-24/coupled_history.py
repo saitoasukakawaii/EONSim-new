@@ -50,7 +50,7 @@ def main():
     cli.add_argument("--output",type=Path,required=True)
     args=cli.parse_args()
     out=[]
-    for group in ("time-tail","time-tight","current-time","reference-div"):
+    for group in ("time-tail","time-tight","current-time","reference-div","mesh-increment"):
         for history in sorted((args.runs/group).glob("n*/matched/1-procs/histor.dat")):
             parent=history.parents[2]
             match=re.fullmatch(r"n(\d+)-(.+)",parent.name)

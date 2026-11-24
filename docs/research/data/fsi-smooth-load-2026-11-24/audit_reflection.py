@@ -42,18 +42,20 @@ def compare_field(base, mirror, name):
     return dict(max_absolute_difference=difference, max_original_absolute_value=scale)
 
 
-def ring_geometry(mesh, divisions):
+def ring_geometry(mesh, divisions=None):
     nodes, _, faces = mesh
     interface = {i for tag, tri in faces if tag == 13 for i in tri}
     coordinates = sorted({nodes[i][0] for i in interface})
-    if len(coordinates) != divisions[3] + 1:
+    if not coordinates or (divisions is not None and len(coordinates) != divisions[3] + 1):
         raise ValueError("Incomplete axial ring geometry")
+    expected_nodes = (divisions[0] // 4 + 1 if divisions is not None else
+                      sum(nodes[i][0] == coordinates[0] for i in interface))
     rings = []
     for x in coordinates:
         ids = sorted((i for i in interface if nodes[i][0] == x),
                      key=lambda i: np.arctan2(nodes[i][2], nodes[i][1]))
         points = np.array([nodes[i][1:] for i in ids])
-        if len(ids) != divisions[0] // 4 + 1 or len(ids) < 2:
+        if len(ids) != expected_nodes or len(ids) < 2:
             raise ValueError("Incomplete quarter-circle ring")
         # Close the reference quarter-section on the two symmetry axes. Its
         # origin is fixed. Differentiate the polygon area w.r.t. each vertex.
@@ -65,6 +67,12 @@ def ring_geometry(mesh, divisions):
         gradient = np.column_stack((neighbours[:,1], -neighbours[:,0])) / twice_area
         rings.append((ids, gradient))
     return np.array(coordinates), rings
+
+
+def measured_ring_strains(solid_mesh, solid_state):
+    xs, rings = ring_geometry(solid_mesh)
+    strains = [float(np.sum(g * [solid_state[i].displacement[1:] for i in ids])) for ids, g in rings]
+    return xs.tolist(), strains
 
 
 def checked_strains(report, index, time, mode, geometry, state):

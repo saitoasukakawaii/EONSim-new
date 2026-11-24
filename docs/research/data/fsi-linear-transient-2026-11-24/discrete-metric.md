@@ -20,8 +20,9 @@ For the paired intervention all native decks, meshes, actual stage pressures, so
 | 128 | 5.402 | 0.00% | 0.073399 | 0.064489 | 0.064489 | 0.072608 |
 | 256 | 5.817 | 16.67% | 0.072184 | 0.063377 | 0.064334 | 0.072289 |
 | 512 | 6.789 | 37.50% | 0.070857 | 0.060518 | 0.063970 | 0.071616 |
+| 1024 | 9.936 | 70.83% | 0.069553 | 0.054819 | 0.063325 | 0.070597 |
 
-The area columns give percentages of the original lumen area. At 512 steps, using the fixed time while retaining grad-div recovers 0.003453 percentage points at the left end. With 1024 steps the measured standard and zero-grad-div results are 0.054819% and 0.070597%, respectively. EONSim gives 0.069553%. The seven-station difference between the programs at this resolution is 6.776% of the static response for standard grad-div and 0.480% with it removed. The spatial reference, half-mesh reflections and local divergence values identify a remaining common spatial error. [Paired three-way results](grad-div-time.csv) · [All spatial and temporal comparisons](../fsi-smooth-load-2026-11-24/space-errors.csv)
+The area columns give percentages of the original lumen area. At 1024 steps, freezing only the temporal term of the native grad-div coefficient at its 128-step value recovers 0.008506 percentage points of left-end area. The maximum seven-section intercode discrepancy falls from 6.776% to 2.864% of static strain, a 57.7% reduction. Suppressing the whole grad-div term reduces the discrepancy to 0.480% while increasing the deformed-volume RMS divergence from 5.052 × 10⁻⁴ to 6.451 × 10⁻⁴ s⁻¹. The frozen-time case gives 5.651 × 10⁻⁴ s⁻¹. A separate vertex-order experiment and the independent circular reference measure two other contributions. [Three-way measurements](grad-div-time.csv) · [Spatial and temporal comparisons](../fsi-smooth-load-2026-11-24/space-errors.csv) · [Same coefficient in both nonlinear codes](tet-order.md)
 
 ![Measured expansion versus time step and median native coefficient](metric-end-expansion.png)
 
