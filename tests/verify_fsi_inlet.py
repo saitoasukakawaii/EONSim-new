@@ -19,12 +19,22 @@ class Runner:
         self.interface_area=interface_area
         self.singleton=singleton
         self.timeout=timeout;self.exe=str(Path(exe).resolve());self.mpi=mpi;self.work=Path(work).resolve();self.work.mkdir(parents=True,exist_ok=True)
-    def command(self,args,label,fail=None):
-        r=subprocess.run(list(map(str,args)),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=self.timeout)
-        (self.work/(label+'.log')).write_text(r.stdout)
-        if fail: assert r.returncode!=0 and fail in r.stdout,r.stdout[-5000:]
-        else: assert r.returncode==0,f'{label} exited with {r.returncode}:\n{r.stdout[-5000:]}'
-        return r.stdout
+    def command(self, args, label, fail=None):
+        path = self.work/(label+'.log')
+        # Keep the last solver output even if CTest terminates the Python parent.
+        with path.open('w') as log:
+            try:
+                result = subprocess.run(list(map(str, args)), stdout=log, stderr=subprocess.STDOUT,
+                                        timeout=self.timeout)
+            except subprocess.TimeoutExpired as exc:
+                exc.output = path.read_bytes()
+                raise
+        output = path.read_text()
+        if fail:
+            assert result.returncode != 0 and fail in output, output[-5000:]
+        else:
+            assert result.returncode == 0, f'{label} exited with {result.returncode}:\n{output[-5000:]}'
+        return output
     def solve(self,label,cfg,ranks=1,extra=(),fail=None):
         cfg=copy.deepcopy(cfg);cfg['output']=str(self.work/(label+'.vtu'))
         case=self.work/(label+'.json');case.write_text(json.dumps(cfg))

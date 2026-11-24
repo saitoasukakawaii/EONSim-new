@@ -89,6 +89,7 @@
     "time_retry_verification": {"targets": ["eonsim"], "ranks": [1, 2]}
   },
   "rules": [
+    {"paths": ["tests/verify_fsi_inlet.py", "tests/test_fsi_runner.py"], "tests": [], "python": ["tests/test_fsi_runner.py"]},
     {"paths": [".github/workflows/agent-auto-merge.yml", "scripts/cloud/agent_auto_merge.py", "tests/test_agent_auto_merge.py"], "tests": [], "python": ["tests/test_agent_auto_merge.py"]},
     {"paths": ["scripts/study_womersley.py", "tests/verify_womersley.py", "scripts/study_rigid_tube.py", "cases/fsi/generate_tube.py", "src/core/config.cpp", "include/eonsim/config.hpp", "src/physics/fluid_boundary.cpp", "include/eonsim/fluid_boundary.hpp", "src/physics/fluid.cpp", "CMakeLists.txt"], "tests": ["womersley_flow"], "python": ["tests/test_womersley.py"]},
     {"paths": ["scripts/svfsi_history.py", "scripts/svfsi_mesh.py", "scripts/compare_svfsi_womersley.py", "scripts/compare_svfsi_womersley_fields.py", "scripts/compare_womersley_runs.py", "tests/test_womersley.py"], "tests": [], "python": ["tests/test_womersley.py"]},
