@@ -137,24 +137,62 @@ struct OutletState {
     double capacitor=0,previous=0,rate=0;
 };
 
-void assemble_outlet(const ReducedLayout& layout,const OutletTrace& trace,const RcrStage& stage,double outlet_pressure,
-    const std::vector<double>& physical,bool owns_pressure,Vec residual,Mat jacobian) {
-    const auto port=trace.pressure;
+// The normal mesh velocity vanishes on the prescribed plane. Its signed current
+// area still changes with tangential displacement, including the shared wall trace.
+template<class Visit>
+void outlet_weights(const OutletTrace& trace,const std::vector<double>& state,int components,Visit visit) {
+    for(const auto& [slot,weight]:trace.flux_weights) visit(slot,weight);
+    for(const auto& face:trace.moving_faces) {
+        const double weight=face.geometry(state,components,trace.normal_axis).weight;
+        for(const auto node:face.nodes) visit(static_cast<std::size_t>(components)*node+trace.normal_axis,weight);
+    }
+}
+
+double outlet_flux(const OutletTrace& port,const std::vector<double>& state,int components) {
     double flux=0;
-    for(const auto& [slot,weight]:trace.flux_weights) {
+    outlet_weights(port,state,components,[&](std::size_t slot,double weight){flux+=weight*state[slot];});
+    return flux;
+}
+
+void assemble_outlet(const ReducedLayout& layout,const OutletTrace& trace,const RcrStage& stage,double outlet_pressure,
+    const std::vector<double>& physical,double mesh_dt,bool owns_pressure,Vec residual,Mat jacobian) {
+    const auto port=trace.pressure;
+    const int nc=layout.components;
+    double flux=0;
+    outlet_weights(trace,physical,nc,[&](std::size_t slot,double weight) {
         flux+=weight*physical[slot];
         const auto row=layout.global[slot];
-        if(row<0) continue;
+        if(row<0) return;
         EONSIM_PETSC(VecSetValue(residual,row,weight*outlet_pressure,ADD_VALUES));
         if(jacobian) {
             EONSIM_PETSC(MatSetValue(jacobian,row,port,weight,ADD_VALUES));
             EONSIM_PETSC(MatSetValue(jacobian,port,row,-weight,ADD_VALUES));
         }
-    }
+    });
     const double value=(owns_pressure?stage.flow(outlet_pressure):0)-flux;
     EONSIM_PETSC(VecSetValue(residual,port,value,ADD_VALUES));
-    if(owns_pressure&&jacobian)
-        EONSIM_PETSC(MatSetValue(jacobian,port,port,1/stage.total_impedance,ADD_VALUES));
+    if(!jacobian) return;
+    if(owns_pressure) EONSIM_PETSC(MatSetValue(jacobian,port,port,1/stage.total_impedance,ADD_VALUES));
+    for(const auto& face:trace.moving_faces) {
+        const int axis=trace.normal_axis;
+        const auto geometry=face.geometry(physical,nc,axis);
+        Tri3Topology::Nodal<PetscInt> rows;
+        double velocity_sum=0;
+        for(int a=0;a<Tri3Topology::nodes;++a) {
+            const auto slot=nc*face.nodes[a]+axis;
+            rows[a]=layout.global[slot];
+            velocity_sum+=physical[slot];
+        }
+        for(int a=0;a<Tri3Topology::nodes;++a) for(int t=0;t<2;++t) {
+            const auto grid=nc*face.nodes[a]+Tet4Ale::mesh_offset+(axis+1+t)%3;
+            const auto map=layout.slot(grid,mesh_dt);
+            if(map.column<0) continue;
+            const double slope=geometry.gradient[a][t]*map.trial_weight;
+            EONSIM_PETSC(MatSetValue(jacobian,port,map.column,-velocity_sum*slope,ADD_VALUES));
+            for(const auto row:rows) if(row>=0)
+                EONSIM_PETSC(MatSetValue(jacobian,row,map.column,outlet_pressure*slope,ADD_VALUES));
+        }
+    }
 }
 
 struct OutletObservation {
@@ -248,6 +286,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
 {
     const auto& f=config.fsi;
     const auto& outlets=f.domains.rcr_outlets;
+    const bool moving_port=std::any_of(outlets.begin(),outlets.end(),[](const auto& outlet){return outlet.moving_plane_axis>=0;});
     std::map<int,std::size_t> outlet_by_tag;
     for(std::size_t i=0;i<outlets.size();++i) outlet_by_tag.emplace(outlets[i].tag,i);
     const bool bdf2=config.time_integration.scheme==TimeScheme::bdf2;
@@ -430,6 +469,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     if(f.grad_div_viscosity>0) signature_values.insert(signature_values.end(),{20509.,f.grad_div_viscosity});
     for(const auto& outlet:outlets) signature_values.insert(signature_values.end(),{20511.,double(outlet.tag),outlet.proximal_resistance,
         outlet.distal_resistance,outlet.compliance,outlet.distal_pressure,outlet.initial_capacitor_pressure});
+    for(const auto& outlet:outlets) if(outlet.moving_plane_axis>=0)
+        signature_values.insert(signature_values.end(),{20515.,double(outlet.tag),double(outlet.moving_plane_axis)});
     for(const auto& [tag,support]:supports)
         if(support.stiffness>0||support.damping>0)
             signature_values.insert(signature_values.end(),{20510.,double(tag),support.stiffness,support.damping});
@@ -744,7 +785,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             }
             for(std::size_t i=0;i<outlets.size();++i) {
                 const auto& port=reduced.outlets[i];
-                assemble_outlet(reduced,port,outlet_stages[i],x[port.local],full,mesh.rank==mesh.ranks-1,r,j);
+                assemble_outlet(reduced,port,outlet_stages[i],x[port.local],full,mesh_dt,mesh.rank==mesh.ranks-1,r,j);
             }
             if(!Elastic && mesh.rank==mesh.ranks-1) {
                 const double v=x[reduced.body_local];
@@ -773,12 +814,13 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 }
             }
         });
-        for(const auto& port:reduced.outlets) for(const auto& [slot,weight]:port.flux_weights) {
-            if(!interface[slot/nc]) continue;
-            const double force=weight*solved.values[port.local];
-            if(slot%nc==0) local[0]-=force;
-            local[2]-=force*next[slot];
-        }
+        for(const auto& port:reduced.outlets)
+            outlet_weights(port,next,nc,[&](std::size_t slot,double weight) {
+                if(!interface[slot/nc]) return;
+                const double force=weight*solved.values[port.local];
+                if(slot%nc==0) local[0]-=force;
+                local[2]-=force*next[slot];
+            });
         MPI_Allreduce(local,global,4,MPI_DOUBLE,MPI_SUM,comm);
         result.fluid_force=global[0];
         auto next_physical=next,next_reduced=solved.values,next_solid=solid_d;
@@ -891,13 +933,18 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             const double endpoint=alpha_step?std::fma(dt,(1-fluid_map.p.gamma)*state.rate+fluid_map.p.gamma*rate,state.capacitor):pc;
             next_outlet_state[i]={endpoint,state.capacitor,rate};
             port_values.push_back({pb,next_reduced[port.local],pc,stage_rate});
-            if(f.output_interval>0) for(const auto& [slot,weight]:port.flux_weights) {
-                outlet_flow[2*i]+=weight*next[slot];
-                outlet_flow[2*i+1]+=weight*next_physical[slot];
-            }
+            if(f.output_interval>0) outlet_flow[2*i]=outlet_flux(port,next,nc);
+            if(port.normal_axis>=0||f.output_interval>0) outlet_flow[2*i+1]=outlet_flux(port,next_physical,nc);
         }
-        if(!outlets.empty()&&f.output_interval>0)
+        if(!outlets.empty()&&(moving_port||f.output_interval>0))
             MPI_Allreduce(MPI_IN_PLACE,outlet_flow.data(),static_cast<int>(outlet_flow.size()),MPI_DOUBLE,MPI_SUM,comm);
+        // Q(u,d) on a moving port is nonlinear: recover endpoint pressure from the
+        // actual endpoint area and velocity before checkpointing or interpolating a later step.
+        for(std::size_t i=0;i<outlets.size();++i) if(reduced.outlets[i].normal_axis>=0) {
+            const double endpoint=std::fma(outlets[i].proximal_resistance,outlet_flow[2*i+1],next_outlet_state[i].capacitor);
+            next_reduced[reduced.outlets[i].local]=endpoint;
+            port_values[i].endpoint_pressure=endpoint;
+        }
         if(f.inlet_flow) {stage_mass=mass_observation(next); endpoint_mass=mass_observation(next_physical); old_mass=mass_observation(physical);}
         std::array<double,5> support_history{};
         if(!supports.empty()&&f.output_interval>0) {

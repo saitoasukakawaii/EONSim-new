@@ -95,10 +95,11 @@ struct WallSupport {
     double stiffness=0; ///< Normal traction per unit reference-normal displacement, Pa/m.
     double damping=0;   ///< Normal traction per unit reference-normal velocity, Pa s/m.
 };
-/** Fixed outlet, outward flux positive. Rp/Rd [Pa s/m³], C [m³/Pa], pressures [Pa]. */
+/** Outward flow is positive. Rp/Rd [Pa s/m³], C [m³/Pa], pressures [Pa]. */
 struct RcrOutlet {
     int tag;
     double proximal_resistance,distal_resistance,compliance,distal_pressure,initial_capacitor_pressure;
+    int moving_plane_axis=-1; ///< Optional fixed normal axis 0/1/2; tangential ALE motion changes port area.
 };
 
 struct FsiDomains {
@@ -108,7 +109,7 @@ struct FsiDomains {
     std::vector<int> pressure_tags;
     std::vector<ComponentConstraint> fluid_constraints,mesh_constraints,solid_constraints;
     std::map<int,WallSupport> wall_supports; ///< Solid exterior physical tags.
-    std::vector<RcrOutlet> rcr_outlets; ///< Sorted by stationary boundary tag for stable layout and restart.
+    std::vector<RcrOutlet> rcr_outlets; ///< Sorted by boundary tag for stable layout and restart.
 };
 using FsiPressureTime=PressureTime;
 struct FsiFlowRate {

@@ -1,6 +1,7 @@
 /** @file @brief 全 ALE 局部耦合切线，独立方向扰动覆盖几何/压力面积/网格速度。 */
 #include "eonsim/fsi_element.hpp"
 #include "eonsim/fsi.hpp"
+#include "eonsim/reduced_layout.hpp"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -11,6 +12,31 @@
 #include <string>
 namespace {
 using namespace eonsim;
+
+void verify_planar_area_tangent() {
+    // A translated, sheared cap with nonzero normal velocities. Differentiate the
+    // signed current area on both outward orientations and all coordinate planes.
+    constexpr int nc=Tet4Ale::components;
+    double worst=0;
+    for(int axis=0;axis<3;++axis) for(int sign:{-1,1}) {
+        PlanarOutletFace face{{1,3,0},{1.2,.3},{-.2,static_cast<double>(sign)*.9}};
+        std::vector<double> state(4*nc);
+        for(int a=0;a<3;++a) for(int t=0;t<2;++t)
+            state[nc*face.nodes[a]+Tet4Ale::mesh_offset+(axis+1+t)%3]=1.1+t*.2+.04*a*(a+1+t);
+        const auto geometry=face.geometry(state,nc,axis);
+        if(sign*geometry.weight<=0) throw std::runtime_error("Incorrect signed moving port area");
+        for(int a=0;a<3;++a) for(int t=0;t<2;++t) {
+            const auto i=nc*face.nodes[a]+Tet4Ale::mesh_offset+(axis+t+1)%3;
+            auto plus=state,minus=state;
+            const double eps=1e-6;
+            plus[i]+=eps;minus[i]-=eps;
+            const double fd=(face.geometry(plus,nc,axis).weight-face.geometry(minus,nc,axis).weight)/(2*eps);
+            worst=std::max(worst,std::abs(fd-geometry.gradient[a][t]));
+        }
+    }
+    std::cout<<"moving_RCR_signed_area_derivative_error="<<worst<<'\n';
+    if(worst>2e-10) throw std::runtime_error("Moving port geometry tangent differs from finite differences");
+}
 
 void verify_regular_metric() {
     const Tet4Topology::Nodal<Point> xyz{{{0,0,0},{1,0,0},{0,1,0},{0,0,1}}};
@@ -122,6 +148,7 @@ int main(int argc,char** argv) {
         return 0;
     }
     verify_regular_metric();
+    verify_planar_area_tangent();
     for(double mesh_dt:{0.,.043}) for(auto [gd,metric_dt]:{std::pair{0.,0.},std::pair{.7,0.},std::pair{0.,.011}}) {
     data.regular_metric_dt=metric_dt;
     data.fluid.grad_div_viscosity=gd;

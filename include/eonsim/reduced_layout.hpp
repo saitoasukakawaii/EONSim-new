@@ -28,10 +28,25 @@ struct ReducedSlot {
     double trial_weight=0,lifting=0;
     double expand(const std::vector<double>& q) const { return lifting+(local<0?0:trial_weight*q.at(local)); }
 };
+/** Oriented Tri3 on a coordinate plane. Existing cell validity checks protect face orientation.
+ * The two edges are stored in cyclic tangential coordinates so their signed determinant
+ * gives the normal component of the outward area vector, positive or negative.
+ */
+struct PlanarOutletFace {
+    Tri3Topology::Nodal<LocalId> nodes;
+    std::array<double,2> edge1,edge2;
+    struct Geometry {
+        double weight; ///< Integral of one linear trace basis times the signed unit normal component.
+        Tri3Topology::Nodal<std::array<double,2>> gradient; ///< d weight / d node tangential displacement.
+    };
+    Geometry geometry(const std::vector<double>& state,int components,int normal_axis) const;
+};
 /** Global port pressure and distributed outward-velocity surface integral. */
 struct OutletTrace {
     PetscInt pressure=-1,local=-1;
-    std::vector<std::pair<std::size_t,double>> flux_weights; ///< Owned face contributions by physical velocity slot.
+    std::vector<std::pair<std::size_t,double>> flux_weights; ///< Stationary trace weights by physical velocity slot.
+    int normal_axis=-1;
+    std::vector<PlanarOutletFace> moving_faces; ///< Owned in-plane triangles with current area and consistent tangent.
 };
 struct ReducedLayout {
     AlgebraLayout algebra;

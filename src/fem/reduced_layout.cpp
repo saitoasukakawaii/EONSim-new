@@ -3,40 +3,105 @@
 #include "eonsim/field_layout.hpp"
 #include "eonsim/boundary_geometry.hpp"
 #include <algorithm>
+#include <cmath>
 #include <set>
 #include <map>
 #include <numeric>
 #include <limits>
 #include <stdexcept>
 namespace eonsim {
+PlanarOutletFace::Geometry PlanarOutletFace::geometry(const std::vector<double>& state,int components,int axis) const {
+    auto e1=edge1,e2=edge2;
+    for(int t=0;t<2;++t) {
+        const int component=Tet4Ale::mesh_offset+(axis+1+t)%3;
+        const double d0=state[components*nodes[0]+component];
+        e1[t]+=state[components*nodes[1]+component]-d0;
+        e2[t]+=state[components*nodes[2]+component]-d0;
+    }
+    Geometry g{};
+    g.weight=(e1[0]*e2[1]-e1[1]*e2[0])/6;
+    g.gradient[0]={(e1[1]-e2[1])/6,(e2[0]-e1[0])/6};
+    g.gradient[1]={e2[1]/6,-e2[0]/6};
+    g.gradient[2]={-e1[1]/6,e1[0]/6};
+    return g;
+}
 namespace {
 void build_outlet_traces(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains,ReducedLayout& reduced) {
     const auto count=reduced.outlets.size();
     std::map<int,std::size_t> by_tag;
     for(std::size_t i=0;i<count;++i) by_tag.emplace(domains.rcr_outlets[i].tag,i);
     std::vector<std::map<std::size_t,double>> weights(count);
-    std::vector<int> local(count+1),global(count+1);
+    std::vector<int> local(count+2),global(count+2);
+    bool any_moving=false;
+    for(std::size_t i=0;i<count;++i) {
+        reduced.outlets[i].normal_axis=domains.rcr_outlets[i].moving_plane_axis;
+        any_moving|=reduced.outlets[i].normal_axis>=0;
+    }
+    // Min/max checks include empty partitions and disallow opposite facing or disjoint parallel planes.
+    const double inf=std::numeric_limits<double>::infinity();
+    std::vector<double> low(2*count,inf),high(2*count,-inf);
     try {
         const auto facets=build_boundary_facets(mesh);
         for(std::size_t i=0;i<mesh.boundary.size();++i) {
             const auto& face=mesh.boundary[i];
-            const auto port=by_tag.find(face.physical_tag);
-            if(port==by_tag.end()) continue;
-            if(mesh.cells[facets[i].cell].physical_tag!=domains.fluid_region) local.back()=1;
+            const auto found=by_tag.find(face.physical_tag);
+            if(found==by_tag.end()) continue;
+            const auto index=found->second;
+            auto& port=reduced.outlets[index];
             const auto g=boundary_geometry(mesh,i,facets[i]);
-            for(auto node:face.nodes) for(int c=0;c<Space3::dimension;++c) {
-                const auto offset=static_cast<std::size_t>(node)*reduced.components;
-                if(reduced.global[offset+Tet4Ale::mesh_offset+c]>=0) local.back()=1;
-                weights[port->second][offset+c]+=g.area*Tri3Topology::mean_weight*g.normal[c];
+            const bool fluid=mesh.cells[facets[i].cell].physical_tag==domains.fluid_region;
+            if(port.normal_axis<0) {
+                if(!fluid) local[count]=1;
+                for(auto node:face.nodes) for(int c=0;c<Space3::dimension;++c) {
+                    const auto offset=static_cast<std::size_t>(node)*reduced.components;
+                    if(reduced.global[offset+Tet4Ale::mesh_offset+c]>=0) local[count]=1;
+                    weights[index][offset+c]+=g.area*Tri3Topology::mean_weight*g.normal[c];
+                }
+                continue;
             }
+            const int axis=port.normal_axis,s=(axis+1)%3,t=(axis+2)%3;
+            if(!fluid||std::hypot(g.normal[s],g.normal[t])>1e-12) local[count+1]=1;
+            for(auto node:face.nodes) {
+                const auto offset=static_cast<std::size_t>(node)*reduced.components;
+                if(reduced.global[offset+Tet4Ale::mesh_offset+axis]>=0) local[count+1]=1;
+                if(reduced.global[offset+axis]>=0) local[index]=1;
+                const double position=mesh.nodes[node].position[axis];
+                low[2*index]=std::min(low[2*index],position);
+                high[2*index]=std::max(high[2*index],position);
+            }
+            low[2*index+1]=std::min(low[2*index+1],g.normal[axis]);
+            high[2*index+1]=std::max(high[2*index+1],g.normal[axis]);
+            auto nodes=face.nodes;
+            const auto edge=[&](LocalId n) {
+                const auto& a=mesh.nodes[nodes[0]].position;
+                const auto& b=mesh.nodes[n].position;
+                return std::array<double,2>{b[s]-a[s],b[t]-a[t]};
+            };
+            auto e1=edge(nodes[1]),e2=edge(nodes[2]);
+            if((e1[0]*e2[1]-e1[1]*e2[0])*g.normal[axis]<0) {
+                std::swap(e1,e2);
+                std::swap(nodes[1],nodes[2]);
+            }
+            port.moving_faces.push_back({nodes,e1,e2});
         }
         for(std::size_t i=0;i<count;++i) for(const auto& entry:weights[i]) if(entry.second!=0) {
             reduced.outlets[i].flux_weights.push_back(entry);
             if(reduced.global[entry.first]>=0) local[i]=1;
         }
-    } catch(const std::exception&) { local.back()=1; }
+    } catch(const std::exception&) { local[count]=1; }
     MPI_Allreduce(local.data(),global.data(),static_cast<int>(global.size()),MPI_INT,MPI_MAX,comm);
-    if(global.back()||std::find(global.begin(),global.end()-1,0)!=global.end()-1)
+    if(global[count]) throw std::runtime_error("RCR outlet needs a stationary fluid exterior with free normal flow");
+    if(any_moving) {
+        MPI_Allreduce(MPI_IN_PLACE,low.data(),static_cast<int>(low.size()),MPI_DOUBLE,MPI_MIN,comm);
+        MPI_Allreduce(MPI_IN_PLACE,high.data(),static_cast<int>(high.size()),MPI_DOUBLE,MPI_MAX,comm);
+        for(std::size_t i=0;i<count;++i) if(reduced.outlets[i].normal_axis>=0) {
+            const auto a=low[2*i],b=high[2*i];
+            const double tolerance=64*std::numeric_limits<double>::epsilon()*std::max({1.,std::abs(a),std::abs(b)});
+            if(global[count+1]||!global[i]||b-a>tolerance||low[2*i+1]*high[2*i+1]<=0)
+                throw std::runtime_error("RCR moving plane requires one oriented fluid exterior plane, fixed normal mesh displacement and free normal flow");
+        }
+    }
+    if(std::find(global.begin(),global.begin()+count,0)!=global.begin()+count)
         throw std::runtime_error("RCR outlet needs a stationary fluid exterior with free normal flow");
 }
 
@@ -192,6 +257,18 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
             if(velocity<0) continue;
             EONSIM_PETSC(MatSetValue(graph.get(),velocity,pressure,0,INSERT_VALUES));
             EONSIM_PETSC(MatSetValue(graph.get(),pressure,velocity,0,INSERT_VALUES));
+        }
+        for(const auto& face:port.moving_faces) for(auto node:face.nodes) {
+            const auto offset=static_cast<std::size_t>(node)*nc;
+            const auto normal=reduced.global[offset+port.normal_axis];
+            if(normal>=0) {
+                EONSIM_PETSC(MatSetValue(graph.get(),normal,pressure,0,INSERT_VALUES));
+                EONSIM_PETSC(MatSetValue(graph.get(),pressure,normal,0,INSERT_VALUES));
+            }
+            for(int t=1;t<=2;++t) {
+                const auto geometry=reduced.global[offset+Tet4Ale::mesh_offset+(port.normal_axis+t)%3];
+                if(geometry>=0) EONSIM_PETSC(MatSetValue(graph.get(),pressure,geometry,0,INSERT_VALUES));
+            }
         }
         if(outlet_owner) EONSIM_PETSC(MatSetValue(graph.get(),pressure,pressure,0,INSERT_VALUES));
     }
