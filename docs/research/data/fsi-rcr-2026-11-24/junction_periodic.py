@@ -1,6 +1,7 @@
 """Measure pressure-driven exchange between two RCR terminals of the 3D T-junction."""
 import argparse
 import cmath
+import fcntl
 import hashlib
 import json
 import math
@@ -104,8 +105,28 @@ def main():
     p.add_argument('--elastic',action='store_true')
     a=p.parse_args()
     if a.samples<8 or a.cycles<2 or a.hz<=0 or a.grid<1 or not math.isfinite(a.tau) or a.tau<=0:p.error('Use at least two resolved cycles')
-    report=run_case(a.executable.resolve(),a.mpiexec,a.work,a.grid,a.hz,a.samples,a.cycles,a.elastic,a.tau)
-    (a.work/'result.json').write_text(json.dumps(report,indent=2,allow_nan=False)+'\n')
+    a.work.mkdir(parents=True,exist_ok=True)
+    request=dict(refinement=a.grid,frequency_hz=a.hz,samples=a.samples,cycles=a.cycles,
+                 elastic=a.elastic,fixed_pspg=a.tau,executable_sha256=digest(a.executable))
+    result=a.work/'result.json'
+    marker=a.work/'request.json'
+    with (a.work/'request.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX)
+        if marker.exists() and json.loads(marker.read_text())!=request:
+            raise ValueError('Use a separate directory for each junction input and executable')
+        if result.exists():
+            report=json.loads(result.read_text())
+            if (any(report.get(k)!=v for k,v in request.items()) or
+                    any(digest(a.work/name)!=expected for name,expected in report['input_output_sha256'].items())):
+                raise ValueError('The existing junction result belongs to different inputs or fields')
+        else:
+            if not marker.exists() and (a.work/'coupled.json').exists():
+                raise ValueError('An existing run owns this output directory')
+            marker.write_text(json.dumps(request,indent=2)+'\n')
+            report=run_case(a.executable.resolve(),a.mpiexec,a.work,a.grid,a.hz,a.samples,a.cycles,a.elastic,a.tau)
+            temporary=result.with_suffix('.json.tmp')
+            temporary.write_text(json.dumps(report,indent=2,allow_nan=False)+'\n')
+            temporary.replace(result)
     print([(v['rcr_flow']['phasor'],v['rcr_flow']['cycle_change']) for v in report['ports']],flush=True)
 
 
