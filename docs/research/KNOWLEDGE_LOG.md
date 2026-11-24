@@ -1,5 +1,9 @@
 # EONSim Knowledge Log
 
+## 2026-11-24 · 压力端面功率与弹性管启动
+
+[技术草稿](../../website/drafts/fsi-pressure-face-work.md)从外压功、有限元压强迹和黏性法向应力解释输出。基于 `3697204` 的 48 扇区圆管区分端点时间求积与两程序真实的位移差，附 EONSim 12 工况与三个步长的固定版本 svFSI 阶跃算例。[数据与验证](data/fsi-pressure-faces-2026-11-24/README.md)
+
 ## 2026-11-24 · 网站知识选编
 
 [草稿目录](../../website/drafts/README.md)逐篇登记了 34 份材料。九篇进入四个专题或教程的选稿范围；另从现有调研编成[上游源码阅读指南](../../website/learning/open-source-hpc.md)。主线归档为数值依据，编辑稿用原始波形、节点力、时间步数据和 P2 制造解说明读数。待人工审阅的栏目入口见[知识专题](../../website/knowledge/index.md)和[实践教程](../../website/tutorials/index.md)。
