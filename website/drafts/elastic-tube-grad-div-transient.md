@@ -32,3 +32,5 @@ EONSim 也可以使用常系数 grad-div 项。在同一工况分别取 0、1、
 从同时静止的流体和管壁出发，将压力和速度、位移一起按振幅展开。对流项与几何更新乘以已有流动的项均从高一阶开始。保留一阶后得到带代数约束的线性系统 $M\dot y+Ky=f(t)$。在同一网格上独立组装质量、黏性、弹性、压强和稳定项，用三阶 Radau IIA 时间推进。这样可以直接检验一套给定半离散方程在第一秒的面积响应。
 
 在固定 PSPG 系数、256 个 EONSim 时间步及 128 个 Radau 时间步下，将峰值压力从 0.02 Pa 减至 0.0002 Pa，默认零 grad-div 的最大一秒截面差由解析稳态面积应变的 0.02017% 降至 0.000187%。该基准验证了同一网格的小振幅实现。判断哪种离散更接近连续弹性管的瞬态响应还需要空间参照，Lamé 解能够检验的是静态极限。[独立方程、方法与 30 次运行](../../docs/research/data/fsi-linear-transient-2026-11-24/README.md)
+
+Independent axisymmetric refinement estimates the 1 s left-end expansion at 0.0788759% of initial area. On the 48-sector mesh the two native values are 0.0733993% and 0.0644891%. The independently calculated tiny-amplitude limit separates model accuracy from intercode agreement. See [the continuum reference](../../docs/research/data/fsi-linear-transient-2026-11-24/axisymmetric.md).

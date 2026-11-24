@@ -206,7 +206,7 @@ class Tube:
         return dict(max_residual=error,area_strain_per_pascal=self.sections(y))
 
 
-def integrate(tube,steps,amplitude,manufactured=False):
+def integrate(tube,steps,amplitude,manufactured=False,observe=None):
     h=1./steps
     M,K=tube.mass,tube.operator
     operator=sparse.bmat([[M+h*A[0,0]*K,h*A[0,1]*K],[h*A[1,0]*K,M+h*A[1,1]*K]],format="csc")
@@ -221,12 +221,18 @@ def integrate(tube,steps,amplitude,manufactured=False):
         def forcing(t): return amplitude*t**3*(10.-15.*t+6.*t**2)*tube.load
     rows=[]
     max_residual=0.
+    inverse_a=np.linalg.inv(A) if observe is not None else None
     for step in range(steps):
         previous=M@y
         forces=np.stack([forcing((step+c)*h) for c in C])
         rhs=(previous+h*(A@forces)).ravel()
         stages=factor.solve(rhs)
         max_residual=max(max_residual,float(np.max(np.abs(operator@stages-rhs))))
+        if observe is not None:
+            stage_values=stages.reshape(2,tube.size)
+            rates=inverse_a @ (stage_values-y) / h
+            for c,value,rate in zip(C,stage_values,rates):
+                observe((step+c)*h,value,rate)
         y=stages[tube.size:]
         if (step+1)*2==steps or step+1==steps:
             rows.append(dict(time=(step+1)*h,section_area_strain=tube.sections(y)))

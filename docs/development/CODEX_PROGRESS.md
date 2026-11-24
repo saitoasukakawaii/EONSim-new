@@ -2,6 +2,8 @@
 
 ## 2026-11-24 · 两端同步升压的弹性管、稳定化与装配
 
+独立轴对称空间参考已完成，其两级截面扩张最大变化为静态 Lamé 扩张的 0.00369%。[数值与复现](../research/data/fsi-linear-transient-2026-11-24/axisymmetric.md)
+
 外壁现可按标签施加参考法向弹簧和阻尼，三个时间格式均有功率与储能验证，1/2/4 进程覆盖了支持的装配和续算路径。[外壁支撑](FSI_WALL_SUPPORT.md)
 
 从 `main@6a5ac96` 开始。两个求解器在同一网格和相同阶段载荷下计算至 1 s，48 扇区、128 步的七截面最大差为 Lamé 稳态面积应变的 4.0975%。仅在 svFSI 中去掉动量 grad-div 项，这个差降至 0.4967%。EONSim 增加可选的常系数 grad-div 并验证完整 ALE 切线。独立线性化 Radau 参照与 30 次非线性运行给出了固定半离散的小振幅极限。实际 1/2/4 rank 计时和节点场验证覆盖了按材料域压缩的局部矩阵装配。[两程序的瞬态对照](../research/data/fsi-smooth-load-2026-11-24/README.md) · [独立瞬态参照](../research/data/fsi-linear-transient-2026-11-24/README.md) · [性能配对记录](../research/data/fsi-phase-costs-2026-11-24/README.md)

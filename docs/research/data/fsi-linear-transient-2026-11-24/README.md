@@ -43,3 +43,5 @@ for gamma in 0 4; do
     --steps 16 32 64 128 256 --pressures 0.02 0.002 0.0002
 done
 ```
+
+The [axisymmetric continuum reference](axisymmetric.md) provides an independent space refinement, stage power and mass checks, and a comparison of both tetrahedral solvers at common axial stations.
