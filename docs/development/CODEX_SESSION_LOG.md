@@ -13,6 +13,8 @@
 - 用原始 VTU 重新核对七个镜像截面并复测 #46 的四种负对照。单点应变加 0.001、缺失截面、移动截面和错时刻均在对应检查处失败；正例复现已归档的每项节点场指标。[镜像验证与失败原因](../research/data/fsi-smooth-load-2026-11-24/README.md#axial-reflection-control)
 - 双进程周期回归曾在第 28 步后发出信号 11。用同一程序和分区三次跑完 80 步，三次均逐字节复现故障前的 224 份两域与边界 VTU。另在单进程小计算中由父进程和各秩分别记录退出码，区分求解器返回零与 MPI 启动器退出异常。[周期回放](../research/data/fsi-smooth-load-2026-11-24/mpi-periodic-replay.json)
 
+单列圆管入口、组织支撑、RCR 耦合与 RCR 谐波/重试后，原 50 条断言的语法树与数量逐项一致。四项在记录子进程实时输出的版本上全部通过。同一单机采用不同的绑核及共享内存选项时，仍观察到测试超时。复用结果与新运行分别标出提交、目标与原日志摘要。[最终 Release 收据与历次失败](../research/data/fsi-smooth-load-2026-11-24/release-validation.md)
+
 ## 2026-11-24 · 压力端面历史、惯性缩步与独立管壁对照
 
 基线为 `951064d`。受压面与装配共享标签和相邻流体单元，开关独立于 VTU 写出，缩步与续算均在接受步写记录。按倾斜面解析解检查面积、法向黏性项及流量，再从瞬态 VTU 的节点场独立重建 stage 和 endpoint。编译使用 `scripts/cloud/run.sh 3.23.7 release explicit`。[选测、版本和复现](../research/data/fsi-pressure-faces-2026-11-24/README.md)

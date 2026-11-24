@@ -18,6 +18,8 @@
 
 本分支完成了 #46 的镜像截面复核。从两域节点场重算七个截面后，原始计算通过，单点应变加 0.001 与另外三种损坏输入均在相应检查处被识别。[原始场与负对照](../research/data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area) · [问题记录](https://github.com/saitoasukakawaii/EONSim-new/issues/46)
 
+PETSc 3.23.7 Release 通过仓库脚本编译。62 项增量 CTest 均有通过记录，其中 56 项取自编译输入完全相同的干净检出，6 项取自最终日志改动后的独立运行。另有 54 项 Python 测试通过。两轮大组选测中出现过周期算例进程信号和限时退出，逐项收据保留了这些失败及其复测结果。[验证来源、退出状态与耗时](../research/data/fsi-smooth-load-2026-11-24/release-validation.md)
+
 ## 2026-11-24 · 单体 FSI 的受压面功率与第一秒面积响应
 
 从主线 `951064d` 实现可选的阶段/终点标签历史，修复短时间步下惯性插值的消减误差。12 个 EONSim 工况完成 56 个接受步，端面压强的场重算最大差 1.22e−17 Pa。固定版本 svFSI 的独立重建重放了 0.25 s 对照，并补齐 0.125 s 阶跃响应。1 s 截面面积应变的最大程序间差在三个步长上为解析稳态应变的 5.321%、8.429%、9.028%。36 项 Release 增量检查通过，最终源码 `3697204` 的四项端面检查通过。[算例与验证](../research/data/fsi-pressure-faces-2026-11-24/README.md)
