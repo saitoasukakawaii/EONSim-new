@@ -95,3 +95,5 @@ The audit reconstructs each quarter-section directly from tag 13 on the referenc
 python check_reflection_controls.py --original "$original" --mirrored "$mirrored" \
   --reference-scripts "$pr42_scripts" --output "$work/reflection-controls.json"
 ```
+
+[Discrete metric, frozen grad-div time and current-equation convergence](../fsi-linear-transient-2026-11-24/discrete-metric.md)

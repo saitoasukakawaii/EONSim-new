@@ -176,6 +176,17 @@ class WomersleyTest(unittest.TestCase):
             with self.subTest(history=history,steps=steps), self.assertRaises(ValueError):
                 sv.check_convergence(history,steps)
 
+    def test_coupled_equation_rebound_uses_the_last_correction(self):
+        lines = [
+            ' MS 1-1 0.3 [ 0 1.0 1.0 1e-10] [ 24 -30 82]',
+            ' MS 1-2 0.4 [-180 1e-9 2e-9 1e-10] [ 12 -30 82]',
+            ' MS 1-3 0.5 [-154 2e-8 3e-8 1e-10] [ 18 -30 82]',
+        ]
+        with self.assertRaisesRegex(ValueError, r'MS 1-3, residual 2e-08'):
+            sv.check_convergence('\n'.join(lines),1,'MS')
+        lines.append(' MS 1-4s 0.6 [-220 1e-11 2e-11 1e-10] [ 15 -30 82]')
+        self.assertEqual(sv.check_convergence('\n'.join(lines),1,'MS'),(1e-11,0))
+
     def test_axial_sections_integrate_oriented_p1_fields(self):
         mesh = self.directory/'section-mesh'
         tube.generate(mesh,sectors=8,radial=2,axial=3,radius=1.,length=2.)

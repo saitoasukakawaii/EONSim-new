@@ -10,7 +10,7 @@ The resulting system $M\dot y+Ky=f(t)$ has 3,485 unknowns and a singular mass ma
 
 - Unit hydrostatic pressure with an independently loaded wall gives a full-system infinity residual of 8.54e−15. A manufactured quadratic trajectory checks the differential and algebraic rows together. The maximum component errors for the two coefficients were 4.49e−10 and 6.65e−10.
 - With 8, 16, 32, 64 and 128 steps, the final two observed orders for maximum inter-resolution wall strain at 1 s are 3.00 and 3.01 for both coefficients. The 64→128 change across both sampling times is at most 5.70e−7 of the analytical equilibrium strain. The largest collocation solve residual at 128 steps was below 7e−18.
-- The comparison requires a matching baseline input hash, complete accepted history, 0.5 and 1 s fields, and all seven axial rings. All 30 nonlinear runs passed. We fixed PSPG $\tau=0.007716762652107021$ s in both programs and scaled the absolute nonlinear tolerance with pressure. Native svFSI uses different stabilization and is assessed in the [separate intercode study](../fsi-smooth-load-2026-11-24/README.md).
+- The comparison requires a matching baseline input hash, complete accepted history, 0.5 and 1 s fields, and all seven axial rings. All 30 nonlinear runs passed. We fixed PSPG $\tau=0.007716762652107021$ m³ s/kg in both programs and scaled the absolute nonlinear tolerance with pressure. Native svFSI uses different stabilization and is assessed in the [separate intercode study](../fsi-smooth-load-2026-11-24/README.md).
 
 ## Results at 1 s
 
@@ -45,3 +45,5 @@ done
 ```
 
 The [axisymmetric continuum reference](axisymmetric.md) provides an independent space refinement, stage power and mass checks, and a comparison of both tetrahedral solvers at common axial stations.
+
+[Dependence of the native Tet4 momentum stabilization on the time step](discrete-metric.md)

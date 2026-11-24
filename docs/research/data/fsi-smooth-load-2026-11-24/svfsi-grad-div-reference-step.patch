@@ -1,0 +1,12 @@
+diff --git a/Code/Source/svFSI/FLUID.f b/Code/Source/svFSI/FLUID.f
+index 7d4cf64..0610c4a 100755
+--- a/Code/Source/svFSI/FLUID.f
++++ b/Code/Source/svFSI/FLUID.f
+@@ -404,3 +404,6 @@
+       IF (vmsFlag) THEN
+-         tauC = 1._RKIND / (tauM * (Kxi(1,1) + Kxi(2,2) + Kxi(3,3)))
++!        Hold only the physical time in momentum grad-div at 1/128 s.
++!        tauM in subscales and pressure stabilization still uses dt.
++         tauC = rho*SQRT(4._RKIND*(ctM*128._RKIND)**2 + kU + kS)
++     2        / (Kxi(1,1) + Kxi(2,2) + Kxi(3,3))
+          tauB = up(1)*up(1)*Kxi(1,1) + up(2)*up(1)*Kxi(2,1)
