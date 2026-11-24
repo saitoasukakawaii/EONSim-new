@@ -14,3 +14,20 @@ OPENBLAS_NUM_THREADS=1 LD_LIBRARY_PATH="$prefix/lib" python compare.py \
   --reference-scripts "$pr42_scripts" --work /tmp/scale-eon \
   --steps 16 32 64 128 256 512 --pressures .02 .0002
 ```
+
+## Changing the fixed cell time on two meshes
+
+All 42 nonlinear trajectories passed the prescribed times and the displacement-field checks. Each spatial operator has its own independently assembled DAE with 512 Radau steps. The table uses the same nonlinear time step, 1/256 s, and compares the linearized polygon area at the left end of the pressure-driven tube at 1 s. Each of the last two columns is the largest absolute error across all seven sections divided by the equilibrium Lamé strain for that load.
+
+| Tet4 grid | Fixed cell time (s) | Local PSPG range at rest (m³ s/kg) | End area increase under 0.02 Pa (%) | Error under 0.02 Pa (% static) | Error under 0.0002 Pa (% static) |
+|---|---:|---:|---:|---:|---:|
+| 24 / 3 / 2 / 6 | 1/128 | 0.003691–0.003853 | 0.0695993 | 0.01867 | 0.000175 |
+| 24 / 3 / 2 / 6 | 1/32 | 0.009147–0.013006 | 0.0713452 | 0.01880 | 0.000172 |
+| 48 / 4 / 4 / 6 | 1/128 | 0.003047–0.003722 | 0.0743082 | 0.02012 | 0.000193 |
+| 48 / 4 / 4 / 6 | 1/32 | 0.004650–0.009652 | 0.0753575 | 0.02016 | 0.000191 |
+
+Changing only the temporal factor in PSPG shifts the end expansion by 0.001746 percentage points on the coarser mesh and 0.001049 on the finer mesh. The independent spatial operators reproduce that direction and magnitude. Their maximum manufactured-trajectory component error is 2.36e−12, and their largest 256-to-512-step section change is 9.30e−9 of the equilibrium strain. [All 84 observations](time-scales.csv) · [Matched references and field hashes](time-scales.json.xz)
+
+```bash
+python compare_time_scales.py --archive time-scales.json.xz --csv "$work/time-scales.csv"
+```
