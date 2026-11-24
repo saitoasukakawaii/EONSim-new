@@ -92,3 +92,5 @@ The symmetric T-junction now has independent checks on daughter pressure and flo
 A separate RCR option permits tangential mesh and wall motion on a fixed coordinate plane. The circuit uses the current outlet area, and the monolithic tangent includes its displacement derivative. It supports stationary and expanding outlets in the same computation. [Inputs, equations and moving-port checks](planar-outlets.md)
 
 [Independent downstream pressure waveforms, two-frequency transfer and restart](reservoir-pressure.md)
+
+Oppositely driven downstream reservoirs produce measurable daughter-to-daughter flow with a closed parent inlet. Independent P1/P1 and Taylor–Hood 3D systems distinguish startup, time-stage accuracy and spatial stabilization. [T-junction differential pressure and phase](junction-harmonic.md)
