@@ -51,3 +51,5 @@ The [axisymmetric continuum reference](axisymmetric.md) provides an independent 
 [Dependence of the native Tet4 momentum stabilization on the time step](discrete-metric.md)
 
 [Frequency-dependent area compliance, phase and total inward flux](harmonic.md)
+
+[Pulsatile inlet and RCR on a 20 mm tube with clamped or radially free outlet](perfusion.md)

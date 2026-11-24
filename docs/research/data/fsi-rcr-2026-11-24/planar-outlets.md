@@ -43,3 +43,5 @@ All three no-output checkpoints reproduced endpoint fields and subsequent pressu
 In a separate T-junction the positive-y daughter was allowed to expand while the negative-y daughter was fully clamped. Their final areas changed by 0.02455% and zero. Releasing the negative-y daughter gave changes of 0.02454% and 0.01260%. The largest measured flux or circuit defect was 5.43e−17 in the corresponding SI quantity. A second control clamped the moving-plane tube completely and recovered the stationary-port solution within 1.37e−12. [Measured values](planar-outlets.json) · [Reproduction runner](../../../../tests/verify_fsi_moving_port.py)
 
 The repository Release driver builds the implementation. From the repository root, use a PETSc 3.23.7 prefix from the cloud lock and an explicit test list containing `fsi_moving_plane_rcr` and `fsi_element_jacobian`. [Build and validation](../../../development/BUILD_AND_VALIDATION.md)
+
+[Through-flow, phase and cross-code comparison for the dimensional elastic tube](../fsi-linear-transient-2026-11-24/perfusion.md)
