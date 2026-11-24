@@ -30,3 +30,24 @@ OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 LD_LIBRARY_PATH="$prefix/lib" \
 ```
 
 For a physical input, add e.g. `wall_supports: [{tag: 14, stiffness: 50, damping: 5}]` under `fsi.domains`. Inputs use passive nonnegative coefficients; either coefficient may be zero.
+
+## First-second response with elastic or viscous support
+
+Five support combinations were run with the same quintic two-ended ramp to 0.02 Pa. The 3D solutions use 128 steps, the independently assembled axisymmetric mixed Q2/Q1 fluid and Q2 wall use Radau IIA at 64, 128 and 256 steps. All seven reported sections coincide physically, including the end rings and the midplane. The error denominator for each row is the supported Lamé equilibrium area strain at 0.02 Pa. The areas in the middle columns use the undeformed lumen area as denominator.
+
+| Spring k (Pa/m) | Dashpot c (Pa s/m) | 3D midplane area gain at 1 s, 96 sectors | Meridian midplane gain | Largest section difference, 48 sectors | Largest section difference, 96 sectors |
+|---:|---:|---:|---:|---:|---:|
+| 0 | 0 | 0.10618% | 0.10718% | 6.427% | 2.842% |
+| 0 | 5 | 0.08283% | 0.08327% | 4.335% | 1.874% |
+| 50 | 0 | 0.06017% | 0.06072% | 5.776% | 2.780% |
+| 50 | 5 | 0.05308% | 0.05339% | 5.188% | 2.519% |
+| 50 | 30 | 0.03405% | 0.03416% | 2.556% | 1.704% |
+
+For a free wall, the largest 96-sector discrepancy at 1 s occurs at x = 1/3 m, where EONSim gives 0.09647% and the meridian gives 0.10265% of initial area. With a spring, the largest discrepancy is at the right end. In the meridian calculations the largest change across both times and all regimes from 48 to 64 base axial intervals was 0.005725% of the supported equilibrium, and from 128 to 256 time steps on the finest of these grids it was 0.0000400%. Both use the same four levels of corner grading, so these differences quantify particular refinement changes. The 3D support work and final elastic energy plus accumulated damping work close within 7.63e−21 J. [All times, end areas, peak discrepancies and energy](transient-sections.csv)
+
+Generate the 3D fields with `study.py --steps 128 --dt .0078125 --output-interval 64`, retaining both output times. Generate the meridian fields with `axisymmetric.py --mesh 64 64 16 --corner-levels 4 --support 50 5 --steps 64 128 256`, selecting the other grids and support values as in the raw archive. Rebuild the table from the original result and input records with the command below. [17 input reports, ten 3D cases and SHA-256 identifiers](transient-inputs.json.xz)
+
+```bash
+python compare_transient.py --archive transient-inputs.json.xz --csv /tmp/wall-transient.csv
+cmp transient-sections.csv /tmp/wall-transient.csv
+```
