@@ -93,6 +93,16 @@ def branched(executable, mpi, directory):
     return result
 
 
+def verify_volume_rates(previous,rows):
+    for row in rows:
+        rate=(row['endpoint_volume']-previous)/row['accepted_dt']
+        if abs(rate-row['volume_secant_rate'])>2e-11:
+            raise ValueError('Volume rate uses a state other than the last accepted endpoint')
+        if abs(row['stage_inlet_flow']-row['stage_outlet_flow']-rate-row['secant_mass_residual'])>2e-11:
+            raise ValueError('Secant mass balance differs from the accepted volume change')
+        previous=row['endpoint_volume']
+
+
 def retry(run, original):
     cfg=copy.deepcopy(original)
     f=cfg['fsi']
@@ -101,11 +111,12 @@ def retry(run, original):
     cfg['time_control']=dict(step_sizes=[.004,.004,.10])
     cfg['time']=dict(scheme='generalized_alpha',rho_infinity=.5)
     checkpoint=run.work/'retry-checkpoint'
-    run.solve('retry-seed',cfg,2,['-checkpoint',checkpoint,'-stop_after',2])
+    _,seed,_=run.solve('retry-seed',cfg,2,['-checkpoint',checkpoint,'-stop_after',2])
     cfg['time_control'].update(max_retries=18,minimum_dt=1e-10,reduction=.5)
     actual,rows,log=run.solve('retry',cfg,2,['-restart',checkpoint,'-snes_max_it',3,'-stop_after',3])
     if len(rows)!=1 or 'step_retry=' not in log or rows[0]['accepted_dt']>=f['dt']:
         raise ValueError('Did not exercise a rejected moving-port stage')
+    verify_volume_rates(seed[-1]['endpoint_volume'],rows)
     cfg['time_control']['step_sizes']=[.004,.004,rows[0]['accepted_dt']]
     replay,full,_=run.solve('retry-replay',cfg,2,['-stop_after',3])
     gap=error(actual,replay)
@@ -146,6 +157,8 @@ def verify(executable,mpi,work):
         run.solve('silent-'+scheme,silent,2,['-checkpoint',checkpoint,'-stop_after',4])
         resumed,tail,_=run.solve('resume-'+scheme,cfg,2,['-restart',checkpoint])
         check_rcr_history(run,'resume-'+scheme,model,tail,restart=4)
+        verify_volume_rates(parallel[3]['endpoint_volume'],tail)
+        verify_volume_rates(parallel[0]['endpoint_volume'],parallel[1:])
         restart_error=error(resumed,two)
         pressure_error=max(abs(i['endpoint_rcr_pressure']-j['endpoint_rcr_pressure']) for i,j in zip(tail,parallel[4:]))
         if restart_error>2e-9 or pressure_error>2e-10 or len(tail)!=len(parallel)-4:

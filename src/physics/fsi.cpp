@@ -51,7 +51,7 @@ void publish_series(const std::filesystem::path& path,const std::vector<std::pai
 // PCApply. An inactive event avoids both clock reads and PETSc calls.
 struct FsiAssemblyEvents {
     PetscLogEvent fluid_residual=-1, fluid_ale_tangent=-1;
-    PetscLogEvent solid_residual=-1, solid_tangent=-1, insert=-1, force_replay=-1;
+    PetscLogEvent solid_residual=-1, solid_tangent=-1, insert=-1, force_replay=-1, mass_observe=-1;
 
     void register_for_log_view() {
         PetscBool enabled=PETSC_FALSE;
@@ -63,6 +63,7 @@ struct FsiAssemblyEvents {
         EONSIM_PETSC(PetscLogEventRegister("FSISolidJac",0,&solid_tangent));
         EONSIM_PETSC(PetscLogEventRegister("FSIInsert",0,&insert));
         EONSIM_PETSC(PetscLogEventRegister("FSIForceReplay",0,&force_replay));
+        EONSIM_PETSC(PetscLogEventRegister("FSIMassObserve",0,&mass_observe));
     }
 };
 
@@ -367,8 +368,11 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         return scale;
     };
     const auto interface_faces=fsi_interface_faces(comm,mesh,interface,dual?f.domains.fluid_region:0);
+    const bool mass_history=f.inlet_flow&&f.output_interval>0;
+    enum MassFace : unsigned char { interior=0, inward_inlet=1, outward_outlet=2, outward_wall=3 };
+    std::vector<std::array<MassFace,4>> mass_faces(mass_history?mesh.cells.size():0);
     std::set<Tri3Topology::Nodal<LocalId>> interface_keys;
-    for(auto face:interface_faces) {std::sort(face.begin(),face.end());interface_keys.insert(face);}
+    if(mass_history) for(auto face:interface_faces) {std::sort(face.begin(),face.end());interface_keys.insert(face);}
     std::vector<bool> fluid_cell,solid_cell;
     std::vector<FsiElementData> data;
     std::vector<Tet4Geometry> solid_geometry;
@@ -401,6 +405,13 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             for(int a=0;a<Tet4Topology::nodes;++a) if(a!=skip) { face[i]=a; key[i++]=cell.nodes[a]; }
             std::sort(key.begin(),key.end());
             const auto boundary_face=boundary.find(key);
+            if(mass_history&&fluid_cell.back()&&(boundary_face!=boundary.end()||interface_keys.count(key))) {
+                const int tag=boundary_face==boundary.end()?0:boundary_face->second;
+                auto& role=mass_faces[data.size()][skip];
+                if(f.inlet&&tag==f.inlet->tag) role=inward_inlet;
+                else if(std::find(f.domains.pressure_tags.begin(),f.domains.pressure_tags.end(),tag)!=f.domains.pressure_tags.end()) role=outward_outlet;
+                else role=outward_wall;
+            }
             if(boundary_face==boundary.end()) continue;
             if(!supports.empty()) {
                 const auto support=supports.find(boundary_face->second);
@@ -508,32 +519,25 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     }
     // Diagnostics use local owned cells and current geometry. Surface flux and
     // volume divergence are independently integrated; no global fields gathered.
-    const auto mass_observation=[&](const std::vector<double>& state) {
-        std::array<double,5> local{},global{}; // volume, inward inlet, outward outlet/wall, div(u)
-        output_stage(comm,"mass observation",[&] {
-            for(std::size_t e=0;e<mesh.cells.size();++e) if(fluid_cell[e]) {
-                const auto& cell=mesh.cells[e]; Tet4Topology::Nodal<Point> xyz,u;
-                for(int a=0;a<4;++a) for(int c=0;c<3;++c) {
-                    const auto n=cell.nodes[a]; xyz[a][c]=mesh.nodes[n].position[c]+state[Layout::dof(n,Layout::mesh_offset+c)];
-                    u[a][c]=state[Layout::dof(n,c)];
-                }
-                const auto observation=fsi_tet_mass_observation(xyz,u); local[0]+=observation[0]; local[4]+=observation[1];
-                for(int skip=0;skip<4;++skip) {
-                    Tri3Topology::Nodal<LocalId> key; int k=0;
-                    for(int a=0;a<4;++a) if(a!=skip) {key[k++]=cell.nodes[a];}
-                    std::sort(key.begin(),key.end());
-                    const auto found=boundary.find(key);
-                    if(found==boundary.end()&&!interface_keys.count(key)) continue;
-                    const double flux=observation[2+skip];
-                    const int tag=found==boundary.end()?0:found->second;
-                    if(f.inlet&&tag==f.inlet->tag) local[1]-=flux;
-                    else if(std::find(f.domains.pressure_tags.begin(),f.domains.pressure_tags.end(),tag)!=f.domains.pressure_tags.end()) local[2]+=flux;
-                    else local[3]+=flux;
-                }
+    const auto local_mass_observation=[&](const std::vector<double>& state) {
+        std::array<double,5> local{}; // volume, inward inlet, outward outlet/wall, div(u)
+        for(std::size_t e=0;e<mesh.cells.size();++e) if(fluid_cell[e]) {
+            const auto& cell=mesh.cells[e];
+            Tet4Topology::Nodal<Point> xyz,u;
+            for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) {
+                const auto n=cell.nodes[a];
+                xyz[a][c]=mesh.nodes[n].position[c]+state[Layout::dof(n,Layout::mesh_offset+c)];
+                u[a][c]=state[Layout::dof(n,c)];
             }
-        });
-        MPI_Allreduce(local.data(),global.data(),5,MPI_DOUBLE,MPI_SUM,comm);
-        return global;
+            const auto values=fsi_tet_mass_observation(xyz,u);
+            local[0]+=values[0];
+            local[4]+=values[1];
+            for(int skip=0;skip<Tet4Topology::nodes;++skip) {
+                const auto role=mass_faces[e][skip];
+                if(role!=interior) local[role]+=role==inward_inlet?-values[2+skip]:values[2+skip];
+            }
+        }
+        return local;
     };
     const auto signature=state_signature(mesh,dual?"fsi_dual":"fsi",signature_values);
     TimeStepper clock(f.dt,f.steps,config.time_control);
@@ -637,6 +641,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     FsiAssemblyEvents events;
     events.register_for_log_view();
     const FsiAssemblyEvents unmeasured;
+    std::optional<double> accepted_mass_volume;
     while(clock.active(config.stop_after)) {
         if(bdf2&&physical_history.previous_dt>0) clock.next_dt=std::min(clock.next_dt,2*physical_history.previous_dt);
         const int step=clock.step+1; const double dt=clock.dt(),time=clock.time+dt;
@@ -924,7 +929,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         } else {
             result.position=next_body.position; result.velocity=next_body.velocity;
         }
-        std::array<double,5> stage_mass{},endpoint_mass{},old_mass{};
+        std::array<double,5> stage_mass{},endpoint_mass{};
+        double old_volume=0;
         std::vector<double> outlet_flow(2*outlets.size());
         std::vector<OutletObservation> port_values;
         auto next_outlet_state=outlet_state;
@@ -950,7 +956,25 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             next_reduced[reduced.outlets[i].local]=endpoint;
             port_values[i].endpoint_pressure=endpoint;
         }
-        if(f.inlet_flow) {stage_mass=mass_observation(next); endpoint_mass=mass_observation(next_physical); old_mass=mass_observation(physical);}
+        if(mass_history) measured(events.mass_observe,[&] {
+            // Reduce both observed states together. Restart from the physical
+            // checkpoint and reuse an endpoint only after the step is accepted.
+            std::array<double,11> values{};
+            output_stage(comm,"mass observation",[&] {
+                const auto stage=local_mass_observation(next);
+                std::copy(stage.begin(),stage.end(),values.begin());
+                if(alpha_step) {
+                    const auto endpoint=local_mass_observation(next_physical);
+                    std::copy(endpoint.begin(),endpoint.end(),values.begin()+5);
+                }
+                if(!accepted_mass_volume) values[10]=local_mass_observation(physical)[0];
+            });
+            MPI_Allreduce(MPI_IN_PLACE,values.data(),static_cast<int>(values.size()),MPI_DOUBLE,MPI_SUM,comm);
+            std::copy_n(values.begin(),5,stage_mass.begin());
+            if(alpha_step) std::copy_n(values.begin()+5,5,endpoint_mass.begin());
+            else endpoint_mass=stage_mass;
+            old_volume=accepted_mass_volume.value_or(values[10]);
+        });
         std::array<double,5> support_history{};
         if(!supports.empty()&&f.output_interval>0) {
             std::array<double,5> local_work{};
@@ -977,6 +1001,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             solid_acceleration=std::move(next_solid_acceleration); body_acceleration=next_body_acceleration; alpha_ready=true;
         }
         clock.accept();
+        if(mass_history) accepted_mass_volume=endpoint_mass[0];
         if(bdf2&&clock.at_event()) physical_history.previous_dt=displacement_history.previous_dt=body_history.previous_dt=0;
         if(alpha&&clock.at_event()) alpha_ready=false;
         if(!config.checkpoint.empty()&&(step%f.checkpoint_interval==0||!clock.active(config.stop_after))) {
@@ -1025,7 +1050,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 if(f.inlet_flow) {
                     for(double v:stage_mass) history<<','<<v;
                     for(double v:endpoint_mass) history<<','<<v;
-                    const double rate=(endpoint_mass[0]-old_mass[0])/dt;
+                    const double rate=(endpoint_mass[0]-old_volume)/dt;
                     history<<','<<rate<<','<<stage_mass[1]-stage_mass[2]-stage_mass[3]
                         <<','<<stage_mass[1]-stage_mass[2]-rate<<','<<endpoint_inlet_scale;
                 }
