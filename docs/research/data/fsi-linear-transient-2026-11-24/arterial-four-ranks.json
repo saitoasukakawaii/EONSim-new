@@ -1,0 +1,365 @@
+{
+  "short": {
+    "process": {
+      "launcher_exit": 0,
+      "ranks": [
+        {
+          "rank": 0,
+          "exit_code": 0
+        },
+        {
+          "rank": 1,
+          "exit_code": 0
+        },
+        {
+          "rank": 2,
+          "exit_code": 0
+        },
+        {
+          "rank": 3,
+          "exit_code": 0
+        }
+      ],
+      "expected_ranks": 4,
+      "application_reported_success": true,
+      "elapsed_seconds": 307.3964412310015,
+      "accepted_steps": 8,
+      "clean_exit": true,
+      "executable_sha256": "59a06d3f3d73dcda8f5516bfe4bfac2055f56d50c1cbe24162844cd30f2fadd7",
+      "log_sha256": "12eabd66450dd2e9700e762cbc90f46b2edf429f1b9ff405a364e4385ce7c894"
+    },
+    "case_sha256": "cd825117e27a75a6194b866342c320fca7b616169ac05b4b321eafdedcd2fe43",
+    "reference_case_sha256": "436d8bed9ac9aadb7def6defa1b0ffa7e10baf9642dc377018b50cc3fbd4f7a9",
+    "meshes_sha256": [
+      "1fa0f0964747eb27afe2521c77705a426066e940e4c27048a230647befd88d16",
+      "abb75c9acbabb20976f5b1aec0c14330c4a9f6f8f7633bd62542dee4ab291db9"
+    ],
+    "equation_rows": {
+      "mesh": 243,
+      "pressure": 154,
+      "structure": 357,
+      "velocity": 273
+    },
+    "placement": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ]
+    ],
+    "accepted_outer_iterations": 763,
+    "within_target": 16,
+    "largest_ratio": 0.9746092057688549,
+    "residual_over_target": [
+      0.574954009677438,
+      0.4680506808111053,
+      0.6548716235417957,
+      0.9746092057688549,
+      0.7193257651126473,
+      0.7511745761702143,
+      0.7357756732804936,
+      0.7478508178858916,
+      0.6542675188738291,
+      0.4183458481208349,
+      0.8142925531530343,
+      0.7980143448341744,
+      0.8688821870060062,
+      0.818315291419511,
+      0.6689567389392312,
+      0.7751187129242932
+    ],
+    "fields": {
+      "fluid_velocity": {
+        "base": 0.00020601219103408736,
+        "difference": 4.344072844497671e-15
+      },
+      "fluid_displacement": {
+        "base": 1.1701387047226885e-06,
+        "difference": 1.3241771943544884e-18
+      },
+      "fluid_pressure": {
+        "base": 8.231170790180702,
+        "difference": 2.1280754936015e-12
+      },
+      "wall_velocity": {
+        "base": 1.2019813477103287e-05,
+        "difference": 2.3177104455368304e-17
+      },
+      "wall_displacement": {
+        "base": 1.1701387047226885e-06,
+        "difference": 1.4973127140067375e-19
+      }
+    },
+    "end_areas_pct": [
+      0.00288375348231478,
+      0.019177572461661456
+    ],
+    "vtu_sha256": {
+      "tube_step4_rank0.vtu": "dbd1a7a7011763d203af208449f5cb5638901074ac9f81bd7ced74bf59ef99a7",
+      "tube_step4_rank1.vtu": "7599d3020dfd1079800c80ce5d144f4bd9ee43104a5911a9d62705f888a35c55",
+      "tube_step4_rank2.vtu": "5a5b05e791758bcdb1db29927063c94bdd956b2695bdee2245f07baea79a10d2",
+      "tube_step4_rank3.vtu": "de99526149f8a0d48746d1d3fd47b10ab57bceb8e084a7b6f589a56e66653adf",
+      "tube_step4_solid_rank0.vtu": "cae83bcc5bc673cd0a0af674ee52350722ae8fdd6cd17ee2d63214cd0ff7c016",
+      "tube_step4_solid_rank1.vtu": "f6cbb1b0b4bcd97bd3795a8c8961e4d6e2be70cd31994e230306a7ec986b6f72",
+      "tube_step4_solid_rank2.vtu": "fb1e6856e91a2ab7a49a67e3bfca23a720696e776739a61d82c23b542944dcb5",
+      "tube_step4_solid_rank3.vtu": "de500025528e46218cc8de59b4a60f55a217719e1ec68da7a0253eb84bddbccd",
+      "tube_step8_rank0.vtu": "fe0c9a901f44a0ddfc7c8585c93f266df179b29fc3c75663da06949a6cc37a13",
+      "tube_step8_rank1.vtu": "4c90d04b0b423e0a21e9263fcec0b7ea463f2d8741d5e1e03011db4d518c5c0a",
+      "tube_step8_rank2.vtu": "593678a181353b9cbe32c868ef6a01bcc9cea367421c0d4e3c459d5bb657c969",
+      "tube_step8_rank3.vtu": "f36d65211e28981daaef4f813e846bceed9390251744183e793c0bfffdc0c3c4",
+      "tube_step8_solid_rank0.vtu": "c4ef2304187ecb4d7251a597cb74cc107479a1be58d08ee1066e19d21c83ae0e",
+      "tube_step8_solid_rank1.vtu": "f1f3b8adba040a0967ac576d3e70bf2c12f0b3571953eba78a815971d282ec66",
+      "tube_step8_solid_rank2.vtu": "3d39778b1ac6a6c116dfcb2a9e3e79a9cdef8668f7e060c93660eacf89d02ca2",
+      "tube_step8_solid_rank3.vtu": "4e288989a39bb352ab38e47c1999b39bf8f27fc47de203ebce0e5df7b390507b"
+    }
+  },
+  "full": {
+    "process": {
+      "launcher_exit": 0,
+      "ranks": [
+        {
+          "rank": 0,
+          "exit_code": 0
+        },
+        {
+          "rank": 1,
+          "exit_code": 0
+        },
+        {
+          "rank": 2,
+          "exit_code": 0
+        },
+        {
+          "rank": 3,
+          "exit_code": 0
+        }
+      ],
+      "expected_ranks": 4,
+      "application_reported_success": true,
+      "elapsed_seconds": 641.0051198799993,
+      "accepted_steps": 32,
+      "clean_exit": true,
+      "executable_sha256": "59a06d3f3d73dcda8f5516bfe4bfac2055f56d50c1cbe24162844cd30f2fadd7",
+      "log_sha256": "fffa8bf3bde7a0c6507b951da315f0068de944d845e1abc8fdb6252fbbbcf37a"
+    },
+    "case_sha256": "436d8bed9ac9aadb7def6defa1b0ffa7e10baf9642dc377018b50cc3fbd4f7a9",
+    "reference_case_sha256": "436d8bed9ac9aadb7def6defa1b0ffa7e10baf9642dc377018b50cc3fbd4f7a9",
+    "meshes_sha256": [
+      "1fa0f0964747eb27afe2521c77705a426066e940e4c27048a230647befd88d16",
+      "abb75c9acbabb20976f5b1aec0c14330c4a9f6f8f7633bd62542dee4ab291db9"
+    ],
+    "equation_rows": {
+      "mesh": 243,
+      "pressure": 154,
+      "structure": 357,
+      "velocity": 273
+    },
+    "placement": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ]
+    ],
+    "accepted_outer_iterations": 3112,
+    "within_target": 64,
+    "largest_ratio": 0.992237558913324,
+    "residual_over_target": [
+      0.5747427400826802,
+      0.6818136477608251,
+      0.6552438579724144,
+      0.5366112029134671,
+      0.7193258089434451,
+      0.5944229460771396,
+      0.735640911405812,
+      0.6569316461442848,
+      0.6543283454612521,
+      0.9514224073102953,
+      0.8142022985587167,
+      0.6473124447851388,
+      0.868968259338101,
+      0.7917712703979711,
+      0.6692619169819632,
+      0.7515859678445007,
+      0.22152729284897857,
+      0.7544740547001036,
+      0.7331008280549195,
+      0.8882613719886983,
+      0.7935571532739767,
+      0.7408319506297887,
+      0.8217588469689833,
+      0.8353796219885602,
+      0.4117974566182376,
+      0.8944371899897448,
+      0.6567963154104982,
+      0.5004388847016106,
+      0.7646621625442197,
+      0.5480476180016018,
+      0.983723951731311,
+      0.75915122544938,
+      0.9784920718519184,
+      0.5540342949425592,
+      0.6030382543554488,
+      0.8917753975552677,
+      0.7238829798309386,
+      0.9391357731932228,
+      0.9372352801553236,
+      0.734911204581323,
+      0.3251726788958796,
+      0.8950137506634923,
+      0.992237558913324,
+      0.8398693138876456,
+      0.7394523510001056,
+      0.808312384372596,
+      0.353908361110368,
+      0.6831266662275872,
+      0.9191564182032879,
+      0.897299557376163,
+      0.6139361006436577,
+      0.6689193051929758,
+      0.853798135807162,
+      0.9166191604349236,
+      0.5559500714633487,
+      0.8594161090456149,
+      0.9067309272917558,
+      0.5309920181509722,
+      0.4169563913589344,
+      0.8960470709439199,
+      0.5330624038068104,
+      0.8302852277334305,
+      0.8560549360911811,
+      0.7089520356683457
+    ],
+    "fields": {
+      "fluid_velocity": {
+        "base": 0.00033958583384747425,
+        "difference": 6.73871765680123e-14
+      },
+      "fluid_displacement": {
+        "base": 1.1398379492978583e-05,
+        "difference": 5.648555014051059e-18
+      },
+      "fluid_pressure": {
+        "base": 80.00390459437521,
+        "difference": 6.963318810448982e-12
+      },
+      "wall_velocity": {
+        "base": 2.144913582530686e-05,
+        "difference": 8.638719622457158e-17
+      },
+      "wall_displacement": {
+        "base": 1.1398379492978583e-05,
+        "difference": 5.937700960252645e-19
+      }
+    },
+    "end_areas_pct": [
+      0.002883753482314823,
+      0.019177572461661758,
+      0.051281968825417086,
+      0.09334705645201652,
+      0.13543298877928125,
+      0.16757806310061307,
+      0.18391681431029516,
+      0.1868031228439982
+    ],
+    "vtu_sha256": {
+      "tube_step4_rank0.vtu": "52ccbd8ca2eefb375c236dcc67a64afd517f9d713f094900e1ce899ac3e4d085",
+      "tube_step4_rank1.vtu": "0bd75d7956eb549450533e9491692dd9d7c7715fe5a89e9e930ac184612859c6",
+      "tube_step4_rank2.vtu": "72ebb39dfa56054360315e596fe1c598f1304d94674cf1d4c5973293c8a5c639",
+      "tube_step4_rank3.vtu": "23014b6c95c2e63e766917d31b30f3ff5c6734a00f2750fd88b4d7fd4a387690",
+      "tube_step4_solid_rank0.vtu": "8e61d4e352d603a6c3012604118411c2c34c86ff606cc25304d1c6ce2df2a069",
+      "tube_step4_solid_rank1.vtu": "beb82f21f8a4d9f89b521f9add770a510ed64113526bf54118ab26e515c6a801",
+      "tube_step4_solid_rank2.vtu": "5d8af796ae09bcea69dd03ac41f9ae38fdbd1e050844c18412af0d219579a2bb",
+      "tube_step4_solid_rank3.vtu": "47b70bd34b00c14587a2483c2d039ccecc0838b340cd10c001afd67d67aa9311",
+      "tube_step8_rank0.vtu": "95fc20f905aa33cd89477ff436df63a4c70dfb8e1790c28dc02245671f59980d",
+      "tube_step8_rank1.vtu": "1c0468f1b5153316897e4d653368d791dcdbaa83aa3ed3321afe6c345b0d03b7",
+      "tube_step8_rank2.vtu": "c66c144a6ddf21af2d2084f3c066e86a78c0e7441a235e4a32f04120b599484e",
+      "tube_step8_rank3.vtu": "aa375e37df63fac4e8a2cdc00190dda45348ed8ea0d9868dc5e3fac2a40720e2",
+      "tube_step8_solid_rank0.vtu": "581508f38b079179b10fd0f73b014ec161a6db32dead4b1419685afe25456df6",
+      "tube_step8_solid_rank1.vtu": "cf530aed1acaf6e9fe1803d02ec042d4ec80b03084c8fcabd66da7f9e1780494",
+      "tube_step8_solid_rank2.vtu": "3d00dc7a67b1d96ca655ae974157991a1cc5e91f502e4d1d1b1ad0abb74ae3c2",
+      "tube_step8_solid_rank3.vtu": "36b0148fc3b33c71ee73b2e84e9d0b88b993bb158436f4e56d11a08b0caadc25",
+      "tube_step12_rank0.vtu": "2d0994c5b329365536479cdb22b6bd3d8c2cbcba6d7ad70cab8e408da5a45403",
+      "tube_step12_rank1.vtu": "79a7ee44227bffda546f225653772e3eca77e250d6c4c07817bf01e6d22541ac",
+      "tube_step12_rank2.vtu": "2cae43722e45fe2a7ed22f2dc69dd9ee93596f90bc83c74d2997ebd3fcf726e2",
+      "tube_step12_rank3.vtu": "621e0e196df77257a54d942fd8ee5eeff75c1a0a9865e9091a9b6335c6ae2c2e",
+      "tube_step12_solid_rank0.vtu": "7d16d6c5fe4be9efa81209aa99f748b05049b11675603866ec7cac6de14bb34e",
+      "tube_step12_solid_rank1.vtu": "488effd87c1060977fb2917d5723b4cc119f12831b6dcc9a0c6362058fb46245",
+      "tube_step12_solid_rank2.vtu": "1c88f1216211146c320f3b08c69e7166a7924ed0ad59c0c145a938f4b7167b2c",
+      "tube_step12_solid_rank3.vtu": "920b3d84ee931678e748b916d2ac8fc34ad92a53d389a07dee7d159807525557",
+      "tube_step16_rank0.vtu": "116430b806fdf07f0b7b97b83b094629e533d8b97c83dc6dcd9694268a48d9ab",
+      "tube_step16_rank1.vtu": "dbaa00b28a10b43da73f0fdd83f2595bf7d3ef3df14492580ca11c2ed450e754",
+      "tube_step16_rank2.vtu": "ef03355787aca8a8d1dda11a643a3bb5c463057f5b2db481116d2b0522c91a9f",
+      "tube_step16_rank3.vtu": "ed73de984c553810fbb1bcb739f1bbc88cbfb56abb19097ed529fe78e1c493f8",
+      "tube_step16_solid_rank0.vtu": "d6a65823f220e4f3627f86b8d4196ade0567db0412968c4869c0cff54a032f09",
+      "tube_step16_solid_rank1.vtu": "5cb758dd5d028e39f0731816213e612c9d22d7c839af5b44ef61c20d1e6a6666",
+      "tube_step16_solid_rank2.vtu": "2fcbc337bceecc0e2a89a76f260fdc8c9d0e7b9eb29d2210e7668d777172f0f0",
+      "tube_step16_solid_rank3.vtu": "6cd31949c65101e8cac27557a7c9459e427133c6c9a6c418c6284e7e36b06a07",
+      "tube_step20_rank0.vtu": "44c16b4e04ba77ebe498a0ed25a01a99cbb941f1e4c300ab790d35d5beecedd3",
+      "tube_step20_rank1.vtu": "dd689f9833816f79d16995f258798924a02604db1d670fa475567a5534fda850",
+      "tube_step20_rank2.vtu": "9f4fc7b625174126cd14b9a28ed7ff7e548f792ada37b9637a252873e595c3e4",
+      "tube_step20_rank3.vtu": "6798cb8c711b871562473b020a7fc9e91038ac15afbe4d9aeea8e33e94fa0e95",
+      "tube_step20_solid_rank0.vtu": "d5dc25cf88701449ea88da089d868e00521b65bf45a80db3541d7dc48ba42974",
+      "tube_step20_solid_rank1.vtu": "e5015f6dbdd5203d6c18b9be2e68ff034e134869cde7c9f0ffe0a8cf152617fc",
+      "tube_step20_solid_rank2.vtu": "cb1ace6614d95feb6bb4048fd561315e6b41d9e9bbcd2d90f3b88cd6274d0980",
+      "tube_step20_solid_rank3.vtu": "10bbc9763f16c90d318414445ea890f53df805124ef13cfef4604d8c11d70865",
+      "tube_step24_rank0.vtu": "86eb1a2be5433a041f2fe9d8488a37cd89f193cf11c189d80d12d6b7ae70c046",
+      "tube_step24_rank1.vtu": "8d3119e7e3577dfa40b1c38910c673de05efaf6b12a23f4b370c115ed7bdc0aa",
+      "tube_step24_rank2.vtu": "a08e6f342331f9a19780bb8c454b0e86edc747f71928f1581c56f97e6e425716",
+      "tube_step24_rank3.vtu": "81858a8c72713c922de369c3c7739875644f84f006adebff785f06a6d80cd033",
+      "tube_step24_solid_rank0.vtu": "fa7bc98a1c294ed97e21d7c9be4c6e9fad7b9bebcd0b674e8e500997bff51400",
+      "tube_step24_solid_rank1.vtu": "58718b2f4abde0d6bb27ba88e9dd8080fe9e7a1be01815d2ba4c9684bb0e40c2",
+      "tube_step24_solid_rank2.vtu": "c08abda7bd9c551c097ef8c89557d2f166cc60c85befd257cf0c07e60961d1ce",
+      "tube_step24_solid_rank3.vtu": "19bc1f50a95bb0c013ef38f661a25f30b7ff2474bdd90f982a25aec7bea2cc70",
+      "tube_step28_rank0.vtu": "6d52446c7b4c99b5dbb9c687d194e5426c344507f6b24ff70d02c2d139dab703",
+      "tube_step28_rank1.vtu": "c414bd3d477dd2bfa1393b4b8ba357892edf2cdb124bb8f86ce4d270af3ebe29",
+      "tube_step28_rank2.vtu": "d585b494a1a41a65231976584ee854678f50241c95077c7a2f9199f5c6d67fce",
+      "tube_step28_rank3.vtu": "df802f5ca3bc820086ab46f2fd90f497d6cf7743a02c4f3b2d7f8afa58e7fc5d",
+      "tube_step28_solid_rank0.vtu": "8f2b3c910551d38e979d210c1ee9549bfa074267e431ce26e54c1c9b1364abc6",
+      "tube_step28_solid_rank1.vtu": "3cf63abb5c628bb647d65af8e9f8ed771da3a0ea69e60c5223310af568b5be71",
+      "tube_step28_solid_rank2.vtu": "dbea4f2e42a0cb006c73b55b7adbee57427254196f4b7eebe571f3233fd16004",
+      "tube_step28_solid_rank3.vtu": "406d6a2f06b3dc15eadd059567c46c63430fa192510a25993d3cc0f504ac7c96",
+      "tube_step32_rank0.vtu": "5f10f486b9766216aac6f841e9a33444b401d4efc1989aa3b74cc1029a03b507",
+      "tube_step32_rank1.vtu": "03a6cbe2b8559efee98f4d31f44bcbff334c8b30b0b48f146e2b79600d3ed506",
+      "tube_step32_rank2.vtu": "d3415d95b1df2efd72df5901133cc1dab8d0653bfcbce1335f00571dab57778b",
+      "tube_step32_rank3.vtu": "72752a4f5f742d2830580d62e617a36637f86046435d00b10786004dcccafb9c",
+      "tube_step32_solid_rank0.vtu": "0dc88dddfb064e21efc64cd61d278e67bfe7fd2a2938fa32afbfd960ec467019",
+      "tube_step32_solid_rank1.vtu": "ea77ced7f8af83cbd97d0e82409ec347dd45d874e969e94a9082238a735098b4",
+      "tube_step32_solid_rank2.vtu": "6902cef536911189dfb04de003d44b3afdc5723272c015536f6eb96aefaa5b6b",
+      "tube_step32_solid_rank3.vtu": "9ecfc4a916f301f86c5ec54b6d65a8742a6e49450cdaae06ab4686622785493d"
+    }
+  },
+  "options_file_sha256": "ee46fd0f816539c5c7ac9526af9ed8d7773b66c1a1a846a09eb209069a6c4f1d",
+  "runtime": {
+    "hosts": 1,
+    "mapping": "core",
+    "binding": "core",
+    "pml": "ob1",
+    "btl": "self,sm,tcp",
+    "smsc": "^cma",
+    "mpi_yield_when_idle": 0,
+    "solver_diagnostic_option": "-no_signal_handler"
+  }
+}

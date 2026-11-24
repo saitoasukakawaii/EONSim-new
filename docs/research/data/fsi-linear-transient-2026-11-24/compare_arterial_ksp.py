@@ -19,7 +19,7 @@ from profile_case import core_placement
 from study_rigid_tube import read_mesh
 
 
-def parse(log,success,ranks):
+def parse(log,success,ranks,expected_steps=32):
     placement=core_placement(log,ranks)
     corrections=[]
     steps=[]
@@ -67,7 +67,7 @@ def parse(log,success,ranks):
         if signal is None:
             raise ValueError('An unfinished solver produced neither a failure record nor a signal')
         failures.append(signal.group(0).rstrip(':'))
-    if len(steps)!=len(reports) or (success and len(steps)!=32):
+    if len(steps)!=len(reports) or (success and len(steps)!=expected_steps):
         raise ValueError('Missing step or Newton solver evidence')
     for i,(r,info) in enumerate(zip(steps,reports),1):
         stage=(i-1+(1 if i==1 else 2/3))/32
@@ -100,12 +100,12 @@ def profile_events(path,ranks):
     return {name:[found[i] for i in range(ranks)] for name,found in events.items()}
 
 
-def fields_at(directory,ref,meshes,ranks):
+def fields_at(directory,ref,meshes,ranks,expected_steps=32):
     from study_hydrostatic_fsi import recovered_state
     peaks={}
     hashes={}
     left=[]
-    for step in range(4,33,4):
+    for step in range(4,expected_steps+1,4):
         for solid,mesh in enumerate(meshes):
             stem=f'tube_step{step}'+('_solid' if solid else '')
             a=recovered_state(ref,stem,mesh,bool(solid),1)
