@@ -19,3 +19,19 @@ Build each of the four variants with `bash scripts/cloud/run.sh 3.23.7 release e
 python compare_kernel.py --builds "$variants" --libs "$prefix/lib" \
   --rounds 8 --samples 40000 --output element-cpu.json
 ```
+
+### Cost of differentiating the current regular-tetrahedron metric
+
+The optional `regular_tet` model differentiates the deformed shape gradients, the cell-average ALE velocity quadratic, and both stabilization coefficients in the fluid tangent. The following timings also include the tangent terms shared by both models. Each of the twelve rounds used 40,000 calls per geometry. All six binary/run-mode orders appeared twice, with one thread and an unmeasured warmup. The pressure case includes its follower-load derivative. The checksum of the default full tangent agreed across the two Release binaries.
+
+| CPU time per tangent | Interior Tet4 | Pressure facet |
+| --- | ---: | ---: |
+| Previous executable, volume model | 10.555 µs | 11.049 µs |
+| New executable, volume model | 10.035 µs | 10.683 µs |
+| New executable, regular metric | 12.775 µs | 13.343 µs |
+| Regular / volume, median of paired CPU ratios in new executable | 1.250 | 1.253 |
+| Regular / volume, range of paired ratios | 1.056–1.514 | 1.140–1.410 |
+
+The optional metric cost about 25% more per full tangent on this fixture. The paired ratios for the new and old *default* spanned 0.775–1.156 and 0.864–1.116, respectively. Differences in iteration count, MPI communication, and preconditioner setup require separate end-to-end measurements. [Raw round measurements](metric-cpu.json) · [Benchmark runner](profile_metric.py)
+
+Build both element regression executables with the repository compile script using the `fsi_element_jacobian` selection. Run `python profile_metric.py --before OLD_ELEMENT_EXE --after NEW_ELEMENT_EXE --libs PETSC_LIB --output metric-cpu.json` to compare their defaults and the new optional metric.

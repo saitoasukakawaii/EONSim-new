@@ -9,8 +9,8 @@ import statistics
 import subprocess
 
 
-def measure(executable,n,env):
-    result=subprocess.run([executable,'--kernel-samples',str(n)],env=env,stdout=subprocess.PIPE,text=True,check=True)
+def measure(executable,n,env,option="--kernel-samples"):
+    result=subprocess.run([executable,option,str(n)],env=env,stdout=subprocess.PIPE,text=True,check=True)
     records=[]
     for row in result.stdout.splitlines():
         columns=dict(field.split('=',1) for field in row.split())
