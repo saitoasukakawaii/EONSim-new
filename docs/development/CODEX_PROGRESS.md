@@ -1,5 +1,9 @@
 # EONSim Codex Development Progress
 
+## 2026-11-24 · 两端同步升压的弹性管、稳定化与装配
+
+从 `main@6a5ac96` 开始。两个求解器在同一网格和相同阶段载荷下计算至 1 s，48 扇区、128 步的七截面最大差为 Lamé 稳态面积应变的 4.0975%。仅在 svFSI 中去掉动量 grad-div 项，这个差降至 0.4967%。EONSim 增加可选的常系数 grad-div 并验证完整 ALE 切线。独立线性化 Radau 参照与 30 次非线性运行给出了固定半离散的小振幅极限。实际 1/2/4 rank 计时和节点场验证覆盖了按材料域压缩的局部矩阵装配。[两程序的瞬态对照](../research/data/fsi-smooth-load-2026-11-24/README.md) · [独立瞬态参照](../research/data/fsi-linear-transient-2026-11-24/README.md) · [性能配对记录](../research/data/fsi-phase-costs-2026-11-24/README.md)
+
 ## 2026-11-24 · 单体 FSI 的受压面功率与第一秒面积响应
 
 从主线 `951064d` 实现可选的阶段/终点标签历史，修复短时间步下惯性插值的消减误差。12 个 EONSim 工况完成 56 个接受步，端面压强的场重算最大差 1.22e−17 Pa。固定版本 svFSI 的独立重建重放了 0.25 s 对照，并补齐 0.125 s 阶跃响应。1 s 截面面积应变的最大程序间差在三个步长上为解析稳态应变的 5.321%、8.429%、9.028%。36 项 Release 增量检查通过，最终源码 `3697204` 的四项端面检查通过。[算例与验证](../research/data/fsi-pressure-faces-2026-11-24/README.md)

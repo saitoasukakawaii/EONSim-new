@@ -1,5 +1,11 @@
 # EONSim Codex Session Log
 
+## 2026-11-24 · 六小时弹性管开发，阶段记录
+
+基线为 `6a5ac9601ee0da066c9afb94d8f5c6ea6fb21d38`。在独立分支上用 `scripts/cloud/run.sh 3.23.7 release explicit` 编译。受观测的固定版本 svFSI 在四个接受步上重现了未插桩程序的全部节点场。小步长时早期 MS 校正遭遇线性绝对容差，原结果被剔除，收紧线性绝对容差至 1e−19 后通过原非线性门槛。上游 `OUTPUT.f` 使用一个单独的末列感叹号标识线性不收敛，行中临时残量增长使用另一对感叹号。修正历史解析器后重查两个方程的每个接受步。[配对加载及失败证据](../research/data/fsi-smooth-load-2026-11-24/README.md)
+
+按实际材料域装配 28 或 12 个单元自由度，配对比较 1/2/4 rank 两种求解方式的全部节点场。新加的常系数 grad-div 对速度和 ALE 几何均使用完整切线，关停时旧续算签名可读。独立 SciPy 算子在 48 扇区网格上满足静压平衡和二次制造轨迹，两个系数各以 5 个步长、3 个压力核对 EONSim 的 7 个截面。[计时与原始场核对](../research/data/fsi-phase-costs-2026-11-24/README.md) · [线性参考极限](../research/data/fsi-linear-transient-2026-11-24/README.md)
+
 ## 2026-11-24 · 压力端面历史、惯性缩步与独立管壁对照
 
 基线为 `951064d`。受压面与装配共享标签和相邻流体单元，开关独立于 VTU 写出，缩步与续算均在接受步写记录。按倾斜面解析解检查面积、法向黏性项及流量，再从瞬态 VTU 的节点场独立重建 stage 和 endpoint。编译使用 `scripts/cloud/run.sh 3.23.7 release explicit`。[选测、版本和复现](../research/data/fsi-pressure-faces-2026-11-24/README.md)

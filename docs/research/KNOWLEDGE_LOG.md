@@ -1,5 +1,9 @@
 # EONSim Knowledge Log
 
+## 2026-11-24 · 等端压弹性管的离散散度与瞬态参考
+
+[技术草稿](../../website/drafts/elastic-tube-grad-div-transient.md)说明截面百分比的三个分母、相同阶段载荷的比较、残量 grad-div 对管壁的影响，以及固定半离散的小振幅 Radau 参照。独立静态与时间收敛、非线性压力扫描和两程序原始记录可用于复算。审阅重点是区分瞬态跨程序差、同网格离散误差与 Lamé 静态基准。[单项消融](data/fsi-smooth-load-2026-11-24/README.md) · [独立组装及 30 次对照](data/fsi-linear-transient-2026-11-24/README.md)
+
 ## 2026-11-24 · 压力端面功率与弹性管启动
 
 [技术草稿](../../website/drafts/fsi-pressure-face-work.md)从外压功、有限元压强迹和黏性法向应力解释输出。基于 `3697204` 的 48 扇区圆管区分端点时间求积与两程序真实的位移差，附 EONSim 12 工况与三个步长的固定版本 svFSI 阶跃算例。[数据与验证](data/fsi-pressure-faces-2026-11-24/README.md)
