@@ -1,0 +1,17 @@
+diff --git a/Code/Source/svFSI/SETBC.f b/Code/Source/svFSI/SETBC.f
+index 5f30c45..62f3ce0 100755
+--- a/Code/Source/svFSI/SETBC.f
++++ b/Code/Source/svFSI/SETBC.f
+@@ -304,3 +304,12 @@
++!     Observer for the single-rank pressure-port study. hg is the signed
++!     normal traction passed to the assembly; record compression positive.
++      IF (lFa%name.EQ.'fluid_in' .OR. lFa%name.EQ.'fluid_out') THEN
++         WRITE(*,'(2A,2(1X,I6),4(1X,ES25.16E3))')
++     2      'pressure_observer ',TRIM(lFa%name),cTS,eq(cEq)%itr,
++     3      time,eq(cEq)%af,-MAXVAL(hg(lFa%gN)),
++     4      -MINVAL(hg(lFa%gN))
++      END IF
++
+ !     Add Neumann BCs contribution to the LHS/RHS
+       IF (lBc%flwP) THEN
+          CALL BNEUFOLWP(lFa, hg, Dg)
