@@ -54,3 +54,21 @@ OPENBLAS_NUM_THREADS=1 python3 "$data/audit_study.py" "${suite[@]}" --reference-
 ```
 
 At Δt = 1/64 s the original 1e−15 linear absolute tolerance allowed a zero mesh correction with a first-step normalized MS residual of 1.26e−8. Both original runs were excluded. Tightening both linear absolute tolerances to 1e−19 allowed both nonlinear equations to pass the original 1e−8 gate at every step for Δt = 1/64 and 1/128 s. A paired 1/32 s endpoint control with these two tolerances gave maximum nodal differences 4.98e−17 m in displacement, 5.78e−16 m/s in velocity and 1.01e−14 Pa in pressure over all 32 steps. This is a single-rank intercode study.
+
+## One-term control of discrete incompressibility
+
+At 1/128 s and at the x = 0 end, the actual area-strain values at 1 s are 0.000733992632 in EONSim and 0.000644891365 in svFSI. The difference is 0.00891013 percentage points of reference cross-sectional area, or 13.82% of the svFSI instantaneous expansion there. The 4.0975% above uses the analytical equilibrium strain as its denominator.
+
+EONSim at the base commit has residual-based streamline and pressure stabilization. Its momentum residual does not include the svFSI 3D grad-div term. For a paired diagnostic build we set only τC in `FLUID3D_M` to zero before the residual and tangent use it. For the P1/P1 FSI fluid this removes the momentum term ∫ τC (∇·v)(∇·u) dV. The pressure-test stabilization with τM and other small-scale contributions remain active. Both binaries used identical load tables, mesh and linear/nonlinear tolerances. The full native run still defines the reference result.
+
+| Δt (s) | Original svFSI vs EONSim at 1 s | svFSI with τC = 0 vs EONSim at 1 s |
+|---:|---:|---:|
+| 1/8 | 5.032% | 2.345% |
+| 1/16 | 4.952% | 2.203% |
+| 1/32 | 4.654% | 1.746% |
+| 1/64 | 4.394% | 1.084% |
+| 1/128 | 4.097% | 0.497% |
+
+For Δt = 1/128 s, zeroing only τC reduces the maximum intercode gap from 4.0975% at an end to 0.4967% at the midplane. In that modified calculation, the volume-weighted spatial RMS of the discrete fluid divergence rises from 5.696e−4 to 6.673e−4 s⁻¹. This identifies a major source of the difference for this mesh, time and loading. It provides no exact transient reference that would select either formulation by its wall displacement. [Control patch](svfsi-zero-grad-div.patch) · [All section strains, volume gains and divergence](grad-div.json) · [Maximum and signed gaps](grad-div.csv)
+
+To reproduce, create a second checkout at the same pinned svFSI commit. Apply the observer patch and the one-term patch to it, then compile through the same `build-svfsi.sh`. Run `run_study.py --mode matched --steps 8 16 32 64 128 --linear-atol 1e-19` once with each binary in separate empty directories. Pass those roots to `audit_grad_div.py --native ... --ablated ...`, along with `--archive`, `--reference-scripts`, `--eon` (the run root containing eon-N), `--steps 8 16 32 64 128` and `--output`. The audit requires byte-identical paired decks, tables and meshes, valid FS and MS convergence at every accepted step and matching residual-side loads at both ports.
