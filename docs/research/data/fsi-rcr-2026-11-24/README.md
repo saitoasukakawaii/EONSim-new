@@ -90,3 +90,5 @@ The two-outlet T-junction exercised a transverse slide, its two-rank checkpoint,
 The symmetric T-junction now has independent checks on daughter pressure and flow. A separate Stokes experiment predicts the steady high-resistance share on three meshes, while two-cycle EONSim–svFSI runs and long deformable-wall simulations distinguish small outlet signals from actual volume storage. [Flow split, wall storage and matched waveforms](branched.md)
 
 A separate RCR option permits tangential mesh and wall motion on a fixed coordinate plane. The circuit uses the current outlet area, and the monolithic tangent includes its displacement derivative. It supports stationary and expanding outlets in the same computation. [Inputs, equations and moving-port checks](planar-outlets.md)
+
+[Independent downstream pressure waveforms, two-frequency transfer and restart](reservoir-pressure.md)

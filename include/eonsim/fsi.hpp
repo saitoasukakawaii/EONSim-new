@@ -12,13 +12,14 @@ struct RcrStage {
     double offset,capacitance_impedance,total_impedance;
 
     long double rate_offset,rate_impedance;
-    RcrStage(const RcrOutlet& outlet,double reference,double effective_dt) {
+    RcrStage(const RcrOutlet& outlet,double reference,double effective_dt,double evaluation_time=0.) {
         if(!(effective_dt>0)||!std::isfinite(effective_dt)) throw std::runtime_error("Invalid RCR time coefficient");
         const long double denominator=static_cast<long double>(outlet.distal_resistance)*outlet.compliance+effective_dt;
         const long double fraction=effective_dt/denominator;
-        rate_offset=(static_cast<long double>(outlet.distal_pressure)-reference)/denominator;
+        const double distal=outlet.distal_pressure_at(evaluation_time);
+        rate_offset=(static_cast<long double>(distal)-reference)/denominator;
         rate_impedance=outlet.distal_resistance/denominator;
-        offset=static_cast<double>((1-fraction)*reference+fraction*outlet.distal_pressure);
+        offset=static_cast<double>((1-fraction)*reference+fraction*distal);
         capacitance_impedance=static_cast<double>(outlet.distal_resistance*fraction);
         total_impedance=outlet.proximal_resistance+capacitance_impedance;
         if(!std::isfinite(offset)||!std::isfinite(total_impedance)||!(total_impedance>0))

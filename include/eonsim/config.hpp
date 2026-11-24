@@ -100,6 +100,10 @@ struct RcrOutlet {
     int tag;
     double proximal_resistance,distal_resistance,compliance,distal_pressure,initial_capacitor_pressure;
     int moving_plane_axis=-1; ///< Optional fixed normal axis 0/1/2; tangential ALE motion changes port area.
+    std::optional<PressureTime> distal_pressure_time{}; ///< Reservoir pressure downstream of Rd, in Pa.
+    double distal_pressure_at(double time) const {
+        return distal_pressure_time?distal_pressure_time->value_at(distal_pressure,time):distal_pressure;
+    }
 };
 
 struct FsiDomains {

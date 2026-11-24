@@ -204,7 +204,9 @@ if(BUILD_TESTING)
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_metric")
     add_test(NAME fsi_moving_plane_rcr COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_moving_port.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_moving_plane_rcr")
-    set_tests_properties(fsi_branched_rcr fsi_curved_inlet fsi_sampled_inlet fsi_metric_stabilization fsi_moving_plane_rcr PROPERTIES TIMEOUT 600 PROCESSORS 2
+    add_test(NAME fsi_reservoir_pressure COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_reservoir.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_reservoir_pressure")
+    set_tests_properties(fsi_branched_rcr fsi_curved_inlet fsi_sampled_inlet fsi_metric_stabilization fsi_moving_plane_rcr fsi_reservoir_pressure PROPERTIES TIMEOUT 600 PROCESSORS 2
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1" LABELS "rank-1;rank-2")
     add_test(NAME fsi_inlet COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_inlet.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_inlet")

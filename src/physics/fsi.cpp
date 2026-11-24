@@ -471,6 +471,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         outlet.distal_resistance,outlet.compliance,outlet.distal_pressure,outlet.initial_capacitor_pressure});
     for(const auto& outlet:outlets) if(outlet.moving_plane_axis>=0)
         signature_values.insert(signature_values.end(),{20515.,double(outlet.tag),double(outlet.moving_plane_axis)});
+    for(const auto& outlet:outlets) if(outlet.distal_pressure_time) {
+        const auto& wave=*outlet.distal_pressure_time;
+        signature_values.insert(signature_values.end(),{20516.,double(outlet.tag),wave.amplitude,wave.period,wave.ramp_time});
+    }
     for(const auto& [tag,support]:supports)
         if(support.stiffness>0||support.damping>0)
             signature_values.insert(signature_values.end(),{20510.,double(tag),support.stiffness,support.damping});
@@ -624,6 +628,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             for(const char* key:{"rcr_tag","stage_rcr_flow","stage_rcr_pressure","stage_capacitor_pressure",
                                  "stage_capacitor_rate","endpoint_rcr_flow","endpoint_rcr_pressure","endpoint_capacitor_pressure"})
                 history<<','<<key<<suffix;
+            if(outlet.distal_pressure_time) history<<",stage_distal_pressure"<<suffix<<",endpoint_distal_pressure"<<suffix;
         }
         history<<'\n';
         history.flush();
@@ -653,7 +658,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             const auto& state=outlet_state[i];
             const double reference=alpha_step?fluid_map.reference(state.capacitor,state.rate):
                 derivative.reference(state.capacitor,state.previous);
-            outlet_stages.emplace_back(outlets[i],reference,integration_dt);
+            outlet_stages.emplace_back(outlets[i],reference,integration_dt,evaluation_time);
         }
         auto effective_physical=bdf2?physical_history.reference(physical,derivative):std::vector<double>{};
         auto effective_d=bdf2?displacement_history.reference(solid_d,derivative):std::vector<double>{};
@@ -1029,6 +1034,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     const auto& v=port_values[i];
                     history<<','<<outlets[i].tag<<','<<outlet_flow[2*i]<<','<<v.stage_pressure<<','<<v.stage_capacitor
                            <<','<<v.stage_rate<<','<<outlet_flow[2*i+1]<<','<<v.endpoint_pressure<<','<<outlet_state[i].capacitor;
+                    if(outlets[i].distal_pressure_time)
+                        history<<','<<outlets[i].distal_pressure_at(evaluation_time)<<','<<outlets[i].distal_pressure_at(time);
                 }
                 history<<'\n';
                 history.flush();

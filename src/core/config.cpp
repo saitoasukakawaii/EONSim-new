@@ -399,12 +399,13 @@ Config read_config(const std::filesystem::path& path)
             if(domain.pressure_tags.empty()) throw std::runtime_error("FSI needs pressure boundary");
             if(d["rcr_outlet"]&&d["rcr_outlets"]) throw std::runtime_error("Specify one RCR outlet syntax");
             auto read_outlet=[&](const YAML::Node& r) {
-                keys(r,{"tag","proximal_resistance","distal_resistance","compliance","distal_pressure","initial_capacitor_pressure","moving_plane_axis"},
+                keys(r,{"tag","proximal_resistance","distal_resistance","compliance","distal_pressure","initial_capacitor_pressure","moving_plane_axis","distal_pressure_time"},
                      "fsi.domains.rcr_outlet");
                 const double distal=r["distal_pressure"].as<double>(0.);
                 RcrOutlet outlet{r["tag"].as<int>(),r["proximal_resistance"].as<double>(),
-                    r["distal_resistance"].as<double>(),r["compliance"].as<double>(),distal,
-                    r["initial_capacitor_pressure"].as<double>(distal)};
+                    r["distal_resistance"].as<double>(),r["compliance"].as<double>(),distal,distal};
+                if(r["distal_pressure_time"]) outlet.distal_pressure_time=read_pressure_time(r["distal_pressure_time"],"RCR distal_pressure_time");
+                outlet.initial_capacitor_pressure=r["initial_capacitor_pressure"].as<double>(outlet.distal_pressure_at(0.));
                 if(r["moving_plane_axis"]) {
                     outlet.moving_plane_axis=r["moving_plane_axis"].as<int>();
                     if(outlet.moving_plane_axis<0||outlet.moving_plane_axis>=Space3::dimension)

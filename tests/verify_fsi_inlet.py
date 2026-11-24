@@ -86,7 +86,7 @@ def check_rcr_history(run, label, model, rows, restart=None, sole_pressure=True)
         faces = [dict((k, float(v)) for k, v in face.items()) for face in csv.DictReader(stream)
                  if int(face['tag']) == model['tag']]
     assert len(faces) == len(rows) and rows
-    rp, rd, c, pd = (model[k] for k in ('proximal_resistance','distal_resistance','compliance','distal_pressure'))
+    rp, rd, c, mean = (model[k] for k in ('proximal_resistance','distal_resistance','compliance','distal_pressure'))
     worst = 0.
     for row, face in zip(rows, faces):
         assert row['step'] == face['step'] and row['time'] == face['time']
@@ -98,6 +98,14 @@ def check_rcr_history(run, label, model, rows, restart=None, sole_pressure=True)
             pb = face[kind+'_prescribed_pressure']
             errors = [row[kind+'_rcr_flow'+suffix]-q, row[kind+'_rcr_pressure'+suffix]-pb,
                       pb-pc-rp*q, face[kind+'_pressure_power']+q*pb]
+            pd = mean
+            if 'distal_pressure_time' in model:
+                wave = model['distal_pressure_time']
+                t = row['evaluation_time' if kind=='stage' else 'time']
+                ramp = wave.get('ramp_time',0)
+                x = min(t/ramp,1.) if ramp else 1.
+                pd = (mean + wave['amplitude']*math.sin(2*math.pi*t/wave['period']))*x**3*(10-15*x+6*x*x)
+                errors.append(row[kind+'_distal_pressure'+suffix]-pd)
             if kind == 'stage':
                 errors.append(c*row['stage_capacitor_rate'+suffix]-q+(pc-pd)/rd)
                 if sole_pressure:
