@@ -15,6 +15,8 @@ C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体
 
 ## 新增能力与说明
 
+- [2026-11-24 开源 HPC 调研与 EONSim 开发报告](docs/research/HPC_UPSTREAM_REVIEW_2026-11-24.md) 汇总 50 个项目、Tet4 黏性核配对测量与血管 FSI 后续验收。
+
 - [DoF语义与三种预条件分组](docs/development/DOF_AND_PC_GROUPING.md)：物理验收字段与PC分组分开，默认存储不变。
 - [时间离散、支持矩阵与checkpoint迁移](docs/development/TIME_INTEGRATION.md)：共同stage的单体FSI、完整accepted历史、失败重试。
 - [二维Poisson/扩散](docs/development/SCALAR_2D.md)：Tri3、原生Quad4、相容混合网格，命名边界/材料、Neumann零空间、MPI与PVD输出。

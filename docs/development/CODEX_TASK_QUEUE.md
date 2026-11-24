@@ -1,5 +1,11 @@
 # EONSim Codex Task Queue
 
+## 2026-11-24 · HPC 调研与 Tet4 黏性核
+
+- 本地已验证：基于 main `89a1a3d` 的数值提交 `4095e4b`，9 个定向 Release 检查。独立工作树内，PR #41 和 #42 的固定版本与此改动组合后，两项圆管回归通过。提交审阅时 #41 已合入主线。
+- 下一项数值任务：固定 #42 网格和阶段语义，解释静压阶跃早期响应。同步记录面平均静压、法向牵引、位移、外载功和默认/固定稳定化的影响。
+- 下一项性能任务：给当前弹性 FSI 分别报告流体及 ALE 切线、固体核、装配与 PC setup/apply 成本。候选 RCR 出口、Robin 支撑与多节点验收见[调研报告](../research/HPC_UPSTREAM_REVIEW_2026-11-24.md)。
+
 ## FSI-PROD-02B / review / 2026-11-20
 
 Baseline `89a1a3d` includes the steady rigid-tube work from PR #38. This

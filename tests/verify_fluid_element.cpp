@@ -5,7 +5,34 @@
 #include <stdexcept>
 int main() {
     using namespace eonsim;
-    const auto g=tet4_geometry({Point{0,0,0},Point{1.1,.1,0},Point{.2,.9,.1},Point{.1,.2,1.2}});
+    const Tet4Topology::Nodal<Point> coordinates{Point{0,0,0},Point{1.1,.1,0},Point{.2,.9,.1},Point{.1,.2,1.2}};
+    const auto g=tet4_geometry(coordinates);
+    // Simple shear gives a known nodal force. Setting u_y = -shear*x
+    // together with u_x = shear*y gives rigid rotation and zero viscous stress.
+    const FluidParameters stokes{1.0,.6,0.0,0.0,false};
+    const double shear=1.7;
+    for(double y_slope:{0.0,-shear}) {
+        Tet4Flow::State<double> state{};
+        for(int a=0;a<Tet4Topology::nodes;++a) {
+            state[Tet4Flow::dof(a,0)]=shear*coordinates[a][1];
+            state[Tet4Flow::dof(a,1)]=y_slope*coordinates[a][0];
+        }
+        const auto element=fluid_element(g,stokes,state,{},{});
+        const double stress_integral=g.volume*stokes.viscosity*(shear+y_slope);
+        for(int a=0;a<Tet4Topology::nodes;++a) {
+            const std::array<double,4> expected{
+                stress_integral*g.gradients[a][1],stress_integral*g.gradients[a][0],0.0,0.0};
+            for(int i=0;i<Tet4Flow::components;++i) {
+                const int row=Tet4Flow::dof(a,i);
+                double action=0.0;
+                for(int col=0;col<Tet4Flow::dofs;++col)
+                    action+=element.tangent[Tet4Flow::matrix(row,col)]*state[col];
+                if(!(std::abs(element.residual[row]-expected[i])<2e-13 &&
+                     std::abs(action-expected[i])<2e-13))
+                    throw std::runtime_error("Affine Stokes shear or rigid rotation mismatch");
+            }
+        }
+    }
     std::array<double,16> x{},old{},direction{};
     std::array<Point,4> w{};
     for(int i=0;i<16;++i) { x[i]=.3*std::sin(i+1); old[i]=.2*std::cos(i+1); direction[i]=std::sin(3*i+.7); }

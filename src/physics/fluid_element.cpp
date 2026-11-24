@@ -15,6 +15,17 @@ FluidElement fluid_element(const Tet4Geometry& g, const FluidParameters& p,
     FluidElement e;
     e.residual=fluid_residual(g,p,x,old,w);
     if(!compute_tangent) return e;
+    // Integral of 2 mu eps(N_b e_k) : eps(N_a e_i) on this affine Tet4.
+    const double viscous_weight=g.volume*p.viscosity;
+    for(int a=0;a<Tet4Topology::nodes;++a) for(int b=0;b<Tet4Topology::nodes;++b) {
+        const auto& ga=g.gradients[a];
+        const auto& gb=g.gradients[b];
+        double dot=0;
+        for(int j=0;j<Space3::dimension;++j) dot+=ga[j]*gb[j];
+        for(int i=0;i<Space3::dimension;++i) for(int k=0;k<Space3::dimension;++k)
+            e.tangent[Tet4Flow::matrix(Tet4Flow::dof(a,i),Tet4Flow::dof(b,k))]=
+                viscous_weight*(ga[k]*gb[i]+(i==k?dot:0.0));
+    }
     double grad[Space3::dimension][Space3::dimension]{}, gradp[Space3::dimension]{};
     for (int a=0;a<Tet4Topology::nodes;++a) for (int j=0;j<Space3::dimension;++j) {
         gradp[j] += x[Tet4Flow::dof(a,Tet4Flow::pressure)]*g.gradients[a][j];
@@ -38,7 +49,7 @@ FluidElement fluid_element(const Tet4Geometry& g, const FluidParameters& p,
         for(int a=0;a<Tet4Topology::nodes;++a) {
             double streamline=0;
             for(int j=0;j<Space3::dimension;++j) streamline+=p.density*c[j]*g.gradients[a][j];
-            if(compute_tangent) for(int b=0;b<Tet4Topology::nodes;++b) for(int k=0;k<Tet4Flow::components;++k) {
+            for(int b=0;b<Tet4Topology::nodes;++b) for(int k=0;k<Tet4Flow::components;++k) {
                 double drm[Space3::dimension]{};
                 for(int i=0;i<Space3::dimension;++i) {
                     if(k==Tet4Flow::pressure) drm[i]=g.gradients[b][i];
@@ -53,10 +64,6 @@ FluidElement fluid_element(const Tet4Geometry& g, const FluidParameters& p,
                 for(int i=0;i<Space3::dimension;++i) {
                     double v=N[a]*(drm[i]-(k==Tet4Flow::pressure ? g.gradients[b][i] : 0));
                     if(k==Tet4Flow::pressure) v-=N[b]*g.gradients[a][i];
-                    else {
-                        for(int j=0;j<Space3::dimension;++j) v+=p.viscosity*((i==k ? g.gradients[b][j] : 0)
-                            +(j==k ? g.gradients[b][i] : 0))*g.gradients[a][j];
-                    }
                     v+=p.tau*streamline*drm[i];
                     if(k<Space3::dimension && p.convection) v+=p.tau*p.density*N[b]*g.gradients[a][k]*rm[i];
                     e.tangent[Tet4Flow::matrix(Tet4Flow::dof(a,i),Tet4Flow::dof(b,k))]+=weight*v;

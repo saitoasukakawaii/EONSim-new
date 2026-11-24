@@ -18,6 +18,15 @@ Tet4Flow::State<Scalar> fluid_residual(const SimplexGeometry<Tet4Topology,Scalar
         for(int i=0;i<Space3::dimension;++i) grad[i][j]+=x[Tet4Flow::dof(a,i)]*g.gradients[a][j];
     }
     for(int i=0;i<Space3::dimension;++i) divergence+=grad[i][i];
+    // On an affine P1 tetrahedron with cellwise viscosity, the viscous stress
+    // and test gradients are constant. Keep the volume and gradients active
+    // for the ALE geometry derivative.
+    const Scalar viscous_weight=g.volume*p.viscosity;
+    for(int i=0;i<Space3::dimension;++i) for(int j=0;j<Space3::dimension;++j) {
+        const Scalar integrated_stress=viscous_weight*(grad[i][j]+grad[j][i]);
+        for(int a=0;a<Tet4Topology::nodes;++a)
+            result[Tet4Flow::dof(a,i)]+=integrated_stress*g.gradients[a][j];
+    }
     const double mass=p.dt>0?p.density/p.dt:0;
     for(const auto& q:FluidQuadrature::points) {
         const auto& N=q.shape;
@@ -38,8 +47,7 @@ Tet4Flow::State<Scalar> fluid_residual(const SimplexGeometry<Tet4Topology,Scalar
             Scalar streamline{};
             for(int j=0;j<Space3::dimension;++j) streamline+=p.density*c[j]*g.gradients[a][j];
             for(int i=0;i<Space3::dimension;++i) {
-                Scalar r=N[a]*(rm[i]-gradp[i])-pressure*g.gradients[a][i]+p.tau*streamline*rm[i];
-                for(int j=0;j<Space3::dimension;++j) r+=p.viscosity*(grad[i][j]+grad[j][i])*g.gradients[a][j];
+                const Scalar r=N[a]*(rm[i]-gradp[i])-pressure*g.gradients[a][i]+p.tau*streamline*rm[i];
                 result[Tet4Flow::dof(a,i)]+=g.volume*q.weight*r;
             }
             Scalar r=N[a]*divergence;
