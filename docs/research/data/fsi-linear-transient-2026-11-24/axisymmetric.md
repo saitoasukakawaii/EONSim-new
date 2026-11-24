@@ -52,3 +52,26 @@ OPENBLAS_NUM_THREADS=1 python compare_stages.py --output "$work/stages.json"
 OPENBLAS_NUM_THREADS=1 python axisymmetric.py --mesh 80 80 20 --corner-levels 5 \
   --section-count 97 --stage-solver complex-pair --steps 128 256 --output "$work/dense.json"
 ```
+
+## Corner refinement and exact displacement elimination
+
+At the loaded end, increasing the number of subdivisions towards the interface changes the solution more than doubling the time resolution. All rows use 256 Radau steps and compare the same 97 physical stations at 1 s. The strain unit in the two middle columns is a percentage of the initial lumen area.
+
+| Axial / fluid radial / wall radial cells before grading | Corner subdivisions | Unknowns | Left end (%) | Midplane (%) |
+|---|---:|---:|---:|---:|
+| 48 / 48 / 16 | 4 | 41,496 | 0.07888393 | 0.10718059 |
+| 80 / 80 / 20 | 5 | 99,875 | 0.07884614 | 0.10718169 |
+| 96 / 96 / 24 | 5 | 139,683 | 0.07884176 | 0.10718178 |
+| 96 / 96 / 24 | 6 | 143,616 | 0.07882925 | 0.10718192 |
+| 112 / 112 / 28 | 6 | 190,688 | 0.07882698 | 0.10718196 |
+
+The last two meshes differ by at most 0.001045% of the static Lamé strain at 1 s. This measures a grid change. An earlier 128 / 128 / 32 uncondensed calculation ended with signal 9. Its measured peak RSS was 3,879,260 KiB. The archive keeps the process receipt separately from completed refinements. [Grid and process table](corner-refinement.csv) · [97-station fields](reference-corner.json)
+
+In the complex Radau stage matrix the displacement-rate row has an exact identity diagonal. Eliminating it gives a smaller Schur system for velocity and pressure. Back-substitution restores displacement before the full real-equation residual correction. On the 41,496-unknown case this reduced the complex factorization dimension to 32,968 and the SuperLU-reported nonzeros from 24.43 to 21.33 million. The observed process peak RSS went from 627.7 to 597.3 MiB and CPU time from 88.0 to 72.7 s. Shared-host elapsed time increased from 169 to 255 s. On the 143,616-unknown grid the two algebraic routes differ by at most 1.57e−11% of the static strain across 97 stations, both sample times and both step counts. [Manufactured full-vector checks](radau-stage-check.json) · [Packaged refinement and rejected run](corner-refinement.json.xz)
+
+```bash
+OPENBLAS_NUM_THREADS=1 python axisymmetric.py --mesh 112 112 28 --corner-levels 6 \
+  --section-count 97 --stage-solver condensed-pair --steps 128 256 --output "$work/meridian.json"
+python compare_corner.py --archive corner-refinement.json.xz \
+  --csv "$work/corner-refinement.csv" --finest "$work/finest.json"
+```

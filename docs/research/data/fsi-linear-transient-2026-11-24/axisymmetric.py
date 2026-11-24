@@ -134,6 +134,10 @@ class MeridianTube:
         free[-1, bore if full_length else 0:, 0] = False  # Roller or midplane axial symmetry.
         free[0, bore:, 0] = False      # Axial wall roller at the loaded end.
         velocity, self.nv = number(free, 0)
+        self.velocity = velocity
+        self.radial_nodes = np.empty(2*len(bounds)-1)
+        self.radial_nodes[::2] = bounds
+        self.radial_nodes[1::2] = (bounds[:-1]+bounds[1:])/2
         pressure, start = number(np.ones((nx+1, fluid_radial+1), dtype=bool), self.nv)
         free[:, :bore, :] = False
         displacement, self.size = number(free, start)
@@ -267,7 +271,7 @@ def main():
     cli.add_argument("--steps", nargs="+", type=int, required=True)
     cli.add_argument("--pressure", type=float, default=0.02)
     cli.add_argument("--output", type=Path, required=True)
-    cli.add_argument("--stage-solver",choices=("real-block","complex-pair"),default="real-block")
+    cli.add_argument("--stage-solver",choices=("real-block","complex-pair","condensed-pair"),default="real-block")
     args = cli.parse_args()
     if min(args.mesh) < 1 or args.quadrature < 3 or any(n < 2 or n % 2 for n in args.steps):
         cli.error("Positive mesh counts, quadrature of at least order 3, and positive even step counts required")
@@ -280,12 +284,14 @@ def main():
     material = TubeParameters(support_stiffness=args.support[0],support_damping=args.support[1])
     tube = MeridianTube(*args.mesh, args.quadrature, material,args.corner_levels,args.full_length,args.section_count)
     result = dict(parameters=asdict(material), mesh=args.mesh, quadrature=args.quadrature,
-                  corner_levels=args.corner_levels,full_length=args.full_length,stage_solver=args.stage_solver,stage_refinement_steps=int(args.stage_solver=="complex-pair"),
+                  corner_levels=args.corner_levels,full_length=args.full_length,stage_solver=args.stage_solver,stage_refinement_steps=int(args.stage_solver!="real-block"),
                   unknowns=tube.size, pressure=args.pressure, sections=tube.positions,
                   static=tube.hydrostatic_check(), runs=[])
     for n in args.steps:
         balance = StageBalance(tube, args.pressure)
-        row = integrate(tube, n, args.pressure, observe=balance,stage_solver=args.stage_solver)
+        factor={}
+        row = integrate(tube, n, args.pressure, observe=balance,stage_solver=args.stage_solver,factor_stats=factor)
+        if factor:row["stage_factor"]=factor
         row.update(balance.report())
         result["runs"].append(row)
         args.output.write_text(json.dumps(result, indent=2, allow_nan=False)+"\n")

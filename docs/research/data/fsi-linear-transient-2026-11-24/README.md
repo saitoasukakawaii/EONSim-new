@@ -2,6 +2,8 @@
 
 This reference solves the infinitesimal-pressure limit of the conforming P1/P1 fluid and P1 elastic wall on the archived 48-sector mesh. It checks the nonlinear EONSim solver with a second implementation of the **same spatial operator**. It provides a transient reference at fixed mesh, PSPG time coefficient and grad-div viscosity. The continuum thick-cylinder Lamé solution supplies only the equilibrium normalization.
 
+The independent circular meridian resolves the loaded-end corner on progressively finer meshes. A separate dimensional experiment isolates similarity from the effect of geometry, material and loading time. [Corner refinement](axisymmetric.md#corner-refinement-and-exact-displacement-elimination) · [Dimensional checks](scaled-tubes.md)
+
 ## Equations and checks
 
 The conforming velocity is shared across the fluid–solid interface. The unknowns are free velocities, all fluid pressures and free solid displacements. The Python assembler integrates the consistent P1 mass, symmetric Newtonian stress, linear isotropic wall elasticity, divergence-pressure pair, and the acceleration and pressure-gradient parts of PSPG. The optional momentum term is $\gamma(\nabla\!\cdot w,\nabla\!\cdot u)$. Solid displacement obeys $\dot d=v_s$. Moving-domain and convective products are of higher order about the initial state at rest. Interfacial mesh displacement therefore adds no independent term to the first-order momentum balance.

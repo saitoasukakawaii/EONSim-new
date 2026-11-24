@@ -213,13 +213,13 @@ class Tube:
         return dict(max_residual=error,area_strain_per_pascal=self.sections(y))
 
 
-def radau_stage_solver(mass, operator, h, method):
+def radau_stage_solver(mass, operator, h, method, displacement_begin=None, factor_stats=None):
     if method == "real-block":
         block=sparse.bmat([[mass+h*A[0,0]*operator,h*A[0,1]*operator],
                            [h*A[1,0]*operator,mass+h*A[1,1]*operator]],format="csc")
         factor=splu(block)
         return lambda rhs: factor.solve(rhs.ravel()).reshape(rhs.shape)
-    if method != "complex-pair":
+    if method not in ("complex-pair","condensed-pair"):
         raise ValueError(f"Unknown Radau stage solver: {method}")
     # A real two-stage Radau matrix has complex conjugate eigenvalues. Its
     # two coupled stage systems can be recovered from one complex LU solve,
@@ -229,9 +229,30 @@ def radau_stage_solver(mass, operator, h, method):
     mode=vectors[:,j]
     basis=np.column_stack([mode,mode.conjugate()])
     weights=np.linalg.inv(basis)[0]
-    factor=splu((mass+h*values[j]*operator).tocsc())
+    matrix=(mass+h*values[j]*operator).tocsc()
+    if method=="condensed-pair":
+        k=displacement_begin
+        if k is None or not 0<k<matrix.shape[0]:
+            raise ValueError("Displacement condensation requires a nonempty final kinematic block")
+        eye=sparse.eye(matrix.shape[0]-k,format="csc")
+        if (matrix[k:,k:]-eye).nnz:
+            raise ValueError("Expected the exact identity on displacement rate equations")
+        upper=matrix[:k,k:].tocsr()
+        lower=matrix[k:,:k].tocsr()
+        reduced=(matrix[:k,:k]-upper@lower).tocsc()
+        reduced.eliminate_zeros()
+        factor=splu(reduced)
+        def solve_complex(rhs):
+            dynamics=factor.solve(rhs[:k]-upper@rhs[k:])
+            return np.concatenate((dynamics,rhs[k:]-lower@dynamics))
+    else:
+        factor=splu(matrix)
+        solve_complex=factor.solve
+    if factor_stats is not None:
+        factor_stats.update(full_size=matrix.shape[0],factored_size=factor.shape[0],
+                            superlu_reported_nnz=factor.nnz)
     def recover(rhs):
-        transformed=factor.solve(weights @ rhs)
+        transformed=solve_complex(weights @ rhs)
         return 2*(mode[:,None]*transformed).real
     def solve(rhs):
         stages=recover(rhs)
@@ -242,10 +263,11 @@ def radau_stage_solver(mass, operator, h, method):
     return solve
 
 
-def integrate(tube,steps,amplitude,manufactured=False,observe=None,stage_solver="real-block"):
+def integrate(tube,steps,amplitude,manufactured=False,observe=None,stage_solver="real-block",factor_stats=None):
     h=1./steps
     M,K=tube.mass,tube.operator
-    solve=radau_stage_solver(M,K,h,stage_solver)
+    displacement_begin=int(tube.pressure.max())+1 if stage_solver=="condensed-pair" else None
+    solve=radau_stage_solver(M,K,h,stage_solver,displacement_begin,factor_stats)
     y=np.zeros(tube.size)
     if manufactured:
         rng=np.random.default_rng(4241)

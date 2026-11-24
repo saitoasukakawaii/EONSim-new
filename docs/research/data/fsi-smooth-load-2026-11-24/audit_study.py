@@ -46,7 +46,7 @@ def write_csv(path, rows):
         writer.writerows(rows)
 
 
-def external_loads(directory, steps, mode, peak=PEAK):
+def external_loads(directory, steps, mode, peak=PEAK, duration=1.):
     log = (directory/"1-procs/histor.dat").read_text()
     expected = [(int(s),int(i),p) for s,i in re.findall(r"^\s*FS\s+(\d+)-(\d+)s?\s",log,re.M)
                 for p in PORTS]
@@ -58,13 +58,13 @@ def external_loads(directory, steps, mode, peak=PEAK):
     for _, face, s, it, ts, weight, low, high in rows:
         step, iteration = int(s), int(it)
         time, af, lo, hi = map(float,(ts,weight,low,high))
-        dt = 1./steps
-        close(time,step*dt,2e-13,"svFSI lookup time")
+        dt = duration/steps
+        close(time,step*dt,2e-13*duration,"svFSI lookup time")
         close(af,2./3.,2e-15,"svFSI state weight")
         source_time = eon_stage(step,dt) if mode == "matched" else time
-        p = smooth_pressure(source_time, peak)
+        p = smooth_pressure(source_time/duration, peak)
         for load in (lo,hi):
-            close(load,p,3e-15,"svFSI residual-side pressure")
+            close(load,p,3e-15*peak/PEAK,"svFSI residual-side pressure")
         key = (step,PORTS.index(face)+1)
         if key not in stages:
             stages[key] = dict(lookup_time=time, source_time=source_time, solver_state_time=(step-1+af)*dt,
