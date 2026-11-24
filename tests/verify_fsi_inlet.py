@@ -68,6 +68,33 @@ def error(a,b):
     return max(abs(v-w) for k in a for v,w in zip(a[k],b[k]))
 
 
+def check_rcr_history(run, label, model, rows, restart=None, sole_pressure=True):
+    prefix = label + (f'_restart{restart}' if restart is not None else '')
+    with (run.work/(prefix+'_pressure_faces.csv')).open() as stream:
+        faces = [dict((k, float(v)) for k, v in face.items()) for face in csv.DictReader(stream)
+                 if int(face['tag']) == model['tag']]
+    assert len(faces) == len(rows) and rows
+    rp, rd, c, pd = (model[k] for k in ('proximal_resistance','distal_resistance','compliance','distal_pressure'))
+    worst = 0.
+    for row, face in zip(rows, faces):
+        assert row['step'] == face['step'] and row['time'] == face['time']
+        suffix='' if 'rcr_tag' in row else '_'+str(model['tag'])
+        assert row['rcr_tag'+suffix] == model['tag']
+        for kind in ('stage','endpoint'):
+            q = face[kind+'_outward_flow']
+            pc = row[kind+'_capacitor_pressure'+suffix]
+            pb = face[kind+'_prescribed_pressure']
+            errors = [row[kind+'_rcr_flow'+suffix]-q, row[kind+'_rcr_pressure'+suffix]-pb,
+                      pb-pc-rp*q, face[kind+'_pressure_power']+q*pb]
+            if kind == 'stage':
+                errors.append(c*row['stage_capacitor_rate'+suffix]-q+(pc-pd)/rd)
+                if sole_pressure:
+                    errors.append(row['applied_pressure']-pb)
+            worst = max(worst, *map(abs, errors))
+    assert worst < 2e-10, worst
+    return worst
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',required=True)
     a=p.parse_args();run=Runner(a.executable,a.mpiexec,a.work)

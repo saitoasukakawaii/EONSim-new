@@ -8,7 +8,7 @@ import math
 from pathlib import Path
 import re
 import xml.etree.ElementTree as ET
-from verify_fsi_inlet import Runner, error
+from verify_fsi_inlet import Runner, check_rcr_history, error
 from generate_tube import generate
 
 
@@ -74,31 +74,6 @@ def verify_wall_support(run, base):
         cfg['fsi']['domains']['wall_supports'] = supports
         run.solve('invalid-wall-support-'+label, cfg, 2, fail=message)
     return results
-
-
-def check_rcr_history(run, label, model, rows, restart=None, sole_pressure=True):
-    prefix = label + (f'_restart{restart}' if restart is not None else '')
-    with (run.work/(prefix+'_pressure_faces.csv')).open() as stream:
-        faces = [dict((k, float(v)) for k, v in face.items()) for face in csv.DictReader(stream)
-                 if int(face['tag']) == model['tag']]
-    assert len(faces) == len(rows) and rows
-    rp, rd, c, pd = (model[k] for k in ('proximal_resistance','distal_resistance','compliance','distal_pressure'))
-    worst = 0.
-    for row, face in zip(rows, faces):
-        assert row['step'] == face['step'] and row['time'] == face['time']
-        for kind in ('stage','endpoint'):
-            q = face[kind+'_outward_flow']
-            pc = row[kind+'_capacitor_pressure']
-            pb = face[kind+'_prescribed_pressure']
-            errors = [row[kind+'_rcr_flow']-q, row[kind+'_rcr_pressure']-pb,
-                      pb-pc-rp*q, face[kind+'_pressure_power']+q*pb]
-            if kind == 'stage':
-                errors.append(c*row['stage_capacitor_rate']-q+(pc-pd)/rd)
-                if sole_pressure:
-                    errors.append(row['applied_pressure']-pb)
-            worst = max(worst, *map(abs, errors))
-    assert worst < 2e-10, worst
-    return worst
 
 
 def verify_rcr(run, base):
@@ -191,7 +166,7 @@ def verify_rcr_retry(exe,mpi,work):
 def verify_rcr_harmonic(exe, mpi, work):
     # All solid nodes of one axial slab lie on clamped ends. Continuity makes Qout=Qin.
     # The complete 3D saddle point problem still determines the outlet traction.
-    cfg = json.loads(generate(work,sectors=8,axial=1,radial=2).read_text())
+    cfg = json.loads(generate(work,sectors=8,axial=1,radial=2,clamped_slab=True).read_text())
     geometry = json.loads((work/'geometry.json').read_text())
     run = Runner(exe,mpi,work,interface_area=geometry['interface_area'])
     cfg['fsi'].update(pressure_face_history=True,output_interval=10000,stabilization_tau=.01)

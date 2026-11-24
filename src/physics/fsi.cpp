@@ -92,11 +92,11 @@ struct OutletState {
     double capacitor=0,previous=0,rate=0;
 };
 
-void assemble_outlet(const ReducedLayout& layout,const RcrStage& stage,double outlet_pressure,
+void assemble_outlet(const ReducedLayout& layout,const OutletTrace& trace,const RcrStage& stage,double outlet_pressure,
     const std::vector<double>& physical,bool owns_pressure,Vec residual,Mat jacobian) {
-    const auto port=layout.outlet_pressure;
+    const auto port=trace.pressure;
     double flux=0;
-    for(const auto& [slot,weight]:layout.outlet_flux_weights) {
+    for(const auto& [slot,weight]:trace.flux_weights) {
         flux+=weight*physical[slot];
         const auto row=layout.global[slot];
         if(row<0) continue;
@@ -112,9 +112,8 @@ void assemble_outlet(const ReducedLayout& layout,const RcrStage& stage,double ou
         EONSIM_PETSC(MatSetValue(jacobian,port,port,1/stage.total_impedance,ADD_VALUES));
 }
 
-struct FacePressure {
-    std::array<double,2> prescribed,outlet;
-    int outlet_tag;
+struct OutletObservation {
+    double stage_pressure,endpoint_pressure,stage_capacitor,stage_rate;
 };
 
 template<class Layout>
@@ -135,7 +134,7 @@ template<class Layout>
 void write_pressure_faces(MPI_Comm comm,const MeshPartition& mesh,const std::vector<int>& tags,
     const std::vector<TaggedPressureFace>& faces,const std::vector<double>& stage,
     const std::vector<double>& endpoint,bool distinct_stage,double viscosity,
-    int step,double time,double dt,double stage_time,const FacePressure& pressures,std::ostream& out)
+    int step,double time,double dt,double stage_time,const std::vector<std::array<double,2>>& pressures,std::ostream& out)
 {
     constexpr std::size_t integrals_per_face=4;
     const std::size_t stride=tags.size()*integrals_per_face;
@@ -171,7 +170,7 @@ void write_pressure_faces(MPI_Comm comm,const MeshPartition& mesh,const std::vec
                 const auto offset=(distinct_stage?s*stride:0)+i*integrals_per_face;
                 const double area=total[offset],flow=total[offset+3];
                 if(!(area>0)) throw std::runtime_error("Empty FSI pressure face tag "+std::to_string(tags[i]));
-                const double load=(tags[i]==pressures.outlet_tag?pressures.outlet:pressures.prescribed)[s];
+                const double load=pressures[i][s];
                 for(double value:{area,total[offset+1]/area,total[offset+2]/area,flow,load,-load*flow}) {
                     if(!std::isfinite(value)) throw std::runtime_error("Nonfinite FSI pressure face observation");
                     out<<','<<value;
@@ -203,7 +202,9 @@ template<bool Elastic>
 FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& config)
 {
     const auto& f=config.fsi;
-    const auto& outlet=f.domains.rcr_outlet;
+    const auto& outlets=f.domains.rcr_outlets;
+    std::map<int,std::size_t> outlet_by_tag;
+    for(std::size_t i=0;i<outlets.size();++i) outlet_by_tag.emplace(outlets[i].tag,i);
     const bool bdf2=config.time_integration.scheme==TimeScheme::bdf2;
     const bool alpha=config.time_integration.scheme==TimeScheme::generalized_alpha;
     bool alpha_ready=false;
@@ -350,7 +351,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             if(!fluid_cell.back()) continue;
             const auto tag=std::find(pressure_tags.begin(),pressure_tags.end(),boundary_face->second);
             if(tag==pressure_tags.end()) continue;
-            if(!outlet||*tag!=outlet->tag) e.inlet_faces.push_back(face);
+            if(!outlet_by_tag.count(*tag)) e.inlet_faces.push_back(face);
             if(f.pressure_face_history)
                 pressure_faces.push_back({data.size(),static_cast<std::size_t>(tag-pressure_tags.begin()),skip});
         }
@@ -366,10 +367,11 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             throw std::runtime_error("FSI wall support requires a solid exterior tag on the partition");
     }
     std::vector<double> accepted(layout.local_to_global.size(),0),physical(mesh.nodes.size()*nc,0);
-    OutletState outlet_state;
-    if(outlet) {
-        outlet_state={outlet->initial_capacitor_pressure,outlet->initial_capacitor_pressure,0};
-        accepted[reduced.outlet_pressure_local]=outlet_state.capacitor;
+    std::vector<OutletState> outlet_state;
+    for(std::size_t i=0;i<outlets.size();++i) {
+        const double initial=outlets[i].initial_capacitor_pressure;
+        outlet_state.push_back({initial,initial,0});
+        accepted[reduced.outlets[i].local]=initial;
     }
     std::vector<double> solid_d(mesh.nodes.size()*Tet4Vector::components,0);
     // A zero-ramp inlet is present in the initial physical state as well.
@@ -395,8 +397,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     if(alpha) signature_values.insert(signature_values.end(),{20501.,3.,config.time_integration.rho_infinity});
     if(f.stabilization_tau) signature_values.insert(signature_values.end(),{20503.,*f.stabilization_tau});
     if(f.grad_div_viscosity>0) signature_values.insert(signature_values.end(),{20509.,f.grad_div_viscosity});
-    if(outlet) signature_values.insert(signature_values.end(),{20511.,double(outlet->tag),outlet->proximal_resistance,
-        outlet->distal_resistance,outlet->compliance,outlet->distal_pressure,outlet->initial_capacitor_pressure});
+    for(const auto& outlet:outlets) signature_values.insert(signature_values.end(),{20511.,double(outlet.tag),outlet.proximal_resistance,
+        outlet.distal_resistance,outlet.compliance,outlet.distal_pressure,outlet.initial_capacitor_pressure});
     for(const auto& [tag,support]:supports)
         if(support.stiffness>0||support.damping>0)
             signature_values.insert(signature_values.end(),{20510.,double(tag),support.stiffness,support.damping});
@@ -458,7 +460,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     if(!config.restart.empty()) {
         std::map<std::string,std::size_t> sizes{{"reduced",accepted.size()},
             {"physical",physical.size()},{"solid_displacement",solid_d.size()},{"rigid",2}};
-        if(outlet) sizes["rcr_capacitor"]=3;
+        if(!outlets.empty()) sizes["rcr_capacitor"]=3*outlets.size();
         if(bdf2) { sizes["previous_physical"]=physical.size(); sizes["previous_displacement"]=solid_d.size(); sizes["previous_rigid"]=2; sizes["time_metadata"]=1; }
         if(alpha) {
             sizes["fluid_rate"]=fluid_rate.size(); sizes["mesh_velocity"]=mesh_velocity.size(); sizes["mesh_acceleration"]=mesh_acceleration.size(); sizes["time_metadata"]=2;
@@ -466,9 +468,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         }
         const auto saved=read_checkpoint(config.restart,mesh,signature,sizes);
         accepted=saved.fields.at("reduced"); physical=saved.fields.at("physical"); solid_d=saved.fields.at("solid_displacement");
-        if(outlet) {
+        if(!outlets.empty()) {
             const auto& values=saved.fields.at("rcr_capacitor");
-            outlet_state={values[0],values[1],values[2]};
+            for(std::size_t i=0;i<outlets.size();++i) outlet_state[i]={values[3*i],values[3*i+1],values[3*i+2]};
         }
         body={saved.fields.at("rigid")[0],saved.fields.at("rigid")[1]}; clock.restore(saved.step,saved.time,saved.next_dt);
         if(bdf2) {
@@ -541,7 +543,12 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         history<<"step,time,accepted_dt,evaluation_time,applied_pressure,endpoint_position,endpoint_velocity,evaluation_fluid_force,evaluation_body_balance,evaluation_interface_power,evaluation_body_power,evaluation_power_balance,snes_iterations,residual,time_order,reference_interface_area,current_interface_area,area_displacement_x,area_displacement_y,area_displacement_z,area_velocity_x,area_velocity_y,area_velocity_z,stage_min_fluid_j,stage_min_solid_j,endpoint_min_fluid_j,endpoint_min_solid_j";
         if(f.inlet_flow) history<<",stage_volume,stage_inlet_flow,stage_outlet_flow,stage_wall_flux,stage_divergence,endpoint_volume,endpoint_inlet_flow,endpoint_outlet_flow,endpoint_wall_flux,endpoint_divergence,volume_secant_rate,stage_mass_residual,secant_mass_residual,target_endpoint_flow";
         if(!supports.empty()) history<<",stage_support_spring_energy,stage_support_dissipation,stage_support_power,endpoint_support_spring_energy,step_support_work";
-        if(outlet) history<<",rcr_tag,stage_rcr_flow,stage_rcr_pressure,stage_capacitor_pressure,stage_capacitor_rate,endpoint_rcr_flow,endpoint_rcr_pressure,endpoint_capacitor_pressure";
+        for(const auto& outlet:outlets) {
+            const auto suffix=outlets.size()==1?std::string{}:"_"+std::to_string(outlet.tag);
+            for(const char* key:{"rcr_tag","stage_rcr_flow","stage_rcr_pressure","stage_capacitor_pressure",
+                                 "stage_capacitor_rate","endpoint_rcr_flow","endpoint_rcr_pressure","endpoint_capacitor_pressure"})
+                history<<','<<key<<suffix;
+        }
         history<<'\n';
         history.flush();
     });
@@ -561,10 +568,14 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         const double integration_dt=alpha_step?fluid_map.effective_dt():derivative.effective_dt;
         const double solid_dt=alpha_step?solid_map.effective_dt():derivative.effective_dt;
         const double mesh_dt=alpha_step?solid_map.displacement_dt():derivative.effective_dt;
-        const double capacitor_reference=alpha_step?fluid_map.reference(outlet_state.capacitor,outlet_state.rate):
-            derivative.reference(outlet_state.capacitor,outlet_state.previous);
-        std::optional<RcrStage> outlet_stage;
-        if(outlet) outlet_stage.emplace(*outlet,capacitor_reference,integration_dt);
+        std::vector<RcrStage> outlet_stages;
+        outlet_stages.reserve(outlets.size());
+        for(std::size_t i=0;i<outlets.size();++i) {
+            const auto& state=outlet_state[i];
+            const double reference=alpha_step?fluid_map.reference(state.capacitor,state.rate):
+                derivative.reference(state.capacitor,state.previous);
+            outlet_stages.emplace_back(outlets[i],reference,integration_dt);
+        }
         auto effective_physical=bdf2?physical_history.reference(physical,derivative):std::vector<double>{};
         auto effective_d=bdf2?displacement_history.reference(solid_d,derivative):std::vector<double>{};
         if(alpha_step) {
@@ -685,8 +696,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     }
                 });
             }
-            if(outlet) assemble_outlet(reduced,*outlet_stage,x[reduced.outlet_pressure_local],full,
-                                       mesh.rank==mesh.ranks-1,r,j);
+            for(std::size_t i=0;i<outlets.size();++i) {
+                const auto& port=reduced.outlets[i];
+                assemble_outlet(reduced,port,outlet_stages[i],x[port.local],full,mesh.rank==mesh.ranks-1,r,j);
+            }
             if(!Elastic && mesh.rank==mesh.ranks-1) {
                 const double v=x[reduced.body_local];
                 const double rbody=rigid_residual({f.mass,f.damping,f.stiffness},reference_body,solid_dt,v,0,mesh_dt);
@@ -696,7 +709,6 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         };
         const auto solved=system.solve(config.solver,accepted,{}, {},assemble);
         const auto next=expand(solved.values);
-        const double stage_outlet_pressure=outlet?solved.values[reduced.outlet_pressure_local]:0;
         double local[4]{},global[4]{};
         measured(events.force_replay,[&] {
             for(std::size_t e=0;e<data.size();++e) {
@@ -715,9 +727,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 }
             }
         });
-        if(outlet) for(const auto& [slot,weight]:reduced.outlet_flux_weights) {
+        for(const auto& port:reduced.outlets) for(const auto& [slot,weight]:port.flux_weights) {
             if(!interface[slot/nc]) continue;
-            const double force=weight*stage_outlet_pressure;
+            const double force=weight*solved.values[port.local];
             if(slot%nc==0) local[0]-=force;
             local[2]-=force*next[slot];
         }
@@ -820,27 +832,26 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             result.position=next_body.position; result.velocity=next_body.velocity;
         }
         std::array<double,5> stage_mass{},endpoint_mass{},old_mass{};
-        std::array<double,2> outlet_flow{},outlet_pressures{stage_outlet_pressure,0};
+        std::vector<double> outlet_flow(2*outlets.size());
+        std::vector<OutletObservation> port_values;
         auto next_outlet_state=outlet_state;
-        double stage_capacitor=0,stage_capacitor_rate=0;
-        if(outlet) {
-            stage_capacitor=outlet_stage->capacitor_pressure(stage_outlet_pressure);
-            stage_capacitor_rate=outlet_stage->capacitor_rate(stage_outlet_pressure);
-            const double rate=alpha_step?outlet_state.rate+(stage_capacitor_rate-outlet_state.rate)/fluid_map.p.alpha_m:
-                stage_capacitor_rate;
-            const double endpoint=alpha_step?std::fma(dt,(1-fluid_map.p.gamma)*outlet_state.rate+fluid_map.p.gamma*rate,
-                outlet_state.capacitor):stage_capacitor;
-            outlet_pressures[1]=next_reduced[reduced.outlet_pressure_local];
-            if(f.output_interval>0) {
-                std::array<double,2> partial{};
-                for(const auto& [slot,weight]:reduced.outlet_flux_weights) {
-                    partial[0]+=weight*next[slot];
-                    partial[1]+=weight*next_physical[slot];
-                }
-                MPI_Allreduce(partial.data(),outlet_flow.data(),2,MPI_DOUBLE,MPI_SUM,comm);
+        for(std::size_t i=0;i<outlets.size();++i) {
+            const auto& port=reduced.outlets[i];
+            const auto& state=outlet_state[i];
+            const double pb=solved.values[port.local];
+            const double pc=outlet_stages[i].capacitor_pressure(pb);
+            const double stage_rate=outlet_stages[i].capacitor_rate(pb);
+            const double rate=alpha_step?state.rate+(stage_rate-state.rate)/fluid_map.p.alpha_m:stage_rate;
+            const double endpoint=alpha_step?std::fma(dt,(1-fluid_map.p.gamma)*state.rate+fluid_map.p.gamma*rate,state.capacitor):pc;
+            next_outlet_state[i]={endpoint,state.capacitor,rate};
+            port_values.push_back({pb,next_reduced[port.local],pc,stage_rate});
+            if(f.output_interval>0) for(const auto& [slot,weight]:port.flux_weights) {
+                outlet_flow[2*i]+=weight*next[slot];
+                outlet_flow[2*i+1]+=weight*next_physical[slot];
             }
-            next_outlet_state={endpoint,outlet_state.capacitor,rate};
         }
+        if(!outlets.empty()&&f.output_interval>0)
+            MPI_Allreduce(MPI_IN_PLACE,outlet_flow.data(),static_cast<int>(outlet_flow.size()),MPI_DOUBLE,MPI_SUM,comm);
         if(f.inlet_flow) {stage_mass=mass_observation(next); endpoint_mass=mass_observation(next_physical); old_mass=mass_observation(physical);}
         std::array<double,5> support_history{};
         if(!supports.empty()&&f.output_interval>0) {
@@ -862,7 +873,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         const double body_power=Elastic?global[3]:(result.balance+result.fluid_force)*solved.values[reduced.body_local];
         if(bdf2) { physical_history.commit(physical,dt); displacement_history.commit(solid_d,dt); body_history.commit({body.position,body.velocity},dt); }
         accepted=std::move(next_reduced); physical=std::move(next_physical); solid_d=std::move(next_solid); body=next_body;
-        outlet_state=next_outlet_state;
+        outlet_state=std::move(next_outlet_state);
         if(alpha) {
             fluid_rate=std::move(next_fluid_rate); mesh_velocity=std::move(next_mesh_velocity); mesh_acceleration=std::move(next_mesh_acceleration);
             solid_acceleration=std::move(next_solid_acceleration); body_acceleration=next_body_acceleration; alpha_ready=true;
@@ -872,7 +883,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         if(alpha&&clock.at_event()) alpha_ready=false;
         if(!config.checkpoint.empty()&&(step%f.checkpoint_interval==0||!clock.active(config.stop_after))) {
             Checkpoint saved{step,{{"reduced",accepted},{"physical",physical},{"solid_displacement",solid_d},{"rigid",{body.position,body.velocity}}},clock.time,clock.next_dt};
-            if(outlet) saved.fields["rcr_capacitor"]={outlet_state.capacitor,outlet_state.previous,outlet_state.rate};
+            if(!outlets.empty()) {
+                auto& values=saved.fields["rcr_capacitor"];
+                for(const auto& state:outlet_state) values.insert(values.end(),{state.capacitor,state.previous,state.rate});
+            }
             if(bdf2) {
                 saved.fields["previous_physical"]=physical_history.previous;
                 saved.fields["previous_displacement"]=displacement_history.previous;
@@ -886,7 +900,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             }
             write_checkpoint(comm,config.checkpoint,mesh,signature,saved);
         }
-        const double applied=outlet&&pressure_tags.size()==1?stage_outlet_pressure:pressure;
+        const double applied=outlets.size()==1&&pressure_tags.size()==1?port_values.front().stage_pressure:pressure;
         if(f.output_interval>0) {
             if(step%f.output_interval==0||!clock.active(config.stop_after)) {
                 output_stage(comm,"snapshot extraction",snapshot);
@@ -918,15 +932,26 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                         <<','<<stage_mass[1]-stage_mass[2]-rate<<','<<inlet_scale(time);
                 }
                 if(!supports.empty()) for(double value:support_history) history<<','<<value;
-                if(outlet) history<<','<<outlet->tag<<','<<outlet_flow[0]<<','<<outlet_pressures[0]<<','
-                    <<stage_capacitor<<','<<stage_capacitor_rate<<','<<outlet_flow[1]<<','<<outlet_pressures[1]<<','<<outlet_state.capacitor;
+                for(std::size_t i=0;i<outlets.size();++i) {
+                    const auto& v=port_values[i];
+                    history<<','<<outlets[i].tag<<','<<outlet_flow[2*i]<<','<<v.stage_pressure<<','<<v.stage_capacitor
+                           <<','<<v.stage_rate<<','<<outlet_flow[2*i+1]<<','<<v.endpoint_pressure<<','<<outlet_state[i].capacitor;
+                }
                 history<<'\n';
                 history.flush();
             });
         }
-        if(f.pressure_face_history)
+        if(f.pressure_face_history) {
+            std::vector<std::array<double,2>> loads(pressure_tags.size(),{pressure,fsi_pressure(f,time)});
+            for(std::size_t i=0;i<pressure_tags.size();++i) {
+                const auto found=outlet_by_tag.find(pressure_tags[i]);
+                if(found==outlet_by_tag.end()) continue;
+                const auto& port=port_values[found->second];
+                loads[i]={port.stage_pressure,port.endpoint_pressure};
+            }
             write_pressure_faces<Layout>(comm,mesh,pressure_tags,pressure_faces,next,physical,alpha_step,f.viscosity,
-                step,time,dt,evaluation_time,{{pressure,fsi_pressure(f,time)},outlet_pressures,outlet?outlet->tag:0},pressure_history);
+                step,time,dt,evaluation_time,loads,pressure_history);
+        }
         const std::string stage=alpha?"stage_":"";
         if(mesh.rank==0) std::cout << std::setprecision(17) << "fsi_step=" << step << " time=" << time << " accepted_dt=" << dt << " evaluation_time=" << evaluation_time << " applied_pressure=" << applied
             << " position=" << result.position << " velocity=" << result.velocity << " " << stage << "fluid_force=" << result.fluid_force

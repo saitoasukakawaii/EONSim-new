@@ -28,6 +28,11 @@ struct ReducedSlot {
     double trial_weight=0,lifting=0;
     double expand(const std::vector<double>& q) const { return lifting+(local<0?0:trial_weight*q.at(local)); }
 };
+/** Global port pressure and distributed outward-velocity surface integral. */
+struct OutletTrace {
+    PetscInt pressure=-1,local=-1;
+    std::vector<std::pair<std::size_t,double>> flux_weights; ///< Owned face contributions by physical velocity slot.
+};
 struct ReducedLayout {
     AlgebraLayout algebra;
     int components=Tet4Ale::components;
@@ -43,9 +48,7 @@ struct ReducedLayout {
                 local.at(i)<0?0:(mesh_trace?displacement_from_velocity:1),mesh_trace?interface_lifting:0};
     }
     PetscInt body=-1,body_local=-1;
-    PetscInt outlet_pressure=-1,outlet_pressure_local=-1;
-    /// Contributions to outward flow from boundary faces owned by this rank, keyed by physical velocity slot.
-    std::vector<std::pair<std::size_t,double>> outlet_flux_weights;
+    std::vector<OutletTrace> outlets; ///< Same sorted tag order as FsiDomains::rcr_outlets.
 };
 /// collective；只交换 ghost 编号和 rank 计数，稀疏图通过 PETSc 分布式预分配器装配。
 ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh);

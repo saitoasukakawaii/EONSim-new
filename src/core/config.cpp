@@ -346,7 +346,7 @@ Config read_config(const std::filesystem::path& path)
             v.elastic=body=="elastic";
         }
         if(const auto d=f["domains"]) {
-            keys(d,{"solid_mesh","fluid_region","solid_region","fluid_interface","solid_interface","match_tolerance","pressure_tags","fluid_constraints","mesh_constraints","solid_constraints","wall_supports","rcr_outlet"},"fsi.domains");
+            keys(d,{"solid_mesh","fluid_region","solid_region","fluid_interface","solid_interface","match_tolerance","pressure_tags","fluid_constraints","mesh_constraints","solid_constraints","wall_supports","rcr_outlet","rcr_outlets"},"fsi.domains");
             auto& domain=v.domains;
             domain.solid_mesh=(directory/d["solid_mesh"].as<std::string>()).lexically_normal();
             domain.fluid_region=d["fluid_region"].as<int>(); domain.solid_region=d["solid_region"].as<int>();
@@ -357,7 +357,8 @@ Config read_config(const std::filesystem::path& path)
             std::set<int> pressure_seen;
             for(int tag:domain.pressure_tags) if(tag<=0||!pressure_seen.insert(tag).second||tag==domain.fluid_interface) throw std::runtime_error("Invalid FSI pressure tags");
             if(domain.pressure_tags.empty()) throw std::runtime_error("FSI needs pressure boundary");
-            if(const auto r=d["rcr_outlet"]) {
+            if(d["rcr_outlet"]&&d["rcr_outlets"]) throw std::runtime_error("Specify one RCR outlet syntax");
+            auto read_outlet=[&](const YAML::Node& r) {
                 keys(r,{"tag","proximal_resistance","distal_resistance","compliance","distal_pressure","initial_capacitor_pressure"},
                      "fsi.domains.rcr_outlet");
                 const double distal=r["distal_pressure"].as<double>(0.);
@@ -369,7 +370,16 @@ Config read_config(const std::filesystem::path& path)
                     if(!(value>0)||!std::isfinite(value)) throw std::runtime_error("RCR resistances and compliance must be finite and positive");
                 if(!std::isfinite(distal)||!std::isfinite(outlet.initial_capacitor_pressure))
                     throw std::runtime_error("RCR pressures must be finite");
-                domain.rcr_outlet=outlet;
+                domain.rcr_outlets.push_back(outlet);
+            };
+            if(d["rcr_outlet"]) read_outlet(d["rcr_outlet"]);
+            if(const auto ports=d["rcr_outlets"]) {
+                if(!ports.IsSequence()||ports.size()==0) throw std::runtime_error("rcr_outlets must be a nonempty sequence");
+                for(const auto& port:ports) read_outlet(port);
+                auto& models=domain.rcr_outlets;
+                std::sort(models.begin(),models.end(),[](const RcrOutlet& a,const RcrOutlet& b){return a.tag<b.tag;});
+                for(std::size_t i=1;i<models.size();++i) if(models[i-1].tag==models[i].tag)
+                    throw std::runtime_error("Duplicate RCR outlet tag "+std::to_string(models[i].tag));
             }
             auto constraints=[&](const char* key,std::vector<ComponentConstraint>& output) {
                 const auto entries=d[key]; if(!entries.IsSequence()) throw std::runtime_error(std::string(key)+" must be a sequence");

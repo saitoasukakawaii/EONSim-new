@@ -39,3 +39,21 @@ A fully clamped single-slab tube gives Q_out = Q_in from discrete continuity, al
 A second tube has a genuinely deforming wall, backflow, positive stored pressure and variable step sizes. Its three schemes agree between one and two MPI ranks to at most 1.10 × 10⁻¹⁴ over the nodal fields. Same-partition resumed fields and pressure histories reproduce the continuous trajectories. The four-rank complete Jacobian check has relative discrepancy 8.78 × 10⁻⁹; the hybrid preconditioner agrees with the direct field solution within 4.16 × 10⁻¹². A strong inlet and restricted Newton iteration budget produce 13 BDF2 and 14 generalized-α rejections. Replaying the actual accepted step sizes reproduces both the final fields and circuit pressures. A separate run has one prescribed end and one circuit end. [Recorded results, including all three refinements](single-port.json)
 
 Compilation and verification used the repo script with PETSc 3.23.7 Release. The targeted selection for the new numerical checks is `{"tests":["fsi_tube","time_integration"]}`. Run `bash scripts/cloud/run.sh 3.23.7 release explicit "$cache" "$selection"`. [Analytic, coupled, MPI and retry checks](../../../../tests/verify_fsi_tube.py) · [short-step large-pressure test](../../../../tests/verify_time_integration.cpp) · [upstream development contract](../../HPC_UPSTREAM_REVIEW_2026-11-24.md)
+
+## Several stationary outlet circuits
+
+The list form `fsi.domains.rcr_outlets` accepts an independent circuit per stationary pressure tag. Each entry uses the keys shown above. The parser sorts tags before numbering global port pressures or serializing capacitor states. It rejects duplicate tags and simultaneous use of the singular and plural input forms. A single-entry list can resume a checkpoint written by the earlier single-port implementation. The direct cross-version replay reproduced the prior two-rank fields and all circuit observables exactly.
+
+For multiple circuits the main history appends the tag to each circuit column, e.g. `stage_rcr_flow_2`, `endpoint_capacitor_pressure_3`. The independent pressure-face table still has a row per tag. Both accepted stage and endpoint fluxes for all ports are reduced together in one diagnostic collective. Newton assembly uses distributed PETSc insertions of the sparse port border.
+
+The [T-junction generator](../../../../cases/fsi/generate_branched.py) provides a square duct with a flexible 3D wall, a prescribed flow inlet and two distal circuits. At refinement one it has 312 fluid and 840 solid tetrahedra. The mesh is exactly symmetric about the daughter midplane. Identical circuits give equal branch fluxes even during filling. Exchanging unequal terminal impedances exchanges all measured pressure and flow trajectories and reflects the full solution, including the sign of the transverse velocity and displacement. The check matches all nodal fields by reference coordinates. Circuit power is positive into a passive terminal load for positive outward flow and pressure, and each pressure-face record stores the opposite applied fluid power.
+
+Across a separate four-step test on 1, 2, 4 and **8 MPI ranks on one host**, the maximum nodal discrepancy was 1.78 × 10⁻¹⁵. On two ranks, BDF2 needed two rejected candidates and generalized-α one candidate before accepting their third step with a restricted Newton budget. Both reproduced the explicitly replayed trajectories, including each capacitor pressure. The complete two-port Jacobian gave a relative finite-difference discrepancy of 4.30 × 10⁻⁸. These experiments verify coupling, signs, rollback and MPI ownership for this synthetic geometry. [Measured fields and circuit checks](multi-port.json) · [manual MPI and retry driver](extended.py)
+
+```bash
+python cases/fsi/generate_branched.py --output "$work/case" --refinement 1
+"$eonsim" -case "$work/case/case.json" -prepare "$work/part" -parts 4
+"$prefix/bin/mpiexec" -n 4 "$eonsim" -case "$work/case/case.json" -partition "$work/part"
+python docs/research/data/fsi-rcr-2026-11-24/extended.py --work "$work/extended" \
+  --executable "$eonsim" --mpiexec "$prefix/bin/mpiexec" --ranks 2 4 8
+```

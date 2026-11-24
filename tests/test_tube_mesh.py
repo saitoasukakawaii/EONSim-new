@@ -45,6 +45,15 @@ class TubeMesh(unittest.TestCase):
                 self.assertEqual(interfaces[0],interfaces[1]);self.assertTrue(interfaces[0])
         self.assertGreater(errors[0]/errors[1],3.8);self.assertGreater(errors[1]/errors[2],3.8)
 
+    def test_explicit_single_clamped_slab(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            generate(root,sectors=8,axial=1,clamped_slab=True)
+            xyz,cells,boundary=read(root/'solid.msh')
+            clamped={node for face,tag in boundary.items() if tag in (11,12) for node in face}
+            self.assertEqual(clamped,set(xyz))
+            self.assertTrue(all(volume(xyz,t)>0 for t in cells))
+
     def test_invalid_geometry(self):
         with tempfile.TemporaryDirectory() as root:
             for change in (dict(radius=0),dict(thickness=-1),dict(length=float('nan')),dict(sectors=3),dict(axial=1)):

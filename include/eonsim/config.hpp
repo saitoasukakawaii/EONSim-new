@@ -107,7 +107,7 @@ struct FsiDomains {
     std::vector<int> pressure_tags;
     std::vector<ComponentConstraint> fluid_constraints,mesh_constraints,solid_constraints;
     std::map<int,WallSupport> wall_supports; ///< Solid exterior physical tags.
-    std::optional<RcrOutlet> rcr_outlet; ///< One stationary pressure tag can use a three-element termination.
+    std::vector<RcrOutlet> rcr_outlets; ///< Sorted by stationary boundary tag for stable layout and restart.
 };
 using FsiPressureTime=PressureTime;
 struct FsiFlowRate {

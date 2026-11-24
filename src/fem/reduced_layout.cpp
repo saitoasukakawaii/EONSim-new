@@ -10,31 +10,33 @@
 #include <stdexcept>
 namespace eonsim {
 namespace {
-void build_outlet_trace(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains,ReducedLayout& reduced) {
-    std::map<std::size_t,double> weights;
-    int invalid=0,active=0;
+void build_outlet_traces(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains,ReducedLayout& reduced) {
+    const auto count=reduced.outlets.size();
+    std::map<int,std::size_t> by_tag;
+    for(std::size_t i=0;i<count;++i) by_tag.emplace(domains.rcr_outlets[i].tag,i);
+    std::vector<std::map<std::size_t,double>> weights(count);
+    std::vector<int> local(count+1),global(count+1);
     try {
         const auto facets=build_boundary_facets(mesh);
         for(std::size_t i=0;i<mesh.boundary.size();++i) {
             const auto& face=mesh.boundary[i];
-            if(face.physical_tag!=domains.rcr_outlet->tag) continue;
-            if(mesh.cells[facets[i].cell].physical_tag!=domains.fluid_region) invalid=1;
+            const auto port=by_tag.find(face.physical_tag);
+            if(port==by_tag.end()) continue;
+            if(mesh.cells[facets[i].cell].physical_tag!=domains.fluid_region) local.back()=1;
             const auto g=boundary_geometry(mesh,i,facets[i]);
             for(auto node:face.nodes) for(int c=0;c<Space3::dimension;++c) {
                 const auto offset=static_cast<std::size_t>(node)*reduced.components;
-                if(reduced.global[offset+Tet4Ale::mesh_offset+c]>=0) invalid=1;
-                weights[offset+c]+=g.area*Tri3Topology::mean_weight*g.normal[c];
+                if(reduced.global[offset+Tet4Ale::mesh_offset+c]>=0) local.back()=1;
+                weights[port->second][offset+c]+=g.area*Tri3Topology::mean_weight*g.normal[c];
             }
         }
-        for(const auto& entry:weights) if(entry.second!=0) {
-            reduced.outlet_flux_weights.push_back(entry);
-            if(reduced.global[entry.first]>=0) active=1;
+        for(std::size_t i=0;i<count;++i) for(const auto& entry:weights[i]) if(entry.second!=0) {
+            reduced.outlets[i].flux_weights.push_back(entry);
+            if(reduced.global[entry.first]>=0) local[i]=1;
         }
-    } catch(const std::exception&) { invalid=1; }
-    const int local[]={invalid,active};
-    int global[2]{};
-    MPI_Allreduce(local,global,2,MPI_INT,MPI_MAX,comm);
-    if(global[0]||!global[1])
+    } catch(const std::exception&) { local.back()=1; }
+    MPI_Allreduce(local.data(),global.data(),static_cast<int>(global.size()),MPI_INT,MPI_MAX,comm);
+    if(global.back()||std::find(global.begin(),global.end()-1,0)!=global.end()-1)
         throw std::runtime_error("RCR outlet needs a stationary fluid exterior with free normal flow");
 }
 
@@ -91,9 +93,9 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     reduced.interface_nodes=std::move(interface_nodes);
     auto& l=reduced.algebra;
     const bool body_owner=!Elastic && mesh.rank==mesh.ranks-1;
-    const bool rcr=domains&&domains->rcr_outlet.has_value();
-    const bool outlet_owner=rcr&&mesh.rank==mesh.ranks-1;
-    GlobalId owned=body_owner||outlet_owner?1:0;
+    const GlobalId port_count=domains?static_cast<GlobalId>(domains->rcr_outlets.size()):0;
+    const bool outlet_owner=port_count&&mesh.rank==mesh.ranks-1;
+    GlobalId owned=(body_owner?1:0)+(outlet_owner?port_count:0);
     for(std::size_t i=0;i<nc*mesh.owned_nodes;++i) if(alias[i]==static_cast<PetscInt>(i)) ++owned;
     std::vector<GlobalId> counts(mesh.ranks);
     MPI_Allgather(&owned,1,MPI_INT64_T,counts.data(),1,MPI_INT64_T,comm);
@@ -102,7 +104,8 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     l.owned=owned; l.global=global;
     l.begin=std::accumulate(counts.begin(),counts.begin()+mesh.rank,GlobalId{0});
     reduced.body=Elastic?-1:l.global-1;
-    if(rcr) reduced.outlet_pressure=l.global-1;
+    reduced.outlets.resize(port_count);
+    for(GlobalId i=0;i<port_count;++i) reduced.outlets[i].pressure=static_cast<PetscInt>(global-port_count+i);
     std::vector<int> components(nc); std::iota(components.begin(),components.end(),0);
     const auto nodal=make_field_layout(mesh,nc,{{"node",components}});
     PetscOwner<Vec,VecDestroy> ids;
@@ -131,9 +134,9 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
         l.fields["rigid"].push_back(reduced.body);
         l.owned_semantics.push_back({0,DofDomain::solid,DofQuantity::velocity,DofEntity::body,0,0,0});
     }
-    if(outlet_owner) {
-        l.fields["pressure"].push_back(reduced.outlet_pressure);
-        l.owned_semantics.push_back({domains->rcr_outlet->tag,DofDomain::fluid,DofQuantity::pressure,
+    if(outlet_owner) for(std::size_t i=0;i<reduced.outlets.size();++i) {
+        l.fields["pressure"].push_back(reduced.outlets[i].pressure);
+        l.owned_semantics.push_back({domains->rcr_outlets[i].tag,DofDomain::fluid,DofQuantity::pressure,
                                      DofEntity::boundary,0,0,0});
     }
     for(const auto* name:{"velocity","pressure","mesh"}) (void)l.fields[name];
@@ -149,17 +152,15 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     std::set<PetscInt> ghosts;
     for(auto id:reduced.global) if(id>=0 && (id<l.begin||id>=l.begin+l.owned)) ghosts.insert(id);
     if(!Elastic&&!body_owner) ghosts.insert(reduced.body);
-    if(rcr&&!outlet_owner) ghosts.insert(reduced.outlet_pressure);
+    if(!outlet_owner) for(const auto& port:reduced.outlets) ghosts.insert(port.pressure);
     for(PetscInt i=0;i<l.owned;++i) l.local_to_global.push_back(l.begin+i);
     l.local_to_global.insert(l.local_to_global.end(),ghosts.begin(),ghosts.end());
     std::map<PetscInt,PetscInt> lookup;
     for(std::size_t i=0;i<l.local_to_global.size();++i) lookup[l.local_to_global[i]]=i;
     for(auto id:reduced.global) reduced.local.push_back(id<0?-1:lookup.at(id));
     if(!Elastic) reduced.body_local=lookup.at(reduced.body);
-    if(rcr) {
-        reduced.outlet_pressure_local=lookup.at(reduced.outlet_pressure);
-        build_outlet_trace(comm,mesh,*domains,reduced);
-    }
+    for(auto& port:reduced.outlets) port.local=lookup.at(port.pressure);
+    if(port_count) build_outlet_traces(comm,mesh,*domains,reduced);
     // 单元列并集允许保守的块稀疏图；body 行的远程贡献也送到 owner。
     PetscOwner<Mat,MatDestroy> graph,pattern;
     EONSIM_PETSC(MatCreate(comm,graph.put()));
@@ -176,9 +177,9 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
         EONSIM_PETSC(MatSetValues(graph.get(),dofs.size(),dofs.data(),dofs.size(),dofs.data(),nullptr,INSERT_VALUES));
     }
     if(body_owner) EONSIM_PETSC(MatSetValue(graph.get(),reduced.body,reduced.body,0,INSERT_VALUES));
-    if(rcr) {
-        const auto pressure=reduced.outlet_pressure;
-        for(const auto& entry:reduced.outlet_flux_weights) {
+    for(const auto& port:reduced.outlets) {
+        const auto pressure=port.pressure;
+        for(const auto& entry:port.flux_weights) {
             const auto velocity=reduced.global[entry.first];
             if(velocity<0) continue;
             EONSIM_PETSC(MatSetValue(graph.get(),velocity,pressure,0,INSERT_VALUES));
