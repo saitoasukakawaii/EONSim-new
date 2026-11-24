@@ -35,3 +35,20 @@ The optional `regular_tet` model differentiates the deformed shape gradients, th
 The optional metric cost about 25% more per full tangent on this fixture. The paired ratios for the new and old *default* spanned 0.775–1.156 and 0.864–1.116, respectively. Differences in iteration count, MPI communication, and preconditioner setup require separate end-to-end measurements. [Raw round measurements](metric-cpu.json) · [Benchmark runner](profile_metric.py)
 
 Build both element regression executables with the repository compile script using the `fsi_element_jacobian` selection. Run `python profile_metric.py --before OLD_ELEMENT_EXE --after NEW_ELEMENT_EXE --libs PETSC_LIB --output metric-cpu.json` to compare their defaults and the new optional metric.
+
+## Whole solver with bound MPI ranks
+
+The 3,024-unknown elastic tube used the same partition, matrices, boundary load, PETSc settings and two accepted time steps in each before/after pair. For each rank count and preconditioner, five uninstrumented pairs measured end-to-end process wall time. Five additional pairs recorded the maximum-rank time inside each PETSc event. Baseline/candidate order alternated. Each actual solver launch reported its Open MPI binding. Ranks used distinct cores on package 0, starting at core 3. The host was shared with numerical validation jobs.
+
+| MPI ranks | Preconditioner | Fluid/ALE tangent, paired median change | Whole run, paired median change | Range of five whole-run changes |
+|---:|---|---:|---:|---:|
+| 1 | Direct | −36.4% | +5.9% | −29.7% to +26.2% |
+| 1 | Schur | −39.0% | −26.3% | −33.3% to +4.1% |
+| 2 | Direct | −23.7% | +2.4% | +0.3% to +13.9% |
+| 2 | Schur | −37.9% | −10.9% | −30.9% to +24.2% |
+| 4 | Direct | −28.2% | −0.1% | −18.9% to +42.8% |
+| 4 | Schur | −29.7% | −1.7% | −11.5% to +35.1% |
+
+Across all 60 pairs (120 timed launches), the maximum field differences were 3.47e−18 for the saved fluid-domain fields and 2.17e−18 for the solid-domain fields. Both versions used the same Krylov and Newton iteration counts in every pair. Direct solves took four linear iterations in total. The Schur solves took 488, 483 and 449 on one, two and four ranks. The largest final reported nonlinear residual was 9.79e−14 or smaller. The machine and problem size support a local kernel comparison. Whole-run effects depend on partition, preconditioner and competing work. An earlier launcher overwrote its inherited rank mapping; its unverified timings are excluded. [Paired times, fields, bindings, reported convergence and binary hashes](moment-pair-results.json.xz) · [Full phase medians and ranges](moment-phase-medians.csv)
+
+Build the pre-moment and exact-moment revisions with the repository Release build script. Use the same 48-sector fixture as the [sparse-insertion experiment](README.md). For each pair use `profile_case.py --ranks 1 2 4 --pcs direct schur --repeats 1 --verify-core-placement` with each executable in a separate directory. Run `compare.py --work "$work" --pairs 5 --element-moments --output "$work/audit"` on the resulting directories. The comparison reopens both domains' VTUs and each measured launch log.

@@ -27,6 +27,14 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def core_placement(log,ranks):
+    matches=re.findall(r'Rank (\d+) bound to package\[(\d+)\]\[core:(\d+)\]',log)
+    cores={int(rank):(int(package),int(core)) for rank,package,core in matches}
+    if len(matches)!=ranks or set(cores)!=set(range(ranks)) or len(set(cores.values()))!=ranks:
+        raise ValueError("Each solver rank must report one distinct bound core")
+    return [list(cores[r]) for r in range(ranks)]
+
+
 def events(path,ranks,accepted_steps,cell_counts):
     selected={}
     with path.open() as stream:
@@ -84,6 +92,7 @@ def main():
     cli.add_argument("--pcs",choices=FLAGS,nargs="+",default=["direct","schur"])
     cli.add_argument("--repeats",type=int,default=3)
     cli.add_argument("--steps",type=int,default=2)
+    cli.add_argument("--verify-core-placement",action="store_true",help="Bind Open MPI ranks to distinct cores and verify the solver launch")
     args=cli.parse_args()
     exe=args.executable.resolve()
     work=args.work.resolve()
@@ -91,8 +100,9 @@ def main():
     if min(args.ranks)<1 or args.repeats<1 or args.steps<1 or len(set(args.ranks))!=len(args.ranks):
         cli.error("Positive distinct rank counts, repeats and steps are required")
     env=dict(os.environ,OMP_NUM_THREADS="1",OPENBLAS_NUM_THREADS="1",MKL_NUM_THREADS="1",
-             OMPI_MCA_pml="ob1",OMPI_MCA_btl="self,sm,tcp",
-             PRTE_MCA_rmaps_default_mapping_policy=":oversubscribe")
+             OMPI_MCA_pml="ob1",OMPI_MCA_btl="self,sm,tcp")
+    env.setdefault("PRTE_MCA_rmaps_default_mapping_policy",":oversubscribe")
+    placement=["--map-by","core","--bind-to","core","--report-bindings"] if args.verify_core_placement else []
     cfg=json.loads((args.case/"case.json").read_text())
     cfg["fsi"].update(dt=.25,steps=args.steps,output_interval=0,pressure_face_history=False,
                       pressure_time=dict(amplitude=0.,period=1.,ramp_time=1.))
@@ -126,7 +136,7 @@ def main():
                     stem=f"r{ranks}-{pc}-{rep}-log{int(enabled)}"
                     directory=work/stem
                     directory.mkdir()
-                    cmd=[args.mpiexec.resolve(),"-n",str(ranks),exe,"-case",work/"case.json",
+                    cmd=[args.mpiexec.resolve(),*placement,"-n",str(ranks),exe,"-case",work/"case.json",
                          "-partition",partition,"-output",directory/"tube.vtu","-solver_report",*FLAGS[pc]]
                     if enabled:
                         cmd.extend(["-log_view",":events.csv:ascii_csv"])
@@ -148,6 +158,8 @@ def main():
                     row=dict(ranks=ranks,pc=pc,repeat=rep,logging=enabled,wall_seconds=elapsed,
                              max_field_delta=differences,nnz=float(reports[0]["nnz"]),dofs=int(reports[0]["dofs"]),
                              linear_iterations=sum(int(r["linear_iterations"]) for r in reports))
+                    if args.verify_core_placement:
+                        row["placement"]=core_placement((directory/"solve.log").read_text(),ranks)
                     if enabled:
                         row["events"]=events(directory/"events.csv",ranks,args.steps,counts)
                     result["runs"].append(row)

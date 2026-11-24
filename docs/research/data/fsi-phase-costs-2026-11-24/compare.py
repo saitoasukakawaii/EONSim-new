@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 import statistics
 
-from profile_case import PHASES, field_diff, fields
+from profile_case import PHASES, core_placement, field_diff, fields
 
 
 def accepted_outcomes(directory,steps):
@@ -57,6 +57,13 @@ def main():
             if cand["dofs"]!=base["dofs"] or (not args.element_moments and cand["linear_iterations"]!=base["linear_iterations"]):
                 raise ValueError("Paired algebra dimension or iteration count differs")
             stem=f"r{ranks}-{pc}-0-log{int(logging)}"
+            if "placement" in base or "placement" in cand:
+                for version,record in (("baseline",base),("compact",cand)):
+                    log=(args.work/f"r{repeat}-{version}"/stem/"solve.log").read_text()
+                    if core_placement(log,ranks)!=record.get("placement"):
+                        raise ValueError("Reported rank placement differs from the measured solve")
+                if base["placement"]!=cand["placement"]:raise ValueError("Different placement within a timed pair")
+                row["placement"]=base["placement"]
             if args.element_moments:
                 if cand["nnz"]!=base["nnz"]:
                     raise ValueError("The element moment expansion changed the sparse pattern")
