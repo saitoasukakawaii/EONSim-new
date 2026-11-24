@@ -1,5 +1,11 @@
 # EONSim Codex Session Log
 
+## 2026-11-24 · 知识网站选编、公式渲染与教程复核
+
+原网站构建返回成功，但静态 HTML 中公式所在处只有空注释。将手动加载的 Markdown 数学插件改为 VitePress 1.6.4 的 `markdown.math`，以便 Vue 在服务端保留 MathJax 元素。四个新数值页面已生成 18、13、23、6 个公式，原单体 FSI 专题的公式也已恢复；生产内容检查新增对已渲染 SVG 公式的回归断言。
+
+运行 `npm run docs:build`、`npm run docs:check`，核对 50 个上游条目、所有 34 份草稿的归类、波形图资源及新栏目链接。使用 `replay.py --verify` 复算 Womersley 归档，使用仓库 `scripts/cloud/run.sh 3.23.7 release explicit` 和既有 P2 教程清单编译，5/5 项通过。数值性能和网格加密表引用主线归档。
+
 ## 2026-11-24 · HPC 开源项目复查、仿射 Tet4 黏性积分
 
 基线 main `89a1a3d823396df02fa9e8acb5ded36b70938e9c`，本地分支 `codex/hpc-survey-tet4-tangent`，数值提交 `4095e4bd4e18a350e62fd2e295d88de3a6d48640`。抽查上游实现/接口和公开说明，恢复锁定 PETSc 3.23.7。用 `scripts/cloud/run.sh 3.23.7 release explicit` 编译与选测，对照 4/4、候选 9/9；独立合成 #41 `10197d0` 与 #42 `0c8f6fb` 后应用数值改动，圆管选测 2/2。在畸变四面体上检查简单剪切和刚体转动的解析节点力，保留 FSI 几何种子求导。实际命令、选测文件和逐项结果见[复现记录](../research/data/tet4-viscosity-2026-11-24/README.md)。

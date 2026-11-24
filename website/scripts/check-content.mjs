@@ -24,5 +24,16 @@ else if (!sourceOnly) for (const file of walk(dist)) {
   if (/^(drafts|templates)[/\\]/.test(relative)) errors.push(`Excluded output: ${relative}`)
   if (/\.(html|js|json)$/.test(file) && /EONSIM_PRIVATE_(DRAFT|TEMPLATE)_SENTINEL_20261030/.test(fs.readFileSync(file, 'utf8'))) errors.push(`Unpublished content leaked into ${relative}`)
 }
+// The Markdown plugin can parse TeX while Vue drops the generated math elements
+// from server-rendered pages. Check the actual production HTML as well.
+if (!sourceOnly && fs.existsSync(dist)) {
+  for (const page of ['knowledge/monolithic-fsi', 'knowledge/tet4-viscosity']) {
+    const file = path.join(dist, page + '.html')
+    const html = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : ''
+    if (!/<mjx-container\b[^>]*>\s*<svg\b/.test(html) || html.includes('data-mml-node="merror"')) {
+      errors.push(`${page}: expected a rendered MathJax SVG without TeX errors`)
+    }
+  }
+}
 if (errors.length) { console.error(errors.join('\n')); process.exit(1) }
 console.log(`Markdown structure and local links: ${files.length} files passed; ${sourceOnly ? 'production isolation NOT checked (source-only)' : 'production draft/template isolation passed'}.`)

@@ -106,6 +106,8 @@ $$
 
 “实现 / 接口”表示本轮读取指定文件中的算法、公开接口或例程；“发行 / 仓库说明”表示核对版本与用途；“官方文档”单列。SHA 链接固定到所读文件。Git 标签行是固定版本，SHA 行是调研时读取的仓库快照，后者不等同于稳定发行版。每行最后一栏是对 EONSim 的用途判断。
 
+<!-- #region upstream-projects -->
+
 ### 离散、局部算子与编译
 
 | 项目 | 本轮材料 | 固定入口 | 对 EONSim 的用途 |
@@ -177,3 +179,5 @@ $$
 | Chaste | 仓库说明 | [357af77f · README.md](https://github.com/Chaste/Chaste/blob/357af77f3d8b47aa179dbebbdde04c89ce3f2aca/README.md) | 心脏建模及可复现实例，留作电生理与力学扩展参考。 |
 
 MFiX-Exa 官方说明通过 NETL 周期性发布源码包，下载入口要求注册，本轮以公开文档为据。OpenGeoSys 使用注明主开发站的 GitHub 镜像，仅据此核对项目定位。[MFiX-Exa 获取说明](https://exa-doc.s3.amazonaws.com/user-manual/latest/user_guide/quick-start.html) · [OpenGeoSys 主开发站](https://gitlab.opengeosys.org/ogs/ogs)
+
+<!-- #endregion upstream-projects -->
