@@ -14,8 +14,9 @@ from generate_wall import generate
 
 
 class Runner:
-    def __init__(self,exe,mpi,work,timeout=600,interface_area=1.):
+    def __init__(self,exe,mpi,work,timeout=600,interface_area=1.,singleton=False):
         self.interface_area=interface_area
+        self.singleton=singleton
         self.timeout=timeout;self.exe=str(Path(exe).resolve());self.mpi=mpi;self.work=Path(work).resolve();self.work.mkdir(parents=True,exist_ok=True)
     def command(self,args,label,fail=None):
         r=subprocess.run(list(map(str,args)),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=self.timeout)
@@ -28,7 +29,8 @@ class Runner:
         case=self.work/(label+'.json');case.write_text(json.dumps(cfg))
         part=self.work/f'part-{ranks}'
         if not part.exists():self.command([self.exe,'-case',case,'-prepare',part,'-parts',ranks],label+'-prepare')
-        log=self.command([self.mpi,'-n',ranks,self.exe,'-case',case,'-partition',part,*extra],label,fail)
+        launch=[] if self.singleton and ranks==1 else [self.mpi,'-n',ranks]
+        log=self.command([*launch,self.exe,'-case',case,'-partition',part,*extra],label,fail)
         if fail:return {},[],log
         assert log.count('status=success')==1,log[-5000:]
         fields={}
