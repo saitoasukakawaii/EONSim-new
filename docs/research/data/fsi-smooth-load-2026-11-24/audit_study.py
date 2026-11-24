@@ -46,12 +46,18 @@ def write_csv(path, rows):
         writer.writerows(rows)
 
 
-def external_loads(directory, steps, mode, peak=PEAK, duration=1.):
+def external_loads(directory, steps, mode, peak=PEAK, duration=1., through_step=None):
     log = (directory/"1-procs/histor.dat").read_text()
     expected = [(int(s),int(i),p) for s,i in re.findall(r"^\s*FS\s+(\d+)-(\d+)s?\s",log,re.M)
                 for p in PORTS]
     rows = [line.split() for line in (directory/"solve.log").read_text().splitlines()
             if line.startswith("pressure_observer ")]
+    if through_step is not None:
+        if not 1<=through_step<=steps:raise ValueError('Requested pressure prefix is outside the run')
+        expected=[rec for rec in expected if rec[0]<=through_step]
+        rows=[r for r in rows if int(r[2])<=through_step]
+        if {s for s,_,_ in expected}!=set(range(1,through_step+1)):
+            raise ValueError('Missing time step in pressure prefix')
     if [(int(r[2]),int(r[3]),r[1]) for r in rows] != expected or not expected:
         raise ValueError(f"Incomplete port/iteration trace {directory}")
     stages = {}

@@ -38,8 +38,13 @@ At 1 s the plane-strain Lamé area increase is 0.2030000%. A four-grid Q2/Q1 mer
 | svFSI regular metric | 24 / 3 / 2 / 6 | 32 | 0.18680357 | 0.19720673 | 7.9788 |
 | EONSim volume | 48 / 4 / 4 / 6 | 32 | 0.19495029 | 0.20150120 | 3.9657 |
 | EONSim volume | 48 / 4 / 4 / 6 | 128 | 0.19494468 | 0.20149434 | 3.9684 |
+| svFSI native metric, GMRES | 48 / 4 / 4 / 6 | 32 | 0.19495081 | 0.20150213 | 3.9654 |
+| EONSim volume | 96 / 8 / 8 / 12 | 32 | 0.19937384 | 0.20275633 | 1.7866 |
+| EONSim regular Tet4 | 96 / 8 / 8 / 12 | 32 | 0.19937387 | 0.20275647 | 1.7866 |
 
 At the left end on the coarse dimensional mesh the two default solutions differ by 0.000000423 percentage points, while both underestimate the circular-meridian expansion by about 0.01620 percentage points. Changing the dimensional absolute nonlinear tolerance from 1e−14 to 2e−15 on this mesh gave identical stored area strains and cap fluxes at all eight phases for both EONSim metrics. Two trial runs at 1e−19 exhausted Newton/time-step retries after 30 accepted steps and are recorded separately. The benchmark describes an idealized incremental pressure load on a straight elastic wall.
+
+On the 48-sector mesh, extending the native GMRES subspace to 850 directions and allowing 24 restart cycles completed all 32 dimensional steps. The full fluid/structure and mesh histories passed the independent checks, including every nonzero linear correction. A shorter native restart budget had exhausted its limit. On the 24-sector mesh, two experimental BIPN residual treatments with separate inner tolerances reproduced the same accepted native left-end area of 0.18680355%. Their full linear residuals were independently recomputed before accepting the results. [Native BIPN residuals, failure measurements and controlled fixes](bipn-residual.md)
 
 Raw-mode validation reopens every observed VTU, recomputes polygon area, current cap flux and volume, checks EONSim stage and endpoint loads and verifies every accepted external fluid/structure and mesh solve. The compressed archive preserves input, binary, history and field hashes, sampled sections, cap fluxes and the complete similarity comparison. [Accepted runs and failed controls](scaled-tubes.json.xz) · [Paired section and flow table](scaled-tubes.csv) · [EONSim case generator](scaled_tube.py) · [svFSI case generator](scaled_svfsi.py)
 

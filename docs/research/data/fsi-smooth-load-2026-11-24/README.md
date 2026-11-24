@@ -2,6 +2,8 @@
 
 On the fixed 48-sector mesh, matching the two assembled port pressures at every step and both ends to within 6.94e−18 Pa leaves a 4.0975% difference in sectional expansion at 1 s for Δt = 1/128 s. The denominator is the Lamé **equilibrium** area strain (0.00217454545). It sets the scale for the comparison. No exact transient displacement is assumed.
 
+The large transient gap occurs in an artificial thick-walled cylinder, lumen diameter 2 m and Young modulus 100 Pa. At 128 steps the two left-end area increases are 0.0733993% and 0.0644891% of their initial area. Their difference is 0.0089101 percentage points. A separate 20 mm diameter, 0.4 MPa straight tube gives 0.18680312% and 0.18680355% after an 80 Pa ramp on its coarse mesh. A third experiment imposes actual through-flow and an RCR outlet, where the native terminal time stage and axial resolution contribute measurable differences to flow transfer. [Discrete stabilization](../fsi-linear-transient-2026-11-24/discrete-metric.md) · [Dimensional tube](../fsi-linear-transient-2026-11-24/scaled-tubes.md) · [Pulsatile perfusion](../fsi-linear-transient-2026-11-24/perfusion.md)
+
 ## Physical and temporal comparison
 
 We use the quarter tube, material, roller ends, Tet4 mesh and zero initial fields from [the pressure-face study](../fsi-pressure-faces-2026-11-24/README.md). The two pressure ends receive 0.02 x³(10 − 15x + 6x²) Pa, with x = min(t/1 s, 1). The outward unit normal points out of the fluid. EONSim `6a5ac96` uses backward Euler at startup and then a common generalized-α state and load stage at tₙ + 2Δt/3.
