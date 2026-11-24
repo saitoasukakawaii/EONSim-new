@@ -23,6 +23,12 @@ The 100 s child limit was also tested with the exact fixed-fluid input, four-ran
 
 ## Other checks
 
-A separate clean checkout replayed eight published archives from an empty working directory using the committed Python readers. All 15 regenerated CSV tables matched the repository files byte for byte. They contain 624 data rows covering both native and EONSim linear residuals, SI-scaled tubes, Tet4 permutations, perfusion, tube harmonics, stabilization time scales and junction dynamics. The Release receipt includes the archive, reader and table hashes. [Replay provenance and checksums](release-validation.json.xz)
+A separate clean checkout replayed eight published archives from an empty working directory using the committed Python readers. All 15 regenerated CSV tables matched the repository files byte for byte. They contain 626 data rows covering both native and EONSim linear residuals, SI-scaled tubes, Tet4 permutations, perfusion, tube harmonics, stabilization time scales and junction dynamics. The Release receipt includes the archive, reader and table hashes. [Replay provenance and checksums](release-validation.json.xz)
+
+From the checkout root, the following command starts the readers in new temporary directories and compares every output with its tracked table. It requires the Python dependencies of the readers. [Table replay](replay_tables.py)
+
+```bash
+python docs/research/data/fsi-smooth-load-2026-11-24/replay_tables.py --receipt /tmp/eonsim-table-replay.json
+```
 
 The selected Python files passed 26 change-selection tests, 6 evidence-format tests, 2 live-log tests, 3 rigid-tube tests, 4 tube-mesh tests and 13 Womersley tests. The website production build completed in 44.52 s. Its structure and local-link checks passed on 10 published pages, and its draft/template isolation passed. The mirror audit replayed the original solved fields and rejected four independently altered input copies. [Scope of the mirror test](README.md#independent-mirror-audit-of-the-bore-area)
