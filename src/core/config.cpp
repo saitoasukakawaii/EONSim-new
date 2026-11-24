@@ -47,6 +47,16 @@ ScalarFunction scalar_function(const YAML::Node& node,const std::string& locatio
     if(!std::isfinite(f.rate))throw std::runtime_error(location+" rate must be finite");
     return f;
 }
+PressureTime read_pressure_time(const YAML::Node& node,const std::string& location)
+{
+    keys(node,{"amplitude","period","ramp_time"},location);
+    PressureTime profile{node["amplitude"].as<double>(),node["period"].as<double>(),0};
+    if(node["ramp_time"]) profile.ramp_time=node["ramp_time"].as<double>();
+    if(!std::isfinite(profile.amplitude)||!std::isfinite(profile.period)||profile.period<=0||
+       !std::isfinite(profile.ramp_time)||profile.ramp_time<0)
+        throw std::runtime_error("Invalid "+location);
+    return profile;
+}
 void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
 {
     const auto boundaries=f["boundaries"];
@@ -57,9 +67,16 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
         const auto type=entry["type"].as<std::string>();
         FluidBoundary b;
         if(type=="pressure") {
-            keys(entry,{"tag","type","value","ramp_time","components"},"fluid.boundaries.pressure");
+            keys(entry,{"tag","type","value","ramp_time","components","pressure_time"},"fluid.boundaries.pressure");
             b.type=FluidBoundary::Type::pressure; b.pressure=entry["value"].as<double>();
             if(!std::isfinite(b.pressure)) throw std::runtime_error("Boundary pressure must be finite");
+            if(const auto profile=entry["pressure_time"]) {
+                if(solid||config.mode!=FluidConfig::Mode::transient)
+                    throw std::runtime_error("Boundary pressure_time requires transient fluid");
+                if(entry["ramp_time"])
+                    throw std::runtime_error("Use pressure_time.ramp_time for a periodic pressure boundary");
+                b.pressure_time=read_pressure_time(profile,"fluid.boundaries.pressure_time");
+            }
         } else {
             keys(entry,{"tag","type","value","origin","gradient","ramp_time","components"},"fluid.boundaries");
             if(type=="velocity"|| (solid&&type=="displacement")) b.type=FluidBoundary::Type::velocity;
@@ -111,6 +128,17 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
     });
 }
 } // namespace
+
+double PressureTime::value_at(double mean,double time) const
+{
+    const double x=ramp_time>0?std::clamp(time/ramp_time,0.,1.):1.;
+    const double scale=x*x*x*(10+x*(-15+6*x));
+    // Reduce physical time before multiplying by 2*pi, including for small periods.
+    const double phase=2*std::acos(-1.)*(std::fmod(time,period)/period);
+    const double pressure=scale*(mean+amplitude*std::sin(phase));
+    if(!std::isfinite(pressure)) throw std::runtime_error("Nonfinite periodic pressure");
+    return pressure;
+}
 
 Config read_config(const std::filesystem::path& path)
 {
@@ -295,14 +323,7 @@ Config read_config(const std::filesystem::path& path)
         if(v.output_interval<0) throw std::runtime_error("fsi.output_interval must be nonnegative");
         if(f["checkpoint_interval"]) v.checkpoint_interval=f["checkpoint_interval"].as<int>();
         if(v.checkpoint_interval<=0) throw std::runtime_error("fsi.checkpoint_interval must be positive");
-        if(const auto p=f["pressure_time"]) {
-            keys(p,{"amplitude","period","ramp_time"},"fsi.pressure_time");
-            FsiPressureTime profile{p["amplitude"].as<double>(),p["period"].as<double>(),0};
-            if(p["ramp_time"]) profile.ramp_time=p["ramp_time"].as<double>();
-            if(!std::isfinite(profile.amplitude)||!std::isfinite(profile.period)||!std::isfinite(profile.ramp_time)||
-               !(profile.period>0)||profile.ramp_time<0) throw std::runtime_error("Invalid fsi.pressure_time");
-            v.pressure_time=profile;
-        }
+        if(const auto p=f["pressure_time"]) v.pressure_time=read_pressure_time(p,"fsi.pressure_time");
 
         if(f["material"]) {
             const auto material=f["material"].as<std::string>();

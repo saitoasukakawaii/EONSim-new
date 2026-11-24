@@ -360,6 +360,12 @@ if(BUILD_TESTING)
             --work "${CMAKE_CURRENT_BINARY_DIR}/rigid_tube_verification")
     set_tests_properties(rigid_tube_verification PROPERTIES TIMEOUT 300 PROCESSORS 2 LABELS "rank-1;rank-2"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME womersley_flow
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_womersley.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --work "${CMAKE_CURRENT_BINARY_DIR}/womersley_flow")
+    set_tests_properties(womersley_flow PROPERTIES TIMEOUT 180 PROCESSORS 2 LABELS "rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME restart_block_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_restart.py"
             --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"

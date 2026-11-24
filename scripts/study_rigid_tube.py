@@ -110,17 +110,14 @@ def make_case(directory, sectors, level):
     (directory/'case.json').write_text(json.dumps(case_config(),indent=2)+'\n')
 
 
-def run(command, directory, name):
-    try:
-        result = subprocess.run(list(map(str,command)),cwd=directory,text=True,
-                                stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=900)
-    except subprocess.TimeoutExpired as error:
-        output = error.stdout or b''
-        (directory/name).write_text(output.decode(errors='replace') if isinstance(output,bytes) else output)
-        raise
-    (directory/name).write_text(result.stdout)
-    if result.returncode or 'status=success' not in result.stdout:
-        raise RuntimeError(f'{directory/name}: solver failed ({result.returncode})')
+def run(command, directory, name, timeout=900):
+    path = directory/name
+    with path.open('w') as log:
+        result = subprocess.run(list(map(str,command)), cwd=directory, stdout=log,
+                                stderr=subprocess.STDOUT, timeout=timeout)
+    with path.open() as log:
+        if result.returncode or not any(line.rstrip()=='status=success' for line in log):
+            raise RuntimeError(f'{path}: solver failed ({result.returncode})')
 
 
 def fields(directory, ranks):
@@ -145,6 +142,23 @@ def fields(directory, ranks):
     return owned
 
 
+def surface_integrals(nodes, faces, state):
+    """P1 outward flux, area and pressure integral on the three tube boundaries."""
+    flux, area, pressure = {}, {}, {}
+    for tag, face in faces:
+        a,b,c = [nodes[n] for n in face]
+        av = cross(sub(b,a),sub(c,a))
+        surface = math.sqrt(sum(v*v for v in av))/2
+        center = tuple(sum(nodes[n][i] for n in face)/3 for i in range(3))
+        outward = (-1,0,0) if tag==1 else (1,0,0) if tag==2 else (0,center[1],center[2])
+        sign = 1 if sum(x*y for x,y in zip(av,outward))>0 else -1
+        q = sign*sum(av[i]*sum(state[n][i] for n in face)/3 for i in range(3))/2
+        flux[tag] = flux.get(tag,0.)+q
+        area[tag] = area.get(tag,0.)+surface
+        pressure[tag] = pressure.get(tag,0.)+surface*sum(state[n][3] for n in face)/3
+    return flux, area, pressure
+
+
 def analyze(directory, sectors, level, ranks=1):
     if json.loads((directory/'case.json').read_text())!=case_config():
         raise ValueError('Case parameters differ from the declared reference problem')
@@ -160,18 +174,7 @@ def analyze(directory, sectors, level, ranks=1):
     expected_volume = sectors*RADIUS**2*math.sin(2*math.pi/sectors)*LENGTH/2
     if abs(sum(volumes)-expected_volume)>1e-10*expected_volume:
         raise ValueError('Polygon volume changed during refinement')
-    flux, area, pressure = {}, {}, {}
-    for tag, face in faces:
-        a,b,c = [nodes[n] for n in face]
-        av = cross(sub(b,a),sub(c,a))
-        surface = math.sqrt(sum(v*v for v in av))/2
-        center = tuple(sum(nodes[n][i] for n in face)/3 for i in range(3))
-        outward = (-1,0,0) if tag==1 else (1,0,0) if tag==2 else (0,center[1],center[2])
-        sign = 1 if sum(x*y for x,y in zip(av,outward))>0 else -1
-        q = sign*sum(av[i]*sum(state[n][i] for n in face)/3 for i in range(3))/2
-        flux[tag] = flux.get(tag,0.)+q
-        area[tag] = area.get(tag,0.)+surface
-        pressure[tag] = pressure.get(tag,0.)+surface*sum(state[n][3] for n in face)/3
+    flux, area, pressure = surface_integrals(nodes, faces, state)
     q = (flux[2]-flux[1])/2
     volume_flow = sum(volume*sum(state[n][0] for n in tet)/4
                       for volume,tet in zip(volumes,cells))/LENGTH
