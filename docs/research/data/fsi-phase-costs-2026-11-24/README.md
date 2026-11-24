@@ -41,3 +41,17 @@ python3 "$data/compare.py" --work "$pairs" --output "$pairs/audit"
 ```
 
 The subsequent [exact affine-moment study](moments.md) isolates the full ALE tangent, checks the residual with independent Duffy quadrature and records a scalar-overload prototype that increased cost.
+
+## Named preconditioner trees on the two-ended filling problem
+
+The solver advanced the same two generalized-α steps on 1,512 fluid and 1,728 wall tetrahedra (3,024 reduced unknowns). Each entry below is the sum of outer linear iterations over the two accepted nonlinear steps. Each final fluid/ALE and solid field was compared at every node against direct factorization on the same partition. The largest absolute difference across these runs was below 1.72e−12 in native field units.
+
+| MPI ranks | Physics split | Quantity split | Hybrid split | Unified velocity prototype |
+|---:|---:|---:|---:|---:|
+| 1 | 488 | 684 | 479 | 491 |
+| 2 | 483 | 689 | 475 | 478 |
+| 4 | 449 | 661 | 444 | 482 |
+
+The physics tree first splits the fluid, solid and grid. The quantity tree first splits velocity, pressure and grid. The hybrid tree couples velocity and pressure with a Schur split inside a dynamics block, then separates the fluid and solid velocity components. The prototype replaces that inner velocity split by one GAMG block. Replaying its own hybrid control gives exactly the production iteration counts at each rank count. Merging the velocity subblocks increased the outer iteration count in all three comparisons. On four ranks the prototype nevertheless had a lower median maximum-rank PC application time, 1.077 s versus 1.328 s, across two logging-enabled trials. The samples and mesh size support a comparison of these algorithms on this fixture. They do not establish a production scaling rate. [Full PETSc trees and field/residual receipts](pc-recipes.json.xz) · [Iteration counts, measured costs and sample counts](pc-recipes.csv)
+
+Each production combination has one uninstrumented timing, one PETSc logging run and a warmup, with a separate direct control. The prototype series has two measured repetitions per logging mode. The repository build script and lock are the same as in the assembly runs above. Use `profile_case.py --pcs direct physics quantity hybrid` for the supported recipes. To reproduce the optional prototype, apply the [research patch](rejected-coupled-velocity.patch) to the grad-div checkpoint, build separately with the repository script, then select `--pcs direct coupled_velocity hybrid`. [Auditor](compare_recipes.py)

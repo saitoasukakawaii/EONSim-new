@@ -19,7 +19,8 @@ from verify_schur import fields
 
 PHASES=("FSIFluidRes","FSIFluidAleJac","FSISolidRes","FSISolidJac","FSIInsert","FSIForceReplay",
         "MatAssemblyBegin","MatAssemblyEnd","PCSetUp","PCApply")
-FLAGS={"direct":[],"schur":["-schur_pc"]}
+FLAGS={"direct":[],"schur":["-schur_pc"],
+       **{name:["-pc_recipe",name] for name in ("physics","quantity","hybrid","coupled_velocity")}}
 
 
 def digest(path):
