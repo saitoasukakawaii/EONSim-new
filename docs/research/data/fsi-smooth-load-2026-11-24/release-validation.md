@@ -23,7 +23,7 @@ The 100 s child limit was also tested with the exact fixed-fluid input, four-ran
 
 ## Other checks
 
-A separate clean checkout replayed eight published archives from an empty working directory using the committed Python readers. All 15 regenerated CSV tables matched the repository files byte for byte. They contain 626 data rows covering both native and EONSim linear residuals, SI-scaled tubes, Tet4 permutations, perfusion, tube harmonics, stabilization time scales and junction dynamics. The Release receipt includes the archive, reader and table hashes. [Replay provenance and checksums](release-validation.json.xz)
+A separate clean checkout replayed eight published archives from an empty working directory using the committed Python readers. All 15 regenerated CSV tables matched the repository files byte for byte. They contain 626 data rows covering both native and EONSim linear residuals, SI-scaled tubes, Tet4 permutations, perfusion, tube harmonics, stabilization time scales and junction dynamics. A single-byte change to one published BIPN residual value made the replay fail on that table. The Release receipt includes the archive, reader and table hashes. [Replay provenance and checksums](release-validation.json.xz)
 
 From the checkout root, the following command starts the readers in new temporary directories and compares every output with its tracked table. It requires the Python dependencies of the readers. [Table replay](replay_tables.py)
 
