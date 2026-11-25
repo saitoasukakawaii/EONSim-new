@@ -199,6 +199,8 @@ struct FieldAcceptance {
     MPI_Comm comm;
     std::vector<FieldResidual> values;
     std::vector<std::vector<PetscInt>> equations,constraints;
+    std::vector<double> squares,sums,peaks,maxima;
+    bool has_constraints=false;
 
     FieldAcceptance(MPI_Comm communicator,const AlgebraLayout& l,const SolverConfig& config,
                     const std::vector<PetscInt>& bc):comm(communicator) {
@@ -240,12 +242,16 @@ struct FieldAcceptance {
         MPI_Allreduce(local.data(),global.data(),static_cast<int>(global.size()),MPIU_INT,MPI_SUM,comm);
         for(std::size_t i=0;i<values.size();++i) {
             values[i].equation_rows=global[2*i]; values[i].constraint_rows=global[2*i+1];
+            has_constraints=has_constraints||global[2*i+1]>0;
         }
+        squares.resize(values.size()); sums.resize(values.size());
+        peaks.resize(2*values.size()); maxima.resize(2*values.size());
     }
     void measure(Vec r,bool initial=false) {
         const PetscScalar* a;
         EONSIM_PETSC(VecGetArrayRead(r,&a));
-        std::vector<double> squares(values.size(),0),sums(squares.size()),peaks(2*values.size(),0),maxima(peaks.size());
+        std::fill(squares.begin(),squares.end(),0.);
+        std::fill(peaks.begin(),peaks.end(),0.);
         for(std::size_t i=0;i<values.size();++i) {
             const auto& t=values[i].tolerance;
             for(auto row:equations[i]) {
@@ -300,6 +306,10 @@ struct LinearDiagnostics {
     PetscInt started=0,completed=0;
     bool enabled=false;
     int collective_pc_failure=0;
+    void reset() {
+        solve_seconds=diagnostic_seconds=0.;
+        started=completed=0; collective_pc_failure=0;
+    }
 };
 PetscErrorCode linear_begin(KSP,Vec,Vec,void* pointer)
 {
@@ -386,6 +396,18 @@ void local_values(Vec x,std::vector<double>& values)
     EONSIM_PETSC(VecRestoreArrayRead(local,&a));
     EONSIM_PETSC(VecGhostRestoreLocalForm(x,&local));
 }
+void prepare_residual_coo(Vec vector,const std::vector<PetscInt>& rows,
+                          std::vector<PetscObjectId>& prepared)
+{
+    PetscObjectId id=0;
+    EONSIM_PETSC(PetscObjectGetId(reinterpret_cast<PetscObject>(vector),&id));
+    if(std::find(prepared.begin(),prepared.end(),id)!=prepared.end()) return;
+    EONSIM_PETSC(VecSetOption(vector,VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
+    EONSIM_PETSC(VecSetPreallocationCOO(vector,static_cast<PetscCount>(rows.size()),rows.data()));
+    // IDs cannot dangle and do not keep SNES work vectors alive. Every rank
+    // sees the same sequence of callback-vector roles, even with no local COO.
+    prepared.push_back(id);
+}
 struct Context {
     MPI_Comm comm;
     const AlgebraLayout& layout;
@@ -396,6 +418,9 @@ struct Context {
     Vec scratch;
     std::vector<double>& values;
     std::vector<PetscScalar>* coo_values;
+    const std::vector<PetscInt>* residual_coo_rows;
+    std::vector<PetscScalar>* residual_coo_values;
+    std::vector<PetscObjectId>& residual_coo_vectors;
     std::string error;
     bool recoverable=false;
     PetscInt domain_rejections=0;
@@ -413,6 +438,7 @@ struct Context {
         EONSIM_PETSC(VecGetArrayWrite(r,&residual));
         std::fill_n(residual,layout.owned,0.);
         EONSIM_PETSC(VecRestoreArrayWrite(r,&residual));
+        if(residual_coo_values) std::fill(residual_coo_values->begin(),residual_coo_values->end(),0.);
         if(j) {
             if(coo_values) std::fill(coo_values->begin(),coo_values->end(),0.);
             else EONSIM_PETSC(MatZeroEntries(j));
@@ -429,17 +455,29 @@ struct Context {
         const auto assembly_begin=std::chrono::steady_clock::now();
         const double sync_time=std::chrono::duration<double>(assembly_begin-sync_begin).count();
         // 被拒试探点可能已留下远程插入；先共同完成部分装配，清空 stash，下一次评价才能重新开始。
-        EONSIM_PETSC(VecAssemblyBegin(r)); EONSIM_PETSC(VecAssemblyEnd(r));
-        if(j) {
-            if(coo_values) {
-                // COO is collective. A rank-local domain error must be synchronized first;
-                // a rejected callback never publishes its partial matrix buffer.
-                if(!any_failed) EONSIM_PETSC(MatSetValuesCOO(j,coo_values->data(),INSERT_VALUES));
+        if(!residual_coo_values) {
+            // Independent Vec/Mat stashes can communicate concurrently. Keep
+            // the same Begin/End order on every rank, including rejected trials.
+            EONSIM_PETSC(VecAssemblyBegin(r));
+            if(j&&!coo_values) EONSIM_PETSC(MatAssemblyBegin(j,MAT_FINAL_ASSEMBLY));
+            EONSIM_PETSC(VecAssemblyEnd(r));
+            if(j&&!coo_values) EONSIM_PETSC(MatAssemblyEnd(j,MAT_FINAL_ASSEMBLY));
+        } else {
+            if(!any_failed) {
+                // A line search may supply its own VecDuplicate of the residual;
+                // prepare that actual target once rather than assuming inheritance.
+                prepare_residual_coo(r,*residual_coo_rows,residual_coo_vectors);
+                EONSIM_PETSC(VecSetValuesCOO(r,residual_coo_values->data(),INSERT_VALUES));
             } else {
+                EONSIM_PETSC(VecAssemblyBegin(r)); EONSIM_PETSC(VecAssemblyEnd(r));
+            }
+            if(j&&!coo_values) {
                 EONSIM_PETSC(MatAssemblyBegin(j,MAT_FINAL_ASSEMBLY));
                 EONSIM_PETSC(MatAssemblyEnd(j,MAT_FINAL_ASSEMBLY));
             }
         }
+        // COO publication is collective and only follows successful callbacks.
+        if(j&&coo_values&&!any_failed) EONSIM_PETSC(MatSetValuesCOO(j,coo_values->data(),INSERT_VALUES));
         const auto constraint_begin=std::chrono::steady_clock::now();
         const double assembly_time=std::chrono::duration<double>(constraint_begin-assembly_begin).count();
         if(any_failed) {
@@ -453,11 +491,18 @@ struct Context {
             if(any_failed==1) { recoverable=true; throw StepRejected(error); }
             throw std::runtime_error(error);
         }
-        if(constrain) {
-            std::vector<double> bc(constraints.size());
-            for(std::size_t i=0;i<bc.size();++i) bc[i]=values.at(constraints[i]-layout.begin)-prescribed[i];
-            EONSIM_PETSC(VecSetValues(r,bc.size(),constraints.data(),bc.data(),INSERT_VALUES));
-            EONSIM_PETSC(VecAssemblyBegin(r)); EONSIM_PETSC(VecAssemblyEnd(r));
+        if(constrain&&acceptance.has_constraints) {
+            // These rows were validated as owned. Local replacement preserves
+            // INSERT_VALUES semantics without a second distributed assembly.
+            if(!constraints.empty()) {
+                PetscScalar* entries;
+                EONSIM_PETSC(VecGetArray(r,&entries));
+                for(std::size_t i=0;i<constraints.size();++i) {
+                    const auto row=constraints[i]-layout.begin;
+                    entries[row]=values[row]-prescribed[i];
+                }
+                EONSIM_PETSC(VecRestoreArray(r,&entries));
+            }
             if(j) EONSIM_PETSC(MatZeroRows(j,constraints.size(),constraints.data(),1,nullptr,nullptr));
         }
         const auto end=std::chrono::steady_clock::now();
@@ -469,16 +514,21 @@ struct Context {
         assembly_seconds+=std::chrono::duration<double>(end-begin).count();
     }
 };
+struct ActiveContext { Context* current=nullptr; };
 PetscErrorCode function(SNES snes,Vec x,Vec r,void* pointer)
 {
-    auto& c=*static_cast<Context*>(pointer);
+    auto* active=static_cast<ActiveContext*>(pointer);
+    if(!active||!active->current) return PETSC_ERR_ARG_WRONGSTATE;
+    auto& c=*active->current;
     try { c.evaluate(x,r,nullptr,true); return PETSC_SUCCESS; }
     catch(const StepRejected& e) { c.error=e.what(); ++c.domain_rejections; return SNESSetFunctionDomainError(snes); }
     catch(const std::exception& e) { c.error=e.what(); return PETSC_ERR_LIB; }
 }
 PetscErrorCode jacobian(SNES snes,Vec x,Mat j,Mat,void* pointer)
 {
-    auto& c=*static_cast<Context*>(pointer);
+    auto* active=static_cast<ActiveContext*>(pointer);
+    if(!active||!active->current) return PETSC_ERR_ARG_WRONGSTATE;
+    auto& c=*active->current;
     try {
         c.evaluate(x,c.scratch,j,true);
         // Refresh only after successful assembly, including constraint row replacement.
@@ -491,7 +541,9 @@ PetscErrorCode jacobian(SNES snes,Vec x,Mat j,Mat,void* pointer)
 PetscErrorCode convergence(SNES snes,PetscInt iteration,PetscReal xnorm,PetscReal stepnorm,
                           PetscReal fnorm,SNESConvergedReason* reason,void* pointer)
 {
-    auto& c=*static_cast<Context*>(pointer);
+    auto* active=static_cast<ActiveContext*>(pointer);
+    if(!active||!active->current) return PETSC_ERR_ARG_WRONGSTATE;
+    auto& c=*active->current;
     try {
         EONSIM_PETSC(SNESConvergedDefault(snes,iteration,xnorm,stepnorm,fnorm,reason,nullptr));
         if(*reason>0) {
@@ -502,7 +554,158 @@ PetscErrorCode convergence(SNES snes,PetscInt iteration,PetscReal xnorm,PetscRea
         return PETSC_SUCCESS;
     } catch(const std::exception& e) { c.error=e.what(); return PETSC_ERR_LIB; }
 }
+std::string petsc_options_snapshot()
+{
+    char* text=nullptr;
+    EONSIM_PETSC(PetscOptionsGetAll(nullptr,&text));
+    const std::string result=text?text:"";
+    EONSIM_PETSC(PetscFree(text));
+    return result;
 }
+bool same_solver_config(const SolverConfig& a,const SolverConfig& b)
+{
+    if(a.pc_recipe!=b.pc_recipe||a.relative_tolerance!=b.relative_tolerance||
+       a.absolute_tolerance!=b.absolute_tolerance||a.maximum_iterations!=b.maximum_iterations||
+       a.fields.size()!=b.fields.size()) return false;
+    auto left=a.fields.begin(),right=b.fields.begin();
+    for(;left!=a.fields.end();++left,++right) {
+        const auto& x=left->second; const auto& y=right->second;
+        if(left->first!=right->first||x.residual_scale!=y.residual_scale||
+           x.absolute_tolerance!=y.absolute_tolerance||x.relative_tolerance!=y.relative_tolerance||
+           x.constraint_scale!=y.constraint_scale||x.constraint_tolerance!=y.constraint_tolerance) return false;
+    }
+    return true;
+}
+}
+struct NonlinearSystem::Workspace {
+    SolverConfig config;
+    std::vector<PetscInt> constraint_rows;
+    std::string options;
+    FieldAcceptance acceptance;
+    LinearDiagnostics diagnostics;
+    PcBlock plan;
+    PcSchurUpdates pc_updates; // Must outlive the SNES/KSP/PC holding its USER matrices.
+    ActiveContext callbacks;
+    PetscBool block=PETSC_FALSE,schur=PETSC_FALSE,report=PETSC_FALSE;
+    bool semantic=false,pc_configured=false,reusable=false;
+    PetscReal initial_lambda=1;
+    PetscOwner<SNES,SNESDestroy> snes; // Destroy first, before callback/PC refresh storage.
+
+    Workspace(MPI_Comm comm,const AlgebraLayout& layout,const SolverConfig& settings,
+              const std::vector<PetscInt>& constraints)
+        :config(settings),constraint_rows(constraints),acceptance(comm,layout,config,constraints) {}
+    void initialize(MPI_Comm comm,const AlgebraLayout& l,Vec r,Mat j) {
+        EONSIM_PETSC(SNESCreate(comm,snes.put()));
+        EONSIM_PETSC(SNESSetFunction(snes.get(),r,function,&callbacks));
+        EONSIM_PETSC(SNESSetJacobian(snes.get(),j,j,jacobian,&callbacks));
+        EONSIM_PETSC(SNESSetTolerances(snes.get(),config.absolute_tolerance,config.relative_tolerance,0,config.maximum_iterations,10000));
+        EONSIM_PETSC(SNESSetConvergenceTest(snes.get(),convergence,&callbacks,nullptr));
+        KSP ksp; PC pc;
+        EONSIM_PETSC(SNESGetKSP(snes.get(),&ksp)); EONSIM_PETSC(KSPGetPC(ksp,&pc));
+        EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCLU));
+        EONSIM_PETSC(PCFactorSetMatSolverType(pc,MATSOLVERSUPERLU_DIST));
+        block=PETSC_FALSE; schur=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-schur_pc",&schur,nullptr));
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-block_pc",&block,nullptr));
+        char recipe_option[32]{}; PetscBool recipe_set=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_recipe",recipe_option,sizeof(recipe_option),&recipe_set));
+        const std::string recipe=recipe_set?recipe_option:config.pc_recipe;
+        semantic=!recipe.empty();
+        int enabled=semantic,enabled_min=0,enabled_max=0;
+        MPI_Allreduce(&enabled,&enabled_min,1,MPI_INT,MPI_MIN,comm);
+        MPI_Allreduce(&enabled,&enabled_max,1,MPI_INT,MPI_MAX,comm);
+        if(enabled_min!=enabled_max) throw std::runtime_error("PC recipe enablement differs between ranks");
+        int conflict=(block&&schur)||(semantic&&(block||schur)),any_conflict=0;
+        MPI_Allreduce(&conflict,&any_conflict,1,MPI_INT,MPI_MAX,comm);
+        if(any_conflict) throw std::runtime_error("Choose only one PC recipe, block_pc or schur_pc");
+        PetscBool nodal_option=PETSC_FALSE,velocity_option=PETSC_FALSE,structure_option=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_schur_approx",&nodal_option));
+        EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_solver",&velocity_option));
+        EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_structure_approx",&structure_option));
+        int unused=!semantic&&(nodal_option||velocity_option||structure_option),any_unused=0;
+        MPI_Allreduce(&unused,&any_unused,1,MPI_INT,MPI_MAX,comm);
+        if(any_unused) throw std::runtime_error("pc_plan Schur, velocity and structure options require -pc_recipe");
+        if(semantic) plan=make_pc_plan(comm,l,recipe);
+        if(block||schur||semantic) {
+            EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
+            EONSIM_PETSC(KSPSetTolerances(ksp,1e-9,1e-13,PETSC_DEFAULT,500));
+            EONSIM_PETSC(PCSetType(pc,PCFIELDSPLIT));
+            EONSIM_PETSC(PCFieldSplitSetType(pc,PC_COMPOSITE_MULTIPLICATIVE));
+        }
+        EONSIM_PETSC(SNESSetFromOptions(snes.get()));
+        if(semantic) validate_pc_plan_options(comm,ksp,plan);
+        if(schur) validate_schur_solver_options(comm,ksp,l);
+        // PETSc 优化构建默认可能不检查 Jacobian domain error；结果有效性检查在两种构建都启用。
+        EONSIM_PETSC(SNESSetCheckJacobianDomainError(snes.get(),PETSC_TRUE));
+        PCType type; EONSIM_PETSC(PCGetType(pc,&type));
+        if(!schur&&!semantic&&std::strcmp(type,PCFIELDSPLIT)==0) {
+            auto fields=l.fields;
+            if(fields.count("velocity")&&fields.count("pressure")) {
+                fields["flow"]=fields.at("velocity");
+                fields["flow"].insert(fields["flow"].end(),fields.at("pressure").begin(),fields.at("pressure").end());
+                std::sort(fields["flow"].begin(),fields["flow"].end());
+                fields.erase("velocity"); fields.erase("pressure");
+            }
+            for(const auto& field:fields) {
+                PetscOwner<IS,ISDestroy> is;
+                EONSIM_PETSC(ISCreateGeneral(comm,field.second.size(),field.second.data(),PETSC_COPY_VALUES,is.put()));
+                EONSIM_PETSC(PCFieldSplitSetIS(pc,field.first.c_str(),is.get()));
+                if(block) {
+                    auto option_default=[&](const std::string& suffix,const char* value) {
+                        const auto name="-fieldsplit_"+field.first+"_"+suffix;
+                        PetscBool found=PETSC_FALSE;
+                        EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,name.c_str(),&found));
+                        if(!found) EONSIM_PETSC(PetscOptionsSetValue(nullptr,name.c_str(),value));
+                    };
+                    option_default("ksp_type","preonly");
+                    // 本机 PETSc/SuperLU_DIST 多个同时存活的 LU 因子在析构时出现 communicator
+                    // use-after-free；分块基线采用 ASM + 局部 ILU，整体直接解仍单独可用。
+                    option_default("pc_type",field.first=="rigid"?"jacobi":"asm");
+                    if(field.first!="rigid") {
+                        option_default("sub_ksp_type","preonly");
+                        option_default("sub_pc_type","ilu");
+                    }
+                }
+            }
+        }
+        report=PETSC_FALSE; PetscBool linear_report=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-solver_report",&report,nullptr));
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-linear_report",&linear_report,nullptr));
+        if(linear_report) {
+            report=PETSC_TRUE;
+            diagnostics.fields.emplace(acceptance);
+            EONSIM_PETSC(VecDuplicate(r,diagnostics.residual.put()));
+        }
+        diagnostics.enabled=report;
+        EONSIM_PETSC(KSPSetPostSolve(ksp,linear_complete,&diagnostics));
+        if(report) {
+            EONSIM_PETSC(KSPSetPreSolve(ksp,linear_begin,&diagnostics));
+        }
+        EONSIM_PETSC(SNESSetCountersReset(snes.get(),PETSC_TRUE));
+        SNESType nonlinear_type=nullptr;
+        PetscInt jacobian_lag=1,preconditioner_lag=1;
+        PetscBool reuse_preconditioner=PETSC_FALSE,permutation=PETSC_FALSE,eisenstat_walker=PETSC_FALSE;
+        EONSIM_PETSC(SNESGetType(snes.get(),&nonlinear_type));
+        EONSIM_PETSC(SNESGetLagJacobian(snes.get(),&jacobian_lag));
+        EONSIM_PETSC(SNESGetLagPreconditioner(snes.get(),&preconditioner_lag));
+        EONSIM_PETSC(KSPGetReusePreconditioner(ksp,&reuse_preconditioner));
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-verify_operator_permutation",&permutation,nullptr));
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-snes_ksp_ew",&eisenstat_walker,nullptr));
+        options=petsc_options_snapshot();
+        // Retain fresh-solver semantics for history-carrying nonlinear algorithms
+        // or explicit lagged PCs (including prefixed child PCs). The ordinary
+        // Newton path reuses symbolic objects, never stale numerical factors.
+        reusable=nonlinear_type&&std::strcmp(nonlinear_type,SNESNEWTONLS)==0&&
+            jacobian_lag==1&&preconditioner_lag==1&&!reuse_preconditioner&&!eisenstat_walker&&!permutation&&
+            options.find("_reuse_preconditioner")==std::string::npos;
+        if(reusable) {
+            SNESLineSearch line_search;
+            EONSIM_PETSC(SNESGetLineSearch(snes.get(),&line_search));
+            EONSIM_PETSC(SNESLineSearchGetLambda(line_search,&initial_lambda));
+        }
+    }
+};
+NonlinearSystem::~NonlinearSystem()=default;
 NonlinearSystem::NonlinearSystem(MPI_Comm comm,const AlgebraLayout& l,PetscOwner<Mat,MatDestroy> pattern)
     :communicator_(comm),layout_(l),matrix_(std::move(pattern)),local_trial_(l.local_to_global.size())
 {
@@ -557,117 +760,94 @@ void NonlinearSystem::set_jacobian_coo(const std::vector<PetscInt>& rows,const s
     EONSIM_PETSC(MatSetOption(matrix_.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE));
     coo_enabled_=true;
 }
+void NonlinearSystem::set_residual_coo(const std::vector<PetscInt>& rows)
+{
+    const auto limit=static_cast<std::uintmax_t>(std::numeric_limits<PetscCount>::max());
+    int invalid=residual_coo_enabled_||solve_started_||rows.size()>limit||
+        rows.size()>residual_coo_values_.max_size(),any_invalid=0;
+    for(auto row:rows) if(row>=layout_.global) invalid=1;
+    MPI_Allreduce(&invalid,&any_invalid,1,MPI_INT,MPI_MAX,communicator_);
+    if(any_invalid) throw std::runtime_error("Invalid COO residual pattern or configuration after first solve");
+    residual_coo_rows_=rows;
+    residual_coo_values_.assign(rows.size(),0.);
+    // Prepare both persistent targets explicitly. SNES-owned work vectors are
+    // prepared on first use; VecDuplicate does not promise to copy COO state.
+    prepare_residual_coo(residual_.get(),residual_coo_rows_,residual_coo_vectors_);
+    prepare_residual_coo(scratch_.get(),residual_coo_rows_,residual_coo_vectors_);
+    residual_coo_enabled_=true;
+}
 NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     const std::vector<double>& initial,const std::vector<PetscInt>& constraints,
     const std::vector<double>& prescribed,const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble)
 {
     const auto setup_begin=std::chrono::steady_clock::now();
-    solve_started_=true;
+    if(solving_) throw std::runtime_error("NonlinearSystem::solve is not reentrant");
+    solving_=true; solve_started_=true;
+    struct SolveScope {
+        bool& running;
+        std::unique_ptr<Workspace>& workspace;
+        bool keep_workspace=false;
+        ~SolveScope() {
+            if(workspace) workspace->callbacks.current=nullptr;
+            // A failure may leave PETSc algorithm/PC state or callback locks.
+            // Keep the graph and owned work vectors, rebuild the solver next time.
+            if(!keep_workspace) workspace.reset();
+            running=false;
+        }
+    } scope{solving_,workspace_};
     const auto comm=communicator_;
     const auto& l=layout_;
     auto& x=solution_; auto& r=residual_; auto& scratch=scratch_; auto& j=matrix_;
-    if(initial.size()!=l.local_to_global.size() || constraints.size()!=prescribed.size())
-        throw std::runtime_error("Invalid nonlinear state/constraint layout");
-    FieldAcceptance acceptance(comm,l,config,constraints);
-    LinearDiagnostics diagnostics;
-    PcSchurUpdates pc_updates; // numeric state outlives SNES/KSP/PC
-    PetscOwner<SNES,SNESDestroy> snes;
+    PetscBool reuse=PETSC_TRUE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-nonlinear_reuse",&reuse,nullptr));
+    const auto options=petsc_options_snapshot();
+    int local[]={initial.size()!=l.local_to_global.size()||constraints.size()!=prescribed.size(),
+        !reuse||!workspace_||!workspace_->reusable||workspace_->options!=options||
+        !same_solver_config(workspace_->config,config)||workspace_->constraint_rows!=constraints};
+    int global[2]{};
+    MPI_Allreduce(local,global,2,MPI_INT,MPI_MAX,comm);
+    if(global[0]) throw std::runtime_error("Invalid nonlinear state/constraint layout");
+    const bool solver_reused=!global[1];
+    if(!solver_reused) {
+        workspace_.reset();
+        workspace_=std::make_unique<Workspace>(comm,l,config,constraints);
+        ++solver_generation_;
+        workspace_->initialize(comm,l,r.get(),j.get());
+        if(residual_coo_enabled_) {
+            PetscObjectId residual_id=0,scratch_id=0;
+            EONSIM_PETSC(PetscObjectGetId(reinterpret_cast<PetscObject>(r.get()),&residual_id));
+            EONSIM_PETSC(PetscObjectGetId(reinterpret_cast<PetscObject>(scratch.get()),&scratch_id));
+            residual_coo_vectors_={residual_id,scratch_id};
+        }
+    }
+    auto& workspace=*workspace_;
+    auto& snes=workspace.snes;
+    auto& acceptance=workspace.acceptance;
+    auto& diagnostics=workspace.diagnostics;
+    diagnostics.reset();
+    const auto schur=workspace.schur,report=workspace.report;
+    const bool semantic=workspace.semantic;
+    KSP ksp; PC pc;
+    EONSIM_PETSC(SNESGetKSP(snes.get(),&ksp)); EONSIM_PETSC(KSPGetPC(ksp,&pc));
+    if(solver_reused) {
+        SNESLineSearch line_search;
+        EONSIM_PETSC(SNESGetLineSearch(snes.get(),&line_search));
+        EONSIM_PETSC(SNESLineSearchSetLambda(line_search,workspace.initial_lambda));
+    }
     PetscScalar* a;
     EONSIM_PETSC(VecGetArray(x.get(),&a));
     for(PetscInt i=0;i<l.owned;++i) a[i]=initial[i];
-    for(std::size_t i=0;i<constraints.size();++i) {
-        if(constraints[i]<l.begin || constraints[i]>=l.begin+l.owned) throw std::runtime_error("Constraint is not owned");
-        a[constraints[i]-l.begin]=prescribed[i];
-    }
+    for(std::size_t i=0;i<constraints.size();++i) a[constraints[i]-l.begin]=prescribed[i];
     EONSIM_PETSC(VecRestoreArray(x.get(),&a));
-    Context context{comm,l,constraints,prescribed,assemble,acceptance,scratch.get(),local_trial_,coo_enabled_?&coo_values_:nullptr,{}};
-    EONSIM_PETSC(SNESCreate(comm,snes.put()));
-    EONSIM_PETSC(SNESSetFunction(snes.get(),r.get(),function,&context));
-    EONSIM_PETSC(SNESSetJacobian(snes.get(),j.get(),j.get(),jacobian,&context));
-    EONSIM_PETSC(SNESSetTolerances(snes.get(),config.absolute_tolerance,config.relative_tolerance,0,config.maximum_iterations,10000));
-    EONSIM_PETSC(SNESSetConvergenceTest(snes.get(),convergence,&context,nullptr));
-    KSP ksp; PC pc;
-    EONSIM_PETSC(SNESGetKSP(snes.get(),&ksp)); EONSIM_PETSC(KSPGetPC(ksp,&pc));
-    EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCLU));
-    EONSIM_PETSC(PCFactorSetMatSolverType(pc,MATSOLVERSUPERLU_DIST));
-    PetscBool block=PETSC_FALSE,schur=PETSC_FALSE;
-    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-schur_pc",&schur,nullptr));
-    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-block_pc",&block,nullptr));
-    char recipe_option[32]{}; PetscBool recipe_set=PETSC_FALSE;
-    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_recipe",recipe_option,sizeof(recipe_option),&recipe_set));
-    const std::string recipe=recipe_set?recipe_option:config.pc_recipe;
-    const bool semantic=!recipe.empty();
-    int enabled=semantic,enabled_min=0,enabled_max=0;
-    MPI_Allreduce(&enabled,&enabled_min,1,MPI_INT,MPI_MIN,comm);
-    MPI_Allreduce(&enabled,&enabled_max,1,MPI_INT,MPI_MAX,comm);
-    if(enabled_min!=enabled_max) throw std::runtime_error("PC recipe enablement differs between ranks");
-    int conflict=(block&&schur)||(semantic&&(block||schur)),any_conflict=0;
-    MPI_Allreduce(&conflict,&any_conflict,1,MPI_INT,MPI_MAX,comm);
-    if(any_conflict) throw std::runtime_error("Choose only one PC recipe, block_pc or schur_pc");
-    PetscBool nodal_option=PETSC_FALSE,velocity_option=PETSC_FALSE,structure_option=PETSC_FALSE;
-    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_schur_approx",&nodal_option));
-    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_solver",&velocity_option));
-    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_structure_approx",&structure_option));
-    int unused=!semantic&&(nodal_option||velocity_option||structure_option),any_unused=0;
-    MPI_Allreduce(&unused,&any_unused,1,MPI_INT,MPI_MAX,comm);
-    if(any_unused) throw std::runtime_error("pc_plan Schur, velocity and structure options require -pc_recipe");
-    PcBlock plan;
-    if(semantic) plan=make_pc_plan(comm,l,recipe);
-    if(block||schur||semantic) {
-        EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
-        EONSIM_PETSC(KSPSetTolerances(ksp,1e-9,1e-13,PETSC_DEFAULT,500));
-        EONSIM_PETSC(PCSetType(pc,PCFIELDSPLIT));
-        EONSIM_PETSC(PCFieldSplitSetType(pc,PC_COMPOSITE_MULTIPLICATIVE));
-    }
-    EONSIM_PETSC(SNESSetFromOptions(snes.get()));
-    if(semantic) validate_pc_plan_options(comm,ksp,plan);
-    if(schur) validate_schur_solver_options(comm,ksp,l);
-    // PETSc 优化构建默认可能不检查 Jacobian domain error；结果有效性检查在两种构建都启用。
-    EONSIM_PETSC(SNESSetCheckJacobianDomainError(snes.get(),PETSC_TRUE));
-    PCType type; EONSIM_PETSC(PCGetType(pc,&type));
-    if(!schur&&!semantic&&std::strcmp(type,PCFIELDSPLIT)==0) {
-        auto fields=l.fields;
-        if(fields.count("velocity")&&fields.count("pressure")) {
-            fields["flow"]=fields.at("velocity");
-            fields["flow"].insert(fields["flow"].end(),fields.at("pressure").begin(),fields.at("pressure").end());
-            std::sort(fields["flow"].begin(),fields["flow"].end());
-            fields.erase("velocity"); fields.erase("pressure");
-        }
-        for(const auto& field:fields) {
-            PetscOwner<IS,ISDestroy> is;
-            EONSIM_PETSC(ISCreateGeneral(comm,field.second.size(),field.second.data(),PETSC_COPY_VALUES,is.put()));
-            EONSIM_PETSC(PCFieldSplitSetIS(pc,field.first.c_str(),is.get()));
-            if(block) {
-                auto option_default=[&](const std::string& suffix,const char* value) {
-                    const auto name="-fieldsplit_"+field.first+"_"+suffix;
-                    PetscBool found=PETSC_FALSE;
-                    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,name.c_str(),&found));
-                    if(!found) EONSIM_PETSC(PetscOptionsSetValue(nullptr,name.c_str(),value));
-                };
-                option_default("ksp_type","preonly");
-                // 本机 PETSc/SuperLU_DIST 多个同时存活的 LU 因子在析构时出现 communicator
-                // use-after-free；分块基线采用 ASM + 局部 ILU，整体直接解仍单独可用。
-                option_default("pc_type",field.first=="rigid"?"jacobi":"asm");
-                if(field.first!="rigid") {
-                    option_default("sub_ksp_type","preonly");
-                    option_default("sub_pc_type","ilu");
-                }
-            }
-        }
-    }
-    PetscBool report=PETSC_FALSE,linear_report=PETSC_FALSE;
-    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-solver_report",&report,nullptr));
-    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-linear_report",&linear_report,nullptr));
-    if(linear_report) {
-        report=PETSC_TRUE;
-        diagnostics.fields.emplace(acceptance);
-        EONSIM_PETSC(VecDuplicate(r.get(),diagnostics.residual.put()));
-    }
-    diagnostics.enabled=report;
-    EONSIM_PETSC(KSPSetPostSolve(ksp,linear_complete,&diagnostics));
-    if(report) {
-        EONSIM_PETSC(KSPSetPreSolve(ksp,linear_begin,&diagnostics));
-    }
+    Context context{comm,l,constraints,prescribed,assemble,acceptance,scratch.get(),local_trial_,
+        coo_enabled_?&coo_values_:nullptr,residual_coo_enabled_?&residual_coo_rows_:nullptr,
+        residual_coo_enabled_?&residual_coo_values_:nullptr,residual_coo_vectors_,{}};
+    struct CallbackScope {
+        ActiveContext& callbacks;
+        CallbackScope(ActiveContext& target,Context& value):callbacks(target) { callbacks.current=&value; }
+        ~CallbackScope() { callbacks.current=nullptr; }
+    } callback_scope{workspace.callbacks,context};
+    if(workspace.pc_configured&&semantic) context.pc_updates=&workspace.pc_updates;
     const auto solve_begin=std::chrono::steady_clock::now();
     const double setup_seconds=std::chrono::duration<double>(solve_begin-setup_begin).count();
     PetscBool verify_permutation=PETSC_FALSE;
@@ -680,10 +860,19 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     PetscReal initial_norm=0;
     if(schur||semantic) EONSIM_PETSC(VecNorm(r.get(),NORM_2,&initial_norm));
     // An exactly converged initial state must not factor an unused/singular PC.
-    if(schur&&initial_norm>0) configure_schur_solver(comm,ksp,l,j.get());
-    if(semantic&&initial_norm>0) {
-        configure_pc_plan(comm,ksp,j.get(),plan,&pc_updates);
-        context.pc_updates=&pc_updates;
+    if((schur||semantic)&&initial_norm>0) {
+        if(!workspace.pc_configured) {
+            // Default options may be inserted while preparing child solvers.
+            // A callback's unrelated options change must still invalidate reuse.
+            const bool options_unchanged=petsc_options_snapshot()==workspace.options;
+            if(schur) configure_schur_solver(comm,ksp,l,j.get());
+            else configure_pc_plan(comm,ksp,j.get(),workspace.plan,&workspace.pc_updates);
+            workspace.options=petsc_options_snapshot();
+            workspace.reusable=workspace.reusable&&options_unchanged&&
+                workspace.options.find("_reuse_preconditioner")==std::string::npos;
+            workspace.pc_configured=true;
+        } else if(semantic) workspace.pc_updates.refresh(j.get());
+        if(semantic) context.pc_updates=&workspace.pc_updates;
     }
     const double schur_setup_seconds=(schur||semantic)?std::chrono::duration<double>(std::chrono::steady_clock::now()-schur_begin).count():0.;
     const auto error=SNESSolve(snes.get(),nullptr,x.get());
@@ -724,6 +913,7 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     if(reason<0) throw StepRejected("SNES did not converge: reason="+std::to_string(reason)+(context.error.empty()?"":": "+context.error));
     NonlinearResult result;
     result.domain_rejections=context.domain_rejections;
+    result.solver_reused=solver_reused; result.solver_generation=solver_generation_;
     context.evaluate(x.get(),r.get(),nullptr,true);
     EONSIM_PETSC(VecNorm(r.get(),NORM_2,&result.residual_norm));
     if(!std::isfinite(result.residual_norm)) throw std::runtime_error("Nonfinite nonlinear residual");
@@ -757,10 +947,11 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         double peak_sum=0; MPI_Allreduce(&peak,&peak_sum,1,MPI_DOUBLE,MPI_SUM,comm);
         int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
         KSPType kt; EONSIM_PETSC(KSPGetType(ksp,&kt));
-        EONSIM_PETSC(PCGetType(pc,&type));
+        PCType type; EONSIM_PETSC(PCGetType(pc,&type));
         if(rank==0) std::cout << "solver_report ranks=" << ranks << " dofs=" << l.global << " nnz=" << info.nz_used
             << " nnz_allocated=" << info.nz_allocated << " nnz_unneeded=" << info.nz_unneeded
             << " matrix_mallocs=" << info.mallocs
+            << " solver_reused=" << result.solver_reused << " solver_generation=" << result.solver_generation
             << " ksp=" << kt << " pc=" << type << " linear_iterations=" << result.linear_iterations
             << " snes_reason=" << reason << " ksp_reason=" << linear_reason << " domain_rejections=" << result.domain_rejections
             << " solve_seconds=" << maxima[0] << " assembly_seconds=" << maxima[1] << " ghost_seconds=" << maxima[2]
@@ -776,6 +967,12 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         EONSIM_PETSC(PetscSynchronizedPrintf(comm,"%s",tree.c_str()));
         EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
     }
+    // Destruction is collective too: local options may disable retention on
+    // only one rank, even though the successful numerical solve was identical.
+    const int keep=reuse&&workspace.reusable;
+    int keep_global=0;
+    MPI_Allreduce(&keep,&keep_global,1,MPI_INT,MPI_MIN,comm);
+    scope.keep_workspace=keep_global;
     return result;
 }
 }

@@ -1,0 +1,44 @@
+{
+  "source_commit": "2b0b30bc2e1b036b8b97c9424cc6d41abd5af105",
+  "source_dirty": false,
+  "status": "passed",
+  "petsc": "3.23.7",
+  "mode": "release",
+  "tests": [
+    {
+      "name": "fsi_coo_verification",
+      "status": "passed",
+      "ranks": [
+        1,
+        2
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 9.09766,
+      "log": "evidence/junit.xml#fsi_coo_verification",
+      "exit_behavior": "Completed"
+    }
+  ],
+  "command_count": 31,
+  "expected_failure_command_count": 1,
+  "max_owned_field_difference": 4.716782520119978e-13,
+  "max_normalized_history_difference": 5.920877545347623e-14,
+  "comparison_with_7f3": {
+    "compared_saved_summary_values": 107,
+    "different_saved_summary_values": [],
+    "scope": "field/history difference summaries, iteration trajectories and recorded Jacobian/nnz fields; no new numerical executions"
+  },
+  "pinned": {
+    "source_commit": "2b0b30bc2e1b036b8b97c9424cc6d41abd5af105",
+    "source_dirty": false,
+    "binary": "/workspace/scratch/d56ec93a621c/perf2-candidate-2b0/eonsim",
+    "sha256": "d3fc4988ade068fcc2a6141635085efd8bc6cfc489da3ce2aa1a575836c6bfbb",
+    "bytes": 2004792,
+    "release_receipt": "/workspace/scratch/d56ec93a621c/perf2-candidate-2b0/evidence/summary.json",
+    "outer_receipt": "/workspace/scratch/d56ec93a621c/perf2-candidate-2b0/validation-command.json",
+    "original_binary": "/workspace/scratch/d56ec93a621c/EONSim-new/build/cloud-3.23.7-release/eonsim",
+    "fsi_results": "/workspace/scratch/d56ec93a621c/perf2-candidate-2b0/fsi_coo_verification/results.json"
+  },
+  "raw_receipt": "/workspace/scratch/d56ec93a621c/perf2-candidate-2b0/evidence/summary.json",
+  "unrelated_tests": "Reused original 7f3 evidence; not rerun for the COO-only bucket change"
+}

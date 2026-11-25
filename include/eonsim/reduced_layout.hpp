@@ -50,9 +50,10 @@ struct OutletTrace {
 };
 struct ReducedLayout {
     AlgebraLayout algebra;
-    /** Assembled zero AIJ with every cell/port coupling already located.
+    /** Assembled zero AIJ with physical cell/port dependencies and owned diagonals.
      * Transfer ownership to NonlinearSystem before solving. The graph includes
      * remote contributions and is independent of current ALE coordinates/dt.
+     * Dense numerical insertion may omit zeros; every nonzero must be in this graph.
      */
     PetscOwner<Mat,MatDestroy> jacobian_pattern;
     int components=Tet4Ale::components;

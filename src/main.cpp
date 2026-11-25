@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
             std::cout << "Usage: eonsim -case case.yaml [-mesh mesh.msh] [-output result.vtu]\n"
                          "       [-partition directory] [-prepare directory -parts N]\n"
                          "       [-diagnostics basic|full] [-block_pc] [-solver_report] [-fluid_coo|-fsi_coo]\n"
-                         "       [-fsi_assembly_report]\n"
+                         "       [-fsi_assembly_report] [-fsi_residual_coo true|false] [-fsi_threads N]\n"
                          "       [-checkpoint dir] [-restart dir] [-stop_after N] [PETSc options]\n";
         } else {
             using Clock = std::chrono::steady_clock;
@@ -81,8 +81,11 @@ int main(int argc, char* argv[])
             PetscBool fsi_coo=PETSC_FALSE,fsi_assembly_report=PETSC_FALSE;
             EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_coo",&fsi_coo,nullptr));
             EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_assembly_report",&fsi_assembly_report,nullptr));
-            if((fsi_coo||fsi_assembly_report)&&!config.fsi_problem)
-                throw std::runtime_error("-fsi_coo and -fsi_assembly_report require the monolithic FSI problem");
+            PetscBool fsi_residual_option=PETSC_FALSE,fsi_thread_option=PETSC_FALSE;
+            EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-fsi_residual_coo",&fsi_residual_option));
+            EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-fsi_threads",&fsi_thread_option));
+            if((fsi_coo||fsi_assembly_report||fsi_residual_option||fsi_thread_option)&&!config.fsi_problem)
+                throw std::runtime_error("FSI assembly options require the monolithic FSI problem");
             if(auto path=option("-checkpoint")) config.checkpoint=std::filesystem::absolute(*path);
             if(auto path=option("-restart")) config.restart=std::filesystem::absolute(*path);
             PetscInt stop=0;

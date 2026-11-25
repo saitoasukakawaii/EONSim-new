@@ -2,6 +2,8 @@
 #include "eonsim/fsi_element.hpp"
 #include "eonsim/fsi.hpp"
 #include "eonsim/reduced_layout.hpp"
+#include "eonsim/boundary_geometry.hpp"
+#include "eonsim/time_step.hpp"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -103,6 +105,101 @@ void verify_regular_metric() {
     } while(std::next_permutation(order.begin(),order.end()));
     if(positive!=12) throw std::runtime_error("Incomplete Tet4 permutation check");
 }
+
+void verify_mesh_and_pressure_blocks() {
+    FsiElementData data({Point{0,0,0},Point{1,0,0},Point{0,1,0},Point{0,0,1}});
+    data.fluid={1.3,.6,.07,.02,true};
+    data.regular_metric_dt=.011;
+    data.mesh_dt=.043;
+    data.inlet_pressure=1.7;
+    Tet4Ale::State<double> state{};
+    for(int i=0;i<Tet4Ale::dofs;++i) state[i]=.021*std::sin(i+.3);
+    const auto unloaded=fsi_element(data,state);
+    // Independent exact stiffness on the unit right tetrahedron; artificial
+    // mesh rows must remain constant and have no cross-component/fluid columns.
+    const double stiffness[4][4]={{3,-1,-1,-1},{-1,1,0,0},{-1,0,1,0},{-1,0,0,1}};
+    for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) {
+        const int row=Tet4Ale::dof(a,Tet4Ale::mesh_offset+c);
+        double expected=0;
+        for(int b=0;b<Tet4Topology::nodes;++b)
+            expected+=stiffness[a][b]/6*state[Tet4Ale::dof(b,Tet4Ale::mesh_offset+c)];
+        if(std::abs(unloaded.residual[row]-expected)>1e-15)
+            throw std::runtime_error("Reference mesh residual differs from the exact affine oracle");
+        for(int j=0;j<Tet4Ale::dofs;++j) {
+            const double value=Tet4Ale::component(j)==Tet4Ale::mesh_offset+c?stiffness[a][Tet4Ale::node(j)]/6:0.;
+            if(std::abs(unloaded.tangent[Tet4Ale::matrix(row,j)]-value)>1e-15)
+                throw std::runtime_error("Analytical reference mesh block contains an incorrect entry");
+        }
+    }
+    // Independently integrate area*normal in double precision, then perturb it.
+    // All 24 face permutations exercise both outward orientation signs; the
+    // opposite node and all fluid/mesh-test rows have the appropriate zero block.
+    auto pressure_load=[&](const Tet4Ale::State<double>& x) {
+        auto coordinates=data.reference;
+        for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c)
+            coordinates[a][c]+=x[Tet4Ale::dof(a,Tet4Ale::mesh_offset+c)];
+        Tet4Ale::State<double> load{};
+        for(const auto& face:data.inlet_faces) {
+            int opposite=0; while(opposite==face[0]||opposite==face[1]||opposite==face[2]) ++opposite;
+            Tri3Topology::Nodal<Point> points{};
+            for(int a=0;a<Tri3Topology::nodes;++a) points[a]=coordinates[face[a]];
+            const auto surface=triangle_geometry(points,coordinates[opposite]);
+            for(int a:face) for(int c=0;c<Space3::dimension;++c)
+                load[Tet4Ale::dof(a,c)]+=data.inlet_pressure*surface.area*surface.normal[c]/3;
+        }
+        return load;
+    };
+    double worst=0;
+    int permutations=0;
+    for(int opposite=0;opposite<Tet4Topology::nodes;++opposite) {
+        Tri3Topology::Nodal<int> face{};
+        for(int a=0,b=0;a<Tet4Topology::nodes;++a) if(a!=opposite) face[b++]=a;
+        do {
+            ++permutations;
+            data.inlet_faces={face};
+            const auto loaded=fsi_element(data,state);
+            const auto expected=pressure_load(state);
+            for(int i=0;i<Tet4Ale::dofs;++i) {
+                const double difference=loaded.residual[i]-unloaded.residual[i]-expected[i];
+                if(!std::isfinite(difference)||std::abs(difference)>2e-14)
+                    throw std::runtime_error("Pressure face residual differs from independent surface integration");
+            }
+            for(int j=0;j<Tet4Ale::dofs;++j) {
+                auto plus=state,minus=state;
+                constexpr double eps=2e-7;
+                plus[j]+=eps; minus[j]-=eps;
+                const auto rp=pressure_load(plus),rm=pressure_load(minus);
+                for(int i=0;i<Tet4Ale::dofs;++i) {
+                    const double actual=loaded.tangent[Tet4Ale::matrix(i,j)]-unloaded.tangent[Tet4Ale::matrix(i,j)];
+                    const double expected=(rp[i]-rm[i])/(2*eps);
+                    if(!std::isfinite(actual+expected)) throw std::runtime_error("Nonfinite pressure-area derivative");
+                    worst=std::max(worst,std::abs(actual-expected));
+                }
+            }
+        } while(std::next_permutation(face.begin(),face.end()));
+    }
+    std::cout<<"pressure_face_permutations="<<permutations<<" pressure_area_derivative_error="<<worst<<'\n';
+    if(permutations!=24||!std::isfinite(worst)||worst>2e-9)
+        throw std::runtime_error("Analytical pressure-area block differs from independent finite differences");
+    // Moving the affine blocks out of Dual must retain both geometry gates.
+    data.inlet_faces.clear();
+    state[Tet4Ale::dof(3,Tet4Ale::mesh_offset+2)]=-2;
+    for(bool tangent:{false,true}) {
+        bool rejected=false;
+        try { if(tangent) (void)fsi_element(data,state); else (void)fsi_element_residual(data,state); }
+        catch(const StepRejected&) { rejected=true; }
+        if(!rejected) throw std::runtime_error("Inverted trial geometry was not rejected");
+    }
+    state.fill(0);
+    data.inlet_faces={{0,0,1}};
+    data.inlet_pressure=0;
+    for(bool tangent:{false,true}) {
+        bool rejected=false;
+        try { if(tangent) (void)fsi_element(data,state); else (void)fsi_element_residual(data,state); }
+        catch(const StepRejected&) { rejected=true; }
+        if(!rejected) throw std::runtime_error("Degenerate pressure face bypassed validation at zero load");
+    }
+}
 }
 
 int main(int argc,char** argv) {
@@ -149,6 +246,7 @@ int main(int argc,char** argv) {
     }
     verify_regular_metric();
     verify_planar_area_tangent();
+    verify_mesh_and_pressure_blocks();
     for(bool convection:{false,true}) for(bool pressure_face:{false,true})
     for(double mesh_dt:{0.,.043}) for(auto [gd,metric_dt]:{std::pair{0.,0.},std::pair{.7,0.},std::pair{0.,.011}}) {
     data.fluid.convection=convection;

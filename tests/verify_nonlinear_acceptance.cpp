@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
+#include <array>
 
 using namespace eonsim;
 namespace {
@@ -177,11 +178,171 @@ void verify(MPI_Comm comm)
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-snes_atol"));
     if(rank==0) std::cout<<"nonlinear field acceptance passed on "<<ranks<<" ranks\n";
 }
+void verify_lifetime(MPI_Comm comm,bool coo)
+{
+    int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
+    AlgebraLayout layout;
+    layout.global=3; layout.owned=ranks==1?3:(rank==0?2:1); layout.begin=rank==0?0:2;
+    for(PetscInt row=layout.begin;row<layout.begin+layout.owned;++row) {
+        layout.local_to_global.push_back(row); layout.fields["state"].push_back(row);
+    }
+    for(PetscInt row=0;row<3;++row)
+        if(row<layout.begin||row>=layout.begin+layout.owned) layout.local_to_global.push_back(row);
+    layout.diagonal.assign(layout.owned,1); layout.off_diagonal.assign(layout.owned,0);
+    std::array<PetscInt,3> index{};
+    for(std::size_t i=0;i<layout.local_to_global.size();++i) index[layout.local_to_global[i]]=i;
+    NonlinearSystem system(comm,layout);
+    const bool producer=rank==ranks-1;
+    if(coo) {
+        // One remote-only producer, repeated rows, an ignored negative row,
+        // and a rank with no contributions exercise the complete COO contract.
+        const std::vector<PetscInt> rows=producer?std::vector<PetscInt>{0,0,1,1,2,2,-1}:std::vector<PetscInt>{};
+        const std::vector<PetscInt> diagonal=producer?std::vector<PetscInt>{0,1,2}:std::vector<PetscInt>{};
+        system.set_residual_coo(rows);
+        system.set_jacobian_coo(diagonal,diagonal);
+    }
+    auto* residual_buffer=system.residual_coo_values();
+    auto* matrix_buffer=system.jacobian_coo_values();
+    PetscObjectId matrix_id=0;
+    const auto publish=[&](Vec r,Mat j,const std::array<double,3>& residual,const std::array<double,3>& tangent) {
+        if(j) {
+            PetscObjectId id=0; EONSIM_PETSC(PetscObjectGetId(reinterpret_cast<PetscObject>(j),&id));
+            require(!matrix_id||matrix_id==id,"Solver reset rebuilt the fixed matrix"); matrix_id=id;
+        }
+        require(residual_buffer==system.residual_coo_values(),"Residual COO buffer changed address");
+        require(matrix_buffer==system.jacobian_coo_values(),"Jacobian COO buffer changed address");
+        if(!producer) return;
+        for(PetscInt row=0;row<3;++row) {
+            if(coo) {
+                require(residual_buffer[2*row]==0&&residual_buffer[2*row+1]==0,"Residual COO buffer was not cleared");
+                residual_buffer[2*row]=.25*residual[row]; residual_buffer[2*row+1]=.75*residual[row];
+                if(j) matrix_buffer[row]=tangent[row];
+            } else {
+                EONSIM_PETSC(VecSetValue(r,row,residual[row],ADD_VALUES));
+                if(j) EONSIM_PETSC(MatSetValue(j,row,row,tangent[row],ADD_VALUES));
+            }
+        }
+        if(coo) residual_buffer[6]=1e99;
+    };
+    const auto linear=[&](double coefficient,double target,bool fail=false) {
+        // Returned temporary callables must not remain borrowed by a cached SNES.
+        return [&,coefficient,target,fail](const std::vector<double>& x,Vec r,Mat j) {
+            std::array<double,3> residual{},tangent{};
+            for(int row=0;row<3;++row) {
+                residual[row]=coefficient*(x[index[row]]-target-row); tangent[row]=coefficient;
+            }
+            publish(r,j,residual,tangent);
+            if(fail&&j&&rank==0) throw std::runtime_error("intentional lifetime callback failure");
+        };
+    };
+    SolverConfig config;
+    config.maximum_iterations=100;
+    FieldTolerance tolerance; tolerance.absolute_tolerance=1e-10; tolerance.relative_tolerance=0;
+    config.fields.emplace("state",tolerance);
+    const std::vector<double> initial(3,0.);
+    std::vector<PetscInt> constrained_rows;
+    if(2>=layout.begin&&2<layout.begin+layout.owned) constrained_rows.push_back(2);
+    const auto check_linear=[&](double coefficient,double target,bool constrained,double prescribed) {
+        const auto& rows=constrained?constrained_rows:std::vector<PetscInt>{};
+        const std::vector<double> values(rows.size(),prescribed);
+        auto result=system.solve(config,initial,rows,values,linear(coefficient,target));
+        for(int row=0;row<3;++row) {
+            const double expected=constrained&&row==2?prescribed:target+row;
+            require(std::abs(result.values[index[row]]-expected)<1e-9,"Retained solver used stale numerical factors or constraints");
+            const double reaction=constrained&&row==2?coefficient*(prescribed-target-row):0.;
+            require(std::abs(result.raw_residual[index[row]]-reaction)<1e-8,"Retained solver changed raw reactions");
+        }
+        require(result.iterations==1&&result.linear_iterations==1,"Linear equation did not use a fresh exact numeric factor");
+        return result;
+    };
+    auto previous=check_linear(2,1,true,11);
+    require(!previous.solver_reused&&previous.solver_generation==1,"First solve did not construct its solver");
+    auto next=check_linear(5,2,true,13);
+    require(next.solver_reused&&next.solver_generation==previous.solver_generation,"Changed values unnecessarily discarded the solver");
+    previous=next; next=check_linear(7,3,false,0);
+    require(!next.solver_reused&&next.solver_generation==previous.solver_generation+1,"Changed constraint support did not reset the solver");
+    require(next.field_residuals.at(0).constraint_rows==0,"Cached field groups retained released constraints");
+    previous=next; next=check_linear(17,4,false,0);
+    require(next.solver_reused&&next.solver_generation==previous.solver_generation,"Stable unconstrained solve did not reuse its solver");
+    previous=next; ++config.maximum_iterations; next=check_linear(3,5,false,0);
+    require(!next.solver_reused&&next.solver_generation==previous.solver_generation+1,"Changed SolverConfig did not reset the solver");
+    previous=next; config.fields.at("state").residual_scale=3; next=check_linear(11,6,false,0);
+    require(!next.solver_reused&&next.solver_generation==previous.solver_generation+1,"Changed field tolerances did not reset the solver");
+    require(next.field_residuals.at(0).tolerance.residual_scale==3,"Cached field tolerance was stale");
+    previous=next; EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_type","jacobi")); next=check_linear(13,7,false,0);
+    require(!next.solver_reused&&next.solver_generation==previous.solver_generation+1,"Changed PETSc options did not reset the solver");
+    previous=next; EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_type")); next=check_linear(19,8,false,0);
+    require(!next.solver_reused&&next.solver_generation==previous.solver_generation+1,"Cleared PETSc options did not restore fresh defaults");
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-nonlinear_reuse","false"));
+    previous=check_linear(2,9,false,0); next=check_linear(5,10,false,0);
+    require(!previous.solver_reused&&!next.solver_reused&&next.solver_generation==previous.solver_generation+1,
+            "Explicit fresh-solver reference reused a solver");
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-nonlinear_reuse"));
+    if(ranks==2) {
+        // Only the retention policy differs. Collective SNES destruction must
+        // not leave the other rank holding or using a different generation.
+        if(rank==0) EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-nonlinear_reuse","false"));
+        previous=check_linear(3,9,false,0); next=check_linear(7,10,false,0);
+        require(!previous.solver_reused&&!next.solver_reused&&next.solver_generation==previous.solver_generation+1,
+                "Rank-local fresh policy broke collective solver lifetime");
+        if(rank==0) EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-nonlinear_reuse"));
+    }
+    previous=check_linear(7,11,false,0);
+    EONSIM_PETSC(PetscPushErrorHandler(PetscReturnErrorHandler,nullptr));
+    bool failed=false;
+    try { system.solve(config,initial,{}, {},linear(11,12,true)); }
+    catch(const std::runtime_error& e) { failed=std::string(e.what()).find("intentional lifetime callback failure")!=std::string::npos; }
+    EONSIM_PETSC(PetscPopErrorHandler());
+    require(failed,"Fatal callback was not propagated collectively");
+    next=check_linear(13,13,false,0);
+    require(!next.solver_reused&&next.solver_generation==previous.solver_generation+1,"Failed solver state survived the next solve");
+    previous=next;
+    bool rejected=false;
+    const auto reject=[&](const std::vector<double>& x,Vec r,Mat j) {
+        linear(3,14)(x,r,j);
+        if(rank==0) throw StepRejected("intentional initial rejection");
+    };
+    try { system.solve(config,initial,{}, {},reject); }
+    catch(const StepRejected&) { rejected=true; }
+    require(rejected,"Initial domain rejection was not propagated");
+    next=check_linear(17,15,false,0);
+    require(!next.solver_reused&&next.solver_generation==previous.solver_generation+1,"Rejected attempt did not invalidate its solver");
+    // The first full Newton step exceeds the domain. Backtracking must evaluate
+    // and prepare its own residual work Vec without publishing rejected COO data.
+    const auto cubic=[&](const std::vector<double>& x,Vec r,Mat j) {
+        std::array<double,3> residual{},tangent{};
+        for(int row=0;row<3;++row) {
+            const auto value=x[index[row]],target=double(row+2);
+            residual[row]=value*value*value-target*target*target; tangent[row]=3*value*value;
+        }
+        publish(r,j,residual,tangent);
+        if(!j&&rank==0&&(x[index[0]]>10||x[index[1]]>10)) throw StepRejected("cubic trial outside domain");
+    };
+    const std::vector<double> cubic_initial(3,.25),prescribed(constrained_rows.size(),7);
+    previous=system.solve(config,cubic_initial,constrained_rows,prescribed,cubic);
+    require(previous.domain_rejections>0,"Cubic check did not exercise line-search domain recovery");
+    require(std::abs(previous.values[index[0]]-2)<1e-9&&std::abs(previous.values[index[1]]-3)<1e-9&&previous.values[index[2]]==7,
+            "Line-search residual assembly changed the nonlinear solution");
+    require(std::abs(previous.raw_residual[index[2]]-279)<1e-9,"COO raw reaction lost constrained-row contributions");
+    next=system.solve(config,cubic_initial,constrained_rows,prescribed,cubic);
+    require(next.solver_reused&&next.solver_generation==previous.solver_generation&&
+            next.iterations==previous.iterations&&next.linear_iterations==previous.linear_iterations,
+            "Retained Newton/line-search state changed the repeated solve trajectory");
+    bool late_pattern=false;
+    try { system.set_residual_coo({}); }
+    catch(const std::runtime_error&) { late_pattern=true; }
+    require(late_pattern,"Residual COO configuration changed after solving");
+    if(rank==0) std::cout<<"nonlinear lifetime passed coo="<<coo<<" ranks="<<ranks<<'\n';
+}
 }
 int main(int argc,char** argv)
 {
     PetscInitialize(&argc,&argv,nullptr,nullptr);
-    try { verify(PETSC_COMM_WORLD); }
+    try {
+        verify(PETSC_COMM_WORLD);
+        verify_lifetime(PETSC_COMM_WORLD,false);
+        verify_lifetime(PETSC_COMM_WORLD,true);
+    }
     catch(const std::exception& e) { std::cerr<<e.what()<<'\n'; MPI_Abort(PETSC_COMM_WORLD,1); }
     return PetscFinalize();
 }

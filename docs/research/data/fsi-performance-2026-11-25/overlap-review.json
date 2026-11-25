@@ -1,0 +1,696 @@
+{
+  "kind": "Read-only postprocessing of archived PR51 final campaigns; no numerical execution",
+  "source_archive": "docs/research/data/fsi-assembly-2026-11-25/evidence.tar.xz",
+  "archive_sha256": "3f992cdd5943dc489b3fc5a58ac76f8feea0c8a463eda4081f984f57dfd25656",
+  "scope": "Sum per-step independently reduced max-rank timers over each five-step measured run; ratios are diagnostic bounds, not strict additive decomposition",
+  "groups": [
+    {
+      "campaign": "perf-default-final",
+      "results_sha256": "e2d350f3356434b42b7a5e4cad0a66d2d75a47a719077e0155273c81f5ccabbf",
+      "subdivisions": 4,
+      "ranks": 1,
+      "runs": 3,
+      "timers_seconds": {
+        "assembly_seconds": {
+          "median": 0.082462965,
+          "min": 0.081627359,
+          "max": 0.08342878299999999
+        },
+        "ghost_seconds": {
+          "median": 9.849799999999999e-05,
+          "min": 9.8476e-05,
+          "max": 9.9202e-05
+        },
+        "assembly_finalize_seconds": {
+          "median": 0.000338599,
+          "min": 0.000280913,
+          "max": 0.000426041
+        },
+        "callback_seconds": {
+          "median": 0.08177936599999999,
+          "min": 0.08098673499999999,
+          "max": 0.082694693
+        },
+        "failure_sync_seconds": {
+          "median": 2.5984e-05,
+          "min": 2.3989e-05,
+          "max": 3.0136e-05
+        },
+        "solve_seconds": {
+          "median": 0.165311916,
+          "min": 0.163594834,
+          "max": 0.16729808999999998
+        },
+        "linear_seconds": {
+          "median": 0.079078758,
+          "min": 0.077592471,
+          "max": 0.083606563
+        }
+      },
+      "ratios": {
+        "ghost_over_assembly_pct": {
+          "median": 0.11941845651560067,
+          "min": 0.11890620530806498,
+          "max": 0.12066787558323429
+        },
+        "ghost_over_solve_pct": {
+          "median": 0.060008983260468655,
+          "min": 0.05887574687792311,
+          "max": 0.06019505481450594
+        },
+        "finalize_over_assembly_pct": {
+          "median": 0.4148106764056889,
+          "min": 0.34065352852641184,
+          "max": 0.5106642871681348
+        },
+        "ghost_plus_finalize_over_assembly_pct": {
+          "median": 0.5354785519889232,
+          "min": 0.46007198504201247,
+          "max": 0.6295704924761998
+        },
+        "ghost_plus_finalize_over_solve_pct": {
+          "median": 0.26126837431317956,
+          "min": 0.23190768970125303,
+          "max": 0.317728457033914
+        },
+        "linear_over_solve_pct": {
+          "median": 48.33817551964997,
+          "min": 46.937010275774675,
+          "max": 49.974607002387174
+        },
+        "failure_sync_over_assembly_pct": {
+          "median": 0.031509902657514195,
+          "min": 0.029388430905868214,
+          "max": 0.036121826204752384
+        }
+      },
+      "source_logs": [
+        "n4-r1-sample0-candidate.log",
+        "n4-r1-sample1-candidate.log",
+        "n4-r1-sample2-candidate.log"
+      ]
+    },
+    {
+      "campaign": "perf-default-final",
+      "results_sha256": "e2d350f3356434b42b7a5e4cad0a66d2d75a47a719077e0155273c81f5ccabbf",
+      "subdivisions": 4,
+      "ranks": 2,
+      "runs": 3,
+      "timers_seconds": {
+        "assembly_seconds": {
+          "median": 0.077346891,
+          "min": 0.076417524,
+          "max": 0.07738666200000001
+        },
+        "ghost_seconds": {
+          "median": 0.000207873,
+          "min": 0.000126899,
+          "max": 0.0014653560000000001
+        },
+        "assembly_finalize_seconds": {
+          "median": 0.009373146,
+          "min": 0.008293709,
+          "max": 0.009575954000000001
+        },
+        "callback_seconds": {
+          "median": 0.06638576,
+          "min": 0.065616074,
+          "max": 0.06710263300000001
+        },
+        "failure_sync_seconds": {
+          "median": 0.054225611,
+          "min": 0.053920985000000005,
+          "max": 0.054485242
+        },
+        "solve_seconds": {
+          "median": 0.156702655,
+          "min": 0.147293959,
+          "max": 0.16594968100000002
+        },
+        "linear_seconds": {
+          "median": 0.077398468,
+          "min": 0.068629316,
+          "max": 0.086659214
+        }
+      },
+      "ratios": {
+        "ghost_over_assembly_pct": {
+          "median": 0.2686160568600309,
+          "min": 0.1660600780522541,
+          "max": 1.8945247585969553
+        },
+        "ghost_over_solve_pct": {
+          "median": 0.13265442120301024,
+          "min": 0.08615356723489251,
+          "max": 0.883012242729168
+        },
+        "finalize_over_assembly_pct": {
+          "median": 12.112094975746595,
+          "min": 10.85315064644073,
+          "max": 12.38052864981994
+        },
+        "ghost_plus_finalize_over_assembly_pct": {
+          "median": 12.380711032606628,
+          "min": 11.019210724492984,
+          "max": 14.275053408416897
+        },
+        "ghost_plus_finalize_over_solve_pct": {
+          "median": 6.1141395466464825,
+          "min": 5.716872611184278,
+          "max": 6.653408390703686
+        },
+        "linear_over_solve_pct": {
+          "median": 49.39193148961005,
+          "min": 46.593435647961634,
+          "max": 52.22017510235527
+        },
+        "failure_sync_over_assembly_pct": {
+          "median": 70.07100396706605,
+          "min": 69.71318989408378,
+          "max": 71.29940771177041
+        }
+      },
+      "source_logs": [
+        "n4-r2-sample0-candidate.log",
+        "n4-r2-sample1-candidate.log",
+        "n4-r2-sample2-candidate.log"
+      ]
+    },
+    {
+      "campaign": "perf-default-final",
+      "results_sha256": "e2d350f3356434b42b7a5e4cad0a66d2d75a47a719077e0155273c81f5ccabbf",
+      "subdivisions": 8,
+      "ranks": 1,
+      "runs": 3,
+      "timers_seconds": {
+        "assembly_seconds": {
+          "median": 0.6401204650000001,
+          "min": 0.638886949,
+          "max": 0.650891122
+        },
+        "ghost_seconds": {
+          "median": 0.000401147,
+          "min": 0.000305414,
+          "max": 0.000500154
+        },
+        "assembly_finalize_seconds": {
+          "median": 0.000681818,
+          "min": 0.000555702,
+          "max": 0.000799728
+        },
+        "callback_seconds": {
+          "median": 0.6361485840000001,
+          "min": 0.634829282,
+          "max": 0.64562975
+        },
+        "failure_sync_seconds": {
+          "median": 9.223e-05,
+          "min": 6.1375e-05,
+          "max": 0.000178832
+        },
+        "solve_seconds": {
+          "median": 2.304993853,
+          "min": 2.2852476,
+          "max": 2.316781674
+        },
+        "linear_seconds": {
+          "median": 1.649008552,
+          "min": 1.630392181,
+          "max": 1.649688884
+        }
+      },
+      "ratios": {
+        "ghost_over_assembly_pct": {
+          "median": 0.06278841673442918,
+          "min": 0.04771195684237341,
+          "max": 0.07684142294999685
+        },
+        "ghost_over_solve_pct": {
+          "median": 0.017403386975540017,
+          "min": 0.013364591215411408,
+          "max": 0.021588309576727083
+        },
+        "finalize_over_assembly_pct": {
+          "median": 0.10651401373333688,
+          "min": 0.0869797075789069,
+          "max": 0.12286663206323468
+        },
+        "ghost_plus_finalize_over_assembly_pct": {
+          "median": 0.15422597057571028,
+          "min": 0.14976812431333608,
+          "max": 0.19970805501323155
+        },
+        "ghost_plus_finalize_over_solve_pct": {
+          "median": 0.04320022040500119,
+          "min": 0.041511997906399624,
+          "max": 0.05610722903188848
+        },
+        "linear_over_solve_pct": {
+          "median": 71.34422462581298,
+          "min": 71.20605720053706,
+          "max": 71.54069195689087
+        },
+        "failure_sync_over_assembly_pct": {
+          "median": 0.01443604383285031,
+          "min": 0.009588039026372949,
+          "max": 0.027474948413876196
+        }
+      },
+      "source_logs": [
+        "n8-r1-sample0-candidate.log",
+        "n8-r1-sample1-candidate.log",
+        "n8-r1-sample2-candidate.log"
+      ]
+    },
+    {
+      "campaign": "perf-default-final",
+      "results_sha256": "e2d350f3356434b42b7a5e4cad0a66d2d75a47a719077e0155273c81f5ccabbf",
+      "subdivisions": 8,
+      "ranks": 2,
+      "runs": 3,
+      "timers_seconds": {
+        "assembly_seconds": {
+          "median": 0.596790556,
+          "min": 0.57491473,
+          "max": 0.5989261499999999
+        },
+        "ghost_seconds": {
+          "median": 0.000445208,
+          "min": 0.000291441,
+          "max": 0.000585798
+        },
+        "assembly_finalize_seconds": {
+          "median": 0.0624185,
+          "min": 0.056187641999999996,
+          "max": 0.063210883
+        },
+        "callback_seconds": {
+          "median": 0.529472283,
+          "min": 0.5150253140000001,
+          "max": 0.532098366
+        },
+        "failure_sync_seconds": {
+          "median": 0.42206775500000004,
+          "min": 0.405281543,
+          "max": 0.422353455
+        },
+        "solve_seconds": {
+          "median": 2.044021962,
+          "min": 1.971195267,
+          "max": 2.066147526
+        },
+        "linear_seconds": {
+          "median": 1.429389603,
+          "min": 1.3830409799999999,
+          "max": 1.4554009940000001
+        }
+      },
+      "ratios": {
+        "ghost_over_assembly_pct": {
+          "median": 0.07743896212226115,
+          "min": 0.04866059029147417,
+          "max": 0.09815805463248652
+        },
+        "ghost_over_solve_pct": {
+          "median": 0.022585687346823362,
+          "min": 0.014258212750064374,
+          "max": 0.028352186503065806
+        },
+        "finalize_over_assembly_pct": {
+          "median": 10.421735634685513,
+          "min": 9.773213151105033,
+          "max": 10.591803500322147
+        },
+        "ghost_plus_finalize_over_assembly_pct": {
+          "median": 10.470396224976987,
+          "min": 9.850652113227294,
+          "max": 10.689961554954632
+        },
+        "ghost_plus_finalize_over_solve_pct": {
+          "median": 3.067968063251172,
+          "min": 2.873020798502151,
+          "max": 3.087711801659607
+        },
+        "linear_over_solve_pct": {
+          "median": 70.16255584383968,
+          "min": 69.93024681600754,
+          "max": 70.44032314660575
+        },
+        "failure_sync_over_assembly_pct": {
+          "median": 70.49420059214694,
+          "min": 70.47075085968447,
+          "max": 70.7708007028181
+        }
+      },
+      "source_logs": [
+        "n8-r2-sample0-candidate.log",
+        "n8-r2-sample1-candidate.log",
+        "n8-r2-sample2-candidate.log"
+      ]
+    },
+    {
+      "campaign": "perf-coo-final",
+      "results_sha256": "c268d3218ac04bfce30cc43ea03982910d4ad82d8a7752a54eb4be92ad761e2c",
+      "subdivisions": 4,
+      "ranks": 1,
+      "runs": 3,
+      "timers_seconds": {
+        "assembly_seconds": {
+          "median": 0.061026897999999996,
+          "min": 0.051173507,
+          "max": 0.065803372
+        },
+        "ghost_seconds": {
+          "median": 0.00038067699999999995,
+          "min": 0.00014127,
+          "max": 0.000477272
+        },
+        "assembly_finalize_seconds": {
+          "median": 0.00336216,
+          "min": 0.00248058,
+          "max": 0.004605212
+        },
+        "callback_seconds": {
+          "median": 0.054143322,
+          "min": 0.047954761,
+          "max": 0.060643363000000006
+        },
+        "failure_sync_seconds": {
+          "median": 4.5146e-05,
+          "min": 2.8079e-05,
+          "max": 0.00013684300000000002
+        },
+        "solve_seconds": {
+          "median": 0.154861998,
+          "min": 0.14550849300000002,
+          "max": 0.17445106
+        },
+        "linear_seconds": {
+          "median": 0.091504296,
+          "min": 0.090574567,
+          "max": 0.10515430799999999
+        }
+      },
+      "ratios": {
+        "ghost_over_assembly_pct": {
+          "median": 0.5785068278871788,
+          "min": 0.2760608140458304,
+          "max": 0.7820682611133208
+        },
+        "ghost_over_solve_pct": {
+          "median": 0.21821420861529875,
+          "min": 0.0970871164200704,
+          "max": 0.30819181346220265
+        },
+        "finalize_over_assembly_pct": {
+          "median": 5.1094038159625015,
+          "min": 4.847391053343285,
+          "max": 7.546200365615832
+        },
+        "ghost_plus_finalize_over_assembly_pct": {
+          "median": 5.68791064384968,
+          "min": 5.123451867389116,
+          "max": 8.328268626729153
+        },
+        "ghost_plus_finalize_over_solve_pct": {
+          "median": 2.1454939855338226,
+          "min": 1.8018535866494059,
+          "max": 3.281943966653459
+        },
+        "linear_over_solve_pct": {
+          "median": 60.27725368937282,
+          "min": 58.48727781492267,
+          "max": 62.885879795346376
+        },
+        "failure_sync_over_assembly_pct": {
+          "median": 0.07397721575165102,
+          "min": 0.05487018898274843,
+          "max": 0.2079574280783058
+        }
+      },
+      "source_logs": [
+        "n4-r1-sample0-candidate.log",
+        "n4-r1-sample1-candidate.log",
+        "n4-r1-sample2-candidate.log"
+      ]
+    },
+    {
+      "campaign": "perf-coo-final",
+      "results_sha256": "c268d3218ac04bfce30cc43ea03982910d4ad82d8a7752a54eb4be92ad761e2c",
+      "subdivisions": 4,
+      "ranks": 2,
+      "runs": 3,
+      "timers_seconds": {
+        "assembly_seconds": {
+          "median": 0.059497973,
+          "min": 0.048488354,
+          "max": 0.061977555999999996
+        },
+        "ghost_seconds": {
+          "median": 0.000615584,
+          "min": 0.000113151,
+          "max": 0.0008311179999999999
+        },
+        "assembly_finalize_seconds": {
+          "median": 0.004166735,
+          "min": 0.003728689,
+          "max": 0.007885083999999999
+        },
+        "callback_seconds": {
+          "median": 0.05088152,
+          "min": 0.042740771000000004,
+          "max": 0.053169606
+        },
+        "failure_sync_seconds": {
+          "median": 0.045740202,
+          "min": 0.037480703,
+          "max": 0.047029211
+        },
+        "solve_seconds": {
+          "median": 0.152194188,
+          "min": 0.13361641400000002,
+          "max": 0.154212581
+        },
+        "linear_seconds": {
+          "median": 0.086852688,
+          "min": 0.082782043,
+          "max": 0.09222355
+        }
+      },
+      "ratios": {
+        "ghost_over_assembly_pct": {
+          "median": 1.2695502099328841,
+          "min": 0.19017622667582304,
+          "max": 1.3409983446265614
+        },
+        "ghost_over_solve_pct": {
+          "median": 0.46070986458295454,
+          "min": 0.07337339098163463,
+          "max": 0.5460904985412451
+        },
+        "finalize_over_assembly_pct": {
+          "median": 7.6898650756427,
+          "min": 7.003154544441371,
+          "max": 12.7224829581857
+        },
+        "ghost_plus_finalize_over_assembly_pct": {
+          "median": 8.959415285575584,
+          "min": 7.193330771117194,
+          "max": 14.063481302812264
+        },
+        "ghost_plus_finalize_over_solve_pct": {
+          "median": 3.251301894690872,
+          "min": 2.77531571824221,
+          "max": 5.727026842838439
+        },
+        "linear_over_solve_pct": {
+          "median": 59.80287042858067,
+          "min": 57.0670201939643,
+          "max": 61.9549952897254
+        },
+        "failure_sync_over_assembly_pct": {
+          "median": 77.2983611693645,
+          "min": 73.80123540205425,
+          "max": 79.04338354518397
+        }
+      },
+      "source_logs": [
+        "n4-r2-sample0-candidate.log",
+        "n4-r2-sample1-candidate.log",
+        "n4-r2-sample2-candidate.log"
+      ]
+    },
+    {
+      "campaign": "perf-coo-final",
+      "results_sha256": "c268d3218ac04bfce30cc43ea03982910d4ad82d8a7752a54eb4be92ad761e2c",
+      "subdivisions": 8,
+      "ranks": 1,
+      "runs": 3,
+      "timers_seconds": {
+        "assembly_seconds": {
+          "median": 0.42995422,
+          "min": 0.426818827,
+          "max": 0.453852709
+        },
+        "ghost_seconds": {
+          "median": 0.000290192,
+          "min": 0.000289622,
+          "max": 0.000408857
+        },
+        "assembly_finalize_seconds": {
+          "median": 0.030324465000000002,
+          "min": 0.027975388,
+          "max": 0.031386875
+        },
+        "callback_seconds": {
+          "median": 0.386017688,
+          "min": 0.38304799700000003,
+          "max": 0.407364133
+        },
+        "failure_sync_seconds": {
+          "median": 6.8933e-05,
+          "min": 6.7514e-05,
+          "max": 6.9597e-05
+        },
+        "solve_seconds": {
+          "median": 2.379579201,
+          "min": 2.378655104,
+          "max": 2.465652043
+        },
+        "linear_seconds": {
+          "median": 1.93617387,
+          "min": 1.907723843,
+          "max": 2.026357709
+        }
+      },
+      "ratios": {
+        "ghost_over_assembly_pct": {
+          "median": 0.06785595706629877,
+          "min": 0.06749369735224368,
+          "max": 0.09008583443312662
+        },
+        "ghost_over_solve_pct": {
+          "median": 0.012199835087987602,
+          "min": 0.0117462640692647,
+          "max": 0.017181903415031573
+        },
+        "finalize_over_assembly_pct": {
+          "median": 6.915652232010804,
+          "min": 6.506596911643291,
+          "max": 7.10476274281125
+        },
+        "ghost_plus_finalize_over_assembly_pct": {
+          "median": 7.00573806644393,
+          "min": 6.574090608995535,
+          "max": 7.172618699877549
+        },
+        "ghost_plus_finalize_over_solve_pct": {
+          "median": 1.241622356524862,
+          "min": 1.1883008996330728,
+          "max": 1.3361913731065598
+        },
+        "linear_over_solve_pct": {
+          "median": 81.39783976012691,
+          "min": 80.1706386657899,
+          "max": 82.18344168849133
+        },
+        "failure_sync_over_assembly_pct": {
+          "median": 0.015817952660274755,
+          "min": 0.015334710715585924,
+          "max": 0.016032637149136483
+        }
+      },
+      "source_logs": [
+        "n8-r1-sample0-candidate.log",
+        "n8-r1-sample1-candidate.log",
+        "n8-r1-sample2-candidate.log"
+      ]
+    },
+    {
+      "campaign": "perf-coo-final",
+      "results_sha256": "c268d3218ac04bfce30cc43ea03982910d4ad82d8a7752a54eb4be92ad761e2c",
+      "subdivisions": 8,
+      "ranks": 2,
+      "runs": 3,
+      "timers_seconds": {
+        "assembly_seconds": {
+          "median": 0.369839659,
+          "min": 0.352395373,
+          "max": 0.436691483
+        },
+        "ghost_seconds": {
+          "median": 0.000279408,
+          "min": 0.000276975,
+          "max": 0.0005675599999999999
+        },
+        "assembly_finalize_seconds": {
+          "median": 0.032224145999999995,
+          "min": 0.029610762000000002,
+          "max": 0.039460325
+        },
+        "callback_seconds": {
+          "median": 0.328887092,
+          "min": 0.308366965,
+          "max": 0.382924008
+        },
+        "failure_sync_seconds": {
+          "median": 0.281306041,
+          "min": 0.258031576,
+          "max": 0.323805652
+        },
+        "solve_seconds": {
+          "median": 2.010796074,
+          "min": 1.885525716,
+          "max": 2.609714741
+        },
+        "linear_seconds": {
+          "median": 1.6478361480000001,
+          "min": 1.505916813,
+          "max": 2.158961031
+        }
+      },
+      "ratios": {
+        "ghost_over_assembly_pct": {
+          "median": 0.07489056223686384,
+          "min": 0.06398292865262957,
+          "max": 0.1610577332977638
+        },
+        "ghost_over_solve_pct": {
+          "median": 0.014689537122176273,
+          "min": 0.010706457514698921,
+          "max": 0.028225636967301935
+        },
+        "finalize_over_assembly_pct": {
+          "median": 9.036202109762694,
+          "min": 8.006378245119462,
+          "max": 9.144315864782934
+        },
+        "ghost_plus_finalize_over_assembly_pct": {
+          "median": 9.100185038415324,
+          "min": 8.081268807356325,
+          "max": 9.305373598080697
+        },
+        "ghost_plus_finalize_over_solve_pct": {
+          "median": 1.5851142599849857,
+          "min": 1.5227615637704672,
+          "max": 1.6307822769301865
+        },
+        "linear_over_solve_pct": {
+          "median": 81.94944128382062,
+          "min": 79.86721158036966,
+          "max": 82.7278551590938
+        },
+        "failure_sync_over_assembly_pct": {
+          "median": 74.14975208023463,
+          "min": 73.22218047397574,
+          "max": 76.06162134169608
+        }
+      },
+      "source_logs": [
+        "n8-r2-sample0-candidate.log",
+        "n8-r2-sample1-candidate.log",
+        "n8-r2-sample2-candidate.log"
+      ]
+    }
+  ]
+}
