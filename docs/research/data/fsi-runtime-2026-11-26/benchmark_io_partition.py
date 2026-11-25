@@ -46,6 +46,8 @@ def main():
     parser.add_argument('--subdivisions', type=int, default=24)
     parser.add_argument('--parts', type=int, nargs='+', default=[2, 8, 32])
     parser.add_argument('--repeats', type=int, default=3)
+    parser.add_argument('--stage', choices=('all', 'partition', 'output'), default='all',
+                        help='Select an independent stage; preserve earlier evidence when fixing an output-only validator')
     args = parser.parse_args()
     require(args.repeats >= 3 and args.subdivisions >= 4, 'Need three pairs and a nontrivial grid')
     require(args.parts == sorted(set(args.parts)) and 2 in args.parts and
@@ -61,7 +63,7 @@ def main():
         driver_status=subprocess.check_output(['git', 'status', '--short'], cwd=ROOT, text=True),
         binaries={m: dict(path=str(p), source=getattr(args, m+'_commit'), sha256=sha(p))
                   for m, p in binaries.items()}, subdivisions=args.subdivisions,
-        nodes=(args.subdivisions+1)**3, cells=6*args.subdivisions**3, repeats=args.repeats,
+        nodes=(args.subdivisions+1)**3, cells=6*args.subdivisions**3, repeats=args.repeats, stage=args.stage,
         commands=[], partition_runs=[], output_runs=[], partition_pairs=[], output_pairs=[],
         method='One warmup, alternating measured pairs; blocking wait with independent watchdog. '
                'Output timer is maximum-rank application write time; wall includes solve/startup/shutdown. '
@@ -123,7 +125,7 @@ def main():
         case.write_text((ROOT/'cases/poisson/case.yaml').read_text().replace('mesh: cube.msh', 'mesh: '+str(mesh)))
         result['inputs'] = {p.name: sha(p) for p in (case, mesh)}
         shared_partition = None
-        for parts in args.parts:
+        for parts in (args.parts if args.stage != 'output' else []):
             for repeat in range(-1, args.repeats):
                 pair = {}
                 for mode in (('baseline', 'candidate') if repeat % 2 else ('candidate', 'baseline')):
@@ -158,7 +160,13 @@ def main():
             'binary_compact': ['-vtu_format', 'binary'],
             'binary_volume': ['-vtu_format', 'binary', '-vtu_boundary', 'false'],
         }
-        for ranks in (1, 2):
+        if args.stage == 'output':
+            # One setup-only shared prepare supplies the two-rank output comparison;
+            # do not repeat the already completed partition timing campaign.
+            shared_partition = work/'output-partition'
+            run([binaries['baseline'], '-case', case, '-prepare', shared_partition, '-parts', 2],
+                'output-prepare')
+        for ranks in ((1, 2) if args.stage != 'partition' else []):
             reference = None
             boundary_reference = None
             for repeat in range(-1, args.repeats):
@@ -177,7 +185,10 @@ def main():
                     require(all(math.isfinite(v) for v in values.values()), 'Nonfinite output metric')
                     require(values['true_residual'] <= max(values['atol'], values['rtol']*values['rhs_norm']),
                             'Output mode changed numerical acceptance')
-                    require(values['reason'] > 0 and values['nodes'] == result['nodes'] and
+                    reasons = re.findall(r'\bksp=\S+ pc=\S+ reason=(\S+) iterations=\d+', text)
+                    require(len(reasons) == 1 and reasons[0].startswith('CONVERGED_'),
+                            'Missing or nonconverged Poisson KSP reason')
+                    require(values['nodes'] == result['nodes'] and
                             values['cells'] == result['cells'], 'Invalid solved size/convergence')
                     pieces, boundaries = [], []
                     for rank in range(ranks):
@@ -209,6 +220,7 @@ def main():
                     files = sorted(p for p in work.glob(label+'*') if p.suffix in ('.vtu', '.pvtu'))
                     row = dict(ranks=ranks, repeat=repeat, mode=mode, wall_seconds=wall,
                         output_seconds=values['output'], iterations=values['iterations'],
+                        convergence_reason=reasons[0],
                         true_residual=values['true_residual'], bytes=sum(p.stat().st_size for p in files),
                         files=[dict(path=p.name, bytes=p.stat().st_size, sha256=sha(p)) for p in files])
                     pair[mode] = row
@@ -226,13 +238,13 @@ def main():
             modes={m: stats([r['wall_seconds'] for r in result['partition_runs']
                             if r['parts'] == p and r['mode'] == m and r['repeat'] >= 0]) for m in binaries},
             relative_wall_change=stats([r['relative_wall_change'] for r in result['partition_pairs'] if r['parts'] == p]))
-            for p in args.parts]
+            for p in sorted({r['parts'] for r in result['partition_runs']})]
         result['output_summary'] = [dict(ranks=r, mode=m,
             absolute={k: stats([x[k] for x in result['output_runs'] if x['ranks'] == r and
                                 x['mode'] == m and x['repeat'] >= 0]) for k in ('wall_seconds', 'output_seconds', 'bytes')},
             relative_change={k: stats([x['relative_change'][k] for x in result['output_pairs'] if
                                       x['ranks'] == r and x['mode'] == m]) for k in ('wall_seconds', 'output_seconds', 'bytes')})
-            for r in (1, 2) for m in formats if m != 'ascii_full']
+            for r in sorted({x['ranks'] for x in result['output_runs']}) for m in formats if m != 'ascii_full']
         require(all(sha(p) == result['binaries'][m]['sha256'] for m,p in binaries.items()), 'Binary changed during campaign')
         result['status'] = 'passed'
         print(json.dumps({k: result[k] for k in ('status', 'partition_summary', 'output_summary')}, indent=2))
