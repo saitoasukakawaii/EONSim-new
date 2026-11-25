@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cstring>
 #include <stdexcept>
+#include <sstream>
 namespace eonsim {
 namespace {
 void option_default(const std::string& name,const char* value) {
@@ -30,6 +31,9 @@ void schur(MPI_Comm comm,KSP solver,const std::vector<PetscInt>& velocity,const 
     EONSIM_PETSC(PCFieldSplitSetSchurFactType(pc,PC_FIELDSPLIT_SCHUR_FACT_FULL));
     EONSIM_PETSC(PCFieldSplitSetSchurPre(pc,PC_FIELDSPLIT_SCHUR_PRE_SELFP,nullptr));
     split_is(comm,pc,"velocity",velocity); split_is(comm,pc,"pressure",pressure);
+    // Apply options after defaults and IS registration, otherwise the default
+    // FULL/SELFP above overwrites user choices made by SNESSetFromOptions.
+    EONSIM_PETSC(KSPSetFromOptions(solver));
     EONSIM_PETSC(PCSetUp(pc));
     PetscInt n=0; KSP* sub=nullptr; EONSIM_PETSC(PCFieldSplitGetSubKSP(pc,&n,&sub));
     if(n!=2) { PetscFree(sub); throw std::runtime_error("Schur requires two fields"); }
@@ -37,9 +41,42 @@ void schur(MPI_Comm comm,KSP solver,const std::vector<PetscInt>& velocity,const 
     EONSIM_PETSC(PetscFree(sub));
 }
 }
+// Old entry point keeps its flow/structure/rigid prefixes. Its topology is fixed.
+void validate_schur_solver_options(MPI_Comm comm,KSP solver,const AlgebraLayout& layout) {
+    int valid=layout.fields.count("velocity")&&layout.fields.count("pressure"),all=0;
+    MPI_Allreduce(&valid,&all,1,MPI_INT,MPI_MIN,comm);
+    if(!all) throw std::runtime_error("Schur solver requires velocity and pressure fields");
+    const char* prefix=nullptr;
+    EONSIM_PETSC(KSPGetOptionsPrefix(solver,&prefix));
+    const std::string root=prefix?prefix:"";
+    const bool independent=layout.fields.size()==2;
+    const auto check_node=[&](const std::string& node,bool schur_node) {
+        const std::string base="-"+node;
+        for(const auto& option:std::vector<std::pair<std::string,std::string>>{
+            {"pc_type","fieldsplit"},{"pc_fieldsplit_type",schur_node?"schur":"multiplicative"}}) {
+            char value[128]{}; PetscBool set=PETSC_FALSE;
+            EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+option.first).c_str(),value,sizeof(value),&set));
+            if(set&&std::string(value)!=option.second) valid=0;
+        }
+        if(schur_node) {
+            char* options=nullptr;
+            EONSIM_PETSC(PetscOptionsGetAll(nullptr,&options));
+            std::istringstream stream(options?options:"");
+            EONSIM_PETSC(PetscFree(options));
+            std::string token;
+            const auto pressure=base+"fieldsplit_pressure";
+            while(stream>>token)
+                if(token.rfind(pressure+"_inner_",0)==0||token.rfind(pressure+"_upper_",0)==0) valid=0;
+        }
+    };
+    check_node(root,independent);
+    if(!independent) check_node(root+"fieldsplit_flow_",true);
+    MPI_Allreduce(&valid,&all,1,MPI_INT,MPI_MIN,comm);
+    if(!all) throw std::runtime_error("Legacy Schur options changed fixed topology or requested unsupported inner/upper solvers");
+}
 void configure_schur_solver(MPI_Comm comm,KSP solver,const AlgebraLayout& layout,Mat matrix)
 {
-    if(!layout.fields.count("velocity")||!layout.fields.count("pressure")) throw std::runtime_error("Schur solver requires velocity and pressure fields");
+    validate_schur_solver_options(comm,solver,layout);
     EONSIM_PETSC(KSPSetOperators(solver,matrix,matrix));
     if(layout.fields.size()==2) { schur(comm,solver,layout.fields.at("velocity"),layout.fields.at("pressure")); return; }
     auto fields=layout.fields;
@@ -48,6 +85,7 @@ void configure_schur_solver(MPI_Comm comm,KSP solver,const AlgebraLayout& layout
     PC pc; EONSIM_PETSC(KSPGetPC(solver,&pc)); EONSIM_PETSC(PCSetType(pc,PCFIELDSPLIT));
     EONSIM_PETSC(PCFieldSplitSetType(pc,PC_COMPOSITE_MULTIPLICATIVE));
     for(const auto& field:fields) split_is(comm,pc,field.first.c_str(),field.second);
+    EONSIM_PETSC(KSPSetFromOptions(solver));
     EONSIM_PETSC(PCSetUp(pc));
     PetscInt count=0; KSP* sub=nullptr; EONSIM_PETSC(PCFieldSplitGetSubKSP(pc,&count,&sub));
     PetscInt offset=0,owned=flow.size();
@@ -64,6 +102,7 @@ void configure_schur_solver(MPI_Comm comm,KSP solver,const AlgebraLayout& layout
             EONSIM_PETSC(KSPSetType(sub[i],KSPPREONLY)); schur(comm,sub[i],velocity,pressure);
         } else if(field.first=="rigid") {
             PC scalar; EONSIM_PETSC(KSPSetType(sub[i],KSPPREONLY)); EONSIM_PETSC(KSPGetPC(sub[i],&scalar)); EONSIM_PETSC(PCSetType(scalar,PCJACOBI));
+            EONSIM_PETSC(KSPSetFromOptions(sub[i]));
         } else multigrid(sub[i]);
         ++i;
     }
