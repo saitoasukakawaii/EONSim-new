@@ -31,6 +31,8 @@ after each accepted step, including on restart. Rows contain area, outward
 volume flow and area-averaged computed pressure. The final tag summary is
 also available without the per-step option.
 
+A tagged unsteady fluid pressure also accepts `pressure_time.offset_samples`. Each pair specifies phase time in seconds and an additive offset in Pa relative to the boundary's scalar `value`. The table starts at zero and closes periodically with linear interpolation. The fixed-fluid regression applies the same sampled pressure to both ends of a rigid tube, checks the spatially uniform stage response through a wrap, and restarts from inside the cycle. [Pressure profile and validation](../research/data/fsi-rcr-2026-11-24/reservoir-pressure.md#sampled-distal-pressure-and-sampled-inflow)
+
 ## Reproduce the circular comparison
 
 The synthetic reference uses R=1 m, L=2 m, ρ=1 kg/m³, μ=1 Pa s and a

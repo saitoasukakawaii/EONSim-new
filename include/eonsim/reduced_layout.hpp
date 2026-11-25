@@ -4,6 +4,20 @@
 #include "eonsim/mesh.hpp"
 #include "eonsim/linear_system.hpp"
 namespace eonsim {
+/** Contiguous physical components of one node that a cell equation can read or test.
+ * A solid-side interface velocity still maps to the same reduced column as the
+ * fluid trace. The single-mesh elastic benchmark evaluates both kernels on a cell.
+ */
+struct FsiCellComponents {
+    int first, count;
+    int index(int node,int component) const { return node*count+component-first; }
+    int dofs() const { return Tet4Topology::nodes*count; }
+};
+inline FsiCellComponents fsi_cell_components(int components,const FsiDomains* domains,int tag) {
+    if(!domains) return {0,components};
+    if(tag==domains->solid_region) return {Tet4Ale::components,Tet4Vector::components};
+    return {0,Tet4Ale::components};
+}
 /** One physical slot's affine trial map and independent test-row projection.
  * x_slot = trial_weight*q[local] + lifting; test_row=-1 discards its equation.
  * The mapping is fixed during one Newton solve. Kernel-internal time derivatives
@@ -13,6 +27,26 @@ struct ReducedSlot {
     PetscInt column=-1,local=-1,test_row=-1;
     double trial_weight=0,lifting=0;
     double expand(const std::vector<double>& q) const { return lifting+(local<0?0:trial_weight*q.at(local)); }
+};
+/** Oriented Tri3 on a coordinate plane. Existing cell validity checks protect face orientation.
+ * The two edges are stored in cyclic tangential coordinates so their signed determinant
+ * gives the normal component of the outward area vector, positive or negative.
+ */
+struct PlanarOutletFace {
+    Tri3Topology::Nodal<LocalId> nodes;
+    std::array<double,2> edge1,edge2;
+    struct Geometry {
+        double weight; ///< Integral of one linear trace basis times the signed unit normal component.
+        Tri3Topology::Nodal<std::array<double,2>> gradient; ///< d weight / d node tangential displacement.
+    };
+    Geometry geometry(const std::vector<double>& state,int components,int normal_axis) const;
+};
+/** Global port pressure and distributed outward-velocity surface integral. */
+struct OutletTrace {
+    PetscInt pressure=-1,local=-1;
+    std::vector<std::pair<std::size_t,double>> flux_weights; ///< Stationary trace weights by physical velocity slot.
+    int normal_axis=-1;
+    std::vector<PlanarOutletFace> moving_faces; ///< Owned in-plane triangles with current area and consistent tangent.
 };
 struct ReducedLayout {
     AlgebraLayout algebra;
@@ -29,6 +63,7 @@ struct ReducedLayout {
                 local.at(i)<0?0:(mesh_trace?displacement_from_velocity:1),mesh_trace?interface_lifting:0};
     }
     PetscInt body=-1,body_local=-1;
+    std::vector<OutletTrace> outlets; ///< Same sorted tag order as FsiDomains::rcr_outlets.
 };
 /// collective；只交换 ghost 编号和 rank 计数，稀疏图通过 PETSc 分布式预分配器装配。
 ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh);

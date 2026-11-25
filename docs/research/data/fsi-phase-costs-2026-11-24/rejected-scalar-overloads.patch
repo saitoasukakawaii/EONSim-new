@@ -1,0 +1,24 @@
+--- a/include/eonsim/dual.hpp
++++ b/include/eonsim/dual.hpp
+@@ -12,6 +12,21 @@
+     friend Dual operator-(const Dual& a) { return Dual{}-a; }
+     friend Dual operator*(const Dual& a,const Dual& b) { Dual r(a.value*b.value); for(int i=0;i<Width;++i) r.derivative[i]=a.derivative[i]*b.value+a.value*b.derivative[i]; return r; }
+     friend Dual operator/(const Dual& a,const Dual& b) { Dual r(a.value/b.value); for(int i=0;i<Width;++i) r.derivative[i]=(a.derivative[i]-r.value*b.derivative[i])/b.value; return r; }
++    // Scalar coefficients are independent of every local trial direction.
++    friend Dual operator+(Dual x,double constant) { x.value+=constant; return x; }
++    friend Dual operator+(double constant,Dual x) { return x+constant; }
++    friend Dual operator-(Dual x,double constant) { x.value-=constant; return x; }
++    friend Dual operator*(Dual x,double factor) {
++        x.value*=factor;
++        for(double& entry:x.derivative) entry*=factor;
++        return x;
++    }
++    friend Dual operator*(double factor,Dual x) { return x*factor; }
++    friend Dual operator/(Dual x,double divisor) {
++        x.value/=divisor;
++        for(double& entry:x.derivative) entry/=divisor;
++        return x;
++    }
+     Dual& operator+=(const Dual& b) { *this=*this+b; return *this; }
+     Dual& operator-=(const Dual& b) { *this=*this-b; return *this; }
+ };

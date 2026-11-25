@@ -1,0 +1,132 @@
+{
+  "rcr": {
+    "be": {
+      "mpi": 1.3877787807814457e-17,
+      "restart": 0.0,
+      "circuit_residual": 6.071532165918825e-18
+    },
+    "bdf2": {
+      "mpi": 1.6341095143701523e-15,
+      "restart": 0.0,
+      "circuit_residual": 3.0357660829594124e-18
+    },
+    "generalized_alpha": {
+      "mpi": 1.0977330155981235e-14,
+      "restart": 0.0,
+      "circuit_residual": 6.938893903907228e-18
+    },
+    "jacobian_relative_error": 8.77628e-09,
+    "hybrid_field_error": 4.154565580449798e-12
+  },
+  "rcr_retry": {
+    "bdf2": {
+      "retries": 13,
+      "accepted_dt": 4.8828125e-07,
+      "replay_field_error": 0.0
+    },
+    "generalized_alpha": {
+      "retries": 14,
+      "accepted_dt": 2.44140625e-07,
+      "replay_field_error": 0.0
+    }
+  },
+  "rcr_harmonic": {
+    "be": {
+      "max_pressure_errors": [
+        0.003954973749030685,
+        0.0020091997165730333,
+        0.0010130453206664072
+      ],
+      "observed_orders": [
+        0.9770471422939535,
+        0.9879222590958886
+      ],
+      "impedance": [
+        {
+          "real": 6.113560487966516,
+          "imag": -3.584919940928706,
+          "amplitude_error_fraction": -0.021188661082475968,
+          "phase_error_degrees": 2.1836828434913573
+        },
+        {
+          "real": 6.108093255009593,
+          "imag": -3.740782995029531,
+          "amplitude_error_fraction": -0.010769623054520339,
+          "phase_error_degrees": 1.0859646868797235
+        },
+        {
+          "real": 6.105088732859634,
+          "imag": -3.8191573106523546,
+          "amplitude_error_fraction": -0.005425381830456266,
+          "phase_error_degrees": 0.5416994371162266
+        }
+      ]
+    },
+    "bdf2": {
+      "max_pressure_errors": [
+        0.0006356239736436675,
+        0.00020168510828202793,
+        5.798616037521197e-05
+      ],
+      "observed_orders": [
+        1.6560689750565463,
+        1.7983240476407722
+      ],
+      "impedance": [
+        {
+          "real": 6.07555957314288,
+          "imag": -3.8699952254371555,
+          "amplitude_error_fraction": -0.0051260827909648254,
+          "phase_error_degrees": 0.07431832542005867
+        },
+        {
+          "real": 6.09486402360406,
+          "imag": -3.8909931528892825,
+          "amplitude_error_fraction": -0.0013188202619507372,
+          "phase_error_degrees": 0.016166565390495755
+        },
+        {
+          "real": 6.100031238883081,
+          "imag": -3.896155028502788,
+          "amplitude_error_fraction": -0.00033365544896379884,
+          "phase_error_degrees": 0.003735771340902219
+        }
+      ]
+    },
+    "generalized_alpha": {
+      "max_pressure_errors": [
+        0.0005761551416174262,
+        0.0001647458939583583,
+        4.4860433241866726e-05
+      ],
+      "observed_orders": [
+        1.8062148305857888,
+        1.876727050191467
+      ],
+      "impedance": [
+        {
+          "real": 6.099209264421121,
+          "imag": -3.885191842537479,
+          "amplitude_error_fraction": -0.0012436255431371723,
+          "phase_error_degrees": 0.07343426918472498
+        },
+        {
+          "real": 6.101285191438672,
+          "imag": -3.894367654791982,
+          "amplitude_error_fraction": -0.00032053445304003336,
+          "phase_error_degrees": 0.021002481643358314
+        },
+        {
+          "real": 6.101695914246622,
+          "imag": -3.8969380493826487,
+          "amplitude_error_fraction": -8.168251109630376e-05,
+          "phase_error_degrees": 0.005604733085535145
+        }
+      ]
+    },
+    "constant_flow_be": {
+      "steps": 32,
+      "endpoint_pressure": 0.13923187106848672
+    }
+  }
+}

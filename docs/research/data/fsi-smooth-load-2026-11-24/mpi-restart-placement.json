@@ -1,0 +1,164 @@
+{
+  "case": "fluid/transient.yaml",
+  "mpi_ranks": 4,
+  "iterations_expected": 10,
+  "caller_timeout_seconds": 100,
+  "pc_recipe": "physics",
+  "fluid_coo": true,
+  "case_sha256": "6892a50a079c7ce48d4265775f82354d50973d5222a5f9f27bec5703afdf2841",
+  "executable_sha256": "97fd2f73afaa32dfc6f6b6f0fa14bd54276813fcee09b143b321d0d2840d37b9",
+  "launcher_sha256": "073079d0a86571396dfc26fc347b4c3fdec25b657dba94a9d6d2654670586574",
+  "partition_sha256": {
+    "manifest.yaml": "976fb5ec00995e95de016fd77f36ad4a4ef473c0522249642d31a1a4641ce445",
+    "rank_0.h5": "8840d99771f80f68ce84c80ff1de663cd0600a0f5ab6ee7ddfbe30efc25027a0",
+    "rank_1.h5": "6b26845019803ff09abb3c6ea45d87069e15661b4704726ce1c84f18fba674a2",
+    "rank_2.h5": "87ceeac5bbb97999b92155c282330c6af6d9baa466678331ef77b70c1728d15e",
+    "rank_3.h5": "9ec34d0e0080689386386610297938501937a910a622f9a183535034d5d3f515"
+  },
+  "direct_fields_sha256": [
+    "1315103eac573512a881c765316c323d50ccd7c35c9dbec07c89e2fdb85cd195",
+    "0a4ee166004cac8ecca9854a82ceef5fcf07a62a3356bfc79edf4944cc5b7888",
+    "b740ff4c4aa7da91a002ac5a6f1008dcc5fb883dc22c872f880f844ba3e747c9",
+    "5c5e92e6cb0edb4bee50094ac9cdf682c8def5ad8bc16c349f336f99ded2b8ac"
+  ],
+  "trials": [
+    {
+      "cores": "4-7",
+      "shared_memory_component": "^cma",
+      "seconds": 100.40392931400129,
+      "process_exit": 1,
+      "timeout": true,
+      "steps": 3,
+      "log_sha256": "45c74be6850bd76981bdef23df1ce03cbd1cedde190caffe32caa2fa28811584",
+      "placement": [
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ]
+      ],
+      "solver_reported_success": false
+    },
+    {
+      "cores": "4-7",
+      "shared_memory_component": "default",
+      "seconds": 100.32047265900474,
+      "process_exit": 1,
+      "timeout": true,
+      "steps": 5,
+      "log_sha256": "c16dbfc8587661403ff6c542f8961efc63d0769be67356955f5bd6a1042dd628",
+      "placement": [
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ]
+      ],
+      "solver_reported_success": false
+    },
+    {
+      "cores": "0-3",
+      "shared_memory_component": "default",
+      "seconds": 17.106952472997364,
+      "process_exit": 0,
+      "timeout": false,
+      "steps": 10,
+      "log_sha256": "557c520de140d38b48a015d8567aa31258014fe06f8aa28c6d8fc8056003121e",
+      "placement": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ]
+      ],
+      "max_direct_field_difference": 8.655853811490033e-13,
+      "per_rank_vtu_sha256": [
+        "ad072cbfb182f8d3fc4cd52dbd17d5c611d39549d8e6b39c080663ac9fc5f8dd",
+        "3aba48e0cca09a22be81bca055173ecfcff7b6276969a4313c9c1fac1afded09",
+        "cfc2d761f323927eff68b2bf3be7c22552be49def3cefc8de97fce4c861706bf",
+        "9b7d37c723a03c1aff8f20aced398060c567b800ad786edf138510f1abb08d15"
+      ],
+      "solver_reported_success": true
+    },
+    {
+      "cores": "0-3",
+      "shared_memory_component": "^cma",
+      "seconds": 12.874775322998175,
+      "process_exit": 0,
+      "timeout": false,
+      "steps": 10,
+      "log_sha256": "d76e30d41343de20962e7a79b69370a65b671d283fa0fddbf56c6772a04d0bae",
+      "placement": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ]
+      ],
+      "max_direct_field_difference": 8.655853811490033e-13,
+      "per_rank_vtu_sha256": [
+        "819e739b9d8d88b047e769f0db083782232f22a1800ecbe44f258761c7028023",
+        "4eee63f73fe2022d73788e91ff9a8fbf5faddf9488bba0f63004c2d48115071b",
+        "8bea112f9257181c3a2fac3fca7a169db58cb0c431f7813270cafc4cd6624151",
+        "8113d4a05381328b752d242bdd2211d59954128d68c8d2229681326d30aebf71"
+      ],
+      "solver_reported_success": true
+    }
+  ],
+  "completed_fields_byte_identical": false,
+  "source_commit": "a5da11da4e888167cd1c516f05d5eb6c20043e50",
+  "controls": {
+    "blas_threads": 1,
+    "openmp_threads": 1,
+    "mpi_yield_when_idle": 0,
+    "pml": "ob1",
+    "btl": "self,sm,tcp",
+    "separate_job_and_shared_memory_directories": true
+  },
+  "completed_pair_owned_nodes": 125,
+  "completed_pair_maximum_absolute_difference": 2.220446049250313e-16
+}

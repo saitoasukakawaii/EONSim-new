@@ -75,6 +75,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     if(bdf2) signature_parameters.insert(signature_parameters.end(),{20501.,2.});
     if(alpha) signature_parameters.insert(signature_parameters.end(),{20501.,3.,config.time_integration.rho_infinity});
     if(f.stabilization_tau) signature_parameters.insert(signature_parameters.end(),{20503.,*f.stabilization_tau});
+    if(f.grad_div_viscosity>0) signature_parameters.insert(signature_parameters.end(),{20509.,f.grad_div_viscosity});
     if(!config.time_control.events.empty()) {
         signature_parameters.push_back(20502.);
         signature_parameters.insert(signature_parameters.end(),config.time_control.events.begin(),config.time_control.events.end());
@@ -179,7 +180,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
             const double adv=f.mode==FluidConfig::Mode::stokes ? 0 : 2*material.density*std::sqrt(speed2)/h;
             const double visc=4*material.viscosity/(h*h);
             parameters.push_back({material.density,material.viscosity,transient?integration_dt:0,
-                f.stabilization_tau.value_or(1/std::sqrt(time*time+adv*adv+visc*visc)),f.mode!=FluidConfig::Mode::stokes});
+                f.stabilization_tau.value_or(1/std::sqrt(time*time+adv*adv+visc*visc)),f.mode!=FluidConfig::Mode::stokes,f.grad_div_viscosity});
         }
         using Timer=std::chrono::steady_clock;
         double kernel_seconds=0,insert_seconds=0;

@@ -13,14 +13,25 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'cases/fsi'))
 from generate_domains import generate
 
 
+def periodic_sample(samples,period,time):
+    knots=list(samples)
+    if knots[-1][0]<period:knots.append([period,knots[0][1]])
+    phase=time%period
+    for (ta,pa),(tb,pb) in zip(knots,knots[1:]):
+        if phase<=tb:
+            return pa+(pb-pa)*(phase-ta)/(tb-ta)
+    raise ValueError('Missing periodic closing interval')
+
+
 def prescribed_pressure(fsi, time):
     profile = fsi.get('pressure_time')
     if not profile:
         return fsi['pressure']
     ramp = profile.get('ramp_time', 0)
     x = min(time / ramp, 1) if ramp else 1
-    return x**3 * (10 - 15*x + 6*x*x) * (
-        fsi['pressure'] + profile['amplitude'] * math.sin(2*math.pi*time/profile['period']))
+    increment=(periodic_sample(profile['offset_samples'],profile['period'],time) if 'offset_samples' in profile else
+               profile['amplitude']*math.sin(2*math.pi*time/profile['period']))
+    return x**3*(10-15*x+6*x*x)*(fsi['pressure']+increment)
 
 
 def assert_same_faces(left, right):
@@ -36,7 +47,7 @@ def main():
     p.add_argument('--executable', required=True)
     p.add_argument('--mpiexec', required=True)
     p.add_argument('--work', type=Path, required=True)
-    p.add_argument('--checks', choices=['state', 'convergence'], default='state')
+    p.add_argument('--checks', choices=['state', 'convergence', 'stabilization'], default='state')
     a = p.parse_args()
     a.work = a.work.resolve()
     a.work.mkdir(parents=True, exist_ok=True)
@@ -138,6 +149,32 @@ def main():
         diffs = [(v-w)**2 for k in keys for v, w in zip(x[k], y[k])]
         return math.sqrt(sum(diffs)/len(diffs))
 
+    if a.checks in ('state', 'stabilization'):
+        # For uniform backward-Euler steps the automatic time scale is exactly dt.
+        cfg = copy.deepcopy(base)
+        cfg['time'] = dict(scheme='be')
+        cfg['fsi'].pop('stabilization_tau')
+        cfg['fsi'].update(steps=4, output_interval=1)
+        automatic, _, _ = solve('scale-auto', cfg)
+        cfg['fsi']['stabilization_time_scale'] = cfg['fsi']['dt']
+        fixed, _, _ = solve('scale-equal', cfg)
+        assert error(automatic, fixed) < 1e-13
+        checkpoint = a.work/'tau-scale-checkpoint'
+        solve('scale-start', cfg, extra=['-stop_after',2,'-checkpoint',checkpoint])
+        resumed, _, _ = solve('scale-resume', cfg, extra=['-restart',checkpoint], restart_step=2)
+        assert error(fixed, resumed) < 2e-9
+        cfg['fsi']['stabilization_time_scale'] *= 8
+        solve('scale-changed-restart', cfg, extra=['-restart',checkpoint], fail='Checkpoint mesh/partition/physics mismatch')
+        changed, _, _ = solve('scale-changed', cfg)
+        assert error(fixed, changed) > 1e-10
+        cfg['fsi']['stabilization_tau'] = .001
+        solve('scale-conflict', cfg, fail='stabilization_time_scale excludes stabilization_tau')
+        cfg['fsi'].pop('stabilization_tau')
+        for label, value in [('zero',0.),('negative',-1.),('nonfinite','.inf')]:
+            cfg['fsi']['stabilization_time_scale'] = value
+            solve('scale-'+label, cfg, fail='stabilization_time_scale must be finite and positive')
+        if a.checks == 'stabilization':
+            return
     if a.checks == 'convergence':
         cfg = copy.deepcopy(base)
         cfg['fsi'].update(output_interval=0, dt=.000015625, steps=2560)
@@ -206,6 +243,20 @@ def main():
             changed = copy.deepcopy(cfg)
             changed['fsi']['pressure_time']['amplitude'] += .1
             solve(label+'-mismatch', changed, ranks=2, extra=['-restart', chk], fail='Checkpoint mesh/partition/physics mismatch')
+    # The coefficient is part of the persisted physical model. Zero interoperates
+    # with a checkpoint written without the key; a positive coefficient changes it.
+    cfg = copy.deepcopy(base)
+    cfg['fsi'].update(steps=4, output_interval=1)
+    checkpoint = a.work/'grad-div-checkpoint'
+    plain, _, _ = solve('grad-div-default', cfg, ranks=2)
+    solve('grad-div-start', cfg, ranks=2, extra=['-stop_after',2,'-checkpoint',checkpoint])
+    cfg['fsi']['grad_div_viscosity'] = 0.
+    resumed, _, _ = solve('grad-div-zero', cfg, ranks=2, extra=['-restart',checkpoint], restart_step=2)
+    assert error(plain,resumed) < 2e-9
+    cfg['fsi']['grad_div_viscosity'] = 4.
+    solve('grad-div-mismatch', cfg, ranks=2, extra=['-restart',checkpoint], fail='Checkpoint mesh/partition/physics mismatch')
+    penalized, _, _ = solve('grad-div-active', cfg, ranks=2)
+    assert error(plain,penalized) > 1e-10
     # Constant legacy path equals an explicitly constant waveform, including rigid FSI.
     for body in ('elastic', 'rigid'):
         cfg = copy.deepcopy(base)
@@ -221,6 +272,25 @@ def main():
         new, _, _ = solve(body+'-constant-profile', cfg)
         assert error(old, new) < 1e-13
         assert {r['tag'] for r in face_rows(body+'-constant-profile')} == {1}
+
+    # An asymmetric measured pressure crosses a corner and wraps during a staged solve.
+    cfg=copy.deepcopy(base)
+    cfg['time']=dict(scheme='generalized_alpha',rho_infinity=.5)
+    cfg['fsi'].update(pressure=.03,pressure_face_history=True,
+                      pressure_time=dict(period=.023,ramp_time=.014,
+                                         offset_samples=[[0,.04],[.005,-.11],[.015,.18]]))
+    chk=a.work/'sampled-pressure-checkpoint'
+    expected,_,_=solve('measured-load',cfg,ranks=2)
+    solve('measured-seed',cfg,ranks=2,extra=['-stop_after',4,'-checkpoint',chk])
+    same=copy.deepcopy(cfg)
+    same['fsi']['pressure_time']['offset_samples'].append([.023,.04])
+    resumed,_,_=solve('measured-resume',same,ranks=2,extra=['-restart',chk],restart_step=4)
+    assert error(expected,resumed)<2e-10
+    same['fsi']['pressure_time']['offset_samples'][1][1]+=.005
+    solve('measured-change',same,ranks=2,extra=['-restart',chk],fail='Checkpoint mesh/partition/physics mismatch')
+    for row in face_rows('measured-load'):
+        for phase,t in [('stage',row['evaluation_time']),('endpoint',row['time'])]:
+            assert abs(row[phase+'_prescribed_pressure']-prescribed_pressure(cfg['fsi'],t))<2e-13
 
     # Standalone history with two tags in input order and no intermediate VTUs.
     cfg = copy.deepcopy(base)

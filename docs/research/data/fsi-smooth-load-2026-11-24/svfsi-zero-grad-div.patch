@@ -1,0 +1,9 @@
+diff --git a/Code/Source/svFSI/FLUID.f b/Code/Source/svFSI/FLUID.f
+index 7d4cf64..d686794 100755
+--- a/Code/Source/svFSI/FLUID.f
++++ b/Code/Source/svFSI/FLUID.f
+@@ -404,3 +404,3 @@
+       IF (vmsFlag) THEN
+-         tauC = 1._RKIND / (tauM * (Kxi(1,1) + Kxi(2,2) + Kxi(3,3)))
++         tauC = 0._RKIND ! Diagnostic ablation of grad-div only
+          tauB = up(1)*up(1)*Kxi(1,1) + up(2)*up(1)*Kxi(2,1)

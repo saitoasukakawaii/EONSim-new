@@ -15,6 +15,7 @@ C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体
 
 ## 新增能力与说明
 
+- 20 mm 弹性直管提供两套可直接运行的网格、80 Pa 升压输入、PETSc 场分块选项和各步真实线性残量。[输入、运行命令与对照结果](docs/research/data/fsi-linear-transient-2026-11-24/arterial-solvers.md)
 - [2026-11-24 开源 HPC 调研与 EONSim 开发报告](docs/research/HPC_UPSTREAM_REVIEW_2026-11-24.md) 汇总 50 个项目、Tet4 黏性核配对测量与血管 FSI 后续验收。
 
 - [DoF语义与三种预条件分组](docs/development/DOF_AND_PC_GROUPING.md)：物理验收字段与PC分组分开，默认存储不变。
@@ -213,7 +214,7 @@ solver:
 
 独立流体入口可显式启用 `-fluid_element_report`，按 rank/步输出单元 kernel 与 Vec/Mat 插入时间及残量/Jacobian 单元计数；默认关闭。它包含最终验收/反力回调，与 `solver_report` 的累计区间不同，不能直接相减。详见[计时契约](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md)。
 
-`-linear_report` 额外重新计算每次顶层线性求解的 `A*x-b`，输出原始 L2 范数、逐字段缩放 RMS 和约束最大值，并启用 `-solver_report`。该诊断增加 MatMult 和全局规约，不改变收敛条件；未收敛或开启 PETSc 对角缩放时明确报告不可用。阶段计时区分初始化、显式 Schur 配置、顶层 KSP、额外线性诊断和最终验收；计时存在嵌套，不能相加作为总耗时。
+`-linear_report` 额外重新计算每次顶层线性求解的 `A*x-b`，输出原始 L2 范数、逐字段缩放 RMS 和约束最大值，并启用 `-solver_report`。该诊断增加一次矩阵乘法和全局规约。收敛时记录 `linear_residual`。耗尽 Krylov 迭代次数时，`linear_iteration_limit_residual` 记录最后一次迭代的真实残量，求解仍以失败退出。其他发散原因或启用 PETSc 对角缩放时，日志会说明残量不可用。阶段计时区分初始化、显式 Schur 配置、顶层 KSP、额外线性诊断和最终验收；计时存在嵌套，不能相加作为总耗时。
 
 `-solver_report` 还输出按 rank 排列的 `solver_node`：可定位 FieldSplit、ASM/BJacobi 和 GAMG 粗层/下平滑器的 options prefix、KSP/PC 原因及最后一次迭代数。主 KSP 未收敛时本地输出原因树并抛出带 rank/phase/reason 的异常；失败诊断不新增 collective；即使只有一个 rank 的局部 LU 零主元，也保留具体原因。`reported_norm` 是 PETSc 记录值，`norm_type=0` 时没有范数判据，不能把零值当作物理块残量已收敛；完整含义与遍历范围见[离散与算子契约](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md#求解-operator-与预条件器各有职责)。
 

@@ -1,0 +1,80 @@
+{
+  "problem": "fsi_periodic, physical-continuous, direct monolithic solve, 2 ranks",
+  "last_accepted_before_signal": 28,
+  "original_signal": 11,
+  "original_rank": 0,
+  "original_log_sha256": "c6878c0318081b34f5e437f56bb247c121499ebac062886136926287d470b999",
+  "executable_sha256": "97fd2f73afaa32dfc6f6b6f0fa14bd54276813fcee09b143b321d0d2840d37b9",
+  "case_sha256": "c593c354b75b542ae0aafa5c2e19605f7461d24e32e5a99f0b979ac2e1125033",
+  "partition_sha256": {
+    "manifest.yaml": "694aa4c71937379850fc8431d3e6cd8aa20598cffff8ef2fb02feba104798a76",
+    "rank_0.h5": "20404e8ac31e82a266c1b3db403529bdc8f60397f7c5b2b1fd5f711615b7cb31",
+    "rank_1.h5": "1b4bdea807f3ca9435cc7876e2883a013997e911546e20ce301a27f7d7555914"
+  },
+  "matching_prefix_field_files": 224,
+  "prefix_field_sha256": "4eefe207761633e676de234730d98948b668e8780bcd9c1b421dcca5db4d20a9",
+  "original_history_prefix_bytes": 22882,
+  "original_history_prefix_sha256": "f750a161eacc596f54b59c720f1388e29ba4f049d4aed45484f6afd82b7aa09c",
+  "replays": [
+    {
+      "name": "sm-a",
+      "exit_code": 0,
+      "solve_log_sha256": "152a3d2557e5059cd74a245d33307584516d4a488c2ad030e48510284c5b3b73",
+      "accepted_steps": 80,
+      "all_field_sha256": "a34f10990a44d7c22bb6a8e247cd5499363f59280decfa412cb1cea7331e14e0",
+      "accepted_history_sha256": "ea922c5999978601ab45d5f77aa07272ac2ef2355d1186fb8cc3032cd0f589ac"
+    },
+    {
+      "name": "sm-b",
+      "exit_code": 0,
+      "solve_log_sha256": "1a081db2f490c01ca994fc2c947354e9aed2e5948252eb99875dc4e9f95f7bbc",
+      "accepted_steps": 80,
+      "all_field_sha256": "a34f10990a44d7c22bb6a8e247cd5499363f59280decfa412cb1cea7331e14e0",
+      "accepted_history_sha256": "ea922c5999978601ab45d5f77aa07272ac2ef2355d1186fb8cc3032cd0f589ac"
+    },
+    {
+      "name": "sm-c",
+      "exit_code": 0,
+      "solve_log_sha256": "b65e40175754e297cc441f1a862a5e673f82fd1a9535847d5fd5cc000d95447b",
+      "accepted_steps": 80,
+      "all_field_sha256": "a34f10990a44d7c22bb6a8e247cd5499363f59280decfa412cb1cea7331e14e0",
+      "accepted_history_sha256": "ea922c5999978601ab45d5f77aa07272ac2ef2355d1186fb8cc3032cd0f589ac"
+    },
+    {
+      "name": "tcp-a",
+      "exit_code": 14,
+      "solve_log_sha256": "0c946734f093153c38025b4baca037ea8f27237d50ea496490539ae89099659c",
+      "accepted_steps": 0,
+      "detail": "MPI initialization reported unreachable peer"
+    },
+    {
+      "name": "tcp-b",
+      "exit_code": 14,
+      "solve_log_sha256": "c22a56d760b98ca4c46b072cd58572db05312e0f79f828ff474e228e9c69eaa6",
+      "accepted_steps": 0,
+      "detail": "MPI initialization reported unreachable peer"
+    },
+    {
+      "name": "tcp-c",
+      "exit_code": 14,
+      "solve_log_sha256": "f80ad3cfb3ed56b1e0204ef7cbccb87d38876136a70b8d870c0a9a024d178bd2",
+      "accepted_steps": 0,
+      "detail": "MPI initialization reported unreachable peer"
+    }
+  ],
+  "final_targeted_ctest": {
+    "name": "fsi_periodic",
+    "status": "passed",
+    "ranks": [
+      1,
+      2,
+      4
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "seconds": 223.429,
+    "log": "evidence/junit.xml#fsi_periodic",
+    "exit_behavior": "Completed"
+  },
+  "targeted_summary_sha256": "46b20695f23f30859af304160f5c837e57436fdbc9cc3d07bb3f0f7f8bddea8a"
+}

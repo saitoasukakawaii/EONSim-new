@@ -17,22 +17,22 @@ NAMES = ('area', 'mean_pressure', 'mean_normal_traction', 'outward_flow',
 
 class SurfaceAudit:
     """Owner Tet4s and outward Tri3 traces, built from the archived fluid mesh."""
-    def __init__(self, mesh):
+    def __init__(self, mesh, tags=(1, 2)):
         nodes, cells, faces = mesh
         self.ids = list(nodes)
         indices = {n: i for i, n in enumerate(self.ids)}
         self.reference = np.array([nodes[n] for n in self.ids])
         self.tets = np.array([[indices[n] for n in cell] for cell in cells])
         self.ports = {}
-        exterior = {tuple(sorted(face)): (tag, face) for tag, face in faces if tag in (1, 2)}
+        exterior = {tuple(sorted(face)): (tag, face) for tag, face in faces if tag in tags}
         for cell in cells:
             for opposite in cell:
                 key = tuple(sorted(n for n in cell if n != opposite))
                 if key in exterior:
                     tag, face = exterior.pop(key)
                     self.ports.setdefault(tag, []).append([indices[n] for n in (*face, opposite)])
-        if exterior or set(self.ports) != {1, 2}:
-            raise ValueError('Incomplete tagged fluid ends')
+        if exterior or set(self.ports) != set(tags):
+            raise ValueError('Incomplete tagged fluid surfaces')
         self.ports = {k: np.array(v) for k, v in self.ports.items()}
 
     def array(self, state):
@@ -46,7 +46,7 @@ class SurfaceAudit:
             raise ValueError('Invalid deformed volume')
         return float(determinants.sum()/6)
 
-    def observe(self, state, load):
+    def observe(self, state, load, viscosity=1.):
         result = {}
         for tag, cells in self.ports.items():
             xyz = (self.reference + state[:, :3])[cells]
@@ -62,8 +62,7 @@ class SurfaceAudit:
             area = float(areas.sum())
             pressure = state[cells[:, :3], 6].mean(axis=1)
             mean_p = float(areas@pressure/area)
-            # The locked tube viscosity is 1 Pa s.
-            mean_traction = float(areas@(2*strain-pressure)/area)
+            mean_traction = float(areas@(2*viscosity*strain-pressure)/area)
             flow = float((u[:, :3].mean(axis=1)*area_vectors).sum())
             result[tag] = dict(zip(NAMES, (area, mean_p, mean_traction, flow, load, -load*flow)))
         return result

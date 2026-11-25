@@ -1,0 +1,51 @@
+diff --git a/src/algebra/pc_plan.cpp b/src/algebra/pc_plan.cpp
+index fe2877d..06a754e 100644
+--- a/src/algebra/pc_plan.cpp
++++ b/src/algebra/pc_plan.cpp
+@@ -135,10 +135,16 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,bool root,bool schur_pa
+ }
+ }
+ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string& recipe) {
+-    int choice=recipe=="physics"?1:recipe=="quantity"?2:recipe=="hybrid"?3:0;
++    constexpr int physics=1, quantity=2, hybrid=3, coupled_velocity=4;
++    int choice=0;
++    if(recipe=="physics") choice=physics;
++    if(recipe=="quantity") choice=quantity;
++    if(recipe=="hybrid") choice=hybrid;
++    if(recipe=="coupled_velocity") choice=coupled_velocity;
+     int lo=0,hi=0;
+     MPI_Allreduce(&choice,&lo,1,MPI_INT,MPI_MIN,comm); MPI_Allreduce(&choice,&hi,1,MPI_INT,MPI_MAX,comm);
+-    common_check(comm,lo==hi&&lo!=0,"recipe must be physics, quantity or hybrid and identical on every rank");
++    common_check(comm,lo==hi&&lo!=0,
++        "recipe must be physics, quantity, hybrid or coupled_velocity and identical on every rank");
+     common_check(comm,layout.owned>=0&&layout.begin>=0&&layout.global>0&&
+         static_cast<long long>(layout.begin)+layout.owned<=layout.global,"invalid root ownership range");
+     bool owned_order=layout.local_to_global.size()>=static_cast<std::size_t>(layout.owned);
+@@ -158,10 +164,10 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
+     Spec v{"velocity",4}, p{"pressure",5}, mesh{"mesh",3}, solid{"structure",2}, fluid{"fluid_interior",1};
+     Spec root{"root",0};
+     if(!coupled) { root.schur=true; root.children={v,p}; }
+-    else if(choice==1) root.children={{"fluid",1,true,{v,p}},{"solid",2},mesh};
++    else if(choice==physics) root.children={{"fluid",1,true,{v,p}},{"solid",2},mesh};
+     else {
+-        v.children={fluid,solid};
+-        if(choice==2) root.children={v,p,mesh};
++        if(choice!=coupled_velocity) v.children={fluid,solid};
++        if(choice==quantity) root.children={v,p,mesh};
+         else root.children={{"dynamics",6,true,{v,p}},mesh};
+     }
+     std::vector<PetscInt> rows(layout.owned); std::iota(rows.begin(),rows.end(),layout.begin);
+diff --git a/src/core/config.cpp b/src/core/config.cpp
+index 9ad5fee..042cae5 100644
+--- a/src/core/config.cpp
++++ b/src/core/config.cpp
+@@ -478,7 +478,8 @@ Config read_config(const std::filesystem::path& path)
+         if (solver["pc_recipe"]) config.solver.pc_recipe = solver["pc_recipe"].as<std::string>();
+         if(!config.solver.pc_recipe.empty()) {
+             const auto& recipe=config.solver.pc_recipe;
+-            if(recipe!="physics"&&recipe!="quantity"&&recipe!="hybrid") throw std::runtime_error("Unknown solver.pc_recipe");
++            if(recipe!="physics"&&recipe!="quantity"&&recipe!="hybrid"&&recipe!="coupled_velocity")
++                throw std::runtime_error("Unknown solver.pc_recipe");
+             if(!config.fluid_problem&&!config.fsi_problem) throw std::runtime_error("solver.pc_recipe currently requires independent fluid or FSI");
+         }
+         if (solver["relative_tolerance"]) config.solver.relative_tolerance = solver["relative_tolerance"].as<double>();

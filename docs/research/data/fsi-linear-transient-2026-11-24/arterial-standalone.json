@@ -1,0 +1,66 @@
+{
+  "launcher_exit": 0,
+  "ranks": [
+    {
+      "rank": 0,
+      "exit_code": 0
+    },
+    {
+      "rank": 1,
+      "exit_code": 0
+    }
+  ],
+  "expected_ranks": 2,
+  "application_reported_success": true,
+  "elapsed_seconds": 285.2792448100008,
+  "accepted_steps": 32,
+  "clean_exit": true,
+  "executable_sha256": "59a06d3f3d73dcda8f5516bfe4bfac2055f56d50c1cbe24162844cd30f2fadd7",
+  "log_sha256": "4c8be4180966799f10efa1c78a061f4b9fae1ffa812d5ac19b5766e659ef0afd",
+  "input_archive": "662518aa06f1d9f3072c92910fcfd08c3788f0be8bf0875ec035ff6e0984fae6",
+  "options_file": "ee46fd0f816539c5c7ac9526af9ed8d7773b66c1a1a846a09eb209069a6c4f1d",
+  "ranks_bound": [
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      1
+    ]
+  ],
+  "within_tolerance": 64,
+  "max_ratio": 0.9759983162376673,
+  "areas": [
+    0.002883753482314865,
+    0.019177572461661935,
+    0.05128196882541395,
+    0.09334705645202013,
+    0.13543298877927942,
+    0.16757806310061396,
+    0.18391681431029072,
+    0.18680312284400016
+  ],
+  "fields": {
+    "fluid_velocity": {
+      "base": 0.00033958583384747425,
+      "difference": 5.136808946953897e-14
+    },
+    "fluid_displacement": {
+      "base": 1.1398379492978583e-05,
+      "difference": 4.955989774384911e-18
+    },
+    "fluid_pressure": {
+      "base": 80.00390459437521,
+      "difference": 2.7284841053187847e-12
+    },
+    "wall_velocity": {
+      "base": 2.144913582530686e-05,
+      "difference": 5.527737013781564e-17
+    },
+    "wall_displacement": {
+      "base": 1.1398379492978583e-05,
+      "difference": 1.8211208365967457e-19
+    }
+  }
+}

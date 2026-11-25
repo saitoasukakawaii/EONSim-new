@@ -3,6 +3,7 @@
  * @brief YAML 物理参数与命令行覆盖的运行控制；每个算例只选择一种入口。 */
 
 #include "eonsim/discretization.hpp"
+#include <array>
 #include <cstdint>
 #include <optional>
 #include <map>
@@ -30,12 +31,16 @@ struct SolverConfig {
     std::map<std::string,FieldTolerance> fields; ///< 非空时须覆盖该非线性布局的全部字段。
 };
 
-/** @brief Absolute pressure amplitude, period, and optional smooth startup time.
- * The ramp multiplies both the mean and the sinusoid. Time is physical solver time.
+using PeriodicSamples=std::vector<std::array<double,2>>;
+
+/** @brief Periodic pressure increment and optional smooth startup time.
+ * The ramp multiplies the base pressure plus the sinusoidal or tabulated increment. Time is physical solver time.
  */
 struct PressureTime {
     double amplitude=0,period=1,ramp_time=0;
-    double value_at(double mean,double time) const;
+    PeriodicSamples offset_samples{}; ///< Time in s and additive pressure in Pa, closed at period.
+    double value_at(double base,double time) const;
+    void append_sample_signature(std::vector<double>& values) const;
 };
 
 /** @brief 按 physical tag 的固定网格流体边界。
@@ -51,7 +56,7 @@ struct FluidBoundary {
     Space3::Vector<double> value{},origin{};
     Space3::Tensor<double> gradient{};
     double pressure=0,ramp_time=0;
-    std::optional<PressureTime> pressure_time; ///< Transient pressure only. pressure is the mean.
+    std::optional<PressureTime> pressure_time; ///< Transient pressure only. pressure is the base value.
 };
 struct PressureGauge { std::int64_t node; double value; }; // 原始网格 ID，非 PETSc 编号
 
@@ -69,6 +74,7 @@ struct FluidConfig {
     // Fixed SUPG/PSPG coefficient (units time/density) for a time-step-independent
     // spatial discretization. Unset preserves the original transient estimate.
     std::optional<double> stabilization_tau;
+    double grad_div_viscosity=0; ///< Optional spatially uniform grad-div coefficient, Pa s.
     double density=1, viscosity=1, pressure_drop=1, dt=.05, ramp_time=.1;
     int steps=10;
 };
@@ -89,12 +95,29 @@ struct MotionConfig {
 };
 
 struct ComponentConstraint { int tag; std::vector<int> components; };
+struct WallSupport {
+    double stiffness=0; ///< Normal traction per unit reference-normal displacement, Pa/m.
+    double damping=0;   ///< Normal traction per unit reference-normal velocity, Pa s/m.
+};
+/** Outward flow is positive. Rp/Rd [Pa s/m³], C [m³/Pa], pressures [Pa]. */
+struct RcrOutlet {
+    int tag;
+    double proximal_resistance,distal_resistance,compliance,distal_pressure,initial_capacitor_pressure;
+    int moving_plane_axis=-1; ///< Optional fixed normal axis 0/1/2; tangential ALE motion changes port area.
+    std::optional<PressureTime> distal_pressure_time{}; ///< Reservoir pressure downstream of Rd, in Pa.
+    double distal_pressure_at(double time) const {
+        return distal_pressure_time?distal_pressure_time->value_at(distal_pressure,time):distal_pressure;
+    }
+};
+
 struct FsiDomains {
     std::filesystem::path solid_mesh;
     int fluid_region=10,solid_region=20,fluid_interface=2,solid_interface=12;
     double match_tolerance=1e-10;
     std::vector<int> pressure_tags;
     std::vector<ComponentConstraint> fluid_constraints,mesh_constraints,solid_constraints;
+    std::map<int,WallSupport> wall_supports; ///< Solid exterior physical tags.
+    std::vector<RcrOutlet> rcr_outlets; ///< Sorted by boundary tag for stable layout and restart.
 };
 using FsiPressureTime=PressureTime;
 struct FsiFlowRate {
@@ -102,7 +125,10 @@ struct FsiFlowRate {
     Space3::Vector<double> center{};
     double radius=0;
     double mean=0, amplitude=0, period=1;
-    int axis=0;
+    /// Optional periodic (time in s, signed flow in m³/s) knots, closed at period.
+    PeriodicSamples samples;
+    double value_at(double time) const;
+    int axis=0; ///< Cartesian axis, or -1 for an oriented circle with unit direction in inlet.value.
     Space3::Vector<double> lower{},upper{}; ///< Fixed axis-aligned rectangular inlet bounds.
 };
 struct FsiConfig {
@@ -114,6 +140,9 @@ struct FsiConfig {
     int checkpoint_interval=1; ///< Accepted-step cadence when checkpointing; always save a successful requested endpoint.
     FsiDomains domains;
     std::optional<double> stabilization_tau;
+    std::optional<double> stabilization_time_scale; ///< Fixed time in the cellwise model, in seconds.
+    bool regular_tet_stabilization=false; ///< Current, permutation-invariant metric for SUPG/PSPG and grad-div.
+    double grad_div_viscosity=0; ///< Optional spatially uniform grad-div coefficient, Pa s.
     bool elastic=false, neo_hookean=false;
     double young=100, poisson=.3, solid_density=1, thickness=.25;
     double dt=.02, mass=2, damping=.3, stiffness=5, pressure=1, density=1, viscosity=1;

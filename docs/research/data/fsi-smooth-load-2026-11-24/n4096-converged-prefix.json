@@ -1,0 +1,201 @@
+{
+  "planned_steps": 4096,
+  "dt": 0.000244140625,
+  "sample_time": 0.5,
+  "sample_step": 2048,
+  "last_wholly_converged_step": 2708,
+  "first_failed_linear": {
+    "equation": "FS",
+    "step": 2709,
+    "number": 7,
+    "residual": 1270000000000.0,
+    "linear_failed": true,
+    "linear_iterations": 4510
+  },
+  "first_failed_time": 0.661376953125,
+  "corrections_at_failure": {
+    "FS": [
+      {
+        "step": 2709,
+        "number": 1,
+        "residual": 1.0,
+        "linear_failed": false,
+        "linear_iterations": 279
+      },
+      {
+        "step": 2709,
+        "number": 2,
+        "residual": 88.62,
+        "linear_failed": false,
+        "linear_iterations": 284
+      },
+      {
+        "step": 2709,
+        "number": 3,
+        "residual": 3538.0,
+        "linear_failed": false,
+        "linear_iterations": 289
+      },
+      {
+        "step": 2709,
+        "number": 4,
+        "residual": 35400.0,
+        "linear_failed": false,
+        "linear_iterations": 371
+      },
+      {
+        "step": 2709,
+        "number": 5,
+        "residual": 5234000.0,
+        "linear_failed": false,
+        "linear_iterations": 287
+      },
+      {
+        "step": 2709,
+        "number": 6,
+        "residual": 505300000.0,
+        "linear_failed": false,
+        "linear_iterations": 369
+      },
+      {
+        "step": 2709,
+        "number": 7,
+        "residual": 1270000000000.0,
+        "linear_failed": true,
+        "linear_iterations": 4510
+      }
+    ],
+    "MS": [
+      {
+        "step": 2709,
+        "number": 1,
+        "residual": 1.0,
+        "linear_failed": false,
+        "linear_iterations": 160
+      },
+      {
+        "step": 2709,
+        "number": 2,
+        "residual": 59.02,
+        "linear_failed": false,
+        "linear_iterations": 157
+      },
+      {
+        "step": 2709,
+        "number": 3,
+        "residual": 830.9,
+        "linear_failed": false,
+        "linear_iterations": 161
+      },
+      {
+        "step": 2709,
+        "number": 4,
+        "residual": 118300.0,
+        "linear_failed": false,
+        "linear_iterations": 160
+      },
+      {
+        "step": 2709,
+        "number": 5,
+        "residual": 6182000.0,
+        "linear_failed": false,
+        "linear_iterations": 162
+      },
+      {
+        "step": 2709,
+        "number": 6,
+        "residual": 717700000.0,
+        "linear_failed": false,
+        "linear_iterations": 164
+      },
+      {
+        "step": 2709,
+        "number": 7,
+        "residual": 1018000000.0,
+        "linear_failed": false,
+        "linear_iterations": 157
+      }
+    ]
+  },
+  "strict_fs_ms_through_prefix": {
+    "FS": [
+      9.91e-09,
+      0
+    ],
+    "MS": [
+      9.97e-09,
+      0
+    ]
+  },
+  "prefix_history_sha256": "3362031470dff451e91b56d58e781d5f33a6d2fa2f6b1eba71ba95348997cd5b",
+  "prefix_port_observations": 5416,
+  "max_applied_pressure_difference": 5.204170427930421e-18,
+  "stations": [
+    0.0,
+    0.3333333333333333,
+    0.6666666666666666,
+    1.0,
+    1.3333333333333333,
+    1.6666666666666667,
+    2.0
+  ],
+  "static_area_strain": 0.002174545454545455,
+  "area_strains": {
+    "native_dae": [
+      3.789979040096647e-05,
+      9.109864726178702e-05,
+      9.050580555190983e-05,
+      8.33623205680804e-05,
+      8.84703334329012e-05,
+      0.00010799885331808227,
+      0.00012967566257657582
+    ],
+    "eonsim": [
+      9.133010911726433e-05,
+      0.00013120659379278464,
+      0.0001179014039762504,
+      0.00010714004518285871,
+      0.00011549679971659149,
+      0.0001259238586146781,
+      0.00012130394771173738
+    ],
+    "svfsi": [
+      3.789526542500532e-05,
+      9.109840588399413e-05,
+      9.050758667885043e-05,
+      8.336602242737124e-05,
+      8.847443828641628e-05,
+      0.0001080024749467032,
+      0.0001296790319780948
+    ]
+  },
+  "peak_fields": {
+    "eonsim": {
+      "fluid_pressure": 0.01447196380811681,
+      "fluid_speed": 0.0014889381673880223,
+      "wall_displacement": 6.758787595132e-05
+    },
+    "svfsi": {
+      "fluid_pressure": 0.010859043548375495,
+      "fluid_speed": 0.001253202571756255,
+      "wall_displacement": 6.502977458486534e-05
+    }
+  },
+  "eon_native_max_gap_pct_static": 2.4572879624366597,
+  "dae_native_max_gap_pct_static": 0.00020808835941737836,
+  "sha256": {
+    "reference/fluid.msh": "6a2eddd7ee53d6cd43d6c0706d21a3295b99d79431ec037e21a5d1149d8b8f7f",
+    "reference/solid.msh": "ca61d566c848adb2bc41b9bbbebf5dff3454818008b921960d135e05a1a27016",
+    "matched/svFSI.inp": "a6981ddac6192cf3787fae25565bb91441a0cdf56ac91482b8c7a95f9d2abc2c",
+    "matched/lumen.vtu": "04cacc3b19cf904844fd019dbf69f8273284321f329ac4e57154f11427100456",
+    "matched/1-procs/result_2048.vtu": "efba0538726e03075cd2540ad2c173549a9142520a3f0de089ccc331b0705af2",
+    "eon/case.json": "a78dfcc8b3b896d0f337f26db50e12cb31ab521312ea130f4e36bad513752848",
+    "eon/tube_step2048.vtu": "22fe4dc04e5353571d68c981ecd3bb549a4db95d6903a3d13ce3d528123a5c1e",
+    "eon/tube_step2048_solid.vtu": "e08548d3c32dc9445f6bfbc2376ebd6cdba074bac0859889f073f2bb41f2c137"
+  },
+  "executable_sha256": {
+    "matched": "b24edc6dce99e3c3e9350c65066e4dca31f2f5a407b63efb32ed6002c840a218",
+    "eon": "6799aa1d8bfc8e31dafa94f64250c063b6cba86551c59abf72f79b8c094ce7c4"
+  },
+  "dae_sha256": "41c1a28594ec46b46f3aaca8c5d846498a36d4cf2f9c18043279714529e357f7"
+}

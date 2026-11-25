@@ -22,6 +22,8 @@ MeshPartition read_fsi_domains(const std::filesystem::path& path,const FsiDomain
     if(fn.empty()||fn.size()!=sn.size()) throw std::runtime_error("FSI interface node count mismatch");
     for(int t:ft) if(st.count(t)) throw std::runtime_error("Independent FSI boundary tags must be disjoint");
     for(int t:config.pressure_tags) if(!ft.count(t)) throw std::runtime_error("FSI pressure tag missing");
+    for(const auto& support:config.wall_supports) if(!st.count(support.first))
+        throw std::runtime_error("FSI wall support requires a solid exterior tag: "+std::to_string(support.first));
     auto check_tags=[](const auto& entries,const auto& tags) { for(const auto& c:entries) if(!tags.count(c.tag)) throw std::runtime_error("FSI constraint tag missing"); };
     check_tags(config.fluid_constraints,ft); check_tags(config.mesh_constraints,ft); check_tags(config.solid_constraints,st);
     using Bin=Space3::Vector<long long>;

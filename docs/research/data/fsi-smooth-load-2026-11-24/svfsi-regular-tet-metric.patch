@@ -1,0 +1,28 @@
+diff --git a/Code/Source/svFSI/FSI.f b/Code/Source/svFSI/FSI.f
+index 2202a91..cabeece 100755
+--- a/Code/Source/svFSI/FSI.f
++++ b/Code/Source/svFSI/FSI.f
+@@ -151,6 +151,11 @@
+             IF (nsd .EQ. 3) THEN
+                SELECT CASE (cPhys)
+                CASE (phys_fluid)
++!                 Volume-preserving regular reference metric for P1/P1.
++                  IF (fs(1)%eNoN.EQ.4 .AND. fs(2)%eNoN.EQ.4) THEN
++                     ksix = MATMUL(Nwx,TRANSPOSE(Nwx))
++     2                    / 4._RKIND**(1._RKIND/3._RKIND)
++                  END IF
+                   CALL FLUID3D_M(vmsStab, fs(1)%eNoN, fs(2)%eNoN, w,
+      2               ksix, fs(1)%N(:,g), fs(2)%N(:,g), Nwx, Nqx, Nwxx,
+      3               al, yl, bfl, lR, lK)
+@@ -215,6 +220,11 @@
+             IF (nsd .EQ. 3) THEN
+                SELECT CASE (cPhys)
+                CASE (phys_fluid)
++!                 Volume-preserving regular reference metric for P1/P1.
++                  IF (fs(1)%eNoN.EQ.4 .AND. fs(2)%eNoN.EQ.4) THEN
++                     ksix = MATMUL(Nwx,TRANSPOSE(Nwx))
++     2                    / 4._RKIND**(1._RKIND/3._RKIND)
++                  END IF
+                   CALL FLUID3D_C(vmsStab, fs(1)%eNoN, fs(2)%eNoN, w,
+      2               ksix, fs(1)%N(:,g), fs(2)%N(:,g), Nwx, Nqx, Nwxx,
+      3               al, yl, bfl, lR, lK)

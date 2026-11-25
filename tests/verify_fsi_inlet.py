@@ -11,25 +11,39 @@ import sys
 import xml.etree.ElementTree as ET
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'cases/fsi'))
 from generate_wall import generate
+from verify_fsi_pressure import periodic_sample
 
 
 class Runner:
-    def __init__(self,exe,mpi,work,timeout=600,interface_area=1.):
+    def __init__(self,exe,mpi,work,timeout=600,interface_area=1.,singleton=False):
         self.interface_area=interface_area
+        self.singleton=singleton
         self.timeout=timeout;self.exe=str(Path(exe).resolve());self.mpi=mpi;self.work=Path(work).resolve();self.work.mkdir(parents=True,exist_ok=True)
-    def command(self,args,label,fail=None):
-        r=subprocess.run(list(map(str,args)),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=self.timeout)
-        (self.work/(label+'.log')).write_text(r.stdout)
-        if fail: assert r.returncode!=0 and fail in r.stdout,r.stdout[-5000:]
-        else: assert r.returncode==0,r.stdout[-5000:]
-        return r.stdout
+    def command(self, args, label, fail=None):
+        path = self.work/(label+'.log')
+        # Keep the last solver output even if CTest terminates the Python parent.
+        with path.open('w') as log:
+            try:
+                result = subprocess.run(list(map(str, args)), stdout=log, stderr=subprocess.STDOUT,
+                                        timeout=self.timeout)
+            except subprocess.TimeoutExpired as exc:
+                exc.output = path.read_bytes()
+                raise
+        output = path.read_text()
+        if fail:
+            assert result.returncode != 0 and fail in output, output[-5000:]
+        else:
+            assert result.returncode == 0, f'{label} exited with {result.returncode}:\n{output[-5000:]}'
+        return output
     def solve(self,label,cfg,ranks=1,extra=(),fail=None):
         cfg=copy.deepcopy(cfg);cfg['output']=str(self.work/(label+'.vtu'))
         case=self.work/(label+'.json');case.write_text(json.dumps(cfg))
         part=self.work/f'part-{ranks}'
         if not part.exists():self.command([self.exe,'-case',case,'-prepare',part,'-parts',ranks],label+'-prepare')
-        log=self.command([self.mpi,'-n',ranks,self.exe,'-case',case,'-partition',part,*extra],label,fail)
+        launch=[] if self.singleton and ranks==1 else [self.mpi,'-n',ranks]
+        log=self.command([*launch,self.exe,'-case',case,'-partition',part,*extra],label,fail)
         if fail:return {},[],log
+        assert log.count('status=success')==1,log[-5000:]
         fields={}
         for solid in (False,True):
             for rank in range(ranks):
@@ -38,8 +52,17 @@ class Runner:
                 arrays={a.attrib['Name']:(int(a.attrib.get('NumberOfComponents',1)),list(map(float,a.text.split()))) for a in tree.findall('.//PointData/DataArray')}
                 used=set(map(int,tree.find('.//Cells/DataArray[@Name="connectivity"]').text.split()))
                 xyz=list(map(float,tree.find('.//Points/DataArray').text.split()))
+                count=len(xyz)//3
+                assert len(xyz)==3*count and all(map(math.isfinite,xyz))
+                assert all(0<=i<count for i in used)
+                assert all(width>0 and len(values)==width*count and all(map(math.isfinite,values))
+                           for width,values in arrays.values())
                 for i in used:
-                    node=int(arrays['mesh_node_id'][1][i]);fields[(solid,node,'coordinates')]=xyz[3*i:3*i+3]
+                    node=int(arrays['mesh_node_id'][1][i])
+                    coord_key=(solid,node,'coordinates')
+                    position=xyz[3*i:3*i+3]
+                    if coord_key in fields:assert all(abs(v-w)<2e-9 for v,w in zip(fields[coord_key],position))
+                    fields[coord_key]=position
                     for name,(width,values) in arrays.items():
                         if name in ('owner','mesh_node_id','algebra_node_id'):continue
                         key=(solid,node,name);value=values[width*i:width*(i+1)]
@@ -64,8 +87,45 @@ class Runner:
 
 
 def error(a,b):
-    assert a.keys()==b.keys()
+    assert a.keys()==b.keys() and all(len(a[k])==len(b[k]) for k in a)
     return max(abs(v-w) for k in a for v,w in zip(a[k],b[k]))
+
+
+def check_rcr_history(run, label, model, rows, restart=None, sole_pressure=True):
+    prefix = label + (f'_restart{restart}' if restart is not None else '')
+    with (run.work/(prefix+'_pressure_faces.csv')).open() as stream:
+        faces = [dict((k, float(v)) for k, v in face.items()) for face in csv.DictReader(stream)
+                 if int(face['tag']) == model['tag']]
+    assert len(faces) == len(rows) and rows
+    rp, rd, c, mean = (model[k] for k in ('proximal_resistance','distal_resistance','compliance','distal_pressure'))
+    worst = 0.
+    for row, face in zip(rows, faces):
+        assert row['step'] == face['step'] and row['time'] == face['time']
+        suffix='' if 'rcr_tag' in row else '_'+str(model['tag'])
+        assert row['rcr_tag'+suffix] == model['tag']
+        for kind in ('stage','endpoint'):
+            q = face[kind+'_outward_flow']
+            pc = row[kind+'_capacitor_pressure'+suffix]
+            pb = face[kind+'_prescribed_pressure']
+            errors = [row[kind+'_rcr_flow'+suffix]-q, row[kind+'_rcr_pressure'+suffix]-pb,
+                      pb-pc-rp*q, face[kind+'_pressure_power']+q*pb]
+            pd = mean
+            if 'distal_pressure_time' in model:
+                wave = model['distal_pressure_time']
+                t = row['evaluation_time' if kind=='stage' else 'time']
+                ramp = wave.get('ramp_time',0)
+                x = min(t/ramp,1.) if ramp else 1.
+                offset=(periodic_sample(wave['offset_samples'],wave['period'],t) if 'offset_samples' in wave else
+                        wave['amplitude']*math.sin(2*math.pi*t/wave['period']))
+                pd = (mean+offset)*x**3*(10-15*x+6*x*x)
+                errors.append(row[kind+'_distal_pressure'+suffix]-pd)
+            if kind == 'stage':
+                errors.append(c*row['stage_capacitor_rate'+suffix]-q+(pc-pd)/rd)
+                if sole_pressure:
+                    errors.append(row['applied_pressure']-pb)
+            worst = max(worst, *map(abs, errors))
+    assert worst < 2e-10, worst
+    return worst
 
 
 def main():

@@ -1,9 +1,20 @@
 /** 独立解析预期：不等距二次多项式导数与指数衰减时间阶。 */
 #include "eonsim/time_integration.hpp"
 #include "eonsim/time_step.hpp"
+#include "eonsim/fsi.hpp"
 #include <iostream>
 using namespace eonsim;
 int main() {
+    // A short capacitor step on top of a large pressure offset still has a finite rate.
+    const RcrOutlet outlet{2,4.,16.,.01,100000.,100000.};
+    for(double dt:{1e-12,1e-6,.1,1e4}) for(double q:{-1.,0.,1.}) {
+        const double exact_rate=outlet.distal_resistance*q/(outlet.distal_resistance*outlet.compliance+dt);
+        const double face=outlet.distal_pressure+dt*exact_rate+outlet.proximal_resistance*q;
+        const RcrStage stage(outlet,outlet.initial_capacitor_pressure,dt);
+        if(std::abs(stage.flow(face)-q)>4e-12 || std::abs(stage.capacitor_rate(face)-exact_rate)>4e-10
+            || std::abs(stage.capacitor_pressure(face)-outlet.distal_pressure-dt*exact_rate)>2e-11)
+            throw std::runtime_error("RCR pressure/flow/rate on a small step is inconsistent");
+    }
     for(int steps:{320,10000}) {
         TimeStepper clock(.2/steps,steps,TimeControl{});
         while(clock.active()) clock.accept();

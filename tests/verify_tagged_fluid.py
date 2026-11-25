@@ -127,6 +127,7 @@ config = copy.deepcopy(base); config['fluid'].update(mode='transient', dt=.03, s
 config['fluid']['boundaries'][1]['components'] = [0]
 config['fluid']['boundaries'].append(dict(copy.deepcopy(velocity), tag=TAGS[1], components=[1,2]))
 for b in config['fluid']['boundaries']: b['ramp_time'] = .09
+config['fluid']['grad_div_viscosity'] = 1.75
 case = case_file('transient', config)
 for ranks in (1, 2):
     prefix = ([a.mpiexec, '-n', ranks] if ranks > 1 else []) + [a.executable, '-case', case]
@@ -167,6 +168,10 @@ c = copy.deepcopy(base); c['fluid'].update(mode='transient'); c['fluid']['bounda
 c = copy.deepcopy(base); c['fluid']['boundaries'].append(dict(velocity, tag=TAGS[1], components=[1])); bad.append((c, 'Overlapping components'))
 c = copy.deepcopy(base); c['fluid']['boundaries'][1] = dict(tag=TAGS[1], type='pressure', value=pressure, components=[]); bad.append((c, 'components cannot be empty'))
 c = copy.deepcopy(base); c['fluid']['boundaries'][1] = dict(tag=TAGS[1], type='pressure', value=pressure, components=[0,0]); bad.append((c, 'Invalid or repeated boundary component'))
+for coefficient in (-1.,float('inf')):
+    invalid=copy.deepcopy(base)
+    invalid['fluid']['grad_div_viscosity']=coefficient
+    bad.append((invalid,'fluid.grad_div_viscosity must be finite and nonnegative'))
 for i, (config, error) in enumerate(bad):
     case = case_file(f'invalid{i}', config)
     run([a.executable, '-case', case], error)

@@ -15,6 +15,8 @@ struct FsiElementData {
     Tet4Topology::Nodal<Point> previous_mesh{};
     std::vector<Tri3Topology::Nodal<int>> inlet_faces;
     FluidParameters fluid;
+    /// Positive time (s) selects current regular-Tet4 cell metric coefficients, differentiated in Newton.
+    double regular_metric_dt=0;
     double mesh_dt=0; ///< 正值指定网格位移到stage速度的链分母；0沿用fluid.dt（BE/BDF2）。
     double inlet_pressure=1;
 };

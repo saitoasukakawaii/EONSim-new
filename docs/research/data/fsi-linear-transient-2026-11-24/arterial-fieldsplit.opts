@@ -1,0 +1,15 @@
+# 20 mm straight elastic tube, dimensional 80 Pa ramp. Outer KSP is right-preconditioned FGMRES.
+-pc_recipe physics
+-ksp_pc_side right
+-ksp_norm_type unpreconditioned
+-ksp_rtol 1e-10
+-ksp_atol 1e-23
+-ksp_max_it 3000
+-ksp_gmres_restart 100
+-ksp_gmres_modifiedgramschmidt
+-fieldsplit_fluid_fieldsplit_velocity_ksp_type gmres
+-fieldsplit_fluid_fieldsplit_velocity_ksp_rtol 1e-4
+-fieldsplit_fluid_fieldsplit_velocity_ksp_max_it 10
+-fieldsplit_solid_ksp_type gmres
+-fieldsplit_solid_ksp_rtol 1e-4
+-fieldsplit_solid_ksp_max_it 12

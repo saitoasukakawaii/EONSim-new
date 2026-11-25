@@ -10,8 +10,20 @@ import math
 from pathlib import Path
 
 
-def generate(directory, sectors=12, axial=4, radial=2, radius=1., thickness=.2, length=4.):
-    if sectors<6 or axial<2 or radial<1 or not all(math.isfinite(x) and x>0 for x in (radius,thickness,length)):
+def write_tet_mesh(path, xyz, cells, boundary, region):
+    with path.open('w') as f:
+        f.write('$MeshFormat\n2.2 0 8\n$EndMeshFormat\n$Nodes\n'+str(len(xyz))+'\n')
+        for i,x in enumerate(xyz,1):f.write(f'{i} '+ ' '.join(format(v,'.17g') for v in x)+'\n')
+        f.write('$EndNodes\n$Elements\n'+str(len(cells)+len(boundary))+'\n')
+        for i,(tag,face) in enumerate(boundary,1):f.write(f'{i} 2 2 {tag} {tag} '+' '.join(str(v+1) for v in face)+'\n')
+        for i,t in enumerate(cells,len(boundary)+1):f.write(f'{i} 4 2 {region} {region} '+' '.join(str(v+1) for v in t)+'\n')
+        f.write('$EndElements\n')
+
+
+def generate(directory, sectors=12, axial=4, radial=2, radius=1., thickness=.2, length=4., *, clamped_slab=False):
+    if clamped_slab and axial!=1:
+        raise ValueError('A fully clamped slab has one axial subdivision')
+    if sectors<6 or axial<(1 if clamped_slab else 2) or radial<1 or not all(math.isfinite(x) and x>0 for x in (radius,thickness,length)):
         raise ValueError('Invalid tube dimensions or subdivisions')
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     points=[(0.,0.)]
@@ -50,13 +62,7 @@ def generate(directory, sectors=12, axial=4, radial=2, radius=1., thickness=.2, 
             elif name=='fluid' or all(abs(math.hypot(*xyz[i][1:])-radius)<1e-12 for i in face):tag=3+offset
             else:tag=14
             boundary.append((tag,face))
-        with (directory/(name+'.msh')).open('w') as f:
-            f.write('$MeshFormat\n2.2 0 8\n$EndMeshFormat\n$Nodes\n'+str(len(xyz))+'\n')
-            for i,x in enumerate(xyz,1):f.write(f'{i} '+ ' '.join(format(v,'.17g') for v in x)+'\n')
-            f.write('$EndNodes\n$Elements\n'+str(len(cells)+len(boundary))+'\n')
-            for i,(tag,face) in enumerate(boundary,1):f.write(f'{i} 2 2 {tag} {tag} '+' '.join(str(v+1) for v in face)+'\n')
-            for i,t in enumerate(cells,len(boundary)+1):f.write(f'{i} 4 2 {region} {region} '+' '.join(str(v+1) for v in t)+'\n')
-            f.write('$EndElements\n')
+        write_tet_mesh(directory/(name+'.msh'),xyz,cells,boundary,region)
     constraint=lambda tag:dict(tag=tag,components=[0,1,2])
     cfg=dict(mesh='fluid.msh',output='tube.vtu',fsi=dict(body='elastic',material='neo_hookean',
         domains=dict(solid_mesh='solid.msh',fluid_region=10,solid_region=20,fluid_interface=3,solid_interface=13,
@@ -75,5 +81,8 @@ def generate(directory, sectors=12, axial=4, radial=2, radius=1., thickness=.2, 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--output',type=Path,default=Path('build/fsi-tube'))
-    p.add_argument('--sectors',type=int,default=12);p.add_argument('--axial',type=int,default=4);p.add_argument('--radial',type=int,default=2)
-    a=p.parse_args();print(generate(a.output,a.sectors,a.axial,a.radial))
+    p.add_argument('--sectors',type=int,default=12);p.add_argument('--axial',type=int);p.add_argument('--radial',type=int,default=2)
+    p.add_argument('--clamped-slab',action='store_true',help='Generate one fully clamped axial slab for a rigid reference')
+    a=p.parse_args()
+    axial=a.axial if a.axial is not None else (1 if a.clamped_slab else 4)
+    print(generate(a.output,a.sectors,axial,a.radial,clamped_slab=a.clamped_slab))

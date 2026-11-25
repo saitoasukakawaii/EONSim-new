@@ -1,0 +1,245 @@
+diff --git a/Code/Source/svFSILS/NSSOLVER.f b/Code/Source/svFSILS/NSSOLVER.f
+index 1785e75..9c676b6 100755
+--- a/Code/Source/svFSILS/NSSOLVER.f
++++ b/Code/Source/svFSILS/NSSOLVER.f
+@@ -57,13 +57,17 @@
+       REAL(KIND=LSRP), INTENT(IN) :: Val(dof*dof,lhs%nnz)
+       REAL(KIND=LSRP), INTENT(INOUT) :: Ri(dof,lhs%nNo)
+
+-      LOGICAL GE
++      REAL(KIND=LSRP) projected, trueNorm, maxNorm
++      REAL(KIND=LSRP), ALLOCATABLE :: xcheck(:,:), axcheck(:,:)
++      INTEGER(KIND=LSIP) used, sweep, slot, mpierr
++      INTEGER(KIND=LSIP), ALLOCATABLE :: active(:)
++      REAL(KIND=LSRP) startNorm, columnNorm, alpha
+       INTEGER(KIND=LSIP) nNo, nnz, mynNo, i, j, k, iB, iBB, nB, nsd, c
+       REAL(KIND=LSRP) FSILS_CPUT, FSILS_NORMS, FSILS_NORMV, FSILS_DOTS, &
+      &   FSILS_DOTV, eps, FSILS_NCDOTS, FSILS_NCDOTV
+
+       REAL(KIND=LSRP), ALLOCATABLE :: U(:,:,:), P(:,:), MU(:,:,:),      &
+-     &   MP(:,:), A(:,:), tmp(:), tmpG(:), B(:), xB(:), oldxB(:),       &
++     &   MP(:,:), A(:,:), tmp(:), tmpG(:), B(:), xB(:),                 &
+      &   mK(:,:), mG(:,:), mD(:,:), mL(:), Gt(:,:), Rm(:,:), Rc(:),     &
+      &   Rmi(:,:), Rci(:)
+
+@@ -75,15 +79,15 @@
+       nB = 2*iB
+       ALLOCATE(Rm(nsd,nNo), Rc(nNo), Rmi(nsd,nNo), Rci(nNo),            &
+      &   U(nsd,nNo,iB), P(nNo,iB), MU(nsd,nNo,nB), MP(nNo,nB),          &
+-     &   tmp(nB*nB+nB), tmpG(nB*nB+nB), A(nB,nB), B(nB), xB(nB),        &
+-     &   oldxB(nB))
++     &   tmp(nB), tmpG(nB), A(nB,nB), B(nB), xB(nB), active(nB))
+
+       Rmi = Ri(1:nsd,:)
+       Rci = Ri(dof,:)
+
+       xB          = 0._LSRP
+       B           = 0._LSRP
+-      oldxB       = 0._LSRP
++      used        = 0
++      A           = 0._LSRP
+       Rm          = Rmi
+       Rc          = Rci
+       eps         = SQRT(FSILS_NORMV(nsd,mynNo,lhs%commu,Rm)**2._LSRP   &
+@@ -98,6 +102,7 @@
+       ls%RI%suc   = .FALSE.
+       eps         = MAX(ls%RI%absTol,ls%RI%relTol*eps)
+
++      projected = ls%RI%fNorm
+       CALL DEPART
+       CALL BCPRE
+
+@@ -133,86 +138,87 @@
+          CALL FSILS_SPARMULVS(lhs, lhs%rowPtr, lhs%colPtr, nsd, mD,     &
+      &      U(:,:,i), MP(:,iBB))
+
+-         c = 0
+-         DO k=iB, iBB
+-            DO j=1, k
+-               c = c + 1
+-               tmp(c) = FSILS_NCDOTV(nsd, mynNo, MU(:,:,j), MU(:,:,k))  &
+-     &                + FSILS_NCDOTS(     mynNo, MP(:,j),   MP(:,k))
+-            END DO
+-            c = c + 1
+-            tmp(c) = FSILS_NCDOTV(nsd, mynNo, MU(:,:,k), Rmi)           &
+-     &             + FSILS_NCDOTS(     mynNo,  MP(:,k),  Rci)
+-         END DO
+-         IF (lhs%commu%nTasks .GT. 1) THEN
+-            CALL MPI_ALLREDUCE(tmp, tmpG, c, mpreal, MPI_SUM,           &
+-     &         lhs%commu%comm, j)
+-            tmp = tmpG
+-         END IF
+-
+-         c = 0
+-         DO k=iB, iBB
+-            DO j=1, k
+-               c      = c + 1
+-               A(j,k) = tmp(c)
+-               A(k,j) = tmp(c)
++!        Twice-reorthogonalized QR of the two new operator images.
++!        Keep independent columns individually. A stores the triangular
++!        factor in active-column order. U and P retain the raw directions.
++         DO k=iB,iBB
++            startNorm = mixedNorm(MU(:,:,k),MP(:,k))
++            IF (startNorm .EQ. 0._LSRP) CYCLE
++            DO sweep=1,2
++               IF (used .EQ. 0) EXIT
++               DO j=1,used
++                  slot = active(j)
++                  tmp(j) = FSILS_NCDOTV(nsd,mynNo,MU(:,:,slot),         &
++     &                              MU(:,:,k)) + FSILS_NCDOTS(mynNo,    &
++     &                              MP(:,slot),MP(:,k))
++               END DO
++               IF (lhs%commu%nTasks .GT. 1) THEN
++                  CALL MPI_ALLREDUCE(tmp,tmpG,used,mpreal,MPI_SUM,      &
++     &                               lhs%commu%comm,mpierr)
++                  tmp(1:used) = tmpG(1:used)
++               END IF
++               DO j=1,used
++                  slot = active(j)
++                  A(j,used+1) = A(j,used+1) + tmp(j)
++                  MU(:,:,k) = MU(:,:,k) - tmp(j)*MU(:,:,slot)
++                  MP(:,k) = MP(:,k) - tmp(j)*MP(:,slot)
++               END DO
+             END DO
+-            c    = c + 1
+-            B(k) = tmp(c)
+-         END DO
+-
+-         xB = B
+-         IF (GE(nB, iBB, A, xB)) THEN
+-            oldxB = xB
+-         ELSE
+-            IF(lhs%commu%masF) PRINT *,"FSILS: Singular matrix detected"
+-            xB = oldxB
+-            IF (i .GT. 1) THEN
+-               iB  = iB  - 2
+-               iBB = iBB - 2
++            columnNorm = mixedNorm(MU(:,:,k),MP(:,k))
++            IF (columnNorm .LE. 16*EPSILON(alpha)*startNorm) THEN
++               A(1:used,used+1) = 0._LSRP
++               CYCLE
+             END IF
+-            EXIT
+-         END IF
+-
+-         ls%RI%fNorm = ls%RI%iNorm**2._LSRP - SUM(xB(1:iBB)*B(1:iBB))
+-         IF(ls%RI%fNorm .LT. eps*eps) THEN
++            used = used + 1
++            active(used) = k
++            A(used,used) = columnNorm
++            MU(:,:,k) = MU(:,:,k)/columnNorm
++            MP(:,k) = MP(:,k)/columnNorm
++            alpha = FSILS_DOTV(nsd,mynNo,lhs%commu,MU(:,:,k),Rm) +      &
++     &              FSILS_DOTS(mynNo,lhs%commu,MP(:,k),Rc)
++            B(used) = alpha
++            Rm = Rm - alpha*MU(:,:,k)
++            Rc = Rc - alpha*MP(:,k)
++         END DO
++         ls%RI%fNorm = mixedNorm(Rm,Rc)**2
++!        Retain the subtractive projected norm solely as a diagnostic.
++         projected = ls%RI%iNorm**2 - SUM(B(1:used)**2)
++         IF (ls%RI%fNorm .LE. eps*eps) THEN
+             ls%RI%suc = .TRUE.
+             EXIT
+          END IF
+-
+-         Rm = Rmi - xB(1)*MU(:,:,1)
+-         Rc = Rci - xB(1)*MP(:,1)
+-         DO j=2, iBB
+-            Rm = Rm - xB(j)*MU(:,:,j)
+-            Rc = Rc - xB(j)*MP(:,j)
+-         END DO
+       END DO
+-      IF (i .GT. ls%RI%mItr) THEN
+-         ls%RI%itr = ls%RI%mItr
++      ls%RI%itr = MIN(i,ls%RI%mItr)
++      IF (ls%RI%fNorm .GT. 0._LSRP) THEN
++         ls%Resc = NINT(100._LSRP*FSILS_NORMS(mynNo,lhs%commu,          &
++     &      Rc)**2 / ls%RI%fNorm, KIND=LSIP)
++         ls%Resm = 100 - ls%Resc
+       ELSE
+-         ls%RI%itr = i
+-
+-         Rc = Rci - xB(1)*MP(:,1)
+-         DO j=2, iBB
+-            Rc = Rc - xB(j)*MP(:,j)
+-         END DO
++         ls%Resc = 0
++         ls%Resm = 0
+       END IF
+-      ls%Resc = NINT(100._LSRP*FSILS_NORMS(mynNo, lhs%commu,            &
+-     &   Rc)**2._LSRP / ls%RI%fNorm, KIND=LSIP)
+-      ls%Resm = 100 - ls%Resc
+-
+-      Rmi = xB(2)*U(:,:,1)
+-      Rci = xB(1)*P(:,1)
+-      DO i=2, ls%RI%itr
+-         iB  = 2*i - 1
+-         iBB = 2*i
+
+-         Rmi = Rmi + xB(iBB)*U(:,:,i)
+-         Rci = Rci + xB(iB)*P(:,i)
++!     Solve the triangular least-squares problem and return to the
++!     original split search directions.
++      xB(1:used) = B(1:used)
++      DO j=used,1,-1
++         xB(j) = xB(j)/A(j,j)
++         xB(1:j-1) = xB(1:j-1) - A(1:j-1,j)*xB(j)
++      END DO
++      Rmi = 0._LSRP
++      Rci = 0._LSRP
++      DO j=1,used
++         k = active(j)
++         IF (MOD(k,2) .EQ. 0) THEN
++            Rmi = Rmi + xB(j)*U(:,:,k/2)
++         ELSE
++            Rci = Rci + xB(j)*P(:,(k+1)/2)
++         END IF
+       END DO
+
+       ls%RI%callD = FSILS_CPUT() - ls%RI%callD
+-      ls%RI%dB    = 5._LSRP*LOG(ls%RI%fNorm/ls%RI%dB)
++      ls%RI%dB = 5._LSRP*(LOG(MAX(TINY(eps),ls%RI%fNorm)) -             &
++     &                   LOG(MAX(TINY(eps),ls%RI%dB)))
+
+       IF (ls%Resc.LT.0 .OR. ls%Resm.LT.0) THEN
+          ls%Resc = 0
+@@ -226,6 +232,22 @@
+       END IF
+       ls%RI%fNorm = SQRT(ls%RI%fNorm)
+
++!     Independent matvec in the original scaled full operator. Include
++!     the same coupled boundary action used by the momentum block.
++      ALLOCATE(xcheck(dof,nNo), axcheck(dof,nNo))
++      xcheck(1:nsd,:) = Rmi
++      xcheck(dof,:) = Rci
++      CALL FSILS_SPARMULVV(lhs,lhs%rowPtr,lhs%colPtr,dof,Val,           &
++     &   xcheck,axcheck)
++      CALL ADDBCMUL(lhs,BCOP_TYPE_ADD,dof,xcheck,axcheck)
++      axcheck = Ri - axcheck
++      trueNorm = FSILS_NORMV(dof,mynNo,lhs%commu,axcheck)
++      maxNorm = MAX(ls%RI%absTol,ls%RI%relTol*ls%RI%iNorm)
++      IF (lhs%commu%masF) WRITE(*,'(A,1X,I6,1X,L1,5(1X,ES24.16))')      &
++     &   "bipn_residual",ls%RI%itr,ls%RI%suc,ls%RI%iNorm,projected,     &
++     &   ls%RI%fNorm,trueNorm,maxNorm
++      ls%RI%suc = trueNorm .LE. maxNorm
++      ls%RI%fNorm = trueNorm
+       Ri(1:nsd,:) = Rmi
+       Ri(dof,:) = Rci
+
+@@ -233,6 +255,14 @@
+
+       RETURN
+       CONTAINS
++!--------------------------------------------------------------------
++      FUNCTION mixedNorm(u,p) RESULT(norm)
++      IMPLICIT NONE
++      REAL(KIND=LSRP), INTENT(IN) :: u(nsd,nNo),p(nNo)
++      REAL(KIND=LSRP) norm
++      norm = SQRT(FSILS_NORMV(nsd,mynNo,lhs%commu,u)**2 +               &
++     &            FSILS_NORMS(mynNo,lhs%commu,p)**2)
++      END FUNCTION mixedNorm
+ !--------------------------------------------------------------------
+       SUBROUTINE DEPART
+       IMPLICIT NONE

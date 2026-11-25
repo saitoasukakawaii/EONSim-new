@@ -162,13 +162,30 @@ class WomersleyTest(unittest.TestCase):
         first = ' NS 1-1 0.3 [ 0 1.0 1.0 1e-10] [ 24 -30 82]'
         second = ' NS 1-2 0.4 [-120 2e-9 3e-9 1.0] ! 0 -20 0]'
         self.assertEqual(sv.check_convergence(first+'\n'+second,1),(2e-9,1))
+        growth = ' NS 1-2 0.3 ! 24 1.752E1 4.317E3 8.0E-11! [ 78 -232 58]'
+        recovered = second.replace('1-2','1-3')
+        self.assertEqual(sv.check_convergence('\n'.join((first,growth,recovered)),1),(2e-9,1))
         for history,steps in [(first,1),(second,1),(first+'\n'+second,2),
+                              ('\n'.join((first,growth)),1),
+                              ('\n'.join((first,growth.replace('8.0E-11!','8.0E-11]'),recovered)),1),
+                              ('\n'.join((first,growth.replace('[ 78','! 78'),recovered)),1),
                               (first+'\n'+second+'\n'+second,1),
                               (first+'\n'+second.replace('! 0','! 7'),1),
                               (first+'\n'+second.replace('2e-9','NaN'),1),
                               (first+'\n'+second+'\nSingular matrix detected',1)]:
             with self.subTest(history=history,steps=steps), self.assertRaises(ValueError):
                 sv.check_convergence(history,steps)
+
+    def test_coupled_equation_rebound_uses_the_last_correction(self):
+        lines = [
+            ' MS 1-1 0.3 [ 0 1.0 1.0 1e-10] [ 24 -30 82]',
+            ' MS 1-2 0.4 [-180 1e-9 2e-9 1e-10] [ 12 -30 82]',
+            ' MS 1-3 0.5 [-154 2e-8 3e-8 1e-10] [ 18 -30 82]',
+        ]
+        with self.assertRaisesRegex(ValueError, r'MS 1-3, residual 2e-08'):
+            sv.check_convergence('\n'.join(lines),1,'MS')
+        lines.append(' MS 1-4s 0.6 [-220 1e-11 2e-11 1e-10] [ 15 -30 82]')
+        self.assertEqual(sv.check_convergence('\n'.join(lines),1,'MS'),(1e-11,0))
 
     def test_axial_sections_integrate_oriented_p1_fields(self):
         mesh = self.directory/'section-mesh'

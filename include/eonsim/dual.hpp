@@ -1,6 +1,7 @@
 #pragma once
 /** @file @brief 固定宽度前向链式导数；只用于实际单元局部切线，无动态分配。 */
 #include <array>
+#include <cmath>
 namespace eonsim {
 template<int Width> struct Dual {
     double value=0;
@@ -15,6 +16,11 @@ template<int Width> struct Dual {
     Dual& operator+=(const Dual& b) { *this=*this+b; return *this; }
     Dual& operator-=(const Dual& b) { *this=*this-b; return *this; }
 };
+template<int N> Dual<N> sqrt(const Dual<N>& x) {
+    Dual<N> result(std::sqrt(x.value));
+    for(int i=0;i<N;++i) result.derivative[i]=x.derivative[i]/(2*result.value);
+    return result;
+}
 inline double primal(double x) { return x; }
 template<int N> double primal(const Dual<N>& x) { return x.value; }
 }

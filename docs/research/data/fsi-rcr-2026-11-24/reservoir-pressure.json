@@ -1,0 +1,140 @@
+{
+  "manufactured": {
+    "distal_exact": [
+      0.3877266367391514,
+      -0.4872316614323186
+    ],
+    "inlet_exact": [
+      4.093411987980873,
+      -2.748044055030177
+    ],
+    "schemes": {
+      "be": {
+        "max_pressure_errors": [
+          0.0023057918913216707,
+          0.0011654548786687383,
+          0.0005859425114665279
+        ],
+        "orders": [
+          0.9843691580938927,
+          0.9920621210127901
+        ],
+        "frequency_response": [
+          {
+            "steps": 64,
+            "stage_defect": 1.3877787807814457e-17,
+            "distal_amplitude": 0.6077187849030203,
+            "distal_phase_deg": -50.51494397568021,
+            "distal_complex_error": 0.029302385489811872,
+            "inlet_complex_error": 0.039213692659863714
+          },
+          {
+            "steps": 128,
+            "stage_defect": 1.3877787807814457e-17,
+            "distal_amplitude": 0.6152125996104285,
+            "distal_phase_deg": -51.00745960337964,
+            "distal_complex_error": 0.014602503818425695,
+            "inlet_complex_error": 0.019501424781742424
+          },
+          {
+            "steps": 256,
+            "stage_defect": 1.5612511283791264e-17,
+            "distal_amplitude": 0.618949113609029,
+            "distal_phase_deg": -51.249181404513685,
+            "distal_complex_error": 0.007288922208531617,
+            "inlet_complex_error": 0.009729949921293543
+          }
+        ]
+      },
+      "bdf2": {
+        "max_pressure_errors": [
+          0.0003992075826408162,
+          0.00011540978368729943,
+          3.1403121793095734e-05
+        ],
+        "orders": [
+          1.7903735923917266,
+          1.877785641350713
+        ],
+        "frequency_response": [
+          {
+            "steps": 64,
+            "stage_defect": 1.3877787807814457e-17,
+            "distal_amplitude": 0.6215539197042107,
+            "distal_phase_deg": -51.43852714780582,
+            "distal_complex_error": 0.002000166539271304,
+            "inlet_complex_error": 0.006317455615203798
+          },
+          {
+            "steps": 128,
+            "stage_defect": 1.3877787807814457e-17,
+            "distal_amplitude": 0.6223835967853228,
+            "distal_phase_deg": -51.47530802611109,
+            "distal_complex_error": 0.0005214750985202902,
+            "inlet_complex_error": 0.001630456619636667
+          },
+          {
+            "steps": 256,
+            "stage_defect": 1.3877787807814457e-17,
+            "distal_amplitude": 0.6226020428715119,
+            "distal_phase_deg": -51.48486964058485,
+            "distal_complex_error": 0.00013300971682422158,
+            "inlet_complex_error": 0.0004130118009766731
+          }
+        ]
+      },
+      "generalized_alpha": {
+        "max_pressure_errors": [
+          0.00032860255016386314,
+          8.96936306189755e-05,
+          2.3736836584964394e-05
+        ],
+        "orders": [
+          1.873266232239764,
+          1.9178778597984107
+        ],
+        "frequency_response": [
+          {
+            "steps": 64,
+            "stage_defect": 2.7755575615628914e-17,
+            "distal_amplitude": 0.6230023106300775,
+            "distal_phase_deg": -51.40079094765311,
+            "distal_complex_error": 0.001611491705686851,
+            "inlet_complex_error": 0.002677960208755982
+          },
+          {
+            "steps": 128,
+            "stage_defect": 4.0115480381963664e-17,
+            "distal_amplitude": 0.6227502671345424,
+            "distal_phase_deg": -51.46501802008327,
+            "distal_complex_error": 0.0004199282177705658,
+            "inlet_complex_error": 0.0007100397710281701
+          },
+          {
+            "steps": 256,
+            "stage_defect": 3.9898639947466563e-17,
+            "distal_amplitude": 0.6226942488503944,
+            "distal_phase_deg": -51.48218322761784,
+            "distal_complex_error": 0.00010713746079911772,
+            "inlet_complex_error": 0.00018271313881384948
+          }
+        ]
+      }
+    }
+  },
+  "junction": {
+    "mpi": 8.761914804811255e-13,
+    "restart": 5.23192600354605e-15,
+    "port_order": 0.0,
+    "implicit_initial_pressure": 0.0,
+    "restart_history": 1.3877787807814457e-17,
+    "stage_defect": 1.6653345369377348e-16
+  },
+  "adaptive_retry": {
+    "retries": 3,
+    "accepted_dt": 0.0125,
+    "field_difference": 0.0,
+    "pressure_difference": 0.0,
+    "circuit_defect": 1.897787482718627e-15
+  }
+}

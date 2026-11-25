@@ -3,8 +3,71 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+namespace {
+void verify_normal_support() {
+    using namespace eonsim;
+    // Oblique facet and nonconsecutive local nodes exercise the projection and indexing.
+    const WallSupportFace face{{3,0,2},{2.4,{1./3,2./3,2./3}},8.,1.7};
+    const Point tangent{0,1,-1};
+    Tet4Vector::State<double> d{},v{},direction{};
+    for(int a=0;a<3;++a) for(int c=0;c<3;++c) {
+        const auto i=Tet4Vector::dof(face.nodes[a],c);
+        d[i]=(.1+a*.03)*face.geometry.normal[c]+a*tangent[c];
+        v[i]=(-.04+a*.01)*face.geometry.normal[c]-.7*tangent[c];
+        direction[i]=std::sin(.5+i);
+    }
+    constexpr double dt=.13;
+    SolidElement assembled;
+    const auto actual=face.evaluate(d,v,dt,&assembled,true);
+    // Independent degree-two three-point quadrature.
+    SolidElement expected;
+    WallSupportBalance balance;
+    for(int q=0;q<3;++q) {
+        double displacement=0,velocity=0;
+        for(int a=0;a<3;++a) {
+            const double shape=q==a?2./3:1./6;
+            displacement+=shape*(.1+a*.03+dt*(-.04+a*.01));
+            velocity+=shape*(-.04+a*.01);
+        }
+        const double weight=face.geometry.area/3;
+        const double traction=face.stiffness*displacement+face.damping*velocity;
+        balance.spring_energy+=weight*.5*face.stiffness*displacement*displacement;
+        balance.dissipation+=weight*face.damping*velocity*velocity;
+        balance.power_on_wall-=weight*traction*velocity;
+        for(int a=0;a<3;++a) for(int c=0;c<3;++c)
+            expected.residual[Tet4Vector::dof(face.nodes[a],c)]+=weight*(q==a?2./3:1./6)*traction*face.geometry.normal[c];
+    }
+    const auto close=[](double x,double y,double tol) {
+        if(!std::isfinite(x)||std::abs(x-y)>tol) throw std::runtime_error("Reference-normal wall support mismatch");
+    };
+    close(actual.spring_energy,balance.spring_energy,2e-15);
+    close(actual.dissipation,balance.dissipation,2e-15);
+    close(actual.power_on_wall,balance.power_on_wall,2e-15);
+    auto plus=v,minus=v;
+    constexpr double eps=1e-6;
+    for(int i=0;i<12;++i) {plus[i]+=eps*direction[i];minus[i]-=eps*direction[i];}
+    SolidElement rp,rm;
+    face.evaluate(d,plus,dt,&rp);face.evaluate(d,minus,dt,&rm);
+    double virtual_power=0;
+    for(int i=0;i<12;++i) {
+        close(assembled.residual[i],expected.residual[i],3e-15);
+        double jv=0;
+        for(int j=0;j<12;++j) jv+=assembled.tangent[Tet4Vector::matrix(i,j)]*direction[j];
+        close(jv,(rp.residual[i]-rm.residual[i])/(2*eps),3e-10);
+        virtual_power-=v[i]*assembled.residual[i];
+    }
+    close(virtual_power,actual.power_on_wall,3e-15);
+    Tet4Vector::State<double> sliding{};
+    for(int a:face.nodes) for(int c=0;c<3;++c) sliding[Tet4Vector::dof(a,c)]=tangent[c];
+    SolidElement free;
+    const auto slip=face.evaluate(sliding,sliding,dt,&free);
+    close(slip.spring_energy+slip.dissipation,0,1e-30);
+    for(double force:free.residual) close(force,0,1e-15);
+}
+}
 int main() {
     using namespace eonsim;
+    verify_normal_support();
     const auto g=tet4_geometry({Point{0,0,0},Point{1.1,.1,0},Point{.2,.9,.1},Point{.1,.2,1.2}});
     std::array<double,12> x{},dn{},vn{},direction{};
     for(int i=0;i<12;++i) { x[i]=.03*std::sin(i+1); dn[i]=.02*std::cos(i+1); vn[i]=.04*std::sin(2*i); direction[i]=std::sin(3*i+.7); }
