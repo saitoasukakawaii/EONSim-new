@@ -1,6 +1,40 @@
 # EONSim Codex Task Queue
 
-## FSI-PC-02 / review / 2026-11-25
+## FSI-PC-03 / validated / 2026-11-25
+
+Implementation and targeted acceptance are complete on
+`codex/fsi-block-efficient-schur`, from merged #49/main
+`296246e53d895f29ea3d0f7e5c960dc26b1426dc`.
+[PR #50](https://github.com/saitoasukakawaii/EONSim-new/pull/50) is the delivery
+record and authoritative merge state.
+
+Delivered optional mixed-fluid nodal structural `P_s = K - G H_F E`, numeric
+refresh shared by semantic Schur roles, and independent nonsymmetric/scaled
+oracles. The nodal structural path remains experimental: correctness passed,
+but its measured screening did not establish useful efficiency.
+
+The complete 72-run arterial campaign instead supports two bounded default
+changes: added-mass fluid PREONLY and coupled twolevel velocity PREONLY.
+Existing a11 structural FGMRES and explicit override budgets remain available.
+The full physical Jacobian and physical gates are unchanged; the actual
+implicit structural action uses the configured approximate fluid response.
+
+Final source `c4fb266edec94afbf610cb1379dd1595ed96ae40` was pushed before its
+clean PETSc 3.23.7 Release 9/9 acceptance and independent archive replay.
+The 72-run campaign has separate binary/driver provenance, reproduced by
+2,635 hashes, 1,248 correction checks and all saved physical fields.
+All four required source CI checks passed: 15 newly executed numerical tests
+and 39 compatible historical receipts cover the 54-test required selection.
+[Evidence, failures, commands and CI](../research/data/fsi-block-efficiency-2026-11-25/README.md).
+
+The current user authorizes source → remote push → verification → merge
+following successful validation and all four protected checks. This replaces
+the prior task's user-review restriction. Use a head-locked squash and keep
+the knowledge article in website/drafts. Larger grids, stronger density ratios,
+full coupled AMG and multi-node scaling remain separate research validation
+needs; this delivery does not claim those properties.
+
+## FSI-PC-02 / merged as #49 / 2026-11-25
 
 Completed the existing conforming monolithic FSI block paths from merged #48
 (`f50a4a4338689c9a065bee30ae4a7f3f52c5002e`): complete-fluid structural Schur
@@ -30,12 +64,11 @@ solver remained faster on the two tested grids. Full coupled AMG, elasticity
 rotations, multi-node scaling and cross-partition restart are not established
 by these tests.
 
-The PR evidence is finalized; the pushed archive replay passed all file,
-log and full-trajectory checks. Remaining work: obtain user review and approval
-before any merge.
-User delivery order remains **finish
-source → push remote → run validation → user merges**. PR #49 retains
-`manual-review` / `no-automerge`; do not auto-merge even when CI succeeds.
+The pushed archive replay passed all file, log and full-trajectory checks.
+PR #49 is merged at `296246e53d895f29ea3d0f7e5c960dc26b1426dc`, verified
+from GitHub before FSI-PC-03 began. The prior task's user-review restriction
+is retained in its historical session record, not as an active block on the
+newly authorized task.
 
 ## 2026-11-24 · 血管 FSI 后续验收
 

@@ -1,6 +1,16 @@
 # FSI 分块预条件器
 
-**当前状态：本地定向验收已通过，等待用户审阅与合并。** 求解器实现检查点为
+**当前状态：本轮实现、默认路径本地验收与独立证据重放均已完成。**
+本轮基线为 `296246e53d895f29ea3d0f7e5c960dc26b1426dc`，工作分支为
+`codex/fsi-block-efficient-schur`，见 [PR #50](https://github.com/saitoasukakawaii/EONSim-new/pull/50)。
+`664a623` 的独立代数、RCR 与恢复检查通过；驱动 `66b0a62` 配合同一生产二进制
+完成 72 次动脉运行，含 12 条完整 32 步轨迹。结构 nodal 没有显示可靠效率收益，
+保留为显式可选项。完整比较支持把 added_mass 流体响应和 twolevel 联合速度响应
+改成单次 PC 应用。最终源码 `c4fb266` 已先推送、后重新编译并通过 clean Release
+9/9 定向回归，覆盖默认路径与用户覆盖。来源、CI 与重放见
+[本轮验证索引](../research/data/fsi-block-efficiency-2026-11-25/README.md)。
+
+上一轮求解器实现检查点为
 `b8ac03ab162715fca24009f18903da8116ef4ecc`；其 PETSc 3.23.7 Release 代数检查
 为 3/3，覆盖 1/2/4 rank。最终验收提交
 `b52281d7585ead08e545f29f8d83eca9177e7eac` 的八项物理/恢复选测全部通过，
@@ -13,10 +23,10 @@
 [源码 CI 收据](../research/data/fsi-block-2026-11-25/ci-source-b522.json)；
 该收据对应上述源码提交，不预先代表后续文档提交的检查状态。
 
-工作分支为 `codex/fsi-block-completion`，基线为
-`f50a4a4338689c9a065bee30ae4a7f3f52c5002e`。本轮遵循“源码先推送、再验证、
-用户审核后合并”；本地通过记录不代替 PR CI 或用户审核，本文和算法文章均不表示
-PR 已合并。实际命令、环境、历史失败和最终收据见
+上一轮工作分支为 `codex/fsi-block-completion`，基线为
+`f50a4a4338689c9a065bee30ae4a7f3f52c5002e`，PR #49 已合并。
+本轮按用户授权遵循“源码先推送、再验证、通过必需 CI 后合并”。
+上一轮实际命令、环境、历史失败和最终收据见
 [验证索引](../research/data/fsi-block-2026-11-25/README.md)及
 [原始证据归档](../research/data/fsi-block-2026-11-25/evidence.tar.xz)。
 下文 `build/...` 为原始证据来源路径，其归档映射由该索引记录；开发过程另见
@@ -35,9 +45,11 @@ Jacobian、物理残量、时间离散、约束或接受步条件。压力规范
 | `-pc_recipe added_mass` | dynamics 内完整 fluid/structure Schur；fluid 内 velocity/pressure Schur；外层 dynamics、mesh 乘法分裂 | 仅完整 FSI；完整 fluid 子块须可解 |
 | `-pc_plan_velocity_solver split` | hybrid/quantity 的速度块分 fluid_interior、structure | 默认值 |
 | `-pc_plan_velocity_solver coupled` | 完整流固速度矩阵上 GMRES/ASM/ILU | 仅完整 FSI 的 hybrid/quantity |
-| `-pc_plan_velocity_solver twolevel` | 完整流固速度矩阵上 FGMRES、两层 PCMG、ASM 平滑和全局粗校正 | 仅完整 FSI 的 hybrid/quantity |
+| `-pc_plan_velocity_solver twolevel` | 完整流固速度矩阵上 PREONLY 应用一次 PCMG V-cycle，含 ASM 平滑和全局粗校正 | 仅完整 FSI 的 hybrid/quantity；可显式选择 FGMRES |
 | `-pc_plan_schur_approx diagonal` | PETSc SELFP 压力近似 | 默认值 |
 | `-pc_plan_schur_approx nodal` | 语义节点块逆构造压力近似 `D−CHB` | 要求存在压力 Schur；不作用于 fluid/structure Schur |
+| `-pc_plan_structure_approx a11` | 结构 Schur 的 P 取结构块 `K` | `added_mass` 的默认值 |
+| `-pc_plan_structure_approx nodal` | 局部完整流体块逆构造结构近似 `K−G H_F E`，默认 PREONLY 应用 P 的预条件器 | 仅 `added_mass`；局部流体块须可逆；实验选项，尚无效率优势证据 |
 
 独立流体的 physics/quantity/hybrid 均退化为 velocity/pressure Schur。
 added_mass 与 twolevel 是不同的流固分组方式，不能同时选择。
@@ -72,11 +84,21 @@ F=\begin{bmatrix}A_{ff}&B_f\\C_f&D_f\end{bmatrix},\qquad
 S_s=K-GF^{-1}E.
 \]
 
-added_mass 用 PETSc `MatSchurComplement` 应用完整流体 velocity/pressure 响应，
-包括压力反馈。它不同于仅消去流体速度的
-\(K-G_vA_{ff}^{-1}E_v\)。结构 Schur 预条件矩阵取已装配的 \(K\)，
+added_mass 的 PETSc `MatSchurComplement` 保留完整流体 velocity/pressure 块及
+两向交叉块，包括压力反馈。它不同于仅消去流体速度的
+\(K-G_vA_{ff}^{-1}E_v\)。默认结构 Schur 预条件矩阵取已装配的 \(K\)，
 默认 FGMRES（rtol \(10^{-2}\)、最多 20 次）配 GAMG；单自由度结构用 Jacobi。
-流体响应默认 FGMRES（rtol \(10^{-4}\)、最多 20 次）配其内部速度/压力 Schur。
+流体响应默认 PREONLY，应用一次内部速度/压力 Schur 预条件器。
+记实际流体响应为 \(\mathcal B_F\)，结构算子的实际应用是
+
+\[
+\widetilde{\mathcal S}_s(v)=Kv-G\mathcal B_F(Ev).
+\]
+
+默认类型改变会改变这个近似作用，不能说它仍应用精确 \(F^{-1}\)。
+完整根 Jacobian 与物理残量保持不变。保留备用 rtol \(10^{-4}\)、max_it 20；
+显式设置 `-fieldsplit_dynamics_fieldsplit_fluid_ksp_type fgmres` 可恢复原迭代预算。
+只设置 rtol 或 max_it 不会使 PREONLY 开始迭代。独立 inner/upper 需要各自的类型选项。
 
 公式中的精确逆是数学定义。实际内层求解有限精度、有限工作量；
 相对容差停止的 Krylov 响应通常不是固定线性映射。外层 FGMRES 接受变化的
@@ -85,7 +107,7 @@ added_mass 用 PETSc `MatSchurComplement` 应用完整流体 velocity/pressure �
 内层达到工作上限可作为有界近似；PC 因子失败、非有限值及其它实质失败必须传播。
 用户开启 `ksp_error_if_not_converged` 会更严格地拒绝内层上限。
 
-默认 PC 从已装配的预条件矩阵 P 构建；KSP 的算子 A 仍为完整 Schur 作用。
+默认 PC 从已装配的预条件矩阵 P 构建；KSP 的 A 保留上述隐式 Schur 对象。
 这样也防止 GAMG 创建时的 `useAmat` 标志在用户切换 PC 类型后误导局部矩阵提取。
 如果 P 数值上严格对角、对角项有限且非零，则默认用 Jacobi 精确应用其逆，
 不构造不必要的层级；显式用户 PC 选项仍最后生效。
@@ -93,6 +115,45 @@ added_mass 用 PETSc `MatSchurComplement` 应用完整流体 velocity/pressure �
 完整系统可解不保证 \(F\) 单独可解。流体子块存在未处理的压力零空间时，
 须修正算例规范/边界或选择其它 recipe；程序不自动添加压力钉点。
 外层 ALE 仍为乘法分裂，未构造包含 ALE 消元的全系统精确 Schur。
+
+### 3.1 可选的结构 nodal 近似
+
+`-pc_plan_structure_approx nodal` 用同一流体实体实际保留的速度与压力
+分量组成 1–4 维局部块 \(F_i\)。实体种类、ID、域、空间与模式参与分组；
+压力独有节点及 RCR 边界压力保留为独立小块，不按代数行相邻关系分组。
+构造
+
+\[
+H_F=\operatorname{blockdiag}(F_i^{-1}),\qquad
+P_s=K-GH_FE.
+\]
+
+这近似包含局部速度—压力耦合及两向流固交叉项。\(E\) 与 \(G\) 分别从
+原 Jacobian 提取，不假设互为转置。先按行、列平衡局部矩阵，再作选主元消元，
+恢复原单位的逆；压力与动量数量级不同不应被直接当作局部奇异性。
+真实奇异、非有限或不完整块仍共同拒绝，不添加压力钉点或任意对角正则项。
+
+结构 KSP 的 A 保留上述隐式 Schur 对象，其实际响应取决于流体子 KSP；USER P 使用上式。
+新模式默认 PREONLY，应用一次由 \(P_s\) 构建的 GAMG/Jacobi 预条件器，
+避免默认结构 FGMRES 反复触发完整流体 Schur 乘法。
+用户仍可显式选择结构 FGMRES；该选择会重新引入隐式 Schur 作用的成本。
+生产代码仍要求外层求解成功、有限的重算物理残量及原逐字段接受条件。
+`-linear_report` 只报告 \(J\Delta x-b\)；本轮验证脚本另行强制真实线性残量门槛，
+该诊断本身不是新增的运行时接受门槛。
+
+压力 Schur 与结构 Schur 的两个 nodal 选项独立；例如：
+
+```text
+-pc_recipe added_mass
+-pc_plan_schur_approx nodal
+-pc_plan_structure_approx nodal
+-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type lower
+```
+
+局部逆没有保留跨节点的完整流体传播，不能据此宣称获得精确附加质量或
+网格无关收敛。RCR 单自由度可能通过 \(GH_FE\) 引入端口范围的填充。
+和压力 nodal 一样，固定图下复用符号乘积与 USER P 句柄，每次约束后
+Jacobian 装配只刷新一次。该选项的数值正确性和实际效率须分别验证。
 
 ## 4. 两层联合速度校正
 
@@ -113,13 +174,17 @@ PCMG V-cycle 在粗校正前后用 ASM 平滑；细层和 Galerkin 粗层均看�
 
 | 层 | 默认配置 |
 |---|---|
-| 联合速度 | FGMRES，rtol `1e-4`，max_it `20`；可显式选择 PREONLY |
+| 联合速度 | PREONLY，一次 PCMG V-cycle；备用 rtol `1e-4`、max_it `20` 供显式 FGMRES 使用 |
 | 细平滑器 | Richardson，1 次；ASM overlap `1` |
 | ASM 局部解 | PREONLY、ILU(1)、RCM |
 | 粗解 | GMRES/Jacobi，rtol `1e-10`，max_it `200`，unpreconditioned norm |
 | 全恒等块 | 明确退化为一层 PREONLY/Jacobi，不构造空粗矩阵 |
 
-粗 GMRES 可随右端改变工作量，因此联合速度迭代使用 FGMRES；最外层要求 FGMRES。
+粗 GMRES 可随右端改变工作量，因此一次 V-cycle 也不保证是固定线性逆；最外层要求 FGMRES。
+若用户显式启用联合速度迭代，只允许 FGMRES。hybrid 的恢复入口是
+`-fieldsplit_dynamics_fieldsplit_velocity_ksp_type fgmres`，quantity 则用
+`-fieldsplit_velocity_ksp_type fgmres`；独立 Schur inner/upper 使用各自前缀。
+PREONLY 的 `CONVERGED_ITS` 表示一次 PC 应用完成，不代表达到了备用 rtol。
 不允许用 `pc_type`、`pc_mg_levels`、`pc_mg_galerkin` 等选项改变固定拓扑。
 局部因子、overlap、内外容差及粗解仍可调节。
 `-pc_plan_report` 的 `pc_twolevel` 行报告实际粗维数和层数。
@@ -252,7 +317,7 @@ MPI 按核映射并绑核，OMP/OpenBLAS/MKL 各 1 线程。表中仅为首个�
 | 结构与流体速度均改 ASM overlap 1 / ILU(1) / RCM | 491 | 49.6610 | 四步诊断在 80 s 时仅完成 1 步 |
 | 结构、流体速度、压力的 GAMG 粗解改 PREONLY/LU/MUMPS | 92 | 29.3489 | 四步诊断在 80 s 时仅完成 2 步 |
 
-因此保留 20/20 GAMG 配置；没有采用上表任一候选为新默认值或推荐预设。
+该轮因此保留 20/20 GAMG 配置；上表候选均未采用。后续单次流体响应比较见 6.6。
 粗 LU 仅改变预条件器的粗逆，仍保留完整 Schur；其数学可用性不能替代速度证据。
 完整命令和日志摘要分别保留于
 `build/diagnostics/arterial-budget-b8ac03a/results.json`、
@@ -305,6 +370,60 @@ mpiexec -n 2 build/cloud-3.23.7-release/eonsim \
 
 `-linear_report` 仅报告诊断，不改变接受准则。尚未建立完整耦合 AMG、弹性旋转
 粗模态、多节点规模、跨分区重启及更强密度比/高 Reynolds 数的生产验证。
+
+### 6.6 本轮单次响应比较
+
+生产二进制来自先推送的 `664a623`，固定旧/新选项的比较驱动来自先推送的
+`66b0a62`；后者未改变生产 C++。两套网格共 12 次四步筛选、12 条完整 32 步轨迹、
+12 次预热和 36 次交替计时，72/72 运行通过。每次计时均为独立进程的四步轨迹。
+所有候选保留 `max(1e-23, 1e-10*rhs_norm)` 的真实线性残量目标与 `2e-6`
+的五场相对峰值差门槛，未放宽精度来获得速度。最大真实残量/目标比为
+`0.5547250921`，最大五场相对峰值差为 `3.1382e-11`。
+
+下表为三次交替样本的独立中位数。单机 INTEL XEON PLATINUM 8573C，
+PETSc 3.23.7 Release、Open MPI 5.0.8，MPI 按核绑定，OMP/OpenBLAS/MKL 各 1 线程。
+线性区间包含 PC setup 和嵌套求解；墙钟包含启动、同样的诊断与输出。
+
+| DoF / rank | 明确固定的配置 | 外层迭代 | 线性时间 / s | 墙钟 / s |
+|---|---|---:|---:|---:|
+| 1027 / 1 | added_mass，流体 FGMRES20 | 179 | 6.482707 | 6.885585 |
+| 1027 / 1 | added_mass，流体 PREONLY | 332 | 0.974291 | 1.368866 |
+| 1027 / 1 | twolevel，速度 FGMRES20 | 288 | 0.614463 | 1.017857 |
+| 1027 / 1 | twolevel，速度 PREONLY | 380 | 0.119125 | 0.515940 |
+| 3024 / 2 | added_mass，流体 FGMRES20 | 354 | 44.477524 | 45.057488 |
+| 3024 / 2 | added_mass，流体 PREONLY | 661 | 6.506006 | 7.148527 |
+| 3024 / 2 | twolevel，速度 FGMRES20 | 563 | 3.931200 | 4.585011 |
+| 3024 / 2 | twolevel，速度 PREONLY | 682 | 0.609956 | 1.237586 |
+
+在这些样本上，added_mass 的线性时间约降至原来的 1/6.65 和 1/6.84，
+twolevel 约降至 1/5.16 和 1/6.45，外层次数均增加。
+细网格直接法、coupled_nodal 的线性中位数分别为 `0.257188`、`1.014540` s；
+本次改进不意味着 added_mass 优于这两个基线，直接法在两套小网格上仍最快。
+网格大小与 rank 数同时变化，这不是强扩展实验。
+
+结构 nodal 的首轮独立四步样本没有产生可靠收益：细网格结构 PREONLY 的
+nodal / a11 分别为 `65.788333` / `68.456574` s，而原 a11 结构 FGMRES 为
+`49.117077` s。该选项保留作实验，未提升为默认值。验证器初版还漏过一次早期
+KSP 类型损坏；`66b0a62` 改为逐次、逐 rank 检查后，25 项正负对照全部符合预期。
+历史失败保留，不能把初版写成全部通过。
+
+### 6.7 最终默认源码与独立重放
+
+`c4fb266edec94afbf610cb1379dd1595ed96ae40` 的两处 KSP 默认类型更改在推送后重新编译。
+本地 PETSc 3.23.7 Release 的 `pc_plan_mpi1/2/4`、`fsi_tube_rcr`、
+`pc_added_mass_retry`、`pc_added_mass_nodal_retry`、`pc_twolevel_retry`、
+`pc_recipe_restart`、`pc_recipe_hybrid` **9/9 通过**，收据 `dirty=false`。
+精确结构 Schur oracle 显式恢复迭代流体响应；新默认则用非零 RHS 核对一次
+`KSPSolve` 与一次 `PCApply` 等价。独立 main/inner/upper 的 prefix、类型和预算
+分别核对。刚体、弹性双域及 Neo-Hookean 的新增两 rank 变体也核对实际默认类型，
+所有字段误差和物理/恢复门槛保持原值。
+
+同一推送的独立重放检查 2,635 份归档文件、72 份运行日志、1,248 次线性修正、
+2,028 份必要求解器观测、468 份体 VTU 及 156 个保存状态的 780 项字段比较，全部通过。
+其中 130 项是直接参考自身对照，650 项是其他模式；原初筛和失败控制仅做哈希核验。
+重放不执行求解器，亦不把有限的原墙钟及其重算中位数当作新的计时。
+[本地源码收据](../research/data/fsi-block-efficiency-2026-11-25/default-summary.json) ·
+[重放结果](../research/data/fsi-block-efficiency-2026-11-25/replay-result.json)。
 
 ## 7. 源码与官方依据
 

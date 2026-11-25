@@ -87,10 +87,22 @@ bool nodal_schur_requested(MPI_Comm comm) {
     common_check(comm,lo==hi&&lo!=0,"Schur approximation must be diagonal or nodal and identical on every rank");
     return local==2;
 }
+bool nodal_structure_requested(MPI_Comm comm,bool added_mass) {
+    char value[32]{}; PetscBool set=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_structure_approx",value,sizeof(value),&set));
+    const std::string name=set?value:"a11";
+    int local=name=="a11"?1:name=="nodal"?2:0,lo=0,hi=0;
+    MPI_Allreduce(&local,&lo,1,MPI_INT,MPI_MIN,comm);
+    MPI_Allreduce(&local,&hi,1,MPI_INT,MPI_MAX,comm);
+    common_check(comm,lo==hi&&lo!=0,"structure approximation must be a11 or nodal and identical on every rank");
+    common_check(comm,!set||added_mass,"structure approximation option requires the added_mass recipe");
+    return local==2;
+}
 // Canonical node ownership keeps all active components of a group on one rank.
 // Domain/kind/space/mode distinguish different entities sharing a numeric ID.
-void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,int velocity_solver,bool nodal) {
-    // Nodal H is a velocity inverse: never use it for the full-fluid/solid Schur.
+void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,int velocity_solver,bool nodal,bool nodal_structure) {
+    // The pressure approximation uses velocity groups. The structural
+    // approximation below has its own mixed fluid groups and separate option.
     node.nodal_schur=node.schur&&nodal&&node.children.at(1).name=="pressure";
     if(node.name=="velocity") {
         node.coupled_velocity=velocity_solver!=1&&node.children.empty();
@@ -112,17 +124,52 @@ void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,int veloci
             common_check(comm,valid,"nodal velocity blocks must contain one to three active components");
         }
     }
-    for(auto& child:node.children) decorate(comm,layout,child,velocity_solver,nodal);
+    if(nodal_structure&&node.name=="fluid") {
+        std::map<DofKey,std::vector<PetscInt>> groups;
+        for(std::size_t i=0;i<node.root_rows.size();++i) {
+            auto key=layout.owned_semantics.at(node.root_rows[i]-layout.begin);
+            // The mixed inverse deliberately joins u and p, while preserving
+            // entity kind, space and mode (including distinct RCR pressures).
+            key.quantity=Q::velocity; key.component=0;
+            groups[key].push_back(node.begin+static_cast<PetscInt>(i));
+        }
+        bool valid=true;
+        for(auto& group:groups) {
+            valid=valid&&!group.second.empty()&&group.second.size()<=4;
+            node.fluid_groups.push_back(std::move(group.second));
+        }
+        common_check(comm,valid,"nodal fluid blocks must contain one to four active velocity/pressure components");
+    }
+    for(auto& child:node.children) decorate(comm,layout,child,velocity_solver,nodal,nodal_structure);
 }
-// Invert only a 1--3 component local block, using pivoted elimination.
+using SmallBlock=std::array<PetscScalar,16>;
+// Invert only a 1--4 component local block, using pivoted elimination.
 // The inverse is needed for sparse matrix products, never for the physical solve.
-bool invert_small(PetscInt n,std::array<PetscScalar,9>& a,std::array<PetscScalar,9>& h) {
+bool invert_small(PetscInt n,SmallBlock& a,SmallBlock& h,bool equilibrate) {
+    if(n<1||n>4) return false;
     double scale=0;
     for(PetscInt i=0;i<n*n;++i) {
         if(!std::isfinite(a[i])) return false;
         scale=std::max(scale,std::abs(a[i]));
     }
     if(!(scale>0)) return false;
+    std::array<double,4> rows{},columns{};
+    if(equilibrate) {
+        // Mixed velocity/pressure entries have different units. Invert R*A*C
+        // after two-sided max equilibration, then return C*(R*A*C)^-1*R.
+        // This changes only the local inverse calculation, never J or its RHS.
+        for(PetscInt i=0;i<n;++i) {
+            for(PetscInt j=0;j<n;++j) rows[i]=std::max(rows[i],std::abs(a[i*n+j]));
+            if(!(rows[i]>0)) return false;
+            for(PetscInt j=0;j<n;++j) a[i*n+j]/=rows[i];
+        }
+        for(PetscInt j=0;j<n;++j) {
+            for(PetscInt i=0;i<n;++i) columns[j]=std::max(columns[j],std::abs(a[i*n+j]));
+            if(!(columns[j]>0)) return false;
+            for(PetscInt i=0;i<n;++i) a[i*n+j]/=columns[j];
+        }
+        scale=1.;
+    }
     h.fill(0);
     for(PetscInt i=0;i<n;++i) h[i*n+i]=1.;
     for(PetscInt k=0;k<n;++k) {
@@ -140,47 +187,54 @@ bool invert_small(PetscInt n,std::array<PetscScalar,9>& a,std::array<PetscScalar
             for(PetscInt j=0;j<n;++j) { a[i*n+j]-=factor*a[k*n+j]; h[i*n+j]-=factor*h[k*n+j]; }
         }
     }
+    if(equilibrate) for(PetscInt i=0;i<n;++i) for(PetscInt j=0;j<n;++j) {
+        // Wider intermediates avoid overflow when the two scale factors cancel.
+        h[i*n+j]=static_cast<PetscScalar>(static_cast<long double>(h[i*n+j])/columns[i]/rows[j]);
+    }
     return std::all_of(h.begin(),h.begin()+n*n,[](double v){return std::isfinite(v);});
 }
 // The root graph and index sets are immutable for a NonlinearSystem. Retain
 // the same USER preconditioning Mat for PETSc and reuse symbolic products.
 struct NodalSchur {
     MPI_Comm comm;
-    PetscOwner<IS,ISDestroy> velocity,pressure;
+    bool mixed_fluid;
+    PetscOwner<IS,ISDestroy> first_block,second_block;
     PetscOwner<Mat,MatDestroy> a,b,c,d,h,hb,chb,p;
     std::vector<std::vector<PetscInt>> groups;
-    NodalSchur(MPI_Comm communicator,const PcBlock& node):comm(communicator),groups(node.children.at(0).velocity_groups) {
-        const auto& v=node.children.at(0).root_rows;
-        const auto& q=node.children.at(1).root_rows;
-        EONSIM_PETSC(ISCreateGeneral(comm,v.size(),v.data(),PETSC_COPY_VALUES,velocity.put()));
-        EONSIM_PETSC(ISCreateGeneral(comm,q.size(),q.data(),PETSC_COPY_VALUES,pressure.put()));
+    NodalSchur(MPI_Comm communicator,const PcBlock& node):comm(communicator),mixed_fluid(node.nodal_structure_schur),
+        groups(mixed_fluid?node.children.at(0).fluid_groups:node.children.at(0).velocity_groups) {
+        const auto& first=node.children.at(0).root_rows;
+        const auto& second=node.children.at(1).root_rows;
+        EONSIM_PETSC(ISCreateGeneral(comm,first.size(),first.data(),PETSC_COPY_VALUES,first_block.put()));
+        EONSIM_PETSC(ISCreateGeneral(comm,second.size(),second.data(),PETSC_COPY_VALUES,second_block.put()));
     }
     void update(Mat root) {
         const bool first=!a.get();
         const MatReuse reuse=first?MAT_INITIAL_MATRIX:MAT_REUSE_MATRIX;
-        EONSIM_PETSC(MatCreateSubMatrix(root,velocity.get(),velocity.get(),reuse,a.put()));
-        EONSIM_PETSC(MatCreateSubMatrix(root,velocity.get(),pressure.get(),reuse,b.put()));
-        EONSIM_PETSC(MatCreateSubMatrix(root,pressure.get(),velocity.get(),reuse,c.put()));
-        EONSIM_PETSC(MatCreateSubMatrix(root,pressure.get(),pressure.get(),reuse,d.put()));
+        EONSIM_PETSC(MatCreateSubMatrix(root,first_block.get(),first_block.get(),reuse,a.put()));
+        EONSIM_PETSC(MatCreateSubMatrix(root,first_block.get(),second_block.get(),reuse,b.put()));
+        EONSIM_PETSC(MatCreateSubMatrix(root,second_block.get(),first_block.get(),reuse,c.put()));
+        EONSIM_PETSC(MatCreateSubMatrix(root,second_block.get(),second_block.get(),reuse,d.put()));
         PetscInt begin,end,global,columns;
         EONSIM_PETSC(MatGetOwnershipRange(a.get(),&begin,&end));
         EONSIM_PETSC(MatGetSize(a.get(),&global,&columns));
         std::vector<PetscInt> counts(end-begin,0);
         bool valid=global==columns;
-        std::vector<std::array<PetscScalar,9>> inverses(groups.size());
+        std::vector<SmallBlock> inverses(groups.size());
         for(std::size_t i=0;i<groups.size();++i) {
             const auto& rows=groups[i];
             const PetscInt n=static_cast<PetscInt>(rows.size());
-            bool local=n>=1&&n<=3;
+            bool local=n>=1&&n<=(mixed_fluid?4:3);
             for(auto row:rows) local=local&&row>=begin&&row<end;
             if(!local) { valid=false; continue; }
             for(auto row:rows) {valid=valid&&counts[row-begin]==0; counts[row-begin]=n;}
-            std::array<PetscScalar,9> values{};
+            SmallBlock values{};
             EONSIM_PETSC(MatGetValues(a.get(),n,rows.data(),n,rows.data(),values.data()));
-            if(!invert_small(n,values,inverses[i])) valid=false;
+            if(!invert_small(n,values,inverses[i],mixed_fluid)) valid=false;
         }
         valid=valid&&std::all_of(counts.begin(),counts.end(),[](PetscInt n){return n>0;});
-        common_check(comm,valid,"singular, nonfinite or incomplete nodal velocity block");
+        common_check(comm,valid,mixed_fluid?"singular, nonfinite or incomplete nodal fluid block":
+                                          "singular, nonfinite or incomplete nodal velocity block");
         if(first) {
             EONSIM_PETSC(MatCreateAIJ(comm,end-begin,end-begin,global,global,0,counts.data(),0,nullptr,h.put()));
             EONSIM_PETSC(MatSetOption(h.get(),MAT_IGNORE_ZERO_ENTRIES,PETSC_FALSE));
@@ -201,6 +255,17 @@ struct NodalSchur {
             EONSIM_PETSC(MatZeroEntries(p.get()));
             EONSIM_PETSC(MatAXPY(p.get(),-1.,chb.get(),SUBSET_NONZERO_PATTERN));
             EONSIM_PETSC(MatAXPY(p.get(),1.,d.get(),SUBSET_NONZERO_PATTERN));
+        }
+        if(mixed_fluid) {
+            bool finite=true;
+            EONSIM_PETSC(MatGetOwnershipRange(p.get(),&begin,&end));
+            for(PetscInt row=begin;row<end;++row) {
+                PetscInt count=0; const PetscInt* columns=nullptr; const PetscScalar* values=nullptr;
+                EONSIM_PETSC(MatGetRow(p.get(),row,&count,&columns,&values));
+                for(PetscInt j=0;j<count;++j) finite=finite&&std::isfinite(values[j]);
+                EONSIM_PETSC(MatRestoreRow(p.get(),row,&count,&columns,&values));
+            }
+            common_check(comm,finite,"nonfinite nodal structure Schur approximation");
         }
     }
 };
@@ -256,9 +321,9 @@ void defaults(MPI_Comm comm,KSP ksp,bool structure_response=false) {
     // Local factors must see assembled P, not the implicit Schur operator A.
     EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
     if(structure_response) {
-        // Apply the implicit complete-fluid Schur operator, preconditioned by
-        // the assembled structural diagonal block. Bounded inexact work belongs
-        // inside the outer flexible solve, never changes its convergence test.
+        // Apply the implicit Schur with the configured approximate full-fluid
+        // response, preconditioned by the assembled structural diagonal block.
+        // The outer flexible solve retains the complete root Jacobian and gate.
         EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
         EONSIM_PETSC(KSPSetTolerances(ksp,1e-2,PETSC_DEFAULT,PETSC_DEFAULT,20));
     }
@@ -288,8 +353,9 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
     if(report) {
         int rank=0; MPI_Comm_rank(comm,&rank);
         const char* prefix=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(ksp,&prefix));
-        EONSIM_PETSC(PetscSynchronizedPrintf(comm,"pc_block rank=%d name=%s prefix=%s global=%" PetscInt_FMT " begin=%" PetscInt_FMT " owned=%zu children=%zu\n",
-            rank,node.name.c_str(),prefix?prefix:"-",node.global,node.begin,node.root_rows.size(),node.children.size()));
+        EONSIM_PETSC(PetscSynchronizedPrintf(comm,"pc_block rank=%d name=%s prefix=%s global=%" PetscInt_FMT " begin=%" PetscInt_FMT " owned=%zu children=%zu structure_approx=%s\n",
+            rank,node.name.c_str(),prefix?prefix:"-",node.global,node.begin,node.root_rows.size(),node.children.size(),
+            node.added_mass_schur?(node.nodal_structure_schur?"nodal":"a11"):"none"));
         EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
     }
     PC pc; EONSIM_PETSC(KSPGetPC(ksp,&pc));
@@ -300,6 +366,7 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
         if(node.twolevel_velocity) configure_coupled_velocity_twolevel(comm,ksp,node.velocity_semantics);
         else if(node.global==1 || (node.name=="pressure"&&!schur_parent)) {
             EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCJACOBI));
+            EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
             if(node.structure_response) {
                 EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
                 EONSIM_PETSC(KSPSetTolerances(ksp,1e-2,PETSC_DEFAULT,PETSC_DEFAULT,20));
@@ -311,17 +378,24 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
     }
     if(!root) EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY));
     if(node.fluid_response) {
-        EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
+        // One complete velocity/pressure PC application approximates F^-1.
+        // Its tolerance-dependent coarse solves still require outer FGMRES.
+        // Retain the bounded budget for an explicit FGMRES override. Each
+        // main/interior/upper KSP applies its own options after these defaults.
+        EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY));
         EONSIM_PETSC(KSPSetTolerances(ksp,1e-4,PETSC_DEFAULT,PETSC_DEFAULT,20));
     }
     EONSIM_PETSC(PCSetType(pc,PCFIELDSPLIT));
     EONSIM_PETSC(PCFieldSplitSetType(pc,node.schur?PC_COMPOSITE_SCHUR:PC_COMPOSITE_MULTIPLICATIVE));
     if(node.schur) {
         EONSIM_PETSC(PCFieldSplitSetSchurFactType(pc,PC_FIELDSPLIT_SCHUR_FACT_FULL));
-        if(node.nodal_schur) {
+        if(node.nodal_schur||node.nodal_structure_schur) {
             common_check(comm,updates!=nullptr,"nodal Schur requires live numeric refresh state");
             // Independent main/inner/upper KSPs use the same numerical block.
             // Share its USER matrix and refresh it once per Jacobian assembly.
+            // Structure P is K-G*H_F*E. Its implicit A keeps the full fluid
+            // blocks and applies the configured approximate fluid response;
+            // the root Jacobian is unchanged.
             auto& state=schur_cache[&node];
             if(!state) {
                 state=std::make_shared<NodalSchur>(comm,node);
@@ -385,6 +459,7 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
     common_check(comm,global[0]>0&&(!coupled||(global[1]>0&&global[2]>0)),"recipes require independent fluid or complete FSI layout");
     const int velocity_solver=velocity_solver_requested(comm);
     const bool combined=velocity_solver!=1,nodal=nodal_schur_requested(comm);
+    const bool nodal_structure=nodal_structure_requested(comm,choice==4);
     common_check(comm,choice!=4||coupled,"added_mass requires a complete FSI layout");
     common_check(comm,!nodal||!coupled||choice!=2,"nodal Schur requires a recipe with a pressure Schur block");
     common_check(comm,!combined||(coupled&&(choice==2||choice==3)),"coupled velocity requires a complete FSI quantity or hybrid recipe");
@@ -400,12 +475,16 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
     }
     std::vector<PetscInt> rows(layout.owned); std::iota(rows.begin(),rows.end(),layout.begin);
     auto plan=build(comm,layout,root,rows,rows);
-    decorate(comm,layout,plan,velocity_solver,nodal);
+    decorate(comm,layout,plan,velocity_solver,nodal,nodal_structure);
     if(choice==4) {
         auto& dynamics=plan.children.at(0);
         dynamics.added_mass_schur=true;
+        dynamics.nodal_structure_schur=nodal_structure;
         dynamics.children.at(0).fluid_response=true;
-        dynamics.children.at(1).structure_response=true;
+        // The explicit nodal P defaults to one PC application, avoiding another
+        // Krylov loop whose every Schur matvec would invoke a full fluid solve.
+        // Explicit structural KSP options can still request that implicit action.
+        dynamics.children.at(1).structure_response=!nodal_structure;
     }
     return plan;
 }
@@ -427,7 +506,7 @@ void validate_options(MPI_Comm comm,const PcBlock& node,const std::string& prefi
         common_check(comm,!set||value==option.second,"options changed recipe at "+prefix+option.first);
     }
     bool valid=true;
-    if(node.nodal_schur) {
+    if(node.nodal_schur||node.nodal_structure_schur) {
         char value[32]{}; PetscBool set=PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+"pc_fieldsplit_schur_precondition").c_str(),value,sizeof(value),&set));
         common_check(comm,!set||std::string(value)=="user","nodal Schur conflicts with a different Schur preconditioner at "+prefix);
@@ -436,7 +515,7 @@ void validate_options(MPI_Comm comm,const PcBlock& node,const std::string& prefi
                 valid=false;
         common_check(comm,valid,"nodal Schur conflicts with PETSc native A-inverse approximation at "+prefix);
     }
-    if(node.added_mass_schur) {
+    if(node.added_mass_schur&&!node.nodal_structure_schur) {
         char value[32]{}; PetscBool set=PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+"pc_fieldsplit_schur_precondition").c_str(),value,sizeof(value),&set));
         common_check(comm,!set||std::string(value)=="a11","added_mass uses the structural A11 preconditioner at "+prefix);

@@ -1,5 +1,78 @@
 # EONSim Codex Session Log
 
+## 2026-11-25 · FSI-PC-03 — nodal 结构反馈与有界内层响应
+
+从 PR #49 已合并的 `296246e53d895f29ea3d0f7e5c960dc26b1426dc` 开始，
+分支 `codex/fsi-block-efficient-schur`，交付 [PR #50](https://github.com/saitoasukakawaii/EONSim-new/pull/50)。
+本轮用户明确授权“代码先同步远端、再运行算例、最后合并”，取代上一轮人工合并限制。
+每次源码及验证器修订均先推送后运行；四项必需检查与 head-locked squash 规则继续适用。
+
+### 实现和独立审查
+
+`664a6238ab08a42639a6c180addc99ddbf38886b` 实现可选的结构 USER 矩阵 `K−G H_F E`。
+混合小块同时包含活动流体速度和压力，区分 mode、space、domain 及 boundary/vertex；
+RCR tag 与数值相同的体节点 ID 不混组。行、列最大值平衡后选主元求逆并恢复原单位；
+不因压力和动量数量级不同而直接误判奇异，也不加压力钉点、正则或隐式回退。
+共享状态复用 IS、乘积图和 P handle；每个约束后成功 Jacobian 只刷新一次。
+默认 nodal 结构应用一次 GAMG/Jacobi。压力 nodal 原算术与完整根 Jacobian 保持原路径。
+
+独立代数 oracle 含非对称交叉块、4/3/1 维局部块、缺分量、不同 mode、约束行、
+同 ID 的 RCR 实体、跨约 30 个数量级的混合尺度、数值刷新、奇异/非有限拒绝与恢复。
+1/2/4 rank 三项通过；RCR、nodal retry 和初筛三个 CTest 也通过。
+两名交叉审查者核对了缩放还原、所有权、矩阵生命周期和 collective 次序，没有发现阻断项。
+
+### 性能筛选的负面结果与方向调整
+
+初筛细网格原 a11/结构 FGMRES20 的线性时间 49.117077 s；结构 PREONLY 下 a11/nodal
+分别为 68.456574/65.788333 s。节点矩阵正确不等于效率提高，故不提升为默认。
+两项粗网格有界探测分别给出 nodal 加回结构 FGMRES 的 6.716347 s，
+以及 a11 保留结构迭代、只把流体改成 PREONLY 的 0.907051 s；这些仅为单次四步探测。
+
+随后固定同一 664a623 二进制，采用 `66b0a62af6575d8a98d85b7c90d88d6e22666439`
+驱动显式比较旧/新 added_mass 和 twolevel 响应，另保留 direct、coupled_nodal。
+72/72 次运行通过，含 12 条完整 32 步轨迹、预热和三次交替四步计时。
+细网格线性中位数 added_mass `44.477524 → 6.506006 s`，twolevel `3.931200 → 0.609956 s`；
+外层迭代从 354→661、563→682，说明只看外层次数会误判。
+最大真实残量/目标比 0.5547250921，最大相对场峰值差 3.1382040814e-11；全部接受条件保持原值。
+直接法在这两套小网格上仍最快；不作强扩展或一般问题加速结论。
+
+### 验证器缺陷和修正
+
+首轮纯 Python 正负对照 21/22 符合预期：早期错误的 KSP 类型会被后续正确的最后一次快照掩盖。
+66b0a62 改为检查每个目标 prefix 的所有观测，并核对每 rank 的观测总数等于接受步数；
+修复后扩展至 25/25，含缺失、重复和错 rank 的早期观测。原失败与其输入保留。
+独立重放进一步按接受步区间核验每 rank 恰有一份目标观测。
+独立重放的静态复核另发现只记录 KSP reason 而未限制的问题，在推送前补为
+根正成功原因、目标正成功或有界迭代 ITS、PC_NOERROR 的检查；该项没有伪称发生过运行时失败。
+
+### 最终源码的重新编译与验收
+
+`c4fb266edec94afbf610cb1379dd1595ed96ae40` 仅把 added_mass 流体响应和 twolevel 速度响应
+的默认 KSP 类型改为 PREONLY；保留显式 FGMRES 的 1e-4/20 预算，结构 a11 仍为 1e-2/20。
+新的近似结构作用是 `K v−G B_F(E v)`，不能把完整 Schur 容器当作精确流体逆；
+一次 PC 作用内仍可能有依赖右端的粗层迭代。外层完整 Jacobian 继续用 FGMRES。
+`linear_report` 是诊断，严格真实线性残量门槛由验证器执行；生产物理接受条件未变。
+
+推送并与远端树核对一致后，执行
+`scripts/cloud/run.sh 3.23.7 release explicit /workspace/scratch/6d25aa929185/pr42/.cloud build/ci/fsi-efficient-defaults.json`。
+clean Release **9/9 通过**：pc_plan_mpi1/2/4、fsi_tube_rcr、pc_added_mass_retry、
+pc_added_mass_nodal_retry、pc_twolevel_retry、pc_recipe_restart、pc_recipe_hybrid。
+新增物理变体涵盖 rigid、domains、hyperelastic 的结构 nodal 和 quantity-twolevel；
+默认实际 KSP/PC 类型、非零 RHS 的一次 PCApply 等价、独立 main/inner/upper overrides 均通过。
+
+同一推送中的独立标准库重放退出 0，核对 2,635 份文件、72 份日志、1,248 次修正、
+2,028 个必要求解器观测、468 份体 VTU 和 156 个保存时刻的 780 项字段比较。
+该比较数含 130 项直接参考自身对照；其余 650 项对应候选。重放仅重算记录时间的中位数，不重建实际墙钟。
+初筛与历史失败仅核对哈希，未混入最终 72 次数值重放通过数。
+
+[源码、环境、每条命令、CI 与原始归档](../research/data/fsi-block-efficiency-2026-11-25/README.md) ·
+[配置指南](FSI_BLOCK_PRECONDITIONER.md) · [算法草稿](../../website/drafts/fsi-schur-response-cost.md)。
+c4fb266 的数值 run `45622859538` 与网站 run `45622859337` 四项必需检查均通过。
+CI 在 GitHub merge commit `aa248d65` 上新运行 15 项数值检查，全部通过，另复用 39 项兼容来源收据；
+head/base 和逐项来源保存在 `ci-source-c4fb266.json`。最终文档 head 仍必须获得自己的四项检查。
+历史证据复用按来源记录；文档后续提交不计为新的数值执行。
+本地未运行全量、Debug 或 PETSc 3.19.6；知识文章未公开发布。
+
 ## 2026-11-25 · FSI-PC-02 — 本地及源码 CI 通过，待用户审阅
 
 基线 `f50a4a4338689c9a065bee30ae4a7f3f52c5002e`，分支 `codex/fsi-block-completion`，PR #49。

@@ -8,13 +8,16 @@ namespace eonsim {
  */
 void validate_coupled_velocity_twolevel_options(MPI_Comm comm,const std::string& prefix);
 
-/** Configure a coupled velocity FGMRES with a distributed two-level PCMG.
+/** Configure a coupled velocity PREONLY action with a distributed two-level PCMG.
  * Each MPI owner's active (domain, entity kind, component, mode, space) group
  * supplies one normalized piecewise-constant coarse vector. Exact identity
  * rows have zero interpolation, so prescribed increments are not prolonged.
  * PCMG forms P^T A P from the complete fluid/solid velocity block and refreshes
  * its values when A changes; the graph, ownership and constraints must be fixed.
  * The fine smoother is overlapping ASM/ILU and the coarse solve is GMRES/Jacobi.
+ * Its tolerance-dependent coarse action requires a flexible outer FSI solve.
+ * Explicit FGMRES options restore the retained rtol=1e-4, max_it=20 defaults;
+ * PREONLY applies the PC once and does not use those stopping parameters.
  * An entirely identity operator uses one exact Jacobi level. No coordinates,
  * packed xyz ordering, rigid rotations or mesh-independent convergence assumed.
  * owned_semantics follows this KSP's owned row order. Collective on comm.

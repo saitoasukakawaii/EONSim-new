@@ -100,9 +100,10 @@ void configure_coupled_velocity_twolevel(MPI_Comm comm,KSP solver,
     if(rank==0) coarse_begin=0;
 
     PC pc; EONSIM_PETSC(KSPGetPC(solver,&pc));
-    // The coarse GMRES tolerance makes its action variable, so this inner
-    // velocity solve must itself be flexible, as well as the outer FSI solve.
-    EONSIM_PETSC(KSPSetType(solver,KSPFGMRES));
+    // Apply PCMG once by default. The tolerance-dependent coarse GMRES still
+    // makes this action variable, so the outer FSI solve remains FGMRES.
+    // Keep the bounded budget for an explicit FGMRES option applied below.
+    EONSIM_PETSC(KSPSetType(solver,KSPPREONLY));
     EONSIM_PETSC(KSPSetTolerances(solver,1e-4,PETSC_DEFAULT,PETSC_DEFAULT,20));
     EONSIM_PETSC(PCSetType(pc,PCMG));
     EONSIM_PETSC(PCMGSetLevels(pc,2,nullptr));

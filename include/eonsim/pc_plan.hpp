@@ -9,13 +9,20 @@ namespace eonsim {
 struct PcBlock {
     std::string name;
     bool schur=false, nodal_schur=false, coupled_velocity=false, twolevel_velocity=false;
-    // Added-mass factorization eliminates the complete fluid saddle-point block.
+    // Added-mass retains full fluid saddle-point blocks with an approximate inverse action.
+    // fluid_response defaults to PREONLY; explicit FGMRES keeps its bounded budget.
+    // structure_response selects the historical iterative solve preconditioned by A11.
     bool added_mass_schur=false, fluid_response=false, structure_response=false;
+    // USER structural P uses local mixed fluid inverses; its default action is PREONLY.
+    bool nodal_structure_schur=false;
     PetscInt begin=0,global=0;
     std::vector<PetscInt> parent_rows,root_rows;
     std::vector<PcBlock> children;
     // Owned velocity-submatrix numbering, grouped by canonical entity/mode/space.
     std::vector<std::vector<PetscInt>> velocity_groups;
+    // Owned full-fluid numbering: active velocity and pressure of one entity/mode/space.
+    // RCR boundary pressures have separate identities and form scalar groups.
+    std::vector<std::vector<PetscInt>> fluid_groups;
     std::vector<DofKey> velocity_semantics; ///< Leaf row order, for the coupled coarse space.
 };
 /// Collective preparation; rejects unsupported recipe/layout consistently before IS creation.
@@ -31,6 +38,6 @@ struct PcSchurUpdates {
     void refresh(Mat matrix) const { for(const auto& update:refreshers) update(matrix); }
 };
 /// Collective, assembled AIJ; creates fresh IS/PC objects, never changes physical fields or root numbering.
-/// Nodal recipes require a fresh updates object and subsequent numeric refresh.
+/// Nodal pressure/structure recipes require a fresh updates object and numeric refresh.
 void configure_pc_plan(MPI_Comm comm,KSP solver,Mat matrix,const PcBlock& plan,PcSchurUpdates* updates=nullptr);
 } // namespace eonsim
