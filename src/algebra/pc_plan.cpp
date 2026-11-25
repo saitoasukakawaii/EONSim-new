@@ -220,9 +220,41 @@ void coupled_velocity_defaults(KSP ksp) {
     option_default(base+"sub_pc_factor_mat_ordering_type","rcm");
     EONSIM_PETSC(KSPSetFromOptions(ksp));
 }
-void defaults(KSP ksp,bool structure_response=false) {
+bool diagonal_preconditioner(MPI_Comm comm,Mat matrix) {
+    PetscBool rows_available=PETSC_FALSE;
+    EONSIM_PETSC(MatHasOperation(matrix,MATOP_GET_ROW,&rows_available));
+    bool diagonal=rows_available;
+    if(rows_available) {
+        PetscInt begin=0,end=0;
+        EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
+        for(PetscInt row=begin;row<end&&diagonal;++row) {
+            PetscInt count=0; const PetscInt* columns=nullptr; const PetscScalar* values=nullptr;
+            EONSIM_PETSC(MatGetRow(matrix,row,&count,&columns,&values));
+            bool present=false;
+            for(PetscInt j=0;j<count;++j) {
+                diagonal=diagonal&&std::isfinite(values[j]);
+                if(columns[j]==row) { present=true; diagonal=diagonal&&values[j]!=0.; }
+                else diagonal=diagonal&&values[j]==0.;
+            }
+            EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&columns,&values));
+            diagonal=diagonal&&present;
+        }
+    }
+    int local=diagonal,all=0;
+    if(MPI_Allreduce(&local,&all,1,MPI_INT,MPI_MIN,comm)!=MPI_SUCCESS)
+        throw std::runtime_error("PC diagonal-block classification communication failed");
+    return all!=0;
+}
+void defaults(MPI_Comm comm,KSP ksp,bool structure_response=false) {
     PC pc; EONSIM_PETSC(KSPGetPC(ksp,&pc));
-    EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCGAMG));
+    Mat preconditioner=nullptr; EONSIM_PETSC(KSPGetOperators(ksp,nullptr,&preconditioner));
+    EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY));
+    // No hierarchy is needed for a numerical diagonal, including constrained
+    // identity blocks whose AIJ graph still stores zero off-diagonal entries.
+    EONSIM_PETSC(PCSetType(pc,diagonal_preconditioner(comm,preconditioner)?PCJACOBI:PCGAMG));
+    // GAMG sets useAmat=true and PETSc retains it across a later pc_type change.
+    // Local factors must see assembled P, not the implicit Schur operator A.
+    EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
     if(structure_response) {
         // Apply the implicit complete-fluid Schur operator, preconditioned by
         // the assembled structural diagonal block. Bounded inexact work belongs
@@ -274,7 +306,7 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
             }
             EONSIM_PETSC(KSPSetFromOptions(ksp));
         } else if(node.coupled_velocity) coupled_velocity_defaults(ksp);
-        else defaults(ksp,node.structure_response);
+        else defaults(comm,ksp,node.structure_response);
         return;
     }
     if(!root) EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY));

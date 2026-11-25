@@ -10,6 +10,17 @@
 不放宽断言。原始失败收据保留于本次工作树 `build/validation-history/algebra-d9f5857`。
 新增诊断也先推送后复测。PR #49 保持人工审核及禁止自动合并标签。
 
+诊断提交 `0f16d567fa908de9c374621fef2a8ebc48f24dfc` 的 1/2-rank 复测保留原断言。
+两进程异常为隐式 Schur 不支持某个矩阵操作：PETSc GAMG 创建时将 `useAmat`
+设为 true，该标志在用户改为 BJacobi 后仍保留，MPI BJacobi 因而在 Schur shell 上取对角子块。
+在未修改二进制上显式设 `structure_pc_use_amat false` 后，故意制造的奇异局部因子
+正确传播为 `FACTOR_NUMERIC_ZEROPIVOT` / `DIVERGED_PC_FAILED`。
+生产修复将默认 PC 明确绑定到已装配 P，用户选项仍在最后应用。
+串行失败具体为全恒等算例的压力 GAMG；速度两层的恒等退化本身正确。
+仅将压力和网格 PC 显式改为 Jacobi，原串行全部断言通过。
+生产默认据数值检查对有限、非零对角块直接采用 Jacobi，保持原测试及容差。
+这些窄范围诊断不算最终默认配置通过，修复上传后仍须复测。
+
 - 从 GitHub 核实 #48 已合并，main 为 `f50a4a4338689c9a065bee30ae4a7f3f52c5002e`，在独立工作树的 `codex/fsi-block-completion` 接续；没有覆盖此前工作树。
 - PETSc v3.23.7 源码表明，Schur 模式下 `PCFieldSplitGetSubKSP` 的首项可能是 interior KSP，而非三角因子的 main KSP。改用公开 Schur getter 配置全部不同对象，并保留各自 prefix；FULL 以外的独立 upper 选项明确拒绝。
 - 新增 `added_mass`：完整流体速度与压力块参与结构 Schur 作用，结构对角块用于预条件。内部有界迭代属于非精确预条件；内层停止标志不能代替原始全系统真实残量。

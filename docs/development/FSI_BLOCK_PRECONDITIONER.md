@@ -69,6 +69,11 @@ added_mass 用 PETSc `MatSchurComplement` 应用完整流体 velocity/pressure �
 内层达到工作上限可作为有界近似；PC 因子失败、非有限值及其它实质失败必须传播。
 用户开启 `ksp_error_if_not_converged` 会更严格地拒绝内层上限。
 
+默认 PC 从已装配的预条件矩阵 P 构建；KSP 的算子 A 仍为完整 Schur 作用。
+这样也防止 GAMG 创建时的 `useAmat` 标志在用户切换 PC 类型后误导局部矩阵提取。
+如果 P 数值上严格对角、对角项有限且非零，则默认用 Jacobi 精确应用其逆，
+不构造不必要的层级；显式用户 PC 选项仍最后生效。
+
 完整系统可解不保证 \(F\) 单独可解。流体子块存在未处理的压力零空间时，
 须修正算例规范/边界或选择其它 recipe；程序不自动添加压力钉点。
 外层 ALE 仍为乘法分裂，未构造包含 ALE 消元的全系统精确 Schur。

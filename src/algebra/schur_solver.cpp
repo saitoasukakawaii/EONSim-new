@@ -26,6 +26,11 @@ void option_default(const std::string& name,const char* value) {
 void multigrid(KSP solver) {
     PC pc; EONSIM_PETSC(KSPGetPC(solver,&pc));
     EONSIM_PETSC(KSPSetType(solver,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCGAMG));
+    // The declared Pmat supplies preconditioning blocks; Amat can be an
+    // implicit Schur operator. GAMG's MG constructor enables useAmat, and
+    // that flag survives a user PC-type change (for example to BJacobi).
+    // Reset the default before options, preserving explicit -pc_use_amat.
+    EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
     const char* prefix=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(solver,&prefix));
     const std::string base="-"+std::string(prefix?prefix:"");
     // 避免多个 SuperLU_DIST 子因子的 communicator 问题；粗层使用迭代解。
