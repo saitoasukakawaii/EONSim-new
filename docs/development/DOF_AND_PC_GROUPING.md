@@ -1,25 +1,27 @@
 # DoF 语义与预条件分组
 
-独立流体及现有单体刚体/弹性 FSI 可选择三种预条件器树：
+独立流体及现有单体刚体/弹性 FSI 可显式选择语义预条件器树：
 
 ```yaml
 layout:
   semantic_order: entity_first
   storage_order: owner_node
 solver:
-  pc_recipe: hybrid # physics / quantity / hybrid
+  pc_recipe: hybrid # physics / quantity / hybrid / added_mass (FSI only)
 ```
 
 命令行等价选项为 `-pc_recipe hybrid`。省略时保持既有默认求解器行为；
-不能与旧 `-block_pc`、`-schur_pc` 同时选择。二维标量和独立固体目前不开放这三种多物理树。
+不能与旧 `-block_pc`、`-schur_pc` 同时选择。二维标量和独立固体目前不开放这些多物理树。
 
 | 分组 | FSI 树 |
 |---|---|
 | physics | fluid（velocity/pressure Schur）、solid、mesh |
 | quantity | velocity（fluid_interior/structure）、pressure、mesh |
 | hybrid | dynamics（velocity（fluid_interior/structure）/pressure Schur）、mesh |
+| added_mass | dynamics（fluid（velocity/pressure Schur）/structure Schur）、mesh |
 
-独立流体三种选择退化为共同的速度/压力 Schur。树仅改变预条件过程，不改变物理残量字段、
+独立流体的前三种选择退化为共同的速度/压力 Schur；`added_mass` 要求完整 FSI 布局及可逆的流体块。
+树仅改变预条件过程，不改变物理残量字段、
 约束、压力规范、accepted/trial 状态或停止准则；不同 recipe 可以有不同迭代轨迹。
 共享接口独立速度只属于一个非重叠叶子，流体与结构方程仍可共同依赖它。
 刚体是全局单轴未知量，并非给定轨迹冒充双向耦合。
@@ -48,8 +50,15 @@ mpiexec -n 4 build/cloud-3.23.7-release/eonsim -case cases/fsi/elastic.yaml \
 先用同一算例的 `-prepare results/part4 -parts 4` 生成分区。
 `-pc_plan_report` 按 rank 输出实际块名、全局大小、owned 区间和 PETSc options prefix；
 子 KSP/PC 选项使用报告中的真实 prefix，不把根行号当嵌套子矩阵行号。
-固定分裂方式不能被 options 静默改写；尚未接线的独立 Schur inner/upper 选项明确拒绝。
-叶子默认 GAMG，单自由度刚体和 quantity 原始压力块默认 Jacobi，细节见实现/诊断。
+固定分裂方式不能被 options 静默改写。独立 Schur inner/upper 使用第二个字段名的
+`fieldsplit_<name>_inner_` / `_upper_` prefix；upper 仅在 FULL 分解中使用。
+main、inner、upper 共享同一语义分组，数值求解参数独立；诊断会列出不同对象。
+`-pc_plan_velocity_solver coupled|twolevel` 将 quantity/hybrid 的流固速度合成一个叶子；
+twolevel 追加保留完整耦合的分布式 Galerkin 粗校正。`-pc_plan_schur_approx nodal`
+使用有效节点分量的 `D−CHB`。普通叶子默认 GAMG，单自由度刚体及 quantity 原始压力块
+默认 Jacobi；added_mass 的结构 Schur 包括刚体标量在内均进行有界迭代。
+新增两种路径要求外层 FGMRES，详细公式、选项与验证边界见
+[FSI 分块预条件](FSI_BLOCK_PRECONDITIONER.md)。
 
 验收包括真实装配 J/R 置换、直接解对照、三层子矩阵、1/2/4rank、空本地块、
 共享接口、约束重建、失败与同对象恢复、COO 和 checkpoint。

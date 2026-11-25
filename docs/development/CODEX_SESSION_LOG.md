@@ -1,5 +1,22 @@
 # EONSim Codex Session Log
 
+## 2026-11-25 · FSI-PC-02 源码与验收准备
+
+首个源码版本 `d9f58572e67ffa3636460e21d6d864ea560c8329` 已推送后运行：
+`scripts/cloud/run.sh 3.23.7 release explicit <locked-prefix> build/ci/fsi-block-algebra.json`。
+选择 `pc_plan_mpi1/2/4`，Release 编译成功，三个测试失败。
+单进程进入新增数值 oracle 后未满足解/真实残量断言；两/四进程在故意令局部结构因子奇异时，
+得到的异常不符合预期的错误诊断。先增加失败时才输出的实际异常、KSP reason 和独立残量，
+不放宽断言。原始失败收据保留于本次工作树 `build/validation-history/algebra-d9f5857`。
+新增诊断也先推送后复测。PR #49 保持人工审核及禁止自动合并标签。
+
+- 从 GitHub 核实 #48 已合并，main 为 `f50a4a4338689c9a065bee30ae4a7f3f52c5002e`，在独立工作树的 `codex/fsi-block-completion` 接续；没有覆盖此前工作树。
+- PETSc v3.23.7 源码表明，Schur 模式下 `PCFieldSplitGetSubKSP` 的首项可能是 interior KSP，而非三角因子的 main KSP。改用公开 Schur getter 配置全部不同对象，并保留各自 prefix；FULL 以外的独立 upper 选项明确拒绝。
+- 新增 `added_mass`：完整流体速度与压力块参与结构 Schur 作用，结构对角块用于预条件。内部有界迭代属于非精确预条件；内层停止标志不能代替原始全系统真实残量。
+- 新增 `twolevel`：不把受约束的非连续 xyz 行伪装成规则 block-size=3。按 owned 语义构造稀疏分区常数插值，Galerkin 矩阵保留跨域和跨 rank 耦合；恒等约束行不参与插值。不是几何旋转近零空间或完整 AMG。
+- 源码、独立矩阵 oracle、物理直接解对照、RCR 与重启检查已编写。**此检查点未编译、未运行算例**；用户明确要求远程推送在前、验证在后，最后由用户合并。
+- 算法说明和知识草稿记录实现、理论与尚缺验证的边界；后续将追加实际源提交、Release 命令和原始收据。
+
 ## 2026-11-24 · 弹性管与 RCR 连续开发记录
 
 - 基线为 main 的 `6a5ac96`，工作分支为 `codex/fsi-smooth-load-six-hour`。沿用 PETSc 3.23.7 Release 和仓库编译脚本，外部 svFSI 固定为 `94a2ff5`。外部数值干预各有独立程序、输入和原始求解历史。[外部编译方法](../research/data/fsi-pressure-faces-2026-11-24/build-svfsi.sh)

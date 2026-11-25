@@ -1,5 +1,13 @@
 # EONSim Knowledge Log
 
+## 2026-11-25 · 嵌套 Schur 与耦合两层校正（实现待验收）
+
+[算法草稿](../../website/drafts/fsi-nested-schur-twolevel.md)解释完整流体消元与
+压力 Schur 的差别、三个 A00 求解器的 PETSc 语义，以及不依赖连续 xyz 行号的
+分区常数粗空间。[配置指南](../development/FSI_BLOCK_PRECONDITIONER.md)给出
+选项和失败边界。基线 #48，开发分支 `codex/fsi-block-completion`；此条记录时
+新增数值验收尚未通过，不能当作正确性、性能或大规模可扩展性证据。草稿未发布。
+
 ## 2026-11-24 · 如何解读同网格 FSI 与独立空间参考
 
 | 提问 | 控制与结果 |

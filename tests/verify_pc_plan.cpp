@@ -35,7 +35,7 @@ KSP child_solver(MPI_Comm comm,KSP parent,PetscInt index,bool schur=false) {
     KSP result=children[index]; EONSIM_PETSC(PetscFree(children));
     return result;
 }
-void solve_exact(MPI_Comm comm,KSP solver,Mat matrix) {
+void solve_exact(MPI_Comm comm,KSP solver,Mat matrix,const char* label) {
     PetscOwner<Vec,VecDestroy> exact,rhs,solution,defect;
     EONSIM_PETSC(MatCreateVecs(matrix,exact.put(),rhs.put()));
     EONSIM_PETSC(VecDuplicate(exact.get(),solution.put()));
@@ -54,7 +54,12 @@ void solve_exact(MPI_Comm comm,KSP solver,Mat matrix) {
     EONSIM_PETSC(VecNorm(rhs.get(),NORM_2,&rhs_norm));
     EONSIM_PETSC(VecAXPY(solution.get(),-1.,exact.get()));
     EONSIM_PETSC(VecNorm(solution.get(),NORM_INFINITY,&error));
-    check(comm,reason>0&&residual<=1e-10*(1+rhs_norm)&&error<1e-9,
+    const bool good=reason>0&&residual<=1e-10*(1+rhs_norm)&&error<1e-9;
+    if(!good) EONSIM_PETSC(PetscPrintf(comm,
+        "pc_test_solve_failed case=%s reason=%d residual=%.17g rhs_norm=%.17g solution_error=%.17g\n",
+        label,static_cast<int>(reason),static_cast<double>(residual),static_cast<double>(rhs_norm),
+        static_cast<double>(error)));
+    check(comm,good,
           "Block solve changed the exact solution or failed the true residual check");
 }
 void verify_tree(MPI_Comm comm,Mat parent,const PcBlock& node,const std::string& path,const Oracle& oracle) {
@@ -247,7 +252,7 @@ void verify_added_mass(MPI_Comm comm,const AlgebraLayout& original) {
         EONSIM_PETSC(MatAssemblyEnd(matrix.get(),MAT_FINAL_ASSEMBLY));
         if(!phase) configure_pc_plan(comm,solver.get(),matrix.get(),plan,&updates);
         else updates.refresh(matrix.get());
-        solve_exact(comm,solver.get(),matrix.get());
+        solve_exact(comm,solver.get(),matrix.get(),phase?"added_mass_refreshed":"added_mass_initial");
         const auto dynamics=child_solver(comm,solver.get(),0);
         PC dynamics_pc; EONSIM_PETSC(KSPGetPC(dynamics,&dynamics_pc));
         Mat structural_schur=nullptr; KSP fluid_inner=nullptr;
@@ -343,7 +348,7 @@ void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matr
         }
         EONSIM_PETSC(PetscFree(sub));
         check(comm,correct,"Schur auxiliary solvers lost prefixes, independent identity, or user settings");
-        solve_exact(comm,solver.get(),matrix);
+        solve_exact(comm,solver.get(),matrix,legacy?"legacy_auxiliary":"hybrid_auxiliary");
         // A bounded inner action is allowed to reach ITS. A genuine breakdown
         // must mark its enclosing fieldsplit, even if the iterate is finite.
         EONSIM_PETSC(PCFieldSplitSchurGetS(pc,&schur));
@@ -393,7 +398,7 @@ void verify_twolevel(MPI_Comm comm,const AlgebraLayout& layout) {
         EONSIM_PETSC(MatAssemblyBegin(matrix.get(),MAT_FINAL_ASSEMBLY));
         EONSIM_PETSC(MatAssemblyEnd(matrix.get(),MAT_FINAL_ASSEMBLY));
         if(!phase) configure_pc_plan(comm,solver.get(),matrix.get(),plan);
-        solve_exact(comm,solver.get(),matrix.get());
+        solve_exact(comm,solver.get(),matrix.get(),phase?"twolevel_refreshed":"twolevel_initial");
         const auto dynamics=child_solver(comm,solver.get(),0);
         const auto momentum=child_solver(comm,dynamics,0,true);
         PC pc; EONSIM_PETSC(KSPGetPC(momentum,&pc));
@@ -435,7 +440,7 @@ void verify_twolevel(MPI_Comm comm,const AlgebraLayout& layout) {
     EONSIM_PETSC(KSPSetType(identity_solver.get(),KSPFGMRES));
     EONSIM_PETSC(KSPSetTolerances(identity_solver.get(),1e-12,1e-13,PETSC_DEFAULT,200));
     configure_pc_plan(comm,identity_solver.get(),matrix.get(),plan);
-    solve_exact(comm,identity_solver.get(),matrix.get());
+    solve_exact(comm,identity_solver.get(),matrix.get(),"twolevel_identity");
 }
 void run(MPI_Comm comm) {
     int rank,size; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&size);
@@ -520,12 +525,20 @@ void run(MPI_Comm comm) {
             "-fieldsplit_dynamics_fieldsplit_structure_":"-fieldsplit_dynamics_fieldsplit_velocity_fieldsplit_structure_";
         EONSIM_PETSC(PetscOptionsSetValue(nullptr,(leaf+"pc_type").c_str(),"bjacobi"));
         EONSIM_PETSC(PetscOptionsSetValue(nullptr,(leaf+"sub_pc_type").c_str(),"ilu"));
-        failure=3;bool pc_failed=false;
+        failure=3;bool pc_failed=false,pc_exception=false;
         EONSIM_PETSC(PetscPushErrorHandler(PetscReturnErrorHandler,nullptr));
         try {system.solve(config,initial,{}, {},assemble);}
-        catch(const StepRejected&) {pc_failed=false;}
-        catch(const std::runtime_error& e) {pc_failed=std::string(e.what()).find("Linear solver failure")!=std::string::npos&&
-            std::string(e.what()).find("DIVERGED_PC_FAILED")!=std::string::npos;}
+        catch(const StepRejected& e) {
+            pc_exception=true; pc_failed=false;
+            std::cerr<<"pc_test_failure_category rank="<<rank<<" recipe="<<recipe<<" step_rejected="<<e.what()<<'\n';
+        }
+        catch(const std::runtime_error& e) {
+            pc_exception=true;
+            pc_failed=std::string(e.what()).find("Linear solver failure")!=std::string::npos&&
+                std::string(e.what()).find("DIVERGED_PC_FAILED")!=std::string::npos;
+            if(!pc_failed) std::cerr<<"pc_test_failure_category rank="<<rank<<" recipe="<<recipe<<" error="<<e.what()<<'\n';
+        }
+        if(!pc_exception) std::cerr<<"pc_test_failure_category rank="<<rank<<" recipe="<<recipe<<" unexpectedly_accepted=1\n";
         EONSIM_PETSC(PetscPopErrorHandler());
         EONSIM_PETSC(PetscOptionsClearValue(nullptr,(leaf+"pc_type").c_str()));
         EONSIM_PETSC(PetscOptionsClearValue(nullptr,(leaf+"sub_pc_type").c_str()));

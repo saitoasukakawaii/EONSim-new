@@ -1,5 +1,27 @@
 # EONSim Codex Task Queue
 
+## FSI-PC-02 / validating / 2026-11-25
+
+Complete the existing conforming monolithic FSI block paths from merged #48
+(`f50a4a4338689c9a065bee30ae4a7f3f52c5002e`). The deliverable combines a
+complete-fluid structural Schur response, coupled two-level coarse correction,
+separately configurable Schur inverse actions, and reproducible direct-solution
+and true-residual checks. Preserve the physical Jacobian, acceptance thresholds,
+time integration, circuit histories and ownership.
+
+Acceptance: independent full-fluid Schur and Galerkin matrix oracles on 1/2/4
+single-host ranks; changed-Jacobian refresh and invalid-option/failure handling;
+rigid/elastic/Neo-Hookean/dual-domain field comparisons; arterial and RCR
+trajectories, restart and selected rollback checks. Report actual performance
+without requiring a universal speedup. Full coupled AMG, elasticity rotations,
+multi-node scaling and cross-partition restart are not established by these tests.
+
+User delivery order: **finish source → push remote → run validation → user merges**.
+Source `d9f58572e67ffa3636460e21d6d864ea560c8329` was pushed before validation.
+Release compiled successfully; the first three plan tests failed and diagnosis
+is ongoing. PR #49 is draft with manual-review/no-automerge labels. Keep it out
+of automatic merge even when CI succeeds.
+
 ## 2026-11-24 · 血管 FSI 后续验收
 
 1. **灌流管空间收敛。** 在 20 mm 直管保持轴向分辨率的同时加密入口边界层和圆周，复测流量、端面法向应力、近端面积与壁面储量。现有 48 个轴向单元已将出口传递振幅带到 81.20%，独立参考为 80.00%。[可复用的物性、流量与端口](../research/data/fsi-linear-transient-2026-11-24/perfusion.md)
