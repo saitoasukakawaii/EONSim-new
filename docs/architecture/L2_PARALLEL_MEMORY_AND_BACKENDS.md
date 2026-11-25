@@ -62,12 +62,14 @@ CMake 的 `EONSIM_ENABLE_OPENMP` 在工具链可用时接入 OpenMP；运行默�
 每批最多 64 个单元，每个 worker 复用自己的 residual/tangent 工作区，输入几何、历史、
 时间系数和 expanded trial 场在该批次内只读。worker 不调用 PETSc、MPI、日志事件或 I/O，
 不写物理历史；残量 COO 按单元 offset 写不重叠区间，切线写不重叠的批次缓冲。
-主线程 join 后按单元顺序完成 compact COO scatter-add 或普通 Mat/Vec 插入。
+每次装配只创建一个 OpenMP 团队，各批次在共同 barrier 处完成 worker 写入后，由原始
+主线程按单元顺序完成 compact COO scatter-add 或普通 Mat/Vec 插入；下一批在插入完成后开始。
 不同单元映射到相同代数坐标不授权 worker 并发累加同一个值槽，也不需要浮点 atomics。
 批次存储与本地单元总数无关，不缓存所有单元的完整 dense Jacobian。
 
-worker 异常先在受保护区保存，所有线程 join 后才在主线程重抛并进入既有 rank 间错误
-同步。失败的部分 COO 缓冲不发布，普通插入已存在的 stash 必须排空；后续重试重新清零
+worker 异常先在受保护区保存，主线程插入异常也在团队内捕获；线程经过共同 barrier 后
+一致结束，所有线程 join 后才在主线程重抛并进入既有 rank 间错误同步。
+失败的部分 COO 缓冲不发布，普通插入已存在的 stash 必须排空；后续重试重新清零
 缓冲并更新 trial/time 系数。接口力重放在批次结束后使用原始物理残量，与线程数无关。
 请求线程数不等于实际同时工作的线程数，`FSIElementBatch` 计时包含批次调度和插入，
 不能与内部 `FSIInsert` 直接相加。实现本身不构成线程加速或多节点扩展性的证据。

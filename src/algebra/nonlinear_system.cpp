@@ -427,7 +427,22 @@ struct Context {
     double assembly_seconds=0,ghost_seconds=0;
     double callback_seconds=0,failure_sync_seconds=0,assembly_finalize_seconds=0,constraint_seconds=0;
     PcSchurUpdates* pc_updates=nullptr;
-    void evaluate(Vec x, Vec r, Mat j, bool constrain) {
+    void apply_constraints(Vec r,Mat j) {
+        if(!acceptance.has_constraints) return;
+        // Only owned rows are replaced. A Jacobian-only callback has no
+        // residual consumer, but its matrix still needs the constraint rows.
+        if(r&&!constraints.empty()) {
+            PetscScalar* entries;
+            EONSIM_PETSC(VecGetArray(r,&entries));
+            for(std::size_t i=0;i<constraints.size();++i) {
+                const auto row=constraints[i]-layout.begin;
+                entries[row]=values[row]-prescribed[i];
+            }
+            EONSIM_PETSC(VecRestoreArray(r,&entries));
+        }
+        if(j) EONSIM_PETSC(MatZeroRows(j,constraints.size(),constraints.data(),1,nullptr,nullptr));
+    }
+    void evaluate(Vec x, Vec r, Mat j, bool constrain,bool publish_residual=true) {
         const auto begin=std::chrono::steady_clock::now();
         local_values(x,values);
         ghost_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
@@ -463,12 +478,12 @@ struct Context {
             EONSIM_PETSC(VecAssemblyEnd(r));
             if(j&&!coo_values) EONSIM_PETSC(MatAssemblyEnd(j,MAT_FINAL_ASSEMBLY));
         } else {
-            if(!any_failed) {
+            if(!any_failed&&publish_residual) {
                 // A line search may supply its own VecDuplicate of the residual;
                 // prepare that actual target once rather than assuming inheritance.
                 prepare_residual_coo(r,*residual_coo_rows,residual_coo_vectors);
                 EONSIM_PETSC(VecSetValuesCOO(r,residual_coo_values->data(),INSERT_VALUES));
-            } else {
+            } else if(any_failed) {
                 EONSIM_PETSC(VecAssemblyBegin(r)); EONSIM_PETSC(VecAssemblyEnd(r));
             }
             if(j&&!coo_values) {
@@ -491,20 +506,7 @@ struct Context {
             if(any_failed==1) { recoverable=true; throw StepRejected(error); }
             throw std::runtime_error(error);
         }
-        if(constrain&&acceptance.has_constraints) {
-            // These rows were validated as owned. Local replacement preserves
-            // INSERT_VALUES semantics without a second distributed assembly.
-            if(!constraints.empty()) {
-                PetscScalar* entries;
-                EONSIM_PETSC(VecGetArray(r,&entries));
-                for(std::size_t i=0;i<constraints.size();++i) {
-                    const auto row=constraints[i]-layout.begin;
-                    entries[row]=values[row]-prescribed[i];
-                }
-                EONSIM_PETSC(VecRestoreArray(r,&entries));
-            }
-            if(j) EONSIM_PETSC(MatZeroRows(j,constraints.size(),constraints.data(),1,nullptr,nullptr));
-        }
+        if(constrain) apply_constraints(publish_residual?r:nullptr,j);
         const auto end=std::chrono::steady_clock::now();
         // These phase totals cover only evaluations that completed successfully, like assembly_seconds.
         callback_seconds+=callback_time;
@@ -530,7 +532,10 @@ PetscErrorCode jacobian(SNES snes,Vec x,Mat j,Mat,void* pointer)
     if(!active||!active->current) return PETSC_ERR_ARG_WRONGSTATE;
     auto& c=*active->current;
     try {
-        c.evaluate(x,c.scratch,j,true);
+        // The fused physical callback may compute residual values while forming
+        // J, but SNES consumes only J here. Ordinary Vec stashes still drain;
+        // COO needs neither a scratch communication plan nor a publication.
+        c.evaluate(x,c.scratch,j,true,false);
         // Refresh only after successful assembly, including constraint row replacement.
         if(c.pc_updates) c.pc_updates->refresh(j);
         return PETSC_SUCCESS;
@@ -770,10 +775,10 @@ void NonlinearSystem::set_residual_coo(const std::vector<PetscInt>& rows)
     if(any_invalid) throw std::runtime_error("Invalid COO residual pattern or configuration after first solve");
     residual_coo_rows_=rows;
     residual_coo_values_.assign(rows.size(),0.);
-    // Prepare both persistent targets explicitly. SNES-owned work vectors are
-    // prepared on first use; VecDuplicate does not promise to copy COO state.
+    // Only the persistent function target is published. Jacobian-only scratch
+    // values are unused; SNES-owned line-search targets are prepared on first
+    // use because VecDuplicate does not promise to copy COO state.
     prepare_residual_coo(residual_.get(),residual_coo_rows_,residual_coo_vectors_);
-    prepare_residual_coo(scratch_.get(),residual_coo_rows_,residual_coo_vectors_);
     residual_coo_enabled_=true;
 }
 NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
@@ -814,10 +819,9 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         ++solver_generation_;
         workspace_->initialize(comm,l,r.get(),j.get());
         if(residual_coo_enabled_) {
-            PetscObjectId residual_id=0,scratch_id=0;
+            PetscObjectId residual_id=0;
             EONSIM_PETSC(PetscObjectGetId(reinterpret_cast<PetscObject>(r.get()),&residual_id));
-            EONSIM_PETSC(PetscObjectGetId(reinterpret_cast<PetscObject>(scratch.get()),&scratch_id));
-            residual_coo_vectors_={residual_id,scratch_id};
+            residual_coo_vectors_={residual_id};
         }
     }
     auto& workspace=*workspace_;
@@ -914,7 +918,13 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     NonlinearResult result;
     result.domain_rejections=context.domain_rejections;
     result.solver_reused=solver_reused; result.solver_generation=solver_generation_;
-    context.evaluate(x.get(),r.get(),nullptr,true);
+    // Always assemble once afresh after SNESSolve. Save the unprojected owned
+    // and ghost reactions before replacing constraint rows for acceptance.
+    // Both outputs now describe this same evaluation, without a second kernel
+    // pass or a repeated ghost update of the unchanged solution vector.
+    context.evaluate(x.get(),r.get(),nullptr,false);
+    local_values(r.get(),result.raw_residual);
+    context.apply_constraints(r.get(),nullptr);
     EONSIM_PETSC(VecNorm(r.get(),NORM_2,&result.residual_norm));
     if(!std::isfinite(result.residual_norm)) throw std::runtime_error("Nonfinite nonlinear residual");
     acceptance.measure(r.get());
@@ -924,9 +934,7 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         throw StepRejected("Field acceptance failed: "+failed.name+" (SNES reason="+std::to_string(reason)+")");
     }
     result.field_residuals=acceptance.values;
-    local_values(x.get(),result.values);
-    context.evaluate(x.get(),r.get(),nullptr,false);
-    local_values(r.get(),result.raw_residual);
+    result.values=context.values;
     EONSIM_PETSC(SNESGetIterationNumber(snes.get(),&result.iterations));
     EONSIM_PETSC(SNESGetLinearSolveIterations(snes.get(),&result.linear_iterations));
     const double finalize_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-finalize_begin).count();

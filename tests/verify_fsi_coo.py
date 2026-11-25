@@ -191,6 +191,9 @@ class AssemblyRunner(Runner):
                 'Invalid residual COO buffer report')
         require(int(execution['batch_cells']) > 1 if threads > 1 else int(execution['batch_cells']) == 1,
                 'Unexpected local kernel batch mode')
+        compact, fallback = (int(execution[key]) for key in ('aij_block_cells', 'aij_dense_fallback_cells'))
+        require(compact == (0 if coo else int(plan['cells'])) and fallback == 0,
+                'Expected compact physical-block AIJ insertion for the supported interface aliases')
         evidence['execution_plan'] = execution
         evidence['solver_sessions'] = check_reuse(text, reference)
         if fail:
@@ -264,6 +267,53 @@ def parity(run, cfg, label, ranks=(1, 2), jacobian=False, threaded=True):
     return observations, diagnostics
 
 
+def batch_failures(run, cfg):
+    """One-rank faults must leave every worker, then use normal MPI recovery."""
+    attempted = copy.deepcopy(cfg)
+    attempted['fsi'].update(steps=1, dt=.008, output_interval=1)
+    attempted['time_control'] = dict(step_sizes=[.008], max_retries=2,
+                                     minimum_dt=1e-6, reduction=.5)
+    replay = copy.deepcopy(attempted)
+    replay['fsi']['dt'] = .004
+    replay['time_control']['step_sizes'] = [.004]
+    stop = ['-stop_after', 1]
+    expected, accepted, expected_text = run.solve('batch-replay', replay, 2, False, stop)
+    result = []
+    previous_timeout = run.timeout
+    run.timeout = 60  # A barrier regression must fail promptly, not hang the suite.
+    def check_injection(text, mode):
+        faults = records(text, 'fsi_batch_failure')
+        require(len(faults) == 1 and faults[0]['mode'] == mode and int(faults[0]['team']) > 1,
+                f'{mode}: missing single injection in an actual multi-thread team')
+        thread = int(faults[0]['thread'])
+        require(thread > 0 if mode.startswith('worker') else thread == 0,
+                f'{mode}: failure came from the wrong OpenMP thread')
+    try:
+        for mode in ('worker', 'insert'):
+            fields, rows, text = run.solve('batch-'+mode, attempted, 2, False,
+                [*stop, '-verify_fsi_batch_failure', mode], reference=False)
+            check_injection(text, mode)
+            require(text.count('step_retry=') == 1 and len(rows) == 1
+                    and abs(rows[0]['accepted_dt']-.004) < 1e-15,
+                    f'{mode}: one injected rejection did not cut back exactly once')
+            require(solver_trajectory(text) == solver_trajectory(expected_text),
+                    f'{mode}: batch recovery changed accepted-grid solver iterations')
+            result.append(dict(mode=mode, retries=1, field_difference=compare_fields(expected, fields),
+                               history_difference=compare_histories(accepted, rows),
+                               iteration_trajectory=solver_trajectory(text)))
+        for mode in ('worker_fatal', 'insert_fatal'):
+            _, _, text = run.solve('batch-'+mode, attempted, 2, False,
+                [*stop, '-verify_fsi_batch_failure', mode], reference=False,
+                fail='Injected fatal FSI batch failure')
+            check_injection(text, mode)
+            require('step_retry=' not in text and 'fsi_step=' not in text,
+                    f'{mode}: fatal batch failure was retried or published an accepted step')
+            result.append(dict(mode=mode, expected_fatal=True))
+    finally:
+        run.timeout = previous_timeout
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--executable', required=True)
@@ -294,10 +344,15 @@ def main():
         runners.append(run)
         observations, report[body] = parity(run, cfg, body)
         if body == 'rigid':
-            fields, rows, _ = run.solve('rigid-fd', cfg, 2, True, ['-fsi_fd_tangent', '-stop_after', 1])
             expected = owned_fields(directory/'rigid-r2-values_step1.vtu', 2, False)
-            report['finite-difference-reference'] = dict(field_difference=compare_fields(expected, fields),
-                history_difference=compare_histories(observations[2, False][1][:1], rows))
+            for coo in (False, True):
+                fields, rows, _ = run.solve('rigid-fd' if coo else 'rigid-fd-values', cfg, 2, coo,
+                                            ['-fsi_fd_tangent', '-stop_after', 1])
+                report['finite-difference-reference' if coo else 'finite-difference-default'] = dict(
+                    field_difference=compare_fields(expected, fields),
+                    history_difference=compare_histories(observations[2, False][1][:1], rows))
+            if run.threads > 1:
+                report['batch-failures'] = batch_failures(run, cfg)
 
     directory = work/'moving-port'
     cfg, geometry = circular_case(directory, (1., 0., 0.), (0., 0., 0.))

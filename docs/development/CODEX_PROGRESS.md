@@ -1,5 +1,14 @@
 # EONSim Codex Development Progress
 
+## 2026-11-26 · FSI-PERF-03 开发中：压力导数、紧凑写入与重复回调成本
+
+已核实 PR #52 合入 main `2dcb06c26a0359175e4f5a771d5bbff6dfc928af`，其 Git tree 与
+已验收 `f7bd9ea` 完全一致；本轮在 `codex/fsi-performance-runtime` 从该 main 继续。
+本次可验收范围为压力列解析化以缩减 AD 宽度、默认 AIJ 紧凑物理块写入、有界批次的
+线程团队复用，以及最终残量/反力共用一次全新组装和取消 Jacobian-only 的无用残量 COO 发布。
+保持最终独立物理验收、完整几何导数、原始反力与 collective 失败语义；不缓存旧数值 Jacobian。
+按用户要求先推送代码再执行受影响 Release 检查和配对测量；当前尚无本轮执行结果。
+
 ## 2026-11-25–26 · FSI-PERF-02：实现、验收与性能闭环完成
 
 从已合并 PR #51 的 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f` 开发，

@@ -1,5 +1,14 @@
 # EONSim Codex Task Queue
 
+## FSI-PERF-03 / in progress / 2026-11-26
+
+从已合并 #52 的 main `2dcb06c26a0359175e4f5a771d5bbff6dfc928af` 开始，
+分支 `codex/fsi-performance-runtime`。关闭剩余有具体源码依据的 CPU 装配重复成本：
+压力列解析化、默认 AIJ 紧凑物理块、同一线程团队内的有界批次、最终单次全新残量组装，
+以及 Jacobian-only 路径不发布无用 scratch 残量 COO。代码先推送，再做针对性验证和配对性能测量。
+验收保留全耦合导数、owned/ghost 反力、约束接受、失败/重试、线程异常与贡献累加次序。
+实现判断和性能判断分别记录；未知收益或回退不报告为通过。
+
 ## FSI-PERF-02 / implementation and validation complete / 2026-11-25–26
 
 基线 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`，分支 `codex/fsi-performance-completion`，

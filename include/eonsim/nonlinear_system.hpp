@@ -60,7 +60,9 @@ public:
      * Success publishes the complete buffer collectively; failed partial buffers
      * are discarded. Constraint replacement and unprojected reactions are unchanged.
      * The driver prepares every actual callback Vec, including SNES line-search
-     * work vectors; VecDuplicate is not assumed to copy a COO communication plan.
+     * work vectors, when its residual is published. Jacobian-only scratch is
+     * not published and needs no COO plan. VecDuplicate is not assumed to copy
+     * a COO communication plan.
      */
     void set_residual_coo(const std::vector<PetscInt>& rows);
     /// Borrowed fixed-size buffer in the original residual contribution order.
@@ -72,6 +74,7 @@ public:
  * 每字段要求 rms <= atol + rtol*initial_rms，约束误差另按 constraint_tolerance 验收。
  * 初始范数取本次调用施加 prescribed 后的状态；无字段配置时尺度为 1，容差继承 config。
  * 所有正 SNES reason 都需通过最终重新装配的字段验收，否则抛 StepRejected，不返回 trial。
+ * 最终一次全新原始残量先保存 owned+ghost 反力，再替换约束行做验收；两者来自同一评价。
  * assemble 抛 StepRejected 时先完成部分装配以排空远程插入，再用 SNES domain-error 协议拒绝试探点。
  * 默认 Newton 回溯线搜索可尝试较小步；最终未收敛才交给时间驱动缩步。线性/PC 故障抛普通异常。
  * 已共同传播的callback错误或StepRejected后可用相同布局重新solve；每次覆盖trial、重算初始范数和矩阵数值。

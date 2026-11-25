@@ -3,6 +3,7 @@
 #include "eonsim/fsi.hpp"
 #include "eonsim/reduced_layout.hpp"
 #include "eonsim/boundary_geometry.hpp"
+#include "eonsim/quadrature.hpp"
 #include "eonsim/time_step.hpp"
 #include <algorithm>
 #include <chrono>
@@ -104,6 +105,108 @@ void verify_regular_metric() {
         }
     } while(std::next_permutation(order.begin(),order.end()));
     if(positive!=12) throw std::runtime_error("Incomplete Tet4 permutation check");
+}
+
+void verify_pressure_columns() {
+    FsiElementData data({Point{0,0,0},Point{1.1,.1,0},Point{.2,.9,.1},Point{.1,.2,1.2}});
+    data.fluid={1.3,.6,.07,.02,true,.7};
+    data.inlet_faces={{0,2,3}};
+    data.inlet_pressure=1.7;
+    Tet4Ale::State<double> x{};
+    for(int i=0;i<Tet4Ale::dofs;++i) x[i]=.015*std::sin(i+1);
+    for(int i=0;i<Tet4Flow::dofs;++i) data.previous_fluid[i]=.03*std::cos(i+.2);
+    for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i)
+        data.previous_mesh[a][i]=.002*std::sin(a+i+.1);
+    double worst_oracle=0,worst_pressure_fd=0,worst_kinematic_fd=0;
+    int pressure_columns=0,kinematic_columns=0;
+    for(bool convection:{false,true}) for(double mesh_dt:{0.,.043}) for(int stabilization:{0,1,2}) {
+        data.fluid.convection=convection;
+        data.mesh_dt=mesh_dt;
+        data.fluid.tau=stabilization==0?0.:.02;
+        data.regular_metric_dt=stabilization==2?.011:0.;
+        const auto element=fsi_element(data,x);
+        auto coordinates=data.reference;
+        Tet4Topology::Nodal<Point> relative{};
+        for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i) {
+            coordinates[a][i]+=x[Tet4Ale::dof(a,Tet4Ale::mesh_offset+i)];
+            if(convection) relative[a][i]=x[Tet4Ale::dof(a,i)]-
+                (x[Tet4Ale::dof(a,Tet4Ale::mesh_offset+i)]-data.previous_mesh[a][i])/
+                (mesh_dt>0?mesh_dt:data.fluid.dt);
+        }
+        const auto geometry=tet4_geometry(coordinates);
+        double tau=data.fluid.tau;
+        if(stabilization==2) {
+            // Independently integrate c^T G c; the production metric uses
+            // nodal moments and only the symmetric half of G.
+            double metric[3][3]{},trace=0,square=0,advection=0;
+            for(int i=0;i<3;++i) for(int j=0;j<3;++j) {
+                for(int a=0;a<4;++a) metric[i][j]+=std::cbrt(.25)*geometry.gradients[a][i]*geometry.gradients[a][j];
+                if(i==j) trace+=metric[i][j];
+                square+=metric[i][j]*metric[i][j];
+            }
+            for(const auto& point:FluidQuadrature::points) {
+                Point c{};
+                for(int a=0;a<4;++a) for(int i=0;i<3;++i) c[i]+=point.shape[a]*relative[a][i];
+                for(int i=0;i<3;++i) for(int j=0;j<3;++j) advection+=point.weight*c[i]*metric[i][j]*c[j];
+            }
+            const double nu=data.fluid.viscosity/data.fluid.density;
+            tau=1/(data.fluid.density*std::sqrt(4/(data.regular_metric_dt*data.regular_metric_dt)+advection+36*nu*nu*square));
+            if(!(trace>0)) throw std::runtime_error("Invalid independent current metric");
+        }
+        // Exact P1 pressure columns: -int(N_b grad N_a) plus the SUPG/PSPG
+        // terms. Evaluate the four-point rule independently of the production
+        // closed forms int(N_b)=V/4 and int(rho c)=V mean(rho c).
+        Tet4Ale::Matrix<double> expected{};
+        for(const auto& point:FluidQuadrature::points) {
+            Point transport{};
+            for(int a=0;a<4;++a) for(int i=0;i<3;++i)
+                transport[i]+=point.shape[a]*data.fluid.density*relative[a][i];
+            for(int a=0;a<4;++a) {
+                double streamline=0;
+                for(int i=0;i<3;++i) streamline+=transport[i]*geometry.gradients[a][i];
+                for(int b=0;b<4;++b) {
+                    const int column=Tet4Ale::dof(b,Tet4Flow::pressure);
+                    double pspg=0;
+                    for(int i=0;i<3;++i) {
+                        expected[Tet4Ale::matrix(Tet4Ale::dof(a,i),column)]+=geometry.volume*point.weight*
+                            (-point.shape[b]*geometry.gradients[a][i]+tau*streamline*geometry.gradients[b][i]);
+                        pspg+=tau*geometry.gradients[a][i]*geometry.gradients[b][i];
+                    }
+                    expected[Tet4Ale::matrix(Tet4Ale::dof(a,Tet4Flow::pressure),column)]+=geometry.volume*point.weight*pspg;
+                }
+            }
+        }
+        for(int b=0;b<4;++b) for(int i=0;i<Tet4Ale::dofs;++i) {
+            const auto slot=Tet4Ale::matrix(i,Tet4Ale::dof(b,Tet4Flow::pressure));
+            const double error=std::abs(element.tangent[slot]-expected[slot])/(1+std::abs(expected[slot]));
+            if(!std::isfinite(error)||error>2e-13)
+                throw std::runtime_error("Pressure column differs from independent exact P1 integration");
+            worst_oracle=std::max(worst_oracle,error);
+        }
+        // Test every basis direction, including each of the four columns
+        // removed from AD. A larger pressure perturbation avoids cancellation
+        // and is exact because the residual is affine in nodal pressure.
+        for(int j=0;j<Tet4Ale::dofs;++j) {
+            const bool pressure=Tet4Ale::component(j)==Tet4Flow::pressure;
+            const double eps=pressure?.125:2e-7;
+            auto plus=x,minus=x; plus[j]+=eps; minus[j]-=eps;
+            const auto rp=fsi_element_residual(data,plus),rm=fsi_element_residual(data,minus);
+            double error=0,norm=0;
+            for(int i=0;i<Tet4Ale::dofs;++i) {
+                const double actual=element.tangent[Tet4Ale::matrix(i,j)];
+                const double fd=(rp[i]-rm[i])/(2*eps);
+                error+=(actual-fd)*(actual-fd); norm+=actual*actual;
+            }
+            const double relative_error=std::sqrt(error/norm);
+            if(!std::isfinite(relative_error)||relative_error>2e-8)
+                throw std::runtime_error("Compressed FSI tangent differs from a coordinate finite difference");
+            if(pressure) { ++pressure_columns; worst_pressure_fd=std::max(worst_pressure_fd,relative_error); }
+            else { ++kinematic_columns; worst_kinematic_fd=std::max(worst_kinematic_fd,relative_error); }
+        }
+    }
+    std::cout<<"pressure_columns="<<pressure_columns<<" pressure_column_oracle_error="<<worst_oracle
+             <<" pressure_column_fd_error="<<worst_pressure_fd<<" kinematic_columns="<<kinematic_columns
+             <<" kinematic_column_fd_error="<<worst_kinematic_fd<<'\n';
 }
 
 void verify_mesh_and_pressure_blocks() {
@@ -245,6 +348,7 @@ int main(int argc,char** argv) {
         return 0;
     }
     verify_regular_metric();
+    verify_pressure_columns();
     verify_planar_area_tangent();
     verify_mesh_and_pressure_blocks();
     for(bool convection:{false,true}) for(bool pressure_face:{false,true})

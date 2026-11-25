@@ -178,7 +178,7 @@ void verify(MPI_Comm comm)
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-snes_atol"));
     if(rank==0) std::cout<<"nonlinear field acceptance passed on "<<ranks<<" ranks\n";
 }
-void verify_lifetime(MPI_Comm comm,bool coo)
+void verify_lifetime(MPI_Comm comm,bool coo,bool matrix_coo)
 {
     int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
     AlgebraLayout layout;
@@ -197,8 +197,10 @@ void verify_lifetime(MPI_Comm comm,bool coo)
         // One remote-only producer, repeated rows, an ignored negative row,
         // and a rank with no contributions exercise the complete COO contract.
         const std::vector<PetscInt> rows=producer?std::vector<PetscInt>{0,0,1,1,2,2,-1}:std::vector<PetscInt>{};
-        const std::vector<PetscInt> diagonal=producer?std::vector<PetscInt>{0,1,2}:std::vector<PetscInt>{};
         system.set_residual_coo(rows);
+    }
+    if(matrix_coo) {
+        const std::vector<PetscInt> diagonal=producer?std::vector<PetscInt>{0,1,2}:std::vector<PetscInt>{};
         system.set_jacobian_coo(diagonal,diagonal);
     }
     auto* residual_buffer=system.residual_coo_values();
@@ -216,10 +218,12 @@ void verify_lifetime(MPI_Comm comm,bool coo)
             if(coo) {
                 require(residual_buffer[2*row]==0&&residual_buffer[2*row+1]==0,"Residual COO buffer was not cleared");
                 residual_buffer[2*row]=.25*residual[row]; residual_buffer[2*row+1]=.75*residual[row];
-                if(j) matrix_buffer[row]=tangent[row];
             } else {
                 EONSIM_PETSC(VecSetValue(r,row,residual[row],ADD_VALUES));
-                if(j) EONSIM_PETSC(MatSetValue(j,row,row,tangent[row],ADD_VALUES));
+            }
+            if(j) {
+                if(matrix_coo) matrix_buffer[row]=tangent[row];
+                else EONSIM_PETSC(MatSetValue(j,row,row,tangent[row],ADD_VALUES));
             }
         }
         if(coo) residual_buffer[6]=1e99;
@@ -328,11 +332,46 @@ void verify_lifetime(MPI_Comm comm,bool coo)
     require(next.solver_reused&&next.solver_generation==previous.solver_generation&&
             next.iterations==previous.iterations&&next.linear_iterations==previous.linear_iterations,
             "Retained Newton/line-search state changed the repeated solve trajectory");
+    // A stationary exact solution needs the initial function and one new final
+    // physical evaluation. Reactions must retain the constrained row and its
+    // remote ghost, while acceptance sees the replaced zero constraint defect.
+    std::vector<double> exact(3);
+    for(int row=0;row<3;++row) exact[index[row]]=row==2?11:row+1;
+    const std::vector<double> exact_prescribed(constrained_rows.size(),11);
+    int evaluations=0;
+    const auto exact_callback=[&](const std::vector<double>& x,Vec r,Mat j) {
+        ++evaluations;
+        linear(2,1)(x,r,j);
+    };
+    const auto stationary=system.solve(config,exact,constrained_rows,exact_prescribed,exact_callback);
+    require(stationary.iterations==0&&evaluations==2,"Final acceptance duplicated or skipped a fresh physical evaluation");
+    require(stationary.values==exact,"Final solution lost owned or ghost values");
+    require(stationary.raw_residual[index[0]]==0&&stationary.raw_residual[index[1]]==0&&
+            stationary.raw_residual[index[2]]==16,"Raw and constrained residuals were mixed during finalization");
+    require(stationary.residual_norm==0&&stationary.field_residuals.front().constraint_max==0,
+            "Raw reaction polluted final acceptance");
+    // Fault injection changes a free equation only in the final evaluation.
+    // Reusing SNES's already accepted function would incorrectly return success.
+    evaluations=0;
+    const auto changed_final=[&](const std::vector<double>& x,Vec r,Mat j) {
+        ++evaluations;
+        std::array<double,3> residual{2*(x[index[0]]-1),2*(x[index[1]]-2),2*(x[index[2]]-3)};
+        if(evaluations==2) residual[0]=1;
+        publish(r,j,residual,{2,2,2});
+    };
+    rejected=false;
+    try { system.solve(config,exact,constrained_rows,exact_prescribed,changed_final); }
+    catch(const StepRejected& e) { rejected=std::string(e.what()).find("Field acceptance failed")!=std::string::npos; }
+    require(rejected&&evaluations==2,"Fresh final physical acceptance was bypassed");
+    evaluations=0;
+    const auto recovered=system.solve(config,exact,constrained_rows,exact_prescribed,exact_callback);
+    require(!recovered.solver_reused&&evaluations==2&&recovered.raw_residual[index[2]]==16,
+            "Final rejection left a stale solver or raw reaction");
     bool late_pattern=false;
     try { system.set_residual_coo({}); }
     catch(const std::runtime_error&) { late_pattern=true; }
     require(late_pattern,"Residual COO configuration changed after solving");
-    if(rank==0) std::cout<<"nonlinear lifetime passed coo="<<coo<<" ranks="<<ranks<<'\n';
+    if(rank==0) std::cout<<"nonlinear lifetime passed coo="<<coo<<" matrix_coo="<<matrix_coo<<" ranks="<<ranks<<'\n';
 }
 }
 int main(int argc,char** argv)
@@ -340,8 +379,8 @@ int main(int argc,char** argv)
     PetscInitialize(&argc,&argv,nullptr,nullptr);
     try {
         verify(PETSC_COMM_WORLD);
-        verify_lifetime(PETSC_COMM_WORLD,false);
-        verify_lifetime(PETSC_COMM_WORLD,true);
+        for(bool residual_coo:{false,true}) for(bool matrix_coo:{false,true})
+            verify_lifetime(PETSC_COMM_WORLD,residual_coo,matrix_coo);
     }
     catch(const std::exception& e) { std::cerr<<e.what()<<'\n'; MPI_Abort(PETSC_COMM_WORLD,1); }
     return PetscFinalize();
