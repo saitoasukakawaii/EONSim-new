@@ -222,11 +222,18 @@ def main():
                             '-pc_plan_schur_approx', 'nodal',
                             '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type', 'lower',
                             *tolerance]),
+                        ('added_mass_nodal', ['-pc_recipe', 'added_mass',
+                            '-pc_plan_schur_approx', 'nodal',
+                            '-pc_plan_structure_approx', 'nodal',
+                            '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type', 'lower',
+                            *tolerance]),
                         ('hybrid-twolevel', ['-pc_recipe', 'hybrid',
                             '-pc_plan_velocity_solver', 'twolevel',
                             '-pc_plan_schur_approx', 'nodal',
                             '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type', 'lower',
                             *tolerance]),
+                        ('quantity-twolevel', ['-pc_recipe', 'quantity',
+                            '-pc_plan_velocity_solver', 'twolevel', *tolerance]),
                         ('hybrid-auxiliary', ['-pc_recipe', 'hybrid',
                             '-pc_plan_velocity_solver', 'coupled',
                             '-pc_plan_schur_approx', 'nodal',
@@ -245,6 +252,28 @@ def main():
                                          '-partition', part, '-output', improved,
                                          '-linear_report', *options])
                     (a.work / f'{name}_{variant}{ranks}.log').write_text(improved_text)
+                    # Check every reported default response, including each
+                    # time step/rank, rather than trusting the option labels.
+                    expected_solvers = {}
+                    if variant in ('added_mass', 'added_mass_nodal'):
+                        expected_solvers['fieldsplit_dynamics_fieldsplit_fluid_'] = ('preonly', ('fieldsplit',))
+                    if variant == 'added_mass_nodal':
+                        expected_solvers['fieldsplit_dynamics_fieldsplit_structure_'] = ('preonly', ('gamg', 'jacobi'))
+                    if variant == 'hybrid-twolevel':
+                        expected_solvers['fieldsplit_dynamics_fieldsplit_velocity_'] = ('preonly', ('mg',))
+                    if variant == 'quantity-twolevel':
+                        expected_solvers['fieldsplit_velocity_'] = ('preonly', ('mg',))
+                    improved_reports = sum(line.startswith('solver_report ') for line in improved_text.splitlines())
+                    improved_nodes = [dict(item.split('=', 1) for item in line.split()[1:])
+                                      for line in improved_text.splitlines() if line.startswith('solver_node ')]
+                    for prefix, (solver_type, pc_types) in expected_solvers.items():
+                        observations = [node for node in improved_nodes if node['prefix'] == prefix]
+                        assert improved_reports > 0, improved_text
+                        assert [sum(int(node['rank']) == rank for node in observations)
+                                for rank in range(ranks)] == [improved_reports] * ranks, (prefix, observations)
+                        assert all(node['ksp'] == solver_type and node['pc'] in pc_types
+                                   and int(node['ksp_reason']) > 0 and int(node['pc_reason']) == 0
+                                   for node in observations), observations
                     compare_physics(expected_physics, physical_records(improved_text))
                     improved_error = compare(expected, fields(improved, ranks))
                     if solid:

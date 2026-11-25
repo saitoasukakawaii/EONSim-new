@@ -63,6 +63,34 @@ void solve_exact(MPI_Comm comm,KSP solver,Mat matrix,const char* label) {
     check(comm,good,
           "Block solve changed the exact solution or failed the true residual check");
 }
+void verify_preonly_action(MPI_Comm comm,KSP solver) {
+    KSPType type=nullptr; PC pc; Mat matrix=nullptr;
+    EONSIM_PETSC(KSPGetType(solver,&type)); EONSIM_PETSC(KSPGetPC(solver,&pc));
+    EONSIM_PETSC(KSPGetOperators(solver,&matrix,nullptr));
+    check(comm,type&&std::string(type)==KSPPREONLY,"Default response did not retain PREONLY");
+    PetscOwner<Vec,VecDestroy> rhs,solution,applied;
+    EONSIM_PETSC(MatCreateVecs(matrix,solution.put(),rhs.put()));
+    EONSIM_PETSC(VecDuplicate(solution.get(),applied.put()));
+    PetscInt begin,end; EONSIM_PETSC(VecGetOwnershipRange(rhs.get(),&begin,&end));
+    for(PetscInt i=begin;i<end;++i) EONSIM_PETSC(VecSetValue(rhs.get(),i,.5+.25*i,INSERT_VALUES));
+    EONSIM_PETSC(VecAssemblyBegin(rhs.get())); EONSIM_PETSC(VecAssemblyEnd(rhs.get()));
+    EONSIM_PETSC(VecSet(solution.get(),0.)); EONSIM_PETSC(VecSet(applied.get(),0.));
+    EONSIM_PETSC(KSPSolve(solver,rhs.get(),solution.get()));
+    KSPConvergedReason reason; PetscInt iterations=0;
+    EONSIM_PETSC(KSPGetConvergedReason(solver,&reason));
+    EONSIM_PETSC(KSPGetIterationNumber(solver,&iterations));
+    EONSIM_PETSC(PCApply(pc,rhs.get(),applied.get()));
+    PetscReal magnitude=0,difference=0;
+    EONSIM_PETSC(VecNorm(solution.get(),NORM_INFINITY,&magnitude));
+    EONSIM_PETSC(VecAXPY(applied.get(),-1.,solution.get()));
+    EONSIM_PETSC(VecNorm(applied.get(),NORM_INFINITY,&difference));
+    PCFailedReason failure; EONSIM_PETSC(PCGetFailedReason(pc,&failure));
+    // This is one PC application on this call, not accumulated inner work or
+    // an assertion that the coarse iterative response is a fixed linear map.
+    check(comm,reason>0&&iterations==1&&failure==PC_NOERROR&&std::isfinite(magnitude)&&
+               magnitude>0&&std::isfinite(difference)&&difference<1e-11*(1+magnitude),
+          "Default PREONLY response differed from one successful PC application");
+}
 void verify_tree(MPI_Comm comm,Mat parent,const PcBlock& node,const std::string& path,const Oracle& oracle) {
     for(const auto& child:node.children) {
         const auto name=path+"/"+child.name;
@@ -225,6 +253,7 @@ void verify_added_mass(MPI_Comm comm,const AlgebraLayout& original) {
         if(layout.begin+i==7) layout.owned_semantics[i].kind=DofEntity::boundary;
     ScopedOptions options;
     options.set("-pc_plan_schur_approx","nodal");
+    options.set("-added_oracle_fieldsplit_dynamics_fieldsplit_fluid_ksp_type","fgmres");
     options.set("-added_oracle_fieldsplit_dynamics_fieldsplit_fluid_ksp_rtol","1e-13");
     options.set("-added_oracle_fieldsplit_dynamics_fieldsplit_fluid_ksp_max_it","100");
     options.set("-added_oracle_fieldsplit_dynamics_fieldsplit_structure_ksp_rtol","1e-12");
@@ -232,8 +261,8 @@ void verify_added_mass(MPI_Comm comm,const AlgebraLayout& original) {
     for(const std::string role:{"inner","upper"}) {
         const auto base="-added_oracle_fieldsplit_dynamics_fieldsplit_structure_"+role+"_";
         options.set(base+"ksp_type","fgmres");
-        options.set(base+"ksp_rtol","1e-13");
-        options.set(base+"ksp_max_it","100");
+        options.set(base+"ksp_rtol",role=="inner"?"2e-13":"3e-13");
+        options.set(base+"ksp_max_it",role=="inner"?"101":"102");
     }
     auto plan=make_pc_plan(comm,layout,"added_mass");
     PcSchurUpdates updates;
@@ -260,15 +289,29 @@ void verify_added_mass(MPI_Comm comm,const AlgebraLayout& original) {
         EONSIM_PETSC(PCFieldSplitSchurGetS(dynamics_pc,&structural_schur));
         EONSIM_PETSC(MatSchurComplementGetKSP(structural_schur,&fluid_inner));
         EONSIM_PETSC(PCFieldSplitSchurRestoreS(dynamics_pc,&structural_schur));
-        Mat shared_pressure=nullptr; bool shared=updates.refreshers.size()==1;
-        for(const auto fluid_solver:{child_solver(comm,dynamics,0,true),fluid_inner,
-                                     child_solver(comm,dynamics,2,true)}) {
+        const std::array<KSP,3> fluid_solvers{{child_solver(comm,dynamics,0,true),fluid_inner,
+                                             child_solver(comm,dynamics,2,true)}};
+        Mat shared_pressure=nullptr;
+        bool shared=updates.refreshers.size()==1&&fluid_solvers[0]!=fluid_solvers[1]&&
+                    fluid_solvers[0]!=fluid_solvers[2]&&fluid_solvers[1]!=fluid_solvers[2];
+        for(int role=0;role<3;++role) {
+            const auto fluid_solver=fluid_solvers[role];
+            const char* prefix=nullptr; KSPType type=nullptr; PC pc; PCType pc_type=nullptr;
+            PetscReal rtol=0; PetscInt max_it=0;
+            EONSIM_PETSC(KSPGetOptionsPrefix(fluid_solver,&prefix));
+            EONSIM_PETSC(KSPGetType(fluid_solver,&type));
+            EONSIM_PETSC(KSPGetPC(fluid_solver,&pc)); EONSIM_PETSC(PCGetType(pc,&pc_type));
+            EONSIM_PETSC(KSPGetTolerances(fluid_solver,&rtol,nullptr,nullptr,&max_it));
+            const std::string expected="added_oracle_fieldsplit_dynamics_fieldsplit_"+
+                std::string(role==0?"fluid_":role==1?"structure_inner_":"structure_upper_");
+            shared=shared&&std::string(prefix?prefix:"")==expected&&std::string(type)==KSPFGMRES&&
+                   std::string(pc_type)==PCFIELDSPLIT&&std::abs(rtol-(role+1)*1e-13)<1e-25&&max_it==100+role;
             const auto pressure_solver=child_solver(comm,fluid_solver,1,true);
             Mat p=nullptr; EONSIM_PETSC(KSPGetOperators(pressure_solver,nullptr,&p));
             if(!shared_pressure) shared_pressure=p;
             else shared=shared&&p==shared_pressure;
         }
-        check(comm,shared,"Distinct full-fluid inverses did not share one refreshed nodal Schur matrix");
+        check(comm,shared,"Independent full-fluid solver overrides or shared nodal Schur refresh were lost");
         const auto structure=child_solver(comm,dynamics,1,true);
         Mat schur=nullptr,preconditioner=nullptr;
         EONSIM_PETSC(KSPGetOperators(structure,&schur,&preconditioner));
@@ -534,15 +577,22 @@ void verify_structural_nodal(MPI_Comm comm,const AlgebraLayout& original) {
     }
 }
 void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matrix) {
-    for(bool legacy:{false,true}) {
+    for(int variant=0;variant<3;++variant) {
+        const bool legacy=variant==1,twolevel=variant==2;
         ScopedOptions options;
-        const std::string root_prefix=legacy?"aux_legacy_":"aux_semantic_";
+        const std::string root_prefix=legacy?"aux_legacy_":twolevel?"aux_twolevel_":"aux_semantic_";
         const std::string prefix=root_prefix+(legacy?"fieldsplit_flow_":"fieldsplit_dynamics_");
-        if(!legacy) options.set("-pc_plan_velocity_solver","coupled");
+        if(!legacy) options.set("-pc_plan_velocity_solver",twolevel?"twolevel":"coupled");
+        if(twolevel) {
+            const auto base="-"+prefix+"fieldsplit_velocity_";
+            options.set(base+"ksp_type","fgmres");
+            options.set(base+"ksp_rtol","1e-12");
+            options.set(base+"ksp_max_it","43");
+        }
         for(const auto& role:{std::string("inner"),std::string("upper")}) {
             const std::string base="-"+prefix+"fieldsplit_pressure_"+role+"_";
-            options.set(base+"ksp_type","gmres");
-            options.set(base+"pc_type","jacobi");
+            options.set(base+"ksp_type",twolevel?"fgmres":"gmres");
+            options.set(base+"pc_type",twolevel?"mg":"jacobi");
             options.set(base+"ksp_rtol",role=="inner"?"1e-11":"1e-9");
             options.set(base+"ksp_max_it",role=="inner"?"37":"41");
         }
@@ -563,6 +613,17 @@ void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matr
         EONSIM_PETSC(MatSchurComplementGetKSP(schur,&inner));
         EONSIM_PETSC(PCFieldSplitSchurRestoreS(pc,&schur));
         bool correct=inner!=sub[0]&&inner!=sub[2]&&sub[0]!=sub[2];
+        if(twolevel) {
+            const char* actual_prefix=nullptr; KSPType type=nullptr; PCType pc_type=nullptr;
+            PC main_pc; PetscInt max_it=0,levels=0; PetscReal rtol=0;
+            EONSIM_PETSC(KSPGetOptionsPrefix(sub[0],&actual_prefix)); EONSIM_PETSC(KSPGetType(sub[0],&type));
+            EONSIM_PETSC(KSPGetPC(sub[0],&main_pc)); EONSIM_PETSC(PCGetType(main_pc,&pc_type));
+            EONSIM_PETSC(KSPGetTolerances(sub[0],&rtol,nullptr,nullptr,&max_it));
+            EONSIM_PETSC(PCMGGetLevels(main_pc,&levels));
+            correct=correct&&std::string(actual_prefix?actual_prefix:"")==prefix+"fieldsplit_velocity_"&&
+                    std::string(type)==KSPFGMRES&&std::string(pc_type)==PCMG&&levels==2&&
+                    std::abs(rtol-1e-12)<1e-15&&max_it==43;
+        }
         for(int i=0;i<2;++i) {
             const auto ksp=i?sub[2]:inner;
             const char* actual_prefix=nullptr; KSPType type=nullptr; PCType pc_type=nullptr;
@@ -571,30 +632,42 @@ void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matr
             EONSIM_PETSC(KSPGetPC(ksp,&inverse_pc)); EONSIM_PETSC(PCGetType(inverse_pc,&pc_type));
             EONSIM_PETSC(KSPGetTolerances(ksp,&rtol,nullptr,nullptr,&max_it));
             correct=correct&&std::string(actual_prefix?actual_prefix:"")==prefix+"fieldsplit_pressure_"+(i?"upper_":"inner_")&&
-                std::string(type)==KSPGMRES&&std::string(pc_type)==PCJACOBI&&
+                std::string(type)==(twolevel?KSPFGMRES:KSPGMRES)&&std::string(pc_type)==(twolevel?PCMG:PCJACOBI)&&
                 std::abs(rtol-(i?1e-9:1e-11))<1e-15&&max_it==(i?41:37);
+            if(twolevel) {
+                PetscInt levels=0; EONSIM_PETSC(PCMGGetLevels(inverse_pc,&levels));
+                correct=correct&&levels==2;
+            }
         }
         EONSIM_PETSC(PetscFree(sub));
         check(comm,correct,"Schur auxiliary solvers lost prefixes, independent identity, or user settings");
-        solve_exact(comm,solver.get(),matrix,legacy?"legacy_auxiliary":"hybrid_auxiliary");
+        solve_exact(comm,solver.get(),matrix,legacy?"legacy_auxiliary":twolevel?"twolevel_auxiliary":"hybrid_auxiliary");
         // A bounded inner action is allowed to reach ITS. A genuine breakdown
         // must mark its enclosing fieldsplit, even if the iterate is finite.
         EONSIM_PETSC(PCFieldSplitSchurGetS(pc,&schur));
         PetscOwner<Vec,VecDestroy> input,action;
         EONSIM_PETSC(MatCreateVecs(schur,input.put(),action.put()));
         EONSIM_PETSC(VecSet(input.get(),1.));
-        EONSIM_PETSC(KSPSetTolerances(inner,1e-30,1e-30,PETSC_DEFAULT,1));
-        EONSIM_PETSC(PCSetFailedReason(pc,PC_NOERROR));
-        EONSIM_PETSC(MatMult(schur,input.get(),action.get()));
         PCFailedReason failure; KSPConvergedReason reason;
-        EONSIM_PETSC(PCGetFailedReason(pc,&failure));
-        EONSIM_PETSC(KSPGetConvergedReason(inner,&reason));
-        check(comm,reason==KSP_DIVERGED_ITS&&failure==PC_NOERROR,
-              "Intentional bounded Schur inner solve was classified as a PC failure");
+        if(!twolevel) {
+            // Jacobi makes this bounded action inexact. A two-level cycle may
+            // solve the tiny oracle in one iteration, so retain the ITS probe
+            // on these existing fixtures rather than require artificial work.
+            EONSIM_PETSC(KSPSetTolerances(inner,1e-30,1e-30,PETSC_DEFAULT,1));
+            EONSIM_PETSC(PCSetFailedReason(pc,PC_NOERROR));
+            EONSIM_PETSC(MatMult(schur,input.get(),action.get()));
+            EONSIM_PETSC(PCGetFailedReason(pc,&failure));
+            EONSIM_PETSC(KSPGetConvergedReason(inner,&reason));
+            check(comm,reason==KSP_DIVERGED_ITS&&failure==PC_NOERROR,
+                  "Intentional bounded Schur inner solve was classified as a PC failure");
+        }
+        // Every solver here is explicitly iterative; PREONLY would not call
+        // this convergence callback and is covered by the real PC fault test.
         EONSIM_PETSC(KSPSetConvergenceTest(inner,
             [](KSP,PetscInt,PetscReal,KSPConvergedReason* why,void*) -> PetscErrorCode {
                 *why=KSP_DIVERGED_BREAKDOWN; return 0;
             },nullptr,nullptr));
+        EONSIM_PETSC(PCSetFailedReason(pc,PC_NOERROR));
         EONSIM_PETSC(MatMult(schur,input.get(),action.get()));
         EONSIM_PETSC(PCGetFailedReason(pc,&failure));
         EONSIM_PETSC(PCFieldSplitSchurRestoreS(pc,&schur));
@@ -630,8 +703,13 @@ void verify_twolevel(MPI_Comm comm,const AlgebraLayout& layout) {
         const auto dynamics=child_solver(comm,solver.get(),0);
         const auto momentum=child_solver(comm,dynamics,0,true);
         PC pc; EONSIM_PETSC(KSPGetPC(momentum,&pc));
-        PetscInt levels=0; EONSIM_PETSC(PCMGGetLevels(pc,&levels));
-        check(comm,levels==2,"Coupled two-level solve did not retain a coarse correction");
+        KSPType type=nullptr; PCType pc_type=nullptr; PetscReal rtol=0;
+        PetscInt levels=0,max_it=0; EONSIM_PETSC(PCMGGetLevels(pc,&levels));
+        EONSIM_PETSC(KSPGetType(momentum,&type)); EONSIM_PETSC(PCGetType(pc,&pc_type));
+        EONSIM_PETSC(KSPGetTolerances(momentum,&rtol,nullptr,nullptr,&max_it));
+        check(comm,levels==2&&std::string(type)==KSPPREONLY&&std::string(pc_type)==PCMG&&
+                   std::abs(rtol-1e-4)<1e-15&&max_it==20,
+              "Coupled two-level default lost PREONLY, its coarse correction, or its explicit-override budget");
         Mat interpolation=nullptr,coarse_matrix=nullptr; KSP coarse=nullptr;
         EONSIM_PETSC(PCMGGetInterpolation(pc,1,&interpolation));
         EONSIM_PETSC(PCMGGetCoarseSolve(pc,&coarse));
@@ -655,6 +733,7 @@ void verify_twolevel(MPI_Comm comm,const AlgebraLayout& layout) {
             correct=correct&&std::abs(actual-expected)<1e-10;
         }
         check(comm,correct,"Two-level interpolation, constraint handling or Galerkin numerical update failed");
+        verify_preonly_action(comm,momentum);
     }
     // Recreate the solver for a completely constrained operator: no coarse
     // modes exist, but the same public option must remain well-defined.
@@ -669,6 +748,17 @@ void verify_twolevel(MPI_Comm comm,const AlgebraLayout& layout) {
     EONSIM_PETSC(KSPSetTolerances(identity_solver.get(),1e-12,1e-13,PETSC_DEFAULT,200));
     configure_pc_plan(comm,identity_solver.get(),matrix.get(),plan);
     solve_exact(comm,identity_solver.get(),matrix.get(),"twolevel_identity");
+    const auto identity_velocity=child_solver(comm,child_solver(comm,identity_solver.get(),0),0,true);
+    PC identity_pc,coarse_pc; KSP coarse=nullptr; KSPType coarse_type=nullptr;
+    PCType identity_type=nullptr,coarse_pc_type=nullptr; PetscInt levels=0;
+    EONSIM_PETSC(KSPGetPC(identity_velocity,&identity_pc)); EONSIM_PETSC(PCGetType(identity_pc,&identity_type));
+    EONSIM_PETSC(PCMGGetLevels(identity_pc,&levels)); EONSIM_PETSC(PCMGGetCoarseSolve(identity_pc,&coarse));
+    EONSIM_PETSC(KSPGetType(coarse,&coarse_type)); EONSIM_PETSC(KSPGetPC(coarse,&coarse_pc));
+    EONSIM_PETSC(PCGetType(coarse_pc,&coarse_pc_type));
+    check(comm,std::string(identity_type)==PCMG&&levels==1&&std::string(coarse_type)==KSPPREONLY&&
+               std::string(coarse_pc_type)==PCJACOBI,
+          "All-identity two-level default did not retain its one-level Jacobi action");
+    verify_preonly_action(comm,identity_velocity);
 }
 void run(MPI_Comm comm) {
     int rank,size; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&size);
@@ -858,6 +948,24 @@ void run(MPI_Comm comm) {
         PetscOwner<KSP,KSPDestroy> ksp; EONSIM_PETSC(KSPCreate(comm,ksp.put()));
         EONSIM_PETSC(KSPSetType(ksp.get(),KSPFGMRES));
         configure_pc_plan(comm,ksp.get(),matrix.get(),plan);
+        if(recipe=="added_mass") {
+            const auto dynamics=child_solver(comm,ksp.get(),0);
+            const auto fluid=child_solver(comm,dynamics,0,true),structure=child_solver(comm,dynamics,1,true);
+            PC fluid_pc; PCType pc_type=nullptr; KSPType structure_type=nullptr;
+            Mat schur=nullptr; KSP interior=nullptr;
+            PetscReal fluid_rtol=0,structure_rtol=0; PetscInt fluid_max=0,structure_max=0;
+            EONSIM_PETSC(KSPGetPC(fluid,&fluid_pc)); EONSIM_PETSC(PCGetType(fluid_pc,&pc_type));
+            EONSIM_PETSC(KSPGetOperators(structure,&schur,nullptr));
+            EONSIM_PETSC(MatSchurComplementGetKSP(schur,&interior));
+            EONSIM_PETSC(KSPGetType(structure,&structure_type));
+            EONSIM_PETSC(KSPGetTolerances(fluid,&fluid_rtol,nullptr,nullptr,&fluid_max));
+            EONSIM_PETSC(KSPGetTolerances(structure,&structure_rtol,nullptr,nullptr,&structure_max));
+            check(comm,interior==fluid&&std::string(pc_type)==PCFIELDSPLIT&&
+                       std::string(structure_type)==KSPFGMRES&&fluid_max==20&&structure_max==20&&
+                       std::abs(fluid_rtol-1e-4)<1e-15&&std::abs(structure_rtol-1e-2)<1e-15,
+                  "Added-mass defaults lost shared fluid action or the retained iterative-override budgets");
+            verify_preonly_action(comm,fluid);
+        }
     }
     verify_nodal_schur(comm,l,matrix.get());
     verify_added_mass(comm,l);

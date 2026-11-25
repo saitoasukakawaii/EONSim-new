@@ -321,9 +321,9 @@ void defaults(MPI_Comm comm,KSP ksp,bool structure_response=false) {
     // Local factors must see assembled P, not the implicit Schur operator A.
     EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
     if(structure_response) {
-        // Apply the implicit complete-fluid Schur operator, preconditioned by
-        // the assembled structural diagonal block. Bounded inexact work belongs
-        // inside the outer flexible solve, never changes its convergence test.
+        // Apply the implicit Schur with the configured approximate full-fluid
+        // response, preconditioned by the assembled structural diagonal block.
+        // The outer flexible solve retains the complete root Jacobian and gate.
         EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
         EONSIM_PETSC(KSPSetTolerances(ksp,1e-2,PETSC_DEFAULT,PETSC_DEFAULT,20));
     }
@@ -378,7 +378,11 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
     }
     if(!root) EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY));
     if(node.fluid_response) {
-        EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
+        // One complete velocity/pressure PC application approximates F^-1.
+        // Its tolerance-dependent coarse solves still require outer FGMRES.
+        // Retain the bounded budget for an explicit FGMRES override. Each
+        // main/interior/upper KSP applies its own options after these defaults.
+        EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY));
         EONSIM_PETSC(KSPSetTolerances(ksp,1e-4,PETSC_DEFAULT,PETSC_DEFAULT,20));
     }
     EONSIM_PETSC(PCSetType(pc,PCFIELDSPLIT));
@@ -389,7 +393,9 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
             common_check(comm,updates!=nullptr,"nodal Schur requires live numeric refresh state");
             // Independent main/inner/upper KSPs use the same numerical block.
             // Share its USER matrix and refresh it once per Jacobian assembly.
-            // Structure uses K-G*H_F*E; its implicit operator remains K-G*F^-1*E.
+            // Structure P is K-G*H_F*E. Its implicit A keeps the full fluid
+            // blocks and applies the configured approximate fluid response;
+            // the root Jacobian is unchanged.
             auto& state=schur_cache[&node];
             if(!state) {
                 state=std::make_shared<NodalSchur>(comm,node);

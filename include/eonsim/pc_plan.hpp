@@ -9,7 +9,8 @@ namespace eonsim {
 struct PcBlock {
     std::string name;
     bool schur=false, nodal_schur=false, coupled_velocity=false, twolevel_velocity=false;
-    // Added-mass topology retains the complete fluid saddle-point Schur operator.
+    // Added-mass retains full fluid saddle-point blocks with an approximate inverse action.
+    // fluid_response defaults to PREONLY; explicit FGMRES keeps its bounded budget.
     // structure_response selects the historical iterative solve preconditioned by A11.
     bool added_mass_schur=false, fluid_response=false, structure_response=false;
     // USER structural P uses local mixed fluid inverses; its default action is PREONLY.
