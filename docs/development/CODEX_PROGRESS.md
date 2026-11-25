@@ -1,13 +1,35 @@
 # EONSim Codex Development Progress
 
-## 2026-11-25 · FSI-PERF-02 开发中：默认精确图、残量批量更新与会话复用
+## 2026-11-25–26 · FSI-PERF-02：实现、验收与性能闭环完成
 
-PR #51 已核实合入 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`；
-本轮从该提交在 `codex/fsi-performance-completion` 继续完成已识别的 CPU/MPI 性能项。
-范围为默认 AIJ 精确结构图、局部 COO 重复贡献压缩、残量固定 COO、局部核等价简化、
-有界 OpenMP 单元批次，以及 SNES/KSP/PC 与辅助缓冲的跨 solve 生命周期复用。
-固定图、动态数值、错误同步与接受后历史提交分别管理；源码先推送远端再运行针对性 Release 与配对基准。
-此领取记录尚无本轮运行结果，未声称所有硬件后端或任意规模优化已经完成。
+从已合并 PR #51 的 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f` 开发，
+分支 `codex/fsi-performance-completion`，交付 [PR #52](https://github.com/saitoasukakawaii/EONSim-new/pull/52)。
+首轮实现 `7f3d12ed6d0a1abc67d5f5606bf644b142a3197f`，最终 COO 行分桶修复
+`2b0b30bc2e1b036b8b97c9424cc6d41abd5af105`；两次均先推送、后验证。本记录不声称已合并。
+
+完成默认 AIJ 精确物理图、局部 COO K→U 去重及行分桶、默认固定残量 COO、线性 mesh/解析面载荷移出 AD、
+64 单元 OpenMP 批次、SNES/KSP/PC 与字段/诊断缓冲复用，以及 owned 约束和普通 Vec/Mat 最终装配交错。
+数值 Jacobian/PC 每次更新，失败后共同销毁会话；不改变方程、时间历史、接受门槛或原始贡献相加次序。
+整体 BAIJ 和 interior/halo 双阶段回调已完成适配/成本评估，当前证据下不采用。
+
+本地 PETSc 3.23.7 Release 首轮 **13/13** 通过；行分桶后只复验受影响的 FSI 检查 **1/1**，
+31 条命令含 1 个预期失败控制。源 CI：7f3 实际 **51/51 Release、65 Python**；
+2b0 实际 **28/28 Release、6 Python**，另 **23 项复用 7f3 通过证据，本次未运行**，总覆盖 51 项。
+对应 [首轮 run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45644776027) 和
+[修复 run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45649236866) 及网站检查成功。
+
+最终性能证据 **80 次运行 / 1,600 步**，含 20 次预热；另保留 32 次中间 COO 运行。
+默认 assembly 配对中位数下降 **9.47%–20.34%**；最终 COO 初始化下降 **20.17%–47.72%**、
+RSS 下降 **2.13%–8.89%**。细网格单 rank 的 COO 初始化回退由中间版本 +23.03% 修至 −39.90%。
+默认细网格单 rank RSS 增加 4.01%；部分 wall 范围跨零，保留显式矩阵 COO/线程开关，默认单元线程仍为 1。
+独立审计重读 5,040 个体 VTU、核验 13,787 份文件哈希，最大字段差 6.661338147750939e-16、
+最大真实线性残量/门槛 0.00019408852157546064；每步 SNES/KSP=2/2，新版每次 19/20 步复用。
+
+[完整源码/命令/统计/限制](../research/data/fsi-performance-2026-11-25/README.md) ·
+[独立审计](../research/data/fsi-performance-2026-11-25/independent-audit.json) ·
+[未发布算法草稿](../../website/drafts/fsi-performance-completion.md)。
+默认和线程测量保留实际 7f3 来源；2b0 仅改 COO 初始化，未重复不受影响的性能实验。
+未运行本地全量、Debug 或 3.19.6，未声称多节点、GPU 或任意生产规模优化完成。
 
 ## 2026-11-25 · FSI-ASSEMBLY-01 已合并 PR #51
 

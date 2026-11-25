@@ -1,5 +1,28 @@
 # EONSim Knowledge Log
 
+## 2026-11-25–26 · FSI-PERF-02：精确图、局部贡献去重与 collective 会话
+
+[算法草稿](../../website/drafts/fsi-performance-completion.md)和
+[完整证据](data/fsi-performance-2026-11-25/README.md)记录默认精确图、残量 COO、局部 K→U、
+有界线程批次与合资格 SNES/KSP/PC 复用。源码 7f3d12e / 2b0b30b 均先推送后验证。
+局部图必须区分 test/trial 投影；移动 RCR 面积导数须显式保留。会话只保存稳定 callback holder，
+每次绑定新的借用 Context，并且所有 rank 共同保留/析构；复用对象仍刷新数值 Jacobian/PC。
+
+本轮有实测回退再修复：K 项全局间接排序使细网格单 rank COO 初始化 +23.03%，
+改成局部行分桶、短列排序和提前释放临时行数组后，同后端基线配对为 −39.90%。
+原始贡献→slot 与数值相加顺序保持，既保留内存收益，也检查 setup 成本。
+默认 assembly 中位数下降 9.47%–20.34%；最终 COO 初始化下降 20.17%–47.72%，RSS 下降 2.13%–8.89%。
+默认细网格单 rank RSS 增加 4.01%，一些整次 wall 范围跨零；没有将阶段收益或组合优化拆成未经消融的独立因果结论。
+
+本地首轮 13/13 与修复受影响 1/1 通过；远端首轮 51/51，修复 28/28 新执行 + 23 项复用原通过证据。
+最终 80 次 / 1,600 步、3,200 次线性修正经独立原始数据复核，13,787 份文件哈希、5,040 份体 VTU 核验通过；最大字段差 6.661338147750939e-16。
+中间32次COO与两次审计助手失败原样保留。审计修正分别来自日志显示精度和 Python3.12 sum 的浮点累加语义，未放宽物理或统计门槛。
+
+长期契约已同步[离散算子](../architecture/L2_DISCRETIZATION_AND_OPERATORS.md)和
+[并行内存](../architecture/L2_PARALLEL_MEMORY_AND_BACKENDS.md)。
+BAIJ 的块布局不适配、halo 双阶段回调收益空间过小均给出当前编号/历史测量依据，而非未经实测的速度断言。
+草稿未公开发布，性能适用范围仅本次共享单机1/2 rank和小网格；GPU/多节点不在已验证范围。
+
 ## 2026-11-25 · FSI-ASSEMBLY-01：保留稀疏图、固定装配计划与可选 COO
 
 [算法草稿](../../website/drafts/fsi-sparse-assembly-plan.md)说明最终 AIJ 所有权转移、

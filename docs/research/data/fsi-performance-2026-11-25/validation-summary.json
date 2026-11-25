@@ -1,0 +1,340 @@
+{
+  "kind": "Read-only summary of completed focused Release validation; no additional numerical executions",
+  "source_commit": "7f3d12ed6d0a1abc67d5f5606bf644b142a3197f",
+  "source_dirty": false,
+  "status": "passed",
+  "petsc": "3.23.7",
+  "mode": "release",
+  "test_counts": {
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0
+  },
+  "build_seconds": 43.152625682996586,
+  "ctest_seconds": 73.41435969099985,
+  "tests": [
+    {
+      "name": "solver_failures",
+      "status": "passed",
+      "ranks": [
+        1
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.110862,
+      "log": "evidence/junit.xml#solver_failures",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "solver_failures_mpi",
+      "status": "passed",
+      "ranks": [
+        2
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.213065,
+      "log": "evidence/junit.xml#solver_failures_mpi",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "nonlinear_acceptance",
+      "status": "passed",
+      "ranks": [
+        1
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.110302,
+      "log": "evidence/junit.xml#nonlinear_acceptance",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "nonlinear_acceptance_mpi",
+      "status": "passed",
+      "ranks": [
+        2
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.218559,
+      "log": "evidence/junit.xml#nonlinear_acceptance_mpi",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "fsi_metric_stabilization",
+      "status": "passed",
+      "ranks": [
+        1,
+        2
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 3.12093,
+      "log": "evidence/junit.xml#fsi_metric_stabilization",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "fsi_element_jacobian",
+      "status": "passed",
+      "ranks": [
+        1
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.0796193,
+      "log": "evidence/junit.xml#fsi_element_jacobian",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "fluid_coo_verification",
+      "status": "passed",
+      "ranks": [
+        1,
+        2,
+        4
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 17.484,
+      "log": "evidence/junit.xml#fluid_coo_verification",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "fsi_coo_verification",
+      "status": "passed",
+      "ranks": [
+        1,
+        2
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 9.91902,
+      "log": "evidence/junit.xml#fsi_coo_verification",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "pc_added_mass_nodal_retry",
+      "status": "passed",
+      "ranks": [
+        1,
+        2
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 4.2563,
+      "log": "evidence/junit.xml#pc_added_mass_nodal_retry",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "pc_twolevel_retry",
+      "status": "passed",
+      "ranks": [
+        1,
+        2
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 3.86389,
+      "log": "evidence/junit.xml#pc_twolevel_retry",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "pc_recipe_restart",
+      "status": "passed",
+      "ranks": [
+        1,
+        2,
+        4
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 28.8905,
+      "log": "evidence/junit.xml#pc_recipe_restart",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "time_retry_verification",
+      "status": "passed",
+      "ranks": [
+        1,
+        2
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 2.9058,
+      "log": "evidence/junit.xml#time_retry_verification",
+      "exit_behavior": "Completed"
+    },
+    {
+      "name": "domains_verification",
+      "status": "passed",
+      "ranks": [
+        1,
+        2
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 2.18889,
+      "log": "evidence/junit.xml#domains_verification",
+      "exit_behavior": "Completed"
+    }
+  ],
+  "metrics": {
+    "fsi_command_count": 31,
+    "fsi_expected_failure_command_count": 1,
+    "fsi_threads_per_rank": 2,
+    "fsi_max_owned_field_difference": {
+      "value": 4.716782520119978e-13,
+      "label": "moving-r2-coo"
+    },
+    "fsi_max_normalized_history_difference": {
+      "value": 5.920877545347623e-14,
+      "label": "moving-r2-coo"
+    },
+    "moving_rcr_global_jacobian_fd": [
+      {
+        "label": "moving-r2-values",
+        "relative_difference": 1.98523e-08
+      },
+      {
+        "label": "moving-r2-coo",
+        "relative_difference": 1.98495e-08
+      }
+    ],
+    "fsi_retry": {
+      "retries": 3,
+      "accepted_dt": 0.0125,
+      "field_difference": 1.6342482922482304e-13,
+      "history_difference": 1.38820830658883e-16,
+      "iteration_trajectory": [
+        [
+          3,
+          3
+        ]
+      ]
+    },
+    "fsi_backend_restart": [
+      {
+        "source_coo": false,
+        "field_difference": 1.176836406102666e-14,
+        "history_difference": 6.283059207531293e-17,
+        "iteration_trajectory": [
+          [
+            3,
+            3
+          ],
+          [
+            3,
+            3
+          ]
+        ]
+      },
+      {
+        "source_coo": true,
+        "field_difference": 1.0635936575909e-13,
+        "history_difference": 2.663734783012152e-16,
+        "iteration_trajectory": [
+          [
+            3,
+            3
+          ],
+          [
+            3,
+            3
+          ]
+        ]
+      }
+    ],
+    "element_directional_checks": 48,
+    "element_max_directional_relative_error": 2.23866e-10,
+    "metric_stabilization": {
+      "be": {
+        "field_difference": 5.551115123125783e-17,
+        "stage_mass_residual": 2.6020852139652106e-18
+      },
+      "bdf2": {
+        "field_difference": 6.661338147750939e-16,
+        "stage_mass_residual": 2.168404344971009e-18
+      },
+      "generalized_alpha": {
+        "field_difference": 6.5503158452884236e-15,
+        "stage_mass_residual": 2.6020852139652106e-18
+      },
+      "variable_restart_difference": 0.0
+    },
+    "pc_restart_cases": 31,
+    "pc_restart_max_direct_error": {
+      "case": "fsi/rigid",
+      "ranks": 4,
+      "recipe": "quantity",
+      "direct_error": 3.3710811919718253e-12,
+      "restart_error": 1.099120794378905e-14,
+      "status": "passed"
+    },
+    "pc_restart_max_restart_error": {
+      "case": "fsi/elastic",
+      "ranks": 1,
+      "recipe": "quantity",
+      "direct_error": 8.122391648157645e-13,
+      "restart_error": 1.532107773982716e-13,
+      "status": "passed"
+    },
+    "domains_global_jacobian_fd": {
+      "1": 3.84624e-10,
+      "2": 4.28179e-10
+    },
+    "fluid_coo_max_field_difference": 3.30869e-12,
+    "time_retry_variants": {
+      "names": [
+        "direct",
+        "added_mass_nodal",
+        "twolevel"
+      ],
+      "ranks": [
+        1,
+        2
+      ],
+      "accepted_dt": 0.00125,
+      "accepted_steps": 32
+    },
+    "lifetime_modes": {
+      "ranks": [
+        1,
+        2
+      ],
+      "backends": [
+        "ordinary Vec/Mat insertion",
+        "residual and Jacobian COO"
+      ],
+      "rank_local_fresh_policy": true,
+      "configuration_options_constraint_invalidation": true,
+      "fatal_and_initial_rejection_recovery": true,
+      "line_search_domain_recovery": true
+    }
+  },
+  "pinned_binary": {
+    "source_commit": "7f3d12ed6d0a1abc67d5f5606bf644b142a3197f",
+    "binary": "/workspace/scratch/d56ec93a621c/perf2-candidate-7f3/eonsim",
+    "sha256": "109078ae403dbf2708febf9279cd368c198d51f0b155ffeb604c9a7fb87364cb",
+    "bytes": 1990832,
+    "release_receipt": "/workspace/scratch/d56ec93a621c/perf2-candidate-7f3/evidence/summary.json",
+    "outer_receipt": "/workspace/scratch/d56ec93a621c/perf2-candidate-7f3/validation-command.json",
+    "original_binary": "/workspace/scratch/d56ec93a621c/EONSim-new/build/cloud-3.23.7-release/eonsim"
+  },
+  "raw_sources": [
+    "/workspace/scratch/d56ec93a621c/EONSim-new/build/cloud-3.23.7-release/evidence/summary.json",
+    "/workspace/scratch/d56ec93a621c/EONSim-new/build/cloud-3.23.7-release/evidence/ctest.log",
+    "/workspace/scratch/d56ec93a621c/EONSim-new/build/cloud-3.23.7-release/fsi_coo_verification/results.json",
+    "/workspace/scratch/d56ec93a621c/EONSim-new/build/cloud-3.23.7-release/fsi_metric/result.json",
+    "/workspace/scratch/d56ec93a621c/EONSim-new/build/cloud-3.23.7-release/pc_recipe_restart/results.json"
+  ],
+  "warnings": [
+    "GCC 15.3 -Warray-bounds from std::sort in a bounded 3-entry face array was reviewed statically; count <= 3, no actual out-of-bounds path found. No source change."
+  ],
+  "unrun": [
+    "local full suite",
+    "Debug",
+    "PETSc 3.19.6"
+  ]
+}

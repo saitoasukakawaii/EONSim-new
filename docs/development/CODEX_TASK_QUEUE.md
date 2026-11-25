@@ -1,13 +1,32 @@
 # EONSim Codex Task Queue
 
-## 2026-11-25 · FSI-PERF-02 开发中：默认精确图、残量批量更新与会话复用
+## FSI-PERF-02 / implementation and validation complete / 2026-11-25–26
 
-PR #51 已核实合入 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`；
-本轮从该提交在 `codex/fsi-performance-completion` 继续完成已识别的 CPU/MPI 性能项。
-范围为默认 AIJ 精确结构图、局部 COO 重复贡献压缩、残量固定 COO、局部核等价简化、
-有界 OpenMP 单元批次，以及 SNES/KSP/PC 与辅助缓冲的跨 solve 生命周期复用。
-固定图、动态数值、错误同步与接受后历史提交分别管理；源码先推送远端再运行针对性 Release 与配对基准。
-此领取记录尚无本轮运行结果，未声称所有硬件后端或任意规模优化已经完成。
+基线 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`，分支 `codex/fsi-performance-completion`，
+[PR #52](https://github.com/saitoasukakawaii/EONSim-new/pull/52)。实现 `7f3d12e`，最终 COO 修复 `2b0b30b`，
+均先推送后执行。开发与验收完成；PR 状态以 GitHub 为准，本记录未声称已经合并。
+
+| 已识别优化项 | 关闭结论 |
+|---|---|
+| 默认 sparse pattern | 共用物理耦合块、独立 test/trial 投影；unique nnz 降低 25.70% / 28.69% |
+| COO 坐标与容量 | rank 内 K→U，local-row buckets 消除已测初始化回退，原始相加次序保持 |
+| 残量与单元核 | 固定残量 COO；线性 mesh/解析压力面移出 AD，完整跨场导数与几何检查保留 |
+| 并行执行 | 64-cell 有界 OpenMP 批次、主线程 PETSc/MPI 与确定性 scatter；默认 1 线程 |
+| 求解器生命周期 | 合资格 Newton 的 SNES/KSP/PC 与诊断缓冲复用，每次更新数值，失败/配置变化共同重建 |
+| 约束/最终通信 | owned 数组替换，全局零约束跳过 MatZeroRows，普通双 stash Begin/End 交错 |
+| BAIJ / halo 双阶段 | 已评估，异构编号/实测 ghost 占比不支持本轮采用；不声称已实现 |
+
+本地 7f3 **13/13** 定向通过，2b0 受影响 FSI **1/1** 复验通过；云端 7f3 **51/51**，
+2b0 **28/28 新执行 + 23 项复用原通过证据**，覆盖 51 项；Python 分别实际 65 / 6 项。
+最终三组性能 campaign **80 runs / 1,600 accepted steps**，含 20 warmups；中间 COO 32 runs 另归档。
+独立审计已完成原始字段/历史/迭代/残量/文件摘要复核，未改变容差。
+
+默认 assembly 中位数下降 **9.47%–20.34%**；COO 初始化下降 **20.17%–47.72%**，
+峰值 RSS 下降 **2.13%–8.89%**。wall 的波动与默认细网格单 rank RSS +4.01% 均如实记录。
+[完整验收、统计与归档](../research/data/fsi-performance-2026-11-25/README.md) ·
+[算法草稿，未公开发布](../../website/drafts/fsi-performance-completion.md)。
+当前 CPU/MPI 适用项已完成或给出有证据的采用判断；无无限优化任务。
+GPU、多节点扩展及不同生产网格的调优未在本任务中实现或验证。
 
 ## FSI-ASSEMBLY-01 / merged as #51 / 2026-11-25
 

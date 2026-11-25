@@ -1,5 +1,65 @@
 # EONSim Codex Session Log
 
+## 2026-11-25–26 · FSI-PERF-02 — 适用优化、回退修复和证据交付
+
+用户继续要求完成 EONSim-new 性能优化。核实 PR #51 已合入 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`，
+从该点在 `codex/fsi-performance-completion` 开发并创建 [PR #52](https://github.com/saitoasukakawaii/EONSim-new/pull/52)。
+7f3d12ed 与 2b0b30bc 两次实现均先推送后编译/验证；测量工作树与构建来源均 clean。
+知识草稿仍留在 `website/drafts/`，没有晋升公开文章。本文不把 PR 提交写成已合并。
+
+### 实现与独立审查
+
+默认 AIJ/COO 共用精确物理图，保留移动 RCR 的速度行/压力行到面内几何列。
+残量默认固定 COO，包括实际 SNES line-search Vec 的预分配；失败先同步，成功后才发布部分缓冲。
+局部 COO K→U 保留 contribution→slot，主线程保持原贡献相加次序；OpenMP 仅执行纯单元核与私有暂存。
+线性参考 mesh 和解析面积导数移出 AD，流体仍传播全部当前几何、metric 与跨场导数。
+合资格 Newton 会话及 field/diagnostic 缓冲跨步复用，数值 Jacobian/PC 始终刷新。
+
+审查在推送前发现 keep/release 判断是 rank-local，而 SNES 析构需要 collective 一致。
+修为 MPI_MIN 共同决定，增加仅 rank 0 关闭复用的普通/双 COO 连续求解测试；未声称曾实测死锁。
+另外审查 callback 借用范围、Workspace 析构顺序、实际 Vec ID、失败 stash 清理和 USER PC 数值刷新。
+BAIJ 因异构有效编号不采用；真正 halo/内部单元计算重叠因历史细网格 ghost/solve 仅 0.015%–0.023% 不新增。
+
+### 实测回退与修复
+
+7f3 首轮 local Release **13/13** 通过，构建 43.153 s / CTest 73.414 s。
+首批 default/COO/threads 共 80 次、1,600 步运行全部通过数值门槛，但 COO 细网格单 rank
+一次性准备配对中位数 **+23.03%**：plan 29.445→207.212 ms，system 156.877→33.014 ms。
+压缩仍带来 RSS −6.28%，因此保留 K→U，把 K 项全局间接排序改为 local-row bucket 和桶内列排序，
+owned 算术索引、ghost 二分与重复行查找缓存；生成唯一坐标的全局顺序、value_slots 与数值 scatter 保持。
+填好 permutation 后提前释放 K 项临时行数组。
+
+修复 2b0 推送后，只运行受影响的 `fsi_coo_verification` **1/1**（31 commands，1 个预期失败），
+构建 26.815 s / CTest 9.151 s；107 个共有数值摘要与 7f3 相同。
+重跑最终 COO 的 32 次/640 步，初始化四组中位数下降 20.17%–47.72%，细网格单 rank **−39.90%**、双 rank **−47.72%**。
+未重复不受影响的默认/线程性能，也未将其来源改写为 2b0。
+
+### 最终证据及审计修正
+
+最终三组共 **80 次运行、1,600 接受步、3,200 线性修正**，含 20 次预热；另外保留旧 COO 32 次/640 步。
+默认 assembly 配对中位数 −9.47%～−20.34%；COO RSS −2.13%～−8.89%。
+默认细网格单 rank RSS +4.01%；部分 wall 配对范围跨零，多线程和矩阵 COO 维持显式选择。
+新版每次首步新建、后 19 步复用；全部每步 SNES/KSP=2/2，物理方程与接受门槛未改。
+
+独立审计核验 13,787 份哈希、985,204,950 B，重读 1,680 个状态/5,040 体 VTU，
+最大字段差 6.661338147750939e-16、历史差 2.609024107869118e-15、ghost 差 0，
+最大真实线性残量/门槛 0.00019408852157546064。两次审计辅助程序修正均保留原尝试：
+首步 RSS 六位有效数字产生 12 B 表面下降，改按原 token 的半末位区间核验，聚合仍严格取原打印值 max；
+Python 3.12 的 sum 与逐项 += 相差 1 ULP，改按统计定义 sum(raw steps) 重算。均未更改物理或统计门槛、原始数据或重新求解。
+GCC Tri3 sort 小数组警告经静态边界审查属不可达大范围分支，未关闭警告或增加无关 Debug。
+
+源码 CI 7f3 在 merge `9393f27` 实际 **51/51 Release、65 Python**，
+2b0 在 merge `a071ed2` 实际 **28/28 Release、6 Python**，另 23 项复用首轮证据。
+四项必需检查的来源与状态均读取 GitHub；分支前进而 PR head 曾滞后，通过重新打开同一个 PR 刷新，
+未将旧 head 的成功检查当作新源码已验证。
+
+归档 21,848 份原始逻辑文件、4,421 个内容对象和三个实际二进制，压缩流 19,946,772 B，
+分为五块并核验全部对象/清单/重组 SHA。后到的 2b0 CI 收据单独保存相邻 JSON，未冒充已在压缩包内。
+[完整命令、逐组统计、限制与重放](../research/data/fsi-performance-2026-11-25/README.md) ·
+[审计](../research/data/fsi-performance-2026-11-25/independent-audit.json) ·
+[知识草稿](../../website/drafts/fsi-performance-completion.md)。
+本地未运行全量、Debug 或 PETSc 3.19.6；本任务未证明多节点/GPU 或生产网格普遍加速。
+
 ## 2026-11-25 · FSI-ASSEMBLY-01 — 实现与验证完成，待用户 review/merge
 
 基线为 GitHub 已核实的 main `f7acccb7a8239c60a2d2be193a158ac430851dcf`。
