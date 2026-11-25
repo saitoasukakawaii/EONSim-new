@@ -148,6 +148,8 @@ def verify_rcr(run, base):
     # must preserve both the field solution and capacitor state on restart.
     for mode, flags in (
         ('added-mass', ['-pc_recipe','added_mass','-pc_plan_schur_approx','nodal']),
+        ('added-mass-nodal', ['-pc_recipe','added_mass','-pc_plan_schur_approx','nodal',
+                              '-pc_plan_structure_approx','nodal','-pc_plan_report']),
         ('twolevel', ['-pc_recipe','hybrid','-pc_plan_schur_approx','nodal',
                       '-pc_plan_velocity_solver','twolevel'])):
         flags += ['-ksp_rtol','1e-10','-ksp_max_it','1500','-linear_report','-solver_report']
@@ -163,6 +165,16 @@ def verify_rcr(run, base):
         resumed, resumed_rows, resumed_log = run.solve(label+'-resumed',cfg,2,
                                                       [*flags,'-restart',saved,'-stop_after',2])
         resumed_checks = audit_block_linear_log(resumed_log,len(resumed_rows))
+        if mode=='added-mass-nodal':
+            for observed in (full_log,start_log,resumed_log):
+                blocks=[dict(re.findall(r'(\w+)=([^\s]+)',line)) for line in observed.splitlines()
+                        if line.startswith('pc_block ')]
+                assert any(row['name']=='dynamics' and row['structure_approx']=='nodal'
+                           for row in blocks), 'requested structural approximation was not configured'
+                nodes=[dict(re.findall(r'(\w+)=([^\s]+)',line)) for line in observed.splitlines()
+                       if line.startswith('solver_node ')]
+                structure=[row for row in nodes if row['prefix']=='fieldsplit_dynamics_fieldsplit_structure_']
+                assert structure and all(row['ksp']=='preonly' for row in structure)
         check_rcr_history(run,label+'-resumed',model,resumed_rows,restart=1)
         assert len(resumed_rows)==1 and error(full,resumed)<2e-8
         for column in ('stage_rcr_flow','endpoint_rcr_pressure','endpoint_capacitor_pressure','stage_capacitor_rate'):

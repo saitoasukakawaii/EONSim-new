@@ -584,12 +584,13 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     int conflict=(block&&schur)||(semantic&&(block||schur)),any_conflict=0;
     MPI_Allreduce(&conflict,&any_conflict,1,MPI_INT,MPI_MAX,comm);
     if(any_conflict) throw std::runtime_error("Choose only one PC recipe, block_pc or schur_pc");
-    PetscBool nodal_option=PETSC_FALSE,velocity_option=PETSC_FALSE;
+    PetscBool nodal_option=PETSC_FALSE,velocity_option=PETSC_FALSE,structure_option=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_schur_approx",&nodal_option));
     EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_solver",&velocity_option));
-    int unused=!semantic&&(nodal_option||velocity_option),any_unused=0;
+    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_structure_approx",&structure_option));
+    int unused=!semantic&&(nodal_option||velocity_option||structure_option),any_unused=0;
     MPI_Allreduce(&unused,&any_unused,1,MPI_INT,MPI_MAX,comm);
-    if(any_unused) throw std::runtime_error("pc_plan Schur and velocity options require -pc_recipe");
+    if(any_unused) throw std::runtime_error("pc_plan Schur, velocity and structure options require -pc_recipe");
     PcBlock plan;
     if(semantic) plan=make_pc_plan(comm,l,recipe);
     if(block||schur||semantic) {

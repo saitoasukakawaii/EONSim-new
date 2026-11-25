@@ -1,6 +1,10 @@
 # FSI 分块预条件器
 
-**当前状态：本地定向验收已通过，等待用户审阅与合并。** 求解器实现检查点为
+**当前状态：上一轮已随 PR #49 合并；结构 nodal 流体反馈近似正在开发，尚未验收。**
+本轮基线为 `296246e53d895f29ea3d0f7e5c960dc26b1426dc`，工作分支为
+`codex/fsi-block-efficient-schur`。新选项的结果将在代码推送后通过针对性算例确认。
+
+上一轮求解器实现检查点为
 `b8ac03ab162715fca24009f18903da8116ef4ecc`；其 PETSc 3.23.7 Release 代数检查
 为 3/3，覆盖 1/2/4 rank。最终验收提交
 `b52281d7585ead08e545f29f8d83eca9177e7eac` 的八项物理/恢复选测全部通过，
@@ -13,10 +17,10 @@
 [源码 CI 收据](../research/data/fsi-block-2026-11-25/ci-source-b522.json)；
 该收据对应上述源码提交，不预先代表后续文档提交的检查状态。
 
-工作分支为 `codex/fsi-block-completion`，基线为
-`f50a4a4338689c9a065bee30ae4a7f3f52c5002e`。本轮遵循“源码先推送、再验证、
-用户审核后合并”；本地通过记录不代替 PR CI 或用户审核，本文和算法文章均不表示
-PR 已合并。实际命令、环境、历史失败和最终收据见
+上一轮工作分支为 `codex/fsi-block-completion`，基线为
+`f50a4a4338689c9a065bee30ae4a7f3f52c5002e`，PR #49 已合并。
+本轮按用户授权遵循“源码先推送、再验证、通过必需 CI 后合并”。
+上一轮实际命令、环境、历史失败和最终收据见
 [验证索引](../research/data/fsi-block-2026-11-25/README.md)及
 [原始证据归档](../research/data/fsi-block-2026-11-25/evidence.tar.xz)。
 下文 `build/...` 为原始证据来源路径，其归档映射由该索引记录；开发过程另见
@@ -38,6 +42,8 @@ Jacobian、物理残量、时间离散、约束或接受步条件。压力规范
 | `-pc_plan_velocity_solver twolevel` | 完整流固速度矩阵上 FGMRES、两层 PCMG、ASM 平滑和全局粗校正 | 仅完整 FSI 的 hybrid/quantity |
 | `-pc_plan_schur_approx diagonal` | PETSc SELFP 压力近似 | 默认值 |
 | `-pc_plan_schur_approx nodal` | 语义节点块逆构造压力近似 `D−CHB` | 要求存在压力 Schur；不作用于 fluid/structure Schur |
+| `-pc_plan_structure_approx a11` | 结构 Schur 的 P 取结构块 `K` | `added_mass` 的默认值 |
+| `-pc_plan_structure_approx nodal` | 局部完整流体块逆构造结构近似 `K−G H_F E`，默认 PREONLY 应用 P 的预条件器 | 仅 `added_mass`；局部流体块须可逆；本轮待验收 |
 
 独立流体的 physics/quantity/hybrid 均退化为 velocity/pressure Schur。
 added_mass 与 twolevel 是不同的流固分组方式，不能同时选择。
@@ -93,6 +99,43 @@ added_mass 用 PETSc `MatSchurComplement` 应用完整流体 velocity/pressure �
 完整系统可解不保证 \(F\) 单独可解。流体子块存在未处理的压力零空间时，
 须修正算例规范/边界或选择其它 recipe；程序不自动添加压力钉点。
 外层 ALE 仍为乘法分裂，未构造包含 ALE 消元的全系统精确 Schur。
+
+### 3.1 可选的结构 nodal 近似
+
+`-pc_plan_structure_approx nodal` 用同一流体实体实际保留的速度与压力
+分量组成 1–4 维局部块 \(F_i\)。实体种类、ID、域、空间与模式参与分组；
+压力独有节点及 RCR 边界压力保留为独立小块，不按代数行相邻关系分组。
+构造
+
+\[
+H_F=\operatorname{blockdiag}(F_i^{-1}),\qquad
+P_s=K-GH_FE.
+\]
+
+这近似包含局部速度—压力耦合及两向流固交叉项。\(E\) 与 \(G\) 分别从
+原 Jacobian 提取，不假设互为转置。先按行、列平衡局部矩阵，再作选主元消元，
+恢复原单位的逆；压力与动量数量级不同不应被直接当作局部奇异性。
+真实奇异、非有限或不完整块仍共同拒绝，不添加压力钉点或任意对角正则项。
+
+结构 KSP 的 A 仍为完整隐式 \(K-GF^{-1}E\)，USER P 使用上式。
+新模式默认 PREONLY，应用一次由 \(P_s\) 构建的 GAMG/Jacobi 预条件器，
+避免默认结构 FGMRES 反复触发完整流体 Schur 乘法。
+用户仍可显式选择结构 FGMRES；该选择会重新引入隐式 Schur 作用的成本。
+所有计算仍由外层完整 Jacobian 的真实残量与原非线性接受条件验收。
+
+压力 Schur 与结构 Schur 的两个 nodal 选项独立；例如：
+
+```text
+-pc_recipe added_mass
+-pc_plan_schur_approx nodal
+-pc_plan_structure_approx nodal
+-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type lower
+```
+
+局部逆没有保留跨节点的完整流体传播，不能据此宣称获得精确附加质量或
+网格无关收敛。RCR 单自由度可能通过 \(GH_FE\) 引入端口范围的填充。
+和压力 nodal 一样，固定图下复用符号乘积与 USER P 句柄，每次约束后
+Jacobian 装配只刷新一次。该选项的数值正确性和实际效率须分别验证。
 
 ## 4. 两层联合速度校正
 

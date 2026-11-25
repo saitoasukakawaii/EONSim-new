@@ -1,6 +1,29 @@
 # EONSim Codex Task Queue
 
-## FSI-PC-02 / review / 2026-11-25
+## FSI-PC-03 / in progress / 2026-11-25
+
+Continue from merged PR #49, main
+`296246e53d895f29ea3d0f7e5c960dc26b1426dc`, on
+`codex/fsi-block-efficient-schur`. Implement an opt-in pressure-aware nodal
+fluid-feedback approximation for the structural Schur preconditioning matrix:
+`P_s = K - G H_F E`. Keep the complete implicit structural Schur operator,
+physical Jacobian and existing acceptance criteria. The default `a11` route
+remains available; the new route applies its structural preconditioner once
+by default. Independently check the approximation, mixed-unit scaling,
+numeric refresh and distributed semantics before physical acceptance.
+
+Evaluate the new route on the existing pinned arterial cases and RCR/recovery
+fixtures. Also make one bounded comparison of the existing twolevel PREONLY
+option; do not infer an efficiency gain from fewer outer iterations alone.
+No implementation or numerical acceptance is claimed at task start.
+
+The current user authorizes **finish source → push remote → run validation →
+merge after passing validation and required CI**. Apply the same order to
+source fixes. This authorization supersedes the prior task's user-review
+merge restriction. Keep work reviewable in a PR and use a head-locked squash
+merge under the repository's protected-branch rules.
+
+## FSI-PC-02 / merged as #49 / 2026-11-25
 
 Completed the existing conforming monolithic FSI block paths from merged #48
 (`f50a4a4338689c9a065bee30ae4a7f3f52c5002e`): complete-fluid structural Schur
@@ -30,12 +53,11 @@ solver remained faster on the two tested grids. Full coupled AMG, elasticity
 rotations, multi-node scaling and cross-partition restart are not established
 by these tests.
 
-The PR evidence is finalized; the pushed archive replay passed all file,
-log and full-trajectory checks. Remaining work: obtain user review and approval
-before any merge.
-User delivery order remains **finish
-source → push remote → run validation → user merges**. PR #49 retains
-`manual-review` / `no-automerge`; do not auto-merge even when CI succeeds.
+The pushed archive replay passed all file, log and full-trajectory checks.
+PR #49 is merged at `296246e53d895f29ea3d0f7e5c960dc26b1426dc`, verified
+from GitHub before FSI-PC-03 began. The prior task's user-review restriction
+is retained in its historical session record, not as an active block on the
+newly authorized task.
 
 ## 2026-11-24 · 血管 FSI 后续验收
 

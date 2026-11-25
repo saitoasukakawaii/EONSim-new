@@ -7,6 +7,7 @@
 #include "eonsim/reduced_layout.hpp"
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <numeric>
 #include <stdexcept>
@@ -303,6 +304,233 @@ void verify_added_mass(MPI_Comm comm,const AlgebraLayout& original) {
         }
         int local=pressure_matters,any=0; MPI_Allreduce(&local,&any,1,MPI_INT,MPI_MAX,comm);
         check(comm,correct&&any,"Added-mass Schur omitted full-fluid pressure response or reused stale values");
+    }
+}
+// A separate nonsymmetric fixture: neither B/C nor E/G are transposes.
+// The optional constraints replace rows only, matching the physical assembly.
+double structural_nodal_entry(PetscInt i,PetscInt j,int phase,bool partial) {
+    if(partial&&(i==0||i==13)) return i==j?1.:0.;
+    const bool fi=i<4||i==7,fj=j<4||j==7;
+    double value=added_mass_entry(i,j,phase);
+    if(fi&&fj&&i!=j) value+=.017*(i+1)-.011*(j+1);
+    if(fi&&j>=8) value+=.009*(i+1)+.004*(j-7)*(j-7)+.003*phase*(i+j);
+    if(i>=8&&fj) value+=-.006*(j+1)+.013*(i-7)+.002*phase*(2*i+j);
+    if(i>=8&&j>=8&&i!=j) value+=.002*(i-8)-.003*(j-8);
+    return value;
+}
+// Root indices below are hand-written, not taken from PcBlock.fluid_groups.
+std::vector<double> structural_column(const std::vector<std::vector<PetscInt>>& groups,
+                                      PetscInt column,int phase,bool partial) {
+    std::vector<double> result(6);
+    for(int i=0;i<6;++i) result[i]=structural_nodal_entry(i+8,column+8,phase,partial);
+    for(const auto& group:groups) {
+        std::vector<std::vector<double>> block(group.size(),std::vector<double>(group.size()));
+        std::vector<double> rhs(group.size());
+        for(std::size_t i=0;i<group.size();++i) {
+            rhs[i]=structural_nodal_entry(group[i],column+8,phase,partial);
+            for(std::size_t j=0;j<group.size();++j)
+                block[i][j]=structural_nodal_entry(group[i],group[j],phase,partial);
+        }
+        const auto response=dense_solve(block,rhs);
+        for(int i=0;i<6;++i) for(std::size_t k=0;k<group.size();++k)
+            result[i]-=structural_nodal_entry(i+8,group[k],phase,partial)*response[k];
+    }
+    return result;
+}
+void verify_structural_nodal(MPI_Comm comm,const AlgebraLayout& original) {
+    const std::vector<PetscInt> fluid{0,1,2,3,7};
+    for(int profile=0;profile<3;++profile) {
+        const bool partial=profile==1,scaled=profile==2;
+        auto layout=original;
+        for(PetscInt i=0;i<layout.owned;++i) {
+            const auto row=layout.begin+i;
+            if(partial&&row==1) layout.owned_semantics[i].mode=1;
+            if(row==7) {
+                // An RCR-like scalar may share the vertex's numeric entity ID.
+                auto& key=layout.owned_semantics[i];
+                key.entity=10; key.kind=DofEntity::boundary; key.space=0;
+            }
+        }
+        const std::vector<std::vector<PetscInt>> groups=partial?
+            std::vector<std::vector<PetscInt>>{{0,2,3},{1},{7}}:
+            std::vector<std::vector<PetscInt>>{{0,1,2,3},{7}};
+        auto no_boundary=groups; no_boundary.pop_back();
+        const std::vector<std::vector<PetscInt>> velocity=partial?
+            std::vector<std::vector<PetscInt>>{{0,2},{1}}:
+            std::vector<std::vector<PetscInt>>{{0,1,2}};
+        const std::string prefix=profile==0?"struct_full_":partial?"struct_partial_":"struct_scaled_";
+        const std::string structural="-"+prefix+"fieldsplit_dynamics_fieldsplit_structure_";
+        ScopedOptions options;
+        options.set("-pc_plan_structure_approx","nodal");
+        options.set("-pc_plan_schur_approx",scaled?"diagonal":"nodal");
+        if(!scaled) {
+            // Tighten only F^{-1} for an independent implicit-A oracle. The
+            // full profile deliberately keeps the new structural default.
+            for(const auto& base:std::vector<std::string>{
+                "-"+prefix+"fieldsplit_dynamics_fieldsplit_fluid_",
+                structural+"inner_",structural+"upper_"}) {
+                options.set(base+"ksp_type","fgmres");
+                options.set(base+"ksp_rtol","1e-13");
+                options.set(base+"ksp_max_it","100");
+            }
+        }
+        if(partial) {
+            options.set(structural+"ksp_type","fgmres");
+            options.set(structural+"ksp_rtol","1e-12");
+            options.set(structural+"ksp_max_it","100");
+        }
+        if(partial||scaled) options.set(structural+"pc_type","jacobi");
+        if(scaled) {
+            const std::string base="-"+prefix+"fieldsplit_dynamics_fieldsplit_fluid_";
+            options.set(base+"ksp_type","preonly");
+            options.set(base+"fieldsplit_velocity_pc_type","jacobi");
+            options.set(base+"fieldsplit_pressure_pc_type","jacobi");
+        }
+        // F'=R F C, E'=R E and G'=G C leave both structural complements
+        // invariant. Evaluate the reference in original units, independently
+        // of the production equilibration/inversion algorithm.
+        const auto coefficient=[&](PetscInt i,PetscInt j,int phase) {
+            const std::array<double,5> rows{{1e-8,1e4,1e-2,1e8,1e-4}};
+            const std::array<double,5> columns{{1e6,1e-6,1e2,1e-4,1e4}};
+            double value=structural_nodal_entry(i,j,phase,partial);
+            if(scaled) {
+                const auto row=std::find(fluid.begin(),fluid.end(),i),column=std::find(fluid.begin(),fluid.end(),j);
+                if(row!=fluid.end()) value*=rows[row-fluid.begin()];
+                if(column!=fluid.end()) value*=columns[column-fluid.begin()];
+            }
+            return value;
+        };
+        PetscOwner<Mat,MatDestroy> matrix;
+        EONSIM_PETSC(MatCreateAIJ(comm,layout.owned,layout.owned,14,14,layout.owned,nullptr,
+                                 14-layout.owned,nullptr,matrix.put()));
+        const auto fill=[&](int phase) {
+            for(PetscInt i=layout.begin;i<layout.begin+layout.owned;++i) for(PetscInt j=0;j<14;++j)
+                EONSIM_PETSC(MatSetValue(matrix.get(),i,j,coefficient(i,j,phase),INSERT_VALUES));
+            EONSIM_PETSC(MatAssemblyBegin(matrix.get(),MAT_FINAL_ASSEMBLY));
+            EONSIM_PETSC(MatAssemblyEnd(matrix.get(),MAT_FINAL_ASSEMBLY));
+        };
+        PetscOwner<KSP,KSPDestroy> solver;
+        EONSIM_PETSC(KSPCreate(comm,solver.put()));
+        EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),prefix.c_str()));
+        EONSIM_PETSC(KSPSetType(solver.get(),KSPFGMRES));
+        EONSIM_PETSC(KSPSetTolerances(solver.get(),1e-12,1e-13,PETSC_DEFAULT,200));
+        const auto plan=make_pc_plan(comm,layout,"added_mass");
+        PcSchurUpdates updates;
+        Mat first_p=nullptr;
+        for(int phase=0;phase<2;++phase) {
+            fill(phase);
+            if(!phase) configure_pc_plan(comm,solver.get(),matrix.get(),plan,&updates);
+            else updates.refresh(matrix.get());
+            if(!scaled) solve_exact(comm,solver.get(),matrix.get(),partial?"structural_nodal_partial":"structural_nodal_default");
+            // Extreme mixed units test only the invariant preconditioner, not
+            // whether unscaled Krylov can solve an arbitrarily conditioned J.
+            const auto dynamics=child_solver(comm,solver.get(),0);
+            const auto structure=child_solver(comm,dynamics,1,true);
+            Mat a=nullptr,p=nullptr,root_a=nullptr;
+            EONSIM_PETSC(KSPGetOperators(structure,&a,&p));
+            EONSIM_PETSC(KSPGetOperators(solver.get(),&root_a,nullptr));
+            if(!first_p) first_p=p;
+            MatType type=nullptr; KSPType ksp_type=nullptr; PCType pc_type=nullptr;
+            PC pc; PetscBool use_a=PETSC_TRUE;
+            EONSIM_PETSC(MatGetType(a,&type)); EONSIM_PETSC(KSPGetType(structure,&ksp_type));
+            EONSIM_PETSC(KSPGetPC(structure,&pc)); EONSIM_PETSC(PCGetType(pc,&pc_type));
+            EONSIM_PETSC(PCGetUseAmat(pc,&use_a));
+            check(comm,a!=p&&p==first_p&&root_a==matrix.get()&&std::string(type)==MATSCHURCOMPLEMENT&&
+                       std::string(ksp_type)==(partial?KSPFGMRES:KSPPREONLY)&&!use_a&&
+                       std::string(pc_type)==(profile==0?PCGAMG:PCJACOBI)&&
+                       updates.refreshers.size()==static_cast<std::size_t>(scaled?1:2),
+                  "Nodal structure replaced A, lost USER P reuse, or changed default/override solver semantics");
+            PetscInt begin,end;
+            EONSIM_PETSC(MatGetOwnershipRange(p,&begin,&end));
+            std::vector<std::vector<double>> expected_p(6,std::vector<double>(6)),expected_a=expected_p;
+            PetscOwner<Vec,VecDestroy> basis,action;
+            EONSIM_PETSC(MatCreateVecs(a,basis.put(),action.put()));
+            bool correct=true; int effects[3]{};
+            for(PetscInt j=0;j<6;++j) {
+                const auto expected=structural_column(groups,j,phase,partial);
+                const auto full=structural_column({fluid},j,phase,partial);
+                const auto without_pressure=structural_column(velocity,j,phase,partial);
+                const auto without_boundary=structural_column(no_boundary,j,phase,partial);
+                for(int i=0;i<6;++i) { expected_p[i][j]=expected[i]; expected_a[i][j]=full[i]; }
+                if(!scaled) {
+                    EONSIM_PETSC(VecSet(basis.get(),0.));
+                    if(j>=begin&&j<end) EONSIM_PETSC(VecSetValue(basis.get(),j,1.,INSERT_VALUES));
+                    EONSIM_PETSC(VecAssemblyBegin(basis.get())); EONSIM_PETSC(VecAssemblyEnd(basis.get()));
+                    EONSIM_PETSC(MatMult(a,basis.get(),action.get()));
+                }
+                const PetscScalar* values=nullptr;
+                if(!scaled) EONSIM_PETSC(VecGetArrayRead(action.get(),&values));
+                for(PetscInt i=begin;i<end;++i) {
+                    double actual=0; EONSIM_PETSC(MatGetValues(p,1,&i,1,&j,&actual));
+                    correct=correct&&std::abs(actual-expected[i])<3e-11*(1+std::abs(expected[i]));
+                    if(!scaled) correct=correct&&std::abs(values[i-begin]-full[i])<1e-9*(1+std::abs(full[i]));
+                    effects[0]=effects[0]||std::abs(expected[i]-without_pressure[i])>1e-3;
+                    effects[1]=effects[1]||std::abs(expected[i]-without_boundary[i])>1e-3;
+                    effects[2]=effects[2]||std::abs(expected[i]-full[i])>1e-3;
+                }
+                if(!scaled) EONSIM_PETSC(VecRestoreArrayRead(action.get(),&values));
+            }
+            int global_effects[3]{}; MPI_Allreduce(effects,global_effects,3,MPI_INT,MPI_MAX,comm);
+            check(comm,correct&&global_effects[0]&&global_effects[1]&&global_effects[2],
+                  "Independent structural Schur oracle, boundary pressure feedback, or mixed scaling failed");
+            // Exercise the real default PREONLY/GAMG action as well as a simple
+            // independent Jacobi action and the explicit iterative override.
+            for(PetscInt i=begin;i<end;++i) EONSIM_PETSC(VecSetValue(basis.get(),i,.5+.25*i,INSERT_VALUES));
+            EONSIM_PETSC(VecAssemblyBegin(basis.get())); EONSIM_PETSC(VecAssemblyEnd(basis.get()));
+            EONSIM_PETSC(VecSet(action.get(),0.)); EONSIM_PETSC(KSPSolve(structure,basis.get(),action.get()));
+            KSPConvergedReason reason; EONSIM_PETSC(KSPGetConvergedReason(structure,&reason));
+            correct=reason>0;
+            if(profile==0) {
+                PetscOwner<Vec,VecDestroy> applied;
+                EONSIM_PETSC(VecDuplicate(action.get(),applied.put())); EONSIM_PETSC(PCApply(pc,basis.get(),applied.get()));
+                EONSIM_PETSC(VecAXPY(applied.get(),-1.,action.get()));
+                PetscReal difference=0; EONSIM_PETSC(VecNorm(applied.get(),NORM_INFINITY,&difference));
+                PetscInt iterations=0; EONSIM_PETSC(KSPGetIterationNumber(structure,&iterations));
+                correct=correct&&difference<1e-11&&iterations==1;
+            } else {
+                std::vector<double> rhs(6); for(int i=0;i<6;++i) rhs[i]=.5+.25*i;
+                const auto exact=partial?dense_solve(expected_a,rhs):rhs;
+                const PetscScalar* values=nullptr; EONSIM_PETSC(VecGetArrayRead(action.get(),&values));
+                for(PetscInt i=begin;i<end;++i) {
+                    const auto expected=partial?exact[i]:rhs[i]/expected_p[i][i];
+                    correct=correct&&std::abs(values[i-begin]-expected)<1e-9*(1+std::abs(expected));
+                }
+                EONSIM_PETSC(VecRestoreArrayRead(action.get(),&values));
+            }
+            for(PetscInt i=layout.begin;i<layout.begin+layout.owned;++i) for(PetscInt j=0;j<14;++j) {
+                double value=0; EONSIM_PETSC(MatGetValues(matrix.get(),1,&i,1,&j,&value));
+                correct=correct&&value==coefficient(i,j,phase);
+            }
+            check(comm,correct,"Structural PC action ignored USER P, changed physical J, or lost explicit KSP override");
+        }
+        if(scaled) for(int fault=0;fault<2;++fault) {
+            const double invalid=fault?std::numeric_limits<double>::quiet_NaN():0.;
+            // A pressure-only local block must fail even when global F could
+            // remain invertible through its off-diagonal velocity coupling.
+            if(layout.begin<=7&&7<layout.begin+layout.owned)
+                EONSIM_PETSC(MatSetValue(matrix.get(),7,7,invalid,INSERT_VALUES));
+            EONSIM_PETSC(MatAssemblyBegin(matrix.get(),MAT_FINAL_ASSEMBLY));
+            EONSIM_PETSC(MatAssemblyEnd(matrix.get(),MAT_FINAL_ASSEMBLY));
+            bool rejected=false;
+            try {updates.refresh(matrix.get());}
+            catch(const std::runtime_error& error) {
+                rejected=std::string(error.what()).find("nodal fluid block")!=std::string::npos;
+            }
+            check(comm,rejected,"Singular/nonfinite local fluid response was silently accepted");
+            fill(fault+2); updates.refresh(matrix.get());
+            const auto structure=child_solver(comm,child_solver(comm,solver.get(),0),1,true);
+            Mat recovered=nullptr; EONSIM_PETSC(KSPGetOperators(structure,nullptr,&recovered));
+            PetscInt begin,end; EONSIM_PETSC(MatGetOwnershipRange(recovered,&begin,&end));
+            bool correct=recovered==first_p;
+            for(PetscInt j=0;j<6;++j) {
+                const auto expected=structural_column(groups,j,fault+2,partial);
+                for(PetscInt i=begin;i<end;++i) {
+                    double actual=0; EONSIM_PETSC(MatGetValues(recovered,1,&i,1,&j,&actual));
+                    correct=correct&&std::abs(actual-expected[i])<3e-11*(1+std::abs(expected[i]));
+                }
+            }
+            check(comm,correct,"Failed structural refresh lost recovery values or the reusable USER matrix");
+        }
     }
 }
 void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matrix) {
@@ -633,6 +861,7 @@ void run(MPI_Comm comm) {
     }
     verify_nodal_schur(comm,l,matrix.get());
     verify_added_mass(comm,l);
+    verify_structural_nodal(comm,l);
     verify_twolevel(comm,l);
     verify_auxiliary_solvers(comm,l,matrix.get());
     // Exercise the production SNES callback with changing Jacobian values.
@@ -662,6 +891,35 @@ void run(MPI_Comm comm) {
         catch(const std::runtime_error&) {rejected=true;}
         EONSIM_PETSC(PetscOptionsClearValue(nullptr,option.first.c_str()));
         check(comm,rejected,"Invalid new PC option was ignored");
+    }
+    for(const auto& configuration:std::vector<std::pair<std::string,std::string>>{
+        {"","a11"},{"","nodal"},{"hybrid","nodal"},{"added_mass","invalid"}}) {
+        ScopedOptions options; options.set("-pc_plan_structure_approx",configuration.second);
+        SolverConfig config; config.pc_recipe=configuration.first;
+        bool rejected=false;
+        try {system.solve(config,initial,{}, {},[](const std::vector<double>&,Vec,Mat){});}
+        catch(const std::runtime_error&) {rejected=true;}
+        check(comm,rejected,"Structural approximation option escaped validation at zero residual");
+    }
+    for(const auto& option:std::vector<std::pair<std::string,std::string>>{
+        {"-fieldsplit_dynamics_pc_fieldsplit_schur_precondition","a11"},
+        {"-fieldsplit_dynamics_fieldsplit_structure_mat_schur_complement_ainv_type","diag"}}) {
+        ScopedOptions options; options.set("-pc_plan_structure_approx","nodal");
+        options.set(option.first,option.second);
+        SolverConfig config; config.pc_recipe="added_mass";
+        bool rejected=false;
+        try {system.solve(config,initial,{}, {},[](const std::vector<double>&,Vec,Mat){});}
+        catch(const std::runtime_error&) {rejected=true;}
+        check(comm,rejected,"Conflicting structural USER approximation was accepted at zero residual");
+    }
+    if(size>1) {
+        ScopedOptions options;
+        if(rank==0) options.set("-pc_plan_structure_approx","nodal");
+        SolverConfig config; config.pc_recipe="added_mass";
+        bool rejected=false;
+        try {system.solve(config,initial,{}, {},[](const std::vector<double>&,Vec,Mat){});}
+        catch(const std::runtime_error&) {rejected=true;}
+        check(comm,rejected,"Rank-inconsistent structural approximation was accepted at zero residual");
     }
     for(const auto& option:std::vector<std::pair<std::string,std::string>>{
         {"-fieldsplit_dynamics_fieldsplit_velocity_pc_type","asm"},
