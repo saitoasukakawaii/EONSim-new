@@ -11,6 +11,7 @@
 #include "eonsim/solid_element.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -142,46 +143,146 @@ double outlet_flux(const OutletTrace& port,const std::vector<double>& state,int 
     return flux;
 }
 
-void assemble_outlet(const ReducedLayout& layout,const OutletTrace& trace,const RcrStage& stage,double outlet_pressure,
-    const std::vector<double>& physical,double mesh_dt,bool owns_pressure,Vec residual,Mat jacobian) {
+// The same enumeration prepares COO coordinates and evaluates their values.
+// A null state requests topology only; no geometry or time/history is evaluated.
+template<class Add>
+void outlet_jacobian_entries(const ReducedLayout& layout,const OutletTrace& trace,
+    const std::vector<double>* physical,double mesh_dt,double outlet_pressure,
+    double conductance,bool owns_pressure,const Add& add) {
     const auto port=trace.pressure;
     const int nc=layout.components;
-    double flux=0;
-    outlet_weights(trace,physical,nc,[&](std::size_t slot,double weight) {
-        flux+=weight*physical[slot];
+    for(const auto& [slot,weight]:trace.flux_weights) {
         const auto row=layout.global[slot];
-        if(row<0) return;
-        EONSIM_PETSC(VecSetValue(residual,row,weight*outlet_pressure,ADD_VALUES));
-        if(jacobian) {
-            EONSIM_PETSC(MatSetValue(jacobian,row,port,weight,ADD_VALUES));
-            EONSIM_PETSC(MatSetValue(jacobian,port,row,-weight,ADD_VALUES));
-        }
-    });
-    const double value=(owns_pressure?stage.flow(outlet_pressure):0)-flux;
-    EONSIM_PETSC(VecSetValue(residual,port,value,ADD_VALUES));
-    if(!jacobian) return;
-    if(owns_pressure) EONSIM_PETSC(MatSetValue(jacobian,port,port,1/stage.total_impedance,ADD_VALUES));
+        if(row<0) continue;
+        add(row,port,weight); add(port,row,-weight);
+    }
+    if(owns_pressure) add(port,port,conductance);
     for(const auto& face:trace.moving_faces) {
         const int axis=trace.normal_axis;
-        const auto geometry=face.geometry(physical,nc,axis);
+        const auto geometry=physical?face.geometry(*physical,nc,axis):PlanarOutletFace::Geometry{};
         Tri3Topology::Nodal<PetscInt> rows;
         double velocity_sum=0;
         for(int a=0;a<Tri3Topology::nodes;++a) {
             const auto slot=nc*face.nodes[a]+axis;
             rows[a]=layout.global[slot];
-            velocity_sum+=physical[slot];
+            if(physical) velocity_sum+=(*physical)[slot];
+            if(rows[a]>=0) {
+                add(rows[a],port,geometry.weight); add(port,rows[a],-geometry.weight);
+            }
         }
         for(int a=0;a<Tri3Topology::nodes;++a) for(int t=0;t<2;++t) {
             const auto grid=nc*face.nodes[a]+Tet4Ale::mesh_offset+(axis+1+t)%3;
             const auto map=layout.slot(grid,mesh_dt);
             if(map.column<0) continue;
             const double slope=geometry.gradient[a][t]*map.trial_weight;
-            EONSIM_PETSC(MatSetValue(jacobian,port,map.column,-velocity_sum*slope,ADD_VALUES));
+            add(port,map.column,-velocity_sum*slope);
             for(const auto row:rows) if(row>=0)
-                EONSIM_PETSC(MatSetValue(jacobian,row,map.column,outlet_pressure*slope,ADD_VALUES));
+                add(row,map.column,outlet_pressure*slope);
         }
     }
 }
+
+template<class Add>
+void assemble_outlet(const ReducedLayout& layout,const OutletTrace& trace,const RcrStage& stage,double outlet_pressure,
+    const std::vector<double>& physical,double mesh_dt,bool owns_pressure,Vec residual,bool tangent,const Add& add) {
+    double flux=0;
+    outlet_weights(trace,physical,layout.components,[&](std::size_t slot,double weight) {
+        flux+=weight*physical[slot];
+        const auto row=layout.global[slot];
+        if(row>=0) EONSIM_PETSC(VecSetValue(residual,row,weight*outlet_pressure,ADD_VALUES));
+    });
+    const double value=(owns_pressure?stage.flow(outlet_pressure):0)-flux;
+    EONSIM_PETSC(VecSetValue(residual,trace.pressure,value,ADD_VALUES));
+    if(tangent) outlet_jacobian_entries(layout,trace,&physical,mesh_dt,outlet_pressure,
+                                       1/stage.total_impedance,owns_pressure,add);
+}
+
+// These are dependencies of the physical equations before interface projection,
+// not zeros observed at a particular Newton state. Aliased reduced columns are
+// still accumulated separately, including the displacement/velocity chain rule.
+bool fsi_cell_coupling(int row,int column) {
+    if(row<Tet4Flow::components) return column<Tet4Ale::components;
+    if(row<Tet4Ale::components) return column==row; // reference mesh Laplacian
+    return column>=Tet4Ale::components;           // solid momentum
+}
+
+struct FsiCellAssembly {
+    FsiCellComponents active;
+    std::size_t offset,coo_begin,coo_end;
+};
+
+// Fixed local contribution order. Time-dependent trace weights are intentionally
+// represented by a mask and supplied afresh on every attempt, including retries.
+struct FsiAssemblyPlan {
+    std::vector<FsiCellAssembly> cells;
+    std::vector<PetscInt> rows,columns;
+    std::vector<unsigned char> mesh_trace;
+    std::vector<std::uint16_t> tangent_slots;
+    std::vector<std::size_t> interface_cells;
+    std::size_t coo_entries=0;
+
+    FsiAssemblyPlan(const MeshPartition& mesh,const ReducedLayout& reduced,const FsiDomains* domains,
+                    bool coo,std::vector<PetscInt>& coo_rows,std::vector<PetscInt>& coo_columns) {
+        static_assert(Tet4Elastic::dofs*Tet4Elastic::dofs<=std::numeric_limits<std::uint16_t>::max());
+        const int nc=reduced.components;
+        std::size_t slots=0;
+        for(const auto& cell:mesh.cells) slots+=fsi_cell_components(nc,domains,cell.physical_tag).dofs();
+        cells.reserve(mesh.cells.size()); rows.reserve(slots); columns.reserve(slots); mesh_trace.reserve(slots);
+        for(std::size_t e=0;e<mesh.cells.size();++e) {
+            const auto& cell=mesh.cells[e];
+            const auto active=fsi_cell_components(nc,domains,cell.physical_tag);
+            const auto offset=rows.size();
+            bool touches_interface=false;
+            for(int a=0;a<Tet4Topology::nodes;++a) {
+                const auto node=cell.nodes[a];
+                touches_interface=touches_interface||reduced.interface_nodes[node];
+                for(int c=active.first;c<active.first+active.count;++c) {
+                    const auto map=reduced.slot(static_cast<std::size_t>(nc)*node+c,1.);
+                    rows.push_back(map.test_row); columns.push_back(map.column);
+                    mesh_trace.push_back(reduced.interface_nodes[node]&&c>=Tet4Ale::mesh_offset&&c<Tet4Ale::components);
+                }
+            }
+            if(touches_interface) interface_cells.push_back(e);
+            cells.push_back({active,offset,0,0});
+        }
+        if(coo) {
+            const auto visit_cell=[&](const FsiCellAssembly& cell,const auto& visit) {
+                const auto active=cell.active;
+                const int nd=active.dofs();
+                for(int row=0;row<nd;++row) {
+                    if(rows[cell.offset+row]<0) continue;
+                    for(int col=0;col<nd;++col) {
+                        if(columns[cell.offset+col]<0||!fsi_cell_coupling(active.first+row%active.count,active.first+col%active.count)) continue;
+                        visit(rows[cell.offset+row],columns[cell.offset+col],static_cast<std::uint16_t>(nd*row+col));
+                    }
+                }
+            };
+            // Count before allocation, avoiding vector growth/copies of the large
+            // COO index arrays. Numeric evaluation uses only compact local slots.
+            std::size_t cell_entries=0,port_entries=0;
+            for(const auto& cell:cells) visit_cell(cell,[&](PetscInt,PetscInt,std::uint16_t){++cell_entries;});
+            for(const auto& outlet:reduced.outlets)
+                outlet_jacobian_entries(reduced,outlet,nullptr,1.,0.,0.,mesh.rank==mesh.ranks-1,
+                    [&](PetscInt,PetscInt,double){++port_entries;});
+            const auto count=cell_entries+port_entries+(reduced.body>=0&&mesh.rank==mesh.ranks-1);
+            coo_rows.reserve(count); coo_columns.reserve(count); tangent_slots.reserve(cell_entries);
+            for(auto& cell:cells) {
+                cell.coo_begin=tangent_slots.size();
+                visit_cell(cell,[&](PetscInt row,PetscInt column,std::uint16_t slot) {
+                    coo_rows.push_back(row); coo_columns.push_back(column); tangent_slots.push_back(slot);
+                });
+                cell.coo_end=tangent_slots.size();
+            }
+            const auto append=[&](PetscInt row,PetscInt column,double) {
+                coo_rows.push_back(row); coo_columns.push_back(column);
+            };
+            for(const auto& outlet:reduced.outlets)
+                outlet_jacobian_entries(reduced,outlet,nullptr,1.,0.,0.,mesh.rank==mesh.ranks-1,append);
+            if(reduced.body>=0&&mesh.rank==mesh.ranks-1) append(reduced.body,reduced.body,0.);
+            coo_entries=coo_rows.size();
+        }
+    }
+};
 
 struct OutletObservation {
     double stage_pressure,endpoint_pressure,stage_capacitor,stage_rate;
@@ -280,15 +381,19 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     const bool bdf2=config.time_integration.scheme==TimeScheme::bdf2;
     const bool alpha=config.time_integration.scheme==TimeScheme::generalized_alpha;
     bool alpha_ready=false;
-    PetscBool finite_difference=PETSC_FALSE;
+    PetscBool finite_difference=PETSC_FALSE,coo=PETSC_FALSE,assembly_report=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_fd_tangent",&finite_difference,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_coo",&coo,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_assembly_report",&assembly_report,nullptr));
     const bool dual=!f.domains.solid_mesh.empty();
     auto domains=f.domains;
     if(f.inlet) {
         domains.fluid_constraints.push_back({f.inlet->tag,{0,1,2}});
         domains.mesh_constraints.push_back({f.inlet->tag,{0,1,2}});
     }
-    const auto reduced=dual?make_dual_fsi_layout(comm,mesh,domains):Elastic?make_elastic_fsi_layout(comm,mesh):make_rigid_fsi_layout(comm,mesh);
+    const double pattern_start=MPI_Wtime();
+    auto reduced=dual?make_dual_fsi_layout(comm,mesh,domains,!coo):Elastic?make_elastic_fsi_layout(comm,mesh,!coo):make_rigid_fsi_layout(comm,mesh,!coo);
+    const double pattern_seconds=MPI_Wtime()-pattern_start;
     using Layout=CoupledLayout<Tet4Topology,Elastic>;
     constexpr int nc=Layout::components;
     const auto& layout=reduced.algebra;
@@ -629,7 +734,32 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         history<<'\n';
         history.flush();
     });
-    NonlinearSystem system(comm,layout);
+    const double plan_start=MPI_Wtime();
+    std::vector<PetscInt> coo_rows,coo_columns;
+    const FsiAssemblyPlan assembly_plan(mesh,reduced,dual?&domains:nullptr,coo,coo_rows,coo_columns);
+    const double plan_seconds=MPI_Wtime()-plan_start;
+    const double system_start=MPI_Wtime();
+    NonlinearSystem system(comm,layout,std::move(reduced.jacobian_pattern));
+    if(coo) system.set_jacobian_coo(coo_rows,coo_columns);
+    // PETSc owns the communication/summation plan; coordinate copies are setup-only.
+    std::vector<PetscInt>().swap(coo_rows); std::vector<PetscInt>().swap(coo_columns);
+    const double system_seconds=MPI_Wtime()-system_start;
+    if(assembly_report) {
+        const double local_times[]{pattern_seconds,plan_seconds,system_seconds,pattern_seconds+plan_seconds+system_seconds};
+        double times[4]{};
+        MPI_Reduce(local_times,times,4,MPI_DOUBLE,MPI_MAX,0,comm);
+        const unsigned long long local_counts[]{static_cast<unsigned long long>(mesh.cells.size()),
+            static_cast<unsigned long long>(assembly_plan.interface_cells.size()),
+            static_cast<unsigned long long>(assembly_plan.coo_entries),
+            coo?static_cast<unsigned long long>((assembly_plan.coo_entries+layout.owned)*sizeof(PetscScalar)):0};
+        unsigned long long counts[4]{},max_value_bytes=0;
+        MPI_Reduce(local_counts,counts,4,MPI_UNSIGNED_LONG_LONG,MPI_SUM,0,comm);
+        MPI_Reduce(local_counts+3,&max_value_bytes,1,MPI_UNSIGNED_LONG_LONG,MPI_MAX,0,comm);
+        EONSIM_PETSC(PetscPrintf(comm,"fsi_assembly_plan coo=%d cells=%llu interface_cells=%llu coo_entries=%llu coo_value_bytes=%llu coo_value_bytes_max=%llu pattern_seconds=%.9g plan_seconds=%.9g system_seconds=%.9g setup_seconds=%.9g\n",
+            int(coo),counts[0],counts[1],counts[2],counts[3],max_value_bytes,times[0],times[1],times[2],times[3]));
+    }
+    std::vector<double> assembly_state(mesh.nodes.size()*nc),element_residual,element_tangent;
+    element_residual.reserve(Layout::dofs); element_tangent.reserve(Layout::dofs*Layout::dofs);
     FsiAssemblyEvents events;
     events.register_for_log_view();
     const FsiAssemblyEvents unmeasured;
@@ -680,8 +810,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             reference_body={state[0],state[1]};
         }
         if(alpha_step) reference_body={solid_map.displacement_reference(body.position,body.velocity,body_acceleration),solid_map.reference(body.velocity,body_acceleration)};
-        const auto expand=[&](const std::vector<double>& x) {
-        std::vector<double> full(mesh.nodes.size()*nc,0);
+        const auto expand_into=[&](const std::vector<double>& x,std::vector<double>& full) {
         for(std::size_t i=0;i<full.size();++i) {
             const auto n=i/nc,c=i%nc;
             const double lifting=Layout::is_mesh(c)?
@@ -690,8 +819,12 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             full[i]=reduced.slot(i,mesh_dt,lifting).expand(x);
             if(c<3&&inlet_nodes[n]) full[i]=stage_inlet_scale*inlet_values[n][c];
         }
-        return full;
-    };
+        };
+        const auto expand=[&](const std::vector<double>& x) {
+            std::vector<double> full(mesh.nodes.size()*nc);
+            expand_into(x,full);
+            return full;
+        };
         try {
         for(std::size_t e=0;e<data.size();++e) {
             if(!fluid_cell[e]) continue;
@@ -734,18 +867,24 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 }
             }
             if(fluid_cell[e]) {
-                measured(log.fluid_residual,[&] {
-                    const auto fr=fsi_element_residual(data[e],state);
+                const auto copy_residual=[&](const Tet4Ale::State<double>& fr) {
                     if(active.count==Tet4Ale::components) std::copy(fr.begin(),fr.end(),r.begin());
                     else for(int i=0;i<Tet4Ale::dofs;++i)
                         r[active.index(Tet4Ale::node(i),Tet4Ale::component(i))]=fr[i];
-                });
-                if(tangent) measured(log.fluid_ale_tangent,[&] {
-                    const auto fj=finite_difference?fsi_element_tangent_fd(data[e],state):fsi_element_tangent(data[e],state);
+                };
+                const auto copy_tangent=[&](const Tet4Ale::Matrix<double>& fj) {
                     if(active.count==Tet4Ale::components) std::copy(fj.begin(),fj.end(),j.begin());
                     else for(int i=0;i<Tet4Ale::dofs;++i) for(int k=0;k<Tet4Ale::dofs;++k)
                         j[active.index(Tet4Ale::node(i),Tet4Ale::component(i))*nd+active.index(Tet4Ale::node(k),Tet4Ale::component(k))]=fj[Tet4Ale::matrix(i,k)];
+                };
+                if(tangent&&!finite_difference) measured(log.fluid_ale_tangent,[&] {
+                    const auto element=fsi_element(data[e],state);
+                    copy_residual(element.residual); copy_tangent(element.tangent);
                 });
+                else {
+                    measured(log.fluid_residual,[&] {copy_residual(fsi_element_residual(data[e],state));});
+                    if(tangent) measured(log.fluid_ale_tangent,[&] {copy_tangent(fsi_element_tangent_fd(data[e],state));});
+                }
             }
             if(solid_cell[e]) measured(tangent?log.solid_tangent:log.solid_residual,[&] {
                 auto sr=solid_element(solid_geometry[e],{f.young,f.poisson,f.solid_density,solid_dt,f.neo_hookean,mesh_dt},vs,dn,vn,tangent);
@@ -764,44 +903,60 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             });
         };
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
-            const auto full=expand(x);
-            std::vector<double> residual,tangent;
-            typename Layout::template State<double> chain;
-            typename Layout::template State<PetscInt> rows,cols;
+            expand_into(x,assembly_state);
+            const auto& full=assembly_state;
+            auto& residual=element_residual;
+            auto& tangent=element_tangent;
+            const bool coo_jacobian=coo&&j;
+            auto* coo_values=j?system.jacobian_coo_values():nullptr;
             for(std::size_t e=0;e<data.size();++e) {
-                const auto active=fsi_cell_components(nc,dual?&domains:nullptr,mesh.cells[e].physical_tag);
+                const auto& cell=assembly_plan.cells[e];
+                const auto active=cell.active;
                 const int nd=active.dofs();
-                for(int a=0;a<Tet4Topology::nodes;++a) for(int c=active.first;c<active.first+active.count;++c) {
-                    const auto mapping=reduced.slot(Layout::dof(mesh.cells[e].nodes[a],c),mesh_dt);
-                    const int slot=active.index(a,c);
-                    rows[slot]=mapping.test_row; cols[slot]=mapping.column; chain[slot]=mapping.trial_weight;
-                }
+                const auto* rows=assembly_plan.rows.data()+cell.offset;
+                const auto* cols=assembly_plan.columns.data()+cell.offset;
+                const auto* trace=assembly_plan.mesh_trace.data()+cell.offset;
                 local_residual(e,full,j!=nullptr,active,residual,tangent,events);
                 measured(events.insert,[&] {
-                    EONSIM_PETSC(VecSetValues(r,nd,rows.data(),residual.data(),ADD_VALUES));
-                    if(j) {
-                        for(int row=0;row<nd;++row) for(int col=0;col<nd;++col) tangent[nd*row+col]*=chain[col];
-                        EONSIM_PETSC(MatSetValues(j,nd,rows.data(),nd,cols.data(),tangent.data(),ADD_VALUES));
+                    EONSIM_PETSC(VecSetValues(r,nd,rows,residual.data(),ADD_VALUES));
+                    if(coo_jacobian) {
+                        for(std::size_t k=cell.coo_begin;k<cell.coo_end;++k) {
+                            const auto slot=assembly_plan.tangent_slots[k];
+                            coo_values[k]=tangent[slot]*(trace[slot%nd]?mesh_dt:1.);
+                        }
+                    } else if(j) {
+                        for(int col=0;col<nd;++col) if(trace[col])
+                            for(int row=0;row<nd;++row) tangent[nd*row+col]*=mesh_dt;
+                        EONSIM_PETSC(MatSetValues(j,nd,rows,nd,cols,tangent.data(),ADD_VALUES));
                     }
                 });
             }
+            std::size_t coo_cursor=assembly_plan.tangent_slots.size();
+            const auto add_entry=[&](PetscInt row,PetscInt col,double value) {
+                if(coo_jacobian) coo_values[coo_cursor++]=value;
+                else EONSIM_PETSC(MatSetValue(j,row,col,value,ADD_VALUES));
+            };
             for(std::size_t i=0;i<outlets.size();++i) {
                 const auto& port=reduced.outlets[i];
-                assemble_outlet(reduced,port,outlet_stages[i],x[port.local],full,mesh_dt,mesh.rank==mesh.ranks-1,r,j);
+                assemble_outlet(reduced,port,outlet_stages[i],x[port.local],full,mesh_dt,mesh.rank==mesh.ranks-1,r,j!=nullptr,add_entry);
             }
             if(!Elastic && mesh.rank==mesh.ranks-1) {
                 const double v=x[reduced.body_local];
                 const double rbody=rigid_residual({f.mass,f.damping,f.stiffness},reference_body,solid_dt,v,0,mesh_dt);
                 EONSIM_PETSC(VecSetValue(r,reduced.body,rbody,ADD_VALUES));
-                if(j) EONSIM_PETSC(MatSetValue(j,reduced.body,reduced.body,f.mass/solid_dt+f.damping+mesh_dt*f.stiffness,ADD_VALUES));
+                if(j) add_entry(reduced.body,reduced.body,f.mass/solid_dt+f.damping+mesh_dt*f.stiffness);
             }
+#ifndef NDEBUG
+            if(coo_jacobian&&coo_cursor!=assembly_plan.coo_entries) throw std::logic_error("FSI COO contribution count changed");
+#endif
         };
         const auto solved=system.solve(config.solver,accepted,{}, {},assemble);
         const auto next=expand(solved.values);
         double local[4]{},global[4]{};
         measured(events.force_replay,[&] {
-            for(std::size_t e=0;e<data.size();++e) {
-                std::vector<double> r,j;
+            std::vector<double> r,j;
+            r.reserve(Layout::dofs);
+            for(const auto e:assembly_plan.interface_cells) {
                 local_residual(e,next,false,{0,nc},r,j,unmeasured);
                 for(int a=0;a<Tet4Topology::nodes;++a) if(interface[mesh.cells[e].nodes[a]]) {
                     local[0]-=r[nc*a];

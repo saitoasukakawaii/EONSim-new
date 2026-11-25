@@ -50,6 +50,11 @@ struct OutletTrace {
 };
 struct ReducedLayout {
     AlgebraLayout algebra;
+    /** Assembled zero AIJ with every cell/port coupling already located.
+     * Transfer ownership to NonlinearSystem before solving. The graph includes
+     * remote contributions and is independent of current ALE coordinates/dt.
+     */
+    PetscOwner<Mat,MatDestroy> jacobian_pattern;
     int components=Tet4Ale::components;
     // 每个节点前七分量 [u,v,w,p,dm_x,dm_y,dm_z]；弹性模式另加三个结构速度分量。
     // global/local 给出有效全局/本地编号，界面别名共享对应编号。
@@ -66,9 +71,10 @@ struct ReducedLayout {
     std::vector<OutletTrace> outlets; ///< Same sorted tag order as FsiDomains::rcr_outlets.
 };
 /// collective；只交换 ghost 编号和 rank 计数，稀疏图通过 PETSc 分布式预分配器装配。
-ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh);
+/// build_pattern=false leaves the matrix/counts empty for a caller-provided COO plan.
+ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern=true);
 /// 共形弹性块：额外节点分量 [vs_x,vs_y,vs_z]，界面流体/网格映射到同节点结构速度。
-ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh);
+ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern=true);
 /// 独立双域联合网格，inactive 分量消元，界面共享结构速度。
-ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains);
+ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains,bool build_pattern=true);
 }

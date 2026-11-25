@@ -503,17 +503,37 @@ PetscErrorCode convergence(SNES snes,PetscInt iteration,PetscReal xnorm,PetscRea
     } catch(const std::exception& e) { c.error=e.what(); return PETSC_ERR_LIB; }
 }
 }
-NonlinearSystem::NonlinearSystem(MPI_Comm comm,const AlgebraLayout& l)
-    :communicator_(comm),layout_(l),local_trial_(l.local_to_global.size())
+NonlinearSystem::NonlinearSystem(MPI_Comm comm,const AlgebraLayout& l,PetscOwner<Mat,MatDestroy> pattern)
+    :communicator_(comm),layout_(l),matrix_(std::move(pattern)),local_trial_(l.local_to_global.size())
 {
+    if(matrix_.get()) {
+        int comparison;
+        MPI_Comm_compare(comm,PetscObjectComm(reinterpret_cast<PetscObject>(matrix_.get())),&comparison);
+        PetscInt rows,columns,begin,end,column_begin,column_end;
+        PetscBool assembled;
+        EONSIM_PETSC(MatGetSize(matrix_.get(),&rows,&columns));
+        EONSIM_PETSC(MatGetOwnershipRange(matrix_.get(),&begin,&end));
+        EONSIM_PETSC(MatGetOwnershipRangeColumn(matrix_.get(),&column_begin,&column_end));
+        EONSIM_PETSC(MatAssembled(matrix_.get(),&assembled));
+        int invalid=(comparison!=MPI_IDENT&&comparison!=MPI_CONGRUENT)||!assembled||
+            rows!=l.global||columns!=l.global||begin!=l.begin||end!=l.begin+l.owned||
+            column_begin!=l.begin||column_end!=l.begin+l.owned,any_invalid=0;
+        MPI_Allreduce(&invalid,&any_invalid,1,MPI_INT,MPI_MAX,comm);
+        if(any_invalid) throw std::runtime_error("Preassembled Jacobian pattern does not match algebra layout");
+        // Preallocation has established locations, not only spare row capacity.
+        EONSIM_PETSC(MatSetOption(matrix_.get(),MAT_NEW_NONZERO_LOCATION_ERR,PETSC_TRUE));
+    } else {
+        EONSIM_PETSC(MatCreateAIJ(comm,l.owned,l.owned,l.global,l.global,
+            0,l.diagonal.empty()?nullptr:l.diagonal.data(),
+            0,l.off_diagonal.empty()?nullptr:l.off_diagonal.data(),matrix_.put()));
+        EONSIM_PETSC(MatSetOption(matrix_.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE));
+    }
     const auto ghosts=l.local_to_global.size()-l.owned;
     EONSIM_PETSC(VecCreateGhost(comm,l.owned,l.global,ghosts,l.local_to_global.data()+l.owned,solution_.put()));
     EONSIM_PETSC(VecDuplicate(solution_.get(),residual_.put()));
     EONSIM_PETSC(VecDuplicate(solution_.get(),scratch_.put()));
     EONSIM_PETSC(VecSetOption(residual_.get(),VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
     EONSIM_PETSC(VecSetOption(scratch_.get(),VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
-    EONSIM_PETSC(MatCreateAIJ(comm,l.owned,l.owned,l.global,l.global,0,l.diagonal.data(),0,l.off_diagonal.data(),matrix_.put()));
-    EONSIM_PETSC(MatSetOption(matrix_.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE));
     EONSIM_PETSC(MatSetOption(matrix_.get(),MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE));
 }
 void NonlinearSystem::set_jacobian_coo(const std::vector<PetscInt>& rows,const std::vector<PetscInt>& columns)
@@ -739,6 +759,8 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         KSPType kt; EONSIM_PETSC(KSPGetType(ksp,&kt));
         EONSIM_PETSC(PCGetType(pc,&type));
         if(rank==0) std::cout << "solver_report ranks=" << ranks << " dofs=" << l.global << " nnz=" << info.nz_used
+            << " nnz_allocated=" << info.nz_allocated << " nnz_unneeded=" << info.nz_unneeded
+            << " matrix_mallocs=" << info.mallocs
             << " ksp=" << kt << " pc=" << type << " linear_iterations=" << result.linear_iterations
             << " snes_reason=" << reason << " ksp_reason=" << linear_reason << " domain_rejections=" << result.domain_rejections
             << " solve_seconds=" << maxima[0] << " assembly_seconds=" << maxima[1] << " ghost_seconds=" << maxima[2]

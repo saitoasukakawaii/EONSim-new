@@ -375,6 +375,18 @@ P8 交付时 Debug/Release 的 13 项 CTest 全部通过，包含五类 transien
 性能复现脚本为 `scripts/benchmark_fsi.py`；实际规模和数字见
 [性能基线](docs/development/PERFORMANCE_BASELINE.md)，不把这些小网格运行解释为大规模扩展性证明。
 
+FSI 默认复用最终 AIJ 图及单元映射，并在解析切线评价中同时得到残量。
+可显式增加 `-fsi_coo`，使用按物理结构依赖压缩的 COO 批量 Jacobian 更新，覆盖
+刚体、共享逻辑网格、独立双域、固定／可动平面 RCR；默认仍是 `MatSetValues`。
+`-fsi_assembly_report` 输出一次性准备时间和 COO 值缓冲量；
+`-solver_report` 另含主矩阵的 `nnz_allocated/nnz_unneeded/matrix_mallocs`。
+COO 额外内存随本地单元贡献数增长，是否有收益应在实际算例中比较。
+前后版本对照入口为 `scripts/benchmark_fsi_assembly.py --help`；
+[装配和计时契约](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md#fsi-固定装配计划与可选-coo)
+说明界面链系数、失败同步、重启和统计范围。
+[本轮实现与实测](docs/research/data/fsi-assembly-2026-11-25/README.md)记录默认及 COO
+路径的配对装配时间、总耗时、峰值内存和固定版本验证证据。
+
 可选 API 文档：`cmake --preset debug -DMHPC_BUILD_DOCS=ON`，随后
 `cmake --build build/debug --target docs`；入口为 `build/docs/html/index.html`。
 

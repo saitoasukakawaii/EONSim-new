@@ -1,6 +1,5 @@
 #include "eonsim/reduced_layout.hpp"
 #include "eonsim/fsi_domains.hpp"
-#include "eonsim/field_layout.hpp"
 #include "eonsim/boundary_geometry.hpp"
 #include <algorithm>
 #include <cmath>
@@ -106,7 +105,7 @@ void build_outlet_traces(MPI_Comm comm,const MeshPartition& mesh,const FsiDomain
 }
 
 template<bool Elastic>
-ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains* domains=nullptr)
+ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains* domains=nullptr,bool build_pattern=true)
 {
     using Layout=CoupledLayout<Tet4Topology,Elastic>;
     constexpr int nc=Layout::components;
@@ -179,11 +178,17 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     reduced.body=Elastic?-1:l.global-1;
     reduced.outlets.resize(port_count);
     for(GlobalId i=0;i<port_count;++i) reduced.outlets[i].pressure=static_cast<PetscInt>(global-port_count+i);
-    std::vector<int> components(nc); std::iota(components.begin(),components.end(),0);
-    const auto nodal=make_field_layout(mesh,nc,{{"node",components}});
+    // Only the temporary physical-slot ghost exchange uses nodal numbering.
+    // Do not build the unused full nodal sparsity/field layout for this Vec.
+    if(mesh.global_nodes>std::numeric_limits<PetscInt>::max()/nc)
+        throw std::runtime_error("Field size exceeds PETSc index range");
+    std::vector<PetscInt> nodal_ghosts;
+    nodal_ghosts.reserve(nc*(mesh.algebra_ids.size()-mesh.owned_nodes));
+    for(std::size_t n=mesh.owned_nodes;n<mesh.algebra_ids.size();++n)
+        for(int c=0;c<nc;++c) nodal_ghosts.push_back(nc*mesh.algebra_ids[n]+c);
     PetscOwner<Vec,VecDestroy> ids;
-    EONSIM_PETSC(VecCreateGhost(comm,nodal.owned,nodal.global,nodal.local_to_global.size()-nodal.owned,
-        nodal.local_to_global.data()+nodal.owned,ids.put()));
+    EONSIM_PETSC(VecCreateGhost(comm,nc*mesh.owned_nodes,nc*mesh.global_nodes,nodal_ghosts.size(),
+        nodal_ghosts.data(),ids.put()));
     PetscScalar* data;
     EONSIM_PETSC(VecGetArray(ids.get(),&data));
     PetscInt next=l.begin;
@@ -222,32 +227,44 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     reduced.global.resize(alias.size());
     for(std::size_t i=0;i<alias.size();++i) reduced.global[i]=static_cast<PetscInt>(read[i]);
     EONSIM_PETSC(VecRestoreArrayRead(local,&read)); EONSIM_PETSC(VecGhostRestoreLocalForm(ids.get(),&local));
-    std::set<PetscInt> ghosts;
-    for(auto id:reduced.global) if(id>=0 && (id<l.begin||id>=l.begin+l.owned)) ghosts.insert(id);
-    if(!Elastic&&!body_owner) ghosts.insert(reduced.body);
-    if(!outlet_owner) for(const auto& port:reduced.outlets) ghosts.insert(port.pressure);
+    std::vector<PetscInt> ghosts;
+    ghosts.reserve(nodal_ghosts.size()+(!Elastic)+reduced.outlets.size());
+    for(auto id:reduced.global) if(id>=0 && (id<l.begin||id>=l.begin+l.owned)) ghosts.push_back(id);
+    if(!Elastic&&!body_owner) ghosts.push_back(reduced.body);
+    if(!outlet_owner) for(const auto& port:reduced.outlets) ghosts.push_back(port.pressure);
+    std::sort(ghosts.begin(),ghosts.end());
+    ghosts.erase(std::unique(ghosts.begin(),ghosts.end()),ghosts.end());
+    l.local_to_global.reserve(l.owned+ghosts.size());
     for(PetscInt i=0;i<l.owned;++i) l.local_to_global.push_back(l.begin+i);
     l.local_to_global.insert(l.local_to_global.end(),ghosts.begin(),ghosts.end());
-    std::map<PetscInt,PetscInt> lookup;
-    for(std::size_t i=0;i<l.local_to_global.size();++i) lookup[l.local_to_global[i]]=i;
-    for(auto id:reduced.global) reduced.local.push_back(id<0?-1:lookup.at(id));
-    if(!Elastic) reduced.body_local=lookup.at(reduced.body);
-    for(auto& port:reduced.outlets) port.local=lookup.at(port.pressure);
+    const auto local_id=[&](PetscInt id) -> PetscInt {
+        if(id>=l.begin&&id<l.begin+l.owned) return id-l.begin;
+        const auto found=std::lower_bound(ghosts.begin(),ghosts.end(),id);
+        if(found==ghosts.end()||*found!=id) throw std::logic_error("Missing reduced ghost index");
+        return l.owned+static_cast<PetscInt>(found-ghosts.begin());
+    };
+    reduced.local.reserve(reduced.global.size());
+    for(auto id:reduced.global) reduced.local.push_back(id<0?-1:local_id(id));
+    if(!Elastic) reduced.body_local=local_id(reduced.body);
+    for(auto& port:reduced.outlets) port.local=local_id(port.pressure);
     if(port_count) build_outlet_traces(comm,mesh,*domains,reduced);
+    if(!build_pattern) return reduced;
     // 单元列并集允许保守的块稀疏图；body 行的远程贡献也送到 owner。
-    PetscOwner<Mat,MatDestroy> graph,pattern;
+    PetscOwner<Mat,MatDestroy> graph;
     EONSIM_PETSC(MatCreate(comm,graph.put()));
     EONSIM_PETSC(MatSetSizes(graph.get(),l.owned,l.owned,l.global,l.global));
     EONSIM_PETSC(MatSetType(graph.get(),MATPREALLOCATOR)); EONSIM_PETSC(MatSetUp(graph.get()));
     for(const auto& cell:mesh.cells) {
-        std::set<PetscInt> unique;
+        std::array<PetscInt,Layout::dofs> dofs;
+        PetscInt count=0;
         const auto active=fsi_cell_components(nc,domains,cell.physical_tag);
         for(auto n:cell.nodes) for(int c=active.first;c<active.first+active.count;++c) {
             const auto id=reduced.global[nc*n+c];
-            if(id>=0) unique.insert(id);
+            if(id>=0) dofs[count++]=id;
         }
-        std::vector<PetscInt> dofs(unique.begin(),unique.end());
-        EONSIM_PETSC(MatSetValues(graph.get(),dofs.size(),dofs.data(),dofs.size(),dofs.data(),nullptr,INSERT_VALUES));
+        std::sort(dofs.begin(),dofs.begin()+count);
+        count=static_cast<PetscInt>(std::unique(dofs.begin(),dofs.begin()+count)-dofs.begin());
+        EONSIM_PETSC(MatSetValues(graph.get(),count,dofs.data(),count,dofs.data(),nullptr,INSERT_VALUES));
     }
     if(body_owner) EONSIM_PETSC(MatSetValue(graph.get(),reduced.body,reduced.body,0,INSERT_VALUES));
     for(const auto& port:reduced.outlets) {
@@ -273,22 +290,18 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
         if(outlet_owner) EONSIM_PETSC(MatSetValue(graph.get(),pressure,pressure,0,INSERT_VALUES));
     }
     EONSIM_PETSC(MatAssemblyBegin(graph.get(),MAT_FINAL_ASSEMBLY)); EONSIM_PETSC(MatAssemblyEnd(graph.get(),MAT_FINAL_ASSEMBLY));
+    // Keep this matrix: the preallocator already knows the column locations.
+    // Converting it back to row counts and recreating AIJ discards that work.
+    auto& pattern=reduced.jacobian_pattern;
     EONSIM_PETSC(MatCreate(comm,pattern.put())); EONSIM_PETSC(MatSetSizes(pattern.get(),l.owned,l.owned,l.global,l.global));
     EONSIM_PETSC(MatSetType(pattern.get(),MATAIJ));
     EONSIM_PETSC(MatPreallocatorPreallocate(graph.get(),PETSC_TRUE,pattern.get()));
-    l.diagonal.resize(l.owned); l.off_diagonal.resize(l.owned);
-    for(PetscInt row=l.begin;row<l.begin+l.owned;++row) {
-        PetscInt n; const PetscInt* cols;
-        EONSIM_PETSC(MatGetRow(pattern.get(),row,&n,&cols,nullptr));
-        for(PetscInt i=0;i<n;++i) ++(cols[i]>=l.begin&&cols[i]<l.begin+l.owned?l.diagonal[row-l.begin]:l.off_diagonal[row-l.begin]);
-        EONSIM_PETSC(MatRestoreRow(pattern.get(),row,&n,&cols,nullptr));
-    }
     return reduced;
 }
 } // namespace
-ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh) { return build_layout<false>(comm,mesh); }
-ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh) { return build_layout<true>(comm,mesh); }
-ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains) {
+ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern) { return build_layout<false>(comm,mesh,nullptr,build_pattern); }
+ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern) { return build_layout<true>(comm,mesh,nullptr,build_pattern); }
+ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains,bool build_pattern) {
     int counts[4]{},all[4]{};
     for(const auto& c:mesh.cells) {
         if(c.physical_tag==domains.fluid_region) ++counts[0];
@@ -311,6 +324,6 @@ ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const
         MPI_Allreduce(&local,&global,1,MPI_INT,MPI_MAX,comm);
         if(!global) throw std::runtime_error("FSI partition boundary tag missing");
     }
-    return build_layout<true>(comm,mesh,&domains);
+    return build_layout<true>(comm,mesh,&domains,build_pattern);
 }
 }

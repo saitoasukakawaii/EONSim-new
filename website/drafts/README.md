@@ -6,6 +6,7 @@
 
 | 草稿 | 已有依据与审阅重点 |
 |---|---|
+| [FSI 稀疏图与单元装配计划](fsi-sparse-assembly-plan.md) | PR #51 的最终 AIJ 图复用、融合 AD、结构 COO、55 项源码 CI 和 64 次正式基准；装配收益与整次耗时、峰值内存分别报告。 |
 | [FSI 嵌套 Schur 与两层校正](fsi-nested-schur-twolevel.md) | PR #49 的完整流体分组、三个 A00 角色和分区常数粗空间；保留其历史默认值与原实验范围。 |
 | [FSI 流体响应与嵌套成本](fsi-schur-response-cost.md) | PR #50 的混合节点结构 P、两个单次 PC 默认值、72 次性能对照与独立重放；区分精确 Jacobian、近似 Schur 作用及实际计时边界。 |
 

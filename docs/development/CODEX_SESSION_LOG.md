@@ -1,5 +1,112 @@
 # EONSim Codex Session Log
 
+## 2026-11-25 · FSI-ASSEMBLY-01 — 实现与验证完成，待用户 review/merge
+
+基线为 GitHub 已核实的 main `f7acccb7a8239c60a2d2be193a158ac430851dcf`。
+独立分支 `codex/fsi-assembly-performance`，交付 [Draft PR #51](https://github.com/saitoasukakawaii/EONSim-new/pull/51)。
+生产实现 `df6e9ac63f8b2d47c05b98ac3839c07c28e40a2e` 和计时驱动修复
+`b2ccd96419091c669b8dceae4369c5b255f47f57` 均先推送再执行相应验证。
+实现与本地验收完成，保留 Draft，合并留待用户审核。
+
+### 实现和独立源码审查
+
+消除 PREALLOCATOR→临时 AIJ→逐行容量→第二 AIJ 的重复准备，直接转移最终 AIJ 所有权；
+physical-slot ghost 编号交换不再生成无用 nodal adjacency/field 元数据。
+缓存单元测试行、试探列及 trace 掩码，融合 AD primal/Jacobian，可选压缩 COO 含全部刚体／RCR 项。
+界面反力重放仅遍历两域实际接触界面的单元并复用缓冲，仍采用未投影的物理残量。
+
+独立静态审查核对局部结构零、不同的 test/trial 映射、变步长链系数、出口几何导数和贡献顺序。
+固定拓扑缓存不缓存 `mesh_dt` 对应的权重；每次尝试按当前时间参数刷新，保留 retry/restart 语义。
+COO 重复 alias 由 PETSc 累加，残量单独求值不更新矩阵，失败同步后才发布数值矩阵；
+材料、端口及时间历史仍只在完整接受步提交。方程、时间离散与数值接受门槛未改。
+推送前静态审查修复了空 rank 隐患：COO 模式按 `coo && j` 判断，不能依赖可能为空的值缓冲指针。
+该问题没有伪称发生过运行时失败。
+
+### 推送后的本地 Release 验收
+
+在 clean df6e9ac 源码与锁定 PETSc 3.23.7 / Open MPI 5.0.8 / GCC 15.3.0 环境执行：
+
+```bash
+OMPI_MCA_smsc=^cma bash scripts/cloud/run.sh 3.23.7 release explicit \
+  /workspace/scratch/6d25aa929185/pr42/.cloud \
+  /workspace/scratch/d56ec93a621c/assembly-tests.json
+```
+
+**8/8 通过，零失败、跳过或超时**；构建 41.015 s，CTest 35.443 s。
+实际选测为 `nonlinear_acceptance`、`nonlinear_acceptance_mpi`、`fsi_element_jacobian`、
+`fsi_coo_verification`、`fsi_metric_stabilization`、`time_retry_verification`、
+`domains_verification`、`fluid_coo_verification`。
+新矩阵所有权测试包含仅由远程 rank 产生的图、移出 owner 为空、Mat 对象身份不变与重复 solve。
+融合单元在 24 组配置下对独立 double 残量作 48 个 fluid/ALE 方向比较，最大相对差 `2.23866e-10`。
+
+新增 FSI COO 验证的 27 次 solve 覆盖刚体、共享网格弹性、独立双域 Neo-Hookean、固定/移动 RCR，
+以及 1/2 rank、变步长、跨后端 restart、真实 nonlinear retry 和失败后 checkpoint 不污染。
+最大 owned 字段差 `4.617972670928339e-13`、归一化历史差 `5.920530605376608e-14`；
+移动 RCR 全局 Jacobian 相对 FD 差 `1.98755e-08`。真实 retry 缩步 3 次，接受 dt=0.0125。
+metric 检查包含 BE/BDF2/generalized-alpha；既有 Neo-Hookean retry 恢复到 dt=0.00125，1/2 rank 均完成 32 步。
+共享 NonlinearSystem 的既有独立流体 COO 检查覆盖 1/2/4 rank。
+
+### 性能驱动缺陷、修复与固定来源
+
+实际基线二进制来自 clean `c4fb266edec94afbf610cb1379dd1595ed96ae40`，
+其 src/include/tests、CMake、依赖锁和 cloud 构建输入与 f7acccb 无差异；候选二进制来自 df6e9ac。
+各 campaign 保存二进制 SHA-256、源码与驱动版本、环境、输入、命令、原日志、保存场和退出状态。
+两组首轮 pilot 各 32 次运行的数值检查通过，但外部 wall 呈约 50 ms 台阶。
+独立检查和源码审查定位到 POSIX `Popen.wait(timeout=...)` 的轮询等待。
+
+b2ccd 改为阻塞 `wait()`，由独立 watchdog 负责超时及进程组清理，正常计时不再轮询；
+失败和超时仍保存原始收据。修复先推送，再串行重做默认与 COO 两个正式 campaign。
+`perf-default`、`perf-coo` 原始 pilot 完整保留，wall 数据不用于最终结论；
+正式结果仅来自 `perf-default-final`、`perf-coo-final`。
+生产 C++ 未改变，复用 df6e9ac 的 8 项本地收据，没有为驱动修复重复编译或重跑该选测。
+
+### 最终成对基准与实际取舍
+
+共享主机的 CPU 标识为 Intel Xeon Platinum 8573C，可见 CPU 0–8，未验证独占物理核绑定。
+每 rank 一线程，两套网格共 771/6,147 单元、703/5,367 DoF，1/2 rank，每次五个 BE 步。
+双方显式 PREONLY/LU/SuperLU_DIST，使用相同输入、solver/linear report；候选另有一次装配计划报告。
+驱动参数为 `--subdivisions 4 8 --ranks 1 2 --steps 5 --repeats 3`，
+第二个 campaign 最后追加 `--candidate-options -fsi_coo`；每组一对预热、三对交替测量，串行执行。
+
+两次正式 campaign 合计 **64 次运行（48 次测量、16 次预热）、320 个接受步、640 次线性修正**。
+每步 SNES/KSP 次数均为 2/2，逐步时刻、物理接受、全部保存场和 ghost、接口平衡与 CSV 历史一致。
+默认最大场及历史差为零；COO 最大场差 `2.220446049250313e-16`，历史差 `1.8158547268845473e-15`。
+真实线性残量保持 `norm <= 1e-12 + 1e-10*rhs_norm` 门槛，最大 residual/limit 为 `0.000160287150638544`。
+
+默认 assembly 的四组配对中位数下降 **2.72%–11.81%**，COO 下降 **30.16%–43.37%**。
+统计量是逐对 `candidate/baseline−1` 的中位数，不能用双方独立中位数之比替代。
+所有 COO 整次 wall 变化范围均跨过零；细网格单 rank 峰值 RSS 配对中位数增加 **27.81%**，
+2 rank 增加 **12.29%**。因此默认保留 MatSetValues，COO 继续显式开启，没有宣称普遍整次加速。
+
+COO 唯一 nnz 从 36,643/364,635 降为 27,226/260,010，减少 25.70%/28.69%；
+对应贡献值缓冲合计 1,271,880/12,765,704 B，不含映射及 PETSc 内部存储。
+所有候选记录 `matrix_mallocs=0`、`nnz_unneeded=0`；唯一 nnz、贡献数与峰值 RSS 必须分开解释。
+新 `fsi_assembly_plan` 给出候选初始化细分；旧通用 solver setup 不包含图和系统构造，
+因此本轮没有测得可比较的旧/新图初始化百分比收益。各 rank 最大分项还可能重叠，不能相加当作整次 wall。
+
+### 独立证据重放与源码 CI
+
+独立重放读取最终两组证据，核对 3,328 份运行文件哈希、1,152 份 VTU、384 个保存状态、
+3,118,848 个 owned 标量值、1,280 条字段接受记录及全部 640 次线性修正，并重算配对统计，未发现不一致。
+归档初审发现已登记的保留二进制尚未对应最终内容对象，随后补齐两个实际可执行文件、审计和 CI 收据。
+[最终归档校验](../research/data/fsi-assembly-2026-11-25/archive.json)的 `final_packaging_verification` 已通过，
+核对所有内容对象哈希、大小及清单引用，缺失和孤立对象均为零，两个实际二进制字节流也已核对。
+该最终校验关闭独立审计中保留的中间 `pending packaging` 状态，没有重新执行数值求解。
+
+b2ccd 源码的 [Core numerical validation #104](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45632206852)
+在 PR merge commit `ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0` 上实际执行
+**55/55 项 PETSc 3.23.7 Release 数值选测**，零失败、跳过，`executed=55`、`reused=[]`。
+选择脚本的 **65 项 Python 检查（26+6+6+11+3+13）**通过；
+[Website Build Check #124](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45632206859) 通过。
+Debug 和 PETSc 3.19.6 手动 job 跳过；本地只运行上述 8 项定向检查，未运行全套、Debug 或 3.19.6。
+55 项是 CI 的实际选测范围，不作全量推断，文档后续提交也不记为新数值执行。
+
+[实际命令、完整性能范围和归档](../research/data/fsi-assembly-2026-11-25/README.md) ·
+[独立审计](../research/data/fsi-assembly-2026-11-25/independent-audit.json) ·
+[CI 来源](../research/data/fsi-assembly-2026-11-25/ci-source-b2.json) ·
+[算法草稿](../../website/drafts/fsi-sparse-assembly-plan.md)。
+单机小网格和五步成本不证明多节点扩展、GPU 收益或长时间生产算例加速；草稿未发布，PR 待用户 review/merge。
+
 ## 2026-11-25 · FSI-PC-03 — nodal 结构反馈与有界内层响应
 
 从 PR #49 已合并的 `296246e53d895f29ea3d0f7e5c960dc26b1426dc` 开始，

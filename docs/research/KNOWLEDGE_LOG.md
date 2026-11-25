@@ -1,5 +1,39 @@
 # EONSim Knowledge Log
 
+## 2026-11-25 · FSI-ASSEMBLY-01：保留稀疏图、固定装配计划与可选 COO
+
+[算法草稿](../../website/drafts/fsi-sparse-assembly-plan.md)说明最终 AIJ 所有权转移、
+分别缓存 test/trial 映射、逐次刷新时间权重、融合残量/AD 切线与按物理依赖压缩 COO 的边界。
+[源码、实际命令与验证索引](data/fsi-assembly-2026-11-25/README.md)区分
+基线二进制 c4fb266、生产实现及候选 df6e9ac、最终驱动 b2ccd964，均先推送后执行。
+物理方程、时间历史和接受门槛不变，默认仍为 MatSetValues。
+
+clean df6e9ac 的 PETSc 3.23.7 Release 本地 **8/8 定向检查通过**，覆盖远程图产生和矩阵所有权、
+融合单元、1/2-rank FSI、RCR、变步长、retry/restart，及共享代数层的 1/2/4-rank 独立流体路径。
+最终两组性能 campaign 共 **64 次运行、320 个接受步、640 次线性修正**，含 16 次预热。
+每步 SNES/KSP 次数一致；默认场及历史差为零，COO 最大场差 `2.220446049250313e-16`。
+[独立证据重放](data/fsi-assembly-2026-11-25/independent-audit.json)核对全部轨迹、
+3,328 份运行文件哈希、1,152 份 VTU 与配对统计，未发现不一致；
+[最终归档校验](data/fsi-assembly-2026-11-25/archive.json)已补齐并核对实际二进制、全部内容对象及清单，关闭初审的待打包状态。
+
+默认 assembly 配对中位数下降 **2.72%–11.81%**，COO 下降 **30.16%–43.37%**；
+COO 四组整次 wall 变化范围都跨过零，细网格单 rank 峰值 RSS 配对中位数增加 **27.81%**，保持显式选项。
+COO 的唯一 nnz 降低 25.70%/28.69%，但贡献值缓冲及 PETSc 内部计划占用额外内存。
+可复用经验是将唯一 nnz、单元贡献数、额外容量和 RSS 分开记录，并在同输入、同迭代、同接受轨迹下报告成对成本；
+装配核的下降不能直接解释为整次加速。旧基线缺少新的初始化细分，也不能从通用 solver setup 推导图初始化收益。
+
+首轮 pilot 暴露外部 wall 的约 50 ms 量化：根因是 `Popen.wait(timeout=...)` 轮询。
+b2ccd 改为阻塞 wait 与独立超时 watchdog，推送后重新运行两个正式 campaign；原 pilot 保留，墙钟不进入最终结论。
+配对百分比中位数必须逐对重算，不能用双方独立中位数之比替代；rank 最大分项不能简单相加为整次 wall。
+
+b2ccd 对应 PR merge SHA `ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0` 的 CI
+实际执行 **55/55 项 Release 选测**通过，无历史复用、失败或跳过，另有 **65 项 Python 检查**及网站构建通过。
+[CI 来源](data/fsi-assembly-2026-11-25/ci-source-b2.json) ·
+[数值 run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45632206852) ·
+[网站 run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45632206859)。
+本地未运行全套、Debug 或 PETSc 3.19.6；CI Debug/3.19.6 手动 job 跳过，选测不等同于全量。
+[PR #51](https://github.com/saitoasukakawaii/EONSim-new/pull/51) 保持 Draft，待用户 review/merge；草稿未发布。
+
 ## 2026-11-25 · FSI-PC-03：节点流体反馈和嵌套响应成本
 
 [算法草稿](../../website/drafts/fsi-schur-response-cost.md)解释混合单位节点逆、

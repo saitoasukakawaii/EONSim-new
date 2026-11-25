@@ -1,0 +1,23 @@
+{
+  "archive": "evidence.tar.xz",
+  "sha256": "3f992cdd5943dc489b3fc5a58ac76f8feea0c8a463eda4081f984f57dfd25656",
+  "archive_bytes": 4595656,
+  "raw_files": 8770,
+  "raw_bytes": 420836126,
+  "unique_objects": 2523,
+  "unique_bytes": 48406013,
+  "implementation_commit": "df6e9ac63f8b2d47c05b98ac3839c07c28e40a2e",
+  "driver_commit": "b2ccd96419091c669b8dceae4369c5b255f47f57",
+  "format": "manifest.json maps original relative paths to SHA-256 content objects and preserves mode; objects/<sha256> stores each unique file once.",
+  "final_packaging_verification": {
+    "status": "passed",
+    "all_object_hashes_and_sizes_verified": true,
+    "all_manifest_references_verified": true,
+    "missing_objects": 0,
+    "orphan_objects": 0,
+    "final_campaign_files": 3378,
+    "retained_executable_bytes_verified": true,
+    "independent_numeric_audit": "independent-audit.json",
+    "note": "The independent audit records the pre-final archive. This final replay completes its pending packaging extension: both actual executable byte streams, that audit, and the source CI receipt are present."
+  }
+}

@@ -1,0 +1,744 @@
+{
+  "head": "b2ccd96419091c669b8dceae4369c5b255f47f57",
+  "pull_request": 51,
+  "core_run_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45632206852",
+  "website_run_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45632206859",
+  "workflow_runs": [
+    {
+      "id": 45632206859,
+      "name": "Website Build Check",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 124,
+      "jobs_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/runs/45632206859/jobs",
+      "logs_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/runs/45632206859/logs",
+      "workflow_id": 401489177
+    },
+    {
+      "id": 45632206852,
+      "name": "Core numerical validation",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 104,
+      "jobs_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/runs/45632206852/jobs",
+      "logs_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/runs/45632206852/logs",
+      "workflow_id": 401771986
+    }
+  ],
+  "jobs": [
+    {
+      "id": 139268166446,
+      "name": "Select affected checks",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45632206852,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Select tests and check changed CI scripts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Preserve selection evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        }
+      ]
+    },
+    {
+      "id": 139268168919,
+      "name": "PETSc 3.19.6 / release (manual compatibility)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 45632206852,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 139268398401,
+      "name": "PETSc 3.23.7 / release",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45632206852,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Require successful selection",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "No new numerical tests required",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 3
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Dependency package cache",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Restore locked environment",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Build and verify selected numerical contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Preserve evidence even on failure",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Dependency package cache",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        }
+      ]
+    },
+    {
+      "id": 139268400774,
+      "name": "PETSc 3.23.7 / debug (manual diagnostics)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 45632206852,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 139276115881,
+      "name": "Record incremental evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45632206852,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Require successful selection and Release validation",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Verify results and record historical origins",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        }
+      ]
+    }
+  ],
+  "release_notice": {
+    "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0",
+    "mode": "release",
+    "selection": "explicit",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 16760344576,
+      "cgroup": {
+        "/sys/fs/cgroup": {},
+        "/sys/fs/cgroup/system.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        }
+      },
+      "build_jobs": 4
+    },
+    "test_counts": {
+      "passed": 55,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "incremental_receipt": {
+    "schema": 1,
+    "repository": "saitoasukakawaii/EONSim-new",
+    "pr": 51,
+    "base": "f7acccb7a8239c60a2d2be193a158ac430851dcf",
+    "head": "b2ccd96419091c669b8dceae4369c5b255f47f57",
+    "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0",
+    "tree": "db828328f6a885e7ebe779c9e488bad78805871e",
+    "fingerprint": "5ff643171c0bde884dc54740ff920ed370d95b0fd7d86dd8cd061dea6c471937",
+    "run_id": 45632206852,
+    "status": "passed",
+    "covered": [
+      "domains_verification",
+      "elastic_fsi_verification",
+      "fluid_coo_verification",
+      "fluid_verification",
+      "fsi_alpha_verification",
+      "fsi_block_efficiency",
+      "fsi_branched_rcr",
+      "fsi_coo_verification",
+      "fsi_curved_inlet",
+      "fsi_diagnostics",
+      "fsi_diagnostics_mpi",
+      "fsi_element_jacobian",
+      "fsi_flow",
+      "fsi_inlet",
+      "fsi_metric_stabilization",
+      "fsi_moving_plane_rcr",
+      "fsi_periodic",
+      "fsi_pressure_convergence",
+      "fsi_pressure_state",
+      "fsi_reservoir_pressure",
+      "fsi_sampled_inlet",
+      "fsi_time_verification",
+      "fsi_tube",
+      "fsi_tube_rcr",
+      "fsi_tube_rcr_response",
+      "fsi_tube_wall_support",
+      "hyperelastic_verification",
+      "lame_wall",
+      "linear_lifetime",
+      "linear_lifetime_mpi",
+      "nonlinear_acceptance",
+      "nonlinear_acceptance_mpi",
+      "p2_space_oracles",
+      "pc_plan_mpi1",
+      "pc_plan_mpi2",
+      "pc_recipe_hybrid",
+      "pc_recipe_restart",
+      "pc_recipe_retry",
+      "poisson_parallel",
+      "poisson_verification",
+      "rigid_fsi_verification",
+      "rigid_tube_verification",
+      "runtime_mpi",
+      "scalar2d_failure",
+      "scalar2d_space",
+      "scalar_p2_failure",
+      "scalar_p2_restart",
+      "scalar_p2_time",
+      "scalar_p2_verification",
+      "solid_alpha_verification",
+      "solid_verification",
+      "solver_failures",
+      "solver_failures_mpi",
+      "tri_p2_oracles",
+      "womersley_flow"
+    ],
+    "executed": [
+      "domains_verification",
+      "elastic_fsi_verification",
+      "fluid_coo_verification",
+      "fluid_verification",
+      "fsi_alpha_verification",
+      "fsi_block_efficiency",
+      "fsi_branched_rcr",
+      "fsi_coo_verification",
+      "fsi_curved_inlet",
+      "fsi_diagnostics",
+      "fsi_diagnostics_mpi",
+      "fsi_element_jacobian",
+      "fsi_flow",
+      "fsi_inlet",
+      "fsi_metric_stabilization",
+      "fsi_moving_plane_rcr",
+      "fsi_periodic",
+      "fsi_pressure_convergence",
+      "fsi_pressure_state",
+      "fsi_reservoir_pressure",
+      "fsi_sampled_inlet",
+      "fsi_time_verification",
+      "fsi_tube",
+      "fsi_tube_rcr",
+      "fsi_tube_rcr_response",
+      "fsi_tube_wall_support",
+      "hyperelastic_verification",
+      "lame_wall",
+      "linear_lifetime",
+      "linear_lifetime_mpi",
+      "nonlinear_acceptance",
+      "nonlinear_acceptance_mpi",
+      "p2_space_oracles",
+      "pc_plan_mpi1",
+      "pc_plan_mpi2",
+      "pc_recipe_hybrid",
+      "pc_recipe_restart",
+      "pc_recipe_retry",
+      "poisson_parallel",
+      "poisson_verification",
+      "rigid_fsi_verification",
+      "rigid_tube_verification",
+      "runtime_mpi",
+      "scalar2d_failure",
+      "scalar2d_space",
+      "scalar_p2_failure",
+      "scalar_p2_restart",
+      "scalar_p2_time",
+      "scalar_p2_verification",
+      "solid_alpha_verification",
+      "solid_verification",
+      "solver_failures",
+      "solver_failures_mpi",
+      "tri_p2_oracles",
+      "womersley_flow"
+    ],
+    "reused": [],
+    "origins": {
+      "runtime_mpi": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "pc_plan_mpi1": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "pc_plan_mpi2": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "linear_lifetime": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "linear_lifetime_mpi": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "solver_failures": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "solver_failures_mpi": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "nonlinear_acceptance": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "nonlinear_acceptance_mpi": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "scalar_p2_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "scalar_p2_time": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "scalar_p2_restart": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "scalar_p2_failure": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "p2_space_oracles": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "tri_p2_oracles": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_diagnostics": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_diagnostics_mpi": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_periodic": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_tube": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_tube_wall_support": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_tube_rcr": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_tube_rcr_response": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_block_efficiency": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_flow": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_branched_rcr": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_curved_inlet": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_sampled_inlet": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_metric_stabilization": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_moving_plane_rcr": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_reservoir_pressure": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_inlet": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_element_jacobian": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "scalar2d_space": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "scalar2d_failure": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "solid_alpha_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_pressure_state": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_pressure_convergence": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_alpha_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_time_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fluid_coo_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fsi_coo_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "pc_recipe_retry": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "pc_recipe_restart": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "pc_recipe_hybrid": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "domains_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "rigid_tube_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "womersley_flow": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "hyperelastic_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "elastic_fsi_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "rigid_fsi_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "solid_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "lame_wall": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "fluid_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "poisson_verification": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      },
+      "poisson_parallel": {
+        "release": {
+          "run_id": 45632206852,
+          "commit": "ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0"
+        }
+      }
+    },
+    "previous_run_id": null,
+    "disposition": "run"
+  },
+  "selection_python_checks": {
+    "passed": 65,
+    "groups": [
+      26,
+      6,
+      6,
+      11,
+      3,
+      13
+    ]
+  },
+  "notes": [
+    "GitHub Actions tested the PR merge commit recorded in the receipt; local focused Release evidence separately records implementation df6e9ac.",
+    "PETSc 3.19.6 and Debug are manual jobs and were skipped."
+  ]
+}

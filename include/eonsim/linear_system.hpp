@@ -8,6 +8,7 @@
 #include <string>
 #include <map>
 #include <type_traits>
+#include <utility>
 #include <vector>
 #include <stdexcept>
 
@@ -28,6 +29,14 @@ public:
     ~PetscOwner() { if (value_) (void)Destroy(&value_); }
     PetscOwner(const PetscOwner&) = delete;
     PetscOwner& operator=(const PetscOwner&) = delete;
+    PetscOwner(PetscOwner&& other) noexcept : value_(std::exchange(other.value_,nullptr)) {}
+    PetscOwner& operator=(PetscOwner&& other) noexcept {
+        if(this!=&other) {
+            if(value_) (void)Destroy(&value_);
+            value_=std::exchange(other.value_,nullptr);
+        }
+        return *this;
+    }
     T get() const { return value_; }
     T* put() { return &value_; }
 private:
@@ -49,7 +58,8 @@ struct LinearResult {
 
 /** @brief 本 rank 的代数布局；local_to_global 先 owned 后 ghost。
  * @ingroup mhpc_parallel
- * diagonal/off_diagonal 包含远程单元写入本地行所需的完整稀疏图计数。
+ * diagonal/off_diagonal 包含远程单元写入本地行所需的完整稀疏图计数；
+ * 向 NonlinearSystem 转移已建好的矩阵时可留空，不再从完整图反查计数。
  * fields 中的 IS 只列本 rank owned 全局编号，不复制全部场。
  */
 struct AlgebraLayout {

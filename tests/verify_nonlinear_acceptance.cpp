@@ -18,7 +18,6 @@ void verify(MPI_Comm comm)
     l.global=3; l.owned=ranks==1?3:(rank==0?2:1); l.begin=rank==0?0:2;
     for(PetscInt i=0;i<l.owned;++i) l.local_to_global.push_back(l.begin+i);
     for(PetscInt id=0;id<l.global;++id) if(id<l.begin||id>=l.begin+l.owned) l.local_to_global.push_back(id);
-    l.diagonal.assign(l.owned,l.owned); l.off_diagonal.assign(l.owned,l.global-l.owned);
     const char* names[]={"velocity","mesh","structure"};
     PetscInt index[3];
     for(std::size_t i=0;i<l.local_to_global.size();++i) index[l.local_to_global[i]]=i;
@@ -26,7 +25,29 @@ void verify(MPI_Comm comm)
         auto& field=l.fields[names[id]];
         if(id>=l.begin&&id<l.begin+l.owned) field.push_back(id);
     }
-    NonlinearSystem system(comm,l);
+    // The only pattern producer may be remote from a row owner. Adopt its
+    // completed graph with no fallback row counts; destroying the preallocator
+    // and moving the owner must leave exactly the same usable AIJ object.
+    PetscOwner<Mat,MatDestroy> pattern;
+    {
+        PetscOwner<Mat,MatDestroy> graph;
+        EONSIM_PETSC(MatCreate(comm,graph.put()));
+        EONSIM_PETSC(MatSetSizes(graph.get(),l.owned,l.owned,l.global,l.global));
+        EONSIM_PETSC(MatSetType(graph.get(),MATPREALLOCATOR));
+        EONSIM_PETSC(MatSetUp(graph.get()));
+        const PetscInt ids[]={0,1,2};
+        if(rank==ranks-1) EONSIM_PETSC(MatSetValues(graph.get(),3,ids,3,ids,nullptr,INSERT_VALUES));
+        EONSIM_PETSC(MatAssemblyBegin(graph.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatAssemblyEnd(graph.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatCreate(comm,pattern.put()));
+        EONSIM_PETSC(MatSetSizes(pattern.get(),l.owned,l.owned,l.global,l.global));
+        EONSIM_PETSC(MatSetType(pattern.get(),MATAIJ));
+        EONSIM_PETSC(MatPreallocatorPreallocate(graph.get(),PETSC_TRUE,pattern.get()));
+    }
+    PetscObjectId matrix_id=0;
+    EONSIM_PETSC(PetscObjectGetId(reinterpret_cast<PetscObject>(pattern.get()),&matrix_id));
+    NonlinearSystem system(comm,l,std::move(pattern));
+    require(pattern.get()==nullptr,"Moved Jacobian pattern retained a second owner");
     std::vector<PetscInt> bc;
     std::vector<double> prescribed;
     if(2>=l.begin&&2<l.begin+l.owned) { bc.push_back(2); prescribed.push_back(3); }
@@ -38,7 +59,6 @@ void verify(MPI_Comm comm)
     std::vector<double> initial(3,0); initial[index[0]]=1;
     // 故意放宽 PETSc 总范数停止条件；字段验收必须让 Newton 继续到实际方程达标。
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-snes_atol","1e30"));
-    PetscObjectId matrix_id=0;
     const double* trial_buffer=nullptr;
     for(double alpha:{1e-8,1e8}) {
         // 第二组启用额外 MatMult/字段诊断，验收基线与反力必须仍保持正确。

@@ -330,6 +330,12 @@ if(BUILD_TESTING)
         --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_coo_verification")
     set_tests_properties(fluid_coo_verification PROPERTIES TIMEOUT 300 PROCESSORS 4
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME fsi_coo_verification
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_coo.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_coo_verification")
+    set_tests_properties(fsi_coo_verification PROPERTIES TIMEOUT 600 PROCESSORS 2 LABELS "rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME profile_log_validation
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_profile_validation.py")
     set_tests_properties(profile_log_validation PROPERTIES TIMEOUT 30)

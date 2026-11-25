@@ -1,5 +1,52 @@
 # EONSim Codex Task Queue
 
+## FSI-ASSEMBLY-01 / validated; awaiting user review/merge / 2026-11-25
+
+Implementation and local acceptance are complete on
+`codex/fsi-assembly-performance`, from main
+`f7acccb7a8239c60a2d2be193a158ac430851dcf`.
+[PR #51](https://github.com/saitoasukakawaii/EONSim-new/pull/51) remains Draft;
+the next delivery step is user review and merge. The article remains unpublished.
+
+Delivered ownership transfer of the final reduced AIJ, cached fixed cell maps,
+fused fluid/ALE residual and tangent evaluation, interface-adjacent force replay,
+and opt-in compressed FSI COO including rigid/RCR contributions. Test/trial maps
+remain distinct and time-dependent weights refresh on every attempt. Physical
+equations, time history and acceptance gates are unchanged. MatSetValues remains
+the default assembly backend.
+
+Implementation `df6e9ac63f8b2d47c05b98ac3839c07c28e40a2e` was pushed before
+its clean PETSc 3.23.7 Release **8/8** focused acceptance. Coverage includes
+matrix ownership, element derivatives, 1/2-rank FSI, RCR, variable time steps,
+retry and restart, plus the shared solver's existing 1/2/4-rank fluid COO path.
+The external wall timer's approximately 50 ms polling quantization was fixed
+in driver `b2ccd96419091c669b8dceae4369c5b255f47f57`, pushed before both final
+campaigns. The pilot evidence is retained; its wall measurements are superseded.
+
+The final paired comparison has **64 runs, 320 accepted steps and 640 linear
+corrections**: 48 measured runs and 16 warmups, two grids, 1/2 ranks and five
+steps per run. Iteration trajectories match. Default assembly paired medians
+fall **2.72%–11.81%**; COO falls **30.16%–43.37%**. Every COO wall-change range
+crosses zero, and fine-grid single-rank peak RSS rises **27.81%**. COO therefore
+remains optional; these measurements do not establish general end-to-end gains.
+Independent evidence replay confirmed saved fields, histories, correction gates,
+file hashes and the paired statistics.
+
+For source b2ccd964, CI actually executed **55/55 selected Release checks** on
+PR merge commit `ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0`, with no reused,
+failed or skipped numerical checks. The **65 Python selection checks** and
+Website Build Check also passed.
+[CI metadata](../research/data/fsi-assembly-2026-11-25/ci-source-b2.json) ·
+[Numerical run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45632206852) ·
+[Website run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45632206859).
+
+[Commands, raw evidence and measured limits](../research/data/fsi-assembly-2026-11-25/README.md) ·
+[Algorithm draft](../../website/drafts/fsi-sparse-assembly-plan.md).
+No local full-suite, Debug or PETSc 3.19.6 run was added; CI Debug and 3.19.6 jobs
+were skipped. Multi-node scaling, larger production problems and a measured
+baseline-to-candidate initialization speedup remain unverified. Later documentation
+commits must retain their CI provenance instead of claiming fresh numerical runs.
+
 ## FSI-PC-03 / validated / 2026-11-25
 
 Implementation and targeted acceptance are complete on
