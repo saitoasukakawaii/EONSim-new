@@ -110,6 +110,17 @@ def verify_rcr(run, base):
     assert error(iterative,ref)<2e-8
     report['jacobian_relative_error'] = max(ratios)
     report['hybrid_field_error'] = error(iterative,ref)
+    # Compare the reconstructed node-block Schur/coupled momentum path with
+    # the existing two-step direct reference, including the RCR pressure DOF.
+    improved_flags = ['-pc_recipe','hybrid','-pc_plan_schur_approx','nodal',
+                      '-pc_plan_velocity_solver','coupled',
+                      '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type','lower',
+                      '-ksp_rtol','1e-10','-ksp_max_it','1500']
+    improved, improved_rows, _ = run.solve('rcr-nodal-coupled',cfg,2,[*improved_flags,'-stop_after',2])
+    check_rcr_history(run,'rcr-nodal-coupled',model,improved_rows)
+    assert error(improved,ref)<2e-8
+    report['nodal_coupled_field_error'] = error(improved,ref)
+
     changed=copy.deepcopy(cfg)
     changed['fsi']['domains']['rcr_outlet']['compliance']*=1.2
     run.solve('rcr-changed',changed,2,['-restart',checkpoint],fail='Checkpoint mesh/partition/physics mismatch')
