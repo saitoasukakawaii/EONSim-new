@@ -378,6 +378,7 @@ struct Context {
     PetscInt domain_rejections=0;
     double assembly_seconds=0,ghost_seconds=0;
     double callback_seconds=0,failure_sync_seconds=0,assembly_finalize_seconds=0,constraint_seconds=0;
+    PcSchurUpdates* pc_updates=nullptr;
     void evaluate(Vec x, Vec r, Mat j, bool constrain) {
         const auto begin=std::chrono::steady_clock::now();
         local_values(x,values);
@@ -455,7 +456,12 @@ PetscErrorCode function(SNES snes,Vec x,Vec r,void* pointer)
 PetscErrorCode jacobian(SNES snes,Vec x,Mat j,Mat,void* pointer)
 {
     auto& c=*static_cast<Context*>(pointer);
-    try { c.evaluate(x,c.scratch,j,true); return PETSC_SUCCESS; }
+    try {
+        c.evaluate(x,c.scratch,j,true);
+        // Refresh only after successful assembly, including constraint row replacement.
+        if(c.pc_updates) c.pc_updates->refresh(j);
+        return PETSC_SUCCESS;
+    }
     catch(const StepRejected& e) { c.error=e.what(); ++c.domain_rejections; return SNESSetJacobianDomainError(snes); }
     catch(const std::exception& e) { c.error=e.what(); return PETSC_ERR_LIB; }
 }
@@ -521,6 +527,7 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         throw std::runtime_error("Invalid nonlinear state/constraint layout");
     FieldAcceptance acceptance(comm,l,config,constraints);
     LinearDiagnostics diagnostics;
+    PcSchurUpdates pc_updates; // numeric state outlives SNES/KSP/PC
     PetscOwner<SNES,SNESDestroy> snes;
     PetscScalar* a;
     EONSIM_PETSC(VecGetArray(x.get(),&a));
@@ -554,6 +561,12 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     int conflict=(block&&schur)||(semantic&&(block||schur)),any_conflict=0;
     MPI_Allreduce(&conflict,&any_conflict,1,MPI_INT,MPI_MAX,comm);
     if(any_conflict) throw std::runtime_error("Choose only one PC recipe, block_pc or schur_pc");
+    PetscBool nodal_option=PETSC_FALSE,velocity_option=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_schur_approx",&nodal_option));
+    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_solver",&velocity_option));
+    int unused=!semantic&&(nodal_option||velocity_option),any_unused=0;
+    MPI_Allreduce(&unused,&any_unused,1,MPI_INT,MPI_MAX,comm);
+    if(any_unused) throw std::runtime_error("pc_plan Schur and velocity options require -pc_recipe");
     PcBlock plan;
     if(semantic) plan=make_pc_plan(comm,l,recipe);
     if(block||schur||semantic) {
@@ -564,6 +577,7 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     }
     EONSIM_PETSC(SNESSetFromOptions(snes.get()));
     if(semantic) validate_pc_plan_options(comm,ksp,plan);
+    if(schur) validate_schur_solver_options(comm,ksp,l);
     // PETSc 优化构建默认可能不检查 Jacobian domain error；结果有效性检查在两种构建都启用。
     EONSIM_PETSC(SNESSetCheckJacobianDomainError(snes.get(),PETSC_TRUE));
     PCType type; EONSIM_PETSC(PCGetType(pc,&type));
@@ -619,11 +633,14 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     acceptance.measure(r.get(),true);
     EONSIM_PETSC(SNESSetInitialFunction(snes.get(),r.get()));
     const auto schur_begin=std::chrono::steady_clock::now();
-    if(schur) configure_schur_solver(comm,ksp,l,j.get());
     PetscReal initial_norm=0;
-    if(semantic) EONSIM_PETSC(VecNorm(r.get(),NORM_2,&initial_norm));
+    if(schur||semantic) EONSIM_PETSC(VecNorm(r.get(),NORM_2,&initial_norm));
     // An exactly converged initial state must not factor an unused/singular PC.
-    if(semantic&&initial_norm>0) configure_pc_plan(comm,ksp,j.get(),plan);
+    if(schur&&initial_norm>0) configure_schur_solver(comm,ksp,l,j.get());
+    if(semantic&&initial_norm>0) {
+        configure_pc_plan(comm,ksp,j.get(),plan,&pc_updates);
+        context.pc_updates=&pc_updates;
+    }
     const double schur_setup_seconds=(schur||semantic)?std::chrono::duration<double>(std::chrono::steady_clock::now()-schur_begin).count():0.;
     const auto error=SNESSolve(snes.get(),nullptr,x.get());
     const auto finalize_begin=std::chrono::steady_clock::now();
