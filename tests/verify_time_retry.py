@@ -1,5 +1,5 @@
 """Real Newton nonconvergence -> rollback/cutback; compare to a direct small-step trajectory."""
-import argparse,copy,json,re,subprocess,sys,xml.etree.ElementTree as ET
+import argparse,copy,json,math,re,subprocess,sys,xml.etree.ElementTree as ET
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'cases/fsi'))
 from generate_domains import generate
@@ -13,11 +13,24 @@ def run(args,ok=True):
  if (r.returncode==0)!=ok:raise RuntimeError(r.stdout)
  return r.stdout
 def compare(first,second,ranks):
- for solid in ('','_solid'):
-  for rank in range(ranks):
-   suffix=solid+(f'_rank{rank}' if ranks>1 else '')+'.vtu';x=ET.parse(first.with_name(first.stem+suffix));y=ET.parse(second.with_name(second.stem+suffix))
-   for u,v in zip(x.findall('.//DataArray'),y.findall('.//DataArray')):
-    if u.attrib.get('type')=='Float64':assert max((abs(float(i)-float(j)) for i,j in zip(u.text.split(),v.text.split())),default=0)<2e-8
+    for solid in ('','_solid'):
+        for rank in range(ranks):
+            suffix=solid+(f'_rank{rank}' if ranks>1 else '')+'.vtu'
+            x=ET.parse(first.with_name(first.stem+suffix))
+            y=ET.parse(second.with_name(second.stem+suffix))
+            left,right=x.findall('.//DataArray'),y.findall('.//DataArray')
+            assert left and len(left)==len(right), ('Missing or extra VTU arrays',suffix)
+            for u,v in zip(left,right):
+                signature=lambda item:(item.attrib.get('Name'),item.attrib.get('type'),
+                                       item.attrib.get('NumberOfComponents','1'))
+                assert signature(u)==signature(v), ('Different VTU field metadata',suffix,signature(u),signature(v))
+                first_values,second_values=(u.text or '').split(),(v.text or '').split()
+                assert len(first_values)==len(second_values), ('Different VTU field lengths',suffix,signature(u))
+                if u.attrib.get('type')=='Float64':
+                    first_values,second_values=list(map(float,first_values)),list(map(float,second_values))
+                    assert all(math.isfinite(value) for values in (first_values,second_values) for value in values), \
+                        ('Nonfinite VTU field',suffix,signature(u))
+                    assert max((abs(i-j) for i,j in zip(first_values,second_values)),default=0)<2e-8
 for ranks in (1,2):
  part=a.work/f'parts{ranks}';run([a.executable,'-case',case,'-prepare',part,'-parts',ranks]);launcher=[a.mpiexec,'-n',ranks] if ranks>1 else []
  prefix=launcher+[a.executable,'-case',case,'-partition',part,'-snes_max_it',2]

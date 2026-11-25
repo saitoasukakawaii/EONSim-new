@@ -139,7 +139,8 @@ def main():
             assert residuals and 'linear_residual_unavailable' not in text, text
             for residual in residuals:
                 norm, rhs = float(residual['norm']), float(residual['rhs_norm'])
-                assert math.isfinite(norm) and norm <= 1e-8 + 1e-7 * rhs, residual
+                assert math.isfinite(norm) and math.isfinite(rhs) and min(norm, rhs) >= 0, residual
+                assert norm <= 1e-8 + 1e-7 * rhs, residual
             field_residuals = [dict(item.split('=',1) for item in line.split()[1:])
                                for line in text.splitlines() if line.startswith('linear_field_residual ')]
             expected_fields = {'velocity', 'pressure'}
@@ -254,7 +255,8 @@ def main():
                     assert checks and 'linear_residual_unavailable' not in improved_text
                     for residual in checks:
                         norm, rhs = float(residual['norm']), float(residual['rhs_norm'])
-                        assert math.isfinite(norm) and norm <= 1e-8 + 1e-7 * rhs, residual
+                        assert math.isfinite(norm) and math.isfinite(rhs) and min(norm, rhs) >= 0, residual
+                        assert norm <= 1e-8 + 1e-7 * rhs, residual
                     results.append(dict(case=name, ranks=ranks, recipe=variant,
                                         max_field_error=improved_error,
                                         linear_corrections=len(checks), flags=options))

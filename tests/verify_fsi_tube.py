@@ -82,6 +82,23 @@ def verify_wall_support(run, base):
     return results
 
 
+def audit_block_linear_log(log, accepted_steps):
+    residuals = [dict(re.findall(r'(\w+)=([^\s]+)',line))
+                 for line in log.splitlines() if line.startswith('linear_residual ')]
+    reports = [dict(re.findall(r'(\w+)=([^\s]+)',line))
+               for line in log.splitlines() if line.startswith('solver_report ')]
+    assert residuals and len(reports)==accepted_steps
+    assert not any(marker in log for marker in
+                   ('linear_residual_unavailable','linear_iteration_limit_residual ','step_retry='))
+    assert sum(int(r['linear_completed']) for r in reports)==len(residuals)
+    assert all(min(int(r['snes_reason']),int(r['ksp_reason']))>0 for r in reports)
+    for row in residuals:
+        norm, rhs = float(row['norm']), float(row['rhs_norm'])
+        assert math.isfinite(norm) and math.isfinite(rhs) and min(norm,rhs)>=0., row
+        assert norm <= 1e-8+1e-7*rhs, row
+    return len(residuals)
+
+
 def verify_rcr(run, base):
     model = dict(tag=2,proximal_resistance=4.,distal_resistance=16.,compliance=.005,
                  distal_pressure=.03,initial_capacitor_pressure=.06)
@@ -133,25 +150,26 @@ def verify_rcr(run, base):
         ('added-mass', ['-pc_recipe','added_mass','-pc_plan_schur_approx','nodal']),
         ('twolevel', ['-pc_recipe','hybrid','-pc_plan_schur_approx','nodal',
                       '-pc_plan_velocity_solver','twolevel'])):
-        flags += ['-ksp_rtol','1e-10','-ksp_max_it','1500','-linear_report']
+        flags += ['-ksp_rtol','1e-10','-ksp_max_it','1500','-linear_report','-solver_report']
         label = 'rcr-'+mode
         full, full_rows, full_log = run.solve(label,cfg,2,[*flags,'-stop_after',2])
         check_rcr_history(run,label,model,full_rows)
         assert error(full,ref)<2e-8, (mode,error(full,ref))
-        residuals = [dict(re.findall(r'(\w+)=([^\s]+)',line))
-                     for line in full_log.splitlines() if line.startswith('linear_residual ')]
-        assert residuals and 'linear_residual_unavailable' not in full_log
-        assert all(float(r['norm']) <= 1e-8+1e-7*float(r['rhs_norm']) for r in residuals)
+        full_checks = audit_block_linear_log(full_log,len(full_rows))
         saved = run.work/(label+'-checkpoint')
-        run.solve(label+'-start',cfg,2,[*flags,'-stop_after',1,'-checkpoint',saved])
-        resumed, resumed_rows, _ = run.solve(label+'-resumed',cfg,2,
-                                            [*flags,'-restart',saved,'-stop_after',2])
+        _, start_rows, start_log = run.solve(label+'-start',cfg,2,
+                                             [*flags,'-stop_after',1,'-checkpoint',saved])
+        start_checks = audit_block_linear_log(start_log,len(start_rows))
+        resumed, resumed_rows, resumed_log = run.solve(label+'-resumed',cfg,2,
+                                                      [*flags,'-restart',saved,'-stop_after',2])
+        resumed_checks = audit_block_linear_log(resumed_log,len(resumed_rows))
         check_rcr_history(run,label+'-resumed',model,resumed_rows,restart=1)
         assert len(resumed_rows)==1 and error(full,resumed)<2e-8
         for column in ('stage_rcr_flow','endpoint_rcr_pressure','endpoint_capacitor_pressure','stage_capacitor_rate'):
             assert abs(full_rows[-1][column]-resumed_rows[0][column])<2e-9
         report[mode] = dict(field_error=error(full,ref),restart_error=error(full,resumed),
-                           true_residual_checks=len(residuals))
+                           true_residual_checks=dict(full=full_checks,start=start_checks,
+                                                     resumed=resumed_checks))
 
     changed=copy.deepcopy(cfg)
     changed['fsi']['domains']['rcr_outlet']['compliance']*=1.2
