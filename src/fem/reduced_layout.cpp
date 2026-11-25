@@ -1,4 +1,5 @@
 #include "eonsim/reduced_layout.hpp"
+#include "eonsim/fsi_coupling_pattern.hpp"
 #include "eonsim/fsi_domains.hpp"
 #include "eonsim/boundary_geometry.hpp"
 #include <algorithm>
@@ -249,24 +250,47 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     for(auto& port:reduced.outlets) port.local=local_id(port.pressure);
     if(port_count) build_outlet_traces(comm,mesh,*domains,reduced);
     if(!build_pattern) return reduced;
-    // 单元列并集允许保守的块稀疏图；body 行的远程贡献也送到 owner。
+    // Use the same physical dependencies as COO, then project test rows and
+    // trial columns independently. Remote cell/port contributions go to owners.
     PetscOwner<Mat,MatDestroy> graph;
     EONSIM_PETSC(MatCreate(comm,graph.put()));
     EONSIM_PETSC(MatSetSizes(graph.get(),l.owned,l.owned,l.global,l.global));
     EONSIM_PETSC(MatSetType(graph.get(),MATPREALLOCATOR)); EONSIM_PETSC(MatSetUp(graph.get()));
+    // Match the COO driver's reserved diagonals, including rigid/port unknowns.
+    for(PetscInt row=l.begin;row<l.begin+l.owned;++row)
+        EONSIM_PETSC(MatSetValue(graph.get(),row,row,0,INSERT_VALUES));
+    const auto unique=[](auto& indices,PetscInt count) {
+        std::sort(indices.begin(),indices.begin()+count);
+        return static_cast<PetscInt>(std::unique(indices.begin(),indices.begin()+count)-indices.begin());
+    };
     for(const auto& cell:mesh.cells) {
-        std::array<PetscInt,Layout::dofs> dofs;
-        PetscInt count=0;
+        std::array<PetscInt,Layout::dofs> test_rows,trial_columns,rows,columns;
         const auto active=fsi_cell_components(nc,domains,cell.physical_tag);
-        for(auto n:cell.nodes) for(int c=active.first;c<active.first+active.count;++c) {
-            const auto id=reduced.global[nc*n+c];
-            if(id>=0) dofs[count++]=id;
+        const int end=active.first+active.count;
+        for(int a=0;a<Tet4Topology::nodes;++a) for(int c=active.first;c<end;++c) {
+            const auto map=reduced.slot(static_cast<std::size_t>(nc)*cell.nodes[a]+c,1.);
+            test_rows[active.index(a,c)]=map.test_row;
+            trial_columns[active.index(a,c)]=map.column;
         }
-        std::sort(dofs.begin(),dofs.begin()+count);
-        count=static_cast<PetscInt>(std::unique(dofs.begin(),dofs.begin()+count)-dofs.begin());
-        EONSIM_PETSC(MatSetValues(graph.get(),count,dofs.data(),count,dofs.data(),nullptr,INSERT_VALUES));
+        for(const auto& block:fsi_coupling_blocks) {
+            const int row_begin=std::max(active.first,block.row_first),row_end=std::min(end,block.row_first+block.row_count);
+            const int col_begin=std::max(active.first,block.column_first),col_end=std::min(end,block.column_first+block.column_count);
+            if(row_begin>=row_end||col_begin>=col_end) continue;
+            PetscInt row_count=0,column_count=0;
+            for(int a=0;a<Tet4Topology::nodes;++a) {
+                for(int c=row_begin;c<row_end;++c) {
+                    const auto id=test_rows[active.index(a,c)];
+                    if(id>=0) rows[row_count++]=id;
+                }
+                for(int c=col_begin;c<col_end;++c) {
+                    const auto id=trial_columns[active.index(a,c)];
+                    if(id>=0) columns[column_count++]=id;
+                }
+            }
+            row_count=unique(rows,row_count); column_count=unique(columns,column_count);
+            EONSIM_PETSC(MatSetValues(graph.get(),row_count,rows.data(),column_count,columns.data(),nullptr,INSERT_VALUES));
+        }
     }
-    if(body_owner) EONSIM_PETSC(MatSetValue(graph.get(),reduced.body,reduced.body,0,INSERT_VALUES));
     for(const auto& port:reduced.outlets) {
         const auto pressure=port.pressure;
         for(const auto& entry:port.flux_weights) {
@@ -275,19 +299,26 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
             EONSIM_PETSC(MatSetValue(graph.get(),velocity,pressure,0,INSERT_VALUES));
             EONSIM_PETSC(MatSetValue(graph.get(),pressure,velocity,0,INSERT_VALUES));
         }
-        for(const auto& face:port.moving_faces) for(auto node:face.nodes) {
-            const auto offset=static_cast<std::size_t>(node)*nc;
-            const auto normal=reduced.global[offset+port.normal_axis];
-            if(normal>=0) {
-                EONSIM_PETSC(MatSetValue(graph.get(),normal,pressure,0,INSERT_VALUES));
-                EONSIM_PETSC(MatSetValue(graph.get(),pressure,normal,0,INSERT_VALUES));
+        for(const auto& face:port.moving_faces) {
+            Tri3Topology::Nodal<PetscInt> velocity_rows;
+            PetscInt row_count=0;
+            for(auto node:face.nodes) {
+                const auto normal=reduced.global[static_cast<std::size_t>(node)*nc+port.normal_axis];
+                if(normal>=0) velocity_rows[row_count++]=normal;
             }
-            for(int t=1;t<=2;++t) {
-                const auto geometry=reduced.global[offset+Tet4Ale::mesh_offset+(port.normal_axis+t)%3];
-                if(geometry>=0) EONSIM_PETSC(MatSetValue(graph.get(),pressure,geometry,0,INSERT_VALUES));
+            row_count=unique(velocity_rows,row_count);
+            EONSIM_PETSC(MatSetValues(graph.get(),row_count,velocity_rows.data(),1,&pressure,nullptr,INSERT_VALUES));
+            EONSIM_PETSC(MatSetValues(graph.get(),1,&pressure,row_count,velocity_rows.data(),nullptr,INSERT_VALUES));
+            for(auto node:face.nodes) for(int t=1;t<=2;++t) {
+                const auto slot=static_cast<std::size_t>(node)*nc+Tet4Ale::mesh_offset+(port.normal_axis+t)%3;
+                const auto geometry=reduced.slot(slot,1.).column;
+                if(geometry<0) continue;
+                EONSIM_PETSC(MatSetValue(graph.get(),pressure,geometry,0,INSERT_VALUES));
+                // Current pressure traction differentiates the same face area.
+                // Its velocity-row/mesh-column support must be explicit too.
+                EONSIM_PETSC(MatSetValues(graph.get(),row_count,velocity_rows.data(),1,&geometry,nullptr,INSERT_VALUES));
             }
         }
-        if(outlet_owner) EONSIM_PETSC(MatSetValue(graph.get(),pressure,pressure,0,INSERT_VALUES));
     }
     EONSIM_PETSC(MatAssemblyBegin(graph.get(),MAT_FINAL_ASSEMBLY)); EONSIM_PETSC(MatAssemblyEnd(graph.get(),MAT_FINAL_ASSEMBLY));
     // Keep this matrix: the preallocator already knows the column locations.
@@ -296,6 +327,10 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     EONSIM_PETSC(MatCreate(comm,pattern.put())); EONSIM_PETSC(MatSetSizes(pattern.get(),l.owned,l.owned,l.global,l.global));
     EONSIM_PETSC(MatSetType(pattern.get(),MATAIJ));
     EONSIM_PETSC(MatPreallocatorPreallocate(graph.get(),PETSC_TRUE,pattern.get()));
+    // The graph above is structural and already filled. Dense local insertion
+    // may contain zeros outside it; ignore those values without growing the
+    // graph. NonlinearSystem still rejects any undeclared nonzero location.
+    EONSIM_PETSC(MatSetOption(pattern.get(),MAT_IGNORE_ZERO_ENTRIES,PETSC_TRUE));
     return reduced;
 }
 } // namespace

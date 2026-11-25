@@ -1,12 +1,22 @@
 # EONSim Codex Task Queue
 
-## FSI-ASSEMBLY-01 / validated; awaiting user review/merge / 2026-11-25
+## 2026-11-25 · FSI-PERF-02 开发中：默认精确图、残量批量更新与会话复用
+
+PR #51 已核实合入 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`；
+本轮从该提交在 `codex/fsi-performance-completion` 继续完成已识别的 CPU/MPI 性能项。
+范围为默认 AIJ 精确结构图、局部 COO 重复贡献压缩、残量固定 COO、局部核等价简化、
+有界 OpenMP 单元批次，以及 SNES/KSP/PC 与辅助缓冲的跨 solve 生命周期复用。
+固定图、动态数值、错误同步与接受后历史提交分别管理；源码先推送远端再运行针对性 Release 与配对基准。
+此领取记录尚无本轮运行结果，未声称所有硬件后端或任意规模优化已经完成。
+
+## FSI-ASSEMBLY-01 / merged as #51 / 2026-11-25
 
 Implementation and local acceptance are complete on
 `codex/fsi-assembly-performance`, from main
 `f7acccb7a8239c60a2d2be193a158ac430851dcf`.
-[PR #51](https://github.com/saitoasukakawaii/EONSim-new/pull/51) remains Draft;
-the next delivery step is user review and merge. The article remains unpublished.
+[PR #51](https://github.com/saitoasukakawaii/EONSim-new/pull/51) was delivered as Draft
+and is now verified merged at `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`.
+The article remains unpublished.
 
 Delivered ownership transfer of the final reduced AIJ, cached fixed cell maps,
 fused fluid/ALE residual and tangent evaluation, interface-adjacent force replay,

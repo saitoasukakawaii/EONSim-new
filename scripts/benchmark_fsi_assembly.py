@@ -4,6 +4,10 @@ Both binaries run the same independent fluid/solid meshes, direct solver and
 accepted time grid. One warmup pair precedes at least three alternating pairs.
 Timing is evidence, never a pass criterion. Saved fields, every accepted step,
 field acceptance and true linear residuals must agree before a pair is reported.
+Execution-only flags can follow either --baseline-options or --candidate-options
+until the next driver argument, or use --candidate-options='-fsi_threads 2'.
+Use --baseline-assembly-report with a PR51-or-newer baseline to compare startup.
+Only -fsi_threads controls element workers; dependency OpenMP/BLAS threads stay 1.
 """
 import argparse
 import csv
@@ -13,6 +17,7 @@ import math
 import os
 from pathlib import Path
 import re
+import shlex
 import signal
 import statistics
 import subprocess
@@ -30,6 +35,8 @@ TIMERS = ('setup_seconds', 'schur_setup_seconds', 'solve_seconds', 'assembly_sec
           'constraint_seconds', 'ghost_seconds', 'linear_seconds',
           'linear_diagnostic_seconds', 'finalize_seconds')
 METRICS = ('wall_seconds', *TIMERS, 'peak_rss_max_bytes', 'peak_rss_sum_bytes')
+INITIALIZATION_TIMERS = ('pattern_seconds', 'plan_seconds', 'system_seconds', 'setup_seconds')
+INITIALIZATION_METRICS = tuple('initialization_'+key for key in INITIALIZATION_TIMERS)
 FIELD_LIMIT = 2e-9
 
 
@@ -53,6 +60,50 @@ def number(row, key, minimum=None, integer=False):
             ('Invalid measurement', key, row[key]))
     require(not integer or value.is_integer(), ('Noninteger counter', key, value))
     return int(value) if integer else value
+
+
+def option_arguments(arguments):
+    """Group PETSc flags until the next driver argument; quoted groups also work."""
+    result, index = [], 0
+    while index < len(arguments):
+        argument = arguments[index]
+        index += 1
+        if argument in ('--baseline-options', '--candidate-options'):
+            values = []
+            while index < len(arguments) and not arguments[index].startswith('--'):
+                values.extend(shlex.split(arguments[index]))
+                index += 1
+            result.append(argument+'='+shlex.join(values))
+        else:
+            result.append(argument)
+    return result
+
+
+def execution_options(options):
+    """Accept execution changes only; physics and solver inputs stay fixed."""
+    settings = dict(fsi_coo=False, fsi_threads=1, fsi_residual_coo=None, nonlinear_reuse=None)
+    booleans = {'-fsi_coo', '-fsi_residual_coo', '-nonlinear_reuse'}
+    seen, index = set(), 0
+    while index < len(options):
+        option = options[index]
+        index += 1
+        if option not in booleans | {'-fsi_threads'} or option in seen:
+            raise ValueError('Unsupported or duplicated execution option: '+option)
+        seen.add(option)
+        if option == '-fsi_threads':
+            if index == len(options) or not re.fullmatch(r'[1-9][0-9]*', options[index]):
+                raise ValueError('-fsi_threads requires an integer between 1 and 256')
+            value = int(options[index])
+            index += 1
+            if value > 256:
+                raise ValueError('-fsi_threads requires an integer between 1 and 256')
+        else:
+            value = True
+            if index < len(options) and options[index] in ('true', 'false'):
+                value = options[index] == 'true'
+                index += 1
+        settings[option[1:]] = value
+    return settings
 
 
 def parse_log(text, count, ranks, dt):
@@ -112,7 +163,7 @@ def parse_log(text, count, ranks, dt):
         worst = max(worst, norm / target)
     return dict(steps=reports, accepted=accepted, fields=fields,
                 linear_corrections=len(corrections), max_linear_residual_ratio=worst,
-                plan=records(text, 'fsi_assembly_plan '))
+                plan=records(text, 'fsi_assembly_plan '), execution_plan=records(text, 'fsi_execution_plan '))
 
 
 def check_plan(plans, coo, cells):
@@ -131,6 +182,47 @@ def check_plan(plans, coo, cells):
     total = number(plan, 'setup_seconds', 0)
     require(max(times) <= total*1.0001+1e-9 and total <= sum(times)*1.0001+1e-9,
             'Inconsistent maximum-rank setup timers')
+
+
+def check_execution(row, settings, reported):
+    plans = row['execution_plan']
+    if plans:
+        require(reported and len(plans) == 1, 'Unexpected or duplicated execution plan')
+        plan = plans[0]
+        require(number(plan, 'threads_requested', 1, True) == settings['fsi_threads'],
+                'Requested kernel thread count was not used')
+        residual_coo = number(plan, 'residual_coo', 0, True)
+        require(residual_coo in (0, 1) and (settings['fsi_residual_coo'] is None or
+                residual_coo == int(settings['fsi_residual_coo'])), 'Wrong residual assembly backend')
+        size, largest = (number(plan, key, 0, True) for key in
+                         ('residual_value_bytes', 'residual_value_bytes_max'))
+        require((0 < largest <= size) if residual_coo else size == largest == 0,
+                'Invalid residual COO storage report')
+        batch = number(plan, 'batch_cells', 1, True)
+        require(batch > 1 if settings['fsi_threads'] > 1 else batch == 1, 'Wrong kernel batch mode')
+    elif reported:
+        # PR51 can report its assembly plan but predates execution-plan fields.
+        require(settings['fsi_threads'] == 1 and settings['fsi_residual_coo'] is None,
+                'Requested execution mode has no runtime evidence')
+    if any('solver_reused' in step or 'solver_generation' in step for step in row['steps']):
+        expected = settings['nonlinear_reuse']
+        previous = 0
+        for step in row['steps']:
+            reused = number(step, 'solver_reused', 0, True)
+            generation = number(step, 'solver_generation', 1, True)
+            require(reused in (0, 1), 'Invalid nonlinear session report')
+            if previous == 0:
+                require(reused == 0 and generation == 1, 'First solve did not construct a fresh session')
+            else:
+                if expected is None:
+                    expected = bool(reused)
+                require(reused == int(expected) and generation == previous+(not expected),
+                        'Nonlinear session lifetime changed during an unchanged trajectory')
+            previous = generation
+        row['nonlinear_reuse_observed'] = expected
+    else:
+        require(settings['nonlinear_reuse'] is None, 'Requested nonlinear reuse mode has no runtime evidence')
+        row['nonlinear_reuse_observed'] = None
 
 
 def physical_fields(path, ranks):
@@ -237,9 +329,17 @@ def main():
     parser.add_argument('--steps', type=int, default=5)
     parser.add_argument('--repeats', type=int, default=3)
     parser.add_argument('--petsc-log', action='store_true', help='Equal event logging overhead in both modes')
-    parser.add_argument('--candidate-options', nargs=argparse.REMAINDER, default=[],
-                        help='Final argument; optional assembly flags such as -fsi_coo')
-    args = parser.parse_args()
+    parser.add_argument('--baseline-assembly-report', action='store_true',
+                        help='Report baseline initialization too; requires a PR51-or-newer baseline')
+    for mode in ('baseline', 'candidate'):
+        parser.add_argument('--'+mode+'-options', type=shlex.split, default=[], metavar='FLAGS',
+                            help='Execution flags: -fsi_coo, -fsi_residual_coo, -fsi_threads, -nonlinear_reuse')
+    try:
+        args = parser.parse_args(option_arguments(sys.argv[1:]))
+        options = {mode: getattr(args, mode+'_options') for mode in ('baseline', 'candidate')}
+        settings = {mode: execution_options(value) for mode, value in options.items()}
+    except ValueError as exc:
+        parser.error(str(exc))
     if args.repeats < 3 or args.steps < 2:
         parser.error('Use at least three pairs and two accepted steps')
     if args.ranks != sorted(set(args.ranks)) or any(x not in (1, 2, 4) for x in args.ranks):
@@ -249,20 +349,29 @@ def main():
     if not all(re.fullmatch('[0-9a-f]{40}', value) for value in
                (args.baseline_commit, args.candidate_commit)):
         parser.error('Provide complete 40-character build source SHAs')
-    # This driver compares assembly representations, with fixed physical/solver inputs.
-    if args.candidate_options not in ([], ['-fsi_coo'], ['-fsi_coo', 'true'], ['-fsi_coo', 'false']):
-        parser.error('candidate-options currently supports only -fsi_coo [true|false]')
+    if ((settings['baseline']['fsi_threads'] != 1 or settings['baseline']['fsi_residual_coo'] is not None)
+            and not args.baseline_assembly_report):
+        parser.error('Baseline thread/residual options require --baseline-assembly-report for execution evidence')
     binaries = dict(baseline=args.baseline.resolve(), candidate=args.candidate.resolve())
     require(all(path.is_file() for path in binaries.values()), 'Executable not found')
     work = args.work.resolve()
     work.mkdir(parents=True, exist_ok=False)
-    env = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
+    env = dict(os.environ, OMP_NUM_THREADS='1', OMP_DYNAMIC='FALSE', OMP_PROC_BIND='FALSE',
+               OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
+    binding = ['--bind-to', 'none'] if any(value['fsi_threads'] > 1 for value in settings.values()) else []
+    comparison_metrics = (*METRICS, *INITIALIZATION_METRICS) if args.baseline_assembly_report else METRICS
     result = dict(status='running', source_commit=subprocess.check_output(
         ['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
         source_status=subprocess.check_output(['git', 'status', '--short'], cwd=ROOT, text=True),
-        source_script_sha256=digest(__file__), threads_per_rank=1, candidate_options=args.candidate_options,
+        source_script_sha256=digest(__file__),
+        element_threads_per_rank={mode: value['fsi_threads'] for mode, value in settings.items()},
+        library_threads_per_rank=1,
+        baseline_options=args.baseline_options, candidate_options=args.candidate_options,
+        execution_options=settings, mpi_binding_options=binding,
+        baseline_assembly_reporting=args.baseline_assembly_report,
         field_absolute_limit=FIELD_LIMIT, linear_gate='1e-12 + 1e-10 * rhs_norm',
-        timer_scope='Per-step maximum-rank timers may overlap; wall includes startup, output and shutdown.',
+        timer_scope='Per-step maximum-rank timers may overlap; wall includes startup, output and shutdown. '
+                    'initialization_* are once-per-run maximum-rank timers, separate from per-step solver setup.',
         wall_clock='Blocking child wait with an independent timeout watchdog; no timeout polling in the measured wait.',
         petsc_event_logging=args.petsc_log, binaries={}, commands=[], cases=[], runs=[], pairs=[])
     for mode, path in binaries.items():
@@ -278,9 +387,10 @@ def main():
     def save():
         (work/'results.json').write_text(json.dumps(result, indent=2, allow_nan=False)+'\n')
 
-    def run(command, label, timeout=600):
+    def run(command, label, timeout=600, threads=1):
         command = list(map(str, command))
-        record = dict(command=command, log=label+'.log', returncode=None, timeout=False)
+        record = dict(command=command, log=label+'.log', returncode=None, timeout=False,
+                      element_threads_per_rank=threads)
         result['commands'].append(record)
         begin = time.perf_counter()
         with (work/record['log']).open('w') as stream:
@@ -365,21 +475,27 @@ def main():
                     for mode in (('baseline', 'candidate') if repeat % 2 else ('candidate', 'baseline')):
                         label = group+f'-sample{repeat}-{mode}'
                         output = work/(label+'.vtu')
-                        command = [args.mpiexec, '-n', ranks, binaries[mode], '-case', case,
+                        command = [args.mpiexec, *binding, '-n', ranks, binaries[mode], '-case', case,
                                    '-partition', partition, '-output', output, '-solver_report', '-linear_report',
                                    '-ksp_type', 'preonly', '-pc_type', 'lu', '-pc_factor_mat_solver_type', 'superlu_dist']
                         if args.petsc_log:
                             command += ['-log_view', ':'+str(work/(label+'-petsc.log'))]
-                        if mode == 'candidate':
-                            command += ['-fsi_assembly_report', *args.candidate_options]
-                        elapsed, text = run(command, label)
+                        reported = mode == 'candidate' or args.baseline_assembly_report
+                        if reported:
+                            command.append('-fsi_assembly_report')
+                        command.extend(options[mode])
+                        threads = settings[mode]['fsi_threads']
+                        elapsed, text = run(command, label, threads=threads)
                         row = dict(subdivisions=n, ranks=ranks, repeat=repeat, mode=mode,
+                                   element_threads_per_rank=threads, execution_options=options[mode],
                                    wall_seconds=elapsed, log=label+'.log', **parse_log(text, args.steps, ranks, dt))
-                        if mode == 'candidate':
-                            coo = bool(args.candidate_options) and args.candidate_options != ['-fsi_coo', 'false']
-                            check_plan(row['plan'], coo, 12*n**3+3)
+                        if reported:
+                            check_plan(row['plan'], settings[mode]['fsi_coo'], 12*n**3+3)
+                            for key in INITIALIZATION_TIMERS:
+                                row['initialization_'+key] = number(row['plan'][0], key, 0)
                         else:
                             require(not row['plan'], 'Baseline unexpectedly enabled assembly setup reporting')
+                        check_execution(row, settings[mode], reported)
                         saved = [physical_fields(output.with_stem(output.stem+f'_step{step}'), ranks)
                                  for step in range(1, args.steps+1)]
                         final = physical_fields(output, ranks)
@@ -405,7 +521,7 @@ def main():
                     if repeat >= 0:
                         result['pairs'].append(dict(subdivisions=n, ranks=ranks, repeat=repeat,
                             relative_change={key: pair['candidate'][key]/pair['baseline'][key]-1
-                                             for key in METRICS if pair['baseline'][key] > 0}))
+                                             for key in comparison_metrics if pair['baseline'][key] > 0}))
                     print(group, repeat, 'validated fields, accepted steps and linear residuals', flush=True)
                     save()
         result['summary'] = []
@@ -415,7 +531,7 @@ def main():
                 pairs = [p for p in result['pairs'] if p['subdivisions'] == n and p['ranks'] == ranks]
                 paired_metrics = set.intersection(*(set(p['relative_change']) for p in pairs))
                 result['summary'].append(dict(subdivisions=n, ranks=ranks,
-                    modes={mode: {key: stats([r[key] for r in runs if r['mode'] == mode]) for key in METRICS}
+                    modes={mode: {key: stats([r[key] for r in runs if r['mode'] == mode]) for key in comparison_metrics}
                            for mode in binaries},
                     paired_relative_change={key: stats([p['relative_change'][key] for p in pairs])
                                             for key in sorted(paired_metrics)}))

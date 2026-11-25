@@ -1,11 +1,21 @@
 # EONSim Codex Development Progress
 
-## 2026-11-25 · FSI-ASSEMBLY-01 实现与验证完成，待用户 review/merge
+## 2026-11-25 · FSI-PERF-02 开发中：默认精确图、残量批量更新与会话复用
+
+PR #51 已核实合入 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`；
+本轮从该提交在 `codex/fsi-performance-completion` 继续完成已识别的 CPU/MPI 性能项。
+范围为默认 AIJ 精确结构图、局部 COO 重复贡献压缩、残量固定 COO、局部核等价简化、
+有界 OpenMP 单元批次，以及 SNES/KSP/PC 与辅助缓冲的跨 solve 生命周期复用。
+固定图、动态数值、错误同步与接受后历史提交分别管理；源码先推送远端再运行针对性 Release 与配对基准。
+此领取记录尚无本轮运行结果，未声称所有硬件后端或任意规模优化已经完成。
+
+## 2026-11-25 · FSI-ASSEMBLY-01 已合并 PR #51
 
 从 main `f7acccb7a8239c60a2d2be193a158ac430851dcf` 开发，分支
-`codex/fsi-assembly-performance`，交付 [Draft PR #51](https://github.com/saitoasukakawaii/EONSim-new/pull/51)。
+`codex/fsi-assembly-performance`，交付 [PR #51](https://github.com/saitoasukakawaii/EONSim-new/pull/51)。
 生产实现及候选二进制为 `df6e9ac63f8b2d47c05b98ac3839c07c28e40a2e`；
-最终性能驱动为 `b2ccd96419091c669b8dceae4369c5b255f47f57`。两次均先推送再运行，合并留待用户审核。
+最终性能驱动为 `b2ccd96419091c669b8dceae4369c5b255f47f57`。两次均先推送再运行；
+该轮交付时为 Draft，现已核实合入 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`。
 
 最终预分配 AIJ 直接转移所有权，固定单元行列及 trace 映射缓存，融合残量与 AD 切线，
 界面力重放限制到实际相邻单元；新增显式 `-fsi_coo` 压缩贡献计划，覆盖刚体和 RCR。

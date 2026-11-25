@@ -12,6 +12,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 option(BUILD_TESTING "Build numerical and distributed verification" OFF)
 option(EONSIM_VERIFY_LOCKED_RUNTIME "Verify the cloud lock's OpenMPI/int32 ABI" OFF)
+option(EONSIM_ENABLE_OPENMP "Enable optional threaded FSI element batches when available" ON)
+if(EONSIM_ENABLE_OPENMP)
+    find_package(OpenMP QUIET COMPONENTS CXX)
+endif()
 option(MHPC_BUILD_DOCS "Enable the optional Doxygen target" OFF)
 if(MHPC_BUILD_DOCS)
     find_package(Doxygen REQUIRED COMPONENTS doxygen)
@@ -81,6 +85,10 @@ target_link_libraries(eonsim_core
     PUBLIC eonsim_build_options PETSc::PETSc MPI::MPI_CXX
     PRIVATE EONSimBLAS::BLASLAPACK yaml-cpp::yaml-cpp EONSimPartitionDeps
 )
+
+if(EONSIM_ENABLE_OPENMP AND OpenMP_CXX_FOUND)
+    target_link_libraries(eonsim_core PRIVATE OpenMP::OpenMP_CXX)
+endif()
 
 add_executable(eonsim src/main.cpp)
 target_link_libraries(eonsim PRIVATE eonsim_core)
@@ -330,11 +338,17 @@ if(BUILD_TESTING)
         --work "${CMAKE_CURRENT_BINARY_DIR}/fluid_coo_verification")
     set_tests_properties(fluid_coo_verification PROPERTIES TIMEOUT 300 PROCESSORS 4
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    set(EONSIM_FSI_TEST_THREADS 1)
+    set(EONSIM_FSI_TEST_PROCESSORS 2)
+    if(EONSIM_ENABLE_OPENMP AND OpenMP_CXX_FOUND)
+        set(EONSIM_FSI_TEST_THREADS 2)
+        set(EONSIM_FSI_TEST_PROCESSORS 4)
+    endif()
     add_test(NAME fsi_coo_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_coo.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
-        --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_coo_verification")
-    set_tests_properties(fsi_coo_verification PROPERTIES TIMEOUT 600 PROCESSORS 2 LABELS "rank-1;rank-2"
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_coo_verification" --threads "${EONSIM_FSI_TEST_THREADS}")
+    set_tests_properties(fsi_coo_verification PROPERTIES TIMEOUT 600 PROCESSORS ${EONSIM_FSI_TEST_PROCESSORS} LABELS "rank-1;rank-2"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME profile_log_validation
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_profile_validation.py")

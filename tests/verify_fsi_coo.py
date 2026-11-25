@@ -1,4 +1,4 @@
-"""FSI COO parity: owned fields, changing trace weights, ports, restart and cutback."""
+"""FSI execution parity: sparse assembly, threads, solver reuse and accepted state."""
 import argparse
 import copy
 import csv
@@ -24,8 +24,9 @@ def require(condition, message):
 
 
 def records(text, marker):
+    prefix = marker if marker.endswith('=') else marker + ' '
     return [dict(re.findall(r'(\w+)=([^\s]+)', line)) for line in text.splitlines()
-            if line.startswith(marker + ' ')]
+            if line.startswith(prefix)]
 
 
 def owned_fields(path, ranks, elastic):
@@ -95,13 +96,59 @@ def compare_histories(expected, actual):
     return maximum
 
 
+def solver_trajectory(text):
+    reports, steps = records(text, 'solver_report'), records(text, 'fsi_step=')
+    require(reports and len(reports) == len(steps), 'Incomplete accepted solver trajectory')
+    return [(int(step['snes_iterations']), int(report['linear_iterations']))
+            for report, step in zip(reports, steps)]
+
+
+def matrix_trajectory(text):
+    result = []
+    for report in records(text, 'solver_report'):
+        values = [float(report[key]) for key in ('dofs', 'nnz')]
+        require(all(math.isfinite(value) and value > 0 and value.is_integer() for value in values),
+                'Invalid matrix size report')
+        result.append(tuple(map(int, values)))
+    return result
+
+
+def check_reuse(text, reference):
+    """Retries invalidate a session; successful unchanged solves must retain it."""
+    result, previous, rejected = [], 0, False
+    for line in text.splitlines():
+        if line.startswith('step_retry='):
+            rejected = True
+        if not line.startswith('solver_report '):
+            continue
+        report = dict(re.findall(r'(\w+)=([^\s]+)', line))
+        reused, generation = int(report['solver_reused']), int(report['solver_generation'])
+        require(reused in (0, 1) and generation > 0, 'Invalid nonlinear session record')
+        if reference or previous == 0 or rejected:
+            require(reused == 0 and generation > previous,
+                    'A fresh or failed nonlinear session was unexpectedly reused')
+            if not rejected:
+                require(generation == previous+1, 'Unexpected nonlinear session reconstruction')
+        else:
+            require(reused == 1 and generation == previous,
+                    'A successful unchanged nonlinear session was reconstructed')
+        result.append(dict(reused=reused, generation=generation))
+        previous, rejected = generation, False
+    return result
+
+
 class AssemblyRunner(Runner):
     """Use the existing command/log lifecycle for both rigid and elastic FSI."""
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, threads=1, **kwargs):
         super().__init__(*args, **kwargs)
+        self.threads = threads
         self.evidence = []
 
-    def solve(self, label, cfg, ranks=1, coo=False, extra=(), fail=None):
+    def solve(self, label, cfg, ranks=1, coo=False, extra=(), fail=None, reference=None):
+        # The ordinary AIJ comparison isolates all new execution mechanisms.
+        # reference=False also permits a threaded AIJ matrix with default Vec COO.
+        reference = not coo if reference is None else reference
+        threads = 1 if reference else self.threads
         cfg = copy.deepcopy(cfg)
         output = self.work/(label+'.vtu')
         cfg['output'] = str(output)
@@ -110,19 +157,19 @@ class AssemblyRunner(Runner):
         part = self.work/f'part-{ranks}'
         if not part.exists():
             self.command([self.exe, '-case', case, '-prepare', part, '-parts', ranks], label+'-prepare')
-        command = [self.mpi, '-n', ranks, self.exe, '-case', case, '-partition', part,
+        binding = ['--bind-to', 'none'] if self.threads > 1 else []
+        command = [self.mpi, *binding, '-n', ranks, self.exe, '-case', case, '-partition', part,
                    '-fsi_assembly_report', '-solver_report']
         if coo:
             command.append('-fsi_coo')
+        command.extend(['-fsi_threads', threads])
+        if reference:
+            command.extend(['-fsi_residual_coo', 'false', '-nonlinear_reuse', 'false'])
         command.extend(extra)
         text = self.command(command, label, fail)
-        self.evidence.append(dict(label=label, ranks=ranks, coo=coo, command=list(map(str, command)),
-                                  expected_failure=fail, log=label+'.log'))
-        if fail:
-            require('status=success' not in text and not output.exists()
-                    and not list(self.work.glob(label+'_rank*.vtu')), 'Failed solve published physical output')
-            return {}, [], text
-        require(text.count('status=success') == 1, 'Missing or duplicate success marker')
+        evidence = dict(label=label, ranks=ranks, coo=coo, element_threads_per_rank=threads, reference=reference,
+                        command=list(map(str, command)), expected_failure=fail, log=label+'.log')
+        self.evidence.append(evidence)
         plans = records(text, 'fsi_assembly_plan')
         require(len(plans) == 1, 'The fixed assembly plan must be reported once on rank zero')
         plan = plans[0]
@@ -134,11 +181,30 @@ class AssemblyRunner(Runner):
                 'Invalid COO value buffer report')
         timers = [float(v) for k, v in plan.items() if k.endswith('_seconds')]
         require(timers and all(math.isfinite(v) and v >= 0 for v in timers), 'Invalid assembly setup timing')
+        executions = records(text, 'fsi_execution_plan')
+        require(len(executions) == 1, 'Missing or duplicated execution plan')
+        execution = executions[0]
+        require(int(execution['threads_requested']) == threads and
+                int(execution['residual_coo']) == int(not reference), 'Requested execution path was not used')
+        size, largest = (int(execution[key]) for key in ('residual_value_bytes', 'residual_value_bytes_max'))
+        require((0 < largest <= size) if not reference else size == largest == 0,
+                'Invalid residual COO buffer report')
+        require(int(execution['batch_cells']) > 1 if threads > 1 else int(execution['batch_cells']) == 1,
+                'Unexpected local kernel batch mode')
+        evidence['execution_plan'] = execution
+        evidence['solver_sessions'] = check_reuse(text, reference)
+        if fail:
+            require('status=success' not in text and not output.exists()
+                    and not list(self.work.glob(label+'_rank*.vtu')), 'Failed solve published physical output')
+            return {}, [], text
+        require(text.count('status=success') == 1, 'Missing or duplicate success marker')
         reports = records(text, 'solver_report')
         steps = text.count('fsi_step=')
         require(steps > 0 and len(reports) >= steps, 'Missing successful nonlinear solve reports')
         require(all(int(r['snes_reason']) > 0 and int(r['ksp_reason']) > 0 for r in reports),
                 'Unconverged solve reported as successful')
+        evidence['iteration_trajectory'] = solver_trajectory(text)
+        evidence['matrix_trajectory'] = matrix_trajectory(text)
         history = self.work/(label+'.csv')
         if '-restart' in extra:
             prefix = label+'_restart'
@@ -157,28 +223,44 @@ class AssemblyRunner(Runner):
         return owned_fields(output, ranks, elastic), rows, text
 
 
-def parity(run, cfg, label, ranks=(1, 2), jacobian=False):
+def parity(run, cfg, label, ranks=(1, 2), jacobian=False, threaded=True):
     observations, diagnostics = {}, []
     reference = None
     for count in ranks:
         pair = []
         for coo in (False, True):
             name = f'{label}-r{count}-'+('coo' if coo else 'values')
-            extra = ['-snes_test_jacobian'] if jacobian and coo and count == 2 else []
+            extra = ['-snes_test_jacobian'] if jacobian and count == 2 else []
             fields, rows, text = run.solve(name, cfg, count, coo, extra)
-            pair.append((fields, rows))
+            iterations, matrices = solver_trajectory(text), matrix_trajectory(text)
+            pair.append((fields, rows, iterations, matrices))
             observations[count, coo] = (fields, rows, name)
             if reference is None:
-                reference = fields, rows
+                reference = fields, rows, iterations
+            require(iterations == reference[2],
+                    f'{name}: Newton/Krylov trajectory changed: {iterations} versus {reference[2]}')
             diagnostics.append(dict(label=name, field_difference=compare_fields(reference[0], fields),
                                     history_difference=compare_histories(reference[1], rows),
-                                    linear_iterations=[int(r['linear_iterations']) for r in records(text, 'solver_report')]))
+                                    iteration_trajectory=iterations, matrix_trajectory=matrices,
+                                    solver_sessions=check_reuse(text, not coo)))
             if extra:
                 ratios = list(map(float, re.findall(r'\|\|J - Jfd\|\|_F/\|\|J\|\|_F\s*=\s*([\deE.+-]+)', text)))
                 require(ratios and all(math.isfinite(v) for v in ratios) and max(ratios) < 1e-6,
                         'Full reduced FSI Jacobian differs from independent global finite differences')
                 diagnostics[-1]['jacobian_relative_difference'] = max(ratios)
         compare_fields(pair[0][0], pair[1][0])
+        require(pair[0][3] == pair[1][3],
+                f'{label} r{count}: default AIJ and COO matrix sizes differ: {pair[0][3]} versus {pair[1][3]}')
+        if threaded and run.threads > 1 and count == 2:
+            name = f'{label}-r{count}-threaded-values'
+            fields, rows, text = run.solve(name, cfg, count, reference=False)
+            iterations, matrices = solver_trajectory(text), matrix_trajectory(text)
+            require(iterations == pair[0][2] and matrices == pair[0][3],
+                    'Threaded AIJ changed solver iterations or matrix size')
+            diagnostics.append(dict(label=name, field_difference=compare_fields(pair[0][0], fields),
+                                    history_difference=compare_histories(pair[0][1], rows),
+                                    iteration_trajectory=iterations, matrix_trajectory=matrices,
+                                    solver_sessions=check_reuse(text, False)))
     return observations, diagnostics
 
 
@@ -187,7 +269,10 @@ def main():
     parser.add_argument('--executable', required=True)
     parser.add_argument('--mpiexec', required=True)
     parser.add_argument('--work', type=Path, required=True)
+    parser.add_argument('--threads', type=int, default=1, help='Element threads per rank for optimized execution paths')
     args = parser.parse_args()
+    if not 1 <= args.threads <= 256:
+        parser.error('threads must be between 1 and 256')
     work = args.work.resolve()
     work.mkdir(parents=True, exist_ok=True)
     runners, report = [], {}
@@ -205,7 +290,7 @@ def main():
         cfg['fsi'].update(dt=.01, steps=3, output_interval=1, stabilization_tau=.05)
         cfg['time'] = dict(scheme='generalized_alpha', rho_infinity=.5)
         cfg['time_control'] = dict(step_sizes=[.008, .012, .01])
-        run = AssemblyRunner(args.executable, args.mpiexec, directory)
+        run = AssemblyRunner(args.executable, args.mpiexec, directory, threads=args.threads)
         runners.append(run)
         observations, report[body] = parity(run, cfg, body)
         if body == 'rigid':
@@ -219,7 +304,8 @@ def main():
     cfg['fsi'].update(steps=3, output_interval=1)
     cfg['time'] = dict(scheme='generalized_alpha', rho_infinity=.5)
     cfg['time_control'] = dict(step_sizes=[.015, .013, .017])
-    run = AssemblyRunner(args.executable, args.mpiexec, directory, interface_area=geometry['interface_area'])
+    run = AssemblyRunner(args.executable, args.mpiexec, directory, threads=args.threads,
+                         interface_area=geometry['interface_area'])
     runners.append(run)
     observations, report['moving-port'] = parity(run, cfg, 'moving', jacobian=True)
     model = cfg['fsi']['domains']['rcr_outlet']
@@ -237,10 +323,14 @@ def main():
         label = 'restart-from-'+('coo' if source_coo else 'values')
         checkpoint = directory/(label+'-checkpoint')
         run.solve(label+'-seed', cfg, 2, source_coo, ['-checkpoint', checkpoint, '-stop_after', 1])
-        fields, tail, _ = run.solve(label, cfg, 2, not source_coo, ['-restart', checkpoint])
-        reference, rows, _ = observations[2, False]
+        fields, tail, text = run.solve(label, cfg, 2, not source_coo, ['-restart', checkpoint])
+        reference, rows, reference_name = observations[2, False]
+        iterations = solver_trajectory(text)
+        require(iterations == solver_trajectory((directory/(reference_name+'.log')).read_text())[1:],
+                'Cross-backend restart changed Newton/Krylov iterations')
         report['restart'].append(dict(source_coo=source_coo, field_difference=compare_fields(reference, fields),
-                                     history_difference=compare_histories(rows[1:], tail)))
+                                     history_difference=compare_histories(rows[1:], tail),
+                                     iteration_trajectory=iterations))
         check_rcr_history(run, label, model, tail, restart=1)
 
     # Keep the same geometry but restore the fixed-port constraints and coupling path.
@@ -249,7 +339,7 @@ def main():
     del domains['rcr_outlet']['moving_plane_axis']
     for key, tag in [('mesh_constraints', model['tag']), ('solid_constraints', 12)]:
         next(c for c in domains[key] if c['tag'] == tag)['components'] = [0, 1, 2]
-    fixed_observations, report['fixed-port'] = parity(run, fixed, 'fixed', ranks=(2,))
+    fixed_observations, report['fixed-port'] = parity(run, fixed, 'fixed', ranks=(2,), threaded=False)
     for fields, rows, name in fixed_observations.values():
         check_rcr_history(run, name, domains['rcr_outlet'], rows)
 
@@ -268,10 +358,13 @@ def main():
     verify_volume_rates(seed[-1]['endpoint_volume'], rows)
     check_rcr_history(run, 'retry-coo', model, rows, restart=2)
     retried['time_control']['step_sizes'] = [.004, .004, rows[0]['accepted_dt']]
-    replay, trajectory, _ = run.solve('retry-values-replay', retried, 2, False, ['-stop_after', 3])
+    replay, trajectory, replay_text = run.solve('retry-values-replay', retried, 2, False, ['-stop_after', 3])
+    require(solver_trajectory(text) == solver_trajectory(replay_text)[-1:],
+            'Recovered retry changed Newton/Krylov iterations relative to accepted-grid replay')
     report['retry'] = dict(retries=text.count('step_retry='), accepted_dt=rows[0]['accepted_dt'],
                            field_difference=compare_fields(replay, fields),
-                           history_difference=compare_histories(trajectory[-1:], rows))
+                           history_difference=compare_histories(trajectory[-1:], rows),
+                           iteration_trajectory=solver_trajectory(text))
 
     # A failed solve cannot publish a partial field or replace its accepted checkpoint.
     digest = lambda: {str(p.relative_to(checkpoint)): hashlib.sha256(p.read_bytes()).hexdigest()
@@ -285,13 +378,16 @@ def main():
               ['-restart', checkpoint, '-checkpoint', checkpoint, '-snes_max_it', 0], fail='retries exhausted')
     require(before and digest() == before, 'Failed COO solve changed the accepted checkpoint')
 
-    run.command([run.exe, '-case', ROOT/'cases/fluid/stokes.yaml', '-fsi_coo'],
-                'unsupported-fluid', fail='require the monolithic FSI problem')
+    for option in (['-fsi_coo'], ['-fsi_threads', 1], ['-fsi_residual_coo', 'false']):
+        run.command([run.exe, '-case', ROOT/'cases/fluid/stokes.yaml', *option],
+                    'unsupported-fluid-'+option[0][1:], fail='require the monolithic FSI problem')
 
+    report['element_threads_per_rank'] = args.threads
     report['commands'] = [entry for runner in runners for entry in runner.evidence]
     report['executable_sha256'] = hashlib.sha256(Path(args.executable).read_bytes()).hexdigest()
     (work/'results.json').write_text(json.dumps(report, indent=2, allow_nan=False)+'\n')
-    print(f'PASS: FSI COO owned fields, MPI, ports, Jacobian, restart and cutback; {len(report["commands"])} solves')
+    print(f'PASS: FSI sparse assembly, {args.threads} threads, solver reuse, MPI, ports, Jacobian, restart and cutback; '
+          f'{len(report["commands"])} solves')
 
 
 if __name__ == '__main__':

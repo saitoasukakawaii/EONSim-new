@@ -26,7 +26,8 @@ struct FsiElementResult {
     Tet4Ale::State<double> residual{};
     Tet4Ale::Matrix<double> tangent{};
 };
-/// 一次当前几何与前向链式求值同时返回残量和完整切线；残量单独求值仍使用上面的轻量路径。
+/// 一次当前几何求值返回完整残量/切线：流体保留28方向链式导数，参考网格和压力面积块直接解析计算。
+/// 无共享可写状态，可对不同单元并行求值；调用方独占各返回结果，材料/历史输入在求值期间只读。
 FsiElementResult fsi_element(const FsiElementData& data,const Tet4Ale::State<double>& state);
 /// 解析体积/梯度导数与固定宽度前向链式传播；包含几何、网格速度和压力面积。
 Tet4Ale::Matrix<double> fsi_element_tangent(const FsiElementData& data,const Tet4Ale::State<double>& state);

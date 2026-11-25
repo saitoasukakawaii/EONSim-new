@@ -78,44 +78,115 @@ COO collective。驱动在每次 Jacobian 评价前清零整个缓冲；所有 r
 和[批量数值更新](https://petsc.org/release/manualpages/Mat/MatSetValuesCOO/)，不新增另一套 MPI
 贡献累加逻辑。数值/恢复验收及实测范围见 [HPC-02](../research/FLUID_COO_ASSEMBLY_2026-10-30.md)。
 
-### FSI 固定装配计划与可选 COO
+### FSI 固定图、贡献计划与数值更新
 
-FSI 的默认矩阵由 reduced layout 的 PREALLOCATOR 直接填入最终 AIJ，并将所有权转给
-`NonlinearSystem`；不再从完整图反查逐行容量后重建矩阵。完整图使用
-`MAT_NEW_NONZERO_LOCATION_ERR` 检查未声明的位置，普通计数预分配仍使用 allocation 检查。
-`FsiAssemblyPlan` 缓存本地单元的活动分量、测试行、试探列和界面 mesh trace 掩码。
-拓扑、分区和约束支撑固定时计划有效；当前 ALE 坐标变化不要求重建图。
-每次时间步尝试使用新的 `mesh_dt`，不会缓存 generalized-alpha/BDF2 或缩步后的旧链系数。
+默认 AIJ 与显式 `-fsi_coo` 共用
+[`fsi_coupling_pattern.hpp`](../../include/eonsim/fsi_coupling_pattern.hpp) 的物理依赖：
+流体测试行依赖流体与 ALE 列，参考网格 Laplace 的每个分量只依赖同一网格分量，
+结构测试行依赖结构速度。掩码先作用于物理局部槽，再分别使用 test-row 与 trial-column
+映射；接口 mesh 的测试行丢弃，试探列仍通过结构速度或刚体速度的别名参与耦合。
+分量约束只删除相应映射，不能把行列合成同一个有效编号集合。
 
-`-fsi_coo` 显式选择同一系统的固定 COO 更新，并跳过默认 PREALLOCATOR 图构造。
-坐标序列只保留有效测试行/试探列及当前方程的结构依赖：流体行依赖流体与 ALE，
-参考网格 Laplace 每分量只依赖同一网格分量，结构行依赖结构速度。
-该掩码作用于物理局部槽，之后映射到 reduced 编号；重复界面别名保留并由 PETSc 求和。
-绝不根据某一状态下的数值零删项。刚体对角、固定和移动 RCR 面的全部压力/速度/几何项
-纳入同一坐标顺序；其数值使用本次 trial 几何和时间系数。端口索引与数值共用枚举函数。
+| 未约束 Tet4 的物理依赖槽 | 支持规模 | 完整局部矩阵槽数 |
+|---|---:|---:|
+| 流体与 ALE | `16*28 + 3*4*4 = 496` | 784 |
+| 固体 | `12*12 = 144` | 144 |
+| 同一单元评价流体与结构的旧弹性模式 | `496 + 144 = 640` | 1600 |
 
-残量继续采用现有 Vec 插入与错误同步。COO 缓冲在全部 rank 的回调成功后才由驱动
-collective 更新；域错误、缩步和 checkpoint 语义沿用现有路径。装配模式不是物理状态，
-可在同分区 checkpoint 恢复时切换。默认仍是 MatSetValues，COO 额外存储按单元贡献数
-增长，不能用其代替最终唯一 nnz；不宣称对所有网格或预条件器更快。
+这些是物理依赖槽数，约束、接口别名和相邻单元合并后才得到代数图。绝不根据某个
+Newton 状态的数值零删图。所有 owned 对角项、固定 RCR 的速度与压力耦合、移动 RCR 的
+压力/速度行对面内几何列的导数均保留；刚体行列通过同一接口映射和其自身对角项进入图。
+两种矩阵路径具有相同的唯一坐标集合，不能把贡献条数当成最终唯一 `nnz`。
 
-解析 FSI 单元在请求切线时由一次 Dual 评价同时输出 primal 残量和 Jacobian。
-`FSIFluidAleJac` 因此包含融合残量，`FSIFluidRes` 只包含独立残量评价；FD 参考路径仍单独求值。
-`FSIInsert` 在 COO 下包含 Vec 插入和局部数值缓冲写入，不含后续 COO collective。
-界面力使用原始物理残量，重算限定为接触界面的流体/结构单元，不能用已投影残量代替。
+默认路径由 reduced layout 的 PREALLOCATOR 直接填充最终 AIJ，并将所有权转给
+`NonlinearSystem`，不从完整图反查容量后重建矩阵。最终图填充完成后才开启
+`MAT_IGNORE_ZERO_ENTRIES`，允许每单元一次 dense `MatSetValues(..., ADD_VALUES)` 跳过
+图外的精确零；该选项不用于推导图。`MAT_NEW_NONZERO_LOCATION_ERR` 继续拒绝未声明的
+非零位置；未提供完整图的通用计数预分配路径仍使用 allocation 检查。
 
-`-fsi_assembly_report` 每次系统构造只输出一次 `fsi_assembly_plan`。
-`pattern_seconds` 包含 reduced 编号、ghost 和默认图准备；`plan_seconds` 为本地计划准备；
-`system_seconds` 包含矩阵接管/COO 准备及临时索引释放；`setup_seconds` 是各 rank 本地三阶段
-之和的最大值，不包括中间的物理数据、边界和输出准备。各阶段最大值不能相加解释为它。
-`cells/interface_cells/coo_entries/coo_value_bytes` 为 rank 求和，最后一项含额外 owned 对角值；
-`coo_value_bytes_max` 为最大 rank 的值缓冲量，均不含 PETSc 内部计划、临时坐标与单元槽索引。
-`solver_report` 另报告全局求和的 `nnz_allocated/nnz_unneeded/matrix_mallocs`，它们仅描述主矩阵。
-同输入的前后版本计时入口为 `scripts/benchmark_fsi_assembly.py`；实际结果以归档收据为准。
+`FsiAssemblyPlan` 缓存活动分量、测试行、试探列、接口 mesh trace 掩码和接口相邻单元。
+拓扑、分区、有效编号与约束支撑固定时计划有效；当前 ALE 坐标变化不重建图。
+每次时间步尝试重新使用 `mesh_dt`，不会缓存 generalized-alpha/BDF2 或缩步后的旧链系数。
+端口的符号准备和数值评价共用枚举函数，其数值使用本次 trial 几何、压力和时间系数。
+
+`-fsi_coo` 跳过默认 PREALLOCATOR 图。准备阶段把本 rank 的 `K` 条单元/端口/刚体贡献
+按全局 `(row,column)` 排序并合并为 `U` 个不同坐标，保留 `uint32_t` 的贡献到数值槽映射。
+超过该索引宽度的本地贡献数共同报错，不截断索引。每次评价先清零 `U` 个值及额外 owned
+对角值，再按固定单元、端口、刚体次序累加；接口别名和跨单元重复值在本 rank 合并，
+跨 rank 的贡献继续由 PETSc 求和，不额外复制 MPI 反向累加。
+`K` 个 scatter 索引及单元局部 tangent 槽仍需存储，值缓冲按 `U + owned` 增长。
+图准备的排序、临时坐标、PETSc 内部计划和长期数值缓冲须分别核算。
+
+FSI 残量默认独立启用固定 Vec COO 计划，`-fsi_residual_coo false` 恢复逐单元
+`VecSetValues` 对照路径，与矩阵是否使用 COO 无关。残量序列包含单元测试行、每个端口
+的牵引与流量行以及 owner 上的刚体项；负行忽略，重复/远程行由 PETSc 累加。
+所有 rank 的回调成功后，代数驱动才共同发布 Mat/Vec COO 缓冲；失败缓冲不发布，
+已有普通插入的 stash 仍排空。约束替换、原始反力、域错误和时间步提交规则保持一致。
+装配模式不是物理状态，可在同分区 checkpoint 恢复时切换。
+`NonlinearSystem` 为每个实际回调 Vec 准备残量 COO；不能假定 `VecDuplicate` 会复制
+通信计划。持久 residual/scratch Vec 在 setter 中准备，SNES 线搜索工作 Vec 首次使用时
+准备，后续按对象身份复用；借用 Vec 不被额外保有。
+
+解析 FSI 单元的流体部分由一次 28 方向 Dual 评价同时输出 primal 残量和 Jacobian；
+参考网格 Laplace 系数按单元缓存并直接填写同分量切线，当前压力面积项直接使用解析导数。
+当前体积和面几何有效性仍检查，零压力不能绕过面检查；FD 参考路径保留。
+界面力从接口相邻流体/结构单元的原始物理残量重放，端口牵引另外纳入，不能用已投影残量替代。
+
+默认 `-fsi_threads 1`；OpenMP 构建可显式增加线程数，采用最多 64 单元的有界批次。
+线程只评价纯 kernel 并写各自工作区或不重叠的贡献缓冲，主线程按固定次序做 compact
+COO 累加和 PETSc 插入。失败在线程 join 后再进入 rank 间错误同步。详见
+[线程与通信契约](L2_PARALLEL_MEMORY_AND_BACKENDS.md)。
+
+`FSIFluidAleJac` 包含融合残量，`FSIFluidRes` 只包含独立残量评价；线程批次用
+`FSIElementBatch` 记录批次总成本，worker 不调用 PETSc 事件记录。
+`FSIInsert` 包含主线程的残量写入/Vec 插入、切线 scatter/Mat 插入，不包含随后的 COO
+collective；线程直接写入的不重叠残量缓冲属于批次区间，不另计到主线程 insert。
+这些事件有包含关系，不能相加解释为总装配时间。
+
+`-fsi_assembly_report` 在系统构造时输出 `fsi_assembly_plan` 和 `fsi_execution_plan`。
+`pattern_seconds` 包含 reduced 编号、ghost 和默认图准备；`plan_seconds` 包含贡献计划、
+本地 COO 去重和共同错误检查；`system_seconds` 包含矩阵接管、Mat/Vec 计划准备和临时
+索引释放。`setup_seconds` 是各 rank 本地三个区间之和的最大值，不包括中间的物理数据、
+边界和输出准备，不能把各区间独立最大值相加代替它。
+`cells/interface_cells/coo_entries/coo_value_bytes` 为 rank 求和，`coo_entries` 是 `U`，
+值字节数包含额外 owned 对角值；`coo_value_bytes_max` 为最大 rank 的值缓冲量。
+`fsi_execution_plan` 另报原始 `coo_contributions=K`、`coo_scatter_bytes`、残量值缓冲字节数、
+请求线程数和批次容量。这些数值不包含 PETSc 内部计划、临时坐标及单元局部槽索引。
+`solver_report` 的 `nnz_allocated/nnz_unneeded/matrix_mallocs` 仅描述主矩阵。
+同输入前后版本的计时入口是 `scripts/benchmark_fsi_assembly.py`；实现契约不替代数值与性能收据。
 
 在接口语义上区分 `J_op`（Krylov 使用的 Jacobian 作用）和 `P_mat`（构造预条件的矩阵）；首版二者可就是同一个 Mat。后续采用 matrix-free 时，可保留低阶/简化系数 assembled 预条件矩阵，无需强求完整 Jacobian 存储。近似矩阵仍须满足布局、约束、压力规范和尺度的一致性。
 
 多物理残量按字段报告缩放后的收敛量；温度、速度、压力、位移的原始数值不能直接混成一个无量纲意义不明的总范数。首版在 case 中明确各字段特征尺度或绝对/相对容差，不开发通用单位推理器。
+
+### 非线性求解器会话与每次验收
+
+`NonlinearSystem` 除固定 Mat/Vec 和本地 trial 缓冲外，默认复用成功调用的 SNES/KSP/PC
+会话、字段分组、归约工作区和诊断 Vec。reuse key 精确比较完整 `SolverConfig`、
+`PetscOptionsGetAll` 的完整字符串以及 owned 约束行列表；任何 rank 的 key 改变时全部
+rank 共同重建。`SolverConfig` 包含 PC recipe、总容差/迭代上限及各字段尺度/容差。
+初值、prescribed 约束值、时间步系数和 Jacobian 数值变化不改变 key，每次调用仍重新
+施加约束、计算初始字段范数并更新数值。约束行改变后仍须满足既有图的支撑要求；
+分区、布局或图改变则重建整个 `NonlinearSystem`。
+
+跨调用复用只适用于 `SNESNEWTONLS`、Jacobian 与 PC lag 都为 1、未启用显式
+reuse-preconditioner 的路径；包括子 PC 在内的相关显式选项也保留每次新建语义。
+`-snes_ksp_ew true` 和 `-verify_operator_permutation true` 同样使用每次新建会话。
+`-nonlinear_reuse false` 强制每次创建新会话，作为同方程/同容差的对照；关闭复用或不符合
+上述资格的会话在成功返回时也立即释放，不保留到下一次调用。
+新会话在首次需要 Newton 求解时配置 PC 计划；复用会话的初始装配和每次成功的受约束
+Jacobian 都刷新其 USER Schur 矩阵，PETSc 根据当前 Mat 数值状态更新数值 PC。
+复用对象/符号结构不等于沿用旧 Jacobian 或旧数值因子，也不改变物理验收条件。
+
+求解器回调通过稳定 holder 只在本次 solve 内绑定当前 Context，退出即解除借用，不保留
+物理回调、初值或 prescribed 的栈引用。SNES/KSP/PC 先于所引用的 Schur USER 矩阵销毁。
+任何异常或最终 `StepRejected` 使会话失效，下一次调用重新创建；同一次线搜索中已恢复的
+domain rejection 不使最终成功的会话失效。fatal callback 遗留的 trial Vec 只读锁通过
+替换该 Vec 隔离，固定矩阵图保留。每次调用重置计数与线搜索初始系数。
+
+`solver_report` 的 `solver_reused=0|1` 表示本次是否复用成功会话，`solver_generation`
+是同一 `NonlinearSystem` 的 SNES 创建序号，从 1 递增；这些字段是生命周期证据，不是
+性能结论。约束按 owned 行直接替换；全局约束行数为零时跳过无效的 `MatZeroRows`。
 
 当前 `NonlinearSystem::solve` 从 `AlgebraLayout::fields` 建立 owned 行分组，并检查字段覆盖且互不重叠。剔除 Dirichlet 替换行后，物理方程按 `sqrt(sum((R_i/residual_scale)^2)/N) <= atol + rtol*initial_rms` 接受；约束替换行按 `max(abs(x_i-g_i)/constraint_scale) <= constraint_tolerance` 接受。只有约束而没有物理方程的字段 RMS 为 0；本地空字段仍参与规约。每次检查将所有字段合并为一次平方和规约与一次约束最大值规约，不收集全局向量。原始反力在验收之后单独装配，不进入约束误差范数。
 
@@ -133,9 +204,9 @@ collective 更新；域错误、缩步和 checkpoint 语义沿用现有路径。
 
 `-linear_report` 同时开启 `-solver_report`，并在每次顶层 KSP 正常收敛后，使用该次实际算子、解与右端项重新计算 `A*x-b`。`linear_residual` 输出原始 L2 范数及右端项范数；`linear_field_residual` 使用与非线性验收相同的 owned 字段划分和尺度，输出方程 RMS 与约束最大值。其独立存储不改变非线性验收基线、解或右端项。这是顶层线性方程的字段残量，不是各子 KSP 的残量，也不作为新的接受条件。KSP 未收敛或开启 PETSc 对角缩放时输出 `linear_residual_unavailable`，避免把不一致的缩放坐标误报为真实残量。
 
-计时输出均取 rank 最大值：`setup_seconds` 为本次 solve 的初始化，不包含 NonlinearSystem 构造；`solve_seconds` 包含初始装配、Schur 配置与 SNESSolve；`schur_setup_seconds` 单独记录显式 Schur 配置；`linear_seconds` 累计顶层 KSP pre/post 回调之间的耗时，包含其中 PC setup 和内层求解；`linear_diagnostic_seconds` 为额外残量测量与输出耗时；`finalize_seconds` 包含最终验收、字段报告及原始反力提取。`linear_started/completed` 统计顶层调用。计时有嵌套关系，且各项最大值可能来自不同 rank，不能相加解释为总耗时；ghost 时间包含在 assembly 时间中。尚无逐子层累计时间或独立 PC setup 计时。
+计时输出均取 rank 最大值：`setup_seconds` 为本次 solve 的准备，包含新会话创建或既有会话检查/重绑定，不包含 NonlinearSystem 构造；`solve_seconds` 包含初始装配、Schur 配置/刷新与 SNESSolve；`schur_setup_seconds` 单独记录求解开始时的显式 Schur 配置/刷新；`linear_seconds` 累计顶层 KSP pre/post 回调之间的耗时，包含其中 PC setup 和内层求解；`linear_diagnostic_seconds` 为额外残量测量与输出耗时；`finalize_seconds` 包含最终验收、字段报告及原始反力提取。`linear_started/completed` 统计顶层调用。计时有嵌套关系，且各项最大值可能来自不同 rank，不能相加解释为总耗时；ghost 时间包含在 assembly 时间中。尚无逐子层累计时间或独立 PC setup 计时。
 
-装配细分字段与 `assembly_seconds` 一样，只累计正常完成的 `Context::evaluate`，并在 SNESSolve 返回时冻结，不包含最终验收/原始反力重装配：`callback_seconds` 为物理 assemble 回调（包含 kernel 与 Mat/Vec 插入，不能解释为纯 kernel）；`failure_sync_seconds` 为正常评价路径上的错误状态 MPI_Allreduce 等待；`assembly_finalize_seconds` 为原始 VecAssembly 与 MatAssembly Begin/End；`constraint_seconds` 为约束值替换、约束 VecAssembly 和 MatZeroRows。它们均是 assembly 的子区间，不覆盖清零等全部工作。每项独立取 rank 最大，不能相加还原总时间。失败评价的细分耗时被排除；已有 `ghost_seconds` 在评价开头累计，可能包含后来被拒绝的评价，不能用它与这些字段做严格分解。`assembly_finalize_seconds` 包括本地整理和通信等待，不是纯网络时间；远程插入的准备仍在 callback 内。阶段计时本身不提供 kernel/插入各自计时或拒绝评价成本；独立流体另有下述单元级诊断。
+装配细分字段与 `assembly_seconds` 一样，只累计正常完成的 `Context::evaluate`，并在 SNESSolve 返回时冻结，不包含最终验收/原始反力重装配：`callback_seconds` 为物理 assemble 回调（包含 kernel、Mat/Vec 插入或 COO 值缓冲写入，不能解释为纯 kernel）；`failure_sync_seconds` 为正常评价路径上的错误状态 MPI_Allreduce 等待；`assembly_finalize_seconds` 为普通 Vec/Mat 最终装配，启用 COO 时包含实际回调 Vec 首次计划准备及对应的集体数值更新；`constraint_seconds` 为 owned 约束值替换及有约束时的 MatZeroRows。它们均是 assembly 的子区间，不覆盖清零等全部工作。每项独立取 rank 最大，不能相加还原总时间。失败评价的细分耗时被排除；已有 `ghost_seconds` 在评价开头累计，可能包含后来被拒绝的评价，不能用它与这些字段做严格分解。`assembly_finalize_seconds` 包括本地整理和通信等待，不是纯网络时间；远程插入的准备仍在 callback 内。阶段计时本身不提供 kernel/插入各自计时或拒绝评价成本；独立流体另有下述单元级诊断。
 
 
 跨场材料依赖必须进入导数：例如黏度依赖温度时，一致单体 Newton 需要对应跨场导数。若先用滞后系数或 Picard，明确标记并按完整残量验收。AD 的引入不改变此义务。
@@ -210,7 +281,7 @@ kernel 区间仅包围 `fluid_element` 调用；insert 区间包围对应体单�
 
 `-schur_pc` 使用 FGMRES；独立流体分速度/压力，FSI 使用外层乘法 flow/mesh/structure（或 rigid）分裂，flow 内嵌速度/压力 Schur。全局 operator 始终为完整 Jacobian。PETSc FULL Schur 分解配 SELFP 近似 `D−C diag(A)⁻¹B`，不形成 A 的显式逆；速度/压力与网格/弹性块采用 GAMG，刚体块 Jacobi。GAMG 粗层默认 GMRES/Jacobi 并显式启用残差范数；主物理容差未改变。
 
-`fsi_element_tangent` 用解析 `dV/dx`、`d grad(N)/dx` 初始化固定宽度 Dual，前向传播同一个 SUPG/PSPG 残量、网格速度和压力面积项。参考 Laplace 块保留，接口链式系数由所选时间格式提供，默认 BE。局部状态大小由 Tet4Ale 模板推导，积分规则不包含运行时维护的数据。旧中心差分函数保留用于独立 Jv/轨迹/性能对照。
+`fsi_element_tangent` 用解析 `dV/dx`、`d grad(N)/dx` 初始化固定宽度 Dual，前向传播同一个 SUPG/PSPG 残量与网格速度；当前压力面积项用一致解析导数加入。参考 Laplace 块缓存并直接填写，接口链式系数由所选时间格式提供，默认 BE。局部状态大小由 Tet4Ale 模板推导，积分规则不包含运行时维护的数据。旧中心差分函数保留用于独立 Jv/轨迹/性能对照。
 
 GAMG 当前只有低 Re 小算例运行证据，不宣称针对高 Re、近不可压结构或网格无关迭代调优完成。实际误差、迭代及 RSS 见 [B5 记录](../development/B5_ACCURACY_AND_PERFORMANCE.md)。
 

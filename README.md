@@ -375,17 +375,26 @@ P8 交付时 Debug/Release 的 13 项 CTest 全部通过，包含五类 transien
 性能复现脚本为 `scripts/benchmark_fsi.py`；实际规模和数字见
 [性能基线](docs/development/PERFORMANCE_BASELINE.md)，不把这些小网格运行解释为大规模扩展性证明。
 
-FSI 默认复用最终 AIJ 图及单元映射，并在解析切线评价中同时得到残量。
-可显式增加 `-fsi_coo`，使用按物理结构依赖压缩的 COO 批量 Jacobian 更新，覆盖
-刚体、共享逻辑网格、独立双域、固定／可动平面 RCR；默认仍是 `MatSetValues`。
-`-fsi_assembly_report` 输出一次性准备时间和 COO 值缓冲量；
-`-solver_report` 另含主矩阵的 `nnz_allocated/nnz_unneeded/matrix_mallocs`。
-COO 额外内存随本地单元贡献数增长，是否有收益应在实际算例中比较。
+FSI 默认使用按物理依赖生成的精确 AIJ 图，缓存固定单元映射，并在解析切线评价中同时得到残量。
+参考网格线性项和压力面积导数直接计算；流体/ALE 的完整几何和稳定化导数保持在 Newton 切线内。
+残量默认使用固定 COO 批量更新，可用 `-fsi_residual_coo false` 选择逐项插入对照。
+显式 `-fsi_coo` 另选择 Jacobian 批量更新；同 rank 重复坐标预先合并，跨 rank 贡献仍由 PETSc 累加。
+默认矩阵更新保持 `MatSetValues`，两种矩阵模式覆盖刚体、共享逻辑网格、独立双域和固定／可动平面 RCR。
+
+支持 OpenMP 的构建可指定 `-fsi_threads N`，默认 1。线程只算局部单元并写私有或不相交缓冲；
+最多暂存 64 个单元的切线，PETSc/MPI 由主线程执行。每 rank 的 BLAS 线程仍应保持 1，
+并为 rank × 单元线程数提供足够 CPU；运行时不应把多线程 rank 绑定在一个核上。
+CMake `EONSIM_ENABLE_OPENMP=OFF` 可关闭这一可选能力；未启用 OpenMP 时请求多个线程会明确报错。
+
+固定布局的 `NonlinearSystem` 可复用 SNES/KSP/PC 会话与辅助存储；配置、完整 PETSc options 或约束行改变、
+以及失败退出后，重建会话。每次求解仍重算数值 Jacobian 并更新预条件器；`-nonlinear_reuse false` 可用于 fresh-session 对照。
+`-fsi_assembly_report` 输出图／计划／系统准备、COO 值和 scatter 缓冲、线程请求与批次容量；
+`-solver_report` 输出矩阵 `nnz_allocated/nnz_unneeded/matrix_mallocs` 及 solver reuse/generation。
 前后版本对照入口为 `scripts/benchmark_fsi_assembly.py --help`；
 [装配和计时契约](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md#fsi-固定装配计划与可选-coo)
 说明界面链系数、失败同步、重启和统计范围。
-[本轮实现与实测](docs/research/data/fsi-assembly-2026-11-25/README.md)记录默认及 COO
-路径的配对装配时间、总耗时、峰值内存和固定版本验证证据。
+[PR #51 的前一阶段实测](docs/research/data/fsi-assembly-2026-11-25/README.md)保留其原实现、计时范围和内存代价；
+不能将该历史结果作为本轮新增优化已经通过的证据。
 
 可选 API 文档：`cmake --preset debug -DMHPC_BUILD_DOCS=ON`，随后
 `cmake --build build/debug --target docs`；入口为 `build/docs/html/index.html`。

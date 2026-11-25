@@ -6,6 +6,7 @@
 #include "eonsim/fsi_domains.hpp"
 #include "eonsim/checkpoint.hpp"
 #include "eonsim/fsi_element.hpp"
+#include "eonsim/fsi_coupling_pattern.hpp"
 #include "eonsim/reduced_layout.hpp"
 #include "eonsim/motion.hpp"
 #include "eonsim/solid_element.hpp"
@@ -15,10 +16,15 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <numeric>
 #include <set>
 #include <fstream>
 #include <limits>
 #include <stdexcept>
+#include <exception>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 namespace eonsim {
 namespace {
 // Each phase contains only local work; propagate its first failure before peers
@@ -52,7 +58,7 @@ void publish_series(const std::filesystem::path& path,const std::vector<std::pai
 // PCApply. An inactive event avoids both clock reads and PETSc calls.
 struct FsiAssemblyEvents {
     PetscLogEvent fluid_residual=-1, fluid_ale_tangent=-1;
-    PetscLogEvent solid_residual=-1, solid_tangent=-1, insert=-1, force_replay=-1, mass_observe=-1;
+    PetscLogEvent solid_residual=-1, solid_tangent=-1, insert=-1, force_replay=-1, mass_observe=-1, batch=-1;
 
     void register_for_log_view() {
         PetscBool enabled=PETSC_FALSE;
@@ -63,6 +69,7 @@ struct FsiAssemblyEvents {
         EONSIM_PETSC(PetscLogEventRegister("FSISolidRes",0,&solid_residual));
         EONSIM_PETSC(PetscLogEventRegister("FSISolidJac",0,&solid_tangent));
         EONSIM_PETSC(PetscLogEventRegister("FSIInsert",0,&insert));
+        EONSIM_PETSC(PetscLogEventRegister("FSIElementBatch",0,&batch));
         EONSIM_PETSC(PetscLogEventRegister("FSIForceReplay",0,&force_replay));
         EONSIM_PETSC(PetscLogEventRegister("FSIMassObserve",0,&mass_observe));
     }
@@ -182,28 +189,23 @@ void outlet_jacobian_entries(const ReducedLayout& layout,const OutletTrace& trac
     }
 }
 
+// Same residual ordering for symbolic setup and each numerical evaluation.
+// Negative physical test rows are discarded; every rank contributes its port flux.
 template<class Add>
-void assemble_outlet(const ReducedLayout& layout,const OutletTrace& trace,const RcrStage& stage,double outlet_pressure,
-    const std::vector<double>& physical,double mesh_dt,bool owns_pressure,Vec residual,bool tangent,const Add& add) {
+void outlet_residual_entries(const ReducedLayout& layout,const OutletTrace& trace,
+    const std::vector<double>* physical,double outlet_pressure,double owned_flow,const Add& add) {
     double flux=0;
-    outlet_weights(trace,physical,layout.components,[&](std::size_t slot,double weight) {
-        flux+=weight*physical[slot];
+    const auto visit=[&](std::size_t slot,double weight) {
+        if(physical) flux+=weight*(*physical)[slot];
         const auto row=layout.global[slot];
-        if(row>=0) EONSIM_PETSC(VecSetValue(residual,row,weight*outlet_pressure,ADD_VALUES));
-    });
-    const double value=(owns_pressure?stage.flow(outlet_pressure):0)-flux;
-    EONSIM_PETSC(VecSetValue(residual,trace.pressure,value,ADD_VALUES));
-    if(tangent) outlet_jacobian_entries(layout,trace,&physical,mesh_dt,outlet_pressure,
-                                       1/stage.total_impedance,owns_pressure,add);
-}
-
-// These are dependencies of the physical equations before interface projection,
-// not zeros observed at a particular Newton state. Aliased reduced columns are
-// still accumulated separately, including the displacement/velocity chain rule.
-bool fsi_cell_coupling(int row,int column) {
-    if(row<Tet4Flow::components) return column<Tet4Ale::components;
-    if(row<Tet4Ale::components) return column==row; // reference mesh Laplacian
-    return column>=Tet4Ale::components;           // solid momentum
+        if(row>=0) add(row,weight*outlet_pressure);
+    };
+    for(const auto& [slot,weight]:trace.flux_weights) visit(slot,weight);
+    for(const auto& face:trace.moving_faces) {
+        const double weight=physical?face.geometry(*physical,layout.components,trace.normal_axis).weight:0.;
+        for(const auto node:face.nodes) visit(static_cast<std::size_t>(layout.components)*node+trace.normal_axis,weight);
+    }
+    add(trace.pressure,owned_flow-flux);
 }
 
 struct FsiCellAssembly {
@@ -218,11 +220,13 @@ struct FsiAssemblyPlan {
     std::vector<PetscInt> rows,columns;
     std::vector<unsigned char> mesh_trace;
     std::vector<std::uint16_t> tangent_slots;
+    std::vector<std::uint32_t> value_slots;
     std::vector<std::size_t> interface_cells;
-    std::size_t coo_entries=0;
+    std::size_t coo_entries=0,coo_contributions=0,residual_entries=0;
 
     FsiAssemblyPlan(const MeshPartition& mesh,const ReducedLayout& reduced,const FsiDomains* domains,
-                    bool coo,std::vector<PetscInt>& coo_rows,std::vector<PetscInt>& coo_columns) {
+                    bool coo,std::vector<PetscInt>& coo_rows,std::vector<PetscInt>& coo_columns,
+                    std::vector<PetscInt>* residual_rows) {
         static_assert(Tet4Elastic::dofs*Tet4Elastic::dofs<=std::numeric_limits<std::uint16_t>::max());
         const int nc=reduced.components;
         std::size_t slots=0;
@@ -244,6 +248,14 @@ struct FsiAssemblyPlan {
             }
             if(touches_interface) interface_cells.push_back(e);
             cells.push_back({active,offset,0,0});
+        }
+        if(residual_rows) {
+            *residual_rows=rows;
+            const auto append=[&](PetscInt row,double) {residual_rows->push_back(row);};
+            for(const auto& outlet:reduced.outlets)
+                outlet_residual_entries(reduced,outlet,nullptr,0.,0.,append);
+            if(reduced.body>=0&&mesh.rank==mesh.ranks-1) append(reduced.body,0.);
+            residual_entries=residual_rows->size();
         }
         if(coo) {
             const auto visit_cell=[&](const FsiCellAssembly& cell,const auto& visit) {
@@ -279,6 +291,26 @@ struct FsiAssemblyPlan {
             for(const auto& outlet:reduced.outlets)
                 outlet_jacobian_entries(reduced,outlet,nullptr,1.,0.,0.,mesh.rank==mesh.ranks-1,append);
             if(reduced.body>=0&&mesh.rank==mesh.ranks-1) append(reduced.body,reduced.body,0.);
+            coo_contributions=coo_rows.size();
+            if(coo_contributions>std::numeric_limits<std::uint32_t>::max())
+                throw std::runtime_error("Too many local FSI COO contributions for compact scatter indices");
+            // Merge local duplicate coordinates once. The contribution sequence
+            // stays unchanged; the numerical scatter below follows that sequence.
+            std::vector<std::uint32_t> order(coo_contributions);
+            std::iota(order.begin(),order.end(),std::uint32_t(0));
+            std::sort(order.begin(),order.end(),[&](std::uint32_t a,std::uint32_t b) {
+                return coo_rows[a]<coo_rows[b]||(coo_rows[a]==coo_rows[b]&&coo_columns[a]<coo_columns[b]);
+            });
+            value_slots.resize(coo_contributions);
+            std::vector<PetscInt> unique_rows,unique_columns;
+            for(const auto contribution:order) {
+                const auto row=coo_rows[contribution],column=coo_columns[contribution];
+                if(unique_rows.empty()||row!=unique_rows.back()||column!=unique_columns.back()) {
+                    unique_rows.push_back(row); unique_columns.push_back(column);
+                }
+                value_slots[contribution]=static_cast<std::uint32_t>(unique_rows.size()-1);
+            }
+            coo_rows=std::move(unique_rows); coo_columns=std::move(unique_columns);
             coo_entries=coo_rows.size();
         }
     }
@@ -381,10 +413,21 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     const bool bdf2=config.time_integration.scheme==TimeScheme::bdf2;
     const bool alpha=config.time_integration.scheme==TimeScheme::generalized_alpha;
     bool alpha_ready=false;
-    PetscBool finite_difference=PETSC_FALSE,coo=PETSC_FALSE,assembly_report=PETSC_FALSE;
+    PetscBool finite_difference=PETSC_FALSE,coo=PETSC_FALSE,assembly_report=PETSC_FALSE,residual_coo=PETSC_TRUE;
+    PetscInt threads=1;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_fd_tangent",&finite_difference,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_coo",&coo,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_assembly_report",&assembly_report,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_residual_coo",&residual_coo,nullptr));
+    EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-fsi_threads",&threads,nullptr));
+    if(threads<1||threads>256) throw std::runtime_error("-fsi_threads must be between 1 and 256");
+#ifndef _OPENMP
+    if(threads!=1) throw std::runtime_error("-fsi_threads > 1 requires an OpenMP-enabled build");
+#endif
+    if(threads>1) {
+        int provided; MPI_Query_thread(&provided);
+        if(provided<MPI_THREAD_FUNNELED) throw std::runtime_error("FSI threads require MPI_THREAD_FUNNELED");
+    }
     const bool dual=!f.domains.solid_mesh.empty();
     auto domains=f.domains;
     if(f.inlet) {
@@ -735,14 +778,21 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         history.flush();
     });
     const double plan_start=MPI_Wtime();
-    std::vector<PetscInt> coo_rows,coo_columns;
-    const FsiAssemblyPlan assembly_plan(mesh,reduced,dual?&domains:nullptr,coo,coo_rows,coo_columns);
+    std::vector<PetscInt> coo_rows,coo_columns,residual_rows;
+    std::optional<FsiAssemblyPlan> plan_storage;
+    output_stage(comm,"assembly plan",[&] {
+        plan_storage.emplace(mesh,reduced,dual?&domains:nullptr,coo,coo_rows,coo_columns,
+                             residual_coo?&residual_rows:nullptr);
+    });
+    const auto& assembly_plan=*plan_storage;
     const double plan_seconds=MPI_Wtime()-plan_start;
     const double system_start=MPI_Wtime();
     NonlinearSystem system(comm,layout,std::move(reduced.jacobian_pattern));
     if(coo) system.set_jacobian_coo(coo_rows,coo_columns);
+    if(residual_coo) system.set_residual_coo(residual_rows);
     // PETSc owns the communication/summation plan; coordinate copies are setup-only.
     std::vector<PetscInt>().swap(coo_rows); std::vector<PetscInt>().swap(coo_columns);
+    std::vector<PetscInt>().swap(residual_rows);
     const double system_seconds=MPI_Wtime()-system_start;
     if(assembly_report) {
         const double local_times[]{pattern_seconds,plan_seconds,system_seconds,pattern_seconds+plan_seconds+system_seconds};
@@ -760,6 +810,27 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     }
     std::vector<double> assembly_state(mesh.nodes.size()*nc),element_residual,element_tangent;
     element_residual.reserve(Layout::dofs); element_tangent.reserve(Layout::dofs*Layout::dofs);
+    // A bounded batch avoids storing one dense tangent for every local element.
+    // Only pure kernels and disjoint buffer writes execute on worker threads.
+    constexpr std::size_t batch_size=64;
+    std::vector<std::vector<double>> worker_residual(threads),worker_tangent(threads);
+    for(PetscInt t=0;t<threads;++t) {
+        worker_residual[t].reserve(Layout::dofs); worker_tangent[t].reserve(Layout::dofs*Layout::dofs);
+    }
+    std::vector<double> batch_residual(threads>1&&!residual_coo?batch_size*Layout::dofs:0);
+    std::vector<double> batch_tangent(threads>1?batch_size*Layout::dofs*Layout::dofs:0);
+    if(assembly_report) {
+        const unsigned long long bytes=assembly_plan.residual_entries*sizeof(PetscScalar);
+        unsigned long long total=0,maximum=0;
+        MPI_Reduce(&bytes,&total,1,MPI_UNSIGNED_LONG_LONG,MPI_SUM,0,comm);
+        MPI_Reduce(&bytes,&maximum,1,MPI_UNSIGNED_LONG_LONG,MPI_MAX,0,comm);
+        const unsigned long long contribution_counts[]{static_cast<unsigned long long>(assembly_plan.coo_contributions),
+            static_cast<unsigned long long>(assembly_plan.value_slots.size()*sizeof(std::uint32_t))};
+        unsigned long long totals[2]{};
+        MPI_Reduce(contribution_counts,totals,2,MPI_UNSIGNED_LONG_LONG,MPI_SUM,0,comm);
+        EONSIM_PETSC(PetscPrintf(comm,"fsi_execution_plan residual_coo=%d residual_value_bytes=%llu residual_value_bytes_max=%llu threads_requested=%d batch_cells=%zu coo_contributions=%llu coo_scatter_bytes=%llu\n",
+            int(residual_coo),total,maximum,int(threads),threads>1?batch_size:std::size_t(1),totals[0],totals[1]));
+    }
     FsiAssemblyEvents events;
     events.register_for_log_view();
     const FsiAssemblyEvents unmeasured;
@@ -905,49 +976,116 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
             expand_into(x,assembly_state);
             const auto& full=assembly_state;
-            auto& residual=element_residual;
-            auto& tangent=element_tangent;
             const bool coo_jacobian=coo&&j;
             auto* coo_values=j?system.jacobian_coo_values():nullptr;
-            for(std::size_t e=0;e<data.size();++e) {
-                const auto& cell=assembly_plan.cells[e];
-                const auto active=cell.active;
-                const int nd=active.dofs();
-                const auto* rows=assembly_plan.rows.data()+cell.offset;
-                const auto* cols=assembly_plan.columns.data()+cell.offset;
+            auto* residual_values=system.residual_coo_values();
+            const auto pack_tangent=[&](const FsiCellAssembly& cell,const double* tangent) {
+                const int nd=cell.active.dofs();
                 const auto* trace=assembly_plan.mesh_trace.data()+cell.offset;
-                local_residual(e,full,j!=nullptr,active,residual,tangent,events);
-                measured(events.insert,[&] {
-                    EONSIM_PETSC(VecSetValues(r,nd,rows,residual.data(),ADD_VALUES));
-                    if(coo_jacobian) {
-                        for(std::size_t k=cell.coo_begin;k<cell.coo_end;++k) {
-                            const auto slot=assembly_plan.tangent_slots[k];
-                            coo_values[k]=tangent[slot]*(trace[slot%nd]?mesh_dt:1.);
+                for(std::size_t k=cell.coo_begin;k<cell.coo_end;++k) {
+                    const auto slot=assembly_plan.tangent_slots[k];
+                    coo_values[assembly_plan.value_slots[k]]+=tangent[slot]*(trace[slot%nd]?mesh_dt:1.);
+                }
+            };
+            const auto insert_cell=[&](const FsiCellAssembly& cell,const double* residual,double* tangent) {
+                const int nd=cell.active.dofs();
+                const auto* rows=assembly_plan.rows.data()+cell.offset;
+                if(!residual_coo) EONSIM_PETSC(VecSetValues(r,nd,rows,residual,ADD_VALUES));
+                if(j&&!coo_jacobian) {
+                    const auto* cols=assembly_plan.columns.data()+cell.offset;
+                    const auto* trace=assembly_plan.mesh_trace.data()+cell.offset;
+                    for(int col=0;col<nd;++col) if(trace[col])
+                        for(int row=0;row<nd;++row) tangent[nd*row+col]*=mesh_dt;
+                    EONSIM_PETSC(MatSetValues(j,nd,rows,nd,cols,tangent,ADD_VALUES));
+                }
+            };
+            if(threads==1) {
+                for(std::size_t e=0;e<data.size();++e) {
+                    const auto& cell=assembly_plan.cells[e];
+                    local_residual(e,full,j!=nullptr,cell.active,element_residual,element_tangent,events);
+                    measured(events.insert,[&] {
+                        if(residual_coo) std::copy(element_residual.begin(),element_residual.end(),residual_values+cell.offset);
+                        if(coo_jacobian) pack_tangent(cell,element_tangent.data());
+                        insert_cell(cell,element_residual.data(),element_tangent.data());
+                    });
+                }
+            } else measured(events.batch,[&] {
+                for(std::size_t begin=0;begin<data.size();begin+=batch_size) {
+                    const auto count=std::min(batch_size,data.size()-begin);
+                    std::exception_ptr error;
+                    int error_severity=0;
+                    std::ptrdiff_t error_item=static_cast<std::ptrdiff_t>(count);
+#ifdef _OPENMP
+#pragma omp parallel for num_threads(threads) schedule(static)
+#endif
+                    for(std::ptrdiff_t item=0;item<static_cast<std::ptrdiff_t>(count);++item) {
+                        try {
+#ifdef _OPENMP
+                            const auto worker=omp_get_thread_num();
+#else
+                            const int worker=0;
+#endif
+                            auto& residual=worker_residual[worker]; auto& tangent=worker_tangent[worker];
+                            const auto e=begin+item; const auto& cell=assembly_plan.cells[e];
+                            local_residual(e,full,j!=nullptr,cell.active,residual,tangent,unmeasured);
+                            if(residual_coo) std::copy(residual.begin(),residual.end(),residual_values+cell.offset);
+                            else std::copy(residual.begin(),residual.end(),batch_residual.data()+item*Layout::dofs);
+                            if(j) std::copy(tangent.begin(),tangent.end(),batch_tangent.data()+item*Layout::dofs*Layout::dofs);
+                        } catch(...) {
+                            const auto failure=std::current_exception();
+                            int severity=2;
+                            try {std::rethrow_exception(failure);}
+                            catch(const StepRejected&) {severity=1;}
+                            catch(...) {}
+#ifdef _OPENMP
+#pragma omp critical(eonsim_fsi_batch_error)
+#endif
+                            {
+                                // Fatal errors outrank recoverable trials; equal
+                                // severities use cell order, independent of scheduling.
+                                if(severity>error_severity||(severity==error_severity&&item<error_item)) {
+                                    error=failure; error_severity=severity; error_item=item;
+                                }
+                            }
                         }
-                    } else if(j) {
-                        for(int col=0;col<nd;++col) if(trace[col])
-                            for(int row=0;row<nd;++row) tangent[nd*row+col]*=mesh_dt;
-                        EONSIM_PETSC(MatSetValues(j,nd,rows,nd,cols,tangent.data(),ADD_VALUES));
                     }
-                });
-            }
-            std::size_t coo_cursor=assembly_plan.tangent_slots.size();
+                    // Workers are joined before an exception or any PETSc/MPI call.
+                    if(error) std::rethrow_exception(error);
+                    measured(events.insert,[&] {
+                        for(std::size_t item=0;item<count;++item) {
+                            const auto& cell=assembly_plan.cells[begin+item];
+                            auto* tangent=j?batch_tangent.data()+item*Layout::dofs*Layout::dofs:nullptr;
+                            if(coo_jacobian) pack_tangent(cell,tangent);
+                            insert_cell(cell,residual_coo?nullptr:batch_residual.data()+item*Layout::dofs,tangent);
+                        }
+                    });
+                }
+            });
+            std::size_t coo_cursor=assembly_plan.tangent_slots.size(),residual_cursor=assembly_plan.rows.size();
             const auto add_entry=[&](PetscInt row,PetscInt col,double value) {
-                if(coo_jacobian) coo_values[coo_cursor++]=value;
+                if(coo_jacobian) coo_values[assembly_plan.value_slots[coo_cursor++]]+=value;
                 else EONSIM_PETSC(MatSetValue(j,row,col,value,ADD_VALUES));
+            };
+            const auto add_residual=[&](PetscInt row,double value) {
+                if(residual_coo) residual_values[residual_cursor++]=value;
+                else EONSIM_PETSC(VecSetValue(r,row,value,ADD_VALUES));
             };
             for(std::size_t i=0;i<outlets.size();++i) {
                 const auto& port=reduced.outlets[i];
-                assemble_outlet(reduced,port,outlet_stages[i],x[port.local],full,mesh_dt,mesh.rank==mesh.ranks-1,r,j!=nullptr,add_entry);
+                const auto pressure=x[port.local];
+                const bool owns=mesh.rank==mesh.ranks-1;
+                outlet_residual_entries(reduced,port,&full,pressure,owns?outlet_stages[i].flow(pressure):0.,add_residual);
+                if(j) outlet_jacobian_entries(reduced,port,&full,mesh_dt,pressure,1/outlet_stages[i].total_impedance,owns,add_entry);
             }
             if(!Elastic && mesh.rank==mesh.ranks-1) {
                 const double v=x[reduced.body_local];
                 const double rbody=rigid_residual({f.mass,f.damping,f.stiffness},reference_body,solid_dt,v,0,mesh_dt);
-                EONSIM_PETSC(VecSetValue(r,reduced.body,rbody,ADD_VALUES));
+                add_residual(reduced.body,rbody);
                 if(j) add_entry(reduced.body,reduced.body,f.mass/solid_dt+f.damping+mesh_dt*f.stiffness);
             }
 #ifndef NDEBUG
-            if(coo_jacobian&&coo_cursor!=assembly_plan.coo_entries) throw std::logic_error("FSI COO contribution count changed");
+            if(coo_jacobian&&coo_cursor!=assembly_plan.coo_contributions) throw std::logic_error("FSI COO contribution count changed");
+            if(residual_coo&&residual_cursor!=assembly_plan.residual_entries) throw std::logic_error("FSI residual COO contribution count changed");
 #endif
         };
         const auto solved=system.solve(config.solver,accepted,{}, {},assemble);
