@@ -1,19 +1,32 @@
 # EONSim Codex Development Progress
 
-## 2026-11-25 · FSI-PC-02 已推送，验收中
+## 2026-11-25 · FSI-PC-02 本地及源码 CI 通过，待用户审阅
 
 基线为已合并 #48 的 main `f50a4a4338689c9a065bee30ae4a7f3f52c5002e`。
-在 `codex/fsi-block-completion` 实现完整流体消元的 `added_mass` FSI 树、
-耦合速度两层 Galerkin 校正、独立 Schur main/inner/upper 配置与诊断。
+在 `codex/fsi-block-completion` 完成完整流体消元的 `added_mass` FSI 树、
+联合速度两层 Galerkin 校正、独立 Schur main/inner/upper 配置与故障诊断。
 压力 nodal 近似保留稳定化和 RCR 项，并在同一语义子树的辅助求解器之间共享数值矩阵。
-详见 [FSI 分块配置与边界](FSI_BLOCK_PRECONDITIONER.md)。
+完整 Jacobian、物理残量、时间离散及非线性接受条件保持原契约。
+[配置与适用边界](FSI_BLOCK_PRECONDITIONER.md) · [本轮证据与复现](../research/data/fsi-block-2026-11-25/README.md)。
 
-源码先推送为 `d9f58572e67ffa3636460e21d6d864ea560c8329`，之后运行
-锁定 PETSc 3.23.7 Release。首次编译成功，`pc_plan_mpi1/2/4` 均未通过：
-单 rank 的独立解对照失败，多 rank 的局部 PC 故障分类未达到断言；正在定位。
-失败日志保留，未修改数值门槛，不能把实现检查点写成验收完成。
-验证通过后由用户审核并合并；本 PR 保持禁止自动合并。
-两层分区常数粗空间不等于完整耦合 AMG，不声称网格无关收敛或多节点生产规模。
+最终验收 head `b52281d7585ead08e545f29f8d83eca9177e7eac` 先推送、后执行锁定
+PETSc 3.23.7 Release；干净工作树的 8 项物理/恢复选测全部通过。
+另精确复用 `b8ac03a` 的 `pc_plan_mpi1/2/4` 三项代数 oracle 与 `pc_recipe_restart` 通过收据，
+这些不记作 b522 的本地新运行。b522 源码远端 CI 的 53 项 Release 选测、58 项 Python 检查、
+选测与证据收据均通过；网站 Build VitePress 与草稿隔离检查也通过。
+[源码 CI 元数据](../research/data/fsi-block-2026-11-25/ci-source-b522.json) ·
+[数值与收据 run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45606963270) ·
+[网站 run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45606963330)。
+
+动脉管 60 次运行全部通过；其中 12 条完整 32 步轨迹的 768 次 Newton 修正通过真实残量门槛。
+全部样本最大真实残量/目标比为 `0.5600385064`，最大相对场峰值差为 `1.0712628633e-11`。
+两套网格的交替计时仍以直接法更快，不把新增粗校正或完整流体 Schur 等同于普遍加速。
+历次代数失败、b8 物理批次 5/7、retry 线性精度诊断及未采用的性能选项均保留原证据。
+为保留新增 32 步与计时覆盖增加了执行时间预算，未放宽物理或数值接受门槛。
+
+当前本地实现、针对性验收和源码审查完成，PR #49 仍须用户审核；保持 `manual-review` / `no-automerge`，
+由用户确认后合并。未运行全量或 PETSc 3.19.6；最多单机 4 rank 的证据不代表多节点生产规模、
+完整耦合 AMG、旋转近零空间或网格无关收敛。
 
 ## 2026-11-24 · 弹性管瞬态、血管端口与装配
 

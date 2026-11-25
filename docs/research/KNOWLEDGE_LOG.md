@@ -1,12 +1,26 @@
 # EONSim Knowledge Log
 
-## 2026-11-25 · 嵌套 Schur 与耦合两层校正（实现待验收）
+## 2026-11-25 · FSI-PC-02 嵌套 Schur 与两层校正（本地及源码 CI 通过）
 
-[算法草稿](../../website/drafts/fsi-nested-schur-twolevel.md)解释完整流体消元与
-压力 Schur 的差别、三个 A00 求解器的 PETSc 语义，以及不依赖连续 xyz 行号的
-分区常数粗空间。[配置指南](../development/FSI_BLOCK_PRECONDITIONER.md)给出
-选项和失败边界。基线 #48，开发分支 `codex/fsi-block-completion`；此条记录时
-新增数值验收尚未通过，不能当作正确性、性能或大规模可扩展性证据。草稿未发布。
+[算法草稿](../../website/drafts/fsi-nested-schur-twolevel.md)区分完整流体消元与
+压力 Schur，说明三个 A00 求解器的 PETSc 语义、共享压力 Pmat 的刷新，以及不依赖连续 xyz 行号的
+分区常数粗空间。[配置指南](../development/FSI_BLOCK_PRECONDITIONER.md)记录选项及适用边界；
+[实际证据与复现](data/fsi-block-2026-11-25/README.md)保留源码、原失败、诊断和最终收据。
+
+本地按来源复用生产修复 `b8ac03a` 的 1/2/4-rank 代数 oracle 3/3 及 restart 收据；
+推送后的最终 head `b52281d7585ead08e545f29f8d83eca9177e7eac` 在 clean PETSc 3.23.7 Release
+下通过 8/8 项物理/恢复选测，Python 辅助检查 58 项通过。
+动脉管 60 次运行通过，12 条 32 步轨迹含 768 次完整系统真实残量检查；
+最大残量/目标比 `0.5600385064`，最大相对场峰值差 `1.0712628633e-11`。
+
+可复用经验包括：GAMG 创建后切换 PC 类型可能遗留 `useAmat`；MPI 隐式 Schur 的 PC 应明确使用已装配 P；
+全局 KSP 停止容差可能仍高于某个有量纲缩放字段的接受限值；计时超时不能替代数值结论。
+两套网格仍以直接法更快，不从有限 rank 或较少外层迭代推断普遍提速、网格无关收敛或完整多层 AMG。
+b522 源码远端 53 项 Release 数值选测、58 项 Python 检查、选测/证据收据和网站构建均通过。
+[CI 元数据](data/fsi-block-2026-11-25/ci-source-b522.json) ·
+[数值 run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45606963270) ·
+[网站 run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45606963330)。
+PR #49 仍待用户审核并由用户合并，保持禁止自动合并；草稿未发布。
 
 ## 2026-11-24 · 如何解读同网格 FSI 与独立空间参考
 

@@ -1,26 +1,39 @@
 # EONSim Codex Task Queue
 
-## FSI-PC-02 / validating / 2026-11-25
+## FSI-PC-02 / review / 2026-11-25
 
-Complete the existing conforming monolithic FSI block paths from merged #48
-(`f50a4a4338689c9a065bee30ae4a7f3f52c5002e`). The deliverable combines a
-complete-fluid structural Schur response, coupled two-level coarse correction,
-separately configurable Schur inverse actions, and reproducible direct-solution
-and true-residual checks. Preserve the physical Jacobian, acceptance thresholds,
-time integration, circuit histories and ownership.
+Completed the existing conforming monolithic FSI block paths from merged #48
+(`f50a4a4338689c9a065bee30ae4a7f3f52c5002e`): complete-fluid structural Schur
+response, coupled two-level coarse correction, separately configurable Schur
+inverse actions, and direct-solution/true-residual checks. The physical
+Jacobian, acceptance thresholds, time integration, circuit histories and
+ownership contracts are preserved.
 
-Acceptance: independent full-fluid Schur and Galerkin matrix oracles on 1/2/4
-single-host ranks; changed-Jacobian refresh and invalid-option/failure handling;
-rigid/elastic/Neo-Hookean/dual-domain field comparisons; arterial and RCR
-trajectories, restart and selected rollback checks. Report actual performance
-without requiring a universal speedup. Full coupled AMG, elasticity rotations,
-multi-node scaling and cross-partition restart are not established by these tests.
+Local implementation, source review and targeted acceptance are complete.
+Pushed head `b52281d7585ead08e545f29f8d83eca9177e7eac` passed all 8 final locked
+PETSc 3.23.7 Release physical/recovery checks with a clean source tree.
+Reuse exactly the `b8ac03a` receipts for `pc_plan_mpi1/2/4` and
+`pc_recipe_restart`; those four checks were not rerun locally at b522.
+The b522 source CI passed all 53 selected Release numerical checks and 58
+Python checks; selection, Release validation and evidence receipt are green.
+The website Build VitePress and draft-isolation checks also passed.
+[Source CI metadata](../research/data/fsi-block-2026-11-25/ci-source-b522.json) ·
+[Numerical/receipt run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45606963270) ·
+[Website run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45606963330).
+[Evidence, failures and replay](../research/data/fsi-block-2026-11-25/README.md).
 
-User delivery order: **finish source → push remote → run validation → user merges**.
-Source `d9f58572e67ffa3636460e21d6d864ea560c8329` was pushed before validation.
-Release compiled successfully; the first three plan tests failed and diagnosis
-is ongoing. PR #49 is draft with manual-review/no-automerge labels. Keep it out
-of automatic merge even when CI succeeds.
+All 60 arterial runs passed; 12 complete 32-step trajectories contributed 768
+accepted true-residual checks. Maximum residual/target ratio:
+0.5600385064; maximum relative field-peak difference: 1.0712628633e-11.
+Report measured timing without requiring a universal speedup: the direct
+solver remained faster on the two tested grids. Full coupled AMG, elasticity
+rotations, multi-node scaling and cross-partition restart are not established
+by these tests.
+
+Remaining delivery work: finalize the PR evidence and obtain user review.
+User delivery order remains **finish
+source → push remote → run validation → user merges**. PR #49 retains
+`manual-review` / `no-automerge`; do not auto-merge even when CI succeeds.
 
 ## 2026-11-24 · 血管 FSI 后续验收
 

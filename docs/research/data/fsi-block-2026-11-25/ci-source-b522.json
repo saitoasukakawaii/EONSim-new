@@ -1,0 +1,331 @@
+{
+  "source_commit": "b52281d7585ead08e545f29f8d83eca9177e7eac",
+  "core_run_id": 45606963270,
+  "website_run_id": 45606963330,
+  "selected_numerical_tests": 53,
+  "python_tests": 58,
+  "core": {
+    "jobs": [
+      {
+        "id": 139182936881,
+        "name": "Select affected checks",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 45606963270,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Select tests and check changed CI scripts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Preserve selection evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          }
+        ]
+      },
+      {
+        "id": 139182938962,
+        "name": "PETSc 3.19.6 / release (manual compatibility)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "run_id": 45606963270,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 139183113760,
+        "name": "PETSc 3.23.7 / release",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 45606963270,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Require successful selection",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "No new numerical tests required",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 3
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Dependency package cache",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Restore locked environment",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Build and verify selected numerical contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Preserve evidence even on failure",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Dependency package cache",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 139183116864,
+        "name": "PETSc 3.23.7 / debug (manual diagnostics)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "run_id": 45606963270,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 139189880433,
+        "name": "Record incremental evidence",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 45606963270,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Require successful selection and Release validation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Verify results and record historical origins",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          }
+        ]
+      }
+    ]
+  },
+  "website": {
+    "jobs": [
+      {
+        "id": 139180223624,
+        "name": "Build VitePress",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 45606963330,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Select website work",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Setup Node.js",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install website dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Add draft and template isolation sentinels",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Build public website",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Check Markdown and unpublished content isolation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Setup Node.js",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      }
+    ]
+  },
+  "numerical_notice": {
+    "commit": "630be2000e946417683410ad5d9793fc6951e740",
+    "mode": "release",
+    "selection": "explicit",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 16760348672,
+      "cgroup": {
+        "/sys/fs/cgroup": {},
+        "/sys/fs/cgroup/system.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        }
+      },
+      "build_jobs": 4
+    },
+    "test_counts": {
+      "passed": 53,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "merge_preview_tree": "65bb8e65d5e3d896dc3382043cd05aa189db73d8",
+  "merge_preview_tree_matches_head": true
+}
