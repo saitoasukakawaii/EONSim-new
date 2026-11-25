@@ -33,7 +33,10 @@ def compare(first,second,ranks):
                     assert max((abs(i-j) for i,j in zip(first_values,second_values)),default=0)<2e-8
 for ranks in (1,2):
  part=a.work/f'parts{ranks}';run([a.executable,'-case',case,'-prepare',part,'-parts',ranks]);launcher=[a.mpiexec,'-n',ranks] if ranks>1 else []
- prefix=launcher+[a.executable,'-case',case,'-partition',part,'-snes_max_it',2]
+ # With only two Newton iterations, keep linear error below the scaled
+ # mesh acceptance floor so this fixture exercises nonlinear cutback.
+ prefix=launcher+[a.executable,'-case',case,'-partition',part,'-snes_max_it',2,
+                  '-ksp_rtol','1e-11','-ksp_atol','1e-15']
  if a.velocity_solver: prefix+=['-pc_plan_velocity_solver',a.velocity_solver]
  full=a.work/f'full{ranks}.vtu';text=run(prefix+['-output',full]);retries=re.findall(r'step_retry=\d+ time=(\S+) next_dt=(\S+)',text)
  assert retries and all(float(time)==0 for time,dt in retries)

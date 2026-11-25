@@ -373,11 +373,11 @@ def verify_arterial_block(executable, mpiexec, work):
                    target='max(1e-23, 1e-10*rhs_norm)', tolerance_margin=1.00001,
                    field_relative_peak_limit=2e-6, cases=[], failures=[])
 
-    def launch(command, cwd, log):
+    def launch(command, cwd, log, timeout=130):
         t0 = time.monotonic()
         with log.open('w') as out:
             proc = subprocess.run(list(map(str,command)), cwd=cwd, env=env,
-                                  stdout=out, stderr=subprocess.STDOUT, timeout=130)
+                                  stdout=out, stderr=subprocess.STDOUT, timeout=timeout)
         return proc.returncode, time.monotonic()-t0
 
     def options(mode, ordering):
@@ -533,13 +533,19 @@ def verify_arterial_block(executable, mpiexec, work):
             out.mkdir(exist_ok=True)
             log = out/'solve.log'
             flags = options(mode,ordering)
-            rec = dict(mode=mode,label=label,flags=flags,steps_requested=steps)
+            # Complete-fluid Schur performs nested fluid solves at every
+            # structural iteration. Keep all 32 steps and accuracy gates;
+            # account for its measured work instead of reducing that coverage.
+            timeout = 600 if mode=='added_mass' and steps==32 else 130
+            rec = dict(mode=mode,label=label,flags=flags,steps_requested=steps,
+                       execution_budget_seconds=timeout)
             result['runs'].append(rec)
+            started = time.monotonic()
             try:
                 command = [mpi,'--map-by','core','--bind-to','core','-n',str(ranks),
                            exe,'-case',case/'case.json','-partition',part,'-output',out/'tube.vtu',
                            '-solver_report','-linear_report','-stop_after',steps,*flags]
-                code,elapsed = launch(command,out,log)
+                code,elapsed = launch(command,out,log,timeout=timeout)
                 rec.update(exit_code=code,wall_seconds=elapsed,log_sha256=digest(log))
                 assert code==0, ('nonzero launcher exit',code)
                 assert log.read_text().splitlines().count('status=success')==1, 'missing solver success'
@@ -551,7 +557,9 @@ def verify_arterial_block(executable, mpiexec, work):
                     assert all(v<=2e-6 for v in ratios.values()), ('field gate',ratios)
                 rec['status']='passed'
             except (AssertionError,ValueError,KeyError,IndexError,OSError,subprocess.TimeoutExpired) as exc:
-                rec.update(status='failed',error=str(exc))
+                rec.update(status='failed',error=str(exc),timeout=isinstance(exc,subprocess.TimeoutExpired))
+                rec.setdefault('wall_seconds',time.monotonic()-started)
+                if log.exists(): rec.setdefault('log_sha256',digest(log))
                 summary['failures'].append(dict(grid=grid,label=label,error=str(exc)))
             # Keep detailed per-correction evidence in JSON; emit compact lines
             # in the CTest log for remote review even if a later case fails.

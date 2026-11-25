@@ -194,7 +194,9 @@ if(BUILD_TESTING)
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     set_tests_properties(fsi_tube fsi_tube_wall_support fsi_tube_rcr PROPERTIES PROCESSORS 4 LABELS "rank-1;rank-2;rank-4")
     set_tests_properties(fsi_tube_rcr_response PROPERTIES PROCESSORS 2 LABELS "rank-1;rank-2")
-    set_tests_properties(fsi_tube PROPERTIES TIMEOUT 600)
+    # Includes the complete-fluid structural Schur's 32-step trajectories and
+    # interleaved timing samples, in addition to the original tube acceptance.
+    set_tests_properties(fsi_tube PROPERTIES TIMEOUT 1200)
     set_tests_properties(fsi_tube_wall_support fsi_tube_rcr fsi_tube_rcr_response PROPERTIES TIMEOUT 300)
     add_test(NAME fsi_flow COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_flow.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_flow")
