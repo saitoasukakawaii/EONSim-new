@@ -1,16 +1,32 @@
 # EONSim Codex Development Progress
 
-## 2026-11-25 · FSI-PC-03 开发中：结构 Schur 的流体反馈近似
+## 2026-11-25 · FSI-PC-03 实现与验收完成：流体响应成本与结构 nodal 近似
 
-已从 GitHub 确认 #49 合入 main，基线
-`296246e53d895f29ea3d0f7e5c960dc26b1426dc`。
-本轮在 `codex/fsi-block-efficient-schur` 增加可选的结构预条件矩阵
-`P_s = K - G H_F E`，其中局部 `H_F` 同时保留活动流体速度与压力分量。
-完整隐式结构 Schur、物理 Jacobian 与接受条件保持原契约。
-默认 `a11` 路径保留；新路径默认只应用一次结构预条件器。
-计划通过独立非对称矩阵 oracle、数值刷新、MPI 空块、RCR 与恢复算例验收，
-并对固定动脉输入实测总成本。此处为任务领取记录，尚未声明实现或验证通过。
-按本轮用户授权，所有源码先同步远端，再运行算例；通过验证与必需 CI 后合并。
+从已合并 #49 的 `296246e53d895f29ea3d0f7e5c960dc26b1426dc` 继续开发，交付入口为
+[PR #50](https://github.com/saitoasukakawaii/EONSim-new/pull/50)。
+新增 `-pc_plan_structure_approx nodal`，以同一流体实体活动速度、压力的混合块逆构造
+`P_s = K - G H_F E`；行列平衡、语义分组、共享 USER 矩阵刷新、失败同步及 RCR 路径均已验收。
+该矩阵未显示可靠性能优势，保持实验性显式选项，默认结构 P 仍为 a11。
+
+最终默认源码 `c4fb266edec94afbf610cb1379dd1595ed96ae40` 将 added_mass 的完整流体响应和
+coupled twolevel 的速度响应改为 PREONLY 各应用一次现有 PC；保留显式 FGMRES 的原迭代预算。
+完整根 Jacobian 和物理接受条件不变；结构隐式 Schur 的实际作用随近似流体响应改变，不能称为精确流体逆。
+
+先推送后运行的本地 clean PETSc 3.23.7 Release **9/9** 通过：代数 1/2/4 rank、RCR、
+三种 retry、同分区 restart 和 hybrid 物理对照，含新增刚体/弹性/Neo-Hookean nodal 与 quantity-twolevel 变体。
+性能比较单独固定生产二进制 `664a623`、驱动 `66b0a62`，**72/72** 运行、12 条完整 32 步轨迹通过。
+细网格三样本线性时间中位数：added_mass `44.477524 → 6.506006 s`，twolevel `3.931200 → 0.609956 s`；
+外层次数增加，直接法在两套小网格上仍最快。最大真实残量/目标比 `0.5547250921`，最大五场相对峰值差 `3.1382040814e-11`。
+
+独立重放通过 2,635 份文件、72 份日志、1,248 次线性修正、468 份体 VTU；
+156 个保存状态的 780 项字段检查含 130 项直接参考自身对照。原解析器的一项漏检保留失败记录，
+修复后 25/25 正负对照符合预期。c4fb266 的四项必需源码 CI 均通过：15 项新增数值运行通过，
+39 项精确复用历史收据。来源另列在验证索引，不将文档提交记为新数值执行。
+[配置与数学语义](FSI_BLOCK_PRECONDITIONER.md) · [收据、原始证据与复现](../research/data/fsi-block-efficiency-2026-11-25/README.md) ·
+[未发布算法草稿](../../website/drafts/fsi-schur-response-cost.md)。
+
+按本轮用户授权，合并采用全部四项必需检查通过后的 head-locked squash；合并状态以 PR 为准。
+未增加全量、Debug 或 PETSc 3.19.6 验证；单机小网格证据不代表完整耦合 AMG、旋转粗模态或多节点扩展性。
 
 ## 2026-11-25 · FSI-PC-02 验收通过，已合并 #49
 

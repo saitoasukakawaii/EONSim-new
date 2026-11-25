@@ -1,12 +1,14 @@
 # FSI 分块预条件器
 
-**当前状态：结构 nodal 流体反馈近似已完成针对性验证；降低嵌套成本的新默认值正在验收。**
+**当前状态：本轮实现、默认路径本地验收与独立证据重放均已完成。**
 本轮基线为 `296246e53d895f29ea3d0f7e5c960dc26b1426dc`，工作分支为
 `codex/fsi-block-efficient-schur`，见 [PR #50](https://github.com/saitoasukakawaii/EONSim-new/pull/50)。
 `664a623` 的独立代数、RCR 与恢复检查通过；驱动 `66b0a62` 配合同一生产二进制
 完成 72 次动脉运行，含 12 条完整 32 步轨迹。结构 nodal 没有显示可靠效率收益，
 保留为显式可选项。完整比较支持把 added_mass 流体响应和 twolevel 联合速度响应
-改成单次 PC 应用；最终默认路径与用户覆盖仍须通过新源码推送后的针对性回归。
+改成单次 PC 应用。最终源码 `c4fb266` 已先推送、后重新编译并通过 clean Release
+9/9 定向回归，覆盖默认路径与用户覆盖。来源、CI 与重放见
+[本轮验证索引](../research/data/fsi-block-efficiency-2026-11-25/README.md)。
 
 上一轮求解器实现检查点为
 `b8ac03ab162715fca24009f18903da8116ef4ecc`；其 PETSc 3.23.7 Release 代数检查
@@ -404,6 +406,24 @@ nodal / a11 分别为 `65.788333` / `68.456574` s，而原 a11 结构 FGMRES 为
 `49.117077` s。该选项保留作实验，未提升为默认值。验证器初版还漏过一次早期
 KSP 类型损坏；`66b0a62` 改为逐次、逐 rank 检查后，25 项正负对照全部符合预期。
 历史失败保留，不能把初版写成全部通过。
+
+### 6.7 最终默认源码与独立重放
+
+`c4fb266edec94afbf610cb1379dd1595ed96ae40` 的两处 KSP 默认类型更改在推送后重新编译。
+本地 PETSc 3.23.7 Release 的 `pc_plan_mpi1/2/4`、`fsi_tube_rcr`、
+`pc_added_mass_retry`、`pc_added_mass_nodal_retry`、`pc_twolevel_retry`、
+`pc_recipe_restart`、`pc_recipe_hybrid` **9/9 通过**，收据 `dirty=false`。
+精确结构 Schur oracle 显式恢复迭代流体响应；新默认则用非零 RHS 核对一次
+`KSPSolve` 与一次 `PCApply` 等价。独立 main/inner/upper 的 prefix、类型和预算
+分别核对。刚体、弹性双域及 Neo-Hookean 的新增两 rank 变体也核对实际默认类型，
+所有字段误差和物理/恢复门槛保持原值。
+
+同一推送的独立重放检查 2,635 份归档文件、72 份运行日志、1,248 次线性修正、
+2,028 份必要求解器观测、468 份体 VTU 及 156 个保存状态的 780 项字段比较，全部通过。
+其中 130 项是直接参考自身对照，650 项是其他模式；原初筛和失败控制仅做哈希核验。
+重放不执行求解器，亦不把有限的原墙钟及其重算中位数当作新的计时。
+[本地源码收据](../research/data/fsi-block-efficiency-2026-11-25/default-summary.json) ·
+[重放结果](../research/data/fsi-block-efficiency-2026-11-25/replay-result.json)。
 
 ## 7. 源码与官方依据
 

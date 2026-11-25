@@ -1,27 +1,38 @@
 # EONSim Codex Task Queue
 
-## FSI-PC-03 / in progress / 2026-11-25
+## FSI-PC-03 / validated / 2026-11-25
 
-Continue from merged PR #49, main
-`296246e53d895f29ea3d0f7e5c960dc26b1426dc`, on
-`codex/fsi-block-efficient-schur`. Implement an opt-in pressure-aware nodal
-fluid-feedback approximation for the structural Schur preconditioning matrix:
-`P_s = K - G H_F E`. Keep the complete implicit structural Schur operator,
-physical Jacobian and existing acceptance criteria. The default `a11` route
-remains available; the new route applies its structural preconditioner once
-by default. Independently check the approximation, mixed-unit scaling,
-numeric refresh and distributed semantics before physical acceptance.
+Implementation and targeted acceptance are complete on
+`codex/fsi-block-efficient-schur`, from merged #49/main
+`296246e53d895f29ea3d0f7e5c960dc26b1426dc`.
+[PR #50](https://github.com/saitoasukakawaii/EONSim-new/pull/50) is the delivery
+record and authoritative merge state.
 
-Evaluate the new route on the existing pinned arterial cases and RCR/recovery
-fixtures. Also make one bounded comparison of the existing twolevel PREONLY
-option; do not infer an efficiency gain from fewer outer iterations alone.
-No implementation or numerical acceptance is claimed at task start.
+Delivered optional mixed-fluid nodal structural `P_s = K - G H_F E`, numeric
+refresh shared by semantic Schur roles, and independent nonsymmetric/scaled
+oracles. The nodal structural path remains experimental: correctness passed,
+but its measured screening did not establish useful efficiency.
 
-The current user authorizes **finish source → push remote → run validation →
-merge after passing validation and required CI**. Apply the same order to
-source fixes. This authorization supersedes the prior task's user-review
-merge restriction. Keep work reviewable in a PR and use a head-locked squash
-merge under the repository's protected-branch rules.
+The complete 72-run arterial campaign instead supports two bounded default
+changes: added-mass fluid PREONLY and coupled twolevel velocity PREONLY.
+Existing a11 structural FGMRES and explicit override budgets remain available.
+The full physical Jacobian and physical gates are unchanged; the actual
+implicit structural action uses the configured approximate fluid response.
+
+Final source `c4fb266edec94afbf610cb1379dd1595ed96ae40` was pushed before its
+clean PETSc 3.23.7 Release 9/9 acceptance and independent archive replay.
+The 72-run campaign has separate binary/driver provenance, reproduced by
+2,635 hashes, 1,248 correction checks and all saved physical fields.
+All four required source CI checks passed: 15 newly executed numerical tests
+and 39 compatible historical receipts cover the 54-test required selection.
+[Evidence, failures, commands and CI](../research/data/fsi-block-efficiency-2026-11-25/README.md).
+
+The current user authorizes source → remote push → verification → merge
+following successful validation and all four protected checks. This replaces
+the prior task's user-review restriction. Use a head-locked squash and keep
+the knowledge article in website/drafts. Larger grids, stronger density ratios,
+full coupled AMG and multi-node scaling remain separate research validation
+needs; this delivery does not claim those properties.
 
 ## FSI-PC-02 / merged as #49 / 2026-11-25
 
