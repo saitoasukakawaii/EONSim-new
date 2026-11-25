@@ -1,5 +1,103 @@
 # EONSim Codex Session Log
 
+## 2026-11-25 · FSI-PC-02 — 本地及源码 CI 通过，待用户审阅
+
+基线 `f50a4a4338689c9a065bee30ae4a7f3f52c5002e`，分支 `codex/fsi-block-completion`，PR #49。
+本轮遵循用户要求：源码先推送远程，再运行相应数值验证；最终由用户审核并合并。
+PR 保持 `manual-review`、`no-automerge` 标签，不执行自动合并。
+**最终验证 head `b52281d7585ead08e545f29f8d83eca9177e7eac` 推送后，本地 clean Release 8/8 通过；该源码远端 53 项 Release、58 项 Python 及证据/网站检查通过，待用户审核。**
+[实际命令、原始收据与复现](../research/data/fsi-block-2026-11-25/README.md)中的归档保留原 `build/...` 路径；下述工作路径可据此对应。
+
+### 实现与审查范围
+
+- `added_mass` 在 dynamics 内消去完整流体速度/压力块，构造结构 Schur 作用；结构 A11 用作预条件，外层继续保留完整 Jacobian 和 ALE 耦合。流体及结构内层采用有界迭代，外层要求 FGMRES。
+- `twolevel` 在 hybrid/quantity 的联合流固速度块上建立稀疏分区常数插值和 Galerkin 粗校正；恒等约束行不进入粗空间，允许空本地块和全恒等退化。它不等同于完整多层 AMG 或网格无关迭代证明。
+- 使用 PETSc 公共 API 分别配置 Schur main、interior、upper，按对象身份去重并保留各自 prefix；独立 upper 仅适用于 FULL。完整 fluid 的辅助子树也递归配置与验证。同一语义节点的 nodal USER 压力矩阵共享并按 Jacobian 装配刷新一次。
+- interior postsolve 通过公开 `KSPCheckSolve` 传播真实 breakdown/PC failure，同时允许有界 ITS；失败报告保留原 field0/field1 路径并增加独立 inner/upper。最终源码只读审查未发现当前固定布局、共形 FSI 范围内新的 collective、对象寿命或算子替换阻塞问题。
+
+### 首轮失败、根因与生产修复
+
+统一采用锁定 PETSc 3.23.7 Release，经 `scripts/cloud/run.sh 3.23.7 release explicit <locked-prefix> <selection.json>` 运行增量选测，不执行全量或 PETSc 3.19.6。
+
+| 源码提交 | 实际检查与结果 | 原始证据 |
+|---|---|---|
+| `d9f58572e67ffa3636460e21d6d864ea560c8329` | 编译成功；`pc_plan_mpi1/2/4` 全部失败，0/3 | `build/validation-history/algebra-d9f5857`；原收据记录 `dirty=true`，保留原值，不称 clean-head 验收 |
+| `0f16d567fa908de9c374621fef2a8ebc48f24dfc` | 增加失败专用诊断后，仅复测 mpi1/2，仍 0/2；没有放宽原断言 | `build/validation-history/algebra-0f16d56` |
+| `b8ac03ab162715fca24009f18903da8116ef4ecc` | 修复后 `pc_plan_mpi1/2/4` 3/3 通过，包含独立 Schur/粗空间 oracle、数值更新、空 rank、辅助 KSP、零残量拒绝及故意 PC 故障 | `build/validation-history/algebra-b8ac03a`，clean Release 收据 |
+
+MPI 故障根因为 PETSc GAMG 创建时设置 `useAmat=true`，该状态在用户将 PC 改为 BJacobi 后仍保留。
+MPI BJacobi 因而在隐式 Schur 算子上提取不支持的对角子块；串行路径避开该调用。
+对已推送二进制加 `-fieldsplit_dynamics_fieldsplit_structure_pc_use_amat false` 后，原奇异局部 ILU 正确传播为
+`FACTOR_NUMERIC_ZEROPIVOT` / `DIVERGED_PC_FAILED`。生产修复在语义及 legacy 默认创建后明确选用已装配 P，用户 options 仍最后生效。
+串行 `twolevel_identity` 的失败实际发生在压力 GAMG；联合速度的全恒等退化本身正确。
+对数值上严格对角且对角项有限、非零的叶子默认直接使用 Jacobi，保留原测试及精度标准。
+
+### b8 物理批次与 retry 精度诊断
+
+`build/ci/fsi-block-physical.json` 的 7 项选测结果为 **5 passed / 2 failed**。
+通过：`fsi_tube_rcr`、`pc_twolevel_retry`、`pc_recipe_restart`、`pc_recipe_hybrid`、`schur_verification`。
+失败：`fsi_tube` 的双 rank added_mass 32 步轨迹达到旧子进程 130 s 预算；`pc_added_mass_retry` 在串行 t=0.005 的后续重试耗尽。
+原始收据和输入/输出保存在 `build/validation-history/physical-b8ac03a`，不能把整批记为通过。
+
+retry 保持原 Neo-Hookean 物理、0.04 终止时间、字段接受条件和 `-snes_max_it 2`。
+原外层默认 `rtol=1e-9, atol=1e-13` 接受 4 步后，在 `t=0.005` 的第二次 Newton 线性求解以 RTOL 结束，
+真实线性残量为 `3.04444e-13`，mesh 无量纲 RMS 为 `1.45523e-12`，超过该字段约 `1.23e-12` 的接受限值；
+缩步后的 mesh 线性 RMS 仍为 `1.47726e-12`。这些是独立线性残量，不冒充失败路径未打印的最终非线性 mesh 残量。
+只追加 `-ksp_rtol 1e-11 -ksp_atol 1e-15`，原已推送二进制即完成 32 步至 0.04，`dt=0.00125`，仅有原先 5 次 t=0 缩步。
+原失败位置的第 5 步 mesh 非线性 RMS 为 `2.47253e-14`，限值 `1.23476e-12`。
+复用同网格既有直接解参考，最终流体/固体全部 Float64 VTK 最大差分别为 `6.04e-14` / `2.62e-15`。
+确切 argv、源码/二进制/log SHA256、两次退出码及残量在 `build/diagnostics/retry-b8ac03a/summary.json`；原始日志分别为 `baseline.log`、`tighter.log`。
+据此只收紧 retry verifier 各 recipe 变体的外层线性精度，不由这个刻意限制 Newton 次数的 fixture 改动全局默认值。
+
+### 未采用的性能选项与保留的验收预算
+
+在同一 b8 二进制、双 rank 细动脉管、固定外层真实残量目标下，尝试结构内层 max_it=4/2、
+结构与流体速度 ASM/ILU(1)、三个 GAMG 粗层 MUMPS LU。
+四次定向运行均在 80 s 诊断预算终止，退出码 124；请求 4 步时分别只接受 3、3、1、2 步。
+这些组合没有提供可接受的性能改善证据，未进入默认或最终验收选项，也不计为通过。
+详见 `build/diagnostics/arterial-budget-b8ac03a/results.json`、`arterial-asm-b8ac03a/results.json`、`arterial-coarse-lu-b8ac03a/results.json`。
+
+保留新增完整 32 步与交替 timing 样本，将 added_mass 32 步子进程预算由 130 s 调至 600 s，
+整个 `fsi_tube` CTest 由 600 s 调至 1200 s；其余子进程仍为 130 s。
+物理参数、步数、每次修正的真实残量目标 `max(1e-23, 1e-10*rhs_norm)`、字段相对峰值门槛 `2e-6` 均未放宽。
+运行更久不等于性能改善，本轮不提前宣称 added_mass 或 twolevel 比直接法更快。
+
+### 最终复验完成与证据复用
+
+`ff81e5bb1a8e02a3f484d855ea074461b716ff66` 加强 VTU 数组/长度/有限性和完整线性日志审计，
+已用既有输出及篡改负例独立验证检查器，证据在 `build/diagnostics/validation-guards/summary.json`，没有新增求解器运行。
+`b52281d7585ead08e545f29f8d83eca9177e7eac` 仅调整上述 retry 线性精度及实际工作预算；生产求解器自 b8 后未改变。
+该 head 推送后执行 `scripts/cloud/run.sh 3.23.7 release explicit <locked-prefix> build/ci/fsi-block-final.json`。
+clean Release 收据确认 `fsi_tube`、`fsi_tube_rcr`、`pc_added_mass_retry`、`pc_twolevel_retry`、
+`pc_recipe_retry`、`time_retry_verification`、`pc_recipe_hybrid`、`schur_verification` **8/8 通过，零失败/跳过**。
+原始收据冻结于 `build/validation-history/physical-b52281d`，持久化报告及归档见
+[FSI-PC-02 验证记录](../research/data/fsi-block-2026-11-25/README.md)。
+
+两套动脉网格的 60 次运行全部通过，其中 12 条完整 32 步轨迹共 768 次 Newton 修正。
+全部样本最大真实残量/目标比 `0.5600385063731746`；最大相对场峰值差 `1.0712628632823266e-11`，
+保留原真实残量和全场接受标准。
+三次交替重复的 4 步墙钟中位数：粗网格 direct/twolevel/added_mass 为 `0.416/0.967/7.240 s`，
+细网格为 `0.767/4.378/46.404 s`。这些测量未显示新路径普遍提速，不将外层迭代减少等同于端到端收益。
+
+精确复用 b8 clean Release 的 `pc_plan_mpi1/2/4` **3/3** 和 `pc_recipe_restart` **1/1** 通过证据；
+生产源码及相关输入未受后续检查器修改影响，这四项不记为 b522 本地新运行。
+
+b522 源码 [数值 CI run 45606963270](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45606963270)
+已完成：选测、PETSc 3.23.7 Release 和增量证据收据均为 success，**53 项数值选测、58 项 Python 检查通过**。
+[网站 run 45606963330](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45606963330) 的
+Build VitePress 与未发布内容隔离检查成功；Debug 和 PETSc 3.19.6 手动专项按策略 skipped。
+[源码 CI 元数据](../research/data/fsi-block-2026-11-25/ci-source-b522.json)保留实际 job 状态，
+这些是 b522 源码的运行结果，本次文档补记不计为额外数值执行。
+
+最终归档为 7,180,452 bytes，SHA256 `03990426bfc193038353da504f38119cd006cf8ea7fd95743cb1ccb66f4bccdf`，
+含 2,557 份数据文件及 3 份 manifest/generator 文件，保留原 build 路径。
+全部 12 条完整轨迹与 60 份运行日志已核对文件哈希和输出新鲜性；归档和重放入口见上述持久化报告。
+归档与独立复核脚本先推送为 `370358f3c9210eec8a1699dcd1db2c67f7702d74` 后执行复核，退出码 0。
+2,557 份文件哈希通过，60 份日志的 1,152 次线性修正与 288 份完整轨迹体 VTU 的
+96 个保存状态、480 项字段对照全部复现；回执为 `replay-result.json`，没有新增 MPI 求解。
+本地实现、源码审查与目标验收已完成；本轮未执行全量或 PETSc 3.19.6，也不扩大为多节点可扩展性结论。
+PR #49 保持人工审核和禁止自动合并；最终由用户审核并合并，知识文章保持草稿。
+
 ## 2026-11-24 · 弹性管与 RCR 连续开发记录
 
 - 基线为 main 的 `6a5ac96`，工作分支为 `codex/fsi-smooth-load-six-hour`。沿用 PETSc 3.23.7 Release 和仓库编译脚本，外部 svFSI 固定为 `94a2ff5`。外部数值干预各有独立程序、输入和原始求解历史。[外部编译方法](../research/data/fsi-pressure-faces-2026-11-24/build-svfsi.sh)

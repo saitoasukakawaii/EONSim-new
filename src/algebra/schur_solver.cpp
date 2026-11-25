@@ -1,10 +1,24 @@
 #include "eonsim/schur_solver.hpp"
 #include <algorithm>
+#include <array>
 #include <cstring>
 #include <stdexcept>
 #include <sstream>
 namespace eonsim {
 namespace {
+void collective_check(MPI_Comm comm,bool valid,const std::string& message) {
+    int local=valid?1:0,all=0;
+    if(MPI_Allreduce(&local,&all,1,MPI_INT,MPI_MIN,comm)!=MPI_SUCCESS)
+        throw std::runtime_error("Schur solver validation communication failed");
+    if(!all) throw std::runtime_error("Schur solver: "+message);
+}
+struct SubSolvers { KSP* values=nullptr; ~SubSolvers(){PetscFree(values);} };
+PetscErrorCode check_schur_inner_solve(KSP solver,Vec,Vec solution,void* context) {
+    // MatSchurComplement calls KSPSolve without the KSPCheckSolve used by
+    // PCFieldSplit's triangular factors. Preserve a bounded ITS iterate, but
+    // flag breakdown/PC failures before the subsequent Schur matrix product.
+    return KSPCheckSolve(solver,static_cast<PC>(context),solution);
+}
 void option_default(const std::string& name,const char* value) {
     PetscBool found=PETSC_FALSE; EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,name.c_str(),&found));
     if(!found) EONSIM_PETSC(PetscOptionsSetValue(nullptr,name.c_str(),value));
@@ -12,6 +26,11 @@ void option_default(const std::string& name,const char* value) {
 void multigrid(KSP solver) {
     PC pc; EONSIM_PETSC(KSPGetPC(solver,&pc));
     EONSIM_PETSC(KSPSetType(solver,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCGAMG));
+    // The declared Pmat supplies preconditioning blocks; Amat can be an
+    // implicit Schur operator. GAMG's MG constructor enables useAmat, and
+    // that flag survives a user PC-type change (for example to BJacobi).
+    // Reset the default before options, preserving explicit -pc_use_amat.
+    EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
     const char* prefix=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(solver,&prefix));
     const std::string base="-"+std::string(prefix?prefix:"");
     // 避免多个 SuperLU_DIST 子因子的 communicator 问题；粗层使用迭代解。
@@ -35,11 +54,65 @@ void schur(MPI_Comm comm,KSP solver,const std::vector<PetscInt>& velocity,const 
     // FULL/SELFP above overwrites user choices made by SNESSetFromOptions.
     EONSIM_PETSC(KSPSetFromOptions(solver));
     EONSIM_PETSC(PCSetUp(pc));
-    PetscInt n=0; KSP* sub=nullptr; EONSIM_PETSC(PCFieldSplitGetSubKSP(pc,&n,&sub));
-    if(n!=2) { PetscFree(sub); throw std::runtime_error("Schur requires two fields"); }
-    for(PetscInt i=0;i<n;++i) multigrid(sub[i]);
-    EONSIM_PETSC(PetscFree(sub));
+    configure_schur_subsolvers(comm,pc,multigrid,multigrid);
 }
+}
+SchurAuxiliaryOptions validate_schur_auxiliary_options(MPI_Comm comm,
+    const std::string& prefix,const std::string& second_name) {
+    const std::string base="-"+prefix;
+    const std::string second=base+"fieldsplit_"+second_name;
+    char* options=nullptr;
+    EONSIM_PETSC(PetscOptionsGetAll(nullptr,&options));
+    std::istringstream stream(options?options:"");
+    EONSIM_PETSC(PetscFree(options));
+    SchurAuxiliaryOptions result;
+    std::string token;
+    while(stream>>token) {
+        result.inner=result.inner||token.rfind(second+"_inner_",0)==0;
+        result.upper=result.upper||token.rfind(second+"_upper_",0)==0;
+    }
+    char value[32]{}; PetscBool set=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,
+        (base+"pc_fieldsplit_schur_fact_type").c_str(),value,sizeof(value),&set));
+    const std::string factor=set?value:"full";
+    const int kind=factor=="full"?1:factor=="lower"?2:factor=="upper"?3:factor=="diag"?4:0;
+    const int local[3]={result.inner?1:0,result.upper?1:0,kind};
+    int minimum[3]{},maximum[3]{};
+    if(MPI_Allreduce(local,minimum,3,MPI_INT,MPI_MIN,comm)!=MPI_SUCCESS||
+       MPI_Allreduce(local,maximum,3,MPI_INT,MPI_MAX,comm)!=MPI_SUCCESS)
+        throw std::runtime_error("Schur auxiliary option communication failed");
+    collective_check(comm,std::equal(minimum,minimum+3,maximum)&&kind!=0,
+        "factorization and inner/upper solver activation must be valid and identical on every rank at "+prefix);
+    // In PETSc UPPER applies the main A00 KSP; kspupper is specific to FULL.
+    collective_check(comm,!result.upper||kind==1,
+        "separate Schur upper solver requires full factorization at "+prefix);
+    return result;
+}
+void configure_schur_subsolvers(MPI_Comm comm,PC pc,
+    const std::function<void(KSP)>& configure_a00,
+    const std::function<void(KSP)>& configure_second) {
+    PetscInt count=0; SubSolvers sub;
+    EONSIM_PETSC(PCFieldSplitSchurGetSubKSP(pc,&count,&sub.values));
+    collective_check(comm,(count==2||count==3)&&sub.values,
+        "expected main A00, Schur and optional upper solvers");
+    Mat schur_matrix=nullptr; KSP inner=nullptr;
+    EONSIM_PETSC(PCFieldSplitSchurGetS(pc,&schur_matrix));
+    EONSIM_PETSC(MatSchurComplementGetKSP(schur_matrix,&inner));
+    EONSIM_PETSC(PCFieldSplitSchurRestoreS(pc,&schur_matrix));
+    // PCFieldSplitGetSubKSP returns the *interior* A00 KSP in Schur mode.
+    // It can differ from the factor's main solve, so configuring that array
+    // alone leaves the main/upper solvers with unrelated PETSc defaults.
+    const std::array<KSP,3> inverse_solvers{{sub.values[0],inner,count==3?sub.values[2]:nullptr}};
+    for(std::size_t i=0;i<inverse_solvers.size();++i) {
+        const auto current=inverse_solvers[i];
+        if(current&&std::find(inverse_solvers.begin(),inverse_solvers.begin()+i,current)==inverse_solvers.begin()+i)
+            configure_a00(current);
+    }
+    configure_second(sub.values[1]);
+    // The containing PC owns its Schur matrix and interior KSP. Its borrowed
+    // lifetime therefore covers this callback, including the default alias of
+    // the main A00 solve. EONSim owns child postsolve callbacks in this setup.
+    EONSIM_PETSC(KSPSetPostSolve(inner,check_schur_inner_solve,pc));
 }
 // Old entry point keeps its flow/structure/rigid prefixes. Its topology is fixed.
 void validate_schur_solver_options(MPI_Comm comm,KSP solver,const AlgebraLayout& layout) {
@@ -59,20 +132,13 @@ void validate_schur_solver_options(MPI_Comm comm,KSP solver,const AlgebraLayout&
             if(set&&std::string(value)!=option.second) valid=0;
         }
         if(schur_node) {
-            char* options=nullptr;
-            EONSIM_PETSC(PetscOptionsGetAll(nullptr,&options));
-            std::istringstream stream(options?options:"");
-            EONSIM_PETSC(PetscFree(options));
-            std::string token;
-            const auto pressure=base+"fieldsplit_pressure";
-            while(stream>>token)
-                if(token.rfind(pressure+"_inner_",0)==0||token.rfind(pressure+"_upper_",0)==0) valid=0;
+            validate_schur_auxiliary_options(comm,node,"pressure");
         }
     };
     check_node(root,independent);
     if(!independent) check_node(root+"fieldsplit_flow_",true);
     MPI_Allreduce(&valid,&all,1,MPI_INT,MPI_MIN,comm);
-    if(!all) throw std::runtime_error("Legacy Schur options changed fixed topology or requested unsupported inner/upper solvers");
+    if(!all) throw std::runtime_error("Legacy Schur options changed fixed topology");
 }
 void configure_schur_solver(MPI_Comm comm,KSP solver,const AlgebraLayout& layout,Mat matrix)
 {

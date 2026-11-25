@@ -57,6 +57,7 @@ add_library(eonsim_core
     src/algebra/nonlinear_system.cpp
     src/algebra/schur_solver.cpp
     src/algebra/pc_plan.cpp
+    src/algebra/coupled_velocity_pc.cpp
     src/physics/fluid_element.cpp
     src/fem/reduced_layout.cpp
     src/physics/fsi_diagnostics.cpp
@@ -193,7 +194,9 @@ if(BUILD_TESTING)
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     set_tests_properties(fsi_tube fsi_tube_wall_support fsi_tube_rcr PROPERTIES PROCESSORS 4 LABELS "rank-1;rank-2;rank-4")
     set_tests_properties(fsi_tube_rcr_response PROPERTIES PROCESSORS 2 LABELS "rank-1;rank-2")
-    set_tests_properties(fsi_tube PROPERTIES TIMEOUT 600)
+    # Includes the complete-fluid structural Schur's 32-step trajectories and
+    # interleaved timing samples, in addition to the original tube acceptance.
+    set_tests_properties(fsi_tube PROPERTIES TIMEOUT 1200)
     set_tests_properties(fsi_tube_wall_support fsi_tube_rcr fsi_tube_rcr_response PROPERTIES TIMEOUT 300)
     add_test(NAME fsi_flow COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_flow.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_flow")
@@ -335,6 +338,17 @@ if(BUILD_TESTING)
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --recipe hybrid
         --work "${CMAKE_CURRENT_BINARY_DIR}/pc_recipe_retry")
     set_tests_properties(pc_recipe_retry PROPERTIES TIMEOUT 300 PROCESSORS 2 LABELS "core;rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME pc_added_mass_retry
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_time_retry.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --recipe added_mass
+        --work "${CMAKE_CURRENT_BINARY_DIR}/pc_added_mass_retry")
+    add_test(NAME pc_twolevel_retry
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_time_retry.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --recipe hybrid --velocity-solver twolevel --work "${CMAKE_CURRENT_BINARY_DIR}/pc_twolevel_retry")
+    set_tests_properties(pc_added_mass_retry pc_twolevel_retry PROPERTIES
+        TIMEOUT 300 PROCESSORS 2 LABELS "core;rank-1;rank-2"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME pc_recipe_restart
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_pc_restart.py"

@@ -82,6 +82,23 @@ def verify_wall_support(run, base):
     return results
 
 
+def audit_block_linear_log(log, accepted_steps):
+    residuals = [dict(re.findall(r'(\w+)=([^\s]+)',line))
+                 for line in log.splitlines() if line.startswith('linear_residual ')]
+    reports = [dict(re.findall(r'(\w+)=([^\s]+)',line))
+               for line in log.splitlines() if line.startswith('solver_report ')]
+    assert residuals and len(reports)==accepted_steps
+    assert not any(marker in log for marker in
+                   ('linear_residual_unavailable','linear_iteration_limit_residual ','step_retry='))
+    assert sum(int(r['linear_completed']) for r in reports)==len(residuals)
+    assert all(min(int(r['snes_reason']),int(r['ksp_reason']))>0 for r in reports)
+    for row in residuals:
+        norm, rhs = float(row['norm']), float(row['rhs_norm'])
+        assert math.isfinite(norm) and math.isfinite(rhs) and min(norm,rhs)>=0., row
+        assert norm <= 1e-8+1e-7*rhs, row
+    return len(residuals)
+
+
 def verify_rcr(run, base):
     model = dict(tag=2,proximal_resistance=4.,distal_resistance=16.,compliance=.005,
                  distal_pressure=.03,initial_capacitor_pressure=.06)
@@ -126,6 +143,33 @@ def verify_rcr(run, base):
     check_rcr_history(run,'rcr-nodal-coupled',model,improved_rows)
     assert error(improved,ref)<2e-8
     report['nodal_coupled_field_error'] = error(improved,ref)
+
+    # New coupled coarse correction and complete-fluid structural Schur paths
+    # must preserve both the field solution and capacitor state on restart.
+    for mode, flags in (
+        ('added-mass', ['-pc_recipe','added_mass','-pc_plan_schur_approx','nodal']),
+        ('twolevel', ['-pc_recipe','hybrid','-pc_plan_schur_approx','nodal',
+                      '-pc_plan_velocity_solver','twolevel'])):
+        flags += ['-ksp_rtol','1e-10','-ksp_max_it','1500','-linear_report','-solver_report']
+        label = 'rcr-'+mode
+        full, full_rows, full_log = run.solve(label,cfg,2,[*flags,'-stop_after',2])
+        check_rcr_history(run,label,model,full_rows)
+        assert error(full,ref)<2e-8, (mode,error(full,ref))
+        full_checks = audit_block_linear_log(full_log,len(full_rows))
+        saved = run.work/(label+'-checkpoint')
+        _, start_rows, start_log = run.solve(label+'-start',cfg,2,
+                                             [*flags,'-stop_after',1,'-checkpoint',saved])
+        start_checks = audit_block_linear_log(start_log,len(start_rows))
+        resumed, resumed_rows, resumed_log = run.solve(label+'-resumed',cfg,2,
+                                                      [*flags,'-restart',saved,'-stop_after',2])
+        resumed_checks = audit_block_linear_log(resumed_log,len(resumed_rows))
+        check_rcr_history(run,label+'-resumed',model,resumed_rows,restart=1)
+        assert len(resumed_rows)==1 and error(full,resumed)<2e-8
+        for column in ('stage_rcr_flow','endpoint_rcr_pressure','endpoint_capacitor_pressure','stage_capacitor_rate'):
+            assert abs(full_rows[-1][column]-resumed_rows[0][column])<2e-9
+        report[mode] = dict(field_error=error(full,ref),restart_error=error(full,resumed),
+                           true_residual_checks=dict(full=full_checks,start=start_checks,
+                                                     resumed=resumed_checks))
 
     changed=copy.deepcopy(cfg)
     changed['fsi']['domains']['rcr_outlet']['compliance']*=1.2
@@ -329,11 +373,11 @@ def verify_arterial_block(executable, mpiexec, work):
                    target='max(1e-23, 1e-10*rhs_norm)', tolerance_margin=1.00001,
                    field_relative_peak_limit=2e-6, cases=[], failures=[])
 
-    def launch(command, cwd, log):
+    def launch(command, cwd, log, timeout=130):
         t0 = time.monotonic()
         with log.open('w') as out:
             proc = subprocess.run(list(map(str,command)), cwd=cwd, env=env,
-                                  stdout=out, stderr=subprocess.STDOUT, timeout=130)
+                                  stdout=out, stderr=subprocess.STDOUT, timeout=timeout)
         return proc.returncode, time.monotonic()-t0
 
     def options(mode, ordering):
@@ -350,11 +394,17 @@ def verify_arterial_block(executable, mpiexec, work):
                 outer += ['-'+prefix+'_ksp_type','gmres','-'+prefix+'_ksp_rtol','1e-4',
                           '-'+prefix+'_ksp_max_it',str(limit)]
             return outer
+        if mode == 'added_mass':
+            return outer + ['-pc_recipe','added_mass','-pc_plan_schur_approx','nodal',
+                            '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type','lower']
         approx = mode.split('_')[-1]
+        velocity_solver = 'twolevel' if mode.startswith('twolevel_') else 'coupled'
+        ordering_prefix = ('-fieldsplit_dynamics_fieldsplit_velocity_' +
+                           ('mg_levels_' if velocity_solver == 'twolevel' else ''))
         return outer + ['-pc_recipe','hybrid','-pc_plan_schur_approx',approx,
-                        '-pc_plan_velocity_solver','coupled',
+                        '-pc_plan_velocity_solver',velocity_solver,
                         '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type','lower',
-                        '-fieldsplit_dynamics_fieldsplit_velocity_sub_pc_factor_mat_ordering_type',ordering]
+                        ordering_prefix+'sub_pc_factor_mat_ordering_type',ordering]
 
     def read_fields(directory, stem, ranks, names):
         fields = {name:{} for name in names}
@@ -449,7 +499,7 @@ def verify_arterial_block(executable, mpiexec, work):
                     outer_iterations=sum(int(r['linear_iterations']) for r in reports),
                     linear_seconds=linear_seconds, correction_history=norms)
 
-    modes = ('direct','physics_lower','coupled_diagonal','coupled_nodal')
+    modes = ('direct','physics_lower','coupled_diagonal','coupled_nodal','twolevel_nodal','added_mass')
     for grid,ranks,dofs,ordering in [('s24-r3-w2-a6',1,1027,'natural'),
                                     ('s48-r4-w4-a6',2,3024,'rcm')]:
         case = work/grid/'input'
@@ -483,13 +533,19 @@ def verify_arterial_block(executable, mpiexec, work):
             out.mkdir(exist_ok=True)
             log = out/'solve.log'
             flags = options(mode,ordering)
-            rec = dict(mode=mode,label=label,flags=flags,steps_requested=steps)
+            # Complete-fluid Schur performs nested fluid solves at every
+            # structural iteration. Keep all 32 steps and accuracy gates;
+            # account for its measured work instead of reducing that coverage.
+            timeout = 600 if mode=='added_mass' and steps==32 else 130
+            rec = dict(mode=mode,label=label,flags=flags,steps_requested=steps,
+                       execution_budget_seconds=timeout)
             result['runs'].append(rec)
+            started = time.monotonic()
             try:
                 command = [mpi,'--map-by','core','--bind-to','core','-n',str(ranks),
                            exe,'-case',case/'case.json','-partition',part,'-output',out/'tube.vtu',
                            '-solver_report','-linear_report','-stop_after',steps,*flags]
-                code,elapsed = launch(command,out,log)
+                code,elapsed = launch(command,out,log,timeout=timeout)
                 rec.update(exit_code=code,wall_seconds=elapsed,log_sha256=digest(log))
                 assert code==0, ('nonzero launcher exit',code)
                 assert log.read_text().splitlines().count('status=success')==1, 'missing solver success'
@@ -501,7 +557,9 @@ def verify_arterial_block(executable, mpiexec, work):
                     assert all(v<=2e-6 for v in ratios.values()), ('field gate',ratios)
                 rec['status']='passed'
             except (AssertionError,ValueError,KeyError,IndexError,OSError,subprocess.TimeoutExpired) as exc:
-                rec.update(status='failed',error=str(exc))
+                rec.update(status='failed',error=str(exc),timeout=isinstance(exc,subprocess.TimeoutExpired))
+                rec.setdefault('wall_seconds',time.monotonic()-started)
+                if log.exists(): rec.setdefault('log_sha256',digest(log))
                 summary['failures'].append(dict(grid=grid,label=label,error=str(exc)))
             # Keep detailed per-correction evidence in JSON; emit compact lines
             # in the CTest log for remote review even if a later case fails.

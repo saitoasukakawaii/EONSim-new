@@ -1,0 +1,1603 @@
+{
+  "source_commit": "b8ac03ab162715fca24009f18903da8116ef4ecc",
+  "validation_commit": "b52281d7585ead08e545f29f8d83eca9177e7eac",
+  "base_commit": "f50a4a4338689c9a065bee30ae4a7f3f52c5002e",
+  "production_sources_unchanged_since_b8": true,
+  "execution_order": "Every tested solver/test source revision was pushed before its numerical runs; documentation and stored-data audits followed.",
+  "environment": {
+    "petsc": "3.23.7",
+    "mode": "release",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "resources": {
+      "cpu_budget": 9,
+      "memory_bytes": 10451423232,
+      "cgroup": {},
+      "build_jobs": 4
+    },
+    "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892"
+  },
+  "key_dependencies": [
+    {
+      "name": "libopenblas",
+      "version": "0.3.34",
+      "build": "openmp_h156ec52_2"
+    },
+    {
+      "name": "openmpi",
+      "version": "5.0.8",
+      "build": "h2fe1745_110"
+    },
+    {
+      "name": "gcc_impl_linux-64",
+      "version": "15.3.0",
+      "build": "h6ad849d_7"
+    },
+    {
+      "name": "petsc",
+      "version": "3.23.7",
+      "build": "real_h5e9295b_0"
+    },
+    {
+      "name": "gxx_impl_linux-64",
+      "version": "15.3.0",
+      "build": "h90d9265_7"
+    },
+    {
+      "name": "mumps-mpi",
+      "version": "5.8.1",
+      "build": "hcd43f66_3"
+    }
+  ],
+  "stages": [
+    {
+      "label": "algebra-d9f5857",
+      "archive_path": "build/validation-history/algebra-d9f5857/summary.json",
+      "commit": "d9f58572e67ffa3636460e21d6d864ea560c8329",
+      "dirty": true,
+      "mode": "release",
+      "petsc": "3.23.7",
+      "status": "failed",
+      "tests": [
+        {
+          "name": "pc_plan_mpi1",
+          "status": "failed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 1,
+          "timeout": false,
+          "seconds": 0.359235,
+          "log": "evidence/junit.xml#pc_plan_mpi1",
+          "exit_behavior": "Failed"
+        },
+        {
+          "name": "pc_plan_mpi2",
+          "status": "failed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 1,
+          "timeout": false,
+          "seconds": 0.555566,
+          "log": "evidence/junit.xml#pc_plan_mpi2",
+          "exit_behavior": "Failed"
+        },
+        {
+          "name": "pc_plan_mpi4",
+          "status": "failed",
+          "ranks": [
+            4
+          ],
+          "exit_code": 1,
+          "timeout": false,
+          "seconds": 0.361897,
+          "log": "evidence/junit.xml#pc_plan_mpi4",
+          "exit_behavior": "Failed"
+        }
+      ],
+      "selected_tests": [
+        "pc_plan_mpi1",
+        "pc_plan_mpi2",
+        "pc_plan_mpi4"
+      ],
+      "commands": [
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/g++",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.008815504996164236,
+          "log": "evidence/compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpicxx",
+            "--showme"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.06480506600200897,
+          "log": "evidence/mpi-compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.033561247000761796,
+          "log": "evidence/mpi-runtime.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.06485364800028037,
+          "log": "evidence/cmake.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--preset",
+            "release",
+            "-B",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "-DBUILD_TESTING=ON",
+            "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+            "-DCMAKE_PREFIX_PATH=/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7",
+            "-DMPIEXEC_EXECUTABLE=/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 3.4705248099999153,
+          "log": "evidence/configure.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "--show-only=json-v1"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0648732299960102,
+          "log": "evidence/full-test-inventory.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--build",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "--parallel",
+            "4",
+            "--target",
+            "verify_pc_plan",
+            "verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 40.282952244000626,
+          "log": "evidence/build.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ldd",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.11525448400061578,
+          "log": "evidence/runtime-linkage.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "4",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.2146629760027281,
+          "log": "evidence/runtime-preflight.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "-T",
+            "Test",
+            "--no-compress-output",
+            "--output-junit",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/evidence/junit.xml",
+            "--no-tests=error",
+            "-j",
+            "1",
+            "-V",
+            "-R",
+            "^(pc_plan_mpi1|pc_plan_mpi2|pc_plan_mpi4)$"
+          ],
+          "exit_code": 8,
+          "timeout": false,
+          "seconds": 1.3247882249997929,
+          "log": "evidence/ctest.log"
+        }
+      ]
+    },
+    {
+      "label": "algebra-0f16d56",
+      "archive_path": "build/validation-history/algebra-0f16d56/summary.json",
+      "commit": "0f16d567fa908de9c374621fef2a8ebc48f24dfc",
+      "dirty": false,
+      "mode": "release",
+      "petsc": "3.23.7",
+      "status": "failed",
+      "tests": [
+        {
+          "name": "pc_plan_mpi1",
+          "status": "failed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 1,
+          "timeout": false,
+          "seconds": 0.279607,
+          "log": "evidence/junit.xml#pc_plan_mpi1",
+          "exit_behavior": "Failed"
+        },
+        {
+          "name": "pc_plan_mpi2",
+          "status": "failed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 1,
+          "timeout": false,
+          "seconds": 0.57724,
+          "log": "evidence/junit.xml#pc_plan_mpi2",
+          "exit_behavior": "Failed"
+        }
+      ],
+      "selected_tests": [
+        "pc_plan_mpi1",
+        "pc_plan_mpi2"
+      ],
+      "commands": [
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/g++",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.004795988003024831,
+          "log": "evidence/compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpicxx",
+            "--showme"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.008964653003204148,
+          "log": "evidence/mpi-compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.03260749100445537,
+          "log": "evidence/mpi-runtime.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.018403287998808082,
+          "log": "evidence/cmake.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--preset",
+            "release",
+            "-B",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "-DBUILD_TESTING=ON",
+            "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+            "-DCMAKE_PREFIX_PATH=/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7",
+            "-DMPIEXEC_EXECUTABLE=/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.2706171589961741,
+          "log": "evidence/configure.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "--show-only=json-v1"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.016379382002924103,
+          "log": "evidence/full-test-inventory.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--build",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "--parallel",
+            "4",
+            "--target",
+            "verify_pc_plan",
+            "verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 7.330416632998094,
+          "log": "evidence/build.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ldd",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.034599343001900706,
+          "log": "evidence/runtime-linkage.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "2",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.21684413899492938,
+          "log": "evidence/runtime-preflight.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "-T",
+            "Test",
+            "--no-compress-output",
+            "--output-junit",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/evidence/junit.xml",
+            "--no-tests=error",
+            "-j",
+            "1",
+            "-V",
+            "-R",
+            "^(pc_plan_mpi1|pc_plan_mpi2)$"
+          ],
+          "exit_code": 8,
+          "timeout": false,
+          "seconds": 0.8808570779947331,
+          "log": "evidence/ctest.log"
+        }
+      ]
+    },
+    {
+      "label": "algebra-b8ac03a",
+      "archive_path": "build/validation-history/algebra-b8ac03a/summary.json",
+      "commit": "b8ac03ab162715fca24009f18903da8116ef4ecc",
+      "dirty": false,
+      "mode": "release",
+      "petsc": "3.23.7",
+      "status": "passed",
+      "tests": [
+        {
+          "name": "pc_plan_mpi1",
+          "status": "passed",
+          "ranks": [
+            1
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.300595,
+          "log": "evidence/junit.xml#pc_plan_mpi1",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi2",
+          "status": "passed",
+          "ranks": [
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.400149,
+          "log": "evidence/junit.xml#pc_plan_mpi2",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_plan_mpi4",
+          "status": "passed",
+          "ranks": [
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.573857,
+          "log": "evidence/junit.xml#pc_plan_mpi4",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "selected_tests": [
+        "pc_plan_mpi1",
+        "pc_plan_mpi2",
+        "pc_plan_mpi4"
+      ],
+      "commands": [
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/g++",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.009072849999938626,
+          "log": "evidence/compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpicxx",
+            "--showme"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.017437741997127887,
+          "log": "evidence/mpi-compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.016237281997746322,
+          "log": "evidence/mpi-runtime.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0648205049947137,
+          "log": "evidence/cmake.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--preset",
+            "release",
+            "-B",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "-DBUILD_TESTING=ON",
+            "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+            "-DCMAKE_PREFIX_PATH=/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7",
+            "-DMPIEXEC_EXECUTABLE=/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.470630522002466,
+          "log": "evidence/configure.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "--show-only=json-v1"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.033450766997702885,
+          "log": "evidence/full-test-inventory.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--build",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "--parallel",
+            "4",
+            "--target",
+            "verify_pc_plan",
+            "verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 6.523636500998691,
+          "log": "evidence/build.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ldd",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.0327819680023822,
+          "log": "evidence/runtime-linkage.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "4",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.2700195610013907,
+          "log": "evidence/runtime-preflight.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "-T",
+            "Test",
+            "--no-compress-output",
+            "--output-junit",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/evidence/junit.xml",
+            "--no-tests=error",
+            "-j",
+            "1",
+            "-V",
+            "-R",
+            "^(pc_plan_mpi1|pc_plan_mpi2|pc_plan_mpi4)$"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.3337083910009824,
+          "log": "evidence/ctest.log"
+        }
+      ]
+    },
+    {
+      "label": "physical-b8ac03a",
+      "archive_path": "build/validation-history/physical-b8ac03a/evidence/summary.json",
+      "commit": "b8ac03ab162715fca24009f18903da8116ef4ecc",
+      "dirty": false,
+      "mode": "release",
+      "petsc": "3.23.7",
+      "status": "failed",
+      "tests": [
+        {
+          "name": "fsi_tube",
+          "status": "failed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 1,
+          "timeout": false,
+          "seconds": 426.91,
+          "log": "evidence/junit.xml#fsi_tube",
+          "exit_behavior": "Failed"
+        },
+        {
+          "name": "fsi_tube_rcr",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 11.3835,
+          "log": "evidence/junit.xml#fsi_tube_rcr",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_added_mass_retry",
+          "status": "failed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 1,
+          "timeout": false,
+          "seconds": 0.501054,
+          "log": "evidence/junit.xml#pc_added_mass_retry",
+          "exit_behavior": "Failed"
+        },
+        {
+          "name": "pc_twolevel_retry",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 3.99922,
+          "log": "evidence/junit.xml#pc_twolevel_retry",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_restart",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 32.7215,
+          "log": "evidence/junit.xml#pc_recipe_restart",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_hybrid",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 12.8284,
+          "log": "evidence/junit.xml#pc_recipe_hybrid",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "schur_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 7.31203,
+          "log": "evidence/junit.xml#schur_verification",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "selected_tests": [
+        "fsi_tube",
+        "fsi_tube_rcr",
+        "pc_added_mass_retry",
+        "pc_twolevel_retry",
+        "pc_recipe_restart",
+        "pc_recipe_hybrid",
+        "schur_verification"
+      ],
+      "commands": [
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/g++",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.004335024001193233,
+          "log": "evidence/compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpicxx",
+            "--showme"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.01630437499989057,
+          "log": "evidence/mpi-compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.016161020001163706,
+          "log": "evidence/mpi-runtime.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.016326798999216408,
+          "log": "evidence/cmake.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--preset",
+            "release",
+            "-B",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "-DBUILD_TESTING=ON",
+            "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+            "-DCMAKE_PREFIX_PATH=/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7",
+            "-DMPIEXEC_EXECUTABLE=/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.4710150070022792,
+          "log": "evidence/configure.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "--show-only=json-v1"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.03513743600342423,
+          "log": "evidence/full-test-inventory.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--build",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "--parallel",
+            "4",
+            "--target",
+            "eonsim",
+            "verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 3.4794908999974723,
+          "log": "evidence/build.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ldd",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/eonsim"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.032738884998252615,
+          "log": "evidence/runtime-linkage.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "4",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.21560194899939233,
+          "log": "evidence/runtime-preflight.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "-T",
+            "Test",
+            "--no-compress-output",
+            "--output-junit",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/evidence/junit.xml",
+            "--no-tests=error",
+            "-j",
+            "1",
+            "-V",
+            "-R",
+            "^(fsi_tube|fsi_tube_rcr|pc_added_mass_retry|pc_recipe_hybrid|pc_recipe_restart|pc_twolevel_retry|schur_verification)$"
+          ],
+          "exit_code": 8,
+          "timeout": false,
+          "seconds": 495.6997553309993,
+          "log": "evidence/ctest.log"
+        }
+      ]
+    },
+    {
+      "label": "physical-b52281d",
+      "archive_path": "build/cloud-3.23.7-release/evidence/summary.json",
+      "commit": "b52281d7585ead08e545f29f8d83eca9177e7eac",
+      "dirty": false,
+      "mode": "release",
+      "petsc": "3.23.7",
+      "status": "passed",
+      "tests": [
+        {
+          "name": "fsi_tube",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 872.937,
+          "log": "evidence/junit.xml#fsi_tube",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "fsi_tube_rcr",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 11.3516,
+          "log": "evidence/junit.xml#fsi_tube_rcr",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_retry",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 4.88493,
+          "log": "evidence/junit.xml#pc_recipe_retry",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_added_mass_retry",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 7.28908,
+          "log": "evidence/junit.xml#pc_added_mass_retry",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_twolevel_retry",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 4.90489,
+          "log": "evidence/junit.xml#pc_twolevel_retry",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "pc_recipe_hybrid",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 13.1295,
+          "log": "evidence/junit.xml#pc_recipe_hybrid",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "schur_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2,
+            4
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 7.7851,
+          "log": "evidence/junit.xml#schur_verification",
+          "exit_behavior": "Completed"
+        },
+        {
+          "name": "time_retry_verification",
+          "status": "passed",
+          "ranks": [
+            1,
+            2
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 2.82361,
+          "log": "evidence/junit.xml#time_retry_verification",
+          "exit_behavior": "Completed"
+        }
+      ],
+      "selected_tests": [
+        "fsi_tube",
+        "fsi_tube_rcr",
+        "pc_recipe_retry",
+        "pc_added_mass_retry",
+        "pc_twolevel_retry",
+        "pc_recipe_hybrid",
+        "schur_verification",
+        "time_retry_verification"
+      ],
+      "commands": [
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/g++",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.008993320996523835,
+          "log": "evidence/compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpicxx",
+            "--showme"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.06543012699694373,
+          "log": "evidence/mpi-compiler.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.016649991004669573,
+          "log": "evidence/mpi-runtime.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--version"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.06522414599749027,
+          "log": "evidence/cmake.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--preset",
+            "release",
+            "-B",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "-DBUILD_TESTING=ON",
+            "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+            "-DCMAKE_PREFIX_PATH=/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7",
+            "-DMPIEXEC_EXECUTABLE=/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 1.6203444690036122,
+          "log": "evidence/configure.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "--show-only=json-v1"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.06541889700019965,
+          "log": "evidence/full-test-inventory.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "cmake",
+            "--build",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "--parallel",
+            "4",
+            "--target",
+            "eonsim",
+            "verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.03369169699726626,
+          "log": "evidence/build.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ldd",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/eonsim"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.032573459000559524,
+          "log": "evidence/runtime-linkage.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "/workspace/scratch/6d25aa929185/pr42/.cloud/petsc-3.23.7/bin/mpiexec",
+            "-n",
+            "4",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/verify_runtime"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 0.2652137120021507,
+          "log": "evidence/runtime-preflight.log"
+        },
+        {
+          "cleaned_live_descendants": [],
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release",
+            "-T",
+            "Test",
+            "--no-compress-output",
+            "--output-junit",
+            "/workspace/scratch/9f26bc949c0e/EONSim-new/build/cloud-3.23.7-release/evidence/junit.xml",
+            "--no-tests=error",
+            "-j",
+            "1",
+            "-V",
+            "-R",
+            "^(fsi_tube|fsi_tube_rcr|pc_added_mass_retry|pc_recipe_hybrid|pc_recipe_retry|pc_twolevel_retry|schur_verification|time_retry_verification)$"
+          ],
+          "exit_code": 0,
+          "timeout": false,
+          "seconds": 925.1927639240021,
+          "log": "evidence/ctest.log"
+        }
+      ]
+    }
+  ],
+  "local_effective_tests": {
+    "rerun_final": [
+      "fsi_tube",
+      "fsi_tube_rcr",
+      "pc_recipe_retry",
+      "pc_added_mass_retry",
+      "pc_twolevel_retry",
+      "pc_recipe_hybrid",
+      "schur_verification",
+      "time_retry_verification"
+    ],
+    "reused_b8": [
+      "pc_plan_mpi1",
+      "pc_plan_mpi2",
+      "pc_plan_mpi4",
+      "pc_recipe_restart"
+    ],
+    "unique_passed": 12
+  },
+  "arterial": {
+    "aggregate": {
+      "full_trajectories": 12,
+      "full_accepted_steps": 384,
+      "full_linear_corrections": 768,
+      "all_runs": 60,
+      "all_accepted_steps": 576,
+      "all_linear_corrections": 1152,
+      "worst_full_residual_target_ratio": 0.5600385063731746,
+      "worst_all_residual_target_ratio": 0.5600385063731746,
+      "maximum_full_field_relative_peak": 1.0712628632823266e-11,
+      "maximum_all_field_relative_peak": 1.0712628632823266e-11,
+      "full_volume_vtus": 324,
+      "stale_volume_vtus": 0
+    },
+    "target": "max(1e-23, 1e-10*rhs_norm)",
+    "tolerance_margin": 1.00001,
+    "field_relative_peak_limit": 2e-06,
+    "input_sha256": "662518aa06f1d9f3072c92910fcfd08c3788f0be8bf0875ec035ff6e0984fae6",
+    "executable_sha256": "2d7fcf9bf70b25fded6ca46961885c2e67ecec548cd16fd057e3aa4bb9304af0",
+    "cases": [
+      {
+        "grid": "s24-r3-w2-a6",
+        "ranks": 1,
+        "dofs": 1027,
+        "ordering": "natural",
+        "medians": {
+          "direct": {
+            "samples": 3,
+            "wall_seconds": 0.4157529450021684,
+            "linear_seconds": 0.059785446,
+            "outer_iterations": 8
+          },
+          "physics_lower": {
+            "samples": 3,
+            "wall_seconds": 0.7666240489998017,
+            "linear_seconds": 0.384190264,
+            "outer_iterations": 386
+          },
+          "coupled_diagonal": {
+            "samples": 3,
+            "wall_seconds": 0.5656876580032986,
+            "linear_seconds": 0.177158157,
+            "outer_iterations": 334
+          },
+          "coupled_nodal": {
+            "samples": 3,
+            "wall_seconds": 0.5659383270030958,
+            "linear_seconds": 0.159508663,
+            "outer_iterations": 331
+          },
+          "twolevel_nodal": {
+            "samples": 3,
+            "wall_seconds": 0.9673591350001516,
+            "linear_seconds": 0.588149714,
+            "outer_iterations": 288
+          },
+          "added_mass": {
+            "samples": 3,
+            "wall_seconds": 7.239583693000895,
+            "linear_seconds": 6.839240577,
+            "outer_iterations": 179
+          }
+        }
+      },
+      {
+        "grid": "s48-r4-w4-a6",
+        "ranks": 2,
+        "dofs": 3024,
+        "ordering": "rcm",
+        "medians": {
+          "direct": {
+            "samples": 3,
+            "wall_seconds": 0.7674474650048069,
+            "linear_seconds": 0.30318363,
+            "outer_iterations": 8
+          },
+          "physics_lower": {
+            "samples": 3,
+            "wall_seconds": 3.62732686700474,
+            "linear_seconds": 3.015632648,
+            "outer_iterations": 766
+          },
+          "coupled_diagonal": {
+            "samples": 3,
+            "wall_seconds": 1.6197082169965142,
+            "linear_seconds": 1.03248429,
+            "outer_iterations": 646
+          },
+          "coupled_nodal": {
+            "samples": 3,
+            "wall_seconds": 1.5214850300035323,
+            "linear_seconds": 0.928008399,
+            "outer_iterations": 645
+          },
+          "twolevel_nodal": {
+            "samples": 3,
+            "wall_seconds": 4.377999891999934,
+            "linear_seconds": 3.795757028,
+            "outer_iterations": 563
+          },
+          "added_mass": {
+            "samples": 3,
+            "wall_seconds": 46.404430793001666,
+            "linear_seconds": 45.805123487,
+            "outer_iterations": 354
+          }
+        }
+      }
+    ]
+  },
+  "rcr": {
+    "be": {
+      "mpi": 1.3877787807814457e-17,
+      "restart": 0.0,
+      "circuit_residual": 6.071532165918825e-18
+    },
+    "bdf2": {
+      "mpi": 1.3877787807814457e-17,
+      "restart": 0.0,
+      "circuit_residual": 3.0357660829594124e-18
+    },
+    "generalized_alpha": {
+      "mpi": 1.0505485370515544e-14,
+      "restart": 0.0,
+      "circuit_residual": 6.938893903907228e-18
+    },
+    "jacobian_relative_error": 8.77628e-09,
+    "hybrid_field_error": 3.6530500846509995e-12,
+    "nodal_coupled_field_error": 2.523536934972981e-12,
+    "added-mass": {
+      "field_error": 5.824091042772039e-09,
+      "restart_error": 0.0,
+      "true_residual_checks": {
+        "full": 4,
+        "start": 2,
+        "resumed": 2
+      }
+    },
+    "twolevel": {
+      "field_error": 1.8453738537260733e-11,
+      "restart_error": 0.0,
+      "true_residual_checks": {
+        "full": 4,
+        "start": 2,
+        "resumed": 2
+      }
+    }
+  },
+  "guards": {
+    "timestamp_utc": "2026-11-25T11:34:51.125926+00:00",
+    "source_commit": "ff81e5bb1a8e02a3f484d855ea074461b716ff66",
+    "method": "AST extracts only the committed comparison/audit functions or assertions; no module import, solver, MPI, or build.",
+    "source_sha256": {
+      "tests/verify_time_retry.py": "5b141a0d1e46ebb95f015a0e8804343322337b82c677eefc208e09445f260c0d",
+      "tests/verify_schur.py": "d4d6c82100f19c1cf9eaccadabcc690db5bd48656d6d3790ea215d22a6400fb3",
+      "tests/verify_fsi_tube.py": "c4e0a27152f6dd9fd4df01b10e7ac586eda94e01aa4920eb97fe98b71e56f3d5"
+    },
+    "harness_sha256": "603dcd85303a4ed5cab1250809350997a7f01cacff07a2cb1523422f26e9add4",
+    "original_sha256": {
+      "build/cloud-3.23.7-release/pc_twolevel_retry/full1.vtu": "ece85e791d7085f38b203e2b07a06301bdcee6ef75d626dff4591ff1887a18cd",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/full1_solid.vtu": "d9d8977c75eaa17da2f958e6b0aa98c60daf77acc5b95ce94fcbbca2f35caf0d",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/reference1.vtu": "50403d4dc9b24be682bfc556fbe860166ae52621fff6ac3154e9bce2a4fd2227",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/reference1_solid.vtu": "5053ecaa08499d5c6400e0ec3dafacb3a5e03a783a24fb9c9286b3e067dda67e",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/resumed1.vtu": "ece85e791d7085f38b203e2b07a06301bdcee6ef75d626dff4591ff1887a18cd",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/resumed1_solid.vtu": "d9d8977c75eaa17da2f958e6b0aa98c60daf77acc5b95ce94fcbbca2f35caf0d",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/full2_rank0.vtu": "b4ddd2f5f832568690324b26037a62dd77d8e38b80804217657241cf8ef9e2f9",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/full2_rank1.vtu": "dbfa250f95f310361eafeb9a323d5c15fcc3c1e955934366d9c5ce675af70f73",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/full2_solid_rank0.vtu": "7094e0febeb3b6713cf0cad10c32b79d698042fd2d32c94eea53aaa80a61a15c",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/full2_solid_rank1.vtu": "f0a9a3bf985f7a340a1642a0d9bc6880f8491e2cdb111534f3ad69b6c3d6d54e",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/reference2_rank0.vtu": "2cfe9054e3381c98479ab77f5d55d37b4134123e94997af8a3dd0384098de7c4",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/reference2_rank1.vtu": "d7581f8f45410507cd8246a2bdae81234b0d4c92bac7ce34324213dd001fce2a",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/reference2_solid_rank0.vtu": "1ca567913c2bff5712237ffbdd6a92395465efd78adc1537377c3472fec2c921",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/reference2_solid_rank1.vtu": "b36ffa3bc2f600e59bbefa4f696a1b8a97c22336ab868746e81a207d0ef01206",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/resumed2_rank0.vtu": "b4ddd2f5f832568690324b26037a62dd77d8e38b80804217657241cf8ef9e2f9",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/resumed2_rank1.vtu": "dbfa250f95f310361eafeb9a323d5c15fcc3c1e955934366d9c5ce675af70f73",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/resumed2_solid_rank0.vtu": "7094e0febeb3b6713cf0cad10c32b79d698042fd2d32c94eea53aaa80a61a15c",
+      "build/cloud-3.23.7-release/pc_twolevel_retry/resumed2_solid_rank1.vtu": "f0a9a3bf985f7a340a1642a0d9bc6880f8491e2cdb111534f3ad69b6c3d6d54e",
+      "build/cloud-3.23.7-release/fsi_tube_rcr/rcr-added-mass.log": "567096d273ac827baa06dcb862f26534fe45e31ca6c46eae4b392d5e40bbdbd2",
+      "build/cloud-3.23.7-release/fsi_tube_rcr/rcr-added-mass-start.log": "c0c4faae1335f47103b5250189e4406973623c8982598633324282fc86ba1096",
+      "build/cloud-3.23.7-release/fsi_tube_rcr/rcr-added-mass-resumed.log": "1ece5befa8cd3a83c8e2c239e689a56e7769518b4ba328bd5fa8b3ec6b6c2b92",
+      "build/cloud-3.23.7-release/fsi_tube_rcr/rcr-twolevel.log": "344071024f2d3db9f9c85323629419e70ba3f6f96567ff78180b51ddc6c7dbac",
+      "build/cloud-3.23.7-release/fsi_tube_rcr/rcr-twolevel-start.log": "10686a8d690afcbb7635ff3d73ea19663e645760de1ec9016ab10090c4eef48b",
+      "build/cloud-3.23.7-release/fsi_tube_rcr/rcr-twolevel-resumed.log": "7cb570eabeb63982d24bae4a4b3b0e6736e73989eaa67165da8e21c4b50a8286"
+    },
+    "controls": [
+      {
+        "name": "retry_clean_reference_ranks1",
+        "expected": "accept",
+        "observed": "accept",
+        "result": null,
+        "pass": true
+      },
+      {
+        "name": "retry_clean_resumed_ranks1",
+        "expected": "accept",
+        "observed": "accept",
+        "result": null,
+        "pass": true
+      },
+      {
+        "name": "retry_clean_reference_ranks2",
+        "expected": "accept",
+        "observed": "accept",
+        "result": null,
+        "pass": true
+      },
+      {
+        "name": "retry_clean_resumed_ranks2",
+        "expected": "accept",
+        "observed": "accept",
+        "result": null,
+        "pass": true
+      },
+      {
+        "name": "retry_missing_array",
+        "expected": "reject",
+        "changed_file": "build/diagnostics/validation-guards/missing_array/full2_solid_rank1.vtu",
+        "changed_sha256": "9141216c2d549c7d846819490487b901bc106c93501ff3530e6e0d4220bedea3",
+        "changed_array": {
+          "type": "Float64",
+          "NumberOfComponents": "3",
+          "format": "ascii"
+        },
+        "observed": "reject",
+        "diagnostic": "('Missing or extra VTU arrays', '_solid_rank1.vtu')",
+        "pass": true
+      },
+      {
+        "name": "retry_truncated_value",
+        "expected": "reject",
+        "changed_file": "build/diagnostics/validation-guards/truncated_value/full2_solid_rank1.vtu",
+        "changed_sha256": "53e9ac2a21626079afc34e277397613888cef0261a3d86d574a66152c26082d8",
+        "changed_array": {
+          "type": "Float64",
+          "NumberOfComponents": "3",
+          "format": "ascii"
+        },
+        "observed": "reject",
+        "diagnostic": "('Different VTU field lengths', '_solid_rank1.vtu', (None, 'Float64', '3'))",
+        "pass": true
+      },
+      {
+        "name": "retry_later_nan",
+        "expected": "reject",
+        "changed_file": "build/diagnostics/validation-guards/later_nan/full2_solid_rank1.vtu",
+        "changed_sha256": "7b2a8d6b2f1c9618089c247c0949c8cda9b03f9e02f8187de3f7402b30478ae3",
+        "changed_array": {
+          "type": "Float64",
+          "NumberOfComponents": "3",
+          "format": "ascii"
+        },
+        "observed": "reject",
+        "diagnostic": "('Nonfinite VTU field', '_solid_rank1.vtu', (None, 'Float64', '3'))",
+        "pass": true
+      },
+      {
+        "name": "rcr_clean_added-mass",
+        "expected": "accept",
+        "observed": "accept",
+        "result": 4,
+        "pass": true
+      },
+      {
+        "name": "rcr_clean_added-mass-start",
+        "expected": "accept",
+        "observed": "accept",
+        "result": 2,
+        "pass": true
+      },
+      {
+        "name": "rcr_clean_added-mass-resumed",
+        "expected": "accept",
+        "observed": "accept",
+        "result": 2,
+        "pass": true
+      },
+      {
+        "name": "rcr_clean_twolevel",
+        "expected": "accept",
+        "observed": "accept",
+        "result": 4,
+        "pass": true
+      },
+      {
+        "name": "rcr_clean_twolevel-start",
+        "expected": "accept",
+        "observed": "accept",
+        "result": 2,
+        "pass": true
+      },
+      {
+        "name": "rcr_clean_twolevel-resumed",
+        "expected": "accept",
+        "observed": "accept",
+        "result": 2,
+        "pass": true
+      },
+      {
+        "name": "rcr_missing_report",
+        "expected": "reject",
+        "changed_file": "build/diagnostics/validation-guards/rcr_missing_report.log",
+        "changed_sha256": "1d42baa75013ae531ae74eaf2801af22735dc8095915f2cd6b2371870f81859b",
+        "observed": "reject",
+        "diagnostic": "",
+        "pass": true
+      },
+      {
+        "name": "rcr_infinite_rhs",
+        "expected": "reject",
+        "changed_file": "build/diagnostics/validation-guards/rcr_infinite_rhs.log",
+        "changed_sha256": "5edd5eef21a221d9df832a409cb8a676c6a1c2227e79df989397c4c45115807b",
+        "observed": "reject",
+        "diagnostic": "{'solve': '1', 'norm': '2.546825044222446e-12', 'rhs_norm': 'inf'}",
+        "pass": true
+      },
+      {
+        "name": "schur_line142_clean",
+        "expected": "accept",
+        "observed": "accept",
+        "result": null,
+        "pass": true
+      },
+      {
+        "name": "schur_line142_infinite_rhs",
+        "expected": "reject",
+        "observed": "reject",
+        "diagnostic": "{'norm': 1e-12, 'rhs_norm': inf}",
+        "pass": true
+      },
+      {
+        "name": "schur_line142_negative_norm",
+        "expected": "reject",
+        "observed": "reject",
+        "diagnostic": "{'norm': -1e-12, 'rhs_norm': 0.03}",
+        "pass": true
+      },
+      {
+        "name": "schur_line142_negative_rhs",
+        "expected": "reject",
+        "observed": "reject",
+        "diagnostic": "{'norm': 1e-12, 'rhs_norm': -0.03}",
+        "pass": true
+      },
+      {
+        "name": "schur_line258_clean",
+        "expected": "accept",
+        "observed": "accept",
+        "result": null,
+        "pass": true
+      },
+      {
+        "name": "schur_line258_infinite_rhs",
+        "expected": "reject",
+        "observed": "reject",
+        "diagnostic": "{'norm': 1e-12, 'rhs_norm': inf}",
+        "pass": true
+      },
+      {
+        "name": "schur_line258_negative_norm",
+        "expected": "reject",
+        "observed": "reject",
+        "diagnostic": "{'norm': -1e-12, 'rhs_norm': 0.03}",
+        "pass": true
+      },
+      {
+        "name": "schur_line258_negative_rhs",
+        "expected": "reject",
+        "observed": "reject",
+        "diagnostic": "{'norm': 1e-12, 'rhs_norm': -0.03}",
+        "pass": true
+      }
+    ],
+    "originals_unchanged": true,
+    "passed": true
+  },
+  "remote_ci": {
+    "run_id": 45606963270,
+    "url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45606963270",
+    "source_commit": "b52281d7585ead08e545f29f8d83eca9177e7eac",
+    "selected_numerical_tests": 53,
+    "python_tests": 58,
+    "python_status": "passed",
+    "numerical_status": "passed",
+    "test_counts": {
+      "passed": 53,
+      "failed": 0,
+      "skipped": 0
+    },
+    "execution_commit": "630be2000e946417683410ad5d9793fc6951e740",
+    "execution_tree": "65bb8e65d5e3d896dc3382043cd05aa189db73d8",
+    "execution_tree_matches_validation_commit": true,
+    "required_checks": "all four passed",
+    "website_run_id": 45606963330,
+    "metadata": "ci-source-b522.json"
+  },
+  "archive": {
+    "file": "evidence.tar.xz",
+    "manifest_path": "build/evidence-staging/manifest.jsonl",
+    "retained_data_files": 2557,
+    "retained_data_bytes": 62612328,
+    "full_trajectory_freshness_checked": true,
+    "omitted": [
+      "reproducible mesh copies and partitions",
+      "build products and toolchain binaries",
+      "native checkpoint generations",
+      "boundary-only VTU duplicates",
+      "arterial warmup/timing VTUs (all their logs, CSVs, and correction histories retained)",
+      "baseline non-arterial tube VTUs (optional file list retained; logs, CSVs, and metrics included)",
+      "historical arterial VTUs duplicated by final full trajectories"
+    ],
+    "sha256": "03990426bfc193038353da504f38119cd006cf8ea7fd95743cb1ccb66f4bccdf",
+    "compressed_bytes": 7180452,
+    "archive_members": 2560,
+    "replay": {
+      "status": "passed",
+      "script_commit": "370358f3c9210eec8a1699dcd1db2c67f7702d74",
+      "script_sha256": "8aebc3d06de6535275a706a04786fc21b26d6507d6ffd078005449795672fb4f",
+      "command": "python3 docs/research/data/fsi-block-2026-11-25/replay.py --output docs/research/data/fsi-block-2026-11-25/replay-result.json",
+      "exit_code": 0,
+      "result": "replay-result.json",
+      "result_sha256": "31da26945973a51cf8483bc881c668c524706ad3db4b1462f4d704e91732bef8",
+      "new_solver_runs": 0
+    }
+  },
+  "limitations": [
+    "single-host at most four MPI ranks; no multi-node scaling evidence",
+    "twolevel is an explicit rank/semantic coarse space, not full coupled AMG or rotational near-nullspace",
+    "full fluid subblock must be invertible for added_mass",
+    "bounded fluid Krylov response makes the Schur action inexact; outer FGMRES does not make it an exact linear inverse",
+    "new RCR recipe comparisons cover generalized-alpha, two ranks, two steps and same-partition restart",
+    "new methods reduce outer iterations but are slower on both measured arterial fixtures"
+  ]
+}

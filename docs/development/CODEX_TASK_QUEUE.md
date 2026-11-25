@@ -1,5 +1,42 @@
 # EONSim Codex Task Queue
 
+## FSI-PC-02 / review / 2026-11-25
+
+Completed the existing conforming monolithic FSI block paths from merged #48
+(`f50a4a4338689c9a065bee30ae4a7f3f52c5002e`): complete-fluid structural Schur
+response, coupled two-level coarse correction, separately configurable Schur
+inverse actions, and direct-solution/true-residual checks. The physical
+Jacobian, acceptance thresholds, time integration, circuit histories and
+ownership contracts are preserved.
+
+Local implementation, source review and targeted acceptance are complete.
+Pushed head `b52281d7585ead08e545f29f8d83eca9177e7eac` passed all 8 final locked
+PETSc 3.23.7 Release physical/recovery checks with a clean source tree.
+Reuse exactly the `b8ac03a` receipts for `pc_plan_mpi1/2/4` and
+`pc_recipe_restart`; those four checks were not rerun locally at b522.
+The b522 source CI passed all 53 selected Release numerical checks and 58
+Python checks; selection, Release validation and evidence receipt are green.
+The website Build VitePress and draft-isolation checks also passed.
+[Source CI metadata](../research/data/fsi-block-2026-11-25/ci-source-b522.json) ·
+[Numerical/receipt run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45606963270) ·
+[Website run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45606963330).
+[Evidence, failures and replay](../research/data/fsi-block-2026-11-25/README.md).
+
+All 60 arterial runs passed; 12 complete 32-step trajectories contributed 768
+accepted true-residual checks. Maximum residual/target ratio:
+0.5600385064; maximum relative field-peak difference: 1.0712628633e-11.
+Report measured timing without requiring a universal speedup: the direct
+solver remained faster on the two tested grids. Full coupled AMG, elasticity
+rotations, multi-node scaling and cross-partition restart are not established
+by these tests.
+
+The PR evidence is finalized; the pushed archive replay passed all file,
+log and full-trajectory checks. Remaining work: obtain user review and approval
+before any merge.
+User delivery order remains **finish
+source → push remote → run validation → user merges**. PR #49 retains
+`manual-review` / `no-automerge`; do not auto-merge even when CI succeeds.
+
 ## 2026-11-24 · 血管 FSI 后续验收
 
 1. **灌流管空间收敛。** 在 20 mm 直管保持轴向分辨率的同时加密入口边界层和圆周，复测流量、端面法向应力、近端面积与壁面储量。现有 48 个轴向单元已将出口传递振幅带到 81.20%，独立参考为 80.00%。[可复用的物性、流量与端口](../research/data/fsi-linear-transient-2026-11-24/perfusion.md)

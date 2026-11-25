@@ -1,9 +1,10 @@
 """Real Newton nonconvergence -> rollback/cutback; compare to a direct small-step trajectory."""
-import argparse,copy,json,re,subprocess,sys,xml.etree.ElementTree as ET
+import argparse,copy,json,math,re,subprocess,sys,xml.etree.ElementTree as ET
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'cases/fsi'))
 from generate_domains import generate
-p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',type=Path,required=True);p.add_argument('--recipe',choices=['physics','quantity','hybrid']);a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',type=Path,required=True);p.add_argument('--recipe',choices=['physics','quantity','hybrid','added_mass']);p.add_argument('--velocity-solver',choices=['split','coupled','twolevel']);a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
+if a.velocity_solver and not a.recipe: p.error('--velocity-solver requires --recipe')
 case=generate(a.work);config=json.loads(case.read_text());config['fsi'].update(material='neo_hookean',pressure=20,dt=.04,steps=1);config['time_control']=dict(max_retries=6,minimum_dt=.0005,reduction=.5);
 if a.recipe: config.setdefault('solver',{})['pc_recipe']=a.recipe
 case.write_text(json.dumps(config))
@@ -12,14 +13,31 @@ def run(args,ok=True):
  if (r.returncode==0)!=ok:raise RuntimeError(r.stdout)
  return r.stdout
 def compare(first,second,ranks):
- for solid in ('','_solid'):
-  for rank in range(ranks):
-   suffix=solid+(f'_rank{rank}' if ranks>1 else '')+'.vtu';x=ET.parse(first.with_name(first.stem+suffix));y=ET.parse(second.with_name(second.stem+suffix))
-   for u,v in zip(x.findall('.//DataArray'),y.findall('.//DataArray')):
-    if u.attrib.get('type')=='Float64':assert max((abs(float(i)-float(j)) for i,j in zip(u.text.split(),v.text.split())),default=0)<2e-8
+    for solid in ('','_solid'):
+        for rank in range(ranks):
+            suffix=solid+(f'_rank{rank}' if ranks>1 else '')+'.vtu'
+            x=ET.parse(first.with_name(first.stem+suffix))
+            y=ET.parse(second.with_name(second.stem+suffix))
+            left,right=x.findall('.//DataArray'),y.findall('.//DataArray')
+            assert left and len(left)==len(right), ('Missing or extra VTU arrays',suffix)
+            for u,v in zip(left,right):
+                signature=lambda item:(item.attrib.get('Name'),item.attrib.get('type'),
+                                       item.attrib.get('NumberOfComponents','1'))
+                assert signature(u)==signature(v), ('Different VTU field metadata',suffix,signature(u),signature(v))
+                first_values,second_values=(u.text or '').split(),(v.text or '').split()
+                assert len(first_values)==len(second_values), ('Different VTU field lengths',suffix,signature(u))
+                if u.attrib.get('type')=='Float64':
+                    first_values,second_values=list(map(float,first_values)),list(map(float,second_values))
+                    assert all(math.isfinite(value) for values in (first_values,second_values) for value in values), \
+                        ('Nonfinite VTU field',suffix,signature(u))
+                    assert max((abs(i-j) for i,j in zip(first_values,second_values)),default=0)<2e-8
 for ranks in (1,2):
  part=a.work/f'parts{ranks}';run([a.executable,'-case',case,'-prepare',part,'-parts',ranks]);launcher=[a.mpiexec,'-n',ranks] if ranks>1 else []
- prefix=launcher+[a.executable,'-case',case,'-partition',part,'-snes_max_it',2]
+ # With only two Newton iterations, keep linear error below the scaled
+ # mesh acceptance floor so this fixture exercises nonlinear cutback.
+ prefix=launcher+[a.executable,'-case',case,'-partition',part,'-snes_max_it',2,
+                  '-ksp_rtol','1e-11','-ksp_atol','1e-15']
+ if a.velocity_solver: prefix+=['-pc_plan_velocity_solver',a.velocity_solver]
  full=a.work/f'full{ranks}.vtu';text=run(prefix+['-output',full]);retries=re.findall(r'step_retry=\d+ time=(\S+) next_dt=(\S+)',text)
  assert retries and all(float(time)==0 for time,dt in retries)
  dt=float(retries[-1][1]);steps=round(.04/dt);assert abs(steps*dt-.04)<1e-12

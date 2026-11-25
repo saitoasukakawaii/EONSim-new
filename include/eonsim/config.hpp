@@ -24,7 +24,7 @@ struct FieldTolerance {
     double constraint_scale=1,constraint_tolerance=1e-12;
 };
 struct SolverConfig {
-    std::string pc_recipe; ///< Empty preserves legacy/default solver; physics, quantity, hybrid opt in.
+    std::string pc_recipe; ///< Empty preserves legacy/default; physics, quantity, hybrid, added_mass opt in.
     double relative_tolerance = 1e-10;
     double absolute_tolerance = 1e-12;
     int maximum_iterations = 1000;
