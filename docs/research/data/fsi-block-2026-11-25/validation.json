@@ -1580,7 +1580,17 @@
     ],
     "sha256": "03990426bfc193038353da504f38119cd006cf8ea7fd95743cb1ccb66f4bccdf",
     "compressed_bytes": 7180452,
-    "archive_members": 2560
+    "archive_members": 2560,
+    "replay": {
+      "status": "passed",
+      "script_commit": "370358f3c9210eec8a1699dcd1db2c67f7702d74",
+      "script_sha256": "8aebc3d06de6535275a706a04786fc21b26d6507d6ffd078005449795672fb4f",
+      "command": "python3 docs/research/data/fsi-block-2026-11-25/replay.py --output docs/research/data/fsi-block-2026-11-25/replay-result.json",
+      "exit_code": 0,
+      "result": "replay-result.json",
+      "result_sha256": "31da26945973a51cf8483bc881c668c524706ad3db4b1462f4d704e91732bef8",
+      "new_solver_runs": 0
+    }
   },
   "limitations": [
     "single-host at most four MPI ranks; no multi-node scaling evidence",

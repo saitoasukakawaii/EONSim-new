@@ -30,7 +30,9 @@ solver remained faster on the two tested grids. Full coupled AMG, elasticity
 rotations, multi-node scaling and cross-partition restart are not established
 by these tests.
 
-Remaining delivery work: finalize the PR evidence and obtain user review.
+The PR evidence is finalized; the pushed archive replay passed all file,
+log and full-trajectory checks. Remaining work: obtain user review and approval
+before any merge.
 User delivery order remains **finish
 source → push remote → run validation → user merges**. PR #49 retains
 `manual-review` / `no-automerge`; do not auto-merge even when CI succeeds.
