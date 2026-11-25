@@ -384,6 +384,8 @@ COO 额外内存随本地单元贡献数增长，是否有收益应在实际算�
 前后版本对照入口为 `scripts/benchmark_fsi_assembly.py --help`；
 [装配和计时契约](docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md#fsi-固定装配计划与可选-coo)
 说明界面链系数、失败同步、重启和统计范围。
+[本轮实现与实测](docs/research/data/fsi-assembly-2026-11-25/README.md)记录默认及 COO
+路径的配对装配时间、总耗时、峰值内存和固定版本验证证据。
 
 可选 API 文档：`cmake --preset debug -DMHPC_BUILD_DOCS=ON`，随后
 `cmake --build build/debug --target docs`；入口为 `build/docs/html/index.html`。

@@ -1,12 +1,41 @@
 # EONSim Codex Development Progress
 
-## 2026-11-25 · FSI-ASSEMBLY-01 开发中
+## 2026-11-25 · FSI-ASSEMBLY-01 实现与验证完成，待用户 review/merge
 
-从 main `f7acccb7a8239c60a2d2be193a158ac430851dcf` 在独立分支
-`codex/fsi-assembly-performance` 开始稀疏结构与单元装配性能开发。
-实现保留最终预分配矩阵、缓存单元映射、融合残量/切线和可选 `-fsi_coo`。
-先提交远端，随后执行针对性 Release 与同输入成对计时；此初始记录尚无新运行结果。
-合并留待用户审核。后续实际收据、失败和性能范围补入本项记录。
+从 main `f7acccb7a8239c60a2d2be193a158ac430851dcf` 开发，分支
+`codex/fsi-assembly-performance`，交付 [Draft PR #51](https://github.com/saitoasukakawaii/EONSim-new/pull/51)。
+生产实现及候选二进制为 `df6e9ac63f8b2d47c05b98ac3839c07c28e40a2e`；
+最终性能驱动为 `b2ccd96419091c669b8dceae4369c5b255f47f57`。两次均先推送再运行，合并留待用户审核。
+
+最终预分配 AIJ 直接转移所有权，固定单元行列及 trace 映射缓存，融合残量与 AD 切线，
+界面力重放限制到实际相邻单元；新增显式 `-fsi_coo` 压缩贡献计划，覆盖刚体和 RCR。
+保留独立 test/trial 映射，逐次刷新变步长权重；物理方程、时间历史和接受门槛不变。
+默认仍为 MatSetValues 装配。
+
+df6e9ac 的 clean PETSc 3.23.7 Release 本地定向验收 **8/8 通过**，零失败、跳过或超时，
+覆盖图所有权、融合单元、默认/COO、刚体/弹性/Neo-Hookean、RCR、变步长、retry 和 restart；
+FSI 覆盖 1/2 rank，共享代数路径的独立流体检查包含 4 rank。
+融合单元 48 个方向导数的最大相对差为 `2.23866e-10`；新增 COO 检查最大 owned 字段差为 `4.617972670928339e-13`。
+
+b2ccd 驱动的两套网格、1/2 rank、五步成对基准共 **64 次运行、320 个接受步、640 次线性修正**，
+其中 48 次测量、16 次预热。每步 SNES/KSP 次数均为 2/2；默认路径场及历史差为零，
+COO 最大场差 `2.220446049250313e-16`、历史差 `1.8158547268845473e-15`。
+默认 assembly 配对中位数下降 **2.72%–11.81%**，COO 下降 **30.16%–43.37%**；
+COO 四组整次 wall 变化范围均跨过零，细网格单 rank 峰值 RSS 配对中位数增加 **27.81%**，故保持可选。
+初始 pilot 的 wall 存在约 50 ms 等待轮询量化；b2ccd 改为阻塞等待与独立 watchdog 后重新测量，原记录保留但不进入最终墙钟结论。
+
+独立证据重放核对 3,328 份运行文件哈希、1,152 份 VTU、384 个保存状态及全部 640 次修正，
+未发现最终轨迹或配对统计不一致。b2ccd 对应的 PR merge commit
+`ad0cbf5965c6d83e7d578d9ffe549f0e6c84e9b0` 在远端实际执行 **55/55 项 Release 选测**通过，
+无历史复用、失败或跳过；选择脚本的 **65 项 Python 检查**及网站构建通过。
+[CI 来源](../research/data/fsi-assembly-2026-11-25/ci-source-b2.json) ·
+[数值 run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45632206852) ·
+[网站 run](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45632206859)。
+
+[实际命令、性能范围、独立审计与原始收据](../research/data/fsi-assembly-2026-11-25/README.md) ·
+[未发布算法草稿](../../website/drafts/fsi-sparse-assembly-plan.md)。
+本地未运行全套、Debug 或 PETSc 3.19.6；CI 的 Debug/3.19.6 手动 job 跳过，55 项为实际选测范围。
+旧基线没有新的图初始化计时，未宣称初始化百分比加速；共享主机的小网格结果不代表多节点或长时间生产规模收益。
 
 ## 2026-11-25 · FSI-PC-03 实现与验收完成：流体响应成本与结构 nodal 近似
 
