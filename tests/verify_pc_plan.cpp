@@ -1,4 +1,7 @@
 #include "eonsim/pc_plan.hpp"
+#include "eonsim/schur_solver.hpp"
+#include <array>
+#include <algorithm>
 #include "eonsim/nonlinear_system.hpp"
 #include "eonsim/time_step.hpp"
 #include "eonsim/reduced_layout.hpp"
@@ -35,6 +38,104 @@ void verify_tree(MPI_Comm comm,Mat parent,const PcBlock& node,const std::string&
         check(comm,good,"Nested matrix value/ownership oracle failed");
         verify_tree(comm,sub.get(),child,name,oracle);
     }
+}
+// Independent 1--3 component cofactor oracle. It intentionally uses the
+// original root numbering and does not consult the production velocity groups.
+double inverse_entry(const std::vector<PetscInt>& g,int i,int j) {
+    const int n=static_cast<int>(g.size());
+    const auto a=[&](int r,int c){return entry(g[r],g[c]);};
+    if(n==1) return 1/a(0,0);
+    if(n==2) return (i==j?a(1-i,1-j):-a(i,j))/(a(0,0)*a(1,1)-a(0,1)*a(1,0));
+    const auto cofactor=[&](int r,int c) {
+        std::array<int,2> rows{},cols{}; int nr=0,nc=0;
+        for(int k=0;k<3;++k) {if(k!=r) rows[nr++]=k;if(k!=c) cols[nc++]=k;}
+        return ((r+c)%2?-1.:1.)*(a(rows[0],cols[0])*a(rows[1],cols[1])-a(rows[0],cols[1])*a(rows[1],cols[0]));
+    };
+    const double det=a(0,0)*cofactor(0,0)+a(0,1)*cofactor(0,1)+a(0,2)*cofactor(0,2);
+    return cofactor(j,i)/det;
+}
+double schur_entry(PetscInt i,PetscInt j,const std::vector<std::vector<PetscInt>>& groups) {
+    double v=entry(i,j);
+    for(const auto& g:groups) for(int k=0;k<static_cast<int>(g.size());++k)
+        for(int l=0;l<static_cast<int>(g.size());++l)
+            v-=entry(i,g[k])*inverse_entry(g,k,l)*entry(g[l],j);
+    return v;
+}
+void verify_nodal_schur(MPI_Comm comm,const AlgebraLayout& original,Mat matrix) {
+    auto layout=original;
+    // Nonconsecutive active components, an independent mode, and a boundary
+    // pressure (as used by RCR) exercise semantic groups and the complete D.
+    for(PetscInt k=0;k<layout.owned;++k) {
+        const auto row=layout.begin+k;
+        auto& key=layout.owned_semantics[k];
+        if(row==1||row==13) key.mode=1;
+        if(row==7) key.kind=DofEntity::boundary;
+    }
+    const std::vector<PetscInt> pressure{3,7};
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_plan_schur_approx","nodal"));
+    for(const std::string recipe:{"physics","hybrid"}) {
+        if(recipe=="hybrid")
+            EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_plan_velocity_solver","coupled"));
+        auto plan=make_pc_plan(comm,layout,recipe);
+        const auto& dynamics=plan.children.front();
+        const auto& velocity=dynamics.children.front();
+        check(comm,dynamics.nodal_schur&&(recipe!="hybrid"||
+              (velocity.coupled_velocity&&velocity.children.empty())),"New PC topology was not selected");
+        PcSchurUpdates updates;
+        PetscOwner<KSP,KSPDestroy> outer;
+        EONSIM_PETSC(KSPCreate(comm,outer.put()));
+        EONSIM_PETSC(KSPSetType(outer.get(),KSPFGMRES));
+        EONSIM_PETSC(KSPSetTolerances(outer.get(),1e-12,1e-13,PETSC_DEFAULT,200));
+        configure_pc_plan(comm,outer.get(),matrix,plan,&updates);
+        PC root_pc,dynamics_pc;
+        KSP *sub=nullptr,*inner=nullptr;
+        PetscInt count=0,inner_count=0;
+        EONSIM_PETSC(KSPGetPC(outer.get(),&root_pc));
+        EONSIM_PETSC(PCFieldSplitGetSubKSP(root_pc,&count,&sub));
+        check(comm,count==static_cast<PetscInt>(plan.children.size()),"Wrong root block count");
+        EONSIM_PETSC(KSPGetPC(sub[0],&dynamics_pc));
+        EONSIM_PETSC(PCFieldSplitGetSubKSP(dynamics_pc,&inner_count,&inner));
+        check(comm,inner_count==2,"Missing pressure Schur block");
+        Mat approx=nullptr;
+        EONSIM_PETSC(KSPGetOperators(inner[1],nullptr,&approx));
+        EONSIM_PETSC(PetscFree(inner));
+        EONSIM_PETSC(PetscFree(sub));
+        std::vector<std::vector<PetscInt>> groups{{0,2},{1}};
+        if(recipe=="hybrid") groups.insert(groups.end(),{{8,9,10},{11,12},{13}});
+        PetscOwner<Vec,VecDestroy> rhs,sol,exact,defect;
+        EONSIM_PETSC(MatCreateVecs(matrix,sol.put(),rhs.put()));
+        EONSIM_PETSC(VecDuplicate(sol.get(),exact.put()));
+        EONSIM_PETSC(VecDuplicate(rhs.get(),defect.put()));
+        EONSIM_PETSC(VecSet(exact.get(),1.));
+        for(int phase=0;phase<2;++phase) {
+            const double factor=phase?2.:1.;
+            if(phase) {
+                EONSIM_PETSC(MatScale(matrix,2.));
+                updates.refresh(matrix);
+            }
+            PetscInt first,last; EONSIM_PETSC(MatGetOwnershipRange(approx,&first,&last));
+            bool correct=true;
+            for(PetscInt i=first;i<last;++i) for(PetscInt j=0;j<2;++j) {
+                double v=0;
+                EONSIM_PETSC(MatGetValues(approx,1,&i,1,&j,&v));
+                const double expected=factor*schur_entry(pressure.at(i),pressure.at(j),groups);
+                correct=correct&&std::abs(v-expected)<1e-11*(1+std::abs(expected));
+            }
+            check(comm,correct,"Nodal Schur cofactor oracle or numeric refresh failed");
+            EONSIM_PETSC(MatMult(matrix,exact.get(),rhs.get()));
+            EONSIM_PETSC(VecSet(sol.get(),0.));
+            EONSIM_PETSC(KSPSolve(outer.get(),rhs.get(),sol.get()));
+            KSPConvergedReason reason; EONSIM_PETSC(KSPGetConvergedReason(outer.get(),&reason));
+            EONSIM_PETSC(MatMult(matrix,sol.get(),defect.get()));
+            EONSIM_PETSC(VecAXPY(defect.get(),-1,rhs.get()));
+            PetscReal norm,bnorm;
+            EONSIM_PETSC(VecNorm(defect.get(),NORM_2,&norm)); EONSIM_PETSC(VecNorm(rhs.get(),NORM_2,&bnorm));
+            check(comm,reason>0&&norm<=1e-11*bnorm,"Nodal/coupled solve failed independent residual check");
+        }
+        EONSIM_PETSC(MatScale(matrix,.5));
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_plan_velocity_solver"));
+    }
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_plan_schur_approx"));
 }
 void run(MPI_Comm comm) {
     int rank,size; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&size);
@@ -215,6 +316,51 @@ void run(MPI_Comm comm) {
         EONSIM_PETSC(KSPSetType(ksp.get(),KSPFGMRES));
         configure_pc_plan(comm,ksp.get(),matrix.get(),plan);
     }
+    verify_nodal_schur(comm,l,matrix.get());
+    // Exercise the production SNES callback with changing Jacobian values.
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_plan_schur_approx","nodal"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_plan_velocity_solver","coupled"));
+    SolverConfig improved; improved.pc_recipe="hybrid";
+    const auto nonlinear=[&](const std::vector<double>& x,Vec residual,Mat jacobian) {
+        for(PetscInt i=0;i<l.owned;++i) {
+            const auto row=l.begin+i; const double target=row+1;
+            EONSIM_PETSC(VecSetValue(residual,row,2*(x[i]-target)+.01*(x[i]*x[i]-target*target),ADD_VALUES));
+            if(jacobian) EONSIM_PETSC(MatSetValue(jacobian,row,row,2+.02*x[i],ADD_VALUES));
+        }
+    };
+    const auto improved_result=system.solve(improved,initial,{}, {},nonlinear);
+    bool improved_exact=true;
+    for(PetscInt i=0;i<l.owned;++i)
+        improved_exact=improved_exact&&std::abs(improved_result.values[i]-(l.begin+i+1))<1e-8;
+    check(comm,improved_exact&&improved_result.iterations>1,"Nodal refresh during nonlinear solve failed");
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_plan_velocity_solver"));
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_plan_schur_approx"));
+    // Configuration errors must be detected even at an already converged state.
+    for(const auto& option:std::vector<std::pair<std::string,std::string>>{
+        {"-pc_plan_schur_approx","invalid"},{"-pc_plan_velocity_solver","invalid"}}) {
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,option.first.c_str(),option.second.c_str()));
+        bool rejected=false;
+        try {system.solve(improved,initial,{}, {},[](const std::vector<double>&,Vec,Mat){});}
+        catch(const std::runtime_error&) {rejected=true;}
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,option.first.c_str()));
+        check(comm,rejected,"Invalid new PC option was ignored");
+    }
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_plan_schur_approx","nodal"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-fieldsplit_dynamics_pc_fieldsplit_schur_precondition","selfp"));
+    bool conflict=false;
+    try {system.solve(improved,initial,{}, {},[](const std::vector<double>&,Vec,Mat){});}
+    catch(const std::runtime_error&) {conflict=true;}
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-fieldsplit_dynamics_pc_fieldsplit_schur_precondition"));
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_plan_schur_approx"));
+    check(comm,conflict,"Conflicting Schur preconditioner was ignored");
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-schur_pc","true"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-fieldsplit_flow_pc_fieldsplit_type","additive"));
+    bool old_conflict=false;
+    try {system.solve(SolverConfig{},initial,{}, {},[](const std::vector<double>&,Vec,Mat){});}
+    catch(const std::runtime_error&) {old_conflict=true;}
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-fieldsplit_flow_pc_fieldsplit_type"));
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-schur_pc"));
+    check(comm,old_conflict,"Legacy Schur topology conflict was ignored at zero residual");
     for(const auto& option:std::vector<std::pair<std::string,std::string>>{
         {"-fieldsplit_dynamics_fieldsplit_pressure_inner_pc_type","jacobi"},
         {"-fieldsplit_dynamics_fieldsplit_pressure_upper_ksp_rtol","1e-5"},
