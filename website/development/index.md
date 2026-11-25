@@ -5,13 +5,16 @@
 ## 当前主线
 
 - 仓库：[saitoasukakawaii/EONSim-new](https://github.com/saitoasukakawaii/EONSim-new)
-- 检查点：[`4f3a995de45d`](https://github.com/saitoasukakawaii/EONSim-new/commit/4f3a995de45dc1221a5303d7ed8a8a0104bd9f2e)，2026-11-03
-- 当前开发交付：单体 FSI 周期流量与移动域质量验证；P2 标量有限元稳态和瞬态闭环。
+- 此页按 2026-11-24 的 [主线提交 5781ae0](https://github.com/saitoasukakawaii/EONSim-new/commit/5781ae0c01953d123e91cd0ea9f44cd970674b93)核对。
+- 刚性管已有稳态与振荡流对照，弹性通道有移动域质量预算。仿射 Tet4 黏性项的单进程测量分别给出了单元核和整次运行的收益。
 
 ## 最近合入的研发里程碑
 
 | 任务 | 合入状态 | 主要交付 |
 |---|---|---|
+| HPC 单元积分 · [PR #43](https://github.com/saitoasukakawaii/EONSim-new/pull/43) | 已合入 | [Tet4 黏性积分与配对性能](/knowledge/tet4-viscosity)，以及 [50 个上游项目的阅读入口](/learning/open-source-hpc) |
+| FSI-PROD-02B · [PR #41](https://github.com/saitoasukakawaii/EONSim-new/pull/41) | 已合入 | [Womersley 振荡圆管](/knowledge/womersley-verification)的解析流量、端面压差和同网格 svFSI 对照 |
+| FSI-PROD-02A · [PR #38](https://github.com/saitoasukakawaii/EONSim-new/pull/38) | 已合入 | [稳态刚性管的网格与压力验证](https://github.com/saitoasukakawaii/EONSim-new/blob/5781ae0c01953d123e91cd0ea9f44cd970674b93/docs/development/RIGID_TUBE_QUALIFICATION.md) |
 | FSI-LOAD-01 · [PR #31](https://github.com/saitoasukakawaii/EONSim-new/pull/31) | 已合入 `06b05c4` | 平滑周期压力载荷、阶段时间评价、接受步 CSV/PVD 历史与恢复检查 |
 | FSI-NEXT-01 · [PR #32](https://github.com/saitoasukakawaii/EONSim-new/pull/32) | 已合入 `b2755b6` | 固定仿射速度入口、阶段和终点几何有效性、分布式界面面积观测 |
 | FSI-NEXT-02 · [PR #33](https://github.com/saitoasukakawaii/EONSim-new/pull/33) | 已合入 `4f3a995` | 周期体积流量入口、无滑移弹性壁通道、独立表面/体积质量诊断 |

@@ -1,0 +1,9 @@
+diff --git a/Code/Source/svFSI/PIC.f b/Code/Source/svFSI/PIC.f
+index fbf2492..69cf545 100755
+--- a/Code/Source/svFSI/PIC.f
++++ b/Code/Source/svFSI/PIC.f
+@@ -262,3 +262,3 @@
+       l4 = eq(cEq)%itr .GE. eq(cEq)%minItr
+-      IF (l1 .OR. ((l2.OR.l3).AND.l4)) eq(cEq)%ok = .TRUE.
++      eq(cEq)%ok = l1 .OR. ((l2.OR.l3).AND.l4)
+       IF (ALL(eq%ok)) RETURN

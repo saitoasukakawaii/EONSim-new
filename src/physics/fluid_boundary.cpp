@@ -99,13 +99,18 @@ FluidBoundaryPlan prepare_vector_boundaries(MPI_Comm comm,const MeshPartition& m
         for(auto index:lookup.at(face.physical_tag)) {
         const auto& b=boundaries[index];
         if(b.type==FluidBoundary::Type::velocity) continue;
-        SurfaceLoad load{}; load.ramp_time=b.ramp_time;
+        SurfaceLoad load{}; load.boundary_index=index;
         for(int a=0;a<Tri3Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c)
             load.ids[TriangleVector::dof(a,c)]=layout.local_to_global[stride*face.nodes[a]+c];
         for(const auto& q:BoundaryQuadrature::points) {
             Point x{},traction{};
             for(int a=0;a<Tri3Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) x[c]+=q.shape[a]*mesh.nodes[face.nodes[a]].position[c];
-            if(b.type==FluidBoundary::Type::pressure) for(int c=0;c<Space3::dimension;++c) traction[c]=-b.pressure*g.normal[c];
+            if(b.type==FluidBoundary::Type::pressure) {
+                // The periodic load can have zero mean. Integrate a unit pressure
+                // shape and supply its absolute value at the solver stage.
+                const double pressure=b.pressure_time?1.:b.pressure;
+                for(int c=0;c<Space3::dimension;++c) traction[c]=-pressure*g.normal[c];
+            }
             else traction=evaluate(b,x);
             for(int a=0;a<Tri3Topology::nodes;++a) for(int c:b.components)
                 load.residual[TriangleVector::dof(a,c)]-=g.area*q.weight*q.shape[a]*traction[c];
@@ -137,6 +142,11 @@ std::vector<double> fluid_boundary_signature(const FluidConfig& config)
         values.insert(values.end(),b.value.begin(),b.value.end());
         values.insert(values.end(),b.origin.begin(),b.origin.end());
         values.insert(values.end(),b.gradient.begin(),b.gradient.end());
+        if(b.pressure_time) {
+            const auto& p=*b.pressure_time;
+            values.insert(values.end(),{20505.,p.amplitude,p.period,p.ramp_time});
+            p.append_sample_signature(values);
+        }
     }
     values.push_back(config.mean_pressure?1:0);
     values.push_back(config.pressure_gauge?1:0);

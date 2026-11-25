@@ -1,5 +1,38 @@
 # EONSim Knowledge Log
 
+## 2026-11-24 · 如何解读同网格 FSI 与独立空间参考
+
+| 提问 | 控制与结果 |
+|---|---|
+| 为什么人工管的相对差能到两位数？ | 1 s 时两程序的端面积增加相差 0.008910 个百分点。相对 svFSI 的小瞬态为 13.82%，相对静态 Lamé 膨胀为 4.0975%。按相同稳定化度量计算，两个非线性程序的端面差缩到 0.00000283 个百分点。[稳定化与四面体编号](data/fsi-linear-transient-2026-11-24/tet-order.md) |
+| 换为 20 mm 管是否重现？ | 在同一 80 Pa 缓升压力下，两程序粗网格端部面积增加均约 0.18680%，独立圆形参考为 0.20300%。网格误差大于同网格程序差。[尺度变换与空间参考](data/fsi-linear-transient-2026-11-24/scaled-tubes.md) |
+| 流量入口接 RCR 时，哪项影响出口相位？ | 32 步/周期时，仅在 svFSI 离散牵引中对齐阶段，粗网格两程序的复流量差从入口振幅的 1.270% 降为 0.0343%。轴向从 6 层加到 48 层另行改变传递振幅。全周期正向灌流的平均端压遵循总阻力乘平均流量。[流量、相位、压力和储量](data/fsi-linear-transient-2026-11-24/perfusion.md) |
+| 两个出口能否只用末端阻力比分流？ | T 形管内腔本身有压损。独立的差压 Stokes 实验预测了同网格恒流分叉结果。充盈阶段还要核对净流量、壁面储量和起始时刻。[分叉验证与储量](data/fsi-rcr-2026-11-24/branched.md) |
+| 如何验证端口历史跨拒绝步和重启？ | 用独立解析或分段精确的电容压力、从 VTU 重积的实际端口通量、静默 checkpoint 后的下一步和人工改变曲线的负例分别检验。[压力驱动及采样数据](data/fsi-rcr-2026-11-24/reservoir-pressure.md) |
+| Krylov 输出收敛时解实际满足什么？ | 在每次修正后代回相应程序的矩阵。svFSILS 的内外绝对容差与外层投影影响真实残量。EONSim 提供分块和正交化对照，收敛标记、全场误差和进程退出逐项记录。[BIPN](data/fsi-linear-transient-2026-11-24/bipn-residual.md) · [PETSc 场分块](data/fsi-linear-transient-2026-11-24/arterial-solvers.md) |
+| 分叉双端流量为何也会相差一半？ | 关闭父支并固定几何，对同一网格改变 PSPG 系数，两个空间算子各自与匹配的独立解一致，终端振幅之间却相差 52.31%。[同网格双端导纳](data/fsi-rcr-2026-11-24/junction-harmonic.md) |
+
+## 2026-11-24 · 压力端面功率与弹性管启动
+
+[技术草稿](../../website/drafts/fsi-pressure-face-work.md)从外压功、有限元压强迹和黏性法向应力解释输出。基于 `3697204` 的 48 扇区圆管区分端点时间求积与两程序真实的位移差，附 EONSim 12 工况与三个步长的固定版本 svFSI 阶跃算例。[数据与验证](data/fsi-pressure-faces-2026-11-24/README.md)
+
+## 2026-11-24 · 网站知识选编
+
+[草稿目录](../../website/drafts/README.md)逐篇登记了 34 份材料。九篇进入四个专题或教程的选稿范围；另从现有调研编成[上游源码阅读指南](../../website/learning/open-source-hpc.md)。主线归档为数值依据，编辑稿用原始波形、节点力、时间步数据和 P2 制造解说明读数。待人工审阅的栏目入口见[知识专题](../../website/knowledge/index.md)和[实践教程](../../website/tutorials/index.md)。
+
+## 2026-11-24 · 仿射 Tet4 黏性核及 50 个上游项目复查
+
+在 `4095e4b` 保留 ALE 几何导数，将单元内恒定的黏性应力及速度切线精确积分一次。局部公式和有限差分、1/2-rank 成对实测、#41/#42 集成证据见[调研报告](HPC_UPSTREAM_REVIEW_2026-11-24.md)。[教学草稿](../../website/drafts/tet4-viscous-work-and-ale-tangents.md)的审阅重点是常黏度仿射假设，以及单元核与全 FSI 计时边界。
+
+## 2026-11-20 / 振荡刚性管的相位与压力迹
+
+Womersley 的圆管解提供复数流量参照。新增末周期投影、三相位全场积分与同网格
+svFSI 核验。实现 `62c0b2f`，比较工具 `bef75bd`。已核验 48/8/12
+上的流量门槛，计算端面压力仍比施加幅值低 7.58%。草稿待审问题包括
+端面压力和内部压力的适用指标，以及时间加密同时改变默认稳定化系数的影响。
+刚性管在固定 48 扇区上的细化将端流幅值误差降到 0.7554%，在 24 扇区上仅看端流则会低估域内速度误差。弹性壁的独立平衡试验见 [PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42)。稿件保留在草稿目录。
+[基准草稿](../../website/drafts/womersley-flow-and-pressure-traces.md) · [原始证据](data/womersley-2026-11-20/README.md)
+
 ## 2026-11-13 / Release 验收与 Debug 故障定位分离
 
 PR 日常正确性依靠 Release 增量 CTest 和复用证据；Debug/GDB/LLDB/sanitizer 仅用于定位实际故障。删除默认 Debug 前必须同步更新 receipt 来源校验和自动合并保护检查，保持 fail-closed；此流程经验已纳入工程规范，不新建知识文章。

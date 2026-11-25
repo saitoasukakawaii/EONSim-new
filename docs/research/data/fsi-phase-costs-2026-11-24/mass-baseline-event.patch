@@ -1,0 +1,30 @@
+diff --git a/src/physics/fsi.cpp b/src/physics/fsi.cpp
+index 7001390..9160c09 100644
+--- a/src/physics/fsi.cpp
++++ b/src/physics/fsi.cpp
+@@ -51,7 +51,7 @@ void publish_series(const std::filesystem::path& path,const std::vector<std::pai
+ // PCApply. An inactive event avoids both clock reads and PETSc calls.
+ struct FsiAssemblyEvents {
+     PetscLogEvent fluid_residual=-1, fluid_ale_tangent=-1;
+-    PetscLogEvent solid_residual=-1, solid_tangent=-1, insert=-1, force_replay=-1;
++    PetscLogEvent solid_residual=-1, solid_tangent=-1, insert=-1, force_replay=-1, mass_observe=-1;
+
+     void register_for_log_view() {
+         PetscBool enabled=PETSC_FALSE;
+@@ -63,6 +63,7 @@ struct FsiAssemblyEvents {
+         EONSIM_PETSC(PetscLogEventRegister("FSISolidJac",0,&solid_tangent));
+         EONSIM_PETSC(PetscLogEventRegister("FSIInsert",0,&insert));
+         EONSIM_PETSC(PetscLogEventRegister("FSIForceReplay",0,&force_replay));
++        EONSIM_PETSC(PetscLogEventRegister("FSIMassObserve",0,&mass_observe));
+     }
+ };
+
+@@ -950,7 +951,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
+             next_reduced[reduced.outlets[i].local]=endpoint;
+             port_values[i].endpoint_pressure=endpoint;
+         }
+-        if(f.inlet_flow) {stage_mass=mass_observation(next); endpoint_mass=mass_observation(next_physical); old_mass=mass_observation(physical);}
++        if(f.inlet_flow) measured(events.mass_observe,[&] {stage_mass=mass_observation(next); endpoint_mass=mass_observation(next_physical); old_mass=mass_observation(physical);});
+         std::array<double,5> support_history{};
+         if(!supports.empty()&&f.output_interval>0) {
+             std::array<double,5> local_work{};

@@ -3,6 +3,7 @@
 #include "eonsim/time_step.hpp"
 #include <cmath>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 using namespace eonsim;
 namespace {
@@ -99,16 +100,35 @@ void verify() {
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_report","true"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-ksp_type","gmres"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_type","none"));
-    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-ksp_max_it","0"));
-    fatal=false;
-    try { system.solve(config,initial,{}, {},assemble); }
-    catch(const StepRejected&) { throw std::runtime_error("Linear iteration exhaustion was classified as retryable"); }
-    catch(const std::runtime_error& e) {
-        const std::string message=e.what();
-        fatal=message.find("ksp_reason_name=DIVERGED_ITS")!=std::string::npos&&
-              message.find("pc_reason_name=FACTOR_NOERROR")!=std::string::npos;
+    // At (2,2), b=(log(20),0) up to overall sign, and the first column of J is (0.7,-1).
+    // One unpreconditioned GMRES step minimizes over that column. The exact residual
+    // norm is ||b||/sqrt(1+0.7^2); with no iterations the complete right hand side remains.
+    for(int budget:{0,1}) {
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-ksp_max_it",budget?"1":"0"));
+        std::ostringstream captured;
+        auto* previous=std::cout.rdbuf(captured.rdbuf());
+        fatal=false;
+        try { system.solve(config,initial,{}, {},assemble); }
+        catch(const std::exception& e) {
+            const std::string message=e.what();
+            fatal=message.find("ksp_reason_name=DIVERGED_ITS")!=std::string::npos&&
+                  message.find("pc_reason_name=FACTOR_NOERROR")!=std::string::npos;
+        }
+        std::cout.rdbuf(previous);
+        require(fatal,"Linear exhaustion was not distinguished from PC failure");
+        if(rank==0) {
+            const auto text=captured.str();
+            const std::string marker="linear_iteration_limit_residual solve=1 norm=";
+            const auto start=text.find(marker);
+            require(start!=std::string::npos&&text.find("linear_residual solve=")==std::string::npos,
+                    "An exhausted solve must have its own last-iterate record");
+            const double measured=std::stod(text.substr(start+marker.size()));
+            const double expected=std::log(20.)/(budget?std::sqrt(1.+.7*.7):1.);
+            require(std::abs(measured-expected)<1e-12,"Wrong true residual for exhausted GMRES");
+            require(text.find("linear_iteration_limit_field_residual solve=1 name=mesh ")!=std::string::npos,
+                    "Missing field-wise residual for exhausted GMRES");
+        }
     }
-    require(fatal,"Linear exhaustion was not distinguished from PC failure");
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-ksp_type"));
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_type"));
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-ksp_max_it"));

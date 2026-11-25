@@ -6,6 +6,7 @@ namespace eonsim {
 struct FluidParameters {
     double density = 1, viscosity = 1, dt = 0, tau = 0;
     bool convection = false;
+    double grad_div_viscosity = 0; ///< Uniform coefficient of (div v, div u), in Pa s.
 };
 template<class Element> struct FluidElementResult {
     using Layout=FluidLayout<Element>;

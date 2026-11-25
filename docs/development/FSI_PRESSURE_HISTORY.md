@@ -5,7 +5,7 @@
 
 ## 载荷配置
 
-保留数值 `fsi.pressure` 作为均值 p0。可选配置：
+`fsi.pressure` 给出基准压力 p0。以下配置在其上叠加正弦载荷。
 
 ```yaml
 fsi:
@@ -14,10 +14,9 @@ fsi:
   output_interval: 5
 ```
 
-`amplitude`、`period` 必填，`ramp_time` 默认 0；参数有限、周期正、启动时间非负。
-允许有符号压力。所有既有 pressure_tags 共用同一波形；不支持表格、逐标签波形或表达式。
+正弦波指定 `amplitude` 和正周期 `period`。采样波指定 `period` 和 `offset_samples`，例如 `{period: 1.0, offset_samples: [[0, 0.01], [0.125, 0.08], [0.375, -0.026], [0.75, 0.023]]}`。每一行给出周期内的时刻（s）和加在标量基准压力上的压力增量（Pa）。首时刻为 0，后续时刻严格增加。省略终点时程序用首值补齐闭合段，显式提供周期终点时其值须与首值相同。程序在积分阶段按物理时刻线性插值。外加的 `ramp_time` 默认为 0，正值会平滑缩放整个压力。直接指定的 FSI 端面共用该压力，各 RCR 可独立配置下游压力曲线。[单端口、分叉与采样波形验证](../research/data/fsi-rcr-2026-11-24/reservoir-pressure.md)
 
-压力为 `p(t) = s(t) * (p0 + amplitude*sin(2*pi*t/period))`。
+正弦压力为 `p(t) = s(t) * (p0 + amplitude*sin(2*pi*t/period))`。
 启动时间正时，`x=clamp(t/ramp_time,0,1)`，`s=x^3*(10-15*x+6*x^2)`；否则 `s=1`。
 未设置 pressure_time 时始终保持原恒压路径，包括 checkpoint 签名。
 启用时波形参数参与签名，修改波形不能恢复旧 checkpoint；输出频率不影响物理签名。
@@ -67,6 +66,31 @@ ParaView 同时打开 `solution.pvd` 和 `solution_solid.pvd`，按时间播放�
 输出坐标已经包含位移，不要再次 Warp By Vector。压力载荷驱动弹性端块响应；
 该示例不是 Turek–Hron 基准或实验验证。
 
+## 每个受压面的压力、流量与载荷功率
+
+在算例的 `fsi` 段设置 `pressure_face_history: true`。程序在每个接受步为每个受压标签写一行到
+`<stem>_pressure_faces.csv`。共形双域使用 `domains.pressure_tags` 的配置顺序，旧立方体使用标签 1。
+此开关默认为关闭，可以与任意 `output_interval` 配合，也可以从已有检查点开始启用。
+续算写入 `<stem>_restart<N>_pressure_faces.csv`，其中 N 是恢复步号。
+
+`stage_` 列使用 `evaluation_time` 的位形、速度、压强与边界载荷。`endpoint_` 列使用 `time` 的相应量。
+BE、BDF2 和 generalized-α 的 BE 启动步在终点加载。后续 generalized-α 步在共同阶段加载，
+终点的 `prescribed_pressure` 是同一波形在输出时刻的取值。
+
+| 后缀 | 定义和 SI 单位 |
+|---|---|
+| `area` | 当前构形各三角面的面积和，m² |
+| `mean_pressure` | 有限元静压的面积均值，Pa |
+| `mean_normal_traction` | 流体侧 Cauchy 正应力 $n^T\sigma n$ 的面积均值，拉为正，Pa |
+| `outward_flow` | $Q=\int_\Gamma u\cdot n\,dA$，相对于空间坐标，流出为正，m³/s |
+| `prescribed_pressure` | 配置的外加压力 $p_b(t)$，Pa |
+| `pressure_power` | 外压对流体做功的速率 $-p_b Q$，W，输入能量为正 |
+
+这里 $n$ 是当前流体外法向，$\sigma=-pI+\mu(\nabla u+\nabla u^T)$。每个平面三角形的 P1 压力、速度面均值
+由三个顶点精确积分，速度梯度来自相邻流体 Tet4。跨进程先按标签求积分和，再用全局面积归一化。
+弱式施加的压力牵引与单元侧恢复应力可以分别比较。功率取流体材料速度，移动端面的相对流量还需要扣除网格速度。
+端面功率的时间积分应记录所用求积规则，特别是从静止启动的第一个 BE 步。
+
 ## 针对性检查
 
 `fsi_pressure_state` 覆盖三时间格式的载荷取值、1/2 rank、启动段/周期段恢复、
@@ -76,3 +100,40 @@ BDF2/alpha 的 Neo-Hookean 检查实际缩步并重放接受步长。
 局部压力面积切线及波形端点包含在 `fsi_element_jacobian`。
 实际执行结果见任务会话日志和 `docs/research/data/fsi-pressure-2026-11-03/`；
 测试注册或上述描述本身不表示已经通过。
+
+## 流体散度耗散对照
+
+`fsi.grad_div_viscosity` 和独立流体的 `fluid.grad_div_viscosity` 接受空间均匀、有限且非负的系数 γ，单位为 Pa·s。两者默认取 0。对于仿射 Tet4，将 $V_e\gamma(\nabla\!\cdot u)\,\partial_i N_a$ 加到动量行，连续性残量和已有 SUPG/PSPG 系数沿用原定义。该项对离散速度所作的功为 $\sum_e V_e\gamma(\nabla\!\cdot u)^2$。固定网格切线和 ALE 的当前体积、空间梯度及其导数都包含此项。接受步的端面 `mean_normal_traction` 仍按物理牛顿应力 $-pI+2\mu\epsilon(u)$ 计算。
+
+可用同一时刻的空间散度 RMS 和截面位移一起衡量系数的影响。均匀 γ 与 svFSI 每个积分点的 τC 定义不同，不能从一个工况直接移植数值。显式 0 可恢复旧格式检查点；改变非零系数会触发物理签名不匹配。[相同载荷下的实测结果](../research/data/fsi-smooth-load-2026-11-24/README.md)
+
+弹性管还可按固体外表面标签配置参考法向支撑。其接受步历史包含弹簧储能、阻尼耗散和对壁做功。[支撑模型与输出列](FSI_WALL_SUPPORT.md)
+
+## 保留网格依赖的稳定化时间尺度
+
+`fsi.stabilization_time_scale` 接受以秒计的正有限值，用于在时间加密试验中固定 SUPG/PSPG 系数的时间贡献。对参考体积 $V_e$、$h_e=(6V_e)^{1/3}$ 和上一个接受步的四节点速度均方值 $U_e^2$，每个流体单元采用
+
+$$
+\tau_e=\left[\frac{4\rho^2}{T^2}+\frac{4\rho^2 U_e^2}{h_e^2}
+                  +\frac{16\mu^2}{h_e^4}\right]^{-1/2}.
+$$
+
+给出 `stabilization_time_scale` 时，$T$ 为该输入。省略时使用当前离散导数的有效步长，包括后退欧拉起步及重试步骤。动量惯性、固体和网格运动、RCR 电路仍使用各自的实际离散时间系数。已有的 `fsi.stabilization_tau` 指定统一的整个系数，两种输入互斥。固定时间尺度随物理参数存入检查点。[同网格独立线性化和步长检验](../research/data/fsi-linear-transient-2026-11-24/time-scale.md)
+
+### 使用当前四面体几何的稳定化
+
+在 `fsi` 下设置 `stabilization_model: regular_tet` 可根据当前变形的 Tet4 同时计算 SUPG/PSPG 的 $\tau_M$ 和动量散度项的 $\tau_C$。默认的 `volume` 继续使用参考体积定义的标量单元长度。两种模式可独立用于时间和空间敏感性研究。
+
+令 $b_a=\nabla_xN_a$ 为当前四个重心形函数梯度，$a_h=u_h-w_h$ 为流体相对 ALE 网格速度。新选项使用
+
+$$
+G_*=4^{-1/3}\sum_{a=1}^{4} b_a b_a^T,\qquad
+\tau_M^{-1}=\rho\sqrt{(2/T)^2+\langle a_h^T G_* a_h\rangle_K+36\nu^2(G_*:G_*)},
+\qquad \tau_C=\frac{1}{\tau_M\,\mathrm{tr}\,G_*}.
+$$
+
+四个节点对 $G_*$ 的贡献对称，比例因子使其行列式与单位直角参考四面体的度量相同。$\langle\cdot\rangle_K$ 是当前单元的体积平均，程序用 P1 质量矩精确积分。$\tau_M$ 的单位为 m³ s/kg，$\tau_C$ 为 Pa s。两者在单元内取常数。在每次残量评价中重新计算，Newton 切线包含流速、网格速度以及当前物理梯度对二者的导数。
+
+`regular_tet` 默认令 $T$ 取当前实际步长。指定正值 `stabilization_time_scale` 可将 $T$ 固定为给定的秒数。它与显式给定 `stabilization_tau` 或 `grad_div_viscosity` 互斥。切换度量模型或固定时间参数会改变物理检查点签名。默认模式下已有检查点的身份计算沿用原约定。
+
+局部验收覆盖全部 12 种正定向节点排列、独立四点积分、流体与 ALE 两组方向导数。弹性通道在 BE、变步 BDF2、generalized-α、1/2 进程及续算路径上验收。完整研究使用相同四面体连接关系的独立线性 DAE，并在两个载荷幅值下区分线性化与时间离散造成的差别。

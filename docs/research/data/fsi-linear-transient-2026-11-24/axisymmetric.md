@@ -1,0 +1,80 @@
+# A continuum reference for filling an elastic tube from both ends
+
+At rest the tube has lumen radius 1 m, outer radius 1.2 m and length 2 m. Fluid and wall densities are 1 kg/m³, dynamic viscosity is 1 Pa s, and wall Young's modulus and Poisson ratio are 100 Pa and 0.3. A quintic ramp raises the normal traction pressure on both lumen ends from zero to 0.02 Pa in one second. The wall ends have axial rollers, the outside is traction-free, and fluid and wall velocity are continuous at the bore. This artificially soft, viscous benchmark isolates the early filling transient produced by wall expansion.
+
+## Independent equations and checks
+
+The reference linearizes at rest on the undeformed circular cylinder. Its meridian mesh is independent of both 3D tetrahedral meshes. The mixed weak form uses quadratic axial and radial velocity in both subdomains, bilinear fluid pressure, and quadratic wall displacement. Fluid inertia, symmetric viscous stress, pressure/divergence, wall inertia, isotropic small-strain elasticity, and displacement-rate compatibility are retained. The cylindrical integral has weight $r$ per radian, circumferential strain $u_r/r$, and dilatation $∂ₓuₓ + ∂ᵣuᵣ + uᵣ/r$. The reference imposes zero radial velocity on the rotation axis and integrates pressure traction over the cap. Shared velocity gives no slip, and assembled momentum balances interface tractions. There is no pressure penalty. The singular mass-matrix system is integrated using the two-stage, third-order Radau IIA method in [reference.py](reference.py).
+
+The primary run uses symmetry at the midplane; separate full-length runs with both loaded ends reproduce that symmetry without prescribing it. The 64-by-64-by-16 meridian base mesh has four local bisections towards the loaded end and the fluid-wall junction and 64,056 independent unknowns. Its static inner strain agrees with the analytic plane-strain Lamé solution to 5.22 × 10⁻¹⁰ relative. At 256 steps the largest relative power and fluid-volume balance residuals evaluated at all internal stages are 2.05 × 10⁻¹¹ and 4.70 × 10⁻¹¹. Across seven stations at 0.5 and 1 s, the change from the previous spatial grid is 0.00369% of the static area expansion. The change from 128 to 256 Radau steps is 0.00000416% on that scale. These are measured refinements, not rigorous error bounds. [Grid, quadrature and symmetry runs](axisym-refinement.json) · [finest grid](reference-axisym.json) · [previous grid](previous-axisym.json)
+
+## What the cross-code gap measures
+
+At 1 s the reference left-end area increase is 0.0788759% of the initial area; the midplane increase is 0.1071810%. At the same pressure and time the 48-sector 3D grid gives 0.0733993% (EONSim) and 0.0644891% (standard svFSI) at the left end. The right end of each 3D mesh samples a different tetrahedral orientation. Reflecting the entire mesh interchanges the ends in both solvers. The continuum reference is symmetric.
+
+![Area increase at seven common axial sections on the two meshes](section-expansion.png)
+
+The plotted points are the measured seven sections. Lines connect samples; the ordinate is percentage of the initial lumen area. [Plotting script](plot_sections.py)
+
+The following errors are maxima over the same seven axial sections at 1 s, expressed as percentages of the static Lamé area strain for the given pressure. The 3D models retain finite amplitude. Reducing the peak pressure from 0.02 to 0.0002 Pa tests proximity to the small-amplitude limit. The table uses the unmodified stabilization of both codes.
+
+| 3D mesh (sectors / fluid radial / wall radial / axial) | Peak pressure (Pa) | Steps | EONSim error | svFSI error |
+|---|---:|---:|---:|---:|
+| 48 / 4 / 4 / 6 | 0.02 | 128 | 6.427% | 9.737% |
+| 48 / 4 / 4 / 6 | 0.0002 | 128 | 6.439% | 9.746% |
+| 96 / 8 / 8 / 12 | 0.02 | 128 | 2.842% | 4.625% |
+| 96 / 8 / 8 / 12 | 0.0002 | 64 | 2.738% | 4.635% |
+
+Switching off only svFSI's momentum grad-div term on the first mesh reduces its maximum error against the reference to 6.680%, while the maximum *intercode* gap falls from 4.097% to 0.497% of the static strain. A close match between the two tetrahedral solutions can therefore coexist with a larger shared spatial error. The actual normalized errors by station include their signs. [Comparison](axisym-comparison.json) · [paired 3D reports and solver hashes](axisym-3d-reports.tar.xz) · [mesh reflection](../fsi-smooth-load-2026-11-24/reflection.json)
+
+## Reproduction
+
+Run in this directory with Python, NumPy, and SciPy. The lengths in the command refer to element counts on the ungraded half tube. To repeat the symmetry check add `--full-length` to the 24/24/8, three-level case. For the uniform-grid controls set `--corner-levels 0`. The corresponding 3D decks, solver versions and build procedure are in the [matched-load study](../fsi-smooth-load-2026-11-24/README.md).
+
+```bash
+export OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1
+python axisymmetric.py --mesh 48 48 16 --corner-levels 4 --steps 64 128 256 --output previous.json
+python axisymmetric.py --mesh 64 64 16 --corner-levels 4 --steps 64 128 256 --output finest.json
+mkdir -p reports
+tar -xf axisym-3d-reports.tar.xz -C reports
+python compare_axisymmetric.py --reference finest.json --previous-mesh previous.json \
+  --native reports/native/*.json --ablated reports/no-grad-div/*.json --output comparison.json
+```
+
+## Direct measurements at 97 physical stations
+
+A 97-station output samples every axial Tet4 plane in the current spatial study, including the 6-, 8-, 12- and 16-layer meshes. The 41,496- and 64,056-unknown cases differ at 1 s by at most 0.00369% of the static area expansion. Refining the bulk mesh to 99,875 unknowns **and** adding a fifth subdivision at the end/interface corner changes the 1 s result by up to 0.01369% of the static expansion. Both maxima occur at an end. The 99,875-unknown end and midpoint expansions are 0.0788461% and 0.1071817% of the original area. On this grid doubling the time resolution from 128 to 256 Radau steps changes all measured sections by at most 0.00000417% of the static reference over the two sampling times. [Full spatial histories and process measurements](dense-grids.json.xz) · [Dense reference](reference-dense.json)
+
+The two-stage Radau IIA stage matrix has conjugate eigenvalues. Transforming its real stage equations gives one complex sparse solve with `M + h λ K`. Recover both real stages from the mode and its conjugate, then apply one correction using the residual of the original real equations. The mass matrix may contain algebraic pressure rows. Omitting the correction in the initial prototype produced a manufactured-field error of 4.66e−8 on the graded half-tube. With the correction, complete stage vectors on full and half tubes agree with their prescribed manufactured values within 4.94e−11 and the integrated quadratic trajectory error is at most 3.09e−11. The existing real doubled system independently reproduces the 97-station strains on the 41,496-unknown grid within 8.9e−14 absolute strain. A simultaneous attempt at the larger real-block solve was killed under memory pressure; it contributed no samples. The 99,875-unknown corrected complex run peaked at 1,751,108 KiB on the measured Linux process. [Algebra and complete field tests](compare_stages.py) · [Recorded controls](radau-stage-check.json)
+
+```bash
+OPENBLAS_NUM_THREADS=1 python compare_stages.py --output "$work/stages.json"
+OPENBLAS_NUM_THREADS=1 python axisymmetric.py --mesh 80 80 20 --corner-levels 5 \
+  --section-count 97 --stage-solver complex-pair --steps 128 256 --output "$work/dense.json"
+```
+
+## Corner refinement and exact displacement elimination
+
+At the loaded end, increasing the number of subdivisions towards the interface changes the solution more than doubling the time resolution. All rows use 256 Radau steps and compare the same 97 physical stations at 1 s. The strain unit in the two middle columns is a percentage of the initial lumen area.
+
+| Axial / fluid radial / wall radial cells before grading | Corner subdivisions | Unknowns | Left end (%) | Midplane (%) |
+|---|---:|---:|---:|---:|
+| 48 / 48 / 16 | 4 | 41,496 | 0.07888393 | 0.10718059 |
+| 80 / 80 / 20 | 5 | 99,875 | 0.07884614 | 0.10718169 |
+| 96 / 96 / 24 | 5 | 139,683 | 0.07884176 | 0.10718178 |
+| 96 / 96 / 24 | 6 | 143,616 | 0.07882925 | 0.10718192 |
+| 112 / 112 / 28 | 6 | 190,688 | 0.07882698 | 0.10718196 |
+| 128 / 128 / 32 | 6 | 244,416 | 0.07882518 | 0.10718199 |
+
+The last two meshes differ by at most 0.0008314% of the static Lamé strain over all 97 stations at 1 s. Doubling the finest run from 128 to 256 time steps changed these stations by at most 0.000004157% of static strain. Two earlier runs at the same 244,416 unknowns ended with signal 9. Their recorded peak resident memory was 3,879,260 KiB for the full complex stage and 4,707,276 KiB after condensing displacement with default pivoting. [Grid and process table](corner-refinement.csv) · [97-station fields](reference-corner.json)
+
+In the complex Radau stage matrix the displacement-rate row has an exact identity diagonal. Eliminating it gives a smaller Schur system for velocity and pressure. Back-substitution restores displacement before the full real-equation residual correction. On the 41,496-unknown case this reduced the complex factorization dimension to 32,968 and the SuperLU-reported nonzeros from 24.43 to 21.33 million. The observed process peak RSS went from 627.7 to 597.3 MiB and CPU time from 88.0 to 72.7 s. Shared-host elapsed time increased from 169 to 255 s. On the 143,616-unknown grid the two algebraic routes differ by at most 1.57e−11% of the static strain across 97 stations, both sample times and both step counts. [Manufactured full-vector checks](radau-stage-check.json) · [Packaged refinement and rejected run](corner-refinement.json.xz)
+
+On this graded mesh, permitting SuperLU to accept any nonzero diagonal pivot (threshold zero) reduced fill sufficiently to finish the 244,416-unknown calculation. At 256 steps, the condensed stage had 203,144 unknowns and 134.48 million reported factor entries. The process over both time resolutions peaked at 3,243 MiB and consumed 482.5 CPU seconds. The original full equations were checked after back-substitution and residual correction. The normalized power and volume-flux defects were at most 3.81e−12 and 1.22e−14. On the 41,496-unknown mesh lowering this threshold took the reported factor from 21.33 to 14.32 million entries. A second same-mesh check on 143,616 unknowns gives 111.75 million entries and 2,570 MiB with the default pivot threshold, compared with 74.11 million entries and 1,862 MiB at zero threshold. The maximum 1 s section difference is 1.78e−11% of static strain, and the respective measured CPU times are 357 and 253 s. The default threshold remains available for matrices with different pivot behavior.
+
+```bash
+OPENBLAS_NUM_THREADS=1 python axisymmetric.py --mesh 128 128 32 --corner-levels 6 \
+  --section-count 97 --stage-solver condensed-pair --pivot-threshold 0 --steps 128 256 --output "$work/meridian.json"
+python compare_corner.py --archive corner-refinement.json.xz \
+  --csv "$work/corner-refinement.csv" --finest "$work/finest.json"
+```

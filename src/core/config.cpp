@@ -10,6 +10,13 @@
 
 namespace eonsim {
 namespace {
+double read_grad_div_viscosity(const YAML::Node& physics,const char* location) {
+    const auto node=physics["grad_div_viscosity"];
+    const double value=node?node.as<double>():0.;
+    if(!std::isfinite(value)||value<0)
+        throw std::runtime_error(std::string(location)+".grad_div_viscosity must be finite and nonnegative");
+    return value;
+}
 void keys(const YAML::Node& node, std::initializer_list<const char*> allowed,
           const std::string& location)
 {
@@ -47,6 +54,64 @@ ScalarFunction scalar_function(const YAML::Node& node,const std::string& locatio
     if(!std::isfinite(f.rate))throw std::runtime_error(location+" rate must be finite");
     return f;
 }
+// Store the closing knot explicitly so an omitted and a supplied periodic
+// endpoint produce identical interpolation and checkpoint identities.
+PeriodicSamples read_periodic_samples(const YAML::Node& input,double period,const std::string& location,
+                                      const std::string& quantity) {
+    const std::string shape_error=location+" requires time/"+quantity+" pairs";
+    if(!input.IsSequence()||input.size()==0) throw std::runtime_error(shape_error);
+    PeriodicSamples samples;
+    for(const auto& pair:input) {
+        if(!pair.IsSequence()||pair.size()!=2) throw std::runtime_error(shape_error);
+        const double t=pair[0].as<double>(),value=pair[1].as<double>();
+        if(!std::isfinite(t)||!std::isfinite(value)||t>period||(samples.empty()?t!=0:t<=samples.back()[0]))
+            throw std::runtime_error(location+" requires finite, increasing times from zero within one period and finite "+quantity+"s");
+        samples.push_back({t,value});
+    }
+    const double first=samples.front()[1];
+    if(samples.back()[0]<period) samples.push_back({period,first});
+    else if(samples.back()[1]!=first) throw std::runtime_error(location+" values differ at the two ends of the period");
+    return samples;
+}
+
+double interpolate_samples(const PeriodicSamples& samples,double phase) {
+    // The canonicalized table includes its closing knot. The caller supplies a phase in [0,period).
+    const auto next=std::upper_bound(samples.begin(),samples.end(),phase,
+        [](double t,const auto& sample){return t<sample[0];});
+    const auto& left=*(next-1);
+    const double weight=(phase-left[0])/((*next)[0]-left[0]);
+    return (1-weight)*left[1]+weight*(*next)[1];
+}
+
+void read_flow_waveform(const YAML::Node& q,FsiFlowRate& flow) {
+    flow.period=q["period"].as<double>();
+    if(!std::isfinite(flow.period)||flow.period<=0) throw std::runtime_error("Invalid FSI flow_rate period");
+    if(q["samples"]) {
+        if(q["mean"]||q["amplitude"]) throw std::runtime_error("FSI flow_rate.samples excludes mean and amplitude");
+        flow.samples=read_periodic_samples(q["samples"],flow.period,"FSI flow_rate.samples","flow");
+    } else {
+        flow.mean=q["mean"].as<double>();
+        flow.amplitude=q["amplitude"].as<double>();
+        if(!std::isfinite(flow.mean)||!std::isfinite(flow.amplitude)) throw std::runtime_error("Invalid FSI flow_rate");
+    }
+}
+
+PressureTime read_pressure_time(const YAML::Node& node,const std::string& location)
+{
+    keys(node,{"amplitude","period","ramp_time","offset_samples"},location);
+    if(bool(node["amplitude"])==bool(node["offset_samples"]))
+        throw std::runtime_error(location+" requires exactly one of amplitude and offset_samples");
+    PressureTime profile;
+    profile.period=node["period"].as<double>();
+    if(node["amplitude"]) profile.amplitude=node["amplitude"].as<double>();
+    if(node["ramp_time"]) profile.ramp_time=node["ramp_time"].as<double>();
+    if(!std::isfinite(profile.amplitude)||!std::isfinite(profile.period)||profile.period<=0||
+       !std::isfinite(profile.ramp_time)||profile.ramp_time<0)
+        throw std::runtime_error("Invalid "+location);
+    if(node["offset_samples"])
+        profile.offset_samples=read_periodic_samples(node["offset_samples"],profile.period,location+".offset_samples","pressure");
+    return profile;
+}
 void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
 {
     const auto boundaries=f["boundaries"];
@@ -57,9 +122,16 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
         const auto type=entry["type"].as<std::string>();
         FluidBoundary b;
         if(type=="pressure") {
-            keys(entry,{"tag","type","value","ramp_time","components"},"fluid.boundaries.pressure");
+            keys(entry,{"tag","type","value","ramp_time","components","pressure_time"},"fluid.boundaries.pressure");
             b.type=FluidBoundary::Type::pressure; b.pressure=entry["value"].as<double>();
             if(!std::isfinite(b.pressure)) throw std::runtime_error("Boundary pressure must be finite");
+            if(const auto profile=entry["pressure_time"]) {
+                if(solid||config.mode!=FluidConfig::Mode::transient)
+                    throw std::runtime_error("Boundary pressure_time requires transient fluid");
+                if(entry["ramp_time"])
+                    throw std::runtime_error("Use pressure_time.ramp_time for a periodic pressure boundary");
+                b.pressure_time=read_pressure_time(profile,"fluid.boundaries.pressure_time");
+            }
         } else {
             keys(entry,{"tag","type","value","origin","gradient","ramp_time","components"},"fluid.boundaries");
             if(type=="velocity"|| (solid&&type=="displacement")) b.type=FluidBoundary::Type::velocity;
@@ -111,6 +183,37 @@ void fluid_boundaries(const YAML::Node& f,FluidConfig& config,bool solid=false)
     });
 }
 } // namespace
+
+double FsiFlowRate::value_at(double time) const {
+    const double phase=std::fmod(time,period);
+    if(!std::isfinite(phase)||phase<0) throw std::runtime_error("Invalid FSI inlet evaluation time");
+    if(samples.empty()) return mean+amplitude*std::sin(2*std::acos(-1.)*(phase/period));
+    return interpolate_samples(samples,phase);
+}
+
+double PressureTime::value_at(double base,double time) const
+{
+    const double x=ramp_time>0?std::clamp(time/ramp_time,0.,1.):1.;
+    const double scale=x*x*x*(10+x*(-15+6*x));
+    const double phase=std::fmod(time,period);
+    if(!std::isfinite(phase)) throw std::runtime_error("Nonfinite periodic pressure");
+    double offset;
+    if(offset_samples.empty()) offset=amplitude*std::sin(2*std::acos(-1.)*(phase/period));
+    else {
+        // For a negative phase very close to zero, addition can round up to the period.
+        const double t=phase<0?phase+period:phase;
+        offset=t==period?offset_samples.front()[1]:interpolate_samples(offset_samples,t);
+    }
+    const double pressure=scale*(base+offset);
+    if(!std::isfinite(pressure)) throw std::runtime_error("Nonfinite periodic pressure");
+    return pressure;
+}
+
+void PressureTime::append_sample_signature(std::vector<double>& values) const {
+    if(offset_samples.empty()) return;
+    values.insert(values.end(),{20517.,double(offset_samples.size())});
+    for(const auto& knot:offset_samples) values.insert(values.end(),knot.begin(),knot.end());
+}
 
 Config read_config(const std::filesystem::path& path)
 {
@@ -187,13 +290,14 @@ Config read_config(const std::filesystem::path& path)
     if (tags.empty()) throw std::runtime_error("At least one Dirichlet physical tag is required");
     } else if(config.fluid_problem) {
         const auto f=root["fluid"];
-        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet","boundaries","pressure_gauge","pressure_normalization","regions","stabilization_tau"},"fluid");
+        keys(f,{"mode","density","viscosity","pressure_drop","dt","steps","ramp_time","outlet","boundaries","pressure_gauge","pressure_normalization","regions","stabilization_tau","grad_div_viscosity"},"fluid");
         const auto mode=f["mode"].as<std::string>();
         if(mode=="stokes") config.fluid.mode=FluidConfig::Mode::stokes;
         else if(mode=="steady") config.fluid.mode=FluidConfig::Mode::steady;
         else if(mode=="transient") config.fluid.mode=FluidConfig::Mode::transient;
         else throw std::runtime_error("Unknown fluid mode");
         auto& v=config.fluid;
+        v.grad_div_viscosity=read_grad_div_viscosity(f,"fluid");
         if(f["stabilization_tau"]) {
             v.stabilization_tau=f["stabilization_tau"].as<double>();
             if(!(*v.stabilization_tau>0)||!std::isfinite(*v.stabilization_tau))
@@ -284,25 +388,34 @@ Config read_config(const std::filesystem::path& path)
     }
     if(config.fsi_problem) {
         const auto f=root["fsi"];
-        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","pressure_time","output_interval","checkpoint_interval","inlet"},"fsi");
+        keys(f,{"dt","steps","mass","damping","stiffness","pressure","density","viscosity","body","young","poisson","solid_density","thickness","material","domains","stabilization_tau","stabilization_time_scale","stabilization_model","grad_div_viscosity","pressure_time","output_interval","pressure_face_history","checkpoint_interval","inlet"},"fsi");
         if(f["stabilization_tau"]) {
             config.fsi.stabilization_tau=f["stabilization_tau"].as<double>();
             if(!(*config.fsi.stabilization_tau>0)||!std::isfinite(*config.fsi.stabilization_tau))
                 throw std::runtime_error("fsi.stabilization_tau must be finite and positive");
         }
         auto& v=config.fsi;
+        if(const auto model=f["stabilization_model"]) {
+            const auto name=model.as<std::string>();
+            if(name!="volume"&&name!="regular_tet") throw std::runtime_error("FSI stabilization_model requires volume or regular_tet");
+            v.regular_tet_stabilization=name=="regular_tet";
+            if(v.regular_tet_stabilization&&(v.stabilization_tau||f["grad_div_viscosity"]))
+                throw std::runtime_error("FSI regular_tet computes both stabilization_tau and grad_div_viscosity");
+        }
+        if(const auto scale=f["stabilization_time_scale"]) {
+            if(v.stabilization_tau) throw std::runtime_error("fsi.stabilization_time_scale excludes stabilization_tau");
+            const double seconds=scale.as<double>();
+            if(!(seconds>0)||!std::isfinite(seconds))
+                throw std::runtime_error("fsi.stabilization_time_scale must be finite and positive");
+            v.stabilization_time_scale=seconds;
+        }
+        v.grad_div_viscosity=read_grad_div_viscosity(f,"fsi");
         if(f["output_interval"]) v.output_interval=f["output_interval"].as<int>();
+        if(f["pressure_face_history"]) v.pressure_face_history=f["pressure_face_history"].as<bool>();
         if(v.output_interval<0) throw std::runtime_error("fsi.output_interval must be nonnegative");
         if(f["checkpoint_interval"]) v.checkpoint_interval=f["checkpoint_interval"].as<int>();
         if(v.checkpoint_interval<=0) throw std::runtime_error("fsi.checkpoint_interval must be positive");
-        if(const auto p=f["pressure_time"]) {
-            keys(p,{"amplitude","period","ramp_time"},"fsi.pressure_time");
-            FsiPressureTime profile{p["amplitude"].as<double>(),p["period"].as<double>(),0};
-            if(p["ramp_time"]) profile.ramp_time=p["ramp_time"].as<double>();
-            if(!std::isfinite(profile.amplitude)||!std::isfinite(profile.period)||!std::isfinite(profile.ramp_time)||
-               !(profile.period>0)||profile.ramp_time<0) throw std::runtime_error("Invalid fsi.pressure_time");
-            v.pressure_time=profile;
-        }
+        if(const auto p=f["pressure_time"]) v.pressure_time=read_pressure_time(p,"fsi.pressure_time");
 
         if(f["material"]) {
             const auto material=f["material"].as<std::string>();
@@ -315,7 +428,7 @@ Config read_config(const std::filesystem::path& path)
             v.elastic=body=="elastic";
         }
         if(const auto d=f["domains"]) {
-            keys(d,{"solid_mesh","fluid_region","solid_region","fluid_interface","solid_interface","match_tolerance","pressure_tags","fluid_constraints","mesh_constraints","solid_constraints"},"fsi.domains");
+            keys(d,{"solid_mesh","fluid_region","solid_region","fluid_interface","solid_interface","match_tolerance","pressure_tags","fluid_constraints","mesh_constraints","solid_constraints","wall_supports","rcr_outlet","rcr_outlets"},"fsi.domains");
             auto& domain=v.domains;
             domain.solid_mesh=(directory/d["solid_mesh"].as<std::string>()).lexically_normal();
             domain.fluid_region=d["fluid_region"].as<int>(); domain.solid_region=d["solid_region"].as<int>();
@@ -326,6 +439,36 @@ Config read_config(const std::filesystem::path& path)
             std::set<int> pressure_seen;
             for(int tag:domain.pressure_tags) if(tag<=0||!pressure_seen.insert(tag).second||tag==domain.fluid_interface) throw std::runtime_error("Invalid FSI pressure tags");
             if(domain.pressure_tags.empty()) throw std::runtime_error("FSI needs pressure boundary");
+            if(d["rcr_outlet"]&&d["rcr_outlets"]) throw std::runtime_error("Specify one RCR outlet syntax");
+            auto read_outlet=[&](const YAML::Node& r) {
+                keys(r,{"tag","proximal_resistance","distal_resistance","compliance","distal_pressure","initial_capacitor_pressure","moving_plane_axis","distal_pressure_time"},
+                     "fsi.domains.rcr_outlet");
+                const double distal=r["distal_pressure"].as<double>(0.);
+                RcrOutlet outlet{r["tag"].as<int>(),r["proximal_resistance"].as<double>(),
+                    r["distal_resistance"].as<double>(),r["compliance"].as<double>(),distal,distal};
+                if(r["distal_pressure_time"]) outlet.distal_pressure_time=read_pressure_time(r["distal_pressure_time"],"RCR distal_pressure_time");
+                outlet.initial_capacitor_pressure=r["initial_capacitor_pressure"].as<double>(outlet.distal_pressure_at(0.));
+                if(r["moving_plane_axis"]) {
+                    outlet.moving_plane_axis=r["moving_plane_axis"].as<int>();
+                    if(outlet.moving_plane_axis<0||outlet.moving_plane_axis>=Space3::dimension)
+                        throw std::runtime_error("RCR moving_plane_axis must be 0, 1 or 2");
+                }
+                if(!pressure_seen.count(outlet.tag)) throw std::runtime_error("RCR outlet must use a declared pressure tag");
+                for(double value:{outlet.proximal_resistance,outlet.distal_resistance,outlet.compliance})
+                    if(!(value>0)||!std::isfinite(value)) throw std::runtime_error("RCR resistances and compliance must be finite and positive");
+                if(!std::isfinite(distal)||!std::isfinite(outlet.initial_capacitor_pressure))
+                    throw std::runtime_error("RCR pressures must be finite");
+                domain.rcr_outlets.push_back(outlet);
+            };
+            if(d["rcr_outlet"]) read_outlet(d["rcr_outlet"]);
+            if(const auto ports=d["rcr_outlets"]) {
+                if(!ports.IsSequence()||ports.size()==0) throw std::runtime_error("rcr_outlets must be a nonempty sequence");
+                for(const auto& port:ports) read_outlet(port);
+                auto& models=domain.rcr_outlets;
+                std::sort(models.begin(),models.end(),[](const RcrOutlet& a,const RcrOutlet& b){return a.tag<b.tag;});
+                for(std::size_t i=1;i<models.size();++i) if(models[i-1].tag==models[i].tag)
+                    throw std::runtime_error("Duplicate RCR outlet tag "+std::to_string(models[i].tag));
+            }
             auto constraints=[&](const char* key,std::vector<ComponentConstraint>& output) {
                 const auto entries=d[key]; if(!entries.IsSequence()) throw std::runtime_error(std::string(key)+" must be a sequence");
                 std::set<int> seen;
@@ -337,19 +480,53 @@ Config read_config(const std::filesystem::path& path)
                 }
             };
             constraints("fluid_constraints",domain.fluid_constraints); constraints("mesh_constraints",domain.mesh_constraints); constraints("solid_constraints",domain.solid_constraints);
+            if(const auto supports=d["wall_supports"]) {
+                if(!supports.IsSequence()) throw std::runtime_error("fsi.domains.wall_supports must be a sequence");
+                for(const auto& entry:supports) {
+                    keys(entry,{"tag","stiffness","damping"},"fsi.domains.wall_supports");
+                    const int tag=entry["tag"].as<int>();
+                    const auto spring=entry["stiffness"],dashpot=entry["damping"];
+                    if(tag<=0||tag==domain.solid_interface||(!spring&&!dashpot))
+                        throw std::runtime_error("Invalid FSI wall support tag or missing coefficient");
+                    WallSupport value{spring?spring.as<double>():0.,dashpot?dashpot.as<double>():0.};
+                    if(!std::isfinite(value.stiffness)||!std::isfinite(value.damping)||value.stiffness<0||value.damping<0)
+                        throw std::runtime_error("FSI wall support coefficients must be finite and nonnegative");
+                    if(!domain.wall_supports.emplace(tag,value).second)
+                        throw std::runtime_error("Duplicate FSI wall support tag");
+                }
+            }
         }
         if(const auto b=f["inlet"]) {
             keys(b,{"tag","value","origin","gradient","ramp_time","flow_rate"},"fsi.inlet");
             FluidBoundary inlet; inlet.tag=b["tag"].as<int>();
             if(const auto q=b["flow_rate"]) {
                 if(b["value"]||b["origin"]||b["gradient"]) throw std::runtime_error("FSI flow_rate excludes affine inlet parameters");
-                keys(q,{"mean","amplitude","period","axis","lower","upper","profile","center","radius"},"fsi.inlet.flow_rate");
+                keys(q,{"mean","amplitude","period","samples","axis","direction","lower","upper","profile","center","radius"},"fsi.inlet.flow_rate");
                 FsiFlowRate flow;
-                flow.mean=q["mean"].as<double>(); flow.amplitude=q["amplitude"].as<double>(); flow.period=q["period"].as<double>();
-                flow.axis=q["axis"].as<int>();
+                read_flow_waveform(q,flow);
                 const auto profile=q["profile"]?q["profile"].as<std::string>():"rectangle";
                 if(profile!="rectangle"&&profile!="circle") throw std::runtime_error("Invalid FSI flow_rate profile");
                 flow.circular=profile=="circle";
+                if(q["direction"]) {
+                    if(!flow.circular || q["axis"])
+                        throw std::runtime_error("FSI flow_rate.direction requires a circle and excludes axis");
+                    inlet.value=vector3(q["direction"],"flow_rate.direction");
+                    double scale=0;
+                    for(double v:inlet.value) scale=std::max(scale,std::abs(v));
+                    if(scale==0) throw std::runtime_error("FSI flow_rate.direction must be nonzero");
+                    for(double& v:inlet.value) v/=scale;
+                    const double norm=std::hypot(inlet.value[0],inlet.value[1],inlet.value[2]);
+                    for(double& v:inlet.value) v=v==0?0:v/norm;
+                    flow.axis=-1;
+                    // Preserve the checkpoint identity of an equivalent positive Cartesian axis.
+                    for(int c=0;c<3;++c)
+                        if(inlet.value[c]==1 && inlet.value[(c+1)%3]==0 && inlet.value[(c+2)%3]==0) flow.axis=c;
+                } else {
+                    if(!q["axis"]) throw std::runtime_error("FSI flow_rate requires axis or direction");
+                    flow.axis=q["axis"].as<int>();
+                    if(flow.axis<0 || flow.axis>2) throw std::runtime_error("Invalid FSI flow_rate axis");
+                    inlet.value[flow.axis]=1;
+                }
                 if(flow.circular) {
                     if(q["lower"]||q["upper"]) throw std::runtime_error("Circular FSI flow_rate excludes rectangle bounds");
                     flow.center=vector3(q["center"],"flow_rate.center"); flow.radius=q["radius"].as<double>();
@@ -358,11 +535,9 @@ Config read_config(const std::filesystem::path& path)
                     if(q["center"]||q["radius"]) throw std::runtime_error("Rectangular FSI flow_rate excludes circle parameters");
                     flow.lower=vector3(q["lower"],"flow_rate.lower"); flow.upper=vector3(q["upper"],"flow_rate.upper");
                 }
-                if(flow.axis<0||flow.axis>2||!std::isfinite(flow.mean)||!std::isfinite(flow.amplitude)||!std::isfinite(flow.period)||flow.period<=0)
-                    throw std::runtime_error("Invalid FSI flow_rate");
                 if(!flow.circular) for(int c=0;c<3;++c) if(c==flow.axis?flow.lower[c]!=flow.upper[c]:flow.lower[c]>=flow.upper[c])
                     throw std::runtime_error("Invalid FSI flow_rate rectangle");
-                inlet.value[flow.axis]=1; v.inlet_flow=flow;
+                v.inlet_flow=flow;
             } else inlet.value=vector3(b["value"],"fsi.inlet.value");
             if(b["origin"]) inlet.origin=vector3(b["origin"],"fsi.inlet.origin");
             if(const auto g=b["gradient"]) {

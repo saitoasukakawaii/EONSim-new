@@ -1,4 +1,5 @@
 """Independent mesh-volume, face-incidence and cross-domain interface checks."""
+import json
 import math
 from pathlib import Path
 import sys
@@ -44,6 +45,42 @@ class TubeMesh(unittest.TestCase):
                     if name=='fluid':errors.append(abs(sum(volumes)-4*math.pi))
                 self.assertEqual(interfaces[0],interfaces[1]);self.assertTrue(interfaces[0])
         self.assertGreater(errors[0]/errors[1],3.8);self.assertGreater(errors[1]/errors[2],3.8)
+
+    def test_explicit_single_clamped_slab(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            generate(root,sectors=8,axial=1,clamped_slab=True)
+            xyz,cells,boundary=read(root/'solid.msh')
+            clamped={node for face,tag in boundary.items() if tag in (11,12) for node in face}
+            self.assertEqual(clamped,set(xyz))
+            self.assertTrue(all(volume(xyz,t)>0 for t in cells))
+
+    def test_bent_tube_volume_cap_normals_and_interface(self):
+        from generate_curved import generate as curved
+        direction=(1.,2.,-3.)
+        exact_volume=12*.25**2*math.sin(2*math.pi/12)*1.5/2
+        errors=[]
+        with tempfile.TemporaryDirectory() as temp:
+            for axial in (4,8,16):
+                path=curved(Path(temp)/str(axial),axial=axial,direction=direction,origin=(1.25,-2.5,.6))
+                shape=json.loads((path.parent/'geometry.json').read_text())
+                interfaces=[]
+                for domain,tag in [('fluid',3),('solid',13)]:
+                    xyz,cells,faces=read(path.parent/(domain+'.msh'))
+                    self.assertTrue(all(volume(xyz,t)>0 for t in cells))
+                    interfaces.append({tuple(sorted(xyz[n] for n in face)) for face,t in faces.items() if t==tag})
+                    if domain=='fluid':
+                        errors.append(abs(math.fsum(volume(xyz,t) for t in cells)-exact_volume))
+                        for cap,origin,normal in [(1,shape['inlet_center'],shape['inward_direction']),
+                                                  (2,shape['outlet_center'],shape['outlet_direction'])]:
+                            nodes={n for face,t in faces.items() if t==cap for n in face}
+                            self.assertTrue(nodes)
+                            for n in nodes:
+                                self.assertLess(abs(sum((x-y)*v for x,y,v in zip(xyz[n],origin,normal))),2e-14)
+                self.assertEqual(interfaces[0],interfaces[1])
+            self.assertGreater(min(errors[0]/errors[1],errors[1]/errors[2]),3.8)
+            for kwargs in [dict(direction=(0,0,0)),dict(bend_degrees=360),dict(length=.25,bend_degrees=170)]:
+                with self.assertRaises(ValueError):curved(Path(temp)/'invalid',**kwargs)
 
     def test_invalid_geometry(self):
         with tempfile.TemporaryDirectory() as root:

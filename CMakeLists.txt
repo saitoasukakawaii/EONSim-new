@@ -184,13 +184,36 @@ if(BUILD_TESTING)
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_periodic")
     set_tests_properties(fsi_periodic PROPERTIES TIMEOUT 600 PROCESSORS 4
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1" LABELS "rank-1;rank-2;rank-4")
-    add_test(NAME fsi_tube COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_tube.py"
-        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_tube")
-    set_tests_properties(fsi_tube PROPERTIES TIMEOUT 600 PROCESSORS 4 LABELS "rank-1;rank-2;rank-4"
+    foreach(group IN ITEMS tube tube_wall_support tube_rcr tube_rcr_response)
+        add_test(NAME fsi_${group} COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_tube.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_${group}" --group ${group})
+    endforeach()
+    set_tests_properties(fsi_tube fsi_tube_wall_support fsi_tube_rcr fsi_tube_rcr_response PROPERTIES
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    set_tests_properties(fsi_tube fsi_tube_wall_support fsi_tube_rcr PROPERTIES PROCESSORS 4 LABELS "rank-1;rank-2;rank-4")
+    set_tests_properties(fsi_tube_rcr_response PROPERTIES PROCESSORS 2 LABELS "rank-1;rank-2")
+    set_tests_properties(fsi_tube PROPERTIES TIMEOUT 600)
+    set_tests_properties(fsi_tube_wall_support fsi_tube_rcr fsi_tube_rcr_response PROPERTIES TIMEOUT 300)
     add_test(NAME fsi_flow COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_flow.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_flow")
     set_tests_properties(fsi_flow PROPERTIES TIMEOUT 600 PROCESSORS 2
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1" LABELS "rank-1;rank-2")
+    add_test(NAME fsi_branched_rcr COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_branched_fsi.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_branched_rcr")
+    add_test(NAME fsi_curved_inlet COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_curved_fsi.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --mesh 8 1 3 --ranks 2 --steps 3
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_curved_inlet")
+    add_test(NAME fsi_sampled_inlet COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_curved_fsi.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --mesh 8 1 3 --ranks 2 --sampled
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_sampled_inlet")
+    add_test(NAME fsi_metric_stabilization COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_metric.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_metric")
+    add_test(NAME fsi_moving_plane_rcr COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_moving_port.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_moving_plane_rcr")
+    add_test(NAME fsi_reservoir_pressure COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_reservoir.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_reservoir_pressure")
+    set_tests_properties(fsi_branched_rcr fsi_curved_inlet fsi_sampled_inlet fsi_metric_stabilization fsi_moving_plane_rcr fsi_reservoir_pressure PROPERTIES TIMEOUT 600 PROCESSORS 2
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1" LABELS "rank-1;rank-2")
     add_test(NAME fsi_inlet COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_inlet.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_inlet")
@@ -359,6 +382,12 @@ if(BUILD_TESTING)
             --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
             --work "${CMAKE_CURRENT_BINARY_DIR}/rigid_tube_verification")
     set_tests_properties(rigid_tube_verification PROPERTIES TIMEOUT 300 PROCESSORS 2 LABELS "rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME womersley_flow
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_womersley.py"
+            --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+            --work "${CMAKE_CURRENT_BINARY_DIR}/womersley_flow")
+    set_tests_properties(womersley_flow PROPERTIES TIMEOUT 180 PROCESSORS 2 LABELS "rank-1;rank-2"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME restart_block_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_restart.py"

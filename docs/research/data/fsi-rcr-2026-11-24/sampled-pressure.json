@@ -1,0 +1,123 @@
+{
+  "pressure_base": 0.04,
+  "pressure_offsets": [
+    [
+      0.0,
+      0.01
+    ],
+    [
+      0.125,
+      0.08
+    ],
+    [
+      0.375,
+      -0.026
+    ],
+    [
+      0.75,
+      0.023
+    ]
+  ],
+  "flow_samples": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      0.25,
+      0.002
+    ],
+    [
+      0.5,
+      -0.001
+    ],
+    [
+      0.75,
+      0.001
+    ]
+  ],
+  "periodic_initial_pc": 0.05598422603689655,
+  "schemes": {
+    "be": {
+      "refinement": [
+        {
+          "steps": 32,
+          "max_pressure_error": 0.0031688309558343423,
+          "max_flux_error": 1.5178830414797062e-18,
+          "max_stage_defect": 1.3877787807814457e-17
+        },
+        {
+          "steps": 64,
+          "max_pressure_error": 0.001643977900676291,
+          "max_flux_error": 1.3010426069826053e-18,
+          "max_stage_defect": 1.3877787807814457e-17
+        },
+        {
+          "steps": 128,
+          "max_pressure_error": 0.0008378914224821564,
+          "max_flux_error": 1.3010426069826053e-18,
+          "max_stage_defect": 1.3877787807814457e-17
+        }
+      ],
+      "orders": [
+        0.9467597943059474,
+        0.972355694971629
+      ]
+    },
+    "bdf2": {
+      "refinement": [
+        {
+          "steps": 32,
+          "max_pressure_error": 0.001420669607800505,
+          "max_flux_error": 1.3010426069826053e-18,
+          "max_stage_defect": 1.3877787807814457e-17
+        },
+        {
+          "steps": 64,
+          "max_pressure_error": 0.0004334780021466387,
+          "max_flux_error": 1.3010426069826053e-18,
+          "max_stage_defect": 1.3877787807814457e-17
+        },
+        {
+          "steps": 128,
+          "max_pressure_error": 0.0001239682716142822,
+          "max_flux_error": 1.5178830414797062e-18,
+          "max_stage_defect": 1.3877787807814457e-17
+        }
+      ],
+      "orders": [
+        1.7125403916455095,
+        1.8059878572638797
+      ]
+    },
+    "generalized_alpha": {
+      "refinement": [
+        {
+          "steps": 32,
+          "max_pressure_error": 0.0012450053516792632,
+          "max_flux_error": 1.3010426069826053e-18,
+          "max_stage_defect": 2.6020852139652106e-17
+        },
+        {
+          "steps": 64,
+          "max_pressure_error": 0.000351471970512281,
+          "max_flux_error": 1.3010426069826053e-18,
+          "max_stage_defect": 2.949029909160572e-17
+        },
+        {
+          "steps": 128,
+          "max_pressure_error": 9.553016632908617e-05,
+          "max_flux_error": 1.5178830414797062e-18,
+          "max_stage_defect": 3.3393426912553537e-17
+        }
+      ],
+      "orders": [
+        1.8246703980406638,
+        1.8793813589812531
+      ]
+    }
+  },
+  "implicit_initial_error": 0.0,
+  "restart_field_error": 0.0,
+  "restart_history_error": 0.0
+}

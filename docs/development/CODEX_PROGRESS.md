@@ -1,5 +1,48 @@
 # EONSim Codex Development Progress
 
+## 2026-11-24 · 弹性管瞬态、血管端口与装配
+
+同一张 48/4/4/6 四面体网格上，两个求解器对人工厚壁管的左端面积增长给出 0.073399% 和 0.064489%。两者相差 0.008910 个百分点，即该载荷静态 Lamé 膨胀量的 4.0975%。逐项控制定位到稳定化系数、端面约束和空间分辨率。改用相同的正四面体参考度量，两个非线性程序给出 0.0646177% 和 0.0646149%，独立同网格线性 DAE 给出 0.0646137%。[分母与离散算子](../research/data/fsi-linear-transient-2026-11-24/tet-order.md)
+
+把半径、物性和时间一起作严格相似变换，八个时刻的全场结果按理论比例复现。另用内径 20 mm、壁厚 2 mm、长度 120 mm、弹性模量 0.4 MPa 的直管作独立对照，80 Pa 双端升压下，两程序的粗网格端面扩张为 0.18680312% 和 0.18680355%。同一根管改成流量入口与 RCR 出口后，1 Hz 出口流量振幅随轴向网格由 6 层加密至 48 层，从入口振幅的 85.78% 降至 81.20%，圆形子午面参考为 80.00%。[尺度与升压](../research/data/fsi-linear-transient-2026-11-24/scaled-tubes.md) · [有均值与无均值的灌流](../research/data/fsi-linear-transient-2026-11-24/perfusion.md)
+
+单体 FSI 支持独立的多出口三元 RCR、各出口下游压力、参考法向组织弹簧和阻尼。固定平面的出口可沿全局法轴约束并在面内变形。定流量圆形入口支持空间转向及周期采样曲线。固定网格流体压力、FSI 压力牵引和下游储液压力均可由采样曲线驱动。独立方程、接受步数据、续算、拒绝步与 MPI 对照分别归档。[端口与分叉](../research/data/fsi-rcr-2026-11-24/README.md) · [面内移动出口](../research/data/fsi-rcr-2026-11-24/planar-outlets.md) · [下游压力](../research/data/fsi-rcr-2026-11-24/reservoir-pressure.md) · [弯管](../research/data/fsi-rcr-2026-11-24/curved.md) · [组织支撑](../research/data/fsi-wall-support-2026-11-24/README.md)
+
+接口力重算、流体/ALE 切线、结构切线、装配与 PETSc 预条件各有分项计时。解析 Tet4 矩的开发保留了前后版本的真实节点场和线性收敛记录。质量历史现复用上一个接受步体积并合并阶段与端点的归约。四十组前后配对的节点场和输出历史逐项一致。[核与装配成本](../research/data/fsi-phase-costs-2026-11-24/moments.md) · [质量历史计时](../research/data/fsi-phase-costs-2026-11-24/mass-history.md)
+
+在 20 mm 管上，直接解与分块迭代的全场结果逐节点复核。24 扇区网格上，改用外层 MGS 后，1 和 2 个 MPI 进程的 64 次 Newton 修正均满足实际矩阵残量界限。48 扇区网格的单进程复核同样为 64/64。原版 svFSILS BIPN 在粗、细网格上分别有 92、117 次报告收敛时未达到其自身缩放矩阵的残量要求。提供了两套可直接运行的输入、PETSc 选项和逐修正原始记录。[EONSim 场分块与可运行算例](../research/data/fsi-linear-transient-2026-11-24/arterial-solvers.md) · [svFSI 的停止准则](../research/data/fsi-linear-transient-2026-11-24/bipn-residual.md)
+
+关闭父支入口，用两端储液压力差驱动刚性 T 分叉。独立三维混合有限元逐步复现了双端流量。网格 2 上仅把固定 PSPG 系数由 0.0025 改为 0.01，1 Hz 的终端流量振幅就增加 52.31%。弹性分叉另以两个端面和壁面的带符号通量核对储量。[分叉导纳和壁面储量](../research/data/fsi-rcr-2026-11-24/junction-harmonic.md)
+
+[#46](https://github.com/saitoasukakawaii/EONSim-new/issues/46) 的镜像核查现从实际 VTU 位移重算七个内腔截面。原场解通过，单点改值、缺截面、错位置和错时刻四个负例均失败。[复算与四个负对照](../research/data/fsi-smooth-load-2026-11-24/reflection-negative-controls.json)
+
+本分支完成了 #46 的镜像截面复核。从两域节点场重算七个截面后，原始计算通过，单点应变加 0.001 与另外三种损坏输入均在相应检查处被识别。[原始场与负对照](../research/data/fsi-smooth-load-2026-11-24/README.md#independent-mirror-audit-of-the-bore-area) · [问题记录](https://github.com/saitoasukakawaii/EONSim-new/issues/46)
+
+PETSc 3.23.7 Release 通过仓库脚本编译。62 项增量 CTest 均有通过记录，其中 56 项取自编译输入完全相同的干净检出，6 项取自最终日志改动后的独立运行。另有 54 项 Python 测试通过。两轮大组选测中出现过周期算例进程信号和限时退出，逐项收据保留了这些失败及其复测结果。[验证来源、退出状态与耗时](../research/data/fsi-smooth-load-2026-11-24/release-validation.md)
+
+## 2026-11-24 · 单体 FSI 的受压面功率与第一秒面积响应
+
+从主线 `951064d` 实现可选的阶段/终点标签历史，修复短时间步下惯性插值的消减误差。12 个 EONSim 工况完成 56 个接受步，端面压强的场重算最大差 1.22e−17 Pa。固定版本 svFSI 的独立重建重放了 0.25 s 对照，并补齐 0.125 s 阶跃响应。1 s 截面面积应变的最大程序间差在三个步长上为解析稳态应变的 5.321%、8.429%、9.028%。36 项 Release 增量检查通过，最终源码 `3697204` 的四项端面检查通过。[算例与验证](../research/data/fsi-pressure-faces-2026-11-24/README.md)
+
+## 2026-11-24 · 网站知识选编送审
+
+以 `5781ae0` 为内容基线，整理 34 篇技术草稿。拟展示四篇证据型专题及教程和一份 50 项开源软件指南，页面、原稿与归档见[编辑目录](../../website/drafts/README.md)。本地验证包括生产构建、公式与图表、草稿隔离、Womersley 归档复算，以及教程指定的 5 项 P2 Release 检查。网站内容通过独立 PR 审阅。
+
+## 2026-11-24 · 开源 HPC 复查与 Tet4 黏性积分
+
+测量基线为 `89a1a3d`，提交审阅时已同步合入 #41 的主线 `f7ec770`。数值提交 `4095e4b` 已在本地完成。PETSc 3.23.7 Release 的 9/9 项通过，独立合成 #41/#42 和新切线的圆管回归 2/2 通过。历史精细网格、外部求解器结果沿用两 PR 的归档。单进程固定网格流体单元核配对时间 −29.6%，整次墙钟 −2.6%；弹性 FSI 整次墙钟暂未显示稳定收益。[调研与后续验收](../research/HPC_UPSTREAM_REVIEW_2026-11-24.md) · [原始配对数据](../research/data/tet4-viscosity-2026-11-24/pairs.json)
+
+## FSI-PROD-02B / 2026-11-20
+
+基线 `89a1a3d` 已含稳态刚性管 PR #38。新增固定网格标签压力的正弦加载及接受步通量、压力历史。
+48/8/12 网格的 Womersley 流量幅值误差 1.5047%，相位误差 0.2858°，波形相对 RMS 误差 1.5864%。
+同网格与固定版本 svFSI 的复数流量差为解析幅值的 2.0395%，粗网格为 8.7814%。
+端面压差幅值在该网格上偏低 7.58%。固定 48 扇区细化径向和轴向后，流量幅值误差降为 0.7554%，端面压差幅值偏低 5.68%。
+细网格的跨程序复流量差为 1.3046%。固定 τ 的时间加密观测阶为 1.960 和 1.991。
+1/2/4 进程的终点压力分量最大差为 1.11e−18 Pa。静压弹性壁对照由另一项工作提交审查。
+[刚性管 PR #41](https://github.com/saitoasukakawaii/EONSim-new/pull/41) · [弹性壁 PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42) ·
+[复现与原始证据](../research/data/womersley-2026-11-20/README.md)
+
 ## CI-DEBUG-ON-DEMAND / 2026-11-13 / review
 
 按用户要求改为 Release-only PR 增量数值 CI；Debug 由手动工作流专项启动。receipt 与历史复用只认 Release；自动合并改为四项必需检查并拒绝仍要求旧 Debug 的分支保护。未改数值模型、容差或 CTest 清单。源码修改不代表 CI 已通过；以 PR Actions 为准，分支保护仍需管理员确认。

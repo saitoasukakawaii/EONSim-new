@@ -1,0 +1,67 @@
+{
+  "be": {
+    "area_change_fraction": 0.001271270507249067,
+    "reference_flux_error": 9.282665299354667e-07,
+    "raw_flux_error": 1.0842021724855044e-19,
+    "raw_area_error": 0.0,
+    "field_mpi_error": 8.217385105702135e-15,
+    "circuit_defect": 3.382710778154774e-17,
+    "restart_error": 0.0,
+    "restart_pressure_error": 0.0
+  },
+  "bdf2": {
+    "area_change_fraction": 0.0017682938758329936,
+    "reference_flux_error": 1.24488232490093e-06,
+    "raw_flux_error": 2.168404344971009e-19,
+    "raw_area_error": 0.0,
+    "field_mpi_error": 5.7696902810988604e-15,
+    "circuit_defect": 3.382710778154774e-17,
+    "restart_error": 0.0,
+    "restart_pressure_error": 0.0
+  },
+  "generalized_alpha": {
+    "area_change_fraction": 0.001844886255282896,
+    "reference_flux_error": 1.4481992986867427e-06,
+    "raw_flux_error": 1.0842021724855044e-19,
+    "raw_area_error": 0.0,
+    "field_mpi_error": 1.6446843886797069e-12,
+    "circuit_defect": 3.382710778154774e-17,
+    "restart_error": 0.0,
+    "restart_pressure_error": 0.0
+  },
+  "jacobian_frobenius_ratio": 1.98347e-08,
+  "axis_1": {
+    "max_field_change": 3.058830966296e-12,
+    "raw_flux": -0.0007819224071487853
+  },
+  "axis_2": {
+    "max_field_change": 3.018363337048413e-12,
+    "raw_flux": -0.0007819224071487814
+  },
+  "fully_fixed_equivalence": 1.3623546735175296e-12,
+  "retry": {
+    "retries": 3,
+    "accepted_dt": 0.0125,
+    "field_difference": 0.0,
+    "pressure_difference": 0.0,
+    "circuit_defect": 1.897787482718627e-15
+  },
+  "junction": {
+    "one-moving": {
+      "mpi_error": 1.9834828224318812e-13,
+      "raw_flux_or_circuit_error": 4.96564594998361e-17,
+      "final_area_changes": [
+        0.0002455111850021563,
+        0.0
+      ]
+    },
+    "opposite-normals": {
+      "mpi_error": 8.534405820936897e-13,
+      "raw_flux_or_circuit_error": 5.421010862427522e-17,
+      "final_area_changes": [
+        0.00024535595754726636,
+        0.00012600543276652942
+      ]
+    }
+  }
+}

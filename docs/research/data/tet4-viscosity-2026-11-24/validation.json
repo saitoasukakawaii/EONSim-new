@@ -1,0 +1,273 @@
+{
+  "baseline": {
+    "commit": "89a1a3d823396df02fa9e8acb5ded36b70938e9c",
+    "dirty": false,
+    "status": "passed",
+    "mode": "release",
+    "petsc": "3.23.7",
+    "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+    "resources": {
+      "cpu_budget": 9,
+      "memory_bytes": 10451427328,
+      "cgroup": {},
+      "build_jobs": 4
+    },
+    "build_targets": [
+      "eonsim",
+      "verify_fluid_element",
+      "verify_fsi_element",
+      "verify_runtime"
+    ],
+    "tests": [
+      {
+        "name": "fsi_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "seconds": 0.0676646,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "fluid_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "seconds": 0.0679774,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "fluid_time_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "seconds": 4.97951,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "fluid_coo_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "seconds": 13.5512,
+        "exit_code": 0,
+        "timeout": false
+      }
+    ],
+    "jv_rows": [
+      "field=0 jv_relative_error=2.90591e-11",
+      "field=1 jv_relative_error=7.7753e-11",
+      "field=0 jv_relative_error=2.94352e-11",
+      "field=1 jv_relative_error=8.77826e-11",
+      "convection=0 dt=0 jv_relative_error=3.54199e-11",
+      "convection=0 dt=0.07 jv_relative_error=3.85647e-11",
+      "convection=1 dt=0 jv_relative_error=2.67793e-11",
+      "convection=1 dt=0.07 jv_relative_error=4.59837e-11"
+    ]
+  },
+  "candidate": {
+    "commit": "4095e4bd4e18a350e62fd2e295d88de3a6d48640",
+    "dirty": false,
+    "status": "passed",
+    "mode": "release",
+    "petsc": "3.23.7",
+    "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+    "resources": {
+      "cpu_budget": 9,
+      "memory_bytes": 10451427328,
+      "cgroup": {},
+      "build_jobs": 4
+    },
+    "build_targets": [
+      "eonsim",
+      "verify_fluid_element",
+      "verify_fsi_element",
+      "verify_runtime"
+    ],
+    "tests": [
+      {
+        "name": "fsi_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "seconds": 0.063699,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "fluid_element_jacobian",
+        "status": "passed",
+        "ranks": [
+          1
+        ],
+        "seconds": 0.0636809,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "fluid_alpha_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "seconds": 8.88675,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "ale_time_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "seconds": 4.1718,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "fluid_time_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "seconds": 4.4567,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "fluid_coo_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2,
+          4
+        ],
+        "seconds": 13.1613,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "domains_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "seconds": 2.06019,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "tagged_fluid_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "seconds": 5.42698,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "fluid_verification",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "seconds": 1.70751,
+        "exit_code": 0,
+        "timeout": false
+      }
+    ],
+    "jv_rows": [
+      "field=0 jv_relative_error=2.15988e-11",
+      "field=1 jv_relative_error=8.19344e-11",
+      "field=0 jv_relative_error=1.46708e-11",
+      "field=1 jv_relative_error=8.96463e-11",
+      "convection=0 dt=0 jv_relative_error=4.22501e-11",
+      "convection=0 dt=0.07 jv_relative_error=5.66607e-11",
+      "convection=1 dt=0 jv_relative_error=4.78627e-11",
+      "convection=1 dt=0.07 jv_relative_error=4.97936e-11"
+    ]
+  },
+  "open_pr_integration": {
+    "commit": "949b57625431ef6912c3053a09166f0288f730a6",
+    "dirty": false,
+    "status": "passed",
+    "mode": "release",
+    "petsc": "3.23.7",
+    "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+    "resources": {
+      "cpu_budget": 9,
+      "memory_bytes": 10451427328,
+      "cgroup": {},
+      "build_jobs": 4
+    },
+    "build_targets": [
+      "eonsim",
+      "verify_runtime"
+    ],
+    "tests": [
+      {
+        "name": "womersley_flow",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "seconds": 3.63551,
+        "exit_code": 0,
+        "timeout": false
+      },
+      {
+        "name": "lame_wall",
+        "status": "passed",
+        "ranks": [
+          1,
+          2
+        ],
+        "seconds": 0.853512,
+        "exit_code": 0,
+        "timeout": false
+      }
+    ],
+    "jv_rows": [],
+    "pr41": "10197d0161d87796611a39f5ced22e700fb91d96",
+    "pr42": "0c8f6fbd057028021fe8b598e037ebc0956254a9"
+  },
+  "settings": {
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "compiler": "GCC 15.3.0",
+    "mpi": "Open MPI 5.0.8",
+    "petsc": "3.23.7 real double 32-bit",
+    "threads_per_rank": 1,
+    "mesh_nodes": 125,
+    "fluid_tets": 384,
+    "fluid_dofs": 500,
+    "fsi_dofs": 730,
+    "step_count": 10,
+    "fsi_case": "cases/fsi/elastic.yaml",
+    "fluid_case": "cases/fluid/transient.yaml",
+    "mesh": "cases/poisson/cube.msh",
+    "linear_solver": "PREONLY / LU / SuperLU_DIST",
+    "report_dates_timezone": "Asia/Shanghai"
+  }
+}

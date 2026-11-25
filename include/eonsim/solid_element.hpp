@@ -2,6 +2,7 @@
 /** @file
  * @brief 参考构形 Tet4 线弹性/Neo-Hookean 与一致质量矩阵。 */
 #include "eonsim/tet4.hpp"
+#include "eonsim/boundary_geometry.hpp"
 namespace eonsim {
 struct SolidParameters {
     double young=100, poisson=.3, density=1, dt=0; bool neo_hookean=false;
@@ -14,6 +15,19 @@ template<class Element> struct SolidElementResult {
     double strain_energy=0,kinetic_energy=0;
 };
 using SolidElement=SolidElementResult<Tet4Topology>;
+struct WallSupportBalance {
+    double spring_energy=0, dissipation=0, power_on_wall=0;
+};
+struct WallSupportFace {
+    Tri3Topology::Nodal<int> nodes;
+    TriangleGeometry geometry; ///< Normal and area in the reference configuration.
+    double stiffness, damping;
+    /// d_stage = reference_displacement + displacement_dt * velocity.
+    /// A supplied solid element receives the internal restoring residual and optional velocity tangent.
+    WallSupportBalance evaluate(const Tet4Vector::State<double>& reference_displacement,
+        const Tet4Vector::State<double>& velocity,double displacement_dt,
+        SolidElement* assembly=nullptr,bool compute_tangent=false) const;
+};
 /** 节点优先 xyz。静力 dt=0 时 state 为位移；动态为速度，d=d_n+dt*v。
  * old_displacement/old_velocity 是只读时间参考，BE取accepted；BDF2按两层历史重建，dt为有效步长。
  * generalized-alpha的位移=old_displacement+displacement_dt*state，惯性仍=(state-old_velocity)/dt。

@@ -21,7 +21,12 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     PetscBool element_report=PETSC_FALSE,coo=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_element_report",&element_report,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_coo",&coo,nullptr));
+    PetscBool boundary_history=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_boundary_history",&boundary_history,nullptr));
     const bool tagged=!f.boundaries.empty();
+    const bool transient=f.mode==FluidConfig::Mode::transient;
+    if(boundary_history&&(!tagged||!transient))
+        throw std::runtime_error("-fluid_boundary_history requires transient fluid with tagged boundaries");
     const auto materials=cell_materials(comm,mesh,f.regions,FluidMaterial{f.density,f.viscosity});
     const auto layout=make_field_layout(mesh,Tet4Flow::components,{{"velocity",{0,1,2}},{"pressure",{Tet4Flow::pressure}}},
         {{DofDomain::fluid,DofQuantity::velocity,0},{DofDomain::fluid,DofQuantity::velocity,1},
@@ -53,7 +58,6 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     const auto boundary_plan=tagged?prepare_fluid_boundaries(comm,mesh,layout,f,surfaces):FluidBoundaryPlan{};
     std::vector<double> accepted(layout.local_to_global.size(),0);
     FluidResult result;
-    const bool transient=f.mode==FluidConfig::Mode::transient;
     const bool bdf2=config.time_integration.scheme==TimeScheme::bdf2;
     const bool alpha=config.time_integration.scheme==TimeScheme::generalized_alpha;
     if(alpha&&!transient) throw std::runtime_error("generalized_alpha requires transient fluid");
@@ -71,6 +75,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     if(bdf2) signature_parameters.insert(signature_parameters.end(),{20501.,2.});
     if(alpha) signature_parameters.insert(signature_parameters.end(),{20501.,3.,config.time_integration.rho_infinity});
     if(f.stabilization_tau) signature_parameters.insert(signature_parameters.end(),{20503.,*f.stabilization_tau});
+    if(f.grad_div_viscosity>0) signature_parameters.insert(signature_parameters.end(),{20509.,f.grad_div_viscosity});
     if(!config.time_control.events.empty()) {
         signature_parameters.push_back(20502.);
         signature_parameters.insert(signature_parameters.end(),config.time_control.events.begin(),config.time_control.events.end());
@@ -140,7 +145,11 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
         const double constraint_scale=transient ? (1-af)*std::min(clock.time/f.ramp_time,1.0)+af*std::min(time/f.ramp_time,1.0) : 1;
         std::vector<PetscInt> bc;
         std::vector<double> prescribed;
+        std::vector<double> load_scales;
         if(tagged) {
+            for(const auto& b:f.boundaries)
+                load_scales.push_back(b.pressure_time?b.pressure_time->value_at(b.pressure,evaluation_time):
+                    boundary_scale(b.ramp_time,evaluation_time,transient));
             for(const auto& c:boundary_plan.constraints) {
                 bc.push_back(c.id); prescribed.push_back(c.value*((1-af)*boundary_scale(c.ramp_time,clock.time,transient)+af*boundary_scale(c.ramp_time,time,transient)));
             }
@@ -171,7 +180,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
             const double adv=f.mode==FluidConfig::Mode::stokes ? 0 : 2*material.density*std::sqrt(speed2)/h;
             const double visc=4*material.viscosity/(h*h);
             parameters.push_back({material.density,material.viscosity,transient?integration_dt:0,
-                f.stabilization_tau.value_or(1/std::sqrt(time*time+adv*adv+visc*visc)),f.mode!=FluidConfig::Mode::stokes});
+                f.stabilization_tau.value_or(1/std::sqrt(time*time+adv*adv+visc*visc)),f.mode!=FluidConfig::Mode::stokes,f.grad_div_viscosity});
         }
         using Timer=std::chrono::steady_clock;
         double kernel_seconds=0,insert_seconds=0;
@@ -215,7 +224,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
             }
             for(const auto& load:boundary_plan.loads) {
                 auto residual=load.residual;
-                for(double& value:residual) value*=boundary_scale(load.ramp_time,evaluation_time,transient);
+                for(double& value:residual) value*=load_scales[load.boundary_index];
                 EONSIM_PETSC(VecSetValues(r,TriangleVector::dofs,load.ids.data(),residual.data(),ADD_VALUES));
             }
         };
@@ -280,6 +289,13 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
             if(alpha) { saved.fields["time_rate"]=accepted_rate; saved.fields["time_metadata"]={alpha_ready?1.:0.}; }
             write_checkpoint(comm,config.checkpoint,mesh,signature,saved);
         }
+        if(boundary_history) {
+            result.boundaries=summarize_fluid_boundaries(comm,mesh,f,surfaces,accepted);
+            if(mesh.rank==0) for(const auto& b:result.boundaries)
+                std::cout << std::setprecision(17) << "fluid_boundary_step=" << step << " time=" << clock.time
+                    << " tag=" << b.tag << " area=" << b.area << " outward_flow=" << b.flow
+                    << " mean_pressure=" << b.pressure << '\n';
+        }
         if(mesh.rank==0) std::cout << std::setprecision(16) << "fluid_step=" << step << " time=" << (transient?time:0)
             << " snes_iterations=" << result.nonlinear.iterations << " residual=" << result.nonlinear.residual_norm
             << " time_order=" << (alpha_step?2:derivative.order) << " evaluation_time=" << evaluation_time << '\n';
@@ -322,7 +338,7 @@ FluidResult solve_fluid(MPI_Comm comm,const MeshPartition& mesh,const Config& co
     MPI_Allreduce(metrics,global,8,MPI_DOUBLE,MPI_SUM,comm);
     result.inlet_flow=global[0]; result.outlet_flow=global[1];
     if(!tagged) result.pressure_drop=global[2]/global[4]-global[3]/global[5];
-    else result.boundaries=summarize_fluid_boundaries(comm,mesh,f,surfaces,accepted);
+    else if(!boundary_history) result.boundaries=summarize_fluid_boundaries(comm,mesh,f,surfaces,accepted);
     result.velocity_error=std::sqrt(global[6]); result.divergence=std::sqrt(global[7]);
     return result;
 }

@@ -1,0 +1,1448 @@
+{
+  "executable_sha256": "3db4af330e6a13902cfc125b594603f8a82f750a4163adcd947e9f07c3999ba2",
+  "cases": [
+    {
+      "mesh": [
+        8,
+        1,
+        3
+      ],
+      "checks": {
+        "be": {
+          "ranks": 1,
+          "stage_error": 2.168404344971009e-19,
+          "endpoint_error": 1.734723475976807e-18,
+          "final_cap_error": 2.168404344971009e-19,
+          "circuit_residual": 1.3213713977167085e-19
+        },
+        "bdf2": {
+          "ranks": 2,
+          "stage_error": 2.168404344971009e-19,
+          "endpoint_error": 1.734723475976807e-18,
+          "final_cap_error": 2.168404344971009e-19,
+          "circuit_residual": 8.673617379884035e-19
+        },
+        "generalized_alpha": {
+          "ranks": 2,
+          "stage_error": 8.673617379884035e-19,
+          "endpoint_error": 1.734723475976807e-18,
+          "final_cap_error": 4.336808689942018e-19,
+          "circuit_residual": 1.951563910473908e-18
+        },
+        "equivalent_closure_restart_error": 0.0
+      },
+      "sample_table": [
+        [
+          0.0,
+          0.001
+        ],
+        [
+          0.001953125,
+          0.01
+        ],
+        [
+          0.0048828125,
+          0.004
+        ],
+        [
+          0.0087890625,
+          -0.003
+        ],
+        [
+          0.0126953125,
+          0.0018
+        ]
+      ],
+      "period_s": 0.015625,
+      "ramp_time_s": 0.00390625,
+      "step_sizes_s": [
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875,
+        0.0009765625,
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875
+      ],
+      "mesh_sha256": {
+        "fluid": "35ae408ed5aef4b851d385ff112d85f62de1deb7ff714c423472b4cdbd5fa475",
+        "solid": "fb30ea25648e162430fc6b4865b9e6b60075263bc8c5833d92f08e6ea14bd535"
+      },
+      "histories": {
+        "be": {
+          "sha256": "1a1436ec07f0cab23678ef2a9a5c7cc887f30de8191484e6cdc84c76482184d7",
+          "steps": [
+            {
+              "step": 1.0,
+              "time": 0.001953125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.005,
+              "stage_inlet_flow": 0.004999999999999999,
+              "endpoint_inlet_flow": 0.004999999999999999,
+              "endpoint_rcr_flow": -0.0003968840710800923,
+              "endpoint_rcr_pressure": -0.0012213589111961835
+            },
+            {
+              "step": 2.0,
+              "time": 0.0048828125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004,
+              "endpoint_inlet_flow": 0.004,
+              "endpoint_rcr_flow": 3.799028595226073e-05,
+              "endpoint_rcr_pressure": 8.809518471666958e-05
+            },
+            {
+              "step": 3.0,
+              "time": 0.0068359375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0005,
+              "endpoint_inlet_flow": 0.0005,
+              "endpoint_rcr_flow": 0.0002850041819866675,
+              "endpoint_rcr_pressure": 0.0008514377348028052
+            },
+            {
+              "step": 4.0,
+              "time": 0.009765625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0018,
+              "endpoint_inlet_flow": -0.0018,
+              "endpoint_rcr_flow": 0.00010385574767883093,
+              "endpoint_rcr_pressure": 0.0003200389303285908
+            },
+            {
+              "step": 5.0,
+              "time": 0.01171875,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006,
+              "endpoint_inlet_flow": 0.0006,
+              "endpoint_rcr_flow": -0.00023739984278880284,
+              "endpoint_rcr_pressure": -0.0007221772649582807
+            },
+            {
+              "step": 6.0,
+              "time": 0.0146484375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0012666666666666668,
+              "endpoint_inlet_flow": 0.0012666666666666668,
+              "endpoint_rcr_flow": -8.070117493210772e-05,
+              "endpoint_rcr_pressure": -0.00026125784939875834
+            },
+            {
+              "step": 7.0,
+              "time": 0.015625,
+              "accepted_dt": 0.0009765625,
+              "target_endpoint_flow": 0.001,
+              "stage_inlet_flow": 0.001,
+              "endpoint_inlet_flow": 0.001,
+              "endpoint_rcr_flow": 1.315361457255682e-05,
+              "endpoint_rcr_pressure": 2.0910908042265848e-05
+            },
+            {
+              "step": 8.0,
+              "time": 0.017578125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.01,
+              "stage_inlet_flow": 0.009999999999999998,
+              "endpoint_inlet_flow": 0.009999999999999998,
+              "endpoint_rcr_flow": -0.0007085421497252477,
+              "endpoint_rcr_pressure": -0.0021988164937691993
+            },
+            {
+              "step": 9.0,
+              "time": 0.0205078125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004,
+              "endpoint_inlet_flow": 0.004,
+              "endpoint_rcr_flow": 0.00029078089183446265,
+              "endpoint_rcr_pressure": 0.0008337932061640577
+            },
+            {
+              "step": 10.0,
+              "time": 0.0224609375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0004999999999999999,
+              "endpoint_inlet_flow": 0.0004999999999999999,
+              "endpoint_rcr_flow": 0.00029488190615643817,
+              "endpoint_rcr_pressure": 0.0008692839156540735
+            },
+            {
+              "step": 11.0,
+              "time": 0.025390625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0018000000000000002,
+              "endpoint_inlet_flow": -0.0018000000000000002,
+              "endpoint_rcr_flow": 7.364217887609961e-05,
+              "endpoint_rcr_pressure": 0.00021429186423400174
+            },
+            {
+              "step": 12.0,
+              "time": 0.02734375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006,
+              "endpoint_inlet_flow": 0.0006,
+              "endpoint_rcr_flow": -0.0002639888137463414,
+              "endpoint_rcr_pressure": -0.0008189616149638476
+            },
+            {
+              "step": 13.0,
+              "time": 0.0302734375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0012666666666666664,
+              "endpoint_inlet_flow": 0.0012666666666666664,
+              "endpoint_rcr_flow": -9.270501200855072e-05,
+              "endpoint_rcr_pressure": -0.00031542750891809236
+            }
+          ]
+        },
+        "bdf2": {
+          "sha256": "8b966dcb268fcc3a5e1ef789dac7e62376a2b5632c75173e6a597d7363bad592",
+          "steps": [
+            {
+              "step": 1.0,
+              "time": 0.001953125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.005,
+              "stage_inlet_flow": 0.004999999999999999,
+              "endpoint_inlet_flow": 0.004999999999999999,
+              "endpoint_rcr_flow": -0.000396884071080092,
+              "endpoint_rcr_pressure": -0.0012213589111961824
+            },
+            {
+              "step": 2.0,
+              "time": 0.0048828125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004,
+              "endpoint_inlet_flow": 0.004,
+              "endpoint_rcr_flow": 0.00027797046338987985,
+              "endpoint_rcr_pressure": 0.000806541914446684
+            },
+            {
+              "step": 3.0,
+              "time": 0.0068359375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0005,
+              "endpoint_inlet_flow": 0.0005,
+              "endpoint_rcr_flow": 0.00045115006315391546,
+              "endpoint_rcr_pressure": 0.0013519029525588381
+            },
+            {
+              "step": 4.0,
+              "time": 0.009765625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0018000000000000004,
+              "endpoint_inlet_flow": -0.0018000000000000004,
+              "endpoint_rcr_flow": 1.8828916740257115e-05,
+              "endpoint_rcr_pressure": 7.071334533608622e-05
+            },
+            {
+              "step": 5.0,
+              "time": 0.01171875,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006,
+              "endpoint_inlet_flow": 0.0006,
+              "endpoint_rcr_flow": -0.0004292729479635925,
+              "endpoint_rcr_pressure": -0.0012944960961420908
+            },
+            {
+              "step": 6.0,
+              "time": 0.0146484375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0012666666666666668,
+              "endpoint_inlet_flow": 0.0012666666666666668,
+              "endpoint_rcr_flow": -9.049808876426059e-05,
+              "endpoint_rcr_pressure": -0.0002963308251855769
+            },
+            {
+              "step": 7.0,
+              "time": 0.015625,
+              "accepted_dt": 0.0009765625,
+              "target_endpoint_flow": 0.001,
+              "stage_inlet_flow": 0.001,
+              "endpoint_inlet_flow": 0.001,
+              "endpoint_rcr_flow": 1.895434493194649e-05,
+              "endpoint_rcr_pressure": 3.1507224871917536e-05
+            },
+            {
+              "step": 8.0,
+              "time": 0.017578125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.01,
+              "stage_inlet_flow": 0.009999999999999998,
+              "endpoint_inlet_flow": 0.009999999999999998,
+              "endpoint_rcr_flow": -0.0011286312119167458,
+              "endpoint_rcr_pressure": -0.0034641111289335376
+            },
+            {
+              "step": 9.0,
+              "time": 0.0205078125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004,
+              "endpoint_inlet_flow": 0.004,
+              "endpoint_rcr_flow": 0.0007630407004356881,
+              "endpoint_rcr_pressure": 0.002237529030016947
+            },
+            {
+              "step": 10.0,
+              "time": 0.0224609375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0005,
+              "endpoint_inlet_flow": 0.0005,
+              "endpoint_rcr_flow": 0.0005365755653842916,
+              "endpoint_rcr_pressure": 0.0015932626204861605
+            },
+            {
+              "step": 11.0,
+              "time": 0.025390625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0018000000000000004,
+              "endpoint_inlet_flow": -0.0018000000000000004,
+              "endpoint_rcr_flow": -9.674500618743331e-06,
+              "endpoint_rcr_pressure": -2.6459572546968588e-05
+            },
+            {
+              "step": 12.0,
+              "time": 0.02734375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006000000000000001,
+              "endpoint_inlet_flow": 0.0006000000000000001,
+              "endpoint_rcr_flow": -0.00045926923882553064,
+              "endpoint_rcr_pressure": -0.0013971136018715617
+            },
+            {
+              "step": 13.0,
+              "time": 0.0302734375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0012666666666666668,
+              "endpoint_inlet_flow": 0.0012666666666666668,
+              "endpoint_rcr_flow": -0.0001493190992374117,
+              "endpoint_rcr_pressure": -0.0004901154420034097
+            }
+          ]
+        },
+        "generalized_alpha": {
+          "sha256": "cd8b950037e8b5a3f385e5eb33194f0a6dc7cf0b6e99bcb1e98494f678fdee26",
+          "steps": [
+            {
+              "step": 1.0,
+              "time": 0.001953125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.005,
+              "stage_inlet_flow": 0.004999999999999999,
+              "endpoint_inlet_flow": 0.004999999999999999,
+              "endpoint_rcr_flow": -0.000396884071080092,
+              "endpoint_rcr_pressure": -0.0012213589111961824
+            },
+            {
+              "step": 2.0,
+              "time": 0.0048828125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004333333333333333,
+              "endpoint_inlet_flow": 0.003999999999999999,
+              "endpoint_rcr_flow": 0.00037712056045927805,
+              "endpoint_rcr_pressure": 0.00110295227834271
+            },
+            {
+              "step": 3.0,
+              "time": 0.0068359375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.001666666666666667,
+              "endpoint_inlet_flow": 0.0005000000000000002,
+              "endpoint_rcr_flow": 0.000414367883382334,
+              "endpoint_rcr_pressure": 0.0012434187245168515
+            },
+            {
+              "step": 4.0,
+              "time": 0.009765625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0010333333333333332,
+              "endpoint_inlet_flow": -0.0018000000000000002,
+              "endpoint_rcr_flow": -0.00012089550374674317,
+              "endpoint_rcr_pressure": -0.00034682513898145486
+            },
+            {
+              "step": 5.0,
+              "time": 0.01171875,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": -0.00020000000000000015,
+              "endpoint_inlet_flow": 0.0005999999999999998,
+              "endpoint_rcr_flow": -0.000503672013485206,
+              "endpoint_rcr_pressure": -0.0015189763837935148
+            },
+            {
+              "step": 6.0,
+              "time": 0.0146484375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0010444444444444446,
+              "endpoint_inlet_flow": 0.001266666666666667,
+              "endpoint_rcr_flow": 7.532395630033846e-05,
+              "endpoint_rcr_pressure": 0.0001967567484898701
+            },
+            {
+              "step": 7.0,
+              "time": 0.015625,
+              "accepted_dt": 0.0009765625,
+              "target_endpoint_flow": 0.001,
+              "stage_inlet_flow": 0.0010888888888888888,
+              "endpoint_inlet_flow": 0.001,
+              "endpoint_rcr_flow": 6.168861725633278e-05,
+              "endpoint_rcr_pressure": 0.00015765150845191775
+            },
+            {
+              "step": 8.0,
+              "time": 0.017578125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.01,
+              "stage_inlet_flow": 0.006999999999999999,
+              "endpoint_inlet_flow": 0.009999999999999998,
+              "endpoint_rcr_flow": -0.001324796587580354,
+              "endpoint_rcr_pressure": -0.004053775002763215
+            },
+            {
+              "step": 9.0,
+              "time": 0.0205078125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.006,
+              "endpoint_inlet_flow": 0.004,
+              "endpoint_rcr_flow": 0.0013331311409860924,
+              "endpoint_rcr_pressure": 0.00393823578108424
+            },
+            {
+              "step": 10.0,
+              "time": 0.0224609375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0016666666666666666,
+              "endpoint_inlet_flow": 0.0004999999999999997,
+              "endpoint_rcr_flow": 0.0003281721240950379,
+              "endpoint_rcr_pressure": 0.0009768114144869866
+            },
+            {
+              "step": 11.0,
+              "time": 0.025390625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0010333333333333332,
+              "endpoint_inlet_flow": -0.0017999999999999997,
+              "endpoint_rcr_flow": -0.00012571984311792486,
+              "endpoint_rcr_pressure": -0.0003673141244593537
+            },
+            {
+              "step": 12.0,
+              "time": 0.02734375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": -0.00020000000000000015,
+              "endpoint_inlet_flow": 0.0005999999999999998,
+              "endpoint_rcr_flow": -0.0005655514427183536,
+              "endpoint_rcr_pressure": -0.0017144818760780934
+            },
+            {
+              "step": 13.0,
+              "time": 0.0302734375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0010444444444444446,
+              "endpoint_inlet_flow": 0.0012666666666666672,
+              "endpoint_rcr_flow": -0.0001138858358962382,
+              "endpoint_rcr_pressure": -0.00039507499966089424
+            }
+          ]
+        }
+      }
+    },
+    {
+      "mesh": [
+        12,
+        2,
+        6
+      ],
+      "checks": {
+        "be": {
+          "ranks": 1,
+          "stage_error": 1.214306433183765e-17,
+          "endpoint_error": 1.214306433183765e-17,
+          "final_cap_error": 1.3010426069826053e-18,
+          "circuit_residual": 1.6263032587282567e-19
+        },
+        "bdf2": {
+          "ranks": 4,
+          "stage_error": 5.204170427930421e-18,
+          "endpoint_error": 5.204170427930421e-18,
+          "final_cap_error": 8.673617379884035e-19,
+          "circuit_residual": 1.0842021724855044e-19
+        },
+        "generalized_alpha": {
+          "ranks": 4,
+          "stage_error": 4.336808689942018e-18,
+          "endpoint_error": 5.204170427930421e-18,
+          "final_cap_error": 1.0842021724855044e-18,
+          "circuit_residual": 2.168404344971009e-19
+        },
+        "equivalent_closure_restart_error": 8.749667657070859e-13
+      },
+      "sample_table": [
+        [
+          0.0,
+          0.001
+        ],
+        [
+          0.001953125,
+          0.01
+        ],
+        [
+          0.0048828125,
+          0.004
+        ],
+        [
+          0.0087890625,
+          -0.003
+        ],
+        [
+          0.0126953125,
+          0.0018
+        ]
+      ],
+      "period_s": 0.015625,
+      "ramp_time_s": 0.00390625,
+      "step_sizes_s": [
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875,
+        0.0009765625,
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875
+      ],
+      "mesh_sha256": {
+        "fluid": "45429b9cc6958c352c69069f0d6d7c9f2b5100b16baf7ab29628419e058c33d0",
+        "solid": "71056568cef38a6d9b5755a2d5b7f60a353a34f9eb4237ac53b2d5115b55edca"
+      },
+      "histories": {
+        "be": {
+          "sha256": "5979ddc0a715238fa20ebdeab07bf82e637c5f4ad27b0b2ab8f333b421858d98",
+          "steps": [
+            {
+              "step": 1.0,
+              "time": 0.001953125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.005,
+              "stage_inlet_flow": 0.005000000000000005,
+              "endpoint_inlet_flow": 0.005000000000000005,
+              "endpoint_rcr_flow": -4.104870505730339e-05,
+              "endpoint_rcr_pressure": -0.00012632203045680798
+            },
+            {
+              "step": 2.0,
+              "time": 0.0048828125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004000000000000005,
+              "endpoint_inlet_flow": 0.004000000000000005,
+              "endpoint_rcr_flow": -6.8834811778445054e-06,
+              "endpoint_rcr_pressure": -2.4575520523982635e-05
+            },
+            {
+              "step": 3.0,
+              "time": 0.0068359375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0005000000000000007,
+              "endpoint_inlet_flow": 0.0005000000000000007,
+              "endpoint_rcr_flow": 1.1629655028575077e-05,
+              "endpoint_rcr_pressure": 3.190162810706577e-05
+            },
+            {
+              "step": 4.0,
+              "time": 0.009765625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0018000000000000023,
+              "endpoint_inlet_flow": -0.0018000000000000023,
+              "endpoint_rcr_flow": 1.4905269262039491e-05,
+              "endpoint_rcr_pressure": 4.3493092911525064e-05
+            },
+            {
+              "step": 5.0,
+              "time": 0.01171875,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006000000000000007,
+              "endpoint_inlet_flow": 0.0006000000000000007,
+              "endpoint_rcr_flow": -6.252518826385263e-06,
+              "endpoint_rcr_pressure": -2.0452200132632085e-05
+            },
+            {
+              "step": 6.0,
+              "time": 0.0146484375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.001266666666666668,
+              "endpoint_inlet_flow": 0.001266666666666668,
+              "endpoint_rcr_flow": -3.3797405356556884e-06,
+              "endpoint_rcr_pressure": -1.219974515406851e-05
+            },
+            {
+              "step": 7.0,
+              "time": 0.015625,
+              "accepted_dt": 0.0009765625,
+              "target_endpoint_flow": 0.001,
+              "stage_inlet_flow": 0.0010000000000000013,
+              "endpoint_inlet_flow": 0.0010000000000000013,
+              "endpoint_rcr_flow": -3.850099187663441e-06,
+              "endpoint_rcr_pressure": -1.3750472567595199e-05
+            },
+            {
+              "step": 8.0,
+              "time": 0.017578125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.01,
+              "stage_inlet_flow": 0.01000000000000001,
+              "endpoint_inlet_flow": 0.01000000000000001,
+              "endpoint_rcr_flow": -9.04040641192074e-05,
+              "endpoint_rcr_pressure": -0.0002803856008046745
+            },
+            {
+              "step": 9.0,
+              "time": 0.0205078125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004000000000000005,
+              "endpoint_inlet_flow": 0.004000000000000005,
+              "endpoint_rcr_flow": 3.1549309799815662e-06,
+              "endpoint_rcr_pressure": 7.882014748978523e-07
+            },
+            {
+              "step": 10.0,
+              "time": 0.0224609375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0005000000000000007,
+              "endpoint_inlet_flow": 0.0005000000000000007,
+              "endpoint_rcr_flow": 2.814729343792588e-06,
+              "endpoint_rcr_pressure": 6.928347363640577e-08
+            },
+            {
+              "step": 11.0,
+              "time": 0.025390625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0018000000000000021,
+              "endpoint_inlet_flow": -0.0018000000000000021,
+              "endpoint_rcr_flow": 2.0294440061630466e-05,
+              "endpoint_rcr_pressure": 5.497324370776768e-05
+            },
+            {
+              "step": 12.0,
+              "time": 0.02734375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006000000000000008,
+              "endpoint_inlet_flow": 0.0006000000000000008,
+              "endpoint_rcr_flow": -1.8786324357808838e-06,
+              "endpoint_rcr_pressure": -1.1634165109506204e-05
+            },
+            {
+              "step": 13.0,
+              "time": 0.0302734375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.001266666666666668,
+              "endpoint_inlet_flow": 0.001266666666666668,
+              "endpoint_rcr_flow": -4.510724141390167e-06,
+              "endpoint_rcr_pressure": -1.9964812584307456e-05
+            }
+          ]
+        },
+        "bdf2": {
+          "sha256": "6bccd7734ff7bcd3c0577ded2af799d5981ce82669054921aec8f6ae4a0437d2",
+          "steps": [
+            {
+              "step": 1.0,
+              "time": 0.001953125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.005,
+              "stage_inlet_flow": 0.005000000000000003,
+              "endpoint_inlet_flow": 0.005000000000000003,
+              "endpoint_rcr_flow": -4.1048705057303316e-05,
+              "endpoint_rcr_pressure": -0.0001263220304568077
+            },
+            {
+              "step": 2.0,
+              "time": 0.0048828125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004000000000000002,
+              "endpoint_inlet_flow": 0.004000000000000002,
+              "endpoint_rcr_flow": 1.880127018567201e-05,
+              "endpoint_rcr_pressure": 5.285101588720983e-05
+            },
+            {
+              "step": 3.0,
+              "time": 0.0068359375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0005000000000000003,
+              "endpoint_inlet_flow": 0.0005000000000000003,
+              "endpoint_rcr_flow": -4.1427211278645e-06,
+              "endpoint_rcr_pressure": -1.62572139005204e-05
+            },
+            {
+              "step": 4.0,
+              "time": 0.009765625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0018000000000000013,
+              "endpoint_inlet_flow": -0.0018000000000000013,
+              "endpoint_rcr_flow": 3.914254231625238e-06,
+              "endpoint_rcr_pressure": 8.07855364210903e-06
+            },
+            {
+              "step": 5.0,
+              "time": 0.01171875,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006000000000000003,
+              "endpoint_inlet_flow": 0.0006000000000000003,
+              "endpoint_rcr_flow": 1.3606643035570661e-05,
+              "endpoint_rcr_pressure": 3.79663228819586e-05
+            },
+            {
+              "step": 6.0,
+              "time": 0.0146484375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0012666666666666672,
+              "endpoint_inlet_flow": 0.0012666666666666672,
+              "endpoint_rcr_flow": 4.07222541787623e-05,
+              "endpoint_rcr_pressure": 0.00012274640063300433
+            },
+            {
+              "step": 7.0,
+              "time": 0.015625,
+              "accepted_dt": 0.0009765625,
+              "target_endpoint_flow": 0.001,
+              "stage_inlet_flow": 0.0010000000000000007,
+              "endpoint_inlet_flow": 0.0010000000000000007,
+              "endpoint_rcr_flow": 3.2810344450840146e-06,
+              "endpoint_rcr_pressure": 1.0750611758365283e-05
+            },
+            {
+              "step": 8.0,
+              "time": 0.017578125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.01,
+              "stage_inlet_flow": 0.010000000000000004,
+              "endpoint_inlet_flow": 0.010000000000000004,
+              "endpoint_rcr_flow": -0.00017483184718040365,
+              "endpoint_rcr_pressure": -0.0005314800548111215
+            },
+            {
+              "step": 9.0,
+              "time": 0.0205078125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004000000000000002,
+              "endpoint_inlet_flow": 0.004000000000000002,
+              "endpoint_rcr_flow": 4.8298067088587334e-05,
+              "endpoint_rcr_pressure": 0.00013707942826280932
+            },
+            {
+              "step": 10.0,
+              "time": 0.0224609375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0005000000000000003,
+              "endpoint_inlet_flow": 0.0005000000000000003,
+              "endpoint_rcr_flow": -7.984991607286715e-05,
+              "endpoint_rcr_pressure": -0.0002518924803609066
+            },
+            {
+              "step": 11.0,
+              "time": 0.025390625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0018000000000000013,
+              "endpoint_inlet_flow": -0.0018000000000000013,
+              "endpoint_rcr_flow": 1.6948587905162487e-05,
+              "endpoint_rcr_pressure": 3.7321227041869216e-05
+            },
+            {
+              "step": 12.0,
+              "time": 0.02734375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006000000000000005,
+              "endpoint_inlet_flow": 0.0006000000000000005,
+              "endpoint_rcr_flow": 5.2256511145414144e-05,
+              "endpoint_rcr_pressure": 0.00014601103640958464
+            },
+            {
+              "step": 13.0,
+              "time": 0.0302734375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0012666666666666675,
+              "endpoint_inlet_flow": 0.0012666666666666675,
+              "endpoint_rcr_flow": 7.777733163162896e-05,
+              "endpoint_rcr_pressure": 0.00022985778442310642
+            }
+          ]
+        },
+        "generalized_alpha": {
+          "sha256": "37dda4aea0d9694acc2c3ec1a75f1e1d3e795e49db10fd08fc0bd0399c27aba4",
+          "steps": [
+            {
+              "step": 1.0,
+              "time": 0.001953125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.005,
+              "stage_inlet_flow": 0.005000000000000003,
+              "endpoint_inlet_flow": 0.005000000000000003,
+              "endpoint_rcr_flow": -4.104870505730332e-05,
+              "endpoint_rcr_pressure": -0.00012632203045680773
+            },
+            {
+              "step": 2.0,
+              "time": 0.0048828125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004333333333333335,
+              "endpoint_inlet_flow": 0.004000000000000001,
+              "endpoint_rcr_flow": 3.188367859715837e-05,
+              "endpoint_rcr_pressure": 9.227111534793652e-05
+            },
+            {
+              "step": 3.0,
+              "time": 0.0068359375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0016666666666666674,
+              "endpoint_inlet_flow": 0.0005000000000000004,
+              "endpoint_rcr_flow": -5.306557287167944e-05,
+              "endpoint_rcr_pressure": -0.00016381382150697734
+            },
+            {
+              "step": 4.0,
+              "time": 0.009765625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.001033333333333334,
+              "endpoint_inlet_flow": -0.001800000000000001,
+              "endpoint_rcr_flow": 3.372124200721258e-05,
+              "endpoint_rcr_pressure": 9.628770609242687e-05
+            },
+            {
+              "step": 5.0,
+              "time": 0.01171875,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": -0.00020000000000000028,
+              "endpoint_inlet_flow": 0.0006000000000000005,
+              "endpoint_rcr_flow": 3.7180771778234616e-05,
+              "endpoint_rcr_pressure": 0.00010914618947946074
+            },
+            {
+              "step": 6.0,
+              "time": 0.0146484375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0010444444444444453,
+              "endpoint_inlet_flow": 0.0012666666666666672,
+              "endpoint_rcr_flow": 5.691081491579474e-05,
+              "endpoint_rcr_pressure": 0.00017400266386748283
+            },
+            {
+              "step": 7.0,
+              "time": 0.015625,
+              "accepted_dt": 0.0009765625,
+              "target_endpoint_flow": 0.001,
+              "stage_inlet_flow": 0.0010888888888888897,
+              "endpoint_inlet_flow": 0.0010000000000000007,
+              "endpoint_rcr_flow": -5.716387986630367e-05,
+              "endpoint_rcr_pressure": -0.00016842573947671558
+            },
+            {
+              "step": 8.0,
+              "time": 0.017578125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.01,
+              "stage_inlet_flow": 0.007000000000000003,
+              "endpoint_inlet_flow": 0.010000000000000004,
+              "endpoint_rcr_flow": -0.000206232445314303,
+              "endpoint_rcr_pressure": -0.0006259143717150076
+            },
+            {
+              "step": 9.0,
+              "time": 0.0205078125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.006000000000000004,
+              "endpoint_inlet_flow": 0.004000000000000003,
+              "endpoint_rcr_flow": 0.00013792146762051295,
+              "endpoint_rcr_pressure": 0.00040459168300860024
+            },
+            {
+              "step": 10.0,
+              "time": 0.0224609375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0016666666666666676,
+              "endpoint_inlet_flow": 0.0005,
+              "endpoint_rcr_flow": -0.00032083496687067465,
+              "endpoint_rcr_pressure": -0.0009810328415712395
+            },
+            {
+              "step": 11.0,
+              "time": 0.025390625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.001033333333333334,
+              "endpoint_inlet_flow": -0.0018000000000000008,
+              "endpoint_rcr_flow": 0.00022763783246279937,
+              "endpoint_rcr_pressure": 0.000663834047997715
+            },
+            {
+              "step": 12.0,
+              "time": 0.02734375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": -0.0002000000000000003,
+              "endpoint_inlet_flow": 0.0006000000000000003,
+              "endpoint_rcr_flow": 4.7359059160156346e-05,
+              "endpoint_rcr_pressure": 0.00013136671616807108
+            },
+            {
+              "step": 13.0,
+              "time": 0.0302734375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0010444444444444455,
+              "endpoint_inlet_flow": 0.0012666666666666675,
+              "endpoint_rcr_flow": 0.00014191878606342626,
+              "endpoint_rcr_pressure": 0.00042802512222269156
+            }
+          ]
+        }
+      }
+    },
+    {
+      "mesh": [
+        24,
+        3,
+        10
+      ],
+      "checks": {
+        "be": {
+          "ranks": 1,
+          "stage_error": 5.204170427930421e-18,
+          "endpoint_error": 5.204170427930421e-18,
+          "final_cap_error": 1.951563910473908e-18,
+          "circuit_residual": 1.0842021724855044e-19
+        },
+        "bdf2": {
+          "ranks": 2,
+          "stage_error": 8.673617379884035e-18,
+          "endpoint_error": 8.673617379884035e-18,
+          "final_cap_error": 2.6020852139652106e-18,
+          "circuit_residual": 2.710505431213761e-20
+        },
+        "generalized_alpha": {
+          "ranks": 2,
+          "stage_error": 6.071532165918825e-18,
+          "endpoint_error": 6.938893903907228e-18,
+          "final_cap_error": 3.0357660829594124e-18,
+          "circuit_residual": 1.0842021724855044e-19
+        },
+        "equivalent_closure_restart_error": 0.0
+      },
+      "sample_table": [
+        [
+          0.0,
+          0.001
+        ],
+        [
+          0.001953125,
+          0.01
+        ],
+        [
+          0.0048828125,
+          0.004
+        ],
+        [
+          0.0087890625,
+          -0.003
+        ],
+        [
+          0.0126953125,
+          0.0018
+        ]
+      ],
+      "period_s": 0.015625,
+      "ramp_time_s": 0.00390625,
+      "step_sizes_s": [
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875,
+        0.0009765625,
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875,
+        0.001953125,
+        0.0029296875
+      ],
+      "mesh_sha256": {
+        "fluid": "f4da5b0384cf8ed62bc07872741a5633505d33f706de48f07fdab0af3dd439be",
+        "solid": "d99a19b0403ab9d5111d64e6fbb19ccc7102c5a6b8688d69d29e9aefbcbed6df"
+      },
+      "histories": {
+        "be": {
+          "sha256": "51104474191d8af2894979cd36e15e7b360bab5391e74212885a6870b21ff0cb",
+          "steps": [
+            {
+              "step": 1.0,
+              "time": 0.001953125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.005,
+              "stage_inlet_flow": 0.0049999999999999975,
+              "endpoint_inlet_flow": 0.0049999999999999975,
+              "endpoint_rcr_flow": -1.6197365932218498e-05,
+              "endpoint_rcr_pressure": -4.984527891326817e-05
+            },
+            {
+              "step": 2.0,
+              "time": 0.0048828125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004,
+              "endpoint_inlet_flow": 0.004,
+              "endpoint_rcr_flow": -1.2214006995740892e-05,
+              "endpoint_rcr_pressure": -3.9287774887992874e-05
+            },
+            {
+              "step": 3.0,
+              "time": 0.0068359375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0004999999999999999,
+              "endpoint_inlet_flow": 0.0004999999999999999,
+              "endpoint_rcr_flow": -1.172249951795653e-06,
+              "endpoint_rcr_pressure": -6.227612515476281e-06
+            },
+            {
+              "step": 4.0,
+              "time": 0.009765625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0017999999999999993,
+              "endpoint_inlet_flow": -0.0017999999999999993,
+              "endpoint_rcr_flow": 1.0808682505052827e-05,
+              "endpoint_rcr_pressure": 3.1002677483084246e-05
+            },
+            {
+              "step": 5.0,
+              "time": 0.01171875,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006000000000000002,
+              "endpoint_inlet_flow": 0.0006000000000000002,
+              "endpoint_rcr_flow": 4.895327317565084e-06,
+              "endpoint_rcr_pressure": 1.3655126316874358e-05
+            },
+            {
+              "step": 6.0,
+              "time": 0.0146484375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0012666666666666685,
+              "endpoint_inlet_flow": 0.0012666666666666685,
+              "endpoint_rcr_flow": -3.11461541410117e-06,
+              "endpoint_rcr_pressure": -1.0719544048629532e-05
+            },
+            {
+              "step": 7.0,
+              "time": 0.015625,
+              "accepted_dt": 0.0009765625,
+              "target_endpoint_flow": 0.001,
+              "stage_inlet_flow": 0.0009999999999999998,
+              "endpoint_inlet_flow": 0.0009999999999999998,
+              "endpoint_rcr_flow": -5.809830714662843e-06,
+              "endpoint_rcr_pressure": -1.9024349075246413e-05
+            },
+            {
+              "step": 8.0,
+              "time": 0.017578125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.01,
+              "stage_inlet_flow": 0.009999999999999993,
+              "endpoint_inlet_flow": 0.009999999999999993,
+              "endpoint_rcr_flow": -4.03596688735466e-05,
+              "endpoint_rcr_pressure": -0.00012578104434548672
+            },
+            {
+              "step": 9.0,
+              "time": 0.0205078125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.003999999999999999,
+              "endpoint_inlet_flow": 0.003999999999999999,
+              "endpoint_rcr_flow": -1.8277795643646682e-05,
+              "endpoint_rcr_pressure": -6.157854776585915e-05
+            },
+            {
+              "step": 10.0,
+              "time": 0.0224609375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0004999999999999999,
+              "endpoint_inlet_flow": 0.0004999999999999999,
+              "endpoint_rcr_flow": -4.9642613807557805e-06,
+              "endpoint_rcr_pressure": -2.1956793431839494e-05
+            },
+            {
+              "step": 11.0,
+              "time": 0.025390625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0017999999999999993,
+              "endpoint_inlet_flow": -0.0017999999999999993,
+              "endpoint_rcr_flow": 1.4269690550828862e-05,
+              "endpoint_rcr_pressure": 3.749513262801842e-05
+            },
+            {
+              "step": 12.0,
+              "time": 0.02734375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006000000000000002,
+              "endpoint_inlet_flow": 0.0006000000000000002,
+              "endpoint_rcr_flow": 8.847004856036465e-06,
+              "endpoint_rcr_pressure": 2.1962955407014144e-05
+            },
+            {
+              "step": 13.0,
+              "time": 0.0302734375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0012666666666666685,
+              "endpoint_inlet_flow": 0.0012666666666666685,
+              "endpoint_rcr_flow": -2.084903263536715e-06,
+              "endpoint_rcr_pressure": -1.1007472998103826e-05
+            }
+          ]
+        },
+        "bdf2": {
+          "sha256": "82ded3a9d0c8996e6afd2bdcf1ea87fda6b4c738accf0f6dcae3dcb38375ea76",
+          "steps": [
+            {
+              "step": 1.0,
+              "time": 0.001953125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.005,
+              "stage_inlet_flow": 0.0050000000000000044,
+              "endpoint_inlet_flow": 0.0050000000000000044,
+              "endpoint_rcr_flow": -1.6197365932218542e-05,
+              "endpoint_rcr_pressure": -4.984527891326827e-05
+            },
+            {
+              "step": 2.0,
+              "time": 0.0048828125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004000000000000003,
+              "endpoint_inlet_flow": 0.004000000000000003,
+              "endpoint_rcr_flow": -1.1201055273195272e-05,
+              "endpoint_rcr_pressure": -3.635644408940063e-05
+            },
+            {
+              "step": 3.0,
+              "time": 0.0068359375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0005000000000000003,
+              "endpoint_inlet_flow": 0.0005000000000000003,
+              "endpoint_rcr_flow": -8.960742264410447e-06,
+              "endpoint_rcr_pressure": -3.0396763810452476e-05
+            },
+            {
+              "step": 4.0,
+              "time": 0.009765625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0018000000000000017,
+              "endpoint_inlet_flow": -0.0018000000000000017,
+              "endpoint_rcr_flow": 1.1766885705203899e-05,
+              "endpoint_rcr_pressure": 3.224769520318862e-05
+            },
+            {
+              "step": 5.0,
+              "time": 0.01171875,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006000000000000003,
+              "endpoint_inlet_flow": 0.0006000000000000003,
+              "endpoint_rcr_flow": 1.856894570837079e-05,
+              "endpoint_rcr_pressure": 5.3791369013657305e-05
+            },
+            {
+              "step": 6.0,
+              "time": 0.0146484375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0012666666666666681,
+              "endpoint_inlet_flow": 0.0012666666666666681,
+              "endpoint_rcr_flow": 1.7445069741970723e-05,
+              "endpoint_rcr_pressure": 5.23372775107801e-05
+            },
+            {
+              "step": 7.0,
+              "time": 0.015625,
+              "accepted_dt": 0.0009765625,
+              "target_endpoint_flow": 0.001,
+              "stage_inlet_flow": 0.0010000000000000007,
+              "endpoint_inlet_flow": 0.0010000000000000007,
+              "endpoint_rcr_flow": 5.167007813534898e-06,
+              "endpoint_rcr_pressure": 1.5791262732167787e-05
+            },
+            {
+              "step": 8.0,
+              "time": 0.017578125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.01,
+              "stage_inlet_flow": 0.010000000000000007,
+              "endpoint_inlet_flow": 0.010000000000000007,
+              "endpoint_rcr_flow": -4.984742806592902e-05,
+              "endpoint_rcr_pressure": -0.00015134752868702908
+            },
+            {
+              "step": 9.0,
+              "time": 0.0205078125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.0040000000000000036,
+              "endpoint_inlet_flow": 0.0040000000000000036,
+              "endpoint_rcr_flow": -3.482704318487878e-05,
+              "endpoint_rcr_pressure": -0.00010996567993914682
+            },
+            {
+              "step": 10.0,
+              "time": 0.0224609375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0005000000000000003,
+              "endpoint_inlet_flow": 0.0005000000000000003,
+              "endpoint_rcr_flow": -5.68643763501816e-05,
+              "endpoint_rcr_pressure": -0.00017988690664525023
+            },
+            {
+              "step": 11.0,
+              "time": 0.025390625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.0018000000000000017,
+              "endpoint_inlet_flow": -0.0018000000000000017,
+              "endpoint_rcr_flow": 7.956200550236611e-08,
+              "endpoint_rcr_pressure": -1.1088253361393409e-05
+            },
+            {
+              "step": 12.0,
+              "time": 0.02734375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": 0.0006000000000000003,
+              "endpoint_inlet_flow": 0.0006000000000000003,
+              "endpoint_rcr_flow": 2.946448882386338e-05,
+              "endpoint_rcr_pressure": 7.839323794763595e-05
+            },
+            {
+              "step": 13.0,
+              "time": 0.0302734375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.0012666666666666681,
+              "endpoint_inlet_flow": 0.0012666666666666681,
+              "endpoint_rcr_flow": 5.325688001484193e-05,
+              "endpoint_rcr_pressure": 0.0001544659030850069
+            }
+          ]
+        },
+        "generalized_alpha": {
+          "sha256": "7d79fa46a4328f4ac7f706f13015d6fb7e4e03c004d30cf868cb88011ec080a4",
+          "steps": [
+            {
+              "step": 1.0,
+              "time": 0.001953125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.005,
+              "stage_inlet_flow": 0.0050000000000000044,
+              "endpoint_inlet_flow": 0.0050000000000000044,
+              "endpoint_rcr_flow": -1.6197365932218542e-05,
+              "endpoint_rcr_pressure": -4.984527891326827e-05
+            },
+            {
+              "step": 2.0,
+              "time": 0.0048828125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.004333333333333337,
+              "endpoint_inlet_flow": 0.004000000000000003,
+              "endpoint_rcr_flow": -1.0691766744956858e-05,
+              "endpoint_rcr_pressure": -3.485224864521606e-05
+            },
+            {
+              "step": 3.0,
+              "time": 0.0068359375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0016666666666666679,
+              "endpoint_inlet_flow": 0.0005000000000000007,
+              "endpoint_rcr_flow": -1.884612123763865e-05,
+              "endpoint_rcr_pressure": -6.047501264608941e-05
+            },
+            {
+              "step": 4.0,
+              "time": 0.009765625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.001033333333333334,
+              "endpoint_inlet_flow": -0.001800000000000002,
+              "endpoint_rcr_flow": 2.1082217097421856e-05,
+              "endpoint_rcr_pressure": 5.969453932369581e-05
+            },
+            {
+              "step": 5.0,
+              "time": 0.01171875,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": -0.00020000000000000036,
+              "endpoint_inlet_flow": 0.0006000000000000003,
+              "endpoint_rcr_flow": 2.3258209830538585e-05,
+              "endpoint_rcr_pressure": 6.785606888483353e-05
+            },
+            {
+              "step": 6.0,
+              "time": 0.0146484375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.001044444444444446,
+              "endpoint_inlet_flow": 0.0012666666666666681,
+              "endpoint_rcr_flow": 2.8505620823816047e-05,
+              "endpoint_rcr_pressure": 8.668568059600505e-05
+            },
+            {
+              "step": 7.0,
+              "time": 0.015625,
+              "accepted_dt": 0.0009765625,
+              "target_endpoint_flow": 0.001,
+              "stage_inlet_flow": 0.0010888888888888897,
+              "endpoint_inlet_flow": 0.0010000000000000007,
+              "endpoint_rcr_flow": -3.2513299868462916e-06,
+              "endpoint_rcr_pressure": -8.149702083418034e-06
+            },
+            {
+              "step": 8.0,
+              "time": 0.017578125,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.01,
+              "stage_inlet_flow": 0.0070000000000000045,
+              "endpoint_inlet_flow": 0.010000000000000005,
+              "endpoint_rcr_flow": -4.9534361710280364e-05,
+              "endpoint_rcr_pressure": -0.0001490828342962678
+            },
+            {
+              "step": 9.0,
+              "time": 0.0205078125,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.004,
+              "stage_inlet_flow": 0.006000000000000006,
+              "endpoint_inlet_flow": 0.0040000000000000036,
+              "endpoint_rcr_flow": -5.0450444347352485e-05,
+              "endpoint_rcr_pressure": -0.00015745740515042488
+            },
+            {
+              "step": 10.0,
+              "time": 0.0224609375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0005,
+              "stage_inlet_flow": 0.0016666666666666679,
+              "endpoint_inlet_flow": 0.0005000000000000002,
+              "endpoint_rcr_flow": -0.00012003892734491717,
+              "endpoint_rcr_pressure": -0.0003729928942887735
+            },
+            {
+              "step": 11.0,
+              "time": 0.025390625,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": -0.0018000000000000004,
+              "stage_inlet_flow": -0.001033333333333334,
+              "endpoint_inlet_flow": -0.0018000000000000017,
+              "endpoint_rcr_flow": 5.0243721153792396e-05,
+              "endpoint_rcr_pressure": 0.00013497121978025878
+            },
+            {
+              "step": 12.0,
+              "time": 0.02734375,
+              "accepted_dt": 0.001953125,
+              "target_endpoint_flow": 0.0006000000000000001,
+              "stage_inlet_flow": -0.00020000000000000036,
+              "endpoint_inlet_flow": 0.0006000000000000001,
+              "endpoint_rcr_flow": 3.3930031558402534e-05,
+              "endpoint_rcr_pressure": 8.883780470894485e-05
+            },
+            {
+              "step": 13.0,
+              "time": 0.0302734375,
+              "accepted_dt": 0.0029296875,
+              "target_endpoint_flow": 0.0012666666666666668,
+              "stage_inlet_flow": 0.001044444444444446,
+              "endpoint_inlet_flow": 0.0012666666666666683,
+              "endpoint_rcr_flow": 0.00012975077938089626,
+              "endpoint_rcr_pressure": 0.0003866253550990952
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,5 +1,55 @@
 # EONSim Codex Session Log
 
+## 2026-11-24 · 弹性管与 RCR 连续开发记录
+
+- 基线为 main 的 `6a5ac96`，工作分支为 `codex/fsi-smooth-load-six-hour`。沿用 PETSc 3.23.7 Release 和仓库编译脚本，外部 svFSI 固定为 `94a2ff5`。外部数值干预各有独立程序、输入和原始求解历史。[外部编译方法](../research/data/fsi-pressure-faces-2026-11-24/build-svfsi.sh)
+- 先在两端同步升压的圆管中核对载荷时间层、镜像截面、角点空间加密、不同时间尺度和单元度量。随后加入固定几何的独立线性 DAE 与圆形子午面，分别检查离散方程和物理几何。[时间尺度控制](../research/data/fsi-linear-transient-2026-11-24/time-scale.md) · [空间和时间证据](../research/data/fsi-smooth-load-2026-11-24/README.md)
+- 实施固定与面内移动的多 RCR、流量入口曲线、组织支撑、独立储液压力和压力采样曲线。每项检查涵盖实际接受步和端面场，关键路径包括同分区续算及缩步重试。[端口与流量符号](../research/data/fsi-rcr-2026-11-24/README.md) · [外壁边界功](../research/data/fsi-wall-support-2026-11-24/README.md)
+- 以 20 mm 物性管分别复核双端增压、有反向流量的正弦灌流、全周期正向灌流。保持同网格同边界，只改外部程序 RCR 牵引的时间层，分离了端口阶段误差与轴向网格误差。[实测端口压力与流量](../research/data/fsi-linear-transient-2026-11-24/perfusion.md)
+- 对 Tet4 精确矩、单体分块预条件和接受步质量历史作配对测量，保存两域场和每次求解状态。单机测量期间存在资源竞争，阶段时间与端到端时间分别报告。[阶段成本](../research/data/fsi-phase-costs-2026-11-24/README.md) · [质量守恒诊断](../research/data/fsi-phase-costs-2026-11-24/mass-history.md)
+- 核对 20 mm 管真实的 $Ax-b$ 与四组物理行 RMS 的合成值，区分线性迭代用尽、非线性线搜索停滞、消减误差和进程信号。按相同输入检查修改正交化后的解与直接解；外部 BIPN 在同一上游提交上保留独立的观察、重算及 QR 版本。[可运行网格与 PETSc 参数](../research/data/fsi-linear-transient-2026-11-24/arterial-solvers.md) · [BIPN 各步证据](../research/data/fsi-linear-transient-2026-11-24/bipn-residual.md)
+- 核对分叉两端的频率响应和容积谐波。曾有两个不同周期数的研究进程使用同一输出目录，原始摘要发现输入已改变。用单独目录重新运行 16 周期计算，增加输入与程序摘要、写入锁和完成结果校验。同输入复用、不同周期数拒绝均已实测。[刚性及弹性分叉](../research/data/fsi-rcr-2026-11-24/junction-harmonic.md)
+- 单机四进程独立复算内径 20 mm 的压力管，逐秩退出码和启动器退出码均为零。32 个物理步内的 64 次线性修正全部满足真实残量界限，8 个输出时相的各场与直接解的最大差为对应场峰值的 1.99e−10。固定上游 svFSI 的粗、细两网格各做五种 BIPN 对照；收紧两个内层绝对容差后，粗网格 120/120、细网格 129/129 次修正达标。[四进程逐步记录](../research/data/fsi-linear-transient-2026-11-24/arterial-four-ranks.json) · [原始 BIPN 真实残量](../research/data/fsi-linear-transient-2026-11-24/bipn-residual.csv)
+- 用原始 VTU 重新核对七个镜像截面并复测 #46 的四种负对照。单点应变加 0.001、缺失截面、移动截面和错时刻均在对应检查处失败；正例复现已归档的每项节点场指标。[镜像验证与失败原因](../research/data/fsi-smooth-load-2026-11-24/README.md#axial-reflection-control)
+- 双进程周期回归曾在第 28 步后发出信号 11。用同一程序和分区三次跑完 80 步，三次均逐字节复现故障前的 224 份两域与边界 VTU。另在单进程小计算中由父进程和各秩分别记录退出码，区分求解器返回零与 MPI 启动器退出异常。[周期回放](../research/data/fsi-smooth-load-2026-11-24/mpi-periodic-replay.json)
+
+单列圆管入口、组织支撑、RCR 耦合与 RCR 谐波/重试后，原 50 条断言的语法树与数量逐项一致。四项在记录子进程实时输出的版本上全部通过。同一单机采用不同的绑核及共享内存选项时，仍观察到测试超时。复用结果与新运行分别标出提交、目标与原日志摘要。[最终 Release 收据与历次失败](../research/data/fsi-smooth-load-2026-11-24/release-validation.md)
+
+## 2026-11-24 · 压力端面历史、惯性缩步与独立管壁对照
+
+基线为 `951064d`。受压面与装配共享标签和相邻流体单元，开关独立于 VTU 写出，缩步与续算均在接受步写记录。按倾斜面解析解检查面积、法向黏性项及流量，再从瞬态 VTU 的节点场独立重建 stage 和 endpoint。编译使用 `scripts/cloud/run.sh 3.23.7 release explicit`。[选测、版本和复现](../research/data/fsi-pressure-faces-2026-11-24/README.md)
+
+首次四项选测中，原 `fsi_pressure_state` 在 generalized-α 第三步耗尽了 16 次重试。单独检出原主线，复现同一故障和一个速度增量为 1 ULP 的单元反例。分别插值两个大致相等的速度、随后相减，会让短步长放大舍入误差。改为先在节点作差，原求解容差、Newton 上限和重试预算下通过。数值提交 `ae6c8f6` 的 36 项增量选测通过，最终 `3697204` 的 4 项针对性检查通过。单独提取旧归档的部分文件时遇到跨目录硬链接，完整解包后按输入摘要验证。[原失败及通过收据](../research/data/fsi-pressure-faces-2026-11-24/validation.json)
+
+固定上游 `94a2ff5` 后重新编译 svFSI，先复现 0.25 s 工况前四步的全部已保存场，再运行 0.125 s。12 组 EONSim 计算区分了阶跃、光滑升载和默认/固定稳定化。svFSI 场的时间层取其 VTU 输出时刻，EONSim 的阶段由相邻节点场按算法权重独立重建。首步 BE 求积处理解释了累计流入的一部分偏差，1 s 的跨程序截面差仍存在。[原始场、逐端面记录与判据](../research/data/fsi-pressure-faces-2026-11-24/README.md)
+
+## 2026-11-24 · 知识网站选编、公式渲染与教程复核
+
+原网站构建返回成功，但静态 HTML 中公式所在处只有空注释。将手动加载的 Markdown 数学插件改为 VitePress 1.6.4 的 `markdown.math`，以便 Vue 在服务端保留 MathJax 元素。四个新数值页面已生成 18、13、23、6 个公式，原单体 FSI 专题的公式也已恢复；生产内容检查新增对已渲染 SVG 公式的回归断言。
+
+运行 `npm run docs:build`、`npm run docs:check`，核对 50 个上游条目、所有 34 份草稿的归类、波形图资源及新栏目链接。使用 `replay.py --verify` 复算 Womersley 归档，使用仓库 `scripts/cloud/run.sh 3.23.7 release explicit` 和既有 P2 教程清单编译，5/5 项通过。数值性能和网格加密表引用主线归档。
+
+## 2026-11-24 · HPC 开源项目复查、仿射 Tet4 黏性积分
+
+基线 main `89a1a3d823396df02fa9e8acb5ded36b70938e9c`，本地分支 `codex/hpc-survey-tet4-tangent`，数值提交 `4095e4bd4e18a350e62fd2e295d88de3a6d48640`。抽查上游实现/接口和公开说明，恢复锁定 PETSc 3.23.7。用 `scripts/cloud/run.sh 3.23.7 release explicit` 编译与选测，对照 4/4、候选 9/9；独立合成 #41 `10197d0` 与 #42 `0c8f6fb` 后应用数值改动，圆管选测 2/2。在畸变四面体上检查简单剪切和刚体转动的解析节点力，保留 FSI 几何种子求导。实际命令、选测文件和逐项结果见[复现记录](../research/data/tet4-viscosity-2026-11-24/README.md)。
+
+首轮通过带超时的文件重定向子进程测量墙钟，发现短算例读数在轮询时间隔附近聚集。改用管道等待输出结束，将日志写盘置于计时区间外，重新执行全部 6 对和预热，报告仅用修正后的样本。最终逐对比较全部 owned 节点数据，流体、弹性 FSI 各 1/2 rank，各步迭代数一致。1 rank 固定流体单元核变化 −29.6%，弹性 FSI 的端到端配对范围跨零。后续先对齐 #42 的瞬态，再实测 FSI 各子阶段成本。[完整报告](../research/HPC_UPSTREAM_REVIEW_2026-11-24.md)
+
+提交审阅前同步已合入 #41 的 `main@f7ec770`。以该主线为基准运行 `scripts/cloud/selection.py --offline` 得到 10 项增量选测，加入 `womersley_flow` 后用 `scripts/cloud/run.sh 3.23.7 release explicit` 编译并执行，11/11 项通过。公开数值提交 `7a0416d` 的源码树与配对测量使用的本地提交相同。
+
+## 2026-11-20 / FSI-PROD-02B / 振荡刚性管
+
+从 `89a1a3d` 建立独立分支，求解器实现为 `62c0b2f`，场审计与跨程序工具为 `bef75bd`。
+执行锁定 PETSc 3.23.7 Release 相关小算例，核验三种格式的压力加载时刻、1/2 rank
+重启、参数变化拒绝和旧 main 的真实检查点。同一旧检查点按原分区在新程序上续算，
+1 和 2 rank 两组终点场的最大差均为零。归档了粗网格误差超过事前门槛的结果、
+svFSI 输入和迭代失败，以及两处已修复的本地回归脚本故障。
+
+独立从正负峰值与周期终点 VTU 积分速度、压力、散度、分截面通量。固定版本 svFSI 在相同
+几何、负载、时间步和端面分量约束下跑完三个周期。细化后的 59,616 个四面体给出 0.7554% 幅值误差，压力迹的幅值偏差仍有 5.68%。该网格上 EONSim 与 svFSI 的复流量差为 1.3046%。20 组 EONSim 和 3 组外部运行共归档 200 个文件。默认稳定化的相邻步复流量变化为 0.3694%、0.3659%、0.6522%，固定 τ 的独立时间细化给出 1.960 和 1.991 阶。两、四进程均与串行端点吻合。源提交 `f802fa3` 的 Release 增量检查和证据收据已通过。[数值 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/44724492072)
+[刚性管 PR #41](https://github.com/saitoasukakawaii/EONSim-new/pull/41) · [静压管壁 PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42) ·
+[数值、命令、失败记录与原始场](../research/data/womersley-2026-11-20/README.md)
+
 ## 2026-11-13 / CI-DEBUG-ON-DEMAND / 源码修改
 
 基线 main `f34658082644eb5238ee4cc651d71823fe5d1587`。发现 core-numerics 双模式测试、receipt.py 强制双模式、selection.py 双模式历史来源、agent 自动合并五项必需检查彼此关联；不能简单删除 Debug job。同步修改 Release-only PR、手动 Debug、收据复用和自动合并检查。未执行 PETSc/MPI 求解，CI 结果须读取实际工作流，不能从文件存在推断通过。

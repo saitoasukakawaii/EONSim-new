@@ -1,0 +1,200 @@
+{
+  "svfsi_source": "94a2ff5cab2ad9e89e9bf12e0de36eaaa9b85571",
+  "mesh_sha256": "84b4325b4a445e1b33af5faef998dc02526d9eaf0e06efd07fd810220f55669d",
+  "eon_sha256": "bd106b1b739969c43a686d8d1d677c2ad6133a37631de7a4ed707bc0dea7bf8a",
+  "svfsi_sha256": "730d31eaa2248751563f54be1e033a6ddb345f5360031e3cd182ed7561248ddf",
+  "runs": [
+    {
+      "steps": 16,
+      "convergence": [
+        9.8e-11,
+        0
+      ],
+      "max_flux_difference": 3.251128741221798e-10,
+      "max_vtu_face_flux_error": 1.3856103764364747e-15,
+      "max_boundary_text_difference": 9.999999970797258e-08,
+      "sv_capacitor_vs_exact_linear_flux_pa": 4.691517285770885e-09,
+      "sv_algebraic_pressure_error_pa": 4.500000000406956e-08,
+      "max_intercode_pressure_difference_pa": 0.0017867113667940464,
+      "eonsim": {
+        "max_pressure_error_pa": 0.0017326223496075335,
+        "complex_impedance": [
+          6.087117381558136,
+          -3.855723371609463
+        ],
+        "magnitude_error_fraction": -0.004835524064461083,
+        "phase_error_degrees": 0.2194091831387196
+      },
+      "svfsi": {
+        "max_pressure_error_pa": 0.0007134191069954471,
+        "complex_impedance": [
+          6.052762610492598,
+          -3.852195488147468
+        ],
+        "magnitude_error_fraction": -0.009102284836892016,
+        "phase_error_degrees": 0.09640125320514248
+      },
+      "deck_sha256": "1e0dad192ed56cb2131487d4f37887a38560a6e9d6ee5536b6cd54cb714d4610"
+    },
+    {
+      "steps": 32,
+      "convergence": [
+        8e-11,
+        0
+      ],
+      "max_flux_difference": 3.301960259036174e-10,
+      "max_vtu_face_flux_error": 6.168483557061552e-16,
+      "max_boundary_text_difference": 9.612302547500062e-08,
+      "sv_capacitor_vs_exact_linear_flux_pa": 5.693608801440875e-09,
+      "sv_algebraic_pressure_error_pa": 3.599999999492898e-08,
+      "max_intercode_pressure_difference_pa": 0.0005798136210167087,
+      "eonsim": {
+        "max_pressure_error_pa": 0.0005761551416174279,
+        "complex_impedance": [
+          6.09920926442112,
+          -3.8851918425374796
+        ],
+        "magnitude_error_fraction": -0.0012436255431373944,
+        "phase_error_degrees": 0.07343426918471611
+      },
+      "svfsi": {
+        "max_pressure_error_pa": 0.00017821910699544752,
+        "complex_impedance": [
+          6.089455578099239,
+          -3.8868607576793863
+        ],
+        "magnitude_error_fraction": -0.0022555317933399266,
+        "phase_error_degrees": 0.020709766413022197
+      },
+      "deck_sha256": "bf90c663e3d24708bd2856d1c4defbb3d2b68979ecce3acd72b506f99b7c0915"
+    },
+    {
+      "steps": 64,
+      "convergence": [
+        7.9e-11,
+        0
+      ],
+      "max_flux_difference": 4.663726332204687e-10,
+      "max_vtu_face_flux_error": 2.5934115965853266e-15,
+      "max_boundary_text_difference": 9.612302545765339e-08,
+      "sv_capacitor_vs_exact_linear_flux_pa": 5.183821885634821e-09,
+      "sv_algebraic_pressure_error_pa": 4.8999999995025245e-08,
+      "max_intercode_pressure_difference_pa": 0.00016498297218178965,
+      "eonsim": {
+        "max_pressure_error_pa": 0.00016474589395836653,
+        "complex_impedance": [
+          6.101285191438669,
+          -3.894367654791982
+        ],
+        "magnitude_error_fraction": -0.0003205344530402554,
+        "phase_error_degrees": 0.021002481643346466
+      },
+      "svfsi": {
+        "max_pressure_error_pa": 4.451910699544703e-05,
+        "complex_impedance": [
+          6.098717816076719,
+          -3.8951556777406875
+        ],
+        "magnitude_error_fraction": -0.0005608261327183506,
+        "phase_error_degrees": 0.004806430197413649
+      },
+      "deck_sha256": "e2ef84187f91a92ca18137c6b7dd9603e0c8e3f1e1fab368272e3c08e203c4ae"
+    },
+    {
+      "steps": 128,
+      "convergence": [
+        8.3e-11,
+        0
+      ],
+      "max_flux_difference": 4.680545603874542e-10,
+      "max_vtu_face_flux_error": 4.826000710167477e-15,
+      "max_boundary_text_difference": 9.853392222199803e-08,
+      "sv_capacitor_vs_exact_linear_flux_pa": 5.240600980949139e-09,
+      "sv_algebraic_pressure_error_pa": 5.0999999993972533e-08,
+      "max_intercode_pressure_difference_pa": 4.4920511465298876e-05,
+      "eonsim": {
+        "max_pressure_error_pa": 4.48604332418754e-05,
+        "complex_impedance": [
+          6.101695914246624,
+          -3.896938049382647
+        ],
+        "magnitude_error_fraction": -8.168251109608171e-05,
+        "phase_error_degrees": 0.0056047330855529135
+      },
+      "svfsi": {
+        "max_pressure_error_pa": 1.1140067949499954e-05,
+        "complex_impedance": [
+          6.101038869748864,
+          -3.897185067707035
+        ],
+        "magnitude_error_fraction": -0.0001397948497585677,
+        "phase_error_degrees": 0.001158161229518951
+      },
+      "deck_sha256": "9a7c8cf86d9061bda3b3532f2ce5cb1aab1e198b89390fcd0c0ac3b1591c913b"
+    },
+    {
+      "steps": 256,
+      "convergence": [
+        9.9e-11,
+        0
+      ],
+      "max_flux_difference": 4.680545603874542e-10,
+      "max_vtu_face_flux_error": 1.949829186997931e-15,
+      "max_boundary_text_difference": 9.853392220508447e-08,
+      "sv_capacitor_vs_exact_linear_flux_pa": 5.181025535677675e-09,
+      "sv_algebraic_pressure_error_pa": 4.700000001342519e-08,
+      "max_intercode_pressure_difference_pa": 1.1860010222315871e-05,
+      "eonsim": {
+        "max_pressure_error_pa": 1.1855797864975329e-05,
+        "complex_impedance": [
+          6.101785616400376,
+          -3.8976187463441745
+        ],
+        "magnitude_error_fraction": -2.063634645954604e-05,
+        "phase_error_degrees": 0.001447082949950881
+      },
+      "svfsi": {
+        "max_pressure_error_pa": 2.8191069954414116e-06,
+        "complex_impedance": [
+          6.101619653792694,
+          -3.897687088725169
+        ],
+        "magnitude_error_fraction": -3.4871822971682676e-05,
+        "phase_error_degrees": 0.00028431381546517224
+      },
+      "deck_sha256": "84ca4c1a67066d66a32aa90c42be1d8b5bb2bc0d91599f221d4f6aa472a43cbc"
+    },
+    {
+      "steps": 512,
+      "convergence": [
+        9.6e-11,
+        0
+      ],
+      "max_flux_difference": 4.940897326694005e-10,
+      "max_vtu_face_flux_error": 3.4685795902156258e-15,
+      "max_boundary_text_difference": 9.952205560700977e-08,
+      "sv_capacitor_vs_exact_linear_flux_pa": 5.093060022332008e-09,
+      "sv_algebraic_pressure_error_pa": 5.200000000385452e-08,
+      "max_intercode_pressure_difference_pa": 3.0470725476327773e-06,
+      "eonsim": {
+        "max_pressure_error_pa": 3.0464863516391216e-06,
+        "complex_impedance": [
+          6.101806449882764,
+          -3.8977939217194204
+        ],
+        "magnitude_error_fraction": -5.1874505969662366e-06,
+        "phase_error_degrees": 0.00036761636750024787
+      },
+      "svfsi": {
+        "max_pressure_error_pa": 7.38838693559174e-07,
+        "complex_impedance": [
+          6.101764738068187,
+          -3.897811850264245
+        ],
+        "magnitude_error_fraction": -8.709330395761938e-06,
+        "phase_error_degrees": 7.036426903166844e-05
+      },
+      "deck_sha256": "e74f54be4fb8277d5cb84c2279e9f60773fbc82c95eaef61ea25b652db081834"
+    }
+  ]
+}

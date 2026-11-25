@@ -1,0 +1,15 @@
+diff --git a/Code/Source/svFSI/READFILES.f b/Code/Source/svFSI/READFILES.f
+index 66ab790..9be7db7 100755
+--- a/Code/Source/svFSI/READFILES.f
++++ b/Code/Source/svFSI/READFILES.f
+@@ -1262,8 +1262,8 @@
+
+             lPtr =>lPL%get(lEq%FSILS%RI%absTol,"Absolute tolerance",
+      2         lb=0._RKIND,ub=1._RKIND)
+-            lEq%FSILS%GM%absTol = lEq%FSILS%RI%absTol
+-            lEq%FSILS%CG%absTol = lEq%FSILS%RI%absTol
++            lEq%FSILS%GM%absTol = 0.1_RKIND*lEq%FSILS%RI%absTol
++            lEq%FSILS%CG%absTol = 0.1_RKIND*lEq%FSILS%RI%absTol
+
+             lEq%FSILS%GM%sD = lEq%FSILS%RI%sD
+          END IF

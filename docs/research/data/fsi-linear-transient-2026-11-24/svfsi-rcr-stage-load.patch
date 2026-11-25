@@ -1,0 +1,32 @@
+diff --git a/Code/Source/svFSI/SETBC.f b/Code/Source/svFSI/SETBC.f
+index 5f30c45..45c58cb 100755
+--- a/Code/Source/svFSI/SETBC.f
++++ b/Code/Source/svFSI/SETBC.f
+@@ -957,7 +957,17 @@
+       DO iBc=1, eq(iEq)%nBc
+          iFa = eq(iEq)%bc(iBc)%iFa
+          ptr = eq(iEq)%bc(iBc)%cplBCptr
+-         IF (ptr .NE. 0) eq(iEq)%bc(iBc)%g = cplBC%fa(ptr)%y
++         IF (ptr .NE. 0) THEN
++            eq(iEq)%bc(iBc)%g = cplBC%fa(ptr)%y
++            IF (BTEST(eq(iEq)%bc(iBc)%bType,bType_RCR)) THEN
++!              Use the convex stage combination in the fluid traction.
++!              Keep the native capacitor and its endpoint output intact.
++               tmp = cplBC%xo(ptr) +
++     2            cplBC%fa(ptr)%RCR%Rp*cplBC%fa(ptr)%Qo
++               eq(iEq)%bc(iBc)%g = (1._RKIND - eq(iEq)%af)*tmp +
++     2            eq(iEq)%af*cplBC%fa(ptr)%y
++            END IF
++         END IF
+       END DO
+
+       RETURN
+@@ -1041,6 +1051,8 @@
+             END IF
+
+             eq(iEq)%bc(iBc)%r = (cplBC%fa(i)%y - orgY(i))/diff
++            IF (BTEST(eq(iEq)%bc(iBc)%bType,bType_RCR))
++     2         eq(iEq)%bc(iBc)%r = eq(iEq)%af*eq(iEq)%bc(iBc)%r
+
+             cplBC%fa(:)%y  = orgY
+             cplBC%fa(:)%Qn = orgQ

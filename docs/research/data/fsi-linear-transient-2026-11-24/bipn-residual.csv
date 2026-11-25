@@ -1,0 +1,11 @@
+case,mode,inner_absolute_floor,missed_with_both_block_norms_below_inner_absolute_floor,steps,linear_solves,reported_successes,true_successes,false_successes,negative_projected_squares,nonfinite_reported_norms,first_false_step,first_false_correction,first_false_true_norm_over_tolerance,worst_true_norm_over_tolerance,worst_step,max_true_over_tolerance_among_reported_successes,outer_iterations,identical_native_vtus,accepted_fsi_history,native_accepted,peak_rss_kib,cpu_s
+s24-r3-w2-a6-n32-arterial-bipn-85-100-native,observer,1e-23,,32,121,101,19,92,101,16,1,1,84.84017858488309,705.4260913584457,8,705.4260913584457,1751,True,False,False,73080,36.538923999999994
+s48-r4-w4-a6-n32-arterial-bipn-85-100-native,observer,1e-23,,32,148,121,17,117,120,9,1,1,74.88278601236686,1232.7218523696902,24,1232.7218523696902,3032,True,False,False,73180,236.75422
+s24-r3-w2-a6-n32-arterial-bipn-85-100-native,explicit,1e-23,10,32,120,105,105,0,80,0,,,,1.3822949119885388,16,0.7138624048272508,1564,,False,False,74036,33.793293
+s48-r4-w4-a6-n32-arterial-bipn-85-100-native,explicit,1e-23,13,32,129,110,110,0,97,0,,,,1.3392418857835278,26,0.9944725539784267,2550,,False,False,73580,197.705728
+s24-r3-w2-a6-n32-arterial-bipn-85-100-native,qr,1e-23,14,32,120,105,105,0,71,0,,,,1.3846865041790366,11,0.8271042259535347,2865,,False,False,74016,32.219311000000005
+s48-r4-w4-a6-n32-arterial-bipn-85-100-native,qr,1e-23,17,32,129,112,112,0,95,0,,,,1.2327262182970176,2,0.9997643335484948,3880,,False,False,74056,189.213855
+s24-r3-w2-a6-n32-arterial-bipn-85-100-native,explicit-floor,1e-24,0,32,120,120,120,0,75,0,,,,0.9228430541174785,2,0.9228430541174785,1540,,True,False,75080,34.050943000000004
+s48-r4-w4-a6-n32-arterial-bipn-85-100-native,explicit-floor,1e-24,0,32,129,129,129,0,98,0,,,,0.9869608901964666,20,0.9869608901964666,2492,,True,False,76504,190.70372600000002
+s24-r3-w2-a6-n32-arterial-bipn-85-100-native,qr-floor,1e-24,0,32,120,120,120,0,71,0,,,,0.9273608494352925,2,0.9273608494352925,1540,,True,False,75060,34.316531
+s48-r4-w4-a6-n32-arterial-bipn-85-100-native,qr-floor,1e-24,0,32,129,129,129,0,95,0,,,,0.9876150148918316,21,0.9876150148918316,2489,,True,False,76420,189.046785

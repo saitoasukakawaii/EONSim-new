@@ -3,6 +3,37 @@
 #include <cmath>
 #include <stdexcept>
 namespace eonsim {
+WallSupportBalance WallSupportFace::evaluate(const Tet4Vector::State<double>& reference_displacement,
+    const Tet4Vector::State<double>& velocity,double displacement_dt,SolidElement* assembly,bool compute_tangent) const
+{
+    Tri3Topology::Nodal<double> d{},v{};
+    for(int a=0;a<Tri3Topology::nodes;++a) {
+        for(int i=0;i<Space3::dimension;++i) {
+            const int row=Tet4Vector::dof(nodes[a],i);
+            d[a]+=geometry.normal[i]*reference_displacement[row];
+            v[a]+=geometry.normal[i]*velocity[row];
+        }
+        d[a]+=displacement_dt*v[a];
+    }
+    WallSupportBalance balance;
+    const double derivative=stiffness*displacement_dt+damping;
+    for(int a=0;a<Tri3Topology::nodes;++a) for(int b=0;b<Tri3Topology::nodes;++b) {
+        const double mass=geometry.area*Tri3Topology::mass_weight(a,b);
+        const double force=mass*(stiffness*d[b]+damping*v[b]);
+        balance.spring_energy+=.5*stiffness*mass*d[a]*d[b];
+        balance.dissipation+=damping*mass*v[a]*v[b];
+        balance.power_on_wall-=v[a]*force;
+        if(!assembly) continue;
+        for(int i=0;i<Space3::dimension;++i) {
+            const int row=Tet4Vector::dof(nodes[a],i);
+            assembly->residual[row]+=geometry.normal[i]*force;
+            if(compute_tangent) for(int j=0;j<Space3::dimension;++j)
+                assembly->tangent[Tet4Vector::matrix(row,Tet4Vector::dof(nodes[b],j))]
+                    +=mass*derivative*geometry.normal[i]*geometry.normal[j];
+        }
+    }
+    return balance;
+}
 SolidElement solid_element(const Tet4Geometry& g,const SolidParameters& p,
     const Tet4Vector::State<double>& x,const Tet4Vector::State<double>& dn,const Tet4Vector::State<double>& vn,bool compute_tangent)
 {

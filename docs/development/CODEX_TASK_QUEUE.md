@@ -1,5 +1,60 @@
 # EONSim Codex Task Queue
 
+## 2026-11-24 · 血管 FSI 后续验收
+
+1. **灌流管空间收敛。** 在 20 mm 直管保持轴向分辨率的同时加密入口边界层和圆周，复测流量、端面法向应力、近端面积与壁面储量。现有 48 个轴向单元已将出口传递振幅带到 81.20%，独立参考为 80.00%。[可复用的物性、流量与端口](../research/data/fsi-linear-transient-2026-11-24/perfusion.md)
+2. **分叉与出口。** 转入一般斜面上的可变面积出口、影像几何、初始预应力及更宽的雷诺数范围。固定斜面入口、三个坐标法轴上的可动出口、独立下游压力、理想化 T 分叉长时储量与恒流分配已有实测。[弯管](../research/data/fsi-rcr-2026-11-24/curved.md) · [出口运动](../research/data/fsi-rcr-2026-11-24/planar-outlets.md) · [分叉](../research/data/fsi-rcr-2026-11-24/branched.md)
+3. **并行规模。** 在至少两台物理节点上补充网格、迭代、最大进程内存和 I/O 随并行度的变化，核验跨分区续算。单机进程数、通信条件与各算例的规模已分开记录。[路线图](FSI_PRODUCTION_ROADMAP.md) · [求解器与预条件实测](../research/data/fsi-phase-costs-2026-11-24/pc-recipes.csv)
+4. **线性求解与并行退出。** 对 20 mm 两套随附网格，在更大分区上复核真实线性残量、每秩归约和实际进程退出状态，并继续定位多作业并发时的秩内信号。粗网格的 64 次线性修正与同网格直接解可逐步对照。[真实残量与求解选项](../research/data/fsi-linear-transient-2026-11-24/arterial-solvers.md)
+
+## 2026-11-24 · 弹性管加载瞬态
+
+已完成逐端面静压、法向应力、流量和功率输出，以及阶跃条件下 0.5/0.25/0.125 s 的同网格 EONSim–svFSI 对照。1 s 的最大截面差未随步长减小。下一项可独立验收的对照是让两程序施加相同的光滑升载，核对每一步实际施加的阶段压力并分别记录首步运动学、管腔体积和截面位移，再比较其余耦合离散。性能分项计时仍在队列中。[源码和结果](../research/data/fsi-pressure-faces-2026-11-24/README.md)
+
+## 2026-11-24 · 网站内容审阅
+
+优先核对[本次选编目录](../../website/drafts/README.md)中的四份编辑稿，以及学习栏目的 50 项源码表。请核查两套圆管计算的时间格式、移动域各误差的时间层、端到端计时范围与 P2 测试命令。其余 25 份草稿按同一目录中的合编方向接续。
+
+## 2026-11-24 · HPC 调研与 Tet4 黏性核
+
+- 本地已验证：基于 main `89a1a3d` 的数值提交 `4095e4b`，9 个定向 Release 检查。独立工作树内，PR #41 和 #42 的固定版本与此改动组合后，两项圆管回归通过。提交审阅时 #41 已合入主线。
+- 下一项数值任务：固定 #42 网格和阶段语义，解释静压阶跃早期响应。同步记录面平均静压、法向牵引、位移、外载功和默认/固定稳定化的影响。
+- 下一项性能任务：给当前弹性 FSI 分别报告流体及 ALE 切线、固体核、装配与 PC setup/apply 成本。候选 RCR 出口、Robin 支撑与多节点验收见[调研报告](../research/HPC_UPSTREAM_REVIEW_2026-11-24.md)。
+
+## FSI-PROD-02B / review / 2026-11-20
+
+Baseline `89a1a3d` includes the steady rigid-tube work from PR #38. This
+increment targets the low-frequency, pressure-driven Womersley flow in a rigid
+circular tube (R=1, L=2, rho=mu=1, alpha=2, sinusoidal pressure drop of
+amplitude 0.02 and zero mean). Use the existing component-split end conditions.
+Compare a full cycle of accepted endpoint fluxes against the complex analytical
+solution after startup. Target amplitude error <2%, phase error <2 degrees,
+waveform relative RMS error <3%, last-two-cycle maximum flow change <0.1% of
+reference amplitude and maximum net outward flux <1e-10. Check the default
+transient stabilization, time/mesh sensitivity, MPI and same-partition restart
+separately. For a rigid-wall cross-code check, use svFSI 2022.09.26 at
+`94a2ff5`, identical Tet4 connectivity, pressure waveform, end constraints,
+time step and generalized-alpha spectral radius zero. Compare the complex
+fundamental flow difference against 5% of the circular reference amplitude.
+The companion elastic-wall comparison is tracked in
+[PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42).
+
+For a time-discretization control, hold the 48/8/12 mesh and BDF2 fixed and
+compare successive first-harmonic differences on doubling the samples per
+cycle. Repeat with one spatially uniform `fluid.stabilization_tau = 0.003`.
+This value approximates the default coefficient at the mean cell volume, zero
+velocity and 64 samples per cycle. It is fixed before the control solves.
+Report the cycle-change floor alongside the differences. The default study
+changes the stabilization operator along with the time step.
+
+Local flow and rigid-wall svFSI gates passed on 48/8/12. The pressure trace,
+uniform-coefficient control and spatial refinement are documented as separate
+observations. The 48/12/18 mesh gives 0.7554% amplitude error and
+0.2097° phase error. On that mesh the inter-code complex flow difference
+is 1.3046%. The fixed-τ control gives phasor orders 1.960 and 1.991.
+[PR #41](https://github.com/saitoasukakawaii/EONSim-new/pull/41) ·
+[Inputs, measurements and replay](../research/data/womersley-2026-11-20/README.md)
+
 ## CI-DEBUG-ON-DEMAND / 2026-11-13
 
 - 执行范围：默认 Release 增量数值验证、手动 Debug、Release-only 收据及自动合并四项检查。
