@@ -29,7 +29,8 @@ FIXTURE_SHA256 = '662518aa06f1d9f3072c92910fcfd08c3788f0be8bf0875ec035ff6e0984fa
 GRIDS = {'coarse': ('s24-r3-w2-a6', 1, 1027, 'natural'),
          'fine': ('s48-r4-w4-a6', 2, 3024, 'rcm')}
 MODES = ('coupled_nodal', 'added_mass', 'added_mass_a11_onecycle',
-         'added_mass_nodal', 'twolevel_onecycle')
+         'added_mass_nodal', 'added_mass_fluid_onecycle',
+         'twolevel_iterative', 'twolevel_onecycle')
 TARGET = 'max(1e-23, 1e-10*rhs_norm)'
 MARGIN = 1.00001
 FIELD_LIMIT = 2e-6
@@ -56,24 +57,48 @@ def flags(mode, ordering):
               '-pc_plan_schur_approx', 'nodal',
               '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type', 'lower']
     if mode.startswith('added_mass'):
-        result += ['-pc_recipe', 'added_mass']
-        if mode == 'added_mass_nodal':
-            result += ['-pc_plan_structure_approx', 'nodal']
-        elif mode == 'added_mass_a11_onecycle':
-            result += ['-pc_plan_structure_approx', 'a11',
-                       '-fieldsplit_dynamics_fieldsplit_structure_ksp_type', 'preonly']
+        fluid = '-fieldsplit_dynamics_fieldsplit_fluid_'
+        structure = '-fieldsplit_dynamics_fieldsplit_structure_'
+        structural_cycle = mode in ('added_mass_nodal', 'added_mass_a11_onecycle')
+        # Freeze both response budgets explicitly so later production-default
+        # changes cannot silently change the controls or the feedback ablation.
+        result += ['-pc_recipe', 'added_mass',
+                   '-pc_plan_structure_approx', 'nodal' if mode == 'added_mass_nodal' else 'a11',
+                   fluid + 'ksp_type', 'preonly' if mode == 'added_mass_fluid_onecycle' else 'fgmres',
+                   fluid + 'ksp_rtol', '1e-4', fluid + 'ksp_max_it', '20',
+                   structure + 'ksp_type', 'preonly' if structural_cycle else 'fgmres',
+                   structure + 'ksp_rtol', '1e-2', structure + 'ksp_max_it', '20']
         return result
+    twolevel = mode.startswith('twolevel_')
     onecycle = mode == 'twolevel_onecycle'
     prefix = '-fieldsplit_dynamics_fieldsplit_velocity_'
     result += ['-pc_recipe', 'hybrid', '-pc_plan_velocity_solver',
-               'twolevel' if onecycle else 'coupled',
-               prefix + ('mg_levels_' if onecycle else '') +
+               'twolevel' if twolevel else 'coupled',
+               prefix + ('mg_levels_' if twolevel else '') +
                'sub_pc_factor_mat_ordering_type', ordering]
-    if onecycle:
-        result += [prefix + 'ksp_type', 'preonly',
+    if twolevel:
+        result += [prefix + 'ksp_type', 'preonly' if onecycle else 'fgmres',
+                   prefix + 'ksp_rtol', '1e-4', prefix + 'ksp_max_it', '20',
                    prefix + 'pc_mg_multiplicative_cycles', '1',
                    prefix + 'pc_mg_cycle_type', 'v']
     return result
+
+
+def expected_solvers(mode):
+    """Prefixes and actual KSP/PC types for each deliberately fixed response."""
+    if mode == 'direct':
+        return [('-', 'preonly', 'lu')]
+    if mode.startswith('added_mass'):
+        fluid = 'preonly' if mode == 'added_mass_fluid_onecycle' else 'fgmres'
+        structure = 'preonly' if mode in ('added_mass_nodal', 'added_mass_a11_onecycle') else 'fgmres'
+        return [('fieldsplit_dynamics_fieldsplit_fluid_', fluid, 'fieldsplit'),
+                ('fieldsplit_dynamics_fieldsplit_structure_', structure, 'gamg')]
+    if mode.startswith('twolevel_'):
+        return [('fieldsplit_dynamics_fieldsplit_velocity_',
+                 'preonly' if mode == 'twolevel_onecycle' else 'fgmres', 'mg')]
+    if mode == 'coupled_nodal':
+        return [('fieldsplit_dynamics_fieldsplit_velocity_', 'gmres', 'asm')]
+    raise ValueError(('unknown solver mode', mode))
 
 
 def copy_fixture(destination, grid):
@@ -234,18 +259,26 @@ def audit(text, steps, dofs, ranks, mode):
         require(all(math.isfinite(x) and x >= 0. for x in values), ('invalid timer', name))
         result[name] = sum(values)
     require(result['solver_nodes'], 'missing solver-node observations')
-    expected = {
-        'added_mass': ('fieldsplit_dynamics_fieldsplit_structure_', 'fgmres', 'gamg'),
-        'added_mass_a11_onecycle': ('fieldsplit_dynamics_fieldsplit_structure_', 'preonly', 'gamg'),
-        'added_mass_nodal': ('fieldsplit_dynamics_fieldsplit_structure_', 'preonly', 'gamg'),
-        'twolevel_onecycle': ('fieldsplit_dynamics_fieldsplit_velocity_', 'preonly', 'mg'),
-        'coupled_nodal': ('fieldsplit_dynamics_fieldsplit_velocity_', 'gmres', 'asm'),
-    }
-    if mode in expected:
-        prefix, ksp, pc = expected[mode]
-        leaves = [r['last'] for r in result['solver_nodes'] if r['prefix'] == prefix]
-        require(len(leaves) == ranks and all(r['ksp'] == ksp and r['pc'] == pc for r in leaves),
-                ('requested solver not observed', mode, leaves))
+    expected = {prefix: (ksp, pc) for prefix, ksp, pc in expected_solvers(mode)}
+    observations = {prefix: [0] * ranks for prefix in expected}
+    # Last-call summaries intentionally discard earlier observations. Validate
+    # the complete log separately so an early wrong type or a missing/duplicate
+    # rank observation cannot be hidden by a later correct snapshot.
+    for line in text.splitlines():
+        if not line.startswith('solver_node '):
+            continue
+        row = dict(re.findall(r'(\w+)=([^\s]+)', line))
+        prefix = row['prefix']
+        if prefix not in expected:
+            continue
+        rank = int(row['rank'])
+        require(0 <= rank < ranks, ('invalid requested-solver rank', mode, row))
+        require((row['ksp'], row['pc']) == expected[prefix],
+                ('requested solver type differs', mode, row))
+        observations[prefix][rank] += 1
+    for prefix, counts in observations.items():
+        require(counts == [steps] * ranks,
+                ('requested solver observation counts', mode, prefix, counts, steps))
     return result
 
 
