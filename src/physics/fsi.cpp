@@ -296,21 +296,60 @@ struct FsiAssemblyPlan {
                 throw std::runtime_error("Too many local FSI COO contributions for compact scatter indices");
             // Merge local duplicate coordinates once. The contribution sequence
             // stays unchanged; the numerical scatter below follows that sequence.
+            // Bucket by local row before sorting columns, avoiding a K-wide
+            // indirect coordinate sort. Owned rows are contiguous and the ghost
+            // suffix is sorted; repeated cell rows need only one lookup.
+            const auto& algebra=reduced.algebra;
+            const auto& local_to_global=algebra.local_to_global;
+            const auto ghost_begin=local_to_global.begin()+algebra.owned;
+            std::vector<std::size_t> row_offsets(local_to_global.size()+1,0);
+            PetscInt cached_row=-1,cached_local=-1;
+            for(auto& row:coo_rows) {
+                if(row!=cached_row||cached_local<0) {
+                    cached_row=row;
+                    if(row>=algebra.begin&&row-algebra.begin<algebra.owned) cached_local=row-algebra.begin;
+                    else {
+                        const auto found=std::lower_bound(ghost_begin,local_to_global.end(),row);
+                        if(found==local_to_global.end()||*found!=row)
+                            throw std::logic_error("Missing reduced row in FSI COO compaction");
+                        cached_local=static_cast<PetscInt>(found-local_to_global.begin());
+                    }
+                }
+                row=cached_local;
+                ++row_offsets[static_cast<std::size_t>(row)+1];
+            }
+            std::partial_sum(row_offsets.begin(),row_offsets.end(),row_offsets.begin());
             std::vector<std::uint32_t> order(coo_contributions);
-            std::iota(order.begin(),order.end(),std::uint32_t(0));
-            std::sort(order.begin(),order.end(),[&](std::uint32_t a,std::uint32_t b) {
-                return coo_rows[a]<coo_rows[b]||(coo_rows[a]==coo_rows[b]&&coo_columns[a]<coo_columns[b]);
+            {
+                auto cursor=row_offsets;
+                for(std::size_t i=0;i<coo_contributions;++i)
+                    order[cursor[static_cast<std::size_t>(coo_rows[i])]++]=static_cast<std::uint32_t>(i);
+            }
+            // The temporary contribution rows are now dead. Reuse their vector
+            // for unique global rows without retaining its K-entry allocation.
+            std::vector<PetscInt>().swap(coo_rows);
+            std::vector<std::size_t> row_order(local_to_global.size());
+            std::iota(row_order.begin(),row_order.end(),std::size_t(0));
+            std::sort(row_order.begin(),row_order.end(),[&](std::size_t a,std::size_t b) {
+                return local_to_global[a]<local_to_global[b];
             });
             value_slots.resize(coo_contributions);
-            std::vector<PetscInt> unique_rows,unique_columns;
-            for(const auto contribution:order) {
-                const auto row=coo_rows[contribution],column=coo_columns[contribution];
-                if(unique_rows.empty()||row!=unique_rows.back()||column!=unique_columns.back()) {
-                    unique_rows.push_back(row); unique_columns.push_back(column);
+            std::vector<PetscInt> unique_columns;
+            for(const auto row:row_order) {
+                const auto begin=row_offsets[row],end=row_offsets[row+1];
+                std::sort(order.begin()+begin,order.begin()+end,[&](std::uint32_t a,std::uint32_t b) {
+                    return coo_columns[a]<coo_columns[b];
+                });
+                for(auto k=begin;k<end;++k) {
+                    const auto contribution=order[k];
+                    const auto column=coo_columns[contribution];
+                    if(k==begin||column!=unique_columns.back()) {
+                        coo_rows.push_back(local_to_global[row]); unique_columns.push_back(column);
+                    }
+                    value_slots[contribution]=static_cast<std::uint32_t>(coo_rows.size()-1);
                 }
-                value_slots[contribution]=static_cast<std::uint32_t>(unique_rows.size()-1);
             }
-            coo_rows=std::move(unique_rows); coo_columns=std::move(unique_columns);
+            coo_columns=std::move(unique_columns);
             coo_entries=coo_rows.size();
         }
     }
