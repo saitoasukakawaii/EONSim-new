@@ -17,6 +17,7 @@ import signal
 import statistics
 import subprocess
 import sys
+import threading
 import time
 import xml.etree.ElementTree as ET
 
@@ -262,6 +263,7 @@ def main():
         source_script_sha256=digest(__file__), threads_per_rank=1, candidate_options=args.candidate_options,
         field_absolute_limit=FIELD_LIMIT, linear_gate='1e-12 + 1e-10 * rhs_norm',
         timer_scope='Per-step maximum-rank timers may overlap; wall includes startup, output and shutdown.',
+        wall_clock='Blocking child wait with an independent timeout watchdog; no timeout polling in the measured wait.',
         petsc_event_logging=args.petsc_log, binaries={}, commands=[], cases=[], runs=[], pairs=[])
     for mode, path in binaries.items():
         result['binaries'][mode] = dict(path=str(path), sha256=digest(path),
@@ -284,22 +286,47 @@ def main():
         with (work/record['log']).open('w') as stream:
             process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=stream,
                                        stderr=subprocess.STDOUT, start_new_session=True)
-            try:
-                record['returncode'] = process.wait(timeout=timeout)
-            except BaseException as exc:
-                record['timeout'] = isinstance(exc, subprocess.TimeoutExpired)
+            expired = threading.Event()
+
+            def stop_group():
                 try:
                     os.killpg(process.pid, signal.SIGTERM)
                 except ProcessLookupError:
-                    pass
+                    return
                 try:
                     process.wait(timeout=5)
                 except subprocess.TimeoutExpired:
+                    pass
+                # Also retire descendants if the MPI launcher exited first.
+                try:
                     os.killpg(process.pid, signal.SIGKILL)
-                    process.wait()
-                record['returncode'] = process.returncode
+                except ProcessLookupError:
+                    pass
+                process.wait()
+
+            def deadline():
+                if process.poll() is None:
+                    expired.set()
+                    stop_group()
+
+            # Popen.wait(timeout=...) polls on POSIX and quantizes short wall
+            # measurements. A watchdog keeps the limit without polling the
+            # successful command; its cleanup waits run only on failure.
+            watchdog = threading.Timer(timeout, deadline)
+            watchdog.daemon = True
+            watchdog.start()
+            try:
+                record['returncode'] = process.wait()
+                if expired.is_set():
+                    raise subprocess.TimeoutExpired(command, timeout)
+            except BaseException:
+                stop_group()
                 raise
             finally:
+                watchdog.cancel()
+                watchdog.join()
+                record['returncode'] = process.returncode
+                record['timeout'] = expired.is_set()
                 record['seconds'] = time.perf_counter()-begin
                 save()
         require(record['returncode'] == 0, ('Command failed', record))
