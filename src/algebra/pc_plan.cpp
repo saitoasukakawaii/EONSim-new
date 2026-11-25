@@ -55,6 +55,38 @@ PcBlock build(MPI_Comm comm,const AlgebraLayout& layout,const Spec& spec,
                  "children must cover parent exactly once at "+spec.name);
     return node;
 }
+void option_default(const std::string& name,const char* value) {
+    PetscBool found=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,name.c_str(),&found));
+    if(!found) EONSIM_PETSC(PetscOptionsSetValue(nullptr,name.c_str(),value));
+}
+// Options select topology collectively, before creating any nested PETSc objects.
+bool coupled_velocity_requested(MPI_Comm comm) {
+    char value[32]="split";
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_velocity_solver",value,sizeof(value),nullptr));
+    const std::string name(value);
+    int local=name=="split"?1:name=="coupled"?2:0,lo=0,hi=0;
+    MPI_Allreduce(&local,&lo,1,MPI_INT,MPI_MIN,comm);
+    MPI_Allreduce(&local,&hi,1,MPI_INT,MPI_MAX,comm);
+    common_check(comm,lo==hi&&lo!=0,"velocity solver must be split or coupled and identical on every rank");
+    return local==2;
+}
+// Keep the full fluid/solid momentum block, including off-diagonal interface terms.
+// Flexible outer GMRES accommodates an inexact inner GMRES with bounded work.
+void coupled_velocity_defaults(KSP ksp) {
+    PC pc; EONSIM_PETSC(KSPGetPC(ksp,&pc));
+    EONSIM_PETSC(KSPSetType(ksp,KSPGMRES));
+    EONSIM_PETSC(KSPSetTolerances(ksp,1e-4,PETSC_DEFAULT,PETSC_DEFAULT,20));
+    EONSIM_PETSC(PCSetType(pc,PCASM));
+    EONSIM_PETSC(PCASMSetOverlap(pc,1));
+    const char* prefix=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(ksp,&prefix));
+    const std::string base="-"+std::string(prefix?prefix:"");
+    option_default(base+"sub_ksp_type","preonly");
+    option_default(base+"sub_pc_type","ilu");
+    option_default(base+"sub_pc_factor_levels","1");
+    option_default(base+"sub_pc_factor_mat_ordering_type","rcm");
+    EONSIM_PETSC(KSPSetFromOptions(ksp));
+}
 void defaults(KSP ksp) {
     PC pc; EONSIM_PETSC(KSPGetPC(ksp,&pc));
     EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCGAMG));
@@ -94,7 +126,8 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,bool root,bool schur_pa
         if(node.global==1 || (node.name=="pressure"&&!schur_parent)) {
             EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCJACOBI));
             EONSIM_PETSC(KSPSetFromOptions(ksp));
-        } else defaults(ksp);
+        } else if(node.name=="velocity"&&coupled_velocity_requested(comm)) coupled_velocity_defaults(ksp);
+        else defaults(ksp);
         return;
     }
     if(!root) EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY));
@@ -155,12 +188,14 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
     MPI_Allreduce(local,global,3,MPI_INT,MPI_SUM,comm);
     const bool coupled=global[1]||global[2];
     common_check(comm,global[0]>0&&(!coupled||(global[1]>0&&global[2]>0)),"recipes require independent fluid or complete FSI layout");
+    const bool combined=coupled_velocity_requested(comm);
+    common_check(comm,!combined||(coupled&&choice!=1),"coupled velocity requires a complete FSI quantity or hybrid recipe");
     Spec v{"velocity",4}, p{"pressure",5}, mesh{"mesh",3}, solid{"structure",2}, fluid{"fluid_interior",1};
     Spec root{"root",0};
     if(!coupled) { root.schur=true; root.children={v,p}; }
     else if(choice==1) root.children={{"fluid",1,true,{v,p}},{"solid",2},mesh};
     else {
-        v.children={fluid,solid};
+        if(!combined) v.children={fluid,solid};
         if(choice==2) root.children={v,p,mesh};
         else root.children={{"dynamics",6,true,{v,p}},mesh};
     }
