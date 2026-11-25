@@ -1,5 +1,9 @@
 #include "eonsim/pc_plan.hpp"
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <limits>
+#include <memory>
 #include <numeric>
 #include <set>
 #include <sstream>
@@ -55,6 +59,161 @@ PcBlock build(MPI_Comm comm,const AlgebraLayout& layout,const Spec& spec,
                  "children must cover parent exactly once at "+spec.name);
     return node;
 }
+void option_default(const std::string& name,const char* value) {
+    PetscBool found=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,name.c_str(),&found));
+    if(!found) EONSIM_PETSC(PetscOptionsSetValue(nullptr,name.c_str(),value));
+}
+// Options select topology collectively, before creating any nested PETSc objects.
+bool coupled_velocity_requested(MPI_Comm comm) {
+    char value[32]{}; PetscBool set=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_velocity_solver",value,sizeof(value),&set));
+    const std::string name=set?value:"split";
+    int local=name=="split"?1:name=="coupled"?2:0,lo=0,hi=0;
+    MPI_Allreduce(&local,&lo,1,MPI_INT,MPI_MIN,comm);
+    MPI_Allreduce(&local,&hi,1,MPI_INT,MPI_MAX,comm);
+    common_check(comm,lo==hi&&lo!=0,"velocity solver must be split or coupled and identical on every rank");
+    return local==2;
+}
+bool nodal_schur_requested(MPI_Comm comm) {
+    char value[32]{}; PetscBool set=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_schur_approx",value,sizeof(value),&set));
+    const std::string name=set?value:"diagonal";
+    int local=name=="diagonal"?1:name=="nodal"?2:0,lo=0,hi=0;
+    MPI_Allreduce(&local,&lo,1,MPI_INT,MPI_MIN,comm);
+    MPI_Allreduce(&local,&hi,1,MPI_INT,MPI_MAX,comm);
+    common_check(comm,lo==hi&&lo!=0,"Schur approximation must be diagonal or nodal and identical on every rank");
+    return local==2;
+}
+// Canonical node ownership keeps all active components of a group on one rank.
+// Domain/kind/space/mode distinguish different entities sharing a numeric ID.
+void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,bool combined,bool nodal) {
+    node.nodal_schur=node.schur&&nodal;
+    if(node.name=="velocity") {
+        node.coupled_velocity=combined&&node.children.empty();
+        if(nodal) {
+            std::map<DofKey,std::vector<PetscInt>> groups;
+            for(std::size_t i=0;i<node.root_rows.size();++i) {
+                auto key=layout.owned_semantics.at(node.root_rows[i]-layout.begin);
+                key.component=0;
+                groups[key].push_back(node.begin+static_cast<PetscInt>(i));
+            }
+            bool valid=true;
+            for(auto& group:groups) {
+                valid=valid&&!group.second.empty()&&group.second.size()<=3;
+                node.velocity_groups.push_back(std::move(group.second));
+            }
+            common_check(comm,valid,"nodal velocity blocks must contain one to three active components");
+        }
+    }
+    for(auto& child:node.children) decorate(comm,layout,child,combined,nodal);
+}
+// Invert only a 1--3 component local block, using pivoted elimination.
+// The inverse is needed for sparse matrix products, never for the physical solve.
+bool invert_small(PetscInt n,std::array<PetscScalar,9>& a,std::array<PetscScalar,9>& h) {
+    double scale=0;
+    for(PetscInt i=0;i<n*n;++i) {
+        if(!std::isfinite(a[i])) return false;
+        scale=std::max(scale,std::abs(a[i]));
+    }
+    if(!(scale>0)) return false;
+    h.fill(0);
+    for(PetscInt i=0;i<n;++i) h[i*n+i]=1.;
+    for(PetscInt k=0;k<n;++k) {
+        PetscInt pivot=k;
+        for(PetscInt i=k+1;i<n;++i) if(std::abs(a[i*n+k])>std::abs(a[pivot*n+k])) pivot=i;
+        if(std::abs(a[pivot*n+k])<=32*std::numeric_limits<double>::epsilon()*scale) return false;
+        for(PetscInt j=0;j<n;++j) {
+            std::swap(a[k*n+j],a[pivot*n+j]);
+            std::swap(h[k*n+j],h[pivot*n+j]);
+        }
+        const double diagonal=a[k*n+k];
+        for(PetscInt j=0;j<n;++j) { a[k*n+j]/=diagonal; h[k*n+j]/=diagonal; }
+        for(PetscInt i=0;i<n;++i) if(i!=k) {
+            const double factor=a[i*n+k];
+            for(PetscInt j=0;j<n;++j) { a[i*n+j]-=factor*a[k*n+j]; h[i*n+j]-=factor*h[k*n+j]; }
+        }
+    }
+    return std::all_of(h.begin(),h.begin()+n*n,[](double v){return std::isfinite(v);});
+}
+// The root graph and index sets are immutable for a NonlinearSystem. Retain
+// the same USER preconditioning Mat for PETSc and reuse symbolic products.
+struct NodalSchur {
+    MPI_Comm comm;
+    PetscOwner<IS,ISDestroy> velocity,pressure;
+    PetscOwner<Mat,MatDestroy> a,b,c,d,h,hb,chb,p;
+    std::vector<std::vector<PetscInt>> groups;
+    NodalSchur(MPI_Comm communicator,const PcBlock& node):comm(communicator),groups(node.children.at(0).velocity_groups) {
+        const auto& v=node.children.at(0).root_rows;
+        const auto& q=node.children.at(1).root_rows;
+        EONSIM_PETSC(ISCreateGeneral(comm,v.size(),v.data(),PETSC_COPY_VALUES,velocity.put()));
+        EONSIM_PETSC(ISCreateGeneral(comm,q.size(),q.data(),PETSC_COPY_VALUES,pressure.put()));
+    }
+    void update(Mat root) {
+        const bool first=!a.get();
+        const MatReuse reuse=first?MAT_INITIAL_MATRIX:MAT_REUSE_MATRIX;
+        EONSIM_PETSC(MatCreateSubMatrix(root,velocity.get(),velocity.get(),reuse,a.put()));
+        EONSIM_PETSC(MatCreateSubMatrix(root,velocity.get(),pressure.get(),reuse,b.put()));
+        EONSIM_PETSC(MatCreateSubMatrix(root,pressure.get(),velocity.get(),reuse,c.put()));
+        EONSIM_PETSC(MatCreateSubMatrix(root,pressure.get(),pressure.get(),reuse,d.put()));
+        PetscInt begin,end,global,columns;
+        EONSIM_PETSC(MatGetOwnershipRange(a.get(),&begin,&end));
+        EONSIM_PETSC(MatGetSize(a.get(),&global,&columns));
+        std::vector<PetscInt> counts(end-begin,0);
+        bool valid=global==columns;
+        std::vector<std::array<PetscScalar,9>> inverses(groups.size());
+        for(std::size_t i=0;i<groups.size();++i) {
+            const auto& rows=groups[i];
+            const PetscInt n=static_cast<PetscInt>(rows.size());
+            bool local=n>=1&&n<=3;
+            for(auto row:rows) local=local&&row>=begin&&row<end;
+            if(!local) { valid=false; continue; }
+            for(auto row:rows) {valid=valid&&counts[row-begin]==0; counts[row-begin]=n;}
+            std::array<PetscScalar,9> values{};
+            EONSIM_PETSC(MatGetValues(a.get(),n,rows.data(),n,rows.data(),values.data()));
+            if(!invert_small(n,values,inverses[i])) valid=false;
+        }
+        valid=valid&&std::all_of(counts.begin(),counts.end(),[](PetscInt n){return n>0;});
+        common_check(comm,valid,"singular, nonfinite or incomplete nodal velocity block");
+        if(first) {
+            EONSIM_PETSC(MatCreateAIJ(comm,end-begin,end-begin,global,global,0,counts.data(),0,nullptr,h.put()));
+            EONSIM_PETSC(MatSetOption(h.get(),MAT_IGNORE_ZERO_ENTRIES,PETSC_FALSE));
+        } else EONSIM_PETSC(MatZeroEntries(h.get()));
+        for(std::size_t i=0;i<groups.size();++i) {
+            const auto& rows=groups[i]; const PetscInt n=static_cast<PetscInt>(rows.size());
+            EONSIM_PETSC(MatSetValues(h.get(),n,rows.data(),n,rows.data(),inverses[i].data(),INSERT_VALUES));
+        }
+        EONSIM_PETSC(MatAssemblyBegin(h.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatAssemblyEnd(h.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatMatMult(h.get(),b.get(),reuse,PETSC_DEFAULT,hb.put()));
+        EONSIM_PETSC(MatMatMult(c.get(),hb.get(),reuse,PETSC_DEFAULT,chb.put()));
+        if(first) {
+            EONSIM_PETSC(MatDuplicate(chb.get(),MAT_COPY_VALUES,p.put()));
+            EONSIM_PETSC(MatScale(p.get(),-1.));
+            EONSIM_PETSC(MatAXPY(p.get(),1.,d.get(),DIFFERENT_NONZERO_PATTERN));
+        } else {
+            EONSIM_PETSC(MatZeroEntries(p.get()));
+            EONSIM_PETSC(MatAXPY(p.get(),-1.,chb.get(),SUBSET_NONZERO_PATTERN));
+            EONSIM_PETSC(MatAXPY(p.get(),1.,d.get(),SUBSET_NONZERO_PATTERN));
+        }
+    }
+};
+// Keep the full fluid/solid momentum block, including off-diagonal interface terms.
+// Flexible outer GMRES accommodates an inexact inner GMRES with bounded work.
+void coupled_velocity_defaults(KSP ksp) {
+    PC pc; EONSIM_PETSC(KSPGetPC(ksp,&pc));
+    EONSIM_PETSC(KSPSetType(ksp,KSPGMRES));
+    EONSIM_PETSC(KSPSetTolerances(ksp,1e-4,PETSC_DEFAULT,PETSC_DEFAULT,20));
+    EONSIM_PETSC(PCSetType(pc,PCASM));
+    EONSIM_PETSC(PCASMSetOverlap(pc,1));
+    const char* prefix=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(ksp,&prefix));
+    const std::string base="-"+std::string(prefix?prefix:"");
+    option_default(base+"sub_ksp_type","preonly");
+    option_default(base+"sub_pc_type","ilu");
+    option_default(base+"sub_pc_factor_levels","1");
+    option_default(base+"sub_pc_factor_mat_ordering_type","rcm");
+    EONSIM_PETSC(KSPSetFromOptions(ksp));
+}
 void defaults(KSP ksp) {
     PC pc; EONSIM_PETSC(KSPGetPC(ksp,&pc));
     EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCGAMG));
@@ -71,7 +230,8 @@ void defaults(KSP ksp) {
     EONSIM_PETSC(KSPSetFromOptions(ksp));
 }
 struct SubSolvers { KSP* values=nullptr; ~SubSolvers(){ PetscFree(values); } };
-void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,bool root,bool schur_parent=false) {
+void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchurUpdates* updates,
+               bool root,bool schur_parent=false) {
     Mat a=nullptr; EONSIM_PETSC(KSPGetOperators(ksp,&a,nullptr));
     PetscInt m=0,n=0,begin=0,end=0;
     EONSIM_PETSC(MatGetSize(a,&m,&n)); EONSIM_PETSC(MatGetOwnershipRange(a,&begin,&end));
@@ -94,7 +254,8 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,bool root,bool schur_pa
         if(node.global==1 || (node.name=="pressure"&&!schur_parent)) {
             EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCJACOBI));
             EONSIM_PETSC(KSPSetFromOptions(ksp));
-        } else defaults(ksp);
+        } else if(node.coupled_velocity) coupled_velocity_defaults(ksp);
+        else defaults(ksp);
         return;
     }
     if(!root) EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY));
@@ -102,7 +263,13 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,bool root,bool schur_pa
     EONSIM_PETSC(PCFieldSplitSetType(pc,node.schur?PC_COMPOSITE_SCHUR:PC_COMPOSITE_MULTIPLICATIVE));
     if(node.schur) {
         EONSIM_PETSC(PCFieldSplitSetSchurFactType(pc,PC_FIELDSPLIT_SCHUR_FACT_FULL));
-        EONSIM_PETSC(PCFieldSplitSetSchurPre(pc,PC_FIELDSPLIT_SCHUR_PRE_SELFP,nullptr));
+        if(node.nodal_schur) {
+            common_check(comm,updates!=nullptr,"nodal Schur requires live numeric refresh state");
+            auto state=std::make_shared<NodalSchur>(comm,node);
+            state->update(root_matrix);
+            EONSIM_PETSC(PCFieldSplitSetSchurPre(pc,PC_FIELDSPLIT_SCHUR_PRE_USER,state->p.get()));
+            updates->refreshers.push_back([state](Mat matrix){state->update(matrix);});
+        } else EONSIM_PETSC(PCFieldSplitSetSchurPre(pc,PC_FIELDSPLIT_SCHUR_PRE_SELFP,nullptr));
     }
     for(const auto& child:node.children) {
         PetscOwner<IS,ISDestroy> is;
@@ -131,7 +298,7 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,bool root,bool schur_pa
     PetscInt count=0; SubSolvers sub;
     EONSIM_PETSC(PCFieldSplitGetSubKSP(pc,&count,&sub.values));
     common_check(comm,count==static_cast<PetscInt>(node.children.size()),"subsolver count changed at "+node.name);
-    for(PetscInt i=0;i<count;++i) configure(comm,sub.values[i],node.children[i],false,node.schur);
+    for(PetscInt i=0;i<count;++i) configure(comm,sub.values[i],node.children[i],root_matrix,updates,false,node.schur);
 }
 }
 PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string& recipe) {
@@ -155,17 +322,22 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
     MPI_Allreduce(local,global,3,MPI_INT,MPI_SUM,comm);
     const bool coupled=global[1]||global[2];
     common_check(comm,global[0]>0&&(!coupled||(global[1]>0&&global[2]>0)),"recipes require independent fluid or complete FSI layout");
+    const bool combined=coupled_velocity_requested(comm),nodal=nodal_schur_requested(comm);
+    common_check(comm,!nodal||!coupled||choice!=2,"nodal Schur requires a recipe with a pressure Schur block");
+    common_check(comm,!combined||(coupled&&choice!=1),"coupled velocity requires a complete FSI quantity or hybrid recipe");
     Spec v{"velocity",4}, p{"pressure",5}, mesh{"mesh",3}, solid{"structure",2}, fluid{"fluid_interior",1};
     Spec root{"root",0};
     if(!coupled) { root.schur=true; root.children={v,p}; }
     else if(choice==1) root.children={{"fluid",1,true,{v,p}},{"solid",2},mesh};
     else {
-        v.children={fluid,solid};
+        if(!combined) v.children={fluid,solid};
         if(choice==2) root.children={v,p,mesh};
         else root.children={{"dynamics",6,true,{v,p}},mesh};
     }
     std::vector<PetscInt> rows(layout.owned); std::iota(rows.begin(),rows.end(),layout.begin);
-    return build(comm,layout,root,rows,rows);
+    auto plan=build(comm,layout,root,rows,rows);
+    decorate(comm,layout,plan,combined,nodal);
+    return plan;
 }
 namespace {
 void validate_options(MPI_Comm comm,const PcBlock& node,const std::string& prefix,const std::vector<std::string>& tokens) {
@@ -178,6 +350,15 @@ void validate_options(MPI_Comm comm,const PcBlock& node,const std::string& prefi
         common_check(comm,!set||value==option.second,"options changed recipe at "+prefix+option.first);
     }
     bool valid=true;
+    if(node.nodal_schur) {
+        char value[32]{}; PetscBool set=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+"pc_fieldsplit_schur_precondition").c_str(),value,sizeof(value),&set));
+        common_check(comm,!set||std::string(value)=="user","nodal Schur conflicts with a different Schur preconditioner at "+prefix);
+        for(const auto& token:tokens)
+            if(token==base+"fieldsplit_"+node.children[1].name+"_mat_schur_complement_ainv_type")
+                valid=false;
+        common_check(comm,valid,"nodal Schur conflicts with PETSc native A-inverse approximation at "+prefix);
+    }
     if(node.schur) {
         const auto second=base+"fieldsplit_"+node.children[1].name;
         for(const auto& token:tokens)
@@ -195,9 +376,10 @@ void validate_pc_plan_options(MPI_Comm comm,KSP solver,const PcBlock& plan) {
     const char* prefix=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(solver,&prefix));
     validate_options(comm,plan,prefix?prefix:"",tokens);
 }
-void configure_pc_plan(MPI_Comm comm,KSP solver,Mat matrix,const PcBlock& plan) {
+void configure_pc_plan(MPI_Comm comm,KSP solver,Mat matrix,const PcBlock& plan,PcSchurUpdates* updates) {
     validate_pc_plan_options(comm,solver,plan);
+    common_check(comm,!updates||updates->refreshers.empty(),"PC plan numeric state must be fresh");
     EONSIM_PETSC(KSPSetOperators(solver,matrix,matrix));
-    configure(comm,solver,plan,true);
+    configure(comm,solver,plan,matrix,updates,true);
 }
 }

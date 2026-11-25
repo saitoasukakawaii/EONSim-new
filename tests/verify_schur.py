@@ -197,6 +197,38 @@ def main():
                                 max_field_error=error, physical=actual_physics,
                                 direct_physical=expected_physics, linear_iterations=iterations))
             print(name, ranks, 'max_error', error, 'linear_iterations', iterations, flush=True)
+            # Additional opt-in recipe: use the very same direct reference and
+            # partition. Keep the baseline recipe checks above unchanged.
+            if a.recipe and ranks == 2 and not name.startswith('flow'):
+                flags = ['-pc_recipe', a.recipe, '-ksp_rtol', '1e-10',
+                         '-ksp_atol', '1e-13', '-ksp_max_it', '1500']
+                if a.recipe in ('physics', 'hybrid'):
+                    flags += ['-pc_plan_schur_approx', 'nodal']
+                    prefix = 'fluid' if a.recipe == 'physics' else 'dynamics'
+                    flags += [f'-fieldsplit_{prefix}_pc_fieldsplit_schur_fact_type', 'lower']
+                if a.recipe in ('quantity', 'hybrid'):
+                    flags += ['-pc_plan_velocity_solver', 'coupled']
+                improved = a.work / f'{name}_improved{ranks}.vtu'
+                improved_text = run([a.mpiexec, '-n', ranks, a.executable, '-case', case,
+                                     '-partition', part, '-output', improved,
+                                     '-linear_report', *flags])
+                (a.work / f'{name}_improved{ranks}.log').write_text(improved_text)
+                compare_physics(expected_physics, physical_records(improved_text))
+                improved_error = compare(expected, fields(improved, ranks))
+                if solid:
+                    improved_error = max(improved_error, compare(expected_solid,
+                        fields(improved.with_stem(improved.stem+'_solid'), ranks)))
+                checks = [dict(item.split('=', 1) for item in line.split()[1:])
+                          for line in improved_text.splitlines() if line.startswith('linear_residual ')]
+                assert checks and 'linear_residual_unavailable' not in improved_text
+                for residual in checks:
+                    norm, rhs = float(residual['norm']), float(residual['rhs_norm'])
+                    assert math.isfinite(norm) and norm <= 1e-8 + 1e-7 * rhs, residual
+                results.append(dict(case=name, ranks=ranks, recipe=a.recipe+'-improved',
+                                    max_field_error=improved_error,
+                                    linear_corrections=len(checks), flags=flags))
+                print(name, ranks, a.recipe+'-improved', 'max_error', improved_error, flush=True)
+
         if name == 'domains':
             fd = a.work / 'domains_fd.vtu'
             run([a.executable, '-case', case, '-output', fd, '-fsi_fd_tangent'])

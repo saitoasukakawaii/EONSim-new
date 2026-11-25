@@ -5,8 +5,14 @@ import cmath
 import csv
 import json
 import math
+import os
 from pathlib import Path
 import re
+import hashlib
+import statistics
+import subprocess
+import tarfile
+import time
 import xml.etree.ElementTree as ET
 from verify_fsi_inlet import Runner, check_rcr_history, error
 from generate_tube import generate
@@ -110,6 +116,17 @@ def verify_rcr(run, base):
     assert error(iterative,ref)<2e-8
     report['jacobian_relative_error'] = max(ratios)
     report['hybrid_field_error'] = error(iterative,ref)
+    # Compare the reconstructed node-block Schur/coupled momentum path with
+    # the existing two-step direct reference, including the RCR pressure DOF.
+    improved_flags = ['-pc_recipe','hybrid','-pc_plan_schur_approx','nodal',
+                      '-pc_plan_velocity_solver','coupled',
+                      '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type','lower',
+                      '-ksp_rtol','1e-10','-ksp_max_it','1500']
+    improved, improved_rows, _ = run.solve('rcr-nodal-coupled',cfg,2,[*improved_flags,'-stop_after',2])
+    check_rcr_history(run,'rcr-nodal-coupled',model,improved_rows)
+    assert error(improved,ref)<2e-8
+    report['nodal_coupled_field_error'] = error(improved,ref)
+
     changed=copy.deepcopy(cfg)
     changed['fsi']['domains']['rcr_outlet']['compliance']*=1.2
     run.solve('rcr-changed',changed,2,['-restart',checkpoint],fail='Checkpoint mesh/partition/physics mismatch')
@@ -296,6 +313,234 @@ def verify_tube(run, base, work):
     return report
 
 
+# Dimensioned 20 mm tube campaign. The input tarball is the immutable fixture
+# already used by the historical arterial study; no regenerated geometry,
+# changed physics, or historical timing receipts enter the new comparison.
+def verify_arterial_block(executable, mpiexec, work):
+    root = Path(__file__).resolve().parents[1]
+    archive = root/'docs/research/data/fsi-linear-transient-2026-11-24/arterial-inputs.tar.xz'
+    work = work.resolve()
+    work.mkdir(parents=True, exist_ok=True)
+    digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+    env = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1',
+               MKL_NUM_THREADS='1', OMPI_MCA_pml='ob1', OMPI_MCA_btl='self,sm,tcp')
+    exe, mpi = str(Path(executable).resolve()), str(Path(mpiexec).resolve())
+    summary = dict(input_sha256=digest(archive), executable_sha256=digest(exe),
+                   target='max(1e-23, 1e-10*rhs_norm)', tolerance_margin=1.00001,
+                   field_relative_peak_limit=2e-6, cases=[], failures=[])
+
+    def launch(command, cwd, log):
+        t0 = time.monotonic()
+        with log.open('w') as out:
+            proc = subprocess.run(list(map(str,command)), cwd=cwd, env=env,
+                                  stdout=out, stderr=subprocess.STDOUT, timeout=130)
+        return proc.returncode, time.monotonic()-t0
+
+    def options(mode, ordering):
+        if mode == 'direct':
+            return ['-ksp_type','preonly','-pc_type','lu','-pc_factor_mat_solver_type','mumps']
+        # Same physical acceptance and independently recomputed target for all
+        # candidates. Internal stopping margin is tighter, not a relaxed gate.
+        outer = ['-ksp_pc_side','right','-ksp_norm_type','unpreconditioned',
+                 '-ksp_rtol','5e-11','-ksp_atol','5e-24','-ksp_max_it','3000',
+                 '-ksp_gmres_restart','100','-ksp_gmres_modifiedgramschmidt']
+        if mode == 'physics_lower':
+            outer += ['-pc_recipe','physics','-fieldsplit_fluid_pc_fieldsplit_schur_fact_type','lower']
+            for prefix, limit in [('fieldsplit_fluid_fieldsplit_velocity',10),('fieldsplit_solid',12)]:
+                outer += ['-'+prefix+'_ksp_type','gmres','-'+prefix+'_ksp_rtol','1e-4',
+                          '-'+prefix+'_ksp_max_it',str(limit)]
+            return outer
+        approx = mode.split('_')[-1]
+        return outer + ['-pc_recipe','hybrid','-pc_plan_schur_approx',approx,
+                        '-pc_plan_velocity_solver','coupled',
+                        '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type','lower',
+                        '-fieldsplit_dynamics_fieldsplit_velocity_sub_pc_factor_mat_ordering_type',ordering]
+
+    def read_fields(directory, stem, ranks, names):
+        fields = {name:{} for name in names}
+        for rank in range(ranks):
+            path = directory/(stem+(f'_rank{rank}' if ranks>1 else '')+'.vtu')
+            arrays = {a.attrib['Name']: (a.text or '').split()
+                      for a in ET.parse(path).findall('.//PointData/DataArray')}
+            ids = [int(v) for v in arrays['mesh_node_id']]
+            owners = [int(v) for v in arrays['owner']]
+            assert ids and len(ids)==len(owners), path
+            for name in names:
+                values = [float(v) for v in arrays[name]]
+                components, remainder = divmod(len(values),len(ids))
+                assert components in (1,3) and remainder==0, (path,name)
+                for i,node in enumerate(ids):
+                    if owners[i]==rank:
+                        assert node not in fields[name], (path,name,node)
+                        v = values[i*components:(i+1)*components]
+                        assert all(math.isfinite(x) for x in v), (path,name,node)
+                        fields[name][node] = v
+        return fields
+
+    def compare_fields(reference, actual, ranks, steps):
+        peaks = {}
+        for step in range(4,steps+1,4):
+            for suffix,names in [('',('velocity','pressure','mesh_displacement')),
+                                 ('_solid',('velocity','displacement'))]:
+                stem = f'tube_step{step}{suffix}'
+                first = read_fields(reference,stem,ranks,names)
+                second = read_fields(actual,stem,ranks,names)
+                for name in names:
+                    assert first[name] and first[name].keys()==second[name].keys(), (stem,name)
+                    key = ('wall_' if suffix else 'fluid_')+name
+                    row = peaks.setdefault(key,dict(peak=0.,difference=0.))
+                    for node,v in first[name].items():
+                        w = second[name][node]
+                        assert len(v)==len(w), (stem,name,node)
+                        row['peak'] = max(row['peak'],*(abs(i) for i in v))
+                        row['difference'] = max(row['difference'],*(abs(i-j) for i,j in zip(v,w)))
+        ratios = {k:v['difference']/v['peak'] if v['peak'] else
+                  (0. if v['difference']==0. else float('inf')) for k,v in peaks.items()}
+        return ratios
+
+    def audit(log, steps, dofs):
+        norms, reports, accepted, field_counts = [], [], [], {}
+        for line in log.read_text().splitlines():
+            row = dict(re.findall(r'(\w+)=([^\s]+)',line))
+            if line.startswith('linear_residual '):
+                n,b = float(row['norm']),float(row['rhs_norm'])
+                assert math.isfinite(n) and math.isfinite(b) and min(n,b)>=0., row
+                assert int(row['solve'])==1+sum(v['step']==len(accepted)+1 for v in norms), row
+                norms.append(dict(step=len(accepted)+1,norm=n,rhs=b,
+                                  ratio=n/max(1e-23,1e-10*b),fields={}))
+            elif line.startswith('linear_field_residual '):
+                assert norms and row['name'] not in norms[-1]['fields'], row
+                assert float(row['constraint_max'])==0. and float(row['residual_scale'])==1., row
+                v = float(row['rms'])
+                assert math.isfinite(v) and v>=0., row
+                norms[-1]['fields'][row['name']]=v
+            elif line.startswith('field_residual '):
+                n = int(row['equation_rows'])
+                assert n>0 and int(row['constraint_rows'])==0, row
+                assert field_counts.setdefault(row['name'],n)==n, row
+            elif line.startswith('solver_report '):
+                assert int(row['dofs'])==dofs and min(int(row['snes_reason']),int(row['ksp_reason']))>0, row
+                assert int(row['domain_rejections'])==0, row
+                reports.append(row)
+            elif line.startswith('fsi_step='):
+                step = len(accepted)+1
+                stage = (step-1+(1. if step==1 else 2/3))/32
+                pressure = 80*stage**3*(10+stage*(-15+6*stage))
+                assert int(row['fsi_step'])==step and abs(float(row['time'])-step/32)<1e-14, row
+                assert abs(float(row['evaluation_time'])-stage)<1e-14, row
+                assert abs(float(row['applied_pressure'])-pressure)<1e-11, row
+                accepted.append(row)
+            elif line.startswith(('linear_residual_unavailable','linear_iteration_limit_residual ',
+                                  'step_retry=','error=','EONSim rank 0:')):
+                raise ValueError(line)
+        assert len(accepted)==len(reports)==steps, (len(accepted),len(reports),steps)
+        assert len(norms)>0 and sum(int(r['linear_completed']) for r in reports)==len(norms)
+        for i,r in enumerate(reports,1):
+            assert sum(n['step']==i for n in norms)==int(r['linear_completed']), r
+        assert set(field_counts)=={'velocity','pressure','structure','mesh'} and sum(field_counts.values())==dofs
+        for n in norms:
+            assert n['fields'].keys()==field_counts.keys(), n
+            reconstructed = math.sqrt(sum(field_counts[k]*v*v for k,v in n['fields'].items()))
+            assert math.isclose(reconstructed,n['norm'],rel_tol=2e-12,abs_tol=1e-300), n
+        linear_seconds = sum(float(r['linear_seconds']) for r in reports)
+        assert math.isfinite(linear_seconds) and linear_seconds>=0.
+        return dict(steps=steps,corrections=len(norms),worst_ratio=max(n['ratio'] for n in norms),
+                    within_target=sum(n['ratio']<=1.00001 for n in norms),
+                    outer_iterations=sum(int(r['linear_iterations']) for r in reports),
+                    linear_seconds=linear_seconds, correction_history=norms)
+
+    modes = ('direct','physics_lower','coupled_diagonal','coupled_nodal')
+    for grid,ranks,dofs,ordering in [('s24-r3-w2-a6',1,1027,'natural'),
+                                    ('s48-r4-w4-a6',2,3024,'rcm')]:
+        case = work/grid/'input'
+        case.mkdir(parents=True,exist_ok=True)
+        with tarfile.open(archive,'r:xz') as bundle:
+            # Copy only the three named regular files; never extract arbitrary paths.
+            for filename in ('case.json','fluid.msh','solid.msh'):
+                candidates = [m for m in bundle.getmembers() if m.isfile() and
+                              Path(m.name).name==filename and any(
+                                  part==grid or part.startswith(grid+'-') for part in Path(m.name).parts[:-1])]
+                assert len(candidates)==1, (grid,filename,[m.name for m in candidates])
+                (case/filename).write_bytes(bundle.extractfile(candidates[0]).read())
+        config = json.loads((case/'case.json').read_text())
+        expected = dict(pressure=80.,dt=1/32,steps=32,young=400000.,poisson=.45,
+                        density=1060.,solid_density=1100.,viscosity=.004,
+                        output_interval=4,stabilization_model='volume')
+        assert all(config['fsi'].get(k)==v for k,v in expected.items()), config['fsi']
+        assert config['time']==dict(scheme='generalized_alpha',rho_infinity=.5)
+        part = work/grid/'partition'
+        code,_ = launch([exe,'-case',case/'case.json','-prepare',part,'-parts',ranks],
+                        case,work/grid/'prepare.log')
+        assert code==0, (grid,'partition')
+        result = dict(grid=grid,ranks=ranks,dofs=dofs,ordering=ordering,
+                      input_hashes={f:digest(case/f) for f in ('case.json','fluid.msh','solid.msh')},
+                      runs=[])
+        summary['cases'].append(result)
+        reference = work/grid/'full-direct'
+
+        def run(mode, steps, label):
+            out = work/grid/label
+            out.mkdir(exist_ok=True)
+            log = out/'solve.log'
+            flags = options(mode,ordering)
+            rec = dict(mode=mode,label=label,flags=flags,steps_requested=steps)
+            result['runs'].append(rec)
+            try:
+                command = [mpi,'--map-by','core','--bind-to','core','-n',str(ranks),
+                           exe,'-case',case/'case.json','-partition',part,'-output',out/'tube.vtu',
+                           '-solver_report','-linear_report','-stop_after',steps,*flags]
+                code,elapsed = launch(command,out,log)
+                rec.update(exit_code=code,wall_seconds=elapsed,log_sha256=digest(log))
+                assert code==0, ('nonzero launcher exit',code)
+                assert log.read_text().splitlines().count('status=success')==1, 'missing solver success'
+                rec.update(audit(log,steps,dofs))
+                assert rec['within_target']==rec['corrections'], ('true residual gate',rec['worst_ratio'])
+                if mode!='direct' or out!=reference:
+                    ratios=compare_fields(reference,out,ranks,steps)
+                    rec['field_relative_peaks']=ratios
+                    assert all(v<=2e-6 for v in ratios.values()), ('field gate',ratios)
+                rec['status']='passed'
+            except (AssertionError,ValueError,KeyError,IndexError,OSError,subprocess.TimeoutExpired) as exc:
+                rec.update(status='failed',error=str(exc))
+                summary['failures'].append(dict(grid=grid,label=label,error=str(exc)))
+            # Keep detailed per-correction evidence in JSON; emit compact lines
+            # in the CTest log for remote review even if a later case fails.
+            print('arterial_block_run '+json.dumps(dict(grid=grid,**{k:v for k,v in rec.items()
+                  if k not in ('correction_history','flags')}),allow_nan=False),flush=True)
+            (work/'results.json').write_text(json.dumps(summary,indent=2,allow_nan=False)+'\n')
+            return rec
+
+        passed = []
+        for mode in modes:
+            rec=run(mode,32,'full-'+mode)
+            if rec['status']=='passed': passed.append(mode)
+        # One warmup and three interleaved four-step samples, same diagnostics
+        # and output for each configuration. No speed threshold in CI.
+        if 'direct' not in passed:
+            continue
+        for mode in passed:
+            run(mode,4,'warmup-'+mode)
+        for repeat in range(3):
+            sequence=passed[repeat%len(passed):]+passed[:repeat%len(passed)]
+            for mode in sequence:
+                run(mode,4,f'timing-{repeat+1}-{mode}')
+        result['medians']={}
+        for mode in passed:
+            rows=[r for r in result['runs'] if r['mode']==mode and
+                  r['label'].startswith('timing-') and r['status']=='passed']
+            if len(rows)==3:
+                result['medians'][mode]=dict(samples=3,
+                    wall_seconds=statistics.median(r['wall_seconds'] for r in rows),
+                    linear_seconds=statistics.median(r['linear_seconds'] for r in rows),
+                    outer_iterations=statistics.median(r['outer_iterations'] for r in rows))
+        print('arterial_block_medians '+json.dumps(dict(grid=grid,ranks=ranks,
+              medians=result['medians']),allow_nan=False),flush=True)
+    (work/'results.json').write_text(json.dumps(summary,indent=2,allow_nan=False)+'\n')
+    assert not summary['failures'], summary['failures']
+    return dict(cases=[dict(grid=c['grid'],ranks=c['ranks'],medians=c.get('medians',{}))
+                       for c in summary['cases']])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--executable', required=True)
@@ -319,6 +564,7 @@ def main():
         report['rcr_retry'] = verify_rcr_retry(args.executable, args.mpiexec, work/'rcr-retry')
     if args.group in ('all', 'tube'):
         report.update(verify_tube(run, base, work))
+        report['arterial_block'] = verify_arterial_block(args.executable,args.mpiexec,work/'arterial-block')
     (work/'metrics.json').write_text(json.dumps(report, indent=2)+'\n')
     print(json.dumps(report))
 
