@@ -57,6 +57,7 @@ add_library(eonsim_core
     src/algebra/nonlinear_system.cpp
     src/algebra/schur_solver.cpp
     src/algebra/pc_plan.cpp
+    src/algebra/coupled_velocity_pc.cpp
     src/physics/fluid_element.cpp
     src/fem/reduced_layout.cpp
     src/physics/fsi_diagnostics.cpp
@@ -335,6 +336,17 @@ if(BUILD_TESTING)
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --recipe hybrid
         --work "${CMAKE_CURRENT_BINARY_DIR}/pc_recipe_retry")
     set_tests_properties(pc_recipe_retry PROPERTIES TIMEOUT 300 PROCESSORS 2 LABELS "core;rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME pc_added_mass_retry
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_time_retry.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --recipe added_mass
+        --work "${CMAKE_CURRENT_BINARY_DIR}/pc_added_mass_retry")
+    add_test(NAME pc_twolevel_retry
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_time_retry.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
+        --recipe hybrid --velocity-solver twolevel --work "${CMAKE_CURRENT_BINARY_DIR}/pc_twolevel_retry")
+    set_tests_properties(pc_added_mass_retry pc_twolevel_retry PROPERTIES
+        TIMEOUT 300 PROCESSORS 2 LABELS "core;rank-1;rank-2"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME pc_recipe_restart
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_pc_restart.py"

@@ -86,7 +86,7 @@ def main():
     parser.add_argument('--executable', required=True)
     parser.add_argument('--mpiexec', required=True)
     parser.add_argument('--work', type=Path, required=True)
-    parser.add_argument('--recipe', choices=['physics', 'quantity', 'hybrid'])
+    parser.add_argument('--recipe', choices=['physics', 'quantity', 'hybrid', 'added_mass'])
     a = parser.parse_args()
     a.work.mkdir(parents=True, exist_ok=True)
     results = []
@@ -111,6 +111,8 @@ def main():
                                        solver=dict(relative_tolerance=1e-10, absolute_tolerance=1e-12,
                                                    maximum_iterations=30))))
         cases.append((f'flow_{mode}', case))
+    if a.recipe == 'added_mass':
+        cases = [(name, case) for name, case in cases if not name.startswith('flow')]
     for name, case in cases:
         reference = a.work / f'{name}_direct.vtu'
         direct_text = run([a.executable, '-case', case, '-output', reference])
@@ -208,26 +210,55 @@ def main():
                     flags += [f'-fieldsplit_{prefix}_pc_fieldsplit_schur_fact_type', 'lower']
                 if a.recipe in ('quantity', 'hybrid'):
                     flags += ['-pc_plan_velocity_solver', 'coupled']
-                improved = a.work / f'{name}_improved{ranks}.vtu'
-                improved_text = run([a.mpiexec, '-n', ranks, a.executable, '-case', case,
-                                     '-partition', part, '-output', improved,
-                                     '-linear_report', *flags])
-                (a.work / f'{name}_improved{ranks}.log').write_text(improved_text)
-                compare_physics(expected_physics, physical_records(improved_text))
-                improved_error = compare(expected, fields(improved, ranks))
-                if solid:
-                    improved_error = max(improved_error, compare(expected_solid,
-                        fields(improved.with_stem(improved.stem+'_solid'), ranks)))
-                checks = [dict(item.split('=', 1) for item in line.split()[1:])
-                          for line in improved_text.splitlines() if line.startswith('linear_residual ')]
-                assert checks and 'linear_residual_unavailable' not in improved_text
-                for residual in checks:
-                    norm, rhs = float(residual['norm']), float(residual['rhs_norm'])
-                    assert math.isfinite(norm) and norm <= 1e-8 + 1e-7 * rhs, residual
-                results.append(dict(case=name, ranks=ranks, recipe=a.recipe+'-improved',
-                                    max_field_error=improved_error,
-                                    linear_corrections=len(checks), flags=flags))
-                print(name, ranks, a.recipe+'-improved', 'max_error', improved_error, flush=True)
+                variants = [(a.recipe+'-improved', flags)]
+                # One existing test group owns the new paths. All variants use
+                # the same partition, full direct fields and physical records.
+                if a.recipe == 'hybrid':
+                    tolerance = ['-ksp_rtol', '1e-10', '-ksp_atol', '1e-13',
+                                 '-ksp_max_it', '1500']
+                    variants += [
+                        ('added_mass', ['-pc_recipe', 'added_mass',
+                            '-pc_plan_schur_approx', 'nodal',
+                            '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type', 'lower',
+                            *tolerance]),
+                        ('hybrid-twolevel', ['-pc_recipe', 'hybrid',
+                            '-pc_plan_velocity_solver', 'twolevel',
+                            '-pc_plan_schur_approx', 'nodal',
+                            '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type', 'lower',
+                            *tolerance]),
+                        ('hybrid-auxiliary', ['-pc_recipe', 'hybrid',
+                            '-pc_plan_velocity_solver', 'coupled',
+                            '-pc_plan_schur_approx', 'nodal',
+                            '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type', 'full',
+                            '-fieldsplit_dynamics_fieldsplit_pressure_inner_ksp_type', 'gmres',
+                            '-fieldsplit_dynamics_fieldsplit_pressure_inner_ksp_rtol', '1e-4',
+                            '-fieldsplit_dynamics_fieldsplit_pressure_inner_ksp_max_it', '20',
+                            '-fieldsplit_dynamics_fieldsplit_pressure_upper_ksp_type', 'gmres',
+                            '-fieldsplit_dynamics_fieldsplit_pressure_upper_ksp_rtol', '1e-4',
+                            '-fieldsplit_dynamics_fieldsplit_pressure_upper_ksp_max_it', '20',
+                            *tolerance]),
+                    ]
+                for variant, options in variants:
+                    improved = a.work / f'{name}_{variant}{ranks}.vtu'
+                    improved_text = run([a.mpiexec, '-n', ranks, a.executable, '-case', case,
+                                         '-partition', part, '-output', improved,
+                                         '-linear_report', *options])
+                    (a.work / f'{name}_{variant}{ranks}.log').write_text(improved_text)
+                    compare_physics(expected_physics, physical_records(improved_text))
+                    improved_error = compare(expected, fields(improved, ranks))
+                    if solid:
+                        improved_error = max(improved_error, compare(expected_solid,
+                            fields(improved.with_stem(improved.stem+'_solid'), ranks)))
+                    checks = [dict(item.split('=', 1) for item in line.split()[1:])
+                              for line in improved_text.splitlines() if line.startswith('linear_residual ')]
+                    assert checks and 'linear_residual_unavailable' not in improved_text
+                    for residual in checks:
+                        norm, rhs = float(residual['norm']), float(residual['rhs_norm'])
+                        assert math.isfinite(norm) and norm <= 1e-8 + 1e-7 * rhs, residual
+                    results.append(dict(case=name, ranks=ranks, recipe=variant,
+                                        max_field_error=improved_error,
+                                        linear_corrections=len(checks), flags=options))
+                    print(name, ranks, variant, 'max_error', improved_error, flush=True)
 
         if name == 'domains':
             fd = a.work / 'domains_fd.vtu'

@@ -8,12 +8,15 @@ namespace eonsim {
  */
 struct PcBlock {
     std::string name;
-    bool schur=false, nodal_schur=false, coupled_velocity=false;
+    bool schur=false, nodal_schur=false, coupled_velocity=false, twolevel_velocity=false;
+    // Added-mass factorization eliminates the complete fluid saddle-point block.
+    bool added_mass_schur=false, fluid_response=false, structure_response=false;
     PetscInt begin=0,global=0;
     std::vector<PetscInt> parent_rows,root_rows;
     std::vector<PcBlock> children;
     // Owned velocity-submatrix numbering, grouped by canonical entity/mode/space.
     std::vector<std::vector<PetscInt>> velocity_groups;
+    std::vector<DofKey> velocity_semantics; ///< Leaf row order, for the coupled coarse space.
 };
 /// Collective preparation; rejects unsupported recipe/layout consistently before IS creation.
 PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string& recipe);

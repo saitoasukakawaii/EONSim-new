@@ -133,9 +133,32 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
     std::vector<std::pair<std::string,KSP>> children;
     PetscInt count=0; KSP* sub=nullptr;
     if(std::strcmp(pt,PCFIELDSPLIT)==0) {
-        PetscCall(PCFieldSplitGetSubKSP(pc,&count,&sub));
-        for(PetscInt i=0;i<count;++i) children.emplace_back("field"+std::to_string(i),sub[i]);
-        PetscCall(PetscFree(sub)); // FieldSplit 返回的数组归调用者，子 KSP 本身为借用。
+        PCCompositeType split_type;
+        PetscCall(PCFieldSplitGetType(pc,&split_type));
+        if(split_type==PC_COMPOSITE_SCHUR) {
+            // The ordinary getter returns the interior A00 solve, which can
+            // differ from the factor's main solve. Keep field0/field1 stable
+            // and expose distinct auxiliary contexts without setting them up.
+            PetscCall(PCFieldSplitSchurGetSubKSP(pc,&count,&sub));
+            if(count>0) children.emplace_back("field0",sub[0]);
+            if(count>1) children.emplace_back("field1",sub[1]);
+            KSP main=count>0?sub[0]:nullptr,upper=count>2?sub[2]:nullptr;
+            PetscCall(PetscFree(sub));
+            Mat schur_matrix=nullptr; KSP inner=nullptr;
+            PetscCall(PCFieldSplitSchurGetS(pc,&schur_matrix));
+            if(schur_matrix) {
+                const auto error=MatSchurComplementGetKSP(schur_matrix,&inner);
+                PetscCall(PCFieldSplitSchurRestoreS(pc,&schur_matrix));
+                if(error) return error;
+            }
+            if(inner&&inner!=main) children.emplace_back("inner",inner);
+            if(upper&&upper!=main&&upper!=inner) children.emplace_back("upper",upper);
+        } else {
+            PetscCall(PCFieldSplitGetSubKSP(pc,&count,&sub));
+            for(PetscInt i=0;i<count;++i) children.emplace_back("field"+std::to_string(i),sub[i]);
+            PetscCall(PetscFree(sub));
+        }
+        // FieldSplit arrays belong to the caller; all child KSPs are borrowed.
     } else if(std::strcmp(pt,PCASM)==0||std::strcmp(pt,PCBJACOBI)==0) {
         if(std::strcmp(pt,PCASM)==0) { PetscCall(PCASMGetSubKSP(pc,&count,nullptr,&sub)); }
         else { PetscCall(PCBJacobiGetSubKSP(pc,&count,nullptr,&sub)); }

@@ -3,7 +3,8 @@ import argparse,copy,json,re,subprocess,sys,xml.etree.ElementTree as ET
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'cases/fsi'))
 from generate_domains import generate
-p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',type=Path,required=True);p.add_argument('--recipe',choices=['physics','quantity','hybrid']);a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',type=Path,required=True);p.add_argument('--recipe',choices=['physics','quantity','hybrid','added_mass']);p.add_argument('--velocity-solver',choices=['split','coupled','twolevel']);a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
+if a.velocity_solver and not a.recipe: p.error('--velocity-solver requires --recipe')
 case=generate(a.work);config=json.loads(case.read_text());config['fsi'].update(material='neo_hookean',pressure=20,dt=.04,steps=1);config['time_control']=dict(max_retries=6,minimum_dt=.0005,reduction=.5);
 if a.recipe: config.setdefault('solver',{})['pc_recipe']=a.recipe
 case.write_text(json.dumps(config))
@@ -20,6 +21,7 @@ def compare(first,second,ranks):
 for ranks in (1,2):
  part=a.work/f'parts{ranks}';run([a.executable,'-case',case,'-prepare',part,'-parts',ranks]);launcher=[a.mpiexec,'-n',ranks] if ranks>1 else []
  prefix=launcher+[a.executable,'-case',case,'-partition',part,'-snes_max_it',2]
+ if a.velocity_solver: prefix+=['-pc_plan_velocity_solver',a.velocity_solver]
  full=a.work/f'full{ranks}.vtu';text=run(prefix+['-output',full]);retries=re.findall(r'step_retry=\d+ time=(\S+) next_dt=(\S+)',text)
  assert retries and all(float(time)==0 for time,dt in retries)
  dt=float(retries[-1][1]);steps=round(.04/dt);assert abs(steps*dt-.04)<1e-12

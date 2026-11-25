@@ -25,10 +25,17 @@ def main():
             reference = directory/'direct.vtu'
             run(base+['-output', reference])
             expected = fields(reference, ranks)
-            for recipe in ('physics', 'quantity', 'hybrid'):
+            recipes = [(recipe, ['-pc_recipe', recipe])
+                       for recipe in ('physics', 'quantity', 'hybrid')]
+            if name.startswith('fsi/') and ranks == 2:
+                recipes += [
+                    ('added_mass', ['-pc_recipe', 'added_mass', '-pc_plan_schur_approx', 'nodal']),
+                    ('twolevel', ['-pc_recipe', 'hybrid', '-pc_plan_schur_approx', 'nodal',
+                                  '-pc_plan_velocity_solver', 'twolevel'])]
+            for recipe, flags in recipes:
                 checkpoint = directory/(recipe+'-checkpoint')
                 full, tail = directory/(recipe+'.vtu'), directory/(recipe+'-resumed.vtu')
-                command = base+['-pc_recipe', recipe]
+                command = base+flags
                 if name.startswith('fluid/'):
                     command += ['-fluid_coo']
                 log = run(command+['-output', full])
