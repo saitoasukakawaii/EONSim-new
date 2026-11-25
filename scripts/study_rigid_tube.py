@@ -76,7 +76,7 @@ def refine(nodes, cells, faces):
     return nodes, refined, boundary
 
 
-def write_mesh(path, nodes, cells, faces):
+def write_mesh(path, nodes, cells, faces, region=10):
     with Path(path).open('w') as f:
         f.write(f'$MeshFormat\n2.2 0 8\n$EndMeshFormat\n$Nodes\n{len(nodes)}\n')
         for i, x in nodes.items():
@@ -85,7 +85,7 @@ def write_mesh(path, nodes, cells, faces):
         for i, (tag, t) in enumerate(faces, 1):
             f.write(f'{i} 2 2 {tag} {tag} '+' '.join(map(str,t))+'\n')
         for i, t in enumerate(cells, len(faces)+1):
-            f.write(f'{i} 4 2 10 10 '+' '.join(map(str,t))+'\n')
+            f.write(f'{i} 4 2 {region} {region} '+' '.join(map(str,t))+'\n')
         f.write('$EndElements\n')
 
 

@@ -47,6 +47,20 @@ PETSc 3.23.7 Release 通过仓库脚本编译。62 项增量 CTest 均有通过�
 
 按用户要求改为 Release-only PR 增量数值 CI；Debug 由手动工作流专项启动。receipt 与历史复用只认 Release；自动合并改为四项必需检查并拒绝仍要求旧 Debug 的分支保护。未改数值模型、容差或 CTest 清单。源码修改不代表 CI 已通过；以 PR Actions 为准，分支保护仍需管理员确认。
 
+## FSI-PROD-02C / review / 2026-11-20
+
+Added radial wall refinement, analytical Lamé and coupled hydrostatic
+benchmarks, full moving-volume reconstruction and a pinned external FSI
+comparison. The finest isolated wall gives 0.1894% radius/area error and
+0.0800% displacement L² error. The 72-sector monolithic BE solution gives
+0.5684% area error. On 48 sectors the matched EONSim/svFSI equilibrium
+area differs by at most 0.0000227% of the analytical expansion. The
+external singular predictor and failed fine GMRES attempt are archived.
+Complete step histories at 48 sectors show transient discrepancies up to
+9.947% of the static expansion despite close equilibrium agreement.
+[PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42) · [Initial Release CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/44723204965) ·
+[Equations](PRESSURIZED_ELASTIC_TUBE.md) · [Data](../research/data/lame-wall-2026-11-20/README.md)
+
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 
 Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main

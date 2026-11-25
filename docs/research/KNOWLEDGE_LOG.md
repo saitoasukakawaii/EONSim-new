@@ -37,6 +37,10 @@ svFSI 核验。实现 `62c0b2f`，比较工具 `bef75bd`。已核验 48/8/12
 
 PR 日常正确性依靠 Release 增量 CTest 和复用证据；Debug/GDB/LLDB/sanitizer 仅用于定位实际故障。删除默认 Debug 前必须同步更新 receipt 来源校验和自动合并保护检查，保持 fail-closed；此流程经验已纳入工程规范，不新建知识文章。
 
+## 2026-11-20 / 厚壁管的压力、半径与面积
+
+线弹性厚壁管的 Lamé 平面应变解给出了独立的压力–面积基准。多边形面积对节点位移求导可直接衡量变形，并能与沿边长加权的径向位移交叉核对。两个求解器在同一粗网格上给出了接近的截面响应，同时都超过了解析解的误差门槛。复核时应分别查看几何细化、两程序之差和移动流体体积收支。[文章草稿](../../website/drafts/pressure-area-and-lame-wall.md) · [验证数据](data/lame-wall-2026-11-20/README.md)
+
 ## 2026-11-07 / 全场误差与局部质量审计
 
 新增[算法草稿](../../website/drafts/tube-field-errors-and-local-mass.md)，实现

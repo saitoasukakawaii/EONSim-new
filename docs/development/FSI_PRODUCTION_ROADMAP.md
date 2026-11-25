@@ -42,3 +42,16 @@ Separate polygon geometry refinement, FE field refinement and time refinement.
 Then introduce a compliant wall, quantify field/pressure/area response and
 compare against a pinned svFSI case with the same material, mesh, loads and
 initial state. Keep reference agreement and MPI equality as separate gates.
+
+## 2026-11-20 · pressure–area equilibrium
+
+The straight, small-strain thick-wall case now has an isolated structural
+reference, a monolithic hydrostatic FSI case and a matched upstream svFSI
+comparison. The refined isolated wall has 0.1894% area error. The 72-sector
+coupled BE case has 0.5684%. The 48-sector cross-code pair agrees to
+0.0000227% of the analytical expansion. The 24-sector pair misses the
+3% circular target in both codes. Paired step histories differ by up to
+9.947% of the static expansion during the initial transient. Dynamic compliant-wall pressure/area
+phase, wave speed and a larger operating envelope remain open in PROD-02.
+[Hydrostatic case and raw evidence](../research/data/lame-wall-2026-11-20/README.md)
+· [Rigid oscillatory flow work](https://github.com/saitoasukakawaii/EONSim-new/pull/41)

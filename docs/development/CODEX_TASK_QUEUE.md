@@ -61,6 +61,48 @@ is 1.3046%. The fixed-τ control gives phasor orders 1.960 and 1.991.
 - 验收：`python tests/test_ci_selection.py`、`python tests/test_agent_auto_merge.py`、`python tests/test_cloud_evidence.py` 和 PR Release 最小算例；实际状态由 Actions 证明。
 - 管理员待办：main 必需检查移除旧 Debug、保留四项；当前连接无法访问保护规则管理 API。
 
+## FSI-PROD-02C / review / 2026-11-20
+
+Check the isolated linear elastic wall against the plane-strain Lamé solution
+for a pressurized quarter annulus. Use a=1, b=1.2, L=2, E=100, ν=0.3,
+internal pressure 0.02, zero exterior pressure and axial end rollers. Preserve
+the existing default one-layer FSI mesh. Before solving, set targets of <2%
+relative error in inner radius displacement and linearized bore area change,
+<3% displacement L² error and <1% change in area compliance at the last
+two refined resolutions. Check a second pressure and 1/2/4-rank invariance
+(maximum displacement difference <1e−10 m). This structural constitutive
+reference will support a subsequent coupled pressure–area comparison.
+
+For a bounded monolithic hydrostatic check, apply the same positive pressure
+on both fluid end faces, leave the outside of the solid traction-free, and
+keep the quarter-domain symmetries and axial rollers. After a smooth startup
+and relaxation, require <3% worst-section linearized area error against Lamé,
+<0.1% last-step area change relative to the exact expansion, final fluid
+speed <1e−6 m/s, pressure RMS error <1% of the applied pressure and interface
+velocity/displacement differences <1e−9. Compare two step sizes to the same
+physical endpoint. A dynamic pulse and an external coupled solution are separate.
+
+For the external equilibrium check, run both codes from rest with a constant
+0.02 Pa end pressure, dt=0.5 and generalized-alpha spectral radius zero.
+Compare the worst-section difference in linearized area strain to 2% of the
+analytic expansion. Require each solution to settle and check its area against
+the 3% circular target. Retain any rejected external inputs or solves.
+
+The first svFSI run encountered nonfinite arithmetic in its predictor at
+spectral radius zero. A floating-point trap identified the division in
+`PICP` where this FSI equation has γ=1. For the next paired runs use 0.5
+in both programs, as in the upstream 3D pipe example. The wall, pressure,
+time step and quantitative criteria are unchanged.
+
+Observed 0.1894% worst-section area error for the finest isolated wall,
+0.5684% for the fine coupled BE case and 0.0000227% maximum inter-code
+difference relative to analytical expansion for the 48-sector paired case.
+The 24-sector cross-code pair misses the analytical gate. The next physical
+question is the dynamic pressure–area response. At fixed 48-sector resolution,
+complete pressure-step histories on Δt = 0.5 and 0.25 s have peak inter-code
+differences of 9.947% and 8.444% of the static expansion.
+[PR #42](https://github.com/saitoasukakawaii/EONSim-new/pull/42) · [Measurements and replay](../research/data/lame-wall-2026-11-20/README.md)
+
 ## FSI-PROD-02 continuation / in_progress / 2026-11-07
 
 Continued the same `codex/fsi-tube-qualification` branch from `92d63f1`, main
