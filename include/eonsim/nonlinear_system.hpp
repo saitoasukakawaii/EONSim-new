@@ -18,6 +18,11 @@ struct NonlinearResult {
     PetscInt domain_rejections=0; ///< 回调中被拒绝的试探残量/Jacobian 评价次数；不表示已提交时间步。
     bool solver_reused=false; ///< 本次是否复用了前一次成功调用的 SNES/KSP/PC。
     PetscInt solver_generation=0; ///< 此 NonlinearSystem 的求解器构建序号，从 1 开始。
+    PetscInt jacobian_assemblies=0; ///< 本次正常完成的完整 Jacobian 装配，含起点预装配。
+    PetscInt jacobian_callbacks=0; ///< SNES 请求 Jacobian 的次数，包含复用而未重装配的请求。
+    PetscInt initial_jacobian_assemblies=0,initial_jacobian_reuses=0; ///< 起点预装配/首个回调复用，分别至多一次。
+    PetscInt user_schur_updates=0; ///< 正常完成的 nodal USER 矩阵构建/数值刷新次数，不含 PETSc 内部 PC setup。
+    bool initial_jacobian_deferred=false; ///< 已配置会话将起点 Jacobian 交给首个正常 SNES 回调。
     double residual_norm=0;
     std::vector<FieldResidual> field_residuals; ///< 所有 rank 相同；原始反力不参与字段收敛范数。
 };
@@ -81,6 +86,10 @@ public:
  * fatal callback引起PETSc提前返回时更换trial Vec以隔离遗留只读锁；COO矩阵/图不重建。
  * config、约束值及回调只借用到本次调用结束；约束行可变化，但必须包含在既有图中。
  * -nonlinear_reuse false 可显式使用每次新建的求解器；非默认 SNES/lagged-PC 选项保留每次新建语义。
+ * 默认普通 Newton 的 Schur 会话首次配置可供首个同状态 Jacobian 回调复用，之后每次 solve
+ * 从新残量开始并由 SNES 装配新的数值 Jacobian；从不跨 solve 缓存旧数值。
+ * -nonlinear_initial_jacobian_reuse false 保留起点与首个回调各自装配的对照路径。
+ * -solver_rank_report 开启原求解报告并附加 rank-local 阶段计时、owned/ghost 与装配计数。
  */
     NonlinearResult solve(const SolverConfig& config, const std::vector<double>& initial,
         const std::vector<PetscInt>& constraints, const std::vector<double>& prescribed,

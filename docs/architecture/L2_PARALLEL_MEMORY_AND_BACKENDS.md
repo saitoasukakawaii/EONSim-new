@@ -76,6 +76,30 @@ worker 异常先在受保护区保存，主线程插入异常也在团队内捕�
 
 ## Owner、view 和执行空间
 
+### 离线分区与输出的数据路径
+
+`prepare_partitions` 仍是单 rank 离线 METIS；默认空成本表保留原输入、seed、
+分配与 fingerprint。每个 cell/face 按原输入顺序只归入一个 owner 桶，节点
+代数编号由 owner 计数/前缀和形成，保留 rank-major/input-node-major 次序。
+局部编号仍是 owned 在前、ghost 在后。单次全网格 fingerprint 不在每 rank 重算。
+
+显式 `-partition_cell_weights tag:cost,...` 只适用于 `-prepare`，未指定 tag 的
+成本为 1；不存在的 tag、非正或超范围成本/总量在写文件之前拒绝。它不是材料
+参数，也不从物理域名称推测成本。非空表采用独立 fingerprint domain 并纳入
+实际 cell owner 序列，避免与不同分配的分片/checkpoint 混用；空表身份保持兼容。
+`-partition_report` 才收集 METIS、layout、write 计时及各 rank/tag 负载。
+prepare 总计不含调用前 mesh import，P2 空间构建计入 layout 而保存计入 write。
+
+VTU 默认保留 ASCII；边界 piece 默认只保存其单元引用的节点，按原 local 顺序
+重新编号 connectivity，并映射所有点字段和稳定整数 ID。可用
+`-vtu_compact_boundary false` 选择完整本地点集，`-vtu_boundary false` 关闭
+边界 companion 与索引，`-vtu_format binary` 选择 little-endian raw appended
+数据、UInt64 长度头与流式有界暂存。输出配置在主线程、首次输出前设置一次；
+无 MPI gather、无 PETSc 依赖、无整场编码副本。PVTU 仍只在所有 piece 写完后发布。
+格式详见 [VTK XML](https://docs.vtk.org/en/latest/vtk_file_formats/vtkxml_file_format.html)。
+
+### Owner 与求解器生命周期
+
 首版 owner 可用 `std::vector`/RAII PETSc wrapper；C++17 的 view 用已有轻量类型或指针＋长度即可，不因 `std::span` 尚不可用就自建大型容器库。view 不负责释放且不得超过 owner 生命周期。accepted/trial 必须是独立可写存储，或有明确且正确的交换协议；浅拷贝不是状态快照。
 
 `NonlinearSystem` 的成功 SNES/KSP/PC 会话可在配置、完整 PETSc options 和 owned 约束行

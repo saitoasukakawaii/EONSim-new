@@ -1,5 +1,6 @@
 #include "eonsim/mesh.hpp"
 #include "eonsim/scalar_p2_space.hpp"
+#include <chrono>
 #include <cmath>
 #include <hdf5.h>
 #include <metis.h>
@@ -10,6 +11,7 @@
 #include <set>
 #include <stdexcept>
 #include <unordered_map>
+#include <utility>
 
 namespace eonsim {
 namespace {
@@ -76,7 +78,8 @@ std::vector<std::set<GlobalId>> adjacency(const MeshPartition& mesh) {
         for (auto col : cell.nodes) rows[row].insert(col);
     return rows;
 }
-std::uint64_t fingerprint(const MeshPartition& mesh, int ranks) {
+std::uint64_t fingerprint(const MeshPartition& mesh, int ranks,
+                          const std::vector<idx_t>* cell_partition=nullptr) {
     std::uint64_t hash = 1469598103934665603ULL;
     const auto append = [&](const void* value, std::size_t n) {
         const auto* data = static_cast<const unsigned char*>(value);
@@ -90,6 +93,16 @@ std::uint64_t fingerprint(const MeshPartition& mesh, int ranks) {
         append(&cell.global_id, sizeof(cell.global_id)); append(cell.nodes.data(), cell.nodes.size()*sizeof(LocalId)); append(&cell.physical_tag, sizeof(int));
     }
     for (const auto& face : faces_of(mesh)) { append(face.nodes.data(), face.nodes.size()*sizeof(LocalId)); append(&face.physical_tag, sizeof(int)); }
+    if(cell_partition) {
+        // Preserve the legacy byte stream for unweighted preparation. Weighted
+        // layouts need an identity even when their owned row counts coincide.
+        constexpr char domain[]="EONSim weighted partition v1";
+        append(domain,sizeof(domain));
+        for(const auto owner:*cell_partition) {
+            const int rank=static_cast<int>(owner);
+            append(&rank,sizeof(rank));
+        }
+    }
     return hash;
 }
 void save(const MeshPartition& mesh, const std::filesystem::path& path) {
@@ -146,67 +159,132 @@ void initialize_serial_partition(MeshPartition& mesh) {
     mesh.fingerprint = fingerprint(mesh, 1);
 }
 
-void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesystem::path& directory, int scalar_degree) {
+void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesystem::path& directory,
+                        int scalar_degree, const std::map<int,int>& cell_weights, PartitionReport* report) {
+    using Clock=std::chrono::steady_clock;
+    const auto begin=report?Clock::now():Clock::time_point{};
+    PartitionReport measured;
     if(scalar_degree!=1&&scalar_degree!=2)throw std::runtime_error("Invalid scalar degree");
     const auto cells=cells_of(mesh),faces=faces_of(mesh);
     if (ranks < 1 || static_cast<std::size_t>(ranks) > cells.size()) throw std::runtime_error("Invalid partition count");
     if (cells.size() > static_cast<std::size_t>(std::numeric_limits<idx_t>::max()/Tet4Topology::nodes) ||
         mesh.nodes.size() > static_cast<std::size_t>(std::numeric_limits<idx_t>::max())) throw std::runtime_error("Mesh exceeds METIS index range");
     idx_t ne = cells.size(), nn = mesh.nodes.size(), parts = ranks, common = mesh.topological_dimension==2?2:Tet4Topology::face_nodes, objective = 0;
-    std::vector<idx_t> pointer(ne+1), connectivity, cell_part(ne, 0), node_part(nn);
-    for (idx_t i = 0; i < ne; ++i) {
-        connectivity.insert(connectivity.end(), cells[i].nodes.begin(), cells[i].nodes.end()); pointer[i+1] = connectivity.size();
+    std::vector<idx_t> weights;
+    std::uint64_t total_weighted_cost=cells.size();
+    if(!cell_weights.empty()) {
+        const auto limit=static_cast<std::uint64_t>(std::numeric_limits<idx_t>::max());
+        std::set<int> unused_tags;
+        for(const auto& [tag,cost]:cell_weights) {
+            if(cost<=0) throw std::runtime_error("Partition cell weights require positive costs");
+            if(static_cast<std::uint64_t>(cost)>limit)
+                throw std::runtime_error("Partition cell weight exceeds METIS index range");
+            unused_tags.insert(tag);
+        }
+        weights.reserve(cells.size());
+        total_weighted_cost=0;
+        for(const auto& cell:cells) {
+            const auto found=cell_weights.find(cell.physical_tag);
+            const auto cost=static_cast<std::uint64_t>(found==cell_weights.end()?1:found->second);
+            if(cost>limit-total_weighted_cost)
+                throw std::runtime_error("Total partition cell weight exceeds METIS index range");
+            total_weighted_cost+=cost;
+            weights.push_back(static_cast<idx_t>(cost));
+            unused_tags.erase(cell.physical_tag);
+        }
+        if(!unused_tags.empty())
+            throw std::runtime_error("Partition cell weights reference unknown physical tag: "+std::to_string(*unused_tags.begin()));
     }
+    if(report) {
+        measured.weighted=!cell_weights.empty();
+        measured.total_weighted_cost=total_weighted_cost;
+        measured.metis_index_max=static_cast<std::uint64_t>(std::numeric_limits<idx_t>::max());
+        measured.ranks.reserve(ranks);
+    }
+    std::vector<idx_t> cell_part(ne, 0);
     if (ranks > 1) {
+        std::vector<idx_t> pointer(ne+1), connectivity, node_part(nn);
+        connectivity.reserve(cells.size()*Tet4Topology::nodes);
+        for (idx_t i = 0; i < ne; ++i) {
+            connectivity.insert(connectivity.end(), cells[i].nodes.begin(), cells[i].nodes.end()); pointer[i+1] = connectivity.size();
+        }
         idx_t options[METIS_NOPTIONS]; METIS_SetDefaultOptions(options); options[METIS_OPTION_SEED] = 0;
-        if (METIS_PartMeshDual(&ne, &nn, pointer.data(), connectivity.data(), nullptr, nullptr, &common,
+        const auto metis_begin=report?Clock::now():Clock::time_point{};
+        if (METIS_PartMeshDual(&ne, &nn, pointer.data(), connectivity.data(),
+                              weights.empty()?nullptr:weights.data(), nullptr, &common,
                               &parts, nullptr, options, &objective, cell_part.data(), node_part.data()) != METIS_OK)
             throw std::runtime_error("METIS_PartMeshDual failed");
+        if(report) measured.metis_seconds=std::chrono::duration<double>(Clock::now()-metis_begin).count();
     }
     std::vector<int> owners(nn, ranks);
-    for (idx_t c = 0; c < ne; ++c) for (auto node : cells[c].nodes) owners[node] = std::min(owners[node], static_cast<int>(cell_part[c]));
-    std::vector<GlobalId> algebra(nn), begins(ranks+1, 0);
-    for (int r = 0; r < ranks; ++r) {
-        begins[r+1] = begins[r];
-        for (idx_t n = 0; n < nn; ++n) if (owners[n] == r) algebra[n] = begins[r+1]++;
+    std::vector<std::vector<idx_t>> cells_by_rank(ranks);
+    for (idx_t c = 0; c < ne; ++c) {
+        const int rank=cell_part[c];
+        cells_by_rank[rank].push_back(c);
+        for (auto node : cells[c].nodes) owners[node] = std::min(owners[node], rank);
     }
+    std::vector<GlobalId> algebra(nn), begins(ranks+1, 0);
+    // Stable owner buckets retain the old rank-major, input-node-major IDs
+    // without scanning the complete node list once per destination rank.
+    for (const auto owner : owners) if (owner<ranks) ++begins[owner+1];
+    std::partial_sum(begins.begin(),begins.end(),begins.begin());
+    auto next=begins;
+    for (idx_t n = 0; n < nn; ++n) if (owners[n]<ranks) algebra[n]=next[owners[n]]++;
     const auto rows = adjacency(mesh);
-    std::map<std::vector<LocalId>,int> face_owner;
-    for(idx_t c=0;c<ne;++c) {
-        if(mesh.topological_dimension==2) {
-            for(std::size_t i=0;i<cells[c].nodes.size();++i) {
-                std::vector<LocalId> key{cells[c].nodes[i],cells[c].nodes[(i+1)%cells[c].nodes.size()]};
-                std::sort(key.begin(),key.end()); face_owner[key]=cell_part[c];
+    std::vector<std::vector<std::size_t>> faces_by_rank(ranks);
+    {
+        std::map<std::vector<LocalId>,int> face_owner;
+        for(idx_t c=0;c<ne;++c) {
+            if(mesh.topological_dimension==2) {
+                for(std::size_t i=0;i<cells[c].nodes.size();++i) {
+                    std::vector<LocalId> key{cells[c].nodes[i],cells[c].nodes[(i+1)%cells[c].nodes.size()]};
+                    std::sort(key.begin(),key.end()); face_owner[key]=cell_part[c];
+                }
+            } else for(int omit=0;omit<4;++omit) {
+                std::vector<LocalId> key;
+                for(int a=0;a<4;++a) if(a!=omit)key.push_back(cells[c].nodes[a]);
+                std::sort(key.begin(),key.end());face_owner[key]=cell_part[c];
             }
-        } else for(int omit=0;omit<4;++omit) {
-            std::vector<LocalId> key;
-            for(int a=0;a<4;++a) if(a!=omit)key.push_back(cells[c].nodes[a]);
-            std::sort(key.begin(),key.end());face_owner[key]=cell_part[c];
+        }
+        for (std::size_t f = 0; f < faces.size(); ++f) {
+            auto key=faces[f].nodes; std::sort(key.begin(),key.end());
+            faces_by_rank[face_owner.at(key)].push_back(f);
         }
     }
+    const auto mesh_fingerprint=fingerprint(mesh,ranks,cell_weights.empty()?nullptr:&cell_part);
+    std::vector<int> p2_cell_owners;
+    if(scalar_degree==2) p2_cell_owners.assign(cell_part.begin(),cell_part.end());
+    const auto directory_begin=report?Clock::now():Clock::time_point{};
     std::filesystem::create_directories(directory);
     // Remove an old completion marker before replacing any partition files.
     std::filesystem::remove(directory / "manifest.yaml");
+    if(report) measured.write_seconds+=std::chrono::duration<double>(Clock::now()-directory_begin).count();
     for (int rank = 0; rank < ranks; ++rank) {
         MeshPartition local; local.topological_dimension=mesh.topological_dimension; local.physical_names=mesh.physical_names;
         local.rank = rank; local.ranks = ranks; local.global_nodes = nn; local.global_cells = ne;
-        local.owned_begin = begins[rank]; local.owned_nodes = begins[rank+1]-begins[rank]; local.fingerprint = fingerprint(mesh, ranks);
-        std::set<LocalId> needed;
-        for (idx_t c = 0; c < ne; ++c) if (cell_part[c] == rank) needed.insert(cells[c].nodes.begin(), cells[c].nodes.end());
+        local.owned_begin = begins[rank]; local.owned_nodes = begins[rank+1]-begins[rank]; local.fingerprint = mesh_fingerprint;
+        // Buckets keep input cell/face order. Sorting only the rank's vertex
+        // references reproduces the former set order with contiguous storage.
+        std::vector<LocalId> needed;
+        needed.reserve(cells_by_rank[rank].size()*Tet4Topology::nodes);
+        for (const auto c : cells_by_rank[rank]) needed.insert(needed.end(),cells[c].nodes.begin(),cells[c].nodes.end());
+        std::sort(needed.begin(),needed.end());
+        needed.erase(std::unique(needed.begin(),needed.end()),needed.end());
         std::vector<LocalId> order;
+        order.reserve(needed.size());
         for (auto n : needed) if (owners[n] == rank) order.push_back(n);
         for (auto n : needed) if (owners[n] != rank) order.push_back(n);
         std::unordered_map<LocalId,LocalId> lookup;
+        lookup.reserve(order.size());
         for (auto n : order) {
             lookup[n] = local.nodes.size(); local.nodes.push_back(mesh.nodes[n]);
             local.algebra_ids.push_back(algebra[n]); local.owners.push_back(owners[n]); local.node_boundary_tags.push_back(mesh.node_boundary_tags[n]); local.node_cell_tags.push_back(mesh.node_cell_tags[n]);
         }
-        for (idx_t c = 0; c < ne; ++c) if (cell_part[c] == rank) {
+        for (const auto c : cells_by_rank[rank]) {
             auto cell = cells[c]; for (auto& node : cell.nodes) node = lookup.at(node); append_cell(local,cell);
         }
-        for (auto face : faces) {
-            auto key = face.nodes; std::sort(key.begin(), key.end());
-            if (face_owner.at(key) == rank) { for (auto& node : face.nodes) node = lookup.at(node); append_face(local,face); }
+        for (const auto f : faces_by_rank[rank]) {
+            auto face=faces[f]; for (auto& node : face.nodes) node = lookup.at(node); append_face(local,face);
         }
         local.row_offsets = {0};
         for (std::size_t i = 0; i < local.owned_nodes; ++i) {
@@ -215,16 +293,38 @@ void prepare_partitions(const MeshPartition& mesh, int ranks, const std::filesys
             std::sort(columns.begin(), columns.end());
             local.row_columns.insert(local.row_columns.end(), columns.begin(), columns.end()); local.row_offsets.push_back(local.row_columns.size());
         }
+        if(report) {
+            PartitionRankReport load;
+            load.rank=rank; load.cells=cells_by_rank[rank].size(); load.nodes=local.nodes.size();
+            load.owned_nodes=local.owned_nodes; load.ghost_nodes=local.nodes.size()-local.owned_nodes;
+            load.faces=faces_by_rank[rank].size();
+            for(const auto c:cells_by_rank[rank]) {
+                ++load.cells_by_tag[cells[c].physical_tag];
+                load.weighted_cost+=weights.empty()?1:static_cast<std::uint64_t>(weights[c]);
+            }
+            measured.ranks.push_back(std::move(load));
+        }
+        const auto write_begin=report?Clock::now():Clock::time_point{};
         save(local, filename(directory, rank));
+        if(report) measured.write_seconds+=std::chrono::duration<double>(Clock::now()-write_begin).count();
         if(scalar_degree==2) {
-            const std::vector<int> owners(cell_part.begin(),cell_part.end());
-            const auto space=prepare_scalar_p2_space(mesh,owners,local);
+            const auto space=prepare_scalar_p2_space(mesh,p2_cell_owners,local);
+            const auto p2_write_begin=report?Clock::now():Clock::time_point{};
             save_scalar_p2_space(directory,local,space);
+            if(report) measured.write_seconds+=std::chrono::duration<double>(Clock::now()-p2_write_begin).count();
         }
     }
+    const auto marker_begin=report?Clock::now():Clock::time_point{};
     std::ofstream marker(directory / "manifest.yaml");
     marker << "version: 1\nranks: " << ranks << "\nglobal_nodes: " << nn << "\nglobal_cells: " << ne << '\n';
     marker.close(); if (!marker) throw std::runtime_error("Cannot write partition manifest");
+    if(report) {
+        const auto end=Clock::now();
+        measured.write_seconds+=std::chrono::duration<double>(end-marker_begin).count();
+        measured.total_seconds=std::chrono::duration<double>(end-begin).count();
+        measured.layout_seconds=std::max(0.,measured.total_seconds-measured.metis_seconds-measured.write_seconds);
+        *report=std::move(measured);
+    }
 }
 
 MeshPartition read_partition(const std::filesystem::path& directory, int rank, int ranks) {

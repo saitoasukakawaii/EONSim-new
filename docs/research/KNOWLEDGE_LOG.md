@@ -1,5 +1,15 @@
 # EONSim Knowledge Log
 
+## 2026-11-26 · FSI-PERF-03：一次性切线复用与数据路径成本
+
+[开发草稿](../../website/drafts/fsi-runtime-cost-and-output.md)与
+[证据入口](data/fsi-runtime-2026-11-26/README.md)记录从 main `2dcb06c` 继续的运行期开销优化。
+核心知识点是区分对象复用和数值复用：首次 Schur 配置的 Jacobian 只供同一未变状态的首个
+回调消费一次，后续求解仍刷新数值；计数器分别记录物理装配、SNES请求和 USER Schur 刷新。
+稳定分桶保持默认分区顺序，显式权重需以实际分区指纹保护混用和重启边界；输出裁剪需保留
+拓扑、方向、大整数ID与字段映射。当前为实现/静态审查阶段，验证和性能尚未执行；草稿待补实证。
+
+
 ## 2026-11-25–26 · FSI-PERF-02：精确图、局部贡献去重与 collective 会话
 
 [算法草稿](../../website/drafts/fsi-performance-completion.md)和

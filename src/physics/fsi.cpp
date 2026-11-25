@@ -918,10 +918,12 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     bool batch_failure_injected=false;
     bool batch_failure_reported=false;
     int batch_failure_thread=-1,batch_failure_team=0;
+    std::size_t batch_failure_batch=0;
     const bool verify_worker_failure=batch_failure==FsiBatchFailure::worker||batch_failure==FsiBatchFailure::worker_fatal;
     const bool verify_insert_failure=batch_failure==FsiBatchFailure::insert||batch_failure==FsiBatchFailure::insert_fatal;
-    const auto inject_batch_failure=[&] {
+    const auto inject_batch_failure=[&](std::size_t begin) {
         batch_failure_injected=true;
+        batch_failure_batch=begin/batch_size;
 #ifdef _OPENMP
         batch_failure_thread=omp_get_thread_num(); batch_failure_team=omp_get_num_threads();
 #else
@@ -1148,6 +1150,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 int error_severity=0;
                 std::size_t error_item=data.size();
                 bool stop=false;
+                // Exercise a completed batch before the fault whenever this
+                // verification partition has one. Its COO values or ordinary
+                // insertion stash must remain safe to discard/drain on failure.
+                const auto failure_begin=data.size()>batch_size?batch_size:std::size_t(0);
                 const auto record_failure=[&](std::size_t item) {
                     const auto failure=std::current_exception();
                     int severity=2;
@@ -1191,8 +1197,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                                 if(j) std::copy(tangent.begin(),tangent.end(),batch_tangent.data()+item*Layout::dofs*Layout::dofs);
                                 // The last item exercises a non-master worker
                                 // when the test partition has at least two cells.
-                                if(verify_worker_failure&&mesh.rank==0&&item+1==static_cast<std::ptrdiff_t>(count)&&j&&!batch_failure_injected)
-                                    inject_batch_failure();
+                                if(verify_worker_failure&&mesh.rank==0&&begin==failure_begin&&
+                                   item+1==static_cast<std::ptrdiff_t>(count)&&j&&!batch_failure_injected)
+                                    inject_batch_failure(begin);
                             } catch(...) { record_failure(begin+item); }
                         }
                         // The omp-for barrier completes all kernel writes. Only
@@ -1209,8 +1216,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                                             auto* tangent=j?batch_tangent.data()+item*Layout::dofs*Layout::dofs:nullptr;
                                             if(coo_jacobian) pack_tangent(cell,tangent);
                                             insert_cell(cell,residual_coo?nullptr:batch_residual.data()+item*Layout::dofs,tangent);
-                                            if(verify_insert_failure&&mesh.rank==0&&item==0&&j&&!batch_failure_injected)
-                                                inject_batch_failure();
+                                            if(verify_insert_failure&&mesh.rank==0&&begin==failure_begin&&
+                                               item==0&&j&&!batch_failure_injected)
+                                                inject_batch_failure(begin);
                                         }
                                     });
                                 } catch(...) { record_failure(begin); }
@@ -1231,7 +1239,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 if(error) {
                     if(mesh.rank==0&&batch_failure_injected&&!batch_failure_reported) {
                         std::cout<<"fsi_batch_failure mode="<<failure_name<<" thread="<<batch_failure_thread
-                                 <<" team="<<batch_failure_team<<'\n';
+                                 <<" team="<<batch_failure_team<<" batch="<<batch_failure_batch<<'\n';
                         batch_failure_reported=true;
                     }
                     std::rethrow_exception(error);

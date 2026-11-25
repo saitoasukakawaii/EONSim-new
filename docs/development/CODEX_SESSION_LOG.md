@@ -1,5 +1,24 @@
 # EONSim Codex Session Log
 
+## 2026-11-26 · FSI-PERF-03 — 续作源代码准备
+
+用户要求继续完成性能优化，顺序为写完代码、同步远程、运行算例验证、最后合并 PR。
+从远程恢复 `codex/fsi-performance-runtime` / `47237a033820b53ceb19003d032bb50f70994bb0`；
+其基线为已合并 #52 的 main `2dcb06c26a0359175e4f5a771d5bbff6dfc928af`。
+旧构建目录在当前工作环境不可用，按锁文件恢复 PETSc 3.23.7 依赖；恢复依赖不包含新源码编译/算例。
+
+并行静态审查分工为纯核/装配、求解器生命周期、分区；随后补齐 IO、工作量报告与实验驱动。
+已确认旧 threaded fault fixture 不足 64 cells/rank，无法验证第二批，改用 n=3 并在 batch=1 注入。
+压力解析列、紧凑 AIJ alias 次序与持久团队 barrier 的静态推导没有发现额外缺陷。
+显式权重引入新的分区身份风险，非空权重加入 domain 与实际 cell_part 指纹；默认空权重保持旧身份。
+
+当前尚未编译或运行本轮测试/性能测量，先推送再执行。最终证据将保留真实失败与后续修复，
+不通过削减容差、改变物理方程、跳过 CI 或全量复验代替定位。
+值得沉淀的知识是一次性数值复用的失效条件、实际工作计数、并行等待归因和输出身份保护；
+按 `eonsim-knowledge-capture` 使用 development-log 模板，草稿
+[fsi-runtime-cost-and-output.md](../../website/drafts/fsi-runtime-cost-and-output.md) 未公开发布。
+
+
 ## 2026-11-25–26 · FSI-PERF-02 — 适用优化、回退修复和证据交付
 
 用户继续要求完成 EONSim-new 性能优化。核实 PR #51 已合入 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`，

@@ -6,8 +6,12 @@
 分支 `codex/fsi-performance-runtime`。关闭剩余有具体源码依据的 CPU 装配重复成本：
 压力列解析化、默认 AIJ 紧凑物理块、同一线程团队内的有界批次、最终单次全新残量组装，
 以及 Jacobian-only 路径不发布无用 scratch 残量 COO。代码先推送，再做针对性验证和配对性能测量。
+续作范围加入初始 Jacobian/USER Schur 重复成本、rank-local 负载计时、稳定分区分桶与显式成本输入、
+带权分区身份保护、边界节点紧凑化和可选二进制输出；不猜测通用物理域成本比。
 验收保留全耦合导数、owned/ghost 反力、约束接受、失败/重试、线程异常与贡献累加次序。
 实现判断和性能判断分别记录；未知收益或回退不报告为通过。
+用户已明确授权验证后合并 PR；必须等四项必需检查和本轮验收完成，再做 head-locked squash。
+文章仅保存在 website/drafts，最终命令/失败/结果见 [证据入口](../research/data/fsi-runtime-2026-11-26/README.md)。
 
 ## FSI-PERF-02 / implementation and validation complete / 2026-11-25–26
 

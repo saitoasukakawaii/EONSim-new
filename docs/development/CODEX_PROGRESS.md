@@ -6,8 +6,11 @@
 已验收 `f7bd9ea` 完全一致；本轮在 `codex/fsi-performance-runtime` 从该 main 继续。
 本次可验收范围为压力列解析化以缩减 AD 宽度、默认 AIJ 紧凑物理块写入、有界批次的
 线程团队复用，以及最终残量/反力共用一次全新组装和取消 Jacobian-only 的无用残量 COO 发布。
-保持最终独立物理验收、完整几何导数、原始反力与 collective 失败语义；不缓存旧数值 Jacobian。
+续作补充合资格 Schur 会话的一次性起点 Jacobian 复用/后续延后、实际装配与 USER 刷新计数、
+rank-local 报告、稳定分区分桶/前缀编号、显式单元成本权重与指纹隔离，以及紧凑边界/可选二进制 VTU。
+保持最终独立物理验收、完整几何导数、原始反力与 collective 失败语义；不跨 solve 缓存旧数值 Jacobian。
 按用户要求先推送代码再执行受影响 Release 检查和配对测量；当前尚无本轮执行结果。
+[实现与控制项](FSI_RUNTIME_OPTIMIZATION.md) · [本轮证据入口](../research/data/fsi-runtime-2026-11-26/README.md)。
 
 ## 2026-11-25–26 · FSI-PERF-02：实现、验收与性能闭环完成
 

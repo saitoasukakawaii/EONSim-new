@@ -184,8 +184,13 @@ reuse-preconditioner 的路径；包括子 PC 在内的相关显式选项也保�
 `-snes_ksp_ew true` 和 `-verify_operator_permutation true` 同样使用每次新建会话。
 `-nonlinear_reuse false` 强制每次创建新会话，作为同方程/同容差的对照；关闭复用或不符合
 上述资格的会话在成功返回时也立即释放，不保留到下一次调用。
-新会话在首次需要 Newton 求解时配置 PC 计划；复用会话的初始装配和每次成功的受约束
-Jacobian 都刷新其 USER Schur 矩阵，PETSc 根据当前 Mat 数值状态更新数值 PC。
+新会话在首次需要 Newton 求解时配置 PC 计划；该次起点 Jacobian 可由首个普通
+Newton Jacobian 回调消费一次。必须是相同 Vec/Mat、全部 owner 的初值逐项相等，
+并且中间没有残量/Jacobian 评价；任何评价先清除资格，所有 rank 共同决定消费。
+已配置的合资格 Schur 会话每次从新残量开始，将初始数值 Jacobian 延后到首个
+正常 SNES 回调；每次成功的受约束 Jacobian 都刷新其 USER Schur 矩阵，PETSc
+根据当前 Mat 数值状态更新数值 PC。`-nonlinear_initial_jacobian_reuse false`
+保留预装配与首个回调各自装配的对照，不将旧时间步 Jacobian 当作新起点切线。
 复用对象/符号结构不等于沿用旧 Jacobian 或旧数值因子，也不改变物理验收条件。
 
 求解器回调通过稳定 holder 只在本次 solve 内绑定当前 Context，退出即解除借用，不保留
@@ -197,6 +202,10 @@ domain rejection 不使最终成功的会话失效。fatal callback 遗留的 tr
 `solver_report` 的 `solver_reused=0|1` 表示本次是否复用成功会话，`solver_generation`
 是同一 `NonlinearSystem` 的 SNES 创建序号，从 1 递增；这些字段是生命周期证据，不是
 性能结论。约束按 owned 行直接替换；全局约束行数为零时跳过无效的 `MatZeroRows`。
+报告另计实际完成的 `jacobian_assemblies`、SNES 的 `jacobian_callbacks`、
+起点预装配/复用/延后，以及应用自建 nodal USER 矩阵的 `user_schur_updates`；
+后者不表示 PETSc 所有内部 PC setup。显式 `-solver_rank_report` 在原报告同步阶段
+附加 rank-local 时长与 owned/ghost 规模，默认关闭，不在热回调另加报告规约。
 
 当前 `NonlinearSystem::solve` 从 `AlgebraLayout::fields` 建立 owned 行分组，并检查字段覆盖且互不重叠。剔除 Dirichlet 替换行后，物理方程按 `sqrt(sum((R_i/residual_scale)^2)/N) <= atol + rtol*initial_rms` 接受；约束替换行按 `max(abs(x_i-g_i)/constraint_scale) <= constraint_tolerance` 接受。只有约束而没有物理方程的字段 RMS 为 0；本地空字段仍参与规约。每次检查将所有字段合并为一次平方和规约与一次约束最大值规约，不收集全局向量。
 
