@@ -66,7 +66,8 @@ int main(int argc, char* argv[])
         if (!case_file) {
             std::cout << "Usage: eonsim -case case.yaml [-mesh mesh.msh] [-output result.vtu]\n"
                          "       [-partition directory] [-prepare directory -parts N]\n"
-                         "       [-diagnostics basic|full] [-block_pc] [-solver_report] [-fluid_coo]\n"
+                         "       [-diagnostics basic|full] [-block_pc] [-solver_report] [-fluid_coo|-fsi_coo]\n"
+                         "       [-fsi_assembly_report]\n"
                          "       [-checkpoint dir] [-restart dir] [-stop_after N] [PETSc options]\n";
         } else {
             using Clock = std::chrono::steady_clock;
@@ -77,6 +78,11 @@ int main(int argc, char* argv[])
             EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_coo",&fluid_coo,nullptr));
             if(fluid_coo&&(!config.fluid_problem||config.fsi_problem||config.motion_problem))
                 throw std::runtime_error("-fluid_coo requires the standalone fixed-mesh fluid problem");
+            PetscBool fsi_coo=PETSC_FALSE,fsi_assembly_report=PETSC_FALSE;
+            EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_coo",&fsi_coo,nullptr));
+            EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_assembly_report",&fsi_assembly_report,nullptr));
+            if((fsi_coo||fsi_assembly_report)&&!config.fsi_problem)
+                throw std::runtime_error("-fsi_coo and -fsi_assembly_report require the monolithic FSI problem");
             if(auto path=option("-checkpoint")) config.checkpoint=std::filesystem::absolute(*path);
             if(auto path=option("-restart")) config.restart=std::filesystem::absolute(*path);
             PetscInt stop=0;

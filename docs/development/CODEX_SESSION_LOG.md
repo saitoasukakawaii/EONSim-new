@@ -1,5 +1,19 @@
 # EONSim Codex Session Log
 
+## 2026-11-25 · FSI-ASSEMBLY-01 — 稀疏图和单元装配
+
+基线为 GitHub 已核实的 main `f7acccb7a8239c60a2d2be193a158ac430851dcf`。
+独立分支 `codex/fsi-assembly-performance`，先推送源码再构建／运行，合并留待用户审核。
+
+初始实现消除 PREALLOCATOR→临时 AIJ→逐行容量→第二 AIJ 的重复准备；
+physical-slot ghost 编号交换也不再生成无用 nodal adjacency/field 元数据。
+缓存单元行列与 trace 掩码，融合 AD primal/Jacobian，可选压缩 COO 含全部刚体／RCR 项。
+界面反力重放仅遍历实际接触界面的单元并复用缓冲，仍采用未投影的物理残量。
+
+独立静态审查核对了局部结构零、test/trial 映射、变步长链系数、出口几何导数和贡献顺序。
+审查期间修复一个空 rank 隐患：COO 模式按 `coo && j` 判断，不能用可能为空的值缓冲指针判断。
+这时尚未编译或运行数值；后续必须按真实执行结果补充，不把静态审查标为测试通过。
+
 ## 2026-11-25 · FSI-PC-03 — nodal 结构反馈与有界内层响应
 
 从 PR #49 已合并的 `296246e53d895f29ea3d0f7e5c960dc26b1426dc` 开始，

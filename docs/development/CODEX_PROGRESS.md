@@ -1,5 +1,13 @@
 # EONSim Codex Development Progress
 
+## 2026-11-25 · FSI-ASSEMBLY-01 开发中
+
+从 main `f7acccb7a8239c60a2d2be193a158ac430851dcf` 在独立分支
+`codex/fsi-assembly-performance` 开始稀疏结构与单元装配性能开发。
+实现保留最终预分配矩阵、缓存单元映射、融合残量/切线和可选 `-fsi_coo`。
+先提交远端，随后执行针对性 Release 与同输入成对计时；此初始记录尚无新运行结果。
+合并留待用户审核。后续实际收据、失败和性能范围补入本项记录。
+
 ## 2026-11-25 · FSI-PC-03 实现与验收完成：流体响应成本与结构 nodal 近似
 
 从已合并 #49 的 `296246e53d895f29ea3d0f7e5c960dc26b1426dc` 继续开发，交付入口为

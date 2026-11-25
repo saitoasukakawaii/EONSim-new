@@ -22,6 +22,12 @@ struct FsiElementData {
 };
 /// 节点优先 [ux,uy,uz,p,dmx,dmy,dmz]，无约束投影，无通信或历史写入。
 Tet4Ale::State<double> fsi_element_residual(const FsiElementData& data,const Tet4Ale::State<double>& state);
+struct FsiElementResult {
+    Tet4Ale::State<double> residual{};
+    Tet4Ale::Matrix<double> tangent{};
+};
+/// 一次当前几何与前向链式求值同时返回残量和完整切线；残量单独求值仍使用上面的轻量路径。
+FsiElementResult fsi_element(const FsiElementData& data,const Tet4Ale::State<double>& state);
 /// 解析体积/梯度导数与固定宽度前向链式传播；包含几何、网格速度和压力面积。
 Tet4Ale::Matrix<double> fsi_element_tangent(const FsiElementData& data,const Tet4Ale::State<double>& state);
 /// 中心差分参考，仅用于导数/性能对照；默认求解使用解析几何与前向链式导数。

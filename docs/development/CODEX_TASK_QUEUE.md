@@ -1,5 +1,19 @@
 # EONSim Codex Task Queue
 
+## FSI-ASSEMBLY-01 / implementing / 2026-11-25
+
+Claimed on `codex/fsi-assembly-performance` from main
+`f7acccb7a8239c60a2d2be193a158ac430851dcf`: reuse the final reduced AIJ
+pattern, cache fixed cell maps, fuse fluid/ALE residual and tangent evaluation,
+and add opt-in compressed FSI COO contributions including rigid/RCR terms.
+Keep test/trial interface maps distinct and refresh time-dependent weights on
+every attempt. Physical equations, time history and acceptance gates are unchanged.
+
+Source must be pushed before builds or numerical/performance verification.
+The delivery remains under user review before merging. Planned acceptance is
+the affected Release element/algebra/FSI cases and a paired binary comparison;
+no numerical or performance result has been claimed at this initial checkpoint.
+
 ## FSI-PC-03 / validated / 2026-11-25
 
 Implementation and targeted acceptance are complete on

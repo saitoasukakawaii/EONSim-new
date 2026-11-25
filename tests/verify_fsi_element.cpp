@@ -149,11 +149,23 @@ int main(int argc,char** argv) {
     }
     verify_regular_metric();
     verify_planar_area_tangent();
+    for(bool convection:{false,true}) for(bool pressure_face:{false,true})
     for(double mesh_dt:{0.,.043}) for(auto [gd,metric_dt]:{std::pair{0.,0.},std::pair{.7,0.},std::pair{0.,.011}}) {
+    data.fluid.convection=convection;
+    data.inlet_faces.clear();
+    if(pressure_face) data.inlet_faces.push_back({0,2,3});
     data.regular_metric_dt=metric_dt;
     data.fluid.grad_div_viscosity=gd;
     data.mesh_dt=mesh_dt;
-    const auto jac=fsi_element_tangent(data,x);
+    // The fused value must agree with the independent double evaluation on a
+    // deformed cell, including metric coefficients and moving pressure faces.
+    // Directional differences below check the derivative of that double path.
+    const auto element=fsi_element(data,x);
+    const auto expected=fsi_element_residual(data,x);
+    for(int i=0;i<Tet4Ale::dofs;++i)
+        if(!std::isfinite(element.residual[i]) || std::abs(element.residual[i]-expected[i])>2e-13*(1+std::abs(expected[i])))
+            throw std::runtime_error("Fused FSI residual differs from the double evaluation");
+    const auto& jac=element.tangent;
     for(int field=0;field<2;++field) {
         auto plus=x,minus=x;
         const double eps=2e-7;
@@ -166,7 +178,9 @@ int main(int argc,char** argv) {
             error+=(fd-jv)*(fd-jv); norm+=jv*jv;
         }
         const double relative=std::sqrt(error/norm);
-        std::cout << "field=" << field << " jv_relative_error=" << relative << '\n';
+        std::cout << "convection=" << convection << " pressure_face=" << pressure_face
+                  << " mesh_dt=" << mesh_dt << " metric_dt=" << metric_dt << " grad_div=" << gd
+                  << " field=" << field << " jv_relative_error=" << relative << '\n';
         if(!std::isfinite(relative)||relative>2e-8) throw std::runtime_error("FSI coupled Jacobian mismatch");
     }
     }

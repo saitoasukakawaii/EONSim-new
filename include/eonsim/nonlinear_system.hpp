@@ -25,7 +25,14 @@ struct NonlinearResult {
  */
 class NonlinearSystem {
 public:
-    NonlinearSystem(MPI_Comm communicator,const AlgebraLayout& layout);
+    /** Consume an optional assembled AIJ pattern, without duplicating its graph.
+     * Supply it on all ranks or none. Its communicator, row/column ownership and
+     * global sizes must match layout; all later entries (including constraint
+     * diagonals) must already exist. Numeric values are cleared before assembly.
+     * Without a pattern, use layout.diagonal/off_diagonal preallocation as before.
+     */
+    NonlinearSystem(MPI_Comm communicator,const AlgebraLayout& layout,
+                    PetscOwner<Mat,MatDestroy> pattern={});
     /** Opt in to a fixed COO Jacobian before the first solve (collective, once).
      * rows/columns are global indices in contribution order, including duplicates and remote rows.
      * Each rank may supply no entries. Invalid indices/sizes fail collectively before changing the matrix.

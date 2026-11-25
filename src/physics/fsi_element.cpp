@@ -95,7 +95,7 @@ Tet4Geometry current_geometry(const FsiElementData& data,const Tet4Ale::State<do
 Tet4Ale::State<double> fsi_element_residual(const FsiElementData& data,const Tet4Ale::State<double>& x) {
     return residual(data,x,current_geometry(data,x));
 }
-Tet4Ale::Matrix<double> fsi_element_tangent(const FsiElementData& data,const Tet4Ale::State<double>& x)
+FsiElementResult fsi_element(const FsiElementData& data,const Tet4Ale::State<double>& x)
 {
     using D=Dual<Tet4Ale::dofs>;
     const auto g=current_geometry(data,x);
@@ -112,9 +112,16 @@ Tet4Ale::Matrix<double> fsi_element_tangent(const FsiElementData& data,const Tet
             geometry.gradients[b][j].derivative[column]=-g.gradients[b][i]*g.gradients[a][j];
     }
     const auto r=residual(data,trial,geometry);
-    Tet4Ale::Matrix<double> tangent{};
-    for(int i=0;i<Tet4Ale::dofs;++i) for(int j=0;j<Tet4Ale::dofs;++j) tangent[Tet4Ale::matrix(i,j)]=r[i].derivative[j];
-    return tangent;
+    FsiElementResult result;
+    for(int i=0;i<Tet4Ale::dofs;++i) {
+        result.residual[i]=r[i].value;
+        for(int j=0;j<Tet4Ale::dofs;++j) result.tangent[Tet4Ale::matrix(i,j)]=r[i].derivative[j];
+    }
+    return result;
+}
+Tet4Ale::Matrix<double> fsi_element_tangent(const FsiElementData& data,const Tet4Ale::State<double>& x)
+{
+    return fsi_element(data,x).tangent;
 }
 Tet4Ale::Matrix<double> fsi_element_tangent_fd(const FsiElementData& data,const Tet4Ale::State<double>& x)
 {

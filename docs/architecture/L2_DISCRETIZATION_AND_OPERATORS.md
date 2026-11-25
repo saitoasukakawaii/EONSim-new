@@ -58,7 +58,7 @@ FSI 阶段必须增加已明确需要的接口运动学映射：弹性界面速�
 solve 前 collective 调用一次，接收本 rank 的全局行/列贡献序列，允许重复项、远程行和空序列。
 索引范围及行列长度在准备阶段共同检查；系统额外保留 owned 对角项，以支持仅有约束的行。
 PETSc 可以重排准备数组，因此驱动向其传入副本，回调始终使用原始贡献次序。
-拓扑、分区或代数编号变化必须重建系统；当前选项不涉及 FSI/ALE、在线重分区或动态稀疏图。
+拓扑、分区或代数编号变化必须重建系统；`-fluid_coo` 不涉及 FSI/ALE、在线重分区或动态稀疏图。
 
 COO 回调看到非空 Mat 时只填借用的 `jacobian_coo_values()` 数值区，不调用矩阵插入或
 COO collective。驱动在每次 Jacobian 评价前清零整个缓冲；所有 rank 完成局部评价并汇总
@@ -77,6 +77,41 @@ COO collective。驱动在每次 Jacobian 评价前清零整个缓冲；所有 r
 此扩展采用 PETSc 的[固定 COO 图](https://petsc.org/release/manualpages/Mat/MatSetPreallocationCOO/)
 和[批量数值更新](https://petsc.org/release/manualpages/Mat/MatSetValuesCOO/)，不新增另一套 MPI
 贡献累加逻辑。数值/恢复验收及实测范围见 [HPC-02](../research/FLUID_COO_ASSEMBLY_2026-10-30.md)。
+
+### FSI 固定装配计划与可选 COO
+
+FSI 的默认矩阵由 reduced layout 的 PREALLOCATOR 直接填入最终 AIJ，并将所有权转给
+`NonlinearSystem`；不再从完整图反查逐行容量后重建矩阵。完整图使用
+`MAT_NEW_NONZERO_LOCATION_ERR` 检查未声明的位置，普通计数预分配仍使用 allocation 检查。
+`FsiAssemblyPlan` 缓存本地单元的活动分量、测试行、试探列和界面 mesh trace 掩码。
+拓扑、分区和约束支撑固定时计划有效；当前 ALE 坐标变化不要求重建图。
+每次时间步尝试使用新的 `mesh_dt`，不会缓存 generalized-alpha/BDF2 或缩步后的旧链系数。
+
+`-fsi_coo` 显式选择同一系统的固定 COO 更新，并跳过默认 PREALLOCATOR 图构造。
+坐标序列只保留有效测试行/试探列及当前方程的结构依赖：流体行依赖流体与 ALE，
+参考网格 Laplace 每分量只依赖同一网格分量，结构行依赖结构速度。
+该掩码作用于物理局部槽，之后映射到 reduced 编号；重复界面别名保留并由 PETSc 求和。
+绝不根据某一状态下的数值零删项。刚体对角、固定和移动 RCR 面的全部压力/速度/几何项
+纳入同一坐标顺序；其数值使用本次 trial 几何和时间系数。端口索引与数值共用枚举函数。
+
+残量继续采用现有 Vec 插入与错误同步。COO 缓冲在全部 rank 的回调成功后才由驱动
+collective 更新；域错误、缩步和 checkpoint 语义沿用现有路径。装配模式不是物理状态，
+可在同分区 checkpoint 恢复时切换。默认仍是 MatSetValues，COO 额外存储按单元贡献数
+增长，不能用其代替最终唯一 nnz；不宣称对所有网格或预条件器更快。
+
+解析 FSI 单元在请求切线时由一次 Dual 评价同时输出 primal 残量和 Jacobian。
+`FSIFluidAleJac` 因此包含融合残量，`FSIFluidRes` 只包含独立残量评价；FD 参考路径仍单独求值。
+`FSIInsert` 在 COO 下包含 Vec 插入和局部数值缓冲写入，不含后续 COO collective。
+界面力使用原始物理残量，重算限定为接触界面的流体/结构单元，不能用已投影残量代替。
+
+`-fsi_assembly_report` 每次系统构造只输出一次 `fsi_assembly_plan`。
+`pattern_seconds` 包含 reduced 编号、ghost 和默认图准备；`plan_seconds` 为本地计划准备；
+`system_seconds` 包含矩阵接管/COO 准备及临时索引释放；`setup_seconds` 是各 rank 本地三阶段
+之和的最大值，不包括中间的物理数据、边界和输出准备。各阶段最大值不能相加解释为它。
+`cells/interface_cells/coo_entries/coo_value_bytes` 为 rank 求和，最后一项含额外 owned 对角值；
+`coo_value_bytes_max` 为最大 rank 的值缓冲量，均不含 PETSc 内部计划、临时坐标与单元槽索引。
+`solver_report` 另报告全局求和的 `nnz_allocated/nnz_unneeded/matrix_mallocs`，它们仅描述主矩阵。
+同输入的前后版本计时入口为 `scripts/benchmark_fsi_assembly.py`；实际结果以归档收据为准。
 
 在接口语义上区分 `J_op`（Krylov 使用的 Jacobian 作用）和 `P_mat`（构造预条件的矩阵）；首版二者可就是同一个 Mat。后续采用 matrix-free 时，可保留低阶/简化系数 assembled 预条件矩阵，无需强求完整 Jacobian 存储。近似矩阵仍须满足布局、约束、压力规范和尺度的一致性。
 
