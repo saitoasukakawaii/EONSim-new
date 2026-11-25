@@ -8,6 +8,8 @@ Execution-only flags can follow either --baseline-options or --candidate-options
 until the next driver argument, or use --candidate-options='-fsi_threads 2'.
 Use --baseline-assembly-report with a PR51-or-newer baseline to compare startup.
 Only -fsi_threads controls element workers; dependency OpenMP/BLAS threads stay 1.
+An explicit --candidate-partition-weights prepares a separate candidate layout;
+otherwise both binaries use the same unweighted baseline partition.
 """
 import argparse
 import csv
@@ -100,6 +102,60 @@ def require(condition, detail):
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def partition_weights(text):
+    """Parse an explicit offline cost model; never infer weights from tags."""
+    if not re.fullmatch(r'[1-9][0-9]*:[1-9][0-9]*(?:,[1-9][0-9]*:[1-9][0-9]*)*', text):
+        raise ValueError('Partition weights require unique positive integer tag:cost pairs, separated by commas')
+    pairs = [tuple(map(int, item.split(':'))) for item in text.split(',')]
+    if len({tag for tag, _ in pairs}) != len(pairs) or any(max(pair) > 2147483647 for pair in pairs):
+        raise ValueError('Partition tags must be unique and tags/costs must fit positive C++ int values')
+    return dict(sorted(pairs))
+
+
+def partition_preparations(binaries, case, work, group, ranks, weights=None):
+    """Keep the original shared prepare unless a candidate cost model is explicit."""
+    def preparation(mode, modes, directory, label, costs):
+        command = [str(binaries[mode]), '-case', str(case), '-prepare', str(directory), '-parts', str(ranks)]
+        if costs is not None:
+            command += ['-partition_cell_weights', ','.join(f'{tag}:{cost}' for tag, cost in sorted(costs.items()))]
+        return dict(prepared_by=mode, modes=modes, directory=directory, label=label,
+                    cell_weights=costs, command=command)
+    jobs = [preparation('baseline', ['baseline', 'candidate'] if weights is None else ['baseline'],
+                        work/(group+'-partition'), group+'-prepare', None)]
+    if weights is not None:
+        jobs.append(preparation('candidate', ['candidate'], work/(group+'-candidate-partition'),
+                                group+'-candidate-prepare', weights))
+    return jobs
+
+
+def partition_evidence(directory, ranks, work):
+    """Snapshot the completed manifest and every actual rank shard, without h5py."""
+    manifest = directory/'manifest.yaml'
+    require(directory.is_dir() and manifest.is_file(), ('Missing completed partition', str(directory)))
+    content = manifest.read_text()
+    entries = [re.fullmatch(r'(version|ranks|global_nodes|global_cells): ([1-9][0-9]*)', line)
+               for line in content.splitlines()]
+    require(len(entries) == 4 and all(entries), ('Malformed partition manifest', str(manifest)))
+    metadata = {entry[1]: int(entry[2]) for entry in entries}
+    require(set(metadata) == {'version', 'ranks', 'global_nodes', 'global_cells'} and
+            metadata['version'] == 1 and metadata['ranks'] == ranks,
+            ('Incompatible partition manifest', str(manifest), metadata))
+    shards = sorted(path for path in directory.iterdir() if path.suffix in ('.h5', '.hdf5'))
+    require({path.name for path in shards} == {f'rank_{rank}.h5' for rank in range(ranks)},
+            ('Missing or unexpected partition rank shards', str(directory)))
+    files = [manifest, *shards]
+    require(all(path.is_file() and path.stat().st_size > 0 for path in files),
+            ('Empty or invalid partition file', str(directory)))
+    return dict(path=str(directory.relative_to(work)), manifest=metadata, manifest_text=content,
+                files=[dict(path=str(path.relative_to(work)), sha256=digest(path), bytes=path.stat().st_size)
+                       for path in files])
+
+
+def check_partition_unchanged(evidence, work):
+    require(partition_evidence(work/evidence['path'], evidence['manifest']['ranks'], work) == evidence,
+            ('Prepared partition changed during measurement', evidence['path']))
 
 
 def records(text, marker):
@@ -470,6 +526,8 @@ def main():
     parser.add_argument('--repeats', type=int, default=3)
     parser.add_argument('--solver', choices=SOLVERS, default='direct',
                         help='Identical numerical preset for both binaries; hybrid uses coupled velocity with nodal pressure Schur')
+    parser.add_argument('--candidate-partition-weights', type=partition_weights, default=None, metavar='TAG:COST,...',
+                        help='Explicit positive offline cell costs, e.g. 10:5,20:1; baseline stays unweighted')
     parser.add_argument('--petsc-log', action='store_true', help='Equal event logging overhead in both modes')
     parser.add_argument('--baseline-assembly-report', action='store_true',
                         help='Report baseline initialization too; requires a PR51-or-newer baseline')
@@ -512,6 +570,8 @@ def main():
         element_threads_per_rank={mode: value['fsi_threads'] for mode, value in settings.items()},
         library_threads_per_rank=1,
         baseline_options=args.baseline_options, candidate_options=args.candidate_options,
+        candidate_partition_weights=args.candidate_partition_weights,
+        partition_policy='shared_unweighted' if args.candidate_partition_weights is None else 'separate_candidate_weights',
         solver_preset=dict(name=args.solver, options=preset_options, options_sha256=preset_hash,
                            expected_solvers=expected_solvers(args.solver)),
         execution_options=settings, mpi_binding_options=binding,
@@ -524,7 +584,7 @@ def main():
             'jacobian_callbacks includes the first callback when its initial matrix is reused. '
             'user_schur_updates counts application-built nodal USER matrices, not all PETSc PC setup. '
             'Older binaries may omit all these fields; an explicit startup-reuse option requires them.',
-        petsc_event_logging=args.petsc_log, binaries={}, commands=[], cases=[], runs=[], pairs=[])
+        petsc_event_logging=args.petsc_log, binaries={}, commands=[], cases=[], partitions=[], runs=[], pairs=[])
     for mode, path in binaries.items():
         result['binaries'][mode] = dict(path=str(path), sha256=digest(path),
             build_source_commit=getattr(args, mode+'_commit'), solver=args.solver,
@@ -614,19 +674,32 @@ def main():
             config['fsi'].update(steps=args.steps, output_interval=1)
             case.write_text(json.dumps(config, indent=2)+'\n')
             dt = config['fsi']['dt']
-            result['cases'].append(dict(subdivisions=n, case=str(case.relative_to(work)),
+            case_record = dict(subdivisions=n, case=str(case.relative_to(work)),
                 input_sha256={p.name: digest(p) for p in case.parent.iterdir() if p.is_file()},
-                fluid_cells=6*n**3, solid_cells=6*n**3+3, config=config))
+                fluid_cells=6*n**3, solid_cells=6*n**3+3, config=config)
+            result['cases'].append(case_record)
             for ranks in args.ranks:
                 group = f'n{n}-r{ranks}'
-                partition = work/(group+'-partition')
-                run([binaries['baseline'], '-case', case, '-prepare', partition, '-parts', ranks], group+'-prepare')
+                partitions = {}
+                for job in partition_preparations(binaries, case, work, group, ranks, args.candidate_partition_weights):
+                    inputs = {p.name: digest(p) for p in case.parent.iterdir() if p.is_file()}
+                    require(inputs == case_record['input_sha256'], 'Partition preparation inputs changed')
+                    record = dict(subdivisions=n, ranks=ranks, modes=job['modes'], prepared_by=job['prepared_by'],
+                                  cell_weights=job['cell_weights'], command=job['command'], log=job['label']+'.log',
+                                  input_case=case_record['case'], input_sha256=inputs, evidence=None)
+                    result['partitions'].append(record)
+                    record['prepare_seconds'], _ = run(job['command'], job['label'])
+                    record['evidence'] = partition_evidence(job['directory'], ranks, work)
+                    for mode in job['modes']:
+                        partitions[mode] = record
+                    save()
                 reference_fields = reference_history = reference_iterations = None
                 for repeat in range(-1, args.repeats):
                     pair = {}
                     for mode in (('baseline', 'candidate') if repeat % 2 else ('candidate', 'baseline')):
                         label = group+f'-sample{repeat}-{mode}'
                         output = work/(label+'.vtu')
+                        partition = work/partitions[mode]['evidence']['path']
                         command = [args.mpiexec, *binding, '-n', ranks, binaries[mode], '-case', case,
                                    '-partition', partition, '-output', output, '-solver_report', '-linear_report',
                                    *preset_options]
@@ -639,6 +712,8 @@ def main():
                         threads = settings[mode]['fsi_threads']
                         elapsed, text = run(command, label, threads=threads)
                         row = dict(subdivisions=n, ranks=ranks, repeat=repeat, mode=mode,
+                                   partition=partitions[mode]['evidence']['path'],
+                                   partition_prepare_log=partitions[mode]['log'],
                                    element_threads_per_rank=threads, execution_options=options[mode],
                                    solver_options_sha256=preset_hash, wall_seconds=elapsed, log=label+'.log',
                                    **parse_log(text, args.steps, ranks, dt, args.solver))
@@ -690,6 +765,12 @@ def main():
                                             for key in sorted(paired_metrics)}))
         require(all(digest(path) == result['binaries'][mode]['sha256'] for mode, path in binaries.items()),
                 'An executable changed during measurement')
+        for record in result['partitions']:
+            check_partition_unchanged(record['evidence'], work)
+        for case_record in result['cases']:
+            directory = (work/case_record['case']).parent
+            require({p.name: digest(p) for p in directory.iterdir() if p.is_file()} == case_record['input_sha256'],
+                    'A physical input changed during measurement')
         result['status'] = 'passed'
         print(json.dumps(result['summary'], indent=2), flush=True)
     except BaseException as exc:

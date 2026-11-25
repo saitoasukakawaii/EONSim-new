@@ -1,7 +1,9 @@
 """Validate archived profiling evidence and reject corrupted measurements; no MPI needed."""
+import hashlib
 from pathlib import Path
 import re
 import sys
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -9,7 +11,9 @@ sys.path.insert(0, str(ROOT / 'scripts'))
 from profile_multistep_setup import parse as multistep
 from profile_schur_mesh import parse as steady
 from benchmark_fsi_assembly import (TIMERS, JACOBIAN_COUNTERS, SOLVERS, check_execution,
-                                   execution_options, expected_solvers, parse_log, solver_options)
+                                   check_partition_unchanged, execution_options, expected_solvers,
+                                   parse_log, partition_evidence, partition_preparations,
+                                   partition_weights, solver_options)
 
 DATA = ROOT / 'docs/research/data'
 
@@ -176,6 +180,7 @@ class FsiAssemblyValidation(unittest.TestCase):
                     ('-pc_plan_schur_approx', 'nodal')]:
                 self.assertEqual(flags[flags.index(option)+1], expected)
         for flags in (['-ksp_rtol', '1e-5'], ['-pc_recipe', 'physics'],
+                      ['-partition_cell_weights', '10:5,20:1'],
                       ['-nonlinear_initial_jacobian_reuse'], ['-nonlinear_initial_jacobian_reuse', '1'],
                       ['-nonlinear_initial_jacobian_reuse', 'true', '-nonlinear_initial_jacobian_reuse', 'false']):
             with self.subTest(flags=flags), self.assertRaises(ValueError):
@@ -235,6 +240,77 @@ class FsiAssemblyValidation(unittest.TestCase):
         shifted = shifted.replace(correction+'\n', correction+'\n'+correction+'\n', 1)
         with self.assertRaises(RuntimeError):
             self.validated(shifted, 'twolevel')
+
+    def test_partition_weights_are_explicit_positive_unique_integers(self):
+        self.assertEqual(partition_weights('20:1,10:5'), {10: 5, 20: 1})
+        self.assertEqual(partition_weights('10:2147483647'), {10: 2147483647})
+        for text in ('', '10', '10:0', '0:5', '10:-1', '-10:5', '+10:5', '010:5',
+                     '10:1.5', '10:5 ', '10 :5', '10:5,', '10:5,,20:1', '10:5,10:1',
+                     '10:2147483648', '2147483648:1'):
+            with self.subTest(text=text), self.assertRaises(ValueError):
+                partition_weights(text)
+
+    def test_partition_commands_keep_the_shared_default_and_isolate_weights(self):
+        binaries = {'baseline': Path('/baseline/eonsim'), 'candidate': Path('/candidate/eonsim')}
+        work, case = Path('/measurement'), Path('/measurement/input/case.yaml')
+        shared = partition_preparations(binaries, case, work, 'n8-r2', 2)
+        self.assertEqual(len(shared), 1)
+        self.assertEqual(shared[0]['modes'], ['baseline', 'candidate'])
+        self.assertEqual(shared[0]['command'], ['/baseline/eonsim', '-case', str(case),
+                         '-prepare', '/measurement/n8-r2-partition', '-parts', '2'])
+        self.assertIsNone(shared[0]['cell_weights'])
+        separate = partition_preparations(binaries, case, work, 'n8-r2', 2, partition_weights('20:1,10:5'))
+        routes = {mode: job for job in separate for mode in job['modes']}
+        self.assertEqual(len(separate), 2)
+        self.assertEqual(routes['baseline']['command'], shared[0]['command'])
+        self.assertNotEqual(routes['baseline']['directory'], routes['candidate']['directory'])
+        self.assertEqual(routes['candidate']['command'], ['/candidate/eonsim', '-case', str(case),
+                         '-prepare', '/measurement/n8-r2-candidate-partition', '-parts', '2',
+                         '-partition_cell_weights', '10:5,20:1'])
+        self.assertEqual(routes['candidate']['cell_weights'], {10: 5, 20: 1})
+
+    def test_partition_metadata_binds_actual_files_and_rejects_mutation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            work = Path(temporary)
+            directory = work/'partition'
+            directory.mkdir()
+            # Snapshot validation needs exact bytes; numerical solves remain
+            # responsible for decoding and validating the real HDF5 shards.
+            originals = {'manifest.yaml': b'version: 1\nranks: 2\nglobal_nodes: 12\nglobal_cells: 7\n',
+                         'rank_0.h5': b'first rank bytes', 'rank_1.h5': b'second rank bytes'}
+            for name, data in originals.items():
+                (directory/name).write_bytes(data)
+            evidence = partition_evidence(directory, 2, work)
+            self.assertEqual(evidence['manifest'], dict(version=1, ranks=2, global_nodes=12, global_cells=7))
+            self.assertEqual(evidence['manifest_text'], originals['manifest.yaml'].decode())
+            files = {row['path']: row for row in evidence['files']}
+            self.assertEqual(set(files), {'partition/'+name for name in originals})
+            for name, data in originals.items():
+                self.assertEqual(files['partition/'+name]['sha256'], hashlib.sha256(data).hexdigest())
+                self.assertEqual(files['partition/'+name]['bytes'], len(data))
+            check_partition_unchanged(evidence, work)
+            changes = {'manifest.yaml': originals['manifest.yaml'].replace(b'12', b'13'),
+                       'rank_1.h5': b'Second rank bytes'}
+            for name, changed in changes.items():
+                (directory/name).write_bytes(changed)
+                with self.subTest(changed=name), self.assertRaises(RuntimeError):
+                    check_partition_unchanged(evidence, work)
+                (directory/name).write_bytes(originals[name])
+            for name in ('manifest.yaml', 'rank_1.h5'):
+                (directory/name).unlink()
+                with self.subTest(missing=name), self.assertRaises(RuntimeError):
+                    partition_evidence(directory, 2, work)
+                (directory/name).write_bytes(originals[name])
+            (directory/'rank_2.h5').write_bytes(b'unexpected rank')
+            with self.assertRaises(RuntimeError):
+                partition_evidence(directory, 2, work)
+            (directory/'rank_2.h5').unlink()
+            for old, new in ((b'version: 1', b'version: 2'), (b'ranks: 2', b'ranks: 1'),
+                             (b'global_cells: 7', b'global_cells: 0'),
+                             (b'global_cells: 7', b'global_nodes: 7')):
+                (directory/'manifest.yaml').write_bytes(originals['manifest.yaml'].replace(old, new))
+                with self.subTest(manifest_field=new), self.assertRaises(RuntimeError):
+                    partition_evidence(directory, 2, work)
 
 
 if __name__ == '__main__':
