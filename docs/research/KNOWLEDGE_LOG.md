@@ -1,5 +1,46 @@
 # EONSim Knowledge Log
 
+## 2026-11-27 · FSI-SCALE-01：精确作用、预条件近似与性能证据的边界
+
+北京时间记录，任务起始于 2026-11-26。[未发布草稿](../../website/drafts/fsi-scalable-matrix-free.md)、
+[运行与数学说明](../development/FSI_SCALABLE_MATRIX_FREE.md)和
+[完整原件/失败索引](data/fsi-scale-01-2026-11-26/README.md)对应
+[PR #64](https://github.com/saitoasukakawaii/EONSim-new/pull/64)，最终生产/驱动为
+`50b41ae19067bd8853a482ab853805e23c096ec5`。实现与有界验证完成；最终文档 head 的检查和
+锁定 head 合并结果由 PR #64 记录确认。文章仍在 drafts，未公开发布。
+
+可复用结论：精确 Jv 与 reduced assembled P 的图/值/刷新必须分开；部分装配缓存绑定
+每次真实线性化，SIMD 和方向通信重叠不能复用过期状态。物理左右缩放应配合保持原
+Galerkin 测试空间的限制，候选再现本身不保证鞍点稳定性。压力 supremizer 以实际离散
+耦合生成局部响应，消耗原 spectral 名额；局部最小奇异值与 FP64 setup 配对保持既不是
+全局 inf-sup 下界，也不证明 native FP32 量化后同样精确。K-cycle 的每次粗访问最多两方向
+并不限制整个递归周期只有两次粗工作，必须报告实际计数而非只报外层迭代。
+
+故障教训：约束投影的零残余可能被线搜索放大；KSP 正 reason 过早发布会使公开
+BuildSolution 读取旧 restart 近似，真实残差 guard 必须在当前迭代状态取得解。不同 RSS
+采样口径须分别保存；系数变 float 不能抵消两个 generation 同驻、稠密 patch 或 halo
+容器剩余容量的开销。`116836b` RSS 增加约35%的负例及 `30e2941` 生命周期/存储修复
+后的单次同源 pair（最大 rank 归一化峰值 −4.0557%）均保留；不据此宣称总内存或带宽减半。
+缺 telemetry、Python 负例异常类型及人工中断也与真正的物理失败分别记录，拒绝门槛未放宽。
+
+最终 `50b41ae` 本地 **3/3 MG、19/19 Python、9/9 网格和15/15物理求解**通过；后两批
+独立重读 72 接受步、171 条线性记录，保留原字段/约束、严格或当次 forcing 真残量门槛。
+`30e2941` **9/9 MG/patch/smoother**、K-cycle 网格和 native pair 仅按原源引用；
+`6378f4c` 的三次配对方向成本测量也只支持共享节点上的局部观察。原件没有 J/b/dx，
+日志标量复核不等于离线重算 Jdx−b。
+
+703/2299/5367 DoF 的最终 supremizer V 迭代 92/138/199，平均最大/最小 **2.1630**，
+未达到预声明 **≤1.3**；优化 V 2.3402、历史 K 2.0612 同样未达。近似网格无关仍 **OPEN**。
+实测最高 **10,387 DoF / 单 host**，百万 DoF、多节点与扩展效率 **OPEN / 未运行**。
+局部配对有效、有限窗口物理通过与目标完成是不同结论，不能互相替代。
+
+[源码 CI 45853312807](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312807)
+实际 **4/4 Release、19/19 Python**，复用 62 项 Release、总覆盖 66；合并预览
+`3ca62ae4c0c037ca59c255fc8cd1754f1101f7ea` 与源码的 tree 均为
+`7f66c8b02d62ed67606f7bf5f94fd5af34915f6e`。
+[源码网站检查 45853312823](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312823)
+成功；这不替代最终文档 head 的检查和合并记录，也不计作该 head 新执行数值测试。
+
 ## 2026-11-26 · FSI-MF-02：先收缩方向，再形成节点力
 
 [未发布草稿](../../website/drafts/fsi-direct-solid-action.md)、
