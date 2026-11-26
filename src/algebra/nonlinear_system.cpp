@@ -433,12 +433,18 @@ struct AdaptivePcState {
         EONSIM_PETSC(VecGetArrayRead(row_sum.get(),&rows));
         double drift=0;
         if(ready) for(PetscInt i=0;i<local_size;++i) {
-            const auto relative=[](double value,double reference) {
+            const auto relative=[](double value,double reference,double scale) {
                 if(!std::isfinite(value)||!std::isfinite(reference)) return std::numeric_limits<double>::infinity();
-                const double scale=std::max(std::abs(value),std::abs(reference));
+                if(!std::isfinite(scale)) return std::numeric_limits<double>::infinity();
                 return scale>0?std::abs(value/scale-reference/scale):0.;
             };
-            drift=std::max({drift,relative(diag[i],reference_diagonal[i]),relative(rows[i],reference_row_sum[i])});
+            // Stabilized pressure diagonals may be tiny compared with the
+            // velocity-pressure couplings in the same row. Normalize both
+            // samples by that row's absolute sum, not by a near-zero diagonal;
+            // unrelated physical fields still never share one global scale.
+            const double scale=std::max(std::abs(rows[i]),std::abs(reference_row_sum[i]));
+            drift=std::max({drift,relative(diag[i],reference_diagonal[i],scale),
+                           relative(rows[i],reference_row_sum[i],scale)});
         }
         double local[]={drift,static_cast<double>(!ready||force||age>=maximum_reuse||iteration_trigger)},global[2]{};
         MPI_Allreduce(local,global,2,MPI_DOUBLE,MPI_MAX,PetscObjectComm(reinterpret_cast<PetscObject>(matrix)));
