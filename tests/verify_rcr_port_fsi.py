@@ -68,6 +68,8 @@ def compare_history(reference, actual):
     maximum = 0.
     for before, after in zip(reference, actual):
         assert before.keys() == after.keys() and before['step'] == after['step']
+        assert math.isclose(before['time'], after['time'], rel_tol=0, abs_tol=1e-14)
+        assert math.isclose(before['accepted_dt'], after['accepted_dt'], rel_tol=0, abs_tol=1e-14)
         for key in before:
             if 'rcr' in key or 'capacitor' in key:
                 maximum = max(maximum, abs(before[key]-after[key]))
@@ -80,9 +82,14 @@ def single(executable, mpi, work):
     cfg['fsi'].update(steps=4, output_interval=4)
     cfg['time'] = dict(scheme='generalized_alpha', rho_infinity=.5)
     cfg['time_control'] = dict(step_sizes=[.015, .015, .013, .013])
+    # TimeStepper ends at nominal dt*steps; scheduled values replace the
+    # attempted step size, not that end time. Match both definitions exactly
+    # so this four-step comparison does not append a fifth partial step.
+    cfg['fsi']['dt'] = math.fsum(cfg['time_control']['step_sizes'])/cfg['fsi']['steps']
     model = cfg['fsi']['domains']['rcr_outlet']
     run = Runner(executable, mpi, work, interface_area=geometry['interface_area'])
     reference, rows, _ = run.solve('direct', cfg)
+    assert len(rows) == 4 and math.isclose(rows[-1]['time'], .056, rel_tol=0, abs_tol=1e-14)
     circuit = check_rcr_history(run, 'direct', model, rows)
     area, flux, area0, _ = cap(work, reference, model['tag'], (1., 0., 0.))
     assert abs(area/area0-1) > 1e-6 and abs(flux-rows[-1]['endpoint_rcr_flow']) < 2e-12
@@ -124,6 +131,7 @@ def multiple(executable, mpi, work):
     f = cfg['fsi']
     f.update(steps=3, output_interval=3, dt=.016, pressure_face_history=True)
     cfg['time_control'] = dict(step_sizes=[.016, .014, .017])
+    f['dt'] = math.fsum(cfg['time_control']['step_sizes'])/f['steps']
     dom = f['domains']
     left, right = dom['rcr_outlets']
     left.update(initial_capacitor_pressure=.18, proximal_resistance=12.,
@@ -133,6 +141,7 @@ def multiple(executable, mpi, work):
     release_plane(dom, right, 1, 13)
     run = Runner(executable, mpi, work, interface_area=geometry['interface_area'])
     reference, rows, _ = run.solve('direct-two', cfg, 2)
+    assert len(rows) == 3 and math.isclose(rows[-1]['time'], .047, rel_tol=0, abs_tol=1e-14)
     report = {}
     changes = []
     for model, normal in ((left, (0., 1., 0.)), (right, (0., -1., 0.))):
