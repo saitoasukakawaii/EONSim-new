@@ -129,6 +129,71 @@ void verify(MPI_Comm comm) {
     }
     check(comm,incompatible,"Adaptive PC silently accepted a stale-Jacobian user policy");
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-snes_lag_jacobian"));
+
+    // The first Newton correction of this C1 separable problem has J=I and
+    // takes every unknown from zero to one. Thereafter F_i=d_i*(x_i^2-2):
+    // stale I needs more than two Krylov iterations, while the rebuilt diagonal
+    // is exact up to a common scale throughout the remaining Newton trajectory.
+    // Five accepted steps are needed at this tolerance. Failing at the second
+    // correction therefore distinguishes a total budget of four from a reset
+    // budget of four after one already accepted step.
+    option("-nonlinear_pc_max_reuse","100"); option("-nonlinear_pc_change_tolerance","1");
+    option("-nonlinear_pc_iteration_growth","100"); option("-snes_linesearch_type","basic");
+    option("-snes_max_funcs","10");
+    NonlinearSystem budget_system(comm,layout);
+    SolverConfig budget_config; budget_config.absolute_tolerance=1e-9;
+    budget_config.relative_tolerance=0; budget_config.maximum_iterations=4;
+    NonlinearAssemblyPhases budget_phases; budget_phases.preconditioner_context={1};
+    std::vector<double> tangent_states;
+    const auto nonlinear=[&](const std::vector<double>& x,Vec r,Mat j) {
+        if(j) tangent_states.push_back(x.empty()?0.:x.front());
+        for(PetscInt i=0;i<layout.owned;++i) {
+            const auto row=layout.begin+i;
+            const double d=row+1,value=x[i],shift=value-1;
+            double residual=d*(value*value-2),diagonal=2*d*value;
+            if(value<1) {
+                const double a=6*d-2,b=4*d-1;
+                residual+=a*shift*shift+b*shift*shift*shift;
+                diagonal+=2*a*shift+3*b*shift*shift;
+            }
+            EONSIM_PETSC(VecSetValue(r,row,residual,ADD_VALUES));
+            if(j) EONSIM_PETSC(MatSetValue(j,row,row,diagonal,ADD_VALUES));
+        }
+    };
+    const auto late_retry=[&]() {
+        return tangent_states.size()>=3&&(layout.owned==0||
+            (std::abs(tangent_states[0])<1e-12&&std::abs(tangent_states[1]-1)<1e-12&&
+             std::abs(tangent_states[2]-1)<1e-12));
+    };
+    const auto limited_solve=[&]() {
+        tangent_states.clear();
+        return budget_system.solve(budget_config,initial,{}, {},nonlinear,budget_phases);
+    };
+    bool iteration_limited=false;
+    try {limited_solve();} catch(const StepRejected& error) {
+        iteration_limited=std::string(error.what()).find(
+            "reason="+std::to_string(static_cast<int>(SNES_DIVERGED_MAX_IT)))!=std::string::npos;
+    }
+    check(comm,iteration_limited&&late_retry(),"Fresh-PC retry reset the caller's total Newton iteration budget");
+    option("-snes_max_it","10"); option("-snes_max_funcs","4");
+    bool function_limited=false;
+    try {limited_solve();} catch(const StepRejected& error) {
+        function_limited=std::string(error.what()).find(
+            "reason="+std::to_string(static_cast<int>(SNES_DIVERGED_FUNCTION_COUNT)))!=std::string::npos;
+    }
+    check(comm,function_limited&&late_retry(),"Fresh-PC retry reset the caller's function evaluation budget");
+    // These PETSc options override budget_config.maximum_iterations=4. Restore
+    // both effective limits after the retry so the retained solver can complete
+    // the same five-step problem at the next physical context.
+    option("-snes_max_it","5"); option("-snes_max_funcs","5");
+    const auto within_budget=limited_solve();
+    check(comm,within_budget.pc_rebuild_retries==1&&within_budget.iterations==5&&late_retry(),
+          "Retry did not honor the effective PETSc budget or failed before an accepted Newton step");
+    budget_phases.preconditioner_context={2};
+    const auto next_budget=limited_solve();
+    check(comm,next_budget.solver_reused&&next_budget.solver_generation==within_budget.solver_generation&&
+          next_budget.pc_rebuild_retries==1&&next_budget.iterations==5&&late_retry(),
+          "Retained adaptive session kept the retry's reduced Newton/function budgets");
     if(rank==0) std::cout<<"adaptive_pc verified real setup counts, fresh operators, age/drift/time/iteration invalidation and rollback on "<<size<<" ranks\n";
 }
 }

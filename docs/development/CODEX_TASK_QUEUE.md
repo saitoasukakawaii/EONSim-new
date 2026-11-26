@@ -1,5 +1,14 @@
 # EONSim Codex Task Queue
 
+## HPC-06 / in progress / 2026-11-26
+
+从已合并 #55 的 `main@2d0e9b79e90ac0b7332b22e900e50e3306a68a35` 接续五项优化。
+三路定向源码复查确认 AMG、ghost/SIMD 和 HDF5 无新增阻塞；发现自适应 PC 在已经接受
+Newton 步后因旧 PC 迭代耗尽而重试时，第二次 SNESSolve 重新取得完整非线性预算。
+本轮只修复该求解级预算漏洞，补有剩余/不足预算及跨调用恢复的回归；用户要求仍是
+先完成代码并同步远程，再执行定向 Release 与真实 FSI 验证，最后核验四项检查并合并。
+当前尚未执行新代码验证，不将 HPC-05 的历史通过计为本轮新执行。
+
 ## HPC-05 / implementation and validation complete / 2026-11-26
 
 用户要求的五项开发、先推送后验证、原始证据和独立审计已完成。交付
