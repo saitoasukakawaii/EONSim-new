@@ -65,9 +65,9 @@ class KCycleEvidenceTests(unittest.TestCase):
             valid.replace('coarse_krylov_max_residual_ratio=0.9', 'coarse_krylov_max_residual_ratio=1.0001'),
         )
         for text in invalid:
-            with self.subTest(text=text), self.assertRaises(RuntimeError):
+            with self.subTest(text=text), self.assertRaises(ValueError):
                 multigrid.kcycle_evidence(text, [{'cycle': 'k'}], 2)
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             multigrid.kcycle_evidence(valid, [{'cycle': 'v'}], 2)
 
     def test_cumulative_work_is_retained_by_generation_not_summed(self):
@@ -80,7 +80,7 @@ class KCycleEvidenceTests(unittest.TestCase):
         last = {(int(row['rank']), row['solver_generation']): int(row['coarse_krylov_directions'])
                 for row in result['last_by_rank_path_generation']}
         self.assertEqual(last, {(0, 1): 12, (1, 1): 12, (0, 2): 4, (1, 2): 4})
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             multigrid.kcycle_evidence(self.snapshot(1, 3) + self.snapshot(1, 1), [{'cycle': 'k'}], 2)
 
     @staticmethod
