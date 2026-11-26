@@ -199,7 +199,7 @@ def main():
                     assembly.check_partition_unchanged(preparation['evidence'], work)
                     text = run_command([mpiexec, '--map-by', 'core', '--bind-to', 'core',
                                         '-n', ranks, executable, '-case', case, '-partition', partition,
-                                        '-output', output, '-solver_report', '-linear_report',
+                                        '-output', output, '-solver_report', '-linear_report', '-pc_plan_report',
                                         *row['flags']], run_directory / 'solver.log', row)
                     assembly.require({path.name: assembly.digest(path) for path in case.parent.iterdir()
                                       if path.is_file()} == hashes, 'Case input changed during a run')
