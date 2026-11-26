@@ -3,8 +3,10 @@ import argparse,copy,json,math,re,subprocess,sys,xml.etree.ElementTree as ET
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'cases/fsi'))
 from generate_domains import generate
-p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',type=Path,required=True);p.add_argument('--recipe',choices=['physics','quantity','hybrid','added_mass']);p.add_argument('--velocity-solver',choices=['split','coupled','twolevel']);p.add_argument('--structure-approx',choices=['a11','nodal']);a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser();p.add_argument('--executable',required=True);p.add_argument('--mpiexec',required=True);p.add_argument('--work',type=Path,required=True);p.add_argument('--recipe',choices=['physics','quantity','hybrid','added_mass']);p.add_argument('--velocity-solver',choices=['split','coupled','twolevel','gamg']);p.add_argument('--velocity-coarse-space',choices=['constants','rigid']);p.add_argument('--structure-approx',choices=['a11','nodal']);a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
 if a.velocity_solver and not a.recipe: p.error('--velocity-solver requires --recipe')
+if a.velocity_coarse_space and a.velocity_solver not in ('twolevel','gamg'): p.error('--velocity-coarse-space requires --velocity-solver twolevel or gamg')
+if a.velocity_coarse_space=='rigid' and a.velocity_solver!='twolevel': p.error('rigid coarse space requires --velocity-solver twolevel')
 if a.structure_approx and a.recipe!='added_mass': p.error('--structure-approx requires --recipe added_mass')
 case=generate(a.work);config=json.loads(case.read_text());config['fsi'].update(material='neo_hookean',pressure=20,dt=.04,steps=1);config['time_control']=dict(max_retries=6,minimum_dt=.0005,reduction=.5);
 if a.recipe: config.setdefault('solver',{})['pc_recipe']=a.recipe
@@ -50,6 +52,7 @@ for ranks in (1,2):
  prefix=launcher+[a.executable,'-case',case,'-partition',part,'-snes_max_it',2,
                   '-ksp_rtol','1e-11','-ksp_atol','1e-15']
  if a.velocity_solver: prefix+=['-pc_plan_velocity_solver',a.velocity_solver]
+ if a.velocity_coarse_space: prefix+=['-pc_plan_velocity_coarse_space',a.velocity_coarse_space]
  if a.structure_approx: prefix+=['-pc_plan_structure_approx',a.structure_approx,'-pc_plan_report','-solver_report']
  full=a.work/f'full{ranks}.vtu';text=run(prefix+['-output',full]);retries=re.findall(r'step_retry=\d+ time=(\S+) next_dt=(\S+)',text)
  check_structure_option(text)

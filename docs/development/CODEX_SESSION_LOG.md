@@ -1,5 +1,24 @@
 # EONSim Codex Session Log
 
+## 2026-11-26 · FSI-PC-04 — 实现接续
+
+通过 GitHub 核实 main 为 `858f021`、#53 已合并且无开放 PR，恢复同一锁定 Release 工作区，
+建立 `codex/fsi-block-amg-robustness`。工作区原 sparse checkout 排除了 `docs/research`，
+恢复该目录后读取已有输入与证据；没有重新生成或改变历史材料。
+
+源审查确认 twolevel 只有 rank/domain/component 常数列，尚无坐标旋转或完整多层 GAMG。
+新增 owned 参考坐标的语义映射；旧镜像弹性示例须按 `x=1+thickness*(1-x)` 转换固体坐标，
+独立双域直接使用实际 joined 参考位置。坐标只属于预条件器数据，不改物理残量/Jacobian。
+检查 PETSc v3.23.7 的 `agg.c` 和 `gamg.c`，确认 scalar AIJ 支持显式多列近零空间，
+插值复用仍更新 Galerkin 数值；不把 reduced xyz 设为固定 blocksize 3。
+
+后续独立审查识别出 scalar-AIJ 多向量局部聚合的秩风险：全局正交不保证每个 aggregate
+上的平移/旋转数据满秩。采用单活动标量常数的完整速度 GAMG，并将旋转富集限定于可显式
+剔除局部依赖的 twolevel；`gamg + rigid` 明确拒绝，不静默删除用户请求的旋转模态。
+
+在源审查中补齐无 `-pc_recipe` 时新粗空间选项的拒绝路径。当前仅进行了源阅读和 diff
+完整性检查；所有构建、代数/物理算例和性能测量都等待首次源码推送后执行。
+
 ## 2026-11-26 · FSI-PERF-03 — 实现、测量与独立审计完成
 
 用户授权顺序为代码完成、推送远程、算例验证、最后受保护合并。恢复分支

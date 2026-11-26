@@ -1,5 +1,12 @@
 # EONSim Codex Development Progress
 
+## 2026-11-26 · FSI-PC-04：联合速度 AMG 与旋转粗模态
+
+GitHub 已确认上一轮 PR #53 合入 `main@858f021a34ff5bd178287430d8cd45e52ec19f48`，
+开始 `codex/fsi-block-amg-robustness`。本轮聚焦分块算法：完整流固速度块的可选 GAMG、
+参考几何刚体粗模态、真实数值更新及密度比/时间步对照。实现阶段尚未构建或执行算例；
+沿用用户指定的“全部代码先同步远程、再验证、最后合并”顺序。
+
 ## 2026-11-26 · FSI-PERF-03：实现、验证与性能审计完成
 
 从已合并 #52 的 main `2dcb06c26a0359175e4f5a771d5bbff6dfc928af` 开发，生产源码及候选二进制为

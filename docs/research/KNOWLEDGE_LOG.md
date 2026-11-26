@@ -1,5 +1,12 @@
 # EONSim Knowledge Log
 
+## 2026-11-26 · FSI-PC-04：参考旋转模式与联合速度 GAMG
+
+[未发布算法草稿](../../website/drafts/fsi-reference-modes-and-gamg.md)记录缩减语义行的参考
+位置、约束零模态、局部/全局粗空间区别及插值复用的数值刷新。实现分支为
+`codex/fsi-block-amg-robustness`，基线 main `858f021`；当前为源码阶段，尚未执行本轮验证。
+固定 PETSc 3.23.7 原始源码作为实现依据，不将 near-nullspace 宣称为动态 FSI 精确零空间。
+
 ## 2026-11-26 · FSI-PERF-03：实际工作计数、成本分区与输出语义
 
 [未发布开发草稿](../../website/drafts/fsi-runtime-cost-and-output.md)与

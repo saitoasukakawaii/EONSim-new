@@ -1,5 +1,16 @@
 # EONSim Codex Task Queue
 
+## FSI-PC-04 / implementation in progress / 2026-11-26
+
+从 GitHub 已核验的 main `858f021a34ff5bd178287430d8cd45e52ec19f48`（#53 已合并）
+继续 FSI block preconditioner，分支 `codex/fsi-block-amg-robustness`。
+用户授权顺序为完成代码、推送远程、算例验证、通过四项必需检查后锁定 head squash 合并。
+
+本轮关闭已有算法缺口：联合速度块多层 GAMG、可选参考坐标旋转粗模态、语义/约束及
+空 rank 处理，以及带显式密度比/时间步来源的直接解对照。已有 twolevel 常数粗空间及
+默认 recipe 保留。此条为领取记录；尚未运行本轮构建或算例，不预写通过结果。
+多节点/GPU、百万自由度及任意密度/Re 参数的普适收敛不属于本地证据能够支持的结论。
+
 ## FSI-PERF-03 / implementation and validation complete / 2026-11-26
 
 基线为已合并 #52 的 `2dcb06c`；生产源码/二进制 `7e8868e`，实验驱动 `3e366c8` / `7d86f38`，

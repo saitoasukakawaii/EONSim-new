@@ -5,6 +5,9 @@ Full mode requires a matching successful quick receipt for each selected mode,
 then runs 32 steps, one warmup, and three interleaved four-step samples. Selecting
 promising modes is explicit; timing is evidence, never a numerical pass gate.
 The twolevel PREONLY candidate applies one cycle, not a fixed linear inverse.
+Robustness mode is opt-in: it compares fixed density ratios and time steps to
+a fresh direct reference on each identical mesh/partition. It does not require
+a speedup, promote a failed candidate, or replace the pinned baseline studies.
 """
 import argparse
 import hashlib
@@ -31,6 +34,9 @@ GRIDS = {'coarse': ('s24-r3-w2-a6', 1, 1027, 'natural'),
 MODES = ('coupled_nodal', 'added_mass', 'added_mass_a11_onecycle',
          'added_mass_nodal', 'added_mass_fluid_onecycle',
          'twolevel_iterative', 'twolevel_onecycle')
+GEOMETRIC_MODES = ('twolevel_rigid', 'gamg_constants')
+ROBUST_MODES = ('twolevel_onecycle', 'twolevel_rigid', 'gamg_constants',
+                'added_mass_fluid_onecycle')
 TARGET = 'max(1e-23, 1e-10*rhs_norm)'
 MARGIN = 1.00001
 FIELD_LIMIT = 2e-6
@@ -70,13 +76,16 @@ def flags(mode, ordering):
                    structure + 'ksp_rtol', '1e-2', structure + 'ksp_max_it', '20']
         return result
     twolevel = mode.startswith('twolevel_')
-    onecycle = mode == 'twolevel_onecycle'
+    gamg = mode.startswith('gamg_')
+    onecycle = mode in ('twolevel_onecycle', 'twolevel_rigid') or gamg
     prefix = '-fieldsplit_dynamics_fieldsplit_velocity_'
     result += ['-pc_recipe', 'hybrid', '-pc_plan_velocity_solver',
-               'twolevel' if twolevel else 'coupled',
-               prefix + ('mg_levels_' if twolevel else '') +
+               'twolevel' if twolevel else 'gamg' if gamg else 'coupled',
+               prefix + ('mg_levels_' if twolevel or gamg else '') +
                'sub_pc_factor_mat_ordering_type', ordering]
-    if twolevel:
+    if twolevel or gamg:
+        result += ['-pc_plan_velocity_coarse_space',
+                   'rigid' if mode.endswith('_rigid') else 'constants']
         result += [prefix + 'ksp_type', 'preonly' if onecycle else 'fgmres',
                    prefix + 'ksp_rtol', '1e-4', prefix + 'ksp_max_it', '20',
                    prefix + 'pc_mg_multiplicative_cycles', '1',
@@ -95,7 +104,9 @@ def expected_solvers(mode):
                 ('fieldsplit_dynamics_fieldsplit_structure_', structure, 'gamg')]
     if mode.startswith('twolevel_'):
         return [('fieldsplit_dynamics_fieldsplit_velocity_',
-                 'preonly' if mode == 'twolevel_onecycle' else 'fgmres', 'mg')]
+                 'preonly' if mode in ('twolevel_onecycle', 'twolevel_rigid') else 'fgmres', 'mg')]
+    if mode.startswith('gamg_'):
+        return [('fieldsplit_dynamics_fieldsplit_velocity_', 'preonly', 'gamg')]
     if mode == 'coupled_nodal':
         return [('fieldsplit_dynamics_fieldsplit_velocity_', 'gmres', 'asm')]
     raise ValueError(('unknown solver mode', mode))
@@ -119,6 +130,8 @@ def copy_fixture(destination, grid):
     require(all(config['fsi'].get(k) == v for k, v in expected.items()), config['fsi'])
     require(config['time'] == dict(scheme='generalized_alpha', rho_infinity=.5),
             config['time'])
+    require(config['fsi'].get('pressure_time') ==
+            dict(amplitude=0., period=1., ramp_time=1.), 'unexpected pressure ramp')
     return {name: digest(destination / name) for name in ('case.json', 'fluid.msh', 'solid.msh')}
 
 
@@ -197,7 +210,7 @@ def node_snapshots(text):
                 inner_iteration_semantics='last-call snapshots, not accumulated inner iterations')
 
 
-def audit(text, steps, dofs, ranks, mode):
+def audit(text, steps, dofs, ranks, mode, dt=1/32):
     # Reuse the public report-count/finiteness checks, then enforce the tighter
     # arterial target and row-wise reconstruction used by verify_arterial_block.
     count = audit_block_linear_log(text, steps)
@@ -230,9 +243,10 @@ def audit(text, steps, dofs, ranks, mode):
             reports.append(row)
         elif line.startswith('fsi_step='):
             step = len(accepted) + 1
-            stage = (step - 1 + (1. if step == 1 else 2/3)) / 32
-            pressure = 80 * stage**3 * (10 + stage * (-15 + 6*stage))
-            require(int(row['fsi_step']) == step and abs(float(row['time']) - step/32) < 1e-14 and
+            stage = (step - 1 + (1. if step == 1 else 2/3)) * dt
+            ramp = min(max(stage, 0.), 1.)
+            pressure = 80 * ramp**3 * (10 + ramp * (-15 + 6*ramp))
+            require(int(row['fsi_step']) == step and abs(float(row['time']) - step*dt) < 1e-14 and
                     abs(float(row['evaluation_time']) - stage) < 1e-14 and
                     abs(float(row['applied_pressure']) - pressure) < 1e-11, row)
             accepted.append(row)
@@ -305,17 +319,38 @@ def main():
     parser.add_argument('--executable', required=True)
     parser.add_argument('--mpiexec', required=True)
     parser.add_argument('--work', type=Path, required=True)
-    parser.add_argument('--stage', choices=('quick', 'full'), default='quick')
-    parser.add_argument('--grids', nargs='+', choices=tuple(GRIDS), default=list(GRIDS))
-    parser.add_argument('--modes', nargs='+', choices=MODES, default=list(MODES))
+    parser.add_argument('--stage', choices=('quick', 'full', 'robustness'), default='quick')
+    parser.add_argument('--grids', nargs='+', choices=tuple(GRIDS))
+    parser.add_argument('--modes', nargs='+', choices=MODES + GEOMETRIC_MODES)
     parser.add_argument('--quick-results', type=Path)
     parser.add_argument('--quick-timeout', type=float, default=130.)
     parser.add_argument('--full-timeout', type=float, default=600.)
+    parser.add_argument('--density-ratios', type=float, nargs='+', default=[1., .1, .01],
+                        help='rho_s/rho_f for the opt-in robustness stage')
+    parser.add_argument('--time-steps', type=float, nargs='+', default=[1/32, 1/128],
+                        help='seconds per step for the opt-in robustness stage')
+    parser.add_argument('--robust-steps', type=int, default=8,
+                        help='accepted steps per robustness case; a positive multiple of four')
+    parser.add_argument('--timing-samples', type=int, default=0,
+                        help='optional robustness timing samples after one warmup; zero or at least three')
     args = parser.parse_args()
+    if args.grids is None:
+        args.grids = ['fine'] if args.stage == 'robustness' else list(GRIDS)
+    if args.modes is None:
+        # Preserve the historical screening variants and add two short checks
+        # for the newly implemented production paths. The larger parameter
+        # sweep remains an explicit manual stage.
+        args.modes = list(ROBUST_MODES if args.stage == 'robustness' else
+                          (*MODES, 'twolevel_rigid', 'gamg_constants'))
     require(len(set(args.modes)) == len(args.modes) and len(set(args.grids)) == len(args.grids),
             'duplicate modes or grids')
     require(all(math.isfinite(x) and x > 0. for x in (args.quick_timeout, args.full_timeout)),
             'execution budgets must be finite and positive')
+    require(all(math.isfinite(x) and x > 0. for x in (*args.density_ratios, *args.time_steps)) and
+            len(set(args.density_ratios)) == len(args.density_ratios) and
+            len(set(args.time_steps)) == len(args.time_steps), 'invalid or duplicate robustness parameters')
+    require(args.robust_steps > 0 and args.robust_steps % 4 == 0 and
+            (args.timing_samples == 0 or args.timing_samples >= 3), 'invalid robustness step/sample count')
     # Imports define helpers only. Process environment changes and all external
     # commands are confined to main, after the caller has pushed this source.
     environment = dict(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
@@ -336,6 +371,11 @@ def main():
                        schur_setup_seconds='explicit tree configuration outside KSP intervals',
                        wall_seconds='Runner.command elapsed time, including launch and log read'),
                    cases=[], failures=[], status='running', **provenance(exe))
+    if args.stage == 'robustness':
+        summary['robustness'] = dict(density_ratio_definition='solid_density / fluid_density',
+                                    density_ratios=args.density_ratios, time_steps=args.time_steps,
+                                    accepted_steps=args.robust_steps, timing_samples=args.timing_samples,
+                                    scope='single-host parameter screening; density ratio alone is not an added-mass number')
     save(summary, result_path)
     try:
         require(summary['input_sha256'] == FIXTURE_SHA256, 'pinned arterial fixture changed')
@@ -362,11 +402,19 @@ def main():
         save(summary, result_path)
         raise
 
-    for grid_alias in args.grids:
+    scenarios = [(grid, None, 1/32) for grid in args.grids]
+    if args.stage == 'robustness':
+        scenarios = [(grid, ratio, dt) for grid in args.grids
+                     for ratio in args.density_ratios for dt in args.time_steps]
+    for scenario_number, (grid_alias, density_ratio, dt) in enumerate(scenarios, 1):
         grid, ranks, dofs, ordering = GRIDS[grid_alias]
-        directory = output / grid
+        scenario = f'scenario-{scenario_number:02d}' if density_ratio is not None else 'baseline'
+        directory = output / grid if density_ratio is None else output / grid / scenario
         case = directory / 'input'
         rec = dict(grid=grid, ranks=ranks, dofs=dofs, ordering=ordering, runs=[])
+        if density_ratio is not None:
+            rec.update(scenario=scenario, density_ratio=density_ratio, dt=dt,
+                       physical_end_time=args.robust_steps*dt)
         summary['cases'].append(rec)
         part = directory / 'partition'
         prepare = [str(exe), '-case', str(case / 'case.json'), '-prepare', str(part), '-parts', str(ranks)]
@@ -374,11 +422,26 @@ def main():
         save(summary, result_path)
         try:
             rec['input_hashes'] = copy_fixture(case, grid)
+            if density_ratio is not None:
+                rec['source_input_hashes'] = dict(rec['input_hashes'])
+                config = json.loads((case / 'case.json').read_text())
+                config['fsi'].update(solid_density=config['fsi']['density']*density_ratio,
+                                     dt=dt, steps=args.robust_steps)
+                (case / 'case.json').write_text(json.dumps(config, indent=2, allow_nan=False) + '\n')
+                rec['input_hashes']['case.json'] = digest(case / 'case.json')
+                rec['physics'] = dict(fluid_density=config['fsi']['density'],
+                                      solid_density=config['fsi']['solid_density'],
+                                      dt=dt, steps=args.robust_steps,
+                                      pressure=config['fsi']['pressure'],
+                                      pressure_time=config['fsi']['pressure_time'], time=config['time'])
             Runner(exe, str(mpi), directory, timeout=args.quick_timeout).command(prepare, 'prepare')
+            rec['partition_hashes'] = {str(path.relative_to(part)): digest(path)
+                                       for path in sorted(part.rglob('*')) if path.is_file()}
+            require(rec['partition_hashes'], 'partition prepared without files')
             rec['prepare_status'] = 'passed'
         except (AssertionError, ValueError, KeyError, OSError, subprocess.TimeoutExpired) as exc:
             rec.update(prepare_status='failed', prepare_error=str(exc))
-            summary['failures'].append(dict(grid=grid, phase='prepare', error=str(exc)))
+            summary['failures'].append(dict(grid=grid, scenario=scenario, phase='prepare', error=str(exc)))
             save(summary, result_path)
             continue
         reference = None
@@ -391,7 +454,7 @@ def main():
                        str(exe), '-case', str(case / 'case.json'), '-partition', str(part),
                        '-output', str(out / 'tube.vtu'), '-solver_report', '-linear_report',
                        '-stop_after', str(steps), *flags(mode, ordering)]
-            budget = args.full_timeout if steps == 32 else args.quick_timeout
+            budget = args.full_timeout if steps > 4 else args.quick_timeout
             row = dict(mode=mode, label=label, steps_requested=steps, flags=flags(mode, ordering),
                        command=command, output_directory=str(out), execution_budget_seconds=budget,
                        status='running', exit_code=None, timeout=False)
@@ -401,7 +464,7 @@ def main():
             try:
                 text = Runner(exe, str(mpi), out, timeout=budget).command(command, 'solve')
                 row.update(exit_code=0, wall_seconds=time.monotonic()-start)
-                row.update(audit(text, steps, dofs, ranks, mode))
+                row.update(audit(text, steps, dofs, ranks, mode, dt=dt))
                 require(row['within_target'] == row['corrections'], ('true residual gate', row['worst_ratio']))
                 ratios = compare_fields(reference or out, out, ranks, steps)
                 row['field_relative_peaks'] = ratios
@@ -420,18 +483,19 @@ def main():
                         row['exit_code'] = int(match[1])
                 if log.exists():
                     row.update(node_snapshots(log.read_text(errors='replace')))
-                summary['failures'].append(dict(grid=grid, mode=mode, label=label, error=str(exc)))
+                summary['failures'].append(dict(grid=grid, scenario=scenario,
+                                               mode=mode, label=label, error=str(exc)))
             row.setdefault('wall_seconds', time.monotonic()-start)
             if log.exists():
                 row['log_sha256'] = digest(log)
             save(summary, result_path)
-            print('fsi_block_efficiency_run ' + json.dumps(dict(grid=grid, **{
+            print('fsi_block_efficiency_run ' + json.dumps(dict(grid=grid, scenario=scenario, **{
                 k: v for k, v in row.items() if k not in
                 ('command', 'flags', 'correction_history', 'step_reports', 'solver_nodes')}),
                 allow_nan=False), flush=True)
             return row
 
-        steps = 4 if args.stage == 'quick' else 32
+        steps = args.robust_steps if args.stage == 'robustness' else 4 if args.stage == 'quick' else 32
         direct = run('direct', steps, args.stage + '-direct')
         if direct['status'] != 'passed':
             continue
@@ -440,10 +504,11 @@ def main():
         for mode in args.modes:
             if run(mode, steps, args.stage + '-' + mode)['status'] == 'passed':
                 passed.append(mode)
-        if args.stage == 'full':
+        samples = 3 if args.stage == 'full' else args.timing_samples if args.stage == 'robustness' else 0
+        if samples:
             for mode in passed:
                 run(mode, 4, 'warmup-' + mode)
-            for repeat in range(3):
+            for repeat in range(samples):
                 sequence = passed[repeat % len(passed):] + passed[:repeat % len(passed)]
                 for mode in sequence:
                     run(mode, 4, f'timing-{repeat+1}-{mode}')
@@ -451,8 +516,8 @@ def main():
             for mode in passed:
                 rows = [r for r in rec['runs'] if r['mode'] == mode and
                         r['label'].startswith('timing-') and r['status'] == 'passed']
-                if len(rows) == 3:
-                    rec['medians'][mode] = dict(samples=3, **{
+                if len(rows) == samples:
+                    rec['medians'][mode] = dict(samples=samples, **{
                         key: statistics.median(r[key] for r in rows)
                         for key in ('wall_seconds', 'outer_iterations', *TIMERS)})
             save(summary, result_path)

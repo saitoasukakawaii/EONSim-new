@@ -1,5 +1,53 @@
 # FSI 分块预条件器
 
+## FSI-PC-04：联合速度多层与参考几何粗空间（2026-11-26）
+
+本轮从已合并 #53 的 `main@858f021` 接续，分支 `codex/fsi-block-amg-robustness`。
+以下是新增实现契约；首次源码推送之前尚未执行本轮构建/算例，不把配置存在视为验证通过。
+本节以下的 #49/#50 记录是其各自源码的历史证据。
+
+```text
+-pc_recipe hybrid -pc_plan_schur_approx nodal
+-pc_plan_velocity_solver gamg
+-pc_plan_velocity_coarse_space constants
+```
+
+`-pc_plan_velocity_solver gamg` 在完整流固速度块上构造 PETSc 聚合 GAMG，保留流固
+非对角项；适用于完整 FSI 的 hybrid/quantity 树。默认 PREONLY 应用一个 V-cycle，
+平滑器 ASM/ILU，粗解 GMRES/Jacobi。显式 FGMRES 保留有界内迭代；外层必须为 FGMRES。
+不存在统一 xyz 编号的缩减矩阵继续使用 scalar AIJ，不将 blocksize 强行设为 3。
+
+`-pc_plan_velocity_coarse_space constants|rigid` 只作用于 twolevel/gamg，省略时为 constants。
+twolevel constants 保留原来的 rank/domain/component 分片常数；rigid 为固体顶点组增加
+参考坐标旋转候选，流体常数和单轴刚体标量保持。GAMG 只接受 constants，采用所有活动
+标量行上的一个归一化常数向量（包括 body），不按 MPI rank 或物理分量复制近模态。
+`gamg + rigid` 在建立层级前明确拒绝。PETSc 3.23.7 的 scalar-AIJ 聚合为每个 aggregate
+固定生成 nvec 个粗列，缺分量或孤立行可能使多向量局部 QR 秩亏；全局正交不能消除该问题。
+本轮未实现 packed-vector 辅助空间，不把 scalar GAMG 描述为弹性旋转 AMG。
+
+每行按 `DofKey` 的物理分量评价旋转 `omega cross (X-Xc)`，不假设连续三个行号属于同一节点。
+精确恒等行在所有候选模态中为零；缺失分量、共线点及空 owned rank 允许存在，依赖/零模态
+经两次正交化后剔除。非 P1 顶点的几何模态明确拒绝。参考位置与 owned 独立代表一一对应，
+接口 alias 不创建第二个位置，body/端口占位坐标不被当成顶点。旧镜像弹性算例使用与固体核
+一致的物理参考域变换。这里只提供 near-nullspace，不对完整动态 FSI 矩阵声明精确零空间。
+
+GAMG 默认复用插值，但每次矩阵变化仍刷新 Galerkin 数值和平滑器；与沿用旧 Jacobian 不同。
+可通过各速度 KSP 前缀的 `pc_gamg_reuse_interpolation false` 强制重建，以应对系数显著变化。
+同一 SNES 会话的拓扑、语义、参考位置和约束集合必须固定；现有配置/约束失效机制共同重建。
+全恒等矩阵直接使用精确 Jacobi，不构造空 AMG。配置报告记录实际模态数与层级。
+
+验证入口沿用 `pc_plan_mpi1/2/4`、`fsi_block_efficiency`、`fsi_tube_rcr`，并通过
+`verify_time_retry.py --velocity-solver gamg` 或 `--velocity-solver twolevel --velocity-coarse-space rigid`
+检查实际回滚/重启。
+鲁棒性实验必须记录实际密度、时间步、源/输入摘要、正收敛理由和独立真实残量；所有比较使用
+相同物理配置的直接解。密度比变化不自动等同于精确附加质量数，高 Re/多节点/生产规模
+仍须单独证据。算法开关保持可选，实测收益和失败范围在最终交付时追加。
+
+固定版本依据：[PETSc v3.23.7 agg.c](https://github.com/petsc/petsc/blob/v3.23.7/src/ksp/pc/impls/gamg/agg.c)
+和 [gamg.c](https://github.com/petsc/petsc/blob/v3.23.7/src/ksp/pc/impls/gamg/gamg.c)。
+
+## 历史交付：FSI-PC-03
+
 **当前状态：本轮实现、默认路径本地验收与独立证据重放均已完成。**
 本轮基线为 `296246e53d895f29ea3d0f7e5c960dc26b1426dc`，工作分支为
 `codex/fsi-block-efficient-schur`，见 [PR #50](https://github.com/saitoasukakawaii/EONSim-new/pull/50)。

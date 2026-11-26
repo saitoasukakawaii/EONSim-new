@@ -151,7 +151,12 @@ def verify_rcr(run, base):
         ('added-mass-nodal', ['-pc_recipe','added_mass','-pc_plan_schur_approx','nodal',
                               '-pc_plan_structure_approx','nodal','-pc_plan_report']),
         ('twolevel', ['-pc_recipe','hybrid','-pc_plan_schur_approx','nodal',
-                      '-pc_plan_velocity_solver','twolevel'])):
+                      '-pc_plan_velocity_solver','twolevel']),
+        ('twolevel-rigid', ['-pc_recipe','hybrid','-pc_plan_schur_approx','nodal',
+                            '-pc_plan_velocity_solver','twolevel',
+                            '-pc_plan_velocity_coarse_space','rigid','-pc_plan_report']),
+        ('gamg', ['-pc_recipe','hybrid','-pc_plan_schur_approx','nodal',
+                  '-pc_plan_velocity_solver','gamg','-pc_plan_report'])):
         flags += ['-ksp_rtol','1e-10','-ksp_max_it','1500','-linear_report','-solver_report']
         label = 'rcr-'+mode
         full, full_rows, full_log = run.solve(label,cfg,2,[*flags,'-stop_after',2])
@@ -165,6 +170,13 @@ def verify_rcr(run, base):
         resumed, resumed_rows, resumed_log = run.solve(label+'-resumed',cfg,2,
                                                       [*flags,'-restart',saved,'-stop_after',2])
         resumed_checks = audit_block_linear_log(resumed_log,len(resumed_rows))
+        if mode=='gamg':
+            for observed in (full_log,start_log,resumed_log):
+                nodes=[dict(re.findall(r'(\w+)=([^\s]+)',line)) for line in observed.splitlines()
+                       if line.startswith('solver_node ')]
+                velocity=[row for row in nodes if row['prefix']=='fieldsplit_dynamics_fieldsplit_velocity_']
+                assert velocity and all(row['ksp']=='preonly' and row['pc']=='gamg'
+                                        for row in velocity), 'coupled GAMG was not configured'
         if mode=='added-mass-nodal':
             for observed in (full_log,start_log,resumed_log):
                 blocks=[dict(re.findall(r'(\w+)=([^\s]+)',line)) for line in observed.splitlines()

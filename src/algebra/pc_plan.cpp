@@ -71,11 +71,25 @@ int velocity_solver_requested(MPI_Comm comm) {
     char value[32]{}; PetscBool set=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_velocity_solver",value,sizeof(value),&set));
     const std::string name=set?value:"split";
-    int local=name=="split"?1:name=="coupled"?2:name=="twolevel"?3:0,lo=0,hi=0;
+    int local=name=="split"?1:name=="coupled"?2:name=="twolevel"?3:name=="gamg"?4:0,lo=0,hi=0;
     MPI_Allreduce(&local,&lo,1,MPI_INT,MPI_MIN,comm);
     MPI_Allreduce(&local,&hi,1,MPI_INT,MPI_MAX,comm);
-    common_check(comm,lo==hi&&lo!=0,"velocity solver must be split, coupled or twolevel and identical on every rank");
+    common_check(comm,lo==hi&&lo!=0,"velocity solver must be split, coupled, twolevel or gamg and identical on every rank");
     return local;
+}
+bool rigid_velocity_modes_requested(MPI_Comm comm,int velocity_solver) {
+    char value[32]{}; PetscBool set=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_velocity_coarse_space",value,sizeof(value),&set));
+    const std::string name=set?value:"constants";
+    int local=name=="constants"?1:name=="rigid"?2:0,lo=0,hi=0;
+    MPI_Allreduce(&local,&lo,1,MPI_INT,MPI_MIN,comm);
+    MPI_Allreduce(&local,&hi,1,MPI_INT,MPI_MAX,comm);
+    common_check(comm,lo==hi&&lo!=0,"velocity coarse space must be constants or rigid and identical on every rank");
+    common_check(comm,!set||velocity_solver==3||velocity_solver==4,
+                 "velocity coarse space requires the twolevel or gamg velocity solver");
+    common_check(comm,local!=2||velocity_solver==3,
+                 "rigid velocity coarse space requires twolevel; scalar GAMG supports constants only");
+    return local==2;
 }
 bool nodal_schur_requested(MPI_Comm comm) {
     char value[32]{}; PetscBool set=PETSC_FALSE;
@@ -100,15 +114,39 @@ bool nodal_structure_requested(MPI_Comm comm,bool added_mass) {
 }
 // Canonical node ownership keeps all active components of a group on one rank.
 // Domain/kind/space/mode distinguish different entities sharing a numeric ID.
-void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,int velocity_solver,bool nodal,bool nodal_structure) {
+void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,int velocity_solver,bool nodal,bool nodal_structure,bool rigid_modes) {
     // The pressure approximation uses velocity groups. The structural
     // approximation below has its own mixed fluid groups and separate option.
     node.nodal_schur=node.schur&&nodal&&node.children.at(1).name=="pressure";
     if(node.name=="velocity") {
         node.coupled_velocity=velocity_solver!=1&&node.children.empty();
         node.twolevel_velocity=velocity_solver==3&&node.children.empty();
-        if(node.twolevel_velocity) for(auto row:node.root_rows)
-            node.velocity_semantics.push_back(layout.owned_semantics.at(row-layout.begin));
+        node.gamg_velocity=velocity_solver==4&&node.children.empty();
+        node.rigid_velocity_modes=rigid_modes&&(node.twolevel_velocity||node.gamg_velocity);
+        if(node.twolevel_velocity||node.gamg_velocity) {
+            if(node.rigid_velocity_modes)
+                common_check(comm,layout.owned_reference_coordinates.size()==static_cast<std::size_t>(layout.owned),
+                             "rigid velocity coarse space requires owned reference coordinates");
+            bool valid=true;
+            for(auto row:node.root_rows) {
+                const auto offset=row-layout.begin;
+                const auto& key=layout.owned_semantics.at(offset);
+                node.velocity_semantics.push_back(key);
+                if(node.gamg_velocity)
+                    valid=valid&&(key.kind==DofEntity::body||
+                        (key.kind==DofEntity::vertex&&key.mode==0&&key.space==1));
+                if(node.rigid_velocity_modes) {
+                    const auto& point=layout.owned_reference_coordinates.at(offset);
+                    valid=valid&&std::all_of(point.begin(),point.end(),[](double x){return std::isfinite(x);});
+                    // Reference-position rotations are defined for the current
+                    // nodal P1 velocity space, not arbitrary edge/modal DoFs.
+                    valid=valid&&(key.kind==DofEntity::body||
+                        (key.kind==DofEntity::vertex&&key.mode==0&&key.space==1));
+                    node.velocity_reference_coordinates.push_back(point);
+                }
+            }
+            common_check(comm,valid,"geometric velocity coarse spaces and GAMG require finite P1 vertex data or a scalar body");
+        }
         if(nodal) {
             std::map<DofKey,std::vector<PetscInt>> groups;
             for(std::size_t i=0;i<node.root_rows.size();++i) {
@@ -140,7 +178,7 @@ void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,int veloci
         }
         common_check(comm,valid,"nodal fluid blocks must contain one to four active velocity/pressure components");
     }
-    for(auto& child:node.children) decorate(comm,layout,child,velocity_solver,nodal,nodal_structure);
+    for(auto& child:node.children) decorate(comm,layout,child,velocity_solver,nodal,nodal_structure,rigid_modes);
 }
 using SmallBlock=std::array<PetscScalar,16>;
 // Invert only a 1--4 component local block, using pivoted elimination.
@@ -363,7 +401,10 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
         // Raw stabilized J_pp may have a constant nullspace even when the full
         // traction-coupled system is nonsingular. Do not invert that block with
         // an AMG coarse solve; the quantity recipe uses its diagonal action.
-        if(node.twolevel_velocity) configure_coupled_velocity_twolevel(comm,ksp,node.velocity_semantics);
+        if(node.twolevel_velocity) configure_coupled_velocity_twolevel(comm,ksp,node.velocity_semantics,
+            node.velocity_reference_coordinates,node.rigid_velocity_modes);
+        else if(node.gamg_velocity) configure_coupled_velocity_gamg(comm,ksp,node.velocity_semantics,
+            node.velocity_reference_coordinates,node.rigid_velocity_modes);
         else if(node.global==1 || (node.name=="pressure"&&!schur_parent)) {
             EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCJACOBI));
             EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
@@ -458,6 +499,7 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
     const bool coupled=global[1]||global[2];
     common_check(comm,global[0]>0&&(!coupled||(global[1]>0&&global[2]>0)),"recipes require independent fluid or complete FSI layout");
     const int velocity_solver=velocity_solver_requested(comm);
+    const bool rigid_modes=rigid_velocity_modes_requested(comm,velocity_solver);
     const bool combined=velocity_solver!=1,nodal=nodal_schur_requested(comm);
     const bool nodal_structure=nodal_structure_requested(comm,choice==4);
     common_check(comm,choice!=4||coupled,"added_mass requires a complete FSI layout");
@@ -475,7 +517,7 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
     }
     std::vector<PetscInt> rows(layout.owned); std::iota(rows.begin(),rows.end(),layout.begin);
     auto plan=build(comm,layout,root,rows,rows);
-    decorate(comm,layout,plan,velocity_solver,nodal,nodal_structure);
+    decorate(comm,layout,plan,velocity_solver,nodal,nodal_structure,rigid_modes);
     if(choice==4) {
         auto& dynamics=plan.children.at(0);
         dynamics.added_mass_schur=true;
@@ -490,12 +532,13 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
 }
 namespace {
 bool requires_flexible_outer(const PcBlock& node) {
-    return node.added_mass_schur||node.twolevel_velocity||
+    return node.added_mass_schur||node.twolevel_velocity||node.gamg_velocity||
         std::any_of(node.children.begin(),node.children.end(),requires_flexible_outer);
 }
 void validate_options(MPI_Comm comm,const PcBlock& node,const std::string& prefix,const std::vector<std::string>& tokens) {
     if(node.children.empty()) {
         if(node.twolevel_velocity) validate_coupled_velocity_twolevel_options(comm,prefix);
+        else if(node.gamg_velocity) validate_coupled_velocity_gamg_options(comm,prefix);
         return;
     }
     const auto base="-"+prefix;
@@ -541,7 +584,7 @@ void validate_pc_plan_options(MPI_Comm comm,KSP solver,const PcBlock& plan) {
         EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,option.c_str(),value,sizeof(value),&set));
         KSPType actual=nullptr; EONSIM_PETSC(KSPGetType(solver,&actual));
         common_check(comm,(!set||std::string(value)==KSPFGMRES)&&(!actual||std::string(actual)==KSPFGMRES),
-                     "added_mass and twolevel require outer FGMRES for variable inner actions");
+                     "added_mass, twolevel and gamg require outer FGMRES for variable inner actions");
     }
     validate_options(comm,plan,prefix?prefix:"",tokens);
 }

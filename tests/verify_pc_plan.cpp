@@ -1,4 +1,5 @@
 #include "eonsim/pc_plan.hpp"
+#include "eonsim/coupled_velocity_pc.hpp"
 #include "eonsim/schur_solver.hpp"
 #include <array>
 #include <algorithm>
@@ -577,13 +578,21 @@ void verify_structural_nodal(MPI_Comm comm,const AlgebraLayout& original) {
     }
 }
 void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matrix) {
-    for(int variant=0;variant<3;++variant) {
-        const bool legacy=variant==1,twolevel=variant==2;
+    for(int variant=0;variant<4;++variant) {
+        const bool legacy=variant==1,twolevel=variant==2,gamg=variant==3,multilevel=twolevel||gamg;
         ScopedOptions options;
-        const std::string root_prefix=legacy?"aux_legacy_":twolevel?"aux_twolevel_":"aux_semantic_";
+        const std::string root_prefix=legacy?"aux_legacy_":twolevel?"aux_twolevel_":gamg?"aux_gamg_":"aux_semantic_";
         const std::string prefix=root_prefix+(legacy?"fieldsplit_flow_":"fieldsplit_dynamics_");
-        if(!legacy) options.set("-pc_plan_velocity_solver",twolevel?"twolevel":"coupled");
+        if(!legacy) options.set("-pc_plan_velocity_solver",twolevel?"twolevel":gamg?"gamg":"coupled");
+        auto geometric_layout=layout;
         if(twolevel) {
+            options.set("-pc_plan_velocity_coarse_space","rigid");
+            geometric_layout.owned_reference_coordinates.clear();
+            for(const auto& key:geometric_layout.owned_semantics)
+                geometric_layout.owned_reference_coordinates.push_back(
+                    {{key.entity==20?1.:0.,key.entity==30?1.:0.,0.}});
+        }
+        if(multilevel) {
             const auto base="-"+prefix+"fieldsplit_velocity_";
             options.set(base+"ksp_type","fgmres");
             options.set(base+"ksp_rtol","1e-12");
@@ -591,8 +600,8 @@ void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matr
         }
         for(const auto& role:{std::string("inner"),std::string("upper")}) {
             const std::string base="-"+prefix+"fieldsplit_pressure_"+role+"_";
-            options.set(base+"ksp_type",twolevel?"fgmres":"gmres");
-            options.set(base+"pc_type",twolevel?"mg":"jacobi");
+            options.set(base+"ksp_type",multilevel?"fgmres":"gmres");
+            options.set(base+"pc_type",twolevel?"mg":gamg?"gamg":"jacobi");
             options.set(base+"ksp_rtol",role=="inner"?"1e-11":"1e-9");
             options.set(base+"ksp_max_it",role=="inner"?"37":"41");
         }
@@ -602,7 +611,7 @@ void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matr
         EONSIM_PETSC(KSPSetType(solver.get(),KSPFGMRES));
         EONSIM_PETSC(KSPSetTolerances(solver.get(),1e-12,1e-13,PETSC_DEFAULT,200));
         if(legacy) configure_schur_solver(comm,solver.get(),layout,matrix);
-        else configure_pc_plan(comm,solver.get(),matrix,make_pc_plan(comm,layout,"hybrid"));
+        else configure_pc_plan(comm,solver.get(),matrix,make_pc_plan(comm,geometric_layout,"hybrid"));
         const auto block=child_solver(comm,solver.get(),0);
         PC pc; EONSIM_PETSC(KSPGetPC(block,&pc));
         PetscInt count=0; KSP* sub=nullptr;
@@ -613,7 +622,7 @@ void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matr
         EONSIM_PETSC(MatSchurComplementGetKSP(schur,&inner));
         EONSIM_PETSC(PCFieldSplitSchurRestoreS(pc,&schur));
         bool correct=inner!=sub[0]&&inner!=sub[2]&&sub[0]!=sub[2];
-        if(twolevel) {
+        if(multilevel) {
             const char* actual_prefix=nullptr; KSPType type=nullptr; PCType pc_type=nullptr;
             PC main_pc; PetscInt max_it=0,levels=0; PetscReal rtol=0;
             EONSIM_PETSC(KSPGetOptionsPrefix(sub[0],&actual_prefix)); EONSIM_PETSC(KSPGetType(sub[0],&type));
@@ -621,7 +630,8 @@ void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matr
             EONSIM_PETSC(KSPGetTolerances(sub[0],&rtol,nullptr,nullptr,&max_it));
             EONSIM_PETSC(PCMGGetLevels(main_pc,&levels));
             correct=correct&&std::string(actual_prefix?actual_prefix:"")==prefix+"fieldsplit_velocity_"&&
-                    std::string(type)==KSPFGMRES&&std::string(pc_type)==PCMG&&levels==2&&
+                    std::string(type)==KSPFGMRES&&std::string(pc_type)==(twolevel?PCMG:PCGAMG)&&
+                    (twolevel?levels==2:levels>=1)&&
                     std::abs(rtol-1e-12)<1e-15&&max_it==43;
         }
         for(int i=0;i<2;++i) {
@@ -632,8 +642,15 @@ void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matr
             EONSIM_PETSC(KSPGetPC(ksp,&inverse_pc)); EONSIM_PETSC(PCGetType(inverse_pc,&pc_type));
             EONSIM_PETSC(KSPGetTolerances(ksp,&rtol,nullptr,nullptr,&max_it));
             correct=correct&&std::string(actual_prefix?actual_prefix:"")==prefix+"fieldsplit_pressure_"+(i?"upper_":"inner_")&&
-                std::string(type)==(twolevel?KSPFGMRES:KSPGMRES)&&std::string(pc_type)==(twolevel?PCMG:PCJACOBI)&&
+                std::string(type)==(multilevel?KSPFGMRES:KSPGMRES)&&
+                std::string(pc_type)==(twolevel?PCMG:gamg?PCGAMG:PCJACOBI)&&
                 std::abs(rtol-(i?1e-9:1e-11))<1e-15&&max_it==(i?41:37);
+            if(gamg) {
+                Mat operator_matrix=nullptr; MatNullSpace space=nullptr;
+                EONSIM_PETSC(KSPGetOperators(ksp,&operator_matrix,nullptr));
+                EONSIM_PETSC(MatGetNearNullSpace(operator_matrix,&space));
+                correct=correct&&space!=nullptr;
+            }
             if(twolevel) {
                 PetscInt levels=0; EONSIM_PETSC(PCMGGetLevels(inverse_pc,&levels));
                 correct=correct&&levels==2;
@@ -641,7 +658,7 @@ void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matr
         }
         EONSIM_PETSC(PetscFree(sub));
         check(comm,correct,"Schur auxiliary solvers lost prefixes, independent identity, or user settings");
-        solve_exact(comm,solver.get(),matrix,legacy?"legacy_auxiliary":twolevel?"twolevel_auxiliary":"hybrid_auxiliary");
+        solve_exact(comm,solver.get(),matrix,legacy?"legacy_auxiliary":twolevel?"twolevel_auxiliary":gamg?"gamg_auxiliary":"hybrid_auxiliary");
         // A bounded inner action is allowed to reach ITS. A genuine breakdown
         // must mark its enclosing fieldsplit, even if the iterate is finite.
         EONSIM_PETSC(PCFieldSplitSchurGetS(pc,&schur));
@@ -649,7 +666,7 @@ void verify_auxiliary_solvers(MPI_Comm comm,const AlgebraLayout& layout,Mat matr
         EONSIM_PETSC(MatCreateVecs(schur,input.put(),action.put()));
         EONSIM_PETSC(VecSet(input.get(),1.));
         PCFailedReason failure; KSPConvergedReason reason;
-        if(!twolevel) {
+        if(!multilevel) {
             // Jacobi makes this bounded action inexact. A two-level cycle may
             // solve the tiny oracle in one iteration, so retain the ITS probe
             // on these existing fixtures rather than require artificial work.
@@ -760,6 +777,234 @@ void verify_twolevel(MPI_Comm comm,const AlgebraLayout& layout) {
           "All-identity two-level default did not retain its one-level Jacobi action");
     verify_preonly_action(comm,identity_velocity);
 }
+// Test the geometric span, not an implementation-dependent QR column order.
+// The last row is a body scalar: its zero coordinate is not a vertex. One
+// vertex lacks its z component; one other component is prescribed. Four-rank
+// execution leaves two owners empty without collecting the distributed matrix.
+void verify_coordinate_coarse_spaces(MPI_Comm comm) {
+    int rank=0,size=0; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&size);
+    constexpr PetscInt n=24,constrained=14;
+    const PetscInt cuts2[]{0,12,n},cuts4[]{0,6,n,n,n};
+    const PetscInt begin=size==1?0:size==2?cuts2[rank]:cuts4[rank];
+    const PetscInt end=size==1?n:size==2?cuts2[rank+1]:cuts4[rank+1];
+    const std::array<std::array<double,3>,8> points{{
+        {{0,0,0}},{{1,0,0}},{{0,2,0}},{{0,0,3}},
+        {{2,0,0}},{{3,0,0}},{{2,2,0}},{{2,0,3}}}};
+    std::vector<DofKey> keys;
+    std::vector<std::array<double,3>> coordinates;
+    for(PetscInt i=begin;i<end;++i) {
+        DofKey key; key.entity=i/3; key.component=i%3;
+        key.domain=i<12?DofDomain::fluid:DofDomain::solid;
+        if(i==n-1) {key.entity=100;key.kind=DofEntity::body;key.component=0;key.space=0;}
+        keys.push_back(key);
+        coordinates.push_back(i==n-1?std::array<double,3>{{0,0,0}}:points[i/3]);
+    }
+    const auto coefficient=[](PetscInt i,PetscInt j,int phase) {
+        if(i==constrained) return i==j?1.:0.;
+        return (i==j?80.+phase*(i+1):0.)+.003*(i+1)+.007*(j+1)+phase*.0001*(i+1)*(j+1);
+    };
+    PetscOwner<Mat,MatDestroy> matrix;
+    EONSIM_PETSC(MatCreateAIJ(comm,end-begin,end-begin,n,n,end-begin,nullptr,n-end+begin,nullptr,matrix.put()));
+    const auto fill=[&](int phase,bool identity=false) {
+        EONSIM_PETSC(MatZeroEntries(matrix.get()));
+        for(PetscInt i=begin;i<end;++i) for(PetscInt j=0;j<n;++j)
+            EONSIM_PETSC(MatSetValue(matrix.get(),i,j,identity?(i==j?1.:0.):coefficient(i,j,phase),INSERT_VALUES));
+        EONSIM_PETSC(MatAssemblyBegin(matrix.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatAssemblyEnd(matrix.get(),MAT_FINAL_ASSEMBLY));
+    };
+    for(int variant=0;variant<2;++variant) {
+        const bool gamg=variant==1,rigid=!gamg;
+        ScopedOptions options;
+        if(gamg) {
+            // Force this connected 24-row oracle through actual aggregation,
+            // rather than accepting GAMG's tiny-matrix single-level fallback.
+            options.set("-geometry_gamg_pc_gamg_coarse_eq_limit","2");
+            options.set("-geometry_gamg_pc_gamg_threshold","0");
+        }
+        fill(0);
+        PetscOwner<KSP,KSPDestroy> solver;
+        EONSIM_PETSC(KSPCreate(comm,solver.put()));
+        EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),gamg?"geometry_gamg_":"geometry_twolevel_"));
+        EONSIM_PETSC(KSPSetOperators(solver.get(),matrix.get(),matrix.get()));
+        if(gamg) configure_coupled_velocity_gamg(comm,solver.get(),keys);
+        else configure_coupled_velocity_twolevel(comm,solver.get(),keys,coordinates,rigid);
+        EONSIM_PETSC(KSPSetUp(solver.get()));
+        PC pc; PCType type=nullptr; PetscInt blocksize=0;
+        EONSIM_PETSC(KSPGetPC(solver.get(),&pc)); EONSIM_PETSC(PCGetType(pc,&type));
+        EONSIM_PETSC(MatGetBlockSize(matrix.get(),&blocksize));
+        check(comm,std::string(type)==(gamg?PCGAMG:PCMG)&&blocksize==1,
+              "Coupled geometric PC lost its full scalar matrix or selected backend");
+        if(gamg) {
+            PetscInt levels=0; EONSIM_PETSC(PCMGGetLevels(pc,&levels));
+            check(comm,levels>=2,"Scalar GAMG oracle did not exercise a genuine multilevel cycle");
+        }
+        verify_preonly_action(comm,solver.get());
+        std::vector<PetscOwner<Vec,VecDestroy>> basis;
+        Mat interpolation=nullptr;
+        if(gamg) {
+            MatNullSpace space=nullptr; PetscBool constant=PETSC_FALSE; PetscInt count=0; const Vec* vectors=nullptr;
+            EONSIM_PETSC(MatGetNearNullSpace(matrix.get(),&space));
+            check(comm,space!=nullptr,"GAMG omitted the semantic near-nullspace");
+            EONSIM_PETSC(MatNullSpaceGetVecs(space,&constant,&count,&vectors));
+            check(comm,!constant&&count==1,"Scalar GAMG did not retain its single active-row constant");
+            for(PetscInt j=0;j<count;++j) {
+                basis.emplace_back(); EONSIM_PETSC(VecDuplicate(vectors[j],basis.back().put()));
+                EONSIM_PETSC(VecCopy(vectors[j],basis.back().get()));
+            }
+        } else {
+            EONSIM_PETSC(PCMGGetInterpolation(pc,1,&interpolation));
+            PetscInt rows=0,columns=0;
+            EONSIM_PETSC(MatGetSize(interpolation,&rows,&columns));
+            check(comm,rows==n&&columns==(size==4?13:10),"Rigid two-level coarse-space rank is incorrect");
+            PetscOwner<Vec,VecDestroy> coarse,fine;
+            EONSIM_PETSC(MatCreateVecs(interpolation,coarse.put(),fine.put()));
+            PetscInt first=0,last=0; EONSIM_PETSC(VecGetOwnershipRange(coarse.get(),&first,&last));
+            for(PetscInt j=0;j<columns;++j) {
+                EONSIM_PETSC(VecSet(coarse.get(),0.));
+                if(j>=first&&j<last) EONSIM_PETSC(VecSetValue(coarse.get(),j,1.,INSERT_VALUES));
+                EONSIM_PETSC(VecAssemblyBegin(coarse.get())); EONSIM_PETSC(VecAssemblyEnd(coarse.get()));
+                EONSIM_PETSC(MatMult(interpolation,coarse.get(),fine.get()));
+                basis.emplace_back(); EONSIM_PETSC(VecDuplicate(fine.get(),basis.back().put()));
+                EONSIM_PETSC(VecCopy(fine.get(),basis.back().get()));
+            }
+        }
+        for(std::size_t i=0;i<basis.size();++i) {
+            const PetscScalar* values=nullptr; EONSIM_PETSC(VecGetArrayRead(basis[i].get(),&values));
+            bool valid=true;
+            for(PetscInt row=begin;row<end;++row)
+                valid=valid&&std::isfinite(values[row-begin])&&(row!=constrained||values[row-begin]==0.);
+            EONSIM_PETSC(VecRestoreArrayRead(basis[i].get(),&values));
+            check(comm,valid,"Geometric coarse vector changed a constrained row or contains nonfinite data");
+            for(std::size_t j=0;j<basis.size();++j) {
+                PetscScalar dot=0; EONSIM_PETSC(VecDot(basis[i].get(),basis[j].get(),&dot));
+                check(comm,std::abs(dot-(i==j?1.:0.))<2e-11,"Geometric coarse vectors are not orthonormal");
+            }
+        }
+        PetscOwner<Vec,VecDestroy> target,projected;
+        EONSIM_PETSC(MatCreateVecs(matrix.get(),target.put(),projected.put()));
+        const auto span=[&](int owner,int domain,int mode,bool body) {
+            PetscScalar* values=nullptr; EONSIM_PETSC(VecGetArray(target.get(),&values));
+            for(PetscInt row=begin;row<end;++row) {
+                double value=0.; const auto& key=keys[row-begin];
+                if(row!=constrained&&(owner<0||owner==rank)&&
+                   (domain<0||domain==static_cast<int>(key.domain))) {
+                    if(gamg) value=1.;
+                    else if(body) value=key.kind==DofEntity::body?1.:0.;
+                    else if(key.kind==DofEntity::vertex) {
+                        // A large translation of the coordinate origin must
+                        // not change the rigid span after translations exist.
+                        const auto& x=coordinates[row-begin];
+                        const double y[3]{x[0]+123.,x[1]-456.,x[2]+17.};
+                        if(mode<3) value=key.component==mode?1.:0.;
+                        else {
+                            const double rotation[3][3]{{0.,-y[2],y[1]},
+                                                       {y[2],0.,-y[0]},
+                                                       {-y[1],y[0],0.}};
+                            value=rotation[mode-3][key.component];
+                        }
+                    }
+                }
+                values[row-begin]=value;
+            }
+            EONSIM_PETSC(VecRestoreArray(target.get(),&values));
+            EONSIM_PETSC(VecCopy(target.get(),projected.get()));
+            for(const auto& vector:basis) {
+                PetscScalar dot=0; EONSIM_PETSC(VecDot(vector.get(),target.get(),&dot));
+                EONSIM_PETSC(VecAXPY(projected.get(),-dot,vector.get()));
+            }
+            PetscReal norm=0,error=0;
+            EONSIM_PETSC(VecNorm(target.get(),NORM_2,&norm));
+            EONSIM_PETSC(VecNorm(projected.get(),NORM_2,&error));
+            check(comm,error<2e-11*(1+norm),"Coordinate translations/rotations are missing from the coarse span");
+        };
+        if(gamg) {
+            span(-1,-1,0,false);
+        } else for(int owner=0;owner<size;++owner) {
+            for(int mode=0;mode<3;++mode) span(owner,static_cast<int>(DofDomain::fluid),mode,false);
+            for(int mode=0;mode<6;++mode) span(owner,static_cast<int>(DofDomain::solid),mode,false);
+            span(owner,static_cast<int>(DofDomain::solid),0,true);
+        }
+        EONSIM_PETSC(KSPSetType(solver.get(),KSPFGMRES));
+        EONSIM_PETSC(KSPSetTolerances(solver.get(),1e-12,1e-13,PETSC_DEFAULT,200));
+        for(int phase=0;phase<2;++phase) {
+            if(phase) fill(phase);
+            solve_exact(comm,solver.get(),matrix.get(),gamg?"gamg_coordinate_refresh":"twolevel_rigid_refresh");
+            if(!gamg) {
+                KSP coarse=nullptr; Mat product=nullptr; PetscInt first=0,last=0;
+                EONSIM_PETSC(PCMGGetCoarseSolve(pc,&coarse));
+                EONSIM_PETSC(KSPGetOperators(coarse,&product,nullptr));
+                EONSIM_PETSC(MatGetOwnershipRange(product,&first,&last));
+                for(PetscInt j=0;j<static_cast<PetscInt>(basis.size());++j) {
+                    EONSIM_PETSC(MatMult(matrix.get(),basis[j].get(),projected.get()));
+                    for(PetscInt i=0;i<static_cast<PetscInt>(basis.size());++i) {
+                        PetscScalar expected=0; EONSIM_PETSC(VecDot(basis[i].get(),projected.get(),&expected));
+                        bool valid=true;
+                        if(i>=first&&i<last) {
+                            PetscScalar actual=0; EONSIM_PETSC(MatGetValues(product,1,&i,1,&j,&actual));
+                            valid=std::abs(actual-expected)<2e-10*(1+std::abs(expected));
+                        }
+                        check(comm,valid,"Rigid Galerkin matrix failed independent action/refresh oracle");
+                    }
+                }
+            } else {
+                PetscInt levels=0; Mat transfer=nullptr,product=nullptr; KSP coarse=nullptr;
+                EONSIM_PETSC(PCMGGetLevels(pc,&levels));
+                EONSIM_PETSC(PCMGGetInterpolation(pc,levels-1,&transfer));
+                EONSIM_PETSC(PCMGGetSmoother(pc,levels-2,&coarse));
+                EONSIM_PETSC(KSPGetOperators(coarse,&product,nullptr));
+                PetscOwner<Vec,VecDestroy> unit,fine;
+                EONSIM_PETSC(MatCreateVecs(transfer,unit.put(),fine.put()));
+                PetscInt count=0,first=0,last=0;
+                EONSIM_PETSC(VecGetSize(unit.get(),&count));
+                EONSIM_PETSC(VecGetOwnershipRange(unit.get(),&first,&last));
+                std::vector<PetscOwner<Vec,VecDestroy>> columns;
+                for(PetscInt j=0;j<count;++j) {
+                    EONSIM_PETSC(VecSet(unit.get(),0.));
+                    if(j>=first&&j<last) EONSIM_PETSC(VecSetValue(unit.get(),j,1.,INSERT_VALUES));
+                    EONSIM_PETSC(VecAssemblyBegin(unit.get())); EONSIM_PETSC(VecAssemblyEnd(unit.get()));
+                    EONSIM_PETSC(MatMult(transfer,unit.get(),fine.get()));
+                    columns.emplace_back(); EONSIM_PETSC(VecDuplicate(fine.get(),columns.back().put()));
+                    EONSIM_PETSC(VecCopy(fine.get(),columns.back().get()));
+                }
+                EONSIM_PETSC(MatGetOwnershipRange(product,&first,&last));
+                for(PetscInt j=0;j<count;++j) {
+                    EONSIM_PETSC(MatMult(matrix.get(),columns[j].get(),projected.get()));
+                    for(PetscInt i=0;i<count;++i) {
+                        PetscScalar expected=0; EONSIM_PETSC(VecDot(columns[i].get(),projected.get(),&expected));
+                        bool valid=true;
+                        if(i>=first&&i<last) {
+                            PetscScalar actual=0; EONSIM_PETSC(MatGetValues(product,1,&i,1,&j,&actual));
+                            valid=std::abs(actual-expected)<2e-10*(1+std::abs(expected));
+                        }
+                        check(comm,valid,"GAMG fine Galerkin matrix failed independent action/refresh oracle");
+                    }
+                }
+            }
+        }
+    }
+    // Degenerate positions retain the two-level constants/body mode and drop
+    // rotations. Native scalar GAMG deliberately rejects a rigid-vector set.
+    fill(0);
+    PetscOwner<KSP,KSPDestroy> degenerate;
+    EONSIM_PETSC(KSPCreate(comm,degenerate.put()));
+    EONSIM_PETSC(KSPSetOperators(degenerate.get(),matrix.get(),matrix.get()));
+    const std::vector<std::array<double,3>> coincident(keys.size(),{{5.,5.,5.}});
+    configure_coupled_velocity_twolevel(comm,degenerate.get(),keys,coincident,true);
+    PC degenerate_pc; Mat degenerate_interpolation=nullptr; PetscInt rows=0,columns=0;
+    EONSIM_PETSC(KSPGetPC(degenerate.get(),&degenerate_pc));
+    EONSIM_PETSC(PCMGGetInterpolation(degenerate_pc,1,&degenerate_interpolation));
+    EONSIM_PETSC(MatGetSize(degenerate_interpolation,&rows,&columns));
+    check(comm,rows==n&&columns==(size==4?10:7),"Degenerate rigid modes were not removed");
+    fill(0,true);
+    PetscOwner<KSP,KSPDestroy> identity;
+    EONSIM_PETSC(KSPCreate(comm,identity.put()));
+    EONSIM_PETSC(KSPSetOperators(identity.get(),matrix.get(),matrix.get()));
+    configure_coupled_velocity_gamg(comm,identity.get(),keys);
+    PC pc; PCType type=nullptr; EONSIM_PETSC(KSPGetPC(identity.get(),&pc)); EONSIM_PETSC(PCGetType(pc,&type));
+    check(comm,std::string(type)==PCJACOBI,"All-identity GAMG did not select exact Jacobi fallback");
+    verify_preonly_action(comm,identity.get());
+}
+
 void run(MPI_Comm comm) {
     int rank,size; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&size);
     check(comm,size==1||size==2||size==4,"Expected 1/2/4 ranks");
@@ -971,6 +1216,7 @@ void run(MPI_Comm comm) {
     verify_added_mass(comm,l);
     verify_structural_nodal(comm,l);
     verify_twolevel(comm,l);
+    verify_coordinate_coarse_spaces(comm);
     verify_auxiliary_solvers(comm,l,matrix.get());
     // Exercise the production SNES callback with changing Jacobian values.
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_plan_schur_approx","nodal"));
@@ -1041,6 +1287,66 @@ void run(MPI_Comm comm) {
         try {system.solve(improved,initial,{}, {},[](const std::vector<double>&,Vec,Mat){});}
         catch(const std::runtime_error&) {rejected=true;}
         check(comm,rejected,"Invalid two-level topology or nonflexible outer solver was ignored at zero residual");
+    }
+    for(const auto& configuration:std::vector<std::array<std::string,3>>{
+        {{"","","constants"}},{{"hybrid","split","constants"}},
+        {{"hybrid","coupled","rigid"}},{{"hybrid","gamg","invalid"}},
+        {{"hybrid","gamg","rigid"}},{{"hybrid","twolevel","rigid"}}}) {
+        ScopedOptions options;
+        if(!configuration[1].empty()) options.set("-pc_plan_velocity_solver",configuration[1]);
+        options.set("-pc_plan_velocity_coarse_space",configuration[2]);
+        SolverConfig config; config.pc_recipe=configuration[0];
+        bool rejected=false;
+        try {system.solve(config,initial,{}, {},[](const std::vector<double>&,Vec,Mat){});}
+        catch(const std::runtime_error&) {rejected=true;}
+        check(comm,rejected,"Invalid coarse-space option or missing coordinates escaped zero-residual validation");
+    }
+    for(const auto& option:std::vector<std::pair<std::string,std::string>>{
+        {"-fieldsplit_dynamics_fieldsplit_velocity_pc_type","asm"},
+        {"-fieldsplit_dynamics_fieldsplit_velocity_ksp_type","gmres"},
+        {"-ksp_type","gmres"}}) {
+        ScopedOptions options; options.set("-pc_plan_velocity_solver","gamg");
+        options.set(option.first,option.second);
+        bool rejected=false;
+        try {system.solve(improved,initial,{}, {},[](const std::vector<double>&,Vec,Mat){});}
+        catch(const std::runtime_error&) {rejected=true;}
+        check(comm,rejected,"Invalid coupled GAMG configuration escaped zero-residual validation");
+    }
+    for(int fault=0;fault<4;++fault) {
+        ScopedOptions options; options.set("-pc_plan_velocity_solver","twolevel");
+        options.set("-pc_plan_velocity_coarse_space","rigid");
+        auto invalid=l;
+        invalid.owned_reference_coordinates.assign(invalid.owned,{{0.,0.,0.}});
+        if(rank==0&&invalid.owned) {
+            if(fault==0) invalid.owned_reference_coordinates.pop_back();
+            if(fault==1) invalid.owned_reference_coordinates[0][1]=std::numeric_limits<double>::quiet_NaN();
+            if(fault==2) invalid.owned_semantics[0].mode=1;
+            if(fault==3) invalid.owned_semantics[0].kind=DofEntity::edge;
+        }
+        bool rejected=false;
+        try {make_pc_plan(comm,invalid,"hybrid");}
+        catch(const std::runtime_error&) {rejected=true;}
+        check(comm,rejected,"Invalid rank-local coordinate metadata was not collectively rejected");
+    }
+    if(size>1) {
+        ScopedOptions options; options.set("-pc_plan_velocity_solver","twolevel");
+        options.set("-pc_plan_velocity_coarse_space",rank==0?"rigid":"constants");
+        auto geometry=l;
+        geometry.owned_reference_coordinates.assign(geometry.owned,{{0.,0.,0.}});
+        bool rejected=false;
+        try {make_pc_plan(comm,geometry,"hybrid");}
+        catch(const std::runtime_error&) {rejected=true;}
+        check(comm,rejected,"Rank-inconsistent coarse-space options were accepted");
+    }
+    {
+        ScopedOptions options; options.set("-pc_plan_velocity_solver","gamg");
+        options.set("-pc_plan_velocity_coarse_space","rigid");
+        auto geometry=l;
+        geometry.owned_reference_coordinates.assign(geometry.owned,{{0.,0.,0.}});
+        bool rejected=false;
+        try {make_pc_plan(comm,geometry,"hybrid");}
+        catch(const std::runtime_error&) {rejected=true;}
+        check(comm,rejected,"Native scalar GAMG accepted an unsupported multivector rigid near-nullspace");
     }
     for(const auto& option:std::vector<std::pair<std::string,std::string>>{
         {"-fieldsplit_dynamics_pc_fieldsplit_schur_precondition","selfp"},
