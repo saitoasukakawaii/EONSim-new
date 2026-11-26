@@ -1,5 +1,8 @@
 # FSI 分块预条件器
 
+最新 FSI-PC-05 的递归 field AMG、PCD/LSC/BFBt、界面 patch 与局部混合精度见
+[FSI_ADVANCED_PRECONDITIONERS.md](FSI_ADVANCED_PRECONDITIONERS.md)；下列既有记录保留原版本范围。
+
 RCR出口的可选外层端口Schur、单/多出口低秩响应、GAMG/BoomerAMG组合及缓存证据，
 见[RCR_PORT_PRECONDITIONER](RCR_PORT_PRECONDITIONER.md)。原有recipe默认路径保持。
 

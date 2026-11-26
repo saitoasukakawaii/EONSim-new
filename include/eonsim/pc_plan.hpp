@@ -10,6 +10,13 @@ struct PcBlock {
     std::string name;
     bool schur=false, nodal_schur=false, coupled_velocity=false, twolevel_velocity=false;
     bool gamg_velocity=false, boomeramg_velocity=false, rigid_velocity_modes=false;
+    bool field_amg_velocity=false;
+    int pressure_schur=0; ///< 0=native/nodal; 3=LSC, 4=BFBt, 5=physical PCD.
+    bool interface_patch=false,patch_single_precision=false;
+    PetscInt patch_overlap=1,patch_maximum_size=256,patch_refinement_steps=3;
+    double patch_refinement_tolerance=1e-10,patch_damping=1.;
+    std::vector<DofKey> patch_semantics;
+    std::vector<unsigned char> patch_interface;
     // Optional outer port Schur action. The sole child describes the reindexed
     // bulk matrix; boundary-pressure rows retain their full-matrix provenance.
     bool rcr_ports=false;

@@ -1,5 +1,24 @@
 # EONSim Codex Task Queue
 
+## FSI-PC-05 / implementation and bounded validation complete; performance goals remain open / 2026-11-26
+
+[PR #59](https://github.com/saitoasukakawaii/EONSim-new/pull/59)交付递归field AMG、稳定化
+LSC/BFBt与物理PCD、真实界面mixed patch、FP32因子/FP64细化回退。最终生产/驱动19cd26f，
+每次源码均先同步远端再执行。空owner collective与PCD边界质量极限两个实际缺陷已修复并
+用独立负控/1–4rank验证闭环；最终PCD38求解108步225修正独立审计全通过。
+
+[证据与失败记录](../research/data/fsi-advanced-2026-11-26/README.md)区分初始20、研究60和
+最终38；未受修改影响检查复用，不伪称全在最终head重跑。四项必需检查和锁定head合并
+依GitHub核实；草稿未发布，默认不改。
+
+仍开放的性能验收目标：真实FSI近似网格无关、每层界面smoother、PCD入口Robin/瞬态速度
+质量增强及变黏度、多节点更大规模和稳定端到端收益。现网格2rank nodal82→131、最终PCD
+144→225；BFBt六组patch少2.44%–11.96%迭代但小例成本高，FP32只证明因子数组减半。
+不能把“代码路径实现”当作这些尚未达成性能目标的关闭依据。
+
+最终源码CI45787454655实际85/85 Release、54/54 Python通过，成功receipt与
+merge-preview/source tree一致性已核实；未放宽门槛或改变保护。
+
 ## RCR-PC-01 / implementation and validation complete / 2026-11-26
 
 [PR #58](https://github.com/saitoasukakawaii/EONSim-new/pull/58)完成用户要求的六项P0/P1：完整

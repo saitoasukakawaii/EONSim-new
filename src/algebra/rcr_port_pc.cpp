@@ -1,4 +1,5 @@
 #include "eonsim/rcr_port_pc.hpp"
+#include "eonsim/pressure_schur_pc.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -191,6 +192,7 @@ struct PortState {
         EONSIM_PETSC(MatCreateSubMatrix(full,bulk_is.get(),port_is.get(),reuse,u.put()));
         EONSIM_PETSC(MatCreateSubMatrix(full,port_is.get(),bulk_is.get(),reuse,v.put()));
         EONSIM_PETSC(MatCreateSubMatrix(full,port_is.get(),port_is.get(),reuse,d.put()));
+        propagate_pressure_auxiliaries(full,a.get(),bulk_is.get());
         EONSIM_PETSC(MatTranspose(v.get(),reuse,vt.put()));
         EONSIM_PETSC(KSPSetOperators(bulk.get(),a.get(),a.get()));
         if(first) {

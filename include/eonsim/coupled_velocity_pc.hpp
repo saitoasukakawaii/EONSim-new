@@ -39,6 +39,32 @@ void configure_coupled_velocity_twolevel(MPI_Comm comm,KSP solver,
  * need not be limited to a handful of modes per MPI rank. Neither the fine
  * unknown numbering nor cross-domain matrix couplings are changed. */
 
+/// Validate field-aware PCMG options before an assembled operator is available.
+void validate_coupled_velocity_field_amg_options(MPI_Comm comm,const std::string& prefix);
+
+/** Build every velocity AMG transfer from propagated physical near modes.
+ * Owner-local graph aggregates retain whole semantic nodes on the fine grid,
+ * and whole preceding aggregates on later grids. Local rank-revealing QR
+ * removes dependent candidate columns; P^T N supplies the candidate data on
+ * the next grid. Thus every level retains independent fluid/solid translations,
+ * optional reference rotations, body scalars, and their coupled combinations.
+ * All Galerkin operators use the complete, generally nonsymmetric velocity
+ * matrix. No packed xyz ordering or exact nullspace is assumed. Identity rows
+ * have zero interpolation and are solved by the fine smoother.
+ * Prefixed field_amg_coarse_limit (default 64) and field_amg_max_levels
+ * (default 10) bound setup. Coarsening stops also when no dimension is reduced.
+ * Interpolation is fixed for the solver session; PCMG refreshes every numerical
+ * Galerkin operator as the current Jacobian changes. Geometry, constraints and
+ * ownership must therefore remain fixed. Coarse solves are bounded GMRES/ASM,
+ * requiring an outer flexible Krylov method. This mechanism alone does not
+ * establish mesh-independent convergence. Collective on comm; P1 vertex and
+ * scalar body velocity semantics only.
+ */
+void configure_coupled_velocity_field_amg(MPI_Comm comm,KSP solver,
+    const std::vector<DofKey>& owned_semantics,
+    const std::vector<std::array<double,3>>& owned_coordinates={},bool rigid_modes=false,
+    PetscInt aggregate_nodes=16);
+
 /// Validate an optional scalar-AIJ GAMG hierarchy and flexible response options.
 void validate_coupled_velocity_gamg_options(MPI_Comm comm,const std::string& prefix);
 

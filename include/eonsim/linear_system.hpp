@@ -68,6 +68,9 @@ struct AlgebraLayout {
     std::vector<PetscInt> local_to_global, diagonal, off_diagonal;
     std::map<std::string, std::vector<PetscInt>> fields; ///< Physical acceptance, never PC recipes.
     std::vector<DofKey> owned_semantics; ///< Optional, in owned storage order; layout-local namespace.
+    /// True trace membership of each independent owned representative. Empty
+    /// means unavailable; no coordinate/rank heuristic may infer an interface.
+    std::vector<unsigned char> owned_interface;
     /** Optional physical reference positions in the same owned row order as
      * owned_semantics, never current ALE coordinates or ghost copies. A producer
      * using a mapped reference domain must apply that map before solver setup.

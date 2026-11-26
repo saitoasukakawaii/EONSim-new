@@ -1,0 +1,81 @@
+{
+  "recorded_utc": "2026-11-26T08:58:58.733596+00:00",
+  "source": "19cd26f2af9b02859fac28ca8f662c29c20d47f1",
+  "tree": "4a5584bca52b05de1594ef38758987df84e66686",
+  "working_tree_at_recording": "?? docs/development/FSI_ADVANCED_PRECONDITIONERS.md\n?? website/drafts/fsi-field-amg-pressure-interface.md\n",
+  "build_command": "bash build/locked.sh cmake --build build/cloud-3.23.7-release --target eonsim verify_fsi_pressure_operators --parallel 3",
+  "build_exit": 0,
+  "ctest_command": "bash build/locked.sh ctest --test-dir build/cloud-3.23.7-release -R ^fsi_pressure_operators(_mpi2)?$ --output-on-failure --output-junit build/fsi-advanced/pcd-fix-19cd26f/pcd-operators.xml -j1",
+  "ctest_exit": 0,
+  "physical_command": "bash build/locked.sh python tests/verify_fsi_advanced_pc.py --executable build/cloud-3.23.7-release/eonsim --mpiexec .cloud/petsc-3.23.7/bin/mpiexec --work build/fsi-advanced/pcd-fix-19cd26f/physical --build-source 19cd26f2af9b02859fac28ca8f662c29c20d47f1 --study --modes pcd_field pcd_vanka_double pcd_vanka_single",
+  "physical_exit": 0,
+  "environment": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "allocation": "shared container, exclusivity unknown",
+    "threads": {
+      "OMP_NUM_THREADS": 1,
+      "OPENBLAS_NUM_THREADS": 1,
+      "MKL_NUM_THREADS": 1
+    },
+    "PETSc": "3.23.7 real double",
+    "configuration": "Release"
+  },
+  "files": {
+    "build/fsi-advanced/pcd-fix-19cd26f/build.log": {
+      "sha256": "6d91dc0fe9d2756649082250e2db6e96abc318fe52be34007f0ec7eb4550a394",
+      "bytes": 920
+    },
+    "build/fsi-advanced/pcd-fix-19cd26f/pcd-operators.log": {
+      "sha256": "7d74f48b351290e661490d893e25c5bc519e02afcfa035b8c84826cd1a4f3f34",
+      "bytes": 557
+    },
+    "build/fsi-advanced/pcd-fix-19cd26f/pcd-operators-full.log": {
+      "sha256": "a09d9d6babb742dde55c570c1be0a654ee7a38181a108afae1e7f7c88765480b",
+      "bytes": 3748
+    },
+    "build/fsi-advanced/pcd-fix-19cd26f/pcd-operators.xml": {
+      "sha256": "56c061e15996b5bcba7a85367eee7df2e97993eaabf645e9ec719a4b90c982cc",
+      "bytes": 2733
+    },
+    "build/locked.sh": {
+      "sha256": "48e96f86b46990730e83f47b531c7ea3d1111e64e8116ea0b81c5def077951c5",
+      "bytes": 842
+    },
+    "build/cloud-3.23.7-release/CMakeCache.txt": {
+      "sha256": "e09f93fb91761f1e8710d31c0e470ef711d1b6ae43351c9f2e5845fcfb02599b",
+      "bytes": 31518
+    },
+    ".cloud/petsc-3.23.7/include/petscversion.h": {
+      "sha256": "427bb7f292a0e6dfb9fa94fd19dd740f7a3c8e3f0c309d21852fb109d09ecdb2",
+      "bytes": 1507
+    },
+    "build/cloud-3.23.7-release/eonsim": {
+      "sha256": "45ce710b6f7d1358c4b0524c9dc41d8cd2218beee2e416295d4c311d57132d77",
+      "bytes": 2430528
+    },
+    "build/cloud-3.23.7-release/verify_fsi_pressure_operators": {
+      "sha256": "d6d8501d8a45f294ea673f8c4b0c0d84e48d094b2e6401018b7a58a59a43e39c",
+      "bytes": 233656
+    },
+    "tests/verify_fsi_advanced_pc.py": {
+      "sha256": "80130182769c0f93c634d241cd0533e5f7bb9adb4d80682df2375e91a72b12e7",
+      "bytes": 20571
+    },
+    "scripts/cloud/selection.json": {
+      "sha256": "357cb84f6f781103db0bc35d25188ab4e52dde544283edaf98c6c4705d7b57de",
+      "bytes": 37166
+    }
+  }
+}

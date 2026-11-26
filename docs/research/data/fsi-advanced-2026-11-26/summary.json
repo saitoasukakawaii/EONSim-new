@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "audits": {
+    "initial": {
+      "summary": {
+        "solver_invocations": 20,
+        "passed_solver_invocations": 20,
+        "prepare_commands": 3,
+        "accepted_step_records": 54,
+        "newton_iterations": 117,
+        "measured_linear_corrections": 117,
+        "invocation_counts": {
+          "full": 16,
+          "checkpoint_start": 2,
+          "restart_tail": 2
+        },
+        "full_trajectory_accepted_step_records": 48,
+        "restart_trajectories": 2,
+        "max_true_residual_ratio": 0.009257947264879914,
+        "max_field_absolute_difference": 1.257624560047077e-11,
+        "max_history_absolute_difference": 8.104628079763643e-15,
+        "max_owner_ghost_difference": 0.0,
+        "raw_failure_count": 0
+      },
+      "status": "passed_with_evidence_limits",
+      "original_json": "build/fsi-advanced/initial/independent-physical-audit.json",
+      "sha256": "9c5c8495fc9ad3609e843bd5083f8a9bffae669e760160c105a01bdc1e027b44"
+    },
+    "study": {
+      "summary": {
+        "solver_invocations": 60,
+        "passed_solver_invocations": 60,
+        "prepare_commands": 12,
+        "accepted_step_records": 180,
+        "newton_iterations": 360,
+        "measured_linear_corrections": 360,
+        "invocation_counts": {
+          "full": 60,
+          "checkpoint_start": 0,
+          "restart_tail": 0
+        },
+        "full_trajectory_accepted_step_records": 180,
+        "restart_trajectories": 0,
+        "max_true_residual_ratio": 0.009313561967114794,
+        "max_field_absolute_difference": 9.641748510702541e-11,
+        "max_history_absolute_difference": 5.717648576819556e-14,
+        "max_owner_ghost_difference": 0.0,
+        "raw_failure_count": 0
+      },
+      "status": "passed_with_evidence_limits",
+      "original_json": "build/fsi-advanced/study-9dfd8ac/study-independent-audit.json",
+      "sha256": "12e89bb9ce14aed20b99597d546397c804143fdc1aacee80c613e405ac8ed00f"
+    },
+    "final_pcd": {
+      "summary": {
+        "solver_invocations": 38,
+        "passed_solver_invocations": 38,
+        "prepare_commands": 15,
+        "accepted_step_records": 108,
+        "newton_iterations": 225,
+        "measured_linear_corrections": 225,
+        "invocation_counts": {
+          "full": 34,
+          "checkpoint_start": 2,
+          "restart_tail": 2
+        },
+        "full_trajectory_accepted_step_records": 102,
+        "restart_trajectories": 2,
+        "max_true_residual_ratio": 0.009273085855602773,
+        "max_field_absolute_difference": 3.1915137199689525e-11,
+        "max_history_absolute_difference": 5.684341886080802e-14,
+        "max_owner_ghost_difference": 0.0,
+        "raw_failure_count": 0
+      },
+      "status": "passed_with_evidence_limits",
+      "original_json": "build/fsi-advanced/pcd-fix-19cd26f/final-independent-physical-audit.json",
+      "sha256": "1e31e0149d9f8f5a24399316f29aa49be88bb813257f4b6e706573bfc0afb988"
+    }
+  },
+  "evidence_limits": [
+    "Residual audit recomputes the original logged Jdx-b norm gate, not an offline matrix-vector product.",
+    "Original c5af binary was replaced; its hash is the contemporaneous receipt value.",
+    "HDF5 container bytes can differ across rewrites; semantic partition comparison is separately recorded.",
+    "No multi-node, large-scale production, general mesh-independent convergence, repeated isolated timing or whole-preconditioner FP32 claim."
+  ],
+  "source_stages": [
+    {
+      "source": "c5af27de8fdc7a42df855543ad6366ce7db70571",
+      "tree": "d959212602fc0e4149e8bbee55d2aedba31ff048",
+      "purpose": "initial complete implementation, pushed before build and tests"
+    },
+    {
+      "source": "e565c9872551dad9dc7a01d4d7b613e8a96d3545",
+      "tree": "425cc9ddd9f235afa3d6255d56201504202dc9c2",
+      "purpose": "empty patch collective order, PCD callback and convection guards, pushed before rebuild"
+    },
+    {
+      "source": "9dfd8ac4435b484ab7eecb5e8fc4423c407ff235",
+      "tree": "00d589b0da6a96e9653027ea31b5d6ee98dfb6a6",
+      "purpose": "same-Schur interface ablation driver; binary remains e565c98"
+    },
+    {
+      "source": "19cd26f2af9b02859fac28ca8f662c29c20d47f1",
+      "tree": "4a5584bca52b05de1594ef38758987df84e66686",
+      "purpose": "physical mass-preserving PCD boundary, independent Stokes oracle and selective driver, pushed before rebuild"
+    }
+  ],
+  "archive": {
+    "file": "evidence.tar.xz",
+    "archive": "evidence.tar.xz",
+    "sha256": "7ba83dea05260988372f8fd7e4893a83a8fc98be21997b525f41d43162c945c7",
+    "bytes": 7585960,
+    "members": 5402,
+    "original_bytes": 143317696,
+    "verified_members": 5402,
+    "status": "all members reread and hash matched",
+    "excluded_rebuildable_binaries": 4
+  },
+  "source_ci": {
+    "run_id": 45787454655,
+    "source": "19cd26f2af9b02859fac28ca8f662c29c20d47f1",
+    "merge_preview": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6",
+    "tree": "4a5584bca52b05de1594ef38758987df84e66686",
+    "release_tests_executed": 85,
+    "failed": 0,
+    "skipped": 0,
+    "reused": 0,
+    "python_unittests": 54,
+    "inventory_tests": 115,
+    "unselected_tests": 30,
+    "independent_audit": {
+      "file": "source-ci.audit.json",
+      "sha256": "97db0a1fe00198a7a082316571a40f6b03e9884b4f0a51c38f947a534bb037d1"
+    },
+    "archive": {
+      "schema": 1,
+      "archive": "source-ci.tar.xz",
+      "sha256": "04b32ef7a09d3613bfec512ed580b873203e9d3630467cbd57d5d45d15788d01",
+      "bytes": 2652340,
+      "members": 1222,
+      "original_bytes": 33141781,
+      "verified_members": 1222,
+      "status": "all members reread and hash matched"
+    },
+    "advanced_fsi": {
+      "solver_invocations": 20,
+      "prepare_commands": 3,
+      "accepted_step_records": 54,
+      "true_residual_records": 117,
+      "included_in_ctest_count": true,
+      "limits": "CI raw artifact contains no physical VTU/CSV/HDF5 files; only local full-raw audits independently compare those fields."
+    }
+  }
+}

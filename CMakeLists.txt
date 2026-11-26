@@ -65,6 +65,9 @@ add_library(eonsim_core
     src/algebra/pc_plan.cpp
     src/algebra/rcr_port_pc.cpp
     src/algebra/coupled_velocity_pc.cpp
+    src/algebra/pressure_schur_pc.cpp
+    src/algebra/interface_patch_pc.cpp
+    src/physics/fsi_pressure_operators.cpp
     src/physics/fluid_element.cpp
     src/fem/reduced_layout.cpp
     src/physics/fsi_diagnostics.cpp
@@ -113,6 +116,25 @@ if(BUILD_TESTING)
     endif()
     add_executable(verify_pc_plan tests/verify_pc_plan.cpp)
     target_link_libraries(verify_pc_plan PRIVATE eonsim_core)
+    foreach(verification IN ITEMS pressure_schur interface_patch field_amg)
+        add_executable(verify_${verification} tests/verify_${verification}.cpp)
+        target_link_libraries(verify_${verification} PRIVATE eonsim_core)
+        foreach(ranks IN ITEMS 1 2 4)
+            add_test(NAME ${verification}_mpi${ranks} COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" ${ranks}
+                ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_${verification}> ${MPIEXEC_POSTFLAGS})
+            set_tests_properties(${verification}_mpi${ranks} PROPERTIES TIMEOUT 120 PROCESSORS ${ranks}
+                LABELS "core;mpi-failure;rank-${ranks}" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+        endforeach()
+    endforeach()
+    add_executable(verify_fsi_pressure_operators tests/verify_fsi_pressure_operators.cpp)
+    target_link_libraries(verify_fsi_pressure_operators PRIVATE eonsim_core)
+    add_test(NAME fsi_pressure_operators COMMAND $<TARGET_FILE:verify_fsi_pressure_operators>)
+    set_tests_properties(fsi_pressure_operators PROPERTIES TIMEOUT 30 LABELS "core;rank-1"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME fsi_pressure_operators_mpi2 COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" 2
+        ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_fsi_pressure_operators> ${MPIEXEC_POSTFLAGS})
+    set_tests_properties(fsi_pressure_operators_mpi2 PROPERTIES TIMEOUT 30 PROCESSORS 2
+        LABELS "core;mpi-failure;rank-2" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_executable(verify_rcr_port tests/verify_rcr_port.cpp)
     target_link_libraries(verify_rcr_port PRIVATE eonsim_core)
     foreach(ranks IN ITEMS 1 2 4)
@@ -261,6 +283,10 @@ if(BUILD_TESTING)
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_moving_plane_rcr")
     add_test(NAME rcr_port_fsi COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_rcr_port_fsi.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/rcr_port_fsi")
+    add_test(NAME advanced_fsi_pc COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_advanced_pc.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/advanced_fsi_pc")
+    set_tests_properties(advanced_fsi_pc PROPERTIES TIMEOUT 900 PROCESSORS 2 LABELS "core;rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     set_tests_properties(rcr_port_fsi PROPERTIES TIMEOUT 600 PROCESSORS 2 LABELS "core;rank-1;rank-2"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME fsi_reservoir_pressure COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_reservoir.py"

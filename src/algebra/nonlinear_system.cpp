@@ -3,6 +3,8 @@
 #include "eonsim/schur_solver.hpp"
 #include "eonsim/pc_plan.hpp"
 #include "eonsim/rcr_port_pc.hpp"
+#include "eonsim/interface_patch_pc.hpp"
+#include "eonsim/pressure_schur_pc.hpp"
 #include "eonsim/time_step.hpp"
 #include <cmath>
 #include <stdexcept>
@@ -162,6 +164,16 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
         // FieldSplit arrays belong to the caller; all child KSPs are borrowed.
     } else if(std::strcmp(pt,PCSHELL)==0) {
         if(KSP bulk=rcr_port_bulk_solver(pc)) children.emplace_back("rcr_bulk",bulk);
+        if(KSP bulk=interface_patch_bulk_solver(pc)) children.emplace_back("interface_bulk",bulk);
+        if(KSP auxiliary=pressure_schur_auxiliary_solver(pc)) children.emplace_back("pressure_aux",auxiliary);
+        InterfacePatchPcStats patch_stats;
+        if(query_interface_patch_pc_stats(pc,patch_stats))
+            out<<"interface_patch_stats rank="<<rank<<" path="<<path<<" patches="<<patch_stats.patches
+               <<" largest_patch="<<patch_stats.largest_patch<<" rebuilds="<<patch_stats.rebuilds
+               <<" applications="<<patch_stats.applications<<" fp32="<<patch_stats.fp32_patches
+               <<" fp64="<<patch_stats.fp64_patches<<" setup_fallbacks="<<patch_stats.setup_fallbacks
+               <<" apply_fallbacks="<<patch_stats.apply_fallbacks<<" refinements="<<patch_stats.refinements
+               <<" factor_bytes="<<patch_stats.factor_bytes<<'\n';
         RcrPortPcStats stats;
         if(query_rcr_port_pc_stats(pc,stats))
             out<<"rcr_port_stats rank="<<rank<<" path="<<path<<" ports="<<stats.ports
@@ -789,6 +801,7 @@ struct Context {
             throw std::runtime_error(error);
         }
         if(constrain) apply_constraints(publish_residual?r:nullptr,j);
+        if(j&&phases&&phases->after_jacobian) phases->after_jacobian(values,j);
         const auto end=std::chrono::steady_clock::now();
         // These phase totals cover only evaluations that completed successfully, like assembly_seconds.
         callback_seconds+=callback_time;
@@ -920,7 +933,13 @@ struct NonlinearSystem::Workspace {
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_coarse_space",&coarse_option));
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_aggregate_nodes",&aggregate_option));
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_rcr_ports",&port_option));
-        int unused=!semantic&&(nodal_option||velocity_option||structure_option||coarse_option||aggregate_option||port_option),any_unused=0;
+        bool interface_option=false;
+        for(const char* option:{"-pc_plan_interface_smoother","-pc_plan_patch_precision","-pc_plan_patch_overlap",
+            "-pc_plan_patch_max_size","-pc_plan_patch_refinement_steps","-pc_plan_patch_refinement_tolerance","-pc_plan_patch_damping"}) {
+            PetscBool found=PETSC_FALSE; EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,option,&found));
+            interface_option=interface_option||found;
+        }
+        int unused=!semantic&&(nodal_option||velocity_option||structure_option||coarse_option||aggregate_option||port_option||interface_option),any_unused=0;
         MPI_Allreduce(&unused,&any_unused,1,MPI_INT,MPI_MAX,comm);
         if(any_unused) throw std::runtime_error("pc_plan Schur, velocity and structure options require -pc_recipe");
         if(semantic) plan=make_pc_plan(comm,l,recipe);
@@ -1103,16 +1122,28 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     auto& x=solution_; auto& r=residual_; auto& scratch=scratch_; auto& j=matrix_;
     PetscBool reuse=PETSC_TRUE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-nonlinear_reuse",&reuse,nullptr));
+    char pressure_approximation[32]{};
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_schur_approx",pressure_approximation,
+        sizeof(pressure_approximation),nullptr));
+    const bool physical_pcd=std::strcmp(pressure_approximation,"pcd")==0;
     const auto options=petsc_options_snapshot();
     int local[]={initial.size()!=l.local_to_global.size()||constraints.size()!=prescribed.size()||
         bool(phases.owned)!=bool(phases.halo),
         !reuse||!workspace_||!workspace_->reusable||workspace_->options!=options||
         !same_solver_config(workspace_->config,config)||workspace_->constraint_rows!=constraints,
-        bool(phases.owned),!phases.owned};
-    int global[4]{};
-    MPI_Allreduce(local,global,4,MPI_INT,MPI_MAX,comm);
+        bool(phases.owned),!phases.owned,bool(phases.after_jacobian),!phases.after_jacobian,
+        physical_pcd&&!phases.after_jacobian};
+    int global[7]{};
+    MPI_Allreduce(local,global,7,MPI_INT,MPI_MAX,comm);
     if(global[0]) throw std::runtime_error("Invalid nonlinear state/constraint layout");
     if(global[2]&&global[3]) throw std::runtime_error("Nonlinear assembly phases must agree on every rank");
+    if(global[4]&&global[5]) throw std::runtime_error("Auxiliary Jacobian callback must agree on every rank");
+    // Root Mat compositions retain their handles across solves. Without a
+    // current producer, a retained PCD recipe could silently reuse old physical
+    // coefficients, including when the new initial residual is already zero.
+    // Standalone algebra callers may still compose static auxiliary operators
+    // explicitly; this requirement belongs to the nonlinear update contract.
+    if(global[6]) throw std::runtime_error("Physical PCD requires an after_jacobian auxiliary update callback for every nonlinear solve");
     const bool solver_reused=!global[1];
     if(!solver_reused) {
         workspace_.reset();

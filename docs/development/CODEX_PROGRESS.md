@@ -1,5 +1,38 @@
 # EONSim Codex Development Progress
 
+## 2026-11-26 · FSI-PC-05：物理粗空间、压力 Schur 与界面混合精度
+
+从已合并 #58 的 `main@af4a7fb` 接续，交付 [PR #59](https://github.com/saitoasukakawaii/EONSim-new/pull/59)。
+实现递归 field-aware 流固速度 AMG、保留完整 D 的 LSC/BFBt 变体、当前 ALE 物理 PCD、
+真实界面混合 patch 后校正与局部 FP32 LU/FP64 细化及回退。默认配置保持；原完整 Jacobian、
+物理残量、时间历史和接受门槛保持。每次源码/驱动都先同步并核对完整 tree，再构建和运行。
+
+首版 c5af27d 的界面 4-rank 空 owner 路径暴露 MatIncreaseOverlap 集体调用错序；e565c98
+仅临时补空 IS 使所有 rank 参加 setup，1/2/4-rank 复验通过。物理研究还发现旧 PCD 同时
+把质量/Laplace/输运边界置单位破坏 Stokes 缩放；最终源码 `19cd26f` 保留物理 Mp，
+匹配 Kbc/Ftilde 的黏度尺度。新测试链接旧库实际失败，最终 6 个独立 Stokes 作用 oracle、
+4 代积分和 WORLD 空 owner/异黏度拒绝的 2 项 CTest 通过。
+
+当前有效本地覆盖为新 field/pressure/interface 各 1/2/4-rank 三项、最终 PCD 两项及既有
+默认路径五项，按各自源码复用；没有把它们都算作最终提交重跑。初始20次、研究60次、
+最终受影响PCD38次真实求解都通过独立原件审计。最终38次含108接受步、225已测线性修正；
+最坏真残量/门槛0.00927309，最大场差3.19152e-11，历史5.68434e-14，owner/ghost差0。
+
+2-rank、703/2299/5367 DoF 的 PCD+FP32 patch 从825/1199/1731次降至144/166/225；
+同配置 nodal 为82/99/131、BFBt+patch为94/109/140。PCD显著改善但仍较慢，迭代仍随
+网格增长。六组密度/时间步下BFBt加patch少2.44%–11.96%迭代；PCD小例加patch反而多。
+FP32局部因子数组216272→108136字节且与FP64迭代相同，不代表总内存/带宽/耗时减半。
+近似网格无关、每层界面 smoother、普遍性能收益及更大规模仍属未达目标。
+
+[完整证据](../research/data/fsi-advanced-2026-11-26/README.md)、[使用与数学说明](FSI_ADVANCED_PRECONDITIONERS.md)
+和[未发布草稿](../../website/drafts/fsi-field-amg-pressure-interface.md)记录全部失败、诊断、
+新旧来源及独立审计。最终源码 CI 和文档 head 四项检查、锁定 head 合并按 GitHub 核实；
+文档证据复用不算新数值执行。没有全量、常规 Debug、旧 PETSc 或多节点追加验证。
+
+最终源码CI [45787454655](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45787454655)
+实际85/85 Release选测、54/54 Python通过，0数值失败/跳过/复用；合并预览121e54bb与
+19cd源码tree相同，成功增量receipt及官方artifact摘要均已核实。后续文档检查复用此来源。
+
 ## 2026-11-26 · RCR-PC-01：端口 Schur 与低秩预条件器
 
 从已合并 #57 的 `main@b731d471` 接续，交付 [PR #58](https://github.com/saitoasukakawaii/EONSim-new/pull/58)。

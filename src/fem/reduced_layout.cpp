@@ -195,6 +195,7 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     PetscInt next=l.begin;
     std::vector<PetscInt> independent(nc*mesh.owned_nodes,-1);
     l.owned_semantics.reserve(l.owned);
+    l.owned_interface.reserve(l.owned);
     l.owned_reference_coordinates.reserve(l.owned);
     for(std::size_t i=0;i<independent.size();++i) if(alias[i]==static_cast<PetscInt>(i)) {
         independent[i]=next++;
@@ -207,6 +208,7 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
             (domain==DofDomain::mesh?c-Layout::mesh_offset:
              (domain==DofDomain::solid?c-Layout::structure_offset:c)));
         l.owned_semantics.push_back({mesh.nodes[i/nc].global_id,domain,quantity,DofEntity::vertex,component,0,1});
+        l.owned_interface.push_back(reduced.interface_nodes[i/nc]?1:0);
         // Only independent representatives have rows. Interface aliases use
         // the structural representative and never append duplicate positions.
         // The legacy mirrored solid driver applies its physical reference map
@@ -219,12 +221,14 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     if(body_owner) {
         l.fields["rigid"].push_back(reduced.body);
         l.owned_semantics.push_back({0,DofDomain::solid,DofQuantity::velocity,DofEntity::body,0,0,0});
+        l.owned_interface.push_back(1);
         l.owned_reference_coordinates.push_back({0.,0.,0.});
     }
     if(outlet_owner) for(std::size_t i=0;i<reduced.outlets.size();++i) {
         l.fields["pressure"].push_back(reduced.outlets[i].pressure);
         l.owned_semantics.push_back({domains->rcr_outlets[i].tag,DofDomain::fluid,DofQuantity::pressure,
                                      DofEntity::boundary,0,0,0});
+        l.owned_interface.push_back(0);
         l.owned_reference_coordinates.push_back({0.,0.,0.});
     }
     for(const auto* name:{"velocity","pressure","mesh"}) (void)l.fields[name];
