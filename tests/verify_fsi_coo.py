@@ -34,10 +34,12 @@ def check_batch_injection(text, mode):
     # A different rank's partial stderr write can precede this flushed stdout
     # record on the same line. Match the complete token sequence, while still
     # counting every marker so duplicate or malformed records cannot disappear.
+    # After the last field only horizontal whitespace and the line end are
+    # allowed; an appended key must not silently override the validated fields.
     marker = 'fsi_batch_failure'
     matches = list(re.finditer(
         r'(?<!\w)fsi_batch_failure mode=(?P<mode>\w+) thread=(?P<thread>\d+) '
-        r'team=(?P<team>\d+) batch=(?P<batch>\d+)(?=\s|$)', text))
+        r'team=(?P<team>\d+) batch=(?P<batch>\d+)[ \t]*(?=\r?\n|\Z)', text))
     require(text.count(marker) == 1 and len(matches) == 1,
             f'{mode}: missing, duplicate or malformed batch injection record')
     fault = matches[0].groupdict()

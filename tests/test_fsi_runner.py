@@ -40,7 +40,9 @@ class BatchInjectionLogTests(unittest.TestCase):
         for text in ('', self.marker.replace(' thread=1', ''),
                      self.marker.replace(' batch=1', ''),
                      self.marker.replace('team=2', 'team=NaN'),
-                     self.marker.replace('batch=1', 'batch=1.5')):
+                     self.marker.replace('batch=1', 'batch=1.5'),
+                     self.marker+' batch=0', self.marker+' thread=0',
+                     self.marker+' batch=1', self.marker+' thread=1'):
             with self.subTest(text=text), self.assertRaises(RuntimeError):
                 check_batch_injection(text, 'worker_fatal')
 
