@@ -1,0 +1,438 @@
+{
+  "status": "passed",
+  "audit_utc": "2026-11-26T09:13:59.078604+00:00",
+  "method": "Read-only source, JSON, XML and raw log audit; no build or numerical/Python test was executed.",
+  "run_id": 45787454655,
+  "repository": "saitoasukakawaii/EONSim-new",
+  "pr": 59,
+  "source": {
+    "branch_head": "19cd26f2af9b02859fac28ca8f662c29c20d47f1",
+    "merge_preview_commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6",
+    "merge_preview_parents": [
+      "af4a7fb3f4371fe1e518376bdd1c148b170f683e",
+      "19cd26f2af9b02859fac28ca8f662c29c20d47f1"
+    ],
+    "branch_head_tree": "4a5584bca52b05de1594ef38758987df84e66686",
+    "merge_preview_tree": "4a5584bca52b05de1594ef38758987df84e66686",
+    "exact_tree_match": true,
+    "build_dirty": false,
+    "mode": "release",
+    "petsc": "3.23.7",
+    "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892"
+  },
+  "ctest": {
+    "inventory": 115,
+    "selected": 85,
+    "executed": 85,
+    "passed": 85,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "disabled": 0,
+    "timeouts": 0,
+    "reused": 0,
+    "unselected_count": 30,
+    "unselected_names": [
+      "ale_alpha_verification",
+      "ale_time_verification",
+      "boundary_geometry",
+      "checkpoint_publication",
+      "checkpoint_publication_mpi",
+      "coo_jacobian",
+      "coo_jacobian_mpi2",
+      "coo_jacobian_mpi4",
+      "domains_alpha_verification",
+      "domains_bdf2_verification",
+      "element2d_oracles",
+      "fluid_alpha_verification",
+      "fluid_element_jacobian",
+      "fluid_element_report",
+      "fluid_time_verification",
+      "hyperelastic_element_jacobian",
+      "layout_policy_verification",
+      "mesh_import_verification",
+      "motion_verification",
+      "profile_log_validation",
+      "quadrature_moments",
+      "regions_verification",
+      "restart_block_verification",
+      "scalar2d_time",
+      "schur_verification",
+      "solid_element_jacobian",
+      "solid_time_verification",
+      "tagged_fluid_verification",
+      "time_integration",
+      "time_retry_verification"
+    ],
+    "critical_new_tests_passed": [
+      "advanced_fsi_pc",
+      "field_amg_mpi1",
+      "field_amg_mpi2",
+      "field_amg_mpi4",
+      "fsi_pressure_operators",
+      "fsi_pressure_operators_mpi2",
+      "interface_patch_mpi1",
+      "interface_patch_mpi2",
+      "interface_patch_mpi4",
+      "pressure_schur_mpi1",
+      "pressure_schur_mpi2",
+      "pressure_schur_mpi4"
+    ],
+    "junit_seconds": 545.0,
+    "plan_receipt_summary_inventory_junit_sets_identical": true
+  },
+  "python": {
+    "job_id": 139797793863,
+    "modules": [
+      {
+        "module": "tests/test_ci_selection.py",
+        "tests_run": 26,
+        "result": "OK"
+      },
+      {
+        "module": "tests/test_cloud_evidence.py",
+        "tests_run": 6,
+        "result": "OK"
+      },
+      {
+        "module": "tests/test_lame_wall.py",
+        "tests_run": 6,
+        "result": "OK"
+      },
+      {
+        "module": "tests/test_rigid_tube.py",
+        "tests_run": 3,
+        "result": "OK"
+      },
+      {
+        "module": "tests/test_womersley.py",
+        "tests_run": 13,
+        "result": "OK"
+      }
+    ],
+    "total_cases": 54,
+    "all_five_suites_ok": true,
+    "failed": 0,
+    "skipped": 0,
+    "log": "/workspace/scratch/ae740e1dde63/EONSim-new/build/fsi-ci-19cd26f/selection-job.log",
+    "log_sha256": "8cbadcbaa46db6f62e1bcd51c157ac1c6b4f549f052f1164e9f97beff8350c6e",
+    "synthetic_annotation_count": 5
+  },
+  "advanced_fsi_pc": {
+    "status": "passed",
+    "cases": 3,
+    "sections": [
+      "default",
+      "rcr"
+    ],
+    "study": false,
+    "solve_commands": 20,
+    "prepare_commands": 3,
+    "command_logs_verified_by_hash": 23,
+    "accepted_steps": 54,
+    "true_residual_records": 117,
+    "field_acceptance_log_records": 216,
+    "max_recomputed_true_residual_ratio": 0.009257947264879914,
+    "reported_saved_field_max_difference": 3.643751966819764e-12,
+    "reported_history_max_difference": 8.104628079763643e-15,
+    "saved_field_history_recomputed_offline": false,
+    "missing_payload_type_counts": {
+      ".vtu": 0,
+      ".csv": 0,
+      ".msh": 0,
+      ".h5": 0
+    },
+    "build_source_in_standalone_receipt": null,
+    "source_commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6",
+    "executable_sha256": "f092e3a0ffac0673d6f04729363e47812d30d4ddbc9fccfd1f1bf232ac841910",
+    "runs": [
+      {
+        "case": "domains-r1",
+        "ranks": 1,
+        "label": "reference",
+        "mode": "direct",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 6,
+        "max_true_residual_ratio": 9.182731068993753e-06,
+        "log_sha256": "f2444ebf89065bfd95e9e33d3d417dee60d3f30d92e3c296572176a86a4df245"
+      },
+      {
+        "case": "domains-r1",
+        "ranks": 1,
+        "label": "nodal_field",
+        "mode": "nodal_field",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 73,
+        "max_true_residual_ratio": 0.002494238981548343,
+        "log_sha256": "2c43933d1a9e3c47594781f7e122bdb5c401f0259168879b90f437b1734bcb2c"
+      },
+      {
+        "case": "domains-r1",
+        "ranks": 1,
+        "label": "lsc_field",
+        "mode": "lsc_field",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 105,
+        "max_true_residual_ratio": 0.0053989860054673875,
+        "log_sha256": "4d090b4dad1ae473e88151a65afcaf2b4822c5493d0de99d64c659ee250402b7"
+      },
+      {
+        "case": "domains-r1",
+        "ranks": 1,
+        "label": "bfbt_field",
+        "mode": "bfbt_field",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 88,
+        "max_true_residual_ratio": 0.009257947264879914,
+        "log_sha256": "3f5d59232042dd96535271e2a43ac6ab8bdedc6704befeba17a235b977313d16"
+      },
+      {
+        "case": "domains-r1",
+        "ranks": 1,
+        "label": "pcd_field",
+        "mode": "pcd_field",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 151,
+        "max_true_residual_ratio": 0.0045091111974982,
+        "log_sha256": "37d6bf7418610f5412e16218918edba47b5888b99b90b67b94fd7304c353aaea"
+      },
+      {
+        "case": "domains-r1",
+        "ranks": 1,
+        "label": "pcd_vanka_double",
+        "mode": "pcd_vanka_double",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 164,
+        "max_true_residual_ratio": 0.006442307874455027,
+        "log_sha256": "7cf03240e9ec2f61db3cf126e7b6f8a29cada2e723c56dcd5a269ccd9ebcad05",
+        "observed_fp32": false
+      },
+      {
+        "case": "domains-r1",
+        "ranks": 1,
+        "label": "pcd_vanka_single",
+        "mode": "pcd_vanka_single",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 164,
+        "max_true_residual_ratio": 0.006442286366804395,
+        "log_sha256": "8336ccf628ac0ae47718bce191dcbba0cdd98eb6cbeba7c5a6cde7425b6dd588",
+        "observed_fp32": true
+      },
+      {
+        "case": "domains-r2",
+        "ranks": 2,
+        "label": "reference",
+        "mode": "direct",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 6,
+        "max_true_residual_ratio": 9.321631008671375e-06,
+        "log_sha256": "818c6af3d74eef6c916b2fa08058283e7d1dac347ee609a13b4635cc212424b3"
+      },
+      {
+        "case": "domains-r2",
+        "ranks": 2,
+        "label": "nodal_field",
+        "mode": "nodal_field",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 72,
+        "max_true_residual_ratio": 0.008453282959694483,
+        "log_sha256": "7c57137bcf773e50b7f8b20766706a39ffc8f502c17c562611e75345933a552b"
+      },
+      {
+        "case": "domains-r2",
+        "ranks": 2,
+        "label": "lsc_field",
+        "mode": "lsc_field",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 100,
+        "max_true_residual_ratio": 0.007074379345714573,
+        "log_sha256": "c30a13dcad958dc89fea14e8ebe874d184d785bd9e6d4196710a7d6b14c22ac1"
+      },
+      {
+        "case": "domains-r2",
+        "ranks": 2,
+        "label": "bfbt_field",
+        "mode": "bfbt_field",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 87,
+        "max_true_residual_ratio": 0.004580771724926264,
+        "log_sha256": "20ad121e0949a83cb960e55469edd3b1aee0942d90e2520279fe5897d2159181"
+      },
+      {
+        "case": "domains-r2",
+        "ranks": 2,
+        "label": "pcd_field",
+        "mode": "pcd_field",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 150,
+        "max_true_residual_ratio": 0.009043813427755761,
+        "log_sha256": "c1c22e6709b899c62f2a0f5397c035ddc9a6836bbb1829773bc4ab2ee0e8cb74"
+      },
+      {
+        "case": "domains-r2",
+        "ranks": 2,
+        "label": "pcd_vanka_double",
+        "mode": "pcd_vanka_double",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 161,
+        "max_true_residual_ratio": 0.005316303668065838,
+        "log_sha256": "b68920dbc23b28e47a7d9cab404da3a084cb3c54c988b3b70786402fb1f79854",
+        "observed_fp32": false
+      },
+      {
+        "case": "domains-r2",
+        "ranks": 2,
+        "label": "pcd_vanka_single",
+        "mode": "pcd_vanka_single",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 161,
+        "max_true_residual_ratio": 0.005316580564164755,
+        "log_sha256": "adba93b1904f807b51b408192c1839844489e832e518f36dc872148f981f2664",
+        "observed_fp32": true
+      },
+      {
+        "case": "domains-r2",
+        "ranks": 2,
+        "label": "checkpoint",
+        "mode": "pcd_vanka_single",
+        "dofs": 307,
+        "accepted_steps": 1,
+        "corrections": 2,
+        "outer_iterations": 47,
+        "max_true_residual_ratio": 0.0030663866735869557,
+        "log_sha256": "22a292670d43cbeed48eeb1d64aa0edfdb738a6627101859d98e1a3068d27add",
+        "observed_fp32": true
+      },
+      {
+        "case": "domains-r2",
+        "ranks": 2,
+        "label": "resumed",
+        "mode": "pcd_vanka_single",
+        "dofs": 307,
+        "accepted_steps": 2,
+        "corrections": 4,
+        "outer_iterations": 114,
+        "max_true_residual_ratio": 0.006912944059028419,
+        "log_sha256": "e7e0898e1036c582b1c323d33c423dda713c644424fc231d4296aab65aca53d7",
+        "observed_fp32": true
+      },
+      {
+        "case": "moving-rcr",
+        "ranks": 2,
+        "label": "reference",
+        "mode": "direct",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 9,
+        "max_true_residual_ratio": 4.050982713843283e-05,
+        "log_sha256": "e8e5e9cde00dfcaf544d1cbd46f4acab98a2263a5b0dceadafa138e99c4b405e"
+      },
+      {
+        "case": "moving-rcr",
+        "ranks": 2,
+        "label": "pcd_vanka_single",
+        "mode": "pcd_vanka_single",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 147,
+        "max_true_residual_ratio": 0.00736396620771377,
+        "log_sha256": "b669f917c754f4696805cc7a6355c2c1cfefcdb32c8bf62865d6cd7d8aa5d1ad",
+        "observed_fp32": true
+      },
+      {
+        "case": "moving-rcr",
+        "ranks": 2,
+        "label": "checkpoint",
+        "mode": "pcd_vanka_single",
+        "dofs": 350,
+        "accepted_steps": 1,
+        "corrections": 3,
+        "outer_iterations": 51,
+        "max_true_residual_ratio": 0.001473533605652233,
+        "log_sha256": "743c26cda90a7a5e4cef312f795ff6df291d03f3e5bdf78a597a217ff06e8364",
+        "observed_fp32": true
+      },
+      {
+        "case": "moving-rcr",
+        "ranks": 2,
+        "label": "resumed",
+        "mode": "pcd_vanka_single",
+        "dofs": 350,
+        "accepted_steps": 2,
+        "corrections": 6,
+        "outer_iterations": 96,
+        "max_true_residual_ratio": 0.007947155410181444,
+        "log_sha256": "2da7462ce175063ea5f2b10567ebe6cc5bb2308055f2f566883a2733b383854e",
+        "observed_fp32": true
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "path": "build/fsi-ci-19cd26f/plan/plan.json",
+      "sha256": "3a25031db64f36462de153cb698d0f7136385347267cf3c3e110194f145ccb5c"
+    },
+    {
+      "path": "build/fsi-ci-19cd26f/receipt/receipt.json",
+      "sha256": "9d6903ac846c3f4110f0b48dbe4462b74ae7d80baa727dd2ad2770e2712ad4fc"
+    },
+    {
+      "path": "build/fsi-ci-19cd26f/numerics/cloud-3.23.7-release/evidence/summary.json",
+      "sha256": "6bed22c4410696839e8d91153a815f86b36e5bba8c9657671e6c1e357932a371"
+    },
+    {
+      "path": "build/fsi-ci-19cd26f/numerics/cloud-3.23.7-release/evidence/junit.xml",
+      "sha256": "34c302466fb8067a12434de56672d0154c9bea9eab47510cd8c3e77845b861ae"
+    },
+    {
+      "path": "build/fsi-ci-19cd26f/numerics/cloud-3.23.7-release/evidence/ctest.log",
+      "sha256": "58ff29434738520d5079a97249b3abdd09b432bca87faf275745c340249d4c8e"
+    },
+    {
+      "path": "build/fsi-ci-19cd26f/selection-job.log",
+      "sha256": "8cbadcbaa46db6f62e1bcd51c157ac1c6b4f549f052f1164e9f97beff8350c6e"
+    },
+    {
+      "path": "build/fsi-ci-19cd26f/numerics/cloud-3.23.7-release/advanced_fsi_pc/1795683908695868062/results.json",
+      "sha256": "95b770a7440d9bbf40c650bd4557752309b121fe30d4a2b6d384c9a841b44dfc"
+    }
+  ],
+  "numerics_zip_sha256": "ca513f4e91c95d115ac1df2f9d8b05427801363fd51df1851290b446da1a8d5e",
+  "scope_limits_and_nonfailures": [
+    "Selection stdout includes five synthetic failure/error/skipped/disabled/notrun XML annotations from tests/test_cloud_evidence.py, and a mocked reuse message from tests/test_ci_selection.py. These are passing unit-test fixtures, not actual CTest failures/skips or evidence reuse.",
+    "Advanced CI artifact contains results.json and 23 raw command logs, but no VTU, CSV, mesh or HDF5 partition payloads. True residuals, solver statuses, step counts and runtime PC markers were independently recomputed from logs; saved-field/history comparisons are verified receipt values and cannot be recomputed from this artifact alone.",
+    "advanced_fsi_pc results.json has build_source=null. Build provenance is supplied by the clean Release summary, recorded build command, merge-preview commit/tree and matching driver/helper hashes, rather than by the standalone advanced receipt.",
+    "This is 85 selected CTest cases from a 115-case inventory plus 54 Python unittest cases. The 20 advanced solves are inside one of those 85 CTest cases and must not be added again as CTest cases. Thirty unselected cases were not run, not runtime skips. No Debug or PETSc 3.19.6 validation is evidenced by this artifact.",
+    "The CI advanced campaign covers default/rcr only, not the three-mesh scaling or density/dt study; those claims require the separately archived local campaign evidence."
+  ]
+}

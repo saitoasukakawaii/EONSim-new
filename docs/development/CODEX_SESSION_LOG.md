@@ -1,5 +1,54 @@
 # EONSim Codex Session Log
 
+## 2026-11-26 · FSI-PC-05 — 完整压力块、物理模态与界面校正
+
+用户明确要求完成代码、同步远端、运行算例、最后合并 PR。恢复 main@af4a7fb（#58），
+沿既有语义树而非另建求解框架开发，三路并行负责压力、界面/精度及层级/物理驱动，根集成
+当前 ALE 压力算子、成功 Jacobian 回调、真实 interface 标记、RCR compact 辅助传播与选项。
+独立代理交叉复核数学、MPI/lifecycle与实验原件。没有改变完整物理残量或接受门槛。
+
+首次 CLI push 被自动审核要求核实公开仓库目的地；检索用户既有完整 URL 与明确推送授权，
+核实连接账户对目标仓库的 push/admin 后再次请求，审核允许但 shell 缺少 HTTPS 凭据。
+使用已连接 GitHub API 上传 blob/tree/commit，逐阶段核对同一完整 Git tree，未改变权限。
+c5af27d、e565c98、9dfd8ac、19cd26f均先同步后执行，最后两次分别只改研究选择和PCD修复。
+
+首轮 build 成功，压力/field各三项通过；interface1/2通过而4rank空owner报MPI_ERR_BUFFER
+并超时。环境没有GDB/LLDB；使用错误轨迹和固定PETSc3.23.7源码确认MatIncreaseOverlap
+对n=0提前返回，导致后续collective错序。e565只在setup暂补空IS到共同最大n，随后销毁；
+强化2/1/0/0 patch数量回归并通过三rank档，原失败和abort/info诊断均保存。另补关闭convection
+与每次PCD solve必须有当前after_jacobian producer的检查，包含旧composition、零Newton与恢复。
+
+初始20真实求解全部通过；随后60次同网格/密度/时间步消融揭示PCD性能很差。64行压力辅助
+改精确LU/MUMPS只让442→412，排除辅助AMG精度为主因。FP32局部门槛1e-6诊断仍有5001
+次细化（原6406），未改1e-10默认，也未声称降精度就端到端加速。两条诊断的严格场/历史/
+真残量门槛均过，单独记录，不混入三批20/60/38验收计数。
+
+与FENaPack原始BRM2分项边界概念核对后，确认把Mp/K/F同时置单位破坏Stokes体积/黏度极限。
+最终19cd保留物理Mp、Kbc=QK+E、Ftilde=mu*Kbc+QN，原完整D组合保持。限制当前FSI统一
+正黏度并集体检查；没有用性能调参代替推导。独立oracle直接构造(Mp/mu+D)的长双精度逆，
+3尺度/黏度×2稳定化块六种作用；新测试链接冻结e565库确实exit1并首先报告Stokes极限错误。
+新实现2项CTest通过，4代ALE积分误差3.97763e-16、Stokes作用误差2.06789e-15。
+
+定向PCD38次回放全过，108接受步、225Newton/已测线性修正。三个批次由独立标准库解析器
+重读全部log/CSV/VTU、owner/ghost、拓扑与原pin，原件未被覆盖；最终1544历史pin全部匹配。
+没有J/b/dx归档，残量复核只重算原程序显式诊断的norm/rhs门槛比，不假称离线J乘积。
+旧c5af二进制未单独保留，明确身份仅来自当时receipt。跨源15case/38solve物理配置、mesh、
+容差一致；26对HDF5容器原始hash不同，完整类型/数据/属性h5dump语义相同，两个事实都记录。
+
+最终PCD+patch网格2rank825/1199/1731→144/166/225，但仍高于nodal82/99/131及BFBt
+94/109/140；细/粗增长1.5625不能写成mesh-independent。BFBt六组强耦合patch减少2.44%–
+11.96%迭代，小例额外成本仍高；PCD默认例无patch150、patch161，收益并非单调。FP32因子
+值数组减半、FP64/FP32迭代相同；未做独占资源重复计时或普遍性能声明。
+
+[命令、原件、来源及审计](../research/data/fsi-advanced-2026-11-26/README.md)和
+[未发布算法草稿](../../website/drafts/fsi-field-amg-pressure-interface.md)已按knowledge-capture整理。
+普通默认路径和未受后续修改影响的代数证据直接复用；未追加全量、常规Debug、旧PETSc或
+多节点算例。最终源码CI、文档head必需检查与精确head squash合并以GitHub权威记录为准。
+
+最终源码CI [45787454655](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45787454655)
+实际85/85 Release选测、54/54 Python通过，0数值失败/跳过/复用；合并预览121e54bb与
+19cd源码tree相同，成功增量receipt及官方artifact摘要均已核实。后续文档检查复用此来源。
+
 ## 2026-11-26 · RCR-PC-01 — 完整端口响应、基础AMG与缓存
 
 用户要求继续六项P0/P1，并明确代码→远端同步→算例→合并顺序。从已合并#57接续，

@@ -1,0 +1,701 @@
+{
+  "schema": 1,
+  "repository": "saitoasukakawaii/EONSim-new",
+  "pr": 59,
+  "base": "af4a7fb3f4371fe1e518376bdd1c148b170f683e",
+  "head": "19cd26f2af9b02859fac28ca8f662c29c20d47f1",
+  "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6",
+  "tree": "4a5584bca52b05de1594ef38758987df84e66686",
+  "fingerprint": "66dec7392bfae56717cdbab78827163c492c087201c7a2b79c31fef841ba1526",
+  "run_id": 45787454655,
+  "status": "passed",
+  "covered": [
+    "adaptive_pc_mpi1",
+    "adaptive_pc_mpi2",
+    "adaptive_pc_mpi4",
+    "advanced_fsi_pc",
+    "domains_verification",
+    "elastic_fsi_verification",
+    "field_amg_mpi1",
+    "field_amg_mpi2",
+    "field_amg_mpi4",
+    "fluid_coo_verification",
+    "fluid_verification",
+    "fsi_alpha_verification",
+    "fsi_block_efficiency",
+    "fsi_branched_rcr",
+    "fsi_coo_verification",
+    "fsi_curved_inlet",
+    "fsi_diagnostics",
+    "fsi_diagnostics_mpi",
+    "fsi_element_jacobian",
+    "fsi_flow",
+    "fsi_inlet",
+    "fsi_metric_stabilization",
+    "fsi_moving_plane_rcr",
+    "fsi_periodic",
+    "fsi_pressure_convergence",
+    "fsi_pressure_operators",
+    "fsi_pressure_operators_mpi2",
+    "fsi_pressure_state",
+    "fsi_reservoir_pressure",
+    "fsi_sampled_inlet",
+    "fsi_time_verification",
+    "fsi_tube",
+    "fsi_tube_rcr",
+    "fsi_tube_rcr_response",
+    "fsi_tube_wall_support",
+    "ghost_overlap_mpi1",
+    "ghost_overlap_mpi2",
+    "ghost_overlap_mpi4",
+    "hyperelastic_verification",
+    "interface_patch_mpi1",
+    "interface_patch_mpi2",
+    "interface_patch_mpi4",
+    "lame_wall",
+    "linear_lifetime",
+    "linear_lifetime_mpi",
+    "nonlinear_acceptance",
+    "nonlinear_acceptance_mpi",
+    "p2_space_oracles",
+    "parallel_hdf5",
+    "parallel_hdf5_mpi",
+    "pc_added_mass_nodal_retry",
+    "pc_added_mass_retry",
+    "pc_plan_mpi1",
+    "pc_plan_mpi2",
+    "pc_plan_mpi4",
+    "pc_rcr_port_mpi1",
+    "pc_rcr_port_mpi2",
+    "pc_rcr_port_mpi4",
+    "pc_recipe_hybrid",
+    "pc_recipe_physics",
+    "pc_recipe_quantity",
+    "pc_recipe_restart",
+    "pc_recipe_retry",
+    "pc_twolevel_retry",
+    "poisson_parallel",
+    "poisson_verification",
+    "pressure_schur_mpi1",
+    "pressure_schur_mpi2",
+    "pressure_schur_mpi4",
+    "rcr_port_fsi",
+    "rigid_fsi_verification",
+    "rigid_tube_verification",
+    "runtime_mpi",
+    "scalar2d_failure",
+    "scalar2d_space",
+    "scalar_p2_failure",
+    "scalar_p2_restart",
+    "scalar_p2_time",
+    "scalar_p2_verification",
+    "solid_alpha_verification",
+    "solid_verification",
+    "solver_failures",
+    "solver_failures_mpi",
+    "tri_p2_oracles",
+    "womersley_flow"
+  ],
+  "executed": [
+    "adaptive_pc_mpi1",
+    "adaptive_pc_mpi2",
+    "adaptive_pc_mpi4",
+    "advanced_fsi_pc",
+    "domains_verification",
+    "elastic_fsi_verification",
+    "field_amg_mpi1",
+    "field_amg_mpi2",
+    "field_amg_mpi4",
+    "fluid_coo_verification",
+    "fluid_verification",
+    "fsi_alpha_verification",
+    "fsi_block_efficiency",
+    "fsi_branched_rcr",
+    "fsi_coo_verification",
+    "fsi_curved_inlet",
+    "fsi_diagnostics",
+    "fsi_diagnostics_mpi",
+    "fsi_element_jacobian",
+    "fsi_flow",
+    "fsi_inlet",
+    "fsi_metric_stabilization",
+    "fsi_moving_plane_rcr",
+    "fsi_periodic",
+    "fsi_pressure_convergence",
+    "fsi_pressure_operators",
+    "fsi_pressure_operators_mpi2",
+    "fsi_pressure_state",
+    "fsi_reservoir_pressure",
+    "fsi_sampled_inlet",
+    "fsi_time_verification",
+    "fsi_tube",
+    "fsi_tube_rcr",
+    "fsi_tube_rcr_response",
+    "fsi_tube_wall_support",
+    "ghost_overlap_mpi1",
+    "ghost_overlap_mpi2",
+    "ghost_overlap_mpi4",
+    "hyperelastic_verification",
+    "interface_patch_mpi1",
+    "interface_patch_mpi2",
+    "interface_patch_mpi4",
+    "lame_wall",
+    "linear_lifetime",
+    "linear_lifetime_mpi",
+    "nonlinear_acceptance",
+    "nonlinear_acceptance_mpi",
+    "p2_space_oracles",
+    "parallel_hdf5",
+    "parallel_hdf5_mpi",
+    "pc_added_mass_nodal_retry",
+    "pc_added_mass_retry",
+    "pc_plan_mpi1",
+    "pc_plan_mpi2",
+    "pc_plan_mpi4",
+    "pc_rcr_port_mpi1",
+    "pc_rcr_port_mpi2",
+    "pc_rcr_port_mpi4",
+    "pc_recipe_hybrid",
+    "pc_recipe_physics",
+    "pc_recipe_quantity",
+    "pc_recipe_restart",
+    "pc_recipe_retry",
+    "pc_twolevel_retry",
+    "poisson_parallel",
+    "poisson_verification",
+    "pressure_schur_mpi1",
+    "pressure_schur_mpi2",
+    "pressure_schur_mpi4",
+    "rcr_port_fsi",
+    "rigid_fsi_verification",
+    "rigid_tube_verification",
+    "runtime_mpi",
+    "scalar2d_failure",
+    "scalar2d_space",
+    "scalar_p2_failure",
+    "scalar_p2_restart",
+    "scalar_p2_time",
+    "scalar_p2_verification",
+    "solid_alpha_verification",
+    "solid_verification",
+    "solver_failures",
+    "solver_failures_mpi",
+    "tri_p2_oracles",
+    "womersley_flow"
+  ],
+  "reused": [],
+  "origins": {
+    "runtime_mpi": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pressure_schur_mpi1": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pressure_schur_mpi2": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pressure_schur_mpi4": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "interface_patch_mpi1": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "interface_patch_mpi2": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "interface_patch_mpi4": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "field_amg_mpi1": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "field_amg_mpi2": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "field_amg_mpi4": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_pressure_operators": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_pressure_operators_mpi2": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_rcr_port_mpi1": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_rcr_port_mpi2": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_rcr_port_mpi4": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_plan_mpi1": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_plan_mpi2": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_plan_mpi4": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "linear_lifetime": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "linear_lifetime_mpi": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "solver_failures": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "solver_failures_mpi": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "nonlinear_acceptance": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "nonlinear_acceptance_mpi": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "ghost_overlap_mpi1": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "adaptive_pc_mpi1": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "ghost_overlap_mpi2": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "adaptive_pc_mpi2": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "ghost_overlap_mpi4": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "adaptive_pc_mpi4": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "parallel_hdf5": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "parallel_hdf5_mpi": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "scalar_p2_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "scalar_p2_time": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "scalar_p2_restart": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "scalar_p2_failure": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "p2_space_oracles": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "tri_p2_oracles": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_diagnostics": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_diagnostics_mpi": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_periodic": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_tube": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_tube_wall_support": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_tube_rcr": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_tube_rcr_response": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_block_efficiency": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_flow": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_branched_rcr": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_curved_inlet": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_sampled_inlet": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_metric_stabilization": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_moving_plane_rcr": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "rcr_port_fsi": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "advanced_fsi_pc": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_reservoir_pressure": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_inlet": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_element_jacobian": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "scalar2d_space": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "scalar2d_failure": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "solid_alpha_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_pressure_state": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_pressure_convergence": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_alpha_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_time_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fluid_coo_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fsi_coo_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_recipe_retry": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_added_mass_retry": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_added_mass_nodal_retry": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_twolevel_retry": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_recipe_restart": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_recipe_physics": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_recipe_quantity": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "pc_recipe_hybrid": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "domains_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "rigid_tube_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "womersley_flow": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "hyperelastic_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "elastic_fsi_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "rigid_fsi_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "solid_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "lame_wall": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "fluid_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "poisson_verification": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    },
+    "poisson_parallel": {
+      "release": {
+        "run_id": 45787454655,
+        "commit": "121e54bb77f05ea4f9c7c72bae5459a0451f74a6"
+      }
+    }
+  },
+  "previous_run_id": null,
+  "disposition": "run"
+}

@@ -1,0 +1,265 @@
+{
+  "run": {
+    "id": 45787454655,
+    "html_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45787454655",
+    "head_sha": "19cd26f2af9b02859fac28ca8f662c29c20d47f1",
+    "head_branch": "codex/fsi-schur-interface-amg",
+    "event": "pull_request",
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-11-26T08:56:37Z",
+    "updated_at": "2026-11-26T09:08:48Z"
+  },
+  "jobs": [
+    {
+      "id": 139797793863,
+      "name": "Select affected checks",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45787454655,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Select tests and check changed CI scripts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Preserve selection evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        }
+      ]
+    },
+    {
+      "id": 139797796240,
+      "name": "PETSc 3.19.6 / release (manual compatibility)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 45787454655,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 139798113262,
+      "name": "PETSc 3.23.7 / release",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45787454655,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Require successful selection",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "No new numerical tests required",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 3
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Dependency package cache",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Restore locked environment",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Build and verify selected numerical contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Preserve evidence even on failure",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Dependency package cache",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        }
+      ]
+    },
+    {
+      "id": 139798115051,
+      "name": "PETSc 3.23.7 / debug (manual diagnostics)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 45787454655,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 139803460572,
+      "name": "Record incremental evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45787454655,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Require successful selection and Release validation",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Verify results and record historical origins",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        }
+      ]
+    }
+  ],
+  "commit_runs": [
+    {
+      "id": 45787454545,
+      "name": "Website Build Check",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 167,
+      "jobs_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/runs/45787454545/jobs",
+      "logs_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/runs/45787454545/logs",
+      "workflow_id": 401489177
+    },
+    {
+      "id": 45787454655,
+      "name": "Core numerical validation",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 140,
+      "jobs_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/runs/45787454655/jobs",
+      "logs_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/runs/45787454655/logs",
+      "workflow_id": 401771986
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 15100988441,
+      "file": "numerics.zip",
+      "sha256": "ca513f4e91c95d115ac1df2f9d8b05427801363fd51df1851290b446da1a8d5e"
+    },
+    {
+      "id": 15100304902,
+      "file": "plan.zip",
+      "sha256": "21d9372d220159b470d6cf138ec583a3784b5bb2f78eca49fd7548775a4ffb70"
+    },
+    {
+      "id": 15101812473,
+      "file": "receipt.zip",
+      "sha256": "89e1ba3f930b75bdf4d4d683ac75f3f3b7450883f67b3aa541b4fa6d7a3b76e1"
+    }
+  ]
+}

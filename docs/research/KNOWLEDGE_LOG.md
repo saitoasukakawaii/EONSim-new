@@ -1,5 +1,30 @@
 # EONSim Knowledge Log
 
+## 2026-11-26 · FSI-PC-05：物理粗空间、PCD 边界尺度与空 owner 集体调用
+
+[未发布算法草稿](../../website/drafts/fsi-field-amg-pressure-interface.md)、
+[实现与选项](../development/FSI_ADVANCED_PRECONDITIONERS.md)及
+[完整证据](data/fsi-advanced-2026-11-26/README.md)对应PR#59、最终生产19cd26f。
+理论、实现、数值验证和有限性能证据分开记录；没有公开发布或新增无关架构规则。
+
+可复用推导：LSC/BFBt保留完整D但明确是当前缩放变体；PCD只给Laplace校正施加辅助边界，
+保留物理Mp及mu质量逆，稳态模型极限为(Mp/mu+D)^-1；逐层候选投影与完整Galerkin
+保证所选模态可表达，但不保证一般网格无关；FP32仅作用于局部因子并受FP64残量约束。
+
+两条重要故障闭环：空owner的MatIncreaseOverlap局部n=0返回导致集体错序，采用临时空IS
+补位并实际通过1/2/4rank；PCD全单位边界破坏质量极限，新测试链接旧库明确失败，修复后
+独立6个作用oracle、4代积分与2项SELF/WORLD检查通过。旧失败原件不被后来的成功覆盖。
+
+20/60/38次真实求解分别独立审计，最终38次108步225修正，field3.19152e-11、history
+5.68434e-14、true residual/gate0.00927309；26对分区HDF5容器字节不同而完整语义相同，
+差异与比较方法都保留。2rank PCD网格迭代825/1199/1731→144/166/225，仍比nodal/BFBt多；
+BFBt加patch在六条件下降2.44%–11.96%迭代，PCD小例则增加。局部因子数组减半不等于
+总内存/带宽/耗时减半。没有网格无关、多节点、普遍加速或完整入口Robin/PCDR能力声明。
+
+最终源码CI [45787454655](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45787454655)
+实际85/85 Release选测、54/54 Python通过，0数值失败/跳过/复用；合并预览121e54bb与
+19cd源码tree相同，成功增量receipt及官方artifact摘要均已核实。后续文档检查复用此来源。
+
 ## 2026-11-26 · RCR-PC-01：端口 Schur 的低秩响应与失败恢复
 
 [未发布草稿](../../website/drafts/rcr-port-schur-low-rank.md)、[使用与推导](../development/RCR_PORT_PRECONDITIONER.md)
