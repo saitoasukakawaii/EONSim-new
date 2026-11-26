@@ -1,5 +1,13 @@
 # EONSim Codex Task Queue
 
+## FSI-MF-02 / implementation in progress / 2026-11-26
+
+从已合并 #61 的 `main@6bb6f438b63c` 接续，开发分支 `codex/fsi-mg-performance-followup`。
+本轮目标：固体与壁支撑直接精确方向核，取消 matrix-free 每次作用中的完整局部切线；
+整体 MG 每个非粗层利用已知零初值省去一次残量矩阵乘及 halo 通信。保持原物理方程、
+装配路径、求解门槛和默认选项。原装配切线/残量作为独立数值对照，实际 FSI 与成本
+记录待代码先同步远程后执行。网格无关、完整 P 存储和多节点收益不在本轮完成声明内。
+
 ## FSI-MG-01 / twelve implementations and bounded validation complete; broader performance remains open / 2026-11-26
 
 [PR #61](https://github.com/saitoasukakawaii/EONSim-new/pull/61)完成全部十二条 P0/P1/P2 路径，

@@ -100,11 +100,14 @@ void vanka_coverage(MPI_Comm comm,const MonolithicFsiMgStats& stats,bool enriche
         }
     }
 }
-void verify(MPI_Comm comm,const std::string& kind,bool single,bool empty_owner,bool enriched) {
+void verify(MPI_Comm comm,const std::string& kind,bool single,bool empty_owner,bool enriched,
+            PetscInt pre_smooth=1,PetscInt post_smooth=1) {
     const std::string prefix="mgverify_",base="-"+prefix+"monolithic_mg_";
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"aggregate_nodes").c_str(),"4"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"coarse_limit").c_str(),"8"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"max_levels").c_str(),"6"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"pre_smooth").c_str(),std::to_string(pre_smooth).c_str()));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"post_smooth").c_str(),std::to_string(post_smooth).c_str()));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"energy_steps").c_str(),enriched?"1":"0"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"spectral_modes").c_str(),enriched?"1":"0"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"spectral_tolerance").c_str(),"1"));
@@ -142,8 +145,13 @@ void verify(MPI_Comm comm,const std::string& kind,bool single,bool empty_owner,b
         "Requested mixed V-cycle did not store local sparse coefficients in FP32");
     for(int phase=0;phase<2;++phase) {
         if(phase) {problem.fill(phase);updates.refresh(problem.matrix.get());}
+        const auto previous=stats;
         action(problem,solver.get(),phase);
         query_monolithic_fsi_mg_stats(pc,stats);
+        const auto level_cycles=(stats.applications-previous.applications)*(stats.levels-1);
+        check(comm,stats.zero_start_skips-previous.zero_start_skips==level_cycles&&
+            stats.level_matvecs-previous.level_matvecs==(pre_smooth+post_smooth)*level_cycles,
+            "Zero-start V-cycle did not omit exactly one residual matvec per noncoarse level");
         check(comm,stats.refreshes==phase+1&&stats.applications>0&&stats.smoothers.size()+1==static_cast<std::size_t>(stats.levels),
             "Monolithic hierarchy did not refresh every Galerkin level");
         for(const auto& smoother:stats.smoothers) {
@@ -177,7 +185,13 @@ void verify(MPI_Comm comm,const std::string& kind,bool single,bool empty_owner,b
     PCFailedReason failure=PC_NOERROR; EONSIM_PETSC(PCGetFailedReason(pc,&failure));
     check(comm,failure==PC_SUBPC_ERROR,"Failed refresh left the previous hierarchy usable");
     EONSIM_PETSC(VecSet(rhs.get(),2.)); // Detect leaked read locks in failed apply.
-    problem.fill(0); updates.refresh(problem.matrix.get()); action(problem,solver.get(),2);
+    const auto before_recovery=stats;
+    problem.fill(0); updates.refresh(problem.matrix.get());
+    query_monolithic_fsi_mg_stats(pc,stats);
+    check(comm,stats.level_matvecs==before_recovery.level_matvecs&&
+        stats.zero_start_skips==before_recovery.zero_start_skips,
+        "Spectral rebuild reset the cumulative V-cycle action counters");
+    action(problem,solver.get(),2);
     query_monolithic_fsi_mg_stats(pc,stats);
     check(comm,stats.hierarchy_rebuilds==(rebuild?2:1),"Scheduled spectral/energy hierarchy adaptation was not applied");
     if(kind=="vanka") vanka_coverage(comm,stats,enriched);
@@ -209,6 +223,10 @@ void run(MPI_Comm comm) {
     verify(comm,"vanka",true,true,true);
     verify(comm,"chebyshev",false,false,true);
     verify(comm,"block_chebyshev",false,true,false);
+    // Exercise both the no-presmoothing restriction path and multiple initial
+    // sweeps with no postsmoothing, with the same independent solution oracle.
+    verify(comm,"vanka",false,false,false,0,1);
+    verify(comm,"vanka",true,true,false,2,0);
     oversized_coarse_overlap(comm);
     EONSIM_PETSC(PetscPrintf(comm,
         "Monolithic FSI MG: full indefinite manufactured solutions, bounded whole-aggregate coarse Vanka/explicit oversize rejection, candidate preservation, energy descent, spectral enrichment, FP32 V-cycle, coarse MPI aggregation, numeric refresh/recovery and polynomial smoothers passed\n"));

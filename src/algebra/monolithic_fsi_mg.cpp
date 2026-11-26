@@ -826,6 +826,8 @@ struct Hierarchy {
             Hierarchy rebuilt(comm,matrix,levels.front().data.semantics,reference_coordinates,
                 levels.front().data.trace,configuration,prefix,false);
             rebuilt.stats.applications=stats.applications;
+            rebuilt.stats.level_matvecs=stats.level_matvecs;
+            rebuilt.stats.zero_start_skips=stats.zero_start_skips;
             rebuilt.stats.refreshes=stats.refreshes+1;
             rebuilt.stats.hierarchy_rebuilds=stats.hierarchy_rebuilds+1;
             coarse=std::move(rebuilt.coarse); levels=std::move(rebuilt.levels); stats=std::move(rebuilt.stats);
@@ -859,13 +861,29 @@ struct Hierarchy {
         PetscFunctionBeginUser;
         if(configuration.single_precision) PetscCall(levels[level].float_matrix.multiply(x,y,false));
         else PetscCall(MatMult(levels[level].matrix.get(),x,y));
+        ++stats.level_matvecs;
         PetscFunctionReturn(PETSC_SUCCESS);
     }
-    PetscErrorCode smooth(std::size_t index,Vec rhs,Vec solution,bool& valid) {
+    PetscErrorCode residual(std::size_t index,Vec rhs,Vec solution,bool zero_start) {
         PetscFunctionBeginUser;
         auto& level=levels[index];
-        PetscCall(multiply(index,solution,level.residual.get()));
-        PetscCall(VecAYPX(level.residual.get(),-1.,rhs));
+        // cycle() establishes an exact zero initial correction on every rank.
+        // Use that known state, not a norm or rank-local zero test, to omit one
+        // sparse action and its halo exchange per noncoarse level. This also
+        // covers restriction when the user explicitly disables presmoothing.
+        if(zero_start) {
+            PetscCall(VecCopy(rhs,level.residual.get()));
+            ++stats.zero_start_skips;
+        } else {
+            PetscCall(multiply(index,solution,level.residual.get()));
+            PetscCall(VecAYPX(level.residual.get(),-1.,rhs));
+        }
+        PetscFunctionReturn(PETSC_SUCCESS);
+    }
+    PetscErrorCode smooth(std::size_t index,Vec rhs,Vec solution,bool& valid,bool zero_start=false) {
+        PetscFunctionBeginUser;
+        auto& level=levels[index];
+        PetscCall(residual(index,rhs,solution,zero_start));
         const auto error=apply_fsi_level_smoother(level.smoother,level.residual.get(),level.correction.get());
         if(error==PETSC_ERR_NOT_CONVERGED) {
             valid=false; PetscCall(VecSet(level.correction.get(),0.));
@@ -885,9 +903,9 @@ struct Hierarchy {
             if(reason<=0||failure!=PC_NOERROR) { valid=false; PetscCall(VecSet(solution,0.)); }
             PetscFunctionReturn(PETSC_SUCCESS);
         }
-        for(PetscInt step=0;step<configuration.pre_smooth;++step) PetscCall(smooth(index,rhs,solution,valid));
-        PetscCall(multiply(index,solution,level.residual.get()));
-        PetscCall(VecAYPX(level.residual.get(),-1.,rhs));
+        for(PetscInt step=0;step<configuration.pre_smooth;++step)
+            PetscCall(smooth(index,rhs,solution,valid,step==0));
+        PetscCall(residual(index,rhs,solution,configuration.pre_smooth==0));
         auto& coarse_level=levels[index+1];
         if(configuration.single_precision)
             PetscCall(level.float_transfer.multiply(level.residual.get(),coarse_level.rhs.get(),true));
@@ -944,8 +962,10 @@ PetscErrorCode view_hierarchy(PC pc,PetscViewer viewer) {
         PetscCall(PetscViewerASCIIPrintf(viewer,
             "All-field monolithic FSI V-cycle: levels=%" PetscInt_FMT ", coarse MPI ranks=%" PetscInt_FMT
             ", FP32 sparse arithmetic=%d, local FP32 coefficient bytes=%zu, refreshes=%" PetscInt_FMT
-            ", hierarchy rebuilds=%" PetscInt_FMT ", applications=%" PetscInt_FMT "\n",stats.levels,stats.coarse_processes,
-            stats.single_precision?1:0,stats.fp32_value_bytes,stats.refreshes,stats.hierarchy_rebuilds,stats.applications));
+            ", hierarchy rebuilds=%" PetscInt_FMT ", applications=%" PetscInt_FMT
+            ", level matvecs=%" PetscInt_FMT ", zero-start skips=%" PetscInt_FMT "\n",stats.levels,stats.coarse_processes,
+            stats.single_precision?1:0,stats.fp32_value_bytes,stats.refreshes,stats.hierarchy_rebuilds,stats.applications,
+            stats.level_matvecs,stats.zero_start_skips));
         PetscCall(PetscViewerASCIIPushTab(viewer)); PetscCall(KSPView((*state)->coarse.get(),viewer));
         PetscCall(PetscViewerASCIIPopTab(viewer));
     }
