@@ -1,13 +1,25 @@
 # EONSim Codex Task Queue
 
-## HPC-06 / in progress / 2026-11-26
+## HPC-06 / implementation and validation complete / 2026-11-26
 
-从已合并 #55 的 `main@2d0e9b79e90ac0b7332b22e900e50e3306a68a35` 接续五项优化。
-三路定向源码复查确认 AMG、ghost/SIMD 和 HDF5 无新增阻塞；发现自适应 PC 在已经接受
-Newton 步后因旧 PC 迭代耗尽而重试时，第二次 SNESSolve 重新取得完整非线性预算。
-本轮只修复该求解级预算漏洞，补有剩余/不足预算及跨调用恢复的回归；用户要求仍是
-先完成代码并同步远程，再执行定向 Release 与真实 FSI 验证，最后核验四项检查并合并。
-当前尚未执行新代码验证，不将 HPC-05 的历史通过计为本轮新执行。
+从已合并 #55 的 `main@2d0e9b79e90ac0b7332b22e900e50e3306a68a35` 接续五项优化，
+交付 [PR #56](https://github.com/saitoasukakawaii/EONSim-new/pull/56)，生产/测试源码
+`bce292a1870c38686e44514e2879009ebb9a736a`。完整 Git tree 远端核对后才开始构建与算例。
+三路源码复查未发现 AMG、ghost/SIMD 或 HDF5 新阻塞；已修复自适应 PC 重试重新取得
+完整 Newton/函数评价预算的问题，保留有效命令行设置并在下一时间步前恢复原预算。
+
+旧 main 求解器链接新测试，准确命中预期 Newton 预算失败；新源码本地 **5/5** 定向
+Release 通过，覆盖 1/2/4 rank、晚发生的真实 KSP 耗尽、两类预算、选项覆盖及保留会话。
+真实动脉 **6/6 runs、24 步、48 次修正**；独立原日志/owner-VTU 重放及 22 条哈希断言通过，
+最坏真实残差/原门槛 **0.745355513**，五场最大归一化差 **4.68297e-13 < 2e-6**。
+动脉没有自然触发 PC 重建重试；缺陷触发证据来自定向非线性测试，不混淆两者。
+源码 CI [45757133771](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45757133771)
+实际 **17/17 Release、0 skipped、0 复用**，网站检查成功。最终文档 head 的检查与合并状态
+以 GitHub 为准；不把随后证据复用计为新数值执行。
+
+[完整证据](../research/data/adaptive-retry-budget-2026-11-26/README.md)与
+[未发布草稿](../../website/drafts/adaptive-pc-retry-budgets.md)已归档。HPC-05 其余路径复用
+原通过证据，本次未重跑；没有新增性能采样、全量、Debug、旧 PETSc 或多节点验证。
 
 ## HPC-05 / implementation and validation complete / 2026-11-26
 

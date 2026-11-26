@@ -1,0 +1,148 @@
+{
+  "source_commit": "bce292a1870c38686e44514e2879009ebb9a736a",
+  "audit_mode": "read_only_raw_evidence_replay",
+  "persistence_note": "Saved the already executed FSI parser and its verified metrics; saving these files did not rerun builds, tests, simulations or replay.",
+  "source_identity": {
+    "src/algebra/nonlinear_system.cpp": {
+      "sha256": "0619bb64ca5f8cf46d554b6ad484b032838a38d044ea73b7c13618f96bc12281",
+      "matches_source_commit": true
+    },
+    "tests/verify_adaptive_pc.cpp": {
+      "sha256": "511230ab74406febad4ed59f04298295dead669be344e77149b1281a1375018f",
+      "matches_source_commit": true
+    },
+    "tests/verify_nonlinear_acceptance.cpp": {
+      "sha256": "bb86da3e00429fa2431b5a1028544df134fcc68f2b18d1e9acedbe6202895ed3",
+      "matches_source_commit": true
+    },
+    "tests/verify_fsi_block_efficiency.py": {
+      "sha256": "859e159d81ee9c1e27bafd1b7e22ee1bf44249dfdcc619210a013aaf9e90be6b",
+      "matches_source_commit": true
+    },
+    "fsi_driver_and_helpers_match_commit": true
+  },
+  "negative_control": {
+    "baseline_source_commit": "2d0e9b79e90ac0b7332b22e900e50e3306a68a35",
+    "baseline_solver_source_matches_commit": true,
+    "baseline_solver_source_sha256": "89a876111a0ab59b71f4a990b176b800c113171b7d5b59c6ee659be8446f5e97",
+    "executable_sha256": "b7ce2041c4e12435c3b368d65bb422e6e3c181841eb6ad56182858fd8fca2687",
+    "executable_sha256_matches_receipt": true,
+    "exit_code": 1,
+    "expected_failure_seen": true,
+    "expected_failure": "Fresh-PC retry reset the caller's total Newton iteration budget"
+  },
+  "focused_release": {
+    "build_exit_code": 0,
+    "inventory_exit_code": 0,
+    "ctest_exit_code": 0,
+    "inventory_matches_junit": true,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "test_names": [
+      "nonlinear_acceptance",
+      "nonlinear_acceptance_mpi",
+      "adaptive_pc_mpi1",
+      "adaptive_pc_mpi2",
+      "adaptive_pc_mpi4"
+    ],
+    "binary_hashes_match_receipt": true,
+    "new_regression_actual_late_retry_verified": true,
+    "binary_sha256": {
+      "eonsim": "6efb5845aee29e3d7e3c47860ce35aac5c35950367f5ac9f6cef86f591754289",
+      "verify_adaptive_pc": "5831d7170377f735674f72bc10e81a5027d42906a6148f2cab316fa187592d7c",
+      "verify_nonlinear_acceptance": "84fdd7aef0c4c39b574a2572ff374b282bc3818cced941e6fd0397cdf1c56bcc"
+    }
+  },
+  "fsi_quick": {
+    "status": "passed",
+    "runs": 6,
+    "accepted_steps": 24,
+    "linear_corrections": 48,
+    "all_corrections_within_original_gate": true,
+    "true_residual_gate": "max(1e-23, 1e-10*rhs_norm)",
+    "max_true_residual_ratio": 0.7453555129217156,
+    "fivefield_peak_limit": 0.000002,
+    "max_fivefield_peak_ratio": 4.682969483404888e-13,
+    "raw_log_metrics_match_summary": true,
+    "owned_vtu_field_replay_matches_summary": true,
+    "hash_assertions_passed": 22,
+    "natural_pc_rebuild_retries": 0,
+    "rows": [
+      {
+        "grid": "s24-r3-w2-a6",
+        "ranks": 1,
+        "mode": "direct",
+        "steps": 4,
+        "corrections": 8,
+        "worst_ratio": 0.014909642420477709,
+        "field_peak_max": 0.0,
+        "retries": 0,
+        "pc_refreshes": 0,
+        "pc_reuses": 0
+      },
+      {
+        "grid": "s24-r3-w2-a6",
+        "ranks": 1,
+        "mode": "aggregate_rigid",
+        "steps": 4,
+        "corrections": 8,
+        "worst_ratio": 0.7453555129217156,
+        "field_peak_max": 3.2929933492057543e-13,
+        "retries": 0,
+        "pc_refreshes": 0,
+        "pc_reuses": 0
+      },
+      {
+        "grid": "s24-r3-w2-a6",
+        "ranks": 1,
+        "mode": "aggregate_rigid_adaptive",
+        "steps": 4,
+        "corrections": 8,
+        "worst_ratio": 0.7453555129217156,
+        "field_peak_max": 3.2887445213278796e-13,
+        "retries": 0,
+        "pc_refreshes": 7,
+        "pc_reuses": 1
+      },
+      {
+        "grid": "s48-r4-w4-a6",
+        "ranks": 2,
+        "mode": "direct",
+        "steps": 4,
+        "corrections": 8,
+        "worst_ratio": 0.04766153067236945,
+        "field_peak_max": 0.0,
+        "retries": 0,
+        "pc_refreshes": 0,
+        "pc_reuses": 0
+      },
+      {
+        "grid": "s48-r4-w4-a6",
+        "ranks": 2,
+        "mode": "aggregate_rigid",
+        "steps": 4,
+        "corrections": 8,
+        "worst_ratio": 0.41638037173163117,
+        "field_peak_max": 4.682969483404888e-13,
+        "retries": 0,
+        "pc_refreshes": 0,
+        "pc_reuses": 0
+      },
+      {
+        "grid": "s48-r4-w4-a6",
+        "ranks": 2,
+        "mode": "aggregate_rigid_adaptive",
+        "steps": 4,
+        "corrections": 8,
+        "worst_ratio": 0.41638037173163117,
+        "field_peak_max": 4.682969483404888e-13,
+        "retries": 0,
+        "pc_refreshes": 8,
+        "pc_reuses": 0
+      }
+    ]
+  },
+  "new_performance_claim": false
+}

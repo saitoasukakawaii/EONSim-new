@@ -1,0 +1,304 @@
+{
+  "source_head": "bce292a1870c38686e44514e2879009ebb9a736a",
+  "core_run_id": 45757133771,
+  "core_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45757133771",
+  "website_run_id": 45757133658,
+  "website_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45757133658",
+  "selection": {
+    "schema": 1,
+    "repository": "saitoasukakawaii/EONSim-new",
+    "pr": 56,
+    "base": "2d0e9b79e90ac0b7332b22e900e50e3306a68a35",
+    "head": "bce292a1870c38686e44514e2879009ebb9a736a",
+    "commit": "063c7e9c35f441584a28b0fe976c55096496d06c",
+    "tree": "b997abe9417e67a0c763d875a67e2e95fc394c77",
+    "fingerprint": "db9becabfc84ba287be60f93c9e5cd17964db93d4a19e9da9ff4f2ddaef69935",
+    "run_id": 45757133771,
+    "selection": "explicit",
+    "requested": "incremental",
+    "required": [
+      "adaptive_pc_mpi1",
+      "adaptive_pc_mpi2",
+      "adaptive_pc_mpi4",
+      "domains_verification",
+      "fluid_coo_verification",
+      "fluid_verification",
+      "fsi_coo_verification",
+      "ghost_overlap_mpi1",
+      "ghost_overlap_mpi2",
+      "ghost_overlap_mpi4",
+      "nonlinear_acceptance",
+      "nonlinear_acceptance_mpi",
+      "pc_recipe_hybrid",
+      "rigid_fsi_verification",
+      "solid_verification",
+      "solver_failures",
+      "solver_failures_mpi"
+    ],
+    "tests": [
+      "adaptive_pc_mpi1",
+      "adaptive_pc_mpi2",
+      "adaptive_pc_mpi4",
+      "domains_verification",
+      "fluid_coo_verification",
+      "fluid_verification",
+      "fsi_coo_verification",
+      "ghost_overlap_mpi1",
+      "ghost_overlap_mpi2",
+      "ghost_overlap_mpi4",
+      "nonlinear_acceptance",
+      "nonlinear_acceptance_mpi",
+      "pc_recipe_hybrid",
+      "rigid_fsi_verification",
+      "solid_verification",
+      "solver_failures",
+      "solver_failures_mpi"
+    ],
+    "reused": [],
+    "origins": {},
+    "previous_run_id": null,
+    "python": [],
+    "changes": {
+      "src/algebra/nonlinear_system.cpp": [
+        "adaptive_pc_mpi1",
+        "adaptive_pc_mpi2",
+        "adaptive_pc_mpi4",
+        "domains_verification",
+        "fluid_coo_verification",
+        "fluid_verification",
+        "fsi_coo_verification",
+        "ghost_overlap_mpi1",
+        "ghost_overlap_mpi2",
+        "ghost_overlap_mpi4",
+        "nonlinear_acceptance",
+        "nonlinear_acceptance_mpi",
+        "pc_recipe_hybrid",
+        "rigid_fsi_verification",
+        "solid_verification",
+        "solver_failures",
+        "solver_failures_mpi"
+      ],
+      "tests/verify_adaptive_pc.cpp": [
+        "adaptive_pc_mpi1",
+        "adaptive_pc_mpi2",
+        "adaptive_pc_mpi4"
+      ]
+    },
+    "delta": {
+      "src/algebra/nonlinear_system.cpp": [
+        "adaptive_pc_mpi1",
+        "adaptive_pc_mpi2",
+        "adaptive_pc_mpi4",
+        "domains_verification",
+        "fluid_coo_verification",
+        "fluid_verification",
+        "fsi_coo_verification",
+        "ghost_overlap_mpi1",
+        "ghost_overlap_mpi2",
+        "ghost_overlap_mpi4",
+        "nonlinear_acceptance",
+        "nonlinear_acceptance_mpi",
+        "pc_recipe_hybrid",
+        "rigid_fsi_verification",
+        "solid_verification",
+        "solver_failures",
+        "solver_failures_mpi"
+      ],
+      "tests/verify_adaptive_pc.cpp": [
+        "adaptive_pc_mpi1",
+        "adaptive_pc_mpi2",
+        "adaptive_pc_mpi4"
+      ]
+    },
+    "ignored": [
+      "docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md",
+      "docs/development/CODEX_TASK_QUEUE.md"
+    ],
+    "disposition": "run"
+  },
+  "release_summary": {
+    "commit": "063c7e9c35f441584a28b0fe976c55096496d06c",
+    "mode": "release",
+    "selection": "explicit",
+    "petsc": "3.23.7",
+    "status": "passed",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 16464302080,
+      "cgroup": {
+        "/sys/fs/cgroup": {},
+        "/sys/fs/cgroup/system.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        }
+      },
+      "build_jobs": 4
+    },
+    "test_counts": {
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "receipt": {
+    "schema": 1,
+    "repository": "saitoasukakawaii/EONSim-new",
+    "pr": 56,
+    "base": "2d0e9b79e90ac0b7332b22e900e50e3306a68a35",
+    "head": "bce292a1870c38686e44514e2879009ebb9a736a",
+    "commit": "063c7e9c35f441584a28b0fe976c55096496d06c",
+    "tree": "b997abe9417e67a0c763d875a67e2e95fc394c77",
+    "fingerprint": "db9becabfc84ba287be60f93c9e5cd17964db93d4a19e9da9ff4f2ddaef69935",
+    "run_id": 45757133771,
+    "status": "passed",
+    "covered": [
+      "adaptive_pc_mpi1",
+      "adaptive_pc_mpi2",
+      "adaptive_pc_mpi4",
+      "domains_verification",
+      "fluid_coo_verification",
+      "fluid_verification",
+      "fsi_coo_verification",
+      "ghost_overlap_mpi1",
+      "ghost_overlap_mpi2",
+      "ghost_overlap_mpi4",
+      "nonlinear_acceptance",
+      "nonlinear_acceptance_mpi",
+      "pc_recipe_hybrid",
+      "rigid_fsi_verification",
+      "solid_verification",
+      "solver_failures",
+      "solver_failures_mpi"
+    ],
+    "executed": [
+      "adaptive_pc_mpi1",
+      "adaptive_pc_mpi2",
+      "adaptive_pc_mpi4",
+      "domains_verification",
+      "fluid_coo_verification",
+      "fluid_verification",
+      "fsi_coo_verification",
+      "ghost_overlap_mpi1",
+      "ghost_overlap_mpi2",
+      "ghost_overlap_mpi4",
+      "nonlinear_acceptance",
+      "nonlinear_acceptance_mpi",
+      "pc_recipe_hybrid",
+      "rigid_fsi_verification",
+      "solid_verification",
+      "solver_failures",
+      "solver_failures_mpi"
+    ],
+    "reused": [],
+    "origins": {
+      "solver_failures": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "solver_failures_mpi": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "nonlinear_acceptance": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "nonlinear_acceptance_mpi": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "ghost_overlap_mpi1": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "adaptive_pc_mpi1": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "ghost_overlap_mpi2": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "adaptive_pc_mpi2": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "ghost_overlap_mpi4": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "adaptive_pc_mpi4": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "fluid_coo_verification": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "fsi_coo_verification": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "pc_recipe_hybrid": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "domains_verification": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "rigid_fsi_verification": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "solid_verification": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      },
+      "fluid_verification": {
+        "release": {
+          "run_id": 45757133771,
+          "commit": "063c7e9c35f441584a28b0fe976c55096496d06c"
+        }
+      }
+    },
+    "previous_run_id": null,
+    "disposition": "run"
+  }
+}

@@ -1,5 +1,25 @@
 # EONSim Codex Development Progress
 
+## 2026-11-26 · HPC-06：自适应 PC 重试预算修复完成
+
+GitHub 已核实五项优化的 [PR #55](https://github.com/saitoasukakawaii/EONSim-new/pull/55)
+合并于 `2d0e9b79`；其最终 head 四项检查成功，75 项数值证据复用来源清楚。本次补齐其
+原先仍写“未验证”的 PR 描述，并在三路独立复查中发现自适应 PC 恢复的求解级预算漏洞。
+
+[PR #56](https://github.com/saitoasukakawaii/EONSim-new/pull/56) 源码与回归测试
+`bce292a1870c38686e44514e2879009ebb9a736a` 已先同步远程、核对完整 tree，再构建验证。
+第二次 SNESSolve 仅取得剩余 Newton 与 PETSc 计数的函数评价预算；原始物理接受基线保持，
+实际命令行上限保留，原预算在重试后恢复，成功会话可继续复用。
+
+新测试链接旧 main 实现确实失败；修复后本地 **5/5** 定向 Release、1/2/4 rank 通过。
+两档动脉直接/aggregate/adaptive **6/6 runs、24 步、48 修正**，独立重读原日志与五场，
+最大真实残差/门槛 **0.745355513**，五场最大归一化差 **4.68297e-13**，原门槛不变。
+源码 CI 实际 **17/17 Release** 通过（0 跳过、0 复用）；最终文档检查只继承不受影响证据。
+
+[命令、失败与独立审计](../research/data/adaptive-retry-budget-2026-11-26/README.md)。
+预算故障由定向非线性回归触发，动脉重建重试为 0；本轮没有新的性能结论。HPC-05 的
+AMG/MPI/SIMD/HDF5 性能与规模边界继续有效；其历史证据复用，本次未重跑。
+
 ## 2026-11-26 · HPC-05：五项优化实现、验证与独立审计完成
 
 从已合并 #54 的 `main@f8dbd699` 接续，交付 [PR #55](https://github.com/saitoasukakawaii/EONSim-new/pull/55)。

@@ -1,5 +1,43 @@
 # EONSim Codex Session Log
 
+## 2026-11-26 · HPC-06 — 自适应 PC 恢复的总预算
+
+本轮先从 GitHub 核实 #55 已合并，main=`2d0e9b79`、最终源 head=`14d245fe`，四项必需
+检查成功。最后一次 receipt 的 75 项全部继承 source run 45748579007，执行数为 0；网站
+45752331533 实际完成构建和草稿隔离检查。原 PR 描述仍是创建时“未验证”，已按真实结果
+补齐；没有再次合并旧 PR 或将历史运行写成本轮新执行。
+
+三路审查覆盖 AMG/adaptive、MPI/SIMD、HDF5。发现旧 PC 在至少一次已接受 Newton 更新后
+耗尽 KSP 次数时，第二次 SNESSolve 重置迭代/函数计数并重新取得全部预算。原有线性对角
+恢复测试只在第一次修正失败，未覆盖这一分支；物理验收并未因此失效。
+
+依据 PETSc 3.23.7 的 SNES 接口与 NEWTONLS 实现，修复读取有效 SNES 上限、扣除已用
+Newton 与 SNES 函数评价数，并以作用域恢复原值。新增诊断保留原字段；C1 非线性对角
+回归在第一步 x=0→1 后触发真实旧 PC/KSP 耗尽，分别验证总预算 4 拒绝、5 允许，函数
+预算、PETSc 选项覆盖和下一物理 context 的同会话恢复。独立源码复查未发现阻塞。
+
+本地提交 c30afede 直接 push 缺少凭据，改用已连接 GitHub 的 blob/tree/commit/branch。
+新分支不能使用 update_ref 创建（返回 422），改用 create_branch。远端源码 bce292a 的
+tree=`b997abe9417e67a0c763d875a67e2e95fc394c77` 与本地完全一致，才进入验证。
+保留本地原提交分支；没有强推 main、放宽保护或覆盖其他改动。
+
+验证包装脚本不带可执行位，改用 `bash build/locked.sh`；负对照首次归档命令引用不存在的
+bin/ar，已编译对象保留，改用 CMake 配置的 gcc-ar 继续。二者为编排问题，非数值失败。
+旧 main 的 nonlinear_system.cpp 重新编译，链接本轮新测试，1 rank 确实退出 1 并命中
+指定预算断言。新源码随后增量构建三个目标，本地五项定向 CTest 全部通过（1/2/4 rank）。
+
+仅补六次四步真实动脉对照，原公共 outer rtol=1e-11 与独立 max(1e-23,1e-10*rhs) 门槛
+保持。24 步/48 修正全部通过；非实现者独立解析原始日志、owner VTU 与 22 条哈希，
+最坏 ratio=.7453555129217156，最大五场差4.682969483404888e-13。实际动脉没有重建重试，
+其作用是物理无回归检查，不冒充预算缺陷的自然复现；本轮不采性能重复样本。
+
+源码 [CI 45757133771](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45757133771)
+实际17项 Release全通过、无跳过/复用；source tree与本地一致。文档/证据在验证结束后
+提交，最终四项检查和合并以PR#56的GitHub状态为准。完整原始数据、命令、JUnit、源码
+身份及独立审计见[HPC-06证据](../research/data/adaptive-retry-budget-2026-11-26/README.md)。
+按eonsim-knowledge-capture形成[预算草稿](../../website/drafts/adaptive-pc-retry-budgets.md)，
+其复用价值是区分应用级求解预算与内部库重启计数；草稿保持未发布。
+
 ## 2026-11-26 · HPC-05 — 五项实现、失败闭环与证据审计
 
 核实 #54 已合并、main 为 f8dbd699 后，在保留的 PETSc3.23.7 Release 工作区建立
