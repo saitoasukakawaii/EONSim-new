@@ -144,11 +144,13 @@ class AssemblyRunner(Runner):
         self.threads = threads
         self.evidence = []
 
-    def solve(self, label, cfg, ranks=1, coo=False, extra=(), fail=None, reference=None):
+    def solve(self, label, cfg, ranks=1, coo=False, extra=(), fail=None, reference=None,
+              residual_coo=None):
         # The ordinary AIJ comparison isolates all new execution mechanisms.
         # reference=False also permits a threaded AIJ matrix with default Vec COO.
         reference = not coo if reference is None else reference
         threads = 1 if reference else self.threads
+        residual_coo = not reference if residual_coo is None else residual_coo
         cfg = copy.deepcopy(cfg)
         output = self.work/(label+'.vtu')
         cfg['output'] = str(output)
@@ -163,11 +165,14 @@ class AssemblyRunner(Runner):
         if coo:
             command.append('-fsi_coo')
         command.extend(['-fsi_threads', threads])
+        if not residual_coo:
+            command.extend(['-fsi_residual_coo', 'false'])
         if reference:
-            command.extend(['-fsi_residual_coo', 'false', '-nonlinear_reuse', 'false'])
+            command.extend(['-nonlinear_reuse', 'false'])
         command.extend(extra)
         text = self.command(command, label, fail)
-        evidence = dict(label=label, ranks=ranks, coo=coo, element_threads_per_rank=threads, reference=reference,
+        evidence = dict(label=label, ranks=ranks, coo=coo, residual_coo=residual_coo,
+                        element_threads_per_rank=threads, reference=reference,
                         command=list(map(str, command)), expected_failure=fail, log=label+'.log')
         self.evidence.append(evidence)
         plans = records(text, 'fsi_assembly_plan')
@@ -185,12 +190,15 @@ class AssemblyRunner(Runner):
         require(len(executions) == 1, 'Missing or duplicated execution plan')
         execution = executions[0]
         require(int(execution['threads_requested']) == threads and
-                int(execution['residual_coo']) == int(not reference), 'Requested execution path was not used')
+                int(execution['residual_coo']) == int(residual_coo), 'Requested execution path was not used')
         size, largest = (int(execution[key]) for key in ('residual_value_bytes', 'residual_value_bytes_max'))
-        require((0 < largest <= size) if not reference else size == largest == 0,
+        require((0 < largest <= size) if residual_coo else size == largest == 0,
                 'Invalid residual COO buffer report')
         require(int(execution['batch_cells']) > 1 if threads > 1 else int(execution['batch_cells']) == 1,
                 'Unexpected local kernel batch mode')
+        compact, fallback = (int(execution[key]) for key in ('aij_block_cells', 'aij_dense_fallback_cells'))
+        require(compact == (0 if coo else int(plan['cells'])) and fallback == 0,
+                'Expected compact physical-block AIJ insertion for the supported interface aliases')
         evidence['execution_plan'] = execution
         evidence['solver_sessions'] = check_reuse(text, reference)
         if fail:
@@ -264,6 +272,58 @@ def parity(run, cfg, label, ranks=(1, 2), jacobian=False, threaded=True):
     return observations, diagnostics
 
 
+def batch_failures(run, cfg):
+    """Second-batch rank-local faults join workers and drain or discard prior work."""
+    attempted = copy.deepcopy(cfg)
+    attempted['fsi'].update(steps=1, dt=.008, output_interval=1)
+    attempted['time_control'] = dict(step_sizes=[.008], max_retries=2,
+                                     minimum_dt=1e-6, reduction=.5)
+    replay = copy.deepcopy(attempted)
+    replay['fsi']['dt'] = .004
+    replay['time_control']['step_sizes'] = [.004]
+    stop = ['-stop_after', 1]
+    expected, accepted, expected_text = run.solve('batch-replay', replay, 2, False, stop)
+    result = []
+    previous_timeout = run.timeout
+    run.timeout = 60  # A barrier regression must fail promptly, not hang the suite.
+    def check_injection(text, mode):
+        faults = records(text, 'fsi_batch_failure')
+        require(len(faults) == 1 and faults[0]['mode'] == mode and int(faults[0]['team']) > 1,
+                f'{mode}: missing single injection in an actual multi-thread team')
+        require(int(faults[0]['batch']) == 1,
+                f'{mode}: fault did not follow a complete first kernel/scatter batch')
+        thread = int(faults[0]['thread'])
+        require(thread > 0 if mode.startswith('worker') else thread == 0,
+                f'{mode}: failure came from the wrong OpenMP thread')
+    try:
+        # Keep four faults, but cover both partial COO buffers and ordinary
+        # matrix/vector insertion stashes before a rejected or fatal batch.
+        for mode, coo, residual_coo in (('worker', True, True), ('insert', False, False)):
+            fields, rows, text = run.solve('batch-'+mode, attempted, 2, coo,
+                [*stop, '-verify_fsi_batch_failure', mode], reference=False, residual_coo=residual_coo)
+            check_injection(text, mode)
+            require(text.count('step_retry=') == 1 and len(rows) == 1
+                    and abs(rows[0]['accepted_dt']-.004) < 1e-15,
+                    f'{mode}: one injected rejection did not cut back exactly once')
+            require(solver_trajectory(text) == solver_trajectory(expected_text),
+                    f'{mode}: batch recovery changed accepted-grid solver iterations')
+            result.append(dict(mode=mode, coo=coo, residual_coo=residual_coo, batch=1,
+                               retries=1, field_difference=compare_fields(expected, fields),
+                               history_difference=compare_histories(accepted, rows),
+                               iteration_trajectory=solver_trajectory(text)))
+        for mode, coo in (('worker_fatal', False), ('insert_fatal', True)):
+            _, _, text = run.solve('batch-'+mode, attempted, 2, coo,
+                [*stop, '-verify_fsi_batch_failure', mode], reference=False,
+                fail='Injected fatal FSI batch failure')
+            check_injection(text, mode)
+            require('step_retry=' not in text and 'fsi_step=' not in text,
+                    f'{mode}: fatal batch failure was retried or published an accepted step')
+            result.append(dict(mode=mode, coo=coo, residual_coo=True, batch=1, expected_fatal=True))
+    finally:
+        run.timeout = previous_timeout
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--executable', required=True)
@@ -294,10 +354,23 @@ def main():
         runners.append(run)
         observations, report[body] = parity(run, cfg, body)
         if body == 'rigid':
-            fields, rows, _ = run.solve('rigid-fd', cfg, 2, True, ['-fsi_fd_tangent', '-stop_after', 1])
             expected = owned_fields(directory/'rigid-r2-values_step1.vtu', 2, False)
-            report['finite-difference-reference'] = dict(field_difference=compare_fields(expected, fields),
-                history_difference=compare_histories(observations[2, False][1][:1], rows))
+            for coo in (False, True):
+                fields, rows, _ = run.solve('rigid-fd' if coo else 'rigid-fd-values', cfg, 2, coo,
+                                            ['-fsi_fd_tangent', '-stop_after', 1])
+                report['finite-difference-reference' if coo else 'finite-difference-default'] = dict(
+                    field_difference=compare_fields(expected, fields),
+                    history_difference=compare_histories(observations[2, False][1][:1], rows))
+            if run.threads > 1:
+                # 162 fluid tetrahedra give both ranks more than one 64-cell
+                # batch; the original n=2 rigid fixture cannot exercise reuse
+                # of the team or partially assembled preceding batches.
+                failure_directory = work/'batch-failures'
+                generate(failure_directory, n=3)
+                failure_run = AssemblyRunner(args.executable, args.mpiexec, failure_directory,
+                                             threads=args.threads)
+                runners.append(failure_run)
+                report['batch-failures'] = batch_failures(failure_run, cfg)
 
     directory = work/'moving-port'
     cfg, geometry = circular_case(directory, (1., 0., 0.), (0., 0., 0.))

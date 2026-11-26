@@ -1,5 +1,88 @@
 # EONSim Codex Session Log
 
+## 2026-11-26 · FSI-PERF-03 — 实现、测量与独立审计完成
+
+用户授权顺序为代码完成、推送远程、算例验证、最后受保护合并。恢复分支
+`codex/fsi-performance-runtime` 的 `47237a0`，基线是 #52 已合并的 `2dcb06c`；旧构建不可用，
+先按锁文件恢复依赖，未在源码推送前编译或运行算例。生产实现推送为
+`7e8868e433fb0040806a6faf3ba8cd289a2aa3f1`；带权 driver/收据为
+`3e366c89e40af79019f31280dd2c47de02bda413`，输出校验修复为
+`7d86f38b03e42615d7b1937580b105f3484f4eca`，两个 driver 提交未改变测量二进制。
+
+### 实现与实际定位
+
+独立审查覆盖压力解析列、AD 28→24、紧凑 AIJ alias/贡献次序、持久团队和主线程插入异常。
+旧 threaded fault fixture 的每 rank 单元不足 64，无法验证下一批；改为 n=3 的 162 个单元，
+四种故障均实际命中 `team=2 batch=1`：worker 来自 thread 1，insert 来自主线程。
+两种可恢复故障各缩步一次 `.008→.004`；两种 fatal 两 rank 传播且无接受步/VTU。
+最终验收与原始反力共用一次独立新组装，Jacobian-only 路径不发布无消费者的残量 COO。
+合资格 Schur 起点复用/延后保留状态失效条件，新增真正的 J/USER 工作计数及 rank-local 报告。
+
+分区改为稳定分桶、前缀编号和显式成本，非空权重把实际 cell_part 纳入指纹，默认身份不变。
+VTU 默认压缩边界节点，流式 raw binary 使用 LittleEndian/UInt64 长度头；全部 ID/owner/字段按原 local
+顺序重映射。单元与 IO 层未引入 PETSc/MPI 依赖。源码及配置见
+[实现说明](FSI_RUNTIME_OPTIMIZATION.md)。
+
+### 推送后的定向验收及来源复用
+
+锁定 PETSc 3.23.7 / Open MPI 5.0.8 / GCC 15.3.0 Release，本地 **17/17** 通过，CTest 210.02 s。
+其中 FSI COO/线程检查 37 solves、9.20 s；Poisson/输出检查 0.85 s，含 `2^53+1` 精确 Int64、混合
+Tri3/Quad4 offsets、full/compact boundary 和 volume-only。全部实际命令及选测清单保存在
+[本轮证据](../research/data/fsi-runtime-2026-11-26/README.md)。
+源码 [7e CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45711876709) 实际执行
+**48/48 Release、24 Python**；[3e CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45714273854)
+实际 **1 Release、21 Python**，另 **47 项复用原通过证据，本次未运行**；
+[7d CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45715315451) **0 项新数值执行、48 项复用**。
+本地未运行全套、Debug 或 3.19.6，文档收尾不重算已验收路径。
+
+### FSI 性能及独立重放
+
+四组共 **88 runs / 880 接受步 / 1,760 次线性修正**。每配置一组预热和三个交替配对，
+共享 AMD EPYC 9V74 主机，预算 9 CPU、10,451,427,328 B 内存，性能仅 1/2 rank。
+独立审计核验 8,502 条文件哈希收据、968 个保存状态，按 domain+Int64 stable ID 重读体场、
+拓扑、ghost/owner 和 CSV；逐步计时、配对变化和 median/min/max 全部一致，首次审计 0 errors。
+最大场差 `4.440892098500626e-16`、历史差 `2.9841559419667343e-15`，真实线性残量/门槛最大
+`0.0906395256835613`；前两组缺失历史 partition shard 哈希收据的限制没有事后补写为原始证据。
+
+初始切线消融中，同一候选二进制/twolevel 的每次 10 步完整 J 与 USER 均 **30→20**：
+callbacks 保持 20，预装配 **10→1**、一次消费 **0→1**、延后 **0→9**；场、历史差精确为 0，
+迭代轨迹相同，wall 配对中位数下降 **12.060%–25.594%**。
+显式权重 `10:5,20:1` 的 n=8/2-rank 本例 wall **−10.585%**、assembly **−29.089%**，
+但 finalize **+24.555%**。默认收益混合，COO 双线程单 rank wall **+3.900%**，均保留真实回退。
+
+### IO driver 失败、最小修复与输出证据
+
+3e driver 已完成 **24 次离线 prepare** 后，首个输出求解返回 0、`reason=CONVERGED_RTOL`，
+数值/成功标记正常，但验证器只解析数字键，读取文本 reason 触发 **`KeyError('reason')`**。
+原失败 results/log 原样保留。7d 改为校验文本收敛理由，并增加分阶段入口；推送后只重跑
+output，不重复已完成的 prepare，也未改方程或接受门槛。
+
+独立核验 2/8/32 分片的 **168 对 P1 HDF5** 内容；4 组空 dataset 的 h5diff 提示进一步用零尺寸和
+相同类型核实。分片数不是 MPI 求解 rank 数，也不代表 P2 分区验收。
+修复后的 **32 output runs** 含 8 次预热，84 VTU / 28 PVTU 与源网格逐数组、稳定 ID、方向拓扑和
+字段精确一致；有符号零按数值相等解释。Binary 对同样紧凑 ASCII 的 output 中位变化为
+1/2 rank **−81.338% / −82.010%**，字节 **+0.815% / +3.060%**，不把更快写出等同于更小文件。
+计时不含 fsync；分区 profile 不含 mesh import；各阶段 rank 最大值从未相加为 wall。
+
+按 `eonsim-knowledge-capture` 的 development-log 模板更新
+[未发布草稿](../../website/drafts/fsi-runtime-cost-and-output.md)，沉淀一次性数值复用、成本权重和数据身份的证据边界。
+本记录最近核验 [PR #53](https://github.com/saitoasukakawaii/EONSim-new/pull/53) 为 open / Draft，
+head `7d86f38`、mergeable clean，main 的四项保护检查配置正确；尚未声称 merged。
+最终证据 head 检查通过后按既有授权受保护合并，后续权威状态由 PR 核验更新。草稿保持未发布。
+
+### 接续交付审计
+
+接续任务恢复上述完整工作区及待提交证据，`git fetch origin main:refs/remotes/origin/main`
+确认 main 仍为 `2dcb06c`；远端 PR 源码仍为 `7d86f38`。三个独立审查分别核对
+FSI/非线性求解器、分区/VTU 与原始证据，未发现阻塞交付的缺陷，未追加推测性源码改动。
+复读九个归档分片，验证全流 SHA256、全部 14,435 个成员的摘要/大小/模式，
+并从 88 份 FSI 日志重新核对 880 个接受步、1,760 次线性修正及全部配对统计；
+32 次输出和 24 次准备的统计、二进制哈希及历史 driver Git blob 一致。
+`git diff --check` 通过，`git diff 7e8868e..HEAD -- src include CMakeLists.txt environments`
+为空，既有数值证据适用于最终生产源码。GitHub 回读确认 `7d86f38` 四项必需检查成功，
+Release job 明确记录无新数值执行，保留原通过来源。此接续审计没有重新编译或运行求解器；
+仅提交缺失的证据与文档，随后核验最终 head 的保护检查及合并结果。
+
 ## 2026-11-25–26 · FSI-PERF-02 — 适用优化、回退修复和证据交付
 
 用户继续要求完成 EONSim-new 性能优化。核实 PR #51 已合入 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`，

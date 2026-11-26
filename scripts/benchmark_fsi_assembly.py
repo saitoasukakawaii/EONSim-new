@@ -1,6 +1,6 @@
 """Paired FSI assembly measurements with pinned binaries and physical output checks.
 
-Both binaries run the same independent fluid/solid meshes, direct solver and
+Both binaries run the same independent fluid/solid meshes, pinned solver preset and
 accepted time grid. One warmup pair precedes at least three alternating pairs.
 Timing is evidence, never a pass criterion. Saved fields, every accepted step,
 field acceptance and true linear residuals must agree before a pair is reported.
@@ -8,6 +8,8 @@ Execution-only flags can follow either --baseline-options or --candidate-options
 until the next driver argument, or use --candidate-options='-fsi_threads 2'.
 Use --baseline-assembly-report with a PR51-or-newer baseline to compare startup.
 Only -fsi_threads controls element workers; dependency OpenMP/BLAS threads stay 1.
+An explicit --candidate-partition-weights prepares a separate candidate layout;
+otherwise both binaries use the same unweighted baseline partition.
 """
 import argparse
 import csv
@@ -38,6 +40,59 @@ METRICS = ('wall_seconds', *TIMERS, 'peak_rss_max_bytes', 'peak_rss_sum_bytes')
 INITIALIZATION_TIMERS = ('pattern_seconds', 'plan_seconds', 'system_seconds', 'setup_seconds')
 INITIALIZATION_METRICS = tuple('initialization_'+key for key in INITIALIZATION_TIMERS)
 FIELD_LIMIT = 2e-9
+SOLVERS = ('direct', 'hybrid', 'twolevel', 'added_mass')
+JACOBIAN_COUNTERS = ('jacobian_assemblies', 'jacobian_callbacks',
+                     'initial_jacobian_assemblies', 'initial_jacobian_reuses',
+                     'initial_jacobian_deferred', 'user_schur_updates')
+
+
+def solver_options(solver):
+    """One fixed numerical configuration, shared by both measured binaries."""
+    if solver == 'direct':
+        return ['-ksp_type', 'preonly', '-pc_type', 'lu',
+                '-pc_factor_mat_solver_type', 'superlu_dist']
+    if solver not in SOLVERS:
+        raise ValueError('Unknown solver preset: '+solver)
+    flags = ['-ksp_type', 'fgmres', '-pc_type', 'fieldsplit',
+             '-ksp_pc_side', 'right', '-ksp_norm_type', 'unpreconditioned',
+             '-ksp_rtol', '1e-11', '-ksp_atol', '1e-13', '-ksp_max_it', '3000',
+             '-ksp_gmres_restart', '100', '-ksp_gmres_modifiedgramschmidt',
+             '-pc_plan_schur_approx', 'nodal',
+             '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type', 'lower']
+    if solver == 'added_mass':
+        fluid = '-fieldsplit_dynamics_fieldsplit_fluid_'
+        structure = '-fieldsplit_dynamics_fieldsplit_structure_'
+        return flags + ['-pc_recipe', 'added_mass', '-pc_plan_structure_approx', 'a11',
+                        fluid+'ksp_type', 'preonly', fluid+'ksp_rtol', '1e-4', fluid+'ksp_max_it', '20',
+                        structure+'ksp_type', 'fgmres', structure+'ksp_rtol', '1e-2',
+                        structure+'ksp_max_it', '20']
+    velocity = '-fieldsplit_dynamics_fieldsplit_velocity_'
+    flags += ['-pc_recipe', 'hybrid', '-pc_plan_velocity_solver',
+              'twolevel' if solver == 'twolevel' else 'coupled',
+              velocity+'ksp_type', 'preonly' if solver == 'twolevel' else 'gmres',
+              velocity+'ksp_rtol', '1e-4', velocity+'ksp_max_it', '20']
+    local = velocity+('mg_levels_' if solver == 'twolevel' else '')
+    flags += [local+'sub_ksp_type', 'preonly', local+'sub_pc_type', 'ilu',
+              local+'sub_pc_factor_levels', '1', local+'sub_pc_factor_mat_ordering_type', 'rcm']
+    if solver == 'twolevel':
+        flags += [velocity+'pc_mg_multiplicative_cycles', '1', velocity+'pc_mg_cycle_type', 'v']
+    return flags
+
+
+def expected_solvers(solver):
+    """Actual root and selected response prefixes required after every step."""
+    if solver == 'direct':
+        return {'-': ('preonly', 'lu')}
+    expected = {'-': ('fgmres', 'fieldsplit')}
+    if solver == 'added_mass':
+        expected['fieldsplit_dynamics_fieldsplit_fluid_'] = ('preonly', 'fieldsplit')
+        expected['fieldsplit_dynamics_fieldsplit_structure_'] = ('fgmres', 'gamg')
+    elif solver in ('hybrid', 'twolevel'):
+        expected['fieldsplit_dynamics_fieldsplit_velocity_'] = (
+            ('preonly', 'mg') if solver == 'twolevel' else ('gmres', 'asm'))
+    else:
+        raise ValueError('Unknown solver preset: '+solver)
+    return expected
 
 
 def require(condition, detail):
@@ -49,13 +104,70 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def partition_weights(text):
+    """Parse an explicit offline cost model; never infer weights from tags."""
+    if not re.fullmatch(r'[1-9][0-9]*:[1-9][0-9]*(?:,[1-9][0-9]*:[1-9][0-9]*)*', text):
+        raise ValueError('Partition weights require unique positive integer tag:cost pairs, separated by commas')
+    pairs = [tuple(map(int, item.split(':'))) for item in text.split(',')]
+    if len({tag for tag, _ in pairs}) != len(pairs) or any(max(pair) > 2147483647 for pair in pairs):
+        raise ValueError('Partition tags must be unique and tags/costs must fit positive C++ int values')
+    return dict(sorted(pairs))
+
+
+def partition_preparations(binaries, case, work, group, ranks, weights=None):
+    """Keep the original shared prepare unless a candidate cost model is explicit."""
+    def preparation(mode, modes, directory, label, costs):
+        command = [str(binaries[mode]), '-case', str(case), '-prepare', str(directory), '-parts', str(ranks)]
+        if costs is not None:
+            command += ['-partition_cell_weights', ','.join(f'{tag}:{cost}' for tag, cost in sorted(costs.items()))]
+        return dict(prepared_by=mode, modes=modes, directory=directory, label=label,
+                    cell_weights=costs, command=command)
+    jobs = [preparation('baseline', ['baseline', 'candidate'] if weights is None else ['baseline'],
+                        work/(group+'-partition'), group+'-prepare', None)]
+    if weights is not None:
+        jobs.append(preparation('candidate', ['candidate'], work/(group+'-candidate-partition'),
+                                group+'-candidate-prepare', weights))
+    return jobs
+
+
+def partition_evidence(directory, ranks, work):
+    """Snapshot the completed manifest and every actual rank shard, without h5py."""
+    manifest = directory/'manifest.yaml'
+    require(directory.is_dir() and manifest.is_file(), ('Missing completed partition', str(directory)))
+    content = manifest.read_text()
+    entries = [re.fullmatch(r'(version|ranks|global_nodes|global_cells): ([1-9][0-9]*)', line)
+               for line in content.splitlines()]
+    require(len(entries) == 4 and all(entries), ('Malformed partition manifest', str(manifest)))
+    metadata = {entry[1]: int(entry[2]) for entry in entries}
+    require(set(metadata) == {'version', 'ranks', 'global_nodes', 'global_cells'} and
+            metadata['version'] == 1 and metadata['ranks'] == ranks,
+            ('Incompatible partition manifest', str(manifest), metadata))
+    shards = sorted(path for path in directory.iterdir() if path.suffix in ('.h5', '.hdf5'))
+    require({path.name for path in shards} == {f'rank_{rank}.h5' for rank in range(ranks)},
+            ('Missing or unexpected partition rank shards', str(directory)))
+    files = [manifest, *shards]
+    require(all(path.is_file() and path.stat().st_size > 0 for path in files),
+            ('Empty or invalid partition file', str(directory)))
+    return dict(path=str(directory.relative_to(work)), manifest=metadata, manifest_text=content,
+                files=[dict(path=str(path.relative_to(work)), sha256=digest(path), bytes=path.stat().st_size)
+                       for path in files])
+
+
+def check_partition_unchanged(evidence, work):
+    require(partition_evidence(work/evidence['path'], evidence['manifest']['ranks'], work) == evidence,
+            ('Prepared partition changed during measurement', evidence['path']))
+
+
 def records(text, marker):
     return [dict(re.findall(r'(\w+)=([^\s]+)', line)) for line in text.splitlines()
             if line.startswith(marker)]
 
 
 def number(row, key, minimum=None, integer=False):
-    value = float(row[key])
+    try:
+        value = float(row[key])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise RuntimeError(('Missing or invalid measurement', key, row.get(key))) from exc
     require(math.isfinite(value) and (minimum is None or value >= minimum),
             ('Invalid measurement', key, row[key]))
     require(not integer or value.is_integer(), ('Noninteger counter', key, value))
@@ -81,8 +193,9 @@ def option_arguments(arguments):
 
 def execution_options(options):
     """Accept execution changes only; physics and solver inputs stay fixed."""
-    settings = dict(fsi_coo=False, fsi_threads=1, fsi_residual_coo=None, nonlinear_reuse=None)
-    booleans = {'-fsi_coo', '-fsi_residual_coo', '-nonlinear_reuse'}
+    settings = dict(fsi_coo=False, fsi_threads=1, fsi_residual_coo=None, nonlinear_reuse=None,
+                    nonlinear_initial_jacobian_reuse=None)
+    booleans = {'-fsi_coo', '-fsi_residual_coo', '-nonlinear_reuse', '-nonlinear_initial_jacobian_reuse'}
     seen, index = set(), 0
     while index < len(options):
         option = options[index]
@@ -98,6 +211,9 @@ def execution_options(options):
             if value > 256:
                 raise ValueError('-fsi_threads requires an integer between 1 and 256')
         else:
+            if option == '-nonlinear_initial_jacobian_reuse' and (
+                    index == len(options) or options[index] not in ('true', 'false')):
+                raise ValueError('-nonlinear_initial_jacobian_reuse requires explicit true or false')
             value = True
             if index < len(options) and options[index] in ('true', 'false'):
                 value = options[index] == 'true'
@@ -106,7 +222,7 @@ def execution_options(options):
     return settings
 
 
-def parse_log(text, count, ranks, dt):
+def parse_log(text, count, ranks, dt, solver='direct'):
     require(text.count('status=success') == 1, 'Missing or duplicate success marker')
     require(not any(x in text for x in ('step_retry=', 'linear_residual_unavailable',
                                       'linear_iteration_limit_residual ')),
@@ -122,7 +238,8 @@ def parse_log(text, count, ranks, dt):
                 ('Wrong accepted time', i, step))
         require(number(report, 'ranks', 1, True) == ranks, 'Wrong rank count')
         require(number(report, 'domain_rejections', 0, True) == 0, 'Rejected geometry evaluation')
-        require(report['ksp'] == 'preonly' and report['pc'] == 'lu', 'Direct solver was overridden')
+        require((report['ksp'], report['pc']) == expected_solvers(solver)['-'],
+                ('Root solver differs from the pinned preset', solver, report))
         for key in ('snes_reason', 'ksp_reason'):
             number(report, key, 1, True)
         for key in ('dofs', 'linear_iterations', 'linear_started', 'linear_completed'):
@@ -143,6 +260,55 @@ def parse_log(text, count, ranks, dt):
         require(abs(number(step, 'body_balance')) <= FIELD_LIMIT and
                 abs(number(step, 'power_balance')) <= FIELD_LIMIT,
                 'Interface force or power balance failed')
+    # Check each actual observation in its step interval. Last-call summaries
+    # must not hide an early wrong prefix, a missing rank or duplicate evidence.
+    require('solver_node_unavailable' not in text, 'Incomplete solver hierarchy')
+    expected, observations, solver_nodes = expected_solvers(solver), None, []
+    step_index, step_corrections = 0, 0
+    seen_paths = set()
+    for line in text.splitlines():
+        if line.startswith('linear_residual '):
+            require(observations is None, 'Linear correction appeared after its final solver report')
+            correction = dict(re.findall(r'(\w+)=([^\s]+)', line))
+            step_corrections += 1
+            require(number(correction, 'solve', 1, True) == step_corrections,
+                    'Missing or reordered per-step linear correction')
+        elif line.startswith('solver_report '):
+            require(step_index < count and step_corrections == reports[step_index]['linear_completed'],
+                    'Missing per-step true linear residual evidence')
+            observations = {prefix: [0]*ranks for prefix in expected}
+            seen_paths = set()
+        elif line.startswith('solver_node '):
+            require(observations is not None, 'Solver hierarchy outside an accepted-step interval')
+            node = dict(re.findall(r'(\w+)=([^\s]+)', line))
+            rank = number(node, 'rank', 0, True)
+            require(rank < ranks and node.get('path'), ('Invalid solver identity', node))
+            identity = (rank, node['path'])
+            require(identity not in seen_paths, ('Duplicate solver hierarchy path', node))
+            seen_paths.add(identity)
+            prefix = node.get('prefix')
+            if prefix in expected:
+                require((node.get('ksp'), node.get('pc')) == expected[prefix],
+                        ('Response solver differs from pinned preset', solver, node))
+                reason = number(node, 'ksp_reason', integer=True)
+                require(number(node, 'pc_reason', integer=True) == 0, ('Response PC failed', node))
+                require(reason > 0 or (prefix != '-' and node['ksp'] != 'preonly' and reason == -3),
+                        ('Response solve failed', node))
+                number(node, 'reported_norm', 0)
+                number(node, 'last_iterations', 0, True)
+                if prefix == '-':
+                    require(node['path'] == 'root', 'Root prefix reported on a child solver')
+                    if solver != 'direct':
+                        require(number(node, 'norm_type', 0, True) == 2,
+                                'Outer FGMRES did not use the unpreconditioned residual norm')
+                observations[prefix][rank] += 1
+                solver_nodes.append(node)
+        elif line.startswith('fsi_step='):
+            require(observations is not None and all(values == [1]*ranks for values in observations.values()),
+                    ('Missing or duplicated per-rank response evidence', solver, observations))
+            observations = None
+            step_index += 1
+            step_corrections = 0
     fields = records(text, 'field_residual ')
     require(len(fields) == 4 * count, 'Missing per-field acceptance evidence')
     for i in range(count):
@@ -162,6 +328,7 @@ def parse_log(text, count, ranks, dt):
         require(norm <= target, ('True linear residual exceeds fixed gate', norm, target))
         worst = max(worst, norm / target)
     return dict(steps=reports, accepted=accepted, fields=fields,
+                solver=solver, solver_nodes=solver_nodes,
                 linear_corrections=len(corrections), max_linear_residual_ratio=worst,
                 plan=records(text, 'fsi_assembly_plan '), execution_plan=records(text, 'fsi_execution_plan '))
 
@@ -223,6 +390,35 @@ def check_execution(row, settings, reported):
     else:
         require(settings['nonlinear_reuse'] is None, 'Requested nonlinear reuse mode has no runtime evidence')
         row['nonlinear_reuse_observed'] = None
+    requested = settings.get('nonlinear_initial_jacobian_reuse')
+    present = any(any(key in step for key in JACOBIAN_COUNTERS) for step in row['steps'])
+    require(present or requested is None, 'Requested initial Jacobian reuse has no runtime accounting')
+    row['jacobian_accounting_available'] = present
+    if present:
+        for step in row['steps']:
+            values = {key: number(step, key, 0, True) for key in JACOBIAN_COUNTERS}
+            step.update(values)
+            assembled, callbacks = values['jacobian_assemblies'], values['jacobian_callbacks']
+            initial, reused, deferred = (values[key] for key in
+                ('initial_jacobian_assemblies', 'initial_jacobian_reuses', 'initial_jacobian_deferred'))
+            require(initial in (0, 1) and reused in (0, 1) and deferred in (0, 1) and
+                    reused <= initial and (not deferred or initial == reused == 0),
+                    ('Invalid startup Jacobian accounting', values))
+            require(assembled == initial+callbacks-reused and callbacks == step['snes_iterations'],
+                    ('Jacobian callback/assembly counts disagree', values, step['snes_iterations']))
+            if row['solver'] == 'direct':
+                require(initial == reused == deferred == values['user_schur_updates'] == 0,
+                        'Direct preset unexpectedly used a startup Schur Jacobian')
+            else:
+                require(values['user_schur_updates'] <= assembled and
+                        (not callbacks or values['user_schur_updates'] == assembled),
+                        'Pinned nodal USER Schur was stale or refreshed redundantly')
+                if requested is False:
+                    require(initial == 1 and reused == deferred == 0,
+                            'Disabled startup reuse did not retain its independent assembly')
+                elif requested is True and callbacks:
+                    require(assembled == callbacks and initial == reused and deferred == 1-initial,
+                            'Requested startup reuse did not avoid the redundant Jacobian')
 
 
 def physical_fields(path, ranks):
@@ -328,12 +524,17 @@ def main():
     parser.add_argument('--ranks', type=int, nargs='+', default=[1, 2])
     parser.add_argument('--steps', type=int, default=5)
     parser.add_argument('--repeats', type=int, default=3)
+    parser.add_argument('--solver', choices=SOLVERS, default='direct',
+                        help='Identical numerical preset for both binaries; hybrid uses coupled velocity with nodal pressure Schur')
+    parser.add_argument('--candidate-partition-weights', type=partition_weights, default=None, metavar='TAG:COST,...',
+                        help='Explicit positive offline cell costs, e.g. 10:5,20:1; baseline stays unweighted')
     parser.add_argument('--petsc-log', action='store_true', help='Equal event logging overhead in both modes')
     parser.add_argument('--baseline-assembly-report', action='store_true',
                         help='Report baseline initialization too; requires a PR51-or-newer baseline')
     for mode in ('baseline', 'candidate'):
         parser.add_argument('--'+mode+'-options', type=shlex.split, default=[], metavar='FLAGS',
-                            help='Execution flags: -fsi_coo, -fsi_residual_coo, -fsi_threads, -nonlinear_reuse')
+                            help='Execution flags: -fsi_coo, -fsi_residual_coo, -fsi_threads, -nonlinear_reuse, '
+                                 '-nonlinear_initial_jacobian_reuse true|false')
     try:
         args = parser.parse_args(option_arguments(sys.argv[1:]))
         options = {mode: getattr(args, mode+'_options') for mode in ('baseline', 'candidate')}
@@ -360,6 +561,8 @@ def main():
                OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
     binding = ['--bind-to', 'none'] if any(value['fsi_threads'] > 1 for value in settings.values()) else []
     comparison_metrics = (*METRICS, *INITIALIZATION_METRICS) if args.baseline_assembly_report else METRICS
+    preset_options = solver_options(args.solver)
+    preset_hash = hashlib.sha256(json.dumps(preset_options, separators=(',', ':')).encode()).hexdigest()
     result = dict(status='running', source_commit=subprocess.check_output(
         ['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
         source_status=subprocess.check_output(['git', 'status', '--short'], cwd=ROOT, text=True),
@@ -367,16 +570,25 @@ def main():
         element_threads_per_rank={mode: value['fsi_threads'] for mode, value in settings.items()},
         library_threads_per_rank=1,
         baseline_options=args.baseline_options, candidate_options=args.candidate_options,
+        candidate_partition_weights=args.candidate_partition_weights,
+        partition_policy='shared_unweighted' if args.candidate_partition_weights is None else 'separate_candidate_weights',
+        solver_preset=dict(name=args.solver, options=preset_options, options_sha256=preset_hash,
+                           expected_solvers=expected_solvers(args.solver)),
         execution_options=settings, mpi_binding_options=binding,
         baseline_assembly_reporting=args.baseline_assembly_report,
         field_absolute_limit=FIELD_LIMIT, linear_gate='1e-12 + 1e-10 * rhs_norm',
         timer_scope='Per-step maximum-rank timers may overlap; wall includes startup, output and shutdown. '
                     'initialization_* are once-per-run maximum-rank timers, separate from per-step solver setup.',
         wall_clock='Blocking child wait with an independent timeout watchdog; no timeout polling in the measured wait.',
-        petsc_event_logging=args.petsc_log, binaries={}, commands=[], cases=[], runs=[], pairs=[])
+        jacobian_counter_scope='Per-step completed full-J assemblies include startup preparation. '
+            'jacobian_callbacks includes the first callback when its initial matrix is reused. '
+            'user_schur_updates counts application-built nodal USER matrices, not all PETSc PC setup. '
+            'Older binaries may omit all these fields; an explicit startup-reuse option requires them.',
+        petsc_event_logging=args.petsc_log, binaries={}, commands=[], cases=[], partitions=[], runs=[], pairs=[])
     for mode, path in binaries.items():
         result['binaries'][mode] = dict(path=str(path), sha256=digest(path),
-            build_source_commit=getattr(args, mode+'_commit'))
+            build_source_commit=getattr(args, mode+'_commit'), solver=args.solver,
+            solver_options=preset_options, solver_options_sha256=preset_hash, execution_options=options[mode])
         for name, source in [('cmake_cache', path.parent/'CMakeCache.txt'),
                              ('build_receipt', path.parent/'evidence/summary.json')]:
             if source.is_file():
@@ -462,22 +674,35 @@ def main():
             config['fsi'].update(steps=args.steps, output_interval=1)
             case.write_text(json.dumps(config, indent=2)+'\n')
             dt = config['fsi']['dt']
-            result['cases'].append(dict(subdivisions=n, case=str(case.relative_to(work)),
+            case_record = dict(subdivisions=n, case=str(case.relative_to(work)),
                 input_sha256={p.name: digest(p) for p in case.parent.iterdir() if p.is_file()},
-                fluid_cells=6*n**3, solid_cells=6*n**3+3, config=config))
+                fluid_cells=6*n**3, solid_cells=6*n**3+3, config=config)
+            result['cases'].append(case_record)
             for ranks in args.ranks:
                 group = f'n{n}-r{ranks}'
-                partition = work/(group+'-partition')
-                run([binaries['baseline'], '-case', case, '-prepare', partition, '-parts', ranks], group+'-prepare')
+                partitions = {}
+                for job in partition_preparations(binaries, case, work, group, ranks, args.candidate_partition_weights):
+                    inputs = {p.name: digest(p) for p in case.parent.iterdir() if p.is_file()}
+                    require(inputs == case_record['input_sha256'], 'Partition preparation inputs changed')
+                    record = dict(subdivisions=n, ranks=ranks, modes=job['modes'], prepared_by=job['prepared_by'],
+                                  cell_weights=job['cell_weights'], command=job['command'], log=job['label']+'.log',
+                                  input_case=case_record['case'], input_sha256=inputs, evidence=None)
+                    result['partitions'].append(record)
+                    record['prepare_seconds'], _ = run(job['command'], job['label'])
+                    record['evidence'] = partition_evidence(job['directory'], ranks, work)
+                    for mode in job['modes']:
+                        partitions[mode] = record
+                    save()
                 reference_fields = reference_history = reference_iterations = None
                 for repeat in range(-1, args.repeats):
                     pair = {}
                     for mode in (('baseline', 'candidate') if repeat % 2 else ('candidate', 'baseline')):
                         label = group+f'-sample{repeat}-{mode}'
                         output = work/(label+'.vtu')
+                        partition = work/partitions[mode]['evidence']['path']
                         command = [args.mpiexec, *binding, '-n', ranks, binaries[mode], '-case', case,
                                    '-partition', partition, '-output', output, '-solver_report', '-linear_report',
-                                   '-ksp_type', 'preonly', '-pc_type', 'lu', '-pc_factor_mat_solver_type', 'superlu_dist']
+                                   *preset_options]
                         if args.petsc_log:
                             command += ['-log_view', ':'+str(work/(label+'-petsc.log'))]
                         reported = mode == 'candidate' or args.baseline_assembly_report
@@ -487,8 +712,11 @@ def main():
                         threads = settings[mode]['fsi_threads']
                         elapsed, text = run(command, label, threads=threads)
                         row = dict(subdivisions=n, ranks=ranks, repeat=repeat, mode=mode,
+                                   partition=partitions[mode]['evidence']['path'],
+                                   partition_prepare_log=partitions[mode]['log'],
                                    element_threads_per_rank=threads, execution_options=options[mode],
-                                   wall_seconds=elapsed, log=label+'.log', **parse_log(text, args.steps, ranks, dt))
+                                   solver_options_sha256=preset_hash, wall_seconds=elapsed, log=label+'.log',
+                                   **parse_log(text, args.steps, ranks, dt, args.solver))
                         if reported:
                             check_plan(row['plan'], settings[mode]['fsi_coo'], 12*n**3+3)
                             for key in INITIALIZATION_TIMERS:
@@ -537,6 +765,12 @@ def main():
                                             for key in sorted(paired_metrics)}))
         require(all(digest(path) == result['binaries'][mode]['sha256'] for mode, path in binaries.items()),
                 'An executable changed during measurement')
+        for record in result['partitions']:
+            check_partition_unchanged(record['evidence'], work)
+        for case_record in result['cases']:
+            directory = (work/case_record['case']).parent
+            require({p.name: digest(p) for p in directory.iterdir() if p.is_file()} == case_record['input_sha256'],
+                    'A physical input changed during measurement')
         result['status'] = 'passed'
         print(json.dumps(result['summary'], indent=2), flush=True)
     except BaseException as exc:

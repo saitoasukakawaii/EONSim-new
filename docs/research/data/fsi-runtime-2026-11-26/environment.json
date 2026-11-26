@@ -1,0 +1,34 @@
+{
+  "candidate_source": "7e8868e433fb0040806a6faf3ba8cd289a2aa3f1",
+  "candidate_sha256": "1eb8ea57ac1a1d4c120bae5a1d79d2a228034cdbccb8da6272ecc0ea78a4cf27",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+  "runtime_resources": {
+    "cpu_budget": 9,
+    "memory_bytes": 10451427328,
+    "cgroup": {},
+    "build_jobs": 4
+  },
+  "versions": {
+    "metis": "5.1.0",
+    "hdf5": "1.14.6",
+    "python": "3.15.2",
+    "openmpi": "5.0.8",
+    "libopenblas": "0.3.34",
+    "gcc": "15.3.0",
+    "gxx": "15.3.0",
+    "petsc": "3.23.7"
+  },
+  "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892"
+}

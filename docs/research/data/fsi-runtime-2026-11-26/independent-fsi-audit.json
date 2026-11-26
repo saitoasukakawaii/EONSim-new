@@ -1,0 +1,3694 @@
+{
+  "status": "passed",
+  "totals": {
+    "runs": 88,
+    "accepted_steps": 880,
+    "linear_corrections": 1760,
+    "hash_receipts": 8502,
+    "physical_snapshots": 968
+  },
+  "checks": 12329804,
+  "errors": 0,
+  "roundoff": {
+    "count": 0,
+    "largest_absolute_difference": 0.0,
+    "examples": []
+  },
+  "campaigns": [
+    {
+      "runs_checked": 32,
+      "accepted_steps_checked": 320,
+      "corrections_checked": 640,
+      "max_physical_difference": 4.440892098500626e-16,
+      "max_history_difference": 2.9841559419667343e-15,
+      "max_linear_residual_ratio": 0.00019697375053436247,
+      "max_field_acceptance_ratio": 0.47435614563342865,
+      "max_constraint_acceptance_ratio": 0.0,
+      "name": "default",
+      "source_commit": "7e8868e433fb0040806a6faf3ba8cd289a2aa3f1",
+      "results_sha256": "36302037b9e5fde7755fee1f12ff21f3669c8440be57fe378d87919a25030727",
+      "solver": "direct",
+      "options": {
+        "baseline": {
+          "fsi_coo": false,
+          "fsi_threads": 1,
+          "fsi_residual_coo": null,
+          "nonlinear_reuse": null,
+          "nonlinear_initial_jacobian_reuse": null
+        },
+        "candidate": {
+          "fsi_coo": false,
+          "fsi_threads": 1,
+          "fsi_residual_coo": null,
+          "nonlinear_reuse": null,
+          "nonlinear_initial_jacobian_reuse": null
+        }
+      },
+      "binaries": {
+        "baseline": {
+          "path": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/cloud-3.23.7-release/eonsim",
+          "sha256": "3399694877a426093cd1e8752ac26b2f63f7e9d826910db0b818b7911cb7af2b",
+          "build_source_commit": "2dcb06c26a0359175e4f5a771d5bbff6dfc928af"
+        },
+        "candidate": {
+          "path": "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/eonsim",
+          "sha256": "1eb8ea57ac1a1d4c120bae5a1d79d2a228034cdbccb8da6272ecc0ea78a4cf27",
+          "build_source_commit": "7e8868e433fb0040806a6faf3ba8cd289a2aa3f1"
+        }
+      },
+      "hash_receipts": 2955,
+      "hashes_all_match": true,
+      "partition_provenance_limit": "This campaign predates partition file hash receipts. The recorded output/input/binary hashes are verified; historical shard integrity cannot be independently reconstructed from missing receipts.",
+      "partition_metadata": [],
+      "statistics": [
+        {
+          "subdivisions": 4,
+          "ranks": 1,
+          "modes": {
+            "baseline": {
+              "wall_seconds": {
+                "median": 0.40072151999993366,
+                "minimum": 0.39645909799992296,
+                "maximum": 0.41134537799962345
+              },
+              "setup_seconds": {
+                "median": 0.00084402,
+                "minimum": 0.000770537,
+                "maximum": 0.000949584
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 0.211593729,
+                "minimum": 0.206477799,
+                "maximum": 0.221711815
+              },
+              "assembly_seconds": {
+                "median": 0.106416894,
+                "minimum": 0.10601537,
+                "maximum": 0.11940034199999999
+              },
+              "callback_seconds": {
+                "median": 0.10458893600000001,
+                "minimum": 0.104418726,
+                "maximum": 0.117812836
+              },
+              "failure_sync_seconds": {
+                "median": 3.0651e-05,
+                "minimum": 2.9412000000000002e-05,
+                "maximum": 3.2366e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.001165337,
+                "minimum": 0.001123796,
+                "maximum": 0.00119594
+              },
+              "constraint_seconds": {
+                "median": 2.3349999999999997e-06,
+                "minimum": 2.323e-06,
+                "maximum": 2.47e-06
+              },
+              "ghost_seconds": {
+                "median": 0.00013975900000000001,
+                "minimum": 0.000132256,
+                "maximum": 0.000143731
+              },
+              "linear_seconds": {
+                "median": 0.099682085,
+                "minimum": 0.097379239,
+                "maximum": 0.101798857
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001871036,
+                "minimum": 0.0015333880000000001,
+                "maximum": 0.002376115
+              },
+              "finalize_seconds": {
+                "median": 0.003704077,
+                "minimum": 0.003686863,
+                "maximum": 0.0041026149999999996
+              },
+              "peak_rss_max_bytes": {
+                "median": 50311168.0,
+                "minimum": 50278400.0,
+                "maximum": 50397184.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 50311168.0,
+                "minimum": 50278400.0,
+                "maximum": 50397184.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.005880404,
+                "minimum": 0.005758023,
+                "maximum": 0.00604008
+              },
+              "initialization_plan_seconds": {
+                "median": 8.814e-05,
+                "minimum": 8.5978e-05,
+                "maximum": 0.000281236
+              },
+              "initialization_system_seconds": {
+                "median": 0.001197991,
+                "minimum": 0.001175968,
+                "maximum": 0.001222157
+              },
+              "initialization_setup_seconds": {
+                "median": 0.007350377,
+                "minimum": 0.007019969,
+                "maximum": 0.007359631
+              }
+            },
+            "candidate": {
+              "wall_seconds": {
+                "median": 0.38136573399970075,
+                "minimum": 0.3755731050000577,
+                "maximum": 0.39003610200006733
+              },
+              "setup_seconds": {
+                "median": 0.00084546,
+                "minimum": 0.0007403150000000001,
+                "maximum": 0.000846033
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 0.204380337,
+                "minimum": 0.195630893,
+                "maximum": 0.21012639900000002
+              },
+              "assembly_seconds": {
+                "median": 0.10363997,
+                "minimum": 0.09867797,
+                "maximum": 0.10607129400000001
+              },
+              "callback_seconds": {
+                "median": 0.102379553,
+                "minimum": 0.097505375,
+                "maximum": 0.104707284
+              },
+              "failure_sync_seconds": {
+                "median": 3.4912999999999996e-05,
+                "minimum": 2.8406e-05,
+                "maximum": 3.7248e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.000853842,
+                "minimum": 0.000798629,
+                "maximum": 0.000885305
+              },
+              "constraint_seconds": {
+                "median": 2.258e-06,
+                "minimum": 2.203e-06,
+                "maximum": 2.594e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000152141,
+                "minimum": 0.000123871,
+                "maximum": 0.000162778
+              },
+              "linear_seconds": {
+                "median": 0.097532539,
+                "minimum": 0.094452556,
+                "maximum": 0.100977485
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001864458,
+                "minimum": 0.001472847,
+                "maximum": 0.002281831
+              },
+              "finalize_seconds": {
+                "median": 0.002002629,
+                "minimum": 0.001983423,
+                "maximum": 0.002267883
+              },
+              "peak_rss_max_bytes": {
+                "median": 49385472.0,
+                "minimum": 49360896.0,
+                "maximum": 49446912.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 49385472.0,
+                "minimum": 49360896.0,
+                "maximum": 49446912.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.005883709,
+                "minimum": 0.005657905,
+                "maximum": 0.00604684
+              },
+              "initialization_plan_seconds": {
+                "median": 0.000240746,
+                "minimum": 0.000197051,
+                "maximum": 0.000393282
+              },
+              "initialization_system_seconds": {
+                "median": 0.000595491,
+                "minimum": 0.000591144,
+                "maximum": 0.000694556
+              },
+              "initialization_setup_seconds": {
+                "median": 0.006883077,
+                "minimum": 0.0064461,
+                "maximum": 0.006971547
+              }
+            }
+          },
+          "paired_relative_change": {
+            "assembly_finalize_seconds": {
+              "median": -0.24030130339978906,
+              "minimum": -0.332216499155476,
+              "maximum": -0.2402161958220176
+            },
+            "assembly_seconds": {
+              "median": -0.022406185065429685,
+              "minimum": -0.173553707241475,
+              "maximum": -0.0032476046519455126
+            },
+            "callback_seconds": {
+              "median": -0.019528805589909326,
+              "minimum": -0.17237053015173998,
+              "maximum": 0.001131553723808798
+            },
+            "constraint_seconds": {
+              "median": -0.032976445396145526,
+              "minimum": -0.05165733964700825,
+              "maximum": 0.050202429149797556
+            },
+            "failure_sync_seconds": {
+              "median": 0.18703250373996982,
+              "minimum": -0.12235061484273624,
+              "maximum": 0.21522951942840352
+            },
+            "finalize_seconds": {
+              "median": -0.4620296441717525,
+              "minimum": -0.5118652371719012,
+              "maximum": -0.3877333003606567
+            },
+            "ghost_seconds": {
+              "median": 0.058512081596872045,
+              "minimum": -0.06339977014275344,
+              "maximum": 0.16470495638921268
+            },
+            "initialization_pattern_seconds": {
+              "median": -0.025888895511317678,
+              "minimum": -0.037837366276194495,
+              "maximum": 0.05015905632888229
+            },
+            "initialization_plan_seconds": {
+              "median": 1.8000883947056225,
+              "minimum": -0.29933934489183456,
+              "maximum": 3.4620149761742676
+            },
+            "initialization_setup_seconds": {
+              "median": -0.05153885304114336,
+              "minimum": -0.12412728301187936,
+              "maximum": -0.01950037101303448
+            },
+            "initialization_system_seconds": {
+              "median": -0.49361632289313995,
+              "minimum": -0.5065538889691158,
+              "maximum": -0.43169658235398556
+            },
+            "linear_diagnostic_seconds": {
+              "median": -0.039481853255666555,
+              "minimum": -0.2153334329356954,
+              "maximum": 0.21955483486154193
+            },
+            "linear_seconds": {
+              "median": -0.008068577823029943,
+              "minimum": -0.052462074805116776,
+              "maximum": 0.0015742575273154369
+            },
+            "peak_rss_max_bytes": {
+              "median": -0.018399413823984356,
+              "minimum": -0.020562418725617704,
+              "maximum": -0.016537678207739326
+            },
+            "peak_rss_sum_bytes": {
+              "median": -0.018399413823984356,
+              "minimum": -0.020562418725617704,
+              "maximum": -0.016537678207739326
+            },
+            "setup_seconds": {
+              "median": -0.10965222665925278,
+              "minimum": -0.12287031113006797,
+              "maximum": 0.09797842284017522
+            },
+            "solve_seconds": {
+              "median": -0.010158293095714366,
+              "minimum": -0.11763433536458134,
+              "maximum": -0.006934657312079318
+            },
+            "wall_seconds": {
+              "median": -0.03807041905802133,
+              "minimum": -0.08696408155484003,
+              "maximum": -0.026665445868412796
+            }
+          }
+        },
+        {
+          "subdivisions": 4,
+          "ranks": 2,
+          "modes": {
+            "baseline": {
+              "wall_seconds": {
+                "median": 0.4232142450000538,
+                "minimum": 0.3939955559999362,
+                "maximum": 0.4259227090001332
+              },
+              "setup_seconds": {
+                "median": 0.001422784,
+                "minimum": 0.00131386,
+                "maximum": 0.001728156
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 0.224931335,
+                "minimum": 0.212114294,
+                "maximum": 0.234861832
+              },
+              "assembly_seconds": {
+                "median": 0.117139324,
+                "minimum": 0.115717944,
+                "maximum": 0.124727391
+              },
+              "callback_seconds": {
+                "median": 0.107349567,
+                "minimum": 0.10610342,
+                "maximum": 0.112383107
+              },
+              "failure_sync_seconds": {
+                "median": 0.086086624,
+                "minimum": 0.083146688,
+                "maximum": 0.089392134
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.009341761,
+                "minimum": 0.009040619,
+                "maximum": 0.011427912
+              },
+              "constraint_seconds": {
+                "median": 3.4629999999999997e-06,
+                "minimum": 2.993e-06,
+                "maximum": 3.498e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000191803,
+                "minimum": 0.000141288,
+                "maximum": 0.000210423
+              },
+              "linear_seconds": {
+                "median": 0.104903522,
+                "minimum": 0.093136873,
+                "maximum": 0.106889063
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001738409,
+                "minimum": 0.001673752,
+                "maximum": 0.002050863
+              },
+              "finalize_seconds": {
+                "median": 0.002765618,
+                "minimum": 0.002620434,
+                "maximum": 0.002974699
+              },
+              "peak_rss_max_bytes": {
+                "median": 48254976.0,
+                "minimum": 48250880.0,
+                "maximum": 48365568.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 96202752.0,
+                "minimum": 96100352.0,
+                "maximum": 96477184.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.005227247,
+                "minimum": 0.005177133,
+                "maximum": 0.005609063
+              },
+              "initialization_plan_seconds": {
+                "median": 0.000102611,
+                "minimum": 5.8206e-05,
+                "maximum": 0.000164066
+              },
+              "initialization_system_seconds": {
+                "median": 0.00113633,
+                "minimum": 0.001102971,
+                "maximum": 0.00167763
+              },
+              "initialization_setup_seconds": {
+                "median": 0.006814586,
+                "minimum": 0.006370688,
+                "maximum": 0.007068943
+              }
+            },
+            "candidate": {
+              "wall_seconds": {
+                "median": 0.3958416660002513,
+                "minimum": 0.3924582150002607,
+                "maximum": 0.4281283979998989
+              },
+              "setup_seconds": {
+                "median": 0.00134441,
+                "minimum": 0.00132538,
+                "maximum": 0.0015366619999999998
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 0.21148524,
+                "minimum": 0.20251044299999998,
+                "maximum": 0.214818352
+              },
+              "assembly_seconds": {
+                "median": 0.10120902,
+                "minimum": 0.09961014,
+                "maximum": 0.102529214
+              },
+              "callback_seconds": {
+                "median": 0.093236822,
+                "minimum": 0.086552252,
+                "maximum": 0.093998245
+              },
+              "failure_sync_seconds": {
+                "median": 0.071568636,
+                "minimum": 0.06469477,
+                "maximum": 0.075125976
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.007881385,
+                "minimum": 0.007202477,
+                "maximum": 0.009737756
+              },
+              "constraint_seconds": {
+                "median": 3.367e-06,
+                "minimum": 2.937e-06,
+                "maximum": 3.653e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000188976,
+                "minimum": 0.000172365,
+                "maximum": 0.000272184
+              },
+              "linear_seconds": {
+                "median": 0.105361709,
+                "minimum": 0.098228176,
+                "maximum": 0.11236174
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001852992,
+                "minimum": 0.001674597,
+                "maximum": 0.002053437
+              },
+              "finalize_seconds": {
+                "median": 0.001517594,
+                "minimum": 0.001506447,
+                "maximum": 0.00169919
+              },
+              "peak_rss_max_bytes": {
+                "median": 48492544.0,
+                "minimum": 48234496.0,
+                "maximum": 48775168.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 96980992.0,
+                "minimum": 96432128.0,
+                "maximum": 97296384.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.005885059,
+                "minimum": 0.005115152,
+                "maximum": 0.016404233
+              },
+              "initialization_plan_seconds": {
+                "median": 0.000141409,
+                "minimum": 0.000139907,
+                "maximum": 0.000152776
+              },
+              "initialization_system_seconds": {
+                "median": 0.000587508,
+                "minimum": 0.000495042,
+                "maximum": 0.001265831
+              },
+              "initialization_setup_seconds": {
+                "median": 0.006606756,
+                "minimum": 0.006533759,
+                "maximum": 0.017039102
+              }
+            }
+          },
+          "paired_relative_change": {
+            "assembly_finalize_seconds": {
+              "median": -0.15632769881396036,
+              "minimum": -0.20332036998794,
+              "maximum": -0.1478971836674976
+            },
+            "assembly_seconds": {
+              "median": -0.1253817990406052,
+              "minimum": -0.2013771858660942,
+              "maximum": -0.12472421302345926
+            },
+            "callback_seconds": {
+              "median": -0.12437238801345152,
+              "minimum": -0.22984642166905034,
+              "maximum": -0.12126468684986791
+            },
+            "constraint_seconds": {
+              "median": -0.037449971412235494,
+              "minimum": -0.15189142362113772,
+              "maximum": 0.22051453391246234
+            },
+            "failure_sync_seconds": {
+              "median": -0.16864394635803115,
+              "minimum": -0.2762811770440562,
+              "maximum": -0.09646460000908275
+            },
+            "finalize_seconds": {
+              "median": -0.4251154579737555,
+              "minimum": -0.48983275282642047,
+              "maximum": -0.3856020607328995
+            },
+            "ghost_seconds": {
+              "median": -0.01473908124481893,
+              "minimum": -0.18086425913517057,
+              "maximum": 0.9264481059962633
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.1367409336402985,
+              "minimum": -0.0214443664131424,
+              "maximum": 1.924594179099076
+            },
+            "initialization_plan_seconds": {
+              "median": 0.36346980343238044,
+              "minimum": -0.06881377006814338,
+              "maximum": 1.4294574442497336
+            },
+            "initialization_setup_seconds": {
+              "median": 0.03705533845010134,
+              "minimum": -0.07570919725905279,
+              "maximum": 1.5003869640796963
+            },
+            "initialization_system_seconds": {
+              "median": -0.48297765613862165,
+              "minimum": -0.5511740562535188,
+              "maximum": -0.24546473298641536
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.06591256718068061,
+              "minimum": -0.18346715504643651,
+              "maximum": 0.22684662960820967
+            },
+            "linear_seconds": {
+              "median": 0.05119959747425229,
+              "minimum": 0.004367698922444152,
+              "maximum": 0.054664740569505765
+            },
+            "peak_rss_max_bytes": {
+              "median": 0.0026253387533874406,
+              "minimum": -0.0003395585738540374,
+              "maximum": 0.010780069603599118
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.0052220429651015365,
+              "minimum": 0.003452391100502883,
+              "maximum": 0.011367990803423211
+            },
+            "setup_seconds": {
+              "median": -0.05508496019072462,
+              "minimum": -0.23306692219915337,
+              "maximum": 0.16957818945701963
+            },
+            "solve_seconds": {
+              "median": -0.059778665342470005,
+              "minimum": -0.08534158074693043,
+              "maximum": -0.04527677422814336
+            },
+            "wall_seconds": {
+              "median": 0.004685611226324049,
+              "minimum": -0.07856940541731494,
+              "maximum": 0.011611501876181984
+            }
+          }
+        },
+        {
+          "subdivisions": 8,
+          "ranks": 1,
+          "modes": {
+            "baseline": {
+              "wall_seconds": {
+                "median": 4.002217458000359,
+                "minimum": 3.9878767780001,
+                "maximum": 4.0411525780000375
+              },
+              "setup_seconds": {
+                "median": 0.001073167,
+                "minimum": 0.001059195,
+                "maximum": 0.001311771
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 3.5451510749999997,
+                "minimum": 3.542337191,
+                "maximum": 3.597817236
+              },
+              "assembly_seconds": {
+                "median": 0.805748284,
+                "minimum": 0.796272965,
+                "maximum": 0.808979744
+              },
+              "callback_seconds": {
+                "median": 0.791259944,
+                "minimum": 0.7816737979999999,
+                "maximum": 0.79397972
+              },
+              "failure_sync_seconds": {
+                "median": 0.000126807,
+                "minimum": 0.000119498,
+                "maximum": 0.00012719899999999999
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.010953467000000001,
+                "minimum": 0.010922768,
+                "maximum": 0.011142
+              },
+              "constraint_seconds": {
+                "median": 8.905e-06,
+                "minimum": 8.316e-06,
+                "maximum": 9.763e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000450496,
+                "minimum": 0.000447811,
+                "maximum": 0.0005046229999999999
+              },
+              "linear_seconds": {
+                "median": 2.730475147,
+                "minimum": 2.713250795,
+                "maximum": 2.772728884
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.011385784,
+                "minimum": 0.01135915,
+                "maximum": 0.011422378
+              },
+              "finalize_seconds": {
+                "median": 0.025955879,
+                "minimum": 0.025664893,
+                "maximum": 0.026581868
+              },
+              "peak_rss_max_bytes": {
+                "median": 134418432.0,
+                "minimum": 134402048.0,
+                "maximum": 134688768.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 134418432.0,
+                "minimum": 134402048.0,
+                "maximum": 134688768.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.05819733,
+                "minimum": 0.054091058,
+                "maximum": 0.063512891
+              },
+              "initialization_plan_seconds": {
+                "median": 0.000594318,
+                "minimum": 0.000589802,
+                "maximum": 0.000618775
+              },
+              "initialization_system_seconds": {
+                "median": 0.00962885,
+                "minimum": 0.009227983,
+                "maximum": 0.013324522
+              },
+              "initialization_setup_seconds": {
+                "median": 0.07211617,
+                "minimum": 0.063908843,
+                "maximum": 0.073760516
+              }
+            },
+            "candidate": {
+              "wall_seconds": {
+                "median": 3.9656361469997137,
+                "minimum": 3.8868230990001393,
+                "maximum": 4.0379971070001375
+              },
+              "setup_seconds": {
+                "median": 0.000964501,
+                "minimum": 0.000907101,
+                "maximum": 0.001151602
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 3.529144069,
+                "minimum": 3.481642382,
+                "maximum": 3.665028723
+              },
+              "assembly_seconds": {
+                "median": 0.797390386,
+                "minimum": 0.782594623,
+                "maximum": 0.836854198
+              },
+              "callback_seconds": {
+                "median": 0.7870490720000001,
+                "minimum": 0.7707517549999999,
+                "maximum": 0.825850659
+              },
+              "failure_sync_seconds": {
+                "median": 0.00016958499999999998,
+                "minimum": 0.000140396,
+                "maximum": 0.0003331
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.007256978,
+                "minimum": 0.007178737,
+                "maximum": 0.008242203
+              },
+              "constraint_seconds": {
+                "median": 9.466e-06,
+                "minimum": 7.46e-06,
+                "maximum": 3.2797e-05
+              },
+              "ghost_seconds": {
+                "median": 0.000486592,
+                "minimum": 0.000451644,
+                "maximum": 0.0005091410000000001
+              },
+              "linear_seconds": {
+                "median": 2.713091063,
+                "minimum": 2.6842042800000003,
+                "maximum": 2.808406132
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.010456522999999999,
+                "minimum": 0.010237352,
+                "maximum": 0.011210875
+              },
+              "finalize_seconds": {
+                "median": 0.013898368,
+                "minimum": 0.013246046,
+                "maximum": 0.014275771999999999
+              },
+              "peak_rss_max_bytes": {
+                "median": 133586944.0,
+                "minimum": 133427200.0,
+                "maximum": 133718016.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 133586944.0,
+                "minimum": 133427200.0,
+                "maximum": 133718016.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.05740552,
+                "minimum": 0.056481764,
+                "maximum": 0.12032239
+              },
+              "initialization_plan_seconds": {
+                "median": 0.001593195,
+                "minimum": 0.001484905,
+                "maximum": 0.001689974
+              },
+              "initialization_system_seconds": {
+                "median": 0.004763921,
+                "minimum": 0.004744765,
+                "maximum": 0.006267031
+              },
+              "initialization_setup_seconds": {
+                "median": 0.065362525,
+                "minimum": 0.062711434,
+                "maximum": 0.126679506
+              }
+            }
+          },
+          "paired_relative_change": {
+            "assembly_finalize_seconds": {
+              "median": -0.3446150885377206,
+              "minimum": -0.3486826422545325,
+              "maximum": -0.24541077865976824
+            },
+            "assembly_seconds": {
+              "median": 0.0014033140004947597,
+              "minimum": -0.028735600757419544,
+              "maximum": 0.03445630648571596
+            },
+            "callback_seconds": {
+              "median": 0.0068766204185854996,
+              "minimum": -0.02591839654655903,
+              "maximum": 0.04014074691983316
+            },
+            "constraint_seconds": {
+              "median": 0.06299831555306001,
+              "minimum": -0.10293410293410288,
+              "maximum": 2.3593157840827614
+            },
+            "failure_sync_seconds": {
+              "median": 0.33322589014064574,
+              "minimum": 0.10716285378567436,
+              "maximum": 1.7874943513698978
+            },
+            "finalize_seconds": {
+              "median": -0.46295076027012105,
+              "minimum": -0.4896706830849381,
+              "maximum": -0.4584677208667888
+            },
+            "ghost_seconds": {
+              "median": 0.08012501775820424,
+              "minimum": -0.10498728753941045,
+              "maximum": 0.1369550993611146
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.061275599379106316,
+              "minimum": -0.11070393567819181,
+              "maximum": 1.067489865944022
+            },
+            "initialization_plan_seconds": {
+              "median": 1.6807113363552841,
+              "minimum": 1.3997495050705022,
+              "maximum": 1.8653242952719729
+            },
+            "initialization_setup_seconds": {
+              "median": 0.0227461792728747,
+              "minimum": -0.14979670153066715,
+              "maximum": 0.7566033526184213
+            },
+            "initialization_system_seconds": {
+              "median": -0.507234508793885,
+              "minimum": -0.642469651068909,
+              "maximum": -0.3208666509246929
+            },
+            "linear_diagnostic_seconds": {
+              "median": -0.08161589926525925,
+              "minimum": -0.10374599754972214,
+              "maximum": -0.013053353463947537
+            },
+            "linear_seconds": {
+              "median": -0.006366688237063878,
+              "minimum": -0.031926887807470106,
+              "maximum": 0.03507060135220552
+            },
+            "peak_rss_max_bytes": {
+              "median": -0.007374226772709269,
+              "minimum": -0.008180518809111081,
+              "maximum": -0.005089446256057006
+            },
+            "peak_rss_sum_bytes": {
+              "median": -0.007374226772709269,
+              "minimum": -0.008180518809111081,
+              "maximum": -0.005089446256057006
+            },
+            "setup_seconds": {
+              "median": -0.12210134238369341,
+              "minimum": -0.15474385626840936,
+              "maximum": -0.08940185707069992
+            },
+            "solve_seconds": {
+              "median": -0.00451518303772136,
+              "minimum": -0.03229037118326816,
+              "maximum": 0.03463575751956127
+            },
+            "wall_seconds": {
+              "median": -0.009140260714099901,
+              "minimum": -0.038189470954416604,
+              "maximum": 0.012568173940713523
+            }
+          }
+        },
+        {
+          "subdivisions": 8,
+          "ranks": 2,
+          "modes": {
+            "baseline": {
+              "wall_seconds": {
+                "median": 3.328541202999986,
+                "minimum": 3.246582576000037,
+                "maximum": 3.584950399999798
+              },
+              "setup_seconds": {
+                "median": 0.002489278,
+                "minimum": 0.002482899,
+                "maximum": 0.002698941
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 3.000188526,
+                "minimum": 2.912210852,
+                "maximum": 3.252579209
+              },
+              "assembly_seconds": {
+                "median": 0.833657953,
+                "minimum": 0.7735411219999999,
+                "maximum": 0.9065796859999999
+              },
+              "callback_seconds": {
+                "median": 0.766959195,
+                "minimum": 0.712391849,
+                "maximum": 0.835302408
+              },
+              "failure_sync_seconds": {
+                "median": 0.6144272,
+                "minimum": 0.568528661,
+                "maximum": 0.67165731
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.063499816,
+                "minimum": 0.057671597,
+                "maximum": 0.064972559
+              },
+              "constraint_seconds": {
+                "median": 7.711e-06,
+                "minimum": 5.308e-06,
+                "maximum": 8.585e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000422867,
+                "minimum": 0.000353864,
+                "maximum": 0.000549632
+              },
+              "linear_seconds": {
+                "median": 2.1504049960000002,
+                "minimum": 2.122366453,
+                "maximum": 2.328655893
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.010002307,
+                "minimum": 0.009830488,
+                "maximum": 0.010382459
+              },
+              "finalize_seconds": {
+                "median": 0.014975514,
+                "minimum": 0.014426029,
+                "maximum": 0.016693637
+              },
+              "peak_rss_max_bytes": {
+                "median": 101838848.0,
+                "minimum": 100773888.0,
+                "maximum": 102215680.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 194580480.0,
+                "minimum": 193052672.0,
+                "maximum": 194965504.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.045285218,
+                "minimum": 0.044835926,
+                "maximum": 0.045363864
+              },
+              "initialization_plan_seconds": {
+                "median": 0.000398229,
+                "minimum": 0.000377108,
+                "maximum": 0.000432189
+              },
+              "initialization_system_seconds": {
+                "median": 0.006461704,
+                "minimum": 0.006340775,
+                "maximum": 0.006608943
+              },
+              "initialization_setup_seconds": {
+                "median": 0.05214396,
+                "minimum": 0.051608069,
+                "maximum": 0.052347842
+              }
+            },
+            "candidate": {
+              "wall_seconds": {
+                "median": 3.1868467520002923,
+                "minimum": 3.1477667059998566,
+                "maximum": 3.2099097100003746
+              },
+              "setup_seconds": {
+                "median": 0.002783653,
+                "minimum": 0.002522629,
+                "maximum": 0.002892997
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 2.876674397,
+                "minimum": 2.838278257,
+                "maximum": 2.885459715
+              },
+              "assembly_seconds": {
+                "median": 0.749157616,
+                "minimum": 0.731141171,
+                "maximum": 0.759476187
+              },
+              "callback_seconds": {
+                "median": 0.691729768,
+                "minimum": 0.67124278,
+                "maximum": 0.700122952
+              },
+              "failure_sync_seconds": {
+                "median": 0.537363454,
+                "minimum": 0.521826189,
+                "maximum": 0.538210442
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.055735265,
+                "minimum": 0.054428950999999996,
+                "maximum": 0.056522215
+              },
+              "constraint_seconds": {
+                "median": 8.094e-06,
+                "minimum": 7.6110000000000005e-06,
+                "maximum": 9.003e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000324194,
+                "minimum": 0.000318891,
+                "maximum": 0.000458079
+              },
+              "linear_seconds": {
+                "median": 2.1028511290000003,
+                "minimum": 2.094309986,
+                "maximum": 2.120238707
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.009355381,
+                "minimum": 0.009273301,
+                "maximum": 0.009489222
+              },
+              "finalize_seconds": {
+                "median": 0.007633445,
+                "minimum": 0.007567919,
+                "maximum": 0.007754915
+              },
+              "peak_rss_max_bytes": {
+                "median": 102002688.0,
+                "minimum": 101847040.0,
+                "maximum": 102535168.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 194637824.0,
+                "minimum": 194535424.0,
+                "maximum": 195805184.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.055985057,
+                "minimum": 0.050634088,
+                "maximum": 0.056736446
+              },
+              "initialization_plan_seconds": {
+                "median": 0.002104147,
+                "minimum": 0.002048649,
+                "maximum": 0.002219531
+              },
+              "initialization_system_seconds": {
+                "median": 0.004710673,
+                "minimum": 0.00376705,
+                "maximum": 0.004871543
+              },
+              "initialization_setup_seconds": {
+                "median": 0.062607599,
+                "minimum": 0.05772376,
+                "maximum": 0.062743718
+              }
+            }
+          },
+          "paired_relative_change": {
+            "assembly_finalize_seconds": {
+              "median": -0.10988379871840892,
+              "minimum": -0.1622778625665645,
+              "maximum": -0.03357514098317749
+            },
+            "assembly_seconds": {
+              "median": -0.08898345626410653,
+              "minimum": -0.17364394154315954,
+              "maximum": -0.05481279507206338
+            },
+            "callback_seconds": {
+              "median": -0.08714445753531908,
+              "minimum": -0.17188103209682115,
+              "maximum": -0.05776184701967291
+            },
+            "constraint_seconds": {
+              "median": 0.16755284658280378,
+              "minimum": -0.05719277810133949,
+              "maximum": 0.433873398643557
+            },
+            "failure_sync_seconds": {
+              "median": -0.12404522130530671,
+              "minimum": -0.19994401013814622,
+              "maximum": -0.08214620511453863
+            },
+            "finalize_seconds": {
+              "median": -0.49027158600365905,
+              "minimum": -0.5354568330436321,
+              "maximum": -0.4753983234055609
+            },
+            "ghost_seconds": {
+              "median": -0.16657145144387508,
+              "minimum": -0.23334287139928167,
+              "maximum": -0.09883175457237803
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.23627663667203702,
+              "minimum": 0.11617669958626098,
+              "maximum": 0.2654237586171413
+            },
+            "initialization_plan_seconds": {
+              "median": 4.14439932802483,
+              "minimum": 3.8685806441163466,
+              "maximum": 4.885664053798911
+            },
+            "initialization_setup_seconds": {
+              "median": 0.20327873065260094,
+              "minimum": 0.10269607675517944,
+              "maximum": 0.21313585672039004
+            },
+            "initialization_system_seconds": {
+              "median": -0.27098595045517404,
+              "minimum": -0.4059006982584936,
+              "maximum": -0.2628862134232358
+            },
+            "linear_diagnostic_seconds": {
+              "median": -0.056679485291066034,
+              "minimum": -0.09892434923171867,
+              "maximum": -0.05129666585918624
+            },
+            "linear_seconds": {
+              "median": -0.022113912071658914,
+              "minimum": -0.0895010665279089,
+              "maximum": -0.013219426343806906
+            },
+            "peak_rss_max_bytes": {
+              "median": 0.006837469331939072,
+              "minimum": -0.0020837507513524756,
+              "maximum": 0.010649107832378268
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.006294074307967579,
+              "minimum": -0.0022059286959810187,
+              "maximum": 0.00821098192310954
+            },
+            "setup_seconds": {
+              "median": 0.07190079368167002,
+              "minimum": 0.013397860745163914,
+              "maximum": 0.12113017887558075
+            },
+            "solve_seconds": {
+              "median": -0.04116878920428224,
+              "minimum": -0.1128702701487384,
+              "maximum": -0.02538710236218844
+            },
+            "wall_seconds": {
+              "median": -0.03564068634412276,
+              "minimum": -0.11104857908202248,
+              "maximum": -0.030436887923524503
+            }
+          }
+        }
+      ],
+      "max_physical_location": {
+        "run": "n4-r2-sample-1-candidate.log",
+        "step": 9,
+        "absolute_difference": 4.440892098500626e-16,
+        "identity": [
+          "fluid",
+          35,
+          "pressure"
+        ],
+        "component": 0,
+        "expected": 1.3309261864320385,
+        "actual": 1.330926186432038
+      },
+      "max_history_location": {
+        "run": "n8-r1-sample-1-candidate.log",
+        "absolute_difference": 2.9841559419667343e-15,
+        "step": 6,
+        "column": "evaluation_body_balance",
+        "expected": 1.9870871837328823e-12,
+        "actual": 1.9841030277909156e-12
+      }
+    },
+    {
+      "runs_checked": 16,
+      "accepted_steps_checked": 160,
+      "corrections_checked": 320,
+      "max_physical_difference": 4.440892098500626e-16,
+      "max_history_difference": 2.9841559419667343e-15,
+      "max_linear_residual_ratio": 0.00019451233801593882,
+      "max_field_acceptance_ratio": 0.1001263587119634,
+      "max_constraint_acceptance_ratio": 0.0,
+      "name": "coo-threads",
+      "source_commit": "7e8868e433fb0040806a6faf3ba8cd289a2aa3f1",
+      "results_sha256": "a2328f849bd0d181b263cfcd224942cce3a2b2d8d2144442acfc632fa4518a0c",
+      "solver": "direct",
+      "options": {
+        "baseline": {
+          "fsi_coo": true,
+          "fsi_threads": 2,
+          "fsi_residual_coo": null,
+          "nonlinear_reuse": null,
+          "nonlinear_initial_jacobian_reuse": null
+        },
+        "candidate": {
+          "fsi_coo": true,
+          "fsi_threads": 2,
+          "fsi_residual_coo": null,
+          "nonlinear_reuse": null,
+          "nonlinear_initial_jacobian_reuse": null
+        }
+      },
+      "binaries": {
+        "baseline": {
+          "path": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/cloud-3.23.7-release/eonsim",
+          "sha256": "3399694877a426093cd1e8752ac26b2f63f7e9d826910db0b818b7911cb7af2b",
+          "build_source_commit": "2dcb06c26a0359175e4f5a771d5bbff6dfc928af"
+        },
+        "candidate": {
+          "path": "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/eonsim",
+          "sha256": "1eb8ea57ac1a1d4c120bae5a1d79d2a228034cdbccb8da6272ecc0ea78a4cf27",
+          "build_source_commit": "7e8868e433fb0040806a6faf3ba8cd289a2aa3f1"
+        }
+      },
+      "hash_receipts": 1480,
+      "hashes_all_match": true,
+      "partition_provenance_limit": "This campaign predates partition file hash receipts. The recorded output/input/binary hashes are verified; historical shard integrity cannot be independently reconstructed from missing receipts.",
+      "partition_metadata": [],
+      "statistics": [
+        {
+          "subdivisions": 8,
+          "ranks": 1,
+          "modes": {
+            "baseline": {
+              "wall_seconds": {
+                "median": 3.558957245000329,
+                "minimum": 3.4410038480000367,
+                "maximum": 3.642271529000027
+              },
+              "setup_seconds": {
+                "median": 0.001254733,
+                "minimum": 0.0009112479999999999,
+                "maximum": 0.001270128
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 3.128274656,
+                "minimum": 3.009709043,
+                "maximum": 3.176964038
+              },
+              "assembly_seconds": {
+                "median": 0.398950858,
+                "minimum": 0.382045541,
+                "maximum": 0.41463595200000003
+              },
+              "callback_seconds": {
+                "median": 0.377789119,
+                "minimum": 0.36010258300000003,
+                "maximum": 0.38657920900000003
+              },
+              "failure_sync_seconds": {
+                "median": 0.00010054,
+                "minimum": 9.208e-05,
+                "maximum": 0.00014524700000000001
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.017782963,
+                "minimum": 0.017255588,
+                "maximum": 0.023654447
+              },
+              "constraint_seconds": {
+                "median": 6.69e-06,
+                "minimum": 5.74e-06,
+                "maximum": 8.023e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000531846,
+                "minimum": 0.00046414700000000004,
+                "maximum": 0.000563342
+              },
+              "linear_seconds": {
+                "median": 2.697757504,
+                "minimum": 2.609311799,
+                "maximum": 2.762724883
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.010004029,
+                "minimum": 0.009831206,
+                "maximum": 0.011071431
+              },
+              "finalize_seconds": {
+                "median": 0.01746537,
+                "minimum": 0.017335181,
+                "maximum": 0.017900555
+              },
+              "peak_rss_max_bytes": {
+                "median": 150749184.0,
+                "minimum": 150577152.0,
+                "maximum": 150790144.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 150749184.0,
+                "minimum": 150577152.0,
+                "maximum": 150790144.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.000502283,
+                "minimum": 0.000492719,
+                "maximum": 0.000655078
+              },
+              "initialization_plan_seconds": {
+                "median": 0.046784688,
+                "minimum": 0.046424236,
+                "maximum": 0.048958328
+              },
+              "initialization_system_seconds": {
+                "median": 0.02074727,
+                "minimum": 0.020363221,
+                "maximum": 0.026924201
+              },
+              "initialization_setup_seconds": {
+                "median": 0.070207881,
+                "minimum": 0.067280176,
+                "maximum": 0.074363967
+              }
+            },
+            "candidate": {
+              "wall_seconds": {
+                "median": 3.5919434000002184,
+                "minimum": 3.5304539009998734,
+                "maximum": 3.6977391269997497
+              },
+              "setup_seconds": {
+                "median": 0.000996044,
+                "minimum": 0.000952589,
+                "maximum": 0.001039188
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 3.154815932,
+                "minimum": 3.143588308,
+                "maximum": 3.328502876
+              },
+              "assembly_seconds": {
+                "median": 0.39619336,
+                "minimum": 0.362283449,
+                "maximum": 0.39853914999999995
+              },
+              "callback_seconds": {
+                "median": 0.376593517,
+                "minimum": 0.34449063199999996,
+                "maximum": 0.377836141
+              },
+              "failure_sync_seconds": {
+                "median": 9.6486e-05,
+                "minimum": 9.2916e-05,
+                "maximum": 0.000186106
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.014040828,
+                "minimum": 0.013577636,
+                "maximum": 0.015269893
+              },
+              "constraint_seconds": {
+                "median": 9.812e-06,
+                "minimum": 7.447e-06,
+                "maximum": 1.085e-05
+              },
+              "ghost_seconds": {
+                "median": 0.00047992,
+                "minimum": 0.00046167399999999997,
+                "maximum": 0.000583731
+              },
+              "linear_seconds": {
+                "median": 2.773057676,
+                "minimum": 2.727917134,
+                "maximum": 2.895510728
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.012499369,
+                "minimum": 0.011577109,
+                "maximum": 0.015700369999999998
+              },
+              "finalize_seconds": {
+                "median": 0.009704252,
+                "minimum": 0.008645304999999999,
+                "maximum": 0.010829831
+              },
+              "peak_rss_max_bytes": {
+                "median": 149827584.0,
+                "minimum": 149811200.0,
+                "maximum": 149938176.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 149827584.0,
+                "minimum": 149811200.0,
+                "maximum": 149938176.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.000470196,
+                "minimum": 0.000467892,
+                "maximum": 0.000478597
+              },
+              "initialization_plan_seconds": {
+                "median": 0.045789278,
+                "minimum": 0.045137848,
+                "maximum": 0.05227953
+              },
+              "initialization_system_seconds": {
+                "median": 0.015838042,
+                "minimum": 0.01533844,
+                "maximum": 0.017986659
+              },
+              "initialization_setup_seconds": {
+                "median": 0.06159561,
+                "minimum": 0.061446086,
+                "maximum": 0.070744786
+              }
+            }
+          },
+          "paired_relative_change": {
+            "assembly_finalize_seconds": {
+              "median": -0.236480669728661,
+              "minimum": -0.35445994573451667,
+              "maximum": -0.18630254732553875
+            },
+            "assembly_seconds": {
+              "median": -0.03882152988026488,
+              "minimum": -0.05172705837181857,
+              "maximum": -0.006911873842868177
+            },
+            "callback_seconds": {
+              "median": -0.025830908045548995,
+              "minimum": -0.04335417666248753,
+              "maximum": 0.00012446626341300338
+            },
+            "constraint_seconds": {
+              "median": 0.22298392122647392,
+              "minimum": 0.11315396113602394,
+              "maximum": 0.8902439024390243
+            },
+            "failure_sync_seconds": {
+              "median": 0.009079061685490997,
+              "minimum": -0.040322259797095694,
+              "maximum": 0.2813070149469523
+            },
+            "finalize_seconds": {
+              "median": -0.4401989803279239,
+              "minimum": -0.5050030431648458,
+              "maximum": -0.3950002667515057
+            },
+            "ghost_seconds": {
+              "median": -0.005328053396876586,
+              "minimum": -0.14808411231543184,
+              "maximum": 0.09755643550952708
+            },
+            "initialization_pattern_seconds": {
+              "median": -0.06388231335721095,
+              "minimum": -0.2694045594570418,
+              "maximum": -0.05038774636253107
+            },
+            "initialization_plan_seconds": {
+              "median": -0.013677295626361996,
+              "minimum": -0.07803534467108442,
+              "maximum": 0.11744958093981528
+            },
+            "initialization_setup_seconds": {
+              "median": -0.08449095020203268,
+              "minimum": -0.12479788415776294,
+              "maximum": -0.04866847676375308
+            },
+            "initialization_system_seconds": {
+              "median": -0.24675767158839956,
+              "minimum": -0.33195198624464284,
+              "maximum": -0.23662043247135656
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.249433503241544,
+              "minimum": 0.04567413191664205,
+              "maximum": 0.5969932885141453
+            },
+            "linear_seconds": {
+              "median": 0.06275443090502053,
+              "minimum": -0.012599064501204627,
+              "maximum": 0.07330281676792239
+            },
+            "peak_rss_max_bytes": {
+              "median": -0.00537985001630259,
+              "minimum": -0.006383441082197017,
+              "maximum": -0.005086774386594883
+            },
+            "peak_rss_sum_bytes": {
+              "median": -0.00537985001630259,
+              "minimum": -0.006383441082197017,
+              "maximum": -0.005086774386594883
+            },
+            "setup_seconds": {
+              "median": -0.18182419409697292,
+              "minimum": -0.2408034219232299,
+              "maximum": 0.0930547995715767
+            },
+            "solve_seconds": {
+              "median": 0.048212929199083376,
+              "minimum": -0.010505542272682189,
+              "maximum": 0.06400595920053376
+            },
+            "wall_seconds": {
+              "median": 0.038995096722328926,
+              "minimum": -0.030699970364607254,
+              "maximum": 0.043864976230093555
+            }
+          }
+        },
+        {
+          "subdivisions": 8,
+          "ranks": 2,
+          "modes": {
+            "baseline": {
+              "wall_seconds": {
+                "median": 2.9115442910001548,
+                "minimum": 2.827630189000047,
+                "maximum": 3.0162697559999287
+              },
+              "setup_seconds": {
+                "median": 0.002753424,
+                "minimum": 0.002669736,
+                "maximum": 0.003200976
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 2.54738066,
+                "minimum": 2.487377762,
+                "maximum": 2.688304527
+              },
+              "assembly_seconds": {
+                "median": 0.358613599,
+                "minimum": 0.353024111,
+                "maximum": 0.369643721
+              },
+              "callback_seconds": {
+                "median": 0.335911528,
+                "minimum": 0.331479038,
+                "maximum": 0.337562597
+              },
+              "failure_sync_seconds": {
+                "median": 0.270241817,
+                "minimum": 0.268982351,
+                "maximum": 0.282568625
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.018421053,
+                "minimum": 0.017278107,
+                "maximum": 0.022477351
+              },
+              "constraint_seconds": {
+                "median": 6.918999999999999e-06,
+                "minimum": 6.182e-06,
+                "maximum": 7.4899999999999994e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000434894,
+                "minimum": 0.000410564,
+                "maximum": 0.000737848
+              },
+              "linear_seconds": {
+                "median": 2.172875695,
+                "minimum": 2.120062563,
+                "maximum": 2.302594504
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.009527978,
+                "minimum": 0.009425786,
+                "maximum": 0.010738342
+              },
+              "finalize_seconds": {
+                "median": 0.011402497000000001,
+                "minimum": 0.010686619,
+                "maximum": 0.013487042
+              },
+              "peak_rss_max_bytes": {
+                "median": 114642944.0,
+                "minimum": 114307072.0,
+                "maximum": 115859456.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 212553728.0,
+                "minimum": 212008960.0,
+                "maximum": 213647360.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.000471587,
+                "minimum": 0.000436566,
+                "maximum": 0.000626605
+              },
+              "initialization_plan_seconds": {
+                "median": 0.036370669,
+                "minimum": 0.036274128,
+                "maximum": 0.038338488
+              },
+              "initialization_system_seconds": {
+                "median": 0.017545277,
+                "minimum": 0.016978717,
+                "maximum": 0.018572492
+              },
+              "initialization_setup_seconds": {
+                "median": 0.055372445,
+                "minimum": 0.053714287,
+                "maximum": 0.056496919
+              }
+            },
+            "candidate": {
+              "wall_seconds": {
+                "median": 2.8410654849999446,
+                "minimum": 2.7840228290001505,
+                "maximum": 2.8746751759999825
+              },
+              "setup_seconds": {
+                "median": 0.002957855,
+                "minimum": 0.0027001910000000002,
+                "maximum": 0.008881927
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 2.552765227,
+                "minimum": 2.455346588,
+                "maximum": 2.573712305
+              },
+              "assembly_seconds": {
+                "median": 0.315745304,
+                "minimum": 0.305901706,
+                "maximum": 0.32759198
+              },
+              "callback_seconds": {
+                "median": 0.297995888,
+                "minimum": 0.288673576,
+                "maximum": 0.30470637100000003
+              },
+              "failure_sync_seconds": {
+                "median": 0.235535512,
+                "minimum": 0.230537707,
+                "maximum": 0.251008765
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.013844338,
+                "minimum": 0.013277830000000001,
+                "maximum": 0.014146130000000002
+              },
+              "constraint_seconds": {
+                "median": 8.031e-06,
+                "minimum": 7.171e-06,
+                "maximum": 8.426e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000483667,
+                "minimum": 0.000400543,
+                "maximum": 0.000643884
+              },
+              "linear_seconds": {
+                "median": 2.229502591,
+                "minimum": 2.112277726,
+                "maximum": 2.241653909
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.010629064,
+                "minimum": 0.009738324,
+                "maximum": 0.010765587
+              },
+              "finalize_seconds": {
+                "median": 0.0055106719999999994,
+                "minimum": 0.005506858,
+                "maximum": 0.008533664
+              },
+              "peak_rss_max_bytes": {
+                "median": 114892800.0,
+                "minimum": 114147328.0,
+                "maximum": 115490816.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 212115456.0,
+                "minimum": 210792448.0,
+                "maximum": 212602880.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.000415084,
+                "minimum": 0.000413771,
+                "maximum": 0.000453629
+              },
+              "initialization_plan_seconds": {
+                "median": 0.039106924,
+                "minimum": 0.035675773,
+                "maximum": 0.041771915
+              },
+              "initialization_system_seconds": {
+                "median": 0.014545631,
+                "minimum": 0.013934728,
+                "maximum": 0.014870849
+              },
+              "initialization_setup_seconds": {
+                "median": 0.053481219,
+                "minimum": 0.050664869,
+                "maximum": 0.056112453
+              }
+            }
+          },
+          "paired_relative_change": {
+            "assembly_finalize_seconds": {
+              "median": -0.2320672439300836,
+              "minimum": -0.38407608619004974,
+              "maximum": -0.23152287458342513
+            },
+            "assembly_seconds": {
+              "median": -0.13348211505020968,
+              "minimum": -0.14581180184581033,
+              "maximum": -0.08650430180702662
+            },
+            "callback_seconds": {
+              "median": -0.11721295354295436,
+              "minimum": -0.12913474788110135,
+              "maximum": -0.09289695172355017
+            },
+            "constraint_seconds": {
+              "median": 0.15998058880621158,
+              "minimum": 0.07222963951935912,
+              "maximum": 0.21780604133545323
+            },
+            "failure_sync_seconds": {
+              "median": -0.14692067438252898,
+              "minimum": -0.16644846185594742,
+              "maximum": -0.0668206889157571
+            },
+            "finalize_seconds": {
+              "median": -0.5170480641213938,
+              "minimum": -0.591409888098517,
+              "maximum": -0.20146268899452668
+            },
+            "ghost_seconds": {
+              "median": 0.1780550657144806,
+              "minimum": -0.4571470004662207,
+              "maximum": 0.48055388209540695
+            },
+            "initialization_pattern_seconds": {
+              "median": -0.11981458352329466,
+              "minimum": -0.3396621476049505,
+              "maximum": 0.039084582858032846
+            },
+            "initialization_plan_seconds": {
+              "median": 0.020043461286214592,
+              "minimum": -0.01910594495800999,
+              "maximum": 0.15156220984829738
+            },
+            "initialization_setup_seconds": {
+              "median": -0.05337813200043695,
+              "minimum": -0.08501658180345839,
+              "maximum": 0.04464670637813728
+            },
+            "initialization_system_seconds": {
+              "median": -0.17928262777452508,
+              "minimum": -0.21681856155867507,
+              "maximum": -0.15243008132615976
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.022076667263505545,
+              "minimum": 0.0025371700770939754,
+              "maximum": 0.12765810723901438
+            },
+            "linear_seconds": {
+              "median": -0.026466055961714363,
+              "minimum": -0.02788837352244411,
+              "maximum": 0.051621131333566384
+            },
+            "peak_rss_max_bytes": {
+              "median": -0.003181786042565249,
+              "minimum": -0.004323126942727518,
+              "maximum": 0.00512416239653124
+            },
+            "peak_rss_sum_bytes": {
+              "median": -0.004888803680981546,
+              "minimum": -0.008286281386699512,
+              "maximum": 0.0005023183925811914
+            },
+            "setup_seconds": {
+              "median": 0.07424610230752693,
+              "minimum": -0.156447595983225,
+              "maximum": 2.3268933707302897
+            },
+            "solve_seconds": {
+              "median": -0.03612890426827697,
+              "minimum": -0.042626205792198224,
+              "maximum": 0.02628770989229423
+            },
+            "wall_seconds": {
+              "median": -0.04379856504130286,
+              "minimum": -0.046943606326419585,
+              "maximum": 0.004751433215051781
+            }
+          }
+        }
+      ],
+      "max_physical_location": {
+        "run": "n8-r2-sample-1-candidate.log",
+        "step": 5,
+        "absolute_difference": 4.440892098500626e-16,
+        "identity": [
+          "fluid",
+          90,
+          "pressure"
+        ],
+        "component": 0,
+        "expected": 1.2928441310264727,
+        "actual": 1.2928441310264722
+      },
+      "max_history_location": {
+        "run": "n8-r1-sample-1-candidate.log",
+        "absolute_difference": 2.9841559419667343e-15,
+        "step": 6,
+        "column": "evaluation_body_balance",
+        "expected": 1.9870871837328823e-12,
+        "actual": 1.9841030277909156e-12
+      }
+    },
+    {
+      "runs_checked": 8,
+      "accepted_steps_checked": 80,
+      "corrections_checked": 160,
+      "max_physical_difference": 4.440892098500626e-16,
+      "max_history_difference": 2.4424906541753444e-15,
+      "max_linear_residual_ratio": 0.00023950423166735593,
+      "max_field_acceptance_ratio": 0.10012655037666647,
+      "max_constraint_acceptance_ratio": 0.0,
+      "name": "weighted",
+      "source_commit": "3e366c89e40af79019f31280dd2c47de02bda413",
+      "results_sha256": "66d1438b800df0ca0ae77bd458213cf02581b20eea030509d32cd0bf03635429",
+      "solver": "direct",
+      "options": {
+        "baseline": {
+          "fsi_coo": false,
+          "fsi_threads": 1,
+          "fsi_residual_coo": null,
+          "nonlinear_reuse": null,
+          "nonlinear_initial_jacobian_reuse": null
+        },
+        "candidate": {
+          "fsi_coo": false,
+          "fsi_threads": 1,
+          "fsi_residual_coo": null,
+          "nonlinear_reuse": null,
+          "nonlinear_initial_jacobian_reuse": null
+        }
+      },
+      "binaries": {
+        "baseline": {
+          "path": "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/eonsim",
+          "sha256": "1eb8ea57ac1a1d4c120bae5a1d79d2a228034cdbccb8da6272ecc0ea78a4cf27",
+          "build_source_commit": "7e8868e433fb0040806a6faf3ba8cd289a2aa3f1"
+        },
+        "candidate": {
+          "path": "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/eonsim",
+          "sha256": "1eb8ea57ac1a1d4c120bae5a1d79d2a228034cdbccb8da6272ecc0ea78a4cf27",
+          "build_source_commit": "7e8868e433fb0040806a6faf3ba8cd289a2aa3f1"
+        }
+      },
+      "hash_receipts": 1102,
+      "hashes_all_match": true,
+      "partition_provenance_limit": null,
+      "partition_metadata": [
+        {
+          "path": "n8-r2-partition",
+          "subdivisions": 8,
+          "ranks": 2,
+          "modes": [
+            "baseline"
+          ],
+          "prepared_by": "baseline",
+          "cell_weights": null,
+          "actual_manifest": {
+            "version": 1,
+            "ranks": 2,
+            "global_nodes": 1378,
+            "global_cells": 6147
+          },
+          "shard_files": [
+            "manifest.yaml",
+            "rank_0.h5",
+            "rank_1.h5"
+          ],
+          "prepare_log": "n8-r2-prepare.log"
+        },
+        {
+          "path": "n8-r2-candidate-partition",
+          "subdivisions": 8,
+          "ranks": 2,
+          "modes": [
+            "candidate"
+          ],
+          "prepared_by": "candidate",
+          "cell_weights": {
+            "10": 5,
+            "20": 1
+          },
+          "actual_manifest": {
+            "version": 1,
+            "ranks": 2,
+            "global_nodes": 1378,
+            "global_cells": 6147
+          },
+          "shard_files": [
+            "manifest.yaml",
+            "rank_0.h5",
+            "rank_1.h5"
+          ],
+          "prepare_log": "n8-r2-candidate-prepare.log"
+        }
+      ],
+      "statistics": [
+        {
+          "subdivisions": 8,
+          "ranks": 2,
+          "modes": {
+            "baseline": {
+              "wall_seconds": {
+                "median": 3.2965829659997326,
+                "minimum": 3.246077226000125,
+                "maximum": 3.369189136999921
+              },
+              "setup_seconds": {
+                "median": 0.0030146780000000002,
+                "minimum": 0.002345655,
+                "maximum": 0.0068849129999999995
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 2.982628282,
+                "minimum": 2.95146123,
+                "maximum": 3.057280347
+              },
+              "assembly_seconds": {
+                "median": 0.757642709,
+                "minimum": 0.739067227,
+                "maximum": 0.814005444
+              },
+              "callback_seconds": {
+                "median": 0.6974751809999999,
+                "minimum": 0.682360302,
+                "maximum": 0.746290773
+              },
+              "failure_sync_seconds": {
+                "median": 0.536555402,
+                "minimum": 0.531594567,
+                "maximum": 0.553821464
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.056709235999999996,
+                "minimum": 0.053849732,
+                "maximum": 0.061590229
+              },
+              "constraint_seconds": {
+                "median": 8.05e-06,
+                "minimum": 6.6559999999999995e-06,
+                "maximum": 8.894e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000435274,
+                "minimum": 0.000340138,
+                "maximum": 0.002770062
+              },
+              "linear_seconds": {
+                "median": 2.209673452,
+                "minimum": 2.19871697,
+                "maximum": 2.226854917
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.010195417,
+                "minimum": 0.009745466000000001,
+                "maximum": 0.010938849
+              },
+              "finalize_seconds": {
+                "median": 0.008344657,
+                "minimum": 0.007755038,
+                "maximum": 0.008802906
+              },
+              "peak_rss_max_bytes": {
+                "median": 101781504.0,
+                "minimum": 101359616.0,
+                "maximum": 102326272.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 195002368.0,
+                "minimum": 193708032.0,
+                "maximum": 195194880.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.047702759,
+                "minimum": 0.04760479,
+                "maximum": 0.05744687
+              },
+              "initialization_plan_seconds": {
+                "median": 0.001446929,
+                "minimum": 0.001106007,
+                "maximum": 0.002061918
+              },
+              "initialization_system_seconds": {
+                "median": 0.003844332,
+                "minimum": 0.003659755,
+                "maximum": 0.004861067
+              },
+              "initialization_setup_seconds": {
+                "median": 0.05299402,
+                "minimum": 0.052368668,
+                "maximum": 0.064369264
+              }
+            },
+            "candidate": {
+              "wall_seconds": {
+                "median": 2.9821395629996914,
+                "minimum": 2.7274421600000096,
+                "maximum": 3.0125727040003767
+              },
+              "setup_seconds": {
+                "median": 0.002107376,
+                "minimum": 0.001552205,
+                "maximum": 0.002310602
+              },
+              "schur_setup_seconds": {
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "solve_seconds": {
+                "median": 2.645319679,
+                "minimum": 2.427813336,
+                "maximum": 2.6955770660000002
+              },
+              "assembly_seconds": {
+                "median": 0.556585619,
+                "minimum": 0.516225313,
+                "maximum": 0.577216503
+              },
+              "callback_seconds": {
+                "median": 0.447339993,
+                "minimum": 0.411479934,
+                "maximum": 0.463478534
+              },
+              "failure_sync_seconds": {
+                "median": 0.021302657,
+                "minimum": 0.016309261999999998,
+                "maximum": 0.035955607
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.099855917,
+                "minimum": 0.096774349,
+                "maximum": 0.102987346
+              },
+              "constraint_seconds": {
+                "median": 5.729999999999999e-06,
+                "minimum": 5.2649999999999996e-06,
+                "maximum": 5.2003e-05
+              },
+              "ghost_seconds": {
+                "median": 0.000433575,
+                "minimum": 0.000337191,
+                "maximum": 0.000522572
+              },
+              "linear_seconds": {
+                "median": 2.075527813,
+                "minimum": 1.900599859,
+                "maximum": 2.107779109
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.007342041,
+                "minimum": 0.00692485,
+                "maximum": 0.008550209
+              },
+              "finalize_seconds": {
+                "median": 0.009659290000000001,
+                "minimum": 0.009334377,
+                "maximum": 0.010609913
+              },
+              "peak_rss_max_bytes": {
+                "median": 99254272.0,
+                "minimum": 98369536.0,
+                "maximum": 99934208.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 195522560.0,
+                "minimum": 194482176.0,
+                "maximum": 196333568.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.045326647,
+                "minimum": 0.035702289,
+                "maximum": 0.056176727
+              },
+              "initialization_plan_seconds": {
+                "median": 0.000882064,
+                "minimum": 0.000856727,
+                "maximum": 0.001733883
+              },
+              "initialization_system_seconds": {
+                "median": 0.00316352,
+                "minimum": 0.002970221,
+                "maximum": 0.004220699
+              },
+              "initialization_setup_seconds": {
+                "median": 0.051281159,
+                "minimum": 0.039553752,
+                "maximum": 0.060196974
+              }
+            }
+          },
+          "paired_relative_change": {
+            "assembly_finalize_seconds": {
+              "median": 0.7608404563940874,
+              "minimum": 0.6721377347046393,
+              "maximum": 0.7971184889090999
+            },
+            "assembly_seconds": {
+              "median": -0.29089355942931494,
+              "minimum": -0.30151778601326085,
+              "maximum": -0.2653719063242512
+            },
+            "callback_seconds": {
+              "median": -0.3789571695535354,
+              "minimum": -0.396975567315462,
+              "maximum": -0.3586295180301189
+            },
+            "constraint_seconds": {
+              "median": -0.208984375,
+              "minimum": -0.2881987577639752,
+              "maximum": 4.846975489093771
+            },
+            "failure_sync_seconds": {
+              "median": -0.9599268722398361,
+              "minimum": -0.9696037688946798,
+              "maximum": -0.935077259844158
+            },
+            "finalize_seconds": {
+              "median": 0.2455503119391551,
+              "minimum": 0.060374494513516286,
+              "maximum": 0.2714618467841159
+            },
+            "ghost_seconds": {
+              "median": -0.0039032885033334352,
+              "minimum": -0.878273121684641,
+              "maximum": 0.5363528920614575
+            },
+            "initialization_pattern_seconds": {
+              "median": -0.0498107876737276,
+              "minimum": -0.25002738169835437,
+              "maximum": -0.022109873000913605
+            },
+            "initialization_plan_seconds": {
+              "median": -0.2024788269875326,
+              "minimum": -0.5844999655660409,
+              "maximum": 0.19831933702344773
+            },
+            "initialization_setup_seconds": {
+              "median": -0.0648180473214669,
+              "minimum": -0.2447057847642793,
+              "maximum": -0.0323217789478889
+            },
+            "initialization_system_seconds": {
+              "median": -0.18840987989633196,
+              "minimum": -0.3492128374284905,
+              "maximum": 0.09790179412183964
+            },
+            "linear_diagnostic_seconds": {
+              "median": -0.3207879579618961,
+              "minimum": -0.3288104625998586,
+              "maximum": -0.12264749576880174
+            },
+            "linear_seconds": {
+              "median": -0.06070835438538824,
+              "minimum": -0.13558685136268356,
+              "maximum": -0.05347263851406081
+            },
+            "peak_rss_max_bytes": {
+              "median": -0.024829973037144404,
+              "minimum": -0.02949971712600019,
+              "maximum": -0.023376831318549396
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.002667618887581824,
+              "minimum": -0.0036512433112999565,
+              "maximum": 0.013554089486593979
+            },
+            "setup_seconds": {
+              "median": -0.3382637259102468,
+              "minimum": -0.6939139245477757,
+              "maximum": -0.23354932102201298
+            },
+            "solve_seconds": {
+              "median": -0.1183088365955468,
+              "minimum": -0.17741987889842625,
+              "maximum": -0.11309106301835836
+            },
+            "wall_seconds": {
+              "median": -0.10584636792373492,
+              "minimum": -0.1597728673384603,
+              "maximum": -0.09538464714619488
+            }
+          }
+        }
+      ],
+      "max_physical_location": {
+        "run": "n8-r2-sample-1-candidate.log",
+        "step": 4,
+        "absolute_difference": 4.440892098500626e-16,
+        "identity": [
+          "fluid",
+          369,
+          "pressure"
+        ],
+        "component": 0,
+        "expected": 1.0674617650708358,
+        "actual": 1.0674617650708353
+      },
+      "max_history_location": {
+        "run": "n8-r2-sample-1-candidate.log",
+        "absolute_difference": 2.4424906541753444e-15,
+        "step": 7,
+        "column": "evaluation_fluid_force",
+        "expected": 1.4787952224325709,
+        "actual": 1.4787952224325733
+      }
+    },
+    {
+      "runs_checked": 32,
+      "accepted_steps_checked": 320,
+      "corrections_checked": 640,
+      "max_physical_difference": 0.0,
+      "max_history_difference": 0.0,
+      "max_linear_residual_ratio": 0.0906395256835613,
+      "max_field_acceptance_ratio": 0.47449454750603043,
+      "max_constraint_acceptance_ratio": 0.0,
+      "name": "initial-jacobian",
+      "source_commit": "3e366c89e40af79019f31280dd2c47de02bda413",
+      "results_sha256": "f0a34f604e5175e2aed7a9fb213d88eafdb2f34edf1f9f34039ba876c6912df2",
+      "solver": "twolevel",
+      "options": {
+        "baseline": {
+          "fsi_coo": false,
+          "fsi_threads": 1,
+          "fsi_residual_coo": null,
+          "nonlinear_reuse": null,
+          "nonlinear_initial_jacobian_reuse": false
+        },
+        "candidate": {
+          "fsi_coo": false,
+          "fsi_threads": 1,
+          "fsi_residual_coo": null,
+          "nonlinear_reuse": null,
+          "nonlinear_initial_jacobian_reuse": true
+        }
+      },
+      "binaries": {
+        "baseline": {
+          "path": "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/eonsim",
+          "sha256": "1eb8ea57ac1a1d4c120bae5a1d79d2a228034cdbccb8da6272ecc0ea78a4cf27",
+          "build_source_commit": "7e8868e433fb0040806a6faf3ba8cd289a2aa3f1"
+        },
+        "candidate": {
+          "path": "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/eonsim",
+          "sha256": "1eb8ea57ac1a1d4c120bae5a1d79d2a228034cdbccb8da6272ecc0ea78a4cf27",
+          "build_source_commit": "7e8868e433fb0040806a6faf3ba8cd289a2aa3f1"
+        }
+      },
+      "hash_receipts": 2965,
+      "hashes_all_match": true,
+      "partition_provenance_limit": null,
+      "partition_metadata": [
+        {
+          "path": "n4-r1-partition",
+          "subdivisions": 4,
+          "ranks": 1,
+          "modes": [
+            "baseline",
+            "candidate"
+          ],
+          "prepared_by": "baseline",
+          "cell_weights": null,
+          "actual_manifest": {
+            "version": 1,
+            "ranks": 1,
+            "global_nodes": 226,
+            "global_cells": 771
+          },
+          "shard_files": [
+            "manifest.yaml",
+            "rank_0.h5"
+          ],
+          "prepare_log": "n4-r1-prepare.log"
+        },
+        {
+          "path": "n4-r2-partition",
+          "subdivisions": 4,
+          "ranks": 2,
+          "modes": [
+            "baseline",
+            "candidate"
+          ],
+          "prepared_by": "baseline",
+          "cell_weights": null,
+          "actual_manifest": {
+            "version": 1,
+            "ranks": 2,
+            "global_nodes": 226,
+            "global_cells": 771
+          },
+          "shard_files": [
+            "manifest.yaml",
+            "rank_0.h5",
+            "rank_1.h5"
+          ],
+          "prepare_log": "n4-r2-prepare.log"
+        },
+        {
+          "path": "n8-r1-partition",
+          "subdivisions": 8,
+          "ranks": 1,
+          "modes": [
+            "baseline",
+            "candidate"
+          ],
+          "prepared_by": "baseline",
+          "cell_weights": null,
+          "actual_manifest": {
+            "version": 1,
+            "ranks": 1,
+            "global_nodes": 1378,
+            "global_cells": 6147
+          },
+          "shard_files": [
+            "manifest.yaml",
+            "rank_0.h5"
+          ],
+          "prepare_log": "n8-r1-prepare.log"
+        },
+        {
+          "path": "n8-r2-partition",
+          "subdivisions": 8,
+          "ranks": 2,
+          "modes": [
+            "baseline",
+            "candidate"
+          ],
+          "prepared_by": "baseline",
+          "cell_weights": null,
+          "actual_manifest": {
+            "version": 1,
+            "ranks": 2,
+            "global_nodes": 1378,
+            "global_cells": 6147
+          },
+          "shard_files": [
+            "manifest.yaml",
+            "rank_0.h5",
+            "rank_1.h5"
+          ],
+          "prepare_log": "n8-r2-prepare.log"
+        }
+      ],
+      "statistics": [
+        {
+          "subdivisions": 4,
+          "ranks": 1,
+          "modes": {
+            "baseline": {
+              "wall_seconds": {
+                "median": 0.4204078809998464,
+                "minimum": 0.38101548100030413,
+                "maximum": 0.4323351359998924
+              },
+              "setup_seconds": {
+                "median": 0.001120344,
+                "minimum": 0.0010255429999999999,
+                "maximum": 0.0012688859999999999
+              },
+              "schur_setup_seconds": {
+                "median": 0.005427664,
+                "minimum": 0.005348838999999999,
+                "maximum": 0.006322252
+              },
+              "solve_seconds": {
+                "median": 0.209478785,
+                "minimum": 0.203137698,
+                "maximum": 0.225562802
+              },
+              "assembly_seconds": {
+                "median": 0.14932990100000001,
+                "minimum": 0.146371807,
+                "maximum": 0.162766476
+              },
+              "callback_seconds": {
+                "median": 0.147427525,
+                "minimum": 0.145027821,
+                "maximum": 0.161174227
+              },
+              "failure_sync_seconds": {
+                "median": 5.395200000000001e-05,
+                "minimum": 4.8623e-05,
+                "maximum": 0.000114618
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.001100205,
+                "minimum": 0.000965986,
+                "maximum": 0.001279636
+              },
+              "constraint_seconds": {
+                "median": 2.742e-06,
+                "minimum": 2.552e-06,
+                "maximum": 3.944e-06
+              },
+              "ghost_seconds": {
+                "median": 0.00012213,
+                "minimum": 0.000107248,
+                "maximum": 0.00019287499999999999
+              },
+              "linear_seconds": {
+                "median": 0.044702059,
+                "minimum": 0.042067005,
+                "maximum": 0.04677152
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001673614,
+                "minimum": 0.001461491,
+                "maximum": 0.002070578
+              },
+              "finalize_seconds": {
+                "median": 0.002049476,
+                "minimum": 0.001889922,
+                "maximum": 0.002208732
+              },
+              "peak_rss_max_bytes": {
+                "median": 47661056.0,
+                "minimum": 47648768.0,
+                "maximum": 47796224.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 47661056.0,
+                "minimum": 47648768.0,
+                "maximum": 47796224.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.005886853,
+                "minimum": 0.005736892,
+                "maximum": 0.007712924
+              },
+              "initialization_plan_seconds": {
+                "median": 0.000195168,
+                "minimum": 0.000192795,
+                "maximum": 0.000315546
+              },
+              "initialization_system_seconds": {
+                "median": 0.000679664,
+                "minimum": 0.000599445,
+                "maximum": 0.000699783
+              },
+              "initialization_setup_seconds": {
+                "median": 0.006801844,
+                "minimum": 0.00662947,
+                "maximum": 0.008587756
+              }
+            },
+            "candidate": {
+              "wall_seconds": {
+                "median": 0.35690211700011787,
+                "minimum": 0.35380776299962235,
+                "maximum": 0.38019445600002655
+              },
+              "setup_seconds": {
+                "median": 0.001065885,
+                "minimum": 0.001019474,
+                "maximum": 0.00118589
+              },
+              "schur_setup_seconds": {
+                "median": 0.002113042,
+                "minimum": 0.002104425,
+                "maximum": 0.0021431780000000004
+              },
+              "solve_seconds": {
+                "median": 0.164722538,
+                "minimum": 0.155467897,
+                "maximum": 0.172890799
+              },
+              "assembly_seconds": {
+                "median": 0.109683638,
+                "minimum": 0.10250203699999999,
+                "maximum": 0.110968977
+              },
+              "callback_seconds": {
+                "median": 0.107992691,
+                "minimum": 0.10108772399999999,
+                "maximum": 0.109521307
+              },
+              "failure_sync_seconds": {
+                "median": 3.9303e-05,
+                "minimum": 3.8707999999999996e-05,
+                "maximum": 4.4433e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.001018411,
+                "minimum": 0.001000601,
+                "maximum": 0.001199941
+              },
+              "constraint_seconds": {
+                "median": 2.332e-06,
+                "minimum": 2.254e-06,
+                "maximum": 2.7370000000000002e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000120729,
+                "minimum": 0.000109805,
+                "maximum": 0.00012661699999999998
+              },
+              "linear_seconds": {
+                "median": 0.043618954,
+                "minimum": 0.041983186,
+                "maximum": 0.048947347
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.0017925060000000001,
+                "minimum": 0.001337937,
+                "maximum": 0.002126386
+              },
+              "finalize_seconds": {
+                "median": 0.002165099,
+                "minimum": 0.002081082,
+                "maximum": 0.002300209
+              },
+              "peak_rss_max_bytes": {
+                "median": 47661056.0,
+                "minimum": 47656960.0,
+                "maximum": 47702016.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 47661056.0,
+                "minimum": 47656960.0,
+                "maximum": 47702016.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.006029394,
+                "minimum": 0.005881826,
+                "maximum": 0.006254937
+              },
+              "initialization_plan_seconds": {
+                "median": 0.000194027,
+                "minimum": 0.000192114,
+                "maximum": 0.000204322
+              },
+              "initialization_system_seconds": {
+                "median": 0.000628358,
+                "minimum": 0.000627797,
+                "maximum": 0.000863485
+              },
+              "initialization_setup_seconds": {
+                "median": 0.006862074,
+                "minimum": 0.006701737,
+                "maximum": 0.007312449
+              }
+            }
+          },
+          "paired_relative_change": {
+            "assembly_finalize_seconds": {
+              "median": -0.07434432673910751,
+              "minimum": -0.2180581040233316,
+              "maximum": 0.24219295103655747
+            },
+            "assembly_seconds": {
+              "median": -0.3135866540218226,
+              "minimum": -0.31823198654248674,
+              "maximum": -0.25065051632518276
+            },
+            "callback_seconds": {
+              "median": -0.31432258664045276,
+              "minimum": -0.32047878225592485,
+              "maximum": -0.25536569290384636
+            },
+            "constraint_seconds": {
+              "median": -0.11677115987460818,
+              "minimum": -0.40872210953346855,
+              "maximum": -0.0018234865061997896
+            },
+            "failure_sync_seconds": {
+              "median": -0.2715191281138791,
+              "minimum": -0.612338376171282,
+              "maximum": -0.20391584229685544
+            },
+            "finalize_seconds": {
+              "median": 0.10114703146479065,
+              "minimum": -0.01975477332695863,
+              "maximum": 0.12234005179860596
+            },
+            "ghost_seconds": {
+              "median": 0.02384193644636734,
+              "minimum": -0.3740557355800388,
+              "maximum": 0.03673953983460243
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.02421344647131507,
+              "minimum": -0.23740646219254857,
+              "maximum": 0.09030063665134369
+            },
+            "initialization_plan_seconds": {
+              "median": -0.015648057058534226,
+              "minimum": -0.3524810962585486,
+              "maximum": 0.006390207214917343
+            },
+            "initialization_setup_seconds": {
+              "median": 0.008854951686630974,
+              "minimum": -0.2196172085001018,
+              "maximum": 0.10302165934833396
+            },
+            "initialization_system_seconds": {
+              "median": 0.04823294881098339,
+              "minimum": -0.07631270745544849,
+              "maximum": 0.23393251908091495
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.026952860505617293,
+              "minimum": -0.08453969268370454,
+              "maximum": 0.07103908069602682
+            },
+            "linear_seconds": {
+              "median": 0.036892310255983274,
+              "minimum": -0.06082209770247948,
+              "maximum": 0.046520339728108207
+            },
+            "peak_rss_max_bytes": {
+              "median": 0.00025788704547413666,
+              "minimum": -0.002913702973690979,
+              "maximum": 0.0008594018563079509
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.00025788704547413666,
+              "minimum": -0.002913702973690979,
+              "maximum": 0.0008594018563079509
+            },
+            "schur_setup_seconds": {
+              "median": -0.6106903448702794,
+              "minimum": -0.6610103488440511,
+              "maximum": -0.6065641534546095
+            },
+            "setup_seconds": {
+              "median": -0.09003484644002191,
+              "minimum": -0.1599836391921733,
+              "maximum": 0.1563532684636335
+            },
+            "solve_seconds": {
+              "median": -0.233513693450217,
+              "minimum": -0.25783464420991375,
+              "maximum": -0.18910896587988313
+            },
+            "wall_seconds": {
+              "median": -0.12060245781152246,
+              "minimum": -0.15105750122641426,
+              "maximum": -0.07140843182867962
+            }
+          }
+        },
+        {
+          "subdivisions": 4,
+          "ranks": 2,
+          "modes": {
+            "baseline": {
+              "wall_seconds": {
+                "median": 0.44477719699989393,
+                "minimum": 0.4241386500002591,
+                "maximum": 0.45039209199967445
+              },
+              "setup_seconds": {
+                "median": 0.001667702,
+                "minimum": 0.001452924,
+                "maximum": 0.001794075
+              },
+              "schur_setup_seconds": {
+                "median": 0.007866353999999999,
+                "minimum": 0.007065291,
+                "maximum": 0.009494377
+              },
+              "solve_seconds": {
+                "median": 0.258122473,
+                "minimum": 0.241541478,
+                "maximum": 0.259239302
+              },
+              "assembly_seconds": {
+                "median": 0.163132874,
+                "minimum": 0.148542171,
+                "maximum": 0.166676736
+              },
+              "callback_seconds": {
+                "median": 0.147403974,
+                "minimum": 0.136116769,
+                "maximum": 0.152759539
+              },
+              "failure_sync_seconds": {
+                "median": 0.115839174,
+                "minimum": 0.109484854,
+                "maximum": 0.12040102899999999
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.013221951,
+                "minimum": 0.011669881,
+                "maximum": 0.01502539
+              },
+              "constraint_seconds": {
+                "median": 4.366e-06,
+                "minimum": 3.239e-06,
+                "maximum": 5.562e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000263127,
+                "minimum": 0.000225882,
+                "maximum": 0.000315802
+              },
+              "linear_seconds": {
+                "median": 0.072505048,
+                "minimum": 0.064062453,
+                "maximum": 0.074112563
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001630051,
+                "minimum": 0.001553532,
+                "maximum": 0.001724555
+              },
+              "finalize_seconds": {
+                "median": 0.0016798709999999999,
+                "minimum": 0.0015656889999999999,
+                "maximum": 0.001727485
+              },
+              "peak_rss_max_bytes": {
+                "median": 48013312.0,
+                "minimum": 47808512.0,
+                "maximum": 48185344.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 94216192.0,
+                "minimum": 94060544.0,
+                "maximum": 94502912.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.004646921,
+                "minimum": 0.004635565,
+                "maximum": 0.005038199
+              },
+              "initialization_plan_seconds": {
+                "median": 0.000139666,
+                "minimum": 0.000138424,
+                "maximum": 0.000308691
+              },
+              "initialization_system_seconds": {
+                "median": 0.000532617,
+                "minimum": 0.00048581,
+                "maximum": 0.000588379
+              },
+              "initialization_setup_seconds": {
+                "median": 0.005441342,
+                "minimum": 0.00536298,
+                "maximum": 0.00570857
+              }
+            },
+            "candidate": {
+              "wall_seconds": {
+                "median": 0.3675249210000402,
+                "minimum": 0.3503471039998658,
+                "maximum": 0.3715976200001023
+              },
+              "setup_seconds": {
+                "median": 0.002087898,
+                "minimum": 0.002059327,
+                "maximum": 0.002182617
+              },
+              "schur_setup_seconds": {
+                "median": 0.004000134999999999,
+                "minimum": 0.002818086,
+                "maximum": 0.00716839
+              },
+              "solve_seconds": {
+                "median": 0.178250932,
+                "minimum": 0.17245606800000002,
+                "maximum": 0.182321023
+              },
+              "assembly_seconds": {
+                "median": 0.09861348,
+                "minimum": 0.09613290000000001,
+                "maximum": 0.09889382
+              },
+              "callback_seconds": {
+                "median": 0.08791152,
+                "minimum": 0.086683462,
+                "maximum": 0.09099114
+              },
+              "failure_sync_seconds": {
+                "median": 0.069039532,
+                "minimum": 0.068082131,
+                "maximum": 0.069836111
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.008815083,
+                "minimum": 0.0071753500000000005,
+                "maximum": 0.010398553
+              },
+              "constraint_seconds": {
+                "median": 2.932e-06,
+                "minimum": 2.526e-06,
+                "maximum": 3.6159999999999998e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000192307,
+                "minimum": 0.000136393,
+                "maximum": 0.000312491
+              },
+              "linear_seconds": {
+                "median": 0.065116256,
+                "minimum": 0.060562552,
+                "maximum": 0.068777335
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001283938,
+                "minimum": 0.001131754,
+                "maximum": 0.0012943920000000001
+              },
+              "finalize_seconds": {
+                "median": 0.001393868,
+                "minimum": 0.001277538,
+                "maximum": 0.001515172
+              },
+              "peak_rss_max_bytes": {
+                "median": 47529984.0,
+                "minimum": 47484928.0,
+                "maximum": 47812608.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 93888512.0,
+                "minimum": 93229056.0,
+                "maximum": 94048256.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.004896861,
+                "minimum": 0.004593392,
+                "maximum": 0.005504333
+              },
+              "initialization_plan_seconds": {
+                "median": 0.000140055,
+                "minimum": 0.000139416,
+                "maximum": 0.000248443
+              },
+              "initialization_system_seconds": {
+                "median": 0.000620437,
+                "minimum": 0.000586928,
+                "maximum": 0.001005125
+              },
+              "initialization_setup_seconds": {
+                "median": 0.0060405,
+                "minimum": 0.005319313,
+                "maximum": 0.006372823
+              }
+            }
+          },
+          "paired_relative_change": {
+            "assembly_finalize_seconds": {
+              "median": -0.3332993746535591,
+              "minimum": -0.5224516634842755,
+              "maximum": -0.10894095663871817
+            },
+            "assembly_seconds": {
+              "median": -0.39550209849180984,
+              "minimum": -0.42323744568648136,
+              "maximum": -0.33423741329322576
+            },
+            "callback_seconds": {
+              "median": -0.38270904419442586,
+              "minimum": -0.4325495967881914,
+              "maximum": -0.35414629185034496
+            },
+            "constraint_seconds": {
+              "median": -0.32844709115895554,
+              "minimum": -0.3498741459906509,
+              "maximum": -0.2201296696511268
+            },
+            "failure_sync_seconds": {
+              "median": -0.39712872089367623,
+              "minimum": -0.4345386284032505,
+              "maximum": -0.36941476854871635
+            },
+            "finalize_seconds": {
+              "median": -0.1229029485060652,
+              "minimum": -0.2395023189280605,
+              "maximum": -0.10974146206558255
+            },
+            "ghost_seconds": {
+              "median": -0.39105198827113197,
+              "minimum": -0.48164574521048764,
+              "maximum": 0.3834258595195721
+            },
+            "initialization_pattern_seconds": {
+              "median": -0.009097704379077975,
+              "minimum": -0.028053278562438777,
+              "maximum": 0.18451185204138398
+            },
+            "initialization_plan_seconds": {
+              "median": 0.0027852161585497637,
+              "minimum": -0.19517251879711428,
+              "maximum": 0.007166387331676738
+            },
+            "initialization_setup_seconds": {
+              "median": 0.05814591044692463,
+              "minimum": -0.008142301481638858,
+              "maximum": 0.17118589495017944
+            },
+            "initialization_system_seconds": {
+              "median": 0.2771186266235772,
+              "minimum": -0.002466097532372813,
+              "maximum": 0.8871440453459052
+            },
+            "linear_diagnostic_seconds": {
+              "median": -0.25549605550417354,
+              "minimum": -0.30569411631905996,
+              "maximum": -0.16680699206710892
+            },
+            "linear_seconds": {
+              "median": -0.05141315126086132,
+              "minimum": -0.1828301498627164,
+              "maximum": 0.016449619873281973
+            },
+            "peak_rss_max_bytes": {
+              "median": -0.007735464127847647,
+              "minimum": -0.010066541545811325,
+              "maximum": -0.0067683344756682695
+            },
+            "peak_rss_sum_bytes": {
+              "median": -0.0065013869625519805,
+              "minimum": -0.008839923358299973,
+              "maximum": -0.0017824536996783324
+            },
+            "schur_setup_seconds": {
+              "median": -0.4914880515166239,
+              "minimum": -0.7031836844060437,
+              "maximum": 0.01459232181661041
+            },
+            "setup_seconds": {
+              "median": 0.30875720002734286,
+              "minimum": 0.14784889149004377,
+              "maximum": 0.43703180620596815
+            },
+            "solve_seconds": {
+              "median": -0.2936646666948678,
+              "minimum": -0.33476110038284235,
+              "maximum": -0.2620276505884426
+            },
+            "wall_seconds": {
+              "median": -0.17368758227925107,
+              "minimum": -0.22212865140598648,
+              "maximum": -0.1238770152168982
+            }
+          }
+        },
+        {
+          "subdivisions": 8,
+          "ranks": 1,
+          "modes": {
+            "baseline": {
+              "wall_seconds": {
+                "median": 2.0076297149998936,
+                "minimum": 1.996544294999694,
+                "maximum": 2.101825600000211
+              },
+              "setup_seconds": {
+                "median": 0.00172805,
+                "minimum": 0.00168853,
+                "maximum": 0.001981243
+              },
+              "schur_setup_seconds": {
+                "median": 0.031282148999999995,
+                "minimum": 0.030885438,
+                "maximum": 0.040988744
+              },
+              "solve_seconds": {
+                "median": 1.647946055,
+                "minimum": 1.608930935,
+                "maximum": 1.691941093
+              },
+              "assembly_seconds": {
+                "median": 1.16269885,
+                "minimum": 1.129945015,
+                "maximum": 1.187938808
+              },
+              "callback_seconds": {
+                "median": 1.145199452,
+                "minimum": 1.116167967,
+                "maximum": 1.17384854
+              },
+              "failure_sync_seconds": {
+                "median": 0.00024848400000000004,
+                "minimum": 0.00023262199999999998,
+                "maximum": 0.000535704
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.009965147,
+                "minimum": 0.009951059,
+                "maximum": 0.013804351999999999
+              },
+              "constraint_seconds": {
+                "median": 9.723e-06,
+                "minimum": 9.182e-06,
+                "maximum": 1.2022e-05
+              },
+              "ghost_seconds": {
+                "median": 0.00039019,
+                "minimum": 0.00037205,
+                "maximum": 0.000567447
+              },
+              "linear_seconds": {
+                "median": 0.398535087,
+                "minimum": 0.388403503,
+                "maximum": 0.399587837
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.006030633,
+                "minimum": 0.00494232,
+                "maximum": 0.006255309
+              },
+              "finalize_seconds": {
+                "median": 0.014172876,
+                "minimum": 0.013692954,
+                "maximum": 0.018666215
+              },
+              "peak_rss_max_bytes": {
+                "median": 76361728.0,
+                "minimum": 76251136.0,
+                "maximum": 76480512.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 76361728.0,
+                "minimum": 76251136.0,
+                "maximum": 76480512.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.058461744,
+                "minimum": 0.058193561,
+                "maximum": 0.066000289
+              },
+              "initialization_plan_seconds": {
+                "median": 0.001536693,
+                "minimum": 0.001475674,
+                "maximum": 0.00168235
+              },
+              "initialization_system_seconds": {
+                "median": 0.005083748,
+                "minimum": 0.004984141,
+                "maximum": 0.010403139
+              },
+              "initialization_setup_seconds": {
+                "median": 0.065021166,
+                "minimum": 0.064714395,
+                "maximum": 0.078085778
+              }
+            },
+            "candidate": {
+              "wall_seconds": {
+                "median": 1.644657307000216,
+                "minimum": 1.610477742999592,
+                "maximum": 1.7465089289999014
+              },
+              "setup_seconds": {
+                "median": 0.001782444,
+                "minimum": 0.0017644,
+                "maximum": 0.001845949
+              },
+              "schur_setup_seconds": {
+                "median": 0.010274662,
+                "minimum": 0.009120084,
+                "maximum": 0.014285065999999999
+              },
+              "solve_seconds": {
+                "median": 1.272293557,
+                "minimum": 1.23174888,
+                "maximum": 1.3749021940000001
+              },
+              "assembly_seconds": {
+                "median": 0.802563962,
+                "minimum": 0.767875574,
+                "maximum": 0.873052347
+              },
+              "callback_seconds": {
+                "median": 0.790786907,
+                "minimum": 0.756536612,
+                "maximum": 0.861221677
+              },
+              "failure_sync_seconds": {
+                "median": 0.000168482,
+                "minimum": 0.000158258,
+                "maximum": 0.000178
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.008503149,
+                "minimum": 0.008096075999999999,
+                "maximum": 0.008647272
+              },
+              "constraint_seconds": {
+                "median": 7.2709999999999995e-06,
+                "minimum": 7.053e-06,
+                "maximum": 8.517999999999999e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000355135,
+                "minimum": 0.000324194,
+                "maximum": 0.000389205
+              },
+              "linear_seconds": {
+                "median": 0.404493692,
+                "minimum": 0.394023393,
+                "maximum": 0.433370266
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.0062730270000000005,
+                "minimum": 0.005808607,
+                "maximum": 0.00645573
+              },
+              "finalize_seconds": {
+                "median": 0.013874338,
+                "minimum": 0.013718554,
+                "maximum": 0.014742604
+              },
+              "peak_rss_max_bytes": {
+                "median": 76488704.0,
+                "minimum": 76369920.0,
+                "maximum": 76664832.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 76488704.0,
+                "minimum": 76369920.0,
+                "maximum": 76664832.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.059044224,
+                "minimum": 0.056598052,
+                "maximum": 0.061426343
+              },
+              "initialization_plan_seconds": {
+                "median": 0.002046344,
+                "minimum": 0.001567238,
+                "maximum": 0.002431373
+              },
+              "initialization_system_seconds": {
+                "median": 0.005236012,
+                "minimum": 0.004784537,
+                "maximum": 0.005858291
+              },
+              "initialization_setup_seconds": {
+                "median": 0.067333888,
+                "minimum": 0.062949827,
+                "maximum": 0.068708699
+              }
+            }
+          },
+          "paired_relative_change": {
+            "assembly_finalize_seconds": {
+              "median": -0.18756080567602285,
+              "minimum": -0.37358363507392456,
+              "maximum": -0.14550310675476852
+            },
+            "assembly_seconds": {
+              "median": -0.3097404697699666,
+              "minimum": -0.3536067945344875,
+              "maximum": -0.22734970692357104
+            },
+            "callback_seconds": {
+              "median": -0.30947669803809863,
+              "minimum": -0.35550747288061546,
+              "maximum": -0.22841211854989563
+            },
+            "constraint_seconds": {
+              "median": -0.23186669570899576,
+              "minimum": -0.3951921477291632,
+              "maximum": -0.12393294250745668
+            },
+            "failure_sync_seconds": {
+              "median": -0.3219603676695483,
+              "minimum": -0.7045793945910428,
+              "maximum": -0.23481012114073474
+            },
+            "finalize_seconds": {
+              "median": -0.021064038096431426,
+              "minimum": -0.26505968135478986,
+              "maximum": 0.0766562131151538
+            },
+            "ghost_seconds": {
+              "median": -0.1286278725977692,
+              "minimum": -0.3741530045977862,
+              "maximum": -0.002524411184294806
+            },
+            "initialization_pattern_seconds": {
+              "median": -0.027417277316986954,
+              "minimum": -0.06930190866285457,
+              "maximum": 0.009963438654857715
+            },
+            "initialization_plan_seconds": {
+              "median": 0.21636044818260158,
+              "minimum": 0.019877099719983082,
+              "maximum": 0.6476355888902292
+            },
+            "initialization_setup_seconds": {
+              "median": -0.027267009140701903,
+              "minimum": -0.1200868998193243,
+              "maximum": 0.0355687561801028
+            },
+            "initialization_system_seconds": {
+              "median": -0.04004782368717097,
+              "minimum": -0.49668922043625485,
+              "maximum": 0.15235668644472544
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.002832473983299666,
+              "minimum": -0.03681636736972704,
+              "maximum": 0.30621449036080217
+            },
+            "linear_seconds": {
+              "median": 0.014951268268131201,
+              "minimum": -0.01392545889728869,
+              "maximum": 0.11577331989201967
+            },
+            "peak_rss_max_bytes": {
+              "median": 0.0016628225071071423,
+              "minimum": 0.0015577997421571954,
+              "maximum": 0.0024100257069408215
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.0016628225071071423,
+              "minimum": 0.0015577997421571954,
+              "maximum": 0.0024100257069408215
+            },
+            "schur_setup_seconds": {
+              "median": -0.667329891840938,
+              "minimum": -0.708457241860206,
+              "maximum": -0.6514880768242131
+            },
+            "setup_seconds": {
+              "median": 0.05561879267765457,
+              "minimum": -0.10944795767101778,
+              "maximum": 0.06822661381325767
+            },
+            "solve_seconds": {
+              "median": -0.22795193863308827,
+              "minimum": -0.27199068271580773,
+              "maximum": -0.1454560515364819
+            },
+            "wall_seconds": {
+              "median": -0.18079649114961271,
+              "minimum": -0.23377194425673076,
+              "maximum": -0.12523406899912082
+            }
+          }
+        },
+        {
+          "subdivisions": 8,
+          "ranks": 2,
+          "modes": {
+            "baseline": {
+              "wall_seconds": {
+                "median": 2.0458940640000947,
+                "minimum": 1.9746230609998747,
+                "maximum": 2.094460706999598
+              },
+              "setup_seconds": {
+                "median": 0.003526086,
+                "minimum": 0.002987416,
+                "maximum": 0.004309523
+              },
+              "schur_setup_seconds": {
+                "median": 0.034610547,
+                "minimum": 0.030836708,
+                "maximum": 0.042014576
+              },
+              "solve_seconds": {
+                "median": 1.719170015,
+                "minimum": 1.67183193,
+                "maximum": 1.7927943929999999
+              },
+              "assembly_seconds": {
+                "median": 1.152102418,
+                "minimum": 1.122832819,
+                "maximum": 1.171620608
+              },
+              "callback_seconds": {
+                "median": 1.058109047,
+                "minimum": 1.031529544,
+                "maximum": 1.081956168
+              },
+              "failure_sync_seconds": {
+                "median": 0.824383163,
+                "minimum": 0.806403659,
+                "maximum": 0.865070435
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.087636665,
+                "minimum": 0.085970081,
+                "maximum": 0.090141603
+              },
+              "constraint_seconds": {
+                "median": 7.149e-06,
+                "minimum": 5.891e-06,
+                "maximum": 7.952e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000547726,
+                "minimum": 0.00048277899999999997,
+                "maximum": 0.0008553160000000001
+              },
+              "linear_seconds": {
+                "median": 0.473136032,
+                "minimum": 0.463139595,
+                "maximum": 0.524711084
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.005128977,
+                "minimum": 0.004536054,
+                "maximum": 0.005607266
+              },
+              "finalize_seconds": {
+                "median": 0.008906949,
+                "minimum": 0.008673276,
+                "maximum": 0.00950086
+              },
+              "peak_rss_max_bytes": {
+                "median": 69697536.0,
+                "minimum": 69218304.0,
+                "maximum": 69726208.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 129204224.0,
+                "minimum": 128311296.0,
+                "maximum": 129327104.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.047694868,
+                "minimum": 0.045363814,
+                "maximum": 0.050677934
+              },
+              "initialization_plan_seconds": {
+                "median": 0.001081209,
+                "minimum": 0.001072334,
+                "maximum": 0.001107818
+              },
+              "initialization_system_seconds": {
+                "median": 0.003536607,
+                "minimum": 0.003515496,
+                "maximum": 0.004474195
+              },
+              "initialization_setup_seconds": {
+                "median": 0.052303809,
+                "minimum": 0.049960519,
+                "maximum": 0.056259947
+              }
+            },
+            "candidate": {
+              "wall_seconds": {
+                "median": 1.5514359919998242,
+                "minimum": 1.5189006129999143,
+                "maximum": 1.5584042850000515
+              },
+              "setup_seconds": {
+                "median": 0.0035041409999999997,
+                "minimum": 0.003275158,
+                "maximum": 0.0037466490000000003
+              },
+              "schur_setup_seconds": {
+                "median": 0.0107402,
+                "minimum": 0.010549797,
+                "maximum": 0.010767422
+              },
+              "solve_seconds": {
+                "median": 1.2532679820000001,
+                "minimum": 1.22444624,
+                "maximum": 1.264264773
+              },
+              "assembly_seconds": {
+                "median": 0.746447545,
+                "minimum": 0.728444593,
+                "maximum": 0.763736985
+              },
+              "callback_seconds": {
+                "median": 0.678652413,
+                "minimum": 0.66966762,
+                "maximum": 0.706065815
+              },
+              "failure_sync_seconds": {
+                "median": 0.522951388,
+                "minimum": 0.513810401,
+                "maximum": 0.555074513
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.056026987,
+                "minimum": 0.054539289,
+                "maximum": 0.062457384000000005
+              },
+              "constraint_seconds": {
+                "median": 6.782e-06,
+                "minimum": 5.762e-06,
+                "maximum": 8.426999999999999e-06
+              },
+              "ghost_seconds": {
+                "median": 0.00046891699999999996,
+                "minimum": 0.000352809,
+                "maximum": 0.000843435
+              },
+              "linear_seconds": {
+                "median": 0.437100027,
+                "minimum": 0.43597515200000003,
+                "maximum": 0.443048076
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.00442944,
+                "minimum": 0.004403271,
+                "maximum": 0.005014745
+              },
+              "finalize_seconds": {
+                "median": 0.007995647,
+                "minimum": 0.007956813,
+                "maximum": 0.008438125
+              },
+              "peak_rss_max_bytes": {
+                "median": 69976064.0,
+                "minimum": 69652480.0,
+                "maximum": 69976064.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 129581056.0,
+                "minimum": 129196032.0,
+                "maximum": 129740800.0
+              },
+              "initialization_pattern_seconds": {
+                "median": 0.046069891,
+                "minimum": 0.045805733,
+                "maximum": 0.049254344
+              },
+              "initialization_plan_seconds": {
+                "median": 0.001116621,
+                "minimum": 0.001106987,
+                "maximum": 0.001305637
+              },
+              "initialization_system_seconds": {
+                "median": 0.003757812,
+                "minimum": 0.003567934,
+                "maximum": 0.003990833
+              },
+              "initialization_setup_seconds": {
+                "median": 0.050933829,
+                "minimum": 0.050489847,
+                "maximum": 0.054550434
+              }
+            }
+          },
+          "paired_relative_change": {
+            "assembly_finalize_seconds": {
+              "median": -0.3776658548108831,
+              "minimum": -0.3784558390868643,
+              "maximum": -0.2734986023800535
+            },
+            "assembly_seconds": {
+              "median": -0.3628931243585637,
+              "minimum": -0.36772583615912524,
+              "maximum": -0.3198123780526939
+            },
+            "callback_seconds": {
+              "median": -0.36710906886329653,
+              "minimum": -0.37275424543815716,
+              "maximum": -0.3155156639895522
+            },
+            "constraint_seconds": {
+              "median": -0.021897810218978075,
+              "minimum": -0.14713279678068414,
+              "maximum": 0.1787662610155265
+            },
+            "failure_sync_seconds": {
+              "median": -0.3767335092941485,
+              "minimum": -0.3954811459947768,
+              "maximum": -0.3116666736255471
+            },
+            "finalize_seconds": {
+              "median": -0.08260581122980526,
+              "minimum": -0.15842913167860595,
+              "maximum": -0.05263575664349274
+            },
+            "ghost_seconds": {
+              "median": -0.1438839857885148,
+              "minimum": -0.587510347053019,
+              "maximum": 0.7470416070293033
+            },
+            "initialization_pattern_seconds": {
+              "median": -0.039608768809256345,
+              "minimum": -0.09092799639385452,
+              "maximum": 0.08576285053985977
+            },
+            "initialization_plan_seconds": {
+              "median": 0.04129963239065426,
+              "minimum": -0.0007501232151850834,
+              "maximum": 0.20757133912129833
+            },
+            "initialization_setup_seconds": {
+              "median": -0.0346812600206613,
+              "minimum": -0.09466980123532642,
+              "maximum": 0.09187084305509319
+            },
+            "initialization_system_seconds": {
+              "median": 0.008857925124278632,
+              "minimum": -0.16011438929237554,
+              "maximum": 0.13521193026531675
+            },
+            "linear_diagnostic_seconds": {
+              "median": -0.10567021432548407,
+              "minimum": -0.14149137342592877,
+              "maximum": -0.023503688448153537
+            },
+            "linear_seconds": {
+              "median": -0.07854164021902255,
+              "minimum": -0.1556342347058176,
+              "maximum": -0.056224016001050425
+            },
+            "peak_rss_max_bytes": {
+              "median": 0.003996238834038657,
+              "minimum": 0.00358338718204787,
+              "maximum": 0.0062725605065387935
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.004152929241694192,
+              "minimum": 0.0019636409704186786,
+              "maximum": 0.0068952307986975825
+            },
+            "schur_setup_seconds": {
+              "median": -0.6888976646338469,
+              "minimum": -0.7443696682789325,
+              "maximum": -0.6578818659890673
+            },
+            "setup_seconds": {
+              "median": 0.06255179255412391,
+              "minimum": -0.18688425609980508,
+              "maximum": 0.09631802199626693
+            },
+            "solve_seconds": {
+              "median": -0.28776896449069345,
+              "minimum": -0.3009415988283938,
+              "maximum": -0.24378476669003435
+            },
+            "wall_seconds": {
+              "median": -0.2559400709729569,
+              "minimum": -0.2575858937533708,
+              "maximum": -0.21431283638800636
+            }
+          }
+        }
+      ],
+      "max_physical_location": {
+        "run": "n4-r1-sample-1-baseline.log",
+        "step": 1,
+        "absolute_difference": 0.0,
+        "identity": null,
+        "component": null,
+        "expected": null,
+        "actual": null
+      },
+      "max_history_location": {
+        "run": "n4-r1-sample-1-baseline.log",
+        "absolute_difference": 0.0,
+        "step": null,
+        "column": null,
+        "expected": null,
+        "actual": null
+      },
+      "jacobian_counters": {
+        "baseline": {
+          "jacobian_assemblies": 30,
+          "jacobian_callbacks": 20,
+          "initial_jacobian_assemblies": 10,
+          "initial_jacobian_reuses": 0,
+          "initial_jacobian_deferred": 0,
+          "user_schur_updates": 30
+        },
+        "candidate": {
+          "jacobian_assemblies": 20,
+          "jacobian_callbacks": 20,
+          "initial_jacobian_assemblies": 1,
+          "initial_jacobian_reuses": 1,
+          "initial_jacobian_deferred": 9,
+          "user_schur_updates": 20
+        }
+      }
+    }
+  ],
+  "artifacts": {
+    "audit-initial-campaigns.py": {
+      "sha256": "fac989500701579d9c0e0bfad3b8fdc2ff8293d5ea49d78cbc880b1c9b8d4215",
+      "bytes": 43859
+    },
+    "audit-initial-attempt1.log": {
+      "sha256": "0ae976f317eef5dfb668cecc968da75ee2d889638c1dff6f12435832dbcd6992",
+      "bytes": 842
+    },
+    "audit-initial-results-attempt1.json": {
+      "sha256": "06d06b03a292c2ead6ce0554b1d328fbc75bdd1cf8fc4a46539800805a88a613",
+      "bytes": 5903384
+    }
+  }
+}

@@ -1,106 +1,274 @@
 #include "eonsim/vtu.hpp"
 
+#include <algorithm>
+#include <array>
+#include <cstdint>
 #include <fstream>
 #include <iomanip>
+#include <limits>
+#include <locale>
 #include <stdexcept>
+#include <string_view>
 
 namespace eonsim {
 namespace {
-void write_piece(const std::filesystem::path& path, const MeshPartition& mesh,
-                 const std::vector<PointField>& fields, bool boundary)
+VtuOptions output_options;
+bool output_configured=false,output_started=false;
+
+// Borrow fields while writing. The scalar error view avoids allocating/copying
+// three complete vectors in write_vtu; other callers retain their PointField API.
+struct FieldView {
+    std::string_view name;
+    int components;
+    const double* values;
+    std::size_t size;
+    const double* subtract=nullptr;
+    double value(std::size_t i) const {return subtract?values[i]-subtract[i]:values[i];}
+};
+
+std::uint64_t product(std::uint64_t count,std::uint64_t width) {
+    if(width&&count>std::numeric_limits<std::uint64_t>::max()/width)
+        throw std::runtime_error("VTU array size exceeds UInt64 capacity");
+    return count*width;
+}
+
+bool little_endian() {
+    const std::uint16_t one=1;
+    return *reinterpret_cast<const unsigned char*>(&one)==1;
+}
+
+template<class T> void write_little(std::ostream& out,T* values,std::size_t count) {
+    if(!little_endian()&&sizeof(T)>1) {
+        auto* bytes=reinterpret_cast<unsigned char*>(values);
+        for(std::size_t i=0;i<count;++i) std::reverse(bytes+i*sizeof(T),bytes+(i+1)*sizeof(T));
+    }
+    out.write(reinterpret_cast<const char*>(values),static_cast<std::streamsize>(count*sizeof(T)));
+}
+
+template<class T> class BinaryBlock {
+    std::ostream& out_;
+    std::array<T,2048> buffer_;
+    std::size_t used_=0;
+    std::uint64_t written_=0;
+public:
+    explicit BinaryBlock(std::ostream& out):out_(out) {}
+    void append(T value) {
+        buffer_[used_++]=value;
+        ++written_;
+        if(used_==buffer_.size()) flush();
+    }
+    void flush() {
+        if(used_) write_little(out_,buffer_.data(),used_);
+        used_=0;
+    }
+    void finish(std::uint64_t expected) {
+        if(written_!=expected) throw std::runtime_error("VTU binary array length mismatch");
+        flush();
+    }
+};
+
+// Traverse the same array descriptions twice for appended output: first emit
+// XML offsets, then stream each payload through a bounded buffer. No complete
+// coordinates, remapped fields, connectivity, or encoded file are duplicated.
+class ArrayWriter {
+    std::ostream& out_;
+    bool binary_,payload_;
+    std::uint64_t offset_=0;
+public:
+    ArrayWriter(std::ostream& out,bool binary,bool payload=false)
+        :out_(out),binary_(binary),payload_(payload) {}
+    void markup(const char* text) {if(!payload_) out_<<text;}
+    template<class T,class Emit>
+    void array(const char* type,std::string_view name,int components,std::uint64_t count,const Emit& emit) {
+        const auto bytes=product(count,sizeof(T));
+        if(payload_) {
+            auto header=bytes;
+            write_little(out_,&header,1);
+            BinaryBlock<T> block(out_);
+            emit([&](T value) {block.append(value);});
+            block.finish(count);
+            return;
+        }
+        out_<<"<DataArray type=\""<<type<<'"';
+        if(!name.empty()) out_<<" Name=\""<<name<<'"';
+        if(components>1) out_<<" NumberOfComponents=\""<<components<<'"';
+        if(binary_) {
+            if(offset_>std::numeric_limits<std::uint64_t>::max()-sizeof(std::uint64_t)||
+               bytes>std::numeric_limits<std::uint64_t>::max()-offset_-sizeof(std::uint64_t))
+                throw std::runtime_error("VTU appended offset exceeds UInt64 capacity");
+            out_<<" format=\"appended\" offset=\""<<offset_<<"\"/>\n";
+            offset_+=sizeof(std::uint64_t)+bytes;
+        } else {
+            out_<<" format=\"ascii\">\n";
+            emit([&](T value) {out_<<+value<<'\n';});
+            out_<<"</DataArray>\n";
+        }
+    }
+};
+
+void write_piece(const std::filesystem::path& path,const MeshPartition& mesh,
+                 const std::vector<FieldView>& fields,bool boundary)
 {
-    std::ofstream out;
-    out.exceptions(std::ios::badbit | std::ios::failbit);
-    out.open(path);
-    out << std::setprecision(17);
+    static_assert(sizeof(double)==8&&std::numeric_limits<double>::is_iec559,
+                  "VTU Float64 requires IEEE 754 binary64");
     const bool planar=mesh.topological_dimension==2;
     const auto count=planar?(boundary?mesh.edges.size():mesh.cells2.size()):(boundary?mesh.boundary.size():mesh.cells.size());
-    const auto arity=[&](std::size_t i) { return planar?(boundary?2:mesh.cells2[i].vertices):(boundary?3:4); };
-    const auto vertex=[&](std::size_t i,int a) { return planar?(boundary?mesh.edges[i].nodes[a]:mesh.cells2[i].nodes[a]):(boundary?mesh.boundary[i].nodes[a]:mesh.cells[i].nodes[a]); };
-    const auto tag=[&](std::size_t i) { return planar?(boundary?mesh.edges[i].physical_tag:mesh.cells2[i].physical_tag):(boundary?mesh.boundary[i].physical_tag:mesh.cells[i].physical_tag); };
-    const auto id=[&](std::size_t i) { return planar?(boundary?mesh.edges[i].global_id:mesh.cells2[i].global_id):(boundary?mesh.boundary[i].global_id:mesh.cells[i].global_id); };
-    out << "<?xml version=\"1.0\"?>\n<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">\n"
-        << "<UnstructuredGrid><Piece NumberOfPoints=\"" << mesh.nodes.size() << "\" NumberOfCells=\"" << count << "\">\n"
-        << "<Points><DataArray type=\"Float64\" NumberOfComponents=\"3\" format=\"ascii\">\n";
-    for (const auto& node : mesh.nodes) out << node.position[0] << ' ' << node.position[1] << ' ' << node.position[2] << '\n';
-    out << "</DataArray></Points>\n<Cells><DataArray type=\"Int64\" Name=\"connectivity\" format=\"ascii\">\n";
-    for (std::size_t i = 0; i < count; ++i) {
-        for (int a = 0; a < arity(i); ++a) out << vertex(i,a) << ' ';
-        out << '\n';
+    const auto arity=[&](std::size_t i) {return planar?(boundary?2:mesh.cells2[i].vertices):(boundary?3:4);};
+    const auto vertex=[&](std::size_t i,int a) {return planar?(boundary?mesh.edges[i].nodes[a]:mesh.cells2[i].nodes[a]):(boundary?mesh.boundary[i].nodes[a]:mesh.cells[i].nodes[a]);};
+    const auto tag=[&](std::size_t i) {return planar?(boundary?mesh.edges[i].physical_tag:mesh.cells2[i].physical_tag):(boundary?mesh.boundary[i].physical_tag:mesh.cells[i].physical_tag);};
+    const auto id=[&](std::size_t i) {return planar?(boundary?mesh.edges[i].global_id:mesh.cells2[i].global_id):(boundary?mesh.boundary[i].global_id:mesh.cells[i].global_id);};
+    std::uint64_t connectivity_count=0;
+    for(std::size_t i=0;i<count;++i) {
+        const int vertices=arity(i);
+        if(vertices<1||vertices>4||connectivity_count>std::uint64_t(std::numeric_limits<std::int64_t>::max())-vertices)
+            throw std::runtime_error("Invalid VTU cell connectivity size");
+        connectivity_count+=vertices;
     }
-    out << "</DataArray><DataArray type=\"Int64\" Name=\"offsets\" format=\"ascii\">\n";
-    std::size_t offset=0;
-    for(std::size_t i=0;i<count;++i) { offset+=arity(i); out << offset << '\n'; }
-    out << "</DataArray><DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">\n";
-    for (std::size_t i = 0; i < count; ++i) out << (planar?(boundary?3:(arity(i)==3?5:9)):(boundary?5:10)) << '\n';
-    out << "</DataArray></Cells>\n<PointData>\n";
-    for(const auto& field : fields) {
-        out << "<DataArray type=\"Float64\" Name=\"" << field.name
-            << "\" NumberOfComponents=\"" << field.components << "\" format=\"ascii\">\n";
-        for(double value : field.values) out << value << '\n';
-        out << "</DataArray>";
+    const bool compact=boundary&&output_options.compact_boundary;
+    std::vector<LocalId> original_nodes,compact_ids;
+    if(compact) {
+        compact_ids.assign(mesh.nodes.size(),-1);
+        for(std::size_t i=0;i<count;++i) for(int a=0;a<arity(i);++a) {
+            const auto node=vertex(i,a);
+            if(node<0||static_cast<std::size_t>(node)>=mesh.nodes.size())
+                throw std::runtime_error("Invalid VTU boundary node");
+            compact_ids[node]=-2;
+        }
+        original_nodes.reserve(static_cast<std::size_t>(std::min<std::uint64_t>(mesh.nodes.size(),connectivity_count)));
+        for(std::size_t i=0;i<mesh.nodes.size();++i) if(compact_ids[i]==-2) {
+            if(i>static_cast<std::size_t>(std::numeric_limits<LocalId>::max()))
+                throw std::runtime_error("VTU boundary node exceeds local index capacity");
+            compact_ids[i]=static_cast<LocalId>(original_nodes.size());
+            original_nodes.push_back(static_cast<LocalId>(i));
+        }
     }
-    out << "<DataArray type=\"Int64\" Name=\"mesh_node_id\" format=\"ascii\">\n";
-    for (const auto& node : mesh.nodes) out << node.global_id << '\n';
-    out << "</DataArray><DataArray type=\"Int32\" Name=\"owner\" format=\"ascii\">\n";
-    for (int owner : mesh.owners) out << owner << '\n';
-    out << "</DataArray><DataArray type=\"Int64\" Name=\"algebra_node_id\" format=\"ascii\">\n";
-    for (auto id : mesh.algebra_ids) out << id << '\n';
-    out << "</DataArray></PointData>\n<CellData><DataArray type=\"Int32\" Name=\"physical_tag\" format=\"ascii\">\n";
-    for (std::size_t i = 0; i < count; ++i) out << tag(i) << '\n';
-    out << "</DataArray><DataArray type=\"Int64\" Name=\"mesh_element_id\" format=\"ascii\">\n";
-    for (std::size_t i = 0; i < count; ++i) out << id(i) << '\n';
-    out << "</DataArray></CellData></Piece></UnstructuredGrid></VTKFile>\n";
+    const auto points=compact?original_nodes.size():mesh.nodes.size();
+    const auto node_at=[&](std::size_t i)->std::size_t {return compact?static_cast<std::size_t>(original_nodes[i]):i;};
+    std::ofstream out;
+    out.exceptions(std::ios::badbit|std::ios::failbit);
+    out.open(path,std::ios::out|std::ios::binary);
+    out.imbue(std::locale::classic());
+    out<<std::setprecision(17);
+    out<<"<?xml version=\"1.0\"?>\n<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\"";
+    if(output_options.binary) out<<" header_type=\"UInt64\"";
+    out<<">\n<UnstructuredGrid><Piece NumberOfPoints=\""<<points<<"\" NumberOfCells=\""<<count<<"\">\n";
+    const auto arrays=[&](ArrayWriter& writer) {
+        writer.markup("<Points>\n");
+        writer.array<double>("Float64",{},3,product(points,3),[&](const auto& emit) {
+            for(std::size_t i=0;i<points;++i) for(double coordinate:mesh.nodes[node_at(i)].position) emit(coordinate);
+        });
+        writer.markup("</Points>\n<Cells>\n");
+        writer.array<std::int64_t>("Int64","connectivity",1,connectivity_count,[&](const auto& emit) {
+            for(std::size_t i=0;i<count;++i) for(int a=0;a<arity(i);++a) {
+                const auto node=vertex(i,a);
+                emit(compact?compact_ids[node]:node);
+            }
+        });
+        writer.array<std::int64_t>("Int64","offsets",1,count,[&](const auto& emit) {
+            std::int64_t offset=0;
+            for(std::size_t i=0;i<count;++i) {offset+=arity(i);emit(offset);}
+        });
+        writer.array<std::uint8_t>("UInt8","types",1,count,[&](const auto& emit) {
+            for(std::size_t i=0;i<count;++i) emit(planar?(boundary?3:(arity(i)==3?5:9)):(boundary?5:10));
+        });
+        writer.markup("</Cells>\n<PointData>\n");
+        for(const auto& field:fields) writer.array<double>("Float64",field.name,field.components,product(points,field.components),[&](const auto& emit) {
+            for(std::size_t i=0;i<points;++i) for(int c=0;c<field.components;++c)
+                emit(field.value(node_at(i)*field.components+c));
+        });
+        writer.array<std::int64_t>("Int64","mesh_node_id",1,points,[&](const auto& emit) {
+            for(std::size_t i=0;i<points;++i) emit(mesh.nodes[node_at(i)].global_id);
+        });
+        writer.array<std::int32_t>("Int32","owner",1,points,[&](const auto& emit) {
+            for(std::size_t i=0;i<points;++i) emit(mesh.owners[node_at(i)]);
+        });
+        writer.array<std::int64_t>("Int64","algebra_node_id",1,points,[&](const auto& emit) {
+            for(std::size_t i=0;i<points;++i) emit(mesh.algebra_ids[node_at(i)]);
+        });
+        writer.markup("</PointData>\n<CellData>\n");
+        writer.array<std::int32_t>("Int32","physical_tag",1,count,[&](const auto& emit) {
+            for(std::size_t i=0;i<count;++i) emit(tag(i));
+        });
+        writer.array<std::int64_t>("Int64","mesh_element_id",1,count,[&](const auto& emit) {
+            for(std::size_t i=0;i<count;++i) emit(id(i));
+        });
+        writer.markup("</CellData>\n");
+    };
+    ArrayWriter metadata(out,output_options.binary);
+    arrays(metadata);
+    out<<"</Piece></UnstructuredGrid>\n";
+    if(output_options.binary) {
+        out<<"<AppendedData encoding=\"raw\">\n_";
+        ArrayWriter payload(out,true,true);
+        arrays(payload);
+        out<<"\n</AppendedData>\n";
+    }
+    out<<"</VTKFile>\n";
     out.close();
+}
+
+void write_views(const std::filesystem::path& path,const MeshPartition& mesh,const std::vector<FieldView>& fields) {
+    output_started=true;
+    if(mesh.owners.size()!=mesh.nodes.size()||mesh.algebra_ids.size()!=mesh.nodes.size())
+        throw std::runtime_error("Invalid VTU node identity layout");
+    for(const auto& f:fields) {
+        if(f.components<1||f.size!=product(mesh.nodes.size(),static_cast<std::uint64_t>(f.components))||
+           f.name.empty()||f.name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_")!=std::string_view::npos)
+            throw std::runtime_error("Invalid VTU field");
+    }
+    if(!path.parent_path().empty()) std::filesystem::create_directories(path.parent_path());
+    const auto actual=mesh.ranks==1?path:path.parent_path()/(path.stem().string()+"_rank"+std::to_string(mesh.rank)+".vtu");
+    write_piece(actual,mesh,fields,false);
+    if(output_options.boundary)
+        write_piece(actual.parent_path()/(actual.stem().string()+"_boundary.vtu"),mesh,fields,true);
 }
 } // namespace
 
-void write_fields(const std::filesystem::path& path, const MeshPartition& mesh,
-                  const std::vector<PointField>& fields)
-{
-    for(const auto& f : fields) {
-        if(f.components<1 || f.values.size()!=mesh.nodes.size()*f.components ||
-           f.name.empty() || f.name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_")!=std::string::npos)
-            throw std::runtime_error("Invalid VTU field");
-    }
-    if (!path.parent_path().empty()) std::filesystem::create_directories(path.parent_path());
-    const auto actual = mesh.ranks == 1 ? path : path.parent_path() / (path.stem().string()+"_rank"+std::to_string(mesh.rank)+".vtu");
-    write_piece(actual, mesh, fields, false);
-    const auto boundary = actual.parent_path() / (actual.stem().string() + "_boundary.vtu");
-    write_piece(boundary, mesh, fields, true);
+void configure_vtu_output(const VtuOptions& options) {
+    if(output_configured||output_started) throw std::runtime_error("VTU output must be configured once before writing");
+    output_options=options;
+    output_configured=true;
 }
 
-void write_field_index(const std::filesystem::path& path, int ranks, const std::vector<PointField>& fields)
-{
-    if (ranks == 1) return;
-    for (bool boundary : {false, true}) {
-        const auto suffix = boundary ? "_boundary" : "";
+void write_fields(const std::filesystem::path& path,const MeshPartition& mesh,const std::vector<PointField>& fields) {
+    std::vector<FieldView> views;
+    views.reserve(fields.size());
+    for(const auto& field:fields) views.push_back({field.name,field.components,field.values.data(),field.values.size()});
+    write_views(path,mesh,views);
+}
+
+void write_field_index(const std::filesystem::path& path,int ranks,const std::vector<PointField>& fields) {
+    output_started=true;
+    if(ranks==1) return;
+    for(bool boundary:{false,true}) {
+        if(boundary&&!output_options.boundary) continue;
+        const auto suffix=boundary?"_boundary":"";
         std::ofstream out;
-        out.exceptions(std::ios::badbit | std::ios::failbit);
+        out.exceptions(std::ios::badbit|std::ios::failbit);
         out.open(path.parent_path()/(path.stem().string()+suffix+".pvtu"));
-        out << "<?xml version=\"1.0\"?>\n<VTKFile type=\"PUnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">\n"
-               "<PUnstructuredGrid GhostLevel=\"0\"><PPoints><PDataArray type=\"Float64\" NumberOfComponents=\"3\"/></PPoints>\n"
-               "<PPointData Scalars=\"u\">";
-        for (const auto& field : fields) out << "<PDataArray type=\"Float64\" Name=\"" << field.name << "\" NumberOfComponents=\"" << field.components << "\"/>";
-        out << "<PDataArray type=\"Int64\" Name=\"mesh_node_id\"/><PDataArray type=\"Int32\" Name=\"owner\"/>"
-               "<PDataArray type=\"Int64\" Name=\"algebra_node_id\"/></PPointData>\n"
-               "<PCellData><PDataArray type=\"Int32\" Name=\"physical_tag\"/><PDataArray type=\"Int64\" Name=\"mesh_element_id\"/></PCellData>\n";
-        for (int rank = 0; rank < ranks; ++rank)
-            out << "<Piece Source=\"" << path.stem().string() << "_rank" << rank << suffix << ".vtu\"/>\n";
-        out << "</PUnstructuredGrid></VTKFile>\n";
+        out<<"<?xml version=\"1.0\"?>\n<VTKFile type=\"PUnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">\n"
+             "<PUnstructuredGrid GhostLevel=\"0\"><PPoints><PDataArray type=\"Float64\" NumberOfComponents=\"3\"/></PPoints>\n"
+             "<PPointData Scalars=\"u\">";
+        for(const auto& field:fields) out<<"<PDataArray type=\"Float64\" Name=\""<<field.name<<"\" NumberOfComponents=\""<<field.components<<"\"/>";
+        out<<"<PDataArray type=\"Int64\" Name=\"mesh_node_id\"/><PDataArray type=\"Int32\" Name=\"owner\"/>"
+             "<PDataArray type=\"Int64\" Name=\"algebra_node_id\"/></PPointData>\n"
+             "<PCellData><PDataArray type=\"Int32\" Name=\"physical_tag\"/><PDataArray type=\"Int64\" Name=\"mesh_element_id\"/></PCellData>\n";
+        for(int rank=0;rank<ranks;++rank)
+            out<<"<Piece Source=\""<<path.stem().string()<<"_rank"<<rank<<suffix<<".vtu\"/>\n";
+        out<<"</PUnstructuredGrid></VTKFile>\n";
         out.close();
     }
 }
+
 void write_vtu(const std::filesystem::path& path,const MeshPartition& mesh,
-               const std::vector<double>& values,const std::vector<double>& exact)
-{
+               const std::vector<double>& values,const std::vector<double>& exact) {
     if(values.size()!=exact.size()) throw std::runtime_error("Invalid exact field size");
-    std::vector<double> error(values.size());
-    for(std::size_t i=0;i<error.size();++i) error[i]=values[i]-exact[i];
-    write_fields(path,mesh,{{"u",1,values},{"u_exact",1,exact},{"nodal_error",1,error}});
+    write_views(path,mesh,{{"u",1,values.data(),values.size()},
+                           {"u_exact",1,exact.data(),exact.size()},
+                           {"nodal_error",1,values.data(),values.size(),exact.data()}});
 }
-void write_pvtu(const std::filesystem::path& path,int ranks)
-{
+
+void write_pvtu(const std::filesystem::path& path,int ranks) {
     write_field_index(path,ranks,{{"u",1,{}},{"u_exact",1,{}},{"nodal_error",1,{}}});
 }
 } // namespace eonsim

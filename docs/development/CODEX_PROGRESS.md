@@ -1,5 +1,43 @@
 # EONSim Codex Development Progress
 
+## 2026-11-26 · FSI-PERF-03：实现、验证与性能审计完成
+
+从已合并 #52 的 main `2dcb06c26a0359175e4f5a771d5bbff6dfc928af` 开发，生产源码及候选二进制为
+`7e8868e433fb0040806a6faf3ba8cd289a2aa3f1`；带权实验驱动为 `3e366c8`，输出校验修复为 `7d86f38`。
+均先推送再运行。本记录核验时 [PR #53](https://github.com/saitoasukakawaii/EONSim-new/pull/53)
+为 open / Draft、head `7d86f38`，尚未合并；开发与验收已完成，最终证据提交的四项必需检查通过后
+按用户授权执行受保护的 head-locked squash，交付/合并状态以该 PR 的 GitHub 核验为准。
+
+完成压力解析列与 AD 28→24、紧凑物理块 AIJ、64-cell 批次持久线程团队及异常传播、
+最终验收/原始反力共用一次独立新组装、Jacobian-only 路径跳过无用残量 COO 发布。
+合资格 Schur 会话支持首次切线一次性消费和后续起点延后，报告实际 J/USER 更新及 rank-local 成本；
+离线分区采用稳定分桶/前缀编号、显式成本和带权身份保护，VTU 支持默认 ASCII 紧凑边界、
+可选 UInt64/LittleEndian raw binary 与关闭边界。完整跨场导数、贡献次序、物理门槛和 collective 失败语义保持。
+[实现与控制项](FSI_RUNTIME_OPTIMIZATION.md)。
+
+本地 PETSc 3.23.7 Release 定向 **17/17** 通过。源码 [7e CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45711876709)
+实际 **48/48 Release + 24 Python**；[3e 驱动 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45714273854)
+实际 **1 Release + 21 Python**，另 **47 项复用原通过证据，本次未运行**；
+[7d 输出驱动 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45715315451)
+为 **0 项新数值执行 + 48 项复用原通过证据**。未将复用或文档提交计为新数值执行。
+
+四组 FSI 性能证据 **88 runs / 880 接受步 / 1,760 次线性修正**，独立重读 968 个保存状态、
+核验 8,502 条文件哈希收据及全部配对统计。最大场差 `4.440892098500626e-16`、历史差
+`2.9841559419667343e-15`；初始切线消融两者精确为 0，同迭代轨迹下每次完整 J/USER **30→20**，
+wall 配对中位数下降 **12.060%–25.594%**。显式 `10:5,20:1` 在本例 n=8/2 rank 的 wall 下降
+**10.585%**；默认路径收益混合，COO 双线程单 rank wall 中位数 **+3.900%**，不作普遍加速结论。
+
+输出 **32 runs** 的 84 VTU / 28 PVTU 独立解码与源网格对照通过；同紧凑边界下 binary 相对 ASCII
+的 output 时间在 1/2 rank 分别 **−81.338% / −82.010%**，字节却 **+0.815% / +3.060%**。
+离线 prepare **24 次**，2/8/32 分片的 **168 对 P1 HDF5** 内容对照通过；这不是 32-rank 求解或 P2 证据。
+原 IO driver 的 `KeyError('reason')` 及 exit 0 / `CONVERGED_RTOL` 原日志保留，7d 推送后只重跑 output 段。
+[完整来源、失败与独立审计](../research/data/fsi-runtime-2026-11-26/README.md) ·
+[未发布知识草稿](../../website/drafts/fsi-runtime-cost-and-output.md)。
+
+性能范围为共享单机、1/2 rank、三个测量配对及预热；正确性选测的部分路径另覆盖 4 rank。
+各阶段 rank 最大值不能相加为 wall，输出时间不含 fsync；前两组未记录历史分区 shard 哈希的限制已保留。
+本地未运行全量、Debug 或 PETSc 3.19.6，未声称多节点、GPU 或任意生产网格的普遍收益。
+
 ## 2026-11-25–26 · FSI-PERF-02：实现、验收与性能闭环完成
 
 从已合并 PR #51 的 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f` 开发，

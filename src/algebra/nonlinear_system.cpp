@@ -427,7 +427,55 @@ struct Context {
     double assembly_seconds=0,ghost_seconds=0;
     double callback_seconds=0,failure_sync_seconds=0,assembly_finalize_seconds=0,constraint_seconds=0;
     PcSchurUpdates* pc_updates=nullptr;
-    void evaluate(Vec x, Vec r, Mat j, bool constrain) {
+    PetscInt jacobian_assemblies=0,jacobian_callbacks=0,initial_jacobian_reuses=0,user_schur_updates=0;
+    Vec initial_trial=nullptr;
+    Mat initial_jacobian=nullptr;
+    void remember_initial_jacobian(Vec x,Mat j) {
+        // The already synchronized trial buffer is the snapshot. Any later
+        // physical evaluation invalidates this one-use entry before changing it.
+        initial_trial=x; initial_jacobian=j;
+    }
+    bool consume_initial_jacobian(Vec x,Mat j) {
+        if(!initial_jacobian) return false;
+        int same=x==initial_trial&&j==initial_jacobian,all=0;
+        initial_trial=nullptr; initial_jacobian=nullptr;
+        if(same) {
+            const PetscScalar* trial;
+            EONSIM_PETSC(VecGetArrayRead(x,&trial));
+            same=std::equal(values.begin(),values.begin()+layout.owned,trial);
+            EONSIM_PETSC(VecRestoreArrayRead(x,&trial));
+        }
+        // A change on any owner invalidates every rank, including an empty
+        // owner. No private PETSc state API or full-vector copy is required.
+        if(MPI_Allreduce(&same,&all,1,MPI_INT,MPI_MIN,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("Initial Jacobian reuse communication failed");
+        if(all) ++initial_jacobian_reuses;
+        return all!=0;
+    }
+    void refresh_user_schur(Mat j) {
+        if(!pc_updates) return;
+        pc_updates->refresh(j);
+        user_schur_updates+=static_cast<PetscInt>(pc_updates->refreshers.size());
+    }
+    void apply_constraints(Vec r,Mat j) {
+        if(!acceptance.has_constraints) return;
+        // Only owned rows are replaced. A Jacobian-only callback has no
+        // residual consumer, but its matrix still needs the constraint rows.
+        if(r&&!constraints.empty()) {
+            PetscScalar* entries;
+            EONSIM_PETSC(VecGetArray(r,&entries));
+            for(std::size_t i=0;i<constraints.size();++i) {
+                const auto row=constraints[i]-layout.begin;
+                entries[row]=values[row]-prescribed[i];
+            }
+            EONSIM_PETSC(VecRestoreArray(r,&entries));
+        }
+        if(j) EONSIM_PETSC(MatZeroRows(j,constraints.size(),constraints.data(),1,nullptr,nullptr));
+    }
+    void evaluate(Vec x, Vec r, Mat j, bool constrain,bool publish_residual=true) {
+        // A residual evaluation, rejected trial or new tangent must not leave
+        // a startup Jacobian eligible for a later line-search/Newton state.
+        initial_trial=nullptr; initial_jacobian=nullptr;
         const auto begin=std::chrono::steady_clock::now();
         local_values(x,values);
         ghost_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
@@ -463,12 +511,12 @@ struct Context {
             EONSIM_PETSC(VecAssemblyEnd(r));
             if(j&&!coo_values) EONSIM_PETSC(MatAssemblyEnd(j,MAT_FINAL_ASSEMBLY));
         } else {
-            if(!any_failed) {
+            if(!any_failed&&publish_residual) {
                 // A line search may supply its own VecDuplicate of the residual;
                 // prepare that actual target once rather than assuming inheritance.
                 prepare_residual_coo(r,*residual_coo_rows,residual_coo_vectors);
                 EONSIM_PETSC(VecSetValuesCOO(r,residual_coo_values->data(),INSERT_VALUES));
-            } else {
+            } else if(any_failed) {
                 EONSIM_PETSC(VecAssemblyBegin(r)); EONSIM_PETSC(VecAssemblyEnd(r));
             }
             if(j&&!coo_values) {
@@ -491,20 +539,7 @@ struct Context {
             if(any_failed==1) { recoverable=true; throw StepRejected(error); }
             throw std::runtime_error(error);
         }
-        if(constrain&&acceptance.has_constraints) {
-            // These rows were validated as owned. Local replacement preserves
-            // INSERT_VALUES semantics without a second distributed assembly.
-            if(!constraints.empty()) {
-                PetscScalar* entries;
-                EONSIM_PETSC(VecGetArray(r,&entries));
-                for(std::size_t i=0;i<constraints.size();++i) {
-                    const auto row=constraints[i]-layout.begin;
-                    entries[row]=values[row]-prescribed[i];
-                }
-                EONSIM_PETSC(VecRestoreArray(r,&entries));
-            }
-            if(j) EONSIM_PETSC(MatZeroRows(j,constraints.size(),constraints.data(),1,nullptr,nullptr));
-        }
+        if(constrain) apply_constraints(publish_residual?r:nullptr,j);
         const auto end=std::chrono::steady_clock::now();
         // These phase totals cover only evaluations that completed successfully, like assembly_seconds.
         callback_seconds+=callback_time;
@@ -512,6 +547,7 @@ struct Context {
         assembly_finalize_seconds+=assembly_time;
         constraint_seconds+=std::chrono::duration<double>(end-constraint_begin).count();
         assembly_seconds+=std::chrono::duration<double>(end-begin).count();
+        if(j) ++jacobian_assemblies;
     }
 };
 struct ActiveContext { Context* current=nullptr; };
@@ -530,9 +566,14 @@ PetscErrorCode jacobian(SNES snes,Vec x,Mat j,Mat,void* pointer)
     if(!active||!active->current) return PETSC_ERR_ARG_WRONGSTATE;
     auto& c=*active->current;
     try {
-        c.evaluate(x,c.scratch,j,true);
+        ++c.jacobian_callbacks;
+        if(c.consume_initial_jacobian(x,j)) return PETSC_SUCCESS;
+        // The fused physical callback may compute residual values while forming
+        // J, but SNES consumes only J here. Ordinary Vec stashes still drain;
+        // COO needs neither a scratch communication plan nor a publication.
+        c.evaluate(x,c.scratch,j,true,false);
         // Refresh only after successful assembly, including constraint row replacement.
-        if(c.pc_updates) c.pc_updates->refresh(j);
+        c.refresh_user_schur(j);
         return PETSC_SUCCESS;
     }
     catch(const StepRejected& e) { c.error=e.what(); ++c.domain_rejections; return SNESSetJacobianDomainError(snes); }
@@ -586,7 +627,7 @@ struct NonlinearSystem::Workspace {
     PcBlock plan;
     PcSchurUpdates pc_updates; // Must outlive the SNES/KSP/PC holding its USER matrices.
     ActiveContext callbacks;
-    PetscBool block=PETSC_FALSE,schur=PETSC_FALSE,report=PETSC_FALSE;
+    PetscBool block=PETSC_FALSE,schur=PETSC_FALSE,report=PETSC_FALSE,rank_report=PETSC_FALSE;
     bool semantic=false,pc_configured=false,reusable=false;
     PetscReal initial_lambda=1;
     PetscOwner<SNES,SNESDestroy> snes; // Destroy first, before callback/PC refresh storage.
@@ -670,7 +711,9 @@ struct NonlinearSystem::Workspace {
         }
         report=PETSC_FALSE; PetscBool linear_report=PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-solver_report",&report,nullptr));
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-solver_rank_report",&rank_report,nullptr));
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-linear_report",&linear_report,nullptr));
+        if(rank_report) report=PETSC_TRUE;
         if(linear_report) {
             report=PETSC_TRUE;
             diagnostics.fields.emplace(acceptance);
@@ -770,10 +813,10 @@ void NonlinearSystem::set_residual_coo(const std::vector<PetscInt>& rows)
     if(any_invalid) throw std::runtime_error("Invalid COO residual pattern or configuration after first solve");
     residual_coo_rows_=rows;
     residual_coo_values_.assign(rows.size(),0.);
-    // Prepare both persistent targets explicitly. SNES-owned work vectors are
-    // prepared on first use; VecDuplicate does not promise to copy COO state.
+    // Only the persistent function target is published. Jacobian-only scratch
+    // values are unused; SNES-owned line-search targets are prepared on first
+    // use because VecDuplicate does not promise to copy COO state.
     prepare_residual_coo(residual_.get(),residual_coo_rows_,residual_coo_vectors_);
-    prepare_residual_coo(scratch_.get(),residual_coo_rows_,residual_coo_vectors_);
     residual_coo_enabled_=true;
 }
 NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
@@ -814,10 +857,9 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         ++solver_generation_;
         workspace_->initialize(comm,l,r.get(),j.get());
         if(residual_coo_enabled_) {
-            PetscObjectId residual_id=0,scratch_id=0;
+            PetscObjectId residual_id=0;
             EONSIM_PETSC(PetscObjectGetId(reinterpret_cast<PetscObject>(r.get()),&residual_id));
-            EONSIM_PETSC(PetscObjectGetId(reinterpret_cast<PetscObject>(scratch.get()),&scratch_id));
-            residual_coo_vectors_={residual_id,scratch_id};
+            residual_coo_vectors_={residual_id};
         }
     }
     auto& workspace=*workspace_;
@@ -852,7 +894,21 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     const double setup_seconds=std::chrono::duration<double>(solve_begin-setup_begin).count();
     PetscBool verify_permutation=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-verify_operator_permutation",&verify_permutation,nullptr));
-    context.evaluate(x.get(),r.get(),(schur||semantic||verify_permutation)?j.get():nullptr,true);
+    bool reuse_initial_jacobian=false;
+    if(schur||semantic) {
+        PetscBool requested=PETSC_TRUE;
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-nonlinear_initial_jacobian_reuse",&requested,nullptr));
+        const int local=requested&&workspace.reusable&&!verify_permutation;
+        int all=0;
+        if(MPI_Allreduce(&local,&all,1,MPI_INT,MPI_MIN,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("Initial Jacobian policy communication failed");
+        reuse_initial_jacobian=all!=0;
+    }
+    const bool initial_jacobian_deferred=(schur||semantic)&&workspace.pc_configured&&reuse_initial_jacobian;
+    const bool initial_jacobian_assembled=verify_permutation||((schur||semantic)&&!initial_jacobian_deferred);
+    // A retained PC already knows its symbolic blocks. Its numerical update
+    // belongs to the first Newton Jacobian callback, after this fresh residual.
+    context.evaluate(x.get(),r.get(),initial_jacobian_assembled?j.get():nullptr,true);
     if(verify_permutation) verify_operator_permutation(comm,j.get(),r.get());
     acceptance.measure(r.get(),true);
     EONSIM_PETSC(SNESSetInitialFunction(snes.get(),r.get()));
@@ -866,13 +922,28 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             // A callback's unrelated options change must still invalidate reuse.
             const bool options_unchanged=petsc_options_snapshot()==workspace.options;
             if(schur) configure_schur_solver(comm,ksp,l,j.get());
-            else configure_pc_plan(comm,ksp,j.get(),workspace.plan,&workspace.pc_updates);
+            else {
+                configure_pc_plan(comm,ksp,j.get(),workspace.plan,&workspace.pc_updates);
+                context.user_schur_updates+=static_cast<PetscInt>(workspace.pc_updates.refreshers.size());
+            }
             workspace.options=petsc_options_snapshot();
             workspace.reusable=workspace.reusable&&options_unchanged&&
                 workspace.options.find("_reuse_preconditioner")==std::string::npos;
             workspace.pc_configured=true;
-        } else if(semantic) workspace.pc_updates.refresh(j.get());
+        } else if(semantic&&initial_jacobian_assembled) context.refresh_user_schur(j.get());
         if(semantic) context.pc_updates=&workspace.pc_updates;
+    }
+    // Only startup PC configuration needs a tangent before SNESSolve. The
+    // first callback may use it once if no intervening evaluation or owner
+    // value change occurred; later Newton steps always assemble their own J.
+    if(reuse_initial_jacobian&&initial_jacobian_assembled&&initial_norm>0) {
+        // Configuring a child PC may insert options or reveal an incompatible
+        // reuse policy. Recheck collectively before arming a collective token.
+        const int local=workspace.reusable;
+        int all=0;
+        if(MPI_Allreduce(&local,&all,1,MPI_INT,MPI_MIN,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("Initial Jacobian configuration communication failed");
+        if(all) context.remember_initial_jacobian(x.get(),j.get());
     }
     const double schur_setup_seconds=(schur||semantic)?std::chrono::duration<double>(std::chrono::steady_clock::now()-schur_begin).count():0.;
     const auto error=SNESSolve(snes.get(),nullptr,x.get());
@@ -914,7 +985,19 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     NonlinearResult result;
     result.domain_rejections=context.domain_rejections;
     result.solver_reused=solver_reused; result.solver_generation=solver_generation_;
-    context.evaluate(x.get(),r.get(),nullptr,true);
+    result.jacobian_assemblies=context.jacobian_assemblies;
+    result.jacobian_callbacks=context.jacobian_callbacks;
+    result.initial_jacobian_assemblies=initial_jacobian_assembled?1:0;
+    result.initial_jacobian_reuses=context.initial_jacobian_reuses;
+    result.user_schur_updates=context.user_schur_updates;
+    result.initial_jacobian_deferred=initial_jacobian_deferred;
+    // Always assemble once afresh after SNESSolve. Save the unprojected owned
+    // and ghost reactions before replacing constraint rows for acceptance.
+    // Both outputs now describe this same evaluation, without a second kernel
+    // pass or a repeated ghost update of the unchanged solution vector.
+    context.evaluate(x.get(),r.get(),nullptr,false);
+    local_values(r.get(),result.raw_residual);
+    context.apply_constraints(r.get(),nullptr);
     EONSIM_PETSC(VecNorm(r.get(),NORM_2,&result.residual_norm));
     if(!std::isfinite(result.residual_norm)) throw std::runtime_error("Nonfinite nonlinear residual");
     acceptance.measure(r.get());
@@ -924,9 +1007,7 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         throw StepRejected("Field acceptance failed: "+failed.name+" (SNES reason="+std::to_string(reason)+")");
     }
     result.field_residuals=acceptance.values;
-    local_values(x.get(),result.values);
-    context.evaluate(x.get(),r.get(),nullptr,false);
-    local_values(r.get(),result.raw_residual);
+    result.values=context.values;
     EONSIM_PETSC(SNESGetIterationNumber(snes.get(),&result.iterations));
     EONSIM_PETSC(SNESGetLinearSolveIterations(snes.get(),&result.linear_iterations));
     const double finalize_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-finalize_begin).count();
@@ -952,6 +1033,11 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             << " nnz_allocated=" << info.nz_allocated << " nnz_unneeded=" << info.nz_unneeded
             << " matrix_mallocs=" << info.mallocs
             << " solver_reused=" << result.solver_reused << " solver_generation=" << result.solver_generation
+            << " jacobian_assemblies=" << result.jacobian_assemblies << " jacobian_callbacks=" << result.jacobian_callbacks
+            << " initial_jacobian_assemblies=" << result.initial_jacobian_assemblies
+            << " initial_jacobian_reuses=" << result.initial_jacobian_reuses
+            << " initial_jacobian_deferred=" << result.initial_jacobian_deferred
+            << " user_schur_updates=" << result.user_schur_updates
             << " ksp=" << kt << " pc=" << type << " linear_iterations=" << result.linear_iterations
             << " snes_reason=" << reason << " ksp_reason=" << linear_reason << " domain_rejections=" << result.domain_rejections
             << " solve_seconds=" << maxima[0] << " assembly_seconds=" << maxima[1] << " ghost_seconds=" << maxima[2]
@@ -963,6 +1049,17 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             << " linear_completed=" << diagnostics.completed
             << " rss_max_bytes=" << maxima[3] << " rss_sum_bytes=" << memory_sum
             << " peak_rss_max_bytes=" << maxima[4] << " peak_rss_sum_bytes=" << peak_sum << '\n';
+        if(workspace.rank_report) EONSIM_PETSC(PetscSynchronizedPrintf(comm,
+            "solver_rank_report rank=%d owned=%" PetscInt_FMT " ghosts=%zu jacobian_assemblies=%" PetscInt_FMT
+            " jacobian_callbacks=%" PetscInt_FMT " initial_jacobian_assemblies=%" PetscInt_FMT
+            " initial_jacobian_reuses=%" PetscInt_FMT " initial_jacobian_deferred=%d user_schur_updates=%" PetscInt_FMT
+            " callback_seconds=%.17g failure_sync_seconds=%.17g ghost_seconds=%.17g assembly_seconds=%.17g"
+            " assembly_finalize_seconds=%.17g constraint_seconds=%.17g linear_seconds=%.17g\n",
+            rank,l.owned,l.local_to_global.size()-static_cast<std::size_t>(l.owned),
+            result.jacobian_assemblies,result.jacobian_callbacks,result.initial_jacobian_assemblies,
+            result.initial_jacobian_reuses,static_cast<int>(result.initial_jacobian_deferred),result.user_schur_updates,
+            callback_seconds,failure_sync_seconds,ghost_seconds,assembly_seconds,
+            assembly_finalize_seconds,constraint_seconds,diagnostics.solve_seconds));
         const auto tree=local_solver_report(ksp,rank);
         EONSIM_PETSC(PetscSynchronizedPrintf(comm,"%s",tree.c_str()));
         EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));

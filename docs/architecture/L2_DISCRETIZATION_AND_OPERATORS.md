@@ -99,10 +99,12 @@ Newton 状态的数值零删图。所有 owned 对角项、固定 RCR 的速度�
 两种矩阵路径具有相同的唯一坐标集合，不能把贡献条数当成最终唯一 `nnz`。
 
 默认路径由 reduced layout 的 PREALLOCATOR 直接填充最终 AIJ，并将所有权转给
-`NonlinearSystem`，不从完整图反查容量后重建矩阵。最终图填充完成后才开启
-`MAT_IGNORE_ZERO_ENTRIES`，允许每单元一次 dense `MatSetValues(..., ADD_VALUES)` 跳过
-图外的精确零；该选项不用于推导图。`MAT_NEW_NONZERO_LOCATION_ERR` 继续拒绝未声明的
-非零位置；未提供完整图的通用计数预分配路径仍使用 allocation 检查。
+`NonlinearSystem`，不从完整图反查容量后重建矩阵。数值写入按同一物理掩码打包紧凑矩形，
+过滤负行列并保留重复代数 ID 与物理行列次序；当前接口 `mesh_dt` 只在打包时应用。
+准备期检查别名测试行的块次序，不能证明贡献累加次序保持时，该单元回退 dense 插入。
+最终图填充完成后才开启 `MAT_IGNORE_ZERO_ENTRIES`；该选项不用于推导图。
+`MAT_NEW_NONZERO_LOCATION_ERR` 继续拒绝未声明的非零位置；未提供完整图的通用计数
+预分配路径仍使用 allocation 检查。紧凑块必须和完整局部切线的物理依赖同步维护。
 
 `FsiAssemblyPlan` 缓存活动分量、测试行、试探列、接口 mesh trace 掩码和接口相邻单元。
 拓扑、分区、有效编号与约束支撑固定时计划有效；当前 ALE 坐标变化不重建图。
@@ -126,11 +128,16 @@ FSI 残量默认独立启用固定 Vec COO 计划，`-fsi_residual_coo false` �
 所有 rank 的回调成功后，代数驱动才共同发布 Mat/Vec COO 缓冲；失败缓冲不发布，
 已有普通插入的 stash 仍排空。约束替换、原始反力、域错误和时间步提交规则保持一致。
 装配模式不是物理状态，可在同分区 checkpoint 恢复时切换。
-`NonlinearSystem` 为每个实际回调 Vec 准备残量 COO；不能假定 `VecDuplicate` 会复制
-通信计划。持久 residual/scratch Vec 在 setter 中准备，SNES 线搜索工作 Vec 首次使用时
-准备，后续按对象身份复用；借用 Vec 不被额外保有。
+`NonlinearSystem` 为每个实际发布的回调 Vec 准备残量 COO；不能假定 `VecDuplicate` 会复制
+通信计划。持久 residual Vec 在 setter 中准备，SNES 线搜索工作 Vec 首次使用时准备，
+后续按对象身份复用；借用 Vec 不被额外保有。Jacobian-only 回调的 scratch 残量没有消费者，
+不建立 COO 计划、不发布该残量或替换其约束；物理回调、零缓冲和矩阵约束仍保留。
+普通 Vec 插入模式仍共同排空 stash，初始化需要 J 和 R 时仍发布完整残量。
 
-解析 FSI 单元的流体部分由一次 28 方向 Dual 评价同时输出 primal 残量和 Jacobian；
+解析 FSI 单元的流体部分由一次 24 方向 Dual 评价同时输出 primal 残量和速度/ALE 导数；
+四个节点压力列直接按精确 P1 积分填写。固定和当前 metric 稳定化都与压力无关，
+压力 primal 仍参与所有速度/ALE 方向；当前 metric 的 tau 从同一次求值传出，不另算一遍。
+若材料或稳定化将来依赖压力，必须同时扩展解析列或恢复相应 AD 方向。
 参考网格 Laplace 系数按单元缓存并直接填写同分量切线，当前压力面积项直接使用解析导数。
 当前体积和面几何有效性仍检查，零压力不能绕过面检查；FD 参考路径保留。
 界面力从接口相邻流体/结构单元的原始物理残量重放，端口牵引另外纳入，不能用已投影残量替代。
@@ -177,8 +184,13 @@ reuse-preconditioner 的路径；包括子 PC 在内的相关显式选项也保�
 `-snes_ksp_ew true` 和 `-verify_operator_permutation true` 同样使用每次新建会话。
 `-nonlinear_reuse false` 强制每次创建新会话，作为同方程/同容差的对照；关闭复用或不符合
 上述资格的会话在成功返回时也立即释放，不保留到下一次调用。
-新会话在首次需要 Newton 求解时配置 PC 计划；复用会话的初始装配和每次成功的受约束
-Jacobian 都刷新其 USER Schur 矩阵，PETSc 根据当前 Mat 数值状态更新数值 PC。
+新会话在首次需要 Newton 求解时配置 PC 计划；该次起点 Jacobian 可由首个普通
+Newton Jacobian 回调消费一次。必须是相同 Vec/Mat、全部 owner 的初值逐项相等，
+并且中间没有残量/Jacobian 评价；任何评价先清除资格，所有 rank 共同决定消费。
+已配置的合资格 Schur 会话每次从新残量开始，将初始数值 Jacobian 延后到首个
+正常 SNES 回调；每次成功的受约束 Jacobian 都刷新其 USER Schur 矩阵，PETSc
+根据当前 Mat 数值状态更新数值 PC。`-nonlinear_initial_jacobian_reuse false`
+保留预装配与首个回调各自装配的对照，不将旧时间步 Jacobian 当作新起点切线。
 复用对象/符号结构不等于沿用旧 Jacobian 或旧数值因子，也不改变物理验收条件。
 
 求解器回调通过稳定 holder 只在本次 solve 内绑定当前 Context，退出即解除借用，不保留
@@ -190,8 +202,17 @@ domain rejection 不使最终成功的会话失效。fatal callback 遗留的 tr
 `solver_report` 的 `solver_reused=0|1` 表示本次是否复用成功会话，`solver_generation`
 是同一 `NonlinearSystem` 的 SNES 创建序号，从 1 递增；这些字段是生命周期证据，不是
 性能结论。约束按 owned 行直接替换；全局约束行数为零时跳过无效的 `MatZeroRows`。
+报告另计实际完成的 `jacobian_assemblies`、SNES 的 `jacobian_callbacks`、
+起点预装配/复用/延后，以及应用自建 nodal USER 矩阵的 `user_schur_updates`；
+后者不表示 PETSc 所有内部 PC setup。显式 `-solver_rank_report` 在原报告同步阶段
+附加 rank-local 时长与 owned/ghost 规模，默认关闭，不在热回调另加报告规约。
 
-当前 `NonlinearSystem::solve` 从 `AlgebraLayout::fields` 建立 owned 行分组，并检查字段覆盖且互不重叠。剔除 Dirichlet 替换行后，物理方程按 `sqrt(sum((R_i/residual_scale)^2)/N) <= atol + rtol*initial_rms` 接受；约束替换行按 `max(abs(x_i-g_i)/constraint_scale) <= constraint_tolerance` 接受。只有约束而没有物理方程的字段 RMS 为 0；本地空字段仍参与规约。每次检查将所有字段合并为一次平方和规约与一次约束最大值规约，不收集全局向量。原始反力在验收之后单独装配，不进入约束误差范数。
+当前 `NonlinearSystem::solve` 从 `AlgebraLayout::fields` 建立 owned 行分组，并检查字段覆盖且互不重叠。剔除 Dirichlet 替换行后，物理方程按 `sqrt(sum((R_i/residual_scale)^2)/N) <= atol + rtol*initial_rms` 接受；约束替换行按 `max(abs(x_i-g_i)/constraint_scale) <= constraint_tolerance` 接受。只有约束而没有物理方程的字段 RMS 为 0；本地空字段仍参与规约。每次检查将所有字段合并为一次平方和规约与一次约束最大值规约，不收集全局向量。
+
+SNESSolve 返回后始终做一次独立的全新原始残量组装，不复用 SNES 已接受的函数值。
+先保存该次原始残量的 owned+ghost 反力，再替换 owned 约束行，执行原有范数和字段验收。
+解从该次组装已同步的 local trial 缓冲复制；只有验收成功才返回解与反力，失败仍使会话失效。
+原始反力不进入约束误差范数，也不再另做第二次相同物理组装。
 
 `solver.fields` 非空时要求完整列出实际字段，并显式提供每字段的 `residual_scale`；物理 atol/rtol 默认继承外层 solver，允许字段 rtol=0。约束尺度默认 1，约束绝对容差默认外层 absolute_tolerance。省略整个映射时使用尺度 1 及外层容差，仍执行逐字段检查；这只是原数值单位下的默认值，不是自动无量纲化。每次非线性调用在施加 prescribed 后计算初始范数，尺度与阈值冻结到该调用结束；重试时重新计算初始范数。固体静载的未知量为位移、撤载为速度，约束尺度应按当前求解阶段理解。
 

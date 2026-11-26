@@ -178,7 +178,7 @@ void verify(MPI_Comm comm)
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-snes_atol"));
     if(rank==0) std::cout<<"nonlinear field acceptance passed on "<<ranks<<" ranks\n";
 }
-void verify_lifetime(MPI_Comm comm,bool coo)
+void verify_lifetime(MPI_Comm comm,bool coo,bool matrix_coo)
 {
     int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
     AlgebraLayout layout;
@@ -197,8 +197,10 @@ void verify_lifetime(MPI_Comm comm,bool coo)
         // One remote-only producer, repeated rows, an ignored negative row,
         // and a rank with no contributions exercise the complete COO contract.
         const std::vector<PetscInt> rows=producer?std::vector<PetscInt>{0,0,1,1,2,2,-1}:std::vector<PetscInt>{};
-        const std::vector<PetscInt> diagonal=producer?std::vector<PetscInt>{0,1,2}:std::vector<PetscInt>{};
         system.set_residual_coo(rows);
+    }
+    if(matrix_coo) {
+        const std::vector<PetscInt> diagonal=producer?std::vector<PetscInt>{0,1,2}:std::vector<PetscInt>{};
         system.set_jacobian_coo(diagonal,diagonal);
     }
     auto* residual_buffer=system.residual_coo_values();
@@ -216,10 +218,12 @@ void verify_lifetime(MPI_Comm comm,bool coo)
             if(coo) {
                 require(residual_buffer[2*row]==0&&residual_buffer[2*row+1]==0,"Residual COO buffer was not cleared");
                 residual_buffer[2*row]=.25*residual[row]; residual_buffer[2*row+1]=.75*residual[row];
-                if(j) matrix_buffer[row]=tangent[row];
             } else {
                 EONSIM_PETSC(VecSetValue(r,row,residual[row],ADD_VALUES));
-                if(j) EONSIM_PETSC(MatSetValue(j,row,row,tangent[row],ADD_VALUES));
+            }
+            if(j) {
+                if(matrix_coo) matrix_buffer[row]=tangent[row];
+                else EONSIM_PETSC(MatSetValue(j,row,row,tangent[row],ADD_VALUES));
             }
         }
         if(coo) residual_buffer[6]=1e99;
@@ -328,11 +332,186 @@ void verify_lifetime(MPI_Comm comm,bool coo)
     require(next.solver_reused&&next.solver_generation==previous.solver_generation&&
             next.iterations==previous.iterations&&next.linear_iterations==previous.linear_iterations,
             "Retained Newton/line-search state changed the repeated solve trajectory");
+    // A stationary exact solution needs the initial function and one new final
+    // physical evaluation. Reactions must retain the constrained row and its
+    // remote ghost, while acceptance sees the replaced zero constraint defect.
+    std::vector<double> exact(3);
+    for(int row=0;row<3;++row) exact[index[row]]=row==2?11:row+1;
+    const std::vector<double> exact_prescribed(constrained_rows.size(),11);
+    int evaluations=0;
+    const auto exact_callback=[&](const std::vector<double>& x,Vec r,Mat j) {
+        ++evaluations;
+        linear(2,1)(x,r,j);
+    };
+    const auto stationary=system.solve(config,exact,constrained_rows,exact_prescribed,exact_callback);
+    require(stationary.iterations==0&&evaluations==2,"Final acceptance duplicated or skipped a fresh physical evaluation");
+    require(stationary.values==exact,"Final solution lost owned or ghost values");
+    require(stationary.raw_residual[index[0]]==0&&stationary.raw_residual[index[1]]==0&&
+            stationary.raw_residual[index[2]]==16,"Raw and constrained residuals were mixed during finalization");
+    require(stationary.residual_norm==0&&stationary.field_residuals.front().constraint_max==0,
+            "Raw reaction polluted final acceptance");
+    // Fault injection changes a free equation only in the final evaluation.
+    // Reusing SNES's already accepted function would incorrectly return success.
+    evaluations=0;
+    const auto changed_final=[&](const std::vector<double>& x,Vec r,Mat j) {
+        ++evaluations;
+        std::array<double,3> residual{2*(x[index[0]]-1),2*(x[index[1]]-2),2*(x[index[2]]-3)};
+        if(evaluations==2) residual[0]=1;
+        publish(r,j,residual,{2,2,2});
+    };
+    rejected=false;
+    try { system.solve(config,exact,constrained_rows,exact_prescribed,changed_final); }
+    catch(const StepRejected& e) { rejected=std::string(e.what()).find("Field acceptance failed")!=std::string::npos; }
+    require(rejected&&evaluations==2,"Fresh final physical acceptance was bypassed");
+    evaluations=0;
+    const auto recovered=system.solve(config,exact,constrained_rows,exact_prescribed,exact_callback);
+    require(!recovered.solver_reused&&evaluations==2&&recovered.raw_residual[index[2]]==16,
+            "Final rejection left a stale solver or raw reaction");
     bool late_pattern=false;
     try { system.set_residual_coo({}); }
     catch(const std::runtime_error&) { late_pattern=true; }
     require(late_pattern,"Residual COO configuration changed after solving");
-    if(rank==0) std::cout<<"nonlinear lifetime passed coo="<<coo<<" ranks="<<ranks<<'\n';
+    if(rank==0) std::cout<<"nonlinear lifetime passed coo="<<coo<<" matrix_coo="<<matrix_coo<<" ranks="<<ranks<<'\n';
+}
+void verify_initial_jacobian(MPI_Comm comm,bool semantic)
+{
+    int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
+    AlgebraLayout layout;
+    layout.global=4; layout.owned=ranks==1?4:2; layout.begin=rank*layout.owned;
+    layout.diagonal.assign(layout.owned,layout.owned);
+    layout.off_diagonal.assign(layout.owned,layout.global-layout.owned);
+    layout.fields["velocity"]={}; layout.fields["pressure"]={};
+    for(PetscInt row=layout.begin;row<layout.begin+layout.owned;++row) {
+        layout.local_to_global.push_back(row);
+        const bool velocity=row%2==0;
+        layout.fields[velocity?"velocity":"pressure"].push_back(row);
+        layout.owned_semantics.push_back({row/2,DofDomain::fluid,
+            velocity?DofQuantity::velocity:DofQuantity::pressure,DofEntity::vertex,0,0,1});
+    }
+    for(PetscInt row=0;row<4;++row)
+        if(row<layout.begin||row>=layout.begin+layout.owned) layout.local_to_global.push_back(row);
+    std::array<PetscInt,4> index{};
+    for(std::size_t i=0;i<layout.local_to_global.size();++i) index[layout.local_to_global[i]]=i;
+    NonlinearSystem reference(comm,layout),optimized(comm,layout);
+    SolverConfig config;
+    config.maximum_iterations=40;
+    config.pc_recipe=semantic?"physics":"";
+    FieldTolerance tolerance; tolerance.absolute_tolerance=1e-10; tolerance.relative_tolerance=0;
+    config.fields.emplace("velocity",tolerance); config.fields.emplace("pressure",tolerance);
+    if(semantic) EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_plan_schur_approx","nodal"));
+    else EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-schur_pc","true"));
+    // The independent outer solve sees the full coupled matrix. Small Jacobi
+    // subsolves avoid turning this lifecycle check into an AMG performance test.
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-fieldsplit_velocity_pc_type","jacobi"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-fieldsplit_pressure_pc_type","jacobi"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-ksp_rtol","1e-12"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-ksp_atol","1e-14"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-solver_rank_report","true"));
+    const std::array<double,4> target{2.,.5,3.,-.25};
+    const auto callback=[&](double coefficient,double cubic,bool constrained,bool fail,PetscInt& calls) {
+        return [&,coefficient,cubic,constrained,fail](const std::vector<double>& x,Vec r,Mat j) {
+            if(j) ++calls;
+            const double a[4][4]={{3*coefficient,.25,.1,0},{.5,-2*coefficient,0,.05},
+                                  {.1,0,4*coefficient,.25},{0,.05,.5,-3*coefficient}};
+            const PetscInt columns[]={0,1,2,3};
+            for(PetscInt row=layout.begin;row<layout.begin+layout.owned;++row) {
+                double residual=0; std::array<double,4> tangent{};
+                for(int column=0;column<4;++column) {
+                    residual+=a[row][column]*(x[index[column]]-target[column]);
+                    tangent[column]=a[row][column];
+                }
+                if(row%2==0) {
+                    const double value=x[index[row]],exact=target[row];
+                    residual+=cubic*(value*value*value-exact*exact*exact);
+                    tangent[row]+=3*cubic*value*value;
+                }
+                if(constrained&&row==2) residual+=7;
+                EONSIM_PETSC(VecSetValue(r,row,residual,ADD_VALUES));
+                if(j) EONSIM_PETSC(MatSetValues(j,1,&row,4,columns,tangent.data(),ADD_VALUES));
+            }
+            if(fail&&j&&rank==ranks-1) throw std::runtime_error("initial Jacobian failure control");
+            if(cubic&&!j&&rank==0&&(x[index[0]]>4||x[index[2]]>4))
+                throw StepRejected("initial Jacobian line-search domain control");
+        };
+    };
+    const auto run=[&](NonlinearSystem& system,bool reuse,double coefficient,double cubic,
+                       bool constrained,bool fail=false,bool exact=false,bool local_disable=false) {
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-nonlinear_initial_jacobian_reuse",
+            reuse&&!(local_disable&&rank==0)?"true":"false"));
+        std::vector<PetscInt> rows;
+        if(constrained&&2>=layout.begin&&2<layout.begin+layout.owned) rows.push_back(2);
+        const std::vector<double> prescribed(rows.size(),target[2]);
+        std::vector<double> initial(layout.local_to_global.size(),.25);
+        if(exact) for(int row=0;row<4;++row) initial[index[row]]=target[row];
+        PetscInt calls=0;
+        auto result=system.solve(config,initial,rows,prescribed,callback(coefficient,cubic,constrained,fail,calls));
+        require(calls==result.jacobian_assemblies,"Reported Jacobian work differs from physical callback count");
+        require(result.jacobian_assemblies==result.initial_jacobian_assemblies+
+            result.jacobian_callbacks-result.initial_jacobian_reuses,"Jacobian accounting lost a startup or callback evaluation");
+        require(result.jacobian_callbacks==result.iterations,"Newton Jacobian callback count differs from accepted corrections");
+        for(int row=0;row<4;++row) {
+            require(std::abs(result.values[index[row]]-target[row])<1e-9,"Initial Jacobian reuse changed a coupled physical solution");
+            const double expected=constrained&&row==2?7.:0.;
+            require(std::abs(result.raw_residual[index[row]]-expected)<1e-8,"Initial Jacobian reuse changed owned/ghost reactions");
+        }
+        if(!exact) {
+            require(result.jacobian_callbacks>0,"Jacobian check did not perform a Newton correction");
+            require(result.user_schur_updates==(semantic?result.jacobian_assemblies:0),
+                    "Nodal USER Schur was stale or refreshed more than once per numerical Jacobian");
+            if(reuse&&!local_disable) {
+                require(result.jacobian_assemblies==result.iterations,"Optimized Schur path retained redundant startup assembly");
+                require(result.initial_jacobian_reuses==result.initial_jacobian_assemblies,
+                        "Startup tangent was not used exactly once by the first Newton callback");
+                require(result.initial_jacobian_deferred==(result.initial_jacobian_assemblies==0),
+                        "Retained Schur path did not defer its first numeric update");
+            } else {
+                require(result.initial_jacobian_assemblies==1&&result.initial_jacobian_reuses==0&&
+                        !result.initial_jacobian_deferred&&result.jacobian_assemblies==result.iterations+1,
+                        "Disabled initial reuse did not retain the independent reference path");
+            }
+        }
+        return result;
+    };
+    const auto pair=[&](double coefficient,double cubic,bool constrained) {
+        const auto baseline=run(reference,false,coefficient,cubic,constrained);
+        const auto candidate=run(optimized,true,coefficient,cubic,constrained);
+        require(baseline.iterations==candidate.iterations&&baseline.linear_iterations==candidate.linear_iterations&&
+                baseline.domain_rejections==candidate.domain_rejections,"Initial Jacobian optimization changed the solver trajectory");
+        require(baseline.jacobian_assemblies==candidate.jacobian_assemblies+1,
+                "Paired Schur solve did not remove exactly one redundant Jacobian");
+        for(std::size_t i=0;i<baseline.values.size();++i)
+            require(std::abs(baseline.values[i]-candidate.values[i])<1e-12,"Paired Schur solutions differ");
+        return candidate;
+    };
+    auto first=pair(2,0,true);
+    require(!first.solver_reused&&first.initial_jacobian_reuses==1,"Fresh Schur solver did not consume its startup tangent");
+    auto changed=pair(5,0,true);
+    require(changed.solver_reused&&changed.initial_jacobian_deferred,"Changed coefficients did not update a retained Schur solver");
+    auto nonlinear=pair(.2,1,false);
+    require(!nonlinear.solver_reused&&nonlinear.domain_rejections>0,
+            "Constraint change or line-search rejection was not exercised");
+    auto repeated=pair(.2,1,false);
+    require(repeated.solver_reused&&repeated.initial_jacobian_deferred&&repeated.iterations==nonlinear.iterations,
+            "Retained nonlinear solve cached a previous step tangent or line-search state");
+    EONSIM_PETSC(PetscPushErrorHandler(PetscReturnErrorHandler,nullptr));
+    for(bool reuse:{false,true}) {
+        bool failed=false;
+        try { run(reuse?optimized:reference,reuse,7,0,false,true); }
+        catch(const std::runtime_error& e) { failed=std::string(e.what()).find("initial Jacobian failure control")!=std::string::npos; }
+        require(failed,"Rank-local Jacobian failure did not invalidate the startup state collectively");
+    }
+    EONSIM_PETSC(PetscPopErrorHandler());
+    auto recovered=pair(7,0,false);
+    require(!recovered.solver_reused&&recovered.initial_jacobian_reuses==1,
+            "Failed Jacobian left a cached matrix or numeric Schur in the next solve");
+    const auto stationary=run(optimized,true,7,0,false,false,true);
+    require(stationary.iterations==0&&stationary.jacobian_assemblies==0&&stationary.user_schur_updates==0,
+            "Converged retained state assembled or refreshed an unused Jacobian/Schur");
+    if(ranks==2) run(optimized,true,11,0,false,false,false,true);
+    for(const auto* option:{"-pc_plan_schur_approx","-schur_pc","-fieldsplit_velocity_pc_type",
+            "-fieldsplit_pressure_pc_type","-ksp_rtol","-ksp_atol","-solver_rank_report","-nonlinear_initial_jacobian_reuse"})
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,option));
+    if(rank==0) std::cout<<"initial Jacobian reuse passed semantic="<<semantic<<" ranks="<<ranks<<'\n';
 }
 }
 int main(int argc,char** argv)
@@ -340,8 +519,10 @@ int main(int argc,char** argv)
     PetscInitialize(&argc,&argv,nullptr,nullptr);
     try {
         verify(PETSC_COMM_WORLD);
-        verify_lifetime(PETSC_COMM_WORLD,false);
-        verify_lifetime(PETSC_COMM_WORLD,true);
+        for(bool residual_coo:{false,true}) for(bool matrix_coo:{false,true})
+            verify_lifetime(PETSC_COMM_WORLD,residual_coo,matrix_coo);
+        verify_initial_jacobian(PETSC_COMM_WORLD,false);
+        verify_initial_jacobian(PETSC_COMM_WORLD,true);
     }
     catch(const std::exception& e) { std::cerr<<e.what()<<'\n'; MPI_Abort(PETSC_COMM_WORLD,1); }
     return PetscFinalize();

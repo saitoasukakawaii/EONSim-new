@@ -1,0 +1,152 @@
+{
+  "status": "built",
+  "scope": "build eonsim target only",
+  "started_utc": "2026-11-25T22:20:53.428491+00:00",
+  "source_before": {
+    "commit": "2dcb06c26a0359175e4f5a771d5bbff6dfc928af",
+    "dirty": ""
+  },
+  "source_directory": "/workspace/scratch/ae740e1dde63/EONSim-baseline",
+  "build_directory": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/cloud-3.23.7-release",
+  "environment_wrapper": {
+    "path": "/workspace/scratch/ae740e1dde63/EONSim-new/build/locked.sh",
+    "sha256": "48e96f86b46990730e83f47b531c7ea3d1111e64e8116ea0b81c5def077951c5"
+  },
+  "dependency_prefix": "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7",
+  "dependency_lock": {
+    "path": "/workspace/scratch/ae740e1dde63/EONSim-baseline/environments/petsc-3.23.7-linux-64.lock",
+    "sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892"
+  },
+  "build_mode": "Release",
+  "parallel": 2,
+  "target": "eonsim",
+  "commands": [
+    {
+      "name": "configure",
+      "command": [
+        "bash",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/locked.sh",
+        "cmake",
+        "--preset",
+        "release",
+        "-B",
+        "build/cloud-3.23.7-release",
+        "-DBUILD_TESTING=ON",
+        "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+        "-DCMAKE_PREFIX_PATH=/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7",
+        "-DMPIEXEC_EXECUTABLE=/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+        "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+      ],
+      "cwd": "/workspace/scratch/ae740e1dde63/EONSim-baseline",
+      "started_utc": "2026-11-25T22:20:53.434929+00:00",
+      "log": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/evidence/configure.log",
+      "time_log": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/evidence/configure-time.txt",
+      "returncode": 0,
+      "timeout": false,
+      "ended_utc": "2026-11-25T22:20:55.510877+00:00",
+      "seconds": 2.0756779640000786
+    },
+    {
+      "name": "build",
+      "command": [
+        "bash",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/locked.sh",
+        "cmake",
+        "--build",
+        "build/cloud-3.23.7-release",
+        "--parallel",
+        "2",
+        "--target",
+        "eonsim"
+      ],
+      "cwd": "/workspace/scratch/ae740e1dde63/EONSim-baseline",
+      "started_utc": "2026-11-25T22:20:55.511401+00:00",
+      "log": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/evidence/build.log",
+      "time_log": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/evidence/build-time.txt",
+      "returncode": 0,
+      "timeout": false,
+      "ended_utc": "2026-11-25T22:21:42.854904+00:00",
+      "seconds": 47.34323029500001
+    },
+    {
+      "name": "ldd",
+      "command": [
+        "bash",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/locked.sh",
+        "ldd",
+        "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/cloud-3.23.7-release/eonsim"
+      ],
+      "cwd": "/workspace/scratch/ae740e1dde63/EONSim-baseline",
+      "started_utc": "2026-11-25T22:21:42.855614+00:00",
+      "log": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/evidence/ldd.log",
+      "time_log": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/evidence/ldd-time.txt",
+      "returncode": 0,
+      "timeout": false,
+      "ended_utc": "2026-11-25T22:21:42.887839+00:00",
+      "seconds": 0.0319847910000135
+    },
+    {
+      "name": "environment",
+      "command": [
+        "bash",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/locked.sh",
+        "python",
+        "-c",
+        "import json,os; print(json.dumps({name:os.environ.get(name) for name in [\"CONDA_PREFIX\",\"CC\",\"CXX\",\"PETSC_DIR\",\"LD_LIBRARY_PATH\",\"LIBRARY_PATH\",\"PKG_CONFIG_PATH\",\"OMP_NUM_THREADS\",\"OPENBLAS_NUM_THREADS\",\"MKL_NUM_THREADS\",\"CFLAGS\",\"CXXFLAGS\",\"CPPFLAGS\",\"LDFLAGS\",\"PETSC_ARCH\"]},indent=2))"
+      ],
+      "cwd": "/workspace/scratch/ae740e1dde63/EONSim-baseline",
+      "started_utc": "2026-11-25T22:21:42.888325+00:00",
+      "log": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/evidence/environment.log",
+      "time_log": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/evidence/environment-time.txt",
+      "returncode": 0,
+      "timeout": false,
+      "ended_utc": "2026-11-25T22:21:42.952905+00:00",
+      "seconds": 0.06432997499996418
+    }
+  ],
+  "ctest": {
+    "status": "not_run",
+    "reason": "Baseline binary build only; candidate tests are owned by root."
+  },
+  "performance": {
+    "status": "not_run",
+    "reason": "Avoid concurrent timing; build durations are not benchmark results."
+  },
+  "prior_attempts": [
+    {
+      "summary": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/evidence/summary-attempt1.json",
+      "reason": "/usr/bin/time missing; configure did not start"
+    }
+  ],
+  "environment": {
+    "CONDA_PREFIX": "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7",
+    "CC": "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/gcc",
+    "CXX": "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/g++",
+    "PETSC_DIR": "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7",
+    "LD_LIBRARY_PATH": "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/lib",
+    "LIBRARY_PATH": "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/lib",
+    "PKG_CONFIG_PATH": "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/lib/pkgconfig",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "CFLAGS": null,
+    "CXXFLAGS": null,
+    "CPPFLAGS": null,
+    "LDFLAGS": null,
+    "PETSC_ARCH": null
+  },
+  "binary": {
+    "path": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/cloud-3.23.7-release/eonsim",
+    "bytes": 2004792,
+    "sha256": "3399694877a426093cd1e8752ac26b2f63f7e9d826910db0b818b7911cb7af2b"
+  },
+  "cmake_cache": {
+    "path": "/workspace/scratch/ae740e1dde63/EONSim-baseline/build/cloud-3.23.7-release/CMakeCache.txt",
+    "sha256": "e4ebaa1afd93b01318b54ba8f976eb144f2dff2de21ee7739bc99158a5560e34"
+  },
+  "source_after": {
+    "commit": "2dcb06c26a0359175e4f5a771d5bbff6dfc928af",
+    "dirty": ""
+  },
+  "ended_utc": "2026-11-25T22:21:42.961871+00:00"
+}

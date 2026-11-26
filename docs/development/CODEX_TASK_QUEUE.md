@@ -1,5 +1,35 @@
 # EONSim Codex Task Queue
 
+## FSI-PERF-03 / implementation and validation complete / 2026-11-26
+
+基线为已合并 #52 的 `2dcb06c`；生产源码/二进制 `7e8868e`，实验驱动 `3e366c8` / `7d86f38`，
+全部遵循先推送、后验证。实现与验收完成；本记录最近核验的
+[PR #53](https://github.com/saitoasukakawaii/EONSim-new/pull/53) 为 open / Draft、head `7d86f38`。
+剩余交付步骤是最终证据提交、其四项必需检查和用户已授权的受保护 head-locked squash；
+合并结果只按 GitHub 权威状态更新，不新增用户审批步骤。
+
+| 已识别任务 | 已完成及证据边界 |
+|---|---|
+| 核与默认写入 | 压力列解析化，AD 28→24；紧凑物理块 AIJ，完整导数及贡献次序保持 |
+| 批次线程与失败 | 64-cell 持久团队；2 rank × 2 threads 的第二批 worker/insert 恢复和 fatal 均验收 |
+| 重复数值工作 | 最终新残量共用于独立验收/反力；同状态首切线一次性复用、后续起点延后；真实 J/USER 计数 |
+| 分区与身份 | 稳定分桶/前缀编号；显式权重、带权指纹、双分区实验收据；P1 的 168 对 HDF5 内容对照 |
+| 输出 | ASCII 默认紧凑边界、raw binary UInt64/LittleEndian、volume-only；32 次输出逐数组/拓扑精确对照 |
+| 性能与审计 | 88 FSI runs / 880 步 / 1,760 次线性修正；8,502 条哈希收据及 raw→pair 统计重放无误 |
+
+本地定向 Release **17/17**；源码 CI 实际 **48 Release + 24 Python**，驱动 CI 实际
+**1 Release + 21 Python、47 项复用**，IO 修复 CI **0 项新数值执行、48 项复用**。
+原 IO `KeyError('reason')` 的失败尝试保留；求解本身 exit 0、`CONVERGED_RTOL`，7d 推送后仅重跑 output。
+[完整命令、CI 来源与独立审计](../research/data/fsi-runtime-2026-11-26/README.md)。
+
+初始切线消融每次完整 J/USER **30→20**、wall 中位数 **−12.060%～−25.594%**，场/历史差精确 0；
+成本 `10:5,20:1` 的 n=8/2-rank 本例 wall **−10.585%**。默认收益混合，COO 双线程单 rank wall
+**+3.900%**；权重与线程不作为通用推荐。Binary 相对同紧凑 ASCII 的 output 时间
+**−81.338% / −82.010%**，字节 **+0.815% / +3.060%**，分别为 1/2 rank。
+性能仅共享主机 1/2 rank；部分正确性路径覆盖 4 rank，2/8/32 分片准备仅是离线 P1 数据验证。
+[草稿](../../website/drafts/fsi-runtime-cost-and-output.md) 保持未发布；本任务没有追加全量、Debug、
+3.19.6 或无限优化项，多节点/GPU 和不同生产网格仍需各自证据。
+
 ## FSI-PERF-02 / implementation and validation complete / 2026-11-25–26
 
 基线 main `4e25e2a7b1aa921dc473fe09cd5f9b3f09d4645f`，分支 `codex/fsi-performance-completion`，

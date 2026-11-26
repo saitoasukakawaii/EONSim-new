@@ -211,7 +211,10 @@ void outlet_residual_entries(const ReducedLayout& layout,const OutletTrace& trac
 struct FsiCellAssembly {
     FsiCellComponents active;
     std::size_t offset,coo_begin,coo_end;
+    bool compact_aij=true;
 };
+
+enum class FsiBatchFailure { none,worker,insert,worker_fatal,insert_fatal };
 
 // Fixed local contribution order. Time-dependent trace weights are intentionally
 // represented by a mask and supplied afresh on every attempt, including retries.
@@ -247,7 +250,32 @@ struct FsiAssemblyPlan {
                 }
             }
             if(touches_interface) interface_cells.push_back(e);
-            cells.push_back({active,offset,0,0});
+            FsiCellAssembly entry{active,offset,0,0};
+            if(!coo) {
+                // A block permutation is safe only if every repeated algebraic
+                // test row sees its physical rows in their original order.
+                // Columns within each block retain physical order, including
+                // duplicates. This stronger row check also preserves each
+                // (row,column) accumulation order under interface/rigid aliases.
+                std::array<std::size_t,Tet4Elastic::dofs> row_blocks;
+                const int nd=active.dofs();
+                for(int row=0;row<nd;++row) {
+                    const int component=active.first+row%active.count;
+                    row_blocks[row]=fsi_coupling_blocks.size();
+                    for(std::size_t b=0;b<fsi_coupling_blocks.size();++b) {
+                        const auto& block=fsi_coupling_blocks[b];
+                        if(component>=block.row_first&&component<block.row_first+block.row_count) {
+                            row_blocks[row]=b; break;
+                        }
+                    }
+                    if(rows[offset+row]<0) continue;
+                    if(row_blocks[row]==fsi_coupling_blocks.size()) entry.compact_aij=false;
+                    for(int before=0;before<row;++before)
+                        if(rows[offset+row]==rows[offset+before]&&row_blocks[before]>row_blocks[row])
+                            entry.compact_aij=false;
+                }
+            }
+            cells.push_back(entry);
         }
         if(residual_rows) {
             *residual_rows=rows;
@@ -460,6 +488,17 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_residual_coo",&residual_coo,nullptr));
     EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-fsi_threads",&threads,nullptr));
     if(threads<1||threads>256) throw std::runtime_error("-fsi_threads must be between 1 and 256");
+    char batch_failure_name[32]{};
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-verify_fsi_batch_failure",batch_failure_name,sizeof(batch_failure_name),nullptr));
+    const std::string failure_name(batch_failure_name);
+    FsiBatchFailure batch_failure=FsiBatchFailure::none;
+    if(failure_name=="worker") batch_failure=FsiBatchFailure::worker;
+    else if(failure_name=="insert") batch_failure=FsiBatchFailure::insert;
+    else if(failure_name=="worker_fatal") batch_failure=FsiBatchFailure::worker_fatal;
+    else if(failure_name=="insert_fatal") batch_failure=FsiBatchFailure::insert_fatal;
+    else if(!failure_name.empty()) throw std::runtime_error("Unknown -verify_fsi_batch_failure mode");
+    if(batch_failure!=FsiBatchFailure::none&&threads==1)
+        throw std::runtime_error("-verify_fsi_batch_failure requires multiple FSI threads");
 #ifndef _OPENMP
     if(threads!=1) throw std::runtime_error("-fsi_threads > 1 requires an OpenMP-enabled build");
 #endif
@@ -863,16 +902,37 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         unsigned long long total=0,maximum=0;
         MPI_Reduce(&bytes,&total,1,MPI_UNSIGNED_LONG_LONG,MPI_SUM,0,comm);
         MPI_Reduce(&bytes,&maximum,1,MPI_UNSIGNED_LONG_LONG,MPI_MAX,0,comm);
+        const auto compact=coo?0:std::count_if(assembly_plan.cells.begin(),assembly_plan.cells.end(),
+            [](const auto& cell) {return cell.compact_aij;});
         const unsigned long long contribution_counts[]{static_cast<unsigned long long>(assembly_plan.coo_contributions),
-            static_cast<unsigned long long>(assembly_plan.value_slots.size()*sizeof(std::uint32_t))};
-        unsigned long long totals[2]{};
-        MPI_Reduce(contribution_counts,totals,2,MPI_UNSIGNED_LONG_LONG,MPI_SUM,0,comm);
-        EONSIM_PETSC(PetscPrintf(comm,"fsi_execution_plan residual_coo=%d residual_value_bytes=%llu residual_value_bytes_max=%llu threads_requested=%d batch_cells=%zu coo_contributions=%llu coo_scatter_bytes=%llu\n",
-            int(residual_coo),total,maximum,int(threads),threads>1?batch_size:std::size_t(1),totals[0],totals[1]));
+            static_cast<unsigned long long>(assembly_plan.value_slots.size()*sizeof(std::uint32_t)),
+            static_cast<unsigned long long>(compact),coo?0:static_cast<unsigned long long>(assembly_plan.cells.size()-compact)};
+        unsigned long long totals[4]{};
+        MPI_Reduce(contribution_counts,totals,4,MPI_UNSIGNED_LONG_LONG,MPI_SUM,0,comm);
+        EONSIM_PETSC(PetscPrintf(comm,"fsi_execution_plan residual_coo=%d residual_value_bytes=%llu residual_value_bytes_max=%llu threads_requested=%d batch_cells=%zu coo_contributions=%llu coo_scatter_bytes=%llu aij_block_cells=%llu aij_dense_fallback_cells=%llu\n",
+            int(residual_coo),total,maximum,int(threads),threads>1?batch_size:std::size_t(1),totals[0],totals[1],totals[2],totals[3]));
     }
     FsiAssemblyEvents events;
     events.register_for_log_view();
     const FsiAssemblyEvents unmeasured;
+    bool batch_failure_injected=false;
+    bool batch_failure_reported=false;
+    int batch_failure_thread=-1,batch_failure_team=0;
+    std::size_t batch_failure_batch=0;
+    const bool verify_worker_failure=batch_failure==FsiBatchFailure::worker||batch_failure==FsiBatchFailure::worker_fatal;
+    const bool verify_insert_failure=batch_failure==FsiBatchFailure::insert||batch_failure==FsiBatchFailure::insert_fatal;
+    const auto inject_batch_failure=[&](std::size_t begin) {
+        batch_failure_injected=true;
+        batch_failure_batch=begin/batch_size;
+#ifdef _OPENMP
+        batch_failure_thread=omp_get_thread_num(); batch_failure_team=omp_get_num_threads();
+#else
+        batch_failure_thread=0; batch_failure_team=1;
+#endif
+        if(batch_failure==FsiBatchFailure::worker_fatal||batch_failure==FsiBatchFailure::insert_fatal)
+            throw std::runtime_error("Injected fatal FSI batch failure");
+        throw StepRejected("Injected recoverable FSI batch failure");
+    };
     std::optional<double> accepted_mass_volume;
     while(clock.active(config.stop_after)) {
         if(bdf2&&physical_history.previous_dt>0) clock.next_dt=std::min(clock.next_dt,2*physical_history.previous_dt);
@@ -1033,9 +1093,46 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 if(j&&!coo_jacobian) {
                     const auto* cols=assembly_plan.columns.data()+cell.offset;
                     const auto* trace=assembly_plan.mesh_trace.data()+cell.offset;
-                    for(int col=0;col<nd;++col) if(trace[col])
-                        for(int row=0;row<nd;++row) tangent[nd*row+col]*=mesh_dt;
-                    EONSIM_PETSC(MatSetValues(j,nd,rows,nd,cols,tangent,ADD_VALUES));
+                    if(!cell.compact_aij) {
+                        // An unusual cross-block alias must retain dense row
+                        // order; do not sort or pre-sum its repeated entries.
+                        for(int col=0;col<nd;++col) if(trace[col])
+                            for(int row=0;row<nd;++row) tangent[nd*row+col]*=mesh_dt;
+                        EONSIM_PETSC(MatSetValues(j,nd,rows,nd,cols,tangent,ADD_VALUES));
+                        return;
+                    }
+                    std::array<PetscInt,Layout::dofs> block_rows,block_columns;
+                    std::array<int,Layout::dofs> row_slots,column_slots;
+                    std::array<double,Layout::dofs*Layout::dofs> values;
+                    const auto active=cell.active;
+                    const int end=active.first+active.count;
+                    for(const auto& block:fsi_coupling_blocks) {
+                        const int row_begin=std::max(active.first,block.row_first),row_end=std::min(end,block.row_first+block.row_count);
+                        const int col_begin=std::max(active.first,block.column_first),col_end=std::min(end,block.column_first+block.column_count);
+                        if(row_begin>=row_end||col_begin>=col_end) continue;
+                        PetscInt nr=0,nc=0;
+                        for(int a=0;a<Tet4Topology::nodes;++a) {
+                            for(int c=row_begin;c<row_end;++c) {
+                                const auto slot=active.index(a,c);
+                                if(rows[slot]>=0) {row_slots[nr]=slot; block_rows[nr++]=rows[slot];}
+                            }
+                            for(int c=col_begin;c<col_end;++c) {
+                                const auto slot=active.index(a,c);
+                                if(cols[slot]>=0) {column_slots[nc]=slot; block_columns[nc++]=cols[slot];}
+                            }
+                        }
+                        if(!nr||!nc) continue;
+                        // Keep duplicate global columns and physical slot order.
+                        // Only the packed entries receive the current trial-map
+                        // weight; the full dense tangent is never rewritten.
+                        for(PetscInt row=0;row<nr;++row) for(PetscInt col=0;col<nc;++col) {
+                            const auto slot=column_slots[col];
+                            auto value=tangent[nd*row_slots[row]+slot];
+                            if(trace[slot]) value*=mesh_dt;
+                            values[row*nc+col]=value;
+                        }
+                        EONSIM_PETSC(MatSetValues(j,nr,block_rows.data(),nc,block_columns.data(),values.data(),ADD_VALUES));
+                    }
                 }
             };
             if(threads==1) {
@@ -1049,55 +1146,103 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     });
                 }
             } else measured(events.batch,[&] {
-                for(std::size_t begin=0;begin<data.size();begin+=batch_size) {
-                    const auto count=std::min(batch_size,data.size()-begin);
-                    std::exception_ptr error;
-                    int error_severity=0;
-                    std::ptrdiff_t error_item=static_cast<std::ptrdiff_t>(count);
-#ifdef _OPENMP
-#pragma omp parallel for num_threads(threads) schedule(static)
-#endif
-                    for(std::ptrdiff_t item=0;item<static_cast<std::ptrdiff_t>(count);++item) {
-                        try {
-#ifdef _OPENMP
-                            const auto worker=omp_get_thread_num();
-#else
-                            const int worker=0;
-#endif
-                            auto& residual=worker_residual[worker]; auto& tangent=worker_tangent[worker];
-                            const auto e=begin+item; const auto& cell=assembly_plan.cells[e];
-                            local_residual(e,full,j!=nullptr,cell.active,residual,tangent,unmeasured);
-                            if(residual_coo) std::copy(residual.begin(),residual.end(),residual_values+cell.offset);
-                            else std::copy(residual.begin(),residual.end(),batch_residual.data()+item*Layout::dofs);
-                            if(j) std::copy(tangent.begin(),tangent.end(),batch_tangent.data()+item*Layout::dofs*Layout::dofs);
-                        } catch(...) {
-                            const auto failure=std::current_exception();
-                            int severity=2;
-                            try {std::rethrow_exception(failure);}
-                            catch(const StepRejected&) {severity=1;}
-                            catch(...) {}
+                std::exception_ptr error;
+                int error_severity=0;
+                std::size_t error_item=data.size();
+                bool stop=false;
+                // Exercise a completed batch before the fault whenever this
+                // verification partition has one. Its COO values or ordinary
+                // insertion stash must remain safe to discard/drain on failure.
+                const auto failure_begin=data.size()>batch_size?batch_size:std::size_t(0);
+                const auto record_failure=[&](std::size_t item) {
+                    const auto failure=std::current_exception();
+                    int severity=2;
+                    try {std::rethrow_exception(failure);}
+                    catch(const StepRejected&) {severity=1;}
+                    catch(...) {}
 #ifdef _OPENMP
 #pragma omp critical(eonsim_fsi_batch_error)
 #endif
-                            {
-                                // Fatal errors outrank recoverable trials; equal
-                                // severities use cell order, independent of scheduling.
-                                if(severity>error_severity||(severity==error_severity&&item<error_item)) {
-                                    error=failure; error_severity=severity; error_item=item;
-                                }
-                            }
+                    {
+                        // Fatal errors outrank recoverable trials; equal
+                        // severities use cell order, independent of scheduling.
+                        if(severity>error_severity||(severity==error_severity&&item<error_item)) {
+                            error=failure; error_severity=severity; error_item=item;
                         }
                     }
-                    // Workers are joined before an exception or any PETSc/MPI call.
-                    if(error) std::rethrow_exception(error);
-                    measured(events.insert,[&] {
-                        for(std::size_t item=0;item<count;++item) {
-                            const auto& cell=assembly_plan.cells[begin+item];
-                            auto* tangent=j?batch_tangent.data()+item*Layout::dofs*Layout::dofs:nullptr;
-                            if(coo_jacobian) pack_tangent(cell,tangent);
-                            insert_cell(cell,residual_coo?nullptr:batch_residual.data()+item*Layout::dofs,tangent);
+                };
+                // One team per callback, with bounded buffers reused by every
+                // batch. All threads take both barriers even after a failure.
+#ifdef _OPENMP
+#pragma omp parallel num_threads(threads)
+#endif
+                {
+                    for(std::size_t begin=0;begin<data.size();begin+=batch_size) {
+                        const auto count=std::min(batch_size,data.size()-begin);
+#ifdef _OPENMP
+#pragma omp for schedule(static)
+#endif
+                        for(std::ptrdiff_t item=0;item<static_cast<std::ptrdiff_t>(count);++item) {
+                            try {
+#ifdef _OPENMP
+                                const auto worker=omp_get_thread_num();
+#else
+                                const int worker=0;
+#endif
+                                auto& residual=worker_residual[worker]; auto& tangent=worker_tangent[worker];
+                                const auto e=begin+item; const auto& cell=assembly_plan.cells[e];
+                                local_residual(e,full,j!=nullptr,cell.active,residual,tangent,unmeasured);
+                                if(residual_coo) std::copy(residual.begin(),residual.end(),residual_values+cell.offset);
+                                else std::copy(residual.begin(),residual.end(),batch_residual.data()+item*Layout::dofs);
+                                if(j) std::copy(tangent.begin(),tangent.end(),batch_tangent.data()+item*Layout::dofs*Layout::dofs);
+                                // The last item exercises a non-master worker
+                                // when the test partition has at least two cells.
+                                if(verify_worker_failure&&mesh.rank==0&&begin==failure_begin&&
+                                   item+1==static_cast<std::ptrdiff_t>(count)&&j&&!batch_failure_injected)
+                                    inject_batch_failure(begin);
+                            } catch(...) { record_failure(begin+item); }
                         }
-                    });
+                        // The omp-for barrier completes all kernel writes. Only
+                        // thread zero (the MPI main thread) enters PETSc/logging.
+#ifdef _OPENMP
+#pragma omp master
+#endif
+                        {
+                            if(!error) {
+                                try {
+                                    measured(events.insert,[&] {
+                                        for(std::size_t item=0;item<count;++item) {
+                                            const auto& cell=assembly_plan.cells[begin+item];
+                                            auto* tangent=j?batch_tangent.data()+item*Layout::dofs*Layout::dofs:nullptr;
+                                            if(coo_jacobian) pack_tangent(cell,tangent);
+                                            insert_cell(cell,residual_coo?nullptr:batch_residual.data()+item*Layout::dofs,tangent);
+                                            if(verify_insert_failure&&mesh.rank==0&&begin==failure_begin&&
+                                               item==0&&j&&!batch_failure_injected)
+                                                inject_batch_failure(begin);
+                                        }
+                                    });
+                                } catch(...) { record_failure(begin); }
+                            }
+                            stop=static_cast<bool>(error);
+                        }
+#ifdef _OPENMP
+#pragma omp barrier
+#endif
+                        // Workers may already report errors in the next batch
+                        // while a slower thread leaves this barrier. Read only
+                        // master's decision, never the mutable exception_ptr.
+                        // Its next write follows the next omp-for barrier.
+                        if(stop) break;
+                    }
+                }
+                // Join precedes the rank-level error collective in Context.
+                if(error) {
+                    if(mesh.rank==0&&batch_failure_injected&&!batch_failure_reported) {
+                        std::cout<<"fsi_batch_failure mode="<<failure_name<<" thread="<<batch_failure_thread
+                                 <<" team="<<batch_failure_team<<" batch="<<batch_failure_batch<<'\n';
+                        batch_failure_reported=true;
+                    }
+                    std::rethrow_exception(error);
                 }
             });
             std::size_t coo_cursor=assembly_plan.tangent_slots.size(),residual_cursor=assembly_plan.rows.size();

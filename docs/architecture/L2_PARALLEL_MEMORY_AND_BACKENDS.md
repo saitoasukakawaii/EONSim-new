@@ -62,17 +62,43 @@ CMake 的 `EONSIM_ENABLE_OPENMP` 在工具链可用时接入 OpenMP；运行默�
 每批最多 64 个单元，每个 worker 复用自己的 residual/tangent 工作区，输入几何、历史、
 时间系数和 expanded trial 场在该批次内只读。worker 不调用 PETSc、MPI、日志事件或 I/O，
 不写物理历史；残量 COO 按单元 offset 写不重叠区间，切线写不重叠的批次缓冲。
-主线程 join 后按单元顺序完成 compact COO scatter-add 或普通 Mat/Vec 插入。
+每次装配只创建一个 OpenMP 团队，各批次在共同 barrier 处完成 worker 写入后，由原始
+主线程按单元顺序完成 compact COO scatter-add 或普通 Mat/Vec 插入；下一批在插入完成后开始。
 不同单元映射到相同代数坐标不授权 worker 并发累加同一个值槽，也不需要浮点 atomics。
 批次存储与本地单元总数无关，不缓存所有单元的完整 dense Jacobian。
 
-worker 异常先在受保护区保存，所有线程 join 后才在主线程重抛并进入既有 rank 间错误
-同步。失败的部分 COO 缓冲不发布，普通插入已存在的 stash 必须排空；后续重试重新清零
+worker 异常先在受保护区保存，主线程插入异常也在团队内捕获；线程经过共同 barrier 后
+一致结束，所有线程 join 后才在主线程重抛并进入既有 rank 间错误同步。
+失败的部分 COO 缓冲不发布，普通插入已存在的 stash 必须排空；后续重试重新清零
 缓冲并更新 trial/time 系数。接口力重放在批次结束后使用原始物理残量，与线程数无关。
 请求线程数不等于实际同时工作的线程数，`FSIElementBatch` 计时包含批次调度和插入，
 不能与内部 `FSIInsert` 直接相加。实现本身不构成线程加速或多节点扩展性的证据。
 
 ## Owner、view 和执行空间
+
+### 离线分区与输出的数据路径
+
+`prepare_partitions` 仍是单 rank 离线 METIS；默认空成本表保留原输入、seed、
+分配与 fingerprint。每个 cell/face 按原输入顺序只归入一个 owner 桶，节点
+代数编号由 owner 计数/前缀和形成，保留 rank-major/input-node-major 次序。
+局部编号仍是 owned 在前、ghost 在后。单次全网格 fingerprint 不在每 rank 重算。
+
+显式 `-partition_cell_weights tag:cost,...` 只适用于 `-prepare`，未指定 tag 的
+成本为 1；不存在的 tag、非正或超范围成本/总量在写文件之前拒绝。它不是材料
+参数，也不从物理域名称推测成本。非空表采用独立 fingerprint domain 并纳入
+实际 cell owner 序列，避免与不同分配的分片/checkpoint 混用；空表身份保持兼容。
+`-partition_report` 才收集 METIS、layout、write 计时及各 rank/tag 负载。
+prepare 总计不含调用前 mesh import，P2 空间构建计入 layout 而保存计入 write。
+
+VTU 默认保留 ASCII；边界 piece 默认只保存其单元引用的节点，按原 local 顺序
+重新编号 connectivity，并映射所有点字段和稳定整数 ID。可用
+`-vtu_compact_boundary false` 选择完整本地点集，`-vtu_boundary false` 关闭
+边界 companion 与索引，`-vtu_format binary` 选择 little-endian raw appended
+数据、UInt64 长度头与流式有界暂存。输出配置在主线程、首次输出前设置一次；
+无 MPI gather、无 PETSc 依赖、无整场编码副本。PVTU 仍只在所有 piece 写完后发布。
+格式详见 [VTK XML](https://docs.vtk.org/en/latest/vtk_file_formats/vtkxml_file_format.html)。
+
+### Owner 与求解器生命周期
 
 首版 owner 可用 `std::vector`/RAII PETSc wrapper；C++17 的 view 用已有轻量类型或指针＋长度即可，不因 `std::span` 尚不可用就自建大型容器库。view 不负责释放且不得超过 owner 生命周期。accepted/trial 必须是独立可写存储，或有明确且正确的交换协议；浅拷贝不是状态快照。
 

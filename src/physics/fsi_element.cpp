@@ -8,12 +8,24 @@ FsiElementData::FsiElementData(const Tet4Topology::Nodal<Point>& coordinates)
     :reference(coordinates),reference_geometry(tet4_geometry(reference)),
      mesh_stiffness(poisson_element(reference_geometry,1,0).stiffness) {}
 namespace {
+constexpr int kinematic_components=2*Space3::dimension;
+constexpr int kinematic_dofs=Tet4Topology::nodes*kinematic_components;
+constexpr int kinematic_column(int direction) {
+    const int component=direction%kinematic_components;
+    return Tet4Ale::dof(direction/kinematic_components,
+        component<Space3::dimension?component:Tet4Ale::mesh_offset+component-Space3::dimension);
+}
+struct PressureColumnData {
+    double tau=0;
+    Point mean_transport{}; // Cell mean of rho (u-w), zero when convection is disabled.
+};
 // Integral mean of the quadratic relative transport speed on an affine P1 cell.
 // The four barycentric gradient dyads give the same metric under any vertex order.
 // Both coefficients remain functions of the current fluid and ALE Newton unknowns.
 template<class S>
 auto metric_fluid_residual(const FsiElementData& data,const SimplexGeometry<Tet4Topology,S>& geometry,
-                           const Tet4Flow::State<S>& fluid,const Tet4Topology::Nodal<Space3::Vector<S>>& mesh_velocity) {
+                           const Tet4Flow::State<S>& fluid,const Tet4Topology::Nodal<Space3::Vector<S>>& mesh_velocity,
+                           double* evaluated_tau) {
     static const double scale=std::cbrt(.25);
     Tet4Topology::Nodal<Space3::Vector<S>> relative{};
     Space3::Vector<S> sum{};
@@ -40,26 +52,61 @@ auto metric_fluid_residual(const FsiElementData& data,const SimplexGeometry<Tet4
     using std::sqrt;
     const S inverse_tau=data.fluid.density*sqrt(frequency*frequency+advection+36*nu*nu*square);
     const S tau=1/inverse_tau,grad_div=inverse_tau/trace;
+    if(evaluated_tau) *evaluated_tau=primal(tau);
     return fluid_residual(geometry,data.fluid,fluid,data.previous_fluid,mesh_velocity,tau,grad_div);
 }
 
 template<class S>
 Tet4Flow::State<S> fluid_ale_residual(const FsiElementData& data,const Tet4Ale::State<S>& x,
-                                    const SimplexGeometry<Tet4Topology,S>& geometry)
+                                    const SimplexGeometry<Tet4Topology,S>& geometry,
+                                    PressureColumnData* pressure_columns=nullptr)
 {
     Tet4Topology::Nodal<Space3::Vector<S>> velocity{};
     Tet4Flow::State<S> fluid{};
     for(int a=0;a<Tet4Topology::nodes;++a) {
-        if(data.fluid.convection) for(int c=0;c<Space3::dimension;++c)
+        if(data.fluid.convection) for(int c=0;c<Space3::dimension;++c) {
             velocity[a][c]=(x[Tet4Ale::dof(a,Tet4Ale::mesh_offset+c)]-data.previous_mesh[a][c])/(data.mesh_dt>0?data.mesh_dt:data.fluid.dt);
+            if(pressure_columns) pressure_columns->mean_transport[c]+=Tet4Topology::mean_weight*data.fluid.density*
+                (primal(x[Tet4Ale::dof(a,c)])-primal(velocity[a][c]));
+        }
         for(int c=0;c<Tet4Flow::components;++c) fluid[Tet4Flow::dof(a,c)]=x[Tet4Ale::dof(a,c)];
     }
-    return data.regular_metric_dt>0 ? metric_fluid_residual(data,geometry,fluid,velocity) :
-        fluid_residual(geometry,data.fluid,fluid,data.previous_fluid,velocity);
+    if(data.regular_metric_dt>0)
+        return metric_fluid_residual(data,geometry,fluid,velocity,pressure_columns?&pressure_columns->tau:nullptr);
+    if(pressure_columns) pressure_columns->tau=data.fluid.tau;
+    return fluid_residual(geometry,data.fluid,fluid,data.previous_fluid,velocity);
+}
+
+// Pressure is affine in this residual: neither the fixed nor current-metric
+// stabilization depends on p. Integrate its four columns directly, while its
+// primal values remain in the AD expression for every velocity/ALE derivative.
+void add_pressure_columns(const Tet4Geometry& geometry,const PressureColumnData& coefficients,
+                          Tet4Ale::Matrix<double>& tangent)
+{
+    for(int a=0;a<Tet4Topology::nodes;++a) {
+        const auto& ga=geometry.gradients[a];
+        double streamline=0;
+        if(coefficients.tau>0) for(int j=0;j<Space3::dimension;++j)
+            streamline+=ga[j]*coefficients.mean_transport[j];
+        for(int b=0;b<Tet4Topology::nodes;++b) {
+            const auto& gb=geometry.gradients[b];
+            const int column=Tet4Ale::dof(b,Tet4Flow::pressure);
+            for(int i=0;i<Space3::dimension;++i) {
+                double value=-geometry.volume*(Tet4Topology::mean_weight*ga[i]);
+                if(coefficients.tau>0) value+=geometry.volume*coefficients.tau*streamline*gb[i];
+                tangent[Tet4Ale::matrix(Tet4Ale::dof(a,i),column)]=value;
+            }
+            if(coefficients.tau>0) {
+                double pspg=0;
+                for(int j=0;j<Space3::dimension;++j) pspg+=coefficients.tau*ga[j]*gb[j];
+                tangent[Tet4Ale::matrix(Tet4Ale::dof(a,Tet4Flow::pressure),column)]=geometry.volume*pspg;
+            }
+        }
+    }
 }
 
 // The reference mesh equation is linear and componentwise. Populate its exact
-// block directly instead of propagating 28 derivative lanes through zero terms.
+// block directly instead of propagating derivative lanes through zero terms.
 // The fluid rows still differentiate every current-geometry/velocity coefficient.
 void add_mesh_and_pressure(const FsiElementData& data,const Tet4Ale::State<double>& x,
                           const Tet4Topology::Nodal<Point>& current,Tet4Ale::State<double>& r,
@@ -129,28 +176,31 @@ Tet4Ale::State<double> fsi_element_residual(const FsiElementData& data,const Tet
 }
 FsiElementResult fsi_element(const FsiElementData& data,const Tet4Ale::State<double>& x)
 {
-    using D=Dual<Tet4Ale::dofs>;
+    using D=Dual<kinematic_dofs>;
     const auto coordinates=current_coordinates(data,x);
     const auto g=tet4_geometry(coordinates);
     SimplexGeometry<Tet4Topology,D> geometry{}; geometry.volume=g.volume;
     Tet4Ale::State<D> trial{};
-    for(int i=0;i<Tet4Ale::dofs;++i) { trial[i]=x[i]; trial[i].derivative[i]=1; }
+    for(int i=0;i<Tet4Ale::dofs;++i) trial[i]=x[i];
+    for(int i=0;i<kinematic_dofs;++i) trial[kinematic_column(i)].derivative[i]=1;
     for(int b=0;b<Tet4Topology::nodes;++b) for(int j=0;j<Space3::dimension;++j) geometry.gradients[b][j]=g.gradients[b][j];
     // dV/dx_ai = V grad(Na)_i; d grad(Nb)_j/dx_ai = -grad(Nb)_i grad(Na)_j.
     // 仿射几何精确导数作为种子，普通求值和切线共享同一个残量表达。
     for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i) {
-        const int column=Tet4Ale::dof(a,Tet4Ale::mesh_offset+i);
+        const int column=a*kinematic_components+Space3::dimension+i;
         geometry.volume.derivative[column]=g.volume*g.gradients[a][i];
         for(int b=0;b<Tet4Topology::nodes;++b) for(int j=0;j<Space3::dimension;++j)
             geometry.gradients[b][j].derivative[column]=-g.gradients[b][i]*g.gradients[a][j];
     }
-    const auto r=fluid_ale_residual(data,trial,geometry);
+    PressureColumnData pressure_columns;
+    const auto r=fluid_ale_residual(data,trial,geometry,&pressure_columns);
     FsiElementResult result;
     for(int i=0;i<Tet4Flow::dofs;++i) {
         const int row=Tet4Ale::dof(Tet4Flow::node(i),Tet4Flow::component(i));
         result.residual[row]=r[i].value;
-        for(int j=0;j<Tet4Ale::dofs;++j) result.tangent[Tet4Ale::matrix(row,j)]=r[i].derivative[j];
+        for(int j=0;j<kinematic_dofs;++j) result.tangent[Tet4Ale::matrix(row,kinematic_column(j))]=r[i].derivative[j];
     }
+    add_pressure_columns(g,pressure_columns,result.tangent);
     add_mesh_and_pressure(data,x,coordinates,result.residual,&result.tangent);
     return result;
 }

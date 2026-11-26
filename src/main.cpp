@@ -12,12 +12,15 @@
 #include "eonsim/vtu.hpp"
 
 #include <array>
+#include <charconv>
 #include <chrono>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <optional>
 #include <stdexcept>
+#include <string_view>
 
 namespace {
 std::optional<std::string> option(const char* name)
@@ -27,6 +30,30 @@ std::optional<std::string> option(const char* name)
     EONSIM_PETSC(PetscOptionsGetString(nullptr, nullptr, name, text.data(), text.size(), &found));
     if (found) return std::string(text.data());
     return std::nullopt;
+}
+std::map<int,int> partition_weights(std::string_view text)
+{
+    std::map<int,int> weights;
+    const auto integer=[](std::string_view value) {
+        int result=0;
+        const auto [end,error]=std::from_chars(value.data(),value.data()+value.size(),result);
+        if(value.empty() || error!=std::errc{} || end!=value.data()+value.size())
+            throw std::runtime_error("-partition_cell_weights requires tag:positive_cost pairs separated by commas");
+        return result;
+    };
+    do {
+        const auto comma=text.find(',');
+        const auto item=text.substr(0,comma);
+        const auto colon=item.find(':');
+        if(colon==std::string_view::npos || item.find(':',colon+1)!=std::string_view::npos)
+            throw std::runtime_error("-partition_cell_weights requires tag:positive_cost pairs separated by commas");
+        const int tag=integer(item.substr(0,colon)),cost=integer(item.substr(colon+1));
+        if(cost<=0 || !weights.emplace(tag,cost).second)
+            throw std::runtime_error("-partition_cell_weights requires positive costs and unique physical tags");
+        if(comma==std::string_view::npos) break;
+        text.remove_prefix(comma+1);
+    } while(true);
+    return weights;
 }
 void default_threads(const char* name)
 {
@@ -66,13 +93,33 @@ int main(int argc, char* argv[])
         if (!case_file) {
             std::cout << "Usage: eonsim -case case.yaml [-mesh mesh.msh] [-output result.vtu]\n"
                          "       [-partition directory] [-prepare directory -parts N]\n"
+                         "       [-partition_cell_weights tag:cost,...] [-partition_report]\n"
                          "       [-diagnostics basic|full] [-block_pc] [-solver_report] [-fluid_coo|-fsi_coo]\n"
+                         "       [-solver_rank_report] [-nonlinear_initial_jacobian_reuse true|false]\n"
                          "       [-fsi_assembly_report] [-fsi_residual_coo true|false] [-fsi_threads N]\n"
+                         "       [-vtu_format ascii|binary] [-vtu_boundary true|false] [-vtu_compact_boundary true|false]\n"
                          "       [-checkpoint dir] [-restart dir] [-stop_after N] [PETSc options]\n";
         } else {
             using Clock = std::chrono::steady_clock;
             const auto begin = Clock::now();
             auto config = eonsim::read_config(*case_file);
+            eonsim::VtuOptions vtu_options;
+            const auto vtu_format=option("-vtu_format").value_or("ascii");
+            if(vtu_format!="ascii" && vtu_format!="binary")
+                throw std::runtime_error("-vtu_format must be ascii or binary");
+            vtu_options.binary=vtu_format=="binary";
+            PetscBool vtu_boundary=PETSC_TRUE,vtu_compact=PETSC_TRUE;
+            EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-vtu_boundary",&vtu_boundary,nullptr));
+            EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-vtu_compact_boundary",&vtu_compact,nullptr));
+            vtu_options.boundary=vtu_boundary;
+            vtu_options.compact_boundary=vtu_compact;
+            eonsim::configure_vtu_output(vtu_options);
+            const auto weight_text=option("-partition_cell_weights");
+            PetscBool partition_report=PETSC_FALSE,partition_report_set=PETSC_FALSE;
+            EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-partition_report",&partition_report,&partition_report_set));
+            if(!prepare && (weight_text || partition_report_set))
+                throw std::runtime_error("-partition_cell_weights and -partition_report require offline -prepare");
+            const auto weights=weight_text?partition_weights(*weight_text):std::map<int,int>{};
             if(rank==0)std::cout << "layout_policy semantic_order=" << config.semantic_order << " storage_order=" << config.storage_order << '\n';
             PetscBool fluid_coo=PETSC_FALSE;
             EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fluid_coo",&fluid_coo,nullptr));
@@ -107,7 +154,23 @@ int main(int argc, char* argv[])
                 PetscInt parts = 1;
                 EONSIM_PETSC(PetscOptionsGetInt(nullptr, nullptr, "-parts", &parts, nullptr));
                 if (parts < 1 || parts > 1000000) throw std::runtime_error("Invalid -parts");
-                eonsim::prepare_partitions(read_mesh(), static_cast<int>(parts), *prepare, config.scalar2d_problem?config.scalar2d.degree:1);
+                eonsim::PartitionReport report;
+                eonsim::prepare_partitions(read_mesh(), static_cast<int>(parts), *prepare,
+                    config.scalar2d_problem?config.scalar2d.degree:1,weights,partition_report?&report:nullptr);
+                if(partition_report) {
+                    std::cout << std::setprecision(16) << "partition_report ranks=" << parts
+                        << " weighted=" << report.weighted << " total_weighted_cost=" << report.total_weighted_cost
+                        << " metis_index_max=" << report.metis_index_max
+                        << " total_seconds=" << report.total_seconds << " metis_seconds=" << report.metis_seconds
+                        << " layout_seconds=" << report.layout_seconds << " write_seconds=" << report.write_seconds << '\n';
+                    for(const auto& local:report.ranks) {
+                        std::cout << "partition_rank rank=" << local.rank << " cells=" << local.cells
+                            << " nodes=" << local.nodes << " owned=" << local.owned_nodes << " ghost=" << local.ghost_nodes
+                            << " faces=" << local.faces << " weighted_cost=" << local.weighted_cost << '\n';
+                        for(const auto& [tag,cells]:local.cells_by_tag)
+                            std::cout << "partition_tag rank=" << local.rank << " tag=" << tag << " cells=" << cells << '\n';
+                    }
+                }
                 std::cout << "Prepared " << parts << " HDF5 partitions in " << *prepare << "\nstatus=success\n";
             } else {
             const auto mesh = partition ? eonsim::read_partition(*partition, rank, size) : read_mesh();
@@ -115,8 +178,9 @@ int main(int argc, char* argv[])
             std::vector<eonsim::GlobalId> counts(size);
             const eonsim::GlobalId owned = mesh.owned_nodes;
             MPI_Allgather(&owned, 1, MPI_INT64_T, counts.data(), 1, MPI_INT64_T, PETSC_COMM_WORLD);
-            eonsim::GlobalId owned_start = 0, total = 0;
-            for (int r = 0; r < size; ++r) { if (r < rank) owned_start += counts[r]; total += counts[r]; }
+            std::vector<eonsim::GlobalId> owner_offsets(size+1,0);
+            for (int r = 0; r < size; ++r) owner_offsets[r+1]=owner_offsets[r]+counts[r];
+            const eonsim::GlobalId owned_start=owner_offsets[rank],total=owner_offsets.back();
             const eonsim::GlobalId local_cells = mesh.topological_dimension==2?mesh.cells2.size():mesh.cells.size();
             eonsim::GlobalId total_cells = 0;
             MPI_Allreduce(&local_cells, &total_cells, 1, MPI_INT64_T, MPI_SUM, PETSC_COMM_WORLD);
@@ -127,8 +191,9 @@ int main(int argc, char* argv[])
             if (owned_start != mesh.owned_begin || total != mesh.global_nodes || min_hash != max_hash)
                 throw std::runtime_error("Inconsistent partition set");
             for (std::size_t n = 0; n < mesh.nodes.size(); ++n) {
-                eonsim::GlobalId owner_begin = 0;
-                for (int r = 0; r < mesh.owners[n]; ++r) owner_begin += counts[r];
+                if(mesh.owners[n]<0 || mesh.owners[n]>=size)
+                    throw std::runtime_error("Ghost node has an invalid owner");
+                const auto owner_begin=owner_offsets[mesh.owners[n]];
                 if (mesh.algebra_ids[n] < owner_begin || mesh.algebra_ids[n] >= owner_begin+counts[mesh.owners[n]])
                     throw std::runtime_error("Ghost ID does not belong to its declared owner");
             }
