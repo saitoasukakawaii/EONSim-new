@@ -14,6 +14,8 @@ struct MonolithicFsiMgLevelStats {
  */
 struct MonolithicFsiMgStats {
     PetscInt levels=0,applications=0,refreshes=0,hierarchy_rebuilds=0,coarse_processes=0;
+    /// Rejected near-identity coarsening (zero when the ratio guard was not needed).
+    PetscInt weak_coarsening_stop_rows=0,weak_coarsening_proposed_rows=0;
     /// Actual level residual matvecs and omitted A*0 actions, excluding smoothers/transfers/coarse solves.
     PetscInt level_matvecs=0,zero_start_skips=0,coarse_revisits=0;
     bool single_precision=false,native_fp32=false,field_scaling=false,fsi_candidates=false,w_cycle=false;
@@ -60,9 +62,20 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * Explicit field_scaling builds A_s=L A R from globally agreed semantic-field
  * row/column maxima. The PC action is R M_s^-1 L; the outer Jacobian/residual
  * are unchanged. Physical candidates are transformed by R^-1. Changes to the
- * source rebuild these scales and their hierarchy. fsi_candidates additionally
- * preserves pressure coordinate modes and interface-local coherent translation,
- * rotation and pressure modes; no new exact nullspace is asserted.
+ * source rebuild these scales and their hierarchy. The first restriction is
+ * P^T W, W=R L^-1, so its coarse matrix is (R P)^T A (R P): independent row and
+ * column equilibration preserves the original physical Galerkin test space.
+ * W is applied before either FP64 or native FP32 restriction; only its diagonal
+ * vector remains after setup, not an additional FP64 fine operator.
+ * fsi_candidates additionally preserves pressure coordinate modes and
+ * interface-local coherent translation, rotation and pressure modes. Fluid
+ * dilation x/3 and directional quadratic velocities e_i*x_i^2/2 pair the
+ * pressure modes 1,x_i with nonzero velocity divergence in normalized reference
+ * coordinates. Constraints still remove candidate values on identity rows;
+ * these are near modes, not a new exact nullspace or a coarse inf-sup proof.
+ * With fsi_candidates the default max_coarse_ratio is 0.8 (otherwise 1): reject
+ * a proposed level that reduces too few rows and solve its parent as coarsest.
+ * This is a hierarchy work bound, independent of physical/Krylov tolerances.
  * cycle=w revisits each noncoarsest coarse level with its current residual.
  * adaptive_patches keeps every entity core covered and grows overlap only on
  * the true interface or rows whose inter-entity absolute coupling fraction

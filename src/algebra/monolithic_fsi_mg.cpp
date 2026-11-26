@@ -15,7 +15,7 @@
 namespace eonsim {
 namespace {
 constexpr const char* shell_name="EONSim all-field monolithic FSI multigrid";
-constexpr std::size_t candidate_count=32;
+constexpr std::size_t candidate_count=36;
 using Candidate=std::array<double,candidate_count>;
 void check(MPI_Comm comm,bool valid,const std::string& message) {
     int bad=!valid,any=0;
@@ -32,7 +32,7 @@ struct Options {
     PetscInt aggregate_nodes=12,aggregate_rows=192,max_levels=8,coarse_limit=96;
     PetscInt energy_steps=1,spectral_modes=2,pre_smooth=1,post_smooth=1,coarse_processes=1;
     PetscInt spectral_refresh_period=0,coarse_patch_overlap=0;
-    double spectral_tolerance=.1;
+    double spectral_tolerance=.1,max_coarse_ratio=1.;
     bool single_precision=false,report=false,field_scaling=false,fsi_candidates=false,native_fp32=false,w_cycle=false;
     FsiLevelSmootherOptions smoother;
 };
@@ -62,6 +62,10 @@ Options options(MPI_Comm comm,const std::string& prefix) {
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"adaptive_patches").c_str(),&adaptive,nullptr));
     o.single_precision=single||native; o.report=report; o.smoother.patches.single_precision=o.single_precision;
     o.field_scaling=scaling;o.fsi_candidates=candidates;o.native_fp32=native;
+    // An enriched local basis has a finite rank floor. Stop before another
+    // level costs almost as much as its parent without reducing the problem.
+    if(o.fsi_candidates) o.max_coarse_ratio=.8;
+    EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"max_coarse_ratio").c_str(),&o.max_coarse_ratio,nullptr));
     o.smoother.patches.adaptive=adaptive;o.smoother.patches.native_storage=native;
     char type[64]{}; PetscBool set=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+"smoother").c_str(),type,sizeof(type),&set));
@@ -88,13 +92,14 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         o.spectral_refresh_period>=0&&o.spectral_refresh_period<=1000000&&
         o.coarse_patch_overlap>=0&&o.coarse_patch_overlap<=2&&values[21]!=0&&
         (!o.native_fp32||o.smoother.kind=="vanka")&&(!o.smoother.patches.adaptive||o.smoother.kind=="vanka");
-    const double real[]={o.spectral_tolerance,o.smoother.eigenvalue_ratio,o.smoother.patches.damping};
-    double min_real[3]{},max_real[3]{};
-    MPI_Allreduce(real,min_real,3,MPI_DOUBLE,MPI_MIN,comm);
-    MPI_Allreduce(real,max_real,3,MPI_DOUBLE,MPI_MAX,comm);
-    for(int i=0;i<3;++i) valid=valid&&std::isfinite(real[i])&&min_real[i]==max_real[i];
+    const double real[]={o.spectral_tolerance,o.smoother.eigenvalue_ratio,o.smoother.patches.damping,o.max_coarse_ratio};
+    double min_real[4]{},max_real[4]{};
+    MPI_Allreduce(real,min_real,4,MPI_DOUBLE,MPI_MIN,comm);
+    MPI_Allreduce(real,max_real,4,MPI_DOUBLE,MPI_MAX,comm);
+    for(int i=0;i<4;++i) valid=valid&&std::isfinite(real[i])&&min_real[i]==max_real[i];
     valid=valid&&o.spectral_tolerance>=0&&o.spectral_tolerance<=1&&
-        o.smoother.eigenvalue_ratio>0&&o.smoother.eigenvalue_ratio<1;
+        o.smoother.eigenvalue_ratio>0&&o.smoother.eigenvalue_ratio<1&&
+        o.max_coarse_ratio>0&&o.max_coarse_ratio<=1;
     check(comm,valid,"inconsistent or out-of-range hierarchy options");
     return o;
 }
@@ -196,6 +201,15 @@ LevelData fine_data(MPI_Comm comm,Mat matrix,const std::vector<DofKey>& semantic
             if(key.quantity==DofQuantity::pressure) {
                 for(int c=0;c<3;++c) modes[22+c]=x[c];
                 if(trace[local]) modes[31]=1.;
+            }
+            if(key.quantity==DofQuantity::velocity&&key.domain==DofDomain::fluid&&key.component<3&&
+               key.kind==DofEntity::vertex&&key.mode==0&&key.space==1) {
+                // In normalized reference coordinates, div(x/3)=1 and
+                // div(e_i*x_i^2/2)=x_i. Pair constant/affine pressure with
+                // smooth velocity divergence modes; translations/rotations
+                // alone have zero divergence. Dirichlet rows stay excluded.
+                modes[32]=x[key.component]/3.;
+                modes[33+key.component]=.5*x[key.component]*x[key.component];
             }
             if(trace[local]&&vector_offset>=0&&key.component<3) {
                 modes[25+key.component]=1.;
@@ -606,6 +620,7 @@ struct Level {
     LevelData data;
     std::shared_ptr<FsiLevelSmoother> smoother;
     PetscOwner<Vec,VecDestroy> rhs,solution,residual,correction,second_rhs,second_solution;
+    PetscOwner<Vec,VecDestroy> restriction_weights,restriction_input;
     NativeFloatSparse float_matrix,float_transfer;
 };
 struct Hierarchy {
@@ -641,9 +656,40 @@ struct Hierarchy {
             if(global<=configuration.coarse_limit) break;
             auto transfer=tentative_transfer(comm,levels.back().matrix.get(),levels.back().data,configuration);
             if(!transfer.matrix.get()) break;
+            if(static_cast<double>(transfer.stats.coarse_rows)>
+               configuration.max_coarse_ratio*static_cast<double>(global)) {
+                stats.weak_coarsening_stop_rows=global;
+                stats.weak_coarsening_proposed_rows=transfer.stats.coarse_rows;
+                break;
+            }
             minimize_transfer_energy(comm,levels.back().matrix.get(),levels.back().data,transfer,configuration.energy_steps);
             Level next;
-            EONSIM_PETSC(MatPtAP(levels.back().matrix.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,next.matrix.put()));
+            if(depth==1&&configuration.field_scaling) {
+                // P interpolates scaled unknowns y, x=R*y. Retain the original
+                // physical Galerkin test space R*P: Q^T=P^T*R*L^-1 and
+                // Q^T*(L*A*R)*P=(R*P)^T*A*(R*P). Using plain P^T here would
+                // change the test space whenever independent field row/column
+                // scales differ, and can destroy mixed coarse stability.
+                auto& parent=levels.back();
+                EONSIM_PETSC(VecDuplicate(left_scale.get(),parent.restriction_weights.put()));
+                EONSIM_PETSC(VecDuplicate(left_scale.get(),parent.restriction_input.put()));
+                EONSIM_PETSC(VecPointwiseDivide(parent.restriction_weights.get(),right_scale.get(),left_scale.get()));
+                const PetscScalar* weights=nullptr;bool valid=true;
+                EONSIM_PETSC(VecGetArrayRead(parent.restriction_weights.get(),&weights));
+                for(std::size_t row=0;row<parent.data.active.size();++row)
+                    valid=valid&&weights[row]>0&&std::isfinite(weights[row]);
+                EONSIM_PETSC(VecRestoreArrayRead(parent.restriction_weights.get(),&weights));
+                check(comm,valid,"physical restriction weights are outside representable precision");
+                PetscOwner<Mat,MatDestroy> form;
+                EONSIM_PETSC(MatDuplicate(parent.matrix.get(),MAT_COPY_VALUES,form.put()));
+                EONSIM_PETSC(MatDiagonalScale(form.get(),parent.restriction_weights.get(),nullptr));
+                EONSIM_PETSC(MatPtAP(form.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,next.matrix.put()));
+                // Scaled hierarchies rebuild on actual numeric changes. No
+                // product reuse needs to retain this temporary FP64 operator.
+                EONSIM_PETSC(MatProductClear(next.matrix.get()));
+            } else {
+                EONSIM_PETSC(MatPtAP(levels.back().matrix.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,next.matrix.put()));
+            }
             levels.back().prolongation=std::move(transfer.matrix);
             next.data=std::move(transfer.coarse); stats.transfers.push_back(transfer.stats);
             levels.push_back(std::move(next));
@@ -825,10 +871,13 @@ struct Hierarchy {
         EONSIM_PETSC(PetscPrintf(comm,
             "pc_monolithic_mg prefix=%s levels=%" PetscInt_FMT " coarse_processes=%" PetscInt_FMT
             " single_precision=%d refreshes=%" PetscInt_FMT " hierarchy_rebuilds=%" PetscInt_FMT
-            " smoother=%s field_scaling=%d fsi_candidates=%d native_fp32=%d cycle=%s\n",
+            " smoother=%s field_scaling=%d fsi_candidates=%d native_fp32=%d cycle=%s"
+            " max_coarse_ratio=%.17g weak_coarsening_stop_rows=%" PetscInt_FMT
+            " weak_coarsening_proposed_rows=%" PetscInt_FMT "\n",
             prefix.empty()?"-":prefix.c_str(),stats.levels,stats.coarse_processes,
             stats.single_precision?1:0,stats.refreshes,stats.hierarchy_rebuilds,configuration.smoother.kind.c_str(),
-            stats.field_scaling?1:0,stats.fsi_candidates?1:0,stats.native_fp32?1:0,stats.w_cycle?"w":"v"));
+            stats.field_scaling?1:0,stats.fsi_candidates?1:0,stats.native_fp32?1:0,stats.w_cycle?"w":"v",
+            configuration.max_coarse_ratio,stats.weak_coarsening_stop_rows,stats.weak_coarsening_proposed_rows));
         for(std::size_t i=0;i<stats.transfers.size();++i) {
             const auto& level=stats.transfers[i];
             EONSIM_PETSC(PetscPrintf(comm,
@@ -982,9 +1031,14 @@ struct Hierarchy {
             PetscCall(smooth(index,rhs,solution,valid,step==0));
         PetscCall(residual(index,rhs,solution,configuration.pre_smooth==0));
         auto& coarse_level=levels[index+1];
+        Vec restriction_input=level.residual.get();
+        if(level.restriction_weights.get()) {
+            PetscCall(VecPointwiseMult(level.restriction_input.get(),level.restriction_weights.get(),restriction_input));
+            restriction_input=level.restriction_input.get();
+        }
         if(configuration.single_precision)
-            PetscCall(level.float_transfer.multiply(level.residual.get(),coarse_level.rhs.get(),true));
-        else PetscCall(MatMultTranspose(level.prolongation.get(),level.residual.get(),coarse_level.rhs.get()));
+            PetscCall(level.float_transfer.multiply(restriction_input,coarse_level.rhs.get(),true));
+        else PetscCall(MatMultTranspose(level.prolongation.get(),restriction_input,coarse_level.rhs.get()));
         PetscCall(cycle(index+1,coarse_level.rhs.get(),coarse_level.solution.get(),valid));
         if(configuration.w_cycle&&index+2<levels.size()) {
             PetscCall(multiply(index+1,coarse_level.solution.get(),coarse_level.second_rhs.get()));

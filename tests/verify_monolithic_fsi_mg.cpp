@@ -266,6 +266,9 @@ void verify_enhancements(MPI_Comm comm,bool native,bool only_scaling) {
         if(only_scaling) continue;
         check(comm,stats.fsi_candidates&&stats.w_cycle&&stats.levels>=3&&stats.coarse_revisits>0,
               "FSI coarse enrichment or residual W-cycle was not exercised");
+        for(const auto& transfer:stats.transfers)
+            check(comm,transfer.coarse_rows<=.8*transfer.rows&&transfer.reproduction_error<1e-9,
+                  "Enriched hierarchy accepted weak coarsening or lost paired pressure/divergence modes");
         PetscInt expanded=0,core=0;
         for(const auto& smoother:stats.smoothers) {
             expanded+=smoother.patches.expanded_patches;core+=smoother.patches.core_patches;
@@ -289,6 +292,72 @@ void verify_enhancements(MPI_Comm comm,bool native,bool only_scaling) {
     action(problem,solver.get(),3);
 }
 
+void verify_scaled_projection(MPI_Comm comm) {
+    // The tentative spaces have the same physical span under a change of
+    // field units. With one exact coarse solve and no energy/spectral change,
+    // the complete two-level PC must therefore be invariant. Interface modes
+    // mix fields with distinct row scales, so plain P^T restriction would
+    // violate this property even though each individual solve is nonsingular.
+    Problem problem(comm,true);
+    PetscOwner<Vec,VecDestroy> rhs,plain,scaled;
+    EONSIM_PETSC(MatCreateVecs(problem.matrix.get(),plain.put(),rhs.put()));
+    EONSIM_PETSC(VecDuplicate(plain.get(),scaled.put()));
+    PetscScalar* entries=nullptr;EONSIM_PETSC(VecGetArray(rhs.get(),&entries));
+    for(PetscInt row=problem.begin;row<problem.end;++row)
+        entries[row-problem.begin]=std::sin(.19*(row+1))+.3*std::cos(.07*(row+1));
+    EONSIM_PETSC(VecRestoreArray(rhs.get(),&entries));
+    for(bool equilibrated:{false,true}) {
+        const std::string prefix=equilibrated?"mgproject_scaled_":"mgproject_plain_";
+        const auto base="-"+prefix+"monolithic_mg_";
+        for(const auto& setting:std::vector<std::pair<std::string,std::string>>{
+            {"aggregate_nodes","4"},{"coarse_limit","1"},{"max_levels","2"},
+            {"energy_steps","0"},{"spectral_modes","0"},{"fsi_candidates","true"},
+            {"max_coarse_ratio","1"},{"field_scaling",equilibrated?"true":"false"}})
+            EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+setting.first).c_str(),setting.second.c_str()));
+        PcSchurUpdates updates;
+        PetscOwner<KSP,KSPDestroy> solver;
+        EONSIM_PETSC(KSPCreate(comm,solver.put()));
+        EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),prefix.c_str()));
+        EONSIM_PETSC(KSPSetOperators(solver.get(),problem.matrix.get(),problem.matrix.get()));
+        configure_monolithic_fsi_mg(comm,solver.get(),problem.matrix.get(),problem.semantics,
+            problem.coordinates,problem.trace,&updates);
+        PC pc=nullptr;EONSIM_PETSC(KSPGetPC(solver.get(),&pc));
+        MonolithicFsiMgStats stats;query_monolithic_fsi_mg_stats(pc,stats);
+        check(comm,stats.levels==2,"Scaled projection invariant did not exercise a mixed coarse space");
+        EONSIM_PETSC(PCApply(pc,rhs.get(),equilibrated?scaled.get():plain.get()));
+    }
+    PetscReal norm=0,difference=0;
+    EONSIM_PETSC(VecNorm(plain.get(),NORM_2,&norm));
+    EONSIM_PETSC(VecAXPY(scaled.get(),-1.,plain.get()));
+    EONSIM_PETSC(VecNorm(scaled.get(),NORM_2,&difference));
+    check(comm,norm>0&&difference<=1e-10*norm,
+          "Two-sided equilibration changed the original physical mixed coarse projection");
+}
+
+void verify_weak_coarsening_stop(MPI_Comm comm) {
+    Problem problem(comm,true);
+    const std::string prefix="mgstop_",base="-"+prefix+"monolithic_mg_";
+    for(const auto& setting:std::vector<std::pair<std::string,std::string>>{
+        {"aggregate_nodes","2"},{"coarse_limit","1"},{"max_coarse_ratio","0.25"},
+        {"energy_steps","0"},{"spectral_modes","0"}})
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+setting.first).c_str(),setting.second.c_str()));
+    PcSchurUpdates updates;
+    PetscOwner<KSP,KSPDestroy> solver;
+    EONSIM_PETSC(KSPCreate(comm,solver.put()));
+    EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),prefix.c_str()));
+    EONSIM_PETSC(KSPSetType(solver.get(),KSPFGMRES));
+    EONSIM_PETSC(KSPSetTolerances(solver.get(),1e-12,1e-14,PETSC_DEFAULT,100));
+    EONSIM_PETSC(KSPSetOperators(solver.get(),problem.matrix.get(),problem.matrix.get()));
+    configure_monolithic_fsi_mg(comm,solver.get(),problem.matrix.get(),problem.semantics,
+        problem.coordinates,problem.trace,&updates);
+    PC pc=nullptr;EONSIM_PETSC(KSPGetPC(solver.get(),&pc));
+    MonolithicFsiMgStats stats;query_monolithic_fsi_mg_stats(pc,stats);
+    check(comm,stats.levels==1&&stats.transfers.empty()&&stats.weak_coarsening_stop_rows==Problem::n&&
+        stats.weak_coarsening_proposed_rows>.25*Problem::n,
+        "Weak coarsening did not collectively retain the parent as the exact coarse problem");
+    action(problem,solver.get(),0);
+}
+
 void run(MPI_Comm comm) {
     int size=0; MPI_Comm_size(comm,&size); check(comm,size==1||size==2||size==4,"Expected 1, 2 or 4 ranks");
     verify(comm,"vanka",false,false,true);
@@ -303,6 +372,8 @@ void run(MPI_Comm comm) {
     verify_enhancements(comm,false,true);
     verify_enhancements(comm,false,false);
     verify_enhancements(comm,true,false);
+    verify_scaled_projection(comm);
+    verify_weak_coarsening_stop(comm);
     EONSIM_PETSC(PetscPrintf(comm,
         "Monolithic FSI MG: full indefinite manufactured solutions, bounded whole-aggregate coarse Vanka/explicit oversize rejection, candidate preservation, energy descent, spectral enrichment, FP32 V-cycle, coarse MPI aggregation, numeric refresh/recovery and polynomial smoothers passed\n"));
 }
