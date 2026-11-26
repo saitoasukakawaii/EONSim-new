@@ -1,0 +1,71 @@
+{
+  "status": "calibration_only",
+  "source_commit": "7e8868e433fb0040806a6faf3ba8cd289a2aa3f1",
+  "ranks": 2,
+  "subdivisions": 8,
+  "accepted_steps": 10,
+  "method": "Fit T_rank = c_fluid*N_fluid + c_solid*N_solid using aggregate callback seconds; includes residual/J and callback overhead. This is a case-local approximate cost model, not universal kernel timing.",
+  "counts": [
+    [
+      2875,
+      247
+    ],
+    [
+      197,
+      2828
+    ]
+  ],
+  "callback_seconds": [
+    0.730806796,
+    0.194793995
+  ],
+  "fitted_seconds_per_cell_trajectory": {
+    "fluid": 0.0002497707517783386,
+    "solid": 5.1481314320957314e-05
+  },
+  "fluid_to_solid_ratio": 4.851677838315415,
+  "candidate_weights": {
+    "10": 5,
+    "20": 1
+  },
+  "evidence": {
+    "load-prepare.log": "a2e8384e8ab6847ca8fde23b56a290d1368ab4b4a81dec8da8e93d3044ad12dc",
+    "load-profile.log": "7790173ed52c96872361bf30047d05a6aa69fa83ce3b1a1a151cea1b63dc1cf9",
+    "load-petsc.log": "bd0e568d207ae4bf7442a9ed0240218d7f0029f0ec67d22c8353148804fb80b6"
+  },
+  "commands": [
+    [
+      "build/cloud-3.23.7-release/eonsim",
+      "-case",
+      "build/runtime-campaigns/default/n8-input/case.yaml",
+      "-prepare",
+      "build/runtime-campaigns/load-profile-partition",
+      "-parts",
+      "2",
+      "-partition_report"
+    ],
+    [
+      ".cloud/petsc-3.23.7/bin/mpiexec",
+      "-n",
+      "2",
+      "build/cloud-3.23.7-release/eonsim",
+      "-case",
+      "build/runtime-campaigns/default/n8-input/case.yaml",
+      "-partition",
+      "build/runtime-campaigns/load-profile-partition",
+      "-output",
+      "build/runtime-campaigns/load-profile.vtu",
+      "-solver_rank_report",
+      "-linear_report",
+      "-fsi_assembly_report",
+      "-ksp_type",
+      "preonly",
+      "-pc_type",
+      "lu",
+      "-pc_factor_mat_solver_type",
+      "superlu_dist",
+      "-log_view",
+      ":build/runtime-campaigns/load-petsc.log"
+    ]
+  ]
+}

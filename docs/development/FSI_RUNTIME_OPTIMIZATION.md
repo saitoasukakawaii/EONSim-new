@@ -10,7 +10,7 @@ running validation, followed by a PR merge after the required checks pass.
 Every source fix follows that same order. The locked environment is PETSc 3.23.7
 Release; no default full-suite, Debug or legacy-version rebuild is added.
 
-## Implemented changes awaiting execution
+## Implemented and validated changes
 
 | Area | Change | Preserved contract |
 |---|---|---|
@@ -45,7 +45,8 @@ Release; no default full-suite, Debug or legacy-version rebuild is added.
 - `-vtu_compact_boundary false` restores full local point sets in boundary
   pieces for comparisons. The default keeps only nodes referenced by boundary
   cells, preserving their original local order.
-- `-vtu_boundary false` omits companion boundary pieces and their PVTU index.
+- `-vtu_boundary false` omits newly written companion boundary pieces and their
+  PVTU index. It does not delete stale files at a previously used prefix.
 
 `jacobian_assemblies` counts completed physical tangent assemblies,
 `jacobian_callbacks` counts SNES requests, and `initial_jacobian_reuses` counts
@@ -53,18 +54,52 @@ the one-use startup reuse. `user_schur_updates` counts this application's nodal
 USER matrix construction/refresh, not PETSc's internal `PCSetUp` calls. For
 nested KSP/PC event costs use a separate, explicitly logged `-log_view` sample.
 
-## Verification and measurement status
+## Verification and measured results
 
-At this source-preparation checkpoint, new compilation, tests and benchmarks
-have **not run**. Planned gates include exact pressure derivatives, actual
-second-batch threaded faults, Schur lifetime/refresh controls, MPI topology and
-weighted partition identity, and independent VTU decoding. Source and benchmark
-drivers are pushed before execution. Actual commands, source SHAs, failures and
-results will be recorded in
-[`docs/research/data/fsi-runtime-2026-11-26`](../research/data/fsi-runtime-2026-11-26/README.md).
+Production source `7e8868e433fb0040806a6faf3ba8cd289a2aa3f1` was pushed before
+execution. Clean PETSc 3.23.7 Release local selection passed **17/17**; source
+CI actually ran and passed **48 Release checks plus 24 Python checks**.
+Weighted-driver `3e366c8` ran one affected Release check and reused 47 compatible
+historical results; its 21 Python checks passed. I/O parser fix `7d86f38` leaves
+production C++ unchanged and reuses 48 Release results. Final evidence-only
+checks retain these original execution identities.
 
-The performance claim will distinguish paired wall time from phase timers,
-retained-session controls from baseline-to-candidate changes, and default ASCII
-from opt-in binary output. Cost weights are user inputs rather than measured
-universal speedups. Multi-node, GPU, nonmatching interfaces and a universal
+Four FSI campaigns include **88 runs, 880 accepted steps and 1,760 true linear
+corrections**. Independent replay checked fields/history, iterations, raw logs
+and 8,502 file hashes. Maximum physical difference is 4.440892098500626e-16,
+history difference 2.9841559419667343e-15; numerical gates were not relaxed.
+The initial-J same-binary control gives exactly equal fields/history and
+**30 → 20 physical Jacobian/USER updates** per ten-step run; paired wall
+medians fall 12.06%–25.59% on these cases.
+
+Default baseline-to-candidate results are mixed: assembly medians range from
+−12.54% to +0.14%, and wall from −3.81% to +0.47%. COO with two threads lowers
+assembly but increases single-rank wall 3.90%; these remain explicit controls.
+Case-calibrated `10:5,20:1` costs give two-rank wall −10.58% and assembly −29.09%;
+this is an opt-in result for one mesh/material/solver combination.
+
+P1 offline preparation of 82,944 cells into 2/8/32 shards gives paired wall
+medians −12.25% / −16.54% / −32.70%. Independent checks compare 168 actual HDF5
+shard pairs, explicitly handling matching zero-length datasets. These are serial
+prepares, not 32-rank solve scaling. P2 space preparation retains existing
+rank-global scans; no whole-path linear-complexity claim is made.
+
+Independent decoding validates all 32 output experiments. Compact boundary
+points cut total bytes 22.23%–23.18% relative to full ASCII. Holding compaction
+fixed, binary reduces measured output time 81.34%–82.01% but increases bytes
+0.815%–3.060%. ASCII remains the format default. Output timings include
+application synchronization/index writes, not durable fsync latency.
+
+The original I/O experiment's `KeyError('reason')` is retained as failed: the
+solver succeeded and its driver expected the wrong convergence token. The
+pushed fix reran only output; the completed partition stage was audited
+separately. No full-suite, Debug or legacy-version run was added.
+
+See [commands, sources, paired ranges, raw archive and limitations](../research/data/fsi-runtime-2026-11-26/README.md).
+Performance measurements use one shared host with 1/2 MPI ranks; some
+correctness paths use four ranks. Independent maximum-rank phase times must
+not be added, and separate experiment percentages cannot be combined into a
+universal speedup. Multi-node, GPU, nonmatching interfaces and a universal
 optimal preconditioner are outside the implemented and measured scope.
+Delivery and authoritative merge state are
+[PR #53](https://github.com/saitoasukakawaii/EONSim-new/pull/53).

@@ -1,0 +1,156 @@
+{
+  "status": "passed",
+  "script_sha256": "c3a486144067d37b3e7faa9cb33b40df0d93d40d8644b8c3753e68496eb10500",
+  "independent_audit": "/workspace/scratch/ae740e1dde63/EONSim-new/build/runtime-campaigns/audit-io-independent-01.json",
+  "independent_audit_sha256": "a329be85502533bc7c74213b41a9264d2cbdb4a781c37eb09f267cc002bfc5cf",
+  "empty_dataset_checks": [
+    {
+      "label": "h5diff-p32-sample-1-rank_27.h5",
+      "command": [
+        "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/h5diff",
+        "-c",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/runtime-campaigns/io-partition/prepare-p32-sample-1-baseline/rank_27.h5",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/runtime-campaigns/io-partition/prepare-p32-sample-1-candidate/rank_27.h5"
+      ],
+      "returncode": 0,
+      "stdout": "Not comparable: </boundary_tags> or </boundary_tags> is an empty dataset\nNot comparable: </face_ids> or </face_ids> is an empty dataset\nNot comparable: </face_nodes> or </face_nodes> is an empty dataset\nNot comparable: </face_tags> or </face_tags> is an empty dataset\n",
+      "matching_empty_types": {
+        "boundary_tags": "H5T_STD_I32LE",
+        "face_ids": "H5T_STD_I64LE",
+        "face_nodes": "H5T_STD_I32LE",
+        "face_tags": "H5T_STD_I32LE"
+      },
+      "conclusion": "Both datasets have identical zero extents and datatypes; no numeric entries exist to compare."
+    },
+    {
+      "label": "h5diff-p32-sample0-rank_27.h5",
+      "command": [
+        "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/h5diff",
+        "-c",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/runtime-campaigns/io-partition/prepare-p32-sample0-baseline/rank_27.h5",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/runtime-campaigns/io-partition/prepare-p32-sample0-candidate/rank_27.h5"
+      ],
+      "returncode": 0,
+      "stdout": "Not comparable: </boundary_tags> or </boundary_tags> is an empty dataset\nNot comparable: </face_ids> or </face_ids> is an empty dataset\nNot comparable: </face_nodes> or </face_nodes> is an empty dataset\nNot comparable: </face_tags> or </face_tags> is an empty dataset\n",
+      "matching_empty_types": {
+        "boundary_tags": "H5T_STD_I32LE",
+        "face_ids": "H5T_STD_I64LE",
+        "face_nodes": "H5T_STD_I32LE",
+        "face_tags": "H5T_STD_I32LE"
+      },
+      "conclusion": "Both datasets have identical zero extents and datatypes; no numeric entries exist to compare."
+    },
+    {
+      "label": "h5diff-p32-sample1-rank_27.h5",
+      "command": [
+        "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/h5diff",
+        "-c",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/runtime-campaigns/io-partition/prepare-p32-sample1-baseline/rank_27.h5",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/runtime-campaigns/io-partition/prepare-p32-sample1-candidate/rank_27.h5"
+      ],
+      "returncode": 0,
+      "stdout": "Not comparable: </boundary_tags> or </boundary_tags> is an empty dataset\nNot comparable: </face_ids> or </face_ids> is an empty dataset\nNot comparable: </face_nodes> or </face_nodes> is an empty dataset\nNot comparable: </face_tags> or </face_tags> is an empty dataset\n",
+      "matching_empty_types": {
+        "boundary_tags": "H5T_STD_I32LE",
+        "face_ids": "H5T_STD_I64LE",
+        "face_nodes": "H5T_STD_I32LE",
+        "face_tags": "H5T_STD_I32LE"
+      },
+      "conclusion": "Both datasets have identical zero extents and datatypes; no numeric entries exist to compare."
+    },
+    {
+      "label": "h5diff-p32-sample2-rank_27.h5",
+      "command": [
+        "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/h5diff",
+        "-c",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/runtime-campaigns/io-partition/prepare-p32-sample2-baseline/rank_27.h5",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/runtime-campaigns/io-partition/prepare-p32-sample2-candidate/rank_27.h5"
+      ],
+      "returncode": 0,
+      "stdout": "Not comparable: </boundary_tags> or </boundary_tags> is an empty dataset\nNot comparable: </face_ids> or </face_ids> is an empty dataset\nNot comparable: </face_nodes> or </face_nodes> is an empty dataset\nNot comparable: </face_tags> or </face_tags> is an empty dataset\n",
+      "matching_empty_types": {
+        "boundary_tags": "H5T_STD_I32LE",
+        "face_ids": "H5T_STD_I64LE",
+        "face_nodes": "H5T_STD_I32LE",
+        "face_tags": "H5T_STD_I32LE"
+      },
+      "conclusion": "Both datasets have identical zero extents and datatypes; no numeric entries exist to compare."
+    }
+  ],
+  "direct_binary_vs_ascii_compact": [
+    {
+      "ranks": 1,
+      "pairs": {
+        "wall_seconds": [
+          -0.15557938394525217,
+          -0.1560412016634215,
+          -0.11786991724129348
+        ],
+        "output_seconds": [
+          -0.8211808773373506,
+          -0.8121719543510746,
+          -0.8133764779043525
+        ],
+        "bytes": [
+          0.008147232501800605,
+          0.008147232501800605,
+          0.008147232501800605
+        ]
+      },
+      "relative_change": {
+        "wall_seconds": {
+          "median": -0.15557938394525217,
+          "minimum": -0.1560412016634215,
+          "maximum": -0.11786991724129348
+        },
+        "output_seconds": {
+          "median": -0.8133764779043525,
+          "minimum": -0.8211808773373506,
+          "maximum": -0.8121719543510746
+        },
+        "bytes": {
+          "median": 0.008147232501800605,
+          "minimum": 0.008147232501800605,
+          "maximum": 0.008147232501800605
+        }
+      }
+    },
+    {
+      "ranks": 2,
+      "pairs": {
+        "wall_seconds": [
+          -0.0882939753788129,
+          -0.09441263698070324,
+          -0.04451586379802619
+        ],
+        "output_seconds": [
+          -0.8994604135912199,
+          -0.8201004983152173,
+          -0.790210304924799
+        ],
+        "bytes": [
+          0.03060266550971069,
+          0.03060266550971069,
+          0.03060266550971069
+        ]
+      },
+      "relative_change": {
+        "wall_seconds": {
+          "median": -0.0882939753788129,
+          "minimum": -0.09441263698070324,
+          "maximum": -0.04451586379802619
+        },
+        "output_seconds": {
+          "median": -0.8201004983152173,
+          "minimum": -0.8994604135912199,
+          "maximum": -0.790210304924799
+        },
+        "bytes": {
+          "median": 0.03060266550971069,
+          "minimum": 0.03060266550971069,
+          "maximum": 0.03060266550971069
+        }
+      }
+    }
+  ]
+}
