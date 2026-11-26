@@ -1,0 +1,33 @@
+{
+  "remote_commit": "b7d727bd10231c22987b18114d1e25d622b2b8f1",
+  "verified_tree": "f62deb159dcadde5a48aca8a7af4063bc4628204",
+  "sync_verified_utc": "2026-11-26T13:47:20.777990+00:00",
+  "base_commit": "6bb6f438b63c4a375cb143532640532cbb47921d",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+  "build_type": "Release",
+  "build_parallel": 2,
+  "petsc": "3.23.7",
+  "source_built": "same full tree as remote_commit; local API commit reconciliation changed no files",
+  "executable_sha256": "23b386741ba1cf7efb5cfa0bc9b65569f6dc06a8d255323ab3608a71186f1549",
+  "kernel_executable_sha256": "d84949a331b2317d861308f28721e82ad75a41382db97868975ca2cc643af1d1",
+  "compiler": "g++ (conda-forge gcc 15.3.0-7) 15.3.0",
+  "mpi": "mpiexec (Open MPI) 5.0.8",
+  "threads_per_rank": {
+    "OMP_NUM_THREADS": 1,
+    "OPENBLAS_NUM_THREADS": 1,
+    "MKL_NUM_THREADS": 1
+  },
+  "recorded_utc": "2026-11-26T13:52:57.735681+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "commit": "7eb6830881d8a95f6fe4e162ba87b74f7a98c963",
+  "mode": "release",
+  "selection": "explicit",
+  "petsc": "3.23.7",
+  "status": "passed",
+  "resources": {
+    "cpu_budget": 4,
+    "memory_bytes": 16464273408,
+    "cgroup": {
+      "/sys/fs/cgroup": {},
+      "/sys/fs/cgroup/system.slice": {
+        "cpu.max": "max 100000",
+        "memory.max": "max"
+      },
+      "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+        "cpu.max": "max 100000",
+        "memory.max": "max"
+      }
+    },
+    "build_jobs": 4
+  },
+  "test_counts": {
+    "passed": 42,
+    "failed": 0,
+    "skipped": 0
+  }
+}

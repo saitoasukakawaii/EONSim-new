@@ -1,12 +1,17 @@
 # EONSim Codex Task Queue
 
-## FSI-MF-02 / implementation in progress / 2026-11-26
+## FSI-MF-02 / implementation and bounded validation complete / 2026-11-26
 
 从已合并 #61 的 `main@6bb6f438b63c` 接续，开发分支 `codex/fsi-mg-performance-followup`。
-本轮目标：固体与壁支撑直接精确方向核，取消 matrix-free 每次作用中的完整局部切线；
-整体 MG 每个非粗层利用已知零初值省去一次残量矩阵乘及 halo 通信。保持原物理方程、
-装配路径、求解门槛和默认选项。原装配切线/残量作为独立数值对照，实际 FSI 与成本
-记录待代码先同步远程后执行。网格无关、完整 P 存储和多节点收益不在本轮完成声明内。
+交付 [PR #62](https://github.com/saitoasukakawaii/EONSim-new/pull/62)，生产/测试源码 `b7d727b`。
+固体与壁支撑直接精确方向核已接入，取消 matrix-free 每次作用中的完整局部切线；
+整体 MG 每个非粗层利用已知零初值省去一次残量矩阵乘及 halo 通信。原方程、装配路径、
+门槛与默认选项保持。先同步完整 tree，后增量构建；4/4 定向 CTest、11/11 物理解通过。
+另有 9 次固定输入成本对照（1 直接参考、2 warmup、3 对旧/新二进制），不与 11 次混计。
+局部核耗时中位降低 75.75%–82.08%；350 DoF/2-rank 的 MF 作用阶段中位降低 23.27%，
+外层迭代均155。wall未见稳定收益。[原件与测量范围](../research/data/fsi-mf-02-2026-11-26/README.md)。
+仍开放：更大真实 FSI 的近似网格无关、完整 P 存储成本、稳定端到端收益与多节点扩展。
+已通过的未受影响检查复用原证据；本轮没有扩大为全量或无边界参数调优。
 
 ## FSI-MG-01 / twelve implementations and bounded validation complete; broader performance remains open / 2026-11-26
 

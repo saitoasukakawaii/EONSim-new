@@ -1,5 +1,18 @@
 # EONSim Knowledge Log
 
+## 2026-11-26 · FSI-MF-02：先收缩方向，再形成节点力
+
+[未发布草稿](../../website/drafts/fsi-direct-solid-action.md)、
+[原始证据](data/fsi-mf-02-2026-11-26/README.md)对应 [PR #62](https://github.com/saitoasukakawaii/EONSim-new/pull/62)
+及生产/测试源码b7d727b。从已有能量函数推导直接δP，不构造材料或单元完整切线；
+一致质量与位移/惯性链系数分别保留，零方向也不跳过NH构形验证。
+MG省去的是每层已知零初值的一次残量乘，不能靠rank-local零判断改变collective路径。
+
+4项定向CTest与11次物理求解通过；14组固体/12组支撑的完整切线与残量差分双参考成立。
+局部核4配置每种7对测量中位降低75.75%–82.08%；旧/新二进制3对小例MF阶段中位降低
+23.27%，wall范围跨零且中位+1.44%。该例说明局部作用成本下降不能直接解释为整程序
+加速。理论、实现、数值和性能证据分开；草稿未公开发布，完整P与规模目标仍开放。
+
 ## 2026-11-26 · FSI-MG-01：完整混合粗空间与流水线失败协议
 
 [未发布算法草稿](../../website/drafts/fsi-monolithic-multigrid-matrix-free.md)、
