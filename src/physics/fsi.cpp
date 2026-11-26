@@ -1359,26 +1359,22 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                         action[cell.active.index(Tet4Ale::node(i),Tet4Ale::component(i))]+=response[i];
                 }
                 if(solid_cell[e]) {
-                    Tet4Vector::State<double> state{},change{},dn{},vn{};
+                    Tet4Vector::State<double> state{},change{},dn{};
                     for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) {
                         const auto n=mesh.cells[e].nodes[a];
                         const auto slot=Tet4Vector::dof(a,c);
                         state[slot]=action_state[Layout::dof(n,Layout::structure_offset+c)];
                         change[slot]=action_direction[Layout::dof(n,Layout::structure_offset+c)];
                         dn[slot]=reference_d[Tet4Vector::dof(n,c)];
-                        vn[slot]=reference_physical[Layout::dof(n,Layout::structure_offset+c)];
                     }
-                    // The existing 12x12 constitutive tangent is local stack
-                    // storage only; no global J is assembled for this action.
-                    auto element=solid_element(solid_geometry[e],
-                        {f.young,f.poisson,f.solid_density,solid_dt,f.neo_hookean,mesh_dt},state,dn,vn,true);
-                    if(!supports.empty()) for(std::size_t i=support_offsets[e];i<support_offsets[e+1];++i)
-                        support_faces[i].face.evaluate(dn,state,mesh_dt,&element,true);
-                    for(int i=0;i<Tet4Vector::dofs;++i) {
-                        double value=0;
-                        for(int k=0;k<Tet4Vector::dofs;++k) value+=element.tangent[Tet4Vector::matrix(i,k)]*change[k];
-                        action[cell.active.index(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i))]+=value;
+                    auto response=solid_element_action(solid_geometry[e],
+                        {f.young,f.poisson,f.solid_density,solid_dt,f.neo_hookean,mesh_dt},state,change,dn);
+                    if(!supports.empty()) for(std::size_t i=support_offsets[e];i<support_offsets[e+1];++i) {
+                        const auto support=support_faces[i].face.action(change,mesh_dt);
+                        for(int k=0;k<Tet4Vector::dofs;++k) response[k]+=support[k];
                     }
+                    for(int i=0;i<Tet4Vector::dofs;++i)
+                        action[cell.active.index(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i))]+=response[i];
                 }
                 EONSIM_PETSC(VecSetValues(output,cell.active.dofs(),assembly_plan.rows.data()+cell.offset,action.data(),ADD_VALUES));
             }

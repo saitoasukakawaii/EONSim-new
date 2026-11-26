@@ -1,5 +1,6 @@
 #include "eonsim/solid_element.hpp"
 #include "eonsim/hyperelastic.hpp"
+#include "eonsim/time_step.hpp"
 #include <cmath>
 #include <stdexcept>
 namespace eonsim {
@@ -33,6 +34,88 @@ WallSupportBalance WallSupportFace::evaluate(const Tet4Vector::State<double>& re
         }
     }
     return balance;
+}
+Tet4Vector::State<double> WallSupportFace::action(const Tet4Vector::State<double>& direction,
+    double displacement_dt) const
+{
+    if(!(geometry.area>0)||!std::isfinite(geometry.area))
+        throw std::runtime_error("Invalid wall support reference area");
+    Tri3Topology::Nodal<double> normal_direction{};
+    for(int a=0;a<Tri3Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i)
+        normal_direction[a]+=geometry.normal[i]*direction[Tet4Vector::dof(nodes[a],i)];
+    Tet4Vector::State<double> result{};
+    const double derivative=stiffness*displacement_dt+damping;
+    for(int a=0;a<Tri3Topology::nodes;++a) {
+        double force=0;
+        for(int b=0;b<Tri3Topology::nodes;++b)
+            force+=geometry.area*Tri3Topology::mass_weight(a,b)*derivative*normal_direction[b];
+        for(int i=0;i<Space3::dimension;++i)
+            result[Tet4Vector::dof(nodes[a],i)]+=geometry.normal[i]*force;
+    }
+    for(double value:result) if(!std::isfinite(value))
+        throw std::runtime_error("Nonfinite wall support tangent action");
+    return result;
+}
+Tet4Vector::State<double> solid_element_action(const Tet4Geometry& g,const SolidParameters& p,
+    const Tet4Vector::State<double>& x,const Tet4Vector::State<double>& direction,
+    const Tet4Vector::State<double>& dn)
+{
+    if(!(p.young>0 && p.poisson>-1 && p.poisson<.5 && p.density>0 && p.dt>=0&&p.displacement_dt>=0) ||
+        !std::isfinite(p.young+p.poisson+p.density+p.dt+p.displacement_dt)) throw std::runtime_error("Invalid solid material/time parameters");
+    if(!(g.volume>0)||!std::isfinite(g.volume)) throw std::runtime_error("Invalid solid reference volume");
+    const double mu=p.young/(2*(1+p.poisson));
+    const double lambda=p.young*p.poisson/((1+p.poisson)*(1-2*p.poisson));
+    const double chain=p.dt>0?(p.displacement_dt>0?p.displacement_dt:p.dt):1;
+    Space3::Tensor<double> change{};
+    for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i)
+        for(int J=0;J<Space3::dimension;++J)
+            change[Space3::index(i,J)]+=chain*direction[Tet4Vector::dof(a,i)]*g.gradients[a][J];
+    Space3::Tensor<double> stress_change{};
+    if(p.neo_hookean) {
+        Space3::Tensor<double> F{};
+        for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i)
+            for(int J=0;J<Space3::dimension;++J)
+                F[Space3::index(i,J)]+=(p.dt>0?dn[Tet4Vector::dof(a,i)]+chain*x[Tet4Vector::dof(a,i)]:x[Tet4Vector::dof(a,i)])*g.gradients[a][J];
+        for(int i=0;i<Space3::dimension;++i) F[Space3::index(i,i)]+=1;
+        for(double value:F) if(!std::isfinite(value)) throw std::runtime_error("Nonfinite deformation gradient");
+        const double jacobian=F[Space3::index(0,0)]*(F[Space3::index(1,1)]*F[Space3::index(2,2)]-F[Space3::index(1,2)]*F[Space3::index(2,1)])
+            -F[Space3::index(0,1)]*(F[Space3::index(1,0)]*F[Space3::index(2,2)]-F[Space3::index(1,2)]*F[Space3::index(2,0)])
+            +F[Space3::index(0,2)]*(F[Space3::index(1,0)]*F[Space3::index(2,1)]-F[Space3::index(1,1)]*F[Space3::index(2,0)]);
+        if(!(jacobian>0)||!std::isfinite(jacobian)) throw StepRejected("Nonpositive solid deformation Jacobian");
+        Space3::Tensor<double> inverse_transpose{};
+        for(int i=0;i<Space3::dimension;++i) for(int J=0;J<Space3::dimension;++J)
+            inverse_transpose[Space3::index(i,J)]=(F[Space3::index((i+1)%Space3::dimension,(J+1)%Space3::dimension)]*F[Space3::index((i+2)%Space3::dimension,(J+2)%Space3::dimension)]
+                -F[Space3::index((i+1)%Space3::dimension,(J+2)%Space3::dimension)]*F[Space3::index((i+2)%Space3::dimension,(J+1)%Space3::dimension)])/jacobian;
+        double log_change=0;
+        for(std::size_t i=0;i<change.size();++i) log_change+=inverse_transpose[i]*change[i];
+        // d(F^-T)=-F^-T dF^T F^-T. Contract the direction before forming
+        // nodal forces, avoiding both the 9x9 and 12x12 dense tangents.
+        Space3::Tensor<double> inverse_change{};
+        for(int i=0;i<Space3::dimension;++i) for(int k=0;k<Space3::dimension;++k)
+            for(int L=0;L<Space3::dimension;++L)
+                inverse_change[Space3::index(i,k)]+=inverse_transpose[Space3::index(i,L)]*change[Space3::index(k,L)];
+        const double coefficient=lambda*std::log(jacobian)-mu;
+        for(int i=0;i<Space3::dimension;++i) for(int J=0;J<Space3::dimension;++J) {
+            const auto slot=Space3::index(i,J);
+            double product=0;
+            for(int k=0;k<Space3::dimension;++k) product+=inverse_change[Space3::index(i,k)]*inverse_transpose[Space3::index(k,J)];
+            stress_change[slot]=mu*change[slot]+lambda*log_change*inverse_transpose[slot]-coefficient*product;
+        }
+    } else {
+        double trace=0;
+        for(int i=0;i<Space3::dimension;++i) trace+=change[Space3::index(i,i)];
+        for(int i=0;i<Space3::dimension;++i) for(int J=0;J<Space3::dimension;++J)
+            stress_change[Space3::index(i,J)]=mu*(change[Space3::index(i,J)]+change[Space3::index(J,i)])+(i==J?lambda*trace:0);
+    }
+    Tet4Vector::State<double> result{};
+    for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i) {
+        const auto row=Tet4Vector::dof(a,i);
+        for(int J=0;J<Space3::dimension;++J) result[row]+=g.volume*stress_change[Space3::index(i,J)]*g.gradients[a][J];
+        if(p.dt>0) for(int b=0;b<Tet4Topology::nodes;++b)
+            result[row]+=p.density*g.volume*Tet4Topology::mass_weight(a,b)*direction[Tet4Vector::dof(b,i)]/p.dt;
+        if(!std::isfinite(result[row])) throw std::runtime_error("Nonfinite solid tangent action");
+    }
+    return result;
 }
 SolidElement solid_element(const Tet4Geometry& g,const SolidParameters& p,
     const Tet4Vector::State<double>& x,const Tet4Vector::State<double>& dn,const Tet4Vector::State<double>& vn,bool compute_tangent)

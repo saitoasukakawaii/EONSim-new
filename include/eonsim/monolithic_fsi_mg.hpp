@@ -14,6 +14,8 @@ struct MonolithicFsiMgLevelStats {
  */
 struct MonolithicFsiMgStats {
     PetscInt levels=0,applications=0,refreshes=0,hierarchy_rebuilds=0,coarse_processes=0;
+    /// Actual level residual matvecs and omitted A*0 actions, excluding smoothers/transfers/coarse solves.
+    PetscInt level_matvecs=0,zero_start_skips=0;
     bool single_precision=false;
     std::size_t fp32_value_bytes=0;
     std::vector<MonolithicFsiMgLevelStats> transfers;
@@ -39,6 +41,9 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * not a scalar or field-separated smoother. Full Galerkin couplings remain in
  * level residuals and coarse transfers. Explicit larger overlap must still fit
  * the unchanged patch size cap; no coupling rows are truncated to satisfy it.
+ * Each cycle starts from an exact zero correction; its first residual is the
+ * RHS directly, including when presmoothing is disabled. No norm reduction or
+ * rank-local convergence branch is introduced to omit that zero matvec.
  * The coarsest full coupled matrix is solved with a
  * bounded KSP, optionally on a reduced communicator through PCTELESCOPE.
  * Identity rows have zero interpolation and receive exact fine corrections.

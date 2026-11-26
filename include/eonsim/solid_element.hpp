@@ -27,6 +27,10 @@ struct WallSupportFace {
     WallSupportBalance evaluate(const Tet4Vector::State<double>& reference_displacement,
         const Tet4Vector::State<double>& velocity,double displacement_dt,
         SolidElement* assembly=nullptr,bool compute_tangent=false) const;
+    /// Exact velocity-tangent action on the fixed reference face. No residual,
+    /// energy or dense tangent is formed; callers add contributions from all faces.
+    Tet4Vector::State<double> action(const Tet4Vector::State<double>& direction,
+        double displacement_dt) const;
 };
 /** 节点优先 xyz。静力 dt=0 时 state 为位移；动态为速度，d=d_n+dt*v。
  * old_displacement/old_velocity 是只读时间参考，BE取accepted；BDF2按两层历史重建，dt为有效步长。
@@ -38,4 +42,16 @@ struct WallSupportFace {
 SolidElement solid_element(const Tet4Geometry& geometry,const SolidParameters& p,
     const Tet4Vector::State<double>& state,const Tet4Vector::State<double>& old_displacement,
     const Tet4Vector::State<double>& old_velocity,bool compute_tangent=true);
+/** Exact derivative of the same solid residual in one supplied direction.
+ * Static state is displacement; dynamic state is velocity, with the same
+ * displacement_dt/dt chain and consistent mass as solid_element. Accepted
+ * displacement enters the Neo-Hookean deformation, while accepted velocity
+ * drops out of its derivative. No residual, energy, material tangent or element
+ * tangent is formed. Geometry and history are read-only. Nonfinite actions are
+ * rejected; Neo-Hookean deformation-gradient and Jacobian checks retain the
+ * same fatal/recoverable distinction as the assembled kernel.
+ */
+Tet4Vector::State<double> solid_element_action(const Tet4Geometry& geometry,const SolidParameters& p,
+    const Tet4Vector::State<double>& state,const Tet4Vector::State<double>& direction,
+    const Tet4Vector::State<double>& old_displacement);
 }
