@@ -1250,8 +1250,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 // Join precedes the rank-level error collective in Context.
                 if(error) {
                     if(mesh.rank==0&&batch_failure_injected&&!batch_failure_reported) {
+                        // Publish before collective failure propagation lets another
+                        // rank write its fatal diagnostic or abort the MPI job.
                         std::cout<<"fsi_batch_failure mode="<<failure_name<<" thread="<<batch_failure_thread
-                                 <<" team="<<batch_failure_team<<" batch="<<batch_failure_batch<<'\n';
+                                 <<" team="<<batch_failure_team<<" batch="<<batch_failure_batch<<'\n'<<std::flush;
                         batch_failure_reported=true;
                     }
                     std::rethrow_exception(error);

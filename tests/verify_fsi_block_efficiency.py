@@ -67,49 +67,63 @@ def timed_command(command, log, timeout, receipt):
     log = Path(log)
     start = time.perf_counter()
     process = None
+    watchdog = None
+    watchdog_started = False
     expired = threading.Event()
+
+    def stop_group():
+        if process is None:
+            return
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            process.wait()
+            return
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            pass
+        # Retire surviving ranks/descendants even if the launcher has already
+        # exited in response to TERM. Never target other jobs.
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        process.wait()
+
+    def deadline():
+        if process.poll() is None:
+            expired.set()
+            stop_group()
+
+    def terminated(signum, _frame):
+        # The driver calls this helper on the main thread. A default SIGTERM
+        # would bypass Python cleanup and leave the detached MPI job alive.
+        # Ignore a repeated TERM while the first cancellation drains the group.
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        raise SystemExit(128 + signum)
+
+    original_term_handler = signal.signal(signal.SIGTERM, terminated)
     try:
         with log.open('w') as stream:
             process = subprocess.Popen(command, stdout=stream, stderr=subprocess.STDOUT,
                                        start_new_session=True)
-
-            def stop_group():
-                try:
-                    os.killpg(process.pid, signal.SIGTERM)
-                except ProcessLookupError:
-                    process.wait()
-                    return
-                try:
-                    process.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    pass
-                # Retire surviving ranks/descendants even if the launcher has
-                # already exited in response to TERM. Never target other jobs.
-                try:
-                    os.killpg(process.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-                process.wait()
-
-            def deadline():
-                if process.poll() is None:
-                    expired.set()
-                    stop_group()
-
             watchdog = threading.Timer(max(0., timeout-(time.perf_counter()-start)), deadline)
             watchdog.daemon = True
             watchdog.start()
-            try:
-                returncode = process.wait()
-                if returncode and not expired.is_set():
-                    stop_group()
-            except BaseException:
+            watchdog_started = True
+            returncode = process.wait()
+            if returncode and not expired.is_set():
                 stop_group()
-                raise
-            finally:
-                watchdog.cancel()
-                watchdog.join()
+    except BaseException:
+        stop_group()
+        raise
     finally:
+        if watchdog is not None:
+            watchdog.cancel()
+            if watchdog_started:
+                watchdog.join()
+        signal.signal(signal.SIGTERM, original_term_handler)
         receipt.update(wall_seconds=time.perf_counter()-start,
                        exit_code=None if process is None else process.returncode,
                        timeout=expired.is_set())
