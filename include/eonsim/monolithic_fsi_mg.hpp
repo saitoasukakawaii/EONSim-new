@@ -16,9 +16,16 @@ struct MonolithicFsiMgStats {
     PetscInt levels=0,applications=0,refreshes=0,hierarchy_rebuilds=0,coarse_processes=0;
     /// Rejected near-identity coarsening (zero when the ratio guard was not needed).
     PetscInt weak_coarsening_stop_rows=0,weak_coarsening_proposed_rows=0;
-    /// Actual level residual matvecs and omitted A*0 actions, excluding smoothers/transfers/coarse solves.
+    /// Level operator matvecs (including K-cycle directions/audits), and omitted A*0 actions; excludes smoothers/transfers/coarse solves.
     PetscInt level_matvecs=0,zero_start_skips=0,coarse_revisits=0;
-    bool single_precision=false,native_fp32=false,field_scaling=false,fsi_candidates=false,w_cycle=false;
+    /// Lifetime cumulative work, preserved by numeric hierarchy rebuilds.
+    PetscInt coarse_solves=0,coarse_iterations=0,smoother_applications=0;
+    PetscInt coarse_krylov_directions=0,coarse_krylov_rank_drops=0,coarse_krylov_rejections=0;
+    /// VecDot/VecNorm reduction requests, not measured MPI packets or latency events (norms may be cached).
+    PetscInt coarse_krylov_reductions=0;
+    /// Worst explicitly recomputed row-equilibrated coarse residual ratio returned by a K-cycle projection.
+    double coarse_krylov_max_residual_ratio=0.;
+    bool single_precision=false,native_fp32=false,field_scaling=false,fsi_candidates=false,w_cycle=false,k_cycle=false;
     std::size_t fp32_value_bytes=0;
     /// Additional level/transfer coefficient storage, excluding original outer P, indices and PETSc vectors.
     std::size_t retained_fp64_operator_bytes=0,released_fp64_operator_bytes=0;
@@ -77,6 +84,19 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * a proposed level that reduces too few rows and solve its parent as coarsest.
  * This is a hierarchy work bound, independent of physical/Krylov tolerances.
  * cycle=w revisits each noncoarsest coarse level with its current residual.
+ * cycle=k instead minimizes the row-equilibrated full coarse residual in at
+ * most two recursively preconditioned Arnoldi directions. Twice modified
+ * Gram-Schmidt forms a small QR without normal equations. Numerically dependent
+ * directions are dropped relative to the precision of the level action; an
+ * explicitly recomputed finite residual increase selects the zero correction
+ * from this subspace. Nonfinite actions retain the PC failure protocol.
+ * The coarse equations, 36-column physical candidate container, and external
+ * residual tolerances are unchanged. Flexible outer Krylov is required.
+ * With L levels the maximum coarsest solve count is 2^(L-2) per nontrivial
+ * application (one for L<=2), not an unbounded inner convergence loop. This
+ * costs additional coarse matvecs, vector storage and dot/norm reductions;
+ * actual cumulative solves, iterations, smoothing and direction/reduction-request work
+ * are exposed in the stats. It is not a mesh-independent complexity proof.
  * adaptive_patches keeps every entity core covered and grows overlap only on
  * the true interface or rows whose inter-entity absolute coupling fraction
  * reaches patch_strength. Numeric changes rebuild this selection.
@@ -91,7 +111,11 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * equilibrated FP32 coefficients; unrepresentable FP32 factors fail explicitly,
  * with no hidden FP64 fallback. The original outer P and coarsest solve remain
  * FP64, as do PETSc vectors/communication. Actual numeric changes rebuild the
- * transient setup; unchanged generations reuse compact coefficients. Native
+ * transient setup; unchanged generations reuse compact coefficients. Before a
+ * native rebuild, invalidated compact storage is released while fine metadata
+ * remains available for failure recovery. A failed replacement is unusable and
+ * can be reconstructed by a later refresh; no old factor is silently reused.
+ * Native
  * storage reduces retained coefficient memory, not peak setup memory. The
  * outer flexible Krylov method and original physical residual remain full
  * precision. Collective on comm.

@@ -217,8 +217,8 @@ void oversized_coarse_overlap(MPI_Comm comm) {
     check(comm,rejected,"Explicit oversized coarse overlap was silently capped, truncated or ignored");
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,(base+"coarse_patch_overlap").c_str()));
 }
-void verify_enhancements(MPI_Comm comm,bool native,bool only_scaling) {
-    const std::string prefix="mgnew_",base="-"+prefix+"monolithic_mg_";
+void verify_enhancements(MPI_Comm comm,bool native,bool only_scaling,bool krylov=false) {
+    const std::string prefix=krylov?"mgknew_":"mgnew_",base="-"+prefix+"monolithic_mg_";
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"aggregate_nodes").c_str(),"4"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"coarse_limit").c_str(),"8"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"max_levels").c_str(),only_scaling?"1":"6"));
@@ -229,7 +229,7 @@ void verify_enhancements(MPI_Comm comm,bool native,bool only_scaling) {
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"adaptive_patches").c_str(),only_scaling?"false":"true"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"patch_strength").c_str(),"0.9"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"native_fp32").c_str(),native?"true":"false"));
-    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"cycle").c_str(),only_scaling?"v":"w"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"cycle").c_str(),only_scaling?"v":krylov?"k":"w"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"patch_maximum_size").c_str(),"64"));
     Problem problem(comm,true);
     PcSchurUpdates updates;
@@ -259,13 +259,25 @@ void verify_enhancements(MPI_Comm comm,bool native,bool only_scaling) {
     PC pc=nullptr;EONSIM_PETSC(KSPGetPC(solver.get(),&pc));
     for(int phase=0;phase<2;++phase) {
         if(phase) {problem.fill(phase);if(only_scaling) rescale();updates.refresh(problem.matrix.get());}
+        MonolithicFsiMgStats previous;query_monolithic_fsi_mg_stats(pc,previous);
         action(problem,solver.get(),phase);
         MonolithicFsiMgStats stats;query_monolithic_fsi_mg_stats(pc,stats);
         check(comm,stats.field_scaling&&stats.native_fp32==native&&stats.hierarchy_rebuilds==phase+1,
               "Scaled/native hierarchy did not preserve mapping or rebuild on actual numerical change");
         if(only_scaling) continue;
-        check(comm,stats.fsi_candidates&&stats.w_cycle&&stats.levels>=3&&stats.coarse_revisits>0,
-              "FSI coarse enrichment or residual W-cycle was not exercised");
+        check(comm,stats.fsi_candidates&&stats.w_cycle==!krylov&&stats.k_cycle==krylov&&
+              stats.levels>=3&&stats.coarse_revisits>0,
+              "FSI coarse enrichment or the requested recursive cycle was not exercised");
+        if(krylov) {
+            const auto applications=stats.applications-previous.applications;
+            const auto coarse_bound=applications*(PetscInt{1}<<(stats.levels-2));
+            check(comm,stats.coarse_solves-previous.coarse_solves<=coarse_bound&&
+                stats.coarse_solves>previous.coarse_solves&&stats.coarse_krylov_directions>previous.coarse_krylov_directions&&
+                stats.coarse_krylov_reductions>previous.coarse_krylov_reductions&&
+                stats.smoother_applications>previous.smoother_applications&&
+                std::isfinite(stats.coarse_krylov_max_residual_ratio)&&stats.coarse_krylov_max_residual_ratio<=1.,
+                "K-cycle exceeded its bounded coarse work, skipped QR, or returned an increasing coarse residual");
+        }
         for(const auto& transfer:stats.transfers)
             check(comm,transfer.coarse_rows<=.8*transfer.rows&&transfer.reproduction_error<1e-9,
                   "Enriched hierarchy accepted weak coarsening or lost paired pressure/divergence modes");
@@ -290,6 +302,39 @@ void verify_enhancements(MPI_Comm comm,bool native,bool only_scaling) {
     check(comm,after.hierarchy_rebuilds==before.hierarchy_rebuilds,
           "An unchanged numerical generation rebuilt scaled/native hierarchy");
     action(problem,solver.get(),3);
+    if(krylov) {
+        PetscOwner<Vec,VecDestroy> zero,result;
+        EONSIM_PETSC(MatCreateVecs(problem.matrix.get(),zero.put(),result.put()));
+        EONSIM_PETSC(VecSet(zero.get(),0.));EONSIM_PETSC(PCApply(pc,zero.get(),result.get()));
+        PetscReal norm=0.;EONSIM_PETSC(VecNorm(result.get(),NORM_2,&norm));
+        check(comm,norm==0.,"K-cycle divided by a zero Arnoldi direction or changed a zero correction");
+        if(native) {
+            // Preserve graph/constraints but force a mixed patch singularity
+            // after the previous compact generation has been released. Failed
+            // replacement must remain unusable and retain enough metadata to
+            // reconstruct successfully on the next numeric refresh.
+            if(problem.begin<=4&&4<problem.end) {
+                const PetscInt row=4;PetscInt count=0;const PetscInt* indices=nullptr;
+                EONSIM_PETSC(MatGetRow(problem.matrix.get(),row,&count,&indices,nullptr));
+                std::vector<PetscInt> columns(indices,indices+count);
+                EONSIM_PETSC(MatRestoreRow(problem.matrix.get(),row,&count,&indices,nullptr));
+                for(const auto column:columns)
+                    EONSIM_PETSC(MatSetValue(problem.matrix.get(),row,column,0.,INSERT_VALUES));
+            }
+            EONSIM_PETSC(MatAssemblyBegin(problem.matrix.get(),MAT_FINAL_ASSEMBLY));
+            EONSIM_PETSC(MatAssemblyEnd(problem.matrix.get(),MAT_FINAL_ASSEMBLY));
+            bool rejected=false;
+            try {updates.refresh(problem.matrix.get());} catch(const std::exception&) {rejected=true;}
+            check(comm,rejected,"Singular native replacement unexpectedly retained a usable old generation");
+            MonolithicFsiMgStats failed;query_monolithic_fsi_mg_stats(pc,failed);
+            check(comm,failed.levels==0,"Native replacement failed before releasing the old compact generation");
+            EONSIM_PETSC(PCApply(pc,zero.get(),result.get()));
+            PCFailedReason failure=PC_NOERROR;EONSIM_PETSC(PCGetFailedReason(pc,&failure));
+            check(comm,failure!=PC_NOERROR,"Failed native replacement did not poison the preconditioner");
+            problem.fill(4);updates.refresh(problem.matrix.get());
+            action(problem,solver.get(),4);
+        }
+    }
 }
 
 void verify_scaled_projection(MPI_Comm comm) {
@@ -372,10 +417,12 @@ void run(MPI_Comm comm) {
     verify_enhancements(comm,false,true);
     verify_enhancements(comm,false,false);
     verify_enhancements(comm,true,false);
+    verify_enhancements(comm,false,false,true);
+    verify_enhancements(comm,true,false,true);
     verify_scaled_projection(comm);
     verify_weak_coarsening_stop(comm);
     EONSIM_PETSC(PetscPrintf(comm,
-        "Monolithic FSI MG: full indefinite manufactured solutions, bounded whole-aggregate coarse Vanka/explicit oversize rejection, candidate preservation, energy descent, spectral enrichment, FP32 V-cycle, coarse MPI aggregation, numeric refresh/recovery and polynomial smoothers passed\n"));
+        "Monolithic FSI MG: full indefinite manufactured solutions, bounded whole-aggregate coarse Vanka/explicit oversize rejection, candidate preservation, energy descent, spectral enrichment, FP32 V/K-cycles with bounded coarse work, coarse MPI aggregation, native replacement failure recovery and polynomial smoothers passed\n"));
 }
 } // namespace
 int main(int argc,char** argv) {

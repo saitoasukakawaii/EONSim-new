@@ -173,6 +173,16 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
             out<<"monolithic_mg_stats rank="<<rank<<" path="<<path<<" levels="<<multigrid.levels
                <<" applications="<<multigrid.applications<<" refreshes="<<multigrid.refreshes
                <<" coarse_processes="<<multigrid.coarse_processes<<" fp32="<<multigrid.single_precision
+               <<" cycle="<<(multigrid.k_cycle?"k":multigrid.w_cycle?"w":"v")
+               <<" level_matvecs="<<multigrid.level_matvecs<<" zero_start_skips="<<multigrid.zero_start_skips
+               <<" coarse_revisits="<<multigrid.coarse_revisits
+               <<" coarse_solves="<<multigrid.coarse_solves<<" coarse_iterations="<<multigrid.coarse_iterations
+               <<" smoother_applications="<<multigrid.smoother_applications
+               <<" coarse_krylov_directions="<<multigrid.coarse_krylov_directions
+               <<" coarse_krylov_rank_drops="<<multigrid.coarse_krylov_rank_drops
+               <<" coarse_krylov_rejections="<<multigrid.coarse_krylov_rejections
+               <<" coarse_krylov_reductions="<<multigrid.coarse_krylov_reductions
+               <<" coarse_krylov_max_residual_ratio="<<multigrid.coarse_krylov_max_residual_ratio
                <<" fp32_value_bytes="<<multigrid.fp32_value_bytes<<'\n';
         InterfacePatchPcStats patch_stats;
         if(query_interface_patch_pc_stats(pc,patch_stats))

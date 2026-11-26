@@ -2,6 +2,7 @@
 #include "eonsim/native_float_sparse.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <limits>
 #include <map>
@@ -20,7 +21,11 @@ void common_check(MPI_Comm comm,bool valid,const std::string& message) {
 }
 struct IndexSets {
     std::vector<IS> values;
-    ~IndexSets() { for(auto& value:values) if(value) (void)ISDestroy(&value); }
+    void clear() {
+        for(auto& value:values) if(value) (void)ISDestroy(&value);
+        std::vector<IS>().swap(values);
+    }
+    ~IndexSets() { clear(); }
     void append(const std::vector<PetscInt>& rows) {
         IS value=nullptr;
         EONSIM_PETSC(ISCreateGeneral(PETSC_COMM_SELF,static_cast<PetscInt>(rows.size()),
@@ -39,6 +44,10 @@ struct Patch {
     std::vector<PetscInt> union_offsets,pivots;
     std::vector<double> rows,columns,double_lu,solution,defect,correction;
     std::vector<float> single_lu,single_work,single_matrix;
+    // A nonempty offset array identifies compact native coefficients. These
+    // are local patch indices, never global PETSc row/column identifiers.
+    std::vector<std::uint32_t> single_offsets;
+    std::vector<std::uint16_t> single_columns;
     std::vector<double> double_work;
 
     template<class T> bool factor_values(std::vector<T>& lu,const std::vector<double>& values) {
@@ -64,7 +73,14 @@ struct Patch {
         return std::all_of(lu.begin(),lu.end(),[](T value){return std::isfinite(value);});
     }
     std::vector<double> scaled_matrix() {
-        if(!matrix) return std::vector<double>(single_matrix.begin(),single_matrix.end());
+        if(!matrix) {
+            if(single_offsets.empty()) return std::vector<double>(single_matrix.begin(),single_matrix.end());
+            std::vector<double> values(static_cast<std::size_t>(n)*n,0.);
+            for(PetscInt row=0;row<n;++row)
+                for(auto index=single_offsets[row];index<single_offsets[row+1];++index)
+                    values[static_cast<std::size_t>(row)*n+single_columns[index]]=single_matrix[index];
+            return values;
+        }
         std::vector<double> values(static_cast<std::size_t>(n)*n,0.);
         for(PetscInt row=0;row<n;++row) {
             PetscInt count=0; const PetscInt* indices=nullptr; const PetscScalar* entries=nullptr;
@@ -74,6 +90,56 @@ struct Patch {
             EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&indices,&entries));
         }
         return values;
+    }
+    void retain_native_coefficients() {
+        // Count exactly the FP32 coefficients that the former dense action
+        // retained. Quantized zeros need no slot. Read sparse rows directly:
+        // no n*n FP64 staging matrix coexists with the native coefficients.
+        std::size_t nonzeros=0;
+        for(PetscInt row=0;row<n;++row) {
+            PetscInt count=0;const PetscInt* indices=nullptr;const PetscScalar* entries=nullptr;
+            EONSIM_PETSC(MatGetRow(matrix,row,&count,&indices,&entries));
+            for(PetscInt j=0;j<count;++j) {
+                const auto value=static_cast<float>((entries[j]/rows[row])/columns[indices[j]]);
+                if(value!=0.f) ++nonzeros;
+            }
+            EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&indices,&entries));
+        }
+        const auto width=static_cast<std::size_t>(n);
+        const auto dense_values=width*width;
+        // Bounds are checked before narrowing; a wider patch simply keeps its
+        // dense representation. Options currently cap n at 2048, but storage
+        // correctness does not depend on that separate validation contract.
+        const bool bounded=n>=0&&width<=std::numeric_limits<std::uint16_t>::max()&&
+            nonzeros<=std::numeric_limits<std::uint32_t>::max();
+        const auto sparse_bytes=nonzeros*(sizeof(float)+sizeof(std::uint16_t))+
+            (width+1)*sizeof(std::uint32_t);
+        const bool sparse=bounded&&sparse_bytes<dense_values*sizeof(float);
+        single_matrix.assign(sparse?nonzeros:dense_values,0.f);
+        if(sparse) {single_offsets.resize(width+1);single_columns.resize(nonzeros);}
+        else {
+            std::vector<std::uint32_t>().swap(single_offsets);
+            std::vector<std::uint16_t>().swap(single_columns);
+        }
+        std::size_t position=0;
+        for(PetscInt row=0;row<n;++row) {
+            if(sparse) single_offsets[row]=static_cast<std::uint32_t>(position);
+            PetscInt count=0;const PetscInt* indices=nullptr;const PetscScalar* entries=nullptr;
+            EONSIM_PETSC(MatGetRow(matrix,row,&count,&indices,&entries));
+            for(PetscInt j=0;j<count;++j) {
+                const auto value=static_cast<float>((entries[j]/rows[row])/columns[indices[j]]);
+                if(sparse) {
+                    if(value==0.f) continue;
+                    single_matrix[position]=value;
+                    single_columns[position]=static_cast<std::uint16_t>(indices[j]);
+                    ++position;
+                } else single_matrix[static_cast<std::size_t>(row)*width+indices[j]]=value;
+            }
+            EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&indices,&entries));
+        }
+        if(sparse) single_offsets[width]=static_cast<std::uint32_t>(position);
+        // Native failures never fall back to a double local solve.
+        std::vector<double>().swap(double_work);
     }
     bool prepare_factor() {
         factor_ready=false;
@@ -118,6 +184,7 @@ struct Patch {
         n=other.n; rows=other.rows; columns=other.columns; pivots=other.pivots;
         double_lu=other.double_lu; single_lu=other.single_lu;
         single_matrix=other.single_matrix;
+        single_offsets=other.single_offsets;single_columns=other.single_columns;
         factor_ready=other.factor_ready;
         solution.resize(n); defect.resize(n); correction.resize(n); double_work.resize(n); single_work.resize(n);
     }
@@ -156,10 +223,19 @@ struct Patch {
                 // the outer physical operator and acceptance remain FP64.
                 long double value=static_cast<long double>(rhs[row])/rows[row];
                 long double denominator=std::abs(value);
-                for(PetscInt column=0;column<n;++column) {
-                    const long double product=static_cast<long double>(single_matrix[static_cast<std::size_t>(row)*n+column])*
-                        columns[column]*solution[column];
-                    value-=product; denominator+=std::abs(product);
+                if(single_offsets.empty()) {
+                    for(PetscInt column=0;column<n;++column) {
+                        const long double product=static_cast<long double>(single_matrix[static_cast<std::size_t>(row)*n+column])*
+                            columns[column]*solution[column];
+                        value-=product; denominator+=std::abs(product);
+                    }
+                } else {
+                    for(auto index=single_offsets[row];index<single_offsets[row+1];++index) {
+                        const auto column=single_columns[index];
+                        const long double product=static_cast<long double>(single_matrix[index])*
+                            columns[column]*solution[column];
+                        value-=product; denominator+=std::abs(product);
+                    }
                 }
                 defect[row]=static_cast<double>(value*rows[row]);
                 accepted=accepted&&std::isfinite(defect[row])&&std::isfinite(denominator)&&
@@ -577,23 +653,32 @@ struct PatchState {
     void release_setup() {
         common_check(comm,level_mode&&options.native_storage&&options.single_precision&&ready&&!released,
                      "native setup release requires a ready FP32 Vanka level");
-        PetscOwner<Mat,MatDestroy> lifting;
-        PetscOwner<Vec,VecDestroy> mask;
-        EONSIM_PETSC(MatDuplicate(source,MAT_COPY_VALUES,lifting.put()));
-        EONSIM_PETSC(MatCreateVecs(source,mask.put(),nullptr));
-        PetscScalar* values=nullptr;EONSIM_PETSC(VecGetArray(mask.get(),&values));
-        for(PetscInt i=0;i<end-begin;++i) values[i]=active_owned[i]?0.:1.;
-        EONSIM_PETSC(VecRestoreArray(mask.get(),&values));
-        EONSIM_PETSC(MatDiagonalScale(lifting.get(),nullptr,mask.get()));
-        identity_lift.update(lifting.get(),true);
+        int local_identity=std::any_of(active_owned.begin(),active_owned.end(),[](unsigned char x){return !x;});
+        int any_identity=0;
+        EONSIM_PETSC(MPI_Allreduce(&local_identity,&any_identity,1,MPI_INT,MPI_MAX,comm));
+        if(any_identity) {
+            PetscOwner<Vec,VecDestroy> mask;
+            EONSIM_PETSC(MatCreateVecs(source,mask.put(),nullptr));
+            PetscScalar* values=nullptr;EONSIM_PETSC(VecGetArray(mask.get(),&values));
+            for(PetscInt i=0;i<end-begin;++i) values[i]=active_owned[i]?0.:1.;
+            EONSIM_PETSC(VecRestoreArray(mask.get(),&values));
+            identity_lift.update(source,true,mask.get());
+        }
         stats.fp32_matrix_bytes=identity_lift.values.size()*sizeof(float);
+        stats.native_sparse_patches=stats.native_dense_patches=0;stats.native_index_bytes=0;
         for(auto& patch:patches) {
-            const auto scaled=patch.scaled_matrix();
-            patch.single_matrix.assign(scaled.begin(),scaled.end());
+            patch.retain_native_coefficients();
             stats.fp32_matrix_bytes+=patch.single_matrix.size()*sizeof(float);
+            if(patch.single_offsets.empty()) ++stats.native_dense_patches;
+            else ++stats.native_sparse_patches;
+            stats.native_index_bytes+=patch.single_offsets.capacity()*sizeof(std::uint32_t)+
+                patch.single_columns.capacity()*sizeof(std::uint16_t);
             patch.matrix=nullptr;
         }
         if(submatrices) EONSIM_PETSC(MatDestroySubMatrices(static_cast<PetscInt>(indices.values.size()),&submatrices));
+        // Native numeric changes rebuild the level, so these setup-only copies
+        // of the row sets and semantic metadata have no subsequent consumer.
+        indices.clear();std::vector<DofKey>().swap(semantics);
         stats.retained_fp64_matrix_bytes=0;
         submatrices_ready=false;source=nullptr;released=true;
     }
@@ -618,7 +703,10 @@ struct PatchState {
             PetscCall(PCGetFailedReason(bulk_pc,&failure));
             valid=solve_error==PETSC_SUCCESS&&reason>0&&failure==PC_NOERROR;
         }
-        if(released) PetscCall(identity_lift.multiply(output,residual_vector.get(),false));
+        if(released) {
+            if(identity_lift.prepared) PetscCall(identity_lift.multiply(output,residual_vector.get(),false));
+            else PetscCall(VecSet(residual_vector.get(),0.));
+        }
         else PetscCall(MatMult(source,output,residual_vector.get()));
         PetscCall(VecAYPX(residual_vector.get(),-1.,input));
         PetscCall(VecScatterBegin(scatter.get(),residual_vector.get(),union_rhs.get(),INSERT_VALUES,SCATTER_FORWARD));

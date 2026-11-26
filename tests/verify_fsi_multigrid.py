@@ -26,15 +26,18 @@ FEATURES = {
     'mono_scaled': {'scaling'}, 'mono_candidates': {'candidates'},
     'mono_adaptive': {'adaptive'}, 'mono_native_fp32': {'native'},
     'mono_optimized': {'scaling', 'candidates', 'adaptive', 'native'},
+    'mono_kcycle': {'scaling', 'candidates', 'adaptive', 'native', 'kcycle'},
     'mono_reduced': {'mf', 'reduced'}, 'mono_reduced_coo': {'mf', 'reduced', 'coo'},
     'mono_partial': {'mf', 'partial'},
     'mono_simd': {'mf', 'partial', 'simd'}, 'mono_overlap': {'mf', 'overlap'},
     'mono_inexact': {'mf', 'inexact'}, 'mono_recycle': {'mf', 'recycle'},
     'mono_all': {'scaling', 'candidates', 'adaptive', 'native', 'mf', 'reduced',
-                 'partial', 'simd', 'overlap', 'inexact', 'recycle'},
+                 'partial', 'simd', 'overlap', 'inexact', 'recycle', 'kcycle'},
 }
 MODES = ('mono', 'mono_fp32', 'mono_pipe', 'mono_mf', 'mono_mf_pipe', 'mono_chebyshev',
          'mono_block_chebyshev', 'added_mass', 'pcd_mass', 'pcd_robin', *FEATURES)
+SCALING_SUBDIVISIONS = (4, 6, 8)
+MESH_ITERATION_RATIO_LIMIT = 1.3
 
 
 def features(mode):
@@ -60,6 +63,10 @@ def flags(mode, ports=False):
                    prefix + 'coarse_processes', '1']
         if mode == 'mono_fp32':
             result += [prefix + 'single_precision', 'true']
+        if 'kcycle' in selected:
+            result += [prefix + 'cycle', 'k']
+        elif mode == 'mono_optimized':
+            result += [prefix + 'cycle', 'v']
         if 'mf' in selected:
             result += ['-fsi_matrix_free', '-nonlinear_matrix_free_pc_interval', '2']
         for feature, option in (('scaling', 'field_scaling'), ('candidates', 'fsi_candidates'),
@@ -89,6 +96,87 @@ def flags(mode, ports=False):
             result += ['-pc_plan_pcd_velocity_mass', 'true']
             if mode == 'pcd_robin':
                 result += ['-pc_plan_pcd_robin', 'true']
+    return result
+
+
+def kcycle_evidence(log, hierarchy, ranks):
+    """Keep cumulative PC work snapshots, with no sum across accepted solves."""
+    block.require(hierarchy and all(row.get('cycle') == 'k' for row in hierarchy),
+                  'Requested K-cycle is absent from the hierarchy')
+    counts = ('applications', 'level_matvecs', 'zero_start_skips', 'coarse_revisits',
+              'coarse_solves', 'coarse_iterations', 'smoother_applications',
+              'coarse_krylov_directions', 'coarse_krylov_rank_drops',
+              'coarse_krylov_rejections', 'coarse_krylov_reductions')
+    snapshots, groups, last = [], [], {}
+    generation, solve_index = None, 0
+    for line in log.splitlines():
+        if line.startswith('solver_report '):
+            report = assembly.records(line, 'solver_report ')[0]
+            block.require('solver_generation' in report, 'Missing solver generation for cumulative K-cycle work')
+            generation = int(report['solver_generation'])
+            solve_index += 1
+            groups.append([])
+        elif line.startswith('monolithic_mg_stats '):
+            row = assembly.records(line, 'monolithic_mg_stats ')[0]
+            block.require(generation is not None and all(key in row for key in
+                          ('rank', 'path', 'cycle', 'coarse_krylov_max_residual_ratio', *counts)),
+                          'Missing cumulative K-cycle work evidence')
+            block.require(row['cycle'] == 'k' and row['path'] and 0 <= int(row['rank']) < ranks and
+                          all(int(row[key]) >= 0 for key in counts), 'Invalid cumulative K-cycle work counters')
+            residual_ratio = float(row['coarse_krylov_max_residual_ratio'])
+            block.require(math.isfinite(residual_ratio) and 0 <= residual_ratio <= 1,
+                          'Invalid coarse Krylov residual ratio')
+            snapshot = dict(row, solver_generation=generation, accepted_solve=solve_index)
+            key = int(row['rank']), row['path'], generation
+            if key in last:
+                block.require(all(int(row[name]) >= int(last[key][name]) for name in counts),
+                              'Cumulative K-cycle work decreased within one solver generation')
+            snapshots.append(snapshot)
+            groups[-1].append(snapshot)
+            last[key] = snapshot
+    block.require(groups and all(group for group in groups), 'Missing accepted-solve K-cycle work snapshots')
+    for group in groups:
+        paths = {row['path'] for row in group}
+        block.require(Counter((int(row['rank']), row['path']) for row in group) ==
+                      Counter((rank, path) for rank in range(ranks) for path in paths),
+                      'Missing or duplicate rank/path K-cycle work snapshots')
+    for key in ('applications', 'level_matvecs', 'coarse_solves', 'smoother_applications',
+                'coarse_krylov_directions', 'coarse_krylov_reductions'):
+        block.require(any(int(row[key]) > 0 for row in snapshots),
+                      ('Requested K-cycle did not execute coarse directions/work', key))
+    return dict(snapshots=snapshots, last_by_rank_path_generation=list(last.values()),
+                counter_semantics='Cumulative per hierarchy lifetime, preserved across numeric refreshes; '
+                                  'snapshots are not summed; RCR response applies are included')
+
+
+def mesh_convergence_goal(cases, modes):
+    """Assess the declared finite window without changing physical acceptance."""
+    result = dict(subdivisions=list(SCALING_SUBDIVISIONS), ranks=2,
+                  metric='maximum/minimum average outer iterations per Newton correction',
+                  maximum_ratio=MESH_ITERATION_RATIO_LIMIT,
+                  scope='Finite n=4/6/8 window with unchanged strict linear and physical gates',
+                  physical_acceptance_independent=True, modes={})
+    for mode in modes:
+        assessment = dict(status='incomplete', observations=[])
+        result['modes'][mode] = assessment
+        for n in SCALING_SUBDIVISIONS:
+            matches = [row for case in cases if case['name'] == f'scaling-n{n}-r2' and case['ranks'] == 2
+                       for row in case['runs'] if row['mode'] == mode]
+            if len(matches) != 1 or matches[0]['status'] != 'passed':
+                continue
+            row = matches[0]
+            average = float(row['iterations_per_correction'])
+            if not math.isfinite(average) or average <= 0:
+                continue
+            assessment['observations'].append(dict(subdivisions=n, dofs=row['dofs'],
+                                                   iterations_per_correction=average))
+        if 'inexact' in features(mode):
+            assessment.update(status='not_applicable_inexact',
+                              reason='Varying forcing tolerances cannot establish the strict linear convergence goal')
+        elif len(assessment['observations']) == len(SCALING_SUBDIVISIONS):
+            values = [row['iterations_per_correction'] for row in assessment['observations']]
+            ratio = max(values) / min(values)
+            assessment.update(observed_ratio=ratio, status='met' if ratio <= MESH_ITERATION_RATIO_LIMIT else 'open')
     return result
 
 
@@ -190,6 +278,10 @@ def audit(log, trace, ranks, mode):
                           sum(int(row['released_fp64_operator_bytes']) for row in storage) > 0,
                           'Native FP32 did not release double operator storage')
             result['storage'] = storage
+        if 'kcycle' in selected:
+            result['kcycle_work'] = kcycle_evidence(log, hierarchy, ranks)
+        elif mode == 'mono_optimized':
+            block.require(all(row.get('cycle') == 'v' for row in hierarchy), 'V-cycle comparison mode changed')
         result.update(hierarchies=hierarchy, transfers=transfers,
                       smoothers=smoothers)
     if 'mf' in selected:
@@ -302,6 +394,10 @@ def main():
                   executable=str(args.executable), executable_sha256=assembly.digest(args.executable),
                   driver_sha256=assembly.digest(__file__), linear_gate='1e-12 + 1e-10*rhs_norm',
                   field_absolute_limit=previous.FIELD_LIMIT, cases=[], commands=[], failures=[])
+    if 'scaling' in args.sections:
+        # This target is saved before any solver run and is assessed separately
+        # from physical acceptance; failure to meet it leaves the goal open.
+        result['mesh_convergence_goal'] = mesh_convergence_goal([], ())
     previous.save(result, receipt)
     def select(default):
         chosen = tuple(mode for mode in (*default, *FEATURES) if mode in args.modes) if args.modes else default
@@ -324,10 +420,12 @@ def main():
         campaign(args, receipt, result, name, cfg, 2, select(('mono_mf', 'mono_mf_pipe', 'pcd_robin')),
                  ports=True, area=geometry['interface_area'])
     if 'scaling' in args.sections:
-        for n in (4, 6, 8):
+        scaling_modes = select(('mono', 'mono_fp32'))
+        for n in SCALING_SUBDIVISIONS:
             name = f'scaling-n{n}-r2'
             cfg = previous.domain_case(args.work / name, n)
-            campaign(args, receipt, result, name, cfg, 2, select(('mono', 'mono_fp32')))
+            campaign(args, receipt, result, name, cfg, 2, scaling_modes)
+        result['mesh_convergence_goal'] = mesh_convergence_goal(result['cases'], scaling_modes)
     if 'coupling' in args.sections:
         for ratio, dt in ((.1, .02), (.01, .005)):
             name = f'coupling-rho{ratio:g}-dt{dt:g}'

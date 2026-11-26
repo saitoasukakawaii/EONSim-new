@@ -33,7 +33,7 @@ struct Options {
     PetscInt energy_steps=1,spectral_modes=2,pre_smooth=1,post_smooth=1,coarse_processes=1;
     PetscInt spectral_refresh_period=0,coarse_patch_overlap=0;
     double spectral_tolerance=.1,max_coarse_ratio=1.;
-    bool single_precision=false,report=false,field_scaling=false,fsi_candidates=false,native_fp32=false,w_cycle=false;
+    bool single_precision=false,report=false,field_scaling=false,fsi_candidates=false,native_fp32=false,w_cycle=false,k_cycle=false;
     FsiLevelSmootherOptions smoother;
 };
 Options options(MPI_Comm comm,const std::string& prefix) {
@@ -73,13 +73,14 @@ Options options(MPI_Comm comm,const std::string& prefix) {
     char cycle[16]="v";
     EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+"cycle").c_str(),cycle,sizeof(cycle),nullptr));
     o.w_cycle=std::strcmp(cycle,"w")==0;
+    o.k_cycle=std::strcmp(cycle,"k")==0;
     const PetscInt values[]={o.aggregate_nodes,o.aggregate_rows,o.max_levels,o.coarse_limit,o.energy_steps,
         o.spectral_modes,o.pre_smooth,o.post_smooth,o.coarse_processes,o.single_precision?1:0,
         o.smoother.patches.overlap,o.smoother.patches.maximum_size,o.smoother.polynomial_degree,
         o.smoother.kind=="vanka"?1:o.smoother.kind=="chebyshev"?2:o.smoother.kind=="block_chebyshev"?3:0,
         o.spectral_refresh_period,o.report?1:0,o.coarse_patch_overlap,o.field_scaling?1:0,
         o.fsi_candidates?1:0,o.native_fp32?1:0,o.smoother.patches.adaptive?1:0,
-        o.w_cycle?2:std::strcmp(cycle,"v")==0?1:0};
+        o.k_cycle?3:o.w_cycle?2:std::strcmp(cycle,"v")==0?1:0};
     constexpr int option_count=static_cast<int>(sizeof(values)/sizeof(values[0]));
     PetscInt minimum[option_count]{},maximum[option_count]{};
     MPI_Allreduce(values,minimum,option_count,MPIU_INT,MPI_MIN,comm);
@@ -621,6 +622,7 @@ struct Level {
     std::shared_ptr<FsiLevelSmoother> smoother;
     PetscOwner<Vec,VecDestroy> rhs,solution,residual,correction,second_rhs,second_solution;
     PetscOwner<Vec,VecDestroy> restriction_weights,restriction_input;
+    PetscOwner<Vec,VecDestroy> krylov_scale,first_action,second_action,metric_residual;
     NativeFloatSparse float_matrix,float_transfer;
 };
 struct Hierarchy {
@@ -638,8 +640,10 @@ struct Hierarchy {
     bool ready=false;
     Hierarchy(MPI_Comm communicator,Mat matrix,const std::vector<DofKey>& semantics,
         const std::vector<std::array<double,3>>& coordinates,
-        const std::vector<unsigned char>& trace,const Options& selected,const std::string& options_prefix,bool emit_report=true):
-        comm(communicator),configuration(selected),prefix(options_prefix),reference_coordinates(coordinates) {
+        const std::vector<unsigned char>& trace,const Options& selected,const std::string& options_prefix,
+        bool emit_report=true,bool keep_coordinates=true):
+        comm(communicator),configuration(selected),prefix(options_prefix),
+        reference_coordinates(keep_coordinates?coordinates:std::vector<std::array<double,3>>{}) {
         Level fine;
         EONSIM_PETSC(MatGetNonzeroState(matrix,&graph));
         EONSIM_PETSC(PetscObjectReference(reinterpret_cast<PetscObject>(matrix)));*source_reference.put()=matrix;
@@ -696,15 +700,22 @@ struct Hierarchy {
         }
         stats.levels=static_cast<PetscInt>(levels.size()); stats.single_precision=configuration.single_precision;
         stats.native_fp32=configuration.native_fp32;stats.field_scaling=configuration.field_scaling;
-        stats.fsi_candidates=configuration.fsi_candidates;stats.w_cycle=configuration.w_cycle;
+        stats.fsi_candidates=configuration.fsi_candidates;stats.w_cycle=configuration.w_cycle;stats.k_cycle=configuration.k_cycle;
         for(std::size_t level=0;level<levels.size();++level) {
             auto& data=levels[level];
             EONSIM_PETSC(MatCreateVecs(data.matrix.get(),data.solution.put(),data.rhs.put()));
             EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.residual.put()));
             EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.correction.put()));
-            if(configuration.w_cycle&&level>0) {
+            if((configuration.w_cycle||configuration.k_cycle)&&level>0&&level+1<levels.size()) {
                 EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.second_rhs.put()));
                 EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.second_solution.put()));
+            }
+            if(configuration.k_cycle&&level>0&&level+1<levels.size()) {
+                EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.krylov_scale.put()));
+                EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.first_action.put()));
+                EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.second_action.put()));
+                EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.metric_residual.put()));
+                update_krylov_scale(data);
             }
             if(level+1<levels.size()) {
                 auto smoother_options=configuration.smoother;
@@ -727,6 +738,24 @@ struct Hierarchy {
         EONSIM_PETSC(MatGetState(matrix,&numeric_state));
         ready=true; stats.refreshes=1; stats.hierarchy_rebuilds=1;
         if(emit_report) report();
+    }
+    void update_krylov_scale(Level& level) {
+        PetscInt begin=0,end=0;EONSIM_PETSC(MatGetOwnershipRange(level.matrix.get(),&begin,&end));
+        PetscScalar* scale=nullptr;bool valid=true;
+        EONSIM_PETSC(VecGetArray(level.krylov_scale.get(),&scale));
+        for(PetscInt row=begin;row<end;++row) {
+            PetscInt count=0;const PetscInt* columns=nullptr;const PetscScalar* values=nullptr;
+            EONSIM_PETSC(MatGetRow(level.matrix.get(),row,&count,&columns,&values));
+            double maximum=0.;
+            for(PetscInt j=0;j<count;++j) {
+                valid=valid&&std::isfinite(values[j]);maximum=std::max(maximum,std::abs(values[j]));
+            }
+            EONSIM_PETSC(MatRestoreRow(level.matrix.get(),row,&count,&columns,&values));
+            scale[row-begin]=maximum>0?1./maximum:0.;
+            valid=valid&&scale[row-begin]>0&&std::isfinite(scale[row-begin]);
+        }
+        EONSIM_PETSC(VecRestoreArray(level.krylov_scale.get(),&scale));
+        check(comm,valid,"K-cycle cannot equilibrate a zero/nonfinite coarse row");
     }
     static int field(const DofKey& key) {
         if(key.kind==DofEntity::body) return 4;
@@ -821,6 +850,21 @@ struct Hierarchy {
         update_storage_stats();
         stats.released_fp64_operator_bytes=before-stats.retained_fp64_operator_bytes;
     }
+    void release_native_before_rebuild() {
+        // The old numeric generation is already invalid. Retain only the fine
+        // metadata needed to validate/retry refresh, and release old compact
+        // matrices, patch factors, transfers and work vectors before allocating
+        // replacement FP64 setup plus new FP32 storage. A construction failure
+        // leaves ready=false and this metadata-only level; a later refresh can
+        // safely rebuild it instead of dereferencing an empty level list.
+        LevelData metadata=std::move(levels.front().data);
+        coarse=PetscOwner<KSP,KSPDestroy>{};
+        levels.clear();levels.emplace_back();levels.front().data=std::move(metadata);
+        left_scale=PetscOwner<Vec,VecDestroy>{};right_scale=PetscOwner<Vec,VecDestroy>{};
+        scaled_input=PetscOwner<Vec,VecDestroy>{};scaled_output=PetscOwner<Vec,VecDestroy>{};
+        stats.levels=0;stats.transfers.clear();
+        stats.fp32_value_bytes=stats.retained_fp64_operator_bytes=stats.released_fp64_operator_bytes=0;
+    }
     void configure_coarse() {
         int size=1; MPI_Comm_size(comm,&size);
         const auto requested=std::min<PetscInt>(size,configuration.coarse_processes);
@@ -876,7 +920,7 @@ struct Hierarchy {
             " weak_coarsening_proposed_rows=%" PetscInt_FMT "\n",
             prefix.empty()?"-":prefix.c_str(),stats.levels,stats.coarse_processes,
             stats.single_precision?1:0,stats.refreshes,stats.hierarchy_rebuilds,configuration.smoother.kind.c_str(),
-            stats.field_scaling?1:0,stats.fsi_candidates?1:0,stats.native_fp32?1:0,stats.w_cycle?"w":"v",
+            stats.field_scaling?1:0,stats.fsi_candidates?1:0,stats.native_fp32?1:0,stats.k_cycle?"k":stats.w_cycle?"w":"v",
             configuration.max_coarse_ratio,stats.weak_coarsening_stop_rows,stats.weak_coarsening_proposed_rows));
         for(std::size_t i=0;i<stats.transfers.size();++i) {
             const auto& level=stats.transfers[i];
@@ -899,13 +943,17 @@ struct Hierarchy {
                 " numeric_factorizations=%" PetscInt_FMT " cached_factorizations=%" PetscInt_FMT
                 " fp32_patches=%" PetscInt_FMT " polynomial_degree=%" PetscInt_FMT " eigenvalue_upper=%.17g"
                 " expanded_patches=%" PetscInt_FMT " core_patches=%" PetscInt_FMT
-                " retained_fp64_patch_bytes=%zu fp32_patch_bytes=%zu\n",
+                " retained_fp64_patch_bytes=%zu fp32_patch_bytes=%zu factor_bytes=%zu"
+                " native_sparse_patches=%" PetscInt_FMT " native_dense_patches=%" PetscInt_FMT
+                " native_index_bytes=%zu\n",
                 rank,i,smoother.patches.patches,smoother.patches.overlap,smoother.patches.largest_patch,
                 smoother.patches.patch_rows,smoother.patches.covered_owned_rows,smoother.patches.interface_patches,
                 smoother.patches.factor_batches,smoother.patches.numeric_factorizations,
                 smoother.patches.cached_factorizations,smoother.patches.fp32_patches,
                 smoother.polynomial_degree,smoother.eigenvalue_upper,smoother.patches.expanded_patches,
-                smoother.patches.core_patches,smoother.patches.retained_fp64_matrix_bytes,smoother.patches.fp32_matrix_bytes));
+                smoother.patches.core_patches,smoother.patches.retained_fp64_matrix_bytes,smoother.patches.fp32_matrix_bytes,
+                smoother.patches.factor_bytes,smoother.patches.native_sparse_patches,smoother.patches.native_dense_patches,
+                smoother.patches.native_index_bytes));
         }
         EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
     }
@@ -938,12 +986,21 @@ struct Hierarchy {
         EONSIM_PETSC(MPI_Allreduce(&local_changed,&changed,1,MPI_INT,MPI_MAX,comm));
         if((changed&&(configuration.native_fp32||configuration.field_scaling||configuration.smoother.patches.adaptive))||
            (configuration.spectral_refresh_period>0&&stats.refreshes%configuration.spectral_refresh_period==0)) {
+            if(configuration.native_fp32) release_native_before_rebuild();
             Hierarchy rebuilt(comm,matrix,levels.front().data.semantics,reference_coordinates,
-                levels.front().data.trace,configuration,prefix,false);
+                levels.front().data.trace,configuration,prefix,false,false);
             rebuilt.stats.applications=stats.applications;
             rebuilt.stats.level_matvecs=stats.level_matvecs;
             rebuilt.stats.zero_start_skips=stats.zero_start_skips;
             rebuilt.stats.coarse_revisits=stats.coarse_revisits;
+            rebuilt.stats.coarse_solves=stats.coarse_solves;
+            rebuilt.stats.coarse_iterations=stats.coarse_iterations;
+            rebuilt.stats.smoother_applications=stats.smoother_applications;
+            rebuilt.stats.coarse_krylov_directions=stats.coarse_krylov_directions;
+            rebuilt.stats.coarse_krylov_rank_drops=stats.coarse_krylov_rank_drops;
+            rebuilt.stats.coarse_krylov_rejections=stats.coarse_krylov_rejections;
+            rebuilt.stats.coarse_krylov_reductions=stats.coarse_krylov_reductions;
+            rebuilt.stats.coarse_krylov_max_residual_ratio=stats.coarse_krylov_max_residual_ratio;
             rebuilt.stats.refreshes=stats.refreshes+1;
             rebuilt.stats.hierarchy_rebuilds=stats.hierarchy_rebuilds+1;
             coarse=std::move(rebuilt.coarse); levels=std::move(rebuilt.levels); stats=std::move(rebuilt.stats);
@@ -966,6 +1023,7 @@ struct Hierarchy {
             if(changed) {
                 Mat next=levels[i+1].matrix.get();
                 EONSIM_PETSC(MatPtAP(levels[i].matrix.get(),levels[i].prolongation.get(),MAT_REUSE_MATRIX,PETSC_DEFAULT,&next));
+                if(configuration.k_cycle&&i>0) update_krylov_scale(levels[i]);
             }
             refresh_fsi_level_smoother(levels[i].smoother,levels[i].matrix.get());
             if(changed&&configuration.single_precision) levels[i].float_matrix.update(levels[i].matrix.get());
@@ -1008,6 +1066,7 @@ struct Hierarchy {
         PetscFunctionBeginUser;
         auto& level=levels[index];
         PetscCall(residual(index,rhs,solution,zero_start));
+        ++stats.smoother_applications;
         const auto error=apply_fsi_level_smoother(level.smoother,level.residual.get(),level.correction.get());
         if(error==PETSC_ERR_NOT_CONVERGED) {
             valid=false; PetscCall(VecSet(level.correction.get(),0.));
@@ -1015,12 +1074,147 @@ struct Hierarchy {
         PetscCall(VecAXPY(solution,1.,level.correction.get()));
         PetscFunctionReturn(PETSC_SUCCESS);
     }
+    PetscErrorCode krylov_norm(Vec vector,PetscReal* norm) {
+        PetscFunctionBeginUser;
+        ++stats.coarse_krylov_reductions;
+        PetscCall(VecNorm(vector,NORM_2,norm));
+        PetscFunctionReturn(PETSC_SUCCESS);
+    }
+    PetscErrorCode krylov_dot(Vec first,Vec second,PetscScalar* product) {
+        PetscFunctionBeginUser;
+        ++stats.coarse_krylov_reductions;
+        PetscCall(VecDot(first,second,product));
+        PetscFunctionReturn(PETSC_SUCCESS);
+    }
+    PetscErrorCode minimize_coarse_residual(std::size_t index,bool& valid) {
+        PetscFunctionBeginUser;
+        auto& level=levels[index];
+        // The first recursive cycle has produced z1=M*b. Minimize the full
+        // coupled residual in at most two preconditioned directions. Row
+        // equilibration defines the norm only; the coarse equations and all
+        // transfer candidates remain unchanged.
+        PetscCall(VecPointwiseMult(level.metric_residual.get(),level.krylov_scale.get(),level.rhs.get()));
+        PetscReal rhs_norm=0.;PetscCall(krylov_norm(level.metric_residual.get(),&rhs_norm));
+        if(!std::isfinite(rhs_norm)) {
+            valid=false;PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
+        }
+        if(rhs_norm==0.) {PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);}
+        PetscCall(multiply(index,level.solution.get(),level.first_action.get()));
+        PetscCall(VecPointwiseMult(level.first_action.get(),level.krylov_scale.get(),level.first_action.get()));
+        PetscReal first_norm=0.;PetscCall(krylov_norm(level.first_action.get(),&first_norm));
+        if(!std::isfinite(first_norm)) {
+            valid=false;PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
+        }
+        if(first_norm==0.||!std::isfinite(1./first_norm)) {
+            ++stats.coarse_krylov_rank_drops;
+            stats.coarse_krylov_max_residual_ratio=std::max(stats.coarse_krylov_max_residual_ratio,1.);
+            PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
+        }
+        PetscCall(VecScale(level.first_action.get(),1./first_norm));
+        PetscCall(VecScale(level.solution.get(),1./first_norm));
+        PetscScalar alpha=0.;PetscCall(krylov_dot(level.first_action.get(),level.metric_residual.get(),&alpha));
+        if(!std::isfinite(alpha)) {
+            valid=false;PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
+        }
+        ++stats.coarse_krylov_directions;
+        PetscCall(VecAXPY(level.metric_residual.get(),-alpha,level.first_action.get()));
+        PetscReal first_residual=0.;PetscCall(krylov_norm(level.metric_residual.get(),&first_residual));
+        if(!std::isfinite(first_residual)) {
+            valid=false;PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
+        }
+        const double rank_tolerance=64.*(configuration.single_precision?
+            std::numeric_limits<float>::epsilon():std::numeric_limits<double>::epsilon());
+        const bool need_second=first_residual>rank_tolerance*rhs_norm;
+        bool second_available=false;
+        if(need_second&&std::isfinite(1./rhs_norm)) {
+            // Use the next Arnoldi vector, rather than preconditioning the
+            // first minimized residual again. The latter stagnates when the
+            // first action is orthogonal to b, as can occur in saddle systems.
+            PetscCall(VecPointwiseMult(level.second_rhs.get(),level.krylov_scale.get(),level.rhs.get()));
+            PetscCall(VecScale(level.second_rhs.get(),1./rhs_norm));
+            PetscCall(VecWAXPY(level.second_action.get(),-alpha/rhs_norm,
+                              level.second_rhs.get(),level.first_action.get()));
+            PetscScalar projection=0.;
+            PetscCall(krylov_dot(level.second_rhs.get(),level.second_action.get(),&projection));
+            PetscCall(VecAXPY(level.second_action.get(),-projection,level.second_rhs.get()));
+            PetscReal next_norm=0.;PetscCall(krylov_norm(level.second_action.get(),&next_norm));
+            if(!std::isfinite(next_norm)) {
+                valid=false;PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
+            }
+            if(next_norm>rank_tolerance&&std::isfinite(1./next_norm)) {
+                PetscCall(VecPointwiseDivide(level.second_rhs.get(),level.second_action.get(),level.krylov_scale.get()));
+                PetscCall(VecScale(level.second_rhs.get(),1./next_norm));
+                second_available=true;
+            }
+        }
+        if(second_available) {
+            PetscCall(cycle(index,level.second_rhs.get(),level.second_solution.get(),valid));
+            ++stats.coarse_revisits;
+            PetscCall(multiply(index,level.second_solution.get(),level.second_action.get()));
+            PetscCall(VecPointwiseMult(level.second_action.get(),level.krylov_scale.get(),level.second_action.get()));
+            PetscReal unprojected_norm=0.;PetscCall(krylov_norm(level.second_action.get(),&unprojected_norm));
+            if(!std::isfinite(unprojected_norm)) {
+                valid=false;PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
+            }
+            // Twice modified Gram-Schmidt on action vectors, with exactly the
+            // same changes to their correction vectors, avoids normal equations
+            // and protects against cancellation in almost dependent directions.
+            for(int pass=0;pass<2;++pass) {
+                PetscScalar beta=0.;PetscCall(krylov_dot(level.first_action.get(),level.second_action.get(),&beta));
+                PetscCall(VecAXPY(level.second_action.get(),-beta,level.first_action.get()));
+                PetscCall(VecAXPY(level.second_solution.get(),-beta,level.solution.get()));
+            }
+            PetscReal second_norm=0.;PetscCall(krylov_norm(level.second_action.get(),&second_norm));
+            if(!std::isfinite(second_norm)) {
+                valid=false;PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
+            }
+            if(second_norm>rank_tolerance*unprojected_norm&&std::isfinite(1./second_norm)) {
+                PetscCall(VecScale(level.second_action.get(),1./second_norm));
+                PetscCall(VecScale(level.second_solution.get(),1./second_norm));
+                PetscScalar gamma=0.;PetscCall(krylov_dot(level.second_action.get(),level.metric_residual.get(),&gamma));
+                if(!std::isfinite(gamma)) {
+                    valid=false;PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
+                }
+                PetscCall(VecScale(level.solution.get(),alpha));
+                PetscCall(VecAXPY(level.solution.get(),gamma,level.second_solution.get()));
+                ++stats.coarse_krylov_directions;
+            } else {
+                ++stats.coarse_krylov_rank_drops;
+                PetscCall(VecScale(level.solution.get(),alpha));
+            }
+        } else {
+            if(need_second) ++stats.coarse_krylov_rank_drops;
+            PetscCall(VecScale(level.solution.get(),alpha));
+        }
+        // Recompute the residual of the actual returned correction. Native
+        // FP32 sparse arithmetic need not exactly reproduce a QR combination.
+        // Zero is in the trial subspace, so reject a finite increasing update
+        // rather than allowing it to amplify the coarse error. Nonfinite
+        // actions still propagate through the existing PC failure protocol.
+        PetscCall(multiply(index,level.solution.get(),level.first_action.get()));
+        PetscCall(VecPointwiseMult(level.first_action.get(),level.krylov_scale.get(),level.first_action.get()));
+        PetscCall(VecPointwiseMult(level.metric_residual.get(),level.krylov_scale.get(),level.rhs.get()));
+        PetscCall(VecAXPY(level.metric_residual.get(),-1.,level.first_action.get()));
+        PetscReal final_norm=0.;PetscCall(krylov_norm(level.metric_residual.get(),&final_norm));
+        if(!std::isfinite(final_norm)) {
+            valid=false;PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
+        }
+        if(final_norm>rhs_norm) {
+            ++stats.coarse_krylov_rejections;final_norm=rhs_norm;
+            PetscCall(VecSet(level.solution.get(),0.));
+        }
+        stats.coarse_krylov_max_residual_ratio=std::max(stats.coarse_krylov_max_residual_ratio,final_norm/rhs_norm);
+        PetscFunctionReturn(PETSC_SUCCESS);
+    }
     PetscErrorCode cycle(std::size_t index,Vec rhs,Vec solution,bool& valid) {
         PetscFunctionBeginUser;
         auto& level=levels[index]; PetscCall(VecSet(solution,0.));
         if(index+1==levels.size()) {
+            ++stats.coarse_solves;
             const auto error=KSPSolve(coarse.get(),rhs,solution);
             if(error) PetscFunctionReturn(error);
+            PetscInt iterations=0;PetscCall(KSPGetIterationNumber(coarse.get(),&iterations));
+            stats.coarse_iterations+=iterations;
             KSPConvergedReason reason=KSP_CONVERGED_ITERATING; PC pc=nullptr; PCFailedReason failure=PC_NOERROR;
             PetscCall(KSPGetConvergedReason(coarse.get(),&reason)); PetscCall(KSPGetPC(coarse.get(),&pc));
             PetscCall(PCGetFailedReason(pc,&failure));
@@ -1040,7 +1234,9 @@ struct Hierarchy {
             PetscCall(level.float_transfer.multiply(restriction_input,coarse_level.rhs.get(),true));
         else PetscCall(MatMultTranspose(level.prolongation.get(),restriction_input,coarse_level.rhs.get()));
         PetscCall(cycle(index+1,coarse_level.rhs.get(),coarse_level.solution.get(),valid));
-        if(configuration.w_cycle&&index+2<levels.size()) {
+        if(configuration.k_cycle&&index+2<levels.size()) {
+            PetscCall(minimize_coarse_residual(index+1,valid));
+        } else if(configuration.w_cycle&&index+2<levels.size()) {
             PetscCall(multiply(index+1,coarse_level.solution.get(),coarse_level.second_rhs.get()));
             PetscCall(VecAYPX(coarse_level.second_rhs.get(),-1.,coarse_level.rhs.get()));
             PetscCall(cycle(index+1,coarse_level.second_rhs.get(),coarse_level.second_solution.get(),valid));

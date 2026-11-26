@@ -9,8 +9,102 @@ import xml.etree.ElementTree as ET
 
 from verify_fsi_inlet import Runner
 from verify_fsi_coo import check_batch_injection
+import verify_fsi_multigrid as multigrid
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from benchmark_fsi_block_scaling import rank_placement, spool_fields, compare_spools
+
+
+class KCycleEvidenceTests(unittest.TestCase):
+    def test_kcycle_and_rcr_prefix_keep_the_v_comparison_explicit(self):
+        for ports in (False, True):
+            prefix = '-rcr_bulk_monolithic_mg_' if ports else '-monolithic_mg_'
+            wrong = '-monolithic_mg_' if ports else '-rcr_bulk_monolithic_mg_'
+            for mode in ('mono_kcycle', 'mono_all'):
+                with self.subTest(ports=ports, mode=mode):
+                    options = multigrid.flags(mode, ports)
+                    self.assertEqual(options[options.index(prefix + 'cycle') + 1], 'k')
+                    self.assertNotIn(wrong + 'cycle', options)
+                    for name in ('field_scaling', 'fsi_candidates', 'adaptive_patches', 'native_fp32'):
+                        self.assertEqual(options[options.index(prefix + name) + 1], 'true')
+            comparison = multigrid.flags('mono_optimized', ports)
+            self.assertEqual(comparison[comparison.index(prefix + 'cycle') + 1], 'v')
+            self.assertNotIn('kcycle', multigrid.features('mono_optimized'))
+            strict = multigrid.flags('mono_kcycle', ports)
+            self.assertNotIn('-nonlinear_inexact_newton', strict)
+            self.assertIn('-nonlinear_inexact_newton', multigrid.flags('mono_all', ports))
+            for option in ('-ksp_rtol', '-ksp_atol', '-ksp_norm_type'):
+                self.assertEqual(strict[strict.index(option)+1], comparison[comparison.index(option)+1])
+
+    @staticmethod
+    def snapshot(generation=1, multiplier=1, path='root'):
+        rows = [f'solver_report solver_generation={generation} linear_iterations=2']
+        for rank in range(2):
+            rows.append(f'monolithic_mg_stats rank={rank} path={path} levels=3 cycle=k '
+                        f'applications={3*multiplier} level_matvecs={20*multiplier} '
+                        f'zero_start_skips={8*multiplier} coarse_revisits={multiplier} '
+                        f'coarse_solves={8*multiplier} coarse_iterations={8*multiplier} '
+                        f'smoother_applications={12*multiplier} coarse_krylov_directions={4*multiplier} '
+                        f'coarse_krylov_rank_drops=0 coarse_krylov_rejections=0 '
+                        f'coarse_krylov_reductions={6*multiplier} coarse_krylov_max_residual_ratio=0.9')
+        return '\n'.join(rows) + '\n'
+
+    def test_kcycle_requires_actual_work_and_complete_rank_evidence(self):
+        valid = self.snapshot()
+        self.assertEqual(len(multigrid.kcycle_evidence(valid, [{'cycle': 'k'}], 2)['snapshots']), 2)
+        invalid = (
+            '',
+            valid.splitlines()[0] + '\n',
+            '\n'.join(valid.splitlines()[:-1]),
+            valid + valid.splitlines()[1] + '\n',
+            valid.replace(' coarse_krylov_directions=4', ''),
+            valid.replace('coarse_krylov_directions=4', 'coarse_krylov_directions=0'),
+            valid.replace('coarse_solves=8', 'coarse_solves=0'),
+            valid.replace('level_matvecs=20', 'level_matvecs=0'),
+            valid.replace('cycle=k', 'cycle=v'),
+            valid.replace('coarse_krylov_max_residual_ratio=0.9', 'coarse_krylov_max_residual_ratio=nan'),
+            valid.replace('coarse_krylov_max_residual_ratio=0.9', 'coarse_krylov_max_residual_ratio=1.0001'),
+        )
+        for text in invalid:
+            with self.subTest(text=text), self.assertRaises(RuntimeError):
+                multigrid.kcycle_evidence(text, [{'cycle': 'k'}], 2)
+        with self.assertRaises(RuntimeError):
+            multigrid.kcycle_evidence(valid, [{'cycle': 'v'}], 2)
+
+    def test_cumulative_work_is_retained_by_generation_not_summed(self):
+        # RCR response applies may exceed outer iterations. A new reusable
+        # solver generation resets work, whereas numeric refreshes do not.
+        log = (self.snapshot(1, 1, 'root/rcr_bulk') + self.snapshot(1, 3, 'root/rcr_bulk') +
+               self.snapshot(2, 1, 'root/rcr_bulk'))
+        result = multigrid.kcycle_evidence(log, [{'cycle': 'k'}], 2)
+        self.assertEqual(len(result['snapshots']), 6)
+        last = {(int(row['rank']), row['solver_generation']): int(row['coarse_krylov_directions'])
+                for row in result['last_by_rank_path_generation']}
+        self.assertEqual(last, {(0, 1): 12, (1, 1): 12, (0, 2): 4, (1, 2): 4})
+        with self.assertRaises(RuntimeError):
+            multigrid.kcycle_evidence(self.snapshot(1, 3) + self.snapshot(1, 1), [{'cycle': 'k'}], 2)
+
+    @staticmethod
+    def cases(values, mode='mono_kcycle'):
+        return [dict(name=f'scaling-n{n}-r2', ranks=2,
+                     runs=[dict(mode=mode, status='passed', dofs=n**3,
+                                iterations_per_correction=value)])
+                for n, value in zip(multigrid.SCALING_SUBDIVISIONS, values)]
+
+    def test_finite_window_target_does_not_rewrite_physical_acceptance(self):
+        met = multigrid.mesh_convergence_goal(self.cases((12, 10, 13)), ('mono_kcycle',))
+        self.assertEqual(met['maximum_ratio'], 1.3)
+        self.assertEqual(met['modes']['mono_kcycle']['status'], 'met')
+        cases = self.cases((12, 10, 14))
+        unmet = multigrid.mesh_convergence_goal(cases, ('mono_kcycle',))
+        self.assertEqual(unmet['modes']['mono_kcycle']['status'], 'open')
+        self.assertTrue(all(case['runs'][0]['status'] == 'passed' for case in cases))
+        self.assertTrue(unmet['physical_acceptance_independent'])
+
+    def test_incomplete_or_inexact_window_cannot_claim_strict_target(self):
+        incomplete = multigrid.mesh_convergence_goal(self.cases((10, 10)), ('mono_kcycle',))
+        self.assertEqual(incomplete['modes']['mono_kcycle']['status'], 'incomplete')
+        inexact = multigrid.mesh_convergence_goal(self.cases((1, 1, 1), 'mono_all'), ('mono_all',))
+        self.assertEqual(inexact['modes']['mono_all']['status'], 'not_applicable_inexact')
 
 
 class ScalingEvidenceTests(unittest.TestCase):

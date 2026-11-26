@@ -28,8 +28,12 @@ struct InterfacePatchPcStats {
     PetscInt interface_patches=0;
     PetscInt expanded_patches=0,core_patches=0;
     PetscInt overlap=0,patch_rows=0,covered_owned_rows=0;
+    /// Released native patches select the smaller dense/CSR coefficient layout.
+    PetscInt native_sparse_patches=0,native_dense_patches=0;
     std::size_t factor_bytes=0;
     std::size_t retained_fp64_matrix_bytes=0,fp32_matrix_bytes=0;
+    /// Local CSR offsets/columns only; separate from FP32 coefficients and LU.
+    std::size_t native_index_bytes=0;
 };
 /// Collective validation, also usable before an exactly converged solve.
 void validate_interface_patch_options(MPI_Comm comm,const std::string& prefix,
@@ -77,7 +81,10 @@ KSP interface_patch_bulk_solver(PC pc);
  * enclosing hierarchy; fixed selection is not called value-adaptive refresh.
  * Native storage requires FP32 factors, retains equilibrated FP32 patch values
  * for refinement, and releases the FP64 submatrices/source via the function
- * below. Native factor failure is explicit, never hidden by FP64 fallback.
+ * below. Its coefficient representation is CSR only when the actual values
+ * plus bounded local indices use fewer bytes than a dense float matrix. LU
+ * factors remain dense float. Native factor failure is explicit, never hidden
+ * by FP64 fallback.
  * Numeric refresh uses updates and keeps the graph, seed membership and
  * constraints fixed. A level with no active rows is a valid identity action.
  */
