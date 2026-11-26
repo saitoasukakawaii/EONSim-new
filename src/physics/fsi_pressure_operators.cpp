@@ -39,6 +39,7 @@ FsiPressureOperators::FsiPressureOperators(MPI_Comm comm,const MeshPartition& me
         EONSIM_PETSC(MatSetOption(matrix->get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_FALSE));
         // Preserve geometrically possible entries, including current zeros.
         EONSIM_PETSC(MatSetOption(matrix->get(),MAT_IGNORE_ZERO_ENTRIES,PETSC_FALSE));
+        EONSIM_PETSC(MatSetOption(matrix->get(),MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE));
     }
 }
 void FsiPressureOperators::update(const std::vector<double>& full,
@@ -46,6 +47,23 @@ void FsiPressureOperators::update(const std::vector<double>& full,
     const int nc=reduced_.components;
     common_check(comm_,data.size()==mesh_.cells.size()&&full.size()==mesh_.nodes.size()*nc,
                  "PCD trial/data layout mismatch");
+    // The BRM2 identity contribution is mu Mp^-1. The current FSI producer
+    // supplies one spatially constant viscosity; do not silently extend that
+    // factorization to regional materials. Empty fluid owners still take part.
+    double local_min=std::numeric_limits<double>::infinity(),local_max=0.;
+    bool valid_viscosity=true;
+    for(std::size_t e=0;e<data.size();++e) if(fluid_cells_[e]) {
+        const double mu=data[e].fluid.viscosity;
+        valid_viscosity=valid_viscosity&&std::isfinite(mu)&&mu>0.;
+        if(std::isfinite(mu)&&mu>0.) {
+            local_min=std::min(local_min,mu); local_max=std::max(local_max,mu);
+        }
+    }
+    double mu_min=0.,mu_max=0.;
+    EONSIM_PETSC(MPI_Allreduce(&local_min,&mu_min,1,MPI_DOUBLE,MPI_MIN,comm_));
+    EONSIM_PETSC(MPI_Allreduce(&local_max,&mu_max,1,MPI_DOUBLE,MPI_MAX,comm_));
+    common_check(comm_,valid_viscosity&&std::isfinite(mu_min)&&mu_min>0.&&mu_min==mu_max,
+                 "PCD auxiliary boundary factorization requires spatially uniform positive viscosity");
     if(assembled_) for(auto* matrix:{&mass_,&laplace_,&transport_})
         EONSIM_PETSC(MatZeroEntries(matrix->get()));
     int failed=0;
@@ -115,10 +133,16 @@ void FsiPressureOperators::update(const std::vector<double>& full,
         error.resize(length); EONSIM_PETSC(MPI_Bcast(error.data(),length,MPI_CHAR,source,comm_));
         throw std::runtime_error("PCD auxiliary assembly: "+error);
     }
-    // Auxiliary homogeneous boundary rows and columns are consistent in all
-    // three operators. This does not constrain the original pressure unknown.
-    for(auto* matrix:{&mass_,&laplace_,&transport_})
-        EONSIM_PETSC(MatZeroRowsColumns(matrix->get(),boundary_rows_.size(),boundary_rows_.data(),1.,nullptr,nullptr));
+    // Preserve the leading Stokes inverse on every pressure row, including
+    // artificial Dirichlet nodes. With Q the free-row projector, E=I-Q and
+    // Fp=mu Kp+N (reaction/advection), these row-only operations give
+    // Kbc=Q Kp+E and Ftilde=Q Fp+mu E=mu Kbc+Q N. Thus
+    // Kbc^-1 Ftilde Mp^-1=mu Mp^-1+Kbc^-1 Q N Mp^-1: only the Laplace
+    // correction has homogeneous auxiliary data. Mass and boundary columns
+    // must remain physical; setting all three operators to identity there
+    // destroys both the viscosity and mesh-volume scaling of the Stokes term.
+    EONSIM_PETSC(MatZeroRows(laplace_.get(),boundary_rows_.size(),boundary_rows_.data(),1.,nullptr,nullptr));
+    EONSIM_PETSC(MatZeroRows(transport_.get(),boundary_rows_.size(),boundary_rows_.data(),mu_min,nullptr,nullptr));
     EONSIM_PETSC(PetscObjectCompose(reinterpret_cast<PetscObject>(jacobian),"eonsim_pcd_mass",reinterpret_cast<PetscObject>(mass_.get())));
     EONSIM_PETSC(PetscObjectCompose(reinterpret_cast<PetscObject>(jacobian),"eonsim_pcd_laplace",reinterpret_cast<PetscObject>(laplace_.get())));
     EONSIM_PETSC(PetscObjectCompose(reinterpret_cast<PetscObject>(jacobian),"eonsim_pcd_transport",reinterpret_cast<PetscObject>(transport_.get())));

@@ -131,6 +131,10 @@ if(BUILD_TESTING)
     add_test(NAME fsi_pressure_operators COMMAND $<TARGET_FILE:verify_fsi_pressure_operators>)
     set_tests_properties(fsi_pressure_operators PROPERTIES TIMEOUT 30 LABELS "core;rank-1"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME fsi_pressure_operators_mpi2 COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" 2
+        ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_fsi_pressure_operators> ${MPIEXEC_POSTFLAGS})
+    set_tests_properties(fsi_pressure_operators_mpi2 PROPERTIES TIMEOUT 30 PROCESSORS 2
+        LABELS "core;mpi-failure;rank-2" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_executable(verify_rcr_port tests/verify_rcr_port.cpp)
     target_link_libraries(verify_rcr_port PRIVATE eonsim_core)
     foreach(ranks IN ITEMS 1 2 4)

@@ -262,6 +262,8 @@ def main():
     parser.add_argument('--study', action='store_true')
     parser.add_argument('--sections', nargs='+', choices=('default', 'scaling', 'coupling', 'rcr'),
                         help='Run only these sections; omitted runs default+rcr, --study also adds scaling+coupling')
+    parser.add_argument('--modes', nargs='+', choices=sorted(set(MODES + STUDY_MODES)),
+                        help='Restrict each selected section to these candidates; direct references remain mandatory')
     parser.add_argument('--timeout', type=float, default=180.)
     args = parser.parse_args()
     if args.build_source and not re.fullmatch('[0-9a-f]{40}', args.build_source):
@@ -271,6 +273,16 @@ def main():
     if args.sections and (args.study or len(set(args.sections)) != len(args.sections)):
         parser.error('--sections must be unique and cannot be combined with --study')
     sections = set(args.sections or (['default', 'rcr', 'scaling', 'coupling'] if args.study else ['default', 'rcr']))
+    if args.modes and len(set(args.modes)) != len(args.modes):
+        parser.error('--modes must be unique')
+    section_modes = dict(default=MODES, scaling=STUDY_MODES,
+                         coupling=('bfbt_field', 'bfbt_vanka_single', 'pcd_vanka_single'),
+                         rcr=('pcd_vanka_single',))
+    if args.modes:
+        section_modes = {name: tuple(mode for mode in modes if mode in args.modes)
+                         for name, modes in section_modes.items()}
+        if any(not section_modes[name] for name in sections):
+            parser.error('--modes must select at least one candidate in every requested section')
     args.executable, args.mpiexec = args.executable.resolve(), args.mpiexec.resolve()
     work = args.work.resolve() / str(time.time_ns())
     work.mkdir(parents=True)
@@ -287,13 +299,14 @@ def main():
                                   ROOT / 'cases/fsi/generate_domains.py')},
                   linear_gate='1e-12 + 1e-10 * rhs_norm', field_absolute_limit=FIELD_LIMIT,
                   study=bool(sections & {'scaling', 'coupling'}), sections=sorted(sections),
+                  candidate_modes={name: list(section_modes[name]) for name in sorted(sections)},
                   commands=[], cases=[], failures=[])
     save(result, receipt)
     if 'default' in sections:
         for ranks in (1, 2):
             directory = work / f'domains-r{ranks}'
             cfg = domain_case(directory, 3, unequal=True)
-            campaign(args, result, receipt, directory, cfg, MODES, ranks, restart=ranks == 2)
+            campaign(args, result, receipt, directory, cfg, section_modes['default'], ranks, restart=ranks == 2)
     if 'rcr' in sections:
         directory = work / 'moving-rcr'
         cfg, geometry = circular_case(directory, (1., 0., 0.), (0., 0., 0.))
@@ -301,20 +314,20 @@ def main():
         cfg['time'] = dict(scheme='generalized_alpha', rho_infinity=.5)
         cfg['time_control'] = dict(step_sizes=[.015, .013, .017])
         cfg['fsi']['dt'] = math.fsum(cfg['time_control']['step_sizes']) / 3
-        campaign(args, result, receipt, directory, cfg, ('pcd_vanka_single',), 2,
+        campaign(args, result, receipt, directory, cfg, section_modes['rcr'], 2,
                  interface_area=geometry['interface_area'], ports=True, restart=True)
     if 'scaling' in sections:
         for ranks in (1, 2):
             for n in (4, 6, 8):
                 directory = work / f'scaling-n{n}-r{ranks}'
-                campaign(args, result, receipt, directory, domain_case(directory, n), STUDY_MODES, ranks)
+                campaign(args, result, receipt, directory, domain_case(directory, n), section_modes['scaling'], ranks)
     if 'coupling' in sections:
         for ratio in (1., .1, .01):
             for dt in (.02, .005):
                 directory = work / f'coupling-rho{ratio:g}-dt{dt:g}'
                 cfg = domain_case(directory, 4, ratio, dt)
                 campaign(args, result, receipt, directory, cfg,
-                         ('bfbt_field', 'bfbt_vanka_single', 'pcd_vanka_single'), 2)
+                         section_modes['coupling'], 2)
     if 'scaling' in sections:
         scaling = []
         for ranks in (1, 2):
