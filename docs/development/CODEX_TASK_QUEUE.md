@@ -1,5 +1,17 @@
 # EONSim Codex Task Queue
 
+## HPC-07 / in_progress / 2026-11-26
+
+从已合并 #56 的 `main@55a04f7` 接续用户要求，分支
+`codex/hpc-followup-efficiency`。本轮领取三项有界后续工作：固定节点 Schur 数值
+刷新缓存及 COO 发布、FSI overlap 物理场单次展开与空批次消除、HDF5 独立对照的
+拓扑/长度/重复身份拒绝。保留完整 Jacobian、节点逆的数值检查及原物理接受门槛。
+
+完成代码并核验远程 tree 后才构建和运行；使用已有 Release 增量环境，补受影响
+1/2/4-rank 代数、实际 FSI overlap/restart/cutback 和离线 HDF5 对照。性能采用保存的
+已验证主线二进制与候选交替配对；未执行前不报告收益。四项必需检查通过后按本次
+用户授权合并 PR，最终状态以 GitHub 为准。
+
 ## HPC-06 / implementation and validation complete / 2026-11-26
 
 从已合并 #55 的 `main@2d0e9b79e90ac0b7332b22e900e50e3306a68a35` 接续五项优化，

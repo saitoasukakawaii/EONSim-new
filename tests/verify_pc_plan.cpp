@@ -129,11 +129,14 @@ double inverse_entry(const std::vector<PetscInt>& g,int i,int j) {
     const double det=a(0,0)*cofactor(0,0)+a(0,1)*cofactor(0,1)+a(0,2)*cofactor(0,2);
     return cofactor(j,i)/det;
 }
-double schur_entry(PetscInt i,PetscInt j,const std::vector<std::vector<PetscInt>>& groups) {
+double schur_entry(PetscInt i,PetscInt j,const std::vector<std::vector<PetscInt>>& groups,
+                   bool diagonal=false) {
     double v=entry(i,j);
     for(const auto& g:groups) for(int k=0;k<static_cast<int>(g.size());++k)
-        for(int l=0;l<static_cast<int>(g.size());++l)
-            v-=entry(i,g[k])*inverse_entry(g,k,l)*entry(g[l],j);
+        for(int l=0;l<static_cast<int>(g.size());++l) {
+            const double inverse=diagonal?(k==l?1./entry(g[k],g[k]):0.):inverse_entry(g,k,l);
+            v-=entry(i,g[k])*inverse*entry(g[l],j);
+        }
     return v;
 }
 void verify_nodal_schur(MPI_Comm comm,const AlgebraLayout& original,Mat matrix) {
@@ -182,10 +185,23 @@ void verify_nodal_schur(MPI_Comm comm,const AlgebraLayout& original,Mat matrix) 
         EONSIM_PETSC(VecDuplicate(sol.get(),exact.put()));
         EONSIM_PETSC(VecDuplicate(rhs.get(),defect.put()));
         EONSIM_PETSC(VecSet(exact.get(),1.));
-        for(int phase=0;phase<2;++phase) {
-            const double factor=phase?2.:1.;
+        for(int phase=0;phase<4;++phase) {
+            const double factor=phase==1?2.:1.;
+            const bool diagonal=phase==2;
             if(phase) {
-                EONSIM_PETSC(MatScale(matrix,2.));
+                // The fixed graph must retain slots when an inverse block's
+                // off-diagonals become zero, then populate them again on the
+                // next refresh. The hand-written groups are independent of
+                // the production extraction/COO ordering.
+                for(PetscInt i=layout.begin;i<layout.begin+layout.owned;++i) for(PetscInt j=0;j<14;++j) {
+                    double value=factor*entry(i,j);
+                    if(diagonal&&i!=j) for(const auto& group:groups)
+                        if(std::find(group.begin(),group.end(),i)!=group.end()&&
+                           std::find(group.begin(),group.end(),j)!=group.end()) value=0.;
+                    EONSIM_PETSC(MatSetValue(matrix,i,j,value,INSERT_VALUES));
+                }
+                EONSIM_PETSC(MatAssemblyBegin(matrix,MAT_FINAL_ASSEMBLY));
+                EONSIM_PETSC(MatAssemblyEnd(matrix,MAT_FINAL_ASSEMBLY));
                 updates.refresh(matrix);
             }
             PetscInt first,last; EONSIM_PETSC(MatGetOwnershipRange(approx,&first,&last));
@@ -193,7 +209,7 @@ void verify_nodal_schur(MPI_Comm comm,const AlgebraLayout& original,Mat matrix) 
             for(PetscInt i=first;i<last;++i) for(PetscInt j=0;j<2;++j) {
                 double v=0;
                 EONSIM_PETSC(MatGetValues(approx,1,&i,1,&j,&v));
-                const double expected=factor*schur_entry(pressure.at(i),pressure.at(j),groups);
+                const double expected=factor*schur_entry(pressure.at(i),pressure.at(j),groups,diagonal);
                 correct=correct&&std::abs(v-expected)<1e-11*(1+std::abs(expected));
             }
             check(comm,correct,"Nodal Schur cofactor oracle or numeric refresh failed");
@@ -207,7 +223,6 @@ void verify_nodal_schur(MPI_Comm comm,const AlgebraLayout& original,Mat matrix) 
             EONSIM_PETSC(VecNorm(defect.get(),NORM_2,&norm)); EONSIM_PETSC(VecNorm(rhs.get(),NORM_2,&bnorm));
             check(comm,reason>0&&norm<=1e-11*bnorm,"Nodal/coupled solve failed independent residual check");
         }
-        EONSIM_PETSC(MatScale(matrix,.5));
         EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_plan_velocity_solver"));
     }
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_plan_schur_approx"));
