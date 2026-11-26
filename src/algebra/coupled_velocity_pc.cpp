@@ -353,7 +353,9 @@ void configure_coupled_velocity_gamg(MPI_Comm comm,KSP solver,
     EONSIM_PETSC(PCGAMGSetType(pc,PCGAMGAGG));
     EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
     EONSIM_PETSC(PCMGSetType(pc,PC_MG_MULTIPLICATIVE));
-    EONSIM_PETSC(PCMGSetCycleType(pc,PC_MG_CYCLE_V));
+    // GAMG creates levels during setup; PCMGSetCycleType requires them to
+    // exist. Its deferred MG-options pass applies this default afterwards.
+    option_default(base+"pc_mg_cycle_type","v");
     EONSIM_PETSC(PCGAMGSetReuseInterpolation(pc,PETSC_TRUE));
     // PETSc creates the levels during setup. Prefix defaults reach every new
     // smoother, including rebuilt levels when interpolation reuse is disabled.
