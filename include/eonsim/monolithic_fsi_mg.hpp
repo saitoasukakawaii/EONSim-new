@@ -7,6 +7,10 @@ namespace eonsim {
 struct MonolithicFsiMgLevelStats {
     PetscInt rows=0,coarse_rows=0,spectral_modes=0;
     double reproduction_error=0,energy_before=0,energy_after=0;
+    /// Fine-level local pairs, audited on FP64 setup before native quantization;
+    /// these are not a global coarse inf-sup bound or an FP32 action guarantee.
+    PetscInt pressure_supremizer_modes=0,pressure_paired_aggregates=0;
+    double pressure_pair_min_singular=0,pressure_pair_relative_change=0;
 };
 /** Inspection is local. Row counts and transfer audits are globally agreed;
  * fp32_value_bytes counts local float operator/transfer coefficients and native
@@ -26,6 +30,7 @@ struct MonolithicFsiMgStats {
     /// Worst explicitly recomputed row-equilibrated coarse residual ratio returned by a K-cycle projection.
     double coarse_krylov_max_residual_ratio=0.;
     bool single_precision=false,native_fp32=false,field_scaling=false,fsi_candidates=false,w_cycle=false,k_cycle=false;
+    bool pressure_supremizers=false;
     std::size_t fp32_value_bytes=0;
     /// Additional level/transfer coefficient storage, excluding original outer P, indices and PETSc vectors.
     std::size_t retained_fp64_operator_bytes=0,released_fp64_operator_bytes=0;
@@ -80,6 +85,21 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * pressure modes 1,x_i with nonzero velocity divergence in normalized reference
  * coordinates. Constraints still remove candidate values on identity rows;
  * these are near modes, not a new exact nullspace or a coarse inf-sup proof.
+ * pressure_supremizers requires fsi_candidates and spectral_modes>0. On the semantic fine level,
+ * at most min(2,spectral_modes) aggregate-local velocity responses replace
+ * spectral enrichment slots. A positive diagonal velocity-energy proxy and
+ * a bounded QR projection apply the actual discrete B^T to pressure modes;
+ * the selected responses address pressure coupling missing from the existing
+ * velocity span. B uses the actual Galerkin test weights W when scaled.
+ * The paired pressure and response columns remain fixed during energy
+ * descent, and their coupling is audited against the formed FP64 coarse
+ * matrix. Native transfer quantization remains subject to the independent
+ * original-operator residual gate; it has no exact-pairing guarantee.
+ * Reported singular values belong only to these selected, row-normalized
+ * local paired blocks. Other pressure directions, later mixed scalar levels,
+ * and a global inf-sup bound are not certified. Numeric changes rebuild this
+ * enrichment. Aggregate, spectral-slot, smoothing and coarse-solve budgets
+ * are unchanged; no convergence tolerance is weakened.
  * With fsi_candidates the default max_coarse_ratio is 0.8 (otherwise 1): reject
  * a proposed level that reduces too few rows and solve its parent as coarsest.
  * This is a hierarchy work bound, independent of physical/Krylov tolerances.

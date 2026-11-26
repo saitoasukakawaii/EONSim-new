@@ -27,12 +27,13 @@ FEATURES = {
     'mono_adaptive': {'adaptive'}, 'mono_native_fp32': {'native'},
     'mono_optimized': {'scaling', 'candidates', 'adaptive', 'native'},
     'mono_kcycle': {'scaling', 'candidates', 'adaptive', 'native', 'kcycle'},
+    'mono_supremizer': {'scaling', 'candidates', 'adaptive', 'native', 'supremizer'},
     'mono_reduced': {'mf', 'reduced'}, 'mono_reduced_coo': {'mf', 'reduced', 'coo'},
     'mono_partial': {'mf', 'partial'},
     'mono_simd': {'mf', 'partial', 'simd'}, 'mono_overlap': {'mf', 'overlap'},
     'mono_inexact': {'mf', 'inexact'}, 'mono_recycle': {'mf', 'recycle'},
     'mono_all': {'scaling', 'candidates', 'adaptive', 'native', 'mf', 'reduced',
-                 'partial', 'simd', 'overlap', 'inexact', 'recycle', 'kcycle'},
+                 'partial', 'simd', 'overlap', 'inexact', 'recycle', 'kcycle', 'supremizer'},
 }
 MODES = ('mono', 'mono_fp32', 'mono_pipe', 'mono_mf', 'mono_mf_pipe', 'mono_chebyshev',
          'mono_block_chebyshev', 'added_mass', 'pcd_mass', 'pcd_robin', *FEATURES)
@@ -65,12 +66,13 @@ def flags(mode, ports=False):
             result += [prefix + 'single_precision', 'true']
         if 'kcycle' in selected:
             result += [prefix + 'cycle', 'k']
-        elif mode == 'mono_optimized':
+        elif mode in ('mono_optimized', 'mono_supremizer'):
             result += [prefix + 'cycle', 'v']
         if 'mf' in selected:
             result += ['-fsi_matrix_free', '-nonlinear_matrix_free_pc_interval', '2']
         for feature, option in (('scaling', 'field_scaling'), ('candidates', 'fsi_candidates'),
-                                ('adaptive', 'adaptive_patches'), ('native', 'native_fp32')):
+                                ('adaptive', 'adaptive_patches'), ('native', 'native_fp32'),
+                                ('supremizer', 'pressure_supremizers')):
             if feature in selected:
                 result += [prefix + option, 'true']
         if 'adaptive' in selected:
@@ -97,6 +99,36 @@ def flags(mode, ports=False):
             if mode == 'pcd_robin':
                 result += ['-pc_plan_pcd_robin', 'true']
     return result
+
+
+def pressure_supremizer_evidence(hierarchy, transfers):
+    """Audit local pairs and FP64 setup preservation, not native-action accuracy."""
+    block.require(hierarchy and all(int(row.get('pressure_supremizers', 0)) == 1 for row in hierarchy),
+                  'Requested pressure supremizers are absent from the hierarchy')
+    required = {'level', 'pressure_supremizer_modes', 'pressure_paired_aggregates',
+                'pressure_pair_min_singular', 'pressure_pair_relative_change'}
+    block.require(transfers and all(required <= row.keys() for row in transfers),
+                  'Missing pressure-pair transfer evidence')
+    fine = []
+    for row in transfers:
+        level = int(row['level'])
+        modes, pairs = int(row['pressure_supremizer_modes']), int(row['pressure_paired_aggregates'])
+        singular, change = float(row['pressure_pair_min_singular']), float(row['pressure_pair_relative_change'])
+        block.require(min(level, modes, pairs) >= 0 and math.isfinite(singular) and singular >= 0 and
+                      math.isfinite(change) and 0 <= change <= 1e-10,
+                      'Invalid or changed pressure-pair transfer')
+        if level == 0:
+            block.require(0 < pairs <= modes <= 2 * pairs and singular > 0,
+                          'No positive fine-level pressure-supremizer pairing was exercised')
+            fine.append(row)
+        else:
+            block.require(modes == 0 and pairs == 0, 'Pressure supremizers escaped the semantic fine level')
+    block.require(len(fine) == len(hierarchy), 'Missing fine-level pressure pairing for a hierarchy setup')
+    return dict(scope='fine-level aggregate-local pairs, not a global inf-sup bound',
+                pair_relative_change_scope='FP64 setup coupling before and after energy minimization; '
+                                           'does not certify native FP32 action pairing to 1e-10',
+                outer_true_residual_gate_independent=True,
+                fine_level_records=fine)
 
 
 def kcycle_evidence(log, hierarchy, ranks):
@@ -280,8 +312,10 @@ def audit(log, trace, ranks, mode):
             result['storage'] = storage
         if 'kcycle' in selected:
             result['kcycle_work'] = kcycle_evidence(log, hierarchy, ranks)
-        elif mode == 'mono_optimized':
+        elif mode in ('mono_optimized', 'mono_supremizer'):
             block.require(all(row.get('cycle') == 'v' for row in hierarchy), 'V-cycle comparison mode changed')
+        if 'supremizer' in selected:
+            result['pressure_supremizer_evidence'] = pressure_supremizer_evidence(hierarchy, transfers)
         result.update(hierarchies=hierarchy, transfers=transfers,
                       smoothers=smoothers)
     if 'mf' in selected:

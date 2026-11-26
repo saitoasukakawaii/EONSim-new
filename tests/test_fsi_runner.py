@@ -14,6 +14,65 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from benchmark_fsi_block_scaling import rank_placement, spool_fields, compare_spools
 
 
+class PressureSupremizerEvidenceTests(unittest.TestCase):
+    def test_supremizer_only_adds_the_requested_option_to_the_strict_v_mode(self):
+        for ports in (False, True):
+            prefix = '-rcr_bulk_monolithic_mg_' if ports else '-monolithic_mg_'
+            wrong = '-monolithic_mg_' if ports else '-rcr_bulk_monolithic_mg_'
+            with self.subTest(ports=ports):
+                options = multigrid.flags('mono_supremizer', ports)
+                index = options.index(prefix + 'pressure_supremizers')
+                self.assertEqual(options[index + 1], 'true')
+                self.assertNotIn(wrong + 'pressure_supremizers', options)
+                self.assertEqual(options[:index] + options[index + 2:], multigrid.flags('mono_optimized', ports))
+                self.assertNotIn('-nonlinear_inexact_newton', options)
+                combined = multigrid.flags('mono_all', ports)
+                self.assertEqual(combined[combined.index(prefix + 'pressure_supremizers') + 1], 'true')
+                self.assertEqual(combined[combined.index(prefix + 'cycle') + 1], 'k')
+
+    @staticmethod
+    def transfer(level=0):
+        return dict(level=str(level), pressure_supremizer_modes='4' if level == 0 else '0',
+                    pressure_paired_aggregates='3' if level == 0 else '0',
+                    pressure_pair_min_singular='0.2' if level == 0 else '0',
+                    pressure_pair_relative_change='1e-13' if level == 0 else '0')
+
+    def test_each_setup_requires_actual_fine_level_pairs(self):
+        hierarchy = [dict(pressure_supremizers='1')] * 2
+        transfers = [self.transfer(), self.transfer(1)] * 2
+        evidence = multigrid.pressure_supremizer_evidence(hierarchy, transfers)
+        self.assertEqual(len(evidence['fine_level_records']), 2)
+        invalid = (
+            [],
+            transfers[1:],
+            [self.transfer(1)] * 4,
+            [dict(self.transfer(), pressure_supremizer_modes='0')],
+            [dict(self.transfer(), pressure_paired_aggregates='0')],
+            [dict(self.transfer(), pressure_pair_min_singular='0')],
+            [dict(self.transfer(), pressure_supremizer_modes='7')],
+            [dict(self.transfer(), pressure_paired_aggregates='5')],
+            [self.transfer(), dict(self.transfer(), level='1')],
+        )
+        for records in invalid:
+            with self.subTest(records=records), self.assertRaises(ValueError):
+                multigrid.pressure_supremizer_evidence(hierarchy, records)
+        for setups in ([], [{}], [dict(pressure_supremizers='0')]):
+            with self.subTest(setups=setups), self.assertRaises(ValueError):
+                multigrid.pressure_supremizer_evidence(setups, [self.transfer()])
+
+    def test_pair_audit_rejects_missing_nonfinite_or_changed_evidence(self):
+        invalid = []
+        for key in self.transfer():
+            invalid.append({name: value for name, value in self.transfer().items() if name != key})
+        for key in ('pressure_pair_min_singular', 'pressure_pair_relative_change'):
+            for value in ('nan', 'inf', '-0.1'):
+                invalid.append(dict(self.transfer(), **{key: value}))
+        invalid.append(dict(self.transfer(), pressure_pair_relative_change='1.0001e-10'))
+        for row in invalid:
+            with self.subTest(row=row), self.assertRaises(ValueError):
+                multigrid.pressure_supremizer_evidence([dict(pressure_supremizers='1')], [row])
+
+
 class KCycleEvidenceTests(unittest.TestCase):
     def test_kcycle_and_rcr_prefix_keep_the_v_comparison_explicit(self):
         for ports in (False, True):

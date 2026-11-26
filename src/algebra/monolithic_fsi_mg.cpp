@@ -34,6 +34,7 @@ struct Options {
     PetscInt spectral_refresh_period=0,coarse_patch_overlap=0;
     double spectral_tolerance=.1,max_coarse_ratio=1.;
     bool single_precision=false,report=false,field_scaling=false,fsi_candidates=false,native_fp32=false,w_cycle=false,k_cycle=false;
+    bool pressure_supremizers=false;
     FsiLevelSmootherOptions smoother;
 };
 Options options(MPI_Comm comm,const std::string& prefix) {
@@ -54,14 +55,17 @@ Options options(MPI_Comm comm,const std::string& prefix) {
     EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"patch_damping").c_str(),&o.smoother.patches.damping,nullptr));
     EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"patch_strength").c_str(),&o.smoother.patches.strength_threshold,nullptr));
     PetscBool single=PETSC_FALSE,report=PETSC_FALSE,scaling=PETSC_FALSE,candidates=PETSC_FALSE,native=PETSC_FALSE,adaptive=PETSC_FALSE;
+    PetscBool supremizers=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"single_precision").c_str(),&single,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-pc_plan_report",&report,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"field_scaling").c_str(),&scaling,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"fsi_candidates").c_str(),&candidates,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"native_fp32").c_str(),&native,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"adaptive_patches").c_str(),&adaptive,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"pressure_supremizers").c_str(),&supremizers,nullptr));
     o.single_precision=single||native; o.report=report; o.smoother.patches.single_precision=o.single_precision;
     o.field_scaling=scaling;o.fsi_candidates=candidates;o.native_fp32=native;
+    o.pressure_supremizers=supremizers;
     // An enriched local basis has a finite rank floor. Stop before another
     // level costs almost as much as its parent without reducing the problem.
     if(o.fsi_candidates) o.max_coarse_ratio=.8;
@@ -80,7 +84,7 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         o.smoother.kind=="vanka"?1:o.smoother.kind=="chebyshev"?2:o.smoother.kind=="block_chebyshev"?3:0,
         o.spectral_refresh_period,o.report?1:0,o.coarse_patch_overlap,o.field_scaling?1:0,
         o.fsi_candidates?1:0,o.native_fp32?1:0,o.smoother.patches.adaptive?1:0,
-        o.k_cycle?3:o.w_cycle?2:std::strcmp(cycle,"v")==0?1:0};
+        o.k_cycle?3:o.w_cycle?2:std::strcmp(cycle,"v")==0?1:0,o.pressure_supremizers?1:0};
     constexpr int option_count=static_cast<int>(sizeof(values)/sizeof(values[0]));
     PetscInt minimum[option_count]{},maximum[option_count]{};
     MPI_Allreduce(values,minimum,option_count,MPIU_INT,MPI_MIN,comm);
@@ -92,6 +96,7 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         o.pre_smooth+o.post_smooth>0&&o.pre_smooth<=8&&o.post_smooth<=8&&o.coarse_processes>=1&&values[13]!=0&&
         o.spectral_refresh_period>=0&&o.spectral_refresh_period<=1000000&&
         o.coarse_patch_overlap>=0&&o.coarse_patch_overlap<=2&&values[21]!=0&&
+        (!o.pressure_supremizers||(o.fsi_candidates&&o.spectral_modes>0))&&
         (!o.native_fp32||o.smoother.kind=="vanka")&&(!o.smoother.patches.adaptive||o.smoother.kind=="vanka");
     const double real[]={o.spectral_tolerance,o.smoother.eigenvalue_ratio,o.smoother.patches.damping,o.max_coarse_ratio};
     double min_real[4]{},max_real[4]{};
@@ -110,10 +115,19 @@ struct LevelData {
     std::vector<DofKey> semantics;
     std::vector<unsigned char> trace,active;
 };
+struct PressurePair {
+    // Initially aggregate-basis indices; made global coarse indices below.
+    std::vector<PetscInt> pressure_columns,velocity_columns;
+    std::vector<std::vector<double>> pressure_combinations;
+    std::vector<double> expected_coupling,row_norms;
+    double coupling_scale=1.,minimum_singular=0.;
+};
 struct Transfer {
     PetscOwner<Mat,MatDestroy> matrix;
     LevelData coarse;
     std::vector<unsigned char> anchors;
+    std::vector<unsigned char> fixed_columns;
+    std::vector<PressurePair> pressure_pairs;
     MonolithicFsiMgLevelStats stats;
 };
 long double dot(const std::vector<double>& x,const std::vector<double>& y) {
@@ -275,6 +289,167 @@ PetscInt spectral_enrichment(Mat matrix,PetscInt begin,const std::vector<PetscIn
     return added;
 }
 
+double paired_minimum_singular(const std::vector<double>& matrix,std::size_t n) {
+    if(n==1) return std::abs(matrix[0]);
+    if(n!=2) return 0.;
+    long double scale=0.;for(const auto value:matrix) scale=std::max(scale,std::abs(static_cast<long double>(value)));
+    if(!(scale>0&&std::isfinite(scale))) return 0.;
+    const long double a=matrix[0]/scale,b=matrix[1]/scale,c=matrix[2]/scale,d=matrix[3]/scale;
+    const auto squared=a*a+b*b+c*c+d*d,determinant=a*d-b*c;
+    const auto largest=std::sqrt(.5L*(squared+std::sqrt(std::max(0.L,squared*squared-4*determinant*determinant))));
+    return largest>0?static_cast<double>(scale*std::abs(determinant)/largest):0.;
+}
+
+PressurePair pressure_enrichment(Mat matrix,PetscInt begin,const std::vector<PetscInt>& rows,
+    const LevelData& fine,const std::vector<double>& test_weights,PetscInt maximum,
+    std::vector<std::vector<double>>& basis) {
+    PressurePair pair;
+    if(maximum==0||basis.size()+1>=rows.size()) return pair;
+    std::vector<PetscInt> pressure,velocity,pressure_position(rows.size(),-1);
+    std::map<PetscInt,PetscInt> velocity_position;
+    for(std::size_t i=0;i<rows.size();++i) {
+        const auto& key=fine.semantics[rows[i]];
+        if(key.domain==DofDomain::fluid&&key.quantity==DofQuantity::pressure) {
+            pressure_position[i]=static_cast<PetscInt>(pressure.size());pressure.push_back(static_cast<PetscInt>(i));
+        } else if(key.domain==DofDomain::fluid&&key.quantity==DofQuantity::velocity) {
+            velocity_position.emplace(begin+rows[i],static_cast<PetscInt>(velocity.size()));
+            velocity.push_back(static_cast<PetscInt>(i));
+        }
+    }
+    if(pressure.empty()||velocity.empty()) return pair;
+    for(std::size_t column=0;column<basis.size();++column) {
+        bool pure=true,nonzero=false;
+        for(std::size_t i=0;i<rows.size();++i) if(basis[column][i]!=0.) {
+            pure=pure&&pressure_position[i]>=0;nonzero=true;
+        }
+        if(pure&&nonzero) pair.pressure_columns.push_back(static_cast<PetscInt>(column));
+    }
+    if(pair.pressure_columns.empty()) return PressurePair{};
+    const auto nv=velocity.size(),np=pressure.size(),m=pair.pressure_columns.size();
+    std::vector<double> divergence(np*nv,0.);
+    std::vector<long double> energy(nv,0.);
+    double coupling_scale=0.;
+    for(std::size_t i=0;i<rows.size();++i) {
+        if(pressure_position[i]<0&&velocity_position.count(begin+rows[i])==0) continue;
+        PetscInt count=0;const PetscInt* columns=nullptr;const PetscScalar* values=nullptr;
+        EONSIM_PETSC(MatGetRow(matrix,begin+rows[i],&count,&columns,&values));
+        bool finite=true;
+        for(PetscInt j=0;j<count;++j) {
+            const auto found=velocity_position.find(columns[j]);if(found==velocity_position.end()) continue;
+            // The restriction is P^T W, hence the physical coarse form is
+            // P^T (W A_s) P. Use that very form, not an unweighted surrogate B.
+            const auto value=values[j]*test_weights[rows[i]];
+            finite=finite&&std::isfinite(value);
+            if(pressure_position[i]>=0) {
+                divergence[static_cast<std::size_t>(pressure_position[i])*nv+found->second]=value;
+                coupling_scale=std::max(coupling_scale,std::abs(value));
+            } else energy[found->second]+=std::abs(static_cast<long double>(value));
+        }
+        EONSIM_PETSC(MatRestoreRow(matrix,begin+rows[i],&count,&columns,&values));
+        if(!finite) throw std::runtime_error("Nonfinite weighted pressure/velocity coupling");
+    }
+    if(!(coupling_scale>0)) return PressurePair{};
+    const auto smallest=*std::min_element(energy.begin(),energy.end());
+    // H_jj=sum_i |(W A_s)_ij| over aggregate velocity rows is a positive
+    // diagonal velocity-energy proxy. A missing/zero velocity block cannot
+    // certify a pair and simply retains the existing spectral allocation.
+    if(!(smallest>0&&std::isfinite(smallest))) return PressurePair{};
+    std::vector<double> inverse_root(nv);
+    for(std::size_t j=0;j<nv;++j) {
+        inverse_root[j]=static_cast<double>(std::sqrt(smallest/energy[j]));
+        if(!(inverse_root[j]>0&&std::isfinite(inverse_root[j]))) return PressurePair{};
+    }
+    for(auto& value:divergence) value/=coupling_scale;
+    // D=constant*H^-1. QR of sqrt(D)*V gives the bounded constrained solve
+    // s=sqrt(D)(I-Q Q^T)sqrt(D) B^T q, so V^T s=0 and q^T B s>=0.
+    // V contains every existing basis column restricted to fluid velocity;
+    // even coherent interface columns therefore retain their original span.
+    std::vector<std::vector<double>> constraints,velocity_basis;
+    for(const auto& column:basis) {
+        std::vector<double> candidate(nv),unweighted(nv);
+        for(std::size_t j=0;j<nv;++j) {
+            unweighted[j]=column[velocity[j]];candidate[j]=inverse_root[j]*unweighted[j];
+        }
+        append_basis(std::move(candidate),constraints);
+        append_basis(std::move(unweighted),velocity_basis);
+    }
+    if(constraints.size()>=nv||velocity_basis.size()>=nv) return PressurePair{};
+    std::vector<std::vector<double>> gradients(m,std::vector<double>(nv)),responses(m,std::vector<double>(nv));
+    for(std::size_t column=0;column<m;++column) {
+        for(std::size_t j=0;j<nv;++j) {
+            long double value=0.;
+            for(std::size_t i=0;i<np;++i)
+                value+=static_cast<long double>(basis[pair.pressure_columns[column]][pressure[i]])*divergence[i*nv+j];
+            gradients[column][j]=static_cast<double>(value);
+            responses[column][j]=inverse_root[j]*gradients[column][j];
+        }
+        for(int pass=0;pass<2;++pass) for(const auto& q:constraints) {
+            const auto product=dot(q,responses[column]);
+            for(std::size_t j=0;j<nv;++j) responses[column][j]-=static_cast<double>(product*q[j]);
+        }
+        for(std::size_t j=0;j<nv;++j) responses[column][j]*=inverse_root[j];
+    }
+    // Select at most two pressure combinations with the largest missing
+    // velocity-response energy. This tiny eigensolve replaces spectral slots;
+    // it never increases the aggregate basis budget or introduces an inner KSP.
+    std::vector<double> coupling(m*m,0.),eigenvalues(m),work(std::max<std::size_t>(1,3*m-1));
+    for(std::size_t i=0;i<m;++i) for(std::size_t j=i;j<m;++j)
+        coupling[i+j*m]=coupling[j+i*m]=static_cast<double>(.5L*(dot(gradients[i],responses[j])+dot(gradients[j],responses[i])));
+    PetscBLASInt dimension=0,lwork=0,info=0;
+    EONSIM_PETSC(PetscBLASIntCast(static_cast<PetscInt>(m),&dimension));
+    EONSIM_PETSC(PetscBLASIntCast(static_cast<PetscInt>(work.size()),&lwork));
+    LAPACKsyev_("V","U",&dimension,coupling.data(),&dimension,eigenvalues.data(),work.data(),&lwork,&info);
+    if(info!=0) throw std::runtime_error("Pressure response Gram eigensolve failed");
+    for(const auto value:eigenvalues)
+        if(!std::isfinite(value)) throw std::runtime_error("Nonfinite pressure response energy");
+    const auto largest=std::max(0.,eigenvalues.back());
+    const double cutoff=256*std::numeric_limits<double>::epsilon()*rows.size()*largest;
+    for(std::size_t index=m;index-->0&&pair.velocity_columns.size()<static_cast<std::size_t>(std::min<PetscInt>(2,maximum))&&
+        basis.size()+1<rows.size();) {
+        if(!(eigenvalues[index]>cutoff)) break;
+        std::vector<double> candidate(nv,0.),combination(m);
+        for(std::size_t k=0;k<m;++k) {
+            combination[k]=coupling[k+index*m];
+            for(std::size_t j=0;j<nv;++j) candidate[j]+=combination[k]*responses[k][j];
+        }
+        const auto column=static_cast<PetscInt>(basis.size());
+        // Reproject roundoff only inside the velocity subspace. Full mixed
+        // QR would introduce tiny structure/ALE entries from coherent trace
+        // candidates, invalidating a B-only pairing oracle in disparate units.
+        if(append_basis(std::move(candidate),velocity_basis)) {
+            std::vector<double> full(rows.size(),0.);
+            for(std::size_t j=0;j<nv;++j) full[velocity[j]]=velocity_basis.back()[j];
+            basis.push_back(std::move(full));
+            pair.velocity_columns.push_back(column);pair.pressure_combinations.push_back(std::move(combination));
+        }
+    }
+    pair.coupling_scale=coupling_scale;
+    while(!pair.velocity_columns.empty()) {
+        const auto count=pair.velocity_columns.size();
+        pair.expected_coupling.assign(count*count,0.);pair.row_norms.assign(count,0.);
+        std::vector<double> normalized(count*count);
+        for(std::size_t i=0;i<count;++i) {
+            std::vector<double> gradient(nv,0.);
+            for(std::size_t k=0;k<m;++k) for(std::size_t j=0;j<nv;++j)
+                gradient[j]+=pair.pressure_combinations[i][k]*gradients[k][j];
+            pair.row_norms[i]=static_cast<double>(std::sqrt(dot(gradient,gradient)));
+            for(std::size_t j=0;j<count;++j) {
+                long double value=0.;for(std::size_t k=0;k<nv;++k)
+                    value+=static_cast<long double>(gradient[k])*basis[pair.velocity_columns[j]][velocity[k]];
+                pair.expected_coupling[i*count+j]=static_cast<double>(value);
+                normalized[i*count+j]=pair.row_norms[i]>0?static_cast<double>(value)/pair.row_norms[i]:0.;
+            }
+        }
+        pair.minimum_singular=paired_minimum_singular(normalized,count);
+        if(std::isfinite(pair.minimum_singular)&&pair.minimum_singular>256*std::numeric_limits<double>::epsilon()*rows.size())
+            return pair;
+        // A numerically dependent selected pair is not an inf-sup certificate.
+        // Release its slot back to the existing local spectral enrichment.
+        basis.pop_back();pair.velocity_columns.pop_back();pair.pressure_combinations.pop_back();
+    }
+    return PressurePair{};
+}
+
 struct Column { std::vector<PetscInt> rows; std::vector<double> values; };
 Candidate candidate_scales(MPI_Comm comm,const LevelData& data) {
     Candidate local{},global{};
@@ -284,11 +459,18 @@ Candidate candidate_scales(MPI_Comm comm,const LevelData& data) {
     for(auto& value:global) if(value==0) value=1.;
     return global;
 }
-Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const Options& o) {
+Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const Options& o,Vec physical_test_weights) {
     PetscInt begin=0,end=0,global=0;
     EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
     EONSIM_PETSC(MatGetSize(matrix,&global,nullptr));
     const auto mode_scale=candidate_scales(comm,fine);
+    std::vector<double> test_weights;
+    if(o.pressure_supremizers) test_weights.assign(end-begin,1.);
+    if(o.pressure_supremizers&&physical_test_weights) {
+        const PetscScalar* weights=nullptr;EONSIM_PETSC(VecGetArrayRead(physical_test_weights,&weights));
+        for(PetscInt i=0;i<end-begin;++i) test_weights[i]=weights[i];
+        EONSIM_PETSC(VecRestoreArrayRead(physical_test_weights,&weights));
+    }
     std::vector<PetscInt> row_block(end-begin,-1);
     for(PetscInt block=0;block<static_cast<PetscInt>(fine.blocks.size());++block)
         for(auto row:fine.blocks[block]) row_block[row]=block;
@@ -314,7 +496,7 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
     std::vector<Column> columns;
     std::vector<std::pair<PetscInt,PetscInt>> coarse_blocks;
     long double local_error=0,local_norm=0;
-    PetscInt spectral=0; bool valid=true; std::string local_error_message;
+    PetscInt spectral=0,supremizers=0; bool valid=true; std::string local_error_message;
     try {
         for(PetscInt seed=0;seed<static_cast<PetscInt>(fine.blocks.size());++seed) if(!assigned[seed]) {
             std::vector<PetscInt> aggregate{seed}; assigned[seed]=1;
@@ -339,7 +521,17 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
                 for(std::size_t i=0;i<rows.size();++i) candidate[i]=fine.candidates[rows[i]][component]/mode_scale[component];
                 append_basis(std::move(candidate),basis);
             }
-            spectral+=spectral_enrichment(matrix,begin,rows,o.spectral_modes,o.spectral_tolerance,basis);
+            auto pair=o.pressure_supremizers?
+                pressure_enrichment(matrix,begin,rows,fine,test_weights,o.spectral_modes,basis):PressurePair{};
+            const auto paired_modes=static_cast<PetscInt>(pair.velocity_columns.size());
+            supremizers+=paired_modes;
+            spectral+=spectral_enrichment(matrix,begin,rows,o.spectral_modes-paired_modes,o.spectral_tolerance,basis);
+            std::vector<unsigned char> fixed;
+            if(o.pressure_supremizers) fixed.assign(basis.size(),0);
+            if(paired_modes) {
+                for(const auto column:pair.pressure_columns) fixed[column]=1;
+                for(const auto column:pair.velocity_columns) fixed[column]=1;
+            }
             // Fixed, rank-revealing anchor rows protect every coarse column,
             // including spectral columns orthogonal to physical candidates.
             // Without these anchors, unconstrained energy descent could shrink
@@ -365,7 +557,8 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
             }
             const auto first=static_cast<PetscInt>(columns.size());
             bool trace=false; for(auto row:rows) trace=trace||fine.trace[row];
-            for(const auto& basis_column:basis) {
+            for(std::size_t basis_index=0;basis_index<basis.size();++basis_index) {
+                const auto& basis_column=basis[basis_index];
                 Candidate propagated{}; Column column;
                 for(std::size_t component=0;component<candidate_count;++component) {
                     long double value=0;
@@ -377,7 +570,13 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
                     column.rows.push_back(rows[i]); column.values.push_back(basis_column[i]);
                 }
                 columns.push_back(std::move(column)); result.coarse.candidates.push_back(propagated);
+                if(o.pressure_supremizers) result.fixed_columns.push_back(fixed[basis_index]);
                 result.coarse.trace.push_back(trace); result.coarse.active.push_back(1);
+            }
+            if(paired_modes) {
+                for(auto& column:pair.pressure_columns) column+=first;
+                for(auto& column:pair.velocity_columns) column+=first;
+                result.pressure_pairs.push_back(std::move(pair));
             }
             const auto last=static_cast<PetscInt>(columns.size());
             if(last>first) coarse_blocks.emplace_back(first,last);
@@ -397,7 +596,16 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
     MPI_Exscan(&local,&coarse_begin,1,MPIU_INT,MPI_SUM,comm);
     MPI_Allreduce(&local,&result.stats.coarse_rows,1,MPIU_INT,MPI_SUM,comm);
     MPI_Allreduce(&spectral,&result.stats.spectral_modes,1,MPIU_INT,MPI_SUM,comm);
+    if(o.pressure_supremizers) {
+        MPI_Allreduce(&supremizers,&result.stats.pressure_supremizer_modes,1,MPIU_INT,MPI_SUM,comm);
+        const auto paired_aggregates=static_cast<PetscInt>(result.pressure_pairs.size());
+        MPI_Allreduce(&paired_aggregates,&result.stats.pressure_paired_aggregates,1,MPIU_INT,MPI_SUM,comm);
+    }
     if(rank==0) coarse_begin=0;
+    for(auto& pair:result.pressure_pairs) {
+        for(auto& column:pair.pressure_columns) column+=coarse_begin;
+        for(auto& column:pair.velocity_columns) column+=coarse_begin;
+    }
     long double audit[2]{local_error,local_norm},sum[2]{};
     MPI_Allreduce(audit,sum,2,MPI_LONG_DOUBLE,MPI_SUM,comm);
     result.stats.reproduction_error=static_cast<double>(std::sqrt(sum[0]/std::max(1.L,sum[1])));
@@ -432,7 +640,8 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
 // Gather only candidate rows touched by this rank's transfer stencil. This is
 // setup-only halo data, not a replicated global coarse field or matrix.
 std::vector<Candidate> gather_candidates(Mat transfer,const LevelData& coarse,
-    const std::vector<PetscInt>& columns) {
+    const std::vector<PetscInt>& columns,const std::vector<unsigned char>& fixed_columns,
+    std::vector<unsigned char>* fixed_halo) {
     PetscOwner<Vec,VecDestroy> global,local;
     EONSIM_PETSC(MatCreateVecs(transfer,global.put(),nullptr));
     EONSIM_PETSC(VecCreateSeq(PETSC_COMM_SELF,static_cast<PetscInt>(columns.size()),local.put()));
@@ -450,6 +659,17 @@ std::vector<Candidate> gather_candidates(Mat transfer,const LevelData& coarse,
         EONSIM_PETSC(VecScatterEnd(scatter.get(),global.get(),local.get(),INSERT_VALUES,SCATTER_FORWARD));
         const PetscScalar* gathered=nullptr; EONSIM_PETSC(VecGetArrayRead(local.get(),&gathered));
         for(std::size_t i=0;i<columns.size();++i) values[i][component]=gathered[i];
+        EONSIM_PETSC(VecRestoreArrayRead(local.get(),&gathered));
+    }
+    if(fixed_halo) {
+        PetscScalar* owned=nullptr;EONSIM_PETSC(VecGetArray(global.get(),&owned));
+        for(std::size_t i=0;i<fixed_columns.size();++i) owned[i]=fixed_columns[i];
+        EONSIM_PETSC(VecRestoreArray(global.get(),&owned));
+        EONSIM_PETSC(VecScatterBegin(scatter.get(),global.get(),local.get(),INSERT_VALUES,SCATTER_FORWARD));
+        EONSIM_PETSC(VecScatterEnd(scatter.get(),global.get(),local.get(),INSERT_VALUES,SCATTER_FORWARD));
+        const PetscScalar* gathered=nullptr;EONSIM_PETSC(VecGetArrayRead(local.get(),&gathered));
+        fixed_halo->resize(columns.size());
+        for(std::size_t i=0;i<columns.size();++i) (*fixed_halo)[i]=gathered[i]!=0.;
         EONSIM_PETSC(VecRestoreArrayRead(local.get(),&gathered));
     }
     return values;
@@ -517,11 +737,20 @@ void minimize_transfer_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Tra
             for(const auto& entry:rows[row-begin]) union_columns.insert(entry.first);
         }
         const std::vector<PetscInt> columns(union_columns.begin(),union_columns.end());
-        const auto halo=gather_candidates(transfer.matrix.get(),transfer.coarse,columns);
+        std::vector<unsigned char> fixed_halo;
+        const bool paired=transfer.stats.pressure_supremizer_modes>0;
+        const auto halo=gather_candidates(transfer.matrix.get(),transfer.coarse,columns,transfer.fixed_columns,
+                                         paired?&fixed_halo:nullptr);
         std::map<PetscInt,std::size_t> positions;
         for(std::size_t i=0;i<columns.size();++i) positions.emplace(columns[i],i);
         bool valid=true;
         for(auto& row:rows) {
+            // Fixed whole columns preserve the selected actual discrete
+            // pressure/velocity pairing. Include remote columns in the halo:
+            // energy stencils cross ownership even though aggregates do not.
+            if(paired) for(auto entry=row.begin();entry!=row.end();)
+                if(fixed_halo[positions.at(entry->first)]) entry=row.erase(entry);
+                else ++entry;
             std::vector<std::vector<double>> constraints;
             for(std::size_t component=0;component<candidate_count;++component) {
                 std::vector<double> column; column.reserve(row.size());
@@ -615,6 +844,39 @@ void minimize_transfer_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Tra
     EONSIM_PETSC(VecRestoreArrayRead(coarse.get(),&traces));
 }
 
+void audit_pressure_pairs(MPI_Comm comm,Mat coarse,Transfer& transfer) {
+    if(transfer.stats.pressure_supremizer_modes==0) return;
+    double local_change=0.,local_minimum=std::numeric_limits<double>::infinity();
+    bool valid=true;
+    try {
+        for(const auto& pair:transfer.pressure_pairs) {
+            const auto count=pair.velocity_columns.size(),pressures=pair.pressure_columns.size();
+            std::vector<PetscScalar> entries(pressures*count);
+            EONSIM_PETSC(MatGetValues(coarse,static_cast<PetscInt>(pressures),pair.pressure_columns.data(),
+                static_cast<PetscInt>(count),pair.velocity_columns.data(),entries.data()));
+            std::vector<double> normalized(count*count);
+            long double difference=0.,reference=0.;
+            for(std::size_t i=0;i<count;++i) for(std::size_t j=0;j<count;++j) {
+                long double value=0.;
+                for(std::size_t k=0;k<pressures;++k)
+                    value+=static_cast<long double>(pair.pressure_combinations[i][k])*entries[k*count+j]/pair.coupling_scale;
+                const auto expected=pair.expected_coupling[i*count+j];
+                difference+=(value-expected)*(value-expected);reference+=static_cast<long double>(expected)*expected;
+                normalized[i*count+j]=static_cast<double>(value/pair.row_norms[i]);
+                valid=valid&&std::isfinite(value)&&std::isfinite(normalized[i*count+j]);
+            }
+            valid=valid&&reference>0;
+            const auto change=reference>0?static_cast<double>(std::sqrt(difference/reference)):std::numeric_limits<double>::infinity();
+            const auto minimum=paired_minimum_singular(normalized,count);
+            valid=valid&&std::isfinite(change)&&change<=1e-10&&std::isfinite(minimum)&&minimum>0;
+            local_change=std::max(local_change,change);local_minimum=std::min(local_minimum,minimum);
+        }
+    } catch(const std::exception&) {valid=false;}
+    check(comm,valid,"energy transfer changed a selected discrete pressure/velocity coarse pair");
+    EONSIM_PETSC(MPI_Allreduce(&local_change,&transfer.stats.pressure_pair_relative_change,1,MPI_DOUBLE,MPI_MAX,comm));
+    EONSIM_PETSC(MPI_Allreduce(&local_minimum,&transfer.stats.pressure_pair_min_singular,1,MPI_DOUBLE,MPI_MIN,comm));
+}
+
 
 struct Level {
     PetscOwner<Mat,MatDestroy> matrix,prolongation;
@@ -658,7 +920,10 @@ struct Hierarchy {
         for(PetscInt depth=1;depth<configuration.max_levels;++depth) {
             PetscInt global=0; EONSIM_PETSC(MatGetSize(levels.back().matrix.get(),&global,nullptr));
             if(global<=configuration.coarse_limit) break;
-            auto transfer=tentative_transfer(comm,levels.back().matrix.get(),levels.back().data,configuration);
+            if(depth==1&&configuration.field_scaling&&configuration.pressure_supremizers)
+                prepare_restriction_weights(levels.back());
+            auto transfer=tentative_transfer(comm,levels.back().matrix.get(),levels.back().data,configuration,
+                                             levels.back().restriction_weights.get());
             if(!transfer.matrix.get()) break;
             if(static_cast<double>(transfer.stats.coarse_rows)>
                configuration.max_coarse_ratio*static_cast<double>(global)) {
@@ -675,15 +940,8 @@ struct Hierarchy {
                 // change the test space whenever independent field row/column
                 // scales differ, and can destroy mixed coarse stability.
                 auto& parent=levels.back();
-                EONSIM_PETSC(VecDuplicate(left_scale.get(),parent.restriction_weights.put()));
+                prepare_restriction_weights(parent);
                 EONSIM_PETSC(VecDuplicate(left_scale.get(),parent.restriction_input.put()));
-                EONSIM_PETSC(VecPointwiseDivide(parent.restriction_weights.get(),right_scale.get(),left_scale.get()));
-                const PetscScalar* weights=nullptr;bool valid=true;
-                EONSIM_PETSC(VecGetArrayRead(parent.restriction_weights.get(),&weights));
-                for(std::size_t row=0;row<parent.data.active.size();++row)
-                    valid=valid&&weights[row]>0&&std::isfinite(weights[row]);
-                EONSIM_PETSC(VecRestoreArrayRead(parent.restriction_weights.get(),&weights));
-                check(comm,valid,"physical restriction weights are outside representable precision");
                 PetscOwner<Mat,MatDestroy> form;
                 EONSIM_PETSC(MatDuplicate(parent.matrix.get(),MAT_COPY_VALUES,form.put()));
                 EONSIM_PETSC(MatDiagonalScale(form.get(),parent.restriction_weights.get(),nullptr));
@@ -694,6 +952,7 @@ struct Hierarchy {
             } else {
                 EONSIM_PETSC(MatPtAP(levels.back().matrix.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,next.matrix.put()));
             }
+            audit_pressure_pairs(comm,next.matrix.get(),transfer);
             levels.back().prolongation=std::move(transfer.matrix);
             next.data=std::move(transfer.coarse); stats.transfers.push_back(transfer.stats);
             levels.push_back(std::move(next));
@@ -701,6 +960,7 @@ struct Hierarchy {
         stats.levels=static_cast<PetscInt>(levels.size()); stats.single_precision=configuration.single_precision;
         stats.native_fp32=configuration.native_fp32;stats.field_scaling=configuration.field_scaling;
         stats.fsi_candidates=configuration.fsi_candidates;stats.w_cycle=configuration.w_cycle;stats.k_cycle=configuration.k_cycle;
+        stats.pressure_supremizers=configuration.pressure_supremizers;
         for(std::size_t level=0;level<levels.size();++level) {
             auto& data=levels[level];
             EONSIM_PETSC(MatCreateVecs(data.matrix.get(),data.solution.put(),data.rhs.put()));
@@ -812,6 +1072,17 @@ struct Hierarchy {
         check(comm,valid,"field column scaling is outside representable precision");
         EONSIM_PETSC(MatDiagonalScale(matrix,nullptr,right_scale.get()));
     }
+    void prepare_restriction_weights(Level& parent) {
+        if(parent.restriction_weights.get()) return;
+        EONSIM_PETSC(VecDuplicate(left_scale.get(),parent.restriction_weights.put()));
+        EONSIM_PETSC(VecPointwiseDivide(parent.restriction_weights.get(),right_scale.get(),left_scale.get()));
+        const PetscScalar* weights=nullptr;bool valid=true;
+        EONSIM_PETSC(VecGetArrayRead(parent.restriction_weights.get(),&weights));
+        for(std::size_t row=0;row<parent.data.active.size();++row)
+            valid=valid&&weights[row]>0&&std::isfinite(weights[row]);
+        EONSIM_PETSC(VecRestoreArrayRead(parent.restriction_weights.get(),&weights));
+        check(comm,valid,"physical restriction weights are outside representable precision");
+    }
     static std::size_t coefficient_bytes(Mat matrix) {
         if(!matrix) return 0;
         MatInfo info{};EONSIM_PETSC(MatGetInfo(matrix,MAT_LOCAL,&info));
@@ -917,17 +1188,22 @@ struct Hierarchy {
             " single_precision=%d refreshes=%" PetscInt_FMT " hierarchy_rebuilds=%" PetscInt_FMT
             " smoother=%s field_scaling=%d fsi_candidates=%d native_fp32=%d cycle=%s"
             " max_coarse_ratio=%.17g weak_coarsening_stop_rows=%" PetscInt_FMT
-            " weak_coarsening_proposed_rows=%" PetscInt_FMT "\n",
+            " weak_coarsening_proposed_rows=%" PetscInt_FMT " pressure_supremizers=%d\n",
             prefix.empty()?"-":prefix.c_str(),stats.levels,stats.coarse_processes,
             stats.single_precision?1:0,stats.refreshes,stats.hierarchy_rebuilds,configuration.smoother.kind.c_str(),
             stats.field_scaling?1:0,stats.fsi_candidates?1:0,stats.native_fp32?1:0,stats.k_cycle?"k":stats.w_cycle?"w":"v",
-            configuration.max_coarse_ratio,stats.weak_coarsening_stop_rows,stats.weak_coarsening_proposed_rows));
+            configuration.max_coarse_ratio,stats.weak_coarsening_stop_rows,stats.weak_coarsening_proposed_rows,
+            stats.pressure_supremizers?1:0));
         for(std::size_t i=0;i<stats.transfers.size();++i) {
             const auto& level=stats.transfers[i];
             EONSIM_PETSC(PetscPrintf(comm,
                 "pc_monolithic_mg_level level=%zu rows=%" PetscInt_FMT " coarse_rows=%" PetscInt_FMT
-                " spectral_modes=%" PetscInt_FMT " reproduction_error=%.17g energy_before=%.17g energy_after=%.17g\n",
-                i,level.rows,level.coarse_rows,level.spectral_modes,level.reproduction_error,level.energy_before,level.energy_after));
+                " spectral_modes=%" PetscInt_FMT " reproduction_error=%.17g energy_before=%.17g energy_after=%.17g"
+                " pressure_supremizer_modes=%" PetscInt_FMT " pressure_paired_aggregates=%" PetscInt_FMT
+                " pressure_pair_min_singular=%.17g pressure_pair_relative_change=%.17g\n",
+                i,level.rows,level.coarse_rows,level.spectral_modes,level.reproduction_error,level.energy_before,level.energy_after,
+                level.pressure_supremizer_modes,level.pressure_paired_aggregates,
+                level.pressure_pair_min_singular,level.pressure_pair_relative_change));
         }
         int rank=0; MPI_Comm_rank(comm,&rank);
         EONSIM_PETSC(PetscSynchronizedPrintf(comm,
@@ -984,7 +1260,8 @@ struct Hierarchy {
         EONSIM_PETSC(MatGetState(matrix,&current_numeric_state));
         int local_changed=current_numeric_state!=numeric_state,changed=0;
         EONSIM_PETSC(MPI_Allreduce(&local_changed,&changed,1,MPI_INT,MPI_MAX,comm));
-        if((changed&&(configuration.native_fp32||configuration.field_scaling||configuration.smoother.patches.adaptive))||
+        if((changed&&(configuration.native_fp32||configuration.field_scaling||configuration.smoother.patches.adaptive||
+                      configuration.pressure_supremizers))||
            (configuration.spectral_refresh_period>0&&stats.refreshes%configuration.spectral_refresh_period==0)) {
             if(configuration.native_fp32) release_native_before_rebuild();
             Hierarchy rebuilt(comm,matrix,levels.front().data.semantics,reference_coordinates,

@@ -403,6 +403,114 @@ void verify_weak_coarsening_stop(MPI_Comm comm) {
     action(problem,solver.get(),0);
 }
 
+void fill_pressure_pair_problem(Problem& problem,int phase) {
+    // A discrete mixed block whose two pressure modes have B^T images
+    // orthogonal to every existing constant/linear/quadratic velocity mode.
+    // Third differences annihilate those polynomials independently of the
+    // production candidate/QR implementation. Both responses vanish on the
+    // constrained first velocity row. Each eight-node block is one aggregate.
+    constexpr PetscInt width=8;
+    const double first[width]={0.,1.,-3.,3.,-1.,0.,0.,0.};
+    const double second[width]={0.,0.,0.,0.,1.,-3.,3.,-1.};
+    double responses[2][width]{};
+    for(PetscInt i=0;i<width;++i) {
+        responses[0][i]=first[i]/std::sqrt(20.);
+        responses[1][i]=(second[i]+first[i]/20.)/std::sqrt(399./20.);
+    }
+    for(int k=0;k<2;++k) for(int degree=0;degree<=2;++degree) {
+        long double moment=0.;
+        for(PetscInt i=0;i<width;++i) moment+=responses[k][i]*std::pow(static_cast<double>(i),degree);
+        check(problem.comm,std::abs(moment)<1e-13,
+              "Manufactured pressure response was not independent of the original polynomial velocity span");
+    }
+    EONSIM_PETSC(MatSetOption(problem.matrix.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_FALSE));
+    EONSIM_PETSC(MatZeroEntries(problem.matrix.get()));
+    for(PetscInt row=problem.begin;row<problem.end;++row) {
+        const auto node=row/Problem::fields,field=row%Problem::fields,first_node=width*(node/width),i=node%width;
+        if(row==0) {EONSIM_PETSC(MatSetValue(problem.matrix.get(),row,row,1.,INSERT_VALUES));continue;}
+        const double diagonal=field==0?2.+.1*phase:field==1?-.1:field==2?3.:4.;
+        EONSIM_PETSC(MatSetValue(problem.matrix.get(),row,row,diagonal,INSERT_VALUES));
+        if(field==0||field==1) for(PetscInt j=0;j<width;++j) {
+            const auto pressure_node=field==1?i:j,velocity_node=field==1?j:i;
+            const auto strength=phase&&first_node==16?0.:1.+.2*phase;
+            const auto coupling=strength*(responses[0][velocity_node]/std::sqrt(8.)+
+                (pressure_node-3.5)*responses[1][velocity_node]/std::sqrt(42.));
+            EONSIM_PETSC(MatSetValue(problem.matrix.get(),row,
+                Problem::fields*(first_node+j)+(field==1?0:1),coupling,INSERT_VALUES));
+        }
+        if(field==1) {
+            // These extra channels detect accidental nonvelocity entries in
+            // an enriched column: the oracle must match the actual full PtAP.
+            EONSIM_PETSC(MatSetValue(problem.matrix.get(),row,Problem::fields*node+2,3.7,INSERT_VALUES));
+            EONSIM_PETSC(MatSetValue(problem.matrix.get(),row,Problem::fields*node+3,-2.3,INSERT_VALUES));
+        }
+    }
+    // These two entries cross owners on four ranks and make the energy
+    // gradient touch remote fixed columns. They do not enter either local
+    // aggregate's B/self-pair oracle; deterministic eight-node growth remains
+    // unchanged because the first seed already fills its complete block.
+    const PetscInt pressure_row=7*Problem::fields+1,velocity_row=9*Problem::fields;
+    if(problem.begin<=pressure_row&&pressure_row<problem.end)
+        EONSIM_PETSC(MatSetValue(problem.matrix.get(),pressure_row,velocity_row,.17,INSERT_VALUES));
+    if(problem.begin<=velocity_row&&velocity_row<problem.end)
+        EONSIM_PETSC(MatSetValue(problem.matrix.get(),velocity_row,pressure_row,-.13,INSERT_VALUES));
+    EONSIM_PETSC(MatAssemblyBegin(problem.matrix.get(),MAT_FINAL_ASSEMBLY));
+    EONSIM_PETSC(MatAssemblyEnd(problem.matrix.get(),MAT_FINAL_ASSEMBLY));
+    EONSIM_PETSC(MatSetOption(problem.matrix.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE));
+}
+
+void verify_pressure_supremizers(MPI_Comm comm,bool scaled,bool native) {
+    const std::string prefix="mgpair_",base="-"+prefix+"monolithic_mg_";
+    for(const auto& setting:std::vector<std::pair<std::string,std::string>>{
+        {"aggregate_nodes","8"},{"aggregate_rows","64"},{"coarse_limit","1"},{"max_levels","2"},
+        {"energy_steps","1"},{"spectral_modes","2"},{"max_coarse_ratio","1"},
+        {"fsi_candidates","true"},{"pressure_supremizers","true"},{"patch_maximum_size","64"},
+        {"field_scaling",scaled?"true":"false"},{"native_fp32",native?"true":"false"}})
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+setting.first).c_str(),setting.second.c_str()));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"fsi_candidates").c_str(),"false"));
+    bool rejected=false;
+    try {validate_monolithic_fsi_mg_options(comm,prefix);} catch(const std::runtime_error&) {rejected=true;}
+    check(comm,rejected,"Pressure supremizers were accepted without their physical candidate space");
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"fsi_candidates").c_str(),"true"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"spectral_modes").c_str(),"0"));
+    rejected=false;
+    try {validate_monolithic_fsi_mg_options(comm,prefix);} catch(const std::runtime_error&) {rejected=true;}
+    check(comm,rejected,"Pressure supremizers silently increased an empty spectral budget");
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"spectral_modes").c_str(),"2"));
+    Problem problem(comm,true);
+    std::fill(problem.trace.begin(),problem.trace.end(),0);
+    fill_pressure_pair_problem(problem,0);
+    PcSchurUpdates updates;
+    PetscOwner<KSP,KSPDestroy> solver;
+    EONSIM_PETSC(KSPCreate(comm,solver.put()));
+    EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),prefix.c_str()));
+    EONSIM_PETSC(KSPSetType(solver.get(),KSPFGMRES));
+    EONSIM_PETSC(KSPGMRESSetRestart(solver.get(),80));
+    EONSIM_PETSC(KSPSetTolerances(solver.get(),1e-12,1e-14,PETSC_DEFAULT,300));
+    EONSIM_PETSC(KSPSetOperators(solver.get(),problem.matrix.get(),problem.matrix.get()));
+    configure_monolithic_fsi_mg(comm,solver.get(),problem.matrix.get(),problem.semantics,
+        problem.coordinates,problem.trace,&updates);
+    PC pc=nullptr;EONSIM_PETSC(KSPGetPC(solver.get(),&pc));
+    for(int phase=0;phase<2;++phase) {
+        if(phase) {fill_pressure_pair_problem(problem,phase);updates.refresh(problem.matrix.get());}
+        MonolithicFsiMgStats stats;query_monolithic_fsi_mg_stats(pc,stats);
+        check(comm,stats.pressure_supremizers&&stats.levels==2&&stats.transfers.size()==1&&
+            stats.hierarchy_rebuilds==phase+1,"Discrete pressure enrichment did not rebuild on numeric change");
+        const auto& transfer=stats.transfers.front();
+        // On four ranks the last owner loses all eligible pressure coupling
+        // at refresh, while another rank remains entirely empty. Both still
+        // participate in fixed-column halo exchange and the global pair audit.
+        const PetscInt pairs=phase?2:3;
+        check(comm,transfer.pressure_paired_aggregates==pairs&&transfer.pressure_supremizer_modes==2*pairs&&
+            transfer.spectral_modes<=2*(3-pairs)&&transfer.pressure_pair_min_singular>.99&&
+            transfer.pressure_pair_relative_change<1e-10&&transfer.reproduction_error<1e-10,
+            "Selected discrete pressure pairs did not restore the two missing channels within the original spectral budget");
+        check(comm,transfer.energy_after<=transfer.energy_before*(1.+1e-11),
+            "Protecting mixed pressure pairs broke constrained transfer-energy descent");
+        action(problem,solver.get(),phase);
+    }
+}
+
 void run(MPI_Comm comm) {
     int size=0; MPI_Comm_size(comm,&size); check(comm,size==1||size==2||size==4,"Expected 1, 2 or 4 ranks");
     verify(comm,"vanka",false,false,true);
@@ -421,8 +529,11 @@ void run(MPI_Comm comm) {
     verify_enhancements(comm,true,false,true);
     verify_scaled_projection(comm);
     verify_weak_coarsening_stop(comm);
+    verify_pressure_supremizers(comm,false,false);
+    verify_pressure_supremizers(comm,true,false);
+    verify_pressure_supremizers(comm,true,true);
     EONSIM_PETSC(PetscPrintf(comm,
-        "Monolithic FSI MG: full indefinite manufactured solutions, bounded whole-aggregate coarse Vanka/explicit oversize rejection, candidate preservation, energy descent, spectral enrichment, FP32 V/K-cycles with bounded coarse work, coarse MPI aggregation, native replacement failure recovery and polynomial smoothers passed\n"));
+        "Monolithic FSI MG: full indefinite manufactured solutions, bounded whole-aggregate coarse Vanka/explicit oversize rejection, candidate preservation, energy descent, spectral/discrete-pressure enrichment with weighted-pair preservation, FP32 V/K-cycles with bounded coarse work, coarse MPI aggregation, native replacement failure recovery and polynomial smoothers passed\n"));
 }
 } // namespace
 int main(int argc,char** argv) {
