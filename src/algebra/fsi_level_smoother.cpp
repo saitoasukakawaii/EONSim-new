@@ -62,6 +62,7 @@ bool whitening_factor(const std::vector<SparseRow>& columns,std::vector<double>&
 struct FsiLevelSmoother {
     MPI_Comm comm;
     Mat source=nullptr;
+    PetscOwner<Mat,MatDestroy> source_reference;
     PetscObjectState graph=0;
     PetscInt begin=0,end=0,global=0;
     bool ready=false;
@@ -98,6 +99,8 @@ struct FsiLevelSmoother {
     FsiLevelSmoother(MPI_Comm communicator,Mat matrix,const std::vector<DofKey>& keys,
                     const std::vector<unsigned char>& trace,const FsiLevelSmootherOptions& selected):
         comm(communicator),source(matrix),options(selected),semantics(keys) {
+        EONSIM_PETSC(PetscObjectReference(reinterpret_cast<PetscObject>(matrix)));
+        *source_reference.put()=matrix;
         PetscInt columns=0,cbegin=0,cend=0;
         EONSIM_PETSC(MatGetSize(matrix,&global,&columns));
         EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
