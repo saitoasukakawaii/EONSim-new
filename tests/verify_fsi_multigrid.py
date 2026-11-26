@@ -75,7 +75,7 @@ def flags(mode, ports=False):
                 result += [option, 'true']
         if 'recycle' in selected:
             result += ['-nonlinear_krylov_recycle', '4']
-        if 'reduced' in selected:
+        if selected & {'reduced', 'partial', 'simd', 'overlap'}:
             result += ['-fsi_assembly_report']
         if 'coo' in selected:
             result += ['-fsi_coo', 'true']

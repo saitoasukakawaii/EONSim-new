@@ -515,11 +515,20 @@ void minimize_transfer_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Tra
             }
             std::vector<double> direction; direction.reserve(row.size());
             for(const auto& entry:row) direction.push_back(entry.second);
+            const auto unprojected_norm=std::sqrt(dot(direction,direction));
             // Orthogonal projection makes each row satisfy dP*N_coarse=0.
             for(int pass=0;pass<2;++pass) for(const auto& q:constraints) {
                 const auto product=dot(q,direction);
                 for(std::size_t j=0;j<direction.size();++j) direction[j]-=static_cast<double>(product*q[j]);
             }
+            // Enriched candidate constraints may span the entire row stencil.
+            // Its mathematical projected gradient is then zero; otherwise an
+            // exact line search can amplify roundoff/its tiny curvature into
+            // a finite violation of P*Nc=Nf. Remove only projection noise
+            // relative to the input gradient, never a physical candidate or
+            // a residual/acceptance tolerance.
+            if(std::sqrt(dot(direction,direction))<=1024*std::numeric_limits<double>::epsilon()*unprojected_norm)
+                std::fill(direction.begin(),direction.end(),0.);
             std::size_t j=0; for(auto& entry:row) { entry.second=direction[j++]; valid=valid&&std::isfinite(entry.second); }
         }
         check(comm,valid,"nonfinite constrained energy descent");

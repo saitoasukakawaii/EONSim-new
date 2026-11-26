@@ -607,6 +607,7 @@ struct LinearPolicy {
                     EONSIM_PETSC(VecAXPY(u.get(),-coefficient,directions[i].get()));
                 }
                 PetscReal norm=0; EONSIM_PETSC(VecNorm(c.get(),NORM_2,&norm));
+                if(!std::isfinite(norm)) throw std::runtime_error("Nonfinite orthogonalized recycled operator image");
                 if(norm<=128*std::numeric_limits<double>::epsilon()*original||norm==0) continue;
                 EONSIM_PETSC(VecScale(c.get(),1./norm)); EONSIM_PETSC(VecScale(u.get(),1./norm));
                 PetscScalar coefficient=0; EONSIM_PETSC(VecDot(c.get(),b,&coefficient));
@@ -632,7 +633,8 @@ struct LinearPolicy {
             PetscReal error=0,rhs=0;
             EONSIM_PETSC(VecNorm(residual.get(),NORM_2,&error)); EONSIM_PETSC(VecNorm(b,NORM_2,&rhs));
             const double limit=base_atol+requested_rtol*rhs;
-            if(!std::isfinite(error)||error>limit*(1+64*std::numeric_limits<double>::epsilon()))
+            if(!std::isfinite(error)||!std::isfinite(rhs)||!std::isfinite(limit)||
+               error>limit*(1+64*std::numeric_limits<double>::epsilon()))
                 throw std::runtime_error("Inexact/recycled correction failed current-operator true residual gate");
             if(capacity) {
                 const auto start=std::chrono::steady_clock::now();
