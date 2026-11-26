@@ -1,0 +1,42 @@
+{
+  "source_commit": "8e6c0137205fd4eb288137e03296d116e920488d",
+  "production_source": "4c7edc6cc14219acfc97d39b9651c935a1c875ac",
+  "started_at_utc": "2026-11-26T06:42:05.951239+00:00",
+  "runs": [
+    {
+      "command": [
+        "bash",
+        "build/locked.sh",
+        "python",
+        "tests/test_fsi_runner.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 1.5267330880014924,
+      "log": "python.log",
+      "log_sha256": "fec25f39dff501786c7dc694b8a666f712373cd9f469247d84a08338dbd6c915"
+    },
+    {
+      "command": [
+        "bash",
+        "build/locked.sh",
+        "ctest",
+        "--test-dir",
+        "build/cloud-3.23.7-release",
+        "-R",
+        "^fsi_coo_verification$",
+        "--output-on-failure",
+        "-V",
+        "-j",
+        "1",
+        "--output-junit",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/hpc-followup/parser-recheck/fsi-junit.xml"
+      ],
+      "returncode": 0,
+      "seconds": 9.084054249000474,
+      "log": "fsi-ctest.log",
+      "log_sha256": "8e101471b69fccc07672cb1066f91d31a94ba2761f9180249da3519a715a9e19"
+    }
+  ],
+  "completed_at_utc": "2026-11-26T06:42:16.562559+00:00"
+}

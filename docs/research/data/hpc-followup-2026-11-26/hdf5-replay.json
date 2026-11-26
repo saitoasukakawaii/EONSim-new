@@ -1,0 +1,21 @@
+{
+  "source_commit": "4c7edc6cc14219acfc97d39b9651c935a1c875ac",
+  "output_source_commit": "27889707a3c650d532c2845b2f6da7fc5d2324d4",
+  "output_binary_sha256": "b4fe71840296bb0533d95a59c906d3062b14d3bfc1203dac60dfb1f590d0b3d9",
+  "output_provenance": "Reused unchanged HPC-05 archived output; no solver reruns",
+  "python": "3.15.2 | packaged by conda-forge | (main, Oct 26 2026, 11:39:52) [GCC 15.3.0]",
+  "python_executable": "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/python",
+  "h5dump": "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/h5dump",
+  "python_tests": 30,
+  "python_passed": true,
+  "replay_python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "replay_python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "initial_replay_failure": "Locked environment Python had no NumPy; retained failed log, selected preexisting primary Python 3.12.14+NumPy 2.3.5 under the same locked.sh native-library environment. No source changes.",
+  "status": "passed",
+  "comparisons": 14,
+  "checked_node_records": 1298,
+  "checked_cells": 2226,
+  "archive_inputs_checked": 70,
+  "inputs_unchanged_after": true,
+  "production_solver_runs": 0
+}

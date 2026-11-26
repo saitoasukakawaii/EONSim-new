@@ -1,16 +1,26 @@
 # EONSim Codex Task Queue
 
-## HPC-07 / in_progress / 2026-11-26
+## HPC-07 / implementation and validation complete / 2026-11-26
 
-从已合并 #56 的 `main@55a04f7` 接续用户要求，分支
-`codex/hpc-followup-efficiency`。本轮领取三项有界后续工作：固定节点 Schur 数值
-刷新缓存及 COO 发布、FSI overlap 物理场单次展开与空批次消除、HDF5 独立对照的
-拓扑/长度/重复身份拒绝。保留完整 Jacobian、节点逆的数值检查及原物理接受门槛。
+从已合并 #56 的 `main@55a04f7` 接续用户要求，交付
+[PR #57](https://github.com/saitoasukakawaii/EONSim-new/pull/57)，源 `4c7edc6`。
+完成固定节点逆 COO 图/值缓冲复用、FSI overlap 单次场展开与空线程批次消除，以及
+HDF5 独立对照的拓扑/长度/重复身份/数据集绑定拒绝。完整 Jacobian、节点逆数值检查
+及原物理接受门槛保持。代码完整远端 tree 核对后才构建和运行。
 
-完成代码并核验远程 tree 后才构建和运行；使用已有 Release 增量环境，补受影响
-1/2/4-rank 代数、实际 FSI overlap/restart/cutback 和离线 HDF5 对照。性能采用保存的
-已验证主线二进制与候选交替配对；未执行前不报告收益。四项必需检查通过后按本次
-用户授权合并 PR，最终状态以 GitHub 为准。
+本地4项Release（1/2/4rank）、30项Python通过；37次FSI求解包含34正常、3预期失败，
+83接受步与24组字段/历史对照已独立复核。HDF5校验器14次旧文件精确回放通过，未
+重新生成物理输出。16次配对实验/80步/160修正/96状态通过，场和历史差为0；线程批次
+58→29、矩阵清零少9次，但全程序装配事件没有减少，wall波动仍跨零。
+
+首轮CI42/43，唯一失败是MPI日志前缀拼接引发的测试解析误报；测试修复8e6c013先同步，
+再通过8项Python和1项FSI定向复验（37次求解）。生产与数值门槛保持，失败原件保留。
+最终8e6c013的CI45769962561实际43/43 Release、44/44 Python，0失败/跳过/复用，
+增量验收收据成功；两组绿色CI和首次失败原件均归档。
+
+[完整证据](../research/data/hpc-followup-2026-11-26/README.md)。源码CI与最终文档head
+的四项必需检查通过后按用户授权合并，状态以GitHub为准。没有追加全量、多节点或
+参数调优；最终文档不触发不受影响数值检查的重复执行。
 
 ## HPC-06 / implementation and validation complete / 2026-11-26
 

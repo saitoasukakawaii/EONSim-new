@@ -1,0 +1,2134 @@
+{
+  "status": "passed",
+  "auditor": "amg_review independent raw paired replay",
+  "script_sha256": "596c61891efd37b1734820c2edd52666040133daa6e19187c08ed6b3a638e09b",
+  "results_sha256": "a5de78eb36f3902d10ec5d7780ab60de2c51482003fc43ecf247a00a99d6ff7b",
+  "run_count": 16,
+  "step_reports": 80,
+  "linear_corrections": 160,
+  "true_linear_max_gate_ratio": 0.09338580138423479,
+  "physical_field_acceptance_rows": 320,
+  "hash_assertions": 861,
+  "states_checked": 96,
+  "same_partition_field_max_difference": 0.0,
+  "same_partition_history_max_difference": 0.0,
+  "pairs_recomputed": [
+    {
+      "subdivisions": 8,
+      "ranks": 1,
+      "repeat": 0,
+      "relative_change": {
+        "setup_seconds": -0.03313938419909801,
+        "schur_setup_seconds": 0.34831849075514465,
+        "solve_seconds": -0.08962890055593487,
+        "assembly_seconds": -0.09875576926036145,
+        "callback_seconds": -0.12163698685549429,
+        "failure_sync_seconds": -0.34867566865749156,
+        "assembly_finalize_seconds": 1.0627445508173334,
+        "constraint_seconds": -0.07123707391803902,
+        "ghost_seconds": -0.36176697156504156,
+        "linear_seconds": -0.08653487208003152,
+        "linear_diagnostic_seconds": 0.09079828695201364,
+        "finalize_seconds": -0.4889868062630317,
+        "wall_seconds": -0.06870706661246961,
+        "peak_rss_max_bytes": 0.004141980810569823,
+        "peak_rss_sum_bytes": 0.004141980810569823,
+        "initialization_pattern_seconds": -0.01840612074831649,
+        "initialization_plan_seconds": 0.01064842393845633,
+        "initialization_system_seconds": 0.03279270036128357,
+        "initialization_setup_seconds": -0.01360273273373247
+      }
+    },
+    {
+      "subdivisions": 8,
+      "ranks": 1,
+      "repeat": 1,
+      "relative_change": {
+        "setup_seconds": 0.04994081357227409,
+        "schur_setup_seconds": -0.23764731457327337,
+        "solve_seconds": -0.009239843519265212,
+        "assembly_seconds": 0.0039783796796457604,
+        "callback_seconds": 0.027439970045886497,
+        "failure_sync_seconds": 0.5039991627920883,
+        "assembly_finalize_seconds": -0.4442297191696394,
+        "constraint_seconds": -0.0689086712825584,
+        "ghost_seconds": -0.06886343766982961,
+        "linear_seconds": -0.01367989290117444,
+        "linear_diagnostic_seconds": -0.018870342699361276,
+        "finalize_seconds": 0.12266838974713523,
+        "wall_seconds": -0.009310199932228591,
+        "peak_rss_max_bytes": 0.0,
+        "peak_rss_sum_bytes": 0.0,
+        "initialization_pattern_seconds": -0.012423643511563887,
+        "initialization_plan_seconds": -0.0010813187203581043,
+        "initialization_system_seconds": -0.008006599193113972,
+        "initialization_setup_seconds": -0.01178352439349506
+      }
+    },
+    {
+      "subdivisions": 8,
+      "ranks": 1,
+      "repeat": 2,
+      "relative_change": {
+        "setup_seconds": 0.2066149958519441,
+        "schur_setup_seconds": -0.12726560165308665,
+        "solve_seconds": 0.09908778878104263,
+        "assembly_seconds": 0.09173563978451815,
+        "callback_seconds": 0.07457143301230018,
+        "failure_sync_seconds": -0.1437450302646739,
+        "assembly_finalize_seconds": 0.735899884182514,
+        "constraint_seconds": 0.5024479804161566,
+        "ghost_seconds": 0.22331060934619984,
+        "linear_seconds": 0.11446416884074972,
+        "linear_diagnostic_seconds": 0.06793463961102941,
+        "finalize_seconds": -0.09773002507488826,
+        "wall_seconds": 0.07990730180782735,
+        "peak_rss_max_bytes": -0.0037093150828065857,
+        "peak_rss_sum_bytes": -0.0037093150828065857,
+        "initialization_pattern_seconds": -0.03580559594948629,
+        "initialization_plan_seconds": -0.2400221239899052,
+        "initialization_system_seconds": 0.012118708729292216,
+        "initialization_setup_seconds": -0.03781599249097123
+      }
+    },
+    {
+      "subdivisions": 8,
+      "ranks": 2,
+      "repeat": 0,
+      "relative_change": {
+        "setup_seconds": 0.2622195735322064,
+        "schur_setup_seconds": -0.4965606531174619,
+        "solve_seconds": -0.039250553029858026,
+        "assembly_seconds": -0.00428418184072199,
+        "callback_seconds": -0.007085536127043435,
+        "failure_sync_seconds": 0.015460255058834749,
+        "assembly_finalize_seconds": -0.002114570032279217,
+        "constraint_seconds": 9.497170345217883,
+        "ghost_seconds": 0.5331858826503209,
+        "linear_seconds": -0.03667575597338346,
+        "linear_diagnostic_seconds": 0.24517020220622787,
+        "finalize_seconds": 0.14300015449071846,
+        "wall_seconds": 0.1438000718980199,
+        "peak_rss_max_bytes": 0.010823638363141708,
+        "peak_rss_sum_bytes": 0.007618159203980124,
+        "initialization_pattern_seconds": -0.06689980955597763,
+        "initialization_plan_seconds": -0.008646122487294017,
+        "initialization_system_seconds": -0.5404050507798877,
+        "initialization_setup_seconds": -0.12930998595511833
+      }
+    },
+    {
+      "subdivisions": 8,
+      "ranks": 2,
+      "repeat": 1,
+      "relative_change": {
+        "setup_seconds": -0.19425222067593217,
+        "schur_setup_seconds": -0.6406873780720643,
+        "solve_seconds": -0.03736543385677771,
+        "assembly_seconds": 0.02227812221662484,
+        "callback_seconds": 0.04475859598323351,
+        "failure_sync_seconds": 0.05514578350677657,
+        "assembly_finalize_seconds": -0.13378446423353574,
+        "constraint_seconds": -0.024816606836272737,
+        "ghost_seconds": -0.5302304605679605,
+        "linear_seconds": -0.04491981157802716,
+        "linear_diagnostic_seconds": 0.3051247265467365,
+        "finalize_seconds": -0.021075829491479126,
+        "wall_seconds": -0.07076702102461818,
+        "peak_rss_max_bytes": -0.008161857684791385,
+        "peak_rss_sum_bytes": -0.00715475235921792,
+        "initialization_pattern_seconds": -0.2630334309460358,
+        "initialization_plan_seconds": -0.18518794311514875,
+        "initialization_system_seconds": -0.5706901685961023,
+        "initialization_setup_seconds": -0.29614797466374165
+      }
+    },
+    {
+      "subdivisions": 8,
+      "ranks": 2,
+      "repeat": 2,
+      "relative_change": {
+        "setup_seconds": -0.017502176525750035,
+        "schur_setup_seconds": 0.1767488480180599,
+        "solve_seconds": -0.0898218405835497,
+        "assembly_seconds": -0.03789609164720975,
+        "callback_seconds": -0.03182393215776991,
+        "failure_sync_seconds": -0.006160036525935442,
+        "assembly_finalize_seconds": 0.006975719301008709,
+        "constraint_seconds": -0.4733756717147044,
+        "ghost_seconds": -0.8462896395750837,
+        "linear_seconds": -0.1328235222269668,
+        "linear_diagnostic_seconds": 0.08136889878039755,
+        "finalize_seconds": -0.078273920627422,
+        "wall_seconds": -0.0641806865509974,
+        "peak_rss_max_bytes": 0.013371315621184765,
+        "peak_rss_sum_bytes": 0.008748170978487568,
+        "initialization_pattern_seconds": 0.13752365416244028,
+        "initialization_plan_seconds": 0.13080745065825994,
+        "initialization_system_seconds": 0.030856585932435232,
+        "initialization_setup_seconds": 0.1298653041451754
+      }
+    }
+  ],
+  "summary_recomputed": [
+    {
+      "subdivisions": 8,
+      "ranks": 1,
+      "modes": {
+        "baseline": {
+          "wall_seconds": {
+            "median": 0.9340151729993522,
+            "minimum": 0.9165844089984603,
+            "maximum": 1.0204492849989037
+          },
+          "setup_seconds": {
+            "median": 0.001626063,
+            "minimum": 0.001612794,
+            "maximum": 0.001627907
+          },
+          "schur_setup_seconds": {
+            "median": 0.012732545,
+            "minimum": 0.0095783,
+            "maximum": 0.01297224
+          },
+          "solve_seconds": {
+            "median": 0.62541373,
+            "minimum": 0.600658585,
+            "maximum": 0.69435647
+          },
+          "assembly_seconds": {
+            "median": 0.293734408,
+            "minimum": 0.271767353,
+            "maximum": 0.32597072800000004
+          },
+          "callback_seconds": {
+            "median": 0.27865555200000003,
+            "minimum": 0.26339744600000004,
+            "maximum": 0.31702492800000004
+          },
+          "failure_sync_seconds": {
+            "median": 6.6889e-05,
+            "minimum": 6.1623e-05,
+            "maximum": 9.2424e-05
+          },
+          "assembly_finalize_seconds": {
+            "median": 0.006786540000000001,
+            "minimum": 0.006550019,
+            "maximum": 0.01223372
+          },
+          "constraint_seconds": {
+            "median": 2.611e-06,
+            "minimum": 1.634e-06,
+            "maximum": 3.0329999999999996e-06
+          },
+          "ghost_seconds": {
+            "median": 0.000296253,
+            "minimum": 0.000295136,
+            "maximum": 0.000504977
+          },
+          "linear_seconds": {
+            "median": 0.291683497,
+            "minimum": 0.29004183,
+            "maximum": 0.326902754
+          },
+          "linear_diagnostic_seconds": {
+            "median": 0.0029961830000000004,
+            "minimum": 0.0026098510000000003,
+            "maximum": 0.003268524
+          },
+          "finalize_seconds": {
+            "median": 0.006286369,
+            "minimum": 0.004975585,
+            "maximum": 0.009359365
+          },
+          "peak_rss_max_bytes": {
+            "median": 78295040.0,
+            "minimum": 78123008.0,
+            "maximum": 78401536.0
+          },
+          "peak_rss_sum_bytes": {
+            "median": 78295040.0,
+            "minimum": 78123008.0,
+            "maximum": 78401536.0
+          },
+          "initialization_pattern_seconds": {
+            "median": 0.059403105,
+            "minimum": 0.056459371,
+            "maximum": 0.067508079
+          },
+          "initialization_plan_seconds": {
+            "median": 0.001801504,
+            "minimum": 0.00156117,
+            "maximum": 0.002071959
+          },
+          "initialization_system_seconds": {
+            "median": 0.00502929,
+            "minimum": 0.004963031,
+            "maximum": 0.005672304
+          },
+          "initialization_setup_seconds": {
+            "median": 0.06616764,
+            "minimum": 0.063049831,
+            "maximum": 0.075252342
+          }
+        },
+        "candidate": {
+          "wall_seconds": {
+            "median": 0.9503372079998371,
+            "minimum": 0.9253193049989932,
+            "maximum": 0.9898261960006494
+          },
+          "setup_seconds": {
+            "median": 0.001709206,
+            "minimum": 0.001559347,
+            "maximum": 0.001962032
+          },
+          "schur_setup_seconds": {
+            "median": 0.01111213,
+            "minimum": 0.009889422,
+            "maximum": 0.012914599
+          },
+          "solve_seconds": {
+            "median": 0.6321220630000001,
+            "minimum": 0.619635005,
+            "maximum": 0.6601765159999999
+          },
+          "assembly_seconds": {
+            "median": 0.294902995,
+            "minimum": 0.293779238,
+            "maximum": 0.296698105
+          },
+          "callback_seconds": {
+            "median": 0.283039371,
+            "minimum": 0.278462971,
+            "maximum": 0.286301852
+          },
+          "failure_sync_seconds": {
+            "median": 6.0198e-05,
+            "minimum": 5.2765e-05,
+            "maximum": 0.00010060100000000001
+          },
+          "assembly_finalize_seconds": {
+            "median": 0.011780754,
+            "minimum": 0.006799138,
+            "maximum": 0.013511015999999999
+          },
+          "constraint_seconds": {
+            "median": 2.455e-06,
+            "minimum": 2.425e-06,
+            "maximum": 2.824e-06
+          },
+          "ghost_seconds": {
+            "median": 0.000322293,
+            "minimum": 0.000275852,
+            "maximum": 0.000361043
+          },
+          "linear_seconds": {
+            "median": 0.298614266,
+            "minimum": 0.287693298,
+            "maximum": 0.323241227
+          },
+          "linear_diagnostic_seconds": {
+            "median": 0.002939644,
+            "minimum": 0.002846821,
+            "maximum": 0.00349057
+          },
+          "finalize_seconds": {
+            "median": 0.005585932,
+            "minimum": 0.004782759,
+            "maximum": 0.005672002
+          },
+          "peak_rss_max_bytes": {
+            "median": 78295040.0,
+            "minimum": 78110720.0,
+            "maximum": 78446592.0
+          },
+          "peak_rss_sum_bytes": {
+            "median": 78295040.0,
+            "minimum": 78110720.0,
+            "maximum": 78446592.0
+          },
+          "initialization_pattern_seconds": {
+            "median": 0.058665102,
+            "minimum": 0.055420173,
+            "maximum": 0.065090912
+          },
+          "initialization_plan_seconds": {
+            "median": 0.001577794,
+            "minimum": 0.001574643,
+            "maximum": 0.001799556
+          },
+          "initialization_system_seconds": {
+            "median": 0.005194214,
+            "minimum": 0.004923294,
+            "maximum": 0.005741045
+          },
+          "initialization_setup_seconds": {
+            "median": 0.065387952,
+            "minimum": 0.062192181,
+            "maximum": 0.0724066
+          }
+        }
+      },
+      "paired_relative_change": {
+        "assembly_finalize_seconds": {
+          "median": 0.735899884182514,
+          "minimum": -0.4442297191696394,
+          "maximum": 1.0627445508173334
+        },
+        "assembly_seconds": {
+          "median": 0.0039783796796457604,
+          "minimum": -0.09875576926036145,
+          "maximum": 0.09173563978451815
+        },
+        "callback_seconds": {
+          "median": 0.027439970045886497,
+          "minimum": -0.12163698685549429,
+          "maximum": 0.07457143301230018
+        },
+        "constraint_seconds": {
+          "median": -0.0689086712825584,
+          "minimum": -0.07123707391803902,
+          "maximum": 0.5024479804161566
+        },
+        "failure_sync_seconds": {
+          "median": -0.1437450302646739,
+          "minimum": -0.34867566865749156,
+          "maximum": 0.5039991627920883
+        },
+        "finalize_seconds": {
+          "median": -0.09773002507488826,
+          "minimum": -0.4889868062630317,
+          "maximum": 0.12266838974713523
+        },
+        "ghost_seconds": {
+          "median": -0.06886343766982961,
+          "minimum": -0.36176697156504156,
+          "maximum": 0.22331060934619984
+        },
+        "initialization_pattern_seconds": {
+          "median": -0.01840612074831649,
+          "minimum": -0.03580559594948629,
+          "maximum": -0.012423643511563887
+        },
+        "initialization_plan_seconds": {
+          "median": -0.0010813187203581043,
+          "minimum": -0.2400221239899052,
+          "maximum": 0.01064842393845633
+        },
+        "initialization_setup_seconds": {
+          "median": -0.01360273273373247,
+          "minimum": -0.03781599249097123,
+          "maximum": -0.01178352439349506
+        },
+        "initialization_system_seconds": {
+          "median": 0.012118708729292216,
+          "minimum": -0.008006599193113972,
+          "maximum": 0.03279270036128357
+        },
+        "linear_diagnostic_seconds": {
+          "median": 0.06793463961102941,
+          "minimum": -0.018870342699361276,
+          "maximum": 0.09079828695201364
+        },
+        "linear_seconds": {
+          "median": -0.01367989290117444,
+          "minimum": -0.08653487208003152,
+          "maximum": 0.11446416884074972
+        },
+        "peak_rss_max_bytes": {
+          "median": 0.0,
+          "minimum": -0.0037093150828065857,
+          "maximum": 0.004141980810569823
+        },
+        "peak_rss_sum_bytes": {
+          "median": 0.0,
+          "minimum": -0.0037093150828065857,
+          "maximum": 0.004141980810569823
+        },
+        "schur_setup_seconds": {
+          "median": -0.12726560165308665,
+          "minimum": -0.23764731457327337,
+          "maximum": 0.34831849075514465
+        },
+        "setup_seconds": {
+          "median": 0.04994081357227409,
+          "minimum": -0.03313938419909801,
+          "maximum": 0.2066149958519441
+        },
+        "solve_seconds": {
+          "median": -0.009239843519265212,
+          "minimum": -0.08962890055593487,
+          "maximum": 0.09908778878104263
+        },
+        "wall_seconds": {
+          "median": -0.009310199932228591,
+          "minimum": -0.06870706661246961,
+          "maximum": 0.07990730180782735
+        }
+      }
+    },
+    {
+      "subdivisions": 8,
+      "ranks": 2,
+      "modes": {
+        "baseline": {
+          "wall_seconds": {
+            "median": 1.1505632399966998,
+            "minimum": 1.0661192279985698,
+            "maximum": 1.2777933180004766
+          },
+          "setup_seconds": {
+            "median": 0.00446813,
+            "minimum": 0.002709935,
+            "maximum": 0.004705887000000001
+          },
+          "schur_setup_seconds": {
+            "median": 0.028673187000000003,
+            "minimum": 0.009413125,
+            "maximum": 0.030018490000000002
+          },
+          "solve_seconds": {
+            "median": 0.847563583,
+            "minimum": 0.792857222,
+            "maximum": 0.974006633
+          },
+          "assembly_seconds": {
+            "median": 0.329538097,
+            "minimum": 0.301349229,
+            "maximum": 0.349332511
+          },
+          "callback_seconds": {
+            "median": 0.287477963,
+            "minimum": 0.266724959,
+            "maximum": 0.308711008
+          },
+          "failure_sync_seconds": {
+            "median": 0.21008333299999998,
+            "minimum": 0.19595939,
+            "maximum": 0.218312375
+          },
+          "assembly_finalize_seconds": {
+            "median": 0.038851870000000004,
+            "minimum": 0.030070304,
+            "maximum": 0.038952774
+          },
+          "constraint_seconds": {
+            "median": 7.068e-06,
+            "minimum": 6.407e-06,
+            "maximum": 1.0235e-05
+          },
+          "ghost_seconds": {
+            "median": 0.0011042670000000001,
+            "minimum": 0.000474735,
+            "maximum": 0.0025468549999999998
+          },
+          "linear_seconds": {
+            "median": 0.459886279,
+            "minimum": 0.455520611,
+            "maximum": 0.558169817
+          },
+          "linear_diagnostic_seconds": {
+            "median": 0.002500467,
+            "minimum": 0.002259984,
+            "maximum": 0.002728266
+          },
+          "finalize_seconds": {
+            "median": 0.004713219,
+            "minimum": 0.004343303,
+            "maximum": 0.004843184
+          },
+          "peak_rss_max_bytes": {
+            "median": 70766592.0,
+            "minimum": 70455296.0,
+            "maximum": 71262208.0
+          },
+          "peak_rss_sum_bytes": {
+            "median": 131727360.0,
+            "minimum": 131567616.0,
+            "maximum": 132816896.0
+          },
+          "initialization_pattern_seconds": {
+            "median": 0.051443988,
+            "minimum": 0.044418715,
+            "maximum": 0.065381518
+          },
+          "initialization_plan_seconds": {
+            "median": 0.001193136,
+            "minimum": 0.001126075,
+            "maximum": 0.001396646
+          },
+          "initialization_system_seconds": {
+            "median": 0.008162779,
+            "minimum": 0.003478285,
+            "maximum": 0.008425521
+          },
+          "initialization_setup_seconds": {
+            "median": 0.060798661,
+            "minimum": 0.049020291,
+            "maximum": 0.075203685
+          }
+        },
+        "candidate": {
+          "wall_seconds": {
+            "median": 1.0691413070017006,
+            "minimum": 0.9976949640004023,
+            "maximum": 1.4615400889997545
+          },
+          "setup_seconds": {
+            "median": 0.003791758,
+            "minimum": 0.003420533,
+            "maximum": 0.004389928
+          },
+          "schur_setup_seconds": {
+            "median": 0.011076884,
+            "minimum": 0.010302638,
+            "maximum": 0.015112489000000002
+          },
+          "solve_seconds": {
+            "median": 0.815894002,
+            "minimum": 0.7216413269999999,
+            "maximum": 0.935776334
+          },
+          "assembly_seconds": {
+            "median": 0.336879587,
+            "minimum": 0.289929271,
+            "maximum": 0.347835907
+          },
+          "callback_seconds": {
+            "median": 0.30034507299999996,
+            "minimum": 0.25823672200000003,
+            "maximum": 0.306523625
+          },
+          "failure_sync_seconds": {
+            "median": 0.22166854300000002,
+            "minimum": 0.19475227299999998,
+            "maximum": 0.22168754
+          },
+          "assembly_finalize_seconds": {
+            "median": 0.033741498,
+            "minimum": 0.030280066,
+            "maximum": 0.038769714999999996
+          },
+          "constraint_seconds": {
+            "median": 6.248e-06,
+            "minimum": 5.39e-06,
+            "maximum": 7.4194e-05
+          },
+          "ghost_seconds": {
+            "median": 0.000518751,
+            "minimum": 0.000391478,
+            "maximum": 0.000727857
+          },
+          "linear_seconds": {
+            "median": 0.439228274,
+            "minimum": 0.395016759,
+            "maximum": 0.5376985169999999
+          },
+          "linear_diagnostic_seconds": {
+            "median": 0.002950262,
+            "minimum": 0.002949561,
+            "maximum": 0.003113507
+          },
+          "finalize_seconds": {
+            "median": 0.004613884,
+            "minimum": 0.004464089,
+            "maximum": 0.004964396
+          },
+          "peak_rss_max_bytes": {
+            "median": 71397376.0,
+            "minimum": 70680576.0,
+            "maximum": 71532544.0
+          },
+          "peak_rss_sum_bytes": {
+            "median": 132718592.0,
+            "minimum": 131866624.0,
+            "maximum": 132730880.0
+          },
+          "initialization_pattern_seconds": {
+            "median": 0.048183993,
+            "minimum": 0.048002395,
+            "maximum": 0.050527339
+          },
+          "initialization_plan_seconds": {
+            "median": 0.00118282,
+            "minimum": 0.001138004,
+            "maximum": 0.001273374
+          },
+          "initialization_system_seconds": {
+            "median": 0.003617159,
+            "minimum": 0.003585613,
+            "maximum": 0.003751572
+          },
+          "initialization_setup_seconds": {
+            "median": 0.052936787,
+            "minimum": 0.052932266,
+            "maximum": 0.055386326
+          }
+        }
+      },
+      "paired_relative_change": {
+        "assembly_finalize_seconds": {
+          "median": -0.002114570032279217,
+          "minimum": -0.13378446423353574,
+          "maximum": 0.006975719301008709
+        },
+        "assembly_seconds": {
+          "median": -0.00428418184072199,
+          "minimum": -0.03789609164720975,
+          "maximum": 0.02227812221662484
+        },
+        "callback_seconds": {
+          "median": -0.007085536127043435,
+          "minimum": -0.03182393215776991,
+          "maximum": 0.04475859598323351
+        },
+        "constraint_seconds": {
+          "median": -0.024816606836272737,
+          "minimum": -0.4733756717147044,
+          "maximum": 9.497170345217883
+        },
+        "failure_sync_seconds": {
+          "median": 0.015460255058834749,
+          "minimum": -0.006160036525935442,
+          "maximum": 0.05514578350677657
+        },
+        "finalize_seconds": {
+          "median": -0.021075829491479126,
+          "minimum": -0.078273920627422,
+          "maximum": 0.14300015449071846
+        },
+        "ghost_seconds": {
+          "median": -0.5302304605679605,
+          "minimum": -0.8462896395750837,
+          "maximum": 0.5331858826503209
+        },
+        "initialization_pattern_seconds": {
+          "median": -0.06689980955597763,
+          "minimum": -0.2630334309460358,
+          "maximum": 0.13752365416244028
+        },
+        "initialization_plan_seconds": {
+          "median": -0.008646122487294017,
+          "minimum": -0.18518794311514875,
+          "maximum": 0.13080745065825994
+        },
+        "initialization_setup_seconds": {
+          "median": -0.12930998595511833,
+          "minimum": -0.29614797466374165,
+          "maximum": 0.1298653041451754
+        },
+        "initialization_system_seconds": {
+          "median": -0.5404050507798877,
+          "minimum": -0.5706901685961023,
+          "maximum": 0.030856585932435232
+        },
+        "linear_diagnostic_seconds": {
+          "median": 0.24517020220622787,
+          "minimum": 0.08136889878039755,
+          "maximum": 0.3051247265467365
+        },
+        "linear_seconds": {
+          "median": -0.04491981157802716,
+          "minimum": -0.1328235222269668,
+          "maximum": -0.03667575597338346
+        },
+        "peak_rss_max_bytes": {
+          "median": 0.010823638363141708,
+          "minimum": -0.008161857684791385,
+          "maximum": 0.013371315621184765
+        },
+        "peak_rss_sum_bytes": {
+          "median": 0.007618159203980124,
+          "minimum": -0.00715475235921792,
+          "maximum": 0.008748170978487568
+        },
+        "schur_setup_seconds": {
+          "median": -0.4965606531174619,
+          "minimum": -0.6406873780720643,
+          "maximum": 0.1767488480180599
+        },
+        "setup_seconds": {
+          "median": -0.017502176525750035,
+          "minimum": -0.19425222067593217,
+          "maximum": 0.2622195735322064
+        },
+        "solve_seconds": {
+          "median": -0.039250553029858026,
+          "minimum": -0.0898218405835497,
+          "maximum": -0.03736543385677771
+        },
+        "wall_seconds": {
+          "median": -0.0641806865509974,
+          "minimum": -0.07076702102461818,
+          "maximum": 0.1438000718980199
+        }
+      }
+    }
+  ],
+  "petsc_events": [
+    {
+      "ranks": 1,
+      "repeat": -1,
+      "mode": "baseline",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00012969,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00092158,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 28,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00071444,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 2813,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.16583,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.29397,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00084475,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0014697,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.21797,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.027322,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        }
+      }
+    },
+    {
+      "ranks": 1,
+      "repeat": -1,
+      "mode": "candidate",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 6.9777e-05,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00071125,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 19,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00058343,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatSetPreallCOO": {
+          "maximum_count": 1,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00011569,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatSetValuesCOO": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00016356,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 2813,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.14745,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 29,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.2678,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00082197,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00015006,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.2024,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.014824,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        }
+      }
+    },
+    {
+      "ranks": 1,
+      "repeat": 0,
+      "mode": "candidate",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 7.294e-05,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0010357,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 19,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00071357,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatSetPreallCOO": {
+          "maximum_count": 1,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00013022,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatSetValuesCOO": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00017762,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 2813,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.15869,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 29,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.28032,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00071301,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.000176,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.20556,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.016757,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        }
+      }
+    },
+    {
+      "ranks": 1,
+      "repeat": 0,
+      "mode": "baseline",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 7.9972e-05,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00080682,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 28,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0011787,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 2813,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.17492,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.32183,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00094339,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0001511,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.23401,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.016165,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        }
+      }
+    },
+    {
+      "ranks": 1,
+      "repeat": 1,
+      "mode": "baseline",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 7.6568e-05,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0010931,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 28,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00069868,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 2813,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.15349,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.27953,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00072878,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0001594,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.19561,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.016423,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        }
+      }
+    },
+    {
+      "ranks": 1,
+      "repeat": 1,
+      "mode": "candidate",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 7.6898e-05,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00073214,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 19,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00080608,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatSetPreallCOO": {
+          "maximum_count": 1,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0001188,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatSetValuesCOO": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00018043,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 2813,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.1489,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 29,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.28779,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0010567,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00016111,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.20106,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.015051,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        }
+      }
+    },
+    {
+      "ranks": 1,
+      "repeat": 2,
+      "mode": "candidate",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 8.0733e-05,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00082734,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 19,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00073574,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatSetPreallCOO": {
+          "maximum_count": 1,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 9.5922e-05,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatSetValuesCOO": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00016837,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 2813,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.15969,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 29,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.28559,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0009381,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00015175,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.2239,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.016169,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        }
+      }
+    },
+    {
+      "ranks": 1,
+      "repeat": 2,
+      "mode": "baseline",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 7.8573e-05,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 239,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0010862,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 28,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00066897,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 2813,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.14412,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.26527,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00072504,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00018396,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.19874,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.015884,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        }
+      }
+    },
+    {
+      "ranks": 2,
+      "repeat": -1,
+      "mode": "baseline",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 561,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.091589,
+          "time_max_min_ratio": 3.5,
+          "reported_reductions": 220.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 561,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.015166,
+          "time_max_min_ratio": 1.6,
+          "reported_reductions": 190.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00085747,
+          "time_max_min_ratio": 3.5,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 1421,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.16182,
+          "time_max_min_ratio": 3.1,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.29091,
+          "time_max_min_ratio": 3.8,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0005352,
+          "time_max_min_ratio": 1.3,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0013082,
+          "time_max_min_ratio": 8.3,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.39475,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 16000.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.017051,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 120.0
+        }
+      }
+    },
+    {
+      "ranks": 2,
+      "repeat": -1,
+      "mode": "candidate",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 563,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.089076,
+          "time_max_min_ratio": 3.5,
+          "reported_reductions": 210.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 563,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.013346,
+          "time_max_min_ratio": 1.5,
+          "reported_reductions": 190.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 49,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00056359,
+          "time_max_min_ratio": 2.7,
+          "reported_reductions": 0.0
+        },
+        "MatSetPreallCOO": {
+          "maximum_count": 1,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00038814,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 7.0
+        },
+        "MatSetValuesCOO": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00014313,
+          "time_max_min_ratio": 1.1,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 1421,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.12084,
+          "time_max_min_ratio": 2.4,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 2.0,
+          "maximum_seconds": 0.25702,
+          "time_max_min_ratio": 3.2,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00065198,
+          "time_max_min_ratio": 1.3,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0011447,
+          "time_max_min_ratio": 1.4,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.32157,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 16000.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.016762,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 120.0
+        }
+      }
+    },
+    {
+      "ranks": 2,
+      "repeat": 0,
+      "mode": "candidate",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 563,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.095222,
+          "time_max_min_ratio": 3.3,
+          "reported_reductions": 210.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 563,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.014791,
+          "time_max_min_ratio": 1.7,
+          "reported_reductions": 190.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 49,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0010678,
+          "time_max_min_ratio": 4.3,
+          "reported_reductions": 0.0
+        },
+        "MatSetPreallCOO": {
+          "maximum_count": 1,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00084038,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 7.0
+        },
+        "MatSetValuesCOO": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00017392,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 1421,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.17118,
+          "time_max_min_ratio": 2.9,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 2.0,
+          "maximum_seconds": 0.30781,
+          "time_max_min_ratio": 3.5,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.000645,
+          "time_max_min_ratio": 1.2,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00085261,
+          "time_max_min_ratio": 5.9,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.44356,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 16000.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.01678,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 120.0
+        }
+      }
+    },
+    {
+      "ranks": 2,
+      "repeat": 0,
+      "mode": "baseline",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 561,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.10645,
+          "time_max_min_ratio": 3.4,
+          "reported_reductions": 220.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 561,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.017347,
+          "time_max_min_ratio": 1.7,
+          "reported_reductions": 190.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00070331,
+          "time_max_min_ratio": 2.2,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 1421,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.18366,
+          "time_max_min_ratio": 3.1,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.30935,
+          "time_max_min_ratio": 3.3,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00056896,
+          "time_max_min_ratio": 1.1,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0011821,
+          "time_max_min_ratio": 6.6,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.44187,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 16000.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.024911,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 120.0
+        }
+      }
+    },
+    {
+      "ranks": 2,
+      "repeat": 1,
+      "mode": "baseline",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 561,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.11413,
+          "time_max_min_ratio": 4.3,
+          "reported_reductions": 220.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 561,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.022111,
+          "time_max_min_ratio": 1.4,
+          "reported_reductions": 190.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0011724,
+          "time_max_min_ratio": 4.8,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 1421,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.15912,
+          "time_max_min_ratio": 3.2,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.28844,
+          "time_max_min_ratio": 3.6,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00065542,
+          "time_max_min_ratio": 1.4,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.001411,
+          "time_max_min_ratio": 9.0,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.35271,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 16000.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.021852,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 120.0
+        }
+      }
+    },
+    {
+      "ranks": 2,
+      "repeat": 1,
+      "mode": "candidate",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 563,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.090645,
+          "time_max_min_ratio": 3.8,
+          "reported_reductions": 210.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 563,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.01325,
+          "time_max_min_ratio": 1.7,
+          "reported_reductions": 190.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 49,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.001394,
+          "time_max_min_ratio": 4.5,
+          "reported_reductions": 0.0
+        },
+        "MatSetPreallCOO": {
+          "maximum_count": 1,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00027736,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 7.0
+        },
+        "MatSetValuesCOO": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00014873,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 1421,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.15335,
+          "time_max_min_ratio": 3.0,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 2.0,
+          "maximum_seconds": 0.30095,
+          "time_max_min_ratio": 3.7,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00063552,
+          "time_max_min_ratio": 1.3,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00011863,
+          "time_max_min_ratio": 1.3,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.35721,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 16000.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.01374,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 120.0
+        }
+      }
+    },
+    {
+      "ranks": 2,
+      "repeat": 2,
+      "mode": "candidate",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 563,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.085069,
+          "time_max_min_ratio": 4.1,
+          "reported_reductions": 210.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 563,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.014385,
+          "time_max_min_ratio": 1.5,
+          "reported_reductions": 190.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 49,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00054401,
+          "time_max_min_ratio": 2.8,
+          "reported_reductions": 0.0
+        },
+        "MatSetPreallCOO": {
+          "maximum_count": 1,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00028733,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 7.0
+        },
+        "MatSetValuesCOO": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00015317,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 1421,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.12861,
+          "time_max_min_ratio": 3.0,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 2.0,
+          "maximum_seconds": 0.25854,
+          "time_max_min_ratio": 4.0,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00054226,
+          "time_max_min_ratio": 1.6,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00012412,
+          "time_max_min_ratio": 1.1,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.31798,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 16000.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.013305,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 120.0
+        }
+      }
+    },
+    {
+      "ranks": 2,
+      "repeat": 2,
+      "mode": "baseline",
+      "events": {
+        "MatAssemblyBegin": {
+          "maximum_count": 561,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.081639,
+          "time_max_min_ratio": 4.0,
+          "reported_reductions": 220.0
+        },
+        "MatAssemblyEnd": {
+          "maximum_count": 561,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.01268,
+          "time_max_min_ratio": 1.7,
+          "reported_reductions": 190.0
+        },
+        "MatZeroEntries": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.0013535,
+          "time_max_min_ratio": 5.8,
+          "reported_reductions": 0.0
+        },
+        "FSIInsert": {
+          "maximum_count": 1421,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.1348,
+          "time_max_min_ratio": 2.8,
+          "reported_reductions": 0.0
+        },
+        "FSIElementBatch": {
+          "maximum_count": 58,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.26751,
+          "time_max_min_ratio": 3.5,
+          "reported_reductions": 0.0
+        },
+        "FSIForceReplay": {
+          "maximum_count": 5,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00054182,
+          "time_max_min_ratio": 1.4,
+          "reported_reductions": 0.0
+        },
+        "KSPSetUp": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.00012085,
+          "time_max_min_ratio": 1.2,
+          "reported_reductions": 0.0
+        },
+        "KSPSolve": {
+          "maximum_count": 10,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.37891,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 16000.0
+        },
+        "PCSetUp": {
+          "maximum_count": 11,
+          "count_max_min_ratio": 1.0,
+          "maximum_seconds": 0.012642,
+          "time_max_min_ratio": 1.0,
+          "reported_reductions": 120.0
+        }
+      }
+    }
+  ],
+  "limits": [
+    "No solver or numerical test was executed by this audit.",
+    "Wall times are checked against preserved launch records, not reconstructed from log timestamps.",
+    "Shared single host; one mesh, 1/2 ranks, two element workers, one library thread, three measured pairs plus a warmup pair per rank count.",
+    "Per-step maximum-rank timers overlap and cannot be added to reconstruct wall time.",
+    "PETSc event counts are maximum rank counts; ratios and times are printed at limited precision.",
+    "Current build identity and incremental log supersede the inherited historical build receipt for source provenance.",
+    "Both production changes are enabled together; this campaign does not isolate their individual wall-time effects."
+  ],
+  "provenance": {
+    "source": "4c7edc6cc14219acfc97d39b9651c935a1c875ac",
+    "tree": "030adfca09ef0edc889350b50dfde635f502670b",
+    "baseline_implementation": "bce292a1870c38686e44514e2879009ebb9a736a",
+    "baseline_main": "55a04f73d2004970184f96ae6a3a1abc540d8076",
+    "baseline_binary_sha256": "6efb5845aee29e3d7e3c47860ce35aac5c35950367f5ac9f6cef86f591754289",
+    "candidate_binary_sha256": "9bb74f0df3f44575d2ef5c99c85ed0572e6671f011d2289c169301606f3169c9",
+    "current_identity_sha256": "b085aec01072c9b76a987bd8e0800d75e5aa8b00866d38e336459365d0b6ed7d",
+    "build_log_sha256": "4345bed94c66ead01e3c5c8611e5129de1733d311738a9d3b3fa77cfce244393",
+    "sync_receipt_sha256": "881a2c4a059cb4b832ac82c9993e8b3e1de8a6e35c494620d88bc9855ae3cc38",
+    "baseline_receipt_sha256": "9124c79308cdbdce236b14dd4bc970c8fb3cc57b0364066e9e43232e0b2dd807",
+    "historical_baseline_receipt_sha256": "e36a840a8b2564ff981b4b282a5cd8c25cd375c24c9e2670cce515ea107962a5",
+    "inherited_build_receipt_commit": "7e8868e433fb0040806a6faf3ba8cd289a2aa3f1",
+    "inherited_receipt_used_as_current_build_evidence": false
+  },
+  "cross_rank_field_max_difference": 6.598055435347305e-13,
+  "cross_rank_history_max_difference": 3.3439917501709715e-13,
+  "field_read_details": {
+    "pieces": 288,
+    "owner_vectors": 490176,
+    "ghost_vectors": 16608,
+    "ghost_max_difference": 0.0
+  },
+  "unique_files_hashed": 861,
+  "event_mechanism": {
+    "1": {
+      "baseline": {
+        "MatAssemblyBegin": [
+          239
+        ],
+        "MatAssemblyEnd": [
+          239
+        ],
+        "MatZeroEntries": [
+          28
+        ],
+        "MatSetPreallCOO": [
+          0
+        ],
+        "MatSetValuesCOO": [
+          0
+        ],
+        "FSIElementBatch": [
+          58
+        ],
+        "FSIInsert": [
+          2813
+        ]
+      },
+      "candidate": {
+        "MatAssemblyBegin": [
+          239
+        ],
+        "MatAssemblyEnd": [
+          239
+        ],
+        "MatZeroEntries": [
+          19
+        ],
+        "MatSetPreallCOO": [
+          1
+        ],
+        "MatSetValuesCOO": [
+          10
+        ],
+        "FSIElementBatch": [
+          29
+        ],
+        "FSIInsert": [
+          2813
+        ]
+      }
+    },
+    "2": {
+      "baseline": {
+        "MatAssemblyBegin": [
+          561
+        ],
+        "MatAssemblyEnd": [
+          561
+        ],
+        "MatZeroEntries": [
+          58
+        ],
+        "MatSetPreallCOO": [
+          0
+        ],
+        "MatSetValuesCOO": [
+          0
+        ],
+        "FSIElementBatch": [
+          58
+        ],
+        "FSIInsert": [
+          1421
+        ]
+      },
+      "candidate": {
+        "MatAssemblyBegin": [
+          563
+        ],
+        "MatAssemblyEnd": [
+          563
+        ],
+        "MatZeroEntries": [
+          49
+        ],
+        "MatSetPreallCOO": [
+          1
+        ],
+        "MatSetValuesCOO": [
+          10
+        ],
+        "FSIElementBatch": [
+          58
+        ],
+        "FSIInsert": [
+          1421
+        ]
+      }
+    }
+  }
+}

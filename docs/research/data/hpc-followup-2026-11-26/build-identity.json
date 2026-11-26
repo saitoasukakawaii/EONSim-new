@@ -1,0 +1,78 @@
+{
+  "source": "4c7edc6cc14219acfc97d39b9651c935a1c875ac",
+  "tree": "030adfca09ef0edc889350b50dfde635f502670b",
+  "dirty": false,
+  "captured_utc": "2026-11-26T06:27:18.419619+00:00",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "commands": [
+    {
+      "argv": [
+        "gcc",
+        "--version"
+      ],
+      "exitcode": 0,
+      "stdout": "gcc (conda-forge gcc 15.3.0-7) 15.3.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "mpiexec",
+        "--version"
+      ],
+      "exitcode": 0,
+      "stdout": "mpiexec (Open MPI) 5.0.8\n\nReport bugs to https://www.open-mpi.org/community/help/\n\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "pkg-config",
+        "--modversion",
+        "PETSc"
+      ],
+      "exitcode": 0,
+      "stdout": "3.23.7\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "h5dump",
+        "-V"
+      ],
+      "exitcode": 0,
+      "stdout": "h5dump: Version 1.14.6\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "lscpu"
+      ],
+      "exitcode": 1,
+      "stdout": "",
+      "stderr": "lscpu: failed to determine number of CPUs: /sys/devices/system/cpu/possible: No such file or directory\n"
+    }
+  ],
+  "thread_environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "binaries": {
+    "eonsim": "9bb74f0df3f44575d2ef5c99c85ed0572e6671f011d2289c169301606f3169c9",
+    "verify_pc_plan": "4e679e184d5d5fc61fbce7db8de4d67d944c46ec53429251a6aea217ff7eccff"
+  },
+  "/sys/fs/cgroup/cpu.max": "unavailable",
+  "/sys/fs/cgroup/memory.max": "unavailable",
+  "proc_cpuinfo_model": "AMD EPYC 9V74 80-Core Processor",
+  "proc_meminfo_total": "MemTotal:       10206472 kB"
+}

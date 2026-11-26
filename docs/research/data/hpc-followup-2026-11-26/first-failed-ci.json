@@ -1,0 +1,32 @@
+{
+  "source_head": "4c7edc6cc14219acfc97d39b9651c935a1c875ac",
+  "merge_checkout": "077e775dacd195eafea447bc24c7ec6597118161",
+  "source_tree": "030adfca09ef0edc889350b50dfde635f502670b",
+  "workflow_run_id": 45768153788,
+  "release_job_id": 139734180069,
+  "artifact_id": 15093411877,
+  "result": "failed",
+  "counts": {
+    "passed": 42,
+    "failed": 1
+  },
+  "selected": 43,
+  "failed_cases": [
+    {
+      "name": "fsi_coo_verification",
+      "status": "failed",
+      "ranks": [
+        1,
+        2
+      ],
+      "exit_code": 1,
+      "timeout": false,
+      "seconds": 2.18542,
+      "log": "evidence/junit.xml#fsi_coo_verification",
+      "exit_behavior": "Failed"
+    }
+  ],
+  "raw_summary_archive_path": "ci-failed-raw/cloud-3.23.7-release/evidence/summary.json",
+  "raw_summary_sha256": "f892f137c62fba01401dd3e2a1c04e3b95f7198f051faad4d2e69121de0b6ae1",
+  "closure": "parser-independent-replay.json and parser-recheck.json; production source unchanged"
+}
