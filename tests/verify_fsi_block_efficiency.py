@@ -137,16 +137,16 @@ def timed_command(command, log, timeout, receipt):
     return output
 
 
-def flags(mode, ordering):
+def flags(mode, ordering, outer_rtol='5e-11'):
     if mode.endswith('_adaptive'):
-        return flags(mode.removesuffix('_adaptive'), ordering) + [
+        return flags(mode.removesuffix('_adaptive'), ordering, outer_rtol) + [
             '-nonlinear_adaptive_pc', 'true', '-nonlinear_pc_max_reuse', '4',
             '-nonlinear_pc_change_tolerance', '0.1', '-nonlinear_pc_iteration_growth', '1.5']
     if mode == 'direct':
         return ['-ksp_type', 'preonly', '-pc_type', 'lu',
                 '-pc_factor_mat_solver_type', 'mumps']
     result = ['-ksp_pc_side', 'right', '-ksp_norm_type', 'unpreconditioned',
-              '-ksp_rtol', '5e-11', '-ksp_atol', '5e-24', '-ksp_max_it', '3000',
+              '-ksp_rtol', outer_rtol, '-ksp_atol', '5e-24', '-ksp_max_it', '3000',
               '-ksp_gmres_restart', '100', '-ksp_gmres_modifiedgramschmidt',
               '-pc_plan_schur_approx', 'nodal',
               '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type', 'lower']
@@ -426,6 +426,8 @@ def main():
     parser.add_argument('--stage', choices=('quick', 'full', 'robustness'), default='quick')
     parser.add_argument('--grids', nargs='+', choices=tuple(GRIDS))
     parser.add_argument('--modes', nargs='+', choices=MODES + GEOMETRIC_MODES + HPC_MODES)
+    parser.add_argument('--outer-rtol', choices=('5e-11', '1e-11'), default='5e-11',
+                        help='common iterative KSP request; the independent true-residual gate stays fixed')
     parser.add_argument('--quick-results', type=Path)
     parser.add_argument('--quick-timeout', type=float, default=130.)
     parser.add_argument('--full-timeout', type=float, default=600.)
@@ -468,6 +470,7 @@ def main():
     result_path = work / ('results-' + args.stage + '.json')
     summary = dict(stage=args.stage, output_directory=str(output), modes=['direct', *args.modes],
                    grids=args.grids, target=TARGET, tolerance_margin=MARGIN,
+                   outer_ksp_rtol=args.outer_rtol,
                    field_relative_peak_limit=FIELD_LIMIT, environment=environment,
                    timing_semantics=dict(
                        linear_seconds='rank-max KSP intervals, including PC setup and inner solves',
@@ -488,7 +491,7 @@ def main():
             quick = json.loads(quick_path.read_text())
             require(quick['stage'] == 'quick', 'full stage requires quick evidence')
             for key in ('executable_sha256', 'input_sha256', 'script_hashes', 'target',
-                        'tolerance_margin', 'field_relative_peak_limit'):
+                        'tolerance_margin', 'field_relative_peak_limit', 'outer_ksp_rtol'):
                 require(quick[key] == summary[key], ('quick evidence differs', key))
             for grid in args.grids:
                 grid_name, _, _, ordering = GRIDS[grid]
@@ -497,7 +500,7 @@ def main():
                 for mode in summary['modes']:
                     runs = [r for r in matches[0]['runs'] if r['mode'] == mode]
                     require(len(runs) == 1 and runs[0]['status'] == 'passed' and
-                            runs[0]['steps'] == 4 and runs[0]['flags'] == flags(mode, ordering),
+                            runs[0]['steps'] == 4 and runs[0]['flags'] == flags(mode, ordering, args.outer_rtol),
                             ('selected mode needs passing quick evidence', grid, mode))
             summary['quick_evidence'] = dict(path=str(quick_path), sha256=digest(quick_path))
     except (ValueError, KeyError, OSError) as exc:
@@ -557,9 +560,9 @@ def main():
             command = [str(mpi), '--map-by', 'core', '--bind-to', 'core', '-n', str(ranks),
                        str(exe), '-case', str(case / 'case.json'), '-partition', str(part),
                        '-output', str(out / 'tube.vtu'), '-solver_report', '-linear_report',
-                       '-stop_after', str(steps), *flags(mode, ordering)]
+                       '-stop_after', str(steps), *flags(mode, ordering, args.outer_rtol)]
             budget = args.full_timeout if steps > 4 else args.quick_timeout
-            row = dict(mode=mode, label=label, steps_requested=steps, flags=flags(mode, ordering),
+            row = dict(mode=mode, label=label, steps_requested=steps, flags=flags(mode, ordering, args.outer_rtol),
                        command=command, output_directory=str(out), execution_budget_seconds=budget,
                        status='running', exit_code=None, timeout=False)
             rec['runs'].append(row)
