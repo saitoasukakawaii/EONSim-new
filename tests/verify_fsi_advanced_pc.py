@@ -314,7 +314,7 @@ def main():
                 directory = work / f'coupling-rho{ratio:g}-dt{dt:g}'
                 cfg = domain_case(directory, 4, ratio, dt)
                 campaign(args, result, receipt, directory, cfg,
-                         ('bfbt_vanka_single', 'pcd_vanka_single'), 2)
+                         ('bfbt_field', 'bfbt_vanka_single', 'pcd_vanka_single'), 2)
     if 'scaling' in sections:
         scaling = []
         for ranks in (1, 2):
