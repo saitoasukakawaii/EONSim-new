@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "archive": "source-ci.tar.xz",
+  "bytes": 4766056,
+  "sha256": "3147de4f1fca7a0648cbb796ccf7b047f7b52d882ccc034ccf5cc90307570c30",
+  "format": "tar+XZ, CRC64, preset=6",
+  "members": 1698,
+  "uncompressed_file_bytes": 58040931,
+  "manifest": "source-ci-archive-manifest.json",
+  "snapshot_at_utc": "2026-11-26T07:05:28.749770+00:00",
+  "repository_head_at_snapshot": "8e6c0137205fd4eb288137e03296d116e920488d",
+  "production_source_commit": "4c7edc6cc14219acfc97d39b9651c935a1c875ac",
+  "scope": "Successful source CI runs for intermediate parser 9066411 and final parser 8e6c013, including selected Release raw outputs, job logs, extraction/source receipts and per-file manifests. Downloaded ZIP transports excluded. Original local/failed-CI evidence.tar.xz remains unchanged.",
+  "exclusions": [
+    "incremental-plan-8e6c013.zip",
+    "incremental-receipt-8e6c013.zip",
+    "source-ci-8e6c013.zip",
+    "source-ci-9066411.zip"
+  ],
+  "determinism": "Lexicographic regular-file members; uid/gid/mtime zero; empty owner names; normalized 0644/0755 modes; no symlink/hardlink members; XZ stores no wall-clock timestamp."
+}

@@ -1,5 +1,34 @@
 # EONSim Codex Development Progress
 
+## 2026-11-26 · HPC-07：固定 Schur 刷新与重叠场展开
+
+从已合并 #56 的 `main@55a04f7` 接续，交付 [PR #57](https://github.com/saitoasukakawaii/EONSim-new/pull/57)。
+生产及首轮测试源码 `4c7edc6cc14219acfc97d39b9651c935a1c875ac` 先同步远程并核对完整 tree，
+再做 Release 增量构建。固定节点逆 COO 图与缓冲复用、overlap owned/halo 单次场展开、
+空线程批次消除，以及 HDF5 独立校验器的完整拓扑/绑定检查均已实现。
+
+本地 **4/4 Release、30/30 Python** 通过，含 1/2/4-rank 节点 Schur、非零→零→非零
+更新、奇异恢复和双线程 FSI。FSI 独立回放确认 34 次正常求解、3 次预期失败，83 接受步；
+真实缩步、端口跨后端重启及第二批线程故障路径成立。14 次历史 HDF5 文件精确回放新通过，
+70 份原件哈希与已提交归档一致；没有重新运行其物理求解。
+
+首轮源码 CI 42/43 通过，唯一失败来自 MPI stderr 半行前缀导致注入标记解析漏读；原始
+日志证实 worker 1/team 2/batch 1 并按预期 fatal 终止。测试解析修复 `8e6c013` 先同步后
+定向复验，8/8 Python 与双线程 FSI 1/1（37 次求解）通过，生产代码和接受门槛未改。
+最终源码 [CI 45769962561](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45769962561)
+实际 **43/43 Release、44/44 Python**，0 failed/skipped/复用，增量验收收据成功。
+
+新旧二进制配对 **16 runs、80 步、160 修正**，96 状态与861哈希断言独立复核通过。
+同分区场/历史差均为0，最坏真实残差/原门槛0.0933858014；迭代轨迹不变。
+单rank线程批次58→29，MatZeroEntries两档均少9次；全程序MatAssembly未减少。
+2rank线性时间配对中位−4.49%，范围[−13.28%,−3.67%]；wall−6.42%，范围含+14.38%，
+峰值RSS中位+1.08%，不作普遍整程序加速结论。
+
+[完整命令、来源与证据](../research/data/hpc-followup-2026-11-26/README.md)及
+[未发布草稿](../../website/drafts/hpc-fixed-structure-refresh.md)。源码 CI 和最终四项检查、
+合并按 GitHub 记录核实；文档提交只复用不受影响证据。没有新增全量、Debug、旧 PETSc、
+多节点或百万自由度验证；前五项优化的既有规模边界继续有效。
+
 ## 2026-11-26 · HPC-06：自适应 PC 重试预算修复完成
 
 GitHub 已核实五项优化的 [PR #55](https://github.com/saitoasukakawaii/EONSim-new/pull/55)

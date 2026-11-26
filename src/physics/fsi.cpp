@@ -866,7 +866,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                              residual_coo?&residual_rows:nullptr);
     });
     const auto& assembly_plan=*plan_storage;
-    std::vector<std::size_t> owned_cells,halo_cells;
+    std::vector<std::size_t> owned_cells,halo_cells,halo_slots;
+    if(overlap) for(std::size_t i=0;i<reduced.local.size();++i)
+        if(reduced.local[i]>=layout.owned) halo_slots.push_back(i);
     if(overlap) for(std::size_t e=0;e<mesh.cells.size();++e) {
         // Classification follows reduced trial aliases, not mesh-node owners:
         // interface and rigid-body slots can depend on a different rank.
@@ -999,16 +1001,17 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             reference_body={state[0],state[1]};
         }
         if(alpha_step) reference_body={solid_map.displacement_reference(body.position,body.velocity,body_acceleration),solid_map.reference(body.velocity,body_acceleration)};
-        const auto expand_into=[&](const std::vector<double>& x,std::vector<double>& full,bool owned_only=false) {
-        for(std::size_t i=0;i<full.size();++i) {
-            if(owned_only&&reduced.local[i]>=layout.owned) continue;
+        const auto expand_slot=[&](const std::vector<double>& x,std::vector<double>& full,std::size_t i) {
             const auto n=i/nc,c=i%nc;
             const double lifting=Layout::is_mesh(c)?
                 (Elastic?reference_d[Tet4Vector::components*n+c-Layout::mesh_offset]:
                  (c==Layout::mesh_offset?reference_body.position:0)):0;
             full[i]=reduced.slot(i,mesh_dt,lifting).expand(x);
             if(c<3&&inlet_nodes[n]) full[i]=stage_inlet_scale*inlet_values[n][c];
-        }
+        };
+        const auto expand_into=[&](const std::vector<double>& x,std::vector<double>& full,bool owned_only=false) {
+            for(std::size_t i=0;i<full.size();++i)
+                if(!owned_only||reduced.local[i]<layout.owned) expand_slot(x,full,i);
         };
         const auto expand=[&](const std::vector<double>& x) {
             std::vector<double> full(mesh.nodes.size()*nc);
@@ -1094,7 +1097,13 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         };
         const auto assemble_phase=[&](const std::vector<double>& x,Vec r,Mat j,
                                       const std::vector<std::size_t>* cells,bool owned_phase) {
-            expand_into(x,assembly_state,owned_phase);
+            if(cells&&!owned_phase) {
+                // The paired owned callback already expanded every owned or
+                // fixed slot with this trial and time map. Only remote aliases
+                // changed when the pending exchange completed; retain the
+                // owned entries and visit each halo slot exactly once.
+                for(const auto i:halo_slots) expand_slot(x,assembly_state,i);
+            } else expand_into(x,assembly_state,owned_phase);
             const auto& full=assembly_state;
             const auto count_cells=cells?cells->size():data.size();
             const auto cell_index=[&](std::size_t item) {return cells?(*cells)[item]:item;};
@@ -1169,7 +1178,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                         insert_cell(cell,element_residual.data(),element_tangent.data());
                     });
                 }
-            } else measured(events.batch,[&] {
+            } else if(count_cells) measured(events.batch,[&] {
                 std::exception_ptr error;
                 int error_severity=0;
                 std::size_t error_item=data.size();

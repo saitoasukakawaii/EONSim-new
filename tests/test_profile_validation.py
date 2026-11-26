@@ -5,6 +5,7 @@ import re
 import sys
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
@@ -14,6 +15,7 @@ from benchmark_fsi_assembly import (TIMERS, JACOBIAN_COUNTERS, SOLVERS, check_ex
                                    check_partition_unchanged, execution_options, expected_solvers,
                                    parse_log, partition_evidence, partition_preparations,
                                    partition_weights, solver_options)
+from verify_hdf5_outputs import cell_records, grid_bindings, snapshot_grids
 
 DATA = ROOT / 'docs/research/data'
 
@@ -311,6 +313,117 @@ class FsiAssemblyValidation(unittest.TestCase):
                 (directory/'manifest.yaml').write_bytes(originals['manifest.yaml'].replace(old, new))
                 with self.subTest(manifest_field=new), self.assertRaises(RuntimeError):
                     partition_evidence(directory, 2, work)
+
+
+class SharedOutputValidation(unittest.TestCase):
+    """Corruptions that otherwise survive zip, dict overwrite or Python indexing."""
+
+    @staticmethod
+    def topology(kind='Tetrahedron', count=1):
+        item = ET.Element('Topology', TopologyType=kind, NumberOfElements=str(count))
+        if kind == 'Polyline':
+            item.set('NodesPerElement', '2')
+        return item
+
+    def records(self, identifiers=None, tags=None, rows=None, shape=None, topology=None):
+        identifiers = [2001] if identifiers is None else identifiers
+        tags = [10] if tags is None else tags
+        rows = [[0, 1, 2, 3]] if rows is None else rows
+        return cell_records('Volume', self.topology() if topology is None else topology,
+                            (1, 4) if shape is None else shape, identifiers, tags, rows,
+                            [1001, 1002, 1003, 1004])
+
+    def test_valid_fixed_and_mixed_topologies_keep_cell_types(self):
+        self.assertEqual(self.records(), {2001: (10, (1001, 1002, 1003, 1004), 10)})
+        mixed = self.records(identifiers=[2001, 2002], tags=[10, 20],
+                             rows=[4, 0, 1, 2, 5, 0, 1, 3, 2], shape=(9,), topology=self.topology('Mixed', 2))
+        self.assertEqual(mixed, {2001: (10, (1001, 1002, 1003), 5),
+                                 2002: (20, (1001, 1002, 1004, 1003), 9)})
+        self.assertEqual(self.records(identifiers=[], tags=[], rows=[], shape=(0, 4),
+                                      topology=self.topology(count=0)), {})
+
+    def test_duplicate_cell_id_cannot_disappear_in_dictionary(self):
+        with self.assertRaisesRegex(RuntimeError, 'Duplicate HDF5 cell ID'):
+            self.records(identifiers=[2001, 2001], tags=[10, 10], rows=[[0, 1, 2, 3]] * 2,
+                         shape=(2, 4), topology=self.topology(count=2))
+
+    def test_cell_lengths_and_shapes_cannot_be_silently_truncated(self):
+        for changes in ({'tags': []}, {'tags': [10, 20]}, {'shape': (2, 4)},
+                        {'shape': (1, 3)}, {'topology': self.topology(count=2)},
+                        {'topology': self.topology('Triangle')}):
+            with self.subTest(changes=changes), self.assertRaises(RuntimeError):
+                self.records(**changes)
+
+    def test_connectivity_must_not_use_python_negative_indexing(self):
+        for invalid in (-1, 4):
+            with self.subTest(index=invalid), self.assertRaisesRegex(RuntimeError, 'Invalid HDF5 point index'):
+                self.records(rows=[[0, 1, 2, invalid]])
+
+    def test_cell_indices_ids_and_tags_must_be_integers(self):
+        for changes in ({'identifiers': [2001.1]}, {'tags': [10.1]},
+                        {'rows': [[0, 1, 2, 3.1]]}, {'rows': [[0, 1, 2, 3.0]]},
+                        {'rows': [4.1, 0, 1, 2], 'shape': (4,), 'topology': self.topology('Mixed')}):
+            with self.subTest(changes=changes), self.assertRaisesRegex(RuntimeError, 'Non-integer HDF5 cell data'):
+                self.records(**changes)
+
+    def test_mixed_connectivity_is_consumed_exactly(self):
+        for rows in ([4, 0, 1, 2, 5], [5, 0, 1, 2], [], [4, 0, 1, -1], [10, 0, 1, 2, 3]):
+            with self.subTest(rows=rows), self.assertRaises(RuntimeError):
+                self.records(rows=rows, shape=(len(rows),), topology=self.topology('Mixed'))
+        self.assertEqual(self.records(identifiers=[], tags=[], rows=[], shape=(0,),
+                                      topology=self.topology('Mixed', 0)), {})
+
+    def test_missing_or_duplicate_domain_is_rejected(self):
+        for names, datasets in ((['Boundary'], ['Boundary/connectivity']),
+                                (['Volume', 'Volume'], ['Volume/connectivity']),
+                                (['Volume'], ['Volume/connectivity', 'Boundary/connectivity']),
+                                ([], ['Volume/connectivity'])):
+            grid = ET.Element('Grid')
+            for name in names:
+                ET.SubElement(grid, 'Grid', Name=name, GridType='Uniform')
+            with self.subTest(names=names), self.assertRaisesRegex(RuntimeError, 'XDMF grid'):
+                snapshot_grids(grid, datasets)
+        grid = ET.fromstring('<Grid><Grid Name="Volume" GridType="Uniform"/></Grid>')
+        self.assertEqual(len(snapshot_grids(grid, ['Volume/connectivity'])), 1)
+
+    @staticmethod
+    def grid():
+        return ET.fromstring('''<Grid Name="Volume" GridType="Uniform">
+          <Topology TopologyType="Tetrahedron" NumberOfElements="1"><DataItem>result.h5:/Volume/connectivity</DataItem></Topology>
+          <Geometry GeometryType="XYZ"><DataItem>result.h5:/Mesh/coordinates</DataItem></Geometry>
+          <Attribute Name="pressure" Center="Node" AttributeType="Scalar"><DataItem>result.h5:/Fields/pressure</DataItem></Attribute>
+          <Attribute Name="mesh_node_id" Center="Node" AttributeType="Scalar"><DataItem>result.h5:/Mesh/mesh_node_id</DataItem></Attribute>
+          <Attribute Name="algebra_node_id" Center="Node" AttributeType="Scalar"><DataItem>result.h5:/Mesh/algebra_node_id</DataItem></Attribute>
+          <Attribute Name="owner" Center="Node" AttributeType="Scalar"><DataItem>result.h5:/Mesh/owner</DataItem></Attribute>
+          <Attribute Name="physical_tag" Center="Cell" AttributeType="Scalar"><DataItem>result.h5:/Volume/physical_tag</DataItem></Attribute>
+          <Attribute Name="mesh_element_id" Center="Cell" AttributeType="Scalar"><DataItem>result.h5:/Volume/mesh_element_id</DataItem></Attribute>
+        </Grid>''')
+
+    def test_equal_shape_dataset_references_cannot_be_swapped(self):
+        grid_bindings(self.grid(), {'pressure': 1})
+        for element, replacement in (('./Attribute[@Name="pressure"]/DataItem', 'Mesh/mesh_node_id'),
+                                     ('./Geometry/DataItem', 'Fields/velocity'),
+                                     ('./Topology/DataItem', 'Boundary/connectivity')):
+            grid = self.grid()
+            grid.find(element).text = 'result.h5:/' + replacement
+            with self.subTest(element=element), self.assertRaisesRegex(RuntimeError, 'dataset binding'):
+                grid_bindings(grid, {'pressure': 1})
+
+    def test_attribute_metadata_and_presence_are_required(self):
+        for key, value in (('Center', 'Cell'), ('AttributeType', 'Vector'), ('Name', 'wrong')):
+            grid = self.grid()
+            grid.find('./Attribute[@Name="pressure"]').set(key, value)
+            with self.subTest(key=key), self.assertRaises(RuntimeError):
+                grid_bindings(grid, {'pressure': 1})
+        for mutation in ('missing', 'duplicate'):
+            grid = self.grid()
+            attribute = grid.find('./Attribute[@Name="pressure"]')
+            if mutation == 'missing':
+                grid.remove(attribute)
+            else:
+                grid.append(attribute)
+            with self.subTest(mutation=mutation), self.assertRaises(RuntimeError):
+                grid_bindings(grid, {'pressure': 1})
 
 
 if __name__ == '__main__':

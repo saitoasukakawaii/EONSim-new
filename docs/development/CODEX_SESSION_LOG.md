@@ -1,5 +1,53 @@
 # EONSim Codex Session Log
 
+## 2026-11-26 · HPC-07 — 固定刷新结构与两阶段重复工作
+
+先核实GitHub main为55a04f7、无开放PR，五项优化和预算修复已合并。三路审查未建立
+新的AMG/adaptive数值缺陷，找到NodalSchur每次数值刷新重做固定分组/逐节点插入，以及
+FSI overlap halo阶段重复展开owned槽位和创建空OpenMP团队的具体开销。输出审查发现
+独立oracle的zip截断、dict覆盖、负索引和等形引用交换可以隐藏损坏数据。
+
+节点逆改为固定COO图/值缓冲；保留新鲜MatGetValues、原主元/均衡和collective数值门槛。
+未采用原始CSR偏移缓存，避免子矩阵复用内部表示假设。FSI只缓存远端物理槽位，保留
+lifting/入口/时系数与halo端口刚体项。新增零值再恢复的独立Schur测试和9项输出损坏回归。
+非实现者分别复查生产和验证代码，无阻塞。直接Git CLI无认证的已知状态通过连接的GitHub
+接口完成同步，不重复要求登录；本地原提交e5ac7b8保留，远端4c7edc6完整tree相同后采用。
+
+先推送后增量构建两个目标，本地4/4 CTest和30/30 Python通过。FSI原件的37次求解包括
+34成功、2预期fatal、1预期重试耗尽，另有3CLI拒绝；83接受步，真缩步.1→.0125，worker/
+insert注入各.008→.004，端口双向跨后端重启。独立回放24对场/历史，原2e-9门槛不变；
+checkpoint前后字节保存是原驱动断言，独立归档无前置manifest，不夸大复核范围。
+
+HDF5首个旧文件回放因锁定Python缺NumPy退出，保留失败日志，使用既有primary Python
+加锁定原生h5dump后14/14精确通过，70原件哈希对上旧archive；没有源码修复或求解器重跑。
+本机lscpu在锁定库环境不能运行，环境记录保留失败并从/proc/cpuinfo读取型号，不推断独占资源。
+
+性能作业等待HDF5回放结束后串行执行：n8、1/2rank、两线程、hybrid/nodal、同分区，
+每档预热一对加三对测量，16runs/80步/160修正。独立审计重读96状态/288VTU、861文件
+摘要与原始残差；场和历史精确相同，max ratio=.0933858014。2rank线性中位−4.49%，
+三对均降；wall中位−6.42%但范围含+14.38%，RSS中位+1.08%。1rank线程批次58→29，
+清零少9次，MatAssembly未降（1rank239不变，2rank561→563）。不单独归因两项组合计时。
+
+自动带入benchmark的build_receipt仍指历史7e8868e，原件保留但明确不是当前构建凭据；
+本次身份由推送收据、incremental build.log、dirty=false的build-identity和ELF哈希固定。
+
+首轮源码CI 45768153788的43项中42通过、1失败，无跳过。唯一失败为双线程worker_fatal
+标记漏读；从artifact15093411877取回原件，另一rank的stderr半行在同一行前置
+`EONSim rank `，完整注入仍为worker1/team2/batch1，fatal非零退出断言已先通过。
+不改生产打印或数值逻辑，只在测试中增加严格完整标记解析；原通用records保持。
+9066411先同步，独立审查再指出尾随重复键可能被前缀匹配接受，收紧行尾并加负例，
+8e6c013再次同步并核对tree后才开始本地复验。8项Python与1项FSI（37solves）通过；
+无重新编译或性能重复采样。两轮本地FSI、远程失败原件及独立回放均分别保留。
+
+9066411远端CI45769825200实际43/43 Release、44/44 Python；最终8e6c013的
+CI45769962561同为43/43及44/44，0failed/skipped/复用，receipt成功。后者选测启动时
+前一收据尚未发布，因此自动选择了43项，未手工扩为全量。最终checkout为PR合并预览
+2175136c5ef510b8c6b237864b652077f4972041，tree与8e6c013一致。两组绿色原件单独归档。
+
+依eonsim-knowledge-capture形成固定结构/数值边界与oracle误验的[未发布草稿](../../website/drafts/hpc-fixed-structure-refresh.md)。
+[原始证据与限制](../research/data/hpc-followup-2026-11-26/README.md)长期入Git；源码CI及
+最终四项检查、锁定head合并以GitHub确认，不把文档证据复用计为重新执行。
+
 ## 2026-11-26 · HPC-06 — 自适应 PC 恢复的总预算
 
 本轮先从 GitHub 核实 #55 已合并，main=`2d0e9b79`、最终源 head=`14d245fe`，四项必需

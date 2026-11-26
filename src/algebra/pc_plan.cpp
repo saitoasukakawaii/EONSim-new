@@ -248,12 +248,47 @@ struct NodalSchur {
     PetscOwner<IS,ISDestroy> first_block,second_block;
     PetscOwner<Mat,MatDestroy> a,b,c,d,h,hb,chb,p;
     std::vector<std::vector<PetscInt>> groups;
+    std::vector<std::size_t> inverse_offsets;
+    std::vector<PetscScalar> inverse_values;
     NodalSchur(MPI_Comm communicator,const PcBlock& node):comm(communicator),mixed_fluid(node.nodal_structure_schur),
         groups(mixed_fluid?node.children.at(0).fluid_groups:node.children.at(0).velocity_groups) {
         const auto& first=node.children.at(0).root_rows;
         const auto& second=node.children.at(1).root_rows;
         EONSIM_PETSC(ISCreateGeneral(comm,first.size(),first.data(),PETSC_COPY_VALUES,first_block.put()));
         EONSIM_PETSC(ISCreateGeneral(comm,second.size(),second.data(),PETSC_COPY_VALUES,second_block.put()));
+    }
+    void prepare_inverse_pattern() {
+        PetscInt begin,end,global,columns;
+        EONSIM_PETSC(MatGetOwnershipRange(a.get(),&begin,&end));
+        EONSIM_PETSC(MatGetSize(a.get(),&global,&columns));
+        std::vector<char> covered(end-begin,0);
+        std::vector<PetscInt> rows,cols;
+        bool valid=global==columns;
+        inverse_offsets.reserve(groups.size());
+        for(const auto& group:groups) {
+            const auto n=group.size();
+            bool local=n>=1&&n<=static_cast<std::size_t>(mixed_fluid?4:3);
+            for(auto row:group) local=local&&row>=begin&&row<end;
+            inverse_offsets.push_back(rows.size());
+            if(!local) { valid=false; continue; }
+            for(auto row:group) {
+                valid=valid&&!covered[row-begin]; covered[row-begin]=1;
+                for(auto col:group) { rows.push_back(row); cols.push_back(col); }
+            }
+        }
+        valid=valid&&std::all_of(covered.begin(),covered.end(),[](char value){return value!=0;});
+        common_check(comm,valid,mixed_fluid?"incomplete nodal fluid block ownership":
+                                          "incomplete nodal velocity block ownership");
+        inverse_values.resize(rows.size());
+        EONSIM_PETSC(MatCreate(comm,h.put()));
+        EONSIM_PETSC(MatSetSizes(h.get(),end-begin,end-begin,global,global));
+        EONSIM_PETSC(MatSetType(h.get(),MATAIJ));
+        // Every inverse is a full local 1--4 component block, including zeros.
+        // COO owns its permutation after preparation; retain values in this
+        // original group/row/column order. Empty owners participate with zero
+        // entries, and no off-owner contribution or reverse exchange is needed.
+        EONSIM_PETSC(MatSetPreallocationCOO(h.get(),static_cast<PetscCount>(rows.size()),rows.data(),cols.data()));
+        EONSIM_PETSC(MatSetOption(h.get(),MAT_NEW_NONZERO_LOCATION_ERR,PETSC_TRUE));
     }
     void update(Mat root) {
         const bool first=!a.get();
@@ -262,36 +297,25 @@ struct NodalSchur {
         EONSIM_PETSC(MatCreateSubMatrix(root,first_block.get(),second_block.get(),reuse,b.put()));
         EONSIM_PETSC(MatCreateSubMatrix(root,second_block.get(),first_block.get(),reuse,c.put()));
         EONSIM_PETSC(MatCreateSubMatrix(root,second_block.get(),second_block.get(),reuse,d.put()));
-        PetscInt begin,end,global,columns;
-        EONSIM_PETSC(MatGetOwnershipRange(a.get(),&begin,&end));
-        EONSIM_PETSC(MatGetSize(a.get(),&global,&columns));
-        std::vector<PetscInt> counts(end-begin,0);
-        bool valid=global==columns;
-        std::vector<SmallBlock> inverses(groups.size());
+        // Group membership, ownership and graph are fixed for this PC plan.
+        // Validate and prepare the inverse scatter once, but extract/invert the
+        // current nodal values on every requested numerical refresh.
+        if(first) prepare_inverse_pattern();
+        bool valid=true;
         for(std::size_t i=0;i<groups.size();++i) {
             const auto& rows=groups[i];
             const PetscInt n=static_cast<PetscInt>(rows.size());
-            bool local=n>=1&&n<=(mixed_fluid?4:3);
-            for(auto row:rows) local=local&&row>=begin&&row<end;
-            if(!local) { valid=false; continue; }
-            for(auto row:rows) {valid=valid&&counts[row-begin]==0; counts[row-begin]=n;}
-            SmallBlock values{};
+            SmallBlock values{},inverse{};
             EONSIM_PETSC(MatGetValues(a.get(),n,rows.data(),n,rows.data(),values.data()));
-            if(!invert_small(n,values,inverses[i],mixed_fluid)) valid=false;
+            if(!invert_small(n,values,inverse,mixed_fluid)) valid=false;
+            std::copy_n(inverse.data(),n*n,inverse_values.data()+inverse_offsets[i]);
         }
-        valid=valid&&std::all_of(counts.begin(),counts.end(),[](PetscInt n){return n>0;});
         common_check(comm,valid,mixed_fluid?"singular, nonfinite or incomplete nodal fluid block":
                                           "singular, nonfinite or incomplete nodal velocity block");
-        if(first) {
-            EONSIM_PETSC(MatCreateAIJ(comm,end-begin,end-begin,global,global,0,counts.data(),0,nullptr,h.put()));
-            EONSIM_PETSC(MatSetOption(h.get(),MAT_IGNORE_ZERO_ENTRIES,PETSC_FALSE));
-        } else EONSIM_PETSC(MatZeroEntries(h.get()));
-        for(std::size_t i=0;i<groups.size();++i) {
-            const auto& rows=groups[i]; const PetscInt n=static_cast<PetscInt>(rows.size());
-            EONSIM_PETSC(MatSetValues(h.get(),n,rows.data(),n,rows.data(),inverses[i].data(),INSERT_VALUES));
-        }
-        EONSIM_PETSC(MatAssemblyBegin(h.get(),MAT_FINAL_ASSEMBLY));
-        EONSIM_PETSC(MatAssemblyEnd(h.get(),MAT_FINAL_ASSEMBLY));
+        // INSERT_VALUES overwrites every prepared slot, so a newly zero
+        // off-diagonal cannot retain an inverse from the preceding Jacobian.
+        // Publish only after every rank has passed the current inverse checks.
+        EONSIM_PETSC(MatSetValuesCOO(h.get(),inverse_values.data(),INSERT_VALUES));
         EONSIM_PETSC(MatMatMult(h.get(),b.get(),reuse,PETSC_DEFAULT,hb.put()));
         EONSIM_PETSC(MatMatMult(c.get(),hb.get(),reuse,PETSC_DEFAULT,chb.put()));
         if(first) {
@@ -305,6 +329,7 @@ struct NodalSchur {
         }
         if(mixed_fluid) {
             bool finite=true;
+            PetscInt begin,end;
             EONSIM_PETSC(MatGetOwnershipRange(p.get(),&begin,&end));
             for(PetscInt row=begin;row<end;++row) {
                 PetscInt count=0; const PetscInt* columns=nullptr; const PetscScalar* values=nullptr;

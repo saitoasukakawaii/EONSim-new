@@ -1,0 +1,69 @@
+{
+  "status": "passed",
+  "source_commit": "4c7edc6cc14219acfc97d39b9651c935a1c875ac",
+  "binary_sha256": "9bb74f0df3f44575d2ef5c99c85ed0572e6671f011d2289c169301606f3169c9",
+  "solver_runs": 37,
+  "successful_solver_runs": 34,
+  "expected_failed_solver_runs": 3,
+  "expected_fatal_batch_runs": 2,
+  "expected_retries_exhausted_runs": 1,
+  "additional_expected_cli_rejections": 3,
+  "accepted_steps": 83,
+  "successful_step_snes_iterations": 224,
+  "successful_runs_with_recovery": [
+    "batch-worker",
+    "batch-insert",
+    "retry-coo"
+  ],
+  "actual_two_thread_overlap_successes": 20,
+  "raw_files_verified": 1275,
+  "raw_bytes": 7907376,
+  "independently_replayed_comparisons": 24,
+  "field_max_abs_difference": 4.66127136888872e-13,
+  "history_max_normalized_difference": 5.920877545347623e-14,
+  "retry": {
+    "label": "retry-coo",
+    "ranks": 2,
+    "threads": 2,
+    "overlap": true,
+    "expected_failure": null,
+    "success_markers": 1,
+    "accepted_steps": 1,
+    "rejections": 3,
+    "retry_records": [
+      {
+        "step_retry": "1",
+        "time": "0.008",
+        "next_dt": "0.05"
+      },
+      {
+        "step_retry": "2",
+        "time": "0.008",
+        "next_dt": "0.025"
+      },
+      {
+        "step_retry": "3",
+        "time": "0.008",
+        "next_dt": "0.0125"
+      }
+    ],
+    "injected_batch_records": [],
+    "log": "raw/moving-port/retry-coo.log",
+    "null_bytes_in_raw_log": 0,
+    "snes_iterations": 3,
+    "accepted_dt": [
+      0.0125
+    ]
+  },
+  "restart_labels": [
+    "restart-from-values",
+    "restart-from-coo"
+  ],
+  "evidence_limits": [
+    "This audit launched no solver, build or CTest.",
+    "Individual process exit codes are asserted by the successful original driver; its per-run JSON does not store numeric exit codes.",
+    "Checkpoint byte preservation before/after failed-coo was asserted by the original driver; this archive contains the final checkpoint, not separately saved before/after manifests.",
+    "Raw logs, including NUL bytes in the expected failed-coo diagnostic, were preserved unchanged."
+  ],
+  "observed_step_retry_records": 5
+}

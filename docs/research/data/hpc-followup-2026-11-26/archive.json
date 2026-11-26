@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "archive": "evidence.tar.xz",
+  "bytes": 3963992,
+  "sha256": "c36e478df9d8c18b9b3214123dd46393d3b38358b828d89a6a7ef64a463a3f70",
+  "format": "tar+XZ, CRC64, preset=6",
+  "members": 4291,
+  "uncompressed_file_bytes": 110807517,
+  "manifest": "archive-manifest.json",
+  "snapshot_at_utc": "2026-11-26T06:45:49.061226+00:00",
+  "repository_head_at_snapshot": "8e6c0137205fd4eb288137e03296d116e920488d",
+  "production_source_commit": "4c7edc6cc14219acfc97d39b9651c935a1c875ac",
+  "scope": "Current build/hpc-followup snapshot: local validation, paired performance, historical HDF5 replay, final parser recheck, first failed CI raw evidence. Later green CI receipts are separate.",
+  "exclusions": [
+    "baseline/eonsim",
+    "ci-source-failed.zip"
+  ],
+  "determinism": "Lexicographic regular-file members; uid/gid/mtime zero; empty owner names; normalized 0644/0755 modes; no symlink/hardlink members; XZ stores no wall-clock timestamp."
+}

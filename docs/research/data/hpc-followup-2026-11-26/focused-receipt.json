@@ -1,0 +1,46 @@
+{
+  "source_commit": "4c7edc6cc14219acfc97d39b9651c935a1c875ac",
+  "build_exit_code": 0,
+  "ctest_exit_code": 0,
+  "build_command": "bash build/locked.sh cmake --build build/cloud-3.23.7-release --target eonsim verify_pc_plan --parallel 4",
+  "ctest_command": "bash build/locked.sh ctest --test-dir build/cloud-3.23.7-release -R ^(pc_plan_mpi[124]|fsi_coo_verification)$ --output-on-failure -V -j 1 --output-junit <absolute>/build/hpc-followup/focused-junit.xml",
+  "tests": 4,
+  "failed": 0,
+  "skipped": 0,
+  "cases": [
+    {
+      "name": "pc_plan_mpi1",
+      "seconds": 0.651339,
+      "passed": true
+    },
+    {
+      "name": "pc_plan_mpi2",
+      "seconds": 0.438371,
+      "passed": true
+    },
+    {
+      "name": "pc_plan_mpi4",
+      "seconds": 0.528624,
+      "passed": true
+    },
+    {
+      "name": "fsi_coo_verification",
+      "seconds": 8.32958,
+      "passed": true
+    }
+  ],
+  "files": {
+    "build.log": {
+      "sha256": "4345bed94c66ead01e3c5c8611e5129de1733d311738a9d3b3fa77cfce244393",
+      "bytes": 455
+    },
+    "focused-ctest.log": {
+      "sha256": "87fae58c76081f3a937d00cc582c530ce474bc94b5f151bff6bedcd5246264e8",
+      "bytes": 157353
+    },
+    "focused-junit.xml": {
+      "sha256": "ec71ecbdb5d6bf3917bafdd1aebf53d0b5cd4fd7f204311c8a475cd4cda1ae74",
+      "bytes": 4550
+    }
+  }
+}

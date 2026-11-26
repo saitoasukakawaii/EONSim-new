@@ -1,0 +1,119 @@
+{
+  "status": "passed",
+  "scope": "Preserve and count the latest targeted recheck; no solver or broad field audit rerun",
+  "receipt": {
+    "source_commit": "8e6c0137205fd4eb288137e03296d116e920488d",
+    "production_source": "4c7edc6cc14219acfc97d39b9651c935a1c875ac",
+    "started_at_utc": "2026-11-26T06:42:05.951239+00:00",
+    "runs": [
+      {
+        "command": [
+          "bash",
+          "build/locked.sh",
+          "python",
+          "tests/test_fsi_runner.py",
+          "-v"
+        ],
+        "returncode": 0,
+        "seconds": 1.5267330880014924,
+        "log": "python.log",
+        "log_sha256": "fec25f39dff501786c7dc694b8a666f712373cd9f469247d84a08338dbd6c915"
+      },
+      {
+        "command": [
+          "bash",
+          "build/locked.sh",
+          "ctest",
+          "--test-dir",
+          "build/cloud-3.23.7-release",
+          "-R",
+          "^fsi_coo_verification$",
+          "--output-on-failure",
+          "-V",
+          "-j",
+          "1",
+          "--output-junit",
+          "/workspace/scratch/ae740e1dde63/EONSim-new/build/hpc-followup/parser-recheck/fsi-junit.xml"
+        ],
+        "returncode": 0,
+        "seconds": 9.084054249000474,
+        "log": "fsi-ctest.log",
+        "log_sha256": "8e101471b69fccc07672cb1066f91d31a94ba2761f9180249da3519a715a9e19"
+      }
+    ],
+    "completed_at_utc": "2026-11-26T06:42:16.562559+00:00"
+  },
+  "python_tests_passed": 8,
+  "fsi_ctest_passed": 1,
+  "solver_invocations": 37,
+  "successful_solver_runs": 34,
+  "expected_failed_solver_runs": 3,
+  "accepted_steps": 83,
+  "observed_step_retry_records": 5,
+  "raw_files_verified": 1287,
+  "raw_bytes": 8080239,
+  "binary_sha256": "9bb74f0df3f44575d2ef5c99c85ed0572e6671f011d2289c169301606f3169c9",
+  "batch_faults": [
+    {
+      "mode": "worker",
+      "thread": "1",
+      "team": "2",
+      "batch": "1",
+      "log": "raw/batch-failures/batch-worker.log",
+      "sha256": "ae27ce0b5ebbeecaacf9b93f2c247a4aab77f97c3e11a30b65ace2ca2a6ac7cc",
+      "original_marker_line": "fsi_batch_failure mode=worker thread=1 team=2 batch=1",
+      "accepted_steps": 1,
+      "step_retry_records": 1,
+      "expected_failure": null
+    },
+    {
+      "mode": "insert",
+      "thread": "0",
+      "team": "2",
+      "batch": "1",
+      "log": "raw/batch-failures/batch-insert.log",
+      "sha256": "15d50331913440c00969cc17e6d640b92a5a467d52a7f03a11adabaafc244fa0",
+      "original_marker_line": "fsi_batch_failure mode=insert thread=0 team=2 batch=1",
+      "accepted_steps": 1,
+      "step_retry_records": 1,
+      "expected_failure": null
+    },
+    {
+      "mode": "worker_fatal",
+      "thread": "1",
+      "team": "2",
+      "batch": "1",
+      "log": "raw/batch-failures/batch-worker_fatal.log",
+      "sha256": "1cad70c8d9bb90ae761c502ba7296c6c820f999f2d5af7c23dae55f84f701864",
+      "original_marker_line": "fsi_batch_failure mode=worker_fatal thread=1 team=2 batch=1",
+      "accepted_steps": 0,
+      "step_retry_records": 0,
+      "expected_failure": "Injected fatal FSI batch failure"
+    },
+    {
+      "mode": "insert_fatal",
+      "thread": "0",
+      "team": "2",
+      "batch": "1",
+      "log": "raw/batch-failures/batch-insert_fatal.log",
+      "sha256": "d5cc971a28a46bac3fcc1bec67b7d50bfdd4da9448d432b677957ab3d8499ab9",
+      "original_marker_line": "fsi_batch_failure mode=insert_fatal thread=0 team=2 batch=1",
+      "accepted_steps": 0,
+      "step_retry_records": 0,
+      "expected_failure": "Injected fatal FSI batch failure"
+    }
+  ],
+  "nonlinear_retry": {
+    "retries": 3,
+    "accepted_dt": 0.0125,
+    "field_difference": 3.126388037344441e-13,
+    "history_difference": 5.031632114088722e-16,
+    "iteration_trajectory": [
+      [
+        3,
+        3
+      ]
+    ]
+  },
+  "original_archive_untouched": "build/hpc-followup/fsi-focused"
+}

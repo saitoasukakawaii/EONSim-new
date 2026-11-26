@@ -1,0 +1,92 @@
+{
+  "status": "passed",
+  "completed_at_utc": "2026-11-26T06:45:25.131630+00:00",
+  "scope": "Offline pure parser replay and archived evidence audit; no solver or test suite launched.",
+  "command": [
+    "python",
+    "build/hpc-followup/parser-recheck/independent_replay.py"
+  ],
+  "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+  "working_directory": "/workspace/scratch/ae740e1dde63/EONSim-new",
+  "script": {
+    "path": "build/hpc-followup/parser-recheck/independent_replay.py",
+    "bytes": 7685,
+    "sha256": "7ab63e5340476f03978cefd25d0975c86cd84d656cdc35d6414c62b8bdf15702"
+  },
+  "parser_commit": "8e6c0137205fd4eb288137e03296d116e920488d",
+  "parser_tree": "9c76144a30848db6a16d942f8402f6ff323247d8",
+  "production_source_commit": "4c7edc6cc14219acfc97d39b9651c935a1c875ac",
+  "production_src_include_cmake_unchanged": true,
+  "current_parser_source": {
+    "path": "tests/verify_fsi_coo.py",
+    "bytes": 28568,
+    "sha256": "b1cc3e5e0d7119459d1aca36dae18aa13a4cbd61cc3e95a636503b240f3a7d90"
+  },
+  "archived_ci_commit": "077e775dacd195eafea447bc24c7ec6597118161",
+  "archived_parser_source": {
+    "git_object": "077e775dacd195eafea447bc24c7ec6597118161:tests/verify_fsi_coo.py",
+    "sha256": "b64f0700c0e65a611675c463e5a94c79c41b3ff60045025c99a3eb36502dd427"
+  },
+  "archived_runner_source": {
+    "git_object": "077e775dacd195eafea447bc24c7ec6597118161:tests/verify_fsi_inlet.py",
+    "sha256": "5046ce811e749839c2d3babb11cdb533348ff7110b98d79c8ee324a7f7284162",
+    "unchanged_in_current_tree": true
+  },
+  "raw_log": {
+    "path": "build/hpc-followup/ci-failed-raw/cloud-3.23.7-release/fsi_coo_verification/batch-failures/batch-worker_fatal.log",
+    "bytes": 1592,
+    "sha256": "afee44e61594ad87d379d3870a662510273364f1c2faca4bdcb4b079b6c15913"
+  },
+  "old_records_count": 0,
+  "current_injection_record": {
+    "mode": "worker_fatal",
+    "thread": "1",
+    "team": "2",
+    "batch": "1"
+  },
+  "raw_observations": {
+    "injection_marker_count": 1,
+    "fatal_message_count": 2,
+    "failed_status_count": 2,
+    "successful_status_count": 0,
+    "retry_marker_count": 0,
+    "accepted_step_marker_count": 0,
+    "mpi_abort_reported": true,
+    "mpi_abort_errorcodes": [
+      1
+    ],
+    "terminal_nul_bytes": 1
+  },
+  "ci_driver_summary": {
+    "name": "fsi_coo_verification",
+    "status": "failed",
+    "ranks": [
+      1,
+      2
+    ],
+    "exit_code": 1,
+    "timeout": false,
+    "seconds": 2.18542,
+    "log": "evidence/junit.xml#fsi_coo_verification",
+    "exit_behavior": "Failed"
+  },
+  "ci_evidence": [
+    {
+      "path": "build/hpc-followup/ci-failed-raw/cloud-3.23.7-release/evidence/summary.json",
+      "bytes": 47319,
+      "sha256": "f892f137c62fba01401dd3e2a1c04e3b95f7198f051faad4d2e69121de0b6ae1"
+    },
+    {
+      "path": "build/hpc-followup/ci-failed-raw/cloud-3.23.7-release/evidence/ctest.log",
+      "bytes": 295421,
+      "sha256": "6068528a39feaefda9fa6c1710ffc5c8a07c9e3f6e27ac8ff4bfaf3f230a1cc8"
+    }
+  ],
+  "nonzero_failure_evidence": {
+    "driver_predicate": "assert result.returncode != 0 and fail in output",
+    "archived_traceback_reached_parser_after_expected_failure_return": true,
+    "interpretation": "The original driver passed its expected nonzero/fatal predicate before the parser failed; raw MPI_ABORT Errorcode: 1 independently supports fatal termination.",
+    "individual_solver_launch_returncode_saved": false,
+    "limitation": "CI summary exit_code=1 is the test driver result. No numeric per-launch or per-rank solver return code is reconstructed or asserted."
+  }
+}
