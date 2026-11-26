@@ -1,0 +1,723 @@
+﻿2026-11-26T02:24:43.3902207Z Current runner version: '2.338.2'
+2026-11-26T02:24:43.3928659Z ##[group]Runner Image Provisioner
+2026-11-26T02:24:43.3929523Z Hosted Compute Agent
+2026-11-26T02:24:43.3930158Z Version: 20261111.635
+2026-11-26T02:24:43.3930776Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+2026-11-26T02:24:43.3931477Z Build Date: 2026-11-11T01:49:01Z
+2026-11-26T02:24:43.3932156Z Worker ID: {4c59dc62-d32c-40c1-95b7-58f3f006032d}
+2026-11-26T02:24:43.3933187Z Region: us-east-1
+2026-11-26T02:24:43.3933740Z Cloud: AWS
+2026-11-26T02:24:43.3934230Z ##[endgroup]
+2026-11-26T02:24:43.3936007Z ##[group]Operating System
+2026-11-26T02:24:43.3936644Z Ubuntu
+2026-11-26T02:24:43.3937149Z 24.04.5
+2026-11-26T02:24:43.3937662Z LTS
+2026-11-26T02:24:43.3938137Z ##[endgroup]
+2026-11-26T02:24:43.3938698Z ##[group]Runner Image
+2026-11-26T02:24:43.3939284Z Image: ubuntu-24.04
+2026-11-26T02:24:43.3939817Z Version: 20261116.133.1
+2026-11-26T02:24:43.3941097Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261116.133/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-26T02:24:43.3942943Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261116.133
+2026-11-26T02:24:43.3943903Z ##[endgroup]
+2026-11-26T02:24:43.3945151Z ##[group]GITHUB_TOKEN Permissions
+2026-11-26T02:24:43.3947358Z Actions: read
+2026-11-26T02:24:43.3947928Z Contents: read
+2026-11-26T02:24:43.3948450Z Metadata: read
+2026-11-26T02:24:43.3949014Z ##[endgroup]
+2026-11-26T02:24:43.3951194Z Secret source: Actions
+2026-11-26T02:24:43.3952012Z Cache mode: write
+2026-11-26T02:24:43.3953329Z Prepare workflow directory
+2026-11-26T02:24:43.4283051Z Prepare all required actions
+2026-11-26T02:24:43.4335719Z Getting action download info
+2026-11-26T02:24:43.6200256Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-26T02:24:44.7601750Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-11-26T02:24:44.9115238Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-26T02:24:45.0987347Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-26T02:24:45.2859903Z Complete job name: PETSc 3.23.7 / release
+2026-11-26T02:24:45.3415589Z ##[group]Run test "$SELECTION_RESULT" = success
+2026-11-26T02:24:45.3416206Z [36;1mtest "$SELECTION_RESULT" = success[0m
+2026-11-26T02:24:45.4617803Z shell: /usr/bin/bash -e {0}
+2026-11-26T02:24:45.4618468Z env:
+2026-11-26T02:24:45.4618776Z   SELECTION_RESULT: success
+2026-11-26T02:24:45.4619076Z ##[endgroup]
+2026-11-26T02:24:45.4896260Z ##[group]Run actions/checkout@v4
+2026-11-26T02:24:45.4896655Z with:
+2026-11-26T02:24:45.4896964Z   persist-credentials: false
+2026-11-26T02:24:45.4897326Z   repository: saitoasukakawaii/EONSim-new
+2026-11-26T02:24:45.4899513Z   token: ***
+2026-11-26T02:24:45.4899811Z   ssh-strict: true
+2026-11-26T02:24:45.4900072Z   ssh-user: git
+2026-11-26T02:24:45.4900321Z   clean: true
+2026-11-26T02:24:45.4900647Z   sparse-checkout-cone-mode: true
+2026-11-26T02:24:45.4900955Z   fetch-depth: 1
+2026-11-26T02:24:45.4901224Z   fetch-tags: false
+2026-11-26T02:24:45.4901491Z   show-progress: true
+2026-11-26T02:24:45.4901786Z   lfs: false
+2026-11-26T02:24:45.4902061Z   submodules: false
+2026-11-26T02:24:45.4902330Z   set-safe-directory: true
+2026-11-26T02:24:45.4902922Z   allow-unsafe-pr-checkout: false
+2026-11-26T02:24:45.4903243Z ##[endgroup]
+2026-11-26T02:24:48.5062185Z Syncing repository: saitoasukakawaii/EONSim-new
+2026-11-26T02:24:48.5063832Z ##[group]Getting Git version info
+2026-11-26T02:24:48.5064413Z Working directory is '/home/runner/work/EONSim-new/EONSim-new'
+2026-11-26T02:24:48.5065106Z [command]/usr/bin/git version
+2026-11-26T02:24:48.6966374Z git version 2.56.1
+2026-11-26T02:24:48.6980579Z ##[endgroup]
+2026-11-26T02:24:48.6991567Z Temporarily overriding HOME='/home/runner/work/_temp/8af18182-3395-45b9-b0e6-36bc0cb3cd65' before making global git config changes
+2026-11-26T02:24:48.6992681Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-26T02:24:48.6996117Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/EONSim-new/EONSim-new
+2026-11-26T02:24:48.7047474Z Deleting the contents of '/home/runner/work/EONSim-new/EONSim-new'
+2026-11-26T02:24:48.7050039Z ##[group]Initializing the repository
+2026-11-26T02:24:48.7054674Z [command]/usr/bin/git init /home/runner/work/EONSim-new/EONSim-new
+2026-11-26T02:24:48.7954753Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-26T02:24:48.7955641Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-26T02:24:48.7956166Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-26T02:24:48.7956634Z hint: call:
+2026-11-26T02:24:48.7956868Z hint:
+2026-11-26T02:24:48.7957183Z hint: 	git config --global init.defaultBranch <name>
+2026-11-26T02:24:48.7957729Z hint:
+2026-11-26T02:24:48.7958110Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-26T02:24:48.7958635Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-26T02:24:48.7959021Z hint:
+2026-11-26T02:24:48.7959263Z hint: 	git branch -m <name>
+2026-11-26T02:24:48.7959548Z hint:
+2026-11-26T02:24:48.7959916Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-26T02:24:48.7969246Z Initialized empty Git repository in /home/runner/work/EONSim-new/EONSim-new/.git/
+2026-11-26T02:24:48.7978891Z [command]/usr/bin/git remote add origin https://github.com/saitoasukakawaii/EONSim-new
+2026-11-26T02:24:48.8029292Z ##[endgroup]
+2026-11-26T02:24:48.8030103Z ##[group]Disabling automatic garbage collection
+2026-11-26T02:24:48.8032367Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-26T02:24:48.8055652Z ##[endgroup]
+2026-11-26T02:24:48.8056270Z ##[group]Setting up auth
+2026-11-26T02:24:48.8061547Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-26T02:24:48.8090735Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-26T02:24:49.0552227Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-26T02:24:49.0576765Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-26T02:24:49.0738587Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-26T02:24:49.0765063Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-26T02:24:49.0951153Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-26T02:24:49.0979718Z ##[endgroup]
+2026-11-26T02:24:49.0980093Z ##[group]Fetching the repository
+2026-11-26T02:24:49.0991218Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3d83542bfd8211900e6fe429e22163e526cd31c2:refs/remotes/pull/54/merge
+2026-11-26T02:25:06.2897759Z From https://github.com/saitoasukakawaii/EONSim-new
+2026-11-26T02:25:06.2898245Z  * [new ref]         3d83542bfd8211900e6fe429e22163e526cd31c2 -> pull/54/merge
+2026-11-26T02:25:06.2901595Z ##[endgroup]
+2026-11-26T02:25:06.2902102Z ##[group]Determining the checkout info
+2026-11-26T02:25:06.2904240Z ##[endgroup]
+2026-11-26T02:25:06.2908774Z [command]/usr/bin/git sparse-checkout disable
+2026-11-26T02:25:06.2979439Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-26T02:25:06.3003572Z ##[group]Checking out the ref
+2026-11-26T02:25:06.3004815Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/54/merge
+2026-11-26T02:25:07.3427732Z Updating files:  43% (604/1389)
+2026-11-26T02:25:07.4101387Z Updating files:  44% (612/1389)
+2026-11-26T02:25:07.4175771Z Updating files:  45% (626/1389)
+2026-11-26T02:25:07.4204695Z Updating files:  46% (639/1389)
+2026-11-26T02:25:07.4404684Z Updating files:  47% (653/1389)
+2026-11-26T02:25:07.4407992Z Updating files:  48% (667/1389)
+2026-11-26T02:25:07.4558017Z Updating files:  49% (681/1389)
+2026-11-26T02:25:07.4810773Z Updating files:  50% (695/1389)
+2026-11-26T02:25:07.4832899Z Updating files:  51% (709/1389)
+2026-11-26T02:25:07.4911454Z Updating files:  52% (723/1389)
+2026-11-26T02:25:07.5063662Z Updating files:  53% (737/1389)
+2026-11-26T02:25:07.5067778Z Updating files:  54% (751/1389)
+2026-11-26T02:25:07.5072988Z Updating files:  55% (764/1389)
+2026-11-26T02:25:07.5089652Z Updating files:  56% (778/1389)
+2026-11-26T02:25:07.5099793Z Updating files:  57% (792/1389)
+2026-11-26T02:25:07.5106377Z Updating files:  58% (806/1389)
+2026-11-26T02:25:07.5113305Z Updating files:  59% (820/1389)
+2026-11-26T02:25:07.5378756Z Updating files:  60% (834/1389)
+2026-11-26T02:25:07.5388640Z Updating files:  61% (848/1389)
+2026-11-26T02:25:07.5393395Z Updating files:  62% (862/1389)
+2026-11-26T02:25:07.5400091Z Updating files:  63% (876/1389)
+2026-11-26T02:25:07.5403236Z Updating files:  64% (889/1389)
+2026-11-26T02:25:07.5413063Z Updating files:  65% (903/1389)
+2026-11-26T02:25:07.5553670Z Updating files:  66% (917/1389)
+2026-11-26T02:25:07.5569910Z Updating files:  67% (931/1389)
+2026-11-26T02:25:07.5572031Z Updating files:  68% (945/1389)
+2026-11-26T02:25:07.5576785Z Updating files:  69% (959/1389)
+2026-11-26T02:25:07.5588636Z Updating files:  70% (973/1389)
+2026-11-26T02:25:07.5593110Z Updating files:  71% (987/1389)
+2026-11-26T02:25:07.7029481Z Updating files:  72% (1001/1389)
+2026-11-26T02:25:07.7993824Z Updating files:  73% (1014/1389)
+2026-11-26T02:25:07.8096448Z Updating files:  74% (1028/1389)
+2026-11-26T02:25:07.8099923Z Updating files:  75% (1042/1389)
+2026-11-26T02:25:07.8103988Z Updating files:  76% (1056/1389)
+2026-11-26T02:25:07.8106169Z Updating files:  77% (1070/1389)
+2026-11-26T02:25:07.8112827Z Updating files:  78% (1084/1389)
+2026-11-26T02:25:07.8117068Z Updating files:  79% (1098/1389)
+2026-11-26T02:25:07.8191487Z Updating files:  80% (1112/1389)
+2026-11-26T02:25:07.8203603Z Updating files:  81% (1126/1389)
+2026-11-26T02:25:07.8204137Z Updating files:  82% (1139/1389)
+2026-11-26T02:25:07.8206552Z Updating files:  83% (1153/1389)
+2026-11-26T02:25:07.8213264Z Updating files:  84% (1167/1389)
+2026-11-26T02:25:07.8219451Z Updating files:  85% (1181/1389)
+2026-11-26T02:25:07.8225056Z Updating files:  86% (1195/1389)
+2026-11-26T02:25:07.8235478Z Updating files:  87% (1209/1389)
+2026-11-26T02:25:07.8246250Z Updating files:  88% (1223/1389)
+2026-11-26T02:25:07.8252704Z Updating files:  89% (1237/1389)
+2026-11-26T02:25:07.8257534Z Updating files:  90% (1251/1389)
+2026-11-26T02:25:07.8264671Z Updating files:  91% (1264/1389)
+2026-11-26T02:25:07.8272865Z Updating files:  92% (1278/1389)
+2026-11-26T02:25:07.8281570Z Updating files:  93% (1292/1389)
+2026-11-26T02:25:07.8287526Z Updating files:  94% (1306/1389)
+2026-11-26T02:25:07.8292707Z Updating files:  95% (1320/1389)
+2026-11-26T02:25:07.8301206Z Updating files:  96% (1334/1389)
+2026-11-26T02:25:07.8305898Z Updating files:  97% (1348/1389)
+2026-11-26T02:25:07.8310331Z Updating files:  98% (1362/1389)
+2026-11-26T02:25:07.8318312Z Updating files:  99% (1376/1389)
+2026-11-26T02:25:07.8335316Z Updating files: 100% (1389/1389)
+2026-11-26T02:25:07.8335615Z Updating files: 100% (1389/1389), done.
+2026-11-26T02:25:07.8336013Z Note: switching to 'refs/remotes/pull/54/merge'.
+2026-11-26T02:25:07.8336226Z 
+2026-11-26T02:25:07.8336388Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-26T02:25:07.8336830Z changes and commit them, and you can discard any commits you make in this
+2026-11-26T02:25:07.8337453Z state without impacting any branches by switching back to a branch.
+2026-11-26T02:25:07.8337777Z 
+2026-11-26T02:25:07.8337954Z If you want to create a new branch to retain commits you create, you may
+2026-11-26T02:25:07.8338689Z do so (now or later) by using -c with the switch command. Example:
+2026-11-26T02:25:07.8338912Z 
+2026-11-26T02:25:07.8339010Z   git switch -c <new-branch-name>
+2026-11-26T02:25:07.8339179Z 
+2026-11-26T02:25:07.8339320Z Or undo this operation with:
+2026-11-26T02:25:07.8339463Z 
+2026-11-26T02:25:07.8339572Z   git switch -
+2026-11-26T02:25:07.8339680Z 
+2026-11-26T02:25:07.8339884Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-26T02:25:07.8340102Z 
+2026-11-26T02:25:07.8340407Z HEAD is now at 3d83542 Merge 88e6c3359b742735877177eb4584b987caae1790 into 858f021a34ff5bd178287430d8cd45e52ec19f48
+2026-11-26T02:25:07.8441705Z ##[endgroup]
+2026-11-26T02:25:07.8444718Z [command]/usr/bin/git log -1 --format=%H
+2026-11-26T02:25:07.8465688Z 3d83542bfd8211900e6fe429e22163e526cd31c2
+2026-11-26T02:25:07.8474316Z ##[group]Removing auth
+2026-11-26T02:25:07.8477201Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-26T02:25:07.8500739Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-26T02:25:07.8656862Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-26T02:25:07.8679305Z http.https://github.com/.extraheader
+2026-11-26T02:25:07.8684121Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-26T02:25:07.8712955Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-26T02:25:07.8862063Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-26T02:25:07.8885669Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-26T02:25:07.9034861Z ##[endgroup]
+2026-11-26T02:25:07.9173034Z ##[group]Run actions/download-artifact@v4
+2026-11-26T02:25:07.9173330Z with:
+2026-11-26T02:25:07.9173574Z   name: incremental-plan
+2026-11-26T02:25:07.9173810Z   path: build/ci
+2026-11-26T02:25:07.9174068Z   merge-multiple: false
+2026-11-26T02:25:07.9174315Z   repository: saitoasukakawaii/EONSim-new
+2026-11-26T02:25:07.9174580Z   run-id: 45741570996
+2026-11-26T02:25:07.9174830Z ##[endgroup]
+2026-11-26T02:25:08.0357438Z Downloading single artifact
+2026-11-26T02:25:08.0958316Z (node:2246) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-26T02:25:08.0958954Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-26T02:25:08.2090045Z Preparing to download the following artifacts:
+2026-11-26T02:25:08.2090822Z - incremental-plan (ID: 15082056352, Size: 1566, Expected Digest: sha256:c9c4dc8367f3a175d32035435bd356a77c9f76a6c3980d06cbdedc8c9ffe7703)
+2026-11-26T02:25:08.4570951Z Redirecting to blob download url: https://productionresultssa2.blob.core.windows.net/actions-results/9015ca3d-4f38-8470-9db5-940e2d71343b/workflow-job-run-8df44f0d-9f8c-5d5d-bb87-6af4ef9875ca/artifacts/8f45afc5483d3e92e4af2a0dda0fdb632d75ca91935312ba43738fd45c35e751.zip
+2026-11-26T02:25:08.4571949Z Starting download of artifact to: /home/runner/work/EONSim-new/EONSim-new/build/ci
+2026-11-26T02:25:08.5038002Z (node:2246) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-26T02:25:08.5072712Z SHA256 digest of downloaded artifact is c9c4dc8367f3a175d32035435bd356a77c9f76a6c3980d06cbdedc8c9ffe7703
+2026-11-26T02:25:08.5073463Z Artifact download completed successfully.
+2026-11-26T02:25:08.5073983Z Total of 1 artifact(s) downloaded
+2026-11-26T02:25:08.5077470Z Download artifact has finished successfully
+2026-11-26T02:25:08.5971421Z ##[group]Run actions/cache@v4
+2026-11-26T02:25:08.5971682Z with:
+2026-11-26T02:25:08.5971905Z   path: .cloud/mamba/pkgs
+2026-11-26T02:25:08.5972422Z   key: deps-Linux-X64-gcc-15.3.0-openmpi-5-real-double-int32-v3-4c8e94cd4e8a6bd63d571831ed67381ac03b355b58c92641440bd60e401fe8cc
+2026-11-26T02:25:08.5973272Z   enableCrossOsArchive: false
+2026-11-26T02:25:08.5973544Z   fail-on-cache-miss: false
+2026-11-26T02:25:08.5973791Z   lookup-only: false
+2026-11-26T02:25:08.5974021Z   save-always: false
+2026-11-26T02:25:08.5974256Z ##[endgroup]
+2026-11-26T02:25:08.6762603Z (node:2270) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-26T02:25:08.6763264Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-26T02:25:08.7305924Z Cache hit for: deps-Linux-X64-gcc-15.3.0-openmpi-5-real-double-int32-v3-4c8e94cd4e8a6bd63d571831ed67381ac03b355b58c92641440bd60e401fe8cc
+2026-11-26T02:25:08.7411341Z (node:2270) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-26T02:25:09.8424146Z Received 150994944 of 894762687 (16.9%), 144.0 MBs/sec
+2026-11-26T02:25:10.8400142Z Received 381681664 of 894762687 (42.7%), 182.0 MBs/sec
+2026-11-26T02:25:11.8420398Z Received 570425344 of 894762687 (63.8%), 181.2 MBs/sec
+2026-11-26T02:25:12.8452332Z Received 788529152 of 894762687 (88.1%), 187.8 MBs/sec
+2026-11-26T02:25:13.3913376Z Received 894762687 of 894762687 (100.0%), 187.5 MBs/sec
+2026-11-26T02:25:13.3914588Z Cache Size: ~853 MB (894762687 B)
+2026-11-26T02:25:13.4002751Z [command]/usr/bin/tar -xf /home/runner/work/_temp/30192326-cb35-4f03-80af-535ff75b4812/cache.tzst -P -C /home/runner/work/EONSim-new/EONSim-new --use-compress-program unzstd
+2026-11-26T02:25:17.7255909Z Cache restored successfully
+2026-11-26T02:25:17.7600699Z Cache restored from key: deps-Linux-X64-gcc-15.3.0-openmpi-5-real-double-int32-v3-4c8e94cd4e8a6bd63d571831ed67381ac03b355b58c92641440bd60e401fe8cc
+2026-11-26T02:25:17.7738851Z ##[group]Run mkdir -p build/restore-evidence
+2026-11-26T02:25:17.7739610Z [36;1mmkdir -p build/restore-evidence[0m
+2026-11-26T02:25:17.7740122Z [36;1mset -o pipefail[0m
+2026-11-26T02:25:17.7740693Z [36;1mscripts/cloud/restore.sh '3.23.7' 2>&1 | tee build/restore-evidence/restore.log[0m
+2026-11-26T02:25:17.7779198Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-26T02:25:17.7779694Z ##[endgroup]
+2026-11-26T02:25:17.8113322Z   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+2026-11-26T02:25:17.8113848Z                                  Dload  Upload   Total   Spent    Left  Speed
+2026-11-26T02:25:17.8114126Z 
+2026-11-26T02:25:17.9059001Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+2026-11-26T02:25:17.9059878Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+2026-11-26T02:25:18.0269572Z 
+2026-11-26T02:25:18.0270610Z 100 18.1M  100 18.1M    0     0  84.0M      0 --:--:-- --:--:-- --:--:-- 84.0M
+2026-11-26T02:25:18.0444184Z /home/runner/work/EONSim-new/EONSim-new/.cloud/micromamba.download: OK
+2026-11-26T02:25:18.0596972Z /home/runner/work/EONSim-new/EONSim-new/.cloud/micromamba: OK
+2026-11-26T02:25:18.0683482Z Transaction
+2026-11-26T02:25:18.0683706Z 
+2026-11-26T02:25:18.0684053Z   Prefix: /home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7
+2026-11-26T02:25:18.0684499Z 
+2026-11-26T02:25:18.0684649Z   Updating specs:
+2026-11-26T02:25:18.0684808Z 
+2026-11-26T02:25:18.0684969Z    - libzlib==1.3.2=h25fd6f3_3
+2026-11-26T02:25:18.0685404Z    - libgomp==16.2.0=he0feb66_7
+2026-11-26T02:25:18.0685727Z    - mumps-include==5.8.1=h158ef2a_3
+2026-11-26T02:25:18.0686127Z    - llvm-openmp==23.1.4=h7148c6a_0
+2026-11-26T02:25:18.0686507Z    - zstd==1.5.7=hb78ec9c_7
+2026-11-26T02:25:18.0686910Z    - _openmp_mutex==4.5=8_kmp_llvm
+2026-11-26T02:25:18.0687359Z    - ld_impl_linux-64==2.46.1=default_hbd61a6d_103
+2026-11-26T02:25:18.0688004Z    - libgcc==16.2.0=ha9f2e26_7
+2026-11-26T02:25:18.0688358Z    - yaml==0.2.5=hebe6cf0_3
+2026-11-26T02:25:18.0688631Z    - libiconv==1.18=h0cb94f2_3
+2026-11-26T02:25:18.0688889Z    - libev==4.33=h280c20c_3
+2026-11-26T02:25:18.0689152Z    - keyutils==1.6.3=h7cc23a3_1
+2026-11-26T02:25:18.0689412Z    - libcap==2.78=h084b8d7_1
+2026-11-26T02:25:18.0689659Z    - c-ares==1.34.9=hebe6cf0_0
+2026-11-26T02:25:18.0690224Z    - libnl==3.11.0=hb03c661_1
+2026-11-26T02:25:18.0690594Z    - rhash==1.4.6=hb03c661_2
+2026-11-26T02:25:18.0691015Z    - libuv==1.52.1=h280c20c_1
+2026-11-26T02:25:18.0691463Z    - bzip2==1.0.8=hda65f42_10
+2026-11-26T02:25:18.0691841Z    - libffi==3.7.0=h81df57d_1
+2026-11-26T02:25:18.0692306Z    - libmpdec==4.0.0=hb03c661_2
+2026-11-26T02:25:18.0692963Z    - liblzma==5.8.3=hb03c661_1
+2026-11-26T02:25:18.0693374Z    - tk==8.6.13=noxft_h1df4ec4_4
+2026-11-26T02:25:18.0693800Z    - ncurses==6.6=hdb14827_1
+2026-11-26T02:25:18.0694175Z    - libgfortran5==16.2.0=h6b99dfc_7
+2026-11-26T02:25:18.0694533Z    - libstdcxx==16.2.0=h934c35e_7
+2026-11-26T02:25:18.0694817Z    - libuuid==2.42.4=hcfc3c73_0
+2026-11-26T02:25:18.0695080Z    - pkg-config==0.29.2=h1114479_1013
+2026-11-26T02:25:18.0695390Z    - libexpat==2.9.0=hd2095e1_0
+2026-11-26T02:25:18.0695824Z    - libsystemd0==262.1=h26e0ef7_0
+2026-11-26T02:25:18.0696136Z    - libudev1==262.1=h26e0ef7_0
+2026-11-26T02:25:18.0696397Z    - libedit==3.1.20260512=pl5321h373387f_0
+2026-11-26T02:25:18.0696660Z    - libgfortran==16.2.0=h69a702a_7
+2026-11-26T02:25:18.0696971Z    - icu==78.3=py310h44b86e0_2
+2026-11-26T02:25:18.0697248Z    - libsanitizer==15.3.0=h54950a5_7
+2026-11-26T02:25:18.0697544Z    - libaec==1.1.7=h659bb9a_0
+2026-11-26T02:25:18.0697790Z    - yaml-cpp==0.8.0=h54a6638_1
+2026-11-26T02:25:18.0698031Z    - ninja==1.13.2=h171cf75_1
+2026-11-26T02:25:18.0698327Z    - metis==5.1.0=h86e3903_1008
+2026-11-26T02:25:18.0698563Z    - rdma-core==65.0=h7b4f2e6_0
+2026-11-26T02:25:18.0698865Z    - libscotch==7.0.8=int32_h16dc488_2
+2026-11-26T02:25:18.0699197Z    - libopenblas==0.3.34=openmp_h156ec52_2
+2026-11-26T02:25:18.0699770Z    - libxml2-16==2.15.4=hf3af7cc_1
+2026-11-26T02:25:18.0700130Z    - libpsl==0.23.1=hd9e3e90_1
+2026-11-26T02:25:18.0700422Z    - libsqlite==3.54.1=h13e7031_0
+2026-11-26T02:25:18.0700742Z    - ucx==1.19.1=h567e125_0
+2026-11-26T02:25:18.0701111Z    - libfabric1==2.7.0=hf0f7150_0
+2026-11-26T02:25:18.0701670Z    - libblas==3.11.0=11_h4a7cf45_openblas
+2026-11-26T02:25:18.0702061Z    - libxml2==2.15.4=h7df9aa5_1
+2026-11-26T02:25:18.0702409Z    - ucc==1.6.0=hb729f83_1
+2026-11-26T02:25:18.0702959Z    - libfabric==2.7.0=ha770c72_0
+2026-11-26T02:25:18.0703319Z    - liblapack==3.11.0=11_h47877c9_openblas
+2026-11-26T02:25:18.0703722Z    - libcblas==3.11.0=11_h0358290_openblas
+2026-11-26T02:25:18.0704144Z    - libhwloc==2.12.1=default_hafda6a7_1003
+2026-11-26T02:25:18.0704553Z    - superlu==7.0.1=h8f6e6c4_0
+2026-11-26T02:25:18.0704926Z    - libstdcxx-devel_linux-64==15.3.0=hb2c5482_107
+2026-11-26T02:25:18.0705441Z    - libgcc-devel_linux-64==15.3.0=h2b852eb_107
+2026-11-26T02:25:18.0705857Z    - ca-certificates==2026.10.23=hbd8a1cb_0
+2026-11-26T02:25:18.0706256Z    - tzdata==2026e=h5d301ff_0
+2026-11-26T02:25:18.0706601Z    - python_abi==3.15=9_cp315
+2026-11-26T02:25:18.0707046Z    - _x86_64-microarch-level==3=3_x86_64_v3
+2026-11-26T02:25:18.0707580Z    - mpi==1.0.1=openmpi
+2026-11-26T02:25:18.0707906Z    - kernel-headers_linux-64==6.12.0=he073ed8_6
+2026-11-26T02:25:18.0708325Z    - sysroot_linux-64==2.39=hc4b9eeb_6
+2026-11-26T02:25:18.0708693Z    - openssl==3.6.5=h781a0a9_0
+2026-11-26T02:25:18.0709108Z    - libsuitesparseconfig==7.10.1=h92d6892_7100102
+2026-11-26T02:25:18.0709561Z    - binutils_impl_linux-64==2.46.1=default_hfdba357_103
+2026-11-26T02:25:18.0709947Z    - libssh2==1.11.1=h6154650_1
+2026-11-26T02:25:18.0710623Z    - krb5==1.22.2=hbc21106_2
+2026-11-26T02:25:18.0710903Z    - libnghttp2==1.70.0=hc5e5977_0
+2026-11-26T02:25:18.0711258Z    - libevent==2.1.12=h5348a74_2
+2026-11-26T02:25:18.0711551Z    - python==3.15.2=h6e52b48_100_cp315
+2026-11-26T02:25:18.0712064Z    - libbtf==2.3.2=h32481e8_7100102
+2026-11-26T02:25:18.0712845Z    - libcamd==3.3.3=h32481e8_7100102
+2026-11-26T02:25:18.0713327Z    - libcolamd==3.3.4=h32481e8_7100102
+2026-11-26T02:25:18.0713755Z    - libccolamd==3.3.4=h32481e8_7100102
+2026-11-26T02:25:18.0714157Z    - libamd==3.3.3=haaf9dc3_7100102
+2026-11-26T02:25:18.0714534Z    - gcc_impl_linux-64==15.3.0=h6ad849d_7
+2026-11-26T02:25:18.0714939Z    - libcurl==8.23.0=ha042cf0_0
+2026-11-26T02:25:18.0715309Z    - libpmix==5.0.8=h4bd6b51_2
+2026-11-26T02:25:18.0715628Z    - libcholmod==5.3.1=h59ddab4_7100102
+2026-11-26T02:25:18.0715967Z    - conda-gcc-specs==15.3.0=h8846f6e_7
+2026-11-26T02:25:18.0716326Z    - gxx_impl_linux-64==15.3.0=h90d9265_7
+2026-11-26T02:25:18.0716759Z    - cmake==4.4.5=hff7ac6b_0
+2026-11-26T02:25:18.0717118Z    - openmpi==5.0.8=h2fe1745_110
+2026-11-26T02:25:18.0717578Z    - libklu==2.3.5=hf24d653_7100102
+2026-11-26T02:25:18.0717984Z    - libspqr==4.3.4=h852d39f_7100102
+2026-11-26T02:25:18.0718347Z    - libumfpack==6.3.5=heb53515_7100102
+2026-11-26T02:25:18.0718776Z    - gcc==15.3.0=hc6a0c74_7
+2026-11-26T02:25:18.0719277Z    - scalapack==2.2.0=h606478a_6
+2026-11-26T02:25:18.0719586Z    - hypre==2.32.0=mpi_openmpi_h398ea61_1
+2026-11-26T02:25:18.0719950Z    - fftw==3.3.10=mpi_openmpi_h76e6d66_12
+2026-11-26T02:25:18.0720296Z    - parmetis==4.0.3=h3a7d728_1009
+2026-11-26T02:25:18.0720651Z    - libptscotch==7.0.8=int32_h0de9fd6_2
+2026-11-26T02:25:18.0720955Z    - hdf5==1.14.6=mpi_openmpi_h8367ee7_6
+2026-11-26T02:25:18.0721275Z    - gxx==15.3.0=hc6a0c74_7
+2026-11-26T02:25:18.0721602Z    - superlu_dist==9.1.0=h3349319_0
+2026-11-26T02:25:18.0721900Z    - mumps-mpi==5.8.1=hcd43f66_3
+2026-11-26T02:25:18.0722236Z    - cxx-compiler==2.0.0=hdab9b82_0
+2026-11-26T02:25:18.0722783Z    - petsc==3.23.7=real_h5e9295b_0
+2026-11-26T02:25:18.0723111Z    - pip==26.2.2=pyh145f28c_0
+2026-11-26T02:25:18.0723447Z    - openblas==0.3.34=openmp_hd0bf9d2_2
+2026-11-26T02:25:18.0723658Z 
+2026-11-26T02:25:18.0723662Z 
+2026-11-26T02:25:18.0724064Z   Package                          Version  Build                    Channel         Size
+2026-11-26T02:25:18.0724944Z ───────────────────────────────────────────────────────────────────────────────────────────
+2026-11-26T02:25:18.0725288Z   Install:
+2026-11-26T02:25:18.0725734Z ───────────────────────────────────────────────────────────────────────────────────────────
+2026-11-26T02:25:18.0726025Z 
+2026-11-26T02:25:18.0726245Z   + _openmp_mutex                      4.5  8_kmp_llvm               conda-forge         
+2026-11-26T02:25:18.0726824Z   + _x86_64-microarch-level              3  3_x86_64_v3              conda-forge         
+2026-11-26T02:25:18.0727348Z   + binutils_impl_linux-64          2.46.1  default_hfdba357_103     conda-forge         
+2026-11-26T02:25:18.0727855Z   + bzip2                            1.0.8  hda65f42_10              conda-forge         
+2026-11-26T02:25:18.0728289Z   + c-ares                          1.34.9  hebe6cf0_0               conda-forge         
+2026-11-26T02:25:18.0728722Z   + ca-certificates             2026.10.23  hbd8a1cb_0               conda-forge         
+2026-11-26T02:25:18.0729145Z   + cmake                            4.4.5  hff7ac6b_0               conda-forge         
+2026-11-26T02:25:18.0729516Z   + conda-gcc-specs                 15.3.0  h8846f6e_7               conda-forge         
+2026-11-26T02:25:18.0729956Z   + cxx-compiler                     2.0.0  hdab9b82_0               conda-forge         
+2026-11-26T02:25:18.0730361Z   + fftw                            3.3.10  mpi_openmpi_h76e6d66_12  conda-forge         
+2026-11-26T02:25:18.0730880Z   + gcc                             15.3.0  hc6a0c74_7               conda-forge         
+2026-11-26T02:25:18.0731289Z   + gcc_impl_linux-64               15.3.0  h6ad849d_7               conda-forge         
+2026-11-26T02:25:18.0731678Z   + gxx                             15.3.0  hc6a0c74_7               conda-forge         
+2026-11-26T02:25:18.0732109Z   + gxx_impl_linux-64               15.3.0  h90d9265_7               conda-forge         
+2026-11-26T02:25:18.0732779Z   + hdf5                            1.14.6  mpi_openmpi_h8367ee7_6   conda-forge         
+2026-11-26T02:25:18.0733218Z   + hypre                           2.32.0  mpi_openmpi_h398ea61_1   conda-forge         
+2026-11-26T02:25:18.0733584Z   + icu                               78.3  py310h44b86e0_2          conda-forge         
+2026-11-26T02:25:18.0733987Z   + kernel-headers_linux-64         6.12.0  he073ed8_6               conda-forge         
+2026-11-26T02:25:18.0734435Z   + keyutils                         1.6.3  h7cc23a3_1               conda-forge         
+2026-11-26T02:25:18.0734798Z   + krb5                            1.22.2  hbc21106_2               conda-forge         
+2026-11-26T02:25:18.0735207Z   + ld_impl_linux-64                2.46.1  default_hbd61a6d_103     conda-forge         
+2026-11-26T02:25:18.0735584Z   + libaec                           1.1.7  h659bb9a_0               conda-forge         
+2026-11-26T02:25:18.0736022Z   + libamd                           3.3.3  haaf9dc3_7100102         conda-forge         
+2026-11-26T02:25:18.0736436Z   + libblas                         3.11.0  11_h4a7cf45_openblas     conda-forge         
+2026-11-26T02:25:18.0736817Z   + libbtf                           2.3.2  h32481e8_7100102         conda-forge         
+2026-11-26T02:25:18.0737208Z   + libcamd                          3.3.3  h32481e8_7100102         conda-forge         
+2026-11-26T02:25:18.0737618Z   + libcap                            2.78  h084b8d7_1               conda-forge         
+2026-11-26T02:25:18.0738047Z   + libcblas                        3.11.0  11_h0358290_openblas     conda-forge         
+2026-11-26T02:25:18.0738419Z   + libccolamd                       3.3.4  h32481e8_7100102         conda-forge         
+2026-11-26T02:25:18.0738840Z   + libcholmod                       5.3.1  h59ddab4_7100102         conda-forge         
+2026-11-26T02:25:18.0739213Z   + libcolamd                        3.3.4  h32481e8_7100102         conda-forge         
+2026-11-26T02:25:18.0739680Z   + libcurl                         8.23.0  ha042cf0_0               conda-forge         
+2026-11-26T02:25:18.0740088Z   + libedit                   3.1.20260512  pl5321h373387f_0         conda-forge         
+2026-11-26T02:25:18.0740469Z   + libev                             4.33  h280c20c_3               conda-forge         
+2026-11-26T02:25:18.0740865Z   + libevent                        2.1.12  h5348a74_2               conda-forge         
+2026-11-26T02:25:18.0741239Z   + libexpat                         2.9.0  hd2095e1_0               conda-forge         
+2026-11-26T02:25:18.0741676Z   + libfabric                        2.7.0  ha770c72_0               conda-forge         
+2026-11-26T02:25:18.0742071Z   + libfabric1                       2.7.0  hf0f7150_0               conda-forge         
+2026-11-26T02:25:18.0742626Z   + libffi                           3.7.0  h81df57d_1               conda-forge         
+2026-11-26T02:25:18.0743040Z   + libgcc                          16.2.0  ha9f2e26_7               conda-forge         
+2026-11-26T02:25:18.0743510Z   + libgcc-devel_linux-64           15.3.0  h2b852eb_107             conda-forge         
+2026-11-26T02:25:18.0743947Z   + libgfortran                     16.2.0  h69a702a_7               conda-forge         
+2026-11-26T02:25:18.0744321Z   + libgfortran5                    16.2.0  h6b99dfc_7               conda-forge         
+2026-11-26T02:25:18.0744743Z   + libgomp                         16.2.0  he0feb66_7               conda-forge         
+2026-11-26T02:25:18.0745137Z   + libhwloc                        2.12.1  default_hafda6a7_1003    conda-forge         
+2026-11-26T02:25:18.0745531Z   + libiconv                          1.18  h0cb94f2_3               conda-forge         
+2026-11-26T02:25:18.0745930Z   + libklu                           2.3.5  hf24d653_7100102         conda-forge         
+2026-11-26T02:25:18.0746303Z   + liblapack                       3.11.0  11_h47877c9_openblas     conda-forge         
+2026-11-26T02:25:18.0746774Z   + liblzma                          5.8.3  hb03c661_1               conda-forge         
+2026-11-26T02:25:18.0747145Z   + libmpdec                         4.0.0  hb03c661_2               conda-forge         
+2026-11-26T02:25:18.0747567Z   + libnghttp2                      1.70.0  hc5e5977_0               conda-forge         
+2026-11-26T02:25:18.0747956Z   + libnl                           3.11.0  hb03c661_1               conda-forge         
+2026-11-26T02:25:18.0748359Z   + libopenblas                     0.3.34  openmp_h156ec52_2        conda-forge         
+2026-11-26T02:25:18.0748789Z   + libpmix                          5.0.8  h4bd6b51_2               conda-forge         
+2026-11-26T02:25:18.0749154Z   + libpsl                          0.23.1  hd9e3e90_1               conda-forge         
+2026-11-26T02:25:18.0749561Z   + libptscotch                      7.0.8  int32_h0de9fd6_2         conda-forge         
+2026-11-26T02:25:18.0749937Z   + libsanitizer                    15.3.0  h54950a5_7               conda-forge         
+2026-11-26T02:25:18.0750373Z   + libscotch                        7.0.8  int32_h16dc488_2         conda-forge         
+2026-11-26T02:25:18.0750764Z   + libspqr                          4.3.4  h852d39f_7100102         conda-forge         
+2026-11-26T02:25:18.0751142Z   + libsqlite                       3.54.1  h13e7031_0               conda-forge         
+2026-11-26T02:25:18.0751534Z   + libssh2                         1.11.1  h6154650_1               conda-forge         
+2026-11-26T02:25:18.0751907Z   + libstdcxx                       16.2.0  h934c35e_7               conda-forge         
+2026-11-26T02:25:18.0752353Z   + libstdcxx-devel_linux-64        15.3.0  hb2c5482_107             conda-forge         
+2026-11-26T02:25:18.0752936Z   + libsuitesparseconfig            7.10.1  h92d6892_7100102         conda-forge         
+2026-11-26T02:25:18.0753405Z   + libsystemd0                      262.1  h26e0ef7_0               conda-forge         
+2026-11-26T02:25:18.0753813Z   + libudev1                         262.1  h26e0ef7_0               conda-forge         
+2026-11-26T02:25:18.0754252Z   + libumfpack                       6.3.5  heb53515_7100102         conda-forge         
+2026-11-26T02:25:18.0754674Z   + libuuid                         2.42.4  hcfc3c73_0               conda-forge         
+2026-11-26T02:25:18.0755039Z   + libuv                           1.52.1  h280c20c_1               conda-forge         
+2026-11-26T02:25:18.0755432Z   + libxml2                         2.15.4  h7df9aa5_1               conda-forge         
+2026-11-26T02:25:18.0755790Z   + libxml2-16                      2.15.4  hf3af7cc_1               conda-forge         
+2026-11-26T02:25:18.0756221Z   + libzlib                          1.3.2  h25fd6f3_3               conda-forge         
+2026-11-26T02:25:18.0756595Z   + llvm-openmp                     23.1.4  h7148c6a_0               conda-forge         
+2026-11-26T02:25:18.0756978Z   + metis                            5.1.0  h86e3903_1008            conda-forge         
+2026-11-26T02:25:18.0757460Z   + mpi                              1.0.1  openmpi                  conda-forge         
+2026-11-26T02:25:18.0757860Z   + mumps-include                    5.8.1  h158ef2a_3               conda-forge         
+2026-11-26T02:25:18.0758298Z   + mumps-mpi                        5.8.1  hcd43f66_3               conda-forge         
+2026-11-26T02:25:18.0758659Z   + ncurses                            6.6  hdb14827_1               conda-forge         
+2026-11-26T02:25:18.0759075Z   + ninja                           1.13.2  h171cf75_1               conda-forge         
+2026-11-26T02:25:18.0759458Z   + openblas                        0.3.34  openmp_hd0bf9d2_2        conda-forge         
+2026-11-26T02:25:18.0760007Z   + openmpi                          5.0.8  h2fe1745_110             conda-forge         
+2026-11-26T02:25:18.0760636Z   + openssl                          3.6.5  h781a0a9_0               conda-forge         
+2026-11-26T02:25:18.0761246Z   + parmetis                         4.0.3  h3a7d728_1009            conda-forge         
+2026-11-26T02:25:18.0761859Z   + petsc                           3.23.7  real_h5e9295b_0          conda-forge         
+2026-11-26T02:25:18.0762423Z   + pip                             26.2.2  pyh145f28c_0             conda-forge         
+2026-11-26T02:25:18.0763180Z   + pkg-config                      0.29.2  h1114479_1013            conda-forge         
+2026-11-26T02:25:18.0763760Z   + python                          3.15.2  h6e52b48_100_cp315       conda-forge         
+2026-11-26T02:25:18.0764204Z   + python_abi                        3.15  9_cp315                  conda-forge         
+2026-11-26T02:25:18.0764636Z   + rdma-core                         65.0  h7b4f2e6_0               conda-forge         
+2026-11-26T02:25:18.0765067Z   + rhash                            1.4.6  hb03c661_2               conda-forge         
+2026-11-26T02:25:18.0765476Z   + scalapack                        2.2.0  h606478a_6               conda-forge         
+2026-11-26T02:25:18.0765899Z   + superlu                          7.0.1  h8f6e6c4_0               conda-forge         
+2026-11-26T02:25:18.0766286Z   + superlu_dist                     9.1.0  h3349319_0               conda-forge         
+2026-11-26T02:25:18.0766707Z   + sysroot_linux-64                  2.39  hc4b9eeb_6               conda-forge         
+2026-11-26T02:25:18.0767102Z   + tk                              8.6.13  noxft_h1df4ec4_4         conda-forge         
+2026-11-26T02:25:18.0767467Z   + tzdata                           2026e  h5d301ff_0               conda-forge         
+2026-11-26T02:25:18.0767867Z   + ucc                              1.6.0  hb729f83_1               conda-forge         
+2026-11-26T02:25:18.0768212Z   + ucx                             1.19.1  h567e125_0               conda-forge         
+2026-11-26T02:25:18.0768610Z   + yaml                             0.2.5  hebe6cf0_3               conda-forge         
+2026-11-26T02:25:18.0768993Z   + yaml-cpp                         0.8.0  h54a6638_1               conda-forge         
+2026-11-26T02:25:18.0769460Z   + zstd                             1.5.7  hb78ec9c_7               conda-forge         
+2026-11-26T02:25:18.0769678Z 
+2026-11-26T02:25:18.0769796Z   Summary:
+2026-11-26T02:25:18.0769956Z 
+2026-11-26T02:25:18.0770049Z   Install: 101 packages
+2026-11-26T02:25:18.0770193Z 
+2026-11-26T02:25:18.0770328Z   Total download: 0 B
+2026-11-26T02:25:18.0770478Z 
+2026-11-26T02:25:18.0770821Z ───────────────────────────────────────────────────────────────────────────────────────────
+2026-11-26T02:25:18.0771075Z 
+2026-11-26T02:25:18.0771077Z 
+2026-11-26T02:25:18.0771616Z warning  libmamba Security Warning: This transaction includes executing package scripts (pre/post-link/unlink) if present. These scripts can contain arbitrary code. Please ensure you trust the package sources.
+2026-11-26T02:25:18.0772199Z 
+2026-11-26T02:25:18.0772304Z Transaction starting
+2026-11-26T02:25:18.1741008Z Linking libzlib-1.3.2-h25fd6f3_3
+2026-11-26T02:25:18.1744635Z Linking libgomp-16.2.0-he0feb66_7
+2026-11-26T02:25:18.1748812Z Linking mumps-include-5.8.1-h158ef2a_3
+2026-11-26T02:25:18.1754527Z Linking llvm-openmp-23.1.4-h7148c6a_0
+2026-11-26T02:25:18.1761246Z Linking zstd-1.5.7-hb78ec9c_7
+2026-11-26T02:25:18.1772020Z Linking _openmp_mutex-4.5-8_kmp_llvm
+2026-11-26T02:25:18.1785608Z Linking ld_impl_linux-64-2.46.1-default_hbd61a6d_103
+2026-11-26T02:25:18.1867635Z Linking libgcc-16.2.0-ha9f2e26_7
+2026-11-26T02:25:18.1875154Z Linking yaml-0.2.5-hebe6cf0_3
+2026-11-26T02:25:18.1880414Z Linking libiconv-1.18-h0cb94f2_3
+2026-11-26T02:25:18.1905493Z Linking libev-4.33-h280c20c_3
+2026-11-26T02:25:18.1909871Z Linking keyutils-1.6.3-h7cc23a3_1
+2026-11-26T02:25:18.1932791Z Linking libcap-2.78-h084b8d7_1
+2026-11-26T02:25:18.1962149Z Linking c-ares-1.34.9-hebe6cf0_0
+2026-11-26T02:25:18.2013273Z Linking libnl-3.11.0-hb03c661_1
+2026-11-26T02:25:18.2123688Z Linking rhash-1.4.6-hb03c661_2
+2026-11-26T02:25:18.2143608Z Linking libuv-1.52.1-h280c20c_1
+2026-11-26T02:25:18.2148657Z Linking bzip2-1.0.8-hda65f42_10
+2026-11-26T02:25:18.2158790Z Linking libffi-3.7.0-h81df57d_1
+2026-11-26T02:25:18.2166053Z Linking libmpdec-4.0.0-hb03c661_2
+2026-11-26T02:25:18.2169802Z Linking liblzma-5.8.3-hb03c661_1
+2026-11-26T02:25:18.2173716Z Linking tk-8.6.13-noxft_h1df4ec4_4
+2026-11-26T02:25:18.2343227Z Linking ncurses-6.6-hdb14827_1
+2026-11-26T02:25:19.0810354Z Linking libgfortran5-16.2.0-h6b99dfc_7
+2026-11-26T02:25:19.0830259Z Linking libstdcxx-16.2.0-h934c35e_7
+2026-11-26T02:25:19.0834657Z Linking libuuid-2.42.4-hcfc3c73_0
+2026-11-26T02:25:19.0840782Z Linking pkg-config-0.29.2-h1114479_1013
+2026-11-26T02:25:19.0852313Z Linking libexpat-2.9.0-hd2095e1_0
+2026-11-26T02:25:19.0856109Z Linking libsystemd0-262.1-h26e0ef7_0
+2026-11-26T02:25:19.0880884Z Linking libudev1-262.1-h26e0ef7_0
+2026-11-26T02:25:19.0889824Z Linking libedit-3.1.20260512-pl5321h373387f_0
+2026-11-26T02:25:19.0913671Z Linking libgfortran-16.2.0-h69a702a_7
+2026-11-26T02:25:19.0916110Z Linking icu-78.3-py310h44b86e0_2
+2026-11-26T02:25:19.1009080Z Linking libsanitizer-15.3.0-h54950a5_7
+2026-11-26T02:25:19.1018061Z Linking libaec-1.1.7-h659bb9a_0
+2026-11-26T02:25:19.1025293Z Linking yaml-cpp-0.8.0-h54a6638_1
+2026-11-26T02:25:19.1043358Z Linking ninja-1.13.2-h171cf75_1
+2026-11-26T02:25:19.1046508Z Linking metis-5.1.0-h86e3903_1008
+2026-11-26T02:25:19.1051767Z Linking rdma-core-65.0-h7b4f2e6_0
+2026-11-26T02:25:19.1681448Z Linking libscotch-7.0.8-int32_h16dc488_2
+2026-11-26T02:25:19.1699826Z Linking libopenblas-0.3.34-openmp_h156ec52_2
+2026-11-26T02:25:19.1705347Z Linking libxml2-16-2.15.4-hf3af7cc_1
+2026-11-26T02:25:19.1726733Z Linking libpsl-0.23.1-hd9e3e90_1
+2026-11-26T02:25:19.1731697Z Linking libsqlite-3.54.1-h13e7031_0
+2026-11-26T02:25:19.1736987Z Linking ucx-1.19.1-h567e125_0
+2026-11-26T02:25:19.1821537Z warning  libmamba Executing post-link script for package 'ucx'.
+2026-11-26T02:25:19.2037902Z 
+2026-11-26T02:25:19.2038331Z To enable CUDA support, UCX requires the CUDA Runtime library (libcudart).
+2026-11-26T02:25:19.2038882Z The library can be installed with the appropriate command below:
+2026-11-26T02:25:19.2039121Z 
+2026-11-26T02:25:19.2039614Z * For CUDA 12, run:    conda install cuda-cudart cuda-version=12
+2026-11-26T02:25:19.2039991Z * For CUDA 13, run:    conda install cuda-cudart cuda-version=13
+2026-11-26T02:25:19.2040177Z 
+2026-11-26T02:25:19.2040366Z If any of the packages you requested use CUDA then CUDA should already
+2026-11-26T02:25:19.2040700Z have been installed for you.
+2026-11-26T02:25:19.2040883Z 
+2026-11-26T02:25:19.2040886Z 
+2026-11-26T02:25:19.2293672Z Linking libfabric1-2.7.0-hf0f7150_0
+2026-11-26T02:25:19.2327729Z Linking libblas-3.11.0-11_h4a7cf45_openblas
+2026-11-26T02:25:19.2865104Z Linking libxml2-2.15.4-h7df9aa5_1
+2026-11-26T02:25:19.2870397Z Linking ucc-1.6.0-hb729f83_1
+2026-11-26T02:25:19.2890801Z warning  libmamba Executing post-link script for package 'ucc'.
+2026-11-26T02:25:19.3168272Z setting libfabric environment variables for conda-build
+2026-11-26T02:25:19.3168880Z FI_PROVIDER=tcp
+2026-11-26T02:25:19.3182663Z 
+2026-11-26T02:25:19.3183225Z To enable CUDA support, UCX requires the CUDA Runtime library (libcudart).
+2026-11-26T02:25:19.3183807Z The library can be installed with the appropriate command below:
+2026-11-26T02:25:19.3184045Z 
+2026-11-26T02:25:19.3184220Z * For CUDA 12, run:    conda install cuda-cudart cuda-version=12
+2026-11-26T02:25:19.3184600Z * For CUDA 13, run:    conda install cuda-cudart cuda-version=13
+2026-11-26T02:25:19.3184826Z 
+2026-11-26T02:25:19.3184977Z If any of the packages you requested use CUDA then CUDA should already
+2026-11-26T02:25:19.3185306Z have been installed for you.
+2026-11-26T02:25:19.3185493Z 
+2026-11-26T02:25:19.3185496Z 
+2026-11-26T02:25:19.3185636Z To enable CUDA support, please follow UCX's instruction above.
+2026-11-26T02:25:19.3185850Z 
+2026-11-26T02:25:19.3186037Z To additionally enable NCCL support, run:    conda install nccl
+2026-11-26T02:25:19.3186234Z 
+2026-11-26T02:25:19.3186274Z 
+2026-11-26T02:25:19.3415311Z Linking libfabric-2.7.0-ha770c72_0
+2026-11-26T02:25:19.3418604Z Linking liblapack-3.11.0-11_h47877c9_openblas
+2026-11-26T02:25:19.3957607Z Linking libcblas-3.11.0-11_h0358290_openblas
+2026-11-26T02:25:19.4495188Z Linking libhwloc-2.12.1-default_hafda6a7_1003
+2026-11-26T02:25:19.4674552Z Linking superlu-7.0.1-h8f6e6c4_0
+2026-11-26T02:25:19.4684188Z Linking libstdcxx-devel_linux-64-15.3.0-hb2c5482_107
+2026-11-26T02:25:19.4971611Z Linking libgcc-devel_linux-64-15.3.0-h2b852eb_107
+2026-11-26T02:25:19.4979707Z Linking ca-certificates-2026.10.23-hbd8a1cb_0
+2026-11-26T02:25:19.4984112Z Linking tzdata-2026e-h5d301ff_0
+2026-11-26T02:25:19.5138026Z Linking python_abi-3.15-9_cp315
+2026-11-26T02:25:19.5140660Z Linking _x86_64-microarch-level-3-3_x86_64_v3
+2026-11-26T02:25:19.5143970Z Linking mpi-1.0.1-openmpi
+2026-11-26T02:25:19.5146339Z Linking kernel-headers_linux-64-6.12.0-he073ed8_6
+2026-11-26T02:25:19.5467319Z Linking sysroot_linux-64-2.39-hc4b9eeb_6
+2026-11-26T02:25:19.5773922Z Linking openssl-3.6.5-h781a0a9_0
+2026-11-26T02:25:19.5925401Z Linking libsuitesparseconfig-7.10.1-h92d6892_7100102
+2026-11-26T02:25:19.5934657Z Linking binutils_impl_linux-64-2.46.1-default_hfdba357_103
+2026-11-26T02:25:19.6031551Z Linking libssh2-1.11.1-h6154650_1
+2026-11-26T02:25:19.6093342Z Linking krb5-1.22.2-hbc21106_2
+2026-11-26T02:25:19.6182157Z Linking libnghttp2-1.70.0-hc5e5977_0
+2026-11-26T02:25:19.6188788Z Linking libevent-2.1.12-h5348a74_2
+2026-11-26T02:25:19.6214535Z Linking python-3.15.2-h6e52b48_100_cp315
+2026-11-26T02:25:19.7465694Z Linking libbtf-2.3.2-h32481e8_7100102
+2026-11-26T02:25:19.7477122Z Linking libcamd-3.3.3-h32481e8_7100102
+2026-11-26T02:25:19.7485765Z Linking libcolamd-3.3.4-h32481e8_7100102
+2026-11-26T02:25:19.7490974Z Linking libccolamd-3.3.4-h32481e8_7100102
+2026-11-26T02:25:19.7497835Z Linking libamd-3.3.3-haaf9dc3_7100102
+2026-11-26T02:25:19.7504331Z Linking gcc_impl_linux-64-15.3.0-h6ad849d_7
+2026-11-26T02:25:19.8265317Z Linking libcurl-8.23.0-ha042cf0_0
+2026-11-26T02:25:19.8290216Z Linking libpmix-5.0.8-h4bd6b51_2
+2026-11-26T02:25:19.8334076Z Linking libcholmod-5.3.1-h59ddab4_7100102
+2026-11-26T02:25:19.8339826Z Linking conda-gcc-specs-15.3.0-h8846f6e_7
+2026-11-26T02:25:19.8343982Z Linking gxx_impl_linux-64-15.3.0-h90d9265_7
+2026-11-26T02:25:19.8349932Z Linking cmake-4.4.5-hff7ac6b_0
+2026-11-26T02:25:20.0684318Z Linking openmpi-5.0.8-h2fe1745_110
+2026-11-26T02:25:20.0846927Z warning  libmamba Executing post-link script for package 'openmpi'.
+2026-11-26T02:25:20.1033448Z setting libfabric environment variables for conda-build
+2026-11-26T02:25:20.1033941Z FI_PROVIDER=tcp
+2026-11-26T02:25:20.1034539Z setting openmpi environment variables for conda-build
+2026-11-26T02:25:20.1047862Z 
+2026-11-26T02:25:20.1048800Z To enable CUDA support, UCX requires the CUDA Runtime library (libcudart).
+2026-11-26T02:25:20.1049404Z The library can be installed with the appropriate command below:
+2026-11-26T02:25:20.1049766Z 
+2026-11-26T02:25:20.1049985Z * For CUDA 12, run:    conda install cuda-cudart cuda-version=12
+2026-11-26T02:25:20.1050455Z * For CUDA 13, run:    conda install cuda-cudart cuda-version=13
+2026-11-26T02:25:20.1050805Z 
+2026-11-26T02:25:20.1051039Z If any of the packages you requested use CUDA then CUDA should already
+2026-11-26T02:25:20.1051581Z have been installed for you.
+2026-11-26T02:25:20.1051812Z 
+2026-11-26T02:25:20.1051816Z 
+2026-11-26T02:25:20.1052013Z To enable CUDA support, please follow UCX's instruction above.
+2026-11-26T02:25:20.1052294Z 
+2026-11-26T02:25:20.1052782Z To additionally enable NCCL support, run:    conda install nccl
+2026-11-26T02:25:20.1053089Z 
+2026-11-26T02:25:20.1053093Z 
+2026-11-26T02:25:20.1053320Z On Linux, Open MPI is built with CUDA awareness but it is disabled by default.
+2026-11-26T02:25:20.1053852Z To enable it, please set the environment variable
+2026-11-26T02:25:20.1054253Z OMPI_MCA_opal_cuda_support=true
+2026-11-26T02:25:20.1054632Z before launching your MPI processes.
+2026-11-26T02:25:20.1055094Z Equivalently, you can set the MCA parameter in the command line:
+2026-11-26T02:25:20.1055562Z mpiexec --mca opal_cuda_support 1 ...
+2026-11-26T02:25:20.1056066Z Note that you might also need to set UCX_MEMTYPE_CACHE=n for CUDA awareness via
+2026-11-26T02:25:20.1057177Z UCX. Please consult UCX documentation for further details.
+2026-11-26T02:25:20.1057508Z 
+2026-11-26T02:25:20.1057513Z 
+2026-11-26T02:25:20.1057692Z Linking libklu-2.3.5-hf24d653_7100102
+2026-11-26T02:25:20.1069303Z Linking libspqr-4.3.4-h852d39f_7100102
+2026-11-26T02:25:20.1076727Z Linking libumfpack-6.3.5-heb53515_7100102
+2026-11-26T02:25:20.1083758Z Linking gcc-15.3.0-hc6a0c74_7
+2026-11-26T02:25:20.1160002Z Linking scalapack-2.2.0-h606478a_6
+2026-11-26T02:25:20.1165688Z Linking hypre-2.32.0-mpi_openmpi_h398ea61_1
+2026-11-26T02:25:20.1186525Z Linking fftw-3.3.10-mpi_openmpi_h76e6d66_12
+2026-11-26T02:25:20.1216292Z Linking parmetis-4.0.3-h3a7d728_1009
+2026-11-26T02:25:20.1221079Z Linking libptscotch-7.0.8-int32_h0de9fd6_2
+2026-11-26T02:25:20.1234705Z Linking hdf5-1.14.6-mpi_openmpi_h8367ee7_6
+2026-11-26T02:25:20.1365377Z Linking gxx-15.3.0-hc6a0c74_7
+2026-11-26T02:25:20.1397587Z Linking superlu_dist-9.1.0-h3349319_0
+2026-11-26T02:25:20.1418413Z Linking mumps-mpi-5.8.1-hcd43f66_3
+2026-11-26T02:25:20.1440341Z Linking cxx-compiler-2.0.0-hdab9b82_0
+2026-11-26T02:25:20.1442804Z Linking petsc-3.23.7-real_h5e9295b_0
+2026-11-26T02:25:20.4046105Z Linking pip-26.2.2-pyh145f28c_0
+2026-11-26T02:25:20.4236293Z Linking openblas-0.3.34-openmp_hd0bf9d2_2
+2026-11-26T02:25:20.7913318Z 
+2026-11-26T02:25:20.7914344Z Transaction finished
+2026-11-26T02:25:20.7914700Z 
+2026-11-26T02:25:20.7917430Z 
+2026-11-26T02:25:20.7917649Z To activate this environment, use:
+2026-11-26T02:25:20.7917880Z 
+2026-11-26T02:25:20.7918520Z     micromamba activate /home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7
+2026-11-26T02:25:20.7918926Z 
+2026-11-26T02:25:20.7919094Z Or to execute a single command in this environment, use:
+2026-11-26T02:25:20.7919365Z 
+2026-11-26T02:25:20.7919626Z     micromamba run -p /home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7 mycommand
+2026-11-26T02:25:20.7919935Z 
+2026-11-26T02:25:20.7987874Z ##[group]Run scripts/cloud/run.sh '3.23.7' 'release' explicit .cloud build/ci/plan.json
+2026-11-26T02:25:20.7988527Z [36;1mscripts/cloud/run.sh '3.23.7' 'release' explicit .cloud build/ci/plan.json[0m
+2026-11-26T02:25:20.8027633Z shell: /usr/bin/bash -e {0}
+2026-11-26T02:25:20.8028048Z ##[endgroup]
+2026-11-26T02:25:21.5101518Z compiler: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/compiler.log
+2026-11-26T02:25:21.5163416Z mpi-compiler: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/mpi-compiler.log
+2026-11-26T02:25:21.5261709Z mpi-runtime: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/mpi-runtime.log
+2026-11-26T02:25:21.5360244Z cmake: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/cmake.log
+2026-11-26T02:25:23.2572849Z configure: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/configure.log
+2026-11-26T02:25:23.2754739Z full-test-inventory: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/full-test-inventory.log
+2026-11-26T02:26:04.4430066Z build: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/build.log
+2026-11-26T02:26:04.5103443Z runtime-linkage: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/runtime-linkage.log
+2026-11-26T02:26:04.6771082Z runtime-preflight: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/runtime-preflight.log
+2026-11-26T02:34:51.3410145Z ctest: exit=0, log=/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/ctest.log
+2026-11-26T02:34:51.3487194Z ##[notice]{"commit": "3d83542bfd8211900e6fe429e22163e526cd31c2", "mode": "release", "selection": "explicit", "petsc": "3.23.7", "status": "passed", "resources": {"cpu_budget": 4, "memory_bytes": 16464302080, "cgroup": {"/sys/fs/cgroup": {}, "/sys/fs/cgroup/system.slice": {"cpu.max": "max 100000", "memory.max": "max"}, "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {"cpu.max": "max 100000", "memory.max": "max"}}, "build_jobs": 4}, "test_counts": {"passed": 56, "failed": 0, "skipped": 0}}
+2026-11-26T02:34:51.3603745Z ##[group]Run actions/upload-artifact@v4
+2026-11-26T02:34:51.3604072Z with:
+2026-11-26T02:34:51.3604369Z   name: numerics-3.23.7-release-3d83542bfd8211900e6fe429e22163e526cd31c2
+2026-11-26T02:34:51.3604754Z   if-no-files-found: error
+2026-11-26T02:34:51.3605017Z   retention-days: 14
+2026-11-26T02:34:51.3605685Z   path: build/restore-evidence/
+build/cloud-*/evidence/
+build/cloud-*/CMakeCache.txt
+build/cloud-*/CMakeFiles/CMakeConfigureLog.yaml
+build/cloud-*/Testing/
+build/cloud-*/**/*.log
+build/cloud-*/**/results.json
+
+2026-11-26T02:34:51.3606386Z   compression-level: 6
+2026-11-26T02:34:51.3606622Z   overwrite: false
+2026-11-26T02:34:51.3606897Z   include-hidden-files: false
+2026-11-26T02:34:51.3607148Z ##[endgroup]
+2026-11-26T02:34:51.4906852Z (node:11314) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-26T02:34:51.4907826Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-26T02:34:53.4843493Z With the provided path, there will be 1140 files uploaded
+2026-11-26T02:34:53.4845096Z Artifact name is valid!
+2026-11-26T02:34:53.4845336Z Root directory input is valid!
+2026-11-26T02:34:53.6898848Z Beginning upload of artifact content to blob storage
+2026-11-26T02:34:54.3324355Z (node:11314) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-26T02:34:54.4507326Z Uploaded bytes 4624299
+2026-11-26T02:34:54.4654800Z Finished uploading artifact content to blob storage!
+2026-11-26T02:34:54.4655522Z SHA256 digest of uploaded artifact zip is 74c01d8efc16bc927e6a69d723c183f2be2787310c3a4385c6015fc4b315693c
+2026-11-26T02:34:54.4658076Z Finalizing artifact upload
+2026-11-26T02:34:54.8371935Z Artifact numerics-3.23.7-release-3d83542bfd8211900e6fe429e22163e526cd31c2.zip successfully finalized. Artifact ID 15081479135
+2026-11-26T02:34:54.8373081Z Artifact numerics-3.23.7-release-3d83542bfd8211900e6fe429e22163e526cd31c2 has been successfully uploaded! Final size is 4624299 bytes. Artifact ID is 15081479135
+2026-11-26T02:34:54.8378159Z Artifact download URL: https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45741570996/artifacts/15081479135
+2026-11-26T02:34:54.8997275Z Post job cleanup.
+2026-11-26T02:34:54.9812930Z (node:11342) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-26T02:34:54.9813802Z Cache hit occurred on the primary key deps-Linux-X64-gcc-15.3.0-openmpi-5-real-double-int32-v3-4c8e94cd4e8a6bd63d571831ed67381ac03b355b58c92641440bd60e401fe8cc, not saving cache.
+2026-11-26T02:34:54.9814496Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-26T02:34:54.9908272Z Post job cleanup.
+2026-11-26T02:34:55.0569867Z [command]/usr/bin/git version
+2026-11-26T02:34:55.0606311Z git version 2.56.1
+2026-11-26T02:34:55.0637851Z Temporarily overriding HOME='/home/runner/work/_temp/9634adf2-591e-4227-a57e-abbdc250f30d' before making global git config changes
+2026-11-26T02:34:55.0638551Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-26T02:34:55.0643187Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/EONSim-new/EONSim-new
+2026-11-26T02:34:55.0673469Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-26T02:34:55.0699282Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-26T02:34:55.0865119Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-26T02:34:55.0890146Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-26T02:34:55.1064451Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-26T02:34:55.1087437Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-26T02:34:55.1351928Z Cleaning up orphan processes
+2026-11-26T02:34:55.1594665Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

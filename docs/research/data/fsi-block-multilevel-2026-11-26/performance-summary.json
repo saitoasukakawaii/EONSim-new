@@ -1,0 +1,1411 @@
+{
+  "source_commit": "88e6c3359b742735877177eb4584b987caae1790",
+  "executable_sha256": "c57ab409a125d759fd51513cf5c03024feec2f67a0f224fd1aa40cc87be1cf09",
+  "input_sha256": "662518aa06f1d9f3072c92910fcfd08c3788f0be8bf0875ec035ff6e0984fae6",
+  "script_hashes": {
+    "verify_fsi_block_efficiency.py": "9fecd5213d0c8aebafa4a8d26779df0377c2bf703f869216f58421c2df425274",
+    "verify_fsi_tube.py": "f0a9afaa76b5a73570ce1246258eb97a29c744f36fdfcbfbb3bf3990354d4034",
+    "verify_fsi_inlet.py": "5046ce811e749839c2d3babb11cdb533348ff7110b98d79c8ee324a7f7284162"
+  },
+  "receipts": {
+    "build/fsi-amg-final/results-full.json": "1aa2676d136a863d3108a288c0ad18b186ef3500a8ce1b3e6e1e8f4f05376450",
+    "build/fsi-amg-final/results-quick.json": "1b09bea756a90bbbdfdbfdd54623c9dc153e3bb7f243a8729a74fb80f016af4e"
+  },
+  "definitions": {
+    "samples": "three timing-N records; warmups excluded",
+    "paired_change_percent": "100*(candidate_N/baseline_N - 1), paired within the same interleaved repeat",
+    "ratio_of_medians_change_percent": "100*(median(candidate)/median(baseline) - 1)",
+    "sign": "positive = larger cost; negative = smaller cost",
+    "baseline": "twolevel_onecycle",
+    "timing": {
+      "linear_seconds": "rank-max KSP intervals, including PC setup and inner solves",
+      "setup_seconds": "nonlinear solve initialization, not total PC setup",
+      "schur_setup_seconds": "explicit tree configuration outside KSP intervals",
+      "wall_seconds": "blocking child wait plus launch; independent timeout watchdog; excludes log parsing"
+    }
+  },
+  "cases": [
+    {
+      "grid": "s24-r3-w2-a6",
+      "ranks": 1,
+      "dofs": 1027,
+      "modes": {
+        "direct": {
+          "timing": {
+            "wall_seconds": {
+              "values": [
+                0.40579035700284294,
+                0.2713408519994118,
+                0.27066486300100223
+              ],
+              "median": 0.2713408519994118,
+              "minimum": 0.27066486300100223,
+              "maximum": 0.40579035700284294,
+              "paired_change_percent": {
+                "values": [
+                  38.7466518819241,
+                  -6.646976560231432,
+                  -7.551009793018471
+                ],
+                "median": -6.646976560231432,
+                "minimum": -7.551009793018471,
+                "maximum": 38.7466518819241
+              },
+              "ratio_of_medians_change_percent": -7.2239295882446815
+            },
+            "linear_seconds": {
+              "values": [
+                0.056517597,
+                0.050376619,
+                0.046436986
+              ],
+              "median": 0.050376619,
+              "minimum": 0.046436986,
+              "maximum": 0.056517597,
+              "paired_change_percent": {
+                "values": [
+                  -16.608759276655583,
+                  -22.228107394784768,
+                  -28.35196035834986
+                ],
+                "median": -22.228107394784768,
+                "minimum": -28.35196035834986,
+                "maximum": -16.608759276655583
+              },
+              "ratio_of_medians_change_percent": -22.273465484510435
+            },
+            "outer_iterations": {
+              "values": [
+                8,
+                8,
+                8
+              ],
+              "median": 8,
+              "minimum": 8,
+              "maximum": 8,
+              "paired_change_percent": {
+                "values": [
+                  -97.87234042553192,
+                  -97.87234042553192,
+                  -97.87234042553192
+                ],
+                "median": -97.87234042553192,
+                "minimum": -97.87234042553192,
+                "maximum": -97.87234042553192
+              },
+              "ratio_of_medians_change_percent": -97.87234042553192
+            },
+            "setup_seconds": {
+              "values": [
+                0.001015811,
+                0.000878891,
+                0.00081202
+              ],
+              "median": 0.000878891,
+              "minimum": 0.00081202,
+              "maximum": 0.001015811,
+              "paired_change_percent": {
+                "values": [
+                  7.134751234493675,
+                  -7.511930756886165,
+                  -12.809494511535814
+                ],
+                "median": -7.511930756886165,
+                "minimum": -12.809494511535814,
+                "maximum": 7.134751234493675
+              },
+              "ratio_of_medians_change_percent": -7.305819047799844
+            },
+            "schur_setup_seconds": {
+              "values": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0,
+              "paired_change_percent": {
+                "values": [
+                  -100.0,
+                  -100.0,
+                  -100.0
+                ],
+                "median": -100.0,
+                "minimum": -100.0,
+                "maximum": -100.0
+              },
+              "ratio_of_medians_change_percent": -100.0
+            },
+            "assembly_seconds": {
+              "values": [
+                0.056505672,
+                0.057427810999999995,
+                0.058318872
+              ],
+              "median": 0.057427810999999995,
+              "minimum": 0.056505672,
+              "maximum": 0.058318872,
+              "paired_change_percent": {
+                "values": [
+                  -2.025612199565696,
+                  -1.1254702250205417,
+                  2.400144627199108
+                ],
+                "median": -1.1254702250205417,
+                "minimum": -2.025612199565696,
+                "maximum": 2.400144627199108
+              },
+              "ratio_of_medians_change_percent": -0.4267283920798892
+            },
+            "solve_seconds": {
+              "values": [
+                0.114256966,
+                0.109201307,
+                0.106161749
+              ],
+              "median": 0.109201307,
+              "minimum": 0.106161749,
+              "maximum": 0.114256966,
+              "paired_change_percent": {
+                "values": [
+                  -14.143886809151873,
+                  -16.159332153502458,
+                  -17.822167732054204
+                ],
+                "median": -16.159332153502458,
+                "minimum": -17.822167732054204,
+                "maximum": -14.143886809151873
+              },
+              "ratio_of_medians_change_percent": -16.159332153502458
+            }
+          },
+          "full_32_step": {
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 64,
+            "wall_seconds": 1.0646785729986732,
+            "linear_seconds": 0.378184479,
+            "worst_ratio": 0.014909642420477709,
+            "field_relative_peaks": {
+              "fluid_velocity": 0.0,
+              "fluid_pressure": 0.0,
+              "fluid_mesh_displacement": 0.0,
+              "wall_velocity": 0.0,
+              "wall_displacement": 0.0
+            }
+          }
+        },
+        "twolevel_onecycle": {
+          "timing": {
+            "wall_seconds": {
+              "values": [
+                0.2924685759971908,
+                0.2906610220015864,
+                0.2927721140003996
+              ],
+              "median": 0.2924685759971908,
+              "minimum": 0.2906610220015864,
+              "maximum": 0.2927721140003996,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "linear_seconds": {
+              "values": [
+                0.067774021,
+                0.06477484,
+                0.06481264
+              ],
+              "median": 0.06481264,
+              "minimum": 0.06477484,
+              "maximum": 0.067774021,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "outer_iterations": {
+              "values": [
+                376,
+                376,
+                376
+              ],
+              "median": 376,
+              "minimum": 376,
+              "maximum": 376,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "setup_seconds": {
+              "values": [
+                0.000948162,
+                0.000950275,
+                0.000931317
+              ],
+              "median": 0.000948162,
+              "minimum": 0.000931317,
+              "maximum": 0.000950275,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "schur_setup_seconds": {
+              "values": [
+                0.002948886,
+                0.002673008,
+                0.0028433169999999997
+              ],
+              "median": 0.0028433169999999997,
+              "minimum": 0.002673008,
+              "maximum": 0.002948886,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "assembly_seconds": {
+              "values": [
+                0.057673922,
+                0.058081501,
+                0.056951943000000005
+              ],
+              "median": 0.057673922,
+              "minimum": 0.056951943000000005,
+              "maximum": 0.058081501,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "solve_seconds": {
+              "values": [
+                0.133079593,
+                0.13024861299999999,
+                0.12918538499999999
+              ],
+              "median": 0.13024861299999999,
+              "minimum": 0.12918538499999999,
+              "maximum": 0.133079593,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            }
+          },
+          "full_32_step": {
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 2992,
+            "wall_seconds": 1.2102263580018189,
+            "linear_seconds": 0.499393784,
+            "worst_ratio": 0.4889655381170395,
+            "field_relative_peaks": {
+              "fluid_velocity": 5.6643812707629495e-12,
+              "fluid_pressure": 1.5986431297980685e-15,
+              "fluid_mesh_displacement": 3.4860895286083966e-13,
+              "wall_velocity": 4.4102774265506424e-13,
+              "wall_displacement": 4.161455150309755e-15
+            }
+          }
+        },
+        "twolevel_rigid": {
+          "timing": {
+            "wall_seconds": {
+              "values": [
+                0.33675211099762237,
+                0.29365863500061096,
+                0.2891372500016587
+              ],
+              "median": 0.29365863500061096,
+              "minimum": 0.2891372500016587,
+              "maximum": 0.33675211099762237,
+              "paired_change_percent": {
+                "values": [
+                  15.141296752802912,
+                  1.0313089035406398,
+                  -1.2415335426160024
+                ],
+                "median": 1.0313089035406398,
+                "minimum": -1.2415335426160024,
+                "maximum": 15.141296752802912
+              },
+              "ratio_of_medians_change_percent": 0.4069014933869797
+            },
+            "linear_seconds": {
+              "values": [
+                0.094281279,
+                0.0693029,
+                0.063463089
+              ],
+              "median": 0.0693029,
+              "minimum": 0.063463089,
+              "maximum": 0.094281279,
+              "paired_change_percent": {
+                "values": [
+                  39.111237032844755,
+                  6.990461111135127,
+                  -2.0822342678835537
+                ],
+                "median": 6.990461111135127,
+                "minimum": -2.0822342678835537,
+                "maximum": 39.111237032844755
+              },
+              "ratio_of_medians_change_percent": 6.928062180463557
+            },
+            "outer_iterations": {
+              "values": [
+                367,
+                367,
+                367
+              ],
+              "median": 367,
+              "minimum": 367,
+              "maximum": 367,
+              "paired_change_percent": {
+                "values": [
+                  -2.393617021276595,
+                  -2.393617021276595,
+                  -2.393617021276595
+                ],
+                "median": -2.393617021276595,
+                "minimum": -2.393617021276595,
+                "maximum": -2.393617021276595
+              },
+              "ratio_of_medians_change_percent": -2.393617021276595
+            },
+            "setup_seconds": {
+              "values": [
+                0.000977266,
+                0.001236762,
+                0.0009483419999999999
+              ],
+              "median": 0.000977266,
+              "minimum": 0.0009483419999999999,
+              "maximum": 0.001236762,
+              "paired_change_percent": {
+                "values": [
+                  3.069517656265508,
+                  30.147799321249114,
+                  1.828056397553146
+                ],
+                "median": 3.069517656265508,
+                "minimum": 1.828056397553146,
+                "maximum": 30.147799321249114
+              },
+              "ratio_of_medians_change_percent": 3.069517656265508
+            },
+            "schur_setup_seconds": {
+              "values": [
+                0.002913367,
+                0.003213337,
+                0.002664916
+              ],
+              "median": 0.002913367,
+              "minimum": 0.002664916,
+              "maximum": 0.003213337,
+              "paired_change_percent": {
+                "values": [
+                  -1.2044887459196407,
+                  20.21426797076551,
+                  -6.274397121390263
+                ],
+                "median": -1.2044887459196407,
+                "minimum": -6.274397121390263,
+                "maximum": 20.21426797076551
+              },
+              "ratio_of_medians_change_percent": 2.463671831174663
+            },
+            "assembly_seconds": {
+              "values": [
+                0.065882293,
+                0.060587101,
+                0.057932598
+              ],
+              "median": 0.060587101,
+              "minimum": 0.057932598,
+              "maximum": 0.065882293,
+              "paired_change_percent": {
+                "values": [
+                  14.23237871702221,
+                  4.313938098810488,
+                  1.7218991106238368
+                ],
+                "median": 4.313938098810488,
+                "minimum": 1.7218991106238368,
+                "maximum": 14.23237871702221
+              },
+              "ratio_of_medians_change_percent": 5.051119984522634
+            },
+            "solve_seconds": {
+              "values": [
+                0.170212154,
+                0.137872885,
+                0.128404103
+              ],
+              "median": 0.137872885,
+              "minimum": 0.128404103,
+              "maximum": 0.170212154,
+              "paired_change_percent": {
+                "values": [
+                  27.902520711796885,
+                  5.853630088176076,
+                  -0.604775842096994
+                ],
+                "median": 5.853630088176076,
+                "minimum": -0.604775842096994,
+                "maximum": 27.902520711796885
+              },
+              "ratio_of_medians_change_percent": 5.853630088176076
+            }
+          },
+          "full_32_step": {
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 2913,
+            "wall_seconds": 1.2176457370005664,
+            "linear_seconds": 0.49303026,
+            "worst_ratio": 0.49518598566290895,
+            "field_relative_peaks": {
+              "fluid_velocity": 4.792841919366639e-12,
+              "fluid_pressure": 1.776270144220076e-15,
+              "fluid_mesh_displacement": 1.4275074203492453e-13,
+              "wall_velocity": 4.3091822419878766e-13,
+              "wall_displacement": 3.864208353859059e-15
+            }
+          }
+        },
+        "gamg_constants": {
+          "timing": {
+            "wall_seconds": {
+              "values": [
+                0.2859969330020249,
+                0.3062242209998658,
+                0.30909660500037717
+              ],
+              "median": 0.3062242209998658,
+              "minimum": 0.2859969330020249,
+              "maximum": 0.30909660500037717,
+              "paired_change_percent": {
+                "values": [
+                  -2.2127652425907307,
+                  5.35441556322418,
+                  5.575835340641522
+                ],
+                "median": 5.35441556322418,
+                "minimum": -2.2127652425907307,
+                "maximum": 5.575835340641522
+              },
+              "ratio_of_medians_change_percent": 4.7032899024362695
+            },
+            "linear_seconds": {
+              "values": [
+                0.066820323,
+                0.07395323300000001,
+                0.071110483
+              ],
+              "median": 0.071110483,
+              "minimum": 0.066820323,
+              "maximum": 0.07395323300000001,
+              "paired_change_percent": {
+                "values": [
+                  -1.4071734064590946,
+                  14.169688416057857,
+                  9.716998104073514
+                ],
+                "median": 9.716998104073514,
+                "minimum": -1.4071734064590946,
+                "maximum": 14.169688416057857
+              },
+              "ratio_of_medians_change_percent": 9.716998104073514
+            },
+            "outer_iterations": {
+              "values": [
+                386,
+                386,
+                386
+              ],
+              "median": 386,
+              "minimum": 386,
+              "maximum": 386,
+              "paired_change_percent": {
+                "values": [
+                  2.659574468085113,
+                  2.659574468085113,
+                  2.659574468085113
+                ],
+                "median": 2.659574468085113,
+                "minimum": 2.659574468085113,
+                "maximum": 2.659574468085113
+              },
+              "ratio_of_medians_change_percent": 2.659574468085113
+            },
+            "setup_seconds": {
+              "values": [
+                0.000943165,
+                0.001007749,
+                0.001013829
+              ],
+              "median": 0.001007749,
+              "minimum": 0.000943165,
+              "maximum": 0.001013829,
+              "paired_change_percent": {
+                "values": [
+                  -0.5270196443223796,
+                  6.048143958327867,
+                  8.859711569744789
+                ],
+                "median": 6.048143958327867,
+                "minimum": -0.5270196443223796,
+                "maximum": 8.859711569744789
+              },
+              "ratio_of_medians_change_percent": 6.284474594003986
+            },
+            "schur_setup_seconds": {
+              "values": [
+                0.005994836,
+                0.005925297,
+                0.006348525000000001
+              ],
+              "median": 0.005994836,
+              "minimum": 0.005925297,
+              "maximum": 0.006348525000000001,
+              "paired_change_percent": {
+                "values": [
+                  103.29154806255652,
+                  121.6715026666587,
+                  123.27883243409023
+                ],
+                "median": 121.6715026666587,
+                "minimum": 103.29154806255652,
+                "maximum": 123.27883243409023
+              },
+              "ratio_of_medians_change_percent": 110.83952299374289
+            },
+            "assembly_seconds": {
+              "values": [
+                0.054067224,
+                0.05604289,
+                0.059339059
+              ],
+              "median": 0.05604289,
+              "minimum": 0.054067224,
+              "maximum": 0.059339059,
+              "paired_change_percent": {
+                "values": [
+                  -6.2536027981589415,
+                  -3.5099144562396933,
+                  4.191456646176217
+                ],
+                "median": -3.5099144562396933,
+                "minimum": -6.2536027981589415,
+                "maximum": 4.191456646176217
+              },
+              "ratio_of_medians_change_percent": -2.828023382907796
+            },
+            "solve_seconds": {
+              "values": [
+                0.13143102,
+                0.140709861,
+                0.14137813500000002
+              ],
+              "median": 0.140709861,
+              "minimum": 0.13143102,
+              "maximum": 0.14137813500000002,
+              "paired_change_percent": {
+                "values": [
+                  -1.2387872271295453,
+                  8.031753858292534,
+                  9.438180642492977
+                ],
+                "median": 8.031753858292534,
+                "minimum": -1.2387872271295453,
+                "maximum": 9.438180642492977
+              },
+              "ratio_of_medians_change_percent": 8.031753858292534
+            }
+          },
+          "full_32_step": {
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 3076,
+            "wall_seconds": 1.2921022789996641,
+            "linear_seconds": 0.561693176,
+            "worst_ratio": 0.49193597752111484,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.4931888705060757e-12,
+              "fluid_pressure": 1.776270144220076e-15,
+              "fluid_mesh_displacement": 3.077633532755135e-13,
+              "wall_velocity": 4.135375530637536e-13,
+              "wall_displacement": 2.5265977698309227e-15
+            }
+          }
+        }
+      }
+    },
+    {
+      "grid": "s48-r4-w4-a6",
+      "ranks": 2,
+      "dofs": 3024,
+      "modes": {
+        "direct": {
+          "timing": {
+            "wall_seconds": {
+              "values": [
+                0.5330802040007256,
+                0.5346397219982464,
+                0.539134581998951
+              ],
+              "median": 0.5346397219982464,
+              "minimum": 0.5330802040007256,
+              "maximum": 0.539134581998951,
+              "paired_change_percent": {
+                "values": [
+                  -19.045730116671542,
+                  -16.59594743808882,
+                  -22.351100884940966
+                ],
+                "median": -19.045730116671542,
+                "minimum": -22.351100884940966,
+                "maximum": -16.59594743808882
+              },
+              "ratio_of_medians_change_percent": -18.808899636170285
+            },
+            "linear_seconds": {
+              "values": [
+                0.223535294,
+                0.231243249,
+                0.22090770199999998
+              ],
+              "median": 0.223535294,
+              "minimum": 0.22090770199999998,
+              "maximum": 0.231243249,
+              "paired_change_percent": {
+                "values": [
+                  -35.30401629771115,
+                  -29.13275955844715,
+                  -37.167496344884235
+                ],
+                "median": -35.30401629771115,
+                "minimum": -37.167496344884235,
+                "maximum": -29.13275955844715
+              },
+              "ratio_of_medians_change_percent": -35.30401629771115
+            },
+            "outer_iterations": {
+              "values": [
+                8,
+                8,
+                8
+              ],
+              "median": 8,
+              "minimum": 8,
+              "maximum": 8,
+              "paired_change_percent": {
+                "values": [
+                  -98.81656804733728,
+                  -98.81656804733728,
+                  -98.81656804733728
+                ],
+                "median": -98.81656804733728,
+                "minimum": -98.81656804733728,
+                "maximum": -98.81656804733728
+              },
+              "ratio_of_medians_change_percent": -98.81656804733728
+            },
+            "setup_seconds": {
+              "values": [
+                0.001101185,
+                0.000997885,
+                0.0012531629999999998
+              ],
+              "median": 0.001101185,
+              "minimum": 0.000997885,
+              "maximum": 0.0012531629999999998,
+              "paired_change_percent": {
+                "values": [
+                  -11.71046860956525,
+                  -18.79779215209836,
+                  3.967249183635535
+                ],
+                "median": -11.71046860956525,
+                "minimum": -18.79779215209836,
+                "maximum": 3.967249183635535
+              },
+              "ratio_of_medians_change_percent": -10.391825461860261
+            },
+            "schur_setup_seconds": {
+              "values": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0,
+              "paired_change_percent": {
+                "values": [
+                  -100.0,
+                  -100.0,
+                  -100.0
+                ],
+                "median": -100.0,
+                "minimum": -100.0,
+                "maximum": -100.0
+              },
+              "ratio_of_medians_change_percent": -100.0
+            },
+            "assembly_seconds": {
+              "values": [
+                0.12899375500000002,
+                0.115109287,
+                0.128104857
+              ],
+              "median": 0.128104857,
+              "minimum": 0.115109287,
+              "maximum": 0.12899375500000002,
+              "paired_change_percent": {
+                "values": [
+                  7.399037061905012,
+                  -0.20289083437765587,
+                  8.317685502011862
+                ],
+                "median": 7.399037061905012,
+                "minimum": -0.20289083437765587,
+                "maximum": 8.317685502011862
+              },
+              "ratio_of_medians_change_percent": 8.317685502011862
+            },
+            "solve_seconds": {
+              "values": [
+                0.35581034100000003,
+                0.349858518,
+                0.351799949
+              ],
+              "median": 0.351799949,
+              "minimum": 0.349858518,
+              "maximum": 0.35581034100000003,
+              "paired_change_percent": {
+                "values": [
+                  -26.23655259187373,
+                  -23.575201137756995,
+                  -27.77903422021185
+                ],
+                "median": -26.23655259187373,
+                "minimum": -27.77903422021185,
+                "maximum": -23.575201137756995
+              },
+              "ratio_of_medians_change_percent": -27.06795152914625
+            }
+          },
+          "full_32_step": {
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 64,
+            "wall_seconds": 3.009959234001144,
+            "linear_seconds": 1.685296659,
+            "worst_ratio": 0.047661530670870145,
+            "field_relative_peaks": {
+              "fluid_velocity": 0.0,
+              "fluid_pressure": 0.0,
+              "fluid_mesh_displacement": 0.0,
+              "wall_velocity": 0.0,
+              "wall_displacement": 0.0
+            }
+          }
+        },
+        "twolevel_onecycle": {
+          "timing": {
+            "wall_seconds": {
+              "values": [
+                0.6584954749996541,
+                0.6410236740011896,
+                0.6943235359976825
+              ],
+              "median": 0.6584954749996541,
+              "minimum": 0.6410236740011896,
+              "maximum": 0.6943235359976825,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "linear_seconds": {
+              "values": [
+                0.345516493,
+                0.326304859,
+                0.351581887
+              ],
+              "median": 0.345516493,
+              "minimum": 0.326304859,
+              "maximum": 0.351581887,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "outer_iterations": {
+              "values": [
+                676,
+                676,
+                676
+              ],
+              "median": 676,
+              "minimum": 676,
+              "maximum": 676,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "setup_seconds": {
+              "values": [
+                0.0012472429999999999,
+                0.001228889,
+                0.001205344
+              ],
+              "median": 0.001228889,
+              "minimum": 0.001205344,
+              "maximum": 0.0012472429999999999,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "schur_setup_seconds": {
+              "values": [
+                0.005993951,
+                0.006372799,
+                0.005886034
+              ],
+              "median": 0.005993951,
+              "minimum": 0.005886034,
+              "maximum": 0.006372799,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "assembly_seconds": {
+              "values": [
+                0.120106994,
+                0.11534330799999999,
+                0.11826771999999999
+              ],
+              "median": 0.11826771999999999,
+              "minimum": 0.11534330799999999,
+              "maximum": 0.120106994,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            },
+            "solve_seconds": {
+              "values": [
+                0.482366746,
+                0.457781405,
+                0.487116096
+              ],
+              "median": 0.482366746,
+              "minimum": 0.457781405,
+              "maximum": 0.487116096,
+              "paired_change_percent": {
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0
+              },
+              "ratio_of_medians_change_percent": 0.0
+            }
+          },
+          "full_32_step": {
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 5445,
+            "wall_seconds": 4.005593138001132,
+            "linear_seconds": 2.657671704,
+            "worst_ratio": 0.49459786461141003,
+            "field_relative_peaks": {
+              "fluid_velocity": 7.891686663003425e-12,
+              "fluid_pressure": 4.263040461551271e-15,
+              "fluid_mesh_displacement": 4.808545462844817e-13,
+              "wall_velocity": 7.694031610818583e-13,
+              "wall_displacement": 5.482883534111146e-15
+            }
+          }
+        },
+        "twolevel_rigid": {
+          "timing": {
+            "wall_seconds": {
+              "values": [
+                0.5874719909988926,
+                0.6438512610002363,
+                0.6030708050020621
+              ],
+              "median": 0.6030708050020621,
+              "minimum": 0.5874719909988926,
+              "maximum": 0.6438512610002363,
+              "paired_change_percent": {
+                "values": [
+                  -10.785720889091731,
+                  0.4411049254073873,
+                  -13.142681511508625
+                ],
+                "median": -10.785720889091731,
+                "minimum": -13.142681511508625,
+                "maximum": 0.4411049254073873
+              },
+              "ratio_of_medians_change_percent": -8.416864215751996
+            },
+            "linear_seconds": {
+              "values": [
+                0.281765332,
+                0.33948463900000003,
+                0.298496018
+              ],
+              "median": 0.298496018,
+              "minimum": 0.281765332,
+              "maximum": 0.33948463900000003,
+              "paired_change_percent": {
+                "values": [
+                  -18.45097478458141,
+                  4.039100134883378,
+                  -15.0991478693554
+                ],
+                "median": -15.0991478693554,
+                "minimum": -18.45097478458141,
+                "maximum": 4.039100134883378
+              },
+              "ratio_of_medians_change_percent": -13.608749785498663
+            },
+            "outer_iterations": {
+              "values": [
+                632,
+                632,
+                632
+              ],
+              "median": 632,
+              "minimum": 632,
+              "maximum": 632,
+              "paired_change_percent": {
+                "values": [
+                  -6.508875739644971,
+                  -6.508875739644971,
+                  -6.508875739644971
+                ],
+                "median": -6.508875739644971,
+                "minimum": -6.508875739644971,
+                "maximum": -6.508875739644971
+              },
+              "ratio_of_medians_change_percent": -6.508875739644971
+            },
+            "setup_seconds": {
+              "values": [
+                0.001106439,
+                0.001281574,
+                0.00115719
+              ],
+              "median": 0.00115719,
+              "minimum": 0.001106439,
+              "maximum": 0.001281574,
+              "paired_change_percent": {
+                "values": [
+                  -11.289219502534776,
+                  4.28720576065047,
+                  -3.995042079273625
+                ],
+                "median": -3.995042079273625,
+                "minimum": -11.289219502534776,
+                "maximum": 4.28720576065047
+              },
+              "ratio_of_medians_change_percent": -5.83445697699303
+            },
+            "schur_setup_seconds": {
+              "values": [
+                0.005458709999999999,
+                0.00716985,
+                0.005683461
+              ],
+              "median": 0.005683461,
+              "minimum": 0.005458709999999999,
+              "maximum": 0.00716985,
+              "paired_change_percent": {
+                "values": [
+                  -8.92968594504694,
+                  12.507078914618198,
+                  -3.441587323484707
+                ],
+                "median": -3.441587323484707,
+                "minimum": -8.92968594504694,
+                "maximum": 12.507078914618198
+              },
+              "ratio_of_medians_change_percent": -5.180055692814312
+            },
+            "assembly_seconds": {
+              "values": [
+                0.113065952,
+                0.114872647,
+                0.11493524
+              ],
+              "median": 0.114872647,
+              "minimum": 0.113065952,
+              "maximum": 0.11493524,
+              "paired_change_percent": {
+                "values": [
+                  -5.862308068421063,
+                  -0.4080522816286791,
+                  -2.817742660465594
+                ],
+                "median": -2.817742660465594,
+                "minimum": -5.862308068421063,
+                "maximum": -0.4080522816286791
+              },
+              "ratio_of_medians_change_percent": -2.8706674991282433
+            },
+            "solve_seconds": {
+              "values": [
+                0.409588773,
+                0.47185017900000004,
+                0.429754544
+              ],
+              "median": 0.429754544,
+              "minimum": 0.409588773,
+              "maximum": 0.47185017900000004,
+              "paired_change_percent": {
+                "values": [
+                  -15.0876845478067,
+                  3.073251522743714,
+                  -11.775745550399542
+                ],
+                "median": -11.775745550399542,
+                "minimum": -15.0876845478067,
+                "maximum": 3.073251522743714
+              },
+              "ratio_of_medians_change_percent": -10.907095573292281
+            }
+          },
+          "full_32_step": {
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 5050,
+            "wall_seconds": 3.968791968000005,
+            "linear_seconds": 2.607497816,
+            "worst_ratio": 0.6010254969086598,
+            "field_relative_peaks": {
+              "fluid_velocity": 5.50334120027168e-12,
+              "fluid_pressure": 1.5986401730817268e-15,
+              "fluid_mesh_displacement": 6.426551813399727e-13,
+              "wall_velocity": 4.281700389476016e-13,
+              "wall_displacement": 7.20607550197465e-15
+            }
+          }
+        },
+        "gamg_constants": {
+          "timing": {
+            "wall_seconds": {
+              "values": [
+                0.7147014440015482,
+                0.6688620530003391,
+                0.7278668399994785
+              ],
+              "median": 0.7147014440015482,
+              "minimum": 0.6688620530003391,
+              "maximum": 0.7278668399994785,
+              "paired_change_percent": {
+                "values": [
+                  8.535513323295607,
+                  4.342800450002993,
+                  4.831076906185716
+                ],
+                "median": 4.831076906185716,
+                "minimum": 4.342800450002993,
+                "maximum": 8.535513323295607
+              },
+              "ratio_of_medians_change_percent": 8.535513323295607
+            },
+            "linear_seconds": {
+              "values": [
+                0.385908919,
+                0.34931316700000004,
+                0.36330709299999997
+              ],
+              "median": 0.36330709299999997,
+              "minimum": 0.34931316700000004,
+              "maximum": 0.385908919,
+              "paired_change_percent": {
+                "values": [
+                  11.690448015747833,
+                  7.051169287062331,
+                  3.33498579805962
+                ],
+                "median": 7.051169287062331,
+                "minimum": 3.33498579805962,
+                "maximum": 11.690448015747833
+              },
+              "ratio_of_medians_change_percent": 5.148987200446031
+            },
+            "outer_iterations": {
+              "values": [
+                700,
+                700,
+                700
+              ],
+              "median": 700,
+              "minimum": 700,
+              "maximum": 700,
+              "paired_change_percent": {
+                "values": [
+                  3.5502958579881616,
+                  3.5502958579881616,
+                  3.5502958579881616
+                ],
+                "median": 3.5502958579881616,
+                "minimum": 3.5502958579881616,
+                "maximum": 3.5502958579881616
+              },
+              "ratio_of_medians_change_percent": 3.5502958579881616
+            },
+            "setup_seconds": {
+              "values": [
+                0.001396493,
+                0.001362072,
+                0.0017920479999999999
+              ],
+              "median": 0.001396493,
+              "minimum": 0.001362072,
+              "maximum": 0.0017920479999999999,
+              "paired_change_percent": {
+                "values": [
+                  11.96639307656968,
+                  10.837675331132424,
+                  48.67523296254015
+                ],
+                "median": 11.96639307656968,
+                "minimum": 10.837675331132424,
+                "maximum": 48.67523296254015
+              },
+              "ratio_of_medians_change_percent": 13.638660611332675
+            },
+            "schur_setup_seconds": {
+              "values": [
+                0.030728652,
+                0.022134070000000002,
+                0.023472222
+              ],
+              "median": 0.023472222,
+              "minimum": 0.022134070000000002,
+              "maximum": 0.030728652,
+              "paired_change_percent": {
+                "values": [
+                  412.66104777966984,
+                  247.3210123212736,
+                  298.77822656138244
+                ],
+                "median": 298.77822656138244,
+                "minimum": 247.3210123212736,
+                "maximum": 412.66104777966984
+              },
+              "ratio_of_medians_change_percent": 291.59849655093944
+            },
+            "assembly_seconds": {
+              "values": [
+                0.110932327,
+                0.113185841,
+                0.129900283
+              ],
+              "median": 0.113185841,
+              "minimum": 0.110932327,
+              "maximum": 0.129900283,
+              "paired_change_percent": {
+                "values": [
+                  -7.638745000978043,
+                  -1.8704743581656191,
+                  9.835788666594759
+                ],
+                "median": -1.8704743581656191,
+                "minimum": -7.638745000978043,
+                "maximum": 9.835788666594759
+              },
+              "ratio_of_medians_change_percent": -4.296928189703831
+            },
+            "solve_seconds": {
+              "values": [
+                0.537040706,
+                0.494165717,
+                0.5279363
+              ],
+              "median": 0.5279363,
+              "minimum": 0.494165717,
+              "maximum": 0.537040706,
+              "paired_change_percent": {
+                "values": [
+                  11.334520974627882,
+                  7.947966344329793,
+                  8.379974370627252
+                ],
+                "median": 8.379974370627252,
+                "minimum": 7.947966344329793,
+                "maximum": 11.334520974627882
+              },
+              "ratio_of_medians_change_percent": 9.44707618795928
+            }
+          },
+          "full_32_step": {
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 5683,
+            "wall_seconds": 4.341217831999529,
+            "linear_seconds": 3.018338885,
+            "worst_ratio": 0.5130026914189354,
+            "field_relative_peaks": {
+              "fluid_velocity": 1.001675242102577e-11,
+              "fluid_pressure": 2.6644002884695448e-15,
+              "fluid_mesh_displacement": 1.4466100191401984e-13,
+              "wall_velocity": 7.449371937095607e-13,
+              "wall_displacement": 1.3785535742908023e-14
+            }
+          }
+        }
+      }
+    }
+  ],
+  "all_full_stage_runs": {
+    "runs": 40,
+    "accepted_steps": 384,
+    "corrections": 768,
+    "maximum_true_residual_to_target": 0.6010254969086598,
+    "worst_residual_label": "full-twolevel_rigid",
+    "worst_residual_output": "/workspace/scratch/ae740e1dde63/EONSim-new/build/fsi-amg-final/full/1795659623118475693/s48-r4-w4-a6/full-twolevel_rigid",
+    "maximum_relative_field_peak_error": 1.001675242102577e-11,
+    "maximum_field_by_name": {
+      "fluid_velocity": 1.001675242102577e-11,
+      "fluid_pressure": 2.757352677679174e-14,
+      "fluid_mesh_displacement": 3.3160904804745585e-12,
+      "wall_velocity": 7.694031610818583e-13,
+      "wall_displacement": 1.3785535742908023e-14
+    },
+    "worst_field_label": "full-gamg_constants",
+    "worst_field_output": "/workspace/scratch/ae740e1dde63/EONSim-new/build/fsi-amg-final/full/1795659623118475693/s48-r4-w4-a6/full-gamg_constants"
+  },
+  "full_32_step_runs_only": {
+    "runs": 8,
+    "accepted_steps": 256,
+    "corrections": 512,
+    "maximum_true_residual_to_target": 0.6010254969086598,
+    "worst_residual_label": "full-twolevel_rigid",
+    "worst_residual_output": "/workspace/scratch/ae740e1dde63/EONSim-new/build/fsi-amg-final/full/1795659623118475693/s48-r4-w4-a6/full-twolevel_rigid",
+    "maximum_relative_field_peak_error": 1.001675242102577e-11,
+    "maximum_field_by_name": {
+      "fluid_velocity": 1.001675242102577e-11,
+      "fluid_pressure": 4.263040461551271e-15,
+      "fluid_mesh_displacement": 6.426551813399727e-13,
+      "wall_velocity": 7.694031610818583e-13,
+      "wall_displacement": 1.3785535742908023e-14
+    },
+    "worst_field_label": "full-gamg_constants",
+    "worst_field_output": "/workspace/scratch/ae740e1dde63/EONSim-new/build/fsi-amg-final/full/1795659623118475693/s48-r4-w4-a6/full-gamg_constants"
+  },
+  "command": [
+    "python",
+    "build/fsi-amg-validation/summarize-performance.py"
+  ]
+}

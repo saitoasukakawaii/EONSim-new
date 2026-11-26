@@ -1,0 +1,1844 @@
+{
+  "audit_repository_head": "88e6c3359b742735877177eb4584b987caae1790",
+  "audit_kind": "read-only independent receipt/raw-log/owned-VTU replay",
+  "replay_script_sha256": "5dea6304620e54606a692de030f07b4cc3c8ac281f47efe6c7e2b8c56544bd31",
+  "binary_provenance": {
+    "production_source": "88e6c3359b742735877177eb4584b987caae1790",
+    "executable": "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/eonsim",
+    "executable_sha256": "c57ab409a125d759fd51513cf5c03024feec2f67a0f224fd1aa40cc87be1cf09",
+    "build_type": "Release",
+    "petsc_version": "3.23.7",
+    "manifest_path": "/workspace/scratch/ae740e1dde63/EONSim-new/build/fsi-amg-validation/binary-source.json",
+    "manifest_sha256": "e719e486b47cd2921dffa3e2788d93c730e5a6f7cc441113d7a5c599b81fc17c",
+    "matching_binary_bytes_rehashed_now": true,
+    "prior_independent_digest_observation": null
+  },
+  "simulations_launched": 0,
+  "blockers": [],
+  "limits": [
+    "Successful algebra JUnit stdout is truncated by CTest; test exit status and unconditional source calls establish coverage.",
+    "Default GAMG reuse=true numerical refresh is exercised; reuse_interpolation=false is not separately exercised by the algebra suite.",
+    "Finite fixed-grid trajectories and single-host timing do not establish mesh-independent convergence or large-mesh scaling.",
+    "Wall durations are observed by the campaign driver; raw numerical logs independently replay correctness and arithmetic, not elapsed launch-to-exit duration."
+  ],
+  "algebra": {
+    "status": "passed",
+    "source_commit": "a7e0e2845f191e11729458aeaaaa25afc815bd5a",
+    "tests": [
+      {
+        "name": "pc_plan_mpi1",
+        "seconds": 0.257962,
+        "status": "run"
+      },
+      {
+        "name": "pc_plan_mpi2",
+        "seconds": 0.379283,
+        "status": "run"
+      },
+      {
+        "name": "pc_plan_mpi4",
+        "seconds": 0.421836,
+        "status": "run"
+      }
+    ],
+    "junit_sha256": "5ce1bdabac4427f84739226bbb7eec95d849977291be01cf5f952511f024fc91",
+    "source_sha256": "76a46b134f09338b7c129c5e849fc7f98e470f582e38cc450a087e5187b89c76",
+    "originally_recorded_binary_sha256": "cd86cf5164eac7cfc48ab4bd69fd6f9d51975127f5e22375c05c7c2512f65346",
+    "coverage": [
+      "masked orthonormal near/coarse modes",
+      "owner-local rigid span with translated coordinates",
+      "body scalar",
+      "two empty owners on four ranks",
+      "coincident coordinate rank truncation",
+      "actual scalar GAMG multilevel hierarchy",
+      "twolevel and GAMG numerical Galerkin refresh",
+      "all-identity fallback",
+      "zero-residual option and rank-local metadata rejection"
+    ]
+  },
+  "retained_initial_failure": {
+    "junit_sha256": "974e0f4212154a903fb2f8bb1db47f46fdedb18b855a737b325ce04de7fd7486",
+    "failures": 3,
+    "source_commit": "e0703466d73bfa1cf240eef201739c91383e6bca",
+    "cause": "PCMGSetCycleType before GAMG creates levels",
+    "fixed_by": "a7e0e2845f191e11729458aeaaaa25afc815bd5a"
+  },
+  "physical_ctest": {
+    "status": "passed",
+    "source_commit": "a7e0e2845f191e11729458aeaaaa25afc815bd5a",
+    "tests": [
+      "fsi_tube_rcr",
+      "fsi_block_efficiency",
+      "pc_recipe_hybrid",
+      "domains_verification"
+    ],
+    "junit_sha256": "5a46a658c253af849818cc57c194ea0d226bf1a55b5483ba22bd2ff21a64d044"
+  },
+  "source_distinction": {
+    "production_source": "88e6c3359b742735877177eb4584b987caae1790",
+    "driver_source": "88e6c3359b742735877177eb4584b987caae1790",
+    "changed_paths_since_binary": [],
+    "meaning": "The receipt source_commit identifies the driver checkout; the binary manifest and digest identify the compiled production source."
+  },
+  "physical_replay": {
+    "receipt": "build/fsi-amg-final/results-full.json",
+    "receipt_sha256": "1aa2676d136a863d3108a288c0ad18b186ef3500a8ce1b3e6e1e8f4f05376450",
+    "stage": "full",
+    "status": "passed",
+    "source_commit": "88e6c3359b742735877177eb4584b987caae1790",
+    "executable_sha256": "c57ab409a125d759fd51513cf5c03024feec2f67a0f224fd1aa40cc87be1cf09",
+    "fixture_sha256": "662518aa06f1d9f3072c92910fcfd08c3788f0be8bf0875ec035ff6e0984fae6",
+    "driver_script_sha256": {
+      "verify_fsi_block_efficiency.py": "9fecd5213d0c8aebafa4a8d26779df0377c2bf703f869216f58421c2df425274",
+      "verify_fsi_tube.py": "f0a9afaa76b5a73570ce1246258eb97a29c744f36fdfcbfbb3bf3990354d4034",
+      "verify_fsi_inlet.py": "5046ce811e749839c2d3babb11cdb533348ff7110b98d79c8ee324a7f7284162"
+    },
+    "target": "max(1e-23, 1e-10*rhs_norm)",
+    "tolerance_margin": 1.00001,
+    "field_relative_peak_limit": 2e-06,
+    "timing_semantics": {
+      "linear_seconds": "rank-max KSP intervals, including PC setup and inner solves",
+      "setup_seconds": "nonlinear solve initialization, not total PC setup",
+      "schur_setup_seconds": "explicit tree configuration outside KSP intervals",
+      "wall_seconds": "blocking child wait plus launch; independent timeout watchdog; excludes log parsing"
+    },
+    "cases": [
+      {
+        "grid": "s24-r3-w2-a6",
+        "ranks": 1,
+        "dofs": 1027,
+        "runs": [
+          {
+            "mode": "direct",
+            "label": "full-direct",
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 64,
+            "worst_true_residual_ratio": 0.014909642420477709,
+            "field_relative_peaks": {
+              "fluid_velocity": 0.0,
+              "fluid_pressure": 0.0,
+              "fluid_mesh_displacement": 0.0,
+              "wall_velocity": 0.0,
+              "wall_displacement": 0.0
+            },
+            "max_field_relative_peak": 0.0,
+            "linear_seconds": 0.378184479,
+            "log_sha256": "a98feae538c596c58029a6be75242b9b6b62489b6f0c59dd0eb3e94d76025ebb",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 32,
+              "physical_end_time": 1.0,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 1.0,
+                "evaluation_time": 0.9895833333333334,
+                "applied_pressure": 79.99910984510252
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 1.0646785729986732
+          },
+          {
+            "mode": "twolevel_onecycle",
+            "label": "full-twolevel_onecycle",
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 2992,
+            "worst_true_residual_ratio": 0.4889655381170395,
+            "field_relative_peaks": {
+              "fluid_velocity": 5.6643812707629495e-12,
+              "fluid_pressure": 1.5986431297980685e-15,
+              "fluid_mesh_displacement": 3.4860895286083966e-13,
+              "wall_velocity": 4.4102774265506424e-13,
+              "wall_displacement": 4.161455150309755e-15
+            },
+            "max_field_relative_peak": 5.6643812707629495e-12,
+            "linear_seconds": 0.499393784,
+            "log_sha256": "ed9f8c68df8a02597eea9ee26c634871803818b4c31a304851637f0db19502ab",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 32,
+              "physical_end_time": 1.0,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 1.0,
+                "evaluation_time": 0.9895833333333334,
+                "applied_pressure": 79.99910984510252
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 1.2102263580018189
+          },
+          {
+            "mode": "twolevel_rigid",
+            "label": "full-twolevel_rigid",
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 2913,
+            "worst_true_residual_ratio": 0.49518598566290895,
+            "field_relative_peaks": {
+              "fluid_velocity": 4.792841919366639e-12,
+              "fluid_pressure": 1.776270144220076e-15,
+              "fluid_mesh_displacement": 1.4275074203492453e-13,
+              "wall_velocity": 4.3091822419878766e-13,
+              "wall_displacement": 3.864208353859059e-15
+            },
+            "max_field_relative_peak": 4.792841919366639e-12,
+            "linear_seconds": 0.49303026,
+            "log_sha256": "ce76b4861c93368533ab9c248ea61d007cfa617b6564d74c39023b9a7934f15c",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 32,
+              "physical_end_time": 1.0,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 1.0,
+                "evaluation_time": 0.9895833333333334,
+                "applied_pressure": 79.99910984510252
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 1.2176457370005664
+          },
+          {
+            "mode": "gamg_constants",
+            "label": "full-gamg_constants",
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 3076,
+            "worst_true_residual_ratio": 0.49193597752111484,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.4931888705060757e-12,
+              "fluid_pressure": 1.776270144220076e-15,
+              "fluid_mesh_displacement": 3.077633532755135e-13,
+              "wall_velocity": 4.135375530637536e-13,
+              "wall_displacement": 2.5265977698309227e-15
+            },
+            "max_field_relative_peak": 3.4931888705060757e-12,
+            "linear_seconds": 0.561693176,
+            "log_sha256": "ad8e918e6b7eba5eb9b3f41a5d650352a4cd4e30abed3a1450f7030d633ed37d",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 32,
+              "physical_end_time": 1.0,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 1.0,
+                "evaluation_time": 0.9895833333333334,
+                "applied_pressure": 79.99910984510252
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 1.2921022789996641,
+            "observed_mg_levels": 2,
+            "observed_coarse_rows": [
+              14
+            ]
+          },
+          {
+            "mode": "direct",
+            "label": "warmup-direct",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 8,
+            "worst_true_residual_ratio": 0.014909642420477709,
+            "field_relative_peaks": {
+              "fluid_velocity": 0.0,
+              "fluid_pressure": 0.0,
+              "fluid_mesh_displacement": 0.0,
+              "wall_velocity": 0.0,
+              "wall_displacement": 0.0
+            },
+            "max_field_relative_peak": 0.0,
+            "linear_seconds": 0.064884417,
+            "log_sha256": "a4015767e3677e404200cf130aeb8fc31144fbe445ea1d3a7c5fd38e433047d4",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.2911720179981785
+          },
+          {
+            "mode": "twolevel_onecycle",
+            "label": "warmup-twolevel_onecycle",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 376,
+            "worst_true_residual_ratio": 0.4719056328652463,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.0197633678878487e-13,
+              "fluid_pressure": 2.5065301552712685e-15,
+              "fluid_mesh_displacement": 7.31100061610551e-13,
+              "wall_velocity": 1.3658712095728197e-14,
+              "wall_displacement": 2.4078582233553678e-15
+            },
+            "max_field_relative_peak": 7.31100061610551e-13,
+            "linear_seconds": 0.064207864,
+            "log_sha256": "f32093eec767c05e796563df1f059d5a6132ef103e633f1a731fa69d7952d38d",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.28748243899826775
+          },
+          {
+            "mode": "twolevel_rigid",
+            "label": "warmup-twolevel_rigid",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 367,
+            "worst_true_residual_ratio": 0.49518598566290895,
+            "field_relative_peaks": {
+              "fluid_velocity": 2.1715759283818126e-13,
+              "fluid_pressure": 3.580757364673241e-15,
+              "fluid_mesh_displacement": 5.425378977020973e-13,
+              "wall_velocity": 1.0840247695022378e-14,
+              "wall_displacement": 3.611787335033052e-15
+            },
+            "max_field_relative_peak": 5.425378977020973e-13,
+            "linear_seconds": 0.063110324,
+            "log_sha256": "79847dbfa6b688bed2097749f8f2ca2928b40342fe7b57ec281ff1031dc9e7fe",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.28288645499924314
+          },
+          {
+            "mode": "gamg_constants",
+            "label": "warmup-gamg_constants",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 386,
+            "worst_true_residual_ratio": 0.4904376906746954,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.294874972980242e-13,
+              "fluid_pressure": 1.4323029458692964e-15,
+              "fluid_mesh_displacement": 1.8924298934824345e-12,
+              "wall_velocity": 5.7453312783618605e-15,
+              "wall_displacement": 2.5583493623150783e-15
+            },
+            "max_field_relative_peak": 1.8924298934824345e-12,
+            "linear_seconds": 0.069762832,
+            "log_sha256": "f359f8a4e9f7aea0597a69546988f237884edd28c0ebd5e73367508f2be39c90",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.2961393869991298,
+            "observed_mg_levels": 2,
+            "observed_coarse_rows": [
+              14
+            ]
+          },
+          {
+            "mode": "direct",
+            "label": "timing-1-direct",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 8,
+            "worst_true_residual_ratio": 0.014909642420477709,
+            "field_relative_peaks": {
+              "fluid_velocity": 0.0,
+              "fluid_pressure": 0.0,
+              "fluid_mesh_displacement": 0.0,
+              "wall_velocity": 0.0,
+              "wall_displacement": 0.0
+            },
+            "max_field_relative_peak": 0.0,
+            "linear_seconds": 0.056517597,
+            "log_sha256": "ae64a723cb23fb791e4bf739e0abfe3571bcfe4d811dcb5d7aa7eb3fc428f61f",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.40579035700284294
+          },
+          {
+            "mode": "twolevel_onecycle",
+            "label": "timing-1-twolevel_onecycle",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 376,
+            "worst_true_residual_ratio": 0.4719056328652463,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.0197633678878487e-13,
+              "fluid_pressure": 2.5065301552712685e-15,
+              "fluid_mesh_displacement": 7.31100061610551e-13,
+              "wall_velocity": 1.3658712095728197e-14,
+              "wall_displacement": 2.4078582233553678e-15
+            },
+            "max_field_relative_peak": 7.31100061610551e-13,
+            "linear_seconds": 0.067774021,
+            "log_sha256": "8a4ff7f70a2b0d2788cae36a3014a3b88b84edc8983041548b4465a6f1cf540c",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.2924685759971908
+          },
+          {
+            "mode": "twolevel_rigid",
+            "label": "timing-1-twolevel_rigid",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 367,
+            "worst_true_residual_ratio": 0.49518598566290895,
+            "field_relative_peaks": {
+              "fluid_velocity": 2.1715759283818126e-13,
+              "fluid_pressure": 3.580757364673241e-15,
+              "fluid_mesh_displacement": 5.425378977020973e-13,
+              "wall_velocity": 1.0840247695022378e-14,
+              "wall_displacement": 3.611787335033052e-15
+            },
+            "max_field_relative_peak": 5.425378977020973e-13,
+            "linear_seconds": 0.094281279,
+            "log_sha256": "42aeaac8e1de662a49a201dc1d7b04bc3cd72f7ca66bc125b0f3e2f6f8833284",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.33675211099762237
+          },
+          {
+            "mode": "gamg_constants",
+            "label": "timing-1-gamg_constants",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 386,
+            "worst_true_residual_ratio": 0.4904376906746954,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.294874972980242e-13,
+              "fluid_pressure": 1.4323029458692964e-15,
+              "fluid_mesh_displacement": 1.8924298934824345e-12,
+              "wall_velocity": 5.7453312783618605e-15,
+              "wall_displacement": 2.5583493623150783e-15
+            },
+            "max_field_relative_peak": 1.8924298934824345e-12,
+            "linear_seconds": 0.066820323,
+            "log_sha256": "022bddf621ccda21a6a6b690e2ef4e4a5b4c31ecd3bd9ae36bf3d48fb65e0795",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.2859969330020249,
+            "observed_mg_levels": 2,
+            "observed_coarse_rows": [
+              14
+            ]
+          },
+          {
+            "mode": "twolevel_onecycle",
+            "label": "timing-2-twolevel_onecycle",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 376,
+            "worst_true_residual_ratio": 0.4719056328652463,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.0197633678878487e-13,
+              "fluid_pressure": 2.5065301552712685e-15,
+              "fluid_mesh_displacement": 7.31100061610551e-13,
+              "wall_velocity": 1.3658712095728197e-14,
+              "wall_displacement": 2.4078582233553678e-15
+            },
+            "max_field_relative_peak": 7.31100061610551e-13,
+            "linear_seconds": 0.06477484,
+            "log_sha256": "94b973d23ab0c2fc7593ca862bc29cb86f082c9f27aa56b606554bd98370cc85",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.2906610220015864
+          },
+          {
+            "mode": "twolevel_rigid",
+            "label": "timing-2-twolevel_rigid",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 367,
+            "worst_true_residual_ratio": 0.49518598566290895,
+            "field_relative_peaks": {
+              "fluid_velocity": 2.1715759283818126e-13,
+              "fluid_pressure": 3.580757364673241e-15,
+              "fluid_mesh_displacement": 5.425378977020973e-13,
+              "wall_velocity": 1.0840247695022378e-14,
+              "wall_displacement": 3.611787335033052e-15
+            },
+            "max_field_relative_peak": 5.425378977020973e-13,
+            "linear_seconds": 0.0693029,
+            "log_sha256": "920af480ec7f371b37f8ed4b261154f7f1ffd75f304591fafeefc385c0c031df",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.29365863500061096
+          },
+          {
+            "mode": "gamg_constants",
+            "label": "timing-2-gamg_constants",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 386,
+            "worst_true_residual_ratio": 0.4904376906746954,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.294874972980242e-13,
+              "fluid_pressure": 1.4323029458692964e-15,
+              "fluid_mesh_displacement": 1.8924298934824345e-12,
+              "wall_velocity": 5.7453312783618605e-15,
+              "wall_displacement": 2.5583493623150783e-15
+            },
+            "max_field_relative_peak": 1.8924298934824345e-12,
+            "linear_seconds": 0.07395323300000001,
+            "log_sha256": "15971c61358bf8746b513d347956db9404926fe9d8e467d316b5da2cd4819045",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.3062242209998658,
+            "observed_mg_levels": 2,
+            "observed_coarse_rows": [
+              14
+            ]
+          },
+          {
+            "mode": "direct",
+            "label": "timing-2-direct",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 8,
+            "worst_true_residual_ratio": 0.014909642420477709,
+            "field_relative_peaks": {
+              "fluid_velocity": 0.0,
+              "fluid_pressure": 0.0,
+              "fluid_mesh_displacement": 0.0,
+              "wall_velocity": 0.0,
+              "wall_displacement": 0.0
+            },
+            "max_field_relative_peak": 0.0,
+            "linear_seconds": 0.050376619,
+            "log_sha256": "40d9c70864b9bb5e35b39f6498e917bbd9b67c6f89aaa46ca61c4043da7a10d2",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.2713408519994118
+          },
+          {
+            "mode": "twolevel_rigid",
+            "label": "timing-3-twolevel_rigid",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 367,
+            "worst_true_residual_ratio": 0.49518598566290895,
+            "field_relative_peaks": {
+              "fluid_velocity": 2.1715759283818126e-13,
+              "fluid_pressure": 3.580757364673241e-15,
+              "fluid_mesh_displacement": 5.425378977020973e-13,
+              "wall_velocity": 1.0840247695022378e-14,
+              "wall_displacement": 3.611787335033052e-15
+            },
+            "max_field_relative_peak": 5.425378977020973e-13,
+            "linear_seconds": 0.063463089,
+            "log_sha256": "3e658a65d294d8c4e638fe9f8ee3946654535454e5c75aa2ddbc0c5f702ab0e4",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.2891372500016587
+          },
+          {
+            "mode": "gamg_constants",
+            "label": "timing-3-gamg_constants",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 386,
+            "worst_true_residual_ratio": 0.4904376906746954,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.294874972980242e-13,
+              "fluid_pressure": 1.4323029458692964e-15,
+              "fluid_mesh_displacement": 1.8924298934824345e-12,
+              "wall_velocity": 5.7453312783618605e-15,
+              "wall_displacement": 2.5583493623150783e-15
+            },
+            "max_field_relative_peak": 1.8924298934824345e-12,
+            "linear_seconds": 0.071110483,
+            "log_sha256": "5ac3fa2f2f18a086c3433c2765352c7ab7cff21259243c3830ac168ea6aebb45",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.30909660500037717,
+            "observed_mg_levels": 2,
+            "observed_coarse_rows": [
+              14
+            ]
+          },
+          {
+            "mode": "direct",
+            "label": "timing-3-direct",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 8,
+            "worst_true_residual_ratio": 0.014909642420477709,
+            "field_relative_peaks": {
+              "fluid_velocity": 0.0,
+              "fluid_pressure": 0.0,
+              "fluid_mesh_displacement": 0.0,
+              "wall_velocity": 0.0,
+              "wall_displacement": 0.0
+            },
+            "max_field_relative_peak": 0.0,
+            "linear_seconds": 0.046436986,
+            "log_sha256": "ce6e6315f4be8bfef0aa24c4f494ec3bab549807fb4b5fecd9cb499698da5ca1",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.27066486300100223
+          },
+          {
+            "mode": "twolevel_onecycle",
+            "label": "timing-3-twolevel_onecycle",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 376,
+            "worst_true_residual_ratio": 0.4719056328652463,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.0197633678878487e-13,
+              "fluid_pressure": 2.5065301552712685e-15,
+              "fluid_mesh_displacement": 7.31100061610551e-13,
+              "wall_velocity": 1.3658712095728197e-14,
+              "wall_displacement": 2.4078582233553678e-15
+            },
+            "max_field_relative_peak": 7.31100061610551e-13,
+            "linear_seconds": 0.06481264,
+            "log_sha256": "11ee091143081f2cc71eee525e04b93494f40d2d177d60c27c3b8aa889bc1aab",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.2927721140003996
+          }
+        ],
+        "pending": [],
+        "failed": [],
+        "input_sha256": {
+          "case.json": "436d8bed9ac9aadb7def6defa1b0ffa7e10baf9642dc377018b50cc3fbd4f7a9",
+          "fluid.msh": "1fa0f0964747eb27afe2521c77705a426066e940e4c27048a230647befd88d16",
+          "solid.msh": "abb75c9acbabb20976f5b1aec0c14330c4a9f6f8f7633bd62542dee4ab291db9"
+        },
+        "partition_sha256": {
+          "manifest.yaml": "c767e36eb00a52b014927bb70a8f2a185165b879196a4bf698d0028fe9126862",
+          "rank_0.h5": "72c40191f781896d34f987777cc7b2b6488ed77f13b35eaf7777b87401ef2440"
+        },
+        "physics": {
+          "density": 1060.0,
+          "solid_density": 1100.0,
+          "dt": 0.03125,
+          "steps": 32,
+          "pressure": 80.0,
+          "pressure_time": {
+            "amplitude": 0.0,
+            "period": 1.0,
+            "ramp_time": 1.0
+          },
+          "young": 400000.0,
+          "poisson": 0.45,
+          "viscosity": 0.004,
+          "time": {
+            "scheme": "generalized_alpha",
+            "rho_infinity": 0.5
+          }
+        },
+        "independently_recomputed_medians": {
+          "direct": {
+            "samples": 3,
+            "wall_seconds": 0.2713408519994118,
+            "outer_iterations": 8,
+            "linear_seconds": 0.050376619,
+            "setup_seconds": 0.000878891,
+            "schur_setup_seconds": 0.0,
+            "assembly_seconds": 0.057427810999999995,
+            "solve_seconds": 0.109201307,
+            "linear_diagnostic_seconds": 0.000833821
+          },
+          "twolevel_onecycle": {
+            "samples": 3,
+            "wall_seconds": 0.2924685759971908,
+            "outer_iterations": 376,
+            "linear_seconds": 0.06481264,
+            "setup_seconds": 0.000948162,
+            "schur_setup_seconds": 0.0028433169999999997,
+            "assembly_seconds": 0.057673922,
+            "solve_seconds": 0.13024861299999999,
+            "linear_diagnostic_seconds": 0.000758482
+          },
+          "twolevel_rigid": {
+            "samples": 3,
+            "wall_seconds": 0.29365863500061096,
+            "outer_iterations": 367,
+            "linear_seconds": 0.0693029,
+            "setup_seconds": 0.000977266,
+            "schur_setup_seconds": 0.002913367,
+            "assembly_seconds": 0.060587101,
+            "solve_seconds": 0.137872885,
+            "linear_diagnostic_seconds": 0.000758572
+          },
+          "gamg_constants": {
+            "samples": 3,
+            "wall_seconds": 0.3062242209998658,
+            "outer_iterations": 386,
+            "linear_seconds": 0.071110483,
+            "setup_seconds": 0.001007749,
+            "schur_setup_seconds": 0.005994836,
+            "assembly_seconds": 0.05604289,
+            "solve_seconds": 0.140709861,
+            "linear_diagnostic_seconds": 0.000693384
+          }
+        },
+        "verified_timing_order": [
+          [
+            "direct",
+            "twolevel_onecycle",
+            "twolevel_rigid",
+            "gamg_constants"
+          ],
+          [
+            "twolevel_onecycle",
+            "twolevel_rigid",
+            "gamg_constants",
+            "direct"
+          ],
+          [
+            "twolevel_rigid",
+            "gamg_constants",
+            "direct",
+            "twolevel_onecycle"
+          ]
+        ]
+      },
+      {
+        "grid": "s48-r4-w4-a6",
+        "ranks": 2,
+        "dofs": 3024,
+        "runs": [
+          {
+            "mode": "direct",
+            "label": "full-direct",
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 64,
+            "worst_true_residual_ratio": 0.047661530670870145,
+            "field_relative_peaks": {
+              "fluid_velocity": 0.0,
+              "fluid_pressure": 0.0,
+              "fluid_mesh_displacement": 0.0,
+              "wall_velocity": 0.0,
+              "wall_displacement": 0.0
+            },
+            "max_field_relative_peak": 0.0,
+            "linear_seconds": 1.685296659,
+            "log_sha256": "5b26222d0fab079779a296eb6fcfe4766dfafe3c92db0992d366cad51be52ab1",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 32,
+              "physical_end_time": 1.0,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 1.0,
+                "evaluation_time": 0.9895833333333334,
+                "applied_pressure": 79.99910984510252
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 3.009959234001144
+          },
+          {
+            "mode": "twolevel_onecycle",
+            "label": "full-twolevel_onecycle",
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 5445,
+            "worst_true_residual_ratio": 0.49459786461141003,
+            "field_relative_peaks": {
+              "fluid_velocity": 7.891686663003425e-12,
+              "fluid_pressure": 4.263040461551271e-15,
+              "fluid_mesh_displacement": 4.808545462844817e-13,
+              "wall_velocity": 7.694031610818583e-13,
+              "wall_displacement": 5.482883534111146e-15
+            },
+            "max_field_relative_peak": 7.891686663003425e-12,
+            "linear_seconds": 2.657671704,
+            "log_sha256": "8d2ed8e5e6ed297b3a52d903f0ef21a0ebb55d297892f9b5a0e01db47b7c6c43",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 32,
+              "physical_end_time": 1.0,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 1.0,
+                "evaluation_time": 0.9895833333333334,
+                "applied_pressure": 79.99910984510252
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 4.005593138001132
+          },
+          {
+            "mode": "twolevel_rigid",
+            "label": "full-twolevel_rigid",
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 5050,
+            "worst_true_residual_ratio": 0.6010254969086598,
+            "field_relative_peaks": {
+              "fluid_velocity": 5.50334120027168e-12,
+              "fluid_pressure": 1.5986401730817268e-15,
+              "fluid_mesh_displacement": 6.426551813399727e-13,
+              "wall_velocity": 4.281700389476016e-13,
+              "wall_displacement": 7.20607550197465e-15
+            },
+            "max_field_relative_peak": 5.50334120027168e-12,
+            "linear_seconds": 2.607497816,
+            "log_sha256": "b0304ae401943f2d1ddceb2a5e4be367ccae52b3674f6c12d49fbb8f1a96bb96",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 32,
+              "physical_end_time": 1.0,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 1.0,
+                "evaluation_time": 0.9895833333333334,
+                "applied_pressure": 79.99910984510252
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 3.968791968000005
+          },
+          {
+            "mode": "gamg_constants",
+            "label": "full-gamg_constants",
+            "steps": 32,
+            "corrections": 64,
+            "outer_iterations": 5683,
+            "worst_true_residual_ratio": 0.5130026914189354,
+            "field_relative_peaks": {
+              "fluid_velocity": 1.001675242102577e-11,
+              "fluid_pressure": 2.6644002884695448e-15,
+              "fluid_mesh_displacement": 1.4466100191401984e-13,
+              "wall_velocity": 7.449371937095607e-13,
+              "wall_displacement": 1.3785535742908023e-14
+            },
+            "max_field_relative_peak": 1.001675242102577e-11,
+            "linear_seconds": 3.018338885,
+            "log_sha256": "13a10669fa4fd1730712f5aedc2c29e9b8293324132399301faceb52989ecfcd",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 32,
+              "physical_end_time": 1.0,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 1.0,
+                "evaluation_time": 0.9895833333333334,
+                "applied_pressure": 79.99910984510252
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 4.341217831999529,
+            "observed_mg_levels": 2,
+            "observed_coarse_rows": [
+              39
+            ]
+          },
+          {
+            "mode": "direct",
+            "label": "warmup-direct",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 8,
+            "worst_true_residual_ratio": 0.047661530670870145,
+            "field_relative_peaks": {
+              "fluid_velocity": 0.0,
+              "fluid_pressure": 0.0,
+              "fluid_mesh_displacement": 0.0,
+              "wall_velocity": 0.0,
+              "wall_displacement": 0.0
+            },
+            "max_field_relative_peak": 0.0,
+            "linear_seconds": 0.231328557,
+            "log_sha256": "8cdee6d95593faf429dce1f842e22b2258f6e483711729893ac570b3a8621a49",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.5404750289999356
+          },
+          {
+            "mode": "twolevel_onecycle",
+            "label": "warmup-twolevel_onecycle",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 676,
+            "worst_true_residual_ratio": 0.4403815511446461,
+            "field_relative_peaks": {
+              "fluid_velocity": 1.6450190883113829e-12,
+              "fluid_pressure": 1.7546789767049288e-14,
+              "fluid_mesh_displacement": 2.5857733004550015e-12,
+              "wall_velocity": 2.2774456266861152e-14,
+              "wall_displacement": 7.787829059745517e-15
+            },
+            "max_field_relative_peak": 2.5857733004550015e-12,
+            "linear_seconds": 0.329653505,
+            "log_sha256": "0b1bd4a2d3e75a4fa9bb34b4b491b4668b367f749d95d325d697d165b5d9e1b8",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.6436425290012266
+          },
+          {
+            "mode": "twolevel_rigid",
+            "label": "warmup-twolevel_rigid",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 632,
+            "worst_true_residual_ratio": 0.5020369747045417,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.598415017197539e-13,
+              "fluid_pressure": 1.3965812263569843e-14,
+              "fluid_mesh_displacement": 3.3160904804745585e-12,
+              "wall_velocity": 3.8185112873269655e-14,
+              "wall_displacement": 6.5027389122005494e-15
+            },
+            "max_field_relative_peak": 3.3160904804745585e-12,
+            "linear_seconds": 0.33142758499999997,
+            "log_sha256": "24a4b8b230c05967cb91743ee1618a78e76e12806c6641669e5e7728e93c80f9",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.6394375820018467
+          },
+          {
+            "mode": "gamg_constants",
+            "label": "warmup-gamg_constants",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 700,
+            "worst_true_residual_ratio": 0.4706066168677584,
+            "field_relative_peaks": {
+              "fluid_velocity": 1.6678365976900224e-12,
+              "fluid_pressure": 2.757352677679174e-14,
+              "fluid_mesh_displacement": 1.2266525433352744e-12,
+              "wall_velocity": 1.4176508970914482e-14,
+              "wall_displacement": 9.83341006235205e-15
+            },
+            "max_field_relative_peak": 1.6678365976900224e-12,
+            "linear_seconds": 0.391806937,
+            "log_sha256": "f3df38ca0fb47d9356f7bf246a8f95318cd0545ac059a97e991d732b6bacd8b2",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.7295541370003775,
+            "observed_mg_levels": 2,
+            "observed_coarse_rows": [
+              39
+            ]
+          },
+          {
+            "mode": "direct",
+            "label": "timing-1-direct",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 8,
+            "worst_true_residual_ratio": 0.047661530670870145,
+            "field_relative_peaks": {
+              "fluid_velocity": 0.0,
+              "fluid_pressure": 0.0,
+              "fluid_mesh_displacement": 0.0,
+              "wall_velocity": 0.0,
+              "wall_displacement": 0.0
+            },
+            "max_field_relative_peak": 0.0,
+            "linear_seconds": 0.223535294,
+            "log_sha256": "a8358db9adf5acc97f199cb269ddbbdb63f95d7b37a65699654396eb7ea41c90",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.5330802040007256
+          },
+          {
+            "mode": "twolevel_onecycle",
+            "label": "timing-1-twolevel_onecycle",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 676,
+            "worst_true_residual_ratio": 0.4403815511446461,
+            "field_relative_peaks": {
+              "fluid_velocity": 1.6450190883113829e-12,
+              "fluid_pressure": 1.7546789767049288e-14,
+              "fluid_mesh_displacement": 2.5857733004550015e-12,
+              "wall_velocity": 2.2774456266861152e-14,
+              "wall_displacement": 7.787829059745517e-15
+            },
+            "max_field_relative_peak": 2.5857733004550015e-12,
+            "linear_seconds": 0.345516493,
+            "log_sha256": "dcc58b2a90a0c6d5be366a713d27671d71e863d2e5240390baf78f61c63f1318",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.6584954749996541
+          },
+          {
+            "mode": "twolevel_rigid",
+            "label": "timing-1-twolevel_rigid",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 632,
+            "worst_true_residual_ratio": 0.5020369747045417,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.598415017197539e-13,
+              "fluid_pressure": 1.3965812263569843e-14,
+              "fluid_mesh_displacement": 3.3160904804745585e-12,
+              "wall_velocity": 3.8185112873269655e-14,
+              "wall_displacement": 6.5027389122005494e-15
+            },
+            "max_field_relative_peak": 3.3160904804745585e-12,
+            "linear_seconds": 0.281765332,
+            "log_sha256": "15fa944d3fd6e6a5f809af07940029c6226df1bf094e5fec0a7ba9d506a516c6",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.5874719909988926
+          },
+          {
+            "mode": "gamg_constants",
+            "label": "timing-1-gamg_constants",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 700,
+            "worst_true_residual_ratio": 0.4706066168677584,
+            "field_relative_peaks": {
+              "fluid_velocity": 1.6678365976900224e-12,
+              "fluid_pressure": 2.757352677679174e-14,
+              "fluid_mesh_displacement": 1.2266525433352744e-12,
+              "wall_velocity": 1.4176508970914482e-14,
+              "wall_displacement": 9.83341006235205e-15
+            },
+            "max_field_relative_peak": 1.6678365976900224e-12,
+            "linear_seconds": 0.385908919,
+            "log_sha256": "6d7721bff47874f38c582f592bd5a6766b68b1949e6a6e8a76f833ae6221a547",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.7147014440015482,
+            "observed_mg_levels": 2,
+            "observed_coarse_rows": [
+              39
+            ]
+          },
+          {
+            "mode": "twolevel_onecycle",
+            "label": "timing-2-twolevel_onecycle",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 676,
+            "worst_true_residual_ratio": 0.4403815511446461,
+            "field_relative_peaks": {
+              "fluid_velocity": 1.6450190883113829e-12,
+              "fluid_pressure": 1.7546789767049288e-14,
+              "fluid_mesh_displacement": 2.5857733004550015e-12,
+              "wall_velocity": 2.2774456266861152e-14,
+              "wall_displacement": 7.787829059745517e-15
+            },
+            "max_field_relative_peak": 2.5857733004550015e-12,
+            "linear_seconds": 0.326304859,
+            "log_sha256": "c872e98f962d4c94a9e2107d90bde8a6c805a723d7a9461897ee6c413a9244bb",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.6410236740011896
+          },
+          {
+            "mode": "twolevel_rigid",
+            "label": "timing-2-twolevel_rigid",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 632,
+            "worst_true_residual_ratio": 0.5020369747045417,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.598415017197539e-13,
+              "fluid_pressure": 1.3965812263569843e-14,
+              "fluid_mesh_displacement": 3.3160904804745585e-12,
+              "wall_velocity": 3.8185112873269655e-14,
+              "wall_displacement": 6.5027389122005494e-15
+            },
+            "max_field_relative_peak": 3.3160904804745585e-12,
+            "linear_seconds": 0.33948463900000003,
+            "log_sha256": "306a6f575c1d38f458bb3d47a219233083cf5fbafa8493b52b6ea72c7d9723ce",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.6438512610002363
+          },
+          {
+            "mode": "gamg_constants",
+            "label": "timing-2-gamg_constants",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 700,
+            "worst_true_residual_ratio": 0.4706066168677584,
+            "field_relative_peaks": {
+              "fluid_velocity": 1.6678365976900224e-12,
+              "fluid_pressure": 2.757352677679174e-14,
+              "fluid_mesh_displacement": 1.2266525433352744e-12,
+              "wall_velocity": 1.4176508970914482e-14,
+              "wall_displacement": 9.83341006235205e-15
+            },
+            "max_field_relative_peak": 1.6678365976900224e-12,
+            "linear_seconds": 0.34931316700000004,
+            "log_sha256": "c1f544af68209dccc17025acfc04189fdf1e40300681858b3983eec4786607b5",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.6688620530003391,
+            "observed_mg_levels": 2,
+            "observed_coarse_rows": [
+              39
+            ]
+          },
+          {
+            "mode": "direct",
+            "label": "timing-2-direct",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 8,
+            "worst_true_residual_ratio": 0.047661530670870145,
+            "field_relative_peaks": {
+              "fluid_velocity": 0.0,
+              "fluid_pressure": 0.0,
+              "fluid_mesh_displacement": 0.0,
+              "wall_velocity": 0.0,
+              "wall_displacement": 0.0
+            },
+            "max_field_relative_peak": 0.0,
+            "linear_seconds": 0.231243249,
+            "log_sha256": "6a03ebbe1c3e671bde35731b0bba84a989d945f6b9228ded34ca9e6db848ad95",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.5346397219982464
+          },
+          {
+            "mode": "twolevel_rigid",
+            "label": "timing-3-twolevel_rigid",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 632,
+            "worst_true_residual_ratio": 0.5020369747045417,
+            "field_relative_peaks": {
+              "fluid_velocity": 3.598415017197539e-13,
+              "fluid_pressure": 1.3965812263569843e-14,
+              "fluid_mesh_displacement": 3.3160904804745585e-12,
+              "wall_velocity": 3.8185112873269655e-14,
+              "wall_displacement": 6.5027389122005494e-15
+            },
+            "max_field_relative_peak": 3.3160904804745585e-12,
+            "linear_seconds": 0.298496018,
+            "log_sha256": "6781633e2433abcde3b8b7373a6a5b3ca5ab6c2ed5db4a43c059cce7eb1ffbad",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.6030708050020621
+          },
+          {
+            "mode": "gamg_constants",
+            "label": "timing-3-gamg_constants",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 700,
+            "worst_true_residual_ratio": 0.4706066168677584,
+            "field_relative_peaks": {
+              "fluid_velocity": 1.6678365976900224e-12,
+              "fluid_pressure": 2.757352677679174e-14,
+              "fluid_mesh_displacement": 1.2266525433352744e-12,
+              "wall_velocity": 1.4176508970914482e-14,
+              "wall_displacement": 9.83341006235205e-15
+            },
+            "max_field_relative_peak": 1.6678365976900224e-12,
+            "linear_seconds": 0.36330709299999997,
+            "log_sha256": "2d7fb420e6fae4420672abd25722e6ff16fa4e8714bd618a670a09add70ba863",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.7278668399994785,
+            "observed_mg_levels": 2,
+            "observed_coarse_rows": [
+              39
+            ]
+          },
+          {
+            "mode": "direct",
+            "label": "timing-3-direct",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 8,
+            "worst_true_residual_ratio": 0.047661530670870145,
+            "field_relative_peaks": {
+              "fluid_velocity": 1.7978745600638403e-13,
+              "fluid_pressure": 3.5809775034794466e-16,
+              "fluid_mesh_displacement": 9.516203286147145e-16,
+              "wall_velocity": 3.2011471869806894e-15,
+              "wall_displacement": 1.1102237167171668e-15
+            },
+            "max_field_relative_peak": 1.7978745600638403e-13,
+            "linear_seconds": 0.22090770199999998,
+            "log_sha256": "98ac6e2680af2a005e91fb34b6fb04436710a50d254b8aa86098c173dbe0034e",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.539134581998951
+          },
+          {
+            "mode": "twolevel_onecycle",
+            "label": "timing-3-twolevel_onecycle",
+            "steps": 4,
+            "corrections": 8,
+            "outer_iterations": 676,
+            "worst_true_residual_ratio": 0.4403815511446461,
+            "field_relative_peaks": {
+              "fluid_velocity": 1.6450190883113829e-12,
+              "fluid_pressure": 1.7546789767049288e-14,
+              "fluid_mesh_displacement": 2.5857733004550015e-12,
+              "wall_velocity": 2.2774456266861152e-14,
+              "wall_displacement": 7.787829059745517e-15
+            },
+            "max_field_relative_peak": 2.5857733004550015e-12,
+            "linear_seconds": 0.351581887,
+            "log_sha256": "c9bdc184d1cc6c261b9a7978c0738beffff0782e59f70a3cf8fd015c729b8dae",
+            "status": "verified",
+            "physical_time_history": {
+              "dt": 0.03125,
+              "accepted_steps": 4,
+              "physical_end_time": 0.125,
+              "first": {
+                "time": 0.03125,
+                "evaluation_time": 0.03125,
+                "applied_pressure": 0.023283958435058594
+              },
+              "last": {
+                "time": 0.125,
+                "evaluation_time": 0.11458333333333333,
+                "applied_pressure": 1.006148244127815
+              },
+              "ramp_checked": "80 * s^3 * (10 - 15*s + 6*s^2), s=clamp(evaluation_time,0,1)",
+              "evaluation_time_checked": "dt on first step; (step-1+2/3)*dt thereafter"
+            },
+            "wall_seconds": 0.6943235359976825
+          }
+        ],
+        "pending": [],
+        "failed": [],
+        "input_sha256": {
+          "case.json": "436d8bed9ac9aadb7def6defa1b0ffa7e10baf9642dc377018b50cc3fbd4f7a9",
+          "fluid.msh": "7124e8f5a6a21a88731d109a79cd00ee15aaf324e81fdfa4d430d6459e7eabee",
+          "solid.msh": "88e8adf13651217e6306f871e32cad4b7e621cc97893ed76fa67a8ee7ab14cd7"
+        },
+        "partition_sha256": {
+          "manifest.yaml": "70749ac6068ad1878436105b55f3dd876ccef1abc956c78b0495d09155479bb4",
+          "rank_0.h5": "0f802fbc98ac091cc5eaf3caf6eba6cd009f1c0e7c14d5bfc0c38b60fd7975fe",
+          "rank_1.h5": "8898a864312acfbe372af02689beb4633af06fa6d488d5aed852bbd25f337007"
+        },
+        "physics": {
+          "density": 1060.0,
+          "solid_density": 1100.0,
+          "dt": 0.03125,
+          "steps": 32,
+          "pressure": 80.0,
+          "pressure_time": {
+            "amplitude": 0.0,
+            "period": 1.0,
+            "ramp_time": 1.0
+          },
+          "young": 400000.0,
+          "poisson": 0.45,
+          "viscosity": 0.004,
+          "time": {
+            "scheme": "generalized_alpha",
+            "rho_infinity": 0.5
+          }
+        },
+        "independently_recomputed_medians": {
+          "direct": {
+            "samples": 3,
+            "wall_seconds": 0.5346397219982464,
+            "outer_iterations": 8,
+            "linear_seconds": 0.223535294,
+            "setup_seconds": 0.001101185,
+            "schur_setup_seconds": 0.0,
+            "assembly_seconds": 0.128104857,
+            "solve_seconds": 0.351799949,
+            "linear_diagnostic_seconds": 0.002031756
+          },
+          "twolevel_onecycle": {
+            "samples": 3,
+            "wall_seconds": 0.6584954749996541,
+            "outer_iterations": 676,
+            "linear_seconds": 0.345516493,
+            "setup_seconds": 0.001228889,
+            "schur_setup_seconds": 0.005993951,
+            "assembly_seconds": 0.11826771999999999,
+            "solve_seconds": 0.482366746,
+            "linear_diagnostic_seconds": 0.0012717079999999999
+          },
+          "twolevel_rigid": {
+            "samples": 3,
+            "wall_seconds": 0.6030708050020621,
+            "outer_iterations": 632,
+            "linear_seconds": 0.298496018,
+            "setup_seconds": 0.00115719,
+            "schur_setup_seconds": 0.005683461,
+            "assembly_seconds": 0.114872647,
+            "solve_seconds": 0.429754544,
+            "linear_diagnostic_seconds": 0.00114423
+          },
+          "gamg_constants": {
+            "samples": 3,
+            "wall_seconds": 0.7147014440015482,
+            "outer_iterations": 700,
+            "linear_seconds": 0.36330709299999997,
+            "setup_seconds": 0.001396493,
+            "schur_setup_seconds": 0.023472222,
+            "assembly_seconds": 0.113185841,
+            "solve_seconds": 0.5279363,
+            "linear_diagnostic_seconds": 0.001168439
+          }
+        },
+        "verified_timing_order": [
+          [
+            "direct",
+            "twolevel_onecycle",
+            "twolevel_rigid",
+            "gamg_constants"
+          ],
+          [
+            "twolevel_onecycle",
+            "twolevel_rigid",
+            "gamg_constants",
+            "direct"
+          ],
+          [
+            "twolevel_rigid",
+            "gamg_constants",
+            "direct",
+            "twolevel_onecycle"
+          ]
+        ]
+      }
+    ],
+    "totals": {
+      "verified_runs": 40,
+      "accepted_steps": 384,
+      "corrections": 768,
+      "outer_iterations": 37899,
+      "max_true_residual_ratio": 0.6010254969086598,
+      "max_field_relative_peak": 1.001675242102577e-11
+    }
+  },
+  "status": "verified_completed_receipt"
+}

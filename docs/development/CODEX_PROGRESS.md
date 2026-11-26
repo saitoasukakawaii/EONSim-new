@@ -1,11 +1,35 @@
 # EONSim Codex Development Progress
 
-## 2026-11-26 · FSI-PC-04：联合速度 AMG 与旋转粗模态
+## 2026-11-26 · FSI-PC-04：实现、参数对照与独立审计完成
 
-GitHub 已确认上一轮 PR #53 合入 `main@858f021a34ff5bd178287430d8cd45e52ec19f48`，
-开始 `codex/fsi-block-amg-robustness`。本轮聚焦分块算法：完整流固速度块的可选 GAMG、
-参考几何刚体粗模态、真实数值更新及密度比/时间步对照。实现阶段尚未构建或执行算例；
-沿用用户指定的“全部代码先同步远程、再验证、最后合并”顺序。
+从已合并 PR #53 的 `main@858f021a34ff5bd178287430d8cd45e52ec19f48` 接续，交付
+[PR #54](https://github.com/saitoasukakawaii/EONSim-new/pull/54)。最终生产源码与驱动为
+`88e6c3359b742735877177eb4584b987caae1790`；所有实现/修复均先同步远程，再执行构建或算例。
+合并状态以 PR 的 GitHub 记录为准，不将证据/文档提交计为新数值执行。
+
+完整联合速度块增加可选 scalar GAMG，twolevel 增加真实固体参考旋转粗空间，补齐
+owned/alias/约束/空 rank 语义、main/inner/upper 配置与 Galerkin 数值更新。
+`gamg+rigid` 明确拒绝：不规则 scalar 聚合上的多向量局部秩不由全局正交保证；
+未实现 packed-vector 辅助空间，不声称完整向量弹性 AMG。默认 recipe/粗空间保持。
+
+本地 a7e0 源码 **7/7** 定向 CTest 与两种新路径的实际缩步/重启通过；最终 88e6 仅补报错前
+刷新、计时/取消清理，重编 eonsim 后受影响 COO **1/1**、进程控制 **9/9** 通过。
+此前不受影响的代数/RCR/retry 复用本轮通过证据，88e6 本地未重跑；未执行本地全量、Debug 或 3.19.6。
+最终 88e6 [源码 CI](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45741570996)
+实际 **56/56 Release + 10/10 Python**、三项 core jobs 及网站检查成功；后续证据提交不计新执行。
+初始 GAMG setup 顺序失败、远端故障标记交错及 timeout 轮询计时问题均保留原件与修复依据。
+
+最终动脉 **78/78 runs、656 接受步、1,282 次线性修正**，含 8 条完整 32 步轨迹和
+30 次 `rho_s/rho_f=1/.1/.01 × dt=1/32,1/128` 对照。独立 raw/log/owned-VTU 重放通过；
+最大真实残量/门槛 **0.6010255**，最大五场相对峰值差 **2.6171e-9 < 2e-6**。
+另保留 a7e0 的 20 次筛选与 1ab 的 8 次中间准入，不混入最终重复计时样本。
+
+细网格 twolevel rigid 的 32 步外迭代 **5,445→5,050**；三个四步配对 wall 变化中位数
+**−10.79%**，范围 **[−13.14%,+0.44%]**。粗网格无收益，GAMG 两档配对 wall 中位数
+**+5.35%/+4.83%**。两项保留可选，不作稳定普遍加速结论。
+[完整来源、命令、失败与审计](../research/data/fsi-block-multilevel-2026-11-26/README.md) ·
+[未发布草稿](../../website/drafts/fsi-reference-modes-and-gamg.md)。
+证据仅共享单机、性能 1/2 rank、部分正确性 4 rank；不声称多节点/GPU/大规模验证。
 
 ## 2026-11-26 · FSI-PERF-03：实现、验证与性能审计完成
 

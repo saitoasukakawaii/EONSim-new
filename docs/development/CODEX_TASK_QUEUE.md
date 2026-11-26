@@ -1,15 +1,27 @@
 # EONSim Codex Task Queue
 
-## FSI-PC-04 / implementation in progress / 2026-11-26
+## FSI-PC-04 / implementation and validation complete / 2026-11-26
 
 从 GitHub 已核验的 main `858f021a34ff5bd178287430d8cd45e52ec19f48`（#53 已合并）
 继续 FSI block preconditioner，分支 `codex/fsi-block-amg-robustness`。
 用户授权顺序为完成代码、推送远程、算例验证、通过四项必需检查后锁定 head squash 合并。
 
-本轮关闭已有算法缺口：联合速度块多层 GAMG、可选参考坐标旋转粗模态、语义/约束及
-空 rank 处理，以及带显式密度比/时间步来源的直接解对照。已有 twolevel 常数粗空间及
-默认 recipe 保留。此条为领取记录；尚未运行本轮构建或算例，不预写通过结果。
-多节点/GPU、百万自由度及任意密度/Re 参数的普适收敛不属于本地证据能够支持的结论。
+本轮已关闭联合速度 scalar GAMG、twolevel 参考旋转模态、语义/约束/空 rank、真实数值
+刷新、直接解密度比/时间步对照、RCR/恢复及独立审计任务。最终源码/驱动为 `88e6c335`，
+交付 [PR #54](https://github.com/saitoasukakawaii/EONSim-new/pull/54)，合并状态由 GitHub 核验。
+
+本地 a7e0 **7/7** 定向 CTest 和两种新路径的 1/2-rank 实际缩步/重启通过；88e6 修复错误标记
+刷新后只复验受影响 COO **1/1**，计时/取消控制 **9/9**。其余复用本轮此前通过证据，未重复执行。
+88e6 源码 CI 实际 **56/56 Release + 10/10 Python**，其四项必需检查成功；最终文档提交状态以 PR 为准。
+最终 **78/78 动脉 runs / 656 步 / 1,282 次修正** 经独立来源、原始日志、五场及统计重放。
+最大场差 `2.6171e-9`，原 `2e-6` 门槛不变；失败原件和修复过程均归档。
+
+细网格 rigid 迭代 **5,445→5,050**，四步 wall 配对中位变化 **−10.79%**，范围跨零；
+粗网格与 GAMG 无时间收益，保持显式选项，不默认切换。
+`gamg+rigid` 因 scalar aggregate 局部秩风险拒绝，不将未实现的向量辅助空间写成完成。
+[命令、来源、性能边界和归档](../research/data/fsi-block-multilevel-2026-11-26/README.md)。
+本轮适用项已完成或给出有证据的采用判断；未追加无限优化任务。
+多节点/GPU、百万自由度和任意密度/Re 的普适收敛不属于本地证据能够支持的结论。
 
 ## FSI-PERF-03 / implementation and validation complete / 2026-11-26
 

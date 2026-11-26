@@ -3,9 +3,23 @@
 ## 2026-11-26 · FSI-PC-04：参考旋转模式与联合速度 GAMG
 
 [未发布算法草稿](../../website/drafts/fsi-reference-modes-and-gamg.md)记录缩减语义行的参考
-位置、约束零模态、局部/全局粗空间区别及插值复用的数值刷新。实现分支为
-`codex/fsi-block-amg-robustness`，基线 main `858f021`；当前为源码阶段，尚未执行本轮验证。
-固定 PETSc 3.23.7 原始源码作为实现依据，不将 near-nullspace 宣称为动态 FSI 精确零空间。
+位置、约束零模态、局部/全局粗空间区别及插值复用的数值刷新。最终源码/驱动 `88e6c335`，
+基线 main `858f021`，交付 [PR #54](https://github.com/saitoasukakawaii/EONSim-new/pull/54)。
+所有实现/修复先推送后验证，合并状态以 GitHub 为准。
+固定 PETSc 3.23.7 为依据；scalar aggregate 的多向量局部秩风险使 `rigid` 仅支持 twolevel，
+不把 near-nullspace 宣称为动态 FSI 精确零空间，也不声称完整向量弹性 AMG 已实现。
+
+本地 a7e0 的 7/7 定向、两种 1/2-rank 真实缩步/重启通过；88e6 报错刷新改动只补受影响
+COO 1/1，9/9 计时/取消控制通过，其余复用此前证据而未重复运行。
+最终 88e6 源码 CI 实际 56/56 Release、10/10 Python 与四项必需检查成功，来源收据已归档。
+最终 78/78 动脉 runs、656 步、1,282 次修正独立重放通过；最大场差 `2.6171e-9`，门槛不变。
+细网格 rigid 迭代 `5445→5050`，wall 配对中位变化 `−10.79%`，三次范围跨零；
+粗网格及 GAMG 无时间优势，两项均保留可选。没有多节点/GPU/生产规模结论。
+
+可复用错误包括 GAMG 创建层级前调用 PCMG setter、fatal 前未刷新的 stdout 与 MPI stderr
+交错，以及 `subprocess.run(timeout)` 对短命令外部计时的轮询影响。
+失败原件、两个 binary 来源、逐项命令、统计定义与独立审计均见
+[完整证据](data/fsi-block-multilevel-2026-11-26/README.md)，知识草稿保持未发布。
 
 ## 2026-11-26 · FSI-PERF-03：实际工作计数、成本分区与输出语义
 

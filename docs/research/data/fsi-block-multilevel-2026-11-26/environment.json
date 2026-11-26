@@ -1,0 +1,65 @@
+{
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+  "allowed_cpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "versions": [
+    {
+      "command": [
+        "mpiexec",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "mpiexec (Open MPI) 5.0.8\n\nReport bugs to https://www.open-mpi.org/community/help/\n\n"
+    },
+    {
+      "command": [
+        "c++",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "c++ (conda-forge gcc 15.3.0-7) 15.3.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+    },
+    {
+      "command": [
+        "cmake",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "cmake version 4.4.5\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\n"
+    },
+    {
+      "command": [
+        "pkg-config",
+        "--modversion",
+        "PETSc"
+      ],
+      "exit_code": 0,
+      "output": "3.23.7\n"
+    }
+  ],
+  "thread_environment": {
+    "OMP_NUM_THREADS": "1",
+    "OMP_DYNAMIC": null,
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "binary_manifest": "build/fsi-amg-validation/binary-source.json",
+  "build/locked.sh": {
+    "sha256": "48e96f86b46990730e83f47b531c7ea3d1111e64e8116ea0b81c5def077951c5",
+    "size": 842
+  },
+  "build/cloud-3.23.7-release/CMakeCache.txt": {
+    "sha256": "46f369e1cfa8dff4af6c6489f61172fb3f4d482a42bf940e2fcd9981b889e7fe",
+    "size": 31428
+  }
+}
