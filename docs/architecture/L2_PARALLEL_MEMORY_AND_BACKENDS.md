@@ -125,12 +125,10 @@ ghost exchange、计算仅依赖 owned 的单元、完成通信，再处理 halo
 各单元只处理一次；两阶段仍使用相同物理核和有界线程批次，COO 的跨单元加和次序可能改变。
 任一局部回调失败时也必须完成已发起的 exchange 后才共同传播；不读取 pending ghost。
 默认保持原装配顺序，开启重叠不构成实际通信进展或多节点加速保证。
-若后续引入，必须先识别只依赖
-owned trial 值的单元，保证 ghost 完成前不读远程值，并在所有 rank 上共同结束已发起的
-通信后再传播失败。`ghost_seconds` 包含本地 Vec 取值，`assembly_finalize_seconds`
+`ghost_seconds` 包含本地 Vec 取值、发起和等待，`assembly_finalize_seconds`
 包含本地整理和 COO 归并；二者均不能直接当作可隐藏的网络等待。逐项取最大 rank 的
 `callback_seconds` 和 `failure_sync_seconds` 可能来自不同 rank，不能相加推断通信占比。
-是否值得改变 callback 契约应由实际分区、通信等待和可重叠 owned 工作量的测量决定。
+是否开启两阶段路径由实际分区、通信等待和可重叠 owned 工作量的测量决定。
 
 普通 Mat/Vec 双插入路径的最终装配按共同的 `VecBegin → MatBegin → VecEnd → MatEnd`
 次序排空两个独立 stash，允许已经发起的两类装配通信同时推进；被拒绝试探点使用相同

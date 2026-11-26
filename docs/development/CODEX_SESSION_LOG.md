@@ -1,5 +1,77 @@
 # EONSim Codex Session Log
 
+## 2026-11-26 · HPC-05 — 五项实现、失败闭环与证据审计
+
+核实 #54 已合并、main 为 f8dbd699 后，在保留的 PETSc3.23.7 Release 工作区建立
+`codex/hpc-five-track-optimization`。分工实现聚合AMG/自适应、SIMD/ghost验证及HDF5，
+主任务集成真实FSI阶段拆分、稳定范数、输出路由和CI选测。初始30文件在eec28ec同步。
+直接git push缺凭据，改用已连接GitHub的blob/tree/commit/ref工具；每次验证远端tree
+与本地commit完全一致，普通expected-SHA更新分支，没有强推或绕过保护。
+
+### 实现中发现并关闭的问题
+
+- FieldAcceptance拥有MPI_Datatype/Op后不可复制，改成按layout/constraints重新构造诊断器。
+- 不同rank选用不同归约协议或阶段回调会导致collective不匹配；复用原验证归约共同检查。
+- 所有owned/halo异常都先End已发起ghost，再执行共同错误传播与stash排空，零owned避免空指针算术。
+- HDF5成功替换会产生旧载荷，改为仅回收本进程创建且已被替代的payload；失败保留旧entry。
+- 第一次构建仅测试代码混合auto推导string/path失败；bb4fd3b拆分声明，推送后增量重建。
+- h5py缺失不阻断数据核验；2788970改为native h5dump XML、17位浮点和精确整数类型解析。
+- 自适应很小压力对角项导致虚高相对漂移；改用同一行的新旧绝对行和归一化，保留年龄、
+  迭代、上下文及一次重建保护。动脉仍几乎每次刷新，诚实记录其真实矩阵变化。
+
+### 先同步、后执行的验证与性能
+
+首轮15项定向Release全部通过，漂移改动只复验3项adaptive；21个profile Python检查通过。
+9c4af0d把overlap开关嵌入既有真实FSI参考对照，37 次运行均符合预期，包含双线程、移动RCR、
+重启、真实缩步、第二批recoverable/fatal；其中 3 次为预期失败（两次 fatal 注入和一次重试耗尽），
+不计作正常收敛。共享CTest临时日志的覆盖副本标记为其他作业，独立日志
+仍保留完整7项状态，没有重跑制造替代历史。
+
+性能任务独占分时：SIMD24次调用/20测量对；组合装配32runs；同二进制MPI8runs；HDF5
+较大输出24runs；AMG网格102runs加n12正确性10runs。核checksum一致，中位成本下降
+30.99%～34.58%；MPI字段归约6→3，ghost阶段中位−41.34%，wall区间跨零。输出显著快于
+ASCII却慢于binary。网格实际USER10→2–3，J仍10；n8/2rank adaptive配对线性−27.85%、wall−13.35%。
+各实验完整物理/残差/输出/hash和统计由非实现者独立回放，不只检查exit0。
+
+### 两种失败保留与严格动脉修正
+
+8f7af90新规模驱动未请求pc_plan_report，30次进程虽退出成功，18个模式缺少所需粗层证据，
+仍记为失败。a63aa2e补报告后直接执行带准入/预热的三重复完整研究，没有先重复一轮无关测试。
+
+原5e-11请求的32步动脉粗网格fresh aggregate在第14步第二次修正出现FGMRES残差间隙：
+报告7.35209e-20、CONVERGED_RTOL，但显式残差2.93746e-19超过2.42972e-19目标。按原门槛
+保留失败，未用输出完整或物理场一致覆盖它。对照固定PETSc3.23.7源码/API，确认收敛检查
+使用Hessenberg递推估计。ceaa680只增加公共--outer-rtol1e-11，默认5e-11及独立
+max(1e-23,1e-10*rhs)门槛均保持；所有选择的迭代模式/网格共用更严格请求，唯一一次复测。
+
+最终quick6/6、full30/30，312步624真实修正独立审计通过。最坏比.8439101351，场差
+7.5813e-12<2e-6。六条完整32步轨迹通过；计时样本另为四步窗口，不能写成32步性能。
+实际USER64→61/62、J64，四步计时无统一收益，没有继续参数搜索。
+
+### 交付与适用范围
+
+生产最终2788970，验证驱动ceaa680；docs在执行时处于编辑中，source_dirty如实保留，
+独立审计确认实际helper/driver均与记录commit的Git内容哈希一致。归档原始失败、最终成功、
+输入/分区、所有保存字段、完整日志与独立统计，并记录主程序基线88e6、候选b4fe7184。
+微基准基线仅有保存时身份/哈希，不捏造其原始编译commit。
+
+源码 `ceaa680c` 的 [Core run 45748579007](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45748579007)
+实际 **75/75 Release、0 failed、0 skipped、0 复用**；选测阶段六组 Python 共 **75/75** 通过。
+selection、Release、receipt 三项成功，merge checkout 为 `10bfcd6e4aaa2d592791bdb67cb08ef172189233`。
+[Website check 45748578957](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45748578957)
+成功，但该源码 head 没有网站改动，实际安装/构建步骤跳过，不声称新增 VitePress 构建。
+最终证据/文档提交再核对最新 head 的四项必需检查，不把复用的 source 执行记为重新运行。
+
+[完整证据](../research/data/hpc-five-track-2026-11-26/README.md)和
+[知识草稿](../../website/drafts/hpc-five-track-optimization.md)随PR#55交付。main四项经典
+保护已读取核实，最终head检查通过后按用户已授权的锁定head squash完成；不公开发布草稿。
+证据只到共享单机性能1/2rank、代数1/2/4rank；本地未跑全量、Debug或旧PETSc。
+
+本次接续完成独立源码审查和归档完整性复核：18 个分片、36,043,612 字节压缩包及
+14,050 个成员（1,009,091,804 字节）均与 SHA256/大小清单相符，四个保留二进制身份一致。
+修正 37 次运行的表述，区分正常求解与预期故障；仅文档更改，复用历史通过证据，本次未运行
+构建、数值或性能测试。最终文档提交的 CI 按已有增量规则执行。
+
 ## 2026-11-26 · FSI-PC-04 — 实现、验收与独立审计完成
 
 通过 GitHub 核实 main 为 `858f021`、#53 已合并且无开放 PR，恢复同一锁定 Release 工作区，

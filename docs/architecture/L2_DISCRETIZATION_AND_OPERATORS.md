@@ -207,7 +207,7 @@ domain rejection 不使最终成功的会话失效。fatal callback 遗留的 tr
 后者不表示 PETSc 所有内部 PC setup。显式 `-solver_rank_report` 在原报告同步阶段
 附加 rank-local 时长与 owned/ghost 规模，默认关闭，不在热回调另加报告规约。
 
-当前 `NonlinearSystem::solve` 从 `AlgebraLayout::fields` 建立 owned 行分组，并检查字段覆盖且互不重叠。剔除 Dirichlet 替换行后，物理方程按 `sqrt(sum((R_i/residual_scale)^2)/N) <= atol + rtol*initial_rms` 接受；约束替换行按 `max(abs(x_i-g_i)/constraint_scale) <= constraint_tolerance` 接受。只有约束而没有物理方程的字段 RMS 为 0；本地空字段仍参与规约。每次检查将所有字段合并为一次平方和规约与一次约束最大值规约，不收集全局向量。
+当前 `NonlinearSystem::solve` 从 `AlgebraLayout::fields` 建立 owned 行分组，并检查字段覆盖且互不重叠。剔除 Dirichlet 替换行后，物理方程按 `sqrt(sum((R_i/residual_scale)^2)/N) <= atol + rtol*initial_rms` 接受；约束替换行按 `max(abs(x_i-g_i)/constraint_scale) <= constraint_tolerance` 接受。只有约束而没有物理方程的字段 RMS 为 0；本地空字段仍参与规约。默认用 `(scale,sumsq,constraint_max)` 的可合并状态将所有字段放入一次归约，避免直接平方的溢出/下溢；`-nonlinear_fused_reductions false` 保留两次归约对照。各 rank 共同验证协议，不收集全局向量。
 
 SNESSolve 返回后始终做一次独立的全新原始残量组装，不复用 SNES 已接受的函数值。
 先保存该次原始残量的 owned+ghost 反力，再替换 owned 约束行，执行原有范数和字段验收。
@@ -341,7 +341,9 @@ P2 几何继续使用 Tri3，ScalarP2Space 独立持有顶点/边中点的 cell-
 
 默认每个成功 Jacobian 仍更新数值 PC。显式 `-nonlinear_adaptive_pc true` 仅用于合资格
 默认 Newton/FGMRES、当前精确 Jacobian、未设置手动 lag/reuse/EW 的会话。每次仍重新
-组装 J；只允许数值 PC 和其 USER Schur 近似滞后。每行 diagonal/absolute-row-sum 变化、
+组装 J；只允许数值 PC 和其 USER Schur 近似滞后。每行 diagonal/absolute-row-sum 变化均以
+该行新旧绝对行和的最大值归一化，避免很小的压力对角项独占变化尺度；这是一种采样指标，
+不是完整矩阵差范数。该变化、
 最大复用次数、上次 KSP 迭代增长、拒绝试探或时间系数 context 变化触发重建。
 默认最大复用 4 次、相对变化门槛 .1、迭代增长系数 1.5；各项可显式配置并报告原因及监测成本。
 未提供物理 context 时不跨 solve 复用；配置/options/约束或失败仍销毁整个会话。

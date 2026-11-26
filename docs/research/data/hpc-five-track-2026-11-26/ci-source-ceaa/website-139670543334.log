@@ -1,0 +1,67 @@
+﻿2026-11-26T03:23:18.2788958Z Current runner version: '2.338.2'
+2026-11-26T03:23:18.2813963Z ##[group]Runner Image Provisioner
+2026-11-26T03:23:18.2814824Z Hosted Compute Agent
+2026-11-26T03:23:18.2815397Z Version: 20261111.635
+2026-11-26T03:23:18.2815949Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+2026-11-26T03:23:18.2816571Z Build Date: 2026-11-11T01:49:01Z
+2026-11-26T03:23:18.2817292Z Worker ID: {c2f491c4-a3a6-45be-a9f7-5a6736b43a97}
+2026-11-26T03:23:18.2817915Z Region: westus2
+2026-11-26T03:23:18.2818493Z Cloud: Azure
+2026-11-26T03:23:18.2819014Z ##[endgroup]
+2026-11-26T03:23:18.2820217Z ##[group]Operating System
+2026-11-26T03:23:18.2820858Z Ubuntu
+2026-11-26T03:23:18.2821345Z 26.04.1
+2026-11-26T03:23:18.2821837Z LTS
+2026-11-26T03:23:18.2822295Z ##[endgroup]
+2026-11-26T03:23:18.2822769Z ##[group]Runner Image
+2026-11-26T03:23:18.2823542Z Image: ubuntu-26.04
+2026-11-26T03:23:18.2824034Z Version: 20261116.202.1
+2026-11-26T03:23:18.2825323Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261116.202/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-26T03:23:18.2826718Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261116.202
+2026-11-26T03:23:18.2827669Z ##[endgroup]
+2026-11-26T03:23:18.2828792Z ##[group]GITHUB_TOKEN Permissions
+2026-11-26T03:23:18.2830516Z Contents: read
+2026-11-26T03:23:18.2831051Z Metadata: read
+2026-11-26T03:23:18.2831614Z PullRequests: read
+2026-11-26T03:23:18.2832121Z ##[endgroup]
+2026-11-26T03:23:18.2834253Z Secret source: Actions
+2026-11-26T03:23:18.2835133Z Cache mode: write
+2026-11-26T03:23:18.2835784Z Prepare workflow directory
+2026-11-26T03:23:18.3066122Z Prepare all required actions
+2026-11-26T03:23:18.3097128Z Getting action download info
+2026-11-26T03:23:18.6345386Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-26T03:23:18.7376484Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-11-26T03:23:18.8838057Z Complete job name: Build VitePress
+2026-11-26T03:23:18.9741375Z ##[group]Run set -euo pipefail
+2026-11-26T03:23:18.9741797Z [36;1mset -euo pipefail[0m
+2026-11-26T03:23:18.9742086Z [36;1mpython3 - <<'PY'[0m
+2026-11-26T03:23:18.9742365Z [36;1mimport json, os, subprocess[0m
+2026-11-26T03:23:18.9742672Z [36;1mfrom pathlib import Path[0m
+2026-11-26T03:23:18.9743240Z [36;1mevent = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())[0m
+2026-11-26T03:23:18.9743753Z [36;1mneeded = True[0m
+2026-11-26T03:23:18.9744075Z [36;1mif os.environ['GITHUB_EVENT_NAME'] == 'pull_request':[0m
+2026-11-26T03:23:18.9744440Z [36;1m    pr = event['pull_request'][0m
+2026-11-26T03:23:18.9744762Z [36;1m    files = [][0m
+2026-11-26T03:23:18.9745035Z [36;1m    for page in range(1, 101):[0m
+2026-11-26T03:23:18.9745454Z [36;1m        endpoint = (f"repos/{os.environ['GITHUB_REPOSITORY']}/pulls/{pr['number']}"[0m
+2026-11-26T03:23:18.9745912Z [36;1m                    f"/files?per_page=100&page={page}")[0m
+2026-11-26T03:23:18.9746396Z [36;1m        items = json.loads(subprocess.check_output(['gh', 'api', endpoint]))[0m
+2026-11-26T03:23:18.9746826Z [36;1m        files.extend(items)[0m
+2026-11-26T03:23:18.9747124Z [36;1m        if len(items) < 100:[0m
+2026-11-26T03:23:18.9747412Z [36;1m            break[0m
+2026-11-26T03:23:18.9747727Z [36;1m    if not files or len(files) != pr['changed_files']:[0m
+2026-11-26T03:23:18.9748140Z [36;1m        raise RuntimeError('Incomplete changed-file list')[0m
+2026-11-26T03:23:18.9748622Z [36;1m    paths = [p for f in files for p in (f['filename'], f.get('previous_filename', ''))][0m
+2026-11-26T03:23:18.9749245Z [36;1m    needed = any(p.startswith('website/') or p == '.github/workflows/website-build.yml'[0m
+2026-11-26T03:23:18.9749689Z [36;1m                 for p in paths)[0m
+2026-11-26T03:23:18.9750054Z [36;1mwith open(os.environ['GITHUB_OUTPUT'], 'a') as output:[0m
+2026-11-26T03:23:18.9750455Z [36;1m    output.write(f'needed={str(needed).lower()}\n')[0m
+2026-11-26T03:23:18.9750979Z [36;1mprint('Build website' if needed else 'No website changes; required check succeeds without a build')[0m
+2026-11-26T03:23:18.9751656Z [36;1mPY[0m
+2026-11-26T03:23:18.9781471Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-26T03:23:18.9781943Z env:
+2026-11-26T03:23:18.9784248Z   GH_TOKEN: ***
+2026-11-26T03:23:18.9784488Z ##[endgroup]
+2026-11-26T03:23:19.8201691Z No website changes; required check succeeds without a build
+2026-11-26T03:23:19.8380546Z Cleaning up orphan processes
+

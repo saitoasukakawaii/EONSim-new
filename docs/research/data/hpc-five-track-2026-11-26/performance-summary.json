@@ -1,0 +1,4545 @@
+{
+  "schema": 1,
+  "production_source": "27889707a3c650d532c2845b2f6da7fc5d2324d4",
+  "source_and_test_head": "ceaa680c5c2c521abc71f0014337dc3ea16796a9",
+  "scope": "shared single host; performance1/2 MPI ranks; algebra correctness1/2/4; no multi-node or mesh-independent claim",
+  "simd": {
+    "samples_per_kernel": 50000,
+    "repeats": 5,
+    "warmup_pairs_per_metric": 1,
+    "summary": [
+      {
+        "metric": false,
+        "pressure_face": false,
+        "paired_relative_change": {
+          "cpu_seconds": {
+            "median": -0.3214331148179398,
+            "minimum": -0.4003397732211291,
+            "maximum": -0.26459119307035284
+          },
+          "wall_seconds": {
+            "median": -0.3213629259451892,
+            "minimum": -0.4006034756271438,
+            "maximum": -0.27387699235209884
+          }
+        },
+        "median_seconds": {
+          "baseline": {
+            "cpu_seconds": 0.358806,
+            "wall_seconds": 0.358791579
+          },
+          "candidate": {
+            "cpu_seconds": 0.237833,
+            "wall_seconds": 0.237838553
+          }
+        }
+      },
+      {
+        "metric": false,
+        "pressure_face": true,
+        "paired_relative_change": {
+          "cpu_seconds": {
+            "median": -0.3104102840053323,
+            "minimum": -0.38995260224721406,
+            "maximum": -0.30456666353250905
+          },
+          "wall_seconds": {
+            "median": -0.30990444395076844,
+            "minimum": -0.3893773660932943,
+            "maximum": -0.30461031765097835
+          }
+        },
+        "median_seconds": {
+          "baseline": {
+            "cpu_seconds": 0.364029,
+            "wall_seconds": 0.364050797
+          },
+          "candidate": {
+            "cpu_seconds": 0.24102,
+            "wall_seconds": 0.241017704
+          }
+        }
+      },
+      {
+        "metric": true,
+        "pressure_face": false,
+        "paired_relative_change": {
+          "cpu_seconds": {
+            "median": -0.3457621159233223,
+            "minimum": -0.42760099969577825,
+            "maximum": -0.3182006272569605
+          },
+          "wall_seconds": {
+            "median": -0.34575525258091744,
+            "minimum": -0.42755894363855895,
+            "maximum": -0.3240532602136461
+          }
+        },
+        "median_seconds": {
+          "baseline": {
+            "cpu_seconds": 0.442243,
+            "wall_seconds": 0.446073389
+          },
+          "candidate": {
+            "cpu_seconds": 0.285286,
+            "wall_seconds": 0.285311
+          }
+        }
+      },
+      {
+        "metric": true,
+        "pressure_face": true,
+        "paired_relative_change": {
+          "cpu_seconds": {
+            "median": -0.3423264052426034,
+            "minimum": -0.41906011084375216,
+            "maximum": -0.33589010423758303
+          },
+          "wall_seconds": {
+            "median": -0.34242325880279834,
+            "minimum": -0.39945179122276564,
+            "maximum": -0.33136276114395946
+          }
+        },
+        "median_seconds": {
+          "baseline": {
+            "cpu_seconds": 0.462693,
+            "wall_seconds": 0.462726683
+          },
+          "candidate": {
+            "cpu_seconds": 0.299751,
+            "wall_seconds": 0.299759155
+          }
+        }
+      }
+    ],
+    "max_checksum_relative_change": 0.0,
+    "threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "host": {
+      "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+      "machine": "x86_64",
+      "cpu_count": 9,
+      "affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "lscpu": "unavailable: missing /sys/devices/system/cpu/possible",
+      "cgroup_cpu_max": "unavailable at /sys/fs/cgroup/cpu.max",
+      "cpu_models": [
+        "AMD EPYC 9V74 80-Core Processor"
+      ]
+    }
+  },
+  "assembly_combined": {
+    "status": "passed",
+    "field_absolute_limit": 2e-09,
+    "linear_gate": "1e-12 + 1e-10 * rhs_norm",
+    "binaries": {
+      "baseline": {
+        "path": "/workspace/scratch/ae740e1dde63/EONSim-new/build/hpc-five-track/baseline/eonsim",
+        "sha256": "c57ab409a125d759fd51513cf5c03024feec2f67a0f224fd1aa40cc87be1cf09",
+        "build_source_commit": "88e6c3359b742735877177eb4584b987caae1790",
+        "solver": "direct",
+        "solver_options": [
+          "-ksp_type",
+          "preonly",
+          "-pc_type",
+          "lu",
+          "-pc_factor_mat_solver_type",
+          "superlu_dist"
+        ],
+        "solver_options_sha256": "3a87f781177cb9c225087c3af95257422788f807efea8dfad98148d4926074cc",
+        "execution_options": []
+      },
+      "candidate": {
+        "path": "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/eonsim",
+        "sha256": "b4fe71840296bb0533d95a59c906d3062b14d3bfc1203dac60dfb1f590d0b3d9",
+        "build_source_commit": "27889707a3c650d532c2845b2f6da7fc5d2324d4",
+        "solver": "direct",
+        "solver_options": [
+          "-ksp_type",
+          "preonly",
+          "-pc_type",
+          "lu",
+          "-pc_factor_mat_solver_type",
+          "superlu_dist"
+        ],
+        "solver_options_sha256": "3a87f781177cb9c225087c3af95257422788f807efea8dfad98148d4926074cc",
+        "execution_options": [
+          "-fsi_overlap",
+          "true",
+          "-nonlinear_fused_reductions",
+          "true"
+        ],
+        "cmake_cache": {
+          "path": "candidate-cmake_cache.txt",
+          "sha256": "e09f93fb91761f1e8710d31c0e470ef711d1b6ae43351c9f2e5845fcfb02599b"
+        },
+        "build_receipt": {
+          "path": "candidate-build_receipt.json",
+          "sha256": "a20142b676e8e18797f4221977ec42e38757d1f252772a5e06577c0ff8250c3e"
+        }
+      }
+    },
+    "summary": [
+      {
+        "subdivisions": 4,
+        "ranks": 1,
+        "modes": {
+          "baseline": {
+            "wall_seconds": {
+              "median": 0.2731010819989024,
+              "minimum": 0.2668427460012026,
+              "maximum": 0.27713338199828286
+            },
+            "setup_seconds": {
+              "median": 0.00075172,
+              "minimum": 0.000712221,
+              "maximum": 0.000868361
+            },
+            "schur_setup_seconds": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "solve_seconds": {
+              "median": 0.102745031,
+              "minimum": 0.100737662,
+              "maximum": 0.106216639
+            },
+            "assembly_seconds": {
+              "median": 0.052332396999999996,
+              "minimum": 0.050430828999999996,
+              "maximum": 0.053491998
+            },
+            "callback_seconds": {
+              "median": 0.051441279,
+              "minimum": 0.049457368,
+              "maximum": 0.052587217
+            },
+            "failure_sync_seconds": {
+              "median": 1.7064e-05,
+              "minimum": 1.5575e-05,
+              "maximum": 1.9259e-05
+            },
+            "assembly_finalize_seconds": {
+              "median": 0.000694746,
+              "minimum": 0.000657128,
+              "maximum": 0.000722945
+            },
+            "constraint_seconds": {
+              "median": 1.002e-06,
+              "minimum": 9.91e-07,
+              "maximum": 1.051e-06
+            },
+            "ghost_seconds": {
+              "median": 7.3299e-05,
+              "minimum": 7.1978e-05,
+              "maximum": 9.7854e-05
+            },
+            "linear_seconds": {
+              "median": 0.048811061999999995,
+              "minimum": 0.048704308,
+              "maximum": 0.050991968
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.0011056,
+              "minimum": 0.000999894,
+              "maximum": 0.001135272
+            },
+            "finalize_seconds": {
+              "median": 0.001009789,
+              "minimum": 0.001007674,
+              "maximum": 0.001019374
+            },
+            "peak_rss_max_bytes": {
+              "median": 50503680.0,
+              "minimum": 50270208.0,
+              "maximum": 50577408.0
+            },
+            "peak_rss_sum_bytes": {
+              "median": 50503680.0,
+              "minimum": 50270208.0,
+              "maximum": 50577408.0
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.006213679,
+              "minimum": 0.005751086,
+              "maximum": 0.006464899
+            },
+            "initialization_plan_seconds": {
+              "median": 0.000192974,
+              "minimum": 0.000192473,
+              "maximum": 0.000872546
+            },
+            "initialization_system_seconds": {
+              "median": 0.000619564,
+              "minimum": 0.000608947,
+              "maximum": 0.000648937
+            },
+            "initialization_setup_seconds": {
+              "median": 0.00705559,
+              "minimum": 0.006563123,
+              "maximum": 0.007946392
+            }
+          },
+          "candidate": {
+            "wall_seconds": {
+              "median": 0.26418650800042087,
+              "minimum": 0.25579181899956893,
+              "maximum": 0.28886167499877047
+            },
+            "setup_seconds": {
+              "median": 0.0007407329999999999,
+              "minimum": 0.000713733,
+              "maximum": 0.000777125
+            },
+            "schur_setup_seconds": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "solve_seconds": {
+              "median": 0.095876187,
+              "minimum": 0.094254142,
+              "maximum": 0.107230828
+            },
+            "assembly_seconds": {
+              "median": 0.043537272,
+              "minimum": 0.043167409999999996,
+              "maximum": 0.047144544
+            },
+            "callback_seconds": {
+              "median": 0.042627092,
+              "minimum": 0.042285569,
+              "maximum": 0.046063597000000005
+            },
+            "failure_sync_seconds": {
+              "median": 1.1599e-05,
+              "minimum": 1.1595999999999999e-05,
+              "maximum": 1.5380000000000002e-05
+            },
+            "assembly_finalize_seconds": {
+              "median": 0.000676291,
+              "minimum": 0.000647554,
+              "maximum": 0.000761826
+            },
+            "constraint_seconds": {
+              "median": 9.009999999999999e-07,
+              "minimum": 8.799999999999999e-07,
+              "maximum": 9.51e-07
+            },
+            "ghost_seconds": {
+              "median": 9.8339e-05,
+              "minimum": 8.7002e-05,
+              "maximum": 0.000107117
+            },
+            "linear_seconds": {
+              "median": 0.051433754,
+              "minimum": 0.049333835,
+              "maximum": 0.057457383
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.000917061,
+              "minimum": 0.000803234,
+              "maximum": 0.002050416
+            },
+            "finalize_seconds": {
+              "median": 0.0010319209999999999,
+              "minimum": 0.001025924,
+              "maximum": 0.0028791439999999997
+            },
+            "peak_rss_max_bytes": {
+              "median": 50495488.0,
+              "minimum": 50487296.0,
+              "maximum": 50569216.0
+            },
+            "peak_rss_sum_bytes": {
+              "median": 50495488.0,
+              "minimum": 50487296.0,
+              "maximum": 50569216.0
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.005663387,
+              "minimum": 0.005631921,
+              "maximum": 0.006101594
+            },
+            "initialization_plan_seconds": {
+              "median": 0.000206815,
+              "minimum": 0.000200946,
+              "maximum": 0.000218532
+            },
+            "initialization_system_seconds": {
+              "median": 0.000648436,
+              "minimum": 0.000624491,
+              "maximum": 0.000681134
+            },
+            "initialization_setup_seconds": {
+              "median": 0.006514001,
+              "minimum": 0.00650641,
+              "maximum": 0.006956845
+            }
+          }
+        },
+        "paired_relative_change": {
+          "assembly_finalize_seconds": {
+            "median": -0.014569459831265785,
+            "minimum": -0.026563664994113,
+            "maximum": 0.05378140799092601
+          },
+          "assembly_seconds": {
+            "median": -0.1751302735091611,
+            "minimum": -0.18609747947721078,
+            "maximum": -0.06516420739385431
+          },
+          "callback_seconds": {
+            "median": -0.17798371615138098,
+            "minimum": -0.18940201760439235,
+            "maximum": -0.06862012956289942
+          },
+          "constraint_seconds": {
+            "median": -0.09514747859181727,
+            "minimum": -0.12175648702594821,
+            "maximum": -0.09081735620585263
+          },
+          "failure_sync_seconds": {
+            "median": -0.32044069385841545,
+            "minimum": -0.3977361233708915,
+            "maximum": -0.01252006420545726
+          },
+          "finalize_seconds": {
+            "median": 0.02406234556017095,
+            "minimum": 0.006425512128031663,
+            "maximum": 1.85123327744707
+          },
+          "ghost_seconds": {
+            "median": 0.18694661591563322,
+            "minimum": 0.0049563635620413216,
+            "maximum": 0.488190836088805
+          },
+          "initialization_pattern_seconds": {
+            "median": -0.020720434366657048,
+            "minimum": -0.12397904437486185,
+            "maximum": -0.018038427797766765
+          },
+          "initialization_plan_seconds": {
+            "median": 0.044021758896052976,
+            "minimum": -0.7495467287684546,
+            "maximum": 0.07172468829997825
+          },
+          "initialization_setup_seconds": {
+            "median": -0.013995286007265184,
+            "minimum": -0.1812120519601852,
+            "maximum": -0.0074845466098989455
+          },
+          "initialization_system_seconds": {
+            "median": 0.025526031001055882,
+            "minimum": -0.0007720317996972037,
+            "maximum": 0.09937633561665948
+          },
+          "linear_diagnostic_seconds": {
+            "median": -0.19221032492653745,
+            "minimum": -0.27348589001447177,
+            "maximum": 1.050633367136916
+          },
+          "linear_seconds": {
+            "median": 0.053731508648592774,
+            "minimum": -0.03251753295734727,
+            "maximum": 0.1797187016803523
+          },
+          "peak_rss_max_bytes": {
+            "median": 0.0012976480129764933,
+            "minimum": -0.0017816650469711925,
+            "maximum": 0.004481381895217185
+          },
+          "peak_rss_sum_bytes": {
+            "median": 0.0012976480129764933,
+            "minimum": -0.0017816650469711925,
+            "maximum": 0.004481381895217185
+          },
+          "setup_seconds": {
+            "median": -0.01461581439897841,
+            "minimum": -0.17806879857570757,
+            "maximum": 0.09112901753809566
+          },
+          "solve_seconds": {
+            "median": -0.06685329629225567,
+            "minimum": -0.11262356926959438,
+            "maximum": 0.06445619117108348
+          },
+          "wall_seconds": {
+            "median": -0.009954319690480773,
+            "minimum": -0.07700827249618802,
+            "maximum": 0.0577097420651429
+          }
+        }
+      },
+      {
+        "subdivisions": 4,
+        "ranks": 2,
+        "modes": {
+          "baseline": {
+            "wall_seconds": {
+              "median": 0.2608020590014348,
+              "minimum": 0.2569197829980112,
+              "maximum": 0.2886233889985306
+            },
+            "setup_seconds": {
+              "median": 0.001192322,
+              "minimum": 0.0010830500000000001,
+              "maximum": 0.001235955
+            },
+            "schur_setup_seconds": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "solve_seconds": {
+              "median": 0.099667434,
+              "minimum": 0.092084926,
+              "maximum": 0.105694419
+            },
+            "assembly_seconds": {
+              "median": 0.049111663,
+              "minimum": 0.047658733,
+              "maximum": 0.05037872
+            },
+            "callback_seconds": {
+              "median": 0.044417102,
+              "minimum": 0.043504697999999994,
+              "maximum": 0.045229314
+            },
+            "failure_sync_seconds": {
+              "median": 0.035012476,
+              "minimum": 0.034697245,
+              "maximum": 0.035537619
+            },
+            "assembly_finalize_seconds": {
+              "median": 0.004176981,
+              "minimum": 0.003908021,
+              "maximum": 0.004780038
+            },
+            "constraint_seconds": {
+              "median": 1.592e-06,
+              "minimum": 1.432e-06,
+              "maximum": 1.928e-06
+            },
+            "ghost_seconds": {
+              "median": 7.9266e-05,
+              "minimum": 7.6656e-05,
+              "maximum": 0.000121499
+            },
+            "linear_seconds": {
+              "median": 0.047349743,
+              "minimum": 0.042858223,
+              "maximum": 0.054541711
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.001127888,
+              "minimum": 0.000967129,
+              "maximum": 0.001300331
+            },
+            "finalize_seconds": {
+              "median": 0.00077183,
+              "minimum": 0.000714165,
+              "maximum": 0.000786623
+            },
+            "peak_rss_max_bytes": {
+              "median": 48807936.0,
+              "minimum": 48492544.0,
+              "maximum": 48828416.0
+            },
+            "peak_rss_sum_bytes": {
+              "median": 97042432.0,
+              "minimum": 96694272.0,
+              "maximum": 97210368.0
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.004431499,
+              "minimum": 0.004375245,
+              "maximum": 0.005121769
+            },
+            "initialization_plan_seconds": {
+              "median": 0.000159205,
+              "minimum": 0.000139396,
+              "maximum": 0.000159405
+            },
+            "initialization_system_seconds": {
+              "median": 0.000484206,
+              "minimum": 0.000463385,
+              "maximum": 0.000522472
+            },
+            "initialization_setup_seconds": {
+              "median": 0.005112916,
+              "minimum": 0.004997945,
+              "maximum": 0.00574476
+            }
+          },
+          "candidate": {
+            "wall_seconds": {
+              "median": 0.27504636099911295,
+              "minimum": 0.2658880190028867,
+              "maximum": 0.27972367300026235
+            },
+            "setup_seconds": {
+              "median": 0.00104967,
+              "minimum": 0.0010172430000000001,
+              "maximum": 0.0012031680000000001
+            },
+            "schur_setup_seconds": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "solve_seconds": {
+              "median": 0.09716285899999999,
+              "minimum": 0.088660044,
+              "maximum": 0.103264777
+            },
+            "assembly_seconds": {
+              "median": 0.043152419,
+              "minimum": 0.042002936,
+              "maximum": 0.043618262000000005
+            },
+            "callback_seconds": {
+              "median": 0.038824621000000004,
+              "minimum": 0.03754647,
+              "maximum": 0.039015119
+            },
+            "failure_sync_seconds": {
+              "median": 0.029788461,
+              "minimum": 0.028154642,
+              "maximum": 0.03018024
+            },
+            "assembly_finalize_seconds": {
+              "median": 0.004049955,
+              "minimum": 0.003850986,
+              "maximum": 0.004296919
+            },
+            "constraint_seconds": {
+              "median": 1.401e-06,
+              "minimum": 1.391e-06,
+              "maximum": 1.471e-06
+            },
+            "ghost_seconds": {
+              "median": 0.000182121,
+              "minimum": 0.000111975,
+              "maximum": 0.000313669
+            },
+            "linear_seconds": {
+              "median": 0.053780374,
+              "minimum": 0.04416518,
+              "maximum": 0.05765324199999999
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.000820923,
+              "minimum": 0.000807725,
+              "maximum": 0.000868143
+            },
+            "finalize_seconds": {
+              "median": 0.000915835,
+              "minimum": 0.000676259,
+              "maximum": 0.000975131
+            },
+            "peak_rss_max_bytes": {
+              "median": 48852992.0,
+              "minimum": 48816128.0,
+              "maximum": 49090560.0
+            },
+            "peak_rss_sum_bytes": {
+              "median": 97439744.0,
+              "minimum": 97198080.0,
+              "maximum": 97550336.0
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.004900363,
+              "minimum": 0.004402226,
+              "maximum": 0.005236139
+            },
+            "initialization_plan_seconds": {
+              "median": 0.000201488,
+              "minimum": 0.000145365,
+              "maximum": 0.000216429
+            },
+            "initialization_system_seconds": {
+              "median": 0.000726283,
+              "minimum": 0.000463525,
+              "maximum": 0.001141707
+            },
+            "initialization_setup_seconds": {
+              "median": 0.005827832,
+              "minimum": 0.005011116,
+              "maximum": 0.006594064
+            }
+          }
+        },
+        "paired_relative_change": {
+          "assembly_finalize_seconds": {
+            "median": -0.014594343275023403,
+            "minimum": -0.15273581507092626,
+            "maximum": 0.028714040116534
+          },
+          "assembly_seconds": {
+            "median": -0.1118553244674283,
+            "minimum": -0.16625638761762906,
+            "maximum": -0.09455379353034843
+          },
+          "callback_seconds": {
+            "median": -0.12590828190456904,
+            "minimum": -0.16986426104097008,
+            "maximum": -0.10319756730640894
+          },
+          "constraint_seconds": {
+            "median": -0.07600502512562812,
+            "minimum": -0.27852697095435686,
+            "maximum": -0.0216480446927374
+          },
+          "failure_sync_seconds": {
+            "median": -0.14147474821127737,
+            "minimum": -0.20775103137888895,
+            "maximum": -0.13801468939243255
+          },
+          "finalize_seconds": {
+            "median": 0.2634012671184067,
+            "minimum": -0.14030100823393155,
+            "maximum": 0.28238572318721866
+          },
+          "ghost_seconds": {
+            "median": 1.29759291499508,
+            "minimum": -0.07838747644013533,
+            "maximum": 3.091904091003965
+          },
+          "initialization_pattern_seconds": {
+            "median": 0.02233017537495341,
+            "minimum": 0.006166740376824853,
+            "maximum": 0.10580257380177671
+          },
+          "initialization_plan_seconds": {
+            "median": 0.2655883923243616,
+            "minimum": -0.08807753834572307,
+            "maximum": 0.5526198743149016
+          },
+          "initialization_setup_seconds": {
+            "median": 0.13982549292810598,
+            "minimum": 0.002635283101354746,
+            "maximum": 0.14783977050390273
+          },
+          "initialization_system_seconds": {
+            "median": 0.3900898038555176,
+            "minimum": 0.00030212458322997904,
+            "maximum": 1.3578951933681123
+          },
+          "linear_diagnostic_seconds": {
+            "median": -0.23029325606797835,
+            "minimum": -0.36868151263024573,
+            "maximum": -0.1648218593383095
+          },
+          "linear_seconds": {
+            "median": 0.05704865034395401,
+            "minimum": 0.030494894760335622,
+            "maximum": 0.1358113179199305
+          },
+          "peak_rss_max_bytes": {
+            "median": 0.005790533736153014,
+            "minimum": 0.0005033134804126593,
+            "maximum": 0.006672860883520482
+          },
+          "peak_rss_sum_bytes": {
+            "median": 0.003497240129777035,
+            "minimum": 0.0016039169339860937,
+            "maximum": 0.007709577667641021
+          },
+          "setup_seconds": {
+            "median": -0.06076081436683434,
+            "minimum": -0.11964217719709946,
+            "maximum": -0.0265276648421664
+          },
+          "solve_seconds": {
+            "median": -0.02512932157960457,
+            "minimum": -0.037192645406480596,
+            "maximum": -0.022987419988561464
+          },
+          "wall_seconds": {
+            "median": 0.019501226412571793,
+            "minimum": -0.047040636749943854,
+            "maximum": 0.0887587936442702
+          }
+        }
+      },
+      {
+        "subdivisions": 8,
+        "ranks": 1,
+        "modes": {
+          "baseline": {
+            "wall_seconds": {
+              "median": 2.057885932001227,
+              "minimum": 2.027089058999991,
+              "maximum": 2.062430444999336
+            },
+            "setup_seconds": {
+              "median": 0.000852568,
+              "minimum": 0.000834753,
+              "maximum": 0.000887571
+            },
+            "schur_setup_seconds": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "solve_seconds": {
+              "median": 1.763871854,
+              "minimum": 1.738288286,
+              "maximum": 1.7734104
+            },
+            "assembly_seconds": {
+              "median": 0.395839487,
+              "minimum": 0.386868952,
+              "maximum": 0.410044492
+            },
+            "callback_seconds": {
+              "median": 0.388709659,
+              "minimum": 0.379672287,
+              "maximum": 0.39926663799999995
+            },
+            "failure_sync_seconds": {
+              "median": 9.9335e-05,
+              "minimum": 8.8129e-05,
+              "maximum": 0.000128803
+            },
+            "assembly_finalize_seconds": {
+              "median": 0.005721586,
+              "minimum": 0.005553388,
+              "maximum": 0.008065455
+            },
+            "constraint_seconds": {
+              "median": 4.467e-06,
+              "minimum": 3.915e-06,
+              "maximum": 4.669e-06
+            },
+            "ghost_seconds": {
+              "median": 0.00022827699999999998,
+              "minimum": 0.00020634499999999998,
+              "maximum": 0.000458025
+            },
+            "linear_seconds": {
+              "median": 1.343387257,
+              "minimum": 1.332731541,
+              "maximum": 1.369106943
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.005557515,
+              "minimum": 0.005305914,
+              "maximum": 0.005829111
+            },
+            "finalize_seconds": {
+              "median": 0.006876941,
+              "minimum": 0.0064410990000000005,
+              "maximum": 0.007080599999999999
+            },
+            "peak_rss_max_bytes": {
+              "median": 134041600.0,
+              "minimum": 133713920.0,
+              "maximum": 134074368.0
+            },
+            "peak_rss_sum_bytes": {
+              "median": 134041600.0,
+              "minimum": 133713920.0,
+              "maximum": 134074368.0
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.057845834,
+              "minimum": 0.057151218,
+              "maximum": 0.058111266
+            },
+            "initialization_plan_seconds": {
+              "median": 0.001501497,
+              "minimum": 0.001469409,
+              "maximum": 0.001606842
+            },
+            "initialization_system_seconds": {
+              "median": 0.004916418,
+              "minimum": 0.004867606,
+              "maximum": 0.005385053
+            },
+            "initialization_setup_seconds": {
+              "median": 0.064448281,
+              "minimum": 0.063674478,
+              "maximum": 0.064732384
+            }
+          },
+          "candidate": {
+            "wall_seconds": {
+              "median": 2.056315476002055,
+              "minimum": 2.0071377620006388,
+              "maximum": 2.1129774969995196
+            },
+            "setup_seconds": {
+              "median": 0.0012302390000000002,
+              "minimum": 0.001081518,
+              "maximum": 0.003203508
+            },
+            "schur_setup_seconds": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "solve_seconds": {
+              "median": 1.7364598629999999,
+              "minimum": 1.70032348,
+              "maximum": 1.761615868
+            },
+            "assembly_seconds": {
+              "median": 0.333003655,
+              "minimum": 0.32499738,
+              "maximum": 0.334380993
+            },
+            "callback_seconds": {
+              "median": 0.325328294,
+              "minimum": 0.31758854400000003,
+              "maximum": 0.32689277299999997
+            },
+            "failure_sync_seconds": {
+              "median": 6.5375e-05,
+              "minimum": 6.155200000000001e-05,
+              "maximum": 9.0245e-05
+            },
+            "assembly_finalize_seconds": {
+              "median": 0.005794149,
+              "minimum": 0.005564622,
+              "maximum": 0.005890664
+            },
+            "constraint_seconds": {
+              "median": 4.8809999999999995e-06,
+              "minimum": 3.829e-06,
+              "maximum": 5.347e-06
+            },
+            "ghost_seconds": {
+              "median": 0.000346906,
+              "minimum": 0.00032898899999999996,
+              "maximum": 0.000470855
+            },
+            "linear_seconds": {
+              "median": 1.393179078,
+              "minimum": 1.367027475,
+              "maximum": 1.419435663
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.005746207,
+              "minimum": 0.005401457,
+              "maximum": 0.006296986
+            },
+            "finalize_seconds": {
+              "median": 0.00706058,
+              "minimum": 0.006800046,
+              "maximum": 0.007148112
+            },
+            "peak_rss_max_bytes": {
+              "median": 133967872.0,
+              "minimum": 133959680.0,
+              "maximum": 134078464.0
+            },
+            "peak_rss_sum_bytes": {
+              "median": 133967872.0,
+              "minimum": 133959680.0,
+              "maximum": 134078464.0
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.077965495,
+              "minimum": 0.058291402,
+              "maximum": 0.086856255
+            },
+            "initialization_plan_seconds": {
+              "median": 0.001648184,
+              "minimum": 0.001584839,
+              "maximum": 0.001820609
+            },
+            "initialization_system_seconds": {
+              "median": 0.006584436,
+              "minimum": 0.006188095,
+              "maximum": 0.00706124
+            },
+            "initialization_setup_seconds": {
+              "median": 0.085738429,
+              "minimum": 0.067000826,
+              "maximum": 0.0952613
+            }
+          }
+        },
+        "paired_relative_change": {
+          "assembly_finalize_seconds": {
+            "median": 0.012682322698636339,
+            "minimum": -0.3100671939772771,
+            "maximum": 0.06073337573387638
+          },
+          "assembly_seconds": {
+            "median": -0.15992901906483303,
+            "minimum": -0.18788409185606125,
+            "maximum": -0.1552611500832911
+          },
+          "callback_seconds": {
+            "median": -0.1635192905190891,
+            "minimum": -0.18518537980125438,
+            "maximum": -0.15903100056487152
+          },
+          "constraint_seconds": {
+            "median": 0.09267965077233042,
+            "minimum": -0.02196679438058735,
+            "maximum": 0.14521310773184837
+          },
+          "failure_sync_seconds": {
+            "median": -0.3418734584990184,
+            "minimum": -0.5221229319192875,
+            "maximum": 0.02401025769043108
+          },
+          "finalize_seconds": {
+            "median": 0.039431921838503525,
+            "minimum": -0.03962291331243106,
+            "maximum": 0.09617628917052823
+          },
+          "ghost_seconds": {
+            "median": 0.5196712765631231,
+            "minimum": 0.02801157142077404,
+            "maximum": 0.5943638081853206
+          },
+          "initialization_pattern_seconds": {
+            "median": 0.36419656008031187,
+            "minimum": 0.007702680887961666,
+            "maximum": 0.49465432399975584
+          },
+          "initialization_plan_seconds": {
+            "median": 0.09769383488611694,
+            "minimum": -0.013693318944862032,
+            "maximum": 0.23900765545875924
+          },
+          "initialization_setup_seconds": {
+            "median": 0.3465116902882188,
+            "minimum": 0.035043387248027136,
+            "maximum": 0.4781045905630905
+          },
+          "initialization_system_seconds": {
+            "median": 0.31126657434940763,
+            "minimum": 0.258659251511975,
+            "maximum": 0.352705210733983
+          },
+          "linear_diagnostic_seconds": {
+            "median": 0.03395258492329756,
+            "minimum": 0.01800688816290652,
+            "maximum": 0.08026524113196687
+          },
+          "linear_seconds": {
+            "median": 0.04535612397575872,
+            "minimum": -0.0015188499412934764,
+            "maximum": 0.05660944422669911
+          },
+          "peak_rss_max_bytes": {
+            "median": 3.055020926900909e-05,
+            "minimum": -0.0006111535523299905,
+            "maximum": 0.0018992188696584922
+          },
+          "peak_rss_sum_bytes": {
+            "median": 3.055020926900909e-05,
+            "minimum": -0.0006111535523299905,
+            "maximum": 0.0018992188696584922
+          },
+          "setup_seconds": {
+            "median": 0.38607390282016896,
+            "minimum": 0.2956143913229423,
+            "maximum": 2.7574809282074857
+          },
+          "solve_seconds": {
+            "median": -0.006650762846546976,
+            "minimum": -0.0360277725708299,
+            "maximum": -0.001051852569407541
+          },
+          "wall_seconds": {
+            "median": 0.014417924497349244,
+            "minimum": -0.024660341572595,
+            "maximum": 0.02450848809119477
+          }
+        }
+      },
+      {
+        "subdivisions": 8,
+        "ranks": 2,
+        "modes": {
+          "baseline": {
+            "wall_seconds": {
+              "median": 1.7570914440002525,
+              "minimum": 1.7559875689985347,
+              "maximum": 1.8591567009971186
+            },
+            "setup_seconds": {
+              "median": 0.001562396,
+              "minimum": 0.001451181,
+              "maximum": 0.001640513
+            },
+            "schur_setup_seconds": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "solve_seconds": {
+              "median": 1.511216801,
+              "minimum": 1.4907657790000002,
+              "maximum": 1.59000553
+            },
+            "assembly_seconds": {
+              "median": 0.378105873,
+              "minimum": 0.357431839,
+              "maximum": 0.388309477
+            },
+            "callback_seconds": {
+              "median": 0.346082289,
+              "minimum": 0.327835838,
+              "maximum": 0.357522288
+            },
+            "failure_sync_seconds": {
+              "median": 0.267663305,
+              "minimum": 0.250668839,
+              "maximum": 0.270383989
+            },
+            "assembly_finalize_seconds": {
+              "median": 0.029083164,
+              "minimum": 0.028254939,
+              "maximum": 0.030381203000000002
+            },
+            "constraint_seconds": {
+              "median": 5.055e-06,
+              "minimum": 4.5840000000000005e-06,
+              "maximum": 5.939e-06
+            },
+            "ghost_seconds": {
+              "median": 0.000236186,
+              "minimum": 0.000174134,
+              "maximum": 0.000266151
+            },
+            "linear_seconds": {
+              "median": 1.126245401,
+              "minimum": 1.115969247,
+              "maximum": 1.203698371
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.004793439,
+              "minimum": 0.004623302,
+              "maximum": 0.004884895
+            },
+            "finalize_seconds": {
+              "median": 0.003866685,
+              "minimum": 0.003836084,
+              "maximum": 0.00426745
+            },
+            "peak_rss_max_bytes": {
+              "median": 101900288.0,
+              "minimum": 100945920.0,
+              "maximum": 102281216.0
+            },
+            "peak_rss_sum_bytes": {
+              "median": 195100672.0,
+              "minimum": 193417216.0,
+              "maximum": 195334144.0
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.047571912,
+              "minimum": 0.045504173,
+              "maximum": 0.048060351
+            },
+            "initialization_plan_seconds": {
+              "median": 0.00113737,
+              "minimum": 0.001094107,
+              "maximum": 0.001193919
+            },
+            "initialization_system_seconds": {
+              "median": 0.004186022,
+              "minimum": 0.00385685,
+              "maximum": 0.006160235
+            },
+            "initialization_setup_seconds": {
+              "median": 0.052895304,
+              "minimum": 0.05055375,
+              "maximum": 0.055314643
+            }
+          },
+          "candidate": {
+            "wall_seconds": {
+              "median": 1.7548025799987954,
+              "minimum": 1.7355397659994196,
+              "maximum": 1.7776185520015133
+            },
+            "setup_seconds": {
+              "median": 0.001635152,
+              "minimum": 0.001618088,
+              "maximum": 0.002212668
+            },
+            "schur_setup_seconds": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "solve_seconds": {
+              "median": 1.494543636,
+              "minimum": 1.445267567,
+              "maximum": 1.516188704
+            },
+            "assembly_seconds": {
+              "median": 0.334044403,
+              "minimum": 0.307581605,
+              "maximum": 0.375549289
+            },
+            "callback_seconds": {
+              "median": 0.30174530899999996,
+              "minimum": 0.277183995,
+              "maximum": 0.332927159
+            },
+            "failure_sync_seconds": {
+              "median": 0.219500263,
+              "minimum": 0.20530947200000002,
+              "maximum": 0.24985480799999998
+            },
+            "assembly_finalize_seconds": {
+              "median": 0.030836227,
+              "minimum": 0.028898512,
+              "maximum": 0.038199347
+            },
+            "constraint_seconds": {
+              "median": 5.055e-06,
+              "minimum": 4.522e-06,
+              "maximum": 5.8856e-05
+            },
+            "ghost_seconds": {
+              "median": 0.0005507040000000001,
+              "minimum": 0.000381115,
+              "maximum": 0.00208537
+            },
+            "linear_seconds": {
+              "median": 1.130921683,
+              "minimum": 1.130666826,
+              "maximum": 1.153751085
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.004780151,
+              "minimum": 0.004682899,
+              "maximum": 0.006785297
+            },
+            "finalize_seconds": {
+              "median": 0.004398363,
+              "minimum": 0.004276044,
+              "maximum": 0.0054233879999999995
+            },
+            "peak_rss_max_bytes": {
+              "median": 102240256.0,
+              "minimum": 101502976.0,
+              "maximum": 103088128.0
+            },
+            "peak_rss_sum_bytes": {
+              "median": 199172096.0,
+              "minimum": 194658304.0,
+              "maximum": 200617984.0
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.049345665,
+              "minimum": 0.045158236,
+              "maximum": 0.051197602
+            },
+            "initialization_plan_seconds": {
+              "median": 0.001143836,
+              "minimum": 0.001126434,
+              "maximum": 0.001189485
+            },
+            "initialization_system_seconds": {
+              "median": 0.003741837,
+              "minimum": 0.003460429,
+              "maximum": 0.004924252
+            },
+            "initialization_setup_seconds": {
+              "median": 0.054207708,
+              "minimum": 0.049762501,
+              "maximum": 0.057211675
+            }
+          }
+        },
+        "paired_relative_change": {
+          "assembly_finalize_seconds": {
+            "median": 0.06027758877954259,
+            "minimum": 0.022777362924053746,
+            "maximum": 0.25733490540186965
+          },
+          "assembly_seconds": {
+            "median": -0.13946780493720934,
+            "minimum": -0.13974697300524552,
+            "maximum": -0.00676155590950045
+          },
+          "callback_seconds": {
+            "median": -0.15450367875887927,
+            "minimum": -0.1560097953949099,
+            "maximum": -0.03801156666529104
+          },
+          "constraint_seconds": {
+            "median": 0.10274869109947637,
+            "minimum": -0.10544015825914932,
+            "maximum": 8.910085873042599
+          },
+          "failure_sync_seconds": {
+            "median": -0.1809533533603671,
+            "minimum": -0.18819060325350845,
+            "maximum": -0.06653320297304122
+          },
+          "finalize_seconds": {
+            "median": 0.13750227908402146,
+            "minimum": 0.11468987644691819,
+            "maximum": 0.2708732381164394
+          },
+          "ghost_seconds": {
+            "median": 1.3316538660208481,
+            "minimum": 1.1886305948292697,
+            "maximum": 6.835288990084576
+          },
+          "initialization_pattern_seconds": {
+            "median": 0.03728572019556409,
+            "minimum": -0.007602313748235945,
+            "maximum": 0.06527732184061663
+          },
+          "initialization_plan_seconds": {
+            "median": 0.029546470317802553,
+            "minimum": -0.041948406885224276,
+            "maximum": 0.045820621257814276
+          },
+          "initialization_setup_seconds": {
+            "median": 0.024811351873504695,
+            "minimum": -0.015651638107954446,
+            "maximum": 0.03429529500895456
+          },
+          "initialization_system_seconds": {
+            "median": -0.10611148245279167,
+            "minimum": -0.20063893666394228,
+            "maximum": -0.10278361875623887
+          },
+          "linear_diagnostic_seconds": {
+            "median": 0.012890570419150649,
+            "minimum": -0.021442426091041966,
+            "maximum": 0.415538405724992
+          },
+          "linear_seconds": {
+            "median": 0.00415209864195476,
+            "minimum": -0.06067262925622097,
+            "maximum": 0.03385562648932017
+          },
+          "peak_rss_max_bytes": {
+            "median": 0.0116568856017365,
+            "minimum": -0.007608826238436617,
+            "maximum": 0.012822073442888993
+          },
+          "peak_rss_sum_bytes": {
+            "median": 0.019648136886913026,
+            "minimum": 0.006416636665890207,
+            "maximum": 0.028279308028216432
+          },
+          "setup_seconds": {
+            "median": 0.03564525254800954,
+            "minimum": -0.0032678802301474574,
+            "maximum": 0.5247360598023267
+          },
+          "solve_seconds": {
+            "median": -0.030520027116882398,
+            "minimum": -0.04642551526220162,
+            "maximum": -0.011032940468215457
+          },
+          "wall_seconds": {
+            "median": -0.0122655414858589,
+            "minimum": -0.04385759895971875,
+            "maximum": -0.0006748276700017097
+          }
+        }
+      }
+    ]
+  },
+  "mpi_ablation": {
+    "status": "passed",
+    "field_absolute_limit": 2e-09,
+    "linear_gate": "1e-12 + 1e-10 * rhs_norm",
+    "summary": [
+      {
+        "subdivisions": 8,
+        "ranks": 2,
+        "modes": {
+          "baseline": {
+            "wall_seconds": {
+              "median": 1.7301862470012566,
+              "minimum": 1.695064341998659,
+              "maximum": 2.153458488999604
+            },
+            "setup_seconds": {
+              "median": 0.001824207,
+              "minimum": 0.0018199260000000001,
+              "maximum": 0.002664157
+            },
+            "schur_setup_seconds": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "solve_seconds": {
+              "median": 1.469379449,
+              "minimum": 1.442607963,
+              "maximum": 1.8590248329999999
+            },
+            "assembly_seconds": {
+              "median": 0.320880438,
+              "minimum": 0.320781586,
+              "maximum": 0.438231306
+            },
+            "callback_seconds": {
+              "median": 0.288990861,
+              "minimum": 0.288887148,
+              "maximum": 0.40055519300000003
+            },
+            "failure_sync_seconds": {
+              "median": 0.21384182899999998,
+              "minimum": 0.213605175,
+              "maximum": 0.293189579
+            },
+            "assembly_finalize_seconds": {
+              "median": 0.030459345000000002,
+              "minimum": 0.029783696999999998,
+              "maximum": 0.035926588
+            },
+            "constraint_seconds": {
+              "median": 5.518e-06,
+              "minimum": 4.3969999999999996e-06,
+              "maximum": 7.643e-06
+            },
+            "ghost_seconds": {
+              "median": 0.000797528,
+              "minimum": 0.0007120620000000001,
+              "maximum": 0.0008942210000000001
+            },
+            "linear_seconds": {
+              "median": 1.140251317,
+              "minimum": 1.1115224320000001,
+              "maximum": 1.412366526
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.005714261,
+              "minimum": 0.004714103,
+              "maximum": 0.006712728
+            },
+            "finalize_seconds": {
+              "median": 0.004115684,
+              "minimum": 0.003973499,
+              "maximum": 0.0058458880000000005
+            },
+            "peak_rss_max_bytes": {
+              "median": 101740544.0,
+              "minimum": 101535744.0,
+              "maximum": 102281216.0
+            },
+            "peak_rss_sum_bytes": {
+              "median": 194457600.0,
+              "minimum": 192790528.0,
+              "maximum": 195280896.0
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.046681632,
+              "minimum": 0.046555716,
+              "maximum": 0.056141652
+            },
+            "initialization_plan_seconds": {
+              "median": 0.001116609,
+              "minimum": 0.001071733,
+              "maximum": 0.002015941
+            },
+            "initialization_system_seconds": {
+              "median": 0.003666555,
+              "minimum": 0.003541359,
+              "maximum": 0.004738809
+            },
+            "initialization_setup_seconds": {
+              "median": 0.0513396,
+              "minimum": 0.05129201,
+              "maximum": 0.062896061
+            }
+          },
+          "candidate": {
+            "wall_seconds": {
+              "median": 1.8312250609997136,
+              "minimum": 1.7147687870019581,
+              "maximum": 1.9235814009989554
+            },
+            "setup_seconds": {
+              "median": 0.002098795,
+              "minimum": 0.001681497,
+              "maximum": 0.002138707
+            },
+            "schur_setup_seconds": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "solve_seconds": {
+              "median": 1.567453096,
+              "minimum": 1.462511682,
+              "maximum": 1.655473794
+            },
+            "assembly_seconds": {
+              "median": 0.339548214,
+              "minimum": 0.29980001,
+              "maximum": 0.396093078
+            },
+            "callback_seconds": {
+              "median": 0.303763903,
+              "minimum": 0.26982401500000003,
+              "maximum": 0.361357316
+            },
+            "failure_sync_seconds": {
+              "median": 0.23251403299999998,
+              "minimum": 0.20255921500000001,
+              "maximum": 0.275230394
+            },
+            "assembly_finalize_seconds": {
+              "median": 0.032844817,
+              "minimum": 0.028598669,
+              "maximum": 0.033855681
+            },
+            "constraint_seconds": {
+              "median": 5.368e-06,
+              "minimum": 4.216e-06,
+              "maximum": 6.830000000000001e-06
+            },
+            "ghost_seconds": {
+              "median": 0.000417693,
+              "minimum": 0.000363524,
+              "maximum": 0.000683697
+            },
+            "linear_seconds": {
+              "median": 1.220740988,
+              "minimum": 1.155891094,
+              "maximum": 1.250699456
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.004859633,
+              "minimum": 0.004599153,
+              "maximum": 0.005600211
+            },
+            "finalize_seconds": {
+              "median": 0.004690766,
+              "minimum": 0.004335441,
+              "maximum": 0.005393521
+            },
+            "peak_rss_max_bytes": {
+              "median": 102944768.0,
+              "minimum": 101781504.0,
+              "maximum": 103333888.0
+            },
+            "peak_rss_sum_bytes": {
+              "median": 195682304.0,
+              "minimum": 193675264.0,
+              "maximum": 199168000.0
+            },
+            "initialization_pattern_seconds": {
+              "median": 0.05023399,
+              "minimum": 0.049089718,
+              "maximum": 0.050702232
+            },
+            "initialization_plan_seconds": {
+              "median": 0.001419451,
+              "minimum": 0.001163762,
+              "maximum": 0.001475899
+            },
+            "initialization_system_seconds": {
+              "median": 0.003917639,
+              "minimum": 0.003576431,
+              "maximum": 0.005308649
+            },
+            "initialization_setup_seconds": {
+              "median": 0.055804574,
+              "minimum": 0.054970938,
+              "maximum": 0.056038966
+            }
+          }
+        },
+        "paired_relative_change": {
+          "assembly_finalize_seconds": {
+            "median": -0.0610871967207437,
+            "minimum": -0.08577967381706286,
+            "maximum": 0.13671855444943581
+          },
+          "assembly_seconds": {
+            "median": -0.06569558472118509,
+            "minimum": -0.09615522082304184,
+            "maximum": 0.05850282191696632
+          },
+          "callback_seconds": {
+            "median": -0.0659881657317617,
+            "minimum": -0.09785886610637462,
+            "maximum": 0.05111940892829825
+          },
+          "constraint_seconds": {
+            "median": -0.10637184351694351,
+            "minimum": -0.2359550561797753,
+            "maximum": 0.22083238571753472
+          },
+          "failure_sync_seconds": {
+            "median": -0.05276149223358906,
+            "minimum": -0.06125451341502142,
+            "maximum": 0.08852247142420566
+          },
+          "finalize_seconds": {
+            "median": 0.053395012833832745,
+            "minimum": -0.07738208463795415,
+            "maximum": 0.18051269171075668
+          },
+          "ghost_seconds": {
+            "median": -0.41340360811277677,
+            "minimum": -0.5441865363974683,
+            "maximum": -0.23542726015157323
+          },
+          "initialization_pattern_seconds": {
+            "median": 0.05442944965125229,
+            "minimum": -0.10522779058941834,
+            "maximum": 0.08612809423629408
+          },
+          "initialization_plan_seconds": {
+            "median": 0.2712157971142988,
+            "minimum": -0.4227202085775327,
+            "maximum": 0.37711444921449644
+          },
+          "initialization_setup_seconds": {
+            "median": 0.08797791312916003,
+            "minimum": -0.1260034869274247,
+            "maximum": 0.091534916516685
+          },
+          "initialization_system_seconds": {
+            "median": 0.10625299496605667,
+            "minimum": -0.2452890589175466,
+            "maximum": 0.44785745747711414
+          },
+          "linear_diagnostic_seconds": {
+            "median": -0.024384278408851046,
+            "minimum": -0.27605691754529604,
+            "maximum": -0.019958836321967155
+          },
+          "linear_seconds": {
+            "median": 0.013716078873864612,
+            "minimum": -0.11446537922267352,
+            "maximum": 0.09826032552800501
+          },
+          "peak_rss_max_bytes": {
+            "median": 0.011836225290873248,
+            "minimum": -0.004885667374153968,
+            "maximum": 0.017709467909153176
+          },
+          "peak_rss_sum_bytes": {
+            "median": 0.006298051606108412,
+            "minimum": -0.008222166289118205,
+            "maximum": 0.033079799439109436
+          },
+          "setup_seconds": {
+            "median": -0.07823125336104952,
+            "minimum": -0.2122104665753557,
+            "maximum": 0.17516151755620823
+          },
+          "solve_seconds": {
+            "median": -0.004673923406696701,
+            "minimum": -0.10949344806304695,
+            "maximum": 0.08654127538598644
+          },
+          "wall_seconds": {
+            "median": -0.00891086726993684,
+            "minimum": -0.10674786125431135,
+            "maximum": 0.08032775843807016
+          }
+        }
+      }
+    ]
+  },
+  "output": {
+    "status": "passed",
+    "source_build_commit": "27889707a3c650d532c2845b2f6da7fc5d2324d4",
+    "checked_out_head": "9c4af0dbb20e8ce059423b2c7e6a6f061cd40313",
+    "samples": 24,
+    "measured_samples": 18,
+    "warmups": 6,
+    "data_comparisons": 6,
+    "groups": [
+      {
+        "ranks": 1,
+        "nodes": 35937,
+        "cells": 196608,
+        "modes": {
+          "ascii": {
+            "output_seconds_median": 0.117940491,
+            "output_seconds_values": [
+              0.120138688,
+              0.117940491,
+              0.115877757
+            ],
+            "bytes_values": [
+              12402006,
+              12402006,
+              12402006
+            ],
+            "file_counts": [
+              2,
+              2,
+              2
+            ]
+          },
+          "binary": {
+            "output_seconds_median": 0.012727172,
+            "output_seconds_values": [
+              0.012727172,
+              0.008899348,
+              0.024690306
+            ],
+            "bytes_values": [
+              13837624,
+              13837624,
+              13837624
+            ],
+            "file_counts": [
+              2,
+              2,
+              2
+            ]
+          },
+          "hdf5": {
+            "output_seconds_median": 0.031628952,
+            "output_seconds_values": [
+              0.032171454,
+              0.030067774,
+              0.031628952
+            ],
+            "bytes_values": [
+              11552661,
+              11552661,
+              11552661
+            ],
+            "file_counts": [
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "hdf5_paired_output_change_pct": {
+          "ascii": {
+            "values": [
+              -73.22140391611401,
+              -74.50597861255301,
+              -72.7048979727835
+            ],
+            "median": -73.22140391611401,
+            "range": [
+              -74.50597861255301,
+              -72.7048979727835
+            ]
+          },
+          "binary": {
+            "values": [
+              152.77771055502356,
+              237.86490875511328,
+              28.102713672321443
+            ],
+            "median": 152.77771055502356,
+            "range": [
+              28.102713672321443,
+              237.86490875511328
+            ]
+          }
+        }
+      },
+      {
+        "ranks": 2,
+        "nodes": 35937,
+        "cells": 196608,
+        "modes": {
+          "ascii": {
+            "output_seconds_median": 0.05723656,
+            "output_seconds_values": [
+              0.062400057,
+              0.056887173,
+              0.05723656
+            ],
+            "bytes_values": [
+              12236742,
+              12236742,
+              12236742
+            ],
+            "file_counts": [
+              6,
+              6,
+              6
+            ]
+          },
+          "binary": {
+            "output_seconds_median": 0.012047565,
+            "output_seconds_values": [
+              0.013985782,
+              0.011864734,
+              0.012047565
+            ],
+            "bytes_values": [
+              13926468,
+              13926468,
+              13926468
+            ],
+            "file_counts": [
+              6,
+              6,
+              6
+            ]
+          },
+          "hdf5": {
+            "output_seconds_median": 0.031440347,
+            "output_seconds_values": [
+              0.031378113,
+              0.031440347,
+              0.038070955
+            ],
+            "bytes_values": [
+              11552765,
+              11552765,
+              11552765
+            ],
+            "file_counts": [
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "hdf5_paired_output_change_pct": {
+          "ascii": {
+            "values": [
+              -49.71460843377115,
+              -44.73209804255873,
+              -33.484900210634606
+            ],
+            "median": -44.73209804255873,
+            "range": [
+              -49.71460843377115,
+              -33.484900210634606
+            ]
+          },
+          "binary": {
+            "values": [
+              124.35722936336342,
+              164.98990200707405,
+              216.0053919609481
+            ],
+            "median": 164.98990200707405,
+            "range": [
+              124.35722936336342,
+              216.0053919609481
+            ]
+          }
+        }
+      }
+    ],
+    "limits": "Single shared host; other agent performance jobs paused. Local filesystem, warm page cache, no fsync durability measurement."
+  },
+  "scaling": [
+    {
+      "name": "mesh_timing",
+      "runs_checked": 102,
+      "step_reports": 510,
+      "linear_corrections": 1020,
+      "max_linear_gate_ratio": 0.3823431466956693,
+      "max_field_delta": 3.9968028886505635e-15,
+      "max_history_delta": 3.2085445411667024e-14,
+      "cases": [
+        {
+          "subdivisions": 4,
+          "ranks": 1,
+          "mode_statistics": {
+            "coupled_nodal": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.2392023499996867,
+                "minimum": 0.23368086800110177,
+                "maximum": 0.2523180839998531
+              },
+              "outer_iterations": {
+                "median": 141,
+                "minimum": 141,
+                "maximum": 141
+              },
+              "setup_seconds": {
+                "median": 0.000885963,
+                "minimum": 0.00087811,
+                "maximum": 0.001041803
+              },
+              "schur_setup_seconds": {
+                "median": 0.002172658,
+                "minimum": 0.001955728,
+                "maximum": 0.002760042
+              },
+              "solve_seconds": {
+                "median": 0.074970916,
+                "minimum": 0.072560544,
+                "maximum": 0.082938229
+              },
+              "assembly_seconds": {
+                "median": 0.042896992999999994,
+                "minimum": 0.041525509,
+                "maximum": 0.048348628000000005
+              },
+              "callback_seconds": {
+                "median": 0.042015072,
+                "minimum": 0.040661008,
+                "maximum": 0.047100344
+              },
+              "failure_sync_seconds": {
+                "median": 1.2595e-05,
+                "minimum": 1.2067e-05,
+                "maximum": 2.796e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.0007313490000000001,
+                "minimum": 0.000689017,
+                "maximum": 0.000998732
+              },
+              "constraint_seconds": {
+                "median": 1.474e-06,
+                "minimum": 1.121e-06,
+                "maximum": 1.521e-06
+              },
+              "ghost_seconds": {
+                "median": 4.0938999999999995e-05,
+                "minimum": 4.0437e-05,
+                "maximum": 8.2322e-05
+              },
+              "linear_seconds": {
+                "median": 0.025713209,
+                "minimum": 0.025276652,
+                "maximum": 0.02712303
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.000672222,
+                "minimum": 0.0005607920000000001,
+                "maximum": 0.000761001
+              },
+              "finalize_seconds": {
+                "median": 0.001025332,
+                "minimum": 0.0009272099999999999,
+                "maximum": 0.001212256
+              },
+              "peak_rss_max_bytes": {
+                "median": 48107520.0,
+                "minimum": 48091136.0,
+                "maximum": 48226304.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 48107520.0,
+                "minimum": 48091136.0,
+                "maximum": 48226304.0
+              }
+            },
+            "twolevel_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.24054308799895807,
+                "minimum": 0.2337726109981304,
+                "maximum": 0.2593017180006427
+              },
+              "outer_iterations": {
+                "median": 141,
+                "minimum": 141,
+                "maximum": 141
+              },
+              "setup_seconds": {
+                "median": 0.0010547039999999998,
+                "minimum": 0.0009256570000000001,
+                "maximum": 0.001069435
+              },
+              "schur_setup_seconds": {
+                "median": 0.002301797,
+                "minimum": 0.00224705,
+                "maximum": 0.00259281
+              },
+              "solve_seconds": {
+                "median": 0.072413926,
+                "minimum": 0.069857852,
+                "maximum": 0.076563827
+              },
+              "assembly_seconds": {
+                "median": 0.042131068,
+                "minimum": 0.041091569,
+                "maximum": 0.04463265
+              },
+              "callback_seconds": {
+                "median": 0.041258478,
+                "minimum": 0.040223959000000004,
+                "maximum": 0.043564968
+              },
+              "failure_sync_seconds": {
+                "median": 1.0906999999999999e-05,
+                "minimum": 9.93e-06,
+                "maximum": 1.8964e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.00072654,
+                "minimum": 0.000715377,
+                "maximum": 0.0008476989999999999
+              },
+              "constraint_seconds": {
+                "median": 1.051e-06,
+                "minimum": 9.72e-07,
+                "maximum": 1.142e-06
+              },
+              "ghost_seconds": {
+                "median": 4.115e-05,
+                "minimum": 3.8331e-05,
+                "maximum": 7.811700000000001e-05
+              },
+              "linear_seconds": {
+                "median": 0.023926502,
+                "minimum": 0.022702490999999998,
+                "maximum": 0.025188637
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.000605395,
+                "minimum": 0.000605216,
+                "maximum": 0.00065366
+              },
+              "finalize_seconds": {
+                "median": 0.000999125,
+                "minimum": 0.000947,
+                "maximum": 0.001107902
+              },
+              "peak_rss_max_bytes": {
+                "median": 48111616.0,
+                "minimum": 47886336.0,
+                "maximum": 48128000.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 48111616.0,
+                "minimum": 47886336.0,
+                "maximum": 48128000.0
+              }
+            },
+            "aggregate_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.23913732599976356,
+                "minimum": 0.2381966270004341,
+                "maximum": 0.24771920499915723
+              },
+              "outer_iterations": {
+                "median": 141,
+                "minimum": 141,
+                "maximum": 141
+              },
+              "setup_seconds": {
+                "median": 0.0009647050000000001,
+                "minimum": 0.000944735,
+                "maximum": 0.001071369
+              },
+              "schur_setup_seconds": {
+                "median": 0.002841208,
+                "minimum": 0.0026884279999999997,
+                "maximum": 0.0028467279999999998
+              },
+              "solve_seconds": {
+                "median": 0.077150677,
+                "minimum": 0.076396491,
+                "maximum": 0.07768386699999999
+              },
+              "assembly_seconds": {
+                "median": 0.042559546000000004,
+                "minimum": 0.041079806999999996,
+                "maximum": 0.042631189
+              },
+              "callback_seconds": {
+                "median": 0.041666215000000006,
+                "minimum": 0.040186171,
+                "maximum": 0.041699152
+              },
+              "failure_sync_seconds": {
+                "median": 1.2066000000000001e-05,
+                "minimum": 1.0967e-05,
+                "maximum": 1.2528e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.000742151,
+                "minimum": 0.000739269,
+                "maximum": 0.000754381
+              },
+              "constraint_seconds": {
+                "median": 1.22e-06,
+                "minimum": 1.072e-06,
+                "maximum": 1.352e-06
+              },
+              "ghost_seconds": {
+                "median": 3.9818e-05,
+                "minimum": 3.8785e-05,
+                "maximum": 4.1581e-05
+              },
+              "linear_seconds": {
+                "median": 0.028162647,
+                "minimum": 0.027048563999999997,
+                "maximum": 0.029349912
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.000590495,
+                "minimum": 0.000568612,
+                "maximum": 0.000660944
+              },
+              "finalize_seconds": {
+                "median": 0.000943185,
+                "minimum": 0.000933619,
+                "maximum": 0.001017789
+              },
+              "peak_rss_max_bytes": {
+                "median": 48267264.0,
+                "minimum": 48140288.0,
+                "maximum": 48336896.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 48267264.0,
+                "minimum": 48140288.0,
+                "maximum": 48336896.0
+              }
+            },
+            "aggregate_rigid_adaptive": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.22919586899661226,
+                "minimum": 0.2287967980009853,
+                "maximum": 0.24438269100210164
+              },
+              "outer_iterations": {
+                "median": 141,
+                "minimum": 141,
+                "maximum": 141
+              },
+              "setup_seconds": {
+                "median": 0.001041254,
+                "minimum": 0.001007445,
+                "maximum": 0.002242991
+              },
+              "schur_setup_seconds": {
+                "median": 0.002603458,
+                "minimum": 0.002593017,
+                "maximum": 0.00263395
+              },
+              "solve_seconds": {
+                "median": 0.066211452,
+                "minimum": 0.0649909,
+                "maximum": 0.070733257
+              },
+              "assembly_seconds": {
+                "median": 0.041935057,
+                "minimum": 0.0413232,
+                "maximum": 0.044527961
+              },
+              "callback_seconds": {
+                "median": 0.041103637,
+                "minimum": 0.040463614999999994,
+                "maximum": 0.043671299000000004
+              },
+              "failure_sync_seconds": {
+                "median": 1.1615e-05,
+                "minimum": 1.1328e-05,
+                "maximum": 1.1969e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.000702715,
+                "minimum": 0.000685713,
+                "maximum": 0.0007168150000000001
+              },
+              "constraint_seconds": {
+                "median": 1.213e-06,
+                "minimum": 1.16e-06,
+                "maximum": 1.271e-06
+              },
+              "ghost_seconds": {
+                "median": 3.9378e-05,
+                "minimum": 3.9177999999999997e-05,
+                "maximum": 4.235e-05
+              },
+              "linear_seconds": {
+                "median": 0.019754926,
+                "minimum": 0.019146228,
+                "maximum": 0.021521247
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.000603666,
+                "minimum": 0.000575827,
+                "maximum": 0.000641394
+              },
+              "finalize_seconds": {
+                "median": 0.0009639010000000001,
+                "minimum": 0.000929342,
+                "maximum": 0.001015354
+              },
+              "peak_rss_max_bytes": {
+                "median": 48353280.0,
+                "minimum": 48263168.0,
+                "maximum": 48545792.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 48353280.0,
+                "minimum": 48263168.0,
+                "maximum": 48545792.0
+              }
+            }
+          },
+          "adaptive_paired_statistics": {
+            "assembly_finalize_seconds": {
+              "median": -0.06848793911829698,
+              "minimum": -0.07604651883511582,
+              "maximum": -0.030373247085972555
+            },
+            "assembly_seconds": {
+              "median": 0.005924881779507896,
+              "minimum": -0.014673300321389804,
+              "maximum": 0.04449258968592207
+            },
+            "callback_seconds": {
+              "median": 0.006903967038810244,
+              "minimum": -0.013502018361879253,
+              "maximum": 0.04729465481696127
+            },
+            "constraint_seconds": {
+              "median": -0.049180327868852514,
+              "minimum": -0.1028106508875739,
+              "maximum": 0.18563432835820892
+            },
+            "failure_sync_seconds": {
+              "median": -0.037377755677109326,
+              "minimum": -0.09578544061302674,
+              "maximum": 0.0913650041032188
+            },
+            "finalize_seconds": {
+              "median": -0.0023924408693747345,
+              "minimum": -0.004581097856834582,
+              "maximum": 0.021963877712219748
+            },
+            "full_jacobian_assemblies": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "ghost_seconds": {
+              "median": 0.015289416011344592,
+              "minimum": -0.016073132754030883,
+              "maximum": 0.018494023712753327
+            },
+            "linear_diagnostic_seconds": {
+              "median": -0.024840176462120778,
+              "minimum": -0.029578905323295213,
+              "maximum": 0.06164836479005009
+            },
+            "linear_seconds": {
+              "median": -0.26964973075834997,
+              "minimum": -0.34765637457447907,
+              "maximum": -0.23582300342719908
+            },
+            "newton_iterations": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "outer_iterations": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "peak_rss_max_bytes": {
+              "median": 0.00033895432590469454,
+              "minimum": -8.486082824166186e-05,
+              "maximum": 0.008423381264357932
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.00033895432590469454,
+              "minimum": -8.486082824166186e-05,
+              "maximum": 0.008423381264357932
+            },
+            "schur_setup_seconds": {
+              "median": -0.07474475959768545,
+              "minimum": -0.08735404095722665,
+              "maximum": -0.03160583061923172
+            },
+            "setup_seconds": {
+              "median": 0.07934964574662717,
+              "minimum": 0.06637840240914117,
+              "maximum": 1.0935746694182864
+            },
+            "solve_seconds": {
+              "median": -0.13331815200779307,
+              "minimum": -0.15761076211943026,
+              "maximum": -0.08947301760866255
+            },
+            "user_schur_updates": {
+              "median": -0.7,
+              "minimum": -0.7,
+              "maximum": -0.7
+            },
+            "wall_seconds": {
+              "median": -0.039462477356707826,
+              "minimum": -0.041572167630414714,
+              "maximum": -0.013468935511346203
+            }
+          }
+        },
+        {
+          "subdivisions": 4,
+          "ranks": 2,
+          "mode_statistics": {
+            "coupled_nodal": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.24887343699811026,
+                "minimum": 0.247398952000367,
+                "maximum": 0.2536894820004818
+              },
+              "outer_iterations": {
+                "median": 143,
+                "minimum": 143,
+                "maximum": 143
+              },
+              "setup_seconds": {
+                "median": 0.001340019,
+                "minimum": 0.001162889,
+                "maximum": 0.001400234
+              },
+              "schur_setup_seconds": {
+                "median": 0.003257683,
+                "minimum": 0.003196173,
+                "maximum": 0.003280681
+              },
+              "solve_seconds": {
+                "median": 0.090922848,
+                "minimum": 0.08961408800000001,
+                "maximum": 0.094638178
+              },
+              "assembly_seconds": {
+                "median": 0.039983384,
+                "minimum": 0.039121479,
+                "maximum": 0.040807393
+              },
+              "callback_seconds": {
+                "median": 0.035331551,
+                "minimum": 0.034819955,
+                "maximum": 0.036675738
+              },
+              "failure_sync_seconds": {
+                "median": 0.026520743,
+                "minimum": 0.0257883,
+                "maximum": 0.027791022999999998
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.0040793439999999995,
+                "minimum": 0.003819111,
+                "maximum": 0.004318644999999999
+              },
+              "constraint_seconds": {
+                "median": 1.1539999999999999e-06,
+                "minimum": 1.131e-06,
+                "maximum": 1.221e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000157037,
+                "minimum": 0.000110109,
+                "maximum": 0.000159695
+              },
+              "linear_seconds": {
+                "median": 0.044053244,
+                "minimum": 0.041435963,
+                "maximum": 0.046243449
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.000619951,
+                "minimum": 0.000605409,
+                "maximum": 0.000627944
+              },
+              "finalize_seconds": {
+                "median": 0.000666219,
+                "minimum": 0.000649914,
+                "maximum": 0.000687498
+              },
+              "peak_rss_max_bytes": {
+                "median": 48676864.0,
+                "minimum": 48676864.0,
+                "maximum": 48852992.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 95985664.0,
+                "minimum": 95879168.0,
+                "maximum": 96014336.0
+              }
+            },
+            "twolevel_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.25411272299970733,
+                "minimum": 0.25276627999846824,
+                "maximum": 0.255975767999189
+              },
+              "outer_iterations": {
+                "median": 150,
+                "minimum": 150,
+                "maximum": 150
+              },
+              "setup_seconds": {
+                "median": 0.001265971,
+                "minimum": 0.0011607850000000001,
+                "maximum": 0.001468392
+              },
+              "schur_setup_seconds": {
+                "median": 0.003488383,
+                "minimum": 0.00334299,
+                "maximum": 0.004089291
+              },
+              "solve_seconds": {
+                "median": 0.093809411,
+                "minimum": 0.09372924599999999,
+                "maximum": 0.097752305
+              },
+              "assembly_seconds": {
+                "median": 0.043216242,
+                "minimum": 0.041843798,
+                "maximum": 0.043687301
+              },
+              "callback_seconds": {
+                "median": 0.038414822,
+                "minimum": 0.037721977000000004,
+                "maximum": 0.039331388
+              },
+              "failure_sync_seconds": {
+                "median": 0.029450011,
+                "minimum": 0.028519208,
+                "maximum": 0.030703612
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.0041324610000000005,
+                "minimum": 0.0039061499999999997,
+                "maximum": 0.004393721
+              },
+              "constraint_seconds": {
+                "median": 1.445e-06,
+                "minimum": 1.3709999999999999e-06,
+                "maximum": 1.532e-06
+              },
+              "ghost_seconds": {
+                "median": 0.00011202099999999999,
+                "minimum": 0.000109931,
+                "maximum": 0.000299578
+              },
+              "linear_seconds": {
+                "median": 0.042958603,
+                "minimum": 0.041974700999999996,
+                "maximum": 0.045812693
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.000692996,
+                "minimum": 0.000642824,
+                "maximum": 0.000719918
+              },
+              "finalize_seconds": {
+                "median": 0.0007078200000000001,
+                "minimum": 0.000666289,
+                "maximum": 0.000916846
+              },
+              "peak_rss_max_bytes": {
+                "median": 48988160.0,
+                "minimum": 48852992.0,
+                "maximum": 49012736.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 96452608.0,
+                "minimum": 96391168.0,
+                "maximum": 96587776.0
+              }
+            },
+            "aggregate_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.25274127800003043,
+                "minimum": 0.24896961499689496,
+                "maximum": 0.27624854299938306
+              },
+              "outer_iterations": {
+                "median": 152,
+                "minimum": 152,
+                "maximum": 152
+              },
+              "setup_seconds": {
+                "median": 0.001365121,
+                "minimum": 0.001261303,
+                "maximum": 0.001463674
+              },
+              "schur_setup_seconds": {
+                "median": 0.003465092,
+                "minimum": 0.00317674,
+                "maximum": 0.0037665619999999998
+              },
+              "solve_seconds": {
+                "median": 0.091246121,
+                "minimum": 0.089202405,
+                "maximum": 0.094141186
+              },
+              "assembly_seconds": {
+                "median": 0.042457534,
+                "minimum": 0.041704575,
+                "maximum": 0.043787036
+              },
+              "callback_seconds": {
+                "median": 0.038139749,
+                "minimum": 0.037292556,
+                "maximum": 0.039516952
+              },
+              "failure_sync_seconds": {
+                "median": 0.029321701,
+                "minimum": 0.028176543999999998,
+                "maximum": 0.030583232
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.004103171,
+                "minimum": 0.004069013,
+                "maximum": 0.00410338
+              },
+              "constraint_seconds": {
+                "median": 1.302e-06,
+                "minimum": 1.122e-06,
+                "maximum": 1.6329999999999999e-06
+              },
+              "ghost_seconds": {
+                "median": 0.00011051299999999999,
+                "minimum": 9.677e-05,
+                "maximum": 0.000188926
+              },
+              "linear_seconds": {
+                "median": 0.041261471,
+                "minimum": 0.036095921,
+                "maximum": 0.043443841
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.000649424,
+                "minimum": 0.000608355,
+                "maximum": 0.000725405
+              },
+              "finalize_seconds": {
+                "median": 0.000717584,
+                "minimum": 0.0006878090000000001,
+                "maximum": 0.000805852
+              },
+              "peak_rss_max_bytes": {
+                "median": 49160192.0,
+                "minimum": 48381952.0,
+                "maximum": 49246208.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 96968704.0,
+                "minimum": 94945280.0,
+                "maximum": 96985088.0
+              }
+            },
+            "aggregate_rigid_adaptive": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.24440243799836026,
+                "minimum": 0.24009515600118903,
+                "maximum": 0.25566504200105555
+              },
+              "outer_iterations": {
+                "median": 152,
+                "minimum": 152,
+                "maximum": 152
+              },
+              "setup_seconds": {
+                "median": 0.0013552100000000001,
+                "minimum": 0.001274022,
+                "maximum": 0.001935113
+              },
+              "schur_setup_seconds": {
+                "median": 0.003456632,
+                "minimum": 0.0033859709999999998,
+                "maximum": 0.004132304000000001
+              },
+              "solve_seconds": {
+                "median": 0.083170103,
+                "minimum": 0.078290802,
+                "maximum": 0.09318929100000001
+              },
+              "assembly_seconds": {
+                "median": 0.042080150999999996,
+                "minimum": 0.04029392,
+                "maximum": 0.047913216
+              },
+              "callback_seconds": {
+                "median": 0.036506011,
+                "minimum": 0.035650219,
+                "maximum": 0.042955867999999994
+              },
+              "failure_sync_seconds": {
+                "median": 0.027504144999999997,
+                "minimum": 0.025936571999999998,
+                "maximum": 0.03291153
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.004694264,
+                "minimum": 0.004339878,
+                "maximum": 0.005136493
+              },
+              "constraint_seconds": {
+                "median": 1.1729999999999998e-06,
+                "minimum": 1.172e-06,
+                "maximum": 1.773e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000108098,
+                "minimum": 0.000104917,
+                "maximum": 0.00021358500000000002
+              },
+              "linear_seconds": {
+                "median": 0.03527809,
+                "minimum": 0.03235079,
+                "maximum": 0.038470585
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.000671406,
+                "minimum": 0.000597469,
+                "maximum": 0.000767726
+              },
+              "finalize_seconds": {
+                "median": 0.00080412,
+                "minimum": 0.0007185760000000001,
+                "maximum": 0.0008088489999999999
+              },
+              "peak_rss_max_bytes": {
+                "median": 49168384.0,
+                "minimum": 49143808.0,
+                "maximum": 49287168.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 96899072.0,
+                "minimum": 96854016.0,
+                "maximum": 97230848.0
+              }
+            }
+          },
+          "adaptive_paired_statistics": {
+            "assembly_finalize_seconds": {
+              "median": 0.14399933713182778,
+              "minimum": 0.06656774013747313,
+              "maximum": 0.2518349832361362
+            },
+            "assembly_seconds": {
+              "median": 0.00900563067720972,
+              "minimum": -0.07977511882740829,
+              "maximum": 0.12849738282020806
+            },
+            "callback_seconds": {
+              "median": -0.02109120651317109,
+              "minimum": -0.09784998093982566,
+              "maximum": 0.12627558193946142
+            },
+            "constraint_seconds": {
+              "median": -0.09907834101382496,
+              "minimum": -0.2823025107164727,
+              "maximum": 0.5802139037433154
+            },
+            "failure_sync_seconds": {
+              "median": -0.023863785423790862,
+              "minimum": -0.15193489033467755,
+              "maximum": 0.12242908417898413
+            },
+            "finalize_seconds": {
+              "median": 0.1205935472362818,
+              "minimum": -0.10830276527203497,
+              "maximum": 0.17597908721752686
+            },
+            "full_jacobian_assemblies": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "ghost_seconds": {
+              "median": -0.021852632721942156,
+              "minimum": -0.44466616558864314,
+              "maximum": 1.2071406427611868
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.1036417881006979,
+              "minimum": -0.17636492717861063,
+              "maximum": 0.1821645026977754
+            },
+            "linear_seconds": {
+              "median": -0.11447551334146522,
+              "minimum": -0.1450113351508967,
+              "maximum": -0.10375496444598287
+            },
+            "newton_iterations": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "outer_iterations": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "peak_rss_max_bytes": {
+              "median": 0.0008317391665972895,
+              "minimum": -0.00033327778703551303,
+              "maximum": 0.01625465628174738
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.0025339978038685373,
+              "minimum": -0.0007180873532145471,
+              "maximum": 0.020103537532355498
+            },
+            "schur_setup_seconds": {
+              "median": 0.06586343232370284,
+              "minimum": -0.0822845873770297,
+              "maximum": 0.19255246325350117
+            },
+            "setup_seconds": {
+              "median": 0.01008401629108957,
+              "minimum": -0.0741039329796116,
+              "maximum": 0.417539544113672
+            },
+            "solve_seconds": {
+              "median": -0.08850806929096755,
+              "minimum": -0.12232408980452925,
+              "maximum": -0.010111355512347098
+            },
+            "user_schur_updates": {
+              "median": -0.7,
+              "minimum": -0.7,
+              "maximum": -0.7
+            },
+            "wall_seconds": {
+              "median": -0.0356447472347845,
+              "minimum": -0.07451080383932918,
+              "maximum": -0.03299358168818456
+            }
+          }
+        },
+        {
+          "subdivisions": 6,
+          "ranks": 1,
+          "mode_statistics": {
+            "coupled_nodal": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.4576529350015335,
+                "minimum": 0.4518711409982643,
+                "maximum": 0.4650244680015021
+              },
+              "outer_iterations": {
+                "median": 172,
+                "minimum": 172,
+                "maximum": 172
+              },
+              "setup_seconds": {
+                "median": 0.00131361,
+                "minimum": 0.00110765,
+                "maximum": 0.001368352
+              },
+              "schur_setup_seconds": {
+                "median": 0.004468543,
+                "minimum": 0.004453942,
+                "maximum": 0.004512604000000001
+              },
+              "solve_seconds": {
+                "median": 0.245763067,
+                "minimum": 0.244929071,
+                "maximum": 0.253763391
+              },
+              "assembly_seconds": {
+                "median": 0.13499665,
+                "minimum": 0.131326852,
+                "maximum": 0.13661154
+              },
+              "callback_seconds": {
+                "median": 0.130908937,
+                "minimum": 0.127624009,
+                "maximum": 0.133191462
+              },
+              "failure_sync_seconds": {
+                "median": 2.4637e-05,
+                "minimum": 2.2491e-05,
+                "maximum": 2.5015e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.002774235,
+                "minimum": 0.002684864,
+                "maximum": 0.003514569
+              },
+              "constraint_seconds": {
+                "median": 1.574e-06,
+                "minimum": 1.493e-06,
+                "maximum": 1.662e-06
+              },
+              "ghost_seconds": {
+                "median": 7.7795e-05,
+                "minimum": 7.4247e-05,
+                "maximum": 0.000164353
+              },
+              "linear_seconds": {
+                "median": 0.09915101,
+                "minimum": 0.09454717,
+                "maximum": 0.10105439
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.0013009,
+                "minimum": 0.00120131,
+                "maximum": 0.001306113
+              },
+              "finalize_seconds": {
+                "median": 0.003020255,
+                "minimum": 0.002892225,
+                "maximum": 0.003317938
+              },
+              "peak_rss_max_bytes": {
+                "median": 58011648.0,
+                "minimum": 57860096.0,
+                "maximum": 58044416.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 58011648.0,
+                "minimum": 57860096.0,
+                "maximum": 58044416.0
+              }
+            },
+            "twolevel_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.4510901860012382,
+                "minimum": 0.4442523559991969,
+                "maximum": 0.45655237499886425
+              },
+              "outer_iterations": {
+                "median": 171,
+                "minimum": 171,
+                "maximum": 171
+              },
+              "setup_seconds": {
+                "median": 0.0014850459999999998,
+                "minimum": 0.001316105,
+                "maximum": 0.0017229250000000002
+              },
+              "schur_setup_seconds": {
+                "median": 0.005315964,
+                "minimum": 0.004813441999999999,
+                "maximum": 0.0057940249999999995
+              },
+              "solve_seconds": {
+                "median": 0.235372897,
+                "minimum": 0.230853795,
+                "maximum": 0.243750843
+              },
+              "assembly_seconds": {
+                "median": 0.137199801,
+                "minimum": 0.13343444299999999,
+                "maximum": 0.142324694
+              },
+              "callback_seconds": {
+                "median": 0.13372505699999998,
+                "minimum": 0.129973286,
+                "maximum": 0.138638829
+              },
+              "failure_sync_seconds": {
+                "median": 2.8022e-05,
+                "minimum": 2.3412e-05,
+                "maximum": 2.8535e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.002930959,
+                "minimum": 0.002925863,
+                "maximum": 0.0031043489999999997
+              },
+              "constraint_seconds": {
+                "median": 1.844e-06,
+                "minimum": 1.7240000000000001e-06,
+                "maximum": 1.8629999999999998e-06
+              },
+              "ghost_seconds": {
+                "median": 7.9318e-05,
+                "minimum": 7.6742e-05,
+                "maximum": 0.000101427
+              },
+              "linear_seconds": {
+                "median": 0.08253845,
+                "minimum": 0.080834149,
+                "maximum": 0.08494069
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001210718,
+                "minimum": 0.001158447,
+                "maximum": 0.001219677
+              },
+              "finalize_seconds": {
+                "median": 0.002889784,
+                "minimum": 0.0028496069999999997,
+                "maximum": 0.002954927
+              },
+              "peak_rss_max_bytes": {
+                "median": 58097664.0,
+                "minimum": 57987072.0,
+                "maximum": 58208256.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 58097664.0,
+                "minimum": 57987072.0,
+                "maximum": 58208256.0
+              }
+            },
+            "aggregate_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.46283808999942266,
+                "minimum": 0.4536163080010738,
+                "maximum": 0.4848936720009078
+              },
+              "outer_iterations": {
+                "median": 172,
+                "minimum": 172,
+                "maximum": 172
+              },
+              "setup_seconds": {
+                "median": 0.001232855,
+                "minimum": 0.001204514,
+                "maximum": 0.001238449
+              },
+              "schur_setup_seconds": {
+                "median": 0.0058336840000000004,
+                "minimum": 0.005520711,
+                "maximum": 0.00680502
+              },
+              "solve_seconds": {
+                "median": 0.251675442,
+                "minimum": 0.250246005,
+                "maximum": 0.272546391
+              },
+              "assembly_seconds": {
+                "median": 0.137634123,
+                "minimum": 0.13507870500000002,
+                "maximum": 0.147326476
+              },
+              "callback_seconds": {
+                "median": 0.134137477,
+                "minimum": 0.129177728,
+                "maximum": 0.141335136
+              },
+              "failure_sync_seconds": {
+                "median": 2.6878000000000003e-05,
+                "minimum": 2.0953e-05,
+                "maximum": 5.2809e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.004867023000000001,
+                "minimum": 0.0027612409999999998,
+                "maximum": 0.005087296
+              },
+              "constraint_seconds": {
+                "median": 2.264e-06,
+                "minimum": 2.081e-06,
+                "maximum": 3.373e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000148978,
+                "minimum": 9.4987e-05,
+                "maximum": 0.000179371
+              },
+              "linear_seconds": {
+                "median": 0.09760049700000001,
+                "minimum": 0.095987524,
+                "maximum": 0.10504313400000001
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.0012480640000000001,
+                "minimum": 0.00118754,
+                "maximum": 0.001810181
+              },
+              "finalize_seconds": {
+                "median": 0.003513268,
+                "minimum": 0.003413882,
+                "maximum": 0.005470787
+              },
+              "peak_rss_max_bytes": {
+                "median": 58355712.0,
+                "minimum": 58249216.0,
+                "maximum": 58499072.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 58355712.0,
+                "minimum": 58249216.0,
+                "maximum": 58499072.0
+              }
+            },
+            "aggregate_rigid_adaptive": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.4268876520000049,
+                "minimum": 0.42002499800219084,
+                "maximum": 0.429818681001052
+              },
+              "outer_iterations": {
+                "median": 172,
+                "minimum": 172,
+                "maximum": 172
+              },
+              "setup_seconds": {
+                "median": 0.0012119449999999999,
+                "minimum": 0.0011874890000000001,
+                "maximum": 0.001277827
+              },
+              "schur_setup_seconds": {
+                "median": 0.005797275,
+                "minimum": 0.005712923,
+                "maximum": 0.006010125000000001
+              },
+              "solve_seconds": {
+                "median": 0.220106009,
+                "minimum": 0.21611802000000002,
+                "maximum": 0.223692469
+              },
+              "assembly_seconds": {
+                "median": 0.138875631,
+                "minimum": 0.13627355,
+                "maximum": 0.138981811
+              },
+              "callback_seconds": {
+                "median": 0.135177379,
+                "minimum": 0.130901275,
+                "maximum": 0.13553715
+              },
+              "failure_sync_seconds": {
+                "median": 3.3676e-05,
+                "minimum": 2.6354999999999998e-05,
+                "maximum": 3.4321e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.002843258,
+                "minimum": 0.0026843310000000003,
+                "maximum": 0.004473793
+              },
+              "constraint_seconds": {
+                "median": 1.8340000000000001e-06,
+                "minimum": 1.441e-06,
+                "maximum": 2.321e-06
+              },
+              "ghost_seconds": {
+                "median": 7.991899999999999e-05,
+                "minimum": 7.4448e-05,
+                "maximum": 0.000115398
+              },
+              "linear_seconds": {
+                "median": 0.070028388,
+                "minimum": 0.06893117600000001,
+                "maximum": 0.073169462
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001236412,
+                "minimum": 0.001155196,
+                "maximum": 0.001271533
+              },
+              "finalize_seconds": {
+                "median": 0.002966127,
+                "minimum": 0.002825426,
+                "maximum": 0.003244955
+              },
+              "peak_rss_max_bytes": {
+                "median": 58449920.0,
+                "minimum": 58400768.0,
+                "maximum": 58474496.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 58449920.0,
+                "minimum": 58400768.0,
+                "maximum": 58474496.0
+              }
+            }
+          },
+          "adaptive_paired_statistics": {
+            "assembly_finalize_seconds": {
+              "median": -0.08079476920491246,
+              "minimum": -0.4723462129980248,
+              "maximum": 0.029702948782811767
+            },
+            "assembly_seconds": {
+              "median": 0.008845546749948197,
+              "minimum": -0.05736134623894762,
+              "maximum": 0.009791815943783089
+            },
+            "callback_seconds": {
+              "median": 0.0104346155250854,
+              "minimum": -0.04356847967373101,
+              "maximum": 0.013342447081899689
+            },
+            "constraint_seconds": {
+              "median": -0.3118885265342426,
+              "minimum": -0.3635159010600706,
+              "maximum": -0.11869293608841902
+            },
+            "failure_sync_seconds": {
+              "median": 0.2578151100081132,
+              "minimum": -0.36230566759453886,
+              "maximum": 0.2769179254408809
+            },
+            "finalize_seconds": {
+              "median": -0.13115714017063274,
+              "minimum": -0.48354304417262095,
+              "maximum": -0.07637134428685777
+            },
+            "full_jacobian_assemblies": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "ghost_seconds": {
+              "median": -0.35665185565113655,
+              "minimum": -0.4635516653465612,
+              "maximum": -0.2162295893122217
+            },
+            "linear_diagnostic_seconds": {
+              "median": -0.07440964565919705,
+              "minimum": -0.2975658235281443,
+              "maximum": 0.04115398218165289
+            },
+            "linear_seconds": {
+              "median": -0.29374154723822765,
+              "minimum": -0.33333683665607317,
+              "maximum": -0.2377190394034958
+            },
+            "newton_iterations": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "outer_iterations": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "peak_rss_max_bytes": {
+              "median": 0.0016143749561310372,
+              "minimum": -0.00042010922839941234,
+              "maximum": 0.002601786090992153
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.0016143749561310372,
+              "minimum": -0.00042010922839941234,
+              "maximum": 0.002601786090992153
+            },
+            "schur_setup_seconds": {
+              "median": 0.030245210402209066,
+              "minimum": -0.14808846998245417,
+              "maximum": 0.03481652997231688
+            },
+            "setup_seconds": {
+              "median": -0.014134331356879137,
+              "minimum": -0.016960632028908518,
+              "maximum": 0.031796222533184704
+            },
+            "solve_seconds": {
+              "median": -0.13637774157473548,
+              "minimum": -0.19240901267336907,
+              "maximum": -0.11118674423545871
+            },
+            "user_schur_updates": {
+              "median": -0.7,
+              "minimum": -0.7,
+              "maximum": -0.7
+            },
+            "wall_seconds": {
+              "median": -0.09250122866353805,
+              "minimum": -0.11962626726296877,
+              "maximum": -0.05246201818644802
+            }
+          }
+        },
+        {
+          "subdivisions": 6,
+          "ranks": 2,
+          "mode_statistics": {
+            "coupled_nodal": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.4698589340005128,
+                "minimum": 0.46188936099861166,
+                "maximum": 0.4749530250010139
+              },
+              "outer_iterations": {
+                "median": 162,
+                "minimum": 162,
+                "maximum": 162
+              },
+              "setup_seconds": {
+                "median": 0.001570437,
+                "minimum": 0.001500681,
+                "maximum": 0.001755598
+              },
+              "schur_setup_seconds": {
+                "median": 0.005249985,
+                "minimum": 0.004923005,
+                "maximum": 0.009629676
+              },
+              "solve_seconds": {
+                "median": 0.280457555,
+                "minimum": 0.275465442,
+                "maximum": 0.282889179
+              },
+              "assembly_seconds": {
+                "median": 0.138294164,
+                "minimum": 0.13401829199999998,
+                "maximum": 0.141678594
+              },
+              "callback_seconds": {
+                "median": 0.116975704,
+                "minimum": 0.114380708,
+                "maximum": 0.11882384900000001
+              },
+              "failure_sync_seconds": {
+                "median": 0.086267718,
+                "minimum": 0.084049334,
+                "maximum": 0.092116563
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.020441197,
+                "minimum": 0.019117402999999998,
+                "maximum": 0.021617482
+              },
+              "constraint_seconds": {
+                "median": 2.565e-06,
+                "minimum": 2.462e-06,
+                "maximum": 4.742e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000369418,
+                "minimum": 0.000241048,
+                "maximum": 0.00040547500000000003
+              },
+              "linear_seconds": {
+                "median": 0.124207854,
+                "minimum": 0.121022227,
+                "maximum": 0.125070069
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001183008,
+                "minimum": 0.001114445,
+                "maximum": 0.0012706470000000002
+              },
+              "finalize_seconds": {
+                "median": 0.002023379,
+                "minimum": 0.001708687,
+                "maximum": 0.002140172
+              },
+              "peak_rss_max_bytes": {
+                "median": 55070720.0,
+                "minimum": 55070720.0,
+                "maximum": 56365056.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 105664512.0,
+                "minimum": 105451520.0,
+                "maximum": 108462080.0
+              }
+            },
+            "twolevel_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.43852224700094666,
+                "minimum": 0.424570463001146,
+                "maximum": 0.46172593599840184
+              },
+              "outer_iterations": {
+                "median": 192,
+                "minimum": 192,
+                "maximum": 192
+              },
+              "setup_seconds": {
+                "median": 0.001195215,
+                "minimum": 0.001161465,
+                "maximum": 0.001379236
+              },
+              "schur_setup_seconds": {
+                "median": 0.005416796,
+                "minimum": 0.005215606,
+                "maximum": 0.006730776
+              },
+              "solve_seconds": {
+                "median": 0.252018951,
+                "minimum": 0.236987921,
+                "maximum": 0.261954213
+              },
+              "assembly_seconds": {
+                "median": 0.13799461200000002,
+                "minimum": 0.128256919,
+                "maximum": 0.142360474
+              },
+              "callback_seconds": {
+                "median": 0.117505864,
+                "minimum": 0.10913746599999999,
+                "maximum": 0.119832134
+              },
+              "failure_sync_seconds": {
+                "median": 0.088068012,
+                "minimum": 0.078335687,
+                "maximum": 0.08846825900000001
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.019807042,
+                "minimum": 0.018266413999999998,
+                "maximum": 0.021746704
+              },
+              "constraint_seconds": {
+                "median": 3.2029999999999997e-06,
+                "minimum": 1.8799999999999998e-06,
+                "maximum": 3.365e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000406415,
+                "minimum": 0.000205744,
+                "maximum": 0.000485856
+              },
+              "linear_seconds": {
+                "median": 0.097808793,
+                "minimum": 0.09299337399999999,
+                "maximum": 0.10204244900000001
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001144823,
+                "minimum": 0.00109489,
+                "maximum": 0.001219078
+              },
+              "finalize_seconds": {
+                "median": 0.001835975,
+                "minimum": 0.00179941,
+                "maximum": 0.001888374
+              },
+              "peak_rss_max_bytes": {
+                "median": 55824384.0,
+                "minimum": 54702080.0,
+                "maximum": 56766464.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 107118592.0,
+                "minimum": 105021440.0,
+                "maximum": 109350912.0
+              }
+            },
+            "aggregate_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.4478206920030061,
+                "minimum": 0.4274314200010849,
+                "maximum": 0.46187493199977325
+              },
+              "outer_iterations": {
+                "median": 187,
+                "minimum": 187,
+                "maximum": 187
+              },
+              "setup_seconds": {
+                "median": 0.00135294,
+                "minimum": 0.001215953,
+                "maximum": 0.00159891
+              },
+              "schur_setup_seconds": {
+                "median": 0.006285117,
+                "minimum": 0.005716115999999999,
+                "maximum": 0.006587028
+              },
+              "solve_seconds": {
+                "median": 0.263288059,
+                "minimum": 0.244361226,
+                "maximum": 0.264747087
+              },
+              "assembly_seconds": {
+                "median": 0.140010091,
+                "minimum": 0.129185347,
+                "maximum": 0.147059057
+              },
+              "callback_seconds": {
+                "median": 0.119003407,
+                "minimum": 0.110283177,
+                "maximum": 0.126974853
+              },
+              "failure_sync_seconds": {
+                "median": 0.088983786,
+                "minimum": 0.07958882,
+                "maximum": 0.096839351
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.019499149,
+                "minimum": 0.018381977,
+                "maximum": 0.020114874
+              },
+              "constraint_seconds": {
+                "median": 3.675e-06,
+                "minimum": 1.983e-06,
+                "maximum": 4.544e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000294079,
+                "minimum": 0.000223647,
+                "maximum": 0.000366935
+              },
+              "linear_seconds": {
+                "median": 0.100806748,
+                "minimum": 0.09822003,
+                "maximum": 0.105168597
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001159272,
+                "minimum": 0.001104152,
+                "maximum": 0.001346559
+              },
+              "finalize_seconds": {
+                "median": 0.0019635119999999997,
+                "minimum": 0.001752512,
+                "maximum": 0.002020619
+              },
+              "peak_rss_max_bytes": {
+                "median": 57040896.0,
+                "minimum": 56053760.0,
+                "maximum": 57065472.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 110063616.0,
+                "minimum": 108675072.0,
+                "maximum": 110133248.0
+              }
+            },
+            "aggregate_rigid_adaptive": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.43107877199872746,
+                "minimum": 0.41293338399918866,
+                "maximum": 0.43855076799809467
+              },
+              "outer_iterations": {
+                "median": 188,
+                "minimum": 188,
+                "maximum": 188
+              },
+              "setup_seconds": {
+                "median": 0.001427824,
+                "minimum": 0.00135325,
+                "maximum": 0.001550388
+              },
+              "schur_setup_seconds": {
+                "median": 0.006909925,
+                "minimum": 0.006231995,
+                "maximum": 0.007271186999999999
+              },
+              "solve_seconds": {
+                "median": 0.23569195499999998,
+                "minimum": 0.22352968099999998,
+                "maximum": 0.24406744800000002
+              },
+              "assembly_seconds": {
+                "median": 0.14128759,
+                "minimum": 0.131304251,
+                "maximum": 0.149313484
+              },
+              "callback_seconds": {
+                "median": 0.12069005000000001,
+                "minimum": 0.11210343,
+                "maximum": 0.12821604
+              },
+              "failure_sync_seconds": {
+                "median": 0.08858100099999999,
+                "minimum": 0.08157734,
+                "maximum": 0.097525168
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.019646731,
+                "minimum": 0.018763155,
+                "maximum": 0.020375866
+              },
+              "constraint_seconds": {
+                "median": 3.0849999999999997e-06,
+                "minimum": 1.932e-06,
+                "maximum": 0.00015105999999999998
+              },
+              "ghost_seconds": {
+                "median": 0.000251522,
+                "minimum": 0.000200074,
+                "maximum": 0.000303954
+              },
+              "linear_seconds": {
+                "median": 0.082452146,
+                "minimum": 0.081308366,
+                "maximum": 0.08246543
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001222306,
+                "minimum": 0.001094649,
+                "maximum": 0.001308808
+              },
+              "finalize_seconds": {
+                "median": 0.001985204,
+                "minimum": 0.001931637,
+                "maximum": 0.001988968
+              },
+              "peak_rss_max_bytes": {
+                "median": 56647680.0,
+                "minimum": 56598528.0,
+                "maximum": 57176064.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 109195264.0,
+                "minimum": 109158400.0,
+                "maximum": 110518272.0
+              }
+            }
+          },
+          "adaptive_paired_statistics": {
+            "assembly_finalize_seconds": {
+              "median": 0.020736507286457817,
+              "minimum": -0.02327347414654457,
+              "maximum": 0.04496180833327634
+            },
+            "assembly_seconds": {
+              "median": 0.015330079261966167,
+              "minimum": 0.009124335188097188,
+              "maximum": 0.016402045968882284
+            },
+            "callback_seconds": {
+              "median": 0.014173064809816838,
+              "minimum": 0.009775061523402684,
+              "maximum": 0.016505264443007484
+            },
+            "constraint_seconds": {
+              "median": -0.02571860816944027,
+              "minimum": -0.16054421768707494,
+              "maximum": 32.24383802816901
+            },
+            "failure_sync_seconds": {
+              "median": 0.007082007395939671,
+              "minimum": -0.0045264987938364865,
+              "maximum": 0.024984916223157905
+            },
+            "finalize_seconds": {
+              "median": 0.01296452479027388,
+              "minimum": -0.04403700054290294,
+              "maximum": 0.13277626629660744
+            },
+            "full_jacobian_assemblies": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "ghost_seconds": {
+              "median": -0.10540271052149142,
+              "minimum": -0.3145325466363251,
+              "maximum": 0.03357941233478079
+            },
+            "linear_diagnostic_seconds": {
+              "median": -0.05574446721735704,
+              "minimum": -0.0922744565964061,
+              "maximum": 0.18535129221339108
+            },
+            "linear_seconds": {
+              "median": -0.1819453396115902,
+              "minimum": -0.21600032374683098,
+              "maximum": -0.1721814175784715
+            },
+            "newton_iterations": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "outer_iterations": {
+              "median": 0.005347593582887722,
+              "minimum": 0.005347593582887722,
+              "maximum": 0.005347593582887722
+            },
+            "peak_rss_max_bytes": {
+              "median": 0.0019379844961240345,
+              "minimum": -0.006893580353296014,
+              "maximum": 0.009718670076726443
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.0034959833382921524,
+              "minimum": -0.00822447992259312,
+              "maximum": 0.004786672697120409
+            },
+            "schur_setup_seconds": {
+              "median": 0.049020134725402675,
+              "minimum": -0.00845203040770759,
+              "maximum": 0.27205028729298
+            },
+            "setup_seconds": {
+              "median": 0.00022913063402674183,
+              "minimum": -0.030346923841867324,
+              "maximum": 0.1742427544485683
+            },
+            "solve_seconds": {
+              "median": -0.08524897890306049,
+              "minimum": -0.10481335197962793,
+              "maximum": -0.07811092176436285
+            },
+            "user_schur_updates": {
+              "median": -0.7,
+              "minimum": -0.7,
+              "maximum": -0.7
+            },
+            "wall_seconds": {
+              "median": -0.033918975825079634,
+              "minimum": -0.06667640494734817,
+              "maximum": -0.020700079675749383
+            }
+          }
+        },
+        {
+          "subdivisions": 8,
+          "ranks": 1,
+          "mode_statistics": {
+            "coupled_nodal": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.9209629759970994,
+                "minimum": 0.9157017990000895,
+                "maximum": 0.9341837809988647
+              },
+              "outer_iterations": {
+                "median": 201,
+                "minimum": 201,
+                "maximum": 201
+              },
+              "setup_seconds": {
+                "median": 0.001565357,
+                "minimum": 0.001465139,
+                "maximum": 0.0015683899999999998
+              },
+              "schur_setup_seconds": {
+                "median": 0.009037563,
+                "minimum": 0.009034698,
+                "maximum": 0.009541183
+              },
+              "solve_seconds": {
+                "median": 0.635146979,
+                "minimum": 0.625162695,
+                "maximum": 0.639128109
+              },
+              "assembly_seconds": {
+                "median": 0.32408314,
+                "minimum": 0.313140342,
+                "maximum": 0.3297206
+              },
+              "callback_seconds": {
+                "median": 0.316316421,
+                "minimum": 0.304039492,
+                "maximum": 0.321707903
+              },
+              "failure_sync_seconds": {
+                "median": 6.1479e-05,
+                "minimum": 5.767e-05,
+                "maximum": 0.000139467
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.006388934,
+                "minimum": 0.00621866,
+                "maximum": 0.006408595
+              },
+              "constraint_seconds": {
+                "median": 5.108e-06,
+                "minimum": 4.794e-06,
+                "maximum": 5.547e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000167407,
+                "minimum": 0.00015225200000000002,
+                "maximum": 0.00019356900000000002
+              },
+              "linear_seconds": {
+                "median": 0.275489078,
+                "minimum": 0.27384835500000004,
+                "maximum": 0.277128636
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.002386545,
+                "minimum": 0.0022279559999999997,
+                "maximum": 0.0024009820000000003
+              },
+              "finalize_seconds": {
+                "median": 0.006992787,
+                "minimum": 0.006755216,
+                "maximum": 0.007142384
+              },
+              "peak_rss_max_bytes": {
+                "median": 77058048.0,
+                "minimum": 76967936.0,
+                "maximum": 77058048.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 77058048.0,
+                "minimum": 76967936.0,
+                "maximum": 77058048.0
+              }
+            },
+            "twolevel_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.8637140979990363,
+                "minimum": 0.8521222119998129,
+                "maximum": 0.8687431799990009
+              },
+              "outer_iterations": {
+                "median": 201,
+                "minimum": 201,
+                "maximum": 201
+              },
+              "setup_seconds": {
+                "median": 0.001715274,
+                "minimum": 0.001607376,
+                "maximum": 0.001774051
+              },
+              "schur_setup_seconds": {
+                "median": 0.010000894,
+                "minimum": 0.009961278,
+                "maximum": 0.010073316
+              },
+              "solve_seconds": {
+                "median": 0.567323904,
+                "minimum": 0.565837695,
+                "maximum": 0.57431642
+              },
+              "assembly_seconds": {
+                "median": 0.3204946,
+                "minimum": 0.318905817,
+                "maximum": 0.322511476
+              },
+              "callback_seconds": {
+                "median": 0.312716308,
+                "minimum": 0.310386117,
+                "maximum": 0.31416735500000004
+              },
+              "failure_sync_seconds": {
+                "median": 6.5139e-05,
+                "minimum": 5.16e-05,
+                "maximum": 0.000130133
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.006712744,
+                "minimum": 0.006171974,
+                "maximum": 0.007103627
+              },
+              "constraint_seconds": {
+                "median": 2.9339999999999998e-06,
+                "minimum": 2.413e-06,
+                "maximum": 4.334e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000156394,
+                "minimum": 0.000130781,
+                "maximum": 0.000164749
+              },
+              "linear_seconds": {
+                "median": 0.214120519,
+                "minimum": 0.21027544599999998,
+                "maximum": 0.215584537
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.00252079,
+                "minimum": 0.00219064,
+                "maximum": 0.002564425
+              },
+              "finalize_seconds": {
+                "median": 0.006637055,
+                "minimum": 0.006506524,
+                "maximum": 0.00695447
+              },
+              "peak_rss_max_bytes": {
+                "median": 77254656.0,
+                "minimum": 77160448.0,
+                "maximum": 77352960.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 77254656.0,
+                "minimum": 77160448.0,
+                "maximum": 77352960.0
+              }
+            },
+            "aggregate_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.9002505730022676,
+                "minimum": 0.894782067000051,
+                "maximum": 0.9056646989993169
+              },
+              "outer_iterations": {
+                "median": 201,
+                "minimum": 201,
+                "maximum": 201
+              },
+              "setup_seconds": {
+                "median": 0.001577202,
+                "minimum": 0.00156623,
+                "maximum": 0.001709635
+              },
+              "schur_setup_seconds": {
+                "median": 0.011801293000000001,
+                "minimum": 0.011582066,
+                "maximum": 0.012466294
+              },
+              "solve_seconds": {
+                "median": 0.609670864,
+                "minimum": 0.603360792,
+                "maximum": 0.613752752
+              },
+              "assembly_seconds": {
+                "median": 0.324622093,
+                "minimum": 0.320751671,
+                "maximum": 0.330914829
+              },
+              "callback_seconds": {
+                "median": 0.316666271,
+                "minimum": 0.312960782,
+                "maximum": 0.32129934099999996
+              },
+              "failure_sync_seconds": {
+                "median": 5.7137e-05,
+                "minimum": 5.3112e-05,
+                "maximum": 7.2875e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.0063655199999999995,
+                "minimum": 0.006264367999999999,
+                "maximum": 0.007929708
+              },
+              "constraint_seconds": {
+                "median": 4.585e-06,
+                "minimum": 3.946e-06,
+                "maximum": 6.527999999999999e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000157692,
+                "minimum": 0.000148203,
+                "maximum": 0.000197083
+              },
+              "linear_seconds": {
+                "median": 0.24129488,
+                "minimum": 0.240922326,
+                "maximum": 0.256345548
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.002312892,
+                "minimum": 0.002166574,
+                "maximum": 0.002335806
+              },
+              "finalize_seconds": {
+                "median": 0.006762472,
+                "minimum": 0.006682109,
+                "maximum": 0.006956246
+              },
+              "peak_rss_max_bytes": {
+                "median": 78102528.0,
+                "minimum": 77901824.0,
+                "maximum": 78102528.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 78102528.0,
+                "minimum": 77901824.0,
+                "maximum": 78102528.0
+              }
+            },
+            "aggregate_rigid_adaptive": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.8275430770008825,
+                "minimum": 0.8209070400007477,
+                "maximum": 0.9296058620020631
+              },
+              "outer_iterations": {
+                "median": 201,
+                "minimum": 201,
+                "maximum": 201
+              },
+              "setup_seconds": {
+                "median": 0.001680404,
+                "minimum": 0.0016495750000000001,
+                "maximum": 0.0017476820000000002
+              },
+              "schur_setup_seconds": {
+                "median": 0.012837226,
+                "minimum": 0.012393964,
+                "maximum": 0.014457915
+              },
+              "solve_seconds": {
+                "median": 0.530482581,
+                "minimum": 0.5219261479999999,
+                "maximum": 0.6099314180000001
+              },
+              "assembly_seconds": {
+                "median": 0.327384613,
+                "minimum": 0.325516633,
+                "maximum": 0.346888262
+              },
+              "callback_seconds": {
+                "median": 0.319582661,
+                "minimum": 0.317655919,
+                "maximum": 0.337961139
+              },
+              "failure_sync_seconds": {
+                "median": 7.163699999999999e-05,
+                "minimum": 6.1269e-05,
+                "maximum": 7.7406e-05
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.006343303,
+                "minimum": 0.0062855210000000005,
+                "maximum": 0.00687002
+              },
+              "constraint_seconds": {
+                "median": 4.577e-06,
+                "minimum": 4.555e-06,
+                "maximum": 5.065e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000157908,
+                "minimum": 0.000147428,
+                "maximum": 0.000181046
+              },
+              "linear_seconds": {
+                "median": 0.177596946,
+                "minimum": 0.173677044,
+                "maximum": 0.236246321
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.002942869,
+                "minimum": 0.002283568,
+                "maximum": 0.00360606
+              },
+              "finalize_seconds": {
+                "median": 0.0073435770000000004,
+                "minimum": 0.006606716,
+                "maximum": 0.007862025
+              },
+              "peak_rss_max_bytes": {
+                "median": 78368768.0,
+                "minimum": 78274560.0,
+                "maximum": 78409728.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 78368768.0,
+                "minimum": 78274560.0,
+                "maximum": 78409728.0
+              }
+            }
+          },
+          "adaptive_paired_statistics": {
+            "assembly_finalize_seconds": {
+              "median": -0.01256755143334698,
+              "minimum": -0.20005843846961335,
+              "maximum": 0.09668205954694886
+            },
+            "assembly_seconds": {
+              "median": 0.020679368495012396,
+              "minimum": -0.016312946797558014,
+              "maximum": 0.06859104626621937
+            },
+            "callback_seconds": {
+              "median": 0.021158814077861132,
+              "minimum": -0.011339649775378602,
+              "maximum": 0.06724703560234868
+            },
+            "constraint_seconds": {
+              "median": -0.0065430752453654595,
+              "minimum": -0.2988664215686273,
+              "maximum": 0.28357830714647747
+            },
+            "failure_sync_seconds": {
+              "median": 0.15358111161319465,
+              "minimum": 0.06217495711835341,
+              "maximum": 0.253776012041234
+            },
+            "finalize_seconds": {
+              "median": 0.05568103830715598,
+              "minimum": -0.011282815051355755,
+              "maximum": 0.16259631093481786
+            },
+            "full_jacobian_assemblies": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "ghost_seconds": {
+              "median": 0.06548450436226005,
+              "minimum": -0.25194968617283064,
+              "maximum": 0.14809882555868414
+            },
+            "linear_diagnostic_seconds": {
+              "median": 0.3583053244431069,
+              "minimum": -0.012678499471657112,
+              "maximum": 0.5438182794290278
+            },
+            "linear_seconds": {
+              "median": -0.280229054176367,
+              "minimum": -0.3071970729134722,
+              "maximum": -0.01940876579449924
+            },
+            "newton_iterations": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "outer_iterations": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "peak_rss_max_bytes": {
+              "median": 0.00393329137822529,
+              "minimum": 0.003408852527795325,
+              "maximum": 0.004784688995215225
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.00393329137822529,
+              "minimum": 0.003408852527795325,
+              "maximum": 0.004784688995215225
+            },
+            "schur_setup_seconds": {
+              "median": 0.07009958326951349,
+              "minimum": 0.029754793204780805,
+              "maximum": 0.22511279060692746
+            },
+            "setup_seconds": {
+              "median": 0.053213768092808866,
+              "minimum": 0.022254457822868723,
+              "maximum": 0.06543359696475148
+            },
+            "solve_seconds": {
+              "median": -0.1356738046854411,
+              "minimum": -0.14392145201808448,
+              "maximum": 0.010890044708108837
+            },
+            "user_schur_updates": {
+              "median": -0.8,
+              "minimum": -0.8,
+              "maximum": -0.8
+            },
+            "wall_seconds": {
+              "median": -0.08625887934547105,
+              "minimum": -0.0881349430713666,
+              "maximum": 0.03891874489479474
+            }
+          }
+        },
+        {
+          "subdivisions": 8,
+          "ranks": 2,
+          "mode_statistics": {
+            "coupled_nodal": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 1.0281400200001372,
+                "minimum": 1.0253402930029551,
+                "maximum": 1.0519625870001619
+              },
+              "outer_iterations": {
+                "median": 199,
+                "minimum": 199,
+                "maximum": 199
+              },
+              "setup_seconds": {
+                "median": 0.0023613460000000003,
+                "minimum": 0.00217573,
+                "maximum": 0.002444954
+              },
+              "schur_setup_seconds": {
+                "median": 0.011145767000000001,
+                "minimum": 0.009794883,
+                "maximum": 0.014534087
+              },
+              "solve_seconds": {
+                "median": 0.776713635,
+                "minimum": 0.776635648,
+                "maximum": 0.801305672
+              },
+              "assembly_seconds": {
+                "median": 0.327612186,
+                "minimum": 0.314678551,
+                "maximum": 0.331302525
+              },
+              "callback_seconds": {
+                "median": 0.295355598,
+                "minimum": 0.279714593,
+                "maximum": 0.298668217
+              },
+              "failure_sync_seconds": {
+                "median": 0.221286246,
+                "minimum": 0.205175479,
+                "maximum": 0.22239404100000001
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.031257017,
+                "minimum": 0.030431675,
+                "maximum": 0.033377451
+              },
+              "constraint_seconds": {
+                "median": 5.659e-06,
+                "minimum": 4.909e-06,
+                "maximum": 6.257e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000923241,
+                "minimum": 0.000645172,
+                "maximum": 0.0011765989999999997
+              },
+              "linear_seconds": {
+                "median": 0.425123369,
+                "minimum": 0.40384353500000003,
+                "maximum": 0.434435708
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.002367634,
+                "minimum": 0.002110752,
+                "maximum": 0.0023902899999999998
+              },
+              "finalize_seconds": {
+                "median": 0.004905329,
+                "minimum": 0.004022273,
+                "maximum": 0.005038754
+              },
+              "peak_rss_max_bytes": {
+                "median": 69001216.0,
+                "minimum": 68952064.0,
+                "maximum": 70332416.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 127930368.0,
+                "minimum": 127860736.0,
+                "maximum": 130887680.0
+              }
+            },
+            "twolevel_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.8547762330017576,
+                "minimum": 0.8209069929980615,
+                "maximum": 0.907707169000787
+              },
+              "outer_iterations": {
+                "median": 264,
+                "minimum": 264,
+                "maximum": 264
+              },
+              "setup_seconds": {
+                "median": 0.00283125,
+                "minimum": 0.002203584,
+                "maximum": 0.005388792000000001
+              },
+              "schur_setup_seconds": {
+                "median": 0.011977127,
+                "minimum": 0.010535723,
+                "maximum": 0.012032042
+              },
+              "solve_seconds": {
+                "median": 0.598094131,
+                "minimum": 0.581734248,
+                "maximum": 0.635793184
+              },
+              "assembly_seconds": {
+                "median": 0.308635534,
+                "minimum": 0.295127267,
+                "maximum": 0.317952233
+              },
+              "callback_seconds": {
+                "median": 0.274345728,
+                "minimum": 0.264961885,
+                "maximum": 0.28468804200000003
+              },
+              "failure_sync_seconds": {
+                "median": 0.202960458,
+                "minimum": 0.19372265900000002,
+                "maximum": 0.20619858800000002
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.031942238,
+                "minimum": 0.028759602,
+                "maximum": 0.032772962
+              },
+              "constraint_seconds": {
+                "median": 5.928e-06,
+                "minimum": 4.427e-06,
+                "maximum": 6.019e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000691077,
+                "minimum": 0.000676634,
+                "maximum": 0.000801766
+              },
+              "linear_seconds": {
+                "median": 0.247412605,
+                "minimum": 0.245945769,
+                "maximum": 0.276941091
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.002041081,
+                "minimum": 0.001954965,
+                "maximum": 0.002413223
+              },
+              "finalize_seconds": {
+                "median": 0.004273277,
+                "minimum": 0.004062403,
+                "maximum": 0.004431681
+              },
+              "peak_rss_max_bytes": {
+                "median": 70430720.0,
+                "minimum": 69771264.0,
+                "maximum": 71241728.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 131018752.0,
+                "minimum": 129544192.0,
+                "maximum": 132620288.0
+              }
+            },
+            "aggregate_rigid": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.880058842998551,
+                "minimum": 0.8328941630024929,
+                "maximum": 0.9266287720020046
+              },
+              "outer_iterations": {
+                "median": 244,
+                "minimum": 244,
+                "maximum": 244
+              },
+              "setup_seconds": {
+                "median": 0.002381366,
+                "minimum": 0.0022130780000000003,
+                "maximum": 0.002711463
+              },
+              "schur_setup_seconds": {
+                "median": 0.013341383,
+                "minimum": 0.011398771,
+                "maximum": 0.015518249000000001
+              },
+              "solve_seconds": {
+                "median": 0.618880263,
+                "minimum": 0.577649156,
+                "maximum": 0.661374995
+              },
+              "assembly_seconds": {
+                "median": 0.308562408,
+                "minimum": 0.294815983,
+                "maximum": 0.32984386
+              },
+              "callback_seconds": {
+                "median": 0.277064469,
+                "minimum": 0.263872627,
+                "maximum": 0.287379263
+              },
+              "failure_sync_seconds": {
+                "median": 0.20789475899999998,
+                "minimum": 0.195530222,
+                "maximum": 0.208006138
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.029937205,
+                "minimum": 0.029636257,
+                "maximum": 0.038039486
+              },
+              "constraint_seconds": {
+                "median": 5.351e-06,
+                "minimum": 4.424e-06,
+                "maximum": 6.593e-06
+              },
+              "ghost_seconds": {
+                "median": 0.000686849,
+                "minimum": 0.0006059669999999999,
+                "maximum": 0.000722551
+              },
+              "linear_seconds": {
+                "median": 0.270782669,
+                "minimum": 0.248685492,
+                "maximum": 0.28793028200000004
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.0021307640000000003,
+                "minimum": 0.0019341459999999999,
+                "maximum": 0.002674082
+              },
+              "finalize_seconds": {
+                "median": 0.003974281,
+                "minimum": 0.003956528,
+                "maximum": 0.004219115
+              },
+              "peak_rss_max_bytes": {
+                "median": 70520832.0,
+                "minimum": 70107136.0,
+                "maximum": 72355840.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 131579904.0,
+                "minimum": 131076096.0,
+                "maximum": 134995968.0
+              }
+            },
+            "aggregate_rigid_adaptive": {
+              "samples": 3,
+              "wall_seconds": {
+                "median": 0.7713880340015749,
+                "minimum": 0.762568101999932,
+                "maximum": 0.7885597749991575
+              },
+              "outer_iterations": {
+                "median": 244,
+                "minimum": 244,
+                "maximum": 244
+              },
+              "setup_seconds": {
+                "median": 0.002166646,
+                "minimum": 0.002082452,
+                "maximum": 0.002393338
+              },
+              "schur_setup_seconds": {
+                "median": 0.011717002,
+                "minimum": 0.011508856999999999,
+                "maximum": 0.013009049
+              },
+              "solve_seconds": {
+                "median": 0.522688894,
+                "minimum": 0.509530382,
+                "maximum": 0.52909277
+              },
+              "assembly_seconds": {
+                "median": 0.306180378,
+                "minimum": 0.299518846,
+                "maximum": 0.307351523
+              },
+              "callback_seconds": {
+                "median": 0.273398079,
+                "minimum": 0.26898074,
+                "maximum": 0.275233783
+              },
+              "failure_sync_seconds": {
+                "median": 0.20329118300000001,
+                "minimum": 0.197837329,
+                "maximum": 0.20695538600000002
+              },
+              "assembly_finalize_seconds": {
+                "median": 0.029549706,
+                "minimum": 0.029165243,
+                "maximum": 0.032501172
+              },
+              "constraint_seconds": {
+                "median": 5.431e-06,
+                "minimum": 5.17e-06,
+                "maximum": 5.869e-06
+              },
+              "ghost_seconds": {
+                "median": 0.0006863840000000001,
+                "minimum": 0.000625749,
+                "maximum": 0.00081944
+              },
+              "linear_seconds": {
+                "median": 0.19536353,
+                "minimum": 0.18956464,
+                "maximum": 0.198979146
+              },
+              "linear_diagnostic_seconds": {
+                "median": 0.001989566,
+                "minimum": 0.001952122,
+                "maximum": 0.002077365
+              },
+              "finalize_seconds": {
+                "median": 0.004135976,
+                "minimum": 0.00409437,
+                "maximum": 0.0068972949999999995
+              },
+              "peak_rss_max_bytes": {
+                "median": 70848512.0,
+                "minimum": 70471680.0,
+                "maximum": 72257536.0
+              },
+              "peak_rss_sum_bytes": {
+                "median": 132366336.0,
+                "minimum": 131321856.0,
+                "maximum": 135094272.0
+              }
+            }
+          },
+          "adaptive_paired_statistics": {
+            "assembly_finalize_seconds": {
+              "median": -0.012943726710626602,
+              "minimum": -0.2332902973504951,
+              "maximum": 0.09666925887435784
+            },
+            "assembly_seconds": {
+              "median": -0.007719767341198724,
+              "minimum": -0.09193748217717312,
+              "maximum": 0.04251987925634282
+            },
+            "callback_seconds": {
+              "median": -0.006607436913897313,
+              "minimum": -0.06402174884831546,
+              "maximum": 0.03609867422891111
+            },
+            "constraint_seconds": {
+              "median": -0.03382545318632035,
+              "minimum": -0.10981343849537395,
+              "maximum": 0.22762206148282083
+            },
+            "failure_sync_seconds": {
+              "median": -0.004518502556382198,
+              "minimum": -0.048887062169290396,
+              "maximum": 0.03969187433337029
+            },
+            "finalize_seconds": {
+              "median": 0.045354917240570725,
+              "minimum": -0.029566627124408718,
+              "maximum": 0.7354824684012027
+            },
+            "full_jacobian_assemblies": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "ghost_seconds": {
+              "median": -0.0006770046982669253,
+              "minimum": -0.13397255003453046,
+              "maximum": 0.3522848603966884
+            },
+            "linear_diagnostic_seconds": {
+              "median": -0.025060964048576162,
+              "minimum": -0.2699842413209468,
+              "maximum": 0.028653472902252508
+            },
+            "linear_seconds": {
+              "median": -0.27852276986013447,
+              "minimum": -0.3416300686289052,
+              "maximum": -0.19987634019277656
+            },
+            "newton_iterations": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "outer_iterations": {
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0
+            },
+            "peak_rss_max_bytes": {
+              "median": -0.0006969855375500433,
+              "minimum": -0.001358618737616779,
+              "maximum": 0.010574900677728483
+            },
+            "peak_rss_sum_bytes": {
+              "median": 0.0007281995266703589,
+              "minimum": -0.0019611505416511354,
+              "maximum": 0.009843442392425183
+            },
+            "schur_setup_seconds": {
+              "median": -0.13735652443228719,
+              "minimum": -0.244953344929573,
+              "maximum": 0.1412676857882309
+            },
+            "setup_seconds": {
+              "median": -0.05902458024525137,
+              "minimum": -0.2009310103069819,
+              "maximum": 0.005027366645866227
+            },
+            "solve_seconds": {
+              "median": -0.1554280767231383,
+              "minimum": -0.22958928618098118,
+              "maximum": -0.08405861152162752
+            },
+            "user_schur_updates": {
+              "median": -0.8,
+              "minimum": -0.8,
+              "maximum": -0.8
+            },
+            "wall_seconds": {
+              "median": -0.1335032787106628,
+              "minimum": -0.16753282726698437,
+              "maximum": -0.05322931768847394
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "n12_correctness_only",
+      "runs_checked": 10,
+      "step_reports": 50,
+      "linear_corrections": 100,
+      "max_linear_gate_ratio": 0.41941717403311396,
+      "max_field_delta": 2.886579864025407e-15,
+      "max_history_delta": 5.939054300526676e-15,
+      "cases": [
+        {
+          "subdivisions": 12,
+          "ranks": 1,
+          "mode_statistics": {},
+          "adaptive_paired_statistics": null
+        },
+        {
+          "subdivisions": 12,
+          "ranks": 2,
+          "mode_statistics": {},
+          "adaptive_paired_statistics": null
+        }
+      ]
+    }
+  ],
+  "arterial": [
+    {
+      "path": "hpc-five-track/amg/arterial-margin/results-quick.json",
+      "status": "passed",
+      "outer_ksp_rtol": "1e-11",
+      "target": "max(1e-23, 1e-10*rhs_norm)",
+      "tolerance_margin": 1.00001,
+      "runs": 6,
+      "steps": 24,
+      "corrections": 48,
+      "worst_true_ratio": 0.7453555129217156,
+      "worst_relative_field_difference": 4.682802206393994e-13
+    },
+    {
+      "path": "hpc-five-track/amg/arterial-margin/results-full.json",
+      "status": "passed",
+      "outer_ksp_rtol": "1e-11",
+      "target": "max(1e-23, 1e-10*rhs_norm)",
+      "tolerance_margin": 1.00001,
+      "runs": 30,
+      "steps": 288,
+      "corrections": 576,
+      "worst_true_ratio": 0.8439101351378875,
+      "worst_relative_field_difference": 7.581307263539741e-12
+    }
+  ],
+  "independent_audits": [
+    {
+      "path": "hpc-five-track/independent-scaling-audit.json",
+      "status": "passed",
+      "sha256": "57bc5b3eeab3df22332c39c087c0fb539a9ae31008b9e53fe34893ee2c337a91"
+    },
+    {
+      "path": "hpc-five-track/independent-arterial-audit.json",
+      "status": "passed",
+      "sha256": "2637c22a2e499b3afbbf21f77e466730fff1b64654a3d29efbccf297d9c976ae"
+    },
+    {
+      "path": "hpc-five-track/independent-assembly-audit.json",
+      "status": "passed",
+      "sha256": "e904d19b5baa755b773fd9d409153b17924ebaa42e549992398dc51c78d9cf68"
+    },
+    {
+      "path": "hpc-five-track/simd-mpi/independent-kernel-audit.json",
+      "status": "passed",
+      "sha256": "ace4685441731f47e4fb8497bf498edbbc12ccdc23456ea3436710b0872e3f86"
+    }
+  ]
+}

@@ -1,12 +1,45 @@
 # EONSim Codex Development Progress
 
-## HPC-05：五项性能优化实施中
+## 2026-11-26 · HPC-05：五项优化实现、验证与独立审计完成
 
-基线为已核验合并 PR #54 的 `main@f8dbd6991f8057fc84d0a49dc6d9c9b3c38028fe`。
-分支 `codex/hpc-five-track-optimization`，并行实施 FSI 聚合粗空间/多层 AMG、
-owned/halo ghost 重叠与合并归约、AD 单元 SIMD、自适应 PC 数值更新、MPI HDF5/XDMF 输出。
-遵循用户顺序：完成实现与检查驱动并推送远程之后，才开始构建和算例验证；
-验证完成且受保护必需检查成功后合并。当前尚未执行本轮构建或算例，不计任何新通过。
+从已合并 #54 的 `main@f8dbd699` 接续，交付 [PR #55](https://github.com/saitoasukakawaii/EONSim-new/pull/55)。
+生产源码 `27889707a3c650d532c2845b2f6da7fc5d2324d4`；最终验证驱动 `ceaa680c`。
+生产与仓库驱动改动均先推送、核验完整 Git tree，再构建/运行。合并状态以 GitHub 为准。
+
+完成有界语义聚合及 `PᵀAP→GAMG`、owned/halo ghost 重叠与稳定合并字段归约、AD SIMD
+与融合累加、有界自适应 PC/USER Schur 更新、parallel HDF5/XDMF 结果输出。新 AMG、
+overlap、自适应、HDF5 保持显式选择；完整 J、真实残差与物理接受标准保持。
+
+本地首轮 **15/15** 定向 Release CTest，漂移修正后 **3/3** adaptive 重验，21 项 profile
+Python 通过；真实 FSI **37 次运行均符合预期（含 3 次预期失败）**，覆盖双线程、端口、
+重启、实际回退及故障排空。
+SIMD **20 测量配对** checksum 完全一致，核时间配对中位下降 **30.99%～34.58%**。
+MPI 同二进制每步字段归约 **6→3**、ghost 阶段中位 **−41.34%**，整程序 wall 范围跨零。
+组合装配及 MPI 的 40 runs/200 步/400 修正、240 保存状态和 2,304 哈希断言独立回放通过。
+
+AMG 网格研究 **112/112 runs、560 步、1,120 次修正**，703～17,839 DoF、1/2 rank。
+实际 USER 更新 **10→2–3**，完整 J 始终 10；n8/2-rank fresh/adaptive 配对线性中位
+**−27.85%**、wall **−13.35%**。Fresh aggregate 并非普遍比旧 twolevel 更快，迭代仍随
+网格增长。独立回放 672 保存状态、5,998 哈希断言通过，不宣称 mesh-independent。
+
+完整动脉曾发生估计残差已收敛而显式残差比为 **1.2089702** 的真实失败，原件保留。
+共同外层请求由 5e-11 收紧至 1e-11，原 `max(1e-23,1e-10*rhs)` 验收不变；唯一一次
+修正后的 quick/full **36/36 runs、312 步、624 次修正**通过，最坏比 **.8439101351**、
+五场相对峰差 **7.5813e-12 < 2e-6**。32 步仍刷新 61/62 次，动脉计时无统一收益。
+
+HDF5 小实算 **8/8**、14 次精确比较和 ParaView 10 入口通过；较大 n32 输出24 runs、
+6 次精确比较覆盖19.66万体单元。1/2-rank output 相对 ASCII 中位 **−73.22%/−44.73%**，
+却比现有 binary 慢，保留可选。没有多节点或并行文件系统性能结论。
+
+源码 `ceaa680c` 的 [Core run 45748579007](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45748579007)
+实际 **75/75 Release、0 failed、0 skipped、0 复用**；选测阶段六组 Python 共 **75/75** 通过。
+selection、Release、receipt 三项成功，merge checkout 为 `10bfcd6e4aaa2d592791bdb67cb08ef172189233`。
+[Website check 45748578957](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45748578957)
+成功，但该源码 head 没有网站改动，实际安装/构建步骤跳过，不声称新增 VitePress 构建。
+最终证据/文档提交再核对最新 head 的四项必需检查，不把复用的 source 执行记为重新运行。
+
+[完整来源、失败、命令、计时及独立审计](../research/data/hpc-five-track-2026-11-26/README.md) ·
+[未发布草稿](../../website/drafts/hpc-five-track-optimization.md)。本地未运行全量、Debug 或旧 PETSc。
 
 ## 2026-11-26 · FSI-PC-04：实现、参数对照与独立审计完成
 
