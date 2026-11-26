@@ -14,12 +14,16 @@ struct InterfacePatchOptions {
  * full-precision bulk preconditioner. numeric_factorizations counts unique
  * patch factors; cached_factorizations counts both exactly unchanged numeric
  * patches and identical local patch patterns sharing one factorization.
+ * patch_rows sums the sizes of actual local patches; covered_owned_rows counts
+ * unique active owned rows covered by patches on any rank. For disjoint coarse
+ * aggregate patches their global sums both equal the active level row count.
  */
 struct InterfacePatchPcStats {
     PetscInt patches=0,largest_patch=0,rebuilds=0,applications=0;
     PetscInt fp32_patches=0,fp64_patches=0,setup_fallbacks=0,apply_fallbacks=0,refinements=0;
     PetscInt factor_batches=0,numeric_factorizations=0,cached_factorizations=0;
     PetscInt interface_patches=0;
+    PetscInt overlap=0,patch_rows=0,covered_owned_rows=0;
     std::size_t factor_bytes=0;
 };
 /// Collective validation, also usable before an exactly converged solve.

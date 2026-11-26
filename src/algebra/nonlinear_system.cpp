@@ -662,6 +662,7 @@ struct Context {
     PetscInt assembled_pc_interval=1,matrix_free_actions=0,assembled_pc_reuses=0;
     double matrix_free_seconds=0;
     std::vector<double> operator_state={},direction={};
+    std::string action_error={}; // Fatal and sticky until this solve exits.
     void apply_direction(Vec input,Vec output) {
         if(!phases||!phases->jacobian_action||operator_state.size()!=layout.local_to_global.size())
             throw std::runtime_error("Matrix-free operator has no current Newton state/action");
@@ -751,6 +752,7 @@ struct Context {
         if(j) EONSIM_PETSC(MatZeroRows(j,constraints.size(),constraints.data(),1,nullptr,nullptr));
     }
     void evaluate(Vec x, Vec r, Mat j, bool constrain,bool publish_residual=true) {
+        if(!action_error.empty()) throw std::runtime_error(action_error);
         // A residual evaluation, rejected trial or new tangent must not leave
         // a startup Jacobian eligible for a later line-search/Newton state.
         initial_trial=nullptr; initial_jacobian=nullptr;
@@ -869,8 +871,50 @@ PetscErrorCode matrix_free_multiply(Mat matrix,Vec input,Vec output) {
     ActiveContext* active=nullptr;
     PetscCall(MatShellGetContext(matrix,&active));
     if(!active||!active->current) return PETSC_ERR_ARG_WRONGSTATE;
-    try { active->current->apply_direction(input,output); return PETSC_SUCCESS; }
-    catch(const std::exception& e) { active->current->error=e.what(); return PETSC_ERR_LIB; }
+    auto& c=*active->current;
+    if(c.action_error.empty()) {
+        try { c.apply_direction(input,output); return PETSC_SUCCESS; }
+        catch(const std::exception& e) {
+            c.action_error=e.what(); c.error=c.action_error; c.recoverable=false;
+        }
+    }
+    // PIPEFGMRES may have an outstanding VecMDotBegin around this action.
+    // Returning an error here would skip its VecMDotEnd and poison subsequent
+    // solves on the communicator. Supply finite temporary data so PETSc drains
+    // the reduction, then terminate at its convergence callback. The sticky
+    // error also prevents further physical kernels and any accepted result.
+    PetscScalar* entries=nullptr;
+    PetscCall(VecGetArrayWrite(output,&entries));
+    std::fill_n(entries,c.layout.owned,0.);
+    PetscCall(VecRestoreArrayWrite(output,&entries));
+    return PETSC_SUCCESS;
+}
+struct MatrixFreeConvergence {
+    ActiveContext* callbacks=nullptr;
+    PetscErrorCode (*original)(KSP,PetscInt,PetscReal,KSPConvergedReason*,void*)=nullptr;
+    void* original_context=nullptr;
+    PetscErrorCode (*original_destroy)(void*)=nullptr;
+    ~MatrixFreeConvergence() { if(original_destroy) (void)original_destroy(original_context); }
+};
+PetscErrorCode matrix_free_convergence(KSP ksp,PetscInt iteration,PetscReal norm,
+                                      KSPConvergedReason* reason,void* pointer)
+{
+    auto& guard=*static_cast<MatrixFreeConvergence*>(pointer);
+    if(!guard.callbacks||!guard.callbacks->current||!guard.original) return PETSC_ERR_ARG_WRONGSTATE;
+    if(!guard.callbacks->current->action_error.empty()) {
+        // Both supported Krylov methods invoke this after their reductions.
+        *reason=KSP_DIVERGED_BREAKDOWN;
+        return PETSC_SUCCESS;
+    }
+    return guard.original(ksp,iteration,norm,reason,guard.original_context);
+}
+PetscErrorCode destroy_matrix_free_convergence(void* pointer)
+{
+    auto* guard=static_cast<MatrixFreeConvergence*>(pointer);
+    const auto error=guard->original_destroy?guard->original_destroy(guard->original_context):PETSC_SUCCESS;
+    guard->original_destroy=nullptr;
+    delete guard;
+    return error;
 }
 PetscErrorCode function(SNES snes,Vec x,Vec r,void* pointer)
 {
@@ -1377,6 +1421,21 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         // only after all child submatrices have been configured.
         EONSIM_PETSC(KSPSetOperators(ksp,workspace.action_matrix.get(),j.get()));
         EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
+        // Recipe setup can call KSPSetFromOptions, so wrap only its final
+        // configured convergence test and retain the wrapper on session reuse.
+        decltype(MatrixFreeConvergence::original) current=nullptr;
+        EONSIM_PETSC(KSPGetConvergenceTest(ksp,&current,nullptr,nullptr));
+        if(current!=matrix_free_convergence) {
+            // Transfer without destroying the original context; KSP owns the
+            // wrapper and calls its original destructor exactly once.
+            auto guarded=std::make_unique<MatrixFreeConvergence>();
+            guarded->callbacks=&workspace.callbacks;
+            EONSIM_PETSC(KSPGetAndClearConvergenceTest(ksp,&guarded->original,
+                &guarded->original_context,&guarded->original_destroy));
+            EONSIM_PETSC(KSPSetConvergenceTest(ksp,matrix_free_convergence,guarded.get(),
+                destroy_matrix_free_convergence));
+            guarded.release();
+        }
     }
     auto error=SNESSolve(snes.get(),nullptr,x.get());
     PetscInt pc_rebuild_retries=0,prior_nonlinear_iterations=0,prior_linear_iterations=0;
@@ -1446,12 +1505,15 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     // Freeze before final physical acceptance/reaction assembly, matching existing assembly timers.
     const double callback_seconds=context.callback_seconds,failure_sync_seconds=context.failure_sync_seconds;
     const double assembly_finalize_seconds=context.assembly_finalize_seconds,constraint_seconds=context.constraint_seconds;
-    if(error&&!context.error.empty()) {
+    if(!context.action_error.empty()) { context.error=context.action_error; context.recoverable=false; }
+    if((error||!context.action_error.empty())&&!context.error.empty()) {
         // SNESComputeJacobian/Function can return from a failing callback before
         // VecLockReadPop (PETSc 3.23.7). A MatShell error additionally returns
         // from KSPSolve_Private before it pops the read lock on its RHS, which
         // is our persistent residual. Retire both affected Vecs rather than
-        // editing PETSc's lock stack. SNES/KSP retain their old references until
+        // editing PETSc's lock stack. Normally the deferred action error above
+        // exits through KSP convergence and leaves no locks, but an independent
+        // PETSc error may still return early. SNES/KSP retain old references until
         // normal workspace destruction; the next solve overwrites owned data,
         // updates ghosts and prepares the replacement residual's COO plan.
         PetscOwner<Vec,VecDestroy> fresh_trial,fresh_residual;

@@ -43,7 +43,10 @@ void verify(MPI_Comm comm) {
             system.set_residual_coo(rank==ranks-1?std::vector<PetscInt>(ids,ids+4):std::vector<PetscInt>{});
         PetscInt tangent_calls=0,action_calls=0;
         PetscInt fail_action=-1;
+        PetscInt assemblies_after_failure=0;
+        bool action_failed=false;
         const auto assemble=[&](const std::vector<double>& x,Vec residual,Mat matrix) {
+            if(action_failed) ++assemblies_after_failure;
             if(matrix) ++tangent_calls;
             if(rank!=ranks-1) return; // All other owners have empty local producers.
             double values[4]{},jacobian[16]{};
@@ -69,8 +72,10 @@ void verify(MPI_Comm comm) {
                 for(int j=0;j<4;++j) values[i]+=coupling[i][j]*direction[local[j]];
             }
             EONSIM_PETSC(VecSetValues(result,4,ids,values,ADD_VALUES));
-            if(action_calls==fail_action)
+            if(action_calls==fail_action) {
+                action_failed=true;
                 throw std::runtime_error("injected directional failure after off-rank insertion");
+            }
         };
         const auto solve=[&] {return system.solve(settings,initial,constraints,prescribed,assemble,phases);};
         const auto check=[&](const NonlinearResult& result) {
@@ -95,7 +100,9 @@ void verify(MPI_Comm comm) {
             try { (void)solve(); }
             catch(const std::runtime_error& e) { caught=std::string(e.what()).find("injected directional failure")!=std::string::npos; }
             require(caught,"Rank-local directional failure did not propagate");
+            require(assemblies_after_failure==0,"Fatal directional failure reached another physical assembly");
             fail_action=-1;
+            action_failed=false;
             const auto recovered=solve(); check(recovered);
             require(!recovered.solver_reused&&recovered.solver_generation==generation+1,
                     "Failed matrix-free session was not retired");

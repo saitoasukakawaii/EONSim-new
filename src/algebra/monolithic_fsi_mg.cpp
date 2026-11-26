@@ -30,7 +30,7 @@ void option_default(const std::string& name,const char* value) {
 struct Options {
     PetscInt aggregate_nodes=12,aggregate_rows=192,max_levels=8,coarse_limit=96;
     PetscInt energy_steps=1,spectral_modes=2,pre_smooth=1,post_smooth=1,coarse_processes=1;
-    PetscInt spectral_refresh_period=0;
+    PetscInt spectral_refresh_period=0,coarse_patch_overlap=0;
     double spectral_tolerance=.1;
     bool single_precision=false,report=false;
     FsiLevelSmootherOptions smoother;
@@ -44,6 +44,7 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         {"pre_smooth",&o.pre_smooth},{"post_smooth",&o.post_smooth},
         {"coarse_processes",&o.coarse_processes},{"patch_overlap",&o.smoother.patches.overlap},
         {"spectral_refresh_period",&o.spectral_refresh_period},
+        {"coarse_patch_overlap",&o.coarse_patch_overlap},
         {"patch_maximum_size",&o.smoother.patches.maximum_size},
         {"polynomial_degree",&o.smoother.polynomial_degree}})
         EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,(base+entry.first).c_str(),entry.second,nullptr));
@@ -61,16 +62,18 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         o.spectral_modes,o.pre_smooth,o.post_smooth,o.coarse_processes,o.single_precision?1:0,
         o.smoother.patches.overlap,o.smoother.patches.maximum_size,o.smoother.polynomial_degree,
         o.smoother.kind=="vanka"?1:o.smoother.kind=="chebyshev"?2:o.smoother.kind=="block_chebyshev"?3:0,
-        o.spectral_refresh_period,o.report?1:0};
-    PetscInt minimum[16]{},maximum[16]{};
-    MPI_Allreduce(values,minimum,16,MPIU_INT,MPI_MIN,comm);
-    MPI_Allreduce(values,maximum,16,MPIU_INT,MPI_MAX,comm);
-    bool valid=true; for(int i=0;i<16;++i) valid=valid&&minimum[i]==maximum[i];
+        o.spectral_refresh_period,o.report?1:0,o.coarse_patch_overlap};
+    constexpr int option_count=static_cast<int>(sizeof(values)/sizeof(values[0]));
+    PetscInt minimum[option_count]{},maximum[option_count]{};
+    MPI_Allreduce(values,minimum,option_count,MPIU_INT,MPI_MIN,comm);
+    MPI_Allreduce(values,maximum,option_count,MPIU_INT,MPI_MAX,comm);
+    bool valid=true; for(int i=0;i<option_count;++i) valid=valid&&minimum[i]==maximum[i];
     valid=valid&&o.aggregate_nodes>=2&&o.aggregate_nodes<=128&&o.aggregate_rows>=8&&o.aggregate_rows<=512&&
         o.max_levels>=1&&o.max_levels<=20&&o.coarse_limit>=1&&o.energy_steps>=0&&o.energy_steps<=3&&
         o.spectral_modes>=0&&o.spectral_modes<=8&&o.pre_smooth>=0&&o.post_smooth>=0&&
         o.pre_smooth+o.post_smooth>0&&o.pre_smooth<=8&&o.post_smooth<=8&&o.coarse_processes>=1&&values[13]!=0&&
-        o.spectral_refresh_period>=0&&o.spectral_refresh_period<=1000000;
+        o.spectral_refresh_period>=0&&o.spectral_refresh_period<=1000000&&
+        o.coarse_patch_overlap>=0&&o.coarse_patch_overlap<=2;
     const double real[]={o.spectral_tolerance,o.smoother.eigenvalue_ratio,o.smoother.patches.damping};
     double min_real[3]{},max_real[3]{};
     MPI_Allreduce(real,min_real,3,MPI_DOUBLE,MPI_MIN,comm);
@@ -696,7 +699,14 @@ struct Hierarchy {
             EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.residual.put()));
             EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.correction.put()));
             if(level+1<levels.size()) {
-                data.smoother=make_fsi_level_smoother(comm,data.matrix.get(),data.data.semantics,data.data.trace,configuration.smoother);
+                auto smoother_options=configuration.smoother;
+                // A coarse semantic entity is already a complete mixed
+                // aggregate basis, including its spectral columns. Growing it
+                // through a filled Galerkin graph can turn a bounded patch into
+                // most of the level. Keep whole aggregate blocks by default;
+                // inter-aggregate couplings remain in every full level matvec.
+                if(level>0) smoother_options.patches.overlap=configuration.coarse_patch_overlap;
+                data.smoother=make_fsi_level_smoother(comm,data.matrix.get(),data.data.semantics,data.data.trace,smoother_options);
                 if(configuration.single_precision) {
                     data.float_matrix.update(data.matrix.get()); data.float_transfer.update(data.prolongation.get());
                     stats.fp32_value_bytes+=(data.float_matrix.values.size()+data.float_transfer.values.size())*sizeof(float);
@@ -772,10 +782,13 @@ struct Hierarchy {
             const auto smoother=query_fsi_level_smoother_stats(levels[i].smoother);
             EONSIM_PETSC(PetscSynchronizedPrintf(comm,
                 "pc_monolithic_mg_smoother rank=%d level=%zu patches=%" PetscInt_FMT
+                " patch_overlap=%" PetscInt_FMT " largest_patch=%" PetscInt_FMT
+                " patch_rows=%" PetscInt_FMT " covered_owned_rows=%" PetscInt_FMT
                 " interface_patches=%" PetscInt_FMT " factor_batches=%" PetscInt_FMT
                 " numeric_factorizations=%" PetscInt_FMT " cached_factorizations=%" PetscInt_FMT
                 " fp32_patches=%" PetscInt_FMT " polynomial_degree=%" PetscInt_FMT " eigenvalue_upper=%.17g\n",
-                rank,i,smoother.patches.patches,smoother.patches.interface_patches,
+                rank,i,smoother.patches.patches,smoother.patches.overlap,smoother.patches.largest_patch,
+                smoother.patches.patch_rows,smoother.patches.covered_owned_rows,smoother.patches.interface_patches,
                 smoother.patches.factor_batches,smoother.patches.numeric_factorizations,
                 smoother.patches.cached_factorizations,smoother.patches.fp32_patches,
                 smoother.polynomial_degree,smoother.eigenvalue_upper));

@@ -22,18 +22,19 @@ from verify_fsi_moving_port import circular_case
 
 assembly = previous.assembly
 ROOT = Path(__file__).resolve().parents[1]
-MODES = ('mono', 'mono_fp32', 'mono_pipe', 'mono_mf', 'mono_chebyshev',
+MODES = ('mono', 'mono_fp32', 'mono_pipe', 'mono_mf', 'mono_mf_pipe', 'mono_chebyshev',
          'mono_block_chebyshev', 'added_mass', 'pcd_mass', 'pcd_robin')
 
 
 def flags(mode, ports=False):
     if mode == 'direct':
         return [*block.flags('direct', 'rcm'), '-linear_report', '-solver_report']
-    result = ['-ksp_type', 'pipefgmres' if mode == 'mono_pipe' else 'fgmres',
+    pipelined = mode in ('mono_pipe', 'mono_mf_pipe')
+    result = ['-ksp_type', 'pipefgmres' if pipelined else 'fgmres',
               '-ksp_pc_side', 'right', '-ksp_norm_type', 'unpreconditioned',
               '-ksp_rtol', '1e-12', '-ksp_atol', '1e-15', '-ksp_max_it', '1500',
               '-ksp_gmres_restart', '100', '-linear_report', '-solver_report', '-pc_plan_report']
-    if mode != 'mono_pipe':
+    if not pipelined:
         result += ['-ksp_gmres_modifiedgramschmidt']
     if ports:
         result += ['-pc_plan_rcr_ports', 'true', '-rcr_port_report']
@@ -43,7 +44,7 @@ def flags(mode, ports=False):
                    prefix + 'coarse_processes', '1']
         if mode == 'mono_fp32':
             result += [prefix + 'single_precision', 'true']
-        if mode == 'mono_mf':
+        if mode in ('mono_mf', 'mono_mf_pipe'):
             result += ['-fsi_matrix_free', '-nonlinear_matrix_free_pc_interval', '2']
         if mode in ('mono_chebyshev', 'mono_block_chebyshev'):
             result += [prefix + 'smoother', mode.removeprefix('mono_')]
@@ -67,7 +68,7 @@ def audit(log, trace, ranks, mode):
                   'Failed or partially observed physical trajectory')
     block.require(sum(int(row['linear_completed']) for row in reports) == len(residuals),
                   'Unobserved linear correction')
-    expected = 'preonly' if mode == 'direct' else 'pipefgmres' if mode == 'mono_pipe' else 'fgmres'
+    expected = 'preonly' if mode == 'direct' else 'pipefgmres' if mode in ('mono_pipe', 'mono_mf_pipe') else 'fgmres'
     for row in reports:
         block.require(int(row['ranks']) == ranks and row['ksp'] == expected and
                       min(int(row['snes_reason']), int(row['ksp_reason'])) > 0 and
@@ -122,7 +123,7 @@ def audit(log, trace, ranks, mode):
             block.require(all(int(row['single_precision']) == 1 for row in hierarchy), 'FP32 cycle absent')
         result.update(hierarchies=hierarchy, transfers=transfers,
                       smoothers=smoothers)
-    if mode == 'mono_mf':
+    if mode in ('mono_mf', 'mono_mf_pipe'):
         block.require(all(int(row['matrix_free']) == 1 and int(row['matrix_free_actions']) > 0 for row in reports),
                       'Exact matrix-free path absent')
         result.update(matrix_free_actions=sum(int(row['matrix_free_actions']) for row in reports),
@@ -206,7 +207,7 @@ def main():
             name = f'domains-r{ranks}'
             cfg = previous.domain_case(args.work / name, 3, unequal=True)
             campaign(args, receipt, result, name, cfg, ranks,
-                     select(('mono', 'mono_fp32', 'mono_pipe', 'mono_mf', 'mono_chebyshev',
+                     select(('mono', 'mono_fp32', 'mono_pipe', 'mono_mf', 'mono_mf_pipe', 'mono_chebyshev',
                              'mono_block_chebyshev', 'added_mass', 'pcd_mass')))
     if 'moving' in args.sections:
         name = 'moving-rcr'
@@ -215,7 +216,7 @@ def main():
         cfg['time'] = dict(scheme='generalized_alpha', rho_infinity=.5)
         cfg['time_control'] = dict(step_sizes=[.015, .013, .017])
         cfg['fsi']['dt'] = math.fsum(cfg['time_control']['step_sizes']) / 3
-        campaign(args, receipt, result, name, cfg, 2, select(('mono_mf', 'pcd_robin')),
+        campaign(args, receipt, result, name, cfg, 2, select(('mono_mf', 'mono_mf_pipe', 'pcd_robin')),
                  ports=True, area=geometry['interface_area'])
     if 'scaling' in args.sections:
         for n in (4, 6, 8):

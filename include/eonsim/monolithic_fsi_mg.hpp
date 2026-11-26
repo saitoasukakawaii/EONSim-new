@@ -32,7 +32,14 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * establish a mesh-independent coarse inf-sup bound.
  *
  * Every noncoarse level applies mixed patches/normal-equation Chebyshev through
- * the FSI level smoother. The coarsest full coupled matrix is solved with a
+ * the FSI level smoother. Vanka uses prefixed monolithic_mg_patch_overlap
+ * (default 1) on the fine level and monolithic_mg_coarse_patch_overlap (default
+ * 0) on intermediate levels. A coarse entity retains the complete preceding
+ * aggregate's physical/spectral basis; zero overlap is a mixed aggregate block,
+ * not a scalar or field-separated smoother. Full Galerkin couplings remain in
+ * level residuals and coarse transfers. Explicit larger overlap must still fit
+ * the unchanged patch size cap; no coupling rows are truncated to satisfy it.
+ * The coarsest full coupled matrix is solved with a
  * bounded KSP, optionally on a reduced communicator through PCTELESCOPE.
  * Identity rows have zero interpolation and receive exact fine corrections.
  * Graph, constraints, ownership and semantic metadata must stay fixed. Numeric

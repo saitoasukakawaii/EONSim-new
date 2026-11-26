@@ -78,6 +78,28 @@ void action(Problem& problem,KSP solver,int sample) {
     check(problem.comm,reason>0&&norm<1e-10*bnorm&&error<1e-9*xnorm,
         "Monolithic MG failed the independent full indefinite matrix true-residual/manufactured-solution check");
 }
+void vanka_coverage(MPI_Comm comm,const MonolithicFsiMgStats& stats,bool enriched) {
+    check(comm,stats.levels>=3,"Bounded coarse Vanka regression needs an intermediate level");
+    for(std::size_t level=0;level<stats.smoothers.size();++level) {
+        const auto& patch=stats.smoothers[level].patches;
+        const PetscInt local[]={patch.patch_rows,patch.covered_owned_rows,patch.patches,patch.interface_patches};
+        PetscInt total[4]{};
+        MPI_Allreduce(local,total,4,MPIU_INT,MPI_SUM,comm);
+        const auto active=level==0?Problem::n-1:stats.transfers[level].rows;
+        check(comm,total[1]==active&&total[2]>0&&total[3]>0&&patch.largest_patch<=12,
+            "A Vanka level omitted active/interface rows or exceeded the fixed patch budget");
+        if(level==0) {
+            check(comm,patch.overlap==1,"Fine Vanka lost its default one-ring overlap");
+        } else {
+            // Four independent physical candidates are present in every block
+            // of this problem, plus at most one independently selected mode.
+            // Count actual patch rows, not the intended aggregation metadata.
+            check(comm,patch.overlap==0&&total[0]==active&&total[0]>=4*total[2]&&
+                patch.largest_patch<=(enriched?5:4),
+                "Coarse Vanka did not retain complete bounded mixed aggregate bases");
+        }
+    }
+}
 void verify(MPI_Comm comm,const std::string& kind,bool single,bool empty_owner,bool enriched) {
     const std::string prefix="mgverify_",base="-"+prefix+"monolithic_mg_";
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"aggregate_nodes").c_str(),"4"));
@@ -92,7 +114,10 @@ void verify(MPI_Comm comm,const std::string& kind,bool single,bool empty_owner,b
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"single_precision").c_str(),single?"true":"false"));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"smoother").c_str(),kind.c_str()));
     EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"polynomial_degree").c_str(),"5"));
-    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"patch_maximum_size").c_str(),"256"));
+    // A fine three-node patch has at most 12 rows. Intermediate Galerkin
+    // overlap can exceed this budget, while complete aggregate bases fit it.
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"patch_maximum_size").c_str(),"12"));
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,(base+"coarse_patch_overlap").c_str()));
     Problem problem(comm,empty_owner);
     PcSchurUpdates updates;
     PetscOwner<KSP,KSPDestroy> solver; EONSIM_PETSC(KSPCreate(comm,solver.put()));
@@ -127,6 +152,7 @@ void verify(MPI_Comm comm,const std::string& kind,bool single,bool empty_owner,b
             if(kind!="vanka") check(comm,smoother.polynomial_degree==5&&smoother.eigenvalue_upper>0,
                 "Normal-equation Chebyshev did not configure its verified positive spectral interval");
         }
+        if(kind=="vanka") vanka_coverage(comm,stats,enriched);
     }
     // The same numeric generation must hit the exact patch-factor cache. This
     // refresh is intentionally redundant: it tests invalidation independently
@@ -154,6 +180,28 @@ void verify(MPI_Comm comm,const std::string& kind,bool single,bool empty_owner,b
     problem.fill(0); updates.refresh(problem.matrix.get()); action(problem,solver.get(),2);
     query_monolithic_fsi_mg_stats(pc,stats);
     check(comm,stats.hierarchy_rebuilds==(rebuild?2:1),"Scheduled spectral/energy hierarchy adaptation was not applied");
+    if(kind=="vanka") vanka_coverage(comm,stats,enriched);
+}
+void oversized_coarse_overlap(MPI_Comm comm) {
+    const std::string prefix="mgverify_",base="-"+prefix+"monolithic_mg_";
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"smoother").c_str(),"vanka"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"energy_steps").c_str(),"1"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"spectral_modes").c_str(),"1"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"coarse_patch_overlap").c_str(),"1"));
+    Problem problem(comm,false);
+    PcSchurUpdates updates;
+    PetscOwner<KSP,KSPDestroy> solver;
+    EONSIM_PETSC(KSPCreate(comm,solver.put()));
+    EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),prefix.c_str()));
+    bool rejected=false;
+    try {
+        configure_monolithic_fsi_mg(comm,solver.get(),problem.matrix.get(),problem.semantics,
+            problem.coordinates,problem.trace,&updates);
+    } catch(const std::runtime_error& error) {
+        rejected=std::string(error.what()).find("exceeds the maximum size")!=std::string::npos;
+    }
+    check(comm,rejected,"Explicit oversized coarse overlap was silently capped, truncated or ignored");
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,(base+"coarse_patch_overlap").c_str()));
 }
 void run(MPI_Comm comm) {
     int size=0; MPI_Comm_size(comm,&size); check(comm,size==1||size==2||size==4,"Expected 1, 2 or 4 ranks");
@@ -161,8 +209,9 @@ void run(MPI_Comm comm) {
     verify(comm,"vanka",true,true,true);
     verify(comm,"chebyshev",false,false,true);
     verify(comm,"block_chebyshev",false,true,false);
+    oversized_coarse_overlap(comm);
     EONSIM_PETSC(PetscPrintf(comm,
-        "Monolithic FSI MG: full indefinite manufactured solutions, multilevel Vanka, candidate preservation, energy descent, spectral enrichment, FP32 V-cycle, coarse MPI aggregation, numeric refresh/recovery and polynomial smoothers passed\n"));
+        "Monolithic FSI MG: full indefinite manufactured solutions, bounded whole-aggregate coarse Vanka/explicit oversize rejection, candidate preservation, energy descent, spectral enrichment, FP32 V-cycle, coarse MPI aggregation, numeric refresh/recovery and polynomial smoothers passed\n"));
 }
 } // namespace
 int main(int argc,char** argv) {

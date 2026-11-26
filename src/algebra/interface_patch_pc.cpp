@@ -318,6 +318,7 @@ struct PatchState {
             std::all_of(trace.begin(),trace.end(),[](unsigned char value){return value<=1;}),
             "metadata must follow matching owned row/column ordering");
         EONSIM_PETSC(MatGetNonzeroState(full,&graph));
+        stats.overlap=options.overlap;
         active_owned=active_rows(full);
         using Center=std::tuple<std::int64_t,DofEntity,std::uint16_t,std::uint16_t>;
         std::map<Center,std::vector<PetscInt>> centers;
@@ -389,6 +390,7 @@ struct PatchState {
                 std::lower_bound(union_rows.begin(),union_rows.end(),row)-union_rows.begin()));
             bounded=bounded&&!selected_rows.empty()&&static_cast<PetscInt>(selected_rows.size())<=options.maximum_size;
             stats.largest_patch=std::max(stats.largest_patch,static_cast<PetscInt>(selected_rows.size()));
+            stats.patch_rows+=static_cast<PetscInt>(selected_rows.size());
             EONSIM_PETSC(ISDestroy(&is));
             EONSIM_PETSC(ISCreateGeneral(PETSC_COMM_SELF,static_cast<PetscInt>(selected_rows.size()),
                                        selected_rows.data(),PETSC_COPY_VALUES,&is));
@@ -406,6 +408,15 @@ struct PatchState {
         EONSIM_PETSC(VecSet(residual_vector.get(),0.));
         EONSIM_PETSC(VecScatterBegin(scatter.get(),union_correction.get(),residual_vector.get(),ADD_VALUES,SCATTER_REVERSE));
         EONSIM_PETSC(VecScatterEnd(scatter.get(),union_correction.get(),residual_vector.get(),ADD_VALUES,SCATTER_REVERSE));
+        const PetscScalar* owned_counts=nullptr;
+        EONSIM_PETSC(VecGetArrayRead(residual_vector.get(),&owned_counts));
+        bool complete=true;
+        for(PetscInt i=0;i<end-begin;++i) if(active_owned[i]) {
+            if(owned_counts[i]>0.) ++stats.covered_owned_rows;
+            else complete=false;
+        }
+        EONSIM_PETSC(VecRestoreArrayRead(residual_vector.get(),&owned_counts));
+        common_check(comm,!level_mode||complete,"level patches must cover every active owned row");
         EONSIM_PETSC(VecScatterBegin(scatter.get(),residual_vector.get(),union_rhs.get(),INSERT_VALUES,SCATTER_FORWARD));
         EONSIM_PETSC(VecScatterEnd(scatter.get(),residual_vector.get(),union_rhs.get(),INSERT_VALUES,SCATTER_FORWARD));
         EONSIM_PETSC(VecGetArrayRead(union_rhs.get(),&allowed));
