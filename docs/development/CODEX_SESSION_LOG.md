@@ -1,5 +1,59 @@
 # EONSim Codex Session Log
 
+## 2026-11-26 · FSI-MG-01 — 完整混合层级与 Matrix-free 通信失败恢复
+
+用户指定十二条优化及代码→远端→算例→合并顺序。从 main@3472a18（#59）恢复，三路
+负责整体层级、压力与方向作用、逐层平滑/patch，根集成非线性会话、错误协议及证据。
+沿既有多物理语义布局和共同状态提交开发，没有另设交替流固求解。只读交叉复核覆盖数学、
+MPI/lifecycle、原件审计与性能解释；未更改物理容差或默认求解配方。
+
+本地 Git 缺少 HTTPS 写凭据，沿已连接 GitHub API 同步 tree/commit。03b922c、4d3fd8e、
+87c2456、3b5cbdd 的完整 tree 均远端相等后才构建/运行；最终生产 tree 为
+2cca4aba25978f91a557dae538b2e056c2ab80c3。首次 wrapper 直接调用因执行权限未运行，
+改为 bash 后正常；保留失败命令。首次构建前另补 PETSc source Mat 引用生命周期。
+
+首轮 MG 1/2 rank 通过，4 rank 精确缓存断言失败。重复 PtAP 的舍入会改变粗层值，不能
+把它与新矩阵混淆，也不能放宽精确缓存比较。87c2456 用共同源 Mat 数值状态守卫避免
+未变化层级再计算，1/2/4 通过。后续源状态改变仍刷新完整 Galerkin 及数值因子。
+
+MF 第一次故障复用发现 PETSc RHS read lock 遗留，先隔离 trial/残量并重建残量 COO。
+扩展第二次 action 后，普通 FGMRES 的 insertion/COO 全过，PIPEFGMRES 的 split
+reduction 报 Operation done in wrong order。环境没有 GDB/LLDB，依据监控轨迹与
+PETSc v3.23.7 标记源码定位 Begin/End 间回调提前返回。最终保留共同错误、完成输出插入、
+用有限零临时作用排空已启动归约，再由 convergence callback 负原因退出；正常路径转发
+原收敛测试并只转交一次析构责任。post-SNESSolve 无条件抛原 fatal，不接受临时结果，不
+读取库私有锁或 split 状态。最终 MPI 1/2/4 × 两种 Krylov × insertion/COO × 第一/二次
+action 注入与恢复全部通过；两轮失败日志仍保留。
+
+真实规模扩展在 n6/n8、FP64/FP32 各失败一次：Galerkin 粗图稠密，粗 patch 邻接重叠
+超过 256 cap。最终保留细层 overlap=1，粗层默认额外 overlap=0，每个 patch 包含一个
+完整混合聚合体的物理和谱列；完整矩阵仍含跨聚合体耦合，不截断行或提高 cap。新增小 cap
+覆盖 oracle 与显式粗 overlap=1 拒绝检查；最终 patch/smoother/MG 共9项通过。5367 DoF
+实际层级 5367→1354→178→42，两中间层覆盖1354/178行，最大 coarse patch 21。
+
+最终受影响12项CTest重跑、早期未受影响10项复用；本地路径选择26Python通过。五批物理
+分别4、21、11、15、13成功，第三批另4次已修复setup失败。最后两批28次、84步、177
+真残量；累计64成功、192步、402真残量、384个保存状态。独立标准库脚本重读所有原件，
+验证拓扑、owner/ghost、边界、RCR方程、时间及hash；最终1305个唯一审计文件/6136副本，
+累计2881文件/11216副本。没有J/b/dx原件，真残量只重审原程序诊断标量和原门槛。
+旧ELF已被增量构建替换，旧身份仅来自当时receipt，不宣称重新hash旧二进制。
+
+2-rank三步六修正：MG迭代104/151/206（703/2299/5367 DoF），FP32相同；线性秒数
+FP64为0.387775/2.524272/10.205967，FP32为0.770415/4.199273/15.263721，均慢于
+直接解。5367的LU值数组40025728→20012864字节，但最大rank RSS 198.668→214.629
+MiB；FP64 setup矩阵仍存储。703粗patch修复的solve 2.321530→0.741733秒仅为共享主机
+观察；无重复独占benchmark。点/块Chebyshev在本例迭代更多，不改默认；MF小例P装配6→3，
+完整P保留。实现完成与网格无关、总内存/普遍加速目标明确分开。
+
+源码 [CI45819157827](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45819157827)
+实际95/95 Release、54/54 Python，0数值失败/跳过/复用。merge preview 29f1ed80与3b5cbdd
+完整tree相同，成功receipt和JUnit的95个名称逐一对应；官方下载ZIP独立核实SHA。
+[完整命令、失败、原件及审计](../research/data/fsi-monolithic-mg-2026-11-26/README.md)随
+[PR#61](https://github.com/saitoasukakawaii/EONSim-new/pull/61)归档；按 eonsim-knowledge-capture
+完成[算法草稿](../../website/drafts/fsi-monolithic-multigrid-matrix-free.md)，保留draft未发布。
+最终文档head只复用数值证据，四项必需检查及锁定head squash按GitHub核实；不追加全量、
+常规Debug、旧PETSc或多节点验证。
+
 ## 2026-11-26 · FSI-PC-05 — 完整压力块、物理模态与界面校正
 
 用户明确要求完成代码、同步远端、运行算例、最后合并 PR。恢复 main@af4a7fb（#58），

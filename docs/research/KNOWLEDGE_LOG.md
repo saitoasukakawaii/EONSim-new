@@ -1,5 +1,32 @@
 # EONSim Knowledge Log
 
+## 2026-11-26 · FSI-MG-01：完整混合粗空间与流水线失败协议
+
+[未发布算法草稿](../../website/drafts/fsi-monolithic-multigrid-matrix-free.md)、
+[操作与数学说明](../development/FSI_MONOLITHIC_MULTIGRID.md)、
+[原始证据与性能数据](data/fsi-monolithic-mg-2026-11-26/README.md)对应 PR#61、最终生产
+3b5cbddb928dfa789dc1f3f424dba451f33107e6。理论、实现、验证和有限性能证据分别陈述。
+
+可复用算法：完整约束后混合 Galerkin 保留跨场耦合；受候选约束的缩放正规能量下降与局部
+谱增强须保持基的秩；粗层 patch 应围绕完整聚合体基定义，不能随稠密图任意扩张；结构
+顺应性 Schur 保留实际非对称耦合及完整 D。PCD Robin 使用当前 ALE 相对通量三次积分，
+速度质量增强明确为离散 Laplace 混合，零输运极限含原 D；不声称标准加性 PCDR。
+
+故障教训：重复 PtAP 的舍入变化会使精确数值缓存失效；错误提前退出可能分别遗留向量锁
+与流水线归约状态，二者不能仅靠替换同一个向量解决。错误粘滞后有限临时作用排空通信，
+通过原收敛回调契约退出并无条件抛原错误，才能保持 MPI 与状态接受契约。四类失败及对应
+最小修复、1/2/4-rank复验原件完整保留，未修改PETSc私有结构或放宽通过门槛。
+
+本地22项有效CTest区分最终12新跑/10复用；最终28次FSI、84步、177真残量通过原门槛，
+累计64成功及4早期已修复setup失败分列。独立审计重读XML/CSV/log而非调用项目校验器；
+无J/b/dx离线乘积证据。源码CI45819157827实际95/95 Release、54/54 Python，成功receipt
+与merge-preview完整tree已核实；文档head的证据复用不算新的数值运行。
+
+703/2299/5367 DoF的MG迭代104/151/206，FP32相同但更慢；小例直接解更快。LU值数组
+减半而5367的最大rank RSS由198.668升至214.629MiB；MF的P装配6→3但完整P仍保留。
+局部谱不是全局残量学习，候选可表达不证明一般inf-sup或网格无关，没有多节点或普遍
+端到端收益声明。文章仍在drafts，后续需人工审查数学范围与更大规模性能证据才可发布。
+
 ## 2026-11-26 · FSI-PC-05：物理粗空间、PCD 边界尺度与空 owner 集体调用
 
 [未发布算法草稿](../../website/drafts/fsi-field-amg-pressure-interface.md)、

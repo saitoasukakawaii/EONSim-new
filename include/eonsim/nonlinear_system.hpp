@@ -27,6 +27,8 @@ struct NonlinearResult {
     PetscInt pc_drift_refreshes=0,pc_age_refreshes=0,pc_iteration_refreshes=0,pc_context_refreshes=0;
     double pc_monitor_seconds=0; ///< Rank-local diagonal/row-sum sampling and collective policy time.
     bool initial_jacobian_deferred=false; ///< 已配置会话将起点 Jacobian 交给首个正常 SNES 回调。
+    PetscInt matrix_free_actions=0,assembled_pc_reuses=0;
+    double matrix_free_seconds=0; ///< Rank-local exact directional application, including ghost/assembly.
     double residual_norm=0;
     std::vector<FieldResidual> field_residuals; ///< 所有 rank 相同；原始反力不参与字段收敛范数。
 };
@@ -46,6 +48,16 @@ struct NonlinearAssemblyPhases {
      * The callback must propagate its own local failures collectively.
      */
     std::function<void(const std::vector<double>&,Mat)> after_jacobian;
+    /** Optional exact J(state)*direction. Supplying this on every rank selects
+     * a MatShell operator with the ordinary assembled matrix used only as P.
+     * Both arrays follow layout owned+ghost order. Insert local contributions
+     * into result with ADD_VALUES; do not assemble, communicate, or commit history.
+     * The driver performs ghost exchange, failure propagation and identity
+     * constraint rows. State is frozen at the current Newton linearization.
+     * -nonlinear_matrix_free_pc_interval controls P assembly frequency within
+     * a solve (default 1). The first correction in every solve always refreshes P.
+     */
+    std::function<void(const std::vector<double>&,const std::vector<double>&,Vec)> jacobian_action;
     /// Exact physical/time coefficient identity used only for PC reuse policy.
     std::vector<double> preconditioner_context;
 };
@@ -106,7 +118,8 @@ public:
  * assemble 抛 StepRejected 时先完成部分装配以排空远程插入，再用 SNES domain-error 协议拒绝试探点。
  * 默认 Newton 回溯线搜索可尝试较小步；最终未收敛才交给时间驱动缩步。线性/PC 故障抛普通异常。
  * 已共同传播的callback错误或StepRejected后可用相同布局重新solve；每次覆盖trial、重算初始范数和矩阵数值。
- * fatal callback引起PETSc提前返回时更换trial Vec以隔离遗留只读锁；COO矩阵/图不重建。
+ * fatal callback引起PETSc提前返回时更换trial Vec；matrix-free还更换KSP残量RHS，
+ * 隔离遗留只读锁并重新准备残量COO计划；COO矩阵/图不重建。
  * config、约束值及回调只借用到本次调用结束；约束行可变化，但必须包含在既有图中。
  * -nonlinear_reuse false 可显式使用每次新建的求解器；非默认 SNES/lagged-PC 选项保留每次新建语义。
  * 默认普通 Newton 的 Schur 会话首次配置可供首个同状态 Jacobian 回调复用，之后每次 solve

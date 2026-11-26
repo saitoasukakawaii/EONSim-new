@@ -197,7 +197,21 @@ Newton Jacobian 回调消费一次。必须是相同 Vec/Mat、全部 owner 的�
 物理回调、初值或 prescribed 的栈引用。SNES/KSP/PC 先于所引用的 Schur USER 矩阵销毁。
 任何异常或最终 `StepRejected` 使会话失效，下一次调用重新创建；同一次线搜索中已恢复的
 domain rejection 不使最终成功的会话失效。fatal callback 遗留的 trial Vec 只读锁通过
-替换该 Vec 隔离，固定矩阵图保留。每次调用重置计数与线搜索初始系数。
+替换该 Vec 隔离；matrix-free action 失败还隔离 KSP 残量 RHS 并重新准备其 COO 计划。
+不手工修改 PETSc 的锁栈，固定矩阵图保留。每次调用重置计数与线搜索初始系数。
+
+显式 matrix-free 路径通过 `NonlinearAssemblyPhases::jacobian_action` 提供精确方向作用；
+回调须在所有 rank 一致存在。求解器冻结当前 Newton 状态并更新独立方向 ghost，物理回调
+只做局部计算及向量插入，不通信、不结束装配、不提交历史。驱动完成共同错误传播、
+向量装配及约束行的单位作用。`-nonlinear_matrix_free_pc_interval` 只控制 assembled P 的
+刷新；每次新的非线性 solve 必须首先刷新 P，物理残量及 Jv 始终使用当前状态。
+当前 P 仍是完整 AIJ 图，不能从使用 MatShell 推导总矩阵存储已经下降。
+
+matrix-free 仅接受 FGMRES/PIPEFGMRES；PIPEFGMRES 使用右预条件。方向回调发生共同 fatal
+错误后，MatShell 暂填有限零值使流水线完成已经发出的 split reduction；KSP 收敛回调在
+归约完成后设置负停止原因，驱动无条件抛出原 fatal 错误。错误状态粘滞，后续物理 kernel
+不再执行，临时向量从不成为已接受解。正常收敛调用原配置的 PETSc convergence test，
+不更改容差或接受条件，不直接访问库内部 split-reduction 状态。
 
 `solver_report` 的 `solver_reused=0|1` 表示本次是否复用成功会话，`solver_generation`
 是同一 `NonlinearSystem` 的 SNES 创建序号，从 1 递增；这些字段是生命周期证据，不是

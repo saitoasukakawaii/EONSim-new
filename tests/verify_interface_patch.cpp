@@ -166,11 +166,25 @@ void verify(MPI_Comm comm,bool dense,bool empty,bool single) {
               stats.factor_bytes==static_cast<std::size_t>(stats.patches)*(dense?36:9)*(single?sizeof(float):sizeof(double)),
               "Patch refresh count or FP32 factor storage accounting is wrong");
     }
+    InterfacePatchPcStats before_cache;query_interface_patch_pc_stats(pc,before_cache);
+    // Reassemble the same numeric values, changing PETSc object state. A cache
+    // keyed only by object identity/state would miss this reusable generation.
+    example.fill(1);updates.refresh(example.matrix.get());
+    action(comm,solver.get(),example,options.damping,0);
+    InterfacePatchPcStats after_cache;query_interface_patch_pc_stats(pc,after_cache);
+    check(comm,after_cache.numeric_factorizations==before_cache.numeric_factorizations&&
+        after_cache.factor_batches==before_cache.factor_batches&&
+        after_cache.cached_factorizations==before_cache.cached_factorizations+after_cache.patches&&
+        after_cache.rebuilds==before_cache.rebuilds+1,
+        "Exactly unchanged patch matrices were needlessly refactored");
+    check(comm,after_cache.numeric_factorizations==2*(dense?(after_cache.patches?1:0):after_cache.patches)&&
+        after_cache.factor_batches<=after_cache.numeric_factorizations,
+        "Equal-size batching or identical-patch factorization reuse was not exercised");
     if(dense&&single) {
         example.fill(2);updates.refresh(example.matrix.get());
         action(comm,solver.get(),example,options.damping,0,true);
         InterfacePatchPcStats stats; query_interface_patch_pc_stats(pc,stats);
-        check(comm,stats.setup_fallbacks==stats.patches&&stats.fp64_patches==stats.patches,
+        check(comm,stats.setup_fallbacks==(stats.patches?1:0)&&stats.fp64_patches==stats.patches,
               "FP32 singular rounding did not trigger explicit FP64 fallback");
         example.fill(0);updates.refresh(example.matrix.get());
     }
@@ -206,7 +220,7 @@ void run(MPI_Comm comm) {
         verify(comm,true,true,single);
         verify(comm,false,false,single);
     }
-    EONSIM_PETSC(PetscPrintf(comm,"Interface mixed patches: exact weighted action, ghost rows, empty ranks, refresh, FP32 refinement/fallback and failed-generation recovery passed\n"));
+    EONSIM_PETSC(PetscPrintf(comm,"Interface mixed patches: exact weighted action, ghost rows, empty ranks, batched LU, exact factor cache, FP32 refinement/fallback and failed-generation recovery passed\n"));
 }
 } // namespace
 int main(int argc,char** argv) {

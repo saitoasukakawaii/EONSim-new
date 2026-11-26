@@ -1,5 +1,24 @@
 # EONSim Codex Task Queue
 
+## FSI-MG-01 / twelve implementations and bounded validation complete; broader performance remains open / 2026-11-26
+
+[PR #61](https://github.com/saitoasukakawaii/EONSim-new/pull/61)完成全部十二条 P0/P1/P2 路径，
+最终生产 `3b5cbdd`，每次修改先同步远端并核对 tree，再构建及验证。完整耦合层级、每层
+混合 Vanka、结构顺应性压力 Schur、能量插值、局部谱增强、PCD 两增强、批量缓存、
+Chebyshev 两变体、真实 FP32 稀疏循环、粗层聚合、PIPEFGMRES 和精确 MF/assembled P
+均有实现与有界验收，参数见[操作指南](FSI_MONOLITHIC_MULTIGRID.md)。
+
+本地有效 22 项 CTest 中最终重跑 12 项、10 项复用未受影响证据；最终 28 次 FSI、84 步、
+177 真残量全部通过原门槛，累计 64 成功与 4 个已修复 setup 失败分别保存。缓存失效、
+读锁、流水线归约和粗 patch 四类故障已闭环；[原件及独立审计](../research/data/fsi-monolithic-mg-2026-11-26/README.md)。
+源码 CI45819157827 实际 95/95 Release、54/54 Python，成功收据与同源 tree 已核实。
+最终文档 head 四项检查及精确 head squash 以 GitHub 为准；没有跳过保护或改数值门槛。
+
+仍开放的性能目标：更大真实 FSI 的近似网格无关、低总内存和稳定端到端收益、多节点通信
+扩展。现 703/2299/5367 DoF 的 MG 迭代 104/151/206，直接解更快；FP32 只证明部分
+值/因子精度与字节变化，整体 RSS 和时间没有下降。局部谱筛选并非全局误差学习，PCD 仍
+要求统一正黏度，MF 保留完整 P。不得用十二条代码路径完成来宣称这些性能目标也已完成。
+
 ## FSI-PC-05 / implementation and bounded validation complete; performance goals remain open / 2026-11-26
 
 [PR #59](https://github.com/saitoasukakawaii/EONSim-new/pull/59)交付递归field AMG、稳定化
@@ -11,8 +30,9 @@ LSC/BFBt与物理PCD、真实界面mixed patch、FP32因子/FP64细化回退。�
 最终38；未受修改影响检查复用，不伪称全在最终head重跑。四项必需检查和锁定head合并
 依GitHub核实；草稿未发布，默认不改。
 
-仍开放的性能验收目标：真实FSI近似网格无关、每层界面smoother、PCD入口Robin/瞬态速度
-质量增强及变黏度、多节点更大规模和稳定端到端收益。现网格2rank nodal82→131、最终PCD
+本节保留 FSI-PC-05 的历史验收边界；其中逐层 smoother 和 PCD Robin/速度质量增强现由
+上方 FSI-MG-01 完成。其余仍开放目标为真实 FSI 近似网格无关、变黏度、多节点更大规模
+和稳定端到端收益。FSI-PC-05 当时的网格2rank nodal82→131、最终PCD
 144→225；BFBt六组patch少2.44%–11.96%迭代但小例成本高，FP32只证明因子数组减半。
 不能把“代码路径实现”当作这些尚未达成性能目标的关闭依据。
 

@@ -10,16 +10,25 @@ struct InterfacePatchOptions {
 };
 /** Counters are rank-local; no hidden collective is performed by the query.
  * factor_bytes counts dense LU values only, excluding sparse patch matrices,
- * index maps, vectors, and the existing full-precision bulk preconditioner.
+ * index maps, vectors, bounded setup temporaries, and the existing
+ * full-precision bulk preconditioner. numeric_factorizations counts unique
+ * patch factors; cached_factorizations counts both exactly unchanged numeric
+ * patches and identical local patch patterns sharing one factorization.
+ * patch_rows sums the sizes of actual local patches; covered_owned_rows counts
+ * unique active owned rows covered by patches on any rank. For disjoint coarse
+ * aggregate patches their global sums both equal the active level row count.
  */
 struct InterfacePatchPcStats {
     PetscInt patches=0,largest_patch=0,rebuilds=0,applications=0;
     PetscInt fp32_patches=0,fp64_patches=0,setup_fallbacks=0,apply_fallbacks=0,refinements=0;
+    PetscInt factor_batches=0,numeric_factorizations=0,cached_factorizations=0;
+    PetscInt interface_patches=0;
+    PetscInt overlap=0,patch_rows=0,covered_owned_rows=0;
     std::size_t factor_bytes=0;
 };
 /// Collective validation, also usable before an exactly converged solve.
 void validate_interface_patch_options(MPI_Comm comm,const std::string& prefix,
-                                     const InterfacePatchOptions& options);
+                                     const InterfacePatchOptions& options,bool inspect_solver_options=true);
 /** Wrap an existing semantic PREONLY action H with the residual correction
  * x=H*r; x+=damping*sum_i R_i^T W_i A_i^-1 R_i*(r-J*x).
  * Patches start at distinct owned trace vertices and grow through the assembled
@@ -52,4 +61,16 @@ void configure_interface_patch_pc(MPI_Comm comm,KSP solver,Mat full,
 /// Local inspection only; false/nullptr means this is a different PC type.
 bool query_interface_patch_pc_stats(PC pc,InterfacePatchPcStats& stats);
 KSP interface_patch_bulk_solver(PC pc);
+/** Pure additive mixed Vanka action, for an arbitrary monolithic grid level.
+ * Every active owned entity seeds a patch, including coarse algebraic entities;
+ * true trace flags only identify interface patches for diagnostics. All fields
+ * of the same entity share one seed. Identity rows are solved exactly and
+ * excluded from patch factors; boundary and rigid-body scalars remain active.
+ * Numeric refresh uses updates and keeps the graph, seed membership and
+ * constraints fixed. A level with no active rows is a valid identity action.
+ */
+void configure_vanka_level_pc(MPI_Comm comm,KSP solver,Mat full,
+    const std::vector<DofKey>& owned_semantics,
+    const std::vector<unsigned char>& owned_interface,
+    const InterfacePatchOptions& options,PcSchurUpdates* updates);
 } // namespace eonsim

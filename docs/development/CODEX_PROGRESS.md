@@ -1,5 +1,41 @@
 # EONSim Codex Development Progress
 
+## 2026-11-26 · FSI-MG-01：整体多重网格、逐层校正与精确 Matrix-free
+
+从已合并 #59 的 `main@3472a18` 接续，交付 [PR #61](https://github.com/saitoasukakawaii/EONSim-new/pull/61)。
+全部十二条请求已实现：完整流体/压力/结构/ALE Galerkin 层级、逐层混合 Vanka、结构顺应性
+压力 Schur、保持物理候选的插值能量下降、局部谱增强、PCD Robin/速度质量增强、批量 LU
+与精确缓存、两种正规算子 Chebyshev、FP32 V-cycle、粗层 MPI 聚合、PIPEFGMRES 及精确
+方向作用/独立刷新 assembled P。最终生产源码 `3b5cbddb928dfa789dc1f3f424dba451f33107e6`。
+每次源代码与测试修改都先同步远程、核对完整 tree，再构建和运行。
+
+修复四类实际故障：重复 Galerkin 计算破坏精确缓存；MF 错误遗留 RHS 读锁；流水线错误
+遗留 split reduction；稠密粗图的重叠 patch 超限。最终采用源 Mat 数值状态守卫、会话向量
+隔离、排空归约后报告原 fatal，以及完整混合聚合体粗 patch。原失败保留，不放宽门槛，
+不截断 patch 行、不操作 PETSc 私有锁字段。所有受影响检查通过后才进入归档。
+
+本地有效 22 项 CTest 按源复用：最终源码重跑 12 项、未受修改影响的早期 10 项复用；
+覆盖 MPI 1/2/4。最终 28 次真实 FSI 复验全部通过，84 接受步、177 个真残量记录；累计
+64 次成功及 4 次已修复的早期 setup 失败分别保存。独立重读原日志/CSV/VTU 和归档摘要，
+最终最大保存场/坐标差 `5.66658e-13`、历史差 `7.99361e-15`、真残量/原门槛 `0.00904389`，
+owner/ghost 差为 0。没有把日志残量重审写成离线 J 乘积。
+
+源码 [CI 45819157827](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45819157827)
+实际 **95/95 Release、54/54 Python**，0 数值失败/跳过/复用；成功收据、JUnit 清单和
+merge-preview/source tree 一致性已核实。后续文档 head 复用证据，四项必需检查与锁定
+head squash 合并以 GitHub 记录为准，不计作新数值执行。
+
+2-rank、703/2299/5367 DoF 的整体 MG 迭代为 104/151/206，FP32 相同；5367 DoF 层级
+为 5367→1354→178→42，粗层进程数 1。小例直接解更快，FP32 线性时间更长；最大 rank
+RSS 为 FP64 198.668 MiB、FP32 214.629 MiB。局部因子字节减半，仍保留 FP64 setup 矩阵。
+Matrix-free 小例 P 装配 6→3，但完整 P 仍存储。网格无关、总内存/端到端加速和多节点
+规模收益尚未证实；局部谱增强不等于全局残量学习，PCD 质量增强不等于标准加性 PCDR。
+
+[完整原件、失败及成本](../research/data/fsi-monolithic-mg-2026-11-26/README.md)、
+[使用与数学说明](FSI_MONOLITHIC_MULTIGRID.md)、
+[未发布算法草稿](../../website/drafts/fsi-monolithic-multigrid-matrix-free.md)。
+没有追加本地全量、常规 Debug、旧 PETSc 或多节点测试；知识文章保留在 drafts。
+
 ## 2026-11-26 · FSI-PC-05：物理粗空间、压力 Schur 与界面混合精度
 
 从已合并 #58 的 `main@af4a7fb` 接续，交付 [PR #59](https://github.com/saitoasukakawaii/EONSim-new/pull/59)。

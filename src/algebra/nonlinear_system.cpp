@@ -5,6 +5,7 @@
 #include "eonsim/rcr_port_pc.hpp"
 #include "eonsim/interface_patch_pc.hpp"
 #include "eonsim/pressure_schur_pc.hpp"
+#include "eonsim/monolithic_fsi_mg.hpp"
 #include "eonsim/time_step.hpp"
 #include <cmath>
 #include <stdexcept>
@@ -166,6 +167,13 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
         if(KSP bulk=rcr_port_bulk_solver(pc)) children.emplace_back("rcr_bulk",bulk);
         if(KSP bulk=interface_patch_bulk_solver(pc)) children.emplace_back("interface_bulk",bulk);
         if(KSP auxiliary=pressure_schur_auxiliary_solver(pc)) children.emplace_back("pressure_aux",auxiliary);
+        if(KSP coarse=monolithic_fsi_mg_coarse_solver(pc)) children.emplace_back("monolithic_coarse",coarse);
+        MonolithicFsiMgStats multigrid;
+        if(query_monolithic_fsi_mg_stats(pc,multigrid))
+            out<<"monolithic_mg_stats rank="<<rank<<" path="<<path<<" levels="<<multigrid.levels
+               <<" applications="<<multigrid.applications<<" refreshes="<<multigrid.refreshes
+               <<" coarse_processes="<<multigrid.coarse_processes<<" fp32="<<multigrid.single_precision
+               <<" fp32_value_bytes="<<multigrid.fp32_value_bytes<<'\n';
         InterfacePatchPcStats patch_stats;
         if(query_interface_patch_pc_stats(pc,patch_stats))
             out<<"interface_patch_stats rank="<<rank<<" path="<<path<<" patches="<<patch_stats.patches
@@ -173,6 +181,8 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
                <<" applications="<<patch_stats.applications<<" fp32="<<patch_stats.fp32_patches
                <<" fp64="<<patch_stats.fp64_patches<<" setup_fallbacks="<<patch_stats.setup_fallbacks
                <<" apply_fallbacks="<<patch_stats.apply_fallbacks<<" refinements="<<patch_stats.refinements
+               <<" factor_batches="<<patch_stats.factor_batches<<" numeric_factorizations="<<patch_stats.numeric_factorizations
+               <<" cached_factorizations="<<patch_stats.cached_factorizations
                <<" factor_bytes="<<patch_stats.factor_bytes<<'\n';
         RcrPortPcStats stats;
         if(query_rcr_port_pc_stats(pc,stats))
@@ -423,9 +433,10 @@ struct AdaptivePcState {
         bool valid=std::equal(low,low+4,high)&&maximum_reuse>=1&&maximum_reuse<=1000&&
             std::isfinite(change_tolerance)&&change_tolerance>0&&change_tolerance<=1&&
             std::isfinite(iteration_growth)&&iteration_growth>=1;
-        valid=valid&&(!requested||(eligible&&type&&std::strcmp(type,KSPFGMRES)==0));
+        valid=valid&&(!requested||(eligible&&type&&
+            (std::strcmp(type,KSPFGMRES)==0||std::strcmp(type,KSPPIPEFGMRES)==0)));
         int bad=!valid,any=0; MPI_Allreduce(&bad,&any,1,MPI_INT,MPI_MAX,comm);
-        if(any) throw std::runtime_error("Adaptive PC requires default Newton, fresh Jacobians, FGMRES, no manual PC lag/reuse/EW, and identical valid policy options");
+        if(any) throw std::runtime_error("Adaptive PC requires default Newton, fresh Jacobians, flexible GMRES, no manual PC lag/reuse/EW, and identical valid policy options");
         enabled=requested;
         if(enabled) {
             EONSIM_PETSC(MatCreateVecs(matrix,diagonal.put(),nullptr));
@@ -646,6 +657,48 @@ struct Context {
     PetscInt jacobian_assemblies=0,jacobian_callbacks=0,initial_jacobian_reuses=0,user_schur_updates=0;
     Vec initial_trial=nullptr;
     Mat initial_jacobian=nullptr;
+    bool matrix_free=false;
+    Vec direction_ghost=nullptr;
+    PetscInt assembled_pc_interval=1,matrix_free_actions=0,assembled_pc_reuses=0;
+    double matrix_free_seconds=0;
+    std::vector<double> operator_state={},direction={};
+    std::string action_error={}; // Fatal and sticky until this solve exits.
+    void apply_direction(Vec input,Vec output) {
+        if(!phases||!phases->jacobian_action||operator_state.size()!=layout.local_to_global.size())
+            throw std::runtime_error("Matrix-free operator has no current Newton state/action");
+        const auto begin=std::chrono::steady_clock::now();
+        EONSIM_PETSC(VecCopy(input,direction_ghost));
+        local_values(direction_ghost,direction);
+        PetscScalar* entries=nullptr;
+        EONSIM_PETSC(VecGetArrayWrite(output,&entries));
+        std::fill_n(entries,layout.owned,0.);
+        EONSIM_PETSC(VecRestoreArrayWrite(output,&entries));
+        EONSIM_PETSC(VecSetOption(output,VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
+        int failed=0,any_failed=0;
+        std::string detail;
+        try { phases->jacobian_action(operator_state,direction,output); }
+        catch(const std::exception& e) { failed=1; detail=e.what(); }
+        catch(...) { failed=1; detail="Unknown directional kernel failure"; }
+        MPI_Allreduce(&failed,&any_failed,1,MPI_INT,MPI_MAX,comm);
+        // Drain off-rank entries even after a local exception, exactly as for
+        // ordinary residual assembly. No pending operation outlives this call.
+        EONSIM_PETSC(VecAssemblyBegin(output)); EONSIM_PETSC(VecAssemblyEnd(output));
+        if(any_failed) {
+            int rank=0,origin=0; MPI_Comm_rank(comm,&rank);
+            const int candidate=failed?rank:std::numeric_limits<int>::max();
+            MPI_Allreduce(&candidate,&origin,1,MPI_INT,MPI_MIN,comm);
+            int length=static_cast<int>(detail.size()); MPI_Bcast(&length,1,MPI_INT,origin,comm);
+            detail.resize(length); MPI_Bcast(detail.data(),length,MPI_CHAR,origin,comm);
+            throw std::runtime_error("Matrix-free action origin_rank="+std::to_string(origin)+": "+detail);
+        }
+        if(!constraints.empty()) {
+            EONSIM_PETSC(VecGetArray(output,&entries));
+            for(const auto row:constraints) entries[row-layout.begin]=direction[row-layout.begin];
+            EONSIM_PETSC(VecRestoreArray(output,&entries));
+        }
+        ++matrix_free_actions;
+        matrix_free_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
+    }
     void remember_initial_jacobian(Vec x,Mat j) {
         // The already synchronized trial buffer is the snapshot. Any later
         // physical evaluation invalidates this one-use entry before changing it.
@@ -699,6 +752,7 @@ struct Context {
         if(j) EONSIM_PETSC(MatZeroRows(j,constraints.size(),constraints.data(),1,nullptr,nullptr));
     }
     void evaluate(Vec x, Vec r, Mat j, bool constrain,bool publish_residual=true) {
+        if(!action_error.empty()) throw std::runtime_error(action_error);
         // A residual evaluation, rejected trial or new tangent must not leave
         // a startup Jacobian eligible for a later line-search/Newton state.
         initial_trial=nullptr; initial_jacobian=nullptr;
@@ -813,6 +867,55 @@ struct Context {
     }
 };
 struct ActiveContext { Context* current=nullptr; };
+PetscErrorCode matrix_free_multiply(Mat matrix,Vec input,Vec output) {
+    ActiveContext* active=nullptr;
+    PetscCall(MatShellGetContext(matrix,&active));
+    if(!active||!active->current) return PETSC_ERR_ARG_WRONGSTATE;
+    auto& c=*active->current;
+    if(c.action_error.empty()) {
+        try { c.apply_direction(input,output); return PETSC_SUCCESS; }
+        catch(const std::exception& e) {
+            c.action_error=e.what(); c.error=c.action_error; c.recoverable=false;
+        }
+    }
+    // PIPEFGMRES may have an outstanding VecMDotBegin around this action.
+    // Returning an error here would skip its VecMDotEnd and poison subsequent
+    // solves on the communicator. Supply finite temporary data so PETSc drains
+    // the reduction, then terminate at its convergence callback. The sticky
+    // error also prevents further physical kernels and any accepted result.
+    PetscScalar* entries=nullptr;
+    PetscCall(VecGetArrayWrite(output,&entries));
+    std::fill_n(entries,c.layout.owned,0.);
+    PetscCall(VecRestoreArrayWrite(output,&entries));
+    return PETSC_SUCCESS;
+}
+struct MatrixFreeConvergence {
+    ActiveContext* callbacks=nullptr;
+    PetscErrorCode (*original)(KSP,PetscInt,PetscReal,KSPConvergedReason*,void*)=nullptr;
+    void* original_context=nullptr;
+    PetscErrorCode (*original_destroy)(void*)=nullptr;
+    ~MatrixFreeConvergence() { if(original_destroy) (void)original_destroy(original_context); }
+};
+PetscErrorCode matrix_free_convergence(KSP ksp,PetscInt iteration,PetscReal norm,
+                                      KSPConvergedReason* reason,void* pointer)
+{
+    auto& guard=*static_cast<MatrixFreeConvergence*>(pointer);
+    if(!guard.callbacks||!guard.callbacks->current||!guard.original) return PETSC_ERR_ARG_WRONGSTATE;
+    if(!guard.callbacks->current->action_error.empty()) {
+        // Both supported Krylov methods invoke this after their reductions.
+        *reason=KSP_DIVERGED_BREAKDOWN;
+        return PETSC_SUCCESS;
+    }
+    return guard.original(ksp,iteration,norm,reason,guard.original_context);
+}
+PetscErrorCode destroy_matrix_free_convergence(void* pointer)
+{
+    auto* guard=static_cast<MatrixFreeConvergence*>(pointer);
+    const auto error=guard->original_destroy?guard->original_destroy(guard->original_context):PETSC_SUCCESS;
+    guard->original_destroy=nullptr;
+    delete guard;
+    return error;
+}
 PetscErrorCode function(SNES snes,Vec x,Vec r,void* pointer)
 {
     auto* active=static_cast<ActiveContext*>(pointer);
@@ -822,13 +925,31 @@ PetscErrorCode function(SNES snes,Vec x,Vec r,void* pointer)
     catch(const StepRejected& e) { c.error=e.what(); ++c.domain_rejections; return SNESSetFunctionDomainError(snes); }
     catch(const std::exception& e) { c.error=e.what(); return PETSC_ERR_LIB; }
 }
-PetscErrorCode jacobian(SNES snes,Vec x,Mat j,Mat,void* pointer)
+PetscErrorCode jacobian(SNES snes,Vec x,Mat j,Mat p,void* pointer)
 {
     auto* active=static_cast<ActiveContext*>(pointer);
     if(!active||!active->current) return PETSC_ERR_ARG_WRONGSTATE;
     auto& c=*active->current;
     try {
         ++c.jacobian_callbacks;
+        if(c.matrix_free) {
+            const bool startup=c.consume_initial_jacobian(x,p);
+            const bool refresh=startup||c.jacobian_callbacks==1||c.domain_rejections||
+                (c.jacobian_callbacks-1)%c.assembled_pc_interval==0;
+            if(!startup&&refresh) c.evaluate(x,c.scratch,p,true,false);
+            if(startup||refresh) c.operator_state=c.values;
+            else {
+                local_values(x,c.operator_state);
+                ++c.assembled_pc_reuses;
+            }
+            if(refresh&&!startup) c.refresh_user_schur(p);
+            EONSIM_PETSC(SNESSetLagPreconditioner(snes,refresh?1:-1));
+            // Increase shell state after a new linearization even when P is
+            // retained. Its action always consumes the new frozen state.
+            EONSIM_PETSC(MatAssemblyBegin(j,MAT_FINAL_ASSEMBLY));
+            EONSIM_PETSC(MatAssemblyEnd(j,MAT_FINAL_ASSEMBLY));
+            return PETSC_SUCCESS;
+        }
         if(c.consume_initial_jacobian(x,j)) {
             c.prepare_preconditioner(snes,j,true);
             return PETSC_SUCCESS;
@@ -895,22 +1016,42 @@ struct NonlinearSystem::Workspace {
     ActiveContext callbacks;
     PetscBool block=PETSC_FALSE,schur=PETSC_FALSE,report=PETSC_FALSE,rank_report=PETSC_FALSE;
     bool semantic=false,pc_configured=false,reusable=false;
+    bool matrix_free=false;
+    PetscInt assembled_pc_interval=1;
+    PetscOwner<Vec,VecDestroy> direction_ghost;
+    PetscOwner<Mat,MatDestroy> action_matrix;
     PetscReal initial_lambda=1;
     PetscOwner<SNES,SNESDestroy> snes; // Destroy first, before callback/PC refresh storage.
 
     Workspace(MPI_Comm comm,const AlgebraLayout& layout,const SolverConfig& settings,
               const std::vector<PetscInt>& constraints)
         :config(settings),constraint_rows(constraints),acceptance(comm,layout,config,constraints) {}
-    void initialize(MPI_Comm comm,const AlgebraLayout& l,Vec r,Mat j) {
+    void initialize(MPI_Comm comm,const AlgebraLayout& l,Vec r,Mat j,bool use_matrix_free) {
+        matrix_free=use_matrix_free;
         EONSIM_PETSC(SNESCreate(comm,snes.put()));
         EONSIM_PETSC(SNESSetFunction(snes.get(),r,function,&callbacks));
-        EONSIM_PETSC(SNESSetJacobian(snes.get(),j,j,jacobian,&callbacks));
+        if(matrix_free) {
+            EONSIM_PETSC(VecDuplicate(r,direction_ghost.put()));
+            EONSIM_PETSC(MatCreateShell(comm,l.owned,l.owned,l.global,l.global,&callbacks,action_matrix.put()));
+            EONSIM_PETSC(MatShellSetOperation(action_matrix.get(),MATOP_MULT,
+                reinterpret_cast<void(*)(void)>(matrix_free_multiply)));
+            EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-nonlinear_matrix_free_pc_interval",&assembled_pc_interval,nullptr));
+            PetscInt low=0,high=0;
+            MPI_Allreduce(&assembled_pc_interval,&low,1,MPIU_INT,MPI_MIN,comm);
+            MPI_Allreduce(&assembled_pc_interval,&high,1,MPIU_INT,MPI_MAX,comm);
+            if(low!=high||low<1||high>1000) throw std::runtime_error("Matrix-free P interval must be identical and between 1 and 1000");
+        }
+        EONSIM_PETSC(SNESSetJacobian(snes.get(),matrix_free?action_matrix.get():j,j,jacobian,&callbacks));
         EONSIM_PETSC(SNESSetTolerances(snes.get(),config.absolute_tolerance,config.relative_tolerance,0,config.maximum_iterations,10000));
         EONSIM_PETSC(SNESSetConvergenceTest(snes.get(),convergence,&callbacks,nullptr));
         KSP ksp; PC pc;
         EONSIM_PETSC(SNESGetKSP(snes.get(),&ksp)); EONSIM_PETSC(KSPGetPC(ksp,&pc));
         EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCLU));
         EONSIM_PETSC(PCFactorSetMatSolverType(pc,MATSOLVERSUPERLU_DIST));
+        if(matrix_free) {
+            EONSIM_PETSC(KSPSetType(ksp,KSPFGMRES));
+            EONSIM_PETSC(KSPSetTolerances(ksp,1e-9,1e-13,PETSC_DEFAULT,500));
+        }
         block=PETSC_FALSE; schur=PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-schur_pc",&schur,nullptr));
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-block_pc",&block,nullptr));
@@ -935,7 +1076,8 @@ struct NonlinearSystem::Workspace {
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_rcr_ports",&port_option));
         bool interface_option=false;
         for(const char* option:{"-pc_plan_interface_smoother","-pc_plan_patch_precision","-pc_plan_patch_overlap",
-            "-pc_plan_patch_max_size","-pc_plan_patch_refinement_steps","-pc_plan_patch_refinement_tolerance","-pc_plan_patch_damping"}) {
+            "-pc_plan_patch_max_size","-pc_plan_patch_refinement_steps","-pc_plan_patch_refinement_tolerance","-pc_plan_patch_damping",
+            "-pc_plan_pcd_robin","-pc_plan_pcd_velocity_mass","-pc_plan_pcd_velocity_mass_weight"}) {
             PetscBool found=PETSC_FALSE; EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,option,&found));
             interface_option=interface_option||found;
         }
@@ -1011,13 +1153,28 @@ struct NonlinearSystem::Workspace {
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-verify_operator_permutation",&permutation,nullptr));
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-snes_ksp_ew",&eisenstat_walker,nullptr));
         options=petsc_options_snapshot();
+        if(matrix_free) {
+            PetscBool incompatible=PETSC_FALSE;
+            for(const char* option:{"-snes_mf","-snes_mf_operator","-snes_fd","-snes_fd_color"}) {
+                PetscBool found=PETSC_FALSE;
+                EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,option,&found));
+                incompatible=static_cast<PetscBool>(incompatible||found);
+            }
+            int bad=incompatible||jacobian_lag!=1||preconditioner_lag!=1||reuse_preconditioner||eisenstat_walker,any=0;
+            MPI_Allreduce(&bad,&any,1,MPI_INT,MPI_MAX,comm);
+            if(any) throw std::runtime_error("Exact matrix-free action requires fresh Newton linearizations and its own P interval, without SNES FD/MF, manual lag, PC reuse or EW overrides");
+            KSPType method=nullptr; EONSIM_PETSC(KSPGetType(ksp,&method));
+            bad=!method||(std::strcmp(method,KSPFGMRES)!=0&&std::strcmp(method,KSPPIPEFGMRES)!=0);
+            MPI_Allreduce(&bad,&any,1,MPI_INT,MPI_MAX,comm);
+            if(any) throw std::runtime_error("Exact matrix-free operator requires fgmres or pipefgmres");
+        }
         // Retain fresh-solver semantics for history-carrying nonlinear algorithms
         // or explicit lagged PCs (including prefixed child PCs). The ordinary
         // Newton path reuses symbolic objects, never stale numerical factors.
         reusable=nonlinear_type&&std::strcmp(nonlinear_type,SNESNEWTONLS)==0&&
             jacobian_lag==1&&preconditioner_lag==1&&!reuse_preconditioner&&!eisenstat_walker&&!permutation&&
             options.find("_reuse_preconditioner")==std::string::npos;
-        adaptive_pc.initialize(comm,j,reusable,ksp);
+        adaptive_pc.initialize(comm,j,reusable&&!matrix_free,ksp);
         diagnostics.adaptive_pc=&adaptive_pc;
         if(reusable) {
             SNESLineSearch line_search;
@@ -1126,15 +1283,19 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_schur_approx",pressure_approximation,
         sizeof(pressure_approximation),nullptr));
     const bool physical_pcd=std::strcmp(pressure_approximation,"pcd")==0;
+    PetscBool matrix_free_interval_set=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-nonlinear_matrix_free_pc_interval",&matrix_free_interval_set));
     const auto options=petsc_options_snapshot();
     int local[]={initial.size()!=l.local_to_global.size()||constraints.size()!=prescribed.size()||
         bool(phases.owned)!=bool(phases.halo),
         !reuse||!workspace_||!workspace_->reusable||workspace_->options!=options||
-        !same_solver_config(workspace_->config,config)||workspace_->constraint_rows!=constraints,
+        !same_solver_config(workspace_->config,config)||workspace_->constraint_rows!=constraints||
+        workspace_->matrix_free!=bool(phases.jacobian_action),
         bool(phases.owned),!phases.owned,bool(phases.after_jacobian),!phases.after_jacobian,
-        physical_pcd&&!phases.after_jacobian};
-    int global[7]{};
-    MPI_Allreduce(local,global,7,MPI_INT,MPI_MAX,comm);
+        physical_pcd&&!phases.after_jacobian,bool(phases.jacobian_action),!phases.jacobian_action,
+        matrix_free_interval_set&&!phases.jacobian_action};
+    int global[10]{};
+    MPI_Allreduce(local,global,10,MPI_INT,MPI_MAX,comm);
     if(global[0]) throw std::runtime_error("Invalid nonlinear state/constraint layout");
     if(global[2]&&global[3]) throw std::runtime_error("Nonlinear assembly phases must agree on every rank");
     if(global[4]&&global[5]) throw std::runtime_error("Auxiliary Jacobian callback must agree on every rank");
@@ -1144,13 +1305,20 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     // Standalone algebra callers may still compose static auxiliary operators
     // explicitly; this requirement belongs to the nonlinear update contract.
     if(global[6]) throw std::runtime_error("Physical PCD requires an after_jacobian auxiliary update callback for every nonlinear solve");
+    if(global[7]&&global[8]) throw std::runtime_error("Matrix-free action must be supplied on every rank or none");
+    if(global[9]) throw std::runtime_error("-nonlinear_matrix_free_pc_interval requires a matrix-free Jacobian action");
     const bool solver_reused=!global[1];
     if(!solver_reused) {
         workspace_.reset();
         workspace_=std::make_unique<Workspace>(comm,l,config,constraints);
         ++solver_generation_;
-        workspace_->initialize(comm,l,r.get(),j.get());
+        workspace_->initialize(comm,l,r.get(),j.get(),bool(phases.jacobian_action));
         if(residual_coo_enabled_) {
+            // A failed MatShell action retires the KSP's locked residual too.
+            // VecDuplicate preserves its ghost layout, but not the COO plan.
+            // Retain preparation only for this persistent target after the old
+            // SNES work vectors have been destroyed.
+            prepare_residual_coo(r.get(),residual_coo_rows_,residual_coo_vectors_);
             PetscObjectId residual_id=0;
             EONSIM_PETSC(PetscObjectGetId(reinterpret_cast<PetscObject>(r.get()),&residual_id));
             residual_coo_vectors_={residual_id};
@@ -1182,6 +1350,10 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         residual_coo_enabled_?&residual_coo_values_:nullptr,residual_coo_vectors_,{}};
     context.phases=&phases;
     context.adaptive_pc=&workspace.adaptive_pc;
+    context.matrix_free=workspace.matrix_free;
+    context.direction_ghost=workspace.direction_ghost.get();
+    context.assembled_pc_interval=workspace.assembled_pc_interval;
+    if(workspace.matrix_free) EONSIM_PETSC(SNESSetLagPreconditioner(snes.get(),1));
     struct CallbackScope {
         ActiveContext& callbacks;
         CallbackScope(ActiveContext& target,Context& value):callbacks(target) { callbacks.current=&value; }
@@ -1244,6 +1416,27 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         if(all) context.remember_initial_jacobian(x.get(),j.get());
     }
     const double schur_setup_seconds=(schur||semantic)?std::chrono::duration<double>(std::chrono::steady_clock::now()-schur_begin).count():0.;
+    if(workspace.matrix_free) {
+        // Recipe setup inspects assembled P. Restore the distinct exact action
+        // only after all child submatrices have been configured.
+        EONSIM_PETSC(KSPSetOperators(ksp,workspace.action_matrix.get(),j.get()));
+        EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
+        // Recipe setup can call KSPSetFromOptions, so wrap only its final
+        // configured convergence test and retain the wrapper on session reuse.
+        decltype(MatrixFreeConvergence::original) current=nullptr;
+        EONSIM_PETSC(KSPGetConvergenceTest(ksp,&current,nullptr,nullptr));
+        if(current!=matrix_free_convergence) {
+            // Transfer without destroying the original context; KSP owns the
+            // wrapper and calls its original destructor exactly once.
+            auto guarded=std::make_unique<MatrixFreeConvergence>();
+            guarded->callbacks=&workspace.callbacks;
+            EONSIM_PETSC(KSPGetAndClearConvergenceTest(ksp,&guarded->original,
+                &guarded->original_context,&guarded->original_destroy));
+            EONSIM_PETSC(KSPSetConvergenceTest(ksp,matrix_free_convergence,guarded.get(),
+                destroy_matrix_free_convergence));
+            guarded.release();
+        }
+    }
     auto error=SNESSolve(snes.get(),nullptr,x.get());
     PetscInt pc_rebuild_retries=0,prior_nonlinear_iterations=0,prior_linear_iterations=0;
     if(workspace.adaptive_pc.enabled) {
@@ -1312,14 +1505,22 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     // Freeze before final physical acceptance/reaction assembly, matching existing assembly timers.
     const double callback_seconds=context.callback_seconds,failure_sync_seconds=context.failure_sync_seconds;
     const double assembly_finalize_seconds=context.assembly_finalize_seconds,constraint_seconds=context.constraint_seconds;
-    if(error&&!context.error.empty()) {
+    if(!context.action_error.empty()) { context.error=context.action_error; context.recoverable=false; }
+    if((error||!context.action_error.empty())&&!context.error.empty()) {
         // SNESComputeJacobian/Function can return from a failing callback before
-        // VecLockReadPop (PETSc 3.23.7). Retire that trial Vec rather than editing
-        // PETSc's lock stack. SNES retains its reference until normal destruction;
-        // the next solve overwrites the fresh owned data and updates its ghosts.
-        PetscOwner<Vec,VecDestroy> fresh;
-        EONSIM_PETSC(VecDuplicate(x.get(),fresh.put()));
-        std::swap(*x.put(),*fresh.put());
+        // VecLockReadPop (PETSc 3.23.7). A MatShell error additionally returns
+        // from KSPSolve_Private before it pops the read lock on its RHS, which
+        // is our persistent residual. Retire both affected Vecs rather than
+        // editing PETSc's lock stack. Normally the deferred action error above
+        // exits through KSP convergence and leaves no locks, but an independent
+        // PETSc error may still return early. SNES/KSP retain old references until
+        // normal workspace destruction; the next solve overwrites owned data,
+        // updates ghosts and prepares the replacement residual's COO plan.
+        PetscOwner<Vec,VecDestroy> fresh_trial,fresh_residual;
+        EONSIM_PETSC(VecDuplicate(x.get(),fresh_trial.put()));
+        if(context.matrix_free) EONSIM_PETSC(VecDuplicate(r.get(),fresh_residual.put()));
+        std::swap(*x.put(),*fresh_trial.put());
+        if(context.matrix_free) std::swap(*r.put(),*fresh_residual.put());
         if(context.recoverable) throw StepRejected(context.error);
         throw std::runtime_error(context.error);
     }
@@ -1358,6 +1559,9 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     result.pc_context_refreshes=workspace.adaptive_pc.context_rebuilds;
     result.pc_monitor_seconds=workspace.adaptive_pc.monitor_seconds;
     result.initial_jacobian_deferred=initial_jacobian_deferred;
+    result.matrix_free_actions=context.matrix_free_actions;
+    result.assembled_pc_reuses=context.assembled_pc_reuses;
+    result.matrix_free_seconds=context.matrix_free_seconds;
     // Always assemble once afresh after SNESSolve. Save the unprojected owned
     // and ghost reactions before replacing constraint rows for acceptance.
     // Both outputs now describe this same evaluation, without a second kernel
@@ -1413,6 +1617,9 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             << " initial_jacobian_reuses=" << result.initial_jacobian_reuses
             << " initial_jacobian_deferred=" << result.initial_jacobian_deferred
             << " user_schur_updates=" << result.user_schur_updates
+            << " matrix_free=" << workspace.matrix_free << " matrix_free_actions=" << result.matrix_free_actions
+            << " assembled_pc_reuses=" << result.assembled_pc_reuses
+            << " matrix_free_seconds_rank0=" << result.matrix_free_seconds
             << " pc_refreshes=" << result.pc_refreshes << " pc_reuses=" << result.pc_reuses
             << " pc_rebuild_retries=" << result.pc_rebuild_retries
             << " pc_drift_refreshes=" << result.pc_drift_refreshes << " pc_age_refreshes=" << result.pc_age_refreshes

@@ -187,3 +187,21 @@ The synthetic solid-wall tube establishes curved-interface implementation and
 small-rank consistency, not patient accuracy or production scalability.
 See [circular tube contract](../development/FSI_CIRCULAR_TUBE.md) and
 [production qualification stages](../development/FSI_PRODUCTION_ROADMAP.md).
+
+
+## 整体多重网格与精确方向算子（FSI-MG-01）
+
+`monolithic_mg` 以完整约束后的流体速度、压力、结构速度和 ALE 混合矩阵建立递归
+Galerkin 层级；物理时间推进仍由同一个 Newton 残量和共同 accepted 状态控制。
+层内 Vanka 的未知量来自实际节点或上一层完整混合聚合体基，不另建交替单场时间推进。
+细层默认图重叠 1，中间层默认额外重叠 0；完整聚合体内物理与谱列不得截断，原完整
+粗矩阵保留跨聚合体耦合。显式重叠扩展超过 patch 上限时共同拒绝，不自动丢行。
+
+候选保持、局部谱增强和能量下降作用于代数转移；它们不改变物理模型，也不自动保证
+一般 FSI 粗层 inf-sup 或网格无关性。正规能量及正规方程 Chebyshev 不把不定 FSI
+Jacobian 视为正定。最粗层可聚合 MPI 进程；中间层仍遵守原 owned/ghost 协议。
+
+精确 matrix-free 单元方向导数与 assembled 预条件矩阵分开，包含 ALE 几何、移动压力面、
+RCR、结构、壁支撑及界面消元链系数。固定入口 lifting 的方向为零，约束行由代数层处理。
+细层外的近似、精度及 P 刷新周期只属于预条件器；最终物理残量与接受门槛保持原约定。
+完整选项、推导和边界见[使用指南](../development/FSI_MONOLITHIC_MULTIGRID.md)。

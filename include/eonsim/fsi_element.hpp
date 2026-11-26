@@ -31,6 +31,12 @@ struct FsiElementResult {
 FsiElementResult fsi_element(const FsiElementData& data,const Tet4Ale::State<double>& state);
 /// 解析体积/梯度导数与固定宽度前向链式传播；包含几何、网格速度和压力面积。
 Tet4Ale::Matrix<double> fsi_element_tangent(const FsiElementData& data,const Tet4Ale::State<double>& state);
+/** Exact directional derivative J(state)*direction, without storing the element
+ * tangent. One forward AD lane includes current geometry, ALE velocity, pressure,
+ * stabilization and moving traction area. No finite-difference step or history mutation.
+ */
+Tet4Ale::State<double> fsi_element_action(const FsiElementData& data,
+    const Tet4Ale::State<double>& state,const Tet4Ale::State<double>& direction);
 /// 中心差分参考，仅用于导数/性能对照；默认求解使用解析几何与前向链式导数。
 Tet4Ale::Matrix<double> fsi_element_tangent_fd(const FsiElementData&,const Tet4Ale::State<double>&);
 
