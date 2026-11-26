@@ -1,11 +1,11 @@
 # RCR 端口 Schur 与低秩预条件器
 
-状态：`codex/rcr-port-schur` 实现完成，本地代数与真实 FSI 验收已通过；交付
+状态：2026-11-26 已合入 main；`codex/rcr-port-schur` 实现完成，本地代数与真实 FSI 验收已通过；交付
 [PR #58](https://github.com/saitoasukakawaii/EONSim-new/pull/58)。基线为已合并 #57 的
 `main@b731d4713ab8428e02fb52af6547e1aa3097eca0`，当前生产源码为
 `28e6d54701abced040752aff70b69d29b35f1d01`，最终物理验证驱动为
 `ad08887f8b357ef16e6a6b49b89d968f531f8053`。源码先同步远程，再构建/执行。
-此处记录本地已执行证据；PR 的远程 CI 与合并状态以对应 head 的检查为准。
+此处记录固定源码证据；#58 已合并，源码 CI 65/65 Release、54/54 Python。后续 #59 增加 RCR bulk 中的高级压力辅助传播与界面校正；见 [高级 PC](FSI_ADVANCED_PRECONDITIONERS.md) 和 [当前能力矩阵](CURRENT_STATUS.md)。
 
 ## 1. 入口与适用范围
 

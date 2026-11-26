@@ -1,6 +1,6 @@
 # 多物理场 HPC：总原则与分层设计入口
 
-状态：采用；2026-10-31 与 main 的 PR #23/#24 同步。P0–P8、B0–B5 及 G0B/G0/G5/G1 已交付，验证最多 4 rank。具体支持组合与证据见 [集成验收](docs/development/FEM_INTEGRATION_VALIDATION.md)；G2/G4 仅有必要子集，其余 G 阶段仍按需求推进。
+状态：采用；2026-11-26 核对至 main `3472a18`（PR #59）。P0–P8、B0–B5、G0B/G0/G5/G1、G2A/B/C 及后续 FSI/HPC 优化已交付；合成曲管曾通过 8 本地 rank，尚无多节点生产验证。最新状态见 [当前能力矩阵](docs/development/CURRENT_STATUS.md)。具体支持组合与证据见 [集成验收](docs/development/FEM_INTEGRATION_VALIDATION.md)；G2/G4 已有必要子集及二维 P2 标量，其余 G 阶段仍按需求推进。
 
 目标是尽快完成可信、可运行、能扩展的多物理场计算链。**先完成再完美；减少重复验证和无用框架；从第一版明确 Debug/Release。** 本文件是 L0 的长期方向和文档入口；具体约束各有唯一归属，不再把所有细节复制在同一长文件里。
 

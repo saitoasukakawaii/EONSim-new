@@ -1,5 +1,7 @@
 # EONSim Knowledge Log
 
+2026-11-26 核对：主线已合入 #59，当前能力与未达目标见 [能力矩阵](../development/CURRENT_STATUS.md)。以下保留各研究检查点、草稿发布状态和实际执行证据。
+
 ## 2026-11-26 · FSI-PC-05：物理粗空间、PCD 边界尺度与空 owner 集体调用
 
 [未发布算法草稿](../../website/drafts/fsi-field-amg-pressure-interface.md)、

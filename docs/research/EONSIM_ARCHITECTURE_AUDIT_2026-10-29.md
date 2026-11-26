@@ -1,6 +1,6 @@
 # EONSim 架构与数值实现审查
 
-2026-10-31 阅读提示：本文保留历史审查及复验。后续已有独立流体 COO、G0 语义 PC、G5 高阶时间与 G1 二维标量交付；持久 SNES/PC 按测量暂缓，完整 Newton 缩放未实现。最新能力与证据见 [集成验收](../development/FEM_INTEGRATION_VALIDATION.md)。
+2026-10-31 阅读提示：本文保留历史审查及复验。后续已有独立流体 COO、G0 语义 PC、G5 高阶时间与 G1 二维标量交付；当时持久 SNES/PC 按测量暂缓。2026-11-26 更新：#52–#57 已交付合资格持久会话、自适应 PC、FSI COO 与 overlap，完整 Newton 缩放仍未实现。最新能力与证据见 [当前能力矩阵](../development/CURRENT_STATUS.md)。
 
 审查日期：2026-10-29。初始基准 commit：`e3c8dbd0521e9cf0f4ad0c6102a164aa65765ad8`，另包含未提交修改。审查期间共享工作区继续更新，本文已按新增源码和针对性复验修订，明确标记已解决的早期发现。后续方案见 [下一阶段详细设计](../architecture/EONSIM_NEXT_STAGE_DESIGN.md)，现行约束仍以各 L1/L2 主题文件为准。
 

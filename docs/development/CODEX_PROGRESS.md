@@ -1,5 +1,7 @@
 # EONSim Codex Development Progress
 
+2026-11-26 主线核对：PR #53–#59 均已合入，当前基线 `3472a18`（#59）。[当前能力矩阵](CURRENT_STATUS.md) 是现状入口；以下按会话保留当时的状态、失败、源码及证据，历史 Draft/review/in_progress 等不表示当前 PR 仍开放。未将既有证据重新计为本次执行。
+
 ## 2026-11-26 · FSI-PC-05：物理粗空间、压力 Schur 与界面混合精度
 
 从已合并 #58 的 `main@af4a7fb` 接续，交付 [PR #59](https://github.com/saitoasukakawaii/EONSim-new/pull/59)。

@@ -1,5 +1,7 @@
 # DoF 语义与预条件分组
 
+2026-11-26：语义分组与编号契约保持。最新 #54–#59 在现有树上增加可选联合速度 GAMG/aggregate/field_amg/BoomerAMG、压力 LSC/BFBt/PCD、界面 patch 与 RCR 外层端口 Schur。并非任意组合有效：quantity 没有压力 Schur，联合 field_amg 需完整 hybrid 或 quantity；详见 [高级 PC](FSI_ADVANCED_PRECONDITIONERS.md)、[端口 PC](RCR_PORT_PRECONDITIONER.md) 及 [当前能力矩阵](CURRENT_STATUS.md)。
+
 独立流体及现有单体刚体/弹性 FSI 可显式选择语义预条件器树：
 
 ```yaml

@@ -1,6 +1,6 @@
 # 知识草稿与选题目录
 
-2026-11-24 核对，共 34 篇技术草稿。下表保留原稿链接，方便追溯历史实验；公开页面在独立的知识、学习或教程栏目编辑。正式展示以网站发布 PR 经人工审阅并合入主线为准。[网站贡献规范](../development/contribution.md) · [研究记录](../../docs/research/KNOWLEDGE_LOG.md)
+2026-11-26 核对，共 48 篇技术草稿（不含本目录索引）。所有草稿保持未发布；源码 PR 已合入不等于文章已发布。最新能力与验证边界见 [当前状态](../../docs/development/CURRENT_STATUS.md)。下表保留原稿链接，方便追溯历史实验；公开页面在独立的知识、学习或教程栏目编辑。正式展示以网站发布 PR 经人工审阅并合入主线为准。[网站贡献规范](../development/contribution.md) · [研究记录](../../docs/research/KNOWLEDGE_LOG.md)
 
 ## 2026-11-25 开发增补
 
@@ -43,3 +43,19 @@
 | Newton 缩放 | [残量验收和坐标缩放](newton-scaling.md) | 整理带单位的两场残量例题，分别复核各场误差和停止条件。 |
 | 离散空间架构 | [通用 FEM 与 DoF 设计](general-fem-dof-architecture.md)、[规范化网格与混合单元](normalized-mesh-and-bilinear-scalar-elements.md) | 对照当前支持的几何与场空间，把已实现组合和设计设想分别列出。 |
 | 研发维护 | [增量 CI 与证据复用](incremental-ci-and-evidence-reuse.md)、[MPI 失败与云端复现](mpi-failure-cloud-reproducibility.md)、[计时日志校验](profile-log-validation.md) | 作为维护者参考。编写排障教程时再选取可复现的故障、输入和观测输出。 |
+
+## 后续增补与其余草稿（2026-11-26）
+
+下列原稿仍待独立人工编辑审阅；源 PR 与发布状态分别核对。原实验的源码、计时和验收范围不变。
+
+- [adaptive pc retry budgets](adaptive-pc-retry-budgets.md)
+- [elastic tube grad div transient](elastic-tube-grad-div-transient.md)
+- [fsi field amg pressure interface](fsi-field-amg-pressure-interface.md)
+- [fsi performance completion](fsi-performance-completion.md)
+- [fsi pressure face work](fsi-pressure-face-work.md)
+- [fsi reference modes and gamg](fsi-reference-modes-and-gamg.md)
+- [fsi runtime cost and output](fsi-runtime-cost-and-output.md)
+- [hpc five track optimization](hpc-five-track-optimization.md)
+- [hpc fixed structure refresh](hpc-fixed-structure-refresh.md)
+- [pressure area and lame wall](pressure-area-and-lame-wall.md)
+- [rcr port schur low rank](rcr-port-schur-low-rank.md)

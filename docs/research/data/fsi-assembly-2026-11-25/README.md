@@ -1,6 +1,6 @@
 # FSI-ASSEMBLY-01：稀疏图与单元装配的实现、验证和成本
 
-日期：2026-11-25。交付 [PR #51](https://github.com/saitoasukakawaii/EONSim-new/pull/51)，保持 Draft，待用户审核合并。
+日期：2026-11-25。交付 [PR #51](https://github.com/saitoasukakawaii/EONSim-new/pull/51)，原交付阶段为 Draft；PR #51 已于 2026-11-25 合入 main `4e25e2a`。下文为原版本证据。
 
 本轮完成最终 AIJ 图转移、固定单元映射缓存、残量/AD 切线融合、界面相邻单元力重放，以及显式 `-fsi_coo` 的压缩贡献计划。
 默认仍为 MatSetValues。正式样本的默认 assembly 配对中位数下降 2.72%–11.81%；COO 下降 30.16%–43.37%。

@@ -2,7 +2,7 @@
 
 状态：采用。MPI/CPU 为首版路径；libCEED、Kokkos、GPU 只在满足触发条件后接入。
 
-2026-10-30 扩展设计见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) §7–8、§10–11：rank 内排列与任意字段 IS 分开；通用图考虑面项/约束支撑；VTU 继续 rank 分片并在完整写入后发布索引；runtime 批次选择 native 模板核。当前 FSI 已有下述可选 OpenMP 批次；高阶和通用设备路径仍按具体需求与测量引入。
+2026-10-30 扩展设计见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) §7–8、§10–11：rank 内排列与任意字段 IS 分开；通用图考虑面项/约束支撑；VTU 继续 rank 分片并在完整写入后发布索引；runtime 批次选择 native 模板核。当前 FSI 已有可选 OpenMP 批次、ghost overlap、稳定字段归约、AD lane SIMD 和 collective HDF5/XDMF 结果输出；详见下文及 [当前能力矩阵](../development/CURRENT_STATUS.md)。高阶和通用设备路径仍按具体需求与测量引入；未证明多节点性能。
 
 ## HPC 的必做项与延后项
 

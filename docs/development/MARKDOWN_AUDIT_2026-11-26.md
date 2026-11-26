@@ -1,0 +1,205 @@
+# 全仓 Markdown 进度核对（2026-11-26）
+
+固定主线：[3472a18](https://github.com/saitoasukakawaii/EONSim-new/commit/3472a18a5c7ad112084ec551a28a11d84bd3c4e7)（PR #59 已合并）。Git tree 递归清单未截断；范围为该基线全部 185 份 Git 管理的 Markdown，不含依赖、构建产物和未跟踪文件。
+
+## 方法与处理结果
+
+- 以 GitHub 合并记录、最新算法文档、测试和原证据中的范围为依据；对文件内容做批量状态/过时语句扫描，再针对当前状态、路线、架构、使用和发布入口做定点校正。此为文档一致性审查，不是对所有数学推导、代码或原始数值文件的逐行再审计。
+- 新建 [当前能力矩阵](CURRENT_STATUS.md)，集中区分实现、启用条件、验证和仍开放的性能/生产目标。
+- 修正旧 FSI COO、SNES/PC 生命周期、MPI overlap、二维 P2、并行规模上限、PR 合并与草稿计数；对历史记录只增加后续状态或修正标题中的过时交付状态，保留历史原实验、失败、阈值、版本和原始数据。
+- 不改生产源码、配置、CI、算例、数值容差、原始 JSON/CSV/日志/归档；不晋升网站草稿，也不把历史 CI 证据算作本次执行。此次仅核对 Git 树与文本，不运行数值或本地网站构建；PR 的正式 CI 与人工审查尚需实际完成。
+- 文档树比较（不含本审查记录）：50 份原文档修改，1 份新增，135 份原文件保留。所有变化均为 Markdown。未改文件不是宣称已经逐行验证其全部数学内容。
+
+## 逐文件清单
+
+“更新”指有实际文本差异；“保留”指基于范围、历史证据或选题用途未作无依据改写。
+
+| 文件 | 处理 |
+|---|---|
+| [`.agents/skills/eonsim-knowledge-capture/SKILL.md`](../../.agents/skills/eonsim-knowledge-capture/SKILL.md) | 保留 |
+| [`AGENTS.md`](../../AGENTS.md) | 更新 |
+| [`MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md`](../../MULTIPHYSICS_HPC_DESIGN_PRINCIPLES.md) | 更新 |
+| [`README.md`](../../README.md) | 更新 |
+| [`docs/architecture/EONSIM_NEXT_STAGE_DESIGN.md`](../../docs/architecture/EONSIM_NEXT_STAGE_DESIGN.md) | 更新 |
+| [`docs/architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md`](../../docs/architecture/FEM_G0A_DOF_AND_BLOCK_DESIGN.md) | 保留 |
+| [`docs/architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md`](../../docs/architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) | 更新 |
+| [`docs/architecture/L1_LAYERS_AND_DEPENDENCIES.md`](../../docs/architecture/L1_LAYERS_AND_DEPENDENCIES.md) | 更新 |
+| [`docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md`](../../docs/architecture/L2_DISCRETIZATION_AND_OPERATORS.md) | 更新 |
+| [`docs/architecture/L2_MONOLITHIC_FSI.md`](../../docs/architecture/L2_MONOLITHIC_FSI.md) | 更新 |
+| [`docs/architecture/L2_MULTIPHYSICS_AND_STATE.md`](../../docs/architecture/L2_MULTIPHYSICS_AND_STATE.md) | 保留 |
+| [`docs/architecture/L2_PARALLEL_MEMORY_AND_BACKENDS.md`](../../docs/architecture/L2_PARALLEL_MEMORY_AND_BACKENDS.md) | 更新 |
+| [`docs/development/AGENTS_AND_SKILLS.md`](../../docs/development/AGENTS_AND_SKILLS.md) | 更新 |
+| [`docs/development/AGENT_AUTO_MERGE.md`](../../docs/development/AGENT_AUTO_MERGE.md) | 保留 |
+| [`docs/development/AUTO_MERGE_SMOKE_2026-11-13.md`](../../docs/development/AUTO_MERGE_SMOKE_2026-11-13.md) | 保留 |
+| [`docs/development/B5_ACCURACY_AND_PERFORMANCE.md`](../../docs/development/B5_ACCURACY_AND_PERFORMANCE.md) | 保留 |
+| [`docs/development/BRANCH_CLEANUP_2026-10-31.md`](../../docs/development/BRANCH_CLEANUP_2026-10-31.md) | 保留 |
+| [`docs/development/BRANCH_INTEGRATION_2026-10-30.md`](../../docs/development/BRANCH_INTEGRATION_2026-10-30.md) | 保留 |
+| [`docs/development/BUILD_AND_VALIDATION.md`](../../docs/development/BUILD_AND_VALIDATION.md) | 更新 |
+| [`docs/development/CLOUD_ENVIRONMENT_DIAGNOSTICS_2026-10-30.md`](../../docs/development/CLOUD_ENVIRONMENT_DIAGNOSTICS_2026-10-30.md) | 保留 |
+| [`docs/development/CODEX_GOAL_WORKFLOW.md`](../../docs/development/CODEX_GOAL_WORKFLOW.md) | 更新 |
+| [`docs/development/CODEX_PROGRESS.md`](../../docs/development/CODEX_PROGRESS.md) | 更新 |
+| [`docs/development/CODEX_SESSION_LOG.md`](../../docs/development/CODEX_SESSION_LOG.md) | 更新 |
+| [`docs/development/CODEX_TASK_QUEUE.md`](../../docs/development/CODEX_TASK_QUEUE.md) | 更新 |
+| [`docs/development/DOCUMENTATION_AND_COMMENTS.md`](../../docs/development/DOCUMENTATION_AND_COMMENTS.md) | 更新 |
+| [`docs/development/DOF_AND_PC_GROUPING.md`](../../docs/development/DOF_AND_PC_GROUPING.md) | 更新 |
+| [`docs/development/EONSim_ENGINEERING_PROGRAM.md`](../../docs/development/EONSim_ENGINEERING_PROGRAM.md) | 更新 |
+| [`docs/development/FEM_INTEGRATION_VALIDATION.md`](../../docs/development/FEM_INTEGRATION_VALIDATION.md) | 保留 |
+| [`docs/development/FSI_ADVANCED_PRECONDITIONERS.md`](../../docs/development/FSI_ADVANCED_PRECONDITIONERS.md) | 更新 |
+| [`docs/development/FSI_BLOCK_PRECONDITIONER.md`](../../docs/development/FSI_BLOCK_PRECONDITIONER.md) | 更新 |
+| [`docs/development/FSI_CIRCULAR_TUBE.md`](../../docs/development/FSI_CIRCULAR_TUBE.md) | 保留 |
+| [`docs/development/FSI_INLET_AND_RELIABILITY.md`](../../docs/development/FSI_INLET_AND_RELIABILITY.md) | 保留 |
+| [`docs/development/FSI_NEXT_03_RECOVERY.md`](../../docs/development/FSI_NEXT_03_RECOVERY.md) | 更新 |
+| [`docs/development/FSI_PERIODIC_CONVERGENCE.md`](../../docs/development/FSI_PERIODIC_CONVERGENCE.md) | 更新 |
+| [`docs/development/FSI_PERIODIC_FLOW.md`](../../docs/development/FSI_PERIODIC_FLOW.md) | 更新 |
+| [`docs/development/FSI_PRESSURE_HISTORY.md`](../../docs/development/FSI_PRESSURE_HISTORY.md) | 保留 |
+| [`docs/development/FSI_PRODUCTION_ROADMAP.md`](../../docs/development/FSI_PRODUCTION_ROADMAP.md) | 更新 |
+| [`docs/development/FSI_RUNTIME_OPTIMIZATION.md`](../../docs/development/FSI_RUNTIME_OPTIMIZATION.md) | 更新 |
+| [`docs/development/FSI_WALL_SUPPORT.md`](../../docs/development/FSI_WALL_SUPPORT.md) | 保留 |
+| [`docs/development/MARKDOWN_AUDIT_2026-10-31.md`](../../docs/development/MARKDOWN_AUDIT_2026-10-31.md) | 保留 |
+| [`docs/development/PERFORMANCE_BASELINE.md`](../../docs/development/PERFORMANCE_BASELINE.md) | 保留 |
+| [`docs/development/PRESSURIZED_ELASTIC_TUBE.md`](../../docs/development/PRESSURIZED_ELASTIC_TUBE.md) | 保留 |
+| [`docs/development/RCR_PORT_PRECONDITIONER.md`](../../docs/development/RCR_PORT_PRECONDITIONER.md) | 更新 |
+| [`docs/development/RIGID_TUBE_QUALIFICATION.md`](../../docs/development/RIGID_TUBE_QUALIFICATION.md) | 保留 |
+| [`docs/development/ROADMAP.md`](../../docs/development/ROADMAP.md) | 更新 |
+| [`docs/development/SCALAR_2D.md`](../../docs/development/SCALAR_2D.md) | 更新 |
+| [`docs/development/TIME_INTEGRATION.md`](../../docs/development/TIME_INTEGRATION.md) | 更新 |
+| [`docs/development/WOMERSLEY_FLOW.md`](../../docs/development/WOMERSLEY_FLOW.md) | 保留 |
+| [`docs/doxygen/index.md`](../../docs/doxygen/index.md) | 更新 |
+| [`docs/research/ASSEMBLY_PHASE_BASELINE_2026-10-30.md`](../../docs/research/ASSEMBLY_PHASE_BASELINE_2026-10-30.md) | 保留 |
+| [`docs/research/EONSIM_ARCHITECTURE_AUDIT_2026-10-29.md`](../../docs/research/EONSIM_ARCHITECTURE_AUDIT_2026-10-29.md) | 更新 |
+| [`docs/research/EONSIM_PERIGEE_REVIEW.md`](../../docs/research/EONSIM_PERIGEE_REVIEW.md) | 保留 |
+| [`docs/research/FEM_FRAMEWORK_LEARNING_2026-10-30.md`](../../docs/research/FEM_FRAMEWORK_LEARNING_2026-10-30.md) | 保留 |
+| [`docs/research/FLUID_COO_ASSEMBLY_2026-10-30.md`](../../docs/research/FLUID_COO_ASSEMBLY_2026-10-30.md) | 更新 |
+| [`docs/research/FLUID_ELEMENT_OVERHEAD_2026-10-30.md`](../../docs/research/FLUID_ELEMENT_OVERHEAD_2026-10-30.md) | 保留 |
+| [`docs/research/HPC_UPSTREAM_REVIEW_2026-11-24.md`](../../docs/research/HPC_UPSTREAM_REVIEW_2026-11-24.md) | 更新 |
+| [`docs/research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md`](../../docs/research/INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md) | 保留 |
+| [`docs/research/KNOWLEDGE_LOG.md`](../../docs/research/KNOWLEDGE_LOG.md) | 更新 |
+| [`docs/research/MULTISTEP_SETUP_PROFILE_2026-10-30.md`](../../docs/research/MULTISTEP_SETUP_PROFILE_2026-10-30.md) | 更新 |
+| [`docs/research/NEWTON_SCALING_SPEC_2026-10-30.md`](../../docs/research/NEWTON_SCALING_SPEC_2026-10-30.md) | 保留 |
+| [`docs/research/NONLINEAR_SETUP_BASELINE_2026-10-30.md`](../../docs/research/NONLINEAR_SETUP_BASELINE_2026-10-30.md) | 更新 |
+| [`docs/research/PETSC_LIFECYCLE_AUDIT_2026-10-30.md`](../../docs/research/PETSC_LIFECYCLE_AUDIT_2026-10-30.md) | 更新 |
+| [`docs/research/SCHUR_MESH_PROFILE_2026-10-30.md`](../../docs/research/SCHUR_MESH_PROFILE_2026-10-30.md) | 保留 |
+| [`docs/research/TRANSIENT_ASSEMBLY_PROFILE_2026-10-30.md`](../../docs/research/TRANSIENT_ASSEMBLY_PROFILE_2026-10-30.md) | 更新 |
+| [`docs/research/UPSTREAM_ARCHITECTURE_REVIEW.md`](../../docs/research/UPSTREAM_ARCHITECTURE_REVIEW.md) | 保留 |
+| [`docs/research/data/adaptive-retry-budget-2026-11-26/README.md`](../../docs/research/data/adaptive-retry-budget-2026-11-26/README.md) | 保留 |
+| [`docs/research/data/fsi-advanced-2026-11-26/README.md`](../../docs/research/data/fsi-advanced-2026-11-26/README.md) | 保留 |
+| [`docs/research/data/fsi-assembly-2026-11-25/README.md`](../../docs/research/data/fsi-assembly-2026-11-25/README.md) | 更新 |
+| [`docs/research/data/fsi-block-2026-11-25/README.md`](../../docs/research/data/fsi-block-2026-11-25/README.md) | 更新 |
+| [`docs/research/data/fsi-block-efficiency-2026-11-25/README.md`](../../docs/research/data/fsi-block-efficiency-2026-11-25/README.md) | 保留 |
+| [`docs/research/data/fsi-block-multilevel-2026-11-26/README.md`](../../docs/research/data/fsi-block-multilevel-2026-11-26/README.md) | 保留 |
+| [`docs/research/data/fsi-flow-2026-11-03/README.md`](../../docs/research/data/fsi-flow-2026-11-03/README.md) | 保留 |
+| [`docs/research/data/fsi-linear-transient-2026-11-24/README.md`](../../docs/research/data/fsi-linear-transient-2026-11-24/README.md) | 保留 |
+| [`docs/research/data/fsi-linear-transient-2026-11-24/arterial-solvers.md`](../../docs/research/data/fsi-linear-transient-2026-11-24/arterial-solvers.md) | 保留 |
+| [`docs/research/data/fsi-linear-transient-2026-11-24/axisymmetric.md`](../../docs/research/data/fsi-linear-transient-2026-11-24/axisymmetric.md) | 保留 |
+| [`docs/research/data/fsi-linear-transient-2026-11-24/bipn-residual.md`](../../docs/research/data/fsi-linear-transient-2026-11-24/bipn-residual.md) | 保留 |
+| [`docs/research/data/fsi-linear-transient-2026-11-24/discrete-metric.md`](../../docs/research/data/fsi-linear-transient-2026-11-24/discrete-metric.md) | 保留 |
+| [`docs/research/data/fsi-linear-transient-2026-11-24/harmonic.md`](../../docs/research/data/fsi-linear-transient-2026-11-24/harmonic.md) | 保留 |
+| [`docs/research/data/fsi-linear-transient-2026-11-24/perfusion.md`](../../docs/research/data/fsi-linear-transient-2026-11-24/perfusion.md) | 保留 |
+| [`docs/research/data/fsi-linear-transient-2026-11-24/scaled-tubes.md`](../../docs/research/data/fsi-linear-transient-2026-11-24/scaled-tubes.md) | 保留 |
+| [`docs/research/data/fsi-linear-transient-2026-11-24/tet-order.md`](../../docs/research/data/fsi-linear-transient-2026-11-24/tet-order.md) | 保留 |
+| [`docs/research/data/fsi-linear-transient-2026-11-24/time-scale.md`](../../docs/research/data/fsi-linear-transient-2026-11-24/time-scale.md) | 保留 |
+| [`docs/research/data/fsi-next-03/README.md`](../../docs/research/data/fsi-next-03/README.md) | 更新 |
+| [`docs/research/data/fsi-next-03/local-recovery-2026-11-05/README.md`](../../docs/research/data/fsi-next-03/local-recovery-2026-11-05/README.md) | 更新 |
+| [`docs/research/data/fsi-next-03/local-recovery-2026-11-05/result-tables.md`](../../docs/research/data/fsi-next-03/local-recovery-2026-11-05/result-tables.md) | 保留 |
+| [`docs/research/data/fsi-next-03/time-accuracy-final/README.md`](../../docs/research/data/fsi-next-03/time-accuracy-final/README.md) | 保留 |
+| [`docs/research/data/fsi-next-2026-11-03/README.md`](../../docs/research/data/fsi-next-2026-11-03/README.md) | 保留 |
+| [`docs/research/data/fsi-performance-2026-11-25/README.md`](../../docs/research/data/fsi-performance-2026-11-25/README.md) | 保留 |
+| [`docs/research/data/fsi-phase-costs-2026-11-24/README.md`](../../docs/research/data/fsi-phase-costs-2026-11-24/README.md) | 保留 |
+| [`docs/research/data/fsi-phase-costs-2026-11-24/mass-history.md`](../../docs/research/data/fsi-phase-costs-2026-11-24/mass-history.md) | 保留 |
+| [`docs/research/data/fsi-phase-costs-2026-11-24/moments.md`](../../docs/research/data/fsi-phase-costs-2026-11-24/moments.md) | 保留 |
+| [`docs/research/data/fsi-pressure-2026-11-03/README.md`](../../docs/research/data/fsi-pressure-2026-11-03/README.md) | 保留 |
+| [`docs/research/data/fsi-pressure-faces-2026-11-24/README.md`](../../docs/research/data/fsi-pressure-faces-2026-11-24/README.md) | 保留 |
+| [`docs/research/data/fsi-rcr-2026-11-24/README.md`](../../docs/research/data/fsi-rcr-2026-11-24/README.md) | 保留 |
+| [`docs/research/data/fsi-rcr-2026-11-24/branched.md`](../../docs/research/data/fsi-rcr-2026-11-24/branched.md) | 保留 |
+| [`docs/research/data/fsi-rcr-2026-11-24/curved.md`](../../docs/research/data/fsi-rcr-2026-11-24/curved.md) | 保留 |
+| [`docs/research/data/fsi-rcr-2026-11-24/junction-harmonic.md`](../../docs/research/data/fsi-rcr-2026-11-24/junction-harmonic.md) | 保留 |
+| [`docs/research/data/fsi-rcr-2026-11-24/planar-outlets.md`](../../docs/research/data/fsi-rcr-2026-11-24/planar-outlets.md) | 保留 |
+| [`docs/research/data/fsi-rcr-2026-11-24/reservoir-pressure.md`](../../docs/research/data/fsi-rcr-2026-11-24/reservoir-pressure.md) | 保留 |
+| [`docs/research/data/fsi-runtime-2026-11-26/README.md`](../../docs/research/data/fsi-runtime-2026-11-26/README.md) | 保留 |
+| [`docs/research/data/fsi-smooth-load-2026-11-24/README.md`](../../docs/research/data/fsi-smooth-load-2026-11-24/README.md) | 保留 |
+| [`docs/research/data/fsi-smooth-load-2026-11-24/release-validation.md`](../../docs/research/data/fsi-smooth-load-2026-11-24/release-validation.md) | 保留 |
+| [`docs/research/data/fsi-tube-2026-11-06/README.md`](../../docs/research/data/fsi-tube-2026-11-06/README.md) | 保留 |
+| [`docs/research/data/fsi-wall-support-2026-11-24/README.md`](../../docs/research/data/fsi-wall-support-2026-11-24/README.md) | 保留 |
+| [`docs/research/data/hpc-five-track-2026-11-26/README.md`](../../docs/research/data/hpc-five-track-2026-11-26/README.md) | 保留 |
+| [`docs/research/data/hpc-followup-2026-11-26/README.md`](../../docs/research/data/hpc-followup-2026-11-26/README.md) | 保留 |
+| [`docs/research/data/lame-wall-2026-11-20/README.md`](../../docs/research/data/lame-wall-2026-11-20/README.md) | 保留 |
+| [`docs/research/data/rcr-port-2026-11-26/README.md`](../../docs/research/data/rcr-port-2026-11-26/README.md) | 保留 |
+| [`docs/research/data/rigid-tube-2026-11-06/README.md`](../../docs/research/data/rigid-tube-2026-11-06/README.md) | 保留 |
+| [`docs/research/data/rigid-tube-seeds-2026-11-07/README.md`](../../docs/research/data/rigid-tube-seeds-2026-11-07/README.md) | 保留 |
+| [`docs/research/data/tet4-viscosity-2026-11-24/README.md`](../../docs/research/data/tet4-viscosity-2026-11-24/README.md) | 保留 |
+| [`docs/research/data/womersley-2026-11-20/README.md`](../../docs/research/data/womersley-2026-11-20/README.md) | 保留 |
+| [`docs/skill-templates/hpc-feature/SKILL.md`](../../docs/skill-templates/hpc-feature/SKILL.md) | 保留 |
+| [`environments/README.md`](../../environments/README.md) | 保留 |
+| [`website/README.md`](../../website/README.md) | 保留 |
+| [`website/development/contribution.md`](../../website/development/contribution.md) | 保留 |
+| [`website/development/index.md`](../../website/development/index.md) | 更新 |
+| [`website/drafts/README.md`](../../website/drafts/README.md) | 更新 |
+| [`website/drafts/adaptive-pc-retry-budgets.md`](../../website/drafts/adaptive-pc-retry-budgets.md) | 保留 |
+| [`website/drafts/assembled-permutation-and-pc-verification.md`](../../website/drafts/assembled-permutation-and-pc-verification.md) | 保留 |
+| [`website/drafts/assembly-phase-baseline.md`](../../website/drafts/assembly-phase-baseline.md) | 保留 |
+| [`website/drafts/assembly-phase-timers.md`](../../website/drafts/assembly-phase-timers.md) | 保留 |
+| [`website/drafts/bdf2-time-error-and-stabilization.md`](../../website/drafts/bdf2-time-error-and-stabilization.md) | 保留 |
+| [`website/drafts/dof-semantics-and-nested-fsi-blocks.md`](../../website/drafts/dof-semantics-and-nested-fsi-blocks.md) | 保留 |
+| [`website/drafts/elastic-tube-grad-div-transient.md`](../../website/drafts/elastic-tube-grad-div-transient.md) | 保留 |
+| [`website/drafts/fluid-coo-assembly.md`](../../website/drafts/fluid-coo-assembly.md) | 保留 |
+| [`website/drafts/fluid-element-overhead.md`](../../website/drafts/fluid-element-overhead.md) | 保留 |
+| [`website/drafts/fluid-element-timing.md`](../../website/drafts/fluid-element-timing.md) | 保留 |
+| [`website/drafts/fsi-circular-inlet-discrete-flux.md`](../../website/drafts/fsi-circular-inlet-discrete-flux.md) | 保留 |
+| [`website/drafts/fsi-field-amg-pressure-interface.md`](../../website/drafts/fsi-field-amg-pressure-interface.md) | 保留 |
+| [`website/drafts/fsi-inlet-endpoint-and-resolution.md`](../../website/drafts/fsi-inlet-endpoint-and-resolution.md) | 保留 |
+| [`website/drafts/fsi-nested-schur-twolevel.md`](../../website/drafts/fsi-nested-schur-twolevel.md) | 更新 |
+| [`website/drafts/fsi-performance-completion.md`](../../website/drafts/fsi-performance-completion.md) | 保留 |
+| [`website/drafts/fsi-periodic-flow-mass-budget.md`](../../website/drafts/fsi-periodic-flow-mass-budget.md) | 保留 |
+| [`website/drafts/fsi-periodic-pressure-history.md`](../../website/drafts/fsi-periodic-pressure-history.md) | 保留 |
+| [`website/drafts/fsi-periodic-state-and-error-separation.md`](../../website/drafts/fsi-periodic-state-and-error-separation.md) | 保留 |
+| [`website/drafts/fsi-pressure-face-work.md`](../../website/drafts/fsi-pressure-face-work.md) | 保留 |
+| [`website/drafts/fsi-reference-modes-and-gamg.md`](../../website/drafts/fsi-reference-modes-and-gamg.md) | 保留 |
+| [`website/drafts/fsi-runtime-cost-and-output.md`](../../website/drafts/fsi-runtime-cost-and-output.md) | 更新 |
+| [`website/drafts/fsi-schur-response-cost.md`](../../website/drafts/fsi-schur-response-cost.md) | 保留 |
+| [`website/drafts/fsi-sparse-assembly-plan.md`](../../website/drafts/fsi-sparse-assembly-plan.md) | 保留 |
+| [`website/drafts/general-fem-dof-architecture.md`](../../website/drafts/general-fem-dof-architecture.md) | 保留 |
+| [`website/drafts/generalized-alpha-stage-and-physical-output.md`](../../website/drafts/generalized-alpha-stage-and-physical-output.md) | 保留 |
+| [`website/drafts/hpc-five-track-optimization.md`](../../website/drafts/hpc-five-track-optimization.md) | 保留 |
+| [`website/drafts/hpc-fixed-structure-refresh.md`](../../website/drafts/hpc-fixed-structure-refresh.md) | 保留 |
+| [`website/drafts/incremental-ci-and-evidence-reuse.md`](../../website/drafts/incremental-ci-and-evidence-reuse.md) | 保留 |
+| [`website/drafts/linear-solve-ksp-lifetime.md`](../../website/drafts/linear-solve-ksp-lifetime.md) | 保留 |
+| [`website/drafts/mpi-failure-cloud-reproducibility.md`](../../website/drafts/mpi-failure-cloud-reproducibility.md) | 保留 |
+| [`website/drafts/multistep-setup-profile.md`](../../website/drafts/multistep-setup-profile.md) | 更新 |
+| [`website/drafts/newton-scaling.md`](../../website/drafts/newton-scaling.md) | 保留 |
+| [`website/drafts/nonlinear-setup-baseline.md`](../../website/drafts/nonlinear-setup-baseline.md) | 保留 |
+| [`website/drafts/normalized-mesh-and-bilinear-scalar-elements.md`](../../website/drafts/normalized-mesh-and-bilinear-scalar-elements.md) | 保留 |
+| [`website/drafts/p2-edge-space-poisson.md`](../../website/drafts/p2-edge-space-poisson.md) | 保留 |
+| [`website/drafts/p2-transient-history.md`](../../website/drafts/p2-transient-history.md) | 保留 |
+| [`website/drafts/petsc-object-lifetime.md`](../../website/drafts/petsc-object-lifetime.md) | 保留 |
+| [`website/drafts/pressure-area-and-lame-wall.md`](../../website/drafts/pressure-area-and-lame-wall.md) | 保留 |
+| [`website/drafts/profile-log-validation.md`](../../website/drafts/profile-log-validation.md) | 保留 |
+| [`website/drafts/rcr-port-schur-low-rank.md`](../../website/drafts/rcr-port-schur-low-rank.md) | 保留 |
+| [`website/drafts/rigid-tube-geometry-and-mixed-boundaries.md`](../../website/drafts/rigid-tube-geometry-and-mixed-boundaries.md) | 保留 |
+| [`website/drafts/schur-mesh-profile.md`](../../website/drafts/schur-mesh-profile.md) | 保留 |
+| [`website/drafts/semantic-blocks-and-parent-numbering.md`](../../website/drafts/semantic-blocks-and-parent-numbering.md) | 保留 |
+| [`website/drafts/solver-level-dimensions.md`](../../website/drafts/solver-level-dimensions.md) | 保留 |
+| [`website/drafts/tet4-viscous-work-and-ale-tangents.md`](../../website/drafts/tet4-viscous-work-and-ale-tangents.md) | 保留 |
+| [`website/drafts/transient-assembly-profile.md`](../../website/drafts/transient-assembly-profile.md) | 保留 |
+| [`website/drafts/tube-field-errors-and-local-mass.md`](../../website/drafts/tube-field-errors-and-local-mass.md) | 保留 |
+| [`website/drafts/womersley-flow-and-pressure-traces.md`](../../website/drafts/womersley-flow-and-pressure-traces.md) | 保留 |
+| [`website/index.md`](../../website/index.md) | 保留 |
+| [`website/knowledge/ale-mass-budget.md`](../../website/knowledge/ale-mass-budget.md) | 保留 |
+| [`website/knowledge/index.md`](../../website/knowledge/index.md) | 保留 |
+| [`website/knowledge/monolithic-fsi.md`](../../website/knowledge/monolithic-fsi.md) | 更新 |
+| [`website/knowledge/parallel-sparse-assembly.md`](../../website/knowledge/parallel-sparse-assembly.md) | 更新 |
+| [`website/knowledge/tet4-viscosity.md`](../../website/knowledge/tet4-viscosity.md) | 保留 |
+| [`website/knowledge/womersley-verification.md`](../../website/knowledge/womersley-verification.md) | 保留 |
+| [`website/learning/cfd.md`](../../website/learning/cfd.md) | 保留 |
+| [`website/learning/fem.md`](../../website/learning/fem.md) | 保留 |
+| [`website/learning/hpc.md`](../../website/learning/hpc.md) | 保留 |
+| [`website/learning/index.md`](../../website/learning/index.md) | 保留 |
+| [`website/learning/open-source-hpc.md`](../../website/learning/open-source-hpc.md) | 保留 |
+| [`website/templates/algorithm-note.md`](../../website/templates/algorithm-note.md) | 保留 |
+| [`website/templates/benchmark-report.md`](../../website/templates/benchmark-report.md) | 保留 |
+| [`website/templates/development-log.md`](../../website/templates/development-log.md) | 保留 |
+| [`website/templates/knowledge-article.md`](../../website/templates/knowledge-article.md) | 保留 |
+| [`website/tutorials/build-and-run.md`](../../website/tutorials/build-and-run.md) | 更新 |
+| [`website/tutorials/index.md`](../../website/tutorials/index.md) | 保留 |
+| [`website/tutorials/p2-verification.md`](../../website/tutorials/p2-verification.md) | 保留 |
+
+新增：[CURRENT_STATUS.md](CURRENT_STATUS.md) 及本核对记录。

@@ -1,14 +1,18 @@
 # 开发路线：独立求解器 → 单体刚体 FSI → 单体弹性体 FSI
 
-状态：2026-10-31 更新；P0–P8、B0–B5 及 G0B/G0/G5/G1 已交付，最大并行验收为 4 rank。用户已确定单体 FSI 为主线，**分离式耦合在该主线交付后再做**。当前阶段安排以本文件为准。
+状态：2026-11-26 核对至 main `3472a18`（PR #59）；P0–P8、B0–B5、G0B/G0/G5/G1 与 G2A/B/C 已交付。合成曲管曾通过 8 个本地 MPI rank，最新代数检查覆盖 1/2/4 rank；尚无多节点生产资格认证。用户已确定单体 FSI 为主线，**分离式耦合在该主线交付后再做**。当前阶段安排以本文件为准。
 
-## 通用 FEM 扩展：G0B/G0/G5/G1 已交付
+## 当前主线与优先级
 
-原规划基线为 `38a5e51`（PR #21）；后续 G0B → G0 → G5 → G1 已通过 PR #23 合入 main，见 [集成验收](FEM_INTEGRATION_VALIDATION.md)。G2/G4 仅交付二维标量所需子集，G2/G3/G4/G6/G7/G8 的完整目标仍 deferred。详细契约见 [通用 FEM 规划](../architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) §13，学习路线见 [20 组上游项目](../research/FEM_FRAMEWORK_LEARNING_2026-10-30.md)。PR #24 已固化主力 PETSc CI 与知识积累规则；下一功能任务由具体需求触发。
+[当前能力矩阵](CURRENT_STATUS.md) 汇总主线实现、精确开关、源证据与建议优先级。PR #51–#59 已合入：FSI 固定图/COO、单元与运行优化、Block AMG、MPI overlap/SIMD、自适应 PC、HDF5、RCR 端口 Schur、物理粗空间及压力/界面 PC。下一阶段应以网格增长、真实附加质量鲁棒性、端到端成本、多节点和生理验证为验收目标；实现并不等于性能目标关闭。原 P/B/G 记录是阶段证据，不是当前完整能力清单。
+
+## 通用 FEM 扩展：G0B/G0/G5/G1 与 G2A/B/C 已交付
+
+原规划基线为 `38a5e51`（PR #21）；后续 G0B → G0 → G5 → G1 已通过 PR #23 合入 main，见 [集成验收](FEM_INTEGRATION_VALIDATION.md)。G2/G4 已交付二维标量所需子集；后续 #27–#29 交付直边 Tri3/P2 稳态、Robin/纯 Neumann 及瞬态扩散。G2/G3/G4/G6/G7/G8 的完整通用目标仍 deferred。详细契约见 [通用 FEM 规划](../architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) §13，学习路线见 [20 组上游项目](../research/FEM_FRAMEWORK_LEARNING_2026-10-30.md)。PR #24 已固化主力 PETSc CI 与知识积累规则；下一功能任务由具体需求触发。
 
 依赖主线是 G0（DoF 语义/分组）→ G1/G2（拓扑/空间/边界）→ G3/G4（Hex/混合、图与输出）→ G6（非一致界面）；G5（BE 适配→BDF2→generalized-α）可在接口稳定后独立推进，G7（高阶执行）需目标规模与预条件方案，G8 的配置易用性随各阶段交付。每次仅推进一个垂直案例，不先实现空框架。
 
-PR #21 的固定 COO 仅覆盖独立流体 Jacobian。持久化 SNES/PC 继续按已完成的 setup 测量暂缓；这些事实不因扩大架构愿景而改变。以下 P/B 阶段是历史实现路线与证据，不能据其“已完成”推断新 G 阶段能力。
+PR #21 的历史 COO 仅覆盖独立流体 Jacobian；#51–#53 已扩展到可选 FSI Jacobian COO、默认固定残量 COO 和合资格的跨 solve SNES/KSP/PC 复用；#55–#57 已增加可选 ghost overlap、自适应数值 PC/USER Schur 刷新和预算修复。以下 P/B 阶段是历史实现路线与证据，不能据其“已完成”推断新 G 阶段能力。
 
 ## 基础完善路线（P0–P8 之后）
 

@@ -2,7 +2,7 @@
 
 状态：采用。首版以 assembled 低阶 FEM 为执行路径；高阶、partial assembly 和 matrix-free 为需求触发的扩展。
 
-2026-10-30 的扩展契约集中于 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)：§4 区分空间/基/DoF 泛函，§5 规定一般边界与 lifting，§7 分离排列和 PC 树，§8 从形式项及约束支撑生成图，§11 规定批次模板分派。G0 已接入语义身份与 PC 树，G1 已实现二维标量所需边界和图/输出子集；完整多阶空间、通用形式图和高阶批次仍待实现。独立流体 COO 的范围不变。
+2026-10-30 的扩展契约集中于 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)：§4 区分空间/基/DoF 泛函，§5 规定一般边界与 lifting，§7 分离排列和 PC 树，§8 从形式项及约束支撑生成图，§11 规定批次模板分派。G0 已接入语义身份与 PC 树，G1 已实现二维标量所需边界和图/输出子集；完整多阶空间、通用形式图和高阶批次仍待实现。后续 #51–#53 已交付固定 FSI 图、可选 FSI Jacobian COO、默认固定残量 COO 及合资格持久求解会话；#55–#59 新增自适应 PC/USER 数值刷新、RCR port Schur、field AMG 与压力/界面 PC，具体支持见 [当前能力矩阵](../development/CURRENT_STATUS.md)。
 
 ### 物理场的实现顺序
 

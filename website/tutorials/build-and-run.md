@@ -1,5 +1,7 @@
 # 构建与运行 EONSim
 
+2026-11-26 进度补注：当前默认 CPU/PETSc 路径保留；可选 FSI COO、MPI overlap、HDF5、FSI/RCR PC 及支持限制见 [当前能力矩阵](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/development/CURRENT_STATUS.md)。这些开关并非所有算例通用。
+
 本教程对应公开仓库当前的 CMake presets 和 README。依赖版本、平台和编译器组合可能变化；遇到配置问题时，先检查 PETSc、MPI、BLAS/LAPACK 的 ABI 是否一致。
 
 ## 1. 主要依赖

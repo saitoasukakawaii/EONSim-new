@@ -20,8 +20,8 @@ date: "2026-11-26"
 [FSI-PERF-03 证据索引](../../docs/research/data/fsi-runtime-2026-11-26/README.md)。
 
 开发与验收已经完成。最近的 GitHub 权威核验显示 [PR #53](https://github.com/saitoasukakawaii/EONSim-new/pull/53)
-为 open / Draft、head `7d86f38`，尚未合并；最终证据 head 的四项保护检查通过后按用户授权合并。
-PR 状态后续以 GitHub 为准。本文保持 `contentStatus: draft`，未公开发布。
+原交付时为 open / Draft、head `7d86f38`；PR #53 已于 2026-11-26 合入 main `858f021`。
+源码 PR 已合入；本文保持 `contentStatus: draft`，未公开发布。
 
 ## 开发前状态：先辨认重复的工作
 

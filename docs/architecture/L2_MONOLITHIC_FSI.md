@@ -1,6 +1,6 @@
 # L2：单体刚体与弹性体 FSI 的实现契约
 
-状态：采用，2026-10-31 更新。P5–P8、B3/B5 及 G0 语义 PC、G5 时间扩展均已有实现；下文区分当前能力与后续扩展。本项目的离散方案不代表上游项目采用同一离散。开发次序见 [路线与工作流程](../development/ROADMAP.md)，通用历史规则见 [多物理场与状态](L2_MULTIPHYSICS_AND_STATE.md)，进一步审查与方案见 [下一阶段详细设计](EONSIM_NEXT_STAGE_DESIGN.md)。
+状态：采用，2026-11-26 进度核对。P5–P8、B3/B5 及 G0 语义 PC、G5 时间扩展均已有实现；现有血管边界和 #51–#59 FSI 装配、RCR 端口 Schur、联合速度 field AMG、压力 LSC/BFBt/PCD、界面 patch 和局部混合精度的支持范围见 [当前能力矩阵](../development/CURRENT_STATUS.md)。下文的原始推导和阶段证据不构成生产规模资格认证。本项目的离散方案不代表上游项目采用同一离散。开发次序见 [路线与工作流程](../development/ROADMAP.md)，通用历史规则见 [多物理场与状态](L2_MULTIPHYSICS_AND_STATE.md)，进一步审查与方案见 [下一阶段详细设计](EONSIM_NEXT_STAGE_DESIGN.md)。
 
 ## 目标和首版范围
 

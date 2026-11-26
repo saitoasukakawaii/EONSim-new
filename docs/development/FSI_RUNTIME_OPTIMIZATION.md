@@ -1,5 +1,7 @@
 # FSI runtime, partition and output optimization
 
+Status (2026-11-26): PR #53 is merged; subsequent #55–#57 added opt-in adaptive numerical PC refresh, ghost overlap, SIMD, collective HDF5 output and recovery fixes. See [current capability matrix](CURRENT_STATUS.md). The measurements below remain pinned to their original sources; later changes do not retroactively alter them.
+
 ## Scope and execution order
 
 This work continues `codex/fsi-performance-runtime` from merged PR #52 / main

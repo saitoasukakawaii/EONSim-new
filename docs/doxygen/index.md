@@ -1,6 +1,6 @@
 # MultiPhysicsHPC 文档入口
 
-当前仓库包含 Tet4 多物理场、Tri3/Quad4 相容混合二维标量、语义 DoF/PC 分组及 BE/BDF2/generalized-alpha 的适用小算例实现；验证最多 4 rank。实际 API 从 include/eonsim 与 src 生成；开发规范中的声明片段仍为注释示例。阶段证据与适用范围见 README 和 ROADMAP。
+当前仓库包含 Tet4 多物理场、Tri3/P1、Quad4/Q1 相容混合及直边 Tri3/P2 二维标量、语义 DoF/PC 分组及 BE/BDF2/generalized-alpha 的适用小算例实现；合成曲管已有 8 本地 rank 的物理验证；高级预条件器代数检查 1/2/4 rank，仍无多节点扩展证明。实际 API 从 include/eonsim 与 src 生成；开发规范中的声明片段仍为注释示例。阶段证据与适用范围见 [当前能力矩阵](../development/CURRENT_STATUS.md)、README 和 ROADMAP。
 
 ## 阅读入口
 

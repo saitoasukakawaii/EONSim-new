@@ -1,5 +1,9 @@
 # EONSim Codex Task Queue
 
+2026-11-26 主线核对：PR #53–#59 均已合入，当前基线 `3472a18`（#59）。[当前能力矩阵](CURRENT_STATUS.md) 是现状入口；以下按会话保留当时的状态、失败、源码及证据，历史 Draft/review/in_progress 等不表示当前 PR 仍开放。未将既有证据重新计为本次执行。
+
+当前未关闭的是性能与生产目标（物理网格无关收敛、稳定端到端收益、层级界面 smoother、更广泛混合精度、多节点及生理资格），而非重复实现 #51–#59 已交付功能。
+
 ## FSI-PC-05 / implementation and bounded validation complete; performance goals remain open / 2026-11-26
 
 [PR #59](https://github.com/saitoasukakawaii/EONSim-new/pull/59)交付递归field AMG、稳定化

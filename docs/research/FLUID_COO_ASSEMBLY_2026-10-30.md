@@ -1,5 +1,7 @@
 # HPC-02：独立流体固定 COO Jacobian 装配
 
+2026-11-26 补注：本文只覆盖独立流体的历史 COO 实验；#51–#53 已扩展到 FSI 可选 Jacobian COO、默认残量 COO 和图/贡献复用，详见 [当前状态](../development/CURRENT_STATUS.md)。旧性能数值不外推。
+
 后续修复：本文原基线的 PETSc 3.19.6 故障超时已由 [INFRA-01](INFRA_01_REPRODUCIBLE_MPI_CI_2026-10-30.md) 定位并修复，最终集成见 [PR #23 验收](../development/FEM_INTEGRATION_VALIDATION.md)。下文失败及性能结果保留原提交/环境，不能改记为原测试通过。
 
 日期：2026-10-30（Asia/Shanghai）。基线 `24eae62`，实现及测量脚本 `ceea57d`。

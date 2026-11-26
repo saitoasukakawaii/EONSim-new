@@ -2,7 +2,7 @@
 
 状态：采用。只规定职责和依赖方向，不要求立即建立全部目录、类或 library。
 
-2026-10-30 扩展设计见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)。新增职责明确拆分拓扑、几何、有限元空间、DoF/约束、时间映射与执行计划；物理语义、存储排列和预条件分组互相独立。现有 Tet4 路径继续保留；G0B/G0/G5/G1 已在 PR #23 交付，G2/G4 仅有必需子集，其余阶段仍为规划。具体边界见 [集成验收](../development/FEM_INTEGRATION_VALIDATION.md)，不建立第二套后端或预建全部类。
+2026-10-30 扩展设计见 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)。新增职责明确拆分拓扑、几何、有限元空间、DoF/约束、时间映射与执行计划；物理语义、存储排列和预条件分组互相独立。现有 Tet4 路径继续保留；G0B/G0/G5/G1 已在 PR #23 交付，G2/G4 已有必需子集及 #27–#29 二维 P2 标量；完整通用目标仍为规划。#51–#59 的装配与求解实现状态见 [当前能力矩阵](../development/CURRENT_STATUS.md)。具体边界见 [集成验收](../development/FEM_INTEGRATION_VALIDATION.md)，不建立第二套后端或预建全部类。
 
 ## 当前范围与技术栈
 
