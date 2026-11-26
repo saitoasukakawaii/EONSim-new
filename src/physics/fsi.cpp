@@ -514,6 +514,18 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     }
     const double pattern_start=MPI_Wtime();
     auto reduced=dual?make_dual_fsi_layout(comm,mesh,domains,!coo):Elastic?make_elastic_fsi_layout(comm,mesh,!coo):make_rigid_fsi_layout(comm,mesh,!coo);
+    if constexpr(Elastic) if(!dual) {
+        // The legacy example shares a logical mesh, but its solid occupies
+        // [1,1+thickness]. Coarse rotations use the same physical reference
+        // positions as the solid element kernel, never the mirrored fluid x.
+        for(std::size_t i=0;i<reduced.algebra.owned_semantics.size();++i) {
+            const auto& key=reduced.algebra.owned_semantics[i];
+            if(key.domain==DofDomain::solid&&key.kind==DofEntity::vertex) {
+                auto& point=reduced.algebra.owned_reference_coordinates[i];
+                point[0]=1+f.thickness*(1-point[0]);
+            }
+        }
+    }
     const double pattern_seconds=MPI_Wtime()-pattern_start;
     using Layout=CoupledLayout<Tet4Topology,Elastic>;
     constexpr int nc=Layout::components;
@@ -1238,8 +1250,10 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 // Join precedes the rank-level error collective in Context.
                 if(error) {
                     if(mesh.rank==0&&batch_failure_injected&&!batch_failure_reported) {
+                        // Publish before collective failure propagation lets another
+                        // rank write its fatal diagnostic or abort the MPI job.
                         std::cout<<"fsi_batch_failure mode="<<failure_name<<" thread="<<batch_failure_thread
-                                 <<" team="<<batch_failure_team<<" batch="<<batch_failure_batch<<'\n';
+                                 <<" team="<<batch_failure_team<<" batch="<<batch_failure_batch<<'\n'<<std::flush;
                         batch_failure_reported=true;
                     }
                     std::rethrow_exception(error);

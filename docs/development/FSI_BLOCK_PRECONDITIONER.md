@@ -1,5 +1,65 @@
 # FSI 分块预条件器
 
+## FSI-PC-04：联合速度多层与参考几何粗空间（2026-11-26）
+
+本轮从已合并 #53 的 `main@858f021` 接续，分支 `codex/fsi-block-amg-robustness`。
+实现和本地验收已完成；最终源码/驱动为 `88e6c335`，交付 [PR #54](https://github.com/saitoasukakawaii/EONSim-new/pull/54)。
+所有实现/修复均先推送，再构建/验证；合并状态以该 PR 为准。
+本节以下的 #49/#50 记录是其各自源码的历史证据。
+
+```text
+-pc_recipe hybrid -pc_plan_schur_approx nodal
+-pc_plan_velocity_solver gamg
+-pc_plan_velocity_coarse_space constants
+```
+
+`-pc_plan_velocity_solver gamg` 在完整流固速度块上构造 PETSc 聚合 GAMG，保留流固
+非对角项；适用于完整 FSI 的 hybrid/quantity 树。默认 PREONLY 应用一个 V-cycle，
+平滑器 ASM/ILU，粗解 GMRES/Jacobi。显式 FGMRES 保留有界内迭代；外层必须为 FGMRES。
+不存在统一 xyz 编号的缩减矩阵继续使用 scalar AIJ，不将 blocksize 强行设为 3。
+
+`-pc_plan_velocity_coarse_space constants|rigid` 只作用于 twolevel/gamg，省略时为 constants。
+twolevel constants 保留原来的 rank/domain/component 分片常数；rigid 为固体顶点组增加
+参考坐标旋转候选，流体常数和单轴刚体标量保持。GAMG 只接受 constants，采用所有活动
+标量行上的一个归一化常数向量（包括 body），不按 MPI rank 或物理分量复制近模态。
+`gamg + rigid` 在建立层级前明确拒绝。PETSc 3.23.7 的 scalar-AIJ 聚合为每个 aggregate
+固定生成 nvec 个粗列，小型非单点或仅覆盖部分物理分量的 aggregate 可能使多向量
+局部 QR 秩亏；全局正交不能消除该问题。
+本轮未实现 packed-vector 辅助空间，不把 scalar GAMG 描述为弹性旋转 AMG。
+
+每行按 `DofKey` 的物理分量评价旋转 `omega cross (X-Xc)`，不假设连续三个行号属于同一节点。
+精确恒等行在所有候选模态中为零；缺失分量、共线点及空 owned rank 允许存在，依赖/零模态
+经两次正交化后剔除。非 P1 顶点的几何模态明确拒绝。参考位置与 owned 独立代表一一对应，
+接口 alias 不创建第二个位置，body/端口占位坐标不被当成顶点。旧镜像弹性算例使用与固体核
+一致的物理参考域变换。这里只提供 near-nullspace，不对完整动态 FSI 矩阵声明精确零空间。
+
+GAMG 默认复用插值，但每次矩阵变化仍刷新 Galerkin 数值和平滑器；与沿用旧 Jacobian 不同。
+可通过各速度 KSP 前缀的 `pc_gamg_reuse_interpolation false` 强制重建，以应对系数显著变化。
+同一 SNES 会话的拓扑、语义、参考位置和约束集合必须固定；现有配置/约束失效机制共同重建。
+全恒等矩阵直接使用精确 Jacobi，不构造空 AMG。配置报告记录实际模态数与层级。
+
+验证入口沿用 `pc_plan_mpi1/2/4`、`fsi_block_efficiency`、`fsi_tube_rcr`，并通过
+`verify_time_retry.py --recipe hybrid --velocity-solver gamg` 或
+`verify_time_retry.py --recipe hybrid --velocity-solver twolevel --velocity-coarse-space rigid`
+检查实际回滚/重启。
+鲁棒性实验必须记录实际密度、时间步、源/输入摘要、正收敛理由和独立真实残量；所有比较使用
+相同物理配置的直接解。密度比变化不自动等同于精确附加质量数，高 Re/多节点/生产规模
+仍须单独证据。算法开关保持可选。
+
+本地 a7e0 的代数 3/3、物理 4/4、两种实际缩步/重启均通过；88e6 的生产差异仅为报错前
+刷新，受影响 COO 1/1 通过，其余复用本轮此前通过证据，未重复运行。默认插值复用的数值
+更新已验证；强制 `reuse_interpolation=false` 未单独执行实验。
+最终 88e6 动脉 **78/78 runs、656 步、1,282 次修正** 独立重放通过，包含 8 条 32 步轨迹及
+30 次密度比/时间步对照。最大真实残量/门槛 `0.6010255`、最大五场差 `2.6171e-9 < 2e-6`。
+细网格 rigid 的完整轨迹外迭代 `5445→5050`，四步 wall 配对中位变化 `−10.79%`
+但范围跨零；粗网格无时间收益，GAMG 两档小网格亦无速度优势，不切换默认。
+[完整命令、来源、失败与证据](../research/data/fsi-block-multilevel-2026-11-26/README.md)。
+
+固定版本依据：[PETSc v3.23.7 agg.c](https://github.com/petsc/petsc/blob/v3.23.7/src/ksp/pc/impls/gamg/agg.c)
+和 [gamg.c](https://github.com/petsc/petsc/blob/v3.23.7/src/ksp/pc/impls/gamg/gamg.c)。
+
+## 历史交付：FSI-PC-03
+
 **当前状态：本轮实现、默认路径本地验收与独立证据重放均已完成。**
 本轮基线为 `296246e53d895f29ea3d0f7e5c960dc26b1426dc`，工作分支为
 `codex/fsi-block-efficient-schur`，见 [PR #50](https://github.com/saitoasukakawaii/EONSim-new/pull/50)。
@@ -46,6 +106,8 @@ Jacobian、物理残量、时间离散、约束或接受步条件。压力规范
 | `-pc_plan_velocity_solver split` | hybrid/quantity 的速度块分 fluid_interior、structure | 默认值 |
 | `-pc_plan_velocity_solver coupled` | 完整流固速度矩阵上 GMRES/ASM/ILU | 仅完整 FSI 的 hybrid/quantity |
 | `-pc_plan_velocity_solver twolevel` | 完整流固速度矩阵上 PREONLY 应用一次 PCMG V-cycle，含 ASM 平滑和全局粗校正 | 仅完整 FSI 的 hybrid/quantity；可显式选择 FGMRES |
+| `-pc_plan_velocity_solver gamg` | 完整流固速度 scalar AIJ 上 PREONLY 应用一次 PETSc GAMG V-cycle | 仅完整 FSI 的 hybrid/quantity；仅 constants 近模态；当前小网格无速度优势 |
+| `-pc_plan_velocity_coarse_space rigid` | twolevel 为固体 P1 语义行增加参考坐标旋转，剔除约束/零/依赖模态 | 仅 twolevel；默认 constants 保留；gamg+rigid 明确拒绝 |
 | `-pc_plan_schur_approx diagonal` | PETSc SELFP 压力近似 | 默认值 |
 | `-pc_plan_schur_approx nodal` | 语义节点块逆构造压力近似 `D−CHB` | 要求存在压力 Schur；不作用于 fluid/structure Schur |
 | `-pc_plan_structure_approx a11` | 结构 Schur 的 P 取结构块 `K` | `added_mass` 的默认值 |
@@ -157,7 +219,7 @@ Jacobian 装配只刷新一次。该选项的数值正确性和实际效率须�
 
 ## 4. 两层联合速度校正
 
-twolevel 对完整流固速度矩阵 \(A_v\) 构造稀疏插值 \(P\)：
+twolevel 的默认 `constants` 对完整流固速度矩阵 \(A_v\) 构造稀疏插值 \(P\)：
 每个 rank 内，对每个实际存在的
 `(domain, kind, component, mode, space)` 分组建立一个单位 Euclidean 范数的
 分片常数列。初始化时数值为精确恒等行的行不进入粗空间，插值为零。
@@ -168,7 +230,7 @@ r_c=P^\mathsf T(r-A_vz),\qquad z\leftarrow z+PA_c^{-1}r_c.
 \]
 
 PCMG V-cycle 在粗校正前后用 ASM 平滑；细层和 Galerkin 粗层均看到流固非对角项。
-每个有效细行只有一个插值非零元；各粗自由度由贡献细行所在 rank 拥有，
+该常数配置的每个有效细行只有一个插值非零元；各粗自由度由贡献细行所在 rank 拥有，
 允许本地没有速度行或粗列。当前 P1 两域最多约 \(6p\) 个粗自由度，
 \(p\) 为 MPI rank 数；其它实体种类、空间和模式会增加列数。
 
@@ -191,7 +253,9 @@ PREONLY 的 `CONVERGED_ITS` 表示一次 PC 应用完成，不代表达到了备
 
 PCMG 随矩阵数值变化重新计算 \(P^\mathsf TA_vP\)，固定图时复用符号结构。
 同一个配置周期内，分区、语义、图及约束集合必须保持不变；结构变化需重建求解器。
-该方法没有坐标旋转模态、谱粗空间或完整多层 AMG，不承诺网格无关迭代或大规模加速。
+可选 `rigid` 在固体 P1 分组增加参考旋转并正交/截断，行可有多个插值非零元；其粗维数
+不能再按上述常数配置估算。可选 `gamg` 是另一条完整速度多层路径，见本文首节。
+本轮没有谱粗空间或 packed-vector 弹性 AMG，不承诺网格无关迭代或大规模加速。
 
 ## 5. 独立 Schur inner/upper
 
@@ -368,8 +432,9 @@ mpiexec -n 2 build/cloud-3.23.7-release/eonsim \
   -pc_plan_report -linear_report
 ```
 
-`-linear_report` 仅报告诊断，不改变接受准则。尚未建立完整耦合 AMG、弹性旋转
-粗模态、多节点规模、跨分区重启及更强密度比/高 Reynolds 数的生产验证。
+`-linear_report` 仅报告诊断，不改变接受准则。FSI-PC-04 已补完整速度块 scalar GAMG、
+twolevel 参考旋转及有限密度比/步长对照；完整单体多场 AMG、多节点规模、跨分区重启
+和任意高 Reynolds 数的生产验证仍不在这些证据范围内。
 
 ### 6.6 本轮单次响应比较
 

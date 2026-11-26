@@ -1,0 +1,378 @@
+{
+  "scope": "Initial PR #54 CI failure evidence only; this inventory makes no claim about later commits or runs.",
+  "repository": "saitoasukakawaii/EONSim-new",
+  "pull_request": 54,
+  "run": {
+    "id": 45739848423,
+    "job_id": 139642034806,
+    "url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45739848423",
+    "event": "pull_request",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "created_at": "2026-11-26T02:03:26Z",
+    "updated_at": "2026-11-26T02:13:01Z",
+    "note": "Workflow conclusion is cancelled. Its completed numerical CTest command independently returned exit code 8 with six failures."
+  },
+  "source": {
+    "pull_request_head": "e0703466d73bfa1cf240eef201739c91383e6bca",
+    "base": "858f021a34ff5bd178287430d8cd45e52ec19f48",
+    "actual_checkout_synthetic_merge": "68afede512cf3a4fcfab1510d13849a871427db5",
+    "dirty": false
+  },
+  "environment": {
+    "petsc": "3.23.7",
+    "mode": "release",
+    "selection": "explicit",
+    "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 16464306176,
+      "cgroup": {
+        "/sys/fs/cgroup": {},
+        "/sys/fs/cgroup/system.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        }
+      },
+      "build_jobs": 4
+    }
+  },
+  "artifact": {
+    "id": 15081366170,
+    "name": "numerics-3.23.7-release-68afede512cf3a4fcfab1510d13849a871427db5",
+    "created_at": "2026-11-26T02:12:48Z",
+    "path": "build/fsi-amg-validation/ci-e070-numerics.zip",
+    "bytes": 4577850,
+    "sha256": "4070e9e8002f87ef4f9bb65c8a0ac5993beb6659f1be130823dad60b0f386e73"
+  },
+  "raw_job_log": "build/fsi-amg-validation/ci-initial-job.log",
+  "numerical_job_entrypoint": "scripts/cloud/run.sh '3.23.7' 'release' explicit .cloud build/ci/plan.json",
+  "commands": [
+    {
+      "cleaned_live_descendants": [],
+      "command": [
+        "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/g++",
+        "--version"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.003807685999987598,
+      "log": "evidence/compiler.log"
+    },
+    {
+      "cleaned_live_descendants": [],
+      "command": [
+        "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpicxx",
+        "--showme"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.0056637149999971825,
+      "log": "evidence/mpi-compiler.log"
+    },
+    {
+      "cleaned_live_descendants": [],
+      "command": [
+        "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+        "--version"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.009441843000004724,
+      "log": "evidence/mpi-runtime.log"
+    },
+    {
+      "cleaned_live_descendants": [],
+      "command": [
+        "cmake",
+        "--version"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.009455794999993827,
+      "log": "evidence/cmake.log"
+    },
+    {
+      "cleaned_live_descendants": [],
+      "command": [
+        "cmake",
+        "--preset",
+        "release",
+        "-B",
+        "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release",
+        "-DBUILD_TESTING=ON",
+        "-DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+        "-DCMAKE_PREFIX_PATH=/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7",
+        "-DMPIEXEC_EXECUTABLE=/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+        "-DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 2.3703835790000056,
+      "log": "evidence/configure.log"
+    },
+    {
+      "cleaned_live_descendants": [],
+      "command": [
+        "ctest",
+        "--test-dir",
+        "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release",
+        "--show-only=json-v1"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.01794192199999145,
+      "log": "evidence/full-test-inventory.log"
+    },
+    {
+      "cleaned_live_descendants": [],
+      "command": [
+        "cmake",
+        "--build",
+        "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release",
+        "--parallel",
+        "4",
+        "--target",
+        "eonsim",
+        "verify_fsi_diagnostics",
+        "verify_fsi_element",
+        "verify_linear_lifetime",
+        "verify_nonlinear_acceptance",
+        "verify_pc_plan",
+        "verify_runtime",
+        "verify_solver_failures"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 41.818036995,
+      "log": "evidence/build.log"
+    },
+    {
+      "cleaned_live_descendants": [],
+      "command": [
+        "ldd",
+        "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/eonsim"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.14268004100000553,
+      "log": "evidence/runtime-linkage.log"
+    },
+    {
+      "cleaned_live_descendants": [],
+      "command": [
+        "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+        "-n",
+        "4",
+        "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/verify_runtime"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "seconds": 0.1661194649999942,
+      "log": "evidence/runtime-preflight.log"
+    },
+    {
+      "cleaned_live_descendants": [],
+      "command": [
+        "ctest",
+        "--test-dir",
+        "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release",
+        "-T",
+        "Test",
+        "--no-compress-output",
+        "--output-junit",
+        "/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/evidence/junit.xml",
+        "--no-tests=error",
+        "-j",
+        "1",
+        "-V",
+        "-R",
+        "^(domains_verification|elastic_fsi_verification|fluid_coo_verification|fluid_verification|fsi_alpha_verification|fsi_block_efficiency|fsi_branched_rcr|fsi_coo_verification|fsi_curved_inlet|fsi_diagnostics|fsi_diagnostics_mpi|fsi_element_jacobian|fsi_flow|fsi_inlet|fsi_metric_stabilization|fsi_moving_plane_rcr|fsi_periodic|fsi_pressure_convergence|fsi_pressure_state|fsi_reservoir_pressure|fsi_sampled_inlet|fsi_time_verification|fsi_tube|fsi_tube_rcr|fsi_tube_rcr_response|fsi_tube_wall_support|hyperelastic_verification|lame_wall|layout_policy_verification|linear_lifetime|linear_lifetime_mpi|nonlinear_acceptance|nonlinear_acceptance_mpi|pc_added_mass_nodal_retry|pc_added_mass_retry|pc_plan_mpi1|pc_plan_mpi2|pc_plan_mpi4|pc_recipe_hybrid|pc_recipe_physics|pc_recipe_quantity|pc_recipe_restart|pc_recipe_retry|pc_twolevel_retry|poisson_parallel|rigid_fsi_verification|scalar2d_failure|scalar2d_space|scalar_p2_failure|scalar_p2_restart|scalar_p2_time|solid_alpha_verification|solid_verification|solver_failures|solver_failures_mpi|time_retry_verification)$"
+      ],
+      "exit_code": 8,
+      "timeout": false,
+      "seconds": 449.941208187,
+      "log": "evidence/ctest.log"
+    }
+  ],
+  "result_counts": {
+    "total": 56,
+    "passed": 50,
+    "failed": 6,
+    "skipped": 0
+  },
+  "classification_counts": {
+    "gamg_cycle_set_before_levels_exist": 5,
+    "fatal_injection_marker_interleaved_with_stderr": 1
+  },
+  "failures": [
+    {
+      "name": "pc_plan_mpi1",
+      "status": "failed",
+      "ranks": [
+        1
+      ],
+      "exit_code": 1,
+      "timeout": false,
+      "seconds": 0.186872,
+      "log": "evidence/junit.xml#pc_plan_mpi1",
+      "exit_behavior": "Failed",
+      "command": "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec \"-n\" \"1\" \"/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/verify_pc_plan\"",
+      "classification": "gamg_cycle_set_before_levels_exist",
+      "raw_output_file": "build/fsi-amg-validation/ci-initial-failures/pc_plan_mpi1.log",
+      "diagnostic_excerpt": [
+        "[0]PETSC ERROR: Operation done in wrong order",
+        "[0]PETSC ERROR: #1 PCMGSetCycleType() at /home/conda/feedstock_root/build_artifacts/bld/rattler-build_petsc_1759172484/work/src/ksp/pc/impls/mg/mg.c:1400",
+        "PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order"
+      ]
+    },
+    {
+      "name": "pc_plan_mpi2",
+      "status": "failed",
+      "ranks": [
+        2
+      ],
+      "exit_code": 1,
+      "timeout": false,
+      "seconds": 0.258112,
+      "log": "evidence/junit.xml#pc_plan_mpi2",
+      "exit_behavior": "Failed",
+      "command": "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec \"-n\" \"2\" \"/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/verify_pc_plan\"",
+      "classification": "gamg_cycle_set_before_levels_exist",
+      "raw_output_file": "build/fsi-amg-validation/ci-initial-failures/pc_plan_mpi2.log",
+      "diagnostic_excerpt": [
+        "[0]PETSC ERROR: Operation done in wrong order",
+        "[0]PETSC ERROR: #1 PCMGSetCycleType() at /home/conda/feedstock_root/build_artifacts/bld/rattler-build_petsc_1759172484/work/src/ksp/pc/impls/mg/mg.c:1400",
+        "PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order"
+      ]
+    },
+    {
+      "name": "pc_plan_mpi4",
+      "status": "failed",
+      "ranks": [
+        4
+      ],
+      "exit_code": 1,
+      "timeout": false,
+      "seconds": 0.60663,
+      "log": "evidence/junit.xml#pc_plan_mpi4",
+      "exit_behavior": "Failed",
+      "command": "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec \"-n\" \"4\" \"/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/verify_pc_plan\"",
+      "classification": "gamg_cycle_set_before_levels_exist",
+      "raw_output_file": "build/fsi-amg-validation/ci-initial-failures/pc_plan_mpi4.log",
+      "diagnostic_excerpt": [
+        "[0]PETSC ERROR: Operation done in wrong order",
+        "[0]PETSC ERROR: PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order",
+        "PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order"
+      ]
+    },
+    {
+      "name": "fsi_tube_rcr",
+      "status": "failed",
+      "ranks": [
+        1,
+        2,
+        4
+      ],
+      "exit_code": 1,
+      "timeout": false,
+      "seconds": 6.98087,
+      "log": "evidence/junit.xml#fsi_tube_rcr",
+      "exit_behavior": "Failed",
+      "command": "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/python3.15 \"/home/runner/work/EONSim-new/EONSim-new/tests/verify_fsi_tube.py\" \"--executable\" \"/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/eonsim\" \"--mpiexec\" \"/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec\" \"--work\" \"/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/fsi_tube_rcr\" \"--group\" \"tube_rcr\"",
+      "classification": "gamg_cycle_set_before_levels_exist",
+      "raw_output_file": "build/fsi-amg-validation/ci-initial-failures/fsi_tube_rcr.log",
+      "diagnostic_excerpt": [
+        "EONSim rank 1: PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order",
+        "EONSim rank 0: PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order"
+      ]
+    },
+    {
+      "name": "fsi_block_efficiency",
+      "status": "failed",
+      "ranks": [
+        1,
+        2
+      ],
+      "exit_code": 1,
+      "timeout": false,
+      "seconds": 115.824,
+      "log": "evidence/junit.xml#fsi_block_efficiency",
+      "exit_behavior": "Failed",
+      "command": "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/python3.15 \"/home/runner/work/EONSim-new/EONSim-new/tests/verify_fsi_block_efficiency.py\" \"--executable\" \"/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/eonsim\" \"--mpiexec\" \"/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec\" \"--work\" \"/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/fsi_block_efficiency\" \"--stage\" \"quick\"",
+      "classification": "gamg_cycle_set_before_levels_exist",
+      "raw_output_file": "build/fsi-amg-validation/ci-initial-failures/fsi_block_efficiency.log",
+      "diagnostic_excerpt": [
+        "solve exited with 1:\nlayout_policy semantic_order=entity_first storage_order=owner_node\nEONSim rank 0: PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order\nstatus=failed\nWARNING! There are options you set that were not used!\nWARNING! could be spelling mistake, etc!\nThere are 4 unused database options. They are:\nOption left: name:-fieldsplit_dynamics_fieldsplit_velocity_ksp_max_it value: 20 source: command line\nOption left: name:-fieldsplit_dynamics_fieldsplit_velocity_ksp_rtol value: 1e-4 source: command line\nOption left: name:-fieldsplit_dynamics_fieldsplit_velocity_mg_levels_sub_pc_factor_mat_ordering_type value: natural source: command line\nOption left: name:-fieldsplit_dynamics_fieldsplit_velocity_pc_mg_multiplicative_cycles value: 1 source: command line\n",
+        "solve exited with 1:\nlayout_policy semantic_order=entity_first storage_order=owner_node\nEONSim rank 1: PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order\nstatus=failed\nEONSim rank 0: PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order\nstatus=failed\n--------------------------------------------------------------------------\nMPI_ABORT was invoked on rank 1 in communicator MPI_COMM_WORLD\n  Proc: [[287,1],1]\n  Errorcode: 1\n\nNOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.\nYou may or may not see output from other processes, depending on\nexactly when Open MPI kills them.\n--------------------------------------------------------------------------\n--------------------------------------------------------------------------\nprterun has exited due to process rank 0 with PID 0 on node ip-10-0-141-240 calling\n\"abort\". This may have caused other processes in the application to be\nterminated by signals sent by prterun (as reported here).\n--------------------------------------------------------------------------\n\u0000"
+      ],
+      "failed_cases": [
+        {
+          "grid": "s24-r3-w2-a6",
+          "scenario": "baseline",
+          "mode": "gamg_constants",
+          "label": "quick-gamg_constants",
+          "status": "failed",
+          "exit_code": 1,
+          "timeout": false,
+          "wall_seconds": 0.16416710699996884,
+          "error": "solve exited with 1:\nlayout_policy semantic_order=entity_first storage_order=owner_node\nEONSim rank 0: PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order\nstatus=failed\nWARNING! There are options you set that were not used!\nWARNING! could be spelling mistake, etc!\nThere are 4 unused database options. They are:\nOption left: name:-fieldsplit_dynamics_fieldsplit_velocity_ksp_max_it value: 20 source: command line\nOption left: name:-fieldsplit_dynamics_fieldsplit_velocity_ksp_rtol value: 1e-4 source: command line\nOption left: name:-fieldsplit_dynamics_fieldsplit_velocity_mg_levels_sub_pc_factor_mat_ordering_type value: natural source: command line\nOption left: name:-fieldsplit_dynamics_fieldsplit_velocity_pc_mg_multiplicative_cycles value: 1 source: command line\n"
+        },
+        {
+          "grid": "s48-r4-w4-a6",
+          "scenario": "baseline",
+          "mode": "gamg_constants",
+          "label": "quick-gamg_constants",
+          "status": "failed",
+          "exit_code": 1,
+          "timeout": false,
+          "wall_seconds": 0.1640992100000176,
+          "error": "solve exited with 1:\nlayout_policy semantic_order=entity_first storage_order=owner_node\nEONSim rank 1: PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order\nstatus=failed\nEONSim rank 0: PCMGSetCycleType(pc,PC_MG_CYCLE_V): Operation done in wrong order\nstatus=failed\n--------------------------------------------------------------------------\nMPI_ABORT was invoked on rank 1 in communicator MPI_COMM_WORLD\n  Proc: [[287,1],1]\n  Errorcode: 1\n\nNOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.\nYou may or may not see output from other processes, depending on\nexactly when Open MPI kills them.\n--------------------------------------------------------------------------\n--------------------------------------------------------------------------\nprterun has exited due to process rank 0 with PID 0 on node ip-10-0-141-240 calling\n\"abort\". This may have caused other processes in the application to be\nterminated by signals sent by prterun (as reported here).\n--------------------------------------------------------------------------\n\u0000"
+        }
+      ],
+      "failure_excerpt_file": "build/fsi-amg-validation/ci-initial-failures/fsi_block_efficiency-failure-excerpt.log"
+    },
+    {
+      "name": "fsi_coo_verification",
+      "status": "failed",
+      "ranks": [
+        1,
+        2
+      ],
+      "exit_code": 1,
+      "timeout": false,
+      "seconds": 2.28328,
+      "log": "evidence/junit.xml#fsi_coo_verification",
+      "exit_behavior": "Failed",
+      "command": "/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/python3.15 \"/home/runner/work/EONSim-new/EONSim-new/tests/verify_fsi_coo.py\" \"--executable\" \"/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/eonsim\" \"--mpiexec\" \"/home/runner/work/EONSim-new/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec\" \"--work\" \"/home/runner/work/EONSim-new/EONSim-new/build/cloud-3.23.7-release/fsi_coo_verification\" \"--threads\" \"2\"",
+      "classification": "fatal_injection_marker_interleaved_with_stderr",
+      "raw_output_file": "build/fsi-amg-validation/ci-initial-failures/fsi_coo_verification.log",
+      "diagnostic_excerpt": [
+        "RuntimeError: insert_fatal: missing single injection in an actual multi-thread team"
+      ],
+      "injection_evidence": {
+        "artifact_member": "cloud-3.23.7-release/fsi_coo_verification/batch-failures/batch-insert_fatal.log",
+        "raw_log_file": "build/fsi-amg-validation/ci-initial-failures/batch-insert_fatal.raw.log",
+        "raw_log_sha256": "3ec5f6a86519976585f087225e932d0a80e9b17b046dd02032300ef1a42efe60",
+        "marker_lines": [
+          "EONSim rank fsi_batch_failure mode=insert_fatal thread=0 team=2 batch=1"
+        ],
+        "marker_occurrences": 1,
+        "line_start_marker_occurrences": 0,
+        "fatal_exception_present": true,
+        "failed_status_records": 2,
+        "mpi_abort_present": true,
+        "step_retry_present": false,
+        "accepted_fsi_step_present": false,
+        "explanation": "The single correct mode=insert_fatal/thread=0/team=2/batch=1 marker is prefixed by stderr text EONSim rank, so records(), which requires a line-start marker, discards it. Fatal injection and propagation occurred; this is diagnostic publication/interleaving, not changed FSI acceptance semantics or reference-coordinate metadata.",
+        "minimal_fix": "Flush the complete marker before rethrow into collective fatal error propagation; preserve existing parser and acceptance gates."
+      }
+    }
+  ],
+  "evidence_directory": "build/fsi-amg-validation/ci-initial-failures",
+  "subsequent_runs": "Not evaluated here; in particular do not attribute this inventory to run 45740142021 or to the later timer/flush source commit 88e6c3359b742735877177eb4584b987caae1790."
+}

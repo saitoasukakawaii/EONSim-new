@@ -1,0 +1,89 @@
+{
+  "status": "passed",
+  "source_commit": "88e6c3359b742735877177eb4584b987caae1790",
+  "binary_sha256": "c57ab409a125d759fd51513cf5c03024feec2f67a0f224fd1aa40cc87be1cf09",
+  "junit_sha256": "c2d024705418dd656d8bd00da7bb04ae3fc7ee03b5f072f264b44410f7488369",
+  "coo_results_sha256": "a7e47f67a1c82420bf7fcfe31af96c91ed76ae8fbe646bdfa67817d124b293c4",
+  "test_name": "fsi_coo_verification",
+  "suite_solves": 37,
+  "simulations_launched": 0,
+  "fatal_faults": [
+    {
+      "mode": "worker_fatal",
+      "raw_log_sha256": "ba651baae54f8029e46a49e014780d1e63105c1b32fb007e3d2ef4c34fc53502",
+      "case_sha256": "88e69911d08a6985e0b80ac4500962889b98528c4e66e5f866b9bdf4b12b5ebd",
+      "command": [
+        "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+        "--bind-to",
+        "none",
+        "-n",
+        "2",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/eonsim",
+        "-case",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/fsi_coo_verification/batch-failures/batch-worker_fatal.json",
+        "-partition",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/fsi_coo_verification/batch-failures/part-2",
+        "-fsi_assembly_report",
+        "-solver_report",
+        "-fsi_threads",
+        "2",
+        "-stop_after",
+        "1",
+        "-verify_fsi_batch_failure",
+        "worker_fatal"
+      ],
+      "injection": {
+        "mode": "worker_fatal",
+        "thread": "1",
+        "team": "2",
+        "batch": "1"
+      },
+      "injection_line_precedes_rank_fatal_diagnostic": true,
+      "accepted_step_or_retry_or_success_published": false,
+      "output_created": false,
+      "retained_initial_log_sha256": "2e52617e2900faf46d0d898874ceccaf0ca763450f6c3c68aa7f8b844bdd19a3",
+      "initial_standalone_injection_records": 1
+    },
+    {
+      "mode": "insert_fatal",
+      "raw_log_sha256": "59d9192b1a0ee81bf2abe32a325cff25a71596b87286c6459e6846c62b3e7122",
+      "case_sha256": "c7b2529893a2c417860ab0fa6be5c432165e9c1ac135b9458debd5f608e4a850",
+      "command": [
+        "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+        "--bind-to",
+        "none",
+        "-n",
+        "2",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/eonsim",
+        "-case",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/fsi_coo_verification/batch-failures/batch-insert_fatal.json",
+        "-partition",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release/fsi_coo_verification/batch-failures/part-2",
+        "-fsi_assembly_report",
+        "-solver_report",
+        "-fsi_coo",
+        "-fsi_threads",
+        "2",
+        "-stop_after",
+        "1",
+        "-verify_fsi_batch_failure",
+        "insert_fatal"
+      ],
+      "injection": {
+        "mode": "insert_fatal",
+        "thread": "0",
+        "team": "2",
+        "batch": "1"
+      },
+      "injection_line_precedes_rank_fatal_diagnostic": true,
+      "accepted_step_or_retry_or_success_published": false,
+      "output_created": false,
+      "retained_initial_log_sha256": "3ec5f6a86519976585f087225e932d0a80e9b17b046dd02032300ef1a42efe60",
+      "initial_standalone_injection_records": 0
+    }
+  ],
+  "limits": [
+    "The retained initial insert_fatal output contains its injection marker interleaved after an EONSim rank prefix; the final log has exactly one standalone injection marker before fatal rank diagnostics.",
+    "This replay validates the observed flush-sensitive diagnostic boundary and fatal classification; it does not claim globally serialized MPI stderr output."
+  ]
+}

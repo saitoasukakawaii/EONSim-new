@@ -5,6 +5,7 @@
 #include "eonsim/config.hpp"
 #include "eonsim/dof_semantics.hpp"
 #include <petscksp.h>
+#include <array>
 #include <string>
 #include <map>
 #include <type_traits>
@@ -67,6 +68,15 @@ struct AlgebraLayout {
     std::vector<PetscInt> local_to_global, diagonal, off_diagonal;
     std::map<std::string, std::vector<PetscInt>> fields; ///< Physical acceptance, never PC recipes.
     std::vector<DofKey> owned_semantics; ///< Optional, in owned storage order; layout-local namespace.
+    /** Optional physical reference positions in the same owned row order as
+     * owned_semantics, never current ALE coordinates or ghost copies. A producer
+     * using a mapped reference domain must apply that map before solver setup.
+     * Vertex P1 rows carry their canonical representative's point; non-geometric
+     * body/boundary rows carry a finite zero placeholder, not a physical point.
+     * Consumers must use DofKey::kind/space/mode to decide geometric eligibility.
+     * Empty metadata is valid for algebra-only layouts and non-geometric PCs.
+     */
+    std::vector<std::array<double,3>> owned_reference_coordinates;
 };
 
 /** @brief assembled AIJ 线性系统；不依赖网格或物理核。

@@ -1,0 +1,705 @@
+﻿2026-11-26T02:24:16.9187447Z Current runner version: '2.338.2'
+2026-11-26T02:24:16.9207375Z ##[group]Runner Image Provisioner
+2026-11-26T02:24:16.9208083Z Hosted Compute Agent
+2026-11-26T02:24:16.9208564Z Version: 20261111.635
+2026-11-26T02:24:16.9209162Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+2026-11-26T02:24:16.9209937Z Build Date: 2026-11-11T01:49:01Z
+2026-11-26T02:24:16.9210607Z Worker ID: {08f89221-3613-43bd-b8bc-abf17d7fae21}
+2026-11-26T02:24:16.9211189Z Region: westus2
+2026-11-26T02:24:16.9211636Z Cloud: Azure
+2026-11-26T02:24:16.9212152Z ##[endgroup]
+2026-11-26T02:24:16.9213506Z ##[group]Operating System
+2026-11-26T02:24:16.9214110Z Ubuntu
+2026-11-26T02:24:16.9214567Z 24.04.5
+2026-11-26T02:24:16.9215000Z LTS
+2026-11-26T02:24:16.9215475Z ##[endgroup]
+2026-11-26T02:24:16.9215949Z ##[group]Runner Image
+2026-11-26T02:24:16.9216532Z Image: ubuntu-24.04
+2026-11-26T02:24:16.9217028Z Version: 20261116.376.1
+2026-11-26T02:24:16.9218077Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261116.376/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-26T02:24:16.9219472Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261116.376
+2026-11-26T02:24:16.9220312Z ##[endgroup]
+2026-11-26T02:24:16.9221267Z ##[group]GITHUB_TOKEN Permissions
+2026-11-26T02:24:16.9222869Z Actions: read
+2026-11-26T02:24:16.9223387Z Contents: read
+2026-11-26T02:24:16.9223894Z Metadata: read
+2026-11-26T02:24:16.9224394Z ##[endgroup]
+2026-11-26T02:24:16.9226157Z Secret source: Actions
+2026-11-26T02:24:16.9227006Z Cache mode: write
+2026-11-26T02:24:16.9227569Z Prepare workflow directory
+2026-11-26T02:24:16.9484817Z Prepare all required actions
+2026-11-26T02:24:16.9523745Z Getting action download info
+2026-11-26T02:24:17.5769178Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-26T02:24:17.7282823Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-26T02:24:17.9587515Z Complete job name: Select affected checks
+2026-11-26T02:24:18.0283061Z ##[group]Run actions/checkout@v4
+2026-11-26T02:24:18.0283784Z with:
+2026-11-26T02:24:18.0284158Z   fetch-depth: 0
+2026-11-26T02:24:18.0284566Z   persist-credentials: false
+2026-11-26T02:24:18.0285040Z   repository: saitoasukakawaii/EONSim-new
+2026-11-26T02:24:18.0288457Z   token: ***
+2026-11-26T02:24:18.0288846Z   ssh-strict: true
+2026-11-26T02:24:18.0289245Z   ssh-user: git
+2026-11-26T02:24:18.0289771Z   clean: true
+2026-11-26T02:24:18.0290164Z   sparse-checkout-cone-mode: true
+2026-11-26T02:24:18.0290632Z   fetch-tags: false
+2026-11-26T02:24:18.0291029Z   show-progress: true
+2026-11-26T02:24:18.0291437Z   lfs: false
+2026-11-26T02:24:18.0291798Z   submodules: false
+2026-11-26T02:24:18.0292196Z   set-safe-directory: true
+2026-11-26T02:24:18.0292646Z   allow-unsafe-pr-checkout: false
+2026-11-26T02:24:18.0293268Z ##[endgroup]
+2026-11-26T02:24:18.2191197Z Syncing repository: saitoasukakawaii/EONSim-new
+2026-11-26T02:24:18.2193449Z ##[group]Getting Git version info
+2026-11-26T02:24:18.2194579Z Working directory is '/home/runner/work/EONSim-new/EONSim-new'
+2026-11-26T02:24:18.2196035Z [command]/usr/bin/git version
+2026-11-26T02:24:18.2238527Z git version 2.56.1
+2026-11-26T02:24:18.2254679Z ##[endgroup]
+2026-11-26T02:24:18.2266115Z Temporarily overriding HOME='/home/runner/work/_temp/bdbc1659-fef2-45f8-a6c1-6b8ad4c15c79' before making global git config changes
+2026-11-26T02:24:18.2268073Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-26T02:24:18.2271613Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/EONSim-new/EONSim-new
+2026-11-26T02:24:18.2311584Z Deleting the contents of '/home/runner/work/EONSim-new/EONSim-new'
+2026-11-26T02:24:18.2340750Z ##[group]Initializing the repository
+2026-11-26T02:24:18.2341792Z [command]/usr/bin/git init /home/runner/work/EONSim-new/EONSim-new
+2026-11-26T02:24:18.2417361Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-26T02:24:18.2419168Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-26T02:24:18.2420871Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-26T02:24:18.2421950Z hint: call:
+2026-11-26T02:24:18.2422661Z hint:
+2026-11-26T02:24:18.2423496Z hint: 	git config --global init.defaultBranch <name>
+2026-11-26T02:24:18.2424483Z hint:
+2026-11-26T02:24:18.2425356Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-26T02:24:18.2426608Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-26T02:24:18.2427688Z hint:
+2026-11-26T02:24:18.2428350Z hint: 	git branch -m <name>
+2026-11-26T02:24:18.2428947Z hint:
+2026-11-26T02:24:18.2430009Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-26T02:24:18.2431273Z Initialized empty Git repository in /home/runner/work/EONSim-new/EONSim-new/.git/
+2026-11-26T02:24:18.2434697Z [command]/usr/bin/git remote add origin https://github.com/saitoasukakawaii/EONSim-new
+2026-11-26T02:24:18.2475227Z ##[endgroup]
+2026-11-26T02:24:18.2475966Z ##[group]Disabling automatic garbage collection
+2026-11-26T02:24:18.2478691Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-26T02:24:18.2507746Z ##[endgroup]
+2026-11-26T02:24:18.2515905Z ##[group]Setting up auth
+2026-11-26T02:24:18.2516772Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-26T02:24:18.2547483Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-26T02:24:18.2873212Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-26T02:24:18.2908892Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-26T02:24:18.3112159Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-26T02:24:18.3147674Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-26T02:24:18.3348276Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-26T02:24:18.3388958Z ##[endgroup]
+2026-11-26T02:24:18.3390092Z ##[group]Fetching the repository
+2026-11-26T02:24:18.3399238Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +3d83542bfd8211900e6fe429e22163e526cd31c2:refs/remotes/pull/54/merge
+2026-11-26T02:24:33.3317486Z From https://github.com/saitoasukakawaii/EONSim-new
+2026-11-26T02:24:33.3318156Z  * [new branch]      codex/auto-merge-smoke-20261113          -> origin/codex/auto-merge-smoke-20261113
+2026-11-26T02:24:33.3318761Z  * [new branch]      codex/fem-g2a-p2                         -> origin/codex/fem-g2a-p2
+2026-11-26T02:24:33.3319477Z  * [new branch]      codex/fsi-block-amg-robustness           -> origin/codex/fsi-block-amg-robustness
+2026-11-26T02:24:33.3320329Z  * [new branch]      codex/fsi-inlet-reliability              -> origin/codex/fsi-inlet-reliability
+2026-11-26T02:24:33.3321238Z  * [new branch]      codex/fsi-mass-history-validation        -> origin/codex/fsi-mass-history-validation
+2026-11-26T02:24:33.3322111Z  * [new branch]      codex/fsi-next-02-periodic-flow          -> origin/codex/fsi-next-02-periodic-flow
+2026-11-26T02:24:33.3323039Z  * [new branch]      codex/fsi-next-03-periodic-convergence   -> origin/codex/fsi-next-03-periodic-convergence
+2026-11-26T02:24:33.3323949Z  * [new branch]      codex/fsi-periodic-pressure              -> origin/codex/fsi-periodic-pressure
+2026-11-26T02:24:33.3324866Z  * [new branch]      codex/fsi-pressure-face-history          -> origin/codex/fsi-pressure-face-history
+2026-11-26T02:24:33.3325724Z  * [new branch]      codex/fsi-prod-02-qualification          -> origin/codex/fsi-prod-02-qualification
+2026-11-26T02:24:33.3326677Z  * [new branch]      codex/fsi-production-tube                -> origin/codex/fsi-production-tube
+2026-11-26T02:24:33.3327289Z  * [new branch]      codex/fsi-progress-snapshot-20261109     -> origin/codex/fsi-progress-snapshot-20261109
+2026-11-26T02:24:33.3327926Z  * [new branch]      codex/fsi-progress-snapshot-20261110     -> origin/codex/fsi-progress-snapshot-20261110
+2026-11-26T02:24:33.3328591Z  * [new branch]      codex/fsi-tube-qualification             -> origin/codex/fsi-tube-qualification
+2026-11-26T02:24:33.3329490Z  * [new branch]      codex/hpc-survey-tet4-tangent            -> origin/codex/hpc-survey-tet4-tangent
+2026-11-26T02:24:33.3330054Z  * [new branch]      codex/p2-boundary-extension              -> origin/codex/p2-boundary-extension
+2026-11-26T02:24:33.3330826Z  * [new branch]      codex/p2-transient-diffusion             -> origin/codex/p2-transient-diffusion
+2026-11-26T02:24:33.3331670Z  * [new branch]      codex/pr-incremental-ci                  -> origin/codex/pr-incremental-ci
+2026-11-26T02:24:33.3332638Z  * [new branch]      codex/website-knowledge-refresh-2026-11-03 -> origin/codex/website-knowledge-refresh-2026-11-03
+2026-11-26T02:24:33.3333436Z  * [new branch]      main                                     -> origin/main
+2026-11-26T02:24:33.3334037Z  * [new ref]         3d83542bfd8211900e6fe429e22163e526cd31c2 -> pull/54/merge
+2026-11-26T02:24:33.3335881Z ##[endgroup]
+2026-11-26T02:24:33.3336320Z ##[group]Determining the checkout info
+2026-11-26T02:24:33.3336719Z ##[endgroup]
+2026-11-26T02:24:33.3337360Z [command]/usr/bin/git sparse-checkout disable
+2026-11-26T02:24:33.3392898Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-26T02:24:33.3425788Z ##[group]Checking out the ref
+2026-11-26T02:24:33.3429196Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/54/merge
+2026-11-26T02:24:34.3670137Z Updating files:  60% (838/1389)
+2026-11-26T02:24:34.3683360Z Updating files:  61% (848/1389)
+2026-11-26T02:24:34.3690370Z Updating files:  62% (862/1389)
+2026-11-26T02:24:34.3698841Z Updating files:  63% (876/1389)
+2026-11-26T02:24:34.3704127Z Updating files:  64% (889/1389)
+2026-11-26T02:24:34.3715480Z Updating files:  65% (903/1389)
+2026-11-26T02:24:34.3841462Z Updating files:  66% (917/1389)
+2026-11-26T02:24:34.3857434Z Updating files:  67% (931/1389)
+2026-11-26T02:24:34.3862345Z Updating files:  68% (945/1389)
+2026-11-26T02:24:34.3869176Z Updating files:  69% (959/1389)
+2026-11-26T02:24:34.3881457Z Updating files:  70% (973/1389)
+2026-11-26T02:24:34.3887786Z Updating files:  71% (987/1389)
+2026-11-26T02:24:34.5062928Z Updating files:  72% (1001/1389)
+2026-11-26T02:24:34.5493969Z Updating files:  73% (1014/1389)
+2026-11-26T02:24:34.5581890Z Updating files:  74% (1028/1389)
+2026-11-26T02:24:34.5589607Z Updating files:  75% (1042/1389)
+2026-11-26T02:24:34.5593903Z Updating files:  76% (1056/1389)
+2026-11-26T02:24:34.5600963Z Updating files:  77% (1070/1389)
+2026-11-26T02:24:34.5609195Z Updating files:  78% (1084/1389)
+2026-11-26T02:24:34.5614901Z Updating files:  79% (1098/1389)
+2026-11-26T02:24:34.5686999Z Updating files:  80% (1112/1389)
+2026-11-26T02:24:34.5698502Z Updating files:  81% (1126/1389)
+2026-11-26T02:24:34.5703826Z Updating files:  82% (1139/1389)
+2026-11-26T02:24:34.5709592Z Updating files:  83% (1153/1389)
+2026-11-26T02:24:34.5718211Z Updating files:  84% (1167/1389)
+2026-11-26T02:24:34.5727078Z Updating files:  85% (1181/1389)
+2026-11-26T02:24:34.5734897Z Updating files:  86% (1195/1389)
+2026-11-26T02:24:34.5747302Z Updating files:  87% (1209/1389)
+2026-11-26T02:24:34.5758444Z Updating files:  88% (1223/1389)
+2026-11-26T02:24:34.5769853Z Updating files:  89% (1237/1389)
+2026-11-26T02:24:34.5776843Z Updating files:  90% (1251/1389)
+2026-11-26T02:24:34.5785830Z Updating files:  91% (1264/1389)
+2026-11-26T02:24:34.5795395Z Updating files:  92% (1278/1389)
+2026-11-26T02:24:34.5805387Z Updating files:  93% (1292/1389)
+2026-11-26T02:24:34.5813880Z Updating files:  94% (1306/1389)
+2026-11-26T02:24:34.5821641Z Updating files:  95% (1320/1389)
+2026-11-26T02:24:34.5843021Z Updating files:  96% (1334/1389)
+2026-11-26T02:24:34.5843354Z Updating files:  97% (1348/1389)
+2026-11-26T02:24:34.5860098Z Updating files:  98% (1362/1389)
+2026-11-26T02:24:34.5860760Z Updating files:  99% (1376/1389)
+2026-11-26T02:24:34.5861137Z Updating files: 100% (1389/1389)
+2026-11-26T02:24:34.5861485Z Updating files: 100% (1389/1389), done.
+2026-11-26T02:24:34.5867448Z Note: switching to 'refs/remotes/pull/54/merge'.
+2026-11-26T02:24:34.5867922Z 
+2026-11-26T02:24:34.5868191Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-26T02:24:34.5868809Z changes and commit them, and you can discard any commits you make in this
+2026-11-26T02:24:34.5869821Z state without impacting any branches by switching back to a branch.
+2026-11-26T02:24:34.5870109Z 
+2026-11-26T02:24:34.5870280Z If you want to create a new branch to retain commits you create, you may
+2026-11-26T02:24:34.5870657Z do so (now or later) by using -c with the switch command. Example:
+2026-11-26T02:24:34.5870872Z 
+2026-11-26T02:24:34.5870977Z   git switch -c <new-branch-name>
+2026-11-26T02:24:34.5871118Z 
+2026-11-26T02:24:34.5871214Z Or undo this operation with:
+2026-11-26T02:24:34.5871349Z 
+2026-11-26T02:24:34.5871423Z   git switch -
+2026-11-26T02:24:34.5871528Z 
+2026-11-26T02:24:34.5871697Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-26T02:24:34.5871943Z 
+2026-11-26T02:24:34.5872206Z HEAD is now at 3d83542 Merge 88e6c3359b742735877177eb4584b987caae1790 into 858f021a34ff5bd178287430d8cd45e52ec19f48
+2026-11-26T02:24:34.5964441Z ##[endgroup]
+2026-11-26T02:24:34.6012609Z [command]/usr/bin/git log -1 --format=%H
+2026-11-26T02:24:34.6041669Z 3d83542bfd8211900e6fe429e22163e526cd31c2
+2026-11-26T02:24:34.6050496Z ##[group]Removing auth
+2026-11-26T02:24:34.6053184Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-26T02:24:34.6085590Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-26T02:24:34.6288448Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-26T02:24:34.6318154Z http.https://github.com/.extraheader
+2026-11-26T02:24:34.6325229Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-26T02:24:34.6359164Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-26T02:24:34.6556270Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-26T02:24:34.6588639Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-26T02:24:34.6785304Z ##[endgroup]
+2026-11-26T02:24:34.7060659Z ##[group]Run python3 scripts/cloud/selection.py --output build/ci/plan.json --selection "$CI_SELECTION" --tests "$CI_TESTS" --base "$CI_BASE"
+2026-11-26T02:24:34.7061484Z [36;1mpython3 scripts/cloud/selection.py --output build/ci/plan.json --selection "$CI_SELECTION" --tests "$CI_TESTS" --base "$CI_BASE"[0m
+2026-11-26T02:24:34.7082971Z shell: /usr/bin/bash -e {0}
+2026-11-26T02:24:34.7083187Z env:
+2026-11-26T02:24:34.7085558Z   GH_TOKEN: ***
+2026-11-26T02:24:34.7085766Z   CI_SELECTION: incremental
+2026-11-26T02:24:34.7085966Z   CI_TESTS: 
+2026-11-26T02:24:34.7086134Z   CI_BASE: origin/main
+2026-11-26T02:24:34.7086317Z ##[endgroup]
+2026-11-26T02:24:36.7366350Z {
+2026-11-26T02:24:36.7366648Z   "schema": 1,
+2026-11-26T02:24:36.7366985Z   "repository": "saitoasukakawaii/EONSim-new",
+2026-11-26T02:24:36.7367349Z   "pr": 54,
+2026-11-26T02:24:36.7367641Z   "base": "858f021a34ff5bd178287430d8cd45e52ec19f48",
+2026-11-26T02:24:36.7368448Z   "head": "88e6c3359b742735877177eb4584b987caae1790",
+2026-11-26T02:24:36.7368864Z   "commit": "3d83542bfd8211900e6fe429e22163e526cd31c2",
+2026-11-26T02:24:36.7369480Z   "tree": "76b429a0eec70921d286849854948e559e782bfc",
+2026-11-26T02:24:36.7370049Z   "fingerprint": "9ed3c656a9c65c8f5ab2ae223746830229e279d057f11ef4c1bec30773572b60",
+2026-11-26T02:24:36.7370582Z   "run_id": 45741570996,
+2026-11-26T02:24:36.7370866Z   "selection": "explicit",
+2026-11-26T02:24:36.7371165Z   "requested": "incremental",
+2026-11-26T02:24:36.7371451Z   "required": [
+2026-11-26T02:24:36.7371715Z     "domains_verification",
+2026-11-26T02:24:36.7372012Z     "elastic_fsi_verification",
+2026-11-26T02:24:36.7372317Z     "fluid_coo_verification",
+2026-11-26T02:24:36.7372617Z     "fluid_verification",
+2026-11-26T02:24:36.7372907Z     "fsi_alpha_verification",
+2026-11-26T02:24:36.7373191Z     "fsi_block_efficiency",
+2026-11-26T02:24:36.7373477Z     "fsi_branched_rcr",
+2026-11-26T02:24:36.7373755Z     "fsi_coo_verification",
+2026-11-26T02:24:36.7374117Z     "fsi_curved_inlet",
+2026-11-26T02:24:36.7374382Z     "fsi_diagnostics",
+2026-11-26T02:24:36.7374657Z     "fsi_diagnostics_mpi",
+2026-11-26T02:24:36.7374958Z     "fsi_element_jacobian",
+2026-11-26T02:24:36.7375252Z     "fsi_flow",
+2026-11-26T02:24:36.7375488Z     "fsi_inlet",
+2026-11-26T02:24:36.7375735Z     "fsi_metric_stabilization",
+2026-11-26T02:24:36.7376040Z     "fsi_moving_plane_rcr",
+2026-11-26T02:24:36.7376321Z     "fsi_periodic",
+2026-11-26T02:24:36.7376586Z     "fsi_pressure_convergence",
+2026-11-26T02:24:36.7376881Z     "fsi_pressure_state",
+2026-11-26T02:24:36.7377159Z     "fsi_reservoir_pressure",
+2026-11-26T02:24:36.7377457Z     "fsi_sampled_inlet",
+2026-11-26T02:24:36.7377815Z     "fsi_time_verification",
+2026-11-26T02:24:36.7378115Z     "fsi_tube",
+2026-11-26T02:24:36.7378363Z     "fsi_tube_rcr",
+2026-11-26T02:24:36.7378628Z     "fsi_tube_rcr_response",
+2026-11-26T02:24:36.7378926Z     "fsi_tube_wall_support",
+2026-11-26T02:24:36.7379236Z     "hyperelastic_verification",
+2026-11-26T02:24:36.7379703Z     "lame_wall",
+2026-11-26T02:24:36.7379968Z     "layout_policy_verification",
+2026-11-26T02:24:36.7380285Z     "linear_lifetime",
+2026-11-26T02:24:36.7380563Z     "linear_lifetime_mpi",
+2026-11-26T02:24:36.7380862Z     "nonlinear_acceptance",
+2026-11-26T02:24:36.7381172Z     "nonlinear_acceptance_mpi",
+2026-11-26T02:24:36.7381604Z     "pc_added_mass_nodal_retry",
+2026-11-26T02:24:36.7381920Z     "pc_added_mass_retry",
+2026-11-26T02:24:36.7382202Z     "pc_plan_mpi1",
+2026-11-26T02:24:36.7382457Z     "pc_plan_mpi2",
+2026-11-26T02:24:36.7382711Z     "pc_plan_mpi4",
+2026-11-26T02:24:36.7382968Z     "pc_recipe_hybrid",
+2026-11-26T02:24:36.7383246Z     "pc_recipe_physics",
+2026-11-26T02:24:36.7383530Z     "pc_recipe_quantity",
+2026-11-26T02:24:36.7383815Z     "pc_recipe_restart",
+2026-11-26T02:24:36.7384091Z     "pc_recipe_retry",
+2026-11-26T02:24:36.7384361Z     "pc_twolevel_retry",
+2026-11-26T02:24:36.7384722Z     "poisson_parallel",
+2026-11-26T02:24:36.7385014Z     "rigid_fsi_verification",
+2026-11-26T02:24:36.7385570Z     "scalar2d_failure",
+2026-11-26T02:24:36.7385845Z     "scalar2d_space",
+2026-11-26T02:24:36.7386118Z     "scalar_p2_failure",
+2026-11-26T02:24:36.7386402Z     "scalar_p2_restart",
+2026-11-26T02:24:36.7386682Z     "scalar_p2_time",
+2026-11-26T02:24:36.7386957Z     "solid_alpha_verification",
+2026-11-26T02:24:36.7387288Z     "solid_verification",
+2026-11-26T02:24:36.7387586Z     "solver_failures",
+2026-11-26T02:24:36.7387857Z     "solver_failures_mpi",
+2026-11-26T02:24:36.7388155Z     "time_retry_verification"
+2026-11-26T02:24:36.7388445Z   ],
+2026-11-26T02:24:36.7388673Z   "tests": [
+2026-11-26T02:24:36.7388922Z     "domains_verification",
+2026-11-26T02:24:36.7389224Z     "elastic_fsi_verification",
+2026-11-26T02:24:36.7389886Z     "fluid_coo_verification",
+2026-11-26T02:24:36.7390190Z     "fluid_verification",
+2026-11-26T02:24:36.7390561Z     "fsi_alpha_verification",
+2026-11-26T02:24:36.7390871Z     "fsi_block_efficiency",
+2026-11-26T02:24:36.7391163Z     "fsi_branched_rcr",
+2026-11-26T02:24:36.7391599Z     "fsi_coo_verification",
+2026-11-26T02:24:36.7391886Z     "fsi_curved_inlet",
+2026-11-26T02:24:36.7392160Z     "fsi_diagnostics",
+2026-11-26T02:24:36.7392437Z     "fsi_diagnostics_mpi",
+2026-11-26T02:24:36.7392730Z     "fsi_element_jacobian",
+2026-11-26T02:24:36.7393002Z     "fsi_flow",
+2026-11-26T02:24:36.7393249Z     "fsi_inlet",
+2026-11-26T02:24:36.7393508Z     "fsi_metric_stabilization",
+2026-11-26T02:24:36.7393812Z     "fsi_moving_plane_rcr",
+2026-11-26T02:24:36.7394123Z     "fsi_periodic",
+2026-11-26T02:24:36.7394395Z     "fsi_pressure_convergence",
+2026-11-26T02:24:36.7394705Z     "fsi_pressure_state",
+2026-11-26T02:24:36.7395003Z     "fsi_reservoir_pressure",
+2026-11-26T02:24:36.7395314Z     "fsi_sampled_inlet",
+2026-11-26T02:24:36.7395604Z     "fsi_time_verification",
+2026-11-26T02:24:36.7395902Z     "fsi_tube",
+2026-11-26T02:24:36.7396158Z     "fsi_tube_rcr",
+2026-11-26T02:24:36.7396429Z     "fsi_tube_rcr_response",
+2026-11-26T02:24:36.7396745Z     "fsi_tube_wall_support",
+2026-11-26T02:24:36.7397063Z     "hyperelastic_verification",
+2026-11-26T02:24:36.7397375Z     "lame_wall",
+2026-11-26T02:24:36.7397646Z     "layout_policy_verification",
+2026-11-26T02:24:36.7397963Z     "linear_lifetime",
+2026-11-26T02:24:36.7398249Z     "linear_lifetime_mpi",
+2026-11-26T02:24:36.7398548Z     "nonlinear_acceptance",
+2026-11-26T02:24:36.7398861Z     "nonlinear_acceptance_mpi",
+2026-11-26T02:24:36.7399180Z     "pc_added_mass_nodal_retry",
+2026-11-26T02:24:36.7399608Z     "pc_added_mass_retry",
+2026-11-26T02:24:36.7399894Z     "pc_plan_mpi1",
+2026-11-26T02:24:36.7400154Z     "pc_plan_mpi2",
+2026-11-26T02:24:36.7400415Z     "pc_plan_mpi4",
+2026-11-26T02:24:36.7400670Z     "pc_recipe_hybrid",
+2026-11-26T02:24:36.7400955Z     "pc_recipe_physics",
+2026-11-26T02:24:36.7401247Z     "pc_recipe_quantity",
+2026-11-26T02:24:36.7401543Z     "pc_recipe_restart",
+2026-11-26T02:24:36.7401818Z     "pc_recipe_retry",
+2026-11-26T02:24:36.7402087Z     "pc_twolevel_retry",
+2026-11-26T02:24:36.7402368Z     "poisson_parallel",
+2026-11-26T02:24:36.7402658Z     "rigid_fsi_verification",
+2026-11-26T02:24:36.7402963Z     "scalar2d_failure",
+2026-11-26T02:24:36.7403236Z     "scalar2d_space",
+2026-11-26T02:24:36.7403520Z     "scalar_p2_failure",
+2026-11-26T02:24:36.7403800Z     "scalar_p2_restart",
+2026-11-26T02:24:36.7404074Z     "scalar_p2_time",
+2026-11-26T02:24:36.7404346Z     "solid_alpha_verification",
+2026-11-26T02:24:36.7404665Z     "solid_verification",
+2026-11-26T02:24:36.7404960Z     "solver_failures",
+2026-11-26T02:24:36.7405244Z     "solver_failures_mpi",
+2026-11-26T02:24:36.7405540Z     "time_retry_verification"
+2026-11-26T02:24:36.7405837Z   ],
+2026-11-26T02:24:36.7406067Z   "reused": [],
+2026-11-26T02:24:36.7406324Z   "origins": {},
+2026-11-26T02:24:36.7406598Z   "previous_run_id": null,
+2026-11-26T02:24:36.7406912Z   "python": [
+2026-11-26T02:24:36.7407181Z     "tests/test_lame_wall.py",
+2026-11-26T02:24:36.7407490Z     "tests/test_tube_mesh.py"
+2026-11-26T02:24:36.7407784Z   ],
+2026-11-26T02:24:36.7408026Z   "changes": {
+2026-11-26T02:24:36.7408509Z     "include/eonsim/coupled_velocity_pc.hpp": [
+2026-11-26T02:24:36.7408884Z       "fsi_tube",
+2026-11-26T02:24:36.7409146Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7409567Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7409828Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7410092Z       "pc_plan_mpi4",
+2026-11-26T02:24:36.7410370Z       "pc_recipe_hybrid",
+2026-11-26T02:24:36.7410669Z       "pc_recipe_restart",
+2026-11-26T02:24:36.7410955Z       "pc_twolevel_retry"
+2026-11-26T02:24:36.7411225Z     ],
+2026-11-26T02:24:36.7411488Z     "include/eonsim/linear_system.hpp": [
+2026-11-26T02:24:36.7411841Z       "linear_lifetime",
+2026-11-26T02:24:36.7412137Z       "linear_lifetime_mpi",
+2026-11-26T02:24:36.7412445Z       "poisson_parallel",
+2026-11-26T02:24:36.7412735Z       "scalar2d_failure",
+2026-11-26T02:24:36.7413027Z       "scalar_p2_failure",
+2026-11-26T02:24:36.7413319Z       "scalar_p2_restart",
+2026-11-26T02:24:36.7413604Z       "scalar_p2_time",
+2026-11-26T02:24:36.7414085Z       "solid_alpha_verification"
+2026-11-26T02:24:36.7414392Z     ],
+2026-11-26T02:24:36.7414649Z     "include/eonsim/pc_plan.hpp": [
+2026-11-26T02:24:36.7414997Z       "fsi_block_efficiency",
+2026-11-26T02:24:36.7415302Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7415593Z       "pc_added_mass_nodal_retry",
+2026-11-26T02:24:36.7415919Z       "pc_added_mass_retry",
+2026-11-26T02:24:36.7416221Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7416493Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7416755Z       "pc_plan_mpi4",
+2026-11-26T02:24:36.7417023Z       "pc_recipe_hybrid",
+2026-11-26T02:24:36.7417318Z       "pc_recipe_physics",
+2026-11-26T02:24:36.7417623Z       "pc_recipe_quantity",
+2026-11-26T02:24:36.7417920Z       "pc_recipe_restart",
+2026-11-26T02:24:36.7418210Z       "pc_recipe_retry",
+2026-11-26T02:24:36.7418494Z       "pc_twolevel_retry"
+2026-11-26T02:24:36.7418770Z     ],
+2026-11-26T02:24:36.7419046Z     "src/algebra/coupled_velocity_pc.cpp": [
+2026-11-26T02:24:36.7419592Z       "fsi_tube",
+2026-11-26T02:24:36.7419859Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7420127Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7420403Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7420674Z       "pc_plan_mpi4",
+2026-11-26T02:24:36.7420964Z       "pc_recipe_hybrid",
+2026-11-26T02:24:36.7421262Z       "pc_recipe_restart",
+2026-11-26T02:24:36.7421547Z       "pc_twolevel_retry"
+2026-11-26T02:24:36.7421814Z     ],
+2026-11-26T02:24:36.7422085Z     "src/algebra/nonlinear_system.cpp": [
+2026-11-26T02:24:36.7422443Z       "domains_verification",
+2026-11-26T02:24:36.7422759Z       "fluid_coo_verification",
+2026-11-26T02:24:36.7423074Z       "fluid_verification",
+2026-11-26T02:24:36.7423378Z       "fsi_coo_verification",
+2026-11-26T02:24:36.7423682Z       "nonlinear_acceptance",
+2026-11-26T02:24:36.7423999Z       "nonlinear_acceptance_mpi",
+2026-11-26T02:24:36.7424323Z       "pc_recipe_hybrid",
+2026-11-26T02:24:36.7424632Z       "rigid_fsi_verification",
+2026-11-26T02:24:36.7424948Z       "solid_verification",
+2026-11-26T02:24:36.7425243Z       "solver_failures",
+2026-11-26T02:24:36.7425541Z       "solver_failures_mpi"
+2026-11-26T02:24:36.7425833Z     ],
+2026-11-26T02:24:36.7426102Z     "src/algebra/pc_plan.cpp": [
+2026-11-26T02:24:36.7426414Z       "fsi_block_efficiency",
+2026-11-26T02:24:36.7426709Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7426995Z       "pc_added_mass_nodal_retry",
+2026-11-26T02:24:36.7427323Z       "pc_added_mass_retry",
+2026-11-26T02:24:36.7427626Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7427903Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7428173Z       "pc_plan_mpi4",
+2026-11-26T02:24:36.7428453Z       "pc_recipe_hybrid",
+2026-11-26T02:24:36.7428754Z       "pc_recipe_physics",
+2026-11-26T02:24:36.7429057Z       "pc_recipe_quantity",
+2026-11-26T02:24:36.7429523Z       "pc_recipe_restart",
+2026-11-26T02:24:36.7429816Z       "pc_recipe_retry",
+2026-11-26T02:24:36.7430104Z       "pc_twolevel_retry"
+2026-11-26T02:24:36.7430377Z     ],
+2026-11-26T02:24:36.7430632Z     "src/fem/field_layout.cpp": [
+2026-11-26T02:24:36.7430968Z       "domains_verification",
+2026-11-26T02:24:36.7431509Z       "fluid_verification",
+2026-11-26T02:24:36.7431823Z       "layout_policy_verification",
+2026-11-26T02:24:36.7432153Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7432420Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7432697Z       "poisson_parallel",
+2026-11-26T02:24:36.7432985Z       "rigid_fsi_verification",
+2026-11-26T02:24:36.7433304Z       "scalar2d_space",
+2026-11-26T02:24:36.7433583Z       "solid_verification"
+2026-11-26T02:24:36.7433867Z     ],
+2026-11-26T02:24:36.7434129Z     "src/fem/reduced_layout.cpp": [
+2026-11-26T02:24:36.7434478Z       "domains_verification",
+2026-11-26T02:24:36.7434797Z       "fsi_alpha_verification",
+2026-11-26T02:24:36.7435109Z       "fsi_branched_rcr",
+2026-11-26T02:24:36.7435405Z       "fsi_coo_verification",
+2026-11-26T02:24:36.7435702Z       "fsi_curved_inlet",
+2026-11-26T02:24:36.7435994Z       "fsi_element_jacobian",
+2026-11-26T02:24:36.7436305Z       "fsi_moving_plane_rcr",
+2026-11-26T02:24:36.7436783Z       "fsi_sampled_inlet",
+2026-11-26T02:24:36.7437089Z       "fsi_time_verification",
+2026-11-26T02:24:36.7437411Z       "hyperelastic_verification",
+2026-11-26T02:24:36.7437729Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7437987Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7438274Z       "rigid_fsi_verification"
+2026-11-26T02:24:36.7438575Z     ],
+2026-11-26T02:24:36.7438832Z     "src/physics/fsi.cpp": [
+2026-11-26T02:24:36.7439150Z       "domains_verification",
+2026-11-26T02:24:36.7439629Z       "elastic_fsi_verification",
+2026-11-26T02:24:36.7439967Z       "fsi_alpha_verification",
+2026-11-26T02:24:36.7440292Z       "fsi_branched_rcr",
+2026-11-26T02:24:36.7440594Z       "fsi_coo_verification",
+2026-11-26T02:24:36.7440904Z       "fsi_curved_inlet",
+2026-11-26T02:24:36.7441195Z       "fsi_diagnostics",
+2026-11-26T02:24:36.7441496Z       "fsi_diagnostics_mpi",
+2026-11-26T02:24:36.7441814Z       "fsi_element_jacobian",
+2026-11-26T02:24:36.7442117Z       "fsi_flow",
+2026-11-26T02:24:36.7442385Z       "fsi_inlet",
+2026-11-26T02:24:36.7442721Z       "fsi_metric_stabilization",
+2026-11-26T02:24:36.7443054Z       "fsi_moving_plane_rcr",
+2026-11-26T02:24:36.7443354Z       "fsi_periodic",
+2026-11-26T02:24:36.7443644Z       "fsi_pressure_convergence",
+2026-11-26T02:24:36.7443980Z       "fsi_pressure_state",
+2026-11-26T02:24:36.7444300Z       "fsi_reservoir_pressure",
+2026-11-26T02:24:36.7444617Z       "fsi_sampled_inlet",
+2026-11-26T02:24:36.7444927Z       "fsi_time_verification",
+2026-11-26T02:24:36.7445234Z       "fsi_tube",
+2026-11-26T02:24:36.7445495Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7445778Z       "fsi_tube_rcr_response",
+2026-11-26T02:24:36.7446089Z       "fsi_tube_wall_support",
+2026-11-26T02:24:36.7446411Z       "hyperelastic_verification",
+2026-11-26T02:24:36.7446743Z       "lame_wall",
+2026-11-26T02:24:36.7447014Z       "pc_recipe_restart",
+2026-11-26T02:24:36.7447325Z       "pc_recipe_retry",
+2026-11-26T02:24:36.7447627Z       "rigid_fsi_verification"
+2026-11-26T02:24:36.7447926Z     ],
+2026-11-26T02:24:36.7448214Z     "tests/verify_fsi_block_efficiency.py": [
+2026-11-26T02:24:36.7448590Z       "fsi_block_efficiency"
+2026-11-26T02:24:36.7448882Z     ],
+2026-11-26T02:24:36.7449137Z     "tests/verify_fsi_tube.py": [
+2026-11-26T02:24:36.7449626Z       "fsi_block_efficiency",
+2026-11-26T02:24:36.7449929Z       "fsi_tube",
+2026-11-26T02:24:36.7450188Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7450464Z       "fsi_tube_rcr_response",
+2026-11-26T02:24:36.7450783Z       "fsi_tube_wall_support"
+2026-11-26T02:24:36.7451076Z     ],
+2026-11-26T02:24:36.7451333Z     "tests/verify_pc_plan.cpp": [
+2026-11-26T02:24:36.7451654Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7451929Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7452198Z       "pc_plan_mpi4"
+2026-11-26T02:24:36.7452462Z     ],
+2026-11-26T02:24:36.7452719Z     "tests/verify_time_retry.py": [
+2026-11-26T02:24:36.7453061Z       "pc_added_mass_nodal_retry",
+2026-11-26T02:24:36.7453398Z       "pc_added_mass_retry",
+2026-11-26T02:24:36.7453709Z       "pc_recipe_retry",
+2026-11-26T02:24:36.7454207Z       "pc_twolevel_retry",
+2026-11-26T02:24:36.7454520Z       "time_retry_verification"
+2026-11-26T02:24:36.7454826Z     ]
+2026-11-26T02:24:36.7455051Z   },
+2026-11-26T02:24:36.7455283Z   "delta": {
+2026-11-26T02:24:36.7455572Z     "include/eonsim/coupled_velocity_pc.hpp": [
+2026-11-26T02:24:36.7455935Z       "fsi_tube",
+2026-11-26T02:24:36.7456190Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7456452Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7456713Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7456974Z       "pc_plan_mpi4",
+2026-11-26T02:24:36.7457249Z       "pc_recipe_hybrid",
+2026-11-26T02:24:36.7457541Z       "pc_recipe_restart",
+2026-11-26T02:24:36.7457843Z       "pc_twolevel_retry"
+2026-11-26T02:24:36.7458090Z     ],
+2026-11-26T02:24:36.7458350Z     "include/eonsim/linear_system.hpp": [
+2026-11-26T02:24:36.7458677Z       "linear_lifetime",
+2026-11-26T02:24:36.7458960Z       "linear_lifetime_mpi",
+2026-11-26T02:24:36.7459444Z       "poisson_parallel",
+2026-11-26T02:24:36.7459929Z       "scalar2d_failure",
+2026-11-26T02:24:36.7460224Z       "scalar_p2_failure",
+2026-11-26T02:24:36.7460517Z       "scalar_p2_restart",
+2026-11-26T02:24:36.7460802Z       "scalar_p2_time",
+2026-11-26T02:24:36.7461100Z       "solid_alpha_verification"
+2026-11-26T02:24:36.7461412Z     ],
+2026-11-26T02:24:36.7461671Z     "include/eonsim/pc_plan.hpp": [
+2026-11-26T02:24:36.7462008Z       "fsi_block_efficiency",
+2026-11-26T02:24:36.7462305Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7462592Z       "pc_added_mass_nodal_retry",
+2026-11-26T02:24:36.7462917Z       "pc_added_mass_retry",
+2026-11-26T02:24:36.7463216Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7463484Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7463751Z       "pc_plan_mpi4",
+2026-11-26T02:24:36.7464027Z       "pc_recipe_hybrid",
+2026-11-26T02:24:36.7464320Z       "pc_recipe_physics",
+2026-11-26T02:24:36.7464618Z       "pc_recipe_quantity",
+2026-11-26T02:24:36.7464929Z       "pc_recipe_restart",
+2026-11-26T02:24:36.7465225Z       "pc_recipe_retry",
+2026-11-26T02:24:36.7465528Z       "pc_twolevel_retry"
+2026-11-26T02:24:36.7465806Z     ],
+2026-11-26T02:24:36.7466084Z     "src/algebra/coupled_velocity_pc.cpp": [
+2026-11-26T02:24:36.7466439Z       "fsi_tube",
+2026-11-26T02:24:36.7466693Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7466962Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7467235Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7467499Z       "pc_plan_mpi4",
+2026-11-26T02:24:36.7467773Z       "pc_recipe_hybrid",
+2026-11-26T02:24:36.7468078Z       "pc_recipe_restart",
+2026-11-26T02:24:36.7468377Z       "pc_twolevel_retry"
+2026-11-26T02:24:36.7468648Z     ],
+2026-11-26T02:24:36.7468908Z     "src/algebra/nonlinear_system.cpp": [
+2026-11-26T02:24:36.7469473Z       "domains_verification",
+2026-11-26T02:24:36.7469793Z       "fluid_coo_verification",
+2026-11-26T02:24:36.7470115Z       "fluid_verification",
+2026-11-26T02:24:36.7470428Z       "fsi_coo_verification",
+2026-11-26T02:24:36.7470756Z       "nonlinear_acceptance",
+2026-11-26T02:24:36.7471097Z       "nonlinear_acceptance_mpi",
+2026-11-26T02:24:36.7471435Z       "pc_recipe_hybrid",
+2026-11-26T02:24:36.7471742Z       "rigid_fsi_verification",
+2026-11-26T02:24:36.7472054Z       "solid_verification",
+2026-11-26T02:24:36.7472356Z       "solver_failures",
+2026-11-26T02:24:36.7472654Z       "solver_failures_mpi"
+2026-11-26T02:24:36.7472936Z     ],
+2026-11-26T02:24:36.7473189Z     "src/algebra/pc_plan.cpp": [
+2026-11-26T02:24:36.7473513Z       "fsi_block_efficiency",
+2026-11-26T02:24:36.7473808Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7474089Z       "pc_added_mass_nodal_retry",
+2026-11-26T02:24:36.7474424Z       "pc_added_mass_retry",
+2026-11-26T02:24:36.7474727Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7474999Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7475288Z       "pc_plan_mpi4",
+2026-11-26T02:24:36.7475555Z       "pc_recipe_hybrid",
+2026-11-26T02:24:36.7475850Z       "pc_recipe_physics",
+2026-11-26T02:24:36.7476147Z       "pc_recipe_quantity",
+2026-11-26T02:24:36.7476452Z       "pc_recipe_restart",
+2026-11-26T02:24:36.7476760Z       "pc_recipe_retry",
+2026-11-26T02:24:36.7477224Z       "pc_twolevel_retry"
+2026-11-26T02:24:36.7477497Z     ],
+2026-11-26T02:24:36.7477746Z     "src/fem/field_layout.cpp": [
+2026-11-26T02:24:36.7478081Z       "domains_verification",
+2026-11-26T02:24:36.7478392Z       "fluid_verification",
+2026-11-26T02:24:36.7478693Z       "layout_policy_verification",
+2026-11-26T02:24:36.7479012Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7479450Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7479725Z       "poisson_parallel",
+2026-11-26T02:24:36.7480024Z       "rigid_fsi_verification",
+2026-11-26T02:24:36.7480336Z       "scalar2d_space",
+2026-11-26T02:24:36.7480623Z       "solid_verification"
+2026-11-26T02:24:36.7480894Z     ],
+2026-11-26T02:24:36.7481148Z     "src/fem/reduced_layout.cpp": [
+2026-11-26T02:24:36.7481483Z       "domains_verification",
+2026-11-26T02:24:36.7481794Z       "fsi_alpha_verification",
+2026-11-26T02:24:36.7482107Z       "fsi_branched_rcr",
+2026-11-26T02:24:36.7482589Z       "fsi_coo_verification",
+2026-11-26T02:24:36.7482904Z       "fsi_curved_inlet",
+2026-11-26T02:24:36.7483196Z       "fsi_element_jacobian",
+2026-11-26T02:24:36.7483503Z       "fsi_moving_plane_rcr",
+2026-11-26T02:24:36.7483803Z       "fsi_sampled_inlet",
+2026-11-26T02:24:36.7484096Z       "fsi_time_verification",
+2026-11-26T02:24:36.7484417Z       "hyperelastic_verification",
+2026-11-26T02:24:36.7484753Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7485022Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7485299Z       "rigid_fsi_verification"
+2026-11-26T02:24:36.7485590Z     ],
+2026-11-26T02:24:36.7485847Z     "src/physics/fsi.cpp": [
+2026-11-26T02:24:36.7486161Z       "domains_verification",
+2026-11-26T02:24:36.7486477Z       "elastic_fsi_verification",
+2026-11-26T02:24:36.7486802Z       "fsi_alpha_verification",
+2026-11-26T02:24:36.7487075Z       "fsi_branched_rcr",
+2026-11-26T02:24:36.7487363Z       "fsi_coo_verification",
+2026-11-26T02:24:36.7487660Z       "fsi_curved_inlet",
+2026-11-26T02:24:36.7487951Z       "fsi_diagnostics",
+2026-11-26T02:24:36.7488252Z       "fsi_diagnostics_mpi",
+2026-11-26T02:24:36.7488560Z       "fsi_element_jacobian",
+2026-11-26T02:24:36.7488852Z       "fsi_flow",
+2026-11-26T02:24:36.7489107Z       "fsi_inlet",
+2026-11-26T02:24:36.7489523Z       "fsi_metric_stabilization",
+2026-11-26T02:24:36.7489851Z       "fsi_moving_plane_rcr",
+2026-11-26T02:24:36.7490151Z       "fsi_periodic",
+2026-11-26T02:24:36.7490436Z       "fsi_pressure_convergence",
+2026-11-26T02:24:36.7490749Z       "fsi_pressure_state",
+2026-11-26T02:24:36.7491056Z       "fsi_reservoir_pressure",
+2026-11-26T02:24:36.7491372Z       "fsi_sampled_inlet",
+2026-11-26T02:24:36.7491668Z       "fsi_time_verification",
+2026-11-26T02:24:36.7491970Z       "fsi_tube",
+2026-11-26T02:24:36.7492232Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7492519Z       "fsi_tube_rcr_response",
+2026-11-26T02:24:36.7492832Z       "fsi_tube_wall_support",
+2026-11-26T02:24:36.7493154Z       "hyperelastic_verification",
+2026-11-26T02:24:36.7493474Z       "lame_wall",
+2026-11-26T02:24:36.7493755Z       "pc_recipe_restart",
+2026-11-26T02:24:36.7494051Z       "pc_recipe_retry",
+2026-11-26T02:24:36.7494347Z       "rigid_fsi_verification"
+2026-11-26T02:24:36.7494640Z     ],
+2026-11-26T02:24:36.7494933Z     "tests/verify_fsi_block_efficiency.py": [
+2026-11-26T02:24:36.7495308Z       "fsi_block_efficiency"
+2026-11-26T02:24:36.7495603Z     ],
+2026-11-26T02:24:36.7495859Z     "tests/verify_fsi_tube.py": [
+2026-11-26T02:24:36.7496359Z       "fsi_block_efficiency",
+2026-11-26T02:24:36.7496652Z       "fsi_tube",
+2026-11-26T02:24:36.7496908Z       "fsi_tube_rcr",
+2026-11-26T02:24:36.7497193Z       "fsi_tube_rcr_response",
+2026-11-26T02:24:36.7497516Z       "fsi_tube_wall_support"
+2026-11-26T02:24:36.7497806Z     ],
+2026-11-26T02:24:36.7498058Z     "tests/verify_pc_plan.cpp": [
+2026-11-26T02:24:36.7498387Z       "pc_plan_mpi1",
+2026-11-26T02:24:36.7498659Z       "pc_plan_mpi2",
+2026-11-26T02:24:36.7498928Z       "pc_plan_mpi4"
+2026-11-26T02:24:36.7499187Z     ],
+2026-11-26T02:24:36.7499620Z     "tests/verify_time_retry.py": [
+2026-11-26T02:24:36.7500152Z       "pc_added_mass_nodal_retry",
+2026-11-26T02:24:36.7500492Z       "pc_added_mass_retry",
+2026-11-26T02:24:36.7500790Z       "pc_recipe_retry",
+2026-11-26T02:24:36.7501086Z       "pc_twolevel_retry",
+2026-11-26T02:24:36.7501392Z       "time_retry_verification"
+2026-11-26T02:24:36.7501691Z     ]
+2026-11-26T02:24:36.7501917Z   },
+2026-11-26T02:24:36.7502149Z   "ignored": [
+2026-11-26T02:24:36.7502440Z     "docs/development/CODEX_PROGRESS.md",
+2026-11-26T02:24:36.7502831Z     "docs/development/CODEX_SESSION_LOG.md",
+2026-11-26T02:24:36.7503216Z     "docs/development/CODEX_TASK_QUEUE.md",
+2026-11-26T02:24:36.7503637Z     "docs/development/FSI_BLOCK_PRECONDITIONER.md",
+2026-11-26T02:24:36.7504053Z     "docs/research/KNOWLEDGE_LOG.md",
+2026-11-26T02:24:36.7504467Z     "website/drafts/fsi-reference-modes-and-gamg.md"
+2026-11-26T02:24:36.7504856Z   ],
+2026-11-26T02:24:36.7505129Z   "disposition": "run"
+2026-11-26T02:24:36.8859586Z ......
+2026-11-26T02:24:36.8859945Z ----------------------------------------------------------------------
+2026-11-26T02:24:36.8860288Z Ran 6 tests in 0.053s
+2026-11-26T02:24:36.8860420Z 
+2026-11-26T02:24:36.8860496Z OK
+2026-11-26T02:24:37.0565483Z ....
+2026-11-26T02:24:37.0565780Z ----------------------------------------------------------------------
+2026-11-26T02:24:37.0566089Z Ran 4 tests in 0.125s
+2026-11-26T02:24:37.0566221Z 
+2026-11-26T02:24:37.0566288Z OK
+2026-11-26T02:24:37.0645303Z }
+2026-11-26T02:24:37.0862493Z ##[group]Run actions/upload-artifact@v4
+2026-11-26T02:24:37.0862735Z with:
+2026-11-26T02:24:37.0862917Z   name: incremental-plan
+2026-11-26T02:24:37.0863126Z   path: build/ci/plan.json
+2026-11-26T02:24:37.0863333Z   if-no-files-found: warn
+2026-11-26T02:24:37.0863540Z   retention-days: 14
+2026-11-26T02:24:37.0863740Z   compression-level: 6
+2026-11-26T02:24:37.0863930Z   overwrite: false
+2026-11-26T02:24:37.0864119Z   include-hidden-files: false
+2026-11-26T02:24:37.0864334Z ##[endgroup]
+2026-11-26T02:24:37.2197911Z (node:2223) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-26T02:24:37.2198490Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-26T02:24:37.2237518Z With the provided path, there will be 1 file uploaded
+2026-11-26T02:24:37.2248736Z Artifact name is valid!
+2026-11-26T02:24:37.2249468Z Root directory input is valid!
+2026-11-26T02:24:37.6342896Z Beginning upload of artifact content to blob storage
+2026-11-26T02:24:37.6489439Z (node:2223) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-26T02:24:37.9307017Z Uploaded bytes 1566
+2026-11-26T02:24:38.0080317Z Finished uploading artifact content to blob storage!
+2026-11-26T02:24:38.0081066Z SHA256 digest of uploaded artifact zip is c9c4dc8367f3a175d32035435bd356a77c9f76a6c3980d06cbdedc8c9ffe7703
+2026-11-26T02:24:38.0088958Z Finalizing artifact upload
+2026-11-26T02:24:38.3946581Z Artifact incremental-plan.zip successfully finalized. Artifact ID 15082056352
+2026-11-26T02:24:38.3947452Z Artifact incremental-plan has been successfully uploaded! Final size is 1566 bytes. Artifact ID is 15082056352
+2026-11-26T02:24:38.3952522Z Artifact download URL: https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45741570996/artifacts/15082056352
+2026-11-26T02:24:38.4140741Z Post job cleanup.
+2026-11-26T02:24:38.4825230Z [command]/usr/bin/git version
+2026-11-26T02:24:38.4863172Z git version 2.56.1
+2026-11-26T02:24:38.4895670Z Temporarily overriding HOME='/home/runner/work/_temp/9a47f58e-e7a9-4a5f-a0c6-46f25da02576' before making global git config changes
+2026-11-26T02:24:38.4896671Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-26T02:24:38.4900436Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/EONSim-new/EONSim-new
+2026-11-26T02:24:38.4935506Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-26T02:24:38.4991908Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-26T02:24:38.5213885Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-26T02:24:38.5246174Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-26T02:24:38.5466298Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-26T02:24:38.5503808Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-26T02:24:38.5847601Z Evaluate and set job outputs
+2026-11-26T02:24:38.5852982Z Set output 'run_numerics'
+2026-11-26T02:24:38.5854460Z Cleaning up orphan processes
+2026-11-26T02:24:38.6199166Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -9,6 +9,7 @@ namespace eonsim {
 struct PcBlock {
     std::string name;
     bool schur=false, nodal_schur=false, coupled_velocity=false, twolevel_velocity=false;
+    bool gamg_velocity=false, rigid_velocity_modes=false;
     // Added-mass retains full fluid saddle-point blocks with an approximate inverse action.
     // fluid_response defaults to PREONLY; explicit FGMRES keeps its bounded budget.
     // structure_response selects the historical iterative solve preconditioned by A11.
@@ -24,6 +25,7 @@ struct PcBlock {
     // RCR boundary pressures have separate identities and form scalar groups.
     std::vector<std::vector<PetscInt>> fluid_groups;
     std::vector<DofKey> velocity_semantics; ///< Leaf row order, for the coupled coarse space.
+    std::vector<std::array<double,3>> velocity_reference_coordinates; ///< Same owned row order; reference geometry only.
 };
 /// Collective preparation; rejects unsupported recipe/layout consistently before IS creation.
 PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string& recipe);

@@ -1,0 +1,558 @@
+{
+  "schema": 1,
+  "audited_at_utc": "2026-11-26 02:37:31 UTC",
+  "source": "Read-only authenticated GitHub workflow metadata, final job statuses, decoded complete job logs, and Git merge-preview commit metadata. No local build or test was run for this audit.",
+  "repository": "saitoasukakawaii/EONSim-new",
+  "pr": 54,
+  "workflow": {
+    "id": 45741570996,
+    "name": "Core numerical validation",
+    "url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45741570996",
+    "status": "completed",
+    "conclusion": "success",
+    "event": "pull_request",
+    "run_attempt": 1,
+    "head_sha": "88e6c3359b742735877177eb4584b987caae1790",
+    "created_at": "2026-11-26T02:18:51Z",
+    "updated_at": "2026-11-26T02:35:36Z"
+  },
+  "jobs": [
+    {
+      "id": 139649582920,
+      "name": "Select affected checks",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45741570996,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Select tests and check changed CI scripts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Preserve selection evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        }
+      ]
+    },
+    {
+      "id": 139649584368,
+      "name": "PETSc 3.19.6 / release (manual compatibility)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 45741570996,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 139649746993,
+      "name": "PETSc 3.23.7 / release",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45741570996,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Require successful selection",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "No new numerical tests required",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 3
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Dependency package cache",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Restore locked environment",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Build and verify selected numerical contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Preserve evidence even on failure",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Dependency package cache",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        }
+      ]
+    },
+    {
+      "id": 139649748904,
+      "name": "PETSc 3.23.7 / debug (manual diagnostics)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 45741570996,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 139653495038,
+      "name": "Record incremental evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45741570996,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Require successful selection and Release validation",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Verify results and record historical origins",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "source_head": "88e6c3359b742735877177eb4584b987caae1790",
+    "base": "858f021a34ff5bd178287430d8cd45e52ec19f48",
+    "actual_checkout": "3d83542bfd8211900e6fe429e22163e526cd31c2",
+    "checkout_kind": "GitHub pull-request merge preview",
+    "merge_preview_parents": [
+      "858f021a34ff5bd178287430d8cd45e52ec19f48",
+      "88e6c3359b742735877177eb4584b987caae1790"
+    ],
+    "source_head_tree": "76b429a0eec70921d286849854948e559e782bfc",
+    "tested_merge_preview_tree": "76b429a0eec70921d286849854948e559e782bfc",
+    "selection_tree": "76b429a0eec70921d286849854948e559e782bfc",
+    "receipt_tree": "76b429a0eec70921d286849854948e559e782bfc",
+    "tree_equality_verified": true,
+    "job_checkouts": {
+      "selection": "3d83542bfd8211900e6fe429e22163e526cd31c2",
+      "release": "3d83542bfd8211900e6fe429e22163e526cd31c2",
+      "receipt": "3d83542bfd8211900e6fe429e22163e526cd31c2",
+      "website": "3d83542bfd8211900e6fe429e22163e526cd31c2"
+    },
+    "merge_metadata_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/git/commits/3d83542bfd8211900e6fe429e22163e526cd31c2"
+  },
+  "selection": {
+    "requested": "incremental",
+    "selection": "explicit",
+    "disposition": "run",
+    "required_contracts": 56,
+    "newly_selected_contracts": 56,
+    "reused_contracts": 0,
+    "previous_run_id": null,
+    "fingerprint": "9ed3c656a9c65c8f5ab2ae223746830229e279d057f11ef4c1bec30773572b60",
+    "artifact": {
+      "name": "incremental-plan",
+      "id": 15082056352,
+      "size_bytes": 1566,
+      "zip_sha256": "c9c4dc8367f3a175d32035435bd356a77c9f76a6c3980d06cbdedc8c9ffe7703",
+      "uploaded": true
+    }
+  },
+  "selected_release": {
+    "petsc": "3.23.7",
+    "mode": "release",
+    "status": "passed",
+    "newly_executed_contracts": 56,
+    "passed": 56,
+    "failed": 0,
+    "skipped_test_cases": 0,
+    "historical_contracts_reused": 0,
+    "executed_contracts": [
+      "domains_verification",
+      "elastic_fsi_verification",
+      "fluid_coo_verification",
+      "fluid_verification",
+      "fsi_alpha_verification",
+      "fsi_block_efficiency",
+      "fsi_branched_rcr",
+      "fsi_coo_verification",
+      "fsi_curved_inlet",
+      "fsi_diagnostics",
+      "fsi_diagnostics_mpi",
+      "fsi_element_jacobian",
+      "fsi_flow",
+      "fsi_inlet",
+      "fsi_metric_stabilization",
+      "fsi_moving_plane_rcr",
+      "fsi_periodic",
+      "fsi_pressure_convergence",
+      "fsi_pressure_state",
+      "fsi_reservoir_pressure",
+      "fsi_sampled_inlet",
+      "fsi_time_verification",
+      "fsi_tube",
+      "fsi_tube_rcr",
+      "fsi_tube_rcr_response",
+      "fsi_tube_wall_support",
+      "hyperelastic_verification",
+      "lame_wall",
+      "layout_policy_verification",
+      "linear_lifetime",
+      "linear_lifetime_mpi",
+      "nonlinear_acceptance",
+      "nonlinear_acceptance_mpi",
+      "pc_added_mass_nodal_retry",
+      "pc_added_mass_retry",
+      "pc_plan_mpi1",
+      "pc_plan_mpi2",
+      "pc_plan_mpi4",
+      "pc_recipe_hybrid",
+      "pc_recipe_physics",
+      "pc_recipe_quantity",
+      "pc_recipe_restart",
+      "pc_recipe_retry",
+      "pc_twolevel_retry",
+      "poisson_parallel",
+      "rigid_fsi_verification",
+      "scalar2d_failure",
+      "scalar2d_space",
+      "scalar_p2_failure",
+      "scalar_p2_restart",
+      "scalar_p2_time",
+      "solid_alpha_verification",
+      "solid_verification",
+      "solver_failures",
+      "solver_failures_mpi",
+      "time_retry_verification"
+    ],
+    "command": "scripts/cloud/run.sh '3.23.7' 'release' explicit .cloud build/ci/plan.json",
+    "configure_exit_code": 0,
+    "build_exit_code": 0,
+    "runtime_preflight_exit_code": 0,
+    "ctest_exit_code": 0,
+    "resources": {
+      "cpu_budget": 4,
+      "memory_bytes": 16464302080,
+      "cgroup": {
+        "/sys/fs/cgroup": {},
+        "/sys/fs/cgroup/system.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "cpu.max": "max 100000",
+          "memory.max": "max"
+        }
+      },
+      "build_jobs": 4
+    },
+    "artifact": {
+      "name": "numerics-3.23.7-release-3d83542bfd8211900e6fe429e22163e526cd31c2",
+      "id": 15081479135,
+      "size_bytes": 4624299,
+      "zip_sha256": "74c01d8efc16bc927e6a69d723c183f2be2787310c3a4385c6015fc4b315693c",
+      "uploaded": true
+    }
+  },
+  "python": {
+    "location": "Select affected checks / Select tests and check changed CI scripts",
+    "newly_executed": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "scripts": [
+      {
+        "path": "tests/test_lame_wall.py",
+        "passed": 6,
+        "elapsed_seconds": 0.053,
+        "status": "OK"
+      },
+      {
+        "path": "tests/test_tube_mesh.py",
+        "passed": 4,
+        "elapsed_seconds": 0.125,
+        "status": "OK"
+      }
+    ],
+    "count_basis": "Two unittest reports in selection log, in selected script order; 6 cases and 4 cases each end with OK. These are separate from the 56 Release CTest contracts."
+  },
+  "receipt": {
+    "ran": true,
+    "job_id": 139653495038,
+    "job_conclusion": "success",
+    "recorded_status": "passed",
+    "covered_contracts": 56,
+    "newly_executed_contracts": 56,
+    "reused_contracts": 0,
+    "all_origins": {
+      "run_id": 45741570996,
+      "commit": "3d83542bfd8211900e6fe429e22163e526cd31c2",
+      "mode": "release"
+    },
+    "previous_run_id": null,
+    "command": "python3 scripts/cloud/receipt.py --plan build/ci/plan.json --evidence build/ci/results --output build/ci/receipt.json",
+    "artifact": {
+      "name": "incremental-receipt",
+      "id": 15082192443,
+      "size_bytes": 1227,
+      "zip_sha256": "dce6e7cd509dabd320bc9027331fb229afa56f68901f37a95f685726afc82485",
+      "uploaded": true
+    }
+  },
+  "website": {
+    "workflow": {
+      "id": 45741571017,
+      "name": "Website Build Check",
+      "url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45741571017",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "pull_request",
+      "run_attempt": 1,
+      "head_sha": "88e6c3359b742735877177eb4584b987caae1790",
+      "created_at": "2026-11-26T02:18:51Z",
+      "updated_at": "2026-11-26T02:19:35Z"
+    },
+    "jobs": [
+      {
+        "id": 139647592315,
+        "name": "Build VitePress",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 45741571017,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Select website work",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Setup Node.js",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install website dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Add draft and template isolation sentinels",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Build public website",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Check Markdown and unpublished content isolation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Setup Node.js",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      }
+    ],
+    "actual_checkout": "3d83542bfd8211900e6fe429e22163e526cd31c2",
+    "commands": [
+      "npm install --no-audit --no-fund",
+      "npm run docs:build",
+      "npm run docs:check"
+    ],
+    "build_status": "passed",
+    "reported_build_seconds": 5.23,
+    "markdown_and_local_links": {
+      "checked_files": 11,
+      "status": "passed"
+    },
+    "draft_and_template_isolation": "passed"
+  },
+  "skipped_jobs": [
+    "PETSc 3.19.6 / release (manual compatibility)",
+    "PETSc 3.23.7 / debug (manual diagnostics)"
+  ],
+  "no_op_step": "Release 'No new numerical tests required' step was skipped; 56 selected contracts were actually executed.",
+  "raw_evidence": [
+    {
+      "path": "ci88logs/selection.log",
+      "job_id": 139649582920,
+      "sha256": "be17491a6442ef8ac326a1d6b45ead181e32fbd100778b886b39a379ff572dba",
+      "bytes": 45532,
+      "lines": 705
+    },
+    {
+      "path": "ci88logs/release.log",
+      "job_id": 139649746993,
+      "sha256": "e23f0dbaea28ea9492275275320e64f9b73a2140db76fae75f8d66e00992818a",
+      "bytes": 58876,
+      "lines": 723
+    },
+    {
+      "path": "ci88logs/receipt.log",
+      "job_id": 139653495038,
+      "sha256": "48e25548410fed17a6a7802cefcc6fde5e486405ae76e8c685a82619ce9abb6e",
+      "bytes": 48617,
+      "lines": 752
+    },
+    {
+      "path": "ci88logs/website.log",
+      "job_id": 139647592315,
+      "sha256": "27634c77b4e7bc0bf25a25457cc405b120602d73dbe52e962f379b67f9239bb6",
+      "bytes": 21504,
+      "lines": 292
+    }
+  ],
+  "limits": [
+    "This records source head 88e6c3359b742735877177eb4584b987caae1790; later documentation commits require their own latest-head status or an explicit historical-reuse receipt.",
+    "56 selected Release contracts and 10 Python unit-test cases are distinct counts; this is not a claim of 66 CTests or full-inventory execution.",
+    "No Debug or PETSc 3.19.6 tests ran in these workflows.",
+    "Raw GitHub job logs and receipt summaries were audited; the numerical artifact was not downloaded and its JUnit was not independently replayed by this audit.",
+    "These files are a separate source-CI addendum. The previously frozen local numerical evidence archive was not changed."
+  ]
+}

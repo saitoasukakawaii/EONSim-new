@@ -1,5 +1,74 @@
 # EONSim Codex Session Log
 
+## 2026-11-26 · FSI-PC-04 — 实现、验收与独立审计完成
+
+通过 GitHub 核实 main 为 `858f021`、#53 已合并且无开放 PR，恢复同一锁定 Release 工作区，
+建立 `codex/fsi-block-amg-robustness`。工作区原 sparse checkout 排除了 `docs/research`，
+恢复该目录后读取已有输入与证据；没有重新生成或改变历史材料。
+
+源审查确认 twolevel 只有 rank/domain/component 常数列，尚无坐标旋转或完整多层 GAMG。
+新增 owned 参考坐标的语义映射；旧镜像弹性示例须按 `x=1+thickness*(1-x)` 转换固体坐标，
+独立双域直接使用实际 joined 参考位置。坐标只属于预条件器数据，不改物理残量/Jacobian。
+检查 PETSc v3.23.7 的 `agg.c` 和 `gamg.c`，确认 scalar AIJ 支持显式多列近零空间，
+插值复用仍更新 Galerkin 数值；不把 reduced xyz 设为固定 blocksize 3。
+
+后续独立审查识别出 scalar-AIJ 多向量局部聚合的秩风险：全局正交不保证每个 aggregate
+上的平移/旋转数据满秩。采用单活动标量常数的完整速度 GAMG，并将旋转富集限定于可显式
+剔除局部依赖的 twolevel；`gamg + rigid` 明确拒绝，不静默删除用户请求的旋转模态。
+
+在源审查中补齐无 `-pc_recipe` 时新粗空间选项的拒绝路径。首个源码推送前只做源阅读与
+diff 完整性检查；首次实现 `e0703466` 及后续修复均同步远程之后才构建/执行。
+交付 [PR #54](https://github.com/saitoasukakawaii/EONSim-new/pull/54)，其合并状态以 GitHub 为准。
+
+### 实际失败与有界修复
+
+锁定 PETSc 3.23.7 Release 增量构建完成后，三个代数检查共同报 PETSc wrong order：
+GAMG 尚未构造层级，不能先调用 `PCMGSetCycleType`。a7e0 将 V-cycle 作为 setup 时生效的
+默认配置，推送后重编；`pc_plan_mpi1/2/4` **3/3**、RCR/动脉/recipe/域布局 **4/4** 通过。
+独立制造矩阵直接检查约束模态、刚体空间、退化/空 owner 和更新前后 Galerkin 数值。
+
+初次远端 e070 run `45739848423` 的 workflow 最终 cancelled，但 numerical command 已运行
+完成并 exit 8，实际 **50 通过、6 失败**。五个是上述 GAMG 顺序错误；另一个 `insert_fatal`
+标记实际具有 `team=2,batch=1,thread=0`，但 stdout 被 stderr 的 `EONSim rank ` 前缀拼接，
+验证器的行首匹配漏读。88e6 在 collective 错误传播前显式刷新标记，不改 parser 或门槛；
+推送、重编后受影响 `fsi_coo_verification` **1/1**，37 solves/四类实际第二批故障通过。
+最终原始 fatal 日志的完整标记均在 rank 错误诊断之前；不将此解释为所有 MPI stderr 已串行化。
+
+短命令 wall 受 Python timeout wait 轮询影响，不能用于可靠细粒度比较。1ab 增加本地阻塞 wait
+及独立 watchdog，保留 8/8 中间 quick 和 7/7 控制。进一步源审查指出默认 SIGTERM 会绕开
+Python cleanup、Timer.start 抛错可能留下子进程；88e6 用 scoped handler、process-group 清理
+与有条件 join 修复。推送后 **9/9** 离线控制通过，原部分日志、真实退出码、TERM/KILL 清理均保留。
+没有改共享 Runner、方程、物理容差或 CI 规则。两个新选项另通过 1/2-rank 实际缩步、直接参考
+及检查点重启；其子进程 stdout 未保存，独立复核范围明确限定到保留的字段、拓扑与 checkpoint。
+
+最终 88e6 源码 CI run `45741570996` 及网站 run `45741571017` 全部 success，实际执行
+**56/56 Release + 10/10 Python**，数值复用为 0；CI merge preview `3d83542b` 与源 tree 一致。
+此前 a7e0 的三个执行 job 和 receipt 虽成功，workflow 仍为 cancelled，原记录保留该区别。
+最终证据/文档提交另核对最新 head 的检查，不将其复用记录冒充新的数值执行。
+
+### 最终测量与来源区分
+
+最终生产/驱动源码 `88e6c3359b742735877177eb4584b987caae1790`，二进制 SHA256
+`c57ab409a125d759fd51513cf5c03024feec2f67a0f224fd1aa40cc87be1cf09`。
+原 a7e0 二进制和 1ab 驱动的来源分别保留。88e6 生产增量仅为故障诊断刷新，
+此前代数/RCR/retry 的通过证据仍适用，本地不重复运行这些路径；未运行全量、Debug 或 3.19.6。
+
+最终 quick **8/8**、full **40/40**、robustness **30/30**，共 **656 接受步、1,282 次修正**。
+包括 8 条完整 32 步轨迹，以及 `rho_s/rho_f=1,.1,.01`、`dt=1/32,1/128` 的六组八步直接解对照。
+独立重读每个原始 log/owned-VTU、输入/分区/源码摘要、实际 dt/压力 ramp、求解器观察、真实残量
+和计时算术；所有 78 runs 通过。最大真实残量/门槛 `0.6010254969`，最大五场相对峰值差
+`2.6170667e-9 < 2e-6`。a7e0 的 20 次筛选和 1ab 的 8 次中间准入另存，不冒充最终性能样本。
+
+性能采用每配置一次预热与三个四步交替配对；共享主机，不并发数值运行。
+细网格 rigid 完整轨迹外迭代 `5445→5050`，四步 wall 配对中位变化 `−10.79%`
+（范围 `−13.14%～+0.44%`），linear `−15.10%`（范围也跨零）；粗网格无耗时收益。
+GAMG 两档 wall 配对中位变化 `+5.35%/+4.83%`，不作为速度优化默认启用。
+更丰富粗空间和真实多层能力已经验收，但通用加速、网格无关复杂度没有证据。
+
+完整命令、初始失败、原始材料、独立统计与限制见
+[验证索引](../research/data/fsi-block-multilevel-2026-11-26/README.md)。
+[算法草稿](../../website/drafts/fsi-reference-modes-and-gamg.md)已补实际证据，保持未发布。
+
 ## 2026-11-26 · FSI-PERF-03 — 实现、测量与独立审计完成
 
 用户授权顺序为代码完成、推送远程、算例验证、最后受保护合并。恢复分支
