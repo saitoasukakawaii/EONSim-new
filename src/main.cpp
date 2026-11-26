@@ -96,8 +96,9 @@ int main(int argc, char* argv[])
                          "       [-partition_cell_weights tag:cost,...] [-partition_report]\n"
                          "       [-diagnostics basic|full] [-block_pc] [-solver_report] [-fluid_coo|-fsi_coo]\n"
                          "       [-solver_rank_report] [-nonlinear_initial_jacobian_reuse true|false]\n"
-                         "       [-fsi_assembly_report] [-fsi_residual_coo true|false] [-fsi_threads N]\n"
-                         "       [-vtu_format ascii|binary] [-vtu_boundary true|false] [-vtu_compact_boundary true|false]\n"
+                         "       [-fsi_assembly_report] [-fsi_residual_coo true|false] [-fsi_threads N] [-fsi_overlap true|false]\n"
+                         "       [-nonlinear_fused_reductions true|false] [-nonlinear_adaptive_pc true|false]\n"
+                         "       [-vtu_format ascii|binary|hdf5] [-vtu_boundary true|false] [-vtu_compact_boundary true|false]\n"
                          "       [-checkpoint dir] [-restart dir] [-stop_after N] [PETSc options]\n";
         } else {
             using Clock = std::chrono::steady_clock;
@@ -105,15 +106,18 @@ int main(int argc, char* argv[])
             auto config = eonsim::read_config(*case_file);
             eonsim::VtuOptions vtu_options;
             const auto vtu_format=option("-vtu_format").value_or("ascii");
-            if(vtu_format!="ascii" && vtu_format!="binary")
-                throw std::runtime_error("-vtu_format must be ascii or binary");
+            if(vtu_format!="ascii" && vtu_format!="binary" && vtu_format!="hdf5")
+                throw std::runtime_error("-vtu_format must be ascii, binary or hdf5");
             vtu_options.binary=vtu_format=="binary";
+            vtu_options.hdf5=vtu_format=="hdf5";
+            if(vtu_options.hdf5&&config.scalar2d_problem&&config.scalar2d.degree!=1)
+                throw std::runtime_error("Parallel HDF5 output currently requires a P1 scalar space");
             PetscBool vtu_boundary=PETSC_TRUE,vtu_compact=PETSC_TRUE;
             EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-vtu_boundary",&vtu_boundary,nullptr));
             EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-vtu_compact_boundary",&vtu_compact,nullptr));
             vtu_options.boundary=vtu_boundary;
             vtu_options.compact_boundary=vtu_compact;
-            eonsim::configure_vtu_output(vtu_options);
+            eonsim::configure_vtu_output(vtu_options,PETSC_COMM_WORLD);
             const auto weight_text=option("-partition_cell_weights");
             PetscBool partition_report=PETSC_FALSE,partition_report_set=PETSC_FALSE;
             EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-partition_report",&partition_report,&partition_report_set));
@@ -128,10 +132,11 @@ int main(int argc, char* argv[])
             PetscBool fsi_coo=PETSC_FALSE,fsi_assembly_report=PETSC_FALSE;
             EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_coo",&fsi_coo,nullptr));
             EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_assembly_report",&fsi_assembly_report,nullptr));
-            PetscBool fsi_residual_option=PETSC_FALSE,fsi_thread_option=PETSC_FALSE;
+            PetscBool fsi_residual_option=PETSC_FALSE,fsi_thread_option=PETSC_FALSE,fsi_overlap_option=PETSC_FALSE;
             EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-fsi_residual_coo",&fsi_residual_option));
             EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-fsi_threads",&fsi_thread_option));
-            if((fsi_coo||fsi_assembly_report||fsi_residual_option||fsi_thread_option)&&!config.fsi_problem)
+            EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-fsi_overlap",&fsi_overlap_option));
+            if((fsi_coo||fsi_assembly_report||fsi_residual_option||fsi_thread_option||fsi_overlap_option)&&!config.fsi_problem)
                 throw std::runtime_error("FSI assembly options require the monolithic FSI problem");
             if(auto path=option("-checkpoint")) config.checkpoint=std::filesystem::absolute(*path);
             if(auto path=option("-restart")) config.restart=std::filesystem::absolute(*path);
@@ -146,7 +151,9 @@ int main(int argc, char* argv[])
                 throw std::runtime_error("Checkpoint/restart/stop_after require transient fluid/solid, ALE or FSI");
             if (auto mesh = option("-mesh")) config.mesh = std::filesystem::absolute(*mesh);
             if (auto output = option("-output")) config.output = std::filesystem::absolute(*output);
-            if (config.output.extension() != ".vtu") throw std::runtime_error("output must have a .vtu extension");
+            if (config.output.extension() != ".vtu" &&
+                !(vtu_options.hdf5&&(config.output.extension()==".h5"||config.output.extension()==".xdmf")))
+                throw std::runtime_error("output must have a .vtu extension (also .h5/.xdmf with -vtu_format hdf5)");
             const auto diagnostics = option("-diagnostics").value_or("basic");
             if (diagnostics != "basic" && diagnostics != "full") throw std::runtime_error("diagnostics must be basic or full");
             const auto read_mesh=[&] { if(config.scalar2d_problem)return eonsim::read_gmsh2d(config.mesh);return config.fsi_problem&&!config.fsi.domains.solid_mesh.empty()?eonsim::read_fsi_domains(config.mesh,config.fsi.domains):eonsim::read_gmsh22(config.mesh); };

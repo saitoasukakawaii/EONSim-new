@@ -194,8 +194,10 @@ def option_arguments(arguments):
 def execution_options(options):
     """Accept execution changes only; physics and solver inputs stay fixed."""
     settings = dict(fsi_coo=False, fsi_threads=1, fsi_residual_coo=None, nonlinear_reuse=None,
-                    nonlinear_initial_jacobian_reuse=None)
-    booleans = {'-fsi_coo', '-fsi_residual_coo', '-nonlinear_reuse', '-nonlinear_initial_jacobian_reuse'}
+                    nonlinear_initial_jacobian_reuse=None, fsi_overlap=None,
+                    nonlinear_fused_reductions=None)
+    booleans = {'-fsi_coo', '-fsi_residual_coo', '-nonlinear_reuse', '-nonlinear_initial_jacobian_reuse',
+                '-fsi_overlap', '-nonlinear_fused_reductions'}
     seen, index = set(), 0
     while index < len(options):
         option = options[index]
@@ -330,7 +332,8 @@ def parse_log(text, count, ranks, dt, solver='direct'):
     return dict(steps=reports, accepted=accepted, fields=fields,
                 solver=solver, solver_nodes=solver_nodes,
                 linear_corrections=len(corrections), max_linear_residual_ratio=worst,
-                plan=records(text, 'fsi_assembly_plan '), execution_plan=records(text, 'fsi_execution_plan '))
+                plan=records(text, 'fsi_assembly_plan '), execution_plan=records(text, 'fsi_execution_plan '),
+                communication=records(text, 'nonlinear_communication '))
 
 
 def check_plan(plans, coo, cells):
@@ -352,6 +355,20 @@ def check_plan(plans, coo, cells):
 
 
 def check_execution(row, settings, reported):
+    communication = row.get('communication', [])
+    requested_communication = (settings.get('fsi_overlap'), settings.get('nonlinear_fused_reductions'))
+    require(communication or all(value is None for value in requested_communication),
+            'Requested communication mode has no runtime evidence')
+    if communication:
+        require(len(communication) == len(row['steps']), 'Missing communication accounting')
+        for item in communication:
+            for key, expected in zip(('overlap', 'fused_reductions'), requested_communication):
+                actual = number(item, key, 0, True)
+                require(actual in (0, 1) and (expected is None or actual == int(expected)),
+                        ('Wrong communication mode', key, item))
+            number(item, 'ghost_exchanges', 1, True)
+            number(item, 'field_reduction_calls', 1, True)
+            number(item, 'rank0_overlap_seconds', 0)
     plans = row['execution_plan']
     if plans:
         require(reported and len(plans) == 1, 'Unexpected or duplicated execution plan')
@@ -534,7 +551,7 @@ def main():
     for mode in ('baseline', 'candidate'):
         parser.add_argument('--'+mode+'-options', type=shlex.split, default=[], metavar='FLAGS',
                             help='Execution flags: -fsi_coo, -fsi_residual_coo, -fsi_threads, -nonlinear_reuse, '
-                                 '-nonlinear_initial_jacobian_reuse true|false')
+                                 '-nonlinear_initial_jacobian_reuse, -fsi_overlap, -nonlinear_fused_reductions true|false')
     try:
         args = parser.parse_args(option_arguments(sys.argv[1:]))
         options = {mode: getattr(args, mode+'_options') for mode in ('baseline', 'candidate')}

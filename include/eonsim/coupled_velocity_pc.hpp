@@ -29,7 +29,15 @@ void validate_coupled_velocity_twolevel_options(MPI_Comm comm,const std::string&
  */
 void configure_coupled_velocity_twolevel(MPI_Comm comm,KSP solver,
     const std::vector<DofKey>& owned_semantics,
-    const std::vector<std::array<double,3>>& owned_coordinates={},bool rigid_modes=false);
+    const std::vector<std::array<double,3>>& owned_coordinates={},bool rigid_modes=false,
+    PetscInt aggregate_nodes=0);
+/** aggregate_nodes=0 retains owner/domain coarse modes. A positive value forms
+ * graph-connected owner-local aggregates of at most that many semantic nodes.
+ * Each aggregate retains its independent component translations and requested
+ * solid rotations, dropping dependent columns before Galerkin projection. The
+ * distributed aggregate operator uses a GAMG V-cycle, so its coarse dimension
+ * need not be limited to a handful of modes per MPI rank. Neither the fine
+ * unknown numbering nor cross-domain matrix couplings are changed. */
 
 /// Validate an optional scalar-AIJ GAMG hierarchy and flexible response options.
 void validate_coupled_velocity_gamg_options(MPI_Comm comm,const std::string& prefix);

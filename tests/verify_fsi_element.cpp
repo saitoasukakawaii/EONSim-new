@@ -3,6 +3,7 @@
 #include "eonsim/fsi.hpp"
 #include "eonsim/reduced_layout.hpp"
 #include "eonsim/boundary_geometry.hpp"
+#include "eonsim/dual.hpp"
 #include "eonsim/quadrature.hpp"
 #include "eonsim/time_step.hpp"
 #include <algorithm>
@@ -11,10 +12,80 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 namespace {
 using namespace eonsim;
+
+bool same_fp(double a,double b) {
+    if(std::isnan(a)||std::isnan(b)) return std::isnan(a)&&std::isnan(b);
+    return a==b&&(a!=0.||std::signbit(a)==std::signbit(b));
+}
+
+template<int Width>
+void verify_dual_lanes() {
+    using D=Dual<Width>;
+    const auto same=[](const D& a,const D& b) {
+        if(!same_fp(a.value,b.value)) throw std::runtime_error("Dual primal arithmetic changed");
+        for(int i=0;i<Width;++i) if(!same_fp(a.derivative[i],b.derivative[i]))
+            throw std::runtime_error("Dual lane arithmetic changed for a passive coefficient or alias");
+    };
+    D a(1.7),b(.6);
+    for(int i=0;i<Width;++i) {
+        a.derivative[i]=std::sin(i+.3);
+        b.derivative[i]=std::cos(i+.2);
+    }
+    const auto result=sqrt(a*a+b*b)+a/b;
+    const double radius=std::sqrt(a.value*a.value+b.value*b.value);
+    // An independent analytic gradient checks the vector lanes and odd-width
+    // remainder, instead of accepting two copies of the same Dual expression.
+    for(int i=0;i<Width;++i) {
+        const double expected=(a.value/radius+1/b.value)*a.derivative[i]
+            +(b.value/radius-a.value/(b.value*b.value))*b.derivative[i];
+        if(std::abs(result.derivative[i]-expected)>2e-14*(1+std::abs(expected)))
+            throw std::runtime_error("SIMD Dual lanes differ from analytic composite derivative");
+    }
+    auto alias=a;
+    alias+=alias;
+    same(alias,a+a);
+    alias=a;
+    alias-=alias;
+    same(alias,a-a);
+    auto accumulated=a;
+    add_product(accumulated,a,b);
+    same(accumulated,a+a*b);
+    alias=a;add_product(alias,alias,b);same(alias,a+a*b);
+    alias=b;add_product(alias,a,alias);same(alias,b+a*b);
+    alias=a;add_product(alias,alias,alias);same(alias,a+a*a);
+
+    const double inf=std::numeric_limits<double>::infinity();
+    const double nan=std::numeric_limits<double>::quiet_NaN();
+    const std::array<double,8> values{{1.3,-.4,0.,-0.,1e-250,inf,-inf,nan}};
+    for(double primal:values) for(double coefficient:values) {
+        a.value=primal;
+        for(int i=0;i<Width;++i) a.derivative[i]=values[i%values.size()];
+        const D passive(coefficient);
+        // Explicit scalar promotion is the previous implementation. Preserve
+        // its Inf/NaN and signed-zero behavior without fast-math assumptions.
+        same(a+coefficient,a+passive);
+        same(coefficient+a,passive+a);
+        same(a-coefficient,a-passive);
+        same(coefficient-a,passive-a);
+        same(a*coefficient,a*passive);
+        same(coefficient*a,passive*a);
+        same(a/coefficient,a/passive);
+        same(coefficient/a,passive/a);
+        same(-a,D{}-a);
+        auto sum=a;sum+=coefficient;same(sum,a+passive);
+        auto difference=a;difference-=coefficient;same(difference,a-passive);
+        alias=a;alias+=alias;same(alias,a+a);
+        alias=a;alias-=alias;same(alias,a-a);
+        alias=a;add_product(alias,alias,passive);same(alias,a+a*passive);
+        alias=a;add_product(alias,passive,alias);same(alias,a+passive*a);
+        alias=a;add_product(alias,alias,alias);same(alias,a+a*a);
+    }
+}
 
 void verify_planar_area_tangent() {
     // A translated, sheared cap with nonzero normal velocities. Differentiate the
@@ -347,6 +418,10 @@ int main(int argc,char** argv) {
         }
         return 0;
     }
+    verify_dual_lanes<1>();
+    verify_dual_lanes<7>();
+    verify_dual_lanes<24>();
+    verify_dual_lanes<28>();
     verify_regular_metric();
     verify_pressure_columns();
     verify_planar_area_tangent();

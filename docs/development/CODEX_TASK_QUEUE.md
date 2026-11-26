@@ -1,5 +1,13 @@
 # EONSim Codex Task Queue
 
+## HPC-05 / implementation in progress / 2026-11-26
+
+基线为已核验合并 PR #54 的 `main@f8dbd6991f8057fc84d0a49dc6d9c9b3c38028fe`。
+分支 `codex/hpc-five-track-optimization`，并行实施 FSI 聚合粗空间/多层 AMG、
+owned/halo ghost 重叠与合并归约、AD 单元 SIMD、自适应 PC 数值更新、MPI HDF5/XDMF 输出。
+遵循用户顺序：完成实现与检查驱动并推送远程之后，才开始构建和算例验证；
+验证完成且受保护必需检查成功后合并。当前尚未执行本轮构建或算例，不计任何新通过。
+
 ## FSI-PC-04 / implementation and validation complete / 2026-11-26
 
 从 GitHub 已核验的 main `858f021a34ff5bd178287430d8cd45e52ec19f48`（#53 已合并）

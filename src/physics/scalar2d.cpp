@@ -238,11 +238,9 @@ void solve_scalar2d(MPI_Comm comm,const MeshPartition& mesh,const Config& config
                 const auto path=config.output.parent_path()/(series_path.stem().string()+"_step"+std::to_string(clock.step)+".vtu");
                 write_fields(path,mesh,fields);MPI_Barrier(comm);
                 if(mesh.rank==0) {
-                    write_field_index(path,mesh.ranks,fields);auto index=path; if(mesh.ranks>1)index.replace_extension(".pvtu");series.push_back({clock.time,index.filename().string()});
-                    std::ofstream out(series_path);out.exceptions(std::ios::badbit|std::ios::failbit);
-                    out << std::setprecision(17) << "<VTKFile type=\"Collection\" version=\"0.1\"><Collection>\n";
-                    for(const auto& item:series)out << "<DataSet timestep=\"" << item.first << "\" group=\"\" part=\"0\" file=\"" << item.second << "\"/>\n";
-                    out << "</Collection></VTKFile>\n";out.close();
+                    write_field_index(path,mesh.ranks,fields);
+                    series.push_back({clock.time,output_dataset_path(path,mesh.ranks).filename().string()});
+                    write_output_time_series(series_path,series);
                 }
             }
             if(mesh.rank==0) {

@@ -39,19 +39,8 @@ template<class Work> void output_stage(MPI_Comm comm,const char* phase,const Wor
     error.resize(length); MPI_Bcast(error.data(),length,MPI_CHAR,first,comm);
     throw std::runtime_error(std::string("FSI ")+phase+" failed on rank "+std::to_string(first)+": "+error);
 }
-std::string xml_filename(const std::string& text) {
-    std::string out;
-    for(char c:text) switch(c) {
-        case '&':out+="&amp;";break;case '<':out+="&lt;";break;case '>':out+="&gt;";break;
-        case '\"':out+="&quot;";break;case '\'':out+="&apos;";break;default:out+=c;
-    }
-    return out;
-}
 void publish_series(const std::filesystem::path& path,const std::vector<std::pair<double,std::string>>& entries) {
-    std::ofstream out; out.exceptions(std::ios::badbit|std::ios::failbit); out.open(path.string()+".tmp");
-    out<<std::setprecision(17)<<"<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\"><Collection>\n";
-    for(const auto& e:entries) out<<"<DataSet timestep=\""<<e.first<<"\" file=\""<<xml_filename(e.second)<<"\"/>\n";
-    out<<"</Collection></VTKFile>\n"; out.close(); std::filesystem::rename(path.string()+".tmp",path);
+    write_output_time_series(path,entries);
 }
 
 // PETSc aggregates rank-local event counts and times along with PCSetUp and
@@ -481,11 +470,13 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     const bool alpha=config.time_integration.scheme==TimeScheme::generalized_alpha;
     bool alpha_ready=false;
     PetscBool finite_difference=PETSC_FALSE,coo=PETSC_FALSE,assembly_report=PETSC_FALSE,residual_coo=PETSC_TRUE;
+    PetscBool overlap=PETSC_FALSE;
     PetscInt threads=1;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_fd_tangent",&finite_difference,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_coo",&coo,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_assembly_report",&assembly_report,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_residual_coo",&residual_coo,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_overlap",&overlap,nullptr));
     EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-fsi_threads",&threads,nullptr));
     if(threads<1||threads>256) throw std::runtime_error("-fsi_threads must be between 1 and 256");
     char batch_failure_name[32]{};
@@ -875,6 +866,17 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                              residual_coo?&residual_rows:nullptr);
     });
     const auto& assembly_plan=*plan_storage;
+    std::vector<std::size_t> owned_cells,halo_cells;
+    if(overlap) for(std::size_t e=0;e<mesh.cells.size();++e) {
+        // Classification follows reduced trial aliases, not mesh-node owners:
+        // interface and rigid-body slots can depend on a different rank.
+        const auto active=assembly_plan.cells[e].active;
+        bool owned=true;
+        for(auto node:mesh.cells[e].nodes)
+            for(int c=active.first;c<active.first+active.count;++c)
+                if(reduced.local[Layout::dof(node,c)]>=layout.owned) owned=false;
+        (owned?owned_cells:halo_cells).push_back(e);
+    }
     const double plan_seconds=MPI_Wtime()-plan_start;
     const double system_start=MPI_Wtime();
     NonlinearSystem system(comm,layout,std::move(reduced.jacobian_pattern));
@@ -885,6 +887,11 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     std::vector<PetscInt>().swap(residual_rows);
     const double system_seconds=MPI_Wtime()-system_start;
     if(assembly_report) {
+        unsigned long long local_overlap[]{static_cast<unsigned long long>(owned_cells.size()),
+            static_cast<unsigned long long>(halo_cells.size())},total_overlap[2]{};
+        MPI_Reduce(local_overlap,total_overlap,2,MPI_UNSIGNED_LONG_LONG,MPI_SUM,0,comm);
+        EONSIM_PETSC(PetscPrintf(comm,"fsi_overlap_plan enabled=%d owned_cells=%llu halo_cells=%llu\n",
+            int(overlap),total_overlap[0],total_overlap[1]));
         const double local_times[]{pattern_seconds,plan_seconds,system_seconds,pattern_seconds+plan_seconds+system_seconds};
         double times[4]{};
         MPI_Reduce(local_times,times,4,MPI_DOUBLE,MPI_MAX,0,comm);
@@ -992,8 +999,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             reference_body={state[0],state[1]};
         }
         if(alpha_step) reference_body={solid_map.displacement_reference(body.position,body.velocity,body_acceleration),solid_map.reference(body.velocity,body_acceleration)};
-        const auto expand_into=[&](const std::vector<double>& x,std::vector<double>& full) {
+        const auto expand_into=[&](const std::vector<double>& x,std::vector<double>& full,bool owned_only=false) {
         for(std::size_t i=0;i<full.size();++i) {
+            if(owned_only&&reduced.local[i]>=layout.owned) continue;
             const auto n=i/nc,c=i%nc;
             const double lifting=Layout::is_mesh(c)?
                 (Elastic?reference_d[Tet4Vector::components*n+c-Layout::mesh_offset]:
@@ -1084,9 +1092,12 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 }
             });
         };
-        const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
-            expand_into(x,assembly_state);
+        const auto assemble_phase=[&](const std::vector<double>& x,Vec r,Mat j,
+                                      const std::vector<std::size_t>* cells,bool owned_phase) {
+            expand_into(x,assembly_state,owned_phase);
             const auto& full=assembly_state;
+            const auto count_cells=cells?cells->size():data.size();
+            const auto cell_index=[&](std::size_t item) {return cells?(*cells)[item]:item;};
             const bool coo_jacobian=coo&&j;
             auto* coo_values=j?system.jacobian_coo_values():nullptr;
             auto* residual_values=system.residual_coo_values();
@@ -1148,7 +1159,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 }
             };
             if(threads==1) {
-                for(std::size_t e=0;e<data.size();++e) {
+                for(std::size_t item=0;item<count_cells;++item) {
+                    const auto e=cell_index(item);
                     const auto& cell=assembly_plan.cells[e];
                     local_residual(e,full,j!=nullptr,cell.active,element_residual,element_tangent,events);
                     measured(events.insert,[&] {
@@ -1165,7 +1177,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 // Exercise a completed batch before the fault whenever this
                 // verification partition has one. Its COO values or ordinary
                 // insertion stash must remain safe to discard/drain on failure.
-                const auto failure_begin=data.size()>batch_size?batch_size:std::size_t(0);
+                const auto failure_begin=count_cells>batch_size?batch_size:std::size_t(0);
                 const auto record_failure=[&](std::size_t item) {
                     const auto failure=std::current_exception();
                     int severity=2;
@@ -1189,8 +1201,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
 #pragma omp parallel num_threads(threads)
 #endif
                 {
-                    for(std::size_t begin=0;begin<data.size();begin+=batch_size) {
-                        const auto count=std::min(batch_size,data.size()-begin);
+                    for(std::size_t begin=0;begin<count_cells;begin+=batch_size) {
+                        const auto count=std::min(batch_size,count_cells-begin);
 #ifdef _OPENMP
 #pragma omp for schedule(static)
 #endif
@@ -1202,7 +1214,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                                 const int worker=0;
 #endif
                                 auto& residual=worker_residual[worker]; auto& tangent=worker_tangent[worker];
-                                const auto e=begin+item; const auto& cell=assembly_plan.cells[e];
+                                const auto e=cell_index(begin+item); const auto& cell=assembly_plan.cells[e];
                                 local_residual(e,full,j!=nullptr,cell.active,residual,tangent,unmeasured);
                                 if(residual_coo) std::copy(residual.begin(),residual.end(),residual_values+cell.offset);
                                 else std::copy(residual.begin(),residual.end(),batch_residual.data()+item*Layout::dofs);
@@ -1224,7 +1236,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                                 try {
                                     measured(events.insert,[&] {
                                         for(std::size_t item=0;item<count;++item) {
-                                            const auto& cell=assembly_plan.cells[begin+item];
+                                            const auto& cell=assembly_plan.cells[cell_index(begin+item)];
                                             auto* tangent=j?batch_tangent.data()+item*Layout::dofs*Layout::dofs:nullptr;
                                             if(coo_jacobian) pack_tangent(cell,tangent);
                                             insert_cell(cell,residual_coo?nullptr:batch_residual.data()+item*Layout::dofs,tangent);
@@ -1259,6 +1271,9 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     std::rethrow_exception(error);
                 }
             });
+            // Port and body scalars may be ghosts even when their adjacent
+            // cells are local; evaluate these exactly once after the exchange.
+            if(owned_phase) return;
             std::size_t coo_cursor=assembly_plan.tangent_slots.size(),residual_cursor=assembly_plan.rows.size();
             const auto add_entry=[&](PetscInt row,PetscInt col,double value) {
                 if(coo_jacobian) coo_values[assembly_plan.value_slots[coo_cursor++]]+=value;
@@ -1286,7 +1301,20 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             if(residual_coo&&residual_cursor!=assembly_plan.residual_entries) throw std::logic_error("FSI residual COO contribution count changed");
 #endif
         };
-        const auto solved=system.solve(config.solver,accepted,{}, {},assemble);
+        const auto assemble=[&](const std::vector<double>& x,Vec r,Mat j) {
+            assemble_phase(x,r,j,nullptr,false);
+        };
+        NonlinearAssemblyPhases phases;
+        phases.preconditioner_context={dt,integration_dt,solid_dt,mesh_dt,stabilization_dt,af};
+        if(overlap) {
+            phases.owned=[&](const std::vector<double>& x,Vec r,Mat j) {
+                assemble_phase(x,r,j,&owned_cells,true);
+            };
+            phases.halo=[&](const std::vector<double>& x,Vec r,Mat j) {
+                assemble_phase(x,r,j,&halo_cells,false);
+            };
+        }
+        const auto solved=system.solve(config.solver,accepted,{}, {},assemble,phases);
         const auto next=expand(solved.values);
         double local[4]{},global[4]{};
         measured(events.force_replay,[&] {
@@ -1514,11 +1542,11 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 write_fsi_fields(comm,path,result);
                 output_stage(comm,"series publication",[&] {
                     if(mesh.rank!=0) return;
-                    const auto suffix=mesh.ranks>1?".pvtu":".vtu";
-                    fluid_series.emplace_back(time,path.stem().string()+suffix);
+                    fluid_series.emplace_back(time,output_dataset_path(path,mesh.ranks).filename().string());
                     publish_series(history_path(".pvd"),fluid_series);
                     if(Elastic) {
-                        solid_series.emplace_back(time,path.stem().string()+"_solid"+suffix);
+                        const auto solid_path=path.parent_path()/(path.stem().string()+"_solid.vtu");
+                        solid_series.emplace_back(time,output_dataset_path(solid_path,mesh.ranks).filename().string());
                         publish_series(history_path("_solid.pvd"),solid_series);
                     }
                 });

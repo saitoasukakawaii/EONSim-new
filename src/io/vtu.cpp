@@ -1,4 +1,5 @@
 #include "eonsim/vtu.hpp"
+#include "parallel_hdf5.hpp"
 
 #include <algorithm>
 #include <array>
@@ -7,6 +8,7 @@
 #include <iomanip>
 #include <limits>
 #include <locale>
+#include <cmath>
 #include <stdexcept>
 #include <string_view>
 
@@ -14,17 +16,11 @@ namespace eonsim {
 namespace {
 VtuOptions output_options;
 bool output_configured=false,output_started=false;
+MPI_Comm output_communicator=MPI_COMM_NULL;
 
 // Borrow fields while writing. The scalar error view avoids allocating/copying
 // three complete vectors in write_vtu; other callers retain their PointField API.
-struct FieldView {
-    std::string_view name;
-    int components;
-    const double* values;
-    std::size_t size;
-    const double* subtract=nullptr;
-    double value(std::size_t i) const {return subtract?values[i]-subtract[i]:values[i];}
-};
+using output_detail::FieldView;
 
 std::uint64_t product(std::uint64_t count,std::uint64_t width) {
     if(width&&count>std::numeric_limits<std::uint64_t>::max()/width)
@@ -209,6 +205,10 @@ void write_piece(const std::filesystem::path& path,const MeshPartition& mesh,
 
 void write_views(const std::filesystem::path& path,const MeshPartition& mesh,const std::vector<FieldView>& fields) {
     output_started=true;
+    if(output_options.hdf5) {
+        output_detail::write_parallel_hdf5(output_communicator,path,mesh,fields,output_options.boundary);
+        return;
+    }
     if(mesh.owners.size()!=mesh.nodes.size()||mesh.algebra_ids.size()!=mesh.nodes.size())
         throw std::runtime_error("Invalid VTU node identity layout");
     for(const auto& f:fields) {
@@ -224,10 +224,49 @@ void write_views(const std::filesystem::path& path,const MeshPartition& mesh,con
 }
 } // namespace
 
-void configure_vtu_output(const VtuOptions& options) {
+void configure_vtu_output(const VtuOptions& options,MPI_Comm communicator) {
     if(output_configured||output_started) throw std::runtime_error("VTU output must be configured once before writing");
+    if(options.hdf5&&(!output_detail::parallel_hdf5_available()||communicator==MPI_COMM_NULL))
+        throw std::runtime_error("HDF5 output requires a parallel HDF5 build and an explicit communicator");
+    if(options.hdf5&&options.binary) throw std::runtime_error("HDF5 and binary VTU output are mutually exclusive");
     output_options=options;
+    output_communicator=communicator;
     output_configured=true;
+}
+
+bool hdf5_output_enabled() noexcept {return output_options.hdf5;}
+
+std::filesystem::path output_dataset_path(const std::filesystem::path& path,int ranks) {
+    auto result=path;
+    result.replace_extension(output_options.hdf5?".xdmf":(ranks>1?".pvtu":".vtu"));
+    return result;
+}
+
+void write_output_time_series(const std::filesystem::path& path,
+                             const std::vector<std::pair<double,std::string>>& entries) {
+    auto target=path;
+    if(output_options.hdf5) target=path.parent_path()/(path.stem().string()+".series.xdmf");
+    auto temporary=target; temporary+=".tmp";
+    std::ofstream out;
+    out.exceptions(std::ios::badbit|std::ios::failbit);
+    out.open(temporary);
+    out.imbue(std::locale::classic());out<<std::setprecision(17);
+    if(output_options.hdf5)
+        out<<"<?xml version=\"1.0\"?>\n<Xdmf Version=\"3.0\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><Domain>\n"
+               "<Grid Name=\"TimeSeries\" GridType=\"Collection\" CollectionType=\"Temporal\">\n";
+    else out<<"<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\"><Collection>\n";
+    for(const auto& [time,file]:entries) {
+        if(!std::isfinite(time)) throw std::runtime_error("Invalid output series time");
+        const auto escaped=output_detail::xml_escape(file);
+        if(output_options.hdf5)
+            out<<"<Grid GridType=\"Collection\" CollectionType=\"Spatial\"><Time Value=\""<<time
+               <<"\"/><xi:include href=\""<<escaped
+               <<"\" xpointer=\"xpointer(/Xdmf/Domain/Grid/Grid)\"/></Grid>\n";
+        else out<<"<DataSet timestep=\""<<time<<"\" group=\"\" part=\"0\" file=\""<<escaped<<"\"/>\n";
+    }
+    out<<(output_options.hdf5?"</Grid></Domain></Xdmf>\n":"</Collection></VTKFile>\n");
+    out.close();
+    std::filesystem::rename(temporary,target);
 }
 
 void write_fields(const std::filesystem::path& path,const MeshPartition& mesh,const std::vector<PointField>& fields) {
@@ -239,6 +278,7 @@ void write_fields(const std::filesystem::path& path,const MeshPartition& mesh,co
 
 void write_field_index(const std::filesystem::path& path,int ranks,const std::vector<PointField>& fields) {
     output_started=true;
+    if(output_options.hdf5) return; // Collective writer publishes XDMF after successful close.
     if(ranks==1) return;
     for(bool boundary:{false,true}) {
         if(boundary&&!output_options.boundary) continue;
@@ -262,7 +302,8 @@ void write_field_index(const std::filesystem::path& path,int ranks,const std::ve
 
 void write_vtu(const std::filesystem::path& path,const MeshPartition& mesh,
                const std::vector<double>& values,const std::vector<double>& exact) {
-    if(values.size()!=exact.size()) throw std::runtime_error("Invalid exact field size");
+    // HDF5 validates all local view lengths collectively, including exact.
+    if(!output_options.hdf5&&values.size()!=exact.size()) throw std::runtime_error("Invalid exact field size");
     write_views(path,mesh,{{"u",1,values.data(),values.size()},
                            {"u_exact",1,exact.data(),exact.size()},
                            {"nodal_error",1,values.data(),values.size(),exact.data()}});

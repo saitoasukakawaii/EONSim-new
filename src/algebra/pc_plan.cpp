@@ -71,10 +71,10 @@ int velocity_solver_requested(MPI_Comm comm) {
     char value[32]{}; PetscBool set=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_velocity_solver",value,sizeof(value),&set));
     const std::string name=set?value:"split";
-    int local=name=="split"?1:name=="coupled"?2:name=="twolevel"?3:name=="gamg"?4:0,lo=0,hi=0;
+    int local=name=="split"?1:name=="coupled"?2:name=="twolevel"?3:name=="gamg"?4:name=="aggregate"?5:0,lo=0,hi=0;
     MPI_Allreduce(&local,&lo,1,MPI_INT,MPI_MIN,comm);
     MPI_Allreduce(&local,&hi,1,MPI_INT,MPI_MAX,comm);
-    common_check(comm,lo==hi&&lo!=0,"velocity solver must be split, coupled, twolevel or gamg and identical on every rank");
+    common_check(comm,lo==hi&&lo!=0,"velocity solver must be split, coupled, twolevel, gamg or aggregate and identical on every rank");
     return local;
 }
 bool rigid_velocity_modes_requested(MPI_Comm comm,int velocity_solver) {
@@ -85,10 +85,10 @@ bool rigid_velocity_modes_requested(MPI_Comm comm,int velocity_solver) {
     MPI_Allreduce(&local,&lo,1,MPI_INT,MPI_MIN,comm);
     MPI_Allreduce(&local,&hi,1,MPI_INT,MPI_MAX,comm);
     common_check(comm,lo==hi&&lo!=0,"velocity coarse space must be constants or rigid and identical on every rank");
-    common_check(comm,!set||velocity_solver==3||velocity_solver==4,
-                 "velocity coarse space requires the twolevel or gamg velocity solver");
-    common_check(comm,local!=2||velocity_solver==3,
-                 "rigid velocity coarse space requires twolevel; scalar GAMG supports constants only");
+    common_check(comm,!set||velocity_solver==3||velocity_solver==4||velocity_solver==5,
+                 "velocity coarse space requires the twolevel, gamg or aggregate velocity solver");
+    common_check(comm,local!=2||velocity_solver==3||velocity_solver==5,
+                 "rigid velocity coarse space requires twolevel or aggregate; scalar GAMG supports constants only");
     return local==2;
 }
 bool nodal_schur_requested(MPI_Comm comm) {
@@ -120,8 +120,17 @@ void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,int veloci
     node.nodal_schur=node.schur&&nodal&&node.children.at(1).name=="pressure";
     if(node.name=="velocity") {
         node.coupled_velocity=velocity_solver!=1&&node.children.empty();
-        node.twolevel_velocity=velocity_solver==3&&node.children.empty();
+        node.twolevel_velocity=(velocity_solver==3||velocity_solver==5)&&node.children.empty();
         node.gamg_velocity=velocity_solver==4&&node.children.empty();
+        PetscInt aggregate_nodes=16; PetscBool aggregate_set=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-pc_plan_velocity_aggregate_nodes",&aggregate_nodes,&aggregate_set));
+        PetscInt minimum=0,maximum=0;
+        MPI_Allreduce(&aggregate_nodes,&minimum,1,MPIU_INT,MPI_MIN,comm);
+        MPI_Allreduce(&aggregate_nodes,&maximum,1,MPIU_INT,MPI_MAX,comm);
+        common_check(comm,minimum==maximum&&aggregate_nodes>=2&&aggregate_nodes<=4096&&
+                     (!aggregate_set||velocity_solver==5),
+                     "velocity aggregate nodes must be identical in [2,4096] and require aggregate solver");
+        node.velocity_aggregate_nodes=velocity_solver==5?aggregate_nodes:0;
         node.rigid_velocity_modes=rigid_modes&&(node.twolevel_velocity||node.gamg_velocity);
         if(node.twolevel_velocity||node.gamg_velocity) {
             if(node.rigid_velocity_modes)
@@ -402,7 +411,7 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
         // traction-coupled system is nonsingular. Do not invert that block with
         // an AMG coarse solve; the quantity recipe uses its diagonal action.
         if(node.twolevel_velocity) configure_coupled_velocity_twolevel(comm,ksp,node.velocity_semantics,
-            node.velocity_reference_coordinates,node.rigid_velocity_modes);
+            node.velocity_reference_coordinates,node.rigid_velocity_modes,node.velocity_aggregate_nodes);
         else if(node.gamg_velocity) configure_coupled_velocity_gamg(comm,ksp,node.velocity_semantics,
             node.velocity_reference_coordinates,node.rigid_velocity_modes);
         else if(node.global==1 || (node.name=="pressure"&&!schur_parent)) {
