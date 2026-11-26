@@ -1112,14 +1112,20 @@ PetscErrorCode guarded_krylov_convergence(KSP ksp,PetscInt iteration,PetscReal n
         *reason=KSP_DIVERGED_BREAKDOWN;
         return PETSC_SUCCESS;
     }
-    PetscCall(guard.original(ksp,iteration,norm,reason,guard.original_context));
-    if(!guard.verify_residual||*reason<=0) return PETSC_SUCCESS;
+    KSPConvergedReason proposed=KSP_CONVERGED_ITERATING;
+    PetscCall(guard.original(ksp,iteration,norm,&proposed,guard.original_context));
+    if(!guard.verify_residual||proposed<=0) {
+        *reason=proposed;
+        return PETSC_SUCCESS;
+    }
     // Flexible GMRES's recurrence can underestimate ||b-Ax|| when scaled or
     // inexact PCs generate nearly dependent directions. Verify only proposed
     // convergence, using the same configured test and the exact current A.
     // Rejecting a false convergence continues the existing Krylov cycle; its
     // ordinary restart rebuilds b-Ax. Never reset the iteration budget, change
     // tolerances, mutate PETSc internals, or re-enter KSPSolve from a callback.
+    // Do not publish the proposed reason yet: public KSPBuildSolution returns
+    // the old restart solution once ksp's reason is no longer ITERATING.
     const auto start=std::chrono::steady_clock::now();
     if(!guard.residual.get()) {
         Vec solution=nullptr;
@@ -1402,15 +1408,21 @@ struct NonlinearSystem::Workspace {
         }
         PetscBool true_residual=recipe=="monolithic_mg"?PETSC_TRUE:PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-nonlinear_true_residual",&true_residual,nullptr));
+        PetscBool converge_at_limit=PETSC_FALSE,convergence_test_set=PETSC_FALSE;
+        char convergence_test[32]{};
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-ksp_converged_maxits",&converge_at_limit,nullptr));
+        EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-ksp_convergence_test",convergence_test,
+            sizeof(convergence_test),&convergence_test_set));
         KSPType method=nullptr; KSPNormType norm_type;
         EONSIM_PETSC(KSPGetType(ksp,&method)); EONSIM_PETSC(KSPGetNormType(ksp,&norm_type));
         const int residual_policy[]={int(true_residual),int(!true_residual),
             true_residual&&(!method||(std::strcmp(method,KSPFGMRES)!=0&&std::strcmp(method,KSPPIPEFGMRES)!=0)||
-                            norm_type!=KSP_NORM_UNPRECONDITIONED)};
+                            norm_type!=KSP_NORM_UNPRECONDITIONED||converge_at_limit||
+                            (convergence_test_set&&std::strcmp(convergence_test,"default")!=0))};
         int global_residual_policy[3]{};
         MPI_Allreduce(residual_policy,global_residual_policy,3,MPI_INT,MPI_MAX,comm);
         if((global_residual_policy[0]&&global_residual_policy[1])||global_residual_policy[2])
-            throw std::runtime_error("True residual verification requires the same option on all ranks and unpreconditioned flexible GMRES");
+            throw std::runtime_error("True residual verification requires the same option on all ranks, unpreconditioned flexible GMRES, and a residual-based convergence test without converged_maxits");
         verify_true_residual=true_residual;
         // Retain fresh-solver semantics for history-carrying nonlinear algorithms
         // or explicit lagged PCs (including prefixed child PCs). The ordinary

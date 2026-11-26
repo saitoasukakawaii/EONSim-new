@@ -202,6 +202,17 @@ void verify(MPI_Comm comm) {
         catch(const std::runtime_error& e) {caught=std::string(e.what()).find("requires a matrix-free")!=std::string::npos;}
         require(caught,"Unused matrix-free preconditioner interval was accepted");
     }
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-nonlinear_matrix_free_pc_interval"));
+    for(const auto& policy:std::vector<std::pair<const char*,const char*>>{
+            {"-ksp_convergence_test","skip"},{"-ksp_converged_maxits","true"}}) {
+        option(policy.first,policy.second);
+        NonlinearSystem invalid(comm,layout);
+        bool caught=false;
+        try { invalid.solve(settings,initial,constraints,prescribed,[](const auto&,Vec,Mat){}); }
+        catch(const std::runtime_error& e) {caught=std::string(e.what()).find("residual-based convergence")!=std::string::npos;}
+        require(caught,"True residual guard accepted a convergence test that ignores residuals");
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,policy.first));
+    }
 }
 }
 int main(int argc,char** argv) {
