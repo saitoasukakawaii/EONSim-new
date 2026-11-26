@@ -666,7 +666,7 @@ struct Hierarchy {
     PetscOwner<KSP,KSPDestroy> coarse;
     MonolithicFsiMgStats stats;
     PC owner=nullptr;
-    PetscObjectState graph=0;
+    PetscObjectState graph=0,numeric_state=0;
     bool ready=false;
     Hierarchy(MPI_Comm communicator,Mat matrix,const std::vector<DofKey>& semantics,
         const std::vector<std::array<double,3>>& coordinates,
@@ -703,7 +703,9 @@ struct Hierarchy {
                 }
             }
         }
-        configure_coarse(); ready=true; stats.refreshes=1; stats.hierarchy_rebuilds=1;
+        configure_coarse();
+        EONSIM_PETSC(MatGetState(matrix,&numeric_state));
+        ready=true; stats.refreshes=1; stats.hierarchy_rebuilds=1;
         if(emit_report) report();
     }
     void configure_coarse() {
@@ -803,6 +805,10 @@ struct Hierarchy {
             same_constraints=same_constraints&&(levels.front().data.active[row-begin]!=(identity&&diagonal));
         }
         check(comm,same_constraints,"refresh changed fine constraints or supplied nonfinite coefficients");
+        PetscObjectState current_numeric_state=0;
+        EONSIM_PETSC(MatGetState(matrix,&current_numeric_state));
+        int local_changed=current_numeric_state!=numeric_state,changed=0;
+        EONSIM_PETSC(MPI_Allreduce(&local_changed,&changed,1,MPI_INT,MPI_MAX,comm));
         if(configuration.spectral_refresh_period>0&&stats.refreshes%configuration.spectral_refresh_period==0) {
             Hierarchy rebuilt(comm,matrix,levels.front().data.semantics,reference_coordinates,
                 levels.front().data.trace,configuration,prefix,false);
@@ -810,23 +816,31 @@ struct Hierarchy {
             rebuilt.stats.refreshes=stats.refreshes+1;
             rebuilt.stats.hierarchy_rebuilds=stats.hierarchy_rebuilds+1;
             coarse=std::move(rebuilt.coarse); levels=std::move(rebuilt.levels); stats=std::move(rebuilt.stats);
+            numeric_state=current_numeric_state;
             if(owner) EONSIM_PETSC(PCSetFailedReason(owner,PC_NOERROR));
             ready=true; report(); return;
         }
         for(std::size_t i=0;i+1<levels.size();++i) {
-            Mat next=levels[i+1].matrix.get();
-            EONSIM_PETSC(MatPtAP(levels[i].matrix.get(),levels[i].prolongation.get(),MAT_REUSE_MATRIX,PETSC_DEFAULT,&next));
+            // Re-evaluating an unchanged distributed PtAP can reorder sums at
+            // deeper levels. Avoid both that roundoff churn and needless exact
+            // factor-cache misses by retaining a truly unchanged generation.
+            if(changed) {
+                Mat next=levels[i+1].matrix.get();
+                EONSIM_PETSC(MatPtAP(levels[i].matrix.get(),levels[i].prolongation.get(),MAT_REUSE_MATRIX,PETSC_DEFAULT,&next));
+            }
             refresh_fsi_level_smoother(levels[i].smoother,levels[i].matrix.get());
-            if(configuration.single_precision) levels[i].float_matrix.update(levels[i].matrix.get());
+            if(changed&&configuration.single_precision) levels[i].float_matrix.update(levels[i].matrix.get());
         }
-        EONSIM_PETSC(KSPSetOperators(coarse.get(),levels.back().matrix.get(),levels.back().matrix.get()));
-        EONSIM_PETSC(KSPSetReusePreconditioner(coarse.get(),PETSC_FALSE));
-        EONSIM_PETSC(KSPSetUp(coarse.get()));
+        if(changed) {
+            EONSIM_PETSC(KSPSetOperators(coarse.get(),levels.back().matrix.get(),levels.back().matrix.get()));
+            EONSIM_PETSC(KSPSetReusePreconditioner(coarse.get(),PETSC_FALSE));
+            EONSIM_PETSC(KSPSetUp(coarse.get()));
+        }
         // Numerical freshness is controlled only by the caller's refresh
         // registry. A later J change must not silently rebuild coarse factors.
         EONSIM_PETSC(KSPSetReusePreconditioner(coarse.get(),PETSC_TRUE));
         if(owner) EONSIM_PETSC(PCSetFailedReason(owner,PC_NOERROR));
-        ready=true; ++stats.refreshes;
+        numeric_state=current_numeric_state; ready=true; ++stats.refreshes;
     }
     PetscErrorCode multiply(std::size_t level,Vec x,Vec y) {
         PetscFunctionBeginUser;

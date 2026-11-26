@@ -118,7 +118,8 @@ public:
  * assemble 抛 StepRejected 时先完成部分装配以排空远程插入，再用 SNES domain-error 协议拒绝试探点。
  * 默认 Newton 回溯线搜索可尝试较小步；最终未收敛才交给时间驱动缩步。线性/PC 故障抛普通异常。
  * 已共同传播的callback错误或StepRejected后可用相同布局重新solve；每次覆盖trial、重算初始范数和矩阵数值。
- * fatal callback引起PETSc提前返回时更换trial Vec以隔离遗留只读锁；COO矩阵/图不重建。
+ * fatal callback引起PETSc提前返回时更换trial Vec；matrix-free还更换KSP残量RHS，
+ * 隔离遗留只读锁并重新准备残量COO计划；COO矩阵/图不重建。
  * config、约束值及回调只借用到本次调用结束；约束行可变化，但必须包含在既有图中。
  * -nonlinear_reuse false 可显式使用每次新建的求解器；非默认 SNES/lagged-PC 选项保留每次新建语义。
  * 默认普通 Newton 的 Schur 会话首次配置可供首个同状态 Jacobian 回调复用，之后每次 solve

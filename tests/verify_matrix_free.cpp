@@ -1,6 +1,7 @@
 /** Exact matrix-free Newton action: independent nonlinear root, off-rank
  * contributions, constraints, frozen linearizations, P lag and failure recovery. */
 #include "eonsim/nonlinear_system.hpp"
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -33,11 +34,15 @@ void verify(MPI_Comm comm) {
     option("-pc_type","jacobi"); option("-ksp_rtol","1e-12"); option("-ksp_atol","1e-14");
     option("-ksp_max_it","100"); option("-ksp_pc_side","right");
     option("-ksp_norm_type","unpreconditioned"); option("-nonlinear_matrix_free_pc_interval","2");
-    for(const char* method:{"fgmres","pipefgmres"}) {
+    for(const char* method:{"fgmres","pipefgmres"}) for(const bool residual_coo:{false,true}) {
         option("-ksp_type",method);
         NonlinearSystem system(comm,layout);
-        bool inject=false;
+        // Replacing a locked function target after a failed MatShell action
+        // must rebuild its residual COO plan, including empty producer ranks.
+        if(residual_coo)
+            system.set_residual_coo(rank==ranks-1?std::vector<PetscInt>(ids,ids+4):std::vector<PetscInt>{});
         PetscInt tangent_calls=0,action_calls=0;
+        PetscInt fail_action=-1;
         const auto assemble=[&](const std::vector<double>& x,Vec residual,Mat matrix) {
             if(matrix) ++tangent_calls;
             if(rank!=ranks-1) return; // All other owners have empty local producers.
@@ -50,7 +55,8 @@ void verify(MPI_Comm comm) {
                 }
             }
             values[3]+=7.; // Independent raw reaction; constrained equation is replaced by driver.
-            EONSIM_PETSC(VecSetValues(residual,4,ids,values,ADD_VALUES));
+            if(residual_coo) std::copy_n(values,4,system.residual_coo_values());
+            else EONSIM_PETSC(VecSetValues(residual,4,ids,values,ADD_VALUES));
             if(matrix) EONSIM_PETSC(MatSetValues(matrix,4,ids,4,ids,jacobian,ADD_VALUES));
         };
         NonlinearAssemblyPhases phases;
@@ -63,7 +69,8 @@ void verify(MPI_Comm comm) {
                 for(int j=0;j<4;++j) values[i]+=coupling[i][j]*direction[local[j]];
             }
             EONSIM_PETSC(VecSetValues(result,4,ids,values,ADD_VALUES));
-            if(inject) throw std::runtime_error("injected directional failure after off-rank insertion");
+            if(action_calls==fail_action)
+                throw std::runtime_error("injected directional failure after off-rank insertion");
         };
         const auto solve=[&] {return system.solve(settings,initial,constraints,prescribed,assemble,phases);};
         const auto check=[&](const NonlinearResult& result) {
@@ -78,13 +85,27 @@ void verify(MPI_Comm comm) {
         const auto first=solve(); check(first);
         const auto repeated=solve(); check(repeated);
         require(repeated.solver_reused,"Matrix-free session did not preserve its shell and ghost plan");
-        inject=true; bool caught=false;
-        try { (void)solve(); }
-        catch(const std::runtime_error& e) { caught=std::string(e.what()).find("injected directional failure")!=std::string::npos; }
-        require(caught,"Rank-local directional failure did not propagate");
-        inject=false; check(solve());
+        auto generation=repeated.solver_generation;
+        for(const PetscInt failure_offset:{1,2}) {
+            // PIPEFGMRES's first action fills its pipeline. Its second action
+            // runs with an outstanding split reduction, which must also drain
+            // before this failed solve can be safely retried.
+            fail_action=action_calls+failure_offset;
+            bool caught=false;
+            try { (void)solve(); }
+            catch(const std::runtime_error& e) { caught=std::string(e.what()).find("injected directional failure")!=std::string::npos; }
+            require(caught,"Rank-local directional failure did not propagate");
+            fail_action=-1;
+            const auto recovered=solve(); check(recovered);
+            require(!recovered.solver_reused&&recovered.solver_generation==generation+1,
+                    "Failed matrix-free session was not retired");
+            const auto recovered_repeated=solve(); check(recovered_repeated);
+            require(recovered_repeated.solver_reused&&recovered_repeated.solver_generation==recovered.solver_generation,
+                    "Recovered matrix-free session or residual plan was not reusable");
+            generation=recovered_repeated.solver_generation;
+        }
         require(tangent_calls>0&&action_calls>tangent_calls,"Exact actions did not avoid assembled P work");
-        if(rank==0) std::cout<<"matrix_free_oracle method="<<method<<" ranks="<<ranks
+        if(rank==0) std::cout<<"matrix_free_oracle method="<<method<<" residual_coo="<<residual_coo<<" ranks="<<ranks
             <<" p_assemblies="<<first.jacobian_assemblies<<" p_reuses="<<first.assembled_pc_reuses
             <<" actions="<<first.matrix_free_actions<<" passed=1\n";
     }

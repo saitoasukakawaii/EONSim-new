@@ -40,6 +40,8 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * operators retain their setup candidate span by default. A positive prefixed
  * monolithic_mg_spectral_refresh_period automatically rebuilds spectral modes,
  * energy-minimized transfers and level patches after that many refreshes.
+ * An unchanged source Mat numeric state retains the existing Galerkin values
+ * and coarse factorization, allowing exact local patch-factor cache reuse.
  *
  * Explicit single precision uses row-scaled float CSR coefficients and float
  * sparse arithmetic for level matvecs and restriction/prolongation, plus the

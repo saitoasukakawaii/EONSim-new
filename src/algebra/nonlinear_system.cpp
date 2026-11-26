@@ -661,7 +661,7 @@ struct Context {
     Vec direction_ghost=nullptr;
     PetscInt assembled_pc_interval=1,matrix_free_actions=0,assembled_pc_reuses=0;
     double matrix_free_seconds=0;
-    std::vector<double> operator_state,direction;
+    std::vector<double> operator_state={},direction={};
     void apply_direction(Vec input,Vec output) {
         if(!phases||!phases->jacobian_action||operator_state.size()!=layout.local_to_global.size())
             throw std::runtime_error("Matrix-free operator has no current Newton state/action");
@@ -1270,6 +1270,11 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         ++solver_generation_;
         workspace_->initialize(comm,l,r.get(),j.get(),bool(phases.jacobian_action));
         if(residual_coo_enabled_) {
+            // A failed MatShell action retires the KSP's locked residual too.
+            // VecDuplicate preserves its ghost layout, but not the COO plan.
+            // Retain preparation only for this persistent target after the old
+            // SNES work vectors have been destroyed.
+            prepare_residual_coo(r.get(),residual_coo_rows_,residual_coo_vectors_);
             PetscObjectId residual_id=0;
             EONSIM_PETSC(PetscObjectGetId(reinterpret_cast<PetscObject>(r.get()),&residual_id));
             residual_coo_vectors_={residual_id};
@@ -1443,12 +1448,17 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     const double assembly_finalize_seconds=context.assembly_finalize_seconds,constraint_seconds=context.constraint_seconds;
     if(error&&!context.error.empty()) {
         // SNESComputeJacobian/Function can return from a failing callback before
-        // VecLockReadPop (PETSc 3.23.7). Retire that trial Vec rather than editing
-        // PETSc's lock stack. SNES retains its reference until normal destruction;
-        // the next solve overwrites the fresh owned data and updates its ghosts.
-        PetscOwner<Vec,VecDestroy> fresh;
-        EONSIM_PETSC(VecDuplicate(x.get(),fresh.put()));
-        std::swap(*x.put(),*fresh.put());
+        // VecLockReadPop (PETSc 3.23.7). A MatShell error additionally returns
+        // from KSPSolve_Private before it pops the read lock on its RHS, which
+        // is our persistent residual. Retire both affected Vecs rather than
+        // editing PETSc's lock stack. SNES/KSP retain their old references until
+        // normal workspace destruction; the next solve overwrites owned data,
+        // updates ghosts and prepares the replacement residual's COO plan.
+        PetscOwner<Vec,VecDestroy> fresh_trial,fresh_residual;
+        EONSIM_PETSC(VecDuplicate(x.get(),fresh_trial.put()));
+        if(context.matrix_free) EONSIM_PETSC(VecDuplicate(r.get(),fresh_residual.put()));
+        std::swap(*x.put(),*fresh_trial.put());
+        if(context.matrix_free) std::swap(*r.put(),*fresh_residual.put());
         if(context.recoverable) throw StepRejected(context.error);
         throw std::runtime_error(context.error);
     }

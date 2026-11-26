@@ -197,7 +197,8 @@ Newton Jacobian 回调消费一次。必须是相同 Vec/Mat、全部 owner 的�
 物理回调、初值或 prescribed 的栈引用。SNES/KSP/PC 先于所引用的 Schur USER 矩阵销毁。
 任何异常或最终 `StepRejected` 使会话失效，下一次调用重新创建；同一次线搜索中已恢复的
 domain rejection 不使最终成功的会话失效。fatal callback 遗留的 trial Vec 只读锁通过
-替换该 Vec 隔离，固定矩阵图保留。每次调用重置计数与线搜索初始系数。
+替换该 Vec 隔离；matrix-free action 失败还隔离 KSP 残量 RHS 并重新准备其 COO 计划。
+不手工修改 PETSc 的锁栈，固定矩阵图保留。每次调用重置计数与线搜索初始系数。
 
 `solver_report` 的 `solver_reused=0|1` 表示本次是否复用成功会话，`solver_generation`
 是同一 `NonlinearSystem` 的 SNES 创建序号，从 1 递增；这些字段是生命周期证据，不是

@@ -6,6 +6,7 @@ Optional scaling/coupling sections measure behavior without assuming a speedup
 or mesh-independent convergence. Each failure and original log is retained.
 """
 import argparse
+from collections import Counter
 import copy
 import json
 import math
@@ -99,19 +100,40 @@ def audit(log, trace, ranks, mode):
             block.require(math.isfinite(before + after) and after <= before * (1 + 1e-10) + 1e-12,
                           'Prolongation increased the defined positive energy')
         block.require(all(int(row['coarse_processes']) == 1 for row in hierarchy), 'Coarse process aggregation absent')
+        smoother_kind = mode.removeprefix('mono_') if mode in ('mono_chebyshev', 'mono_block_chebyshev') else 'vanka'
+        block.require(all(row['smoother'] == smoother_kind for row in hierarchy), 'Requested level smoother absent')
+        smoothers = assembly.records(log, 'pc_monolithic_mg_smoother ')
+        levels = max(int(row['levels']) for row in hierarchy)
+        block.require(Counter((int(row['rank']), int(row['level'])) for row in smoothers) ==
+                      Counter((rank, level) for report in hierarchy for rank in range(ranks)
+                              for level in range(int(report['levels']) - 1)),
+                      'Missing rank or level smoother evidence')
+        for level in range(levels - 1):
+            rows = [row for row in smoothers if int(row['level']) == level]
+            if smoother_kind == 'vanka':
+                block.require(sum(int(row['interface_patches']) for row in rows) > 0,
+                              'A multigrid level did not smooth the coupled interface')
+            else:
+                block.require(all(int(row['polynomial_degree']) > 0 and
+                                  math.isfinite(float(row['eigenvalue_upper'])) and
+                                  float(row['eigenvalue_upper']) > 0 for row in rows),
+                              'Polynomial level smoother absent')
         if mode == 'mono_fp32':
             block.require(all(int(row['single_precision']) == 1 for row in hierarchy), 'FP32 cycle absent')
         result.update(hierarchies=hierarchy, transfers=transfers,
-                      smoothers=assembly.records(log, 'pc_monolithic_mg_smoother '))
+                      smoothers=smoothers)
     if mode == 'mono_mf':
         block.require(all(int(row['matrix_free']) == 1 and int(row['matrix_free_actions']) > 0 for row in reports),
                       'Exact matrix-free path absent')
         result.update(matrix_free_actions=sum(int(row['matrix_free_actions']) for row in reports),
                       assembled_pc_reuses=sum(int(row['assembled_pc_reuses']) for row in reports))
+        block.require(result['assembled_pc_reuses'] > 0, 'Matrix-free trajectory did not reuse assembled P')
     if mode == 'added_mass' or mode.startswith('pcd'):
         operators = assembly.records(log, 'pressure_schur ')
         kind = 'added_mass' if mode == 'added_mass' else 'pcd'
         block.require(operators and all(row['kind'] == kind for row in operators), 'Requested pressure operator absent')
+        if mode.startswith('pcd'):
+            block.require(all(int(row['velocity_mass']) == 1 for row in operators), 'PCD velocity mass enhancement absent')
         result['pressure_operators'] = operators
     return result
 
