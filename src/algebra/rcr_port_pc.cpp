@@ -267,7 +267,15 @@ struct PortState {
 
     PetscErrorCode apply(PC pc,Vec input,Vec output) {
         PetscFunctionBeginUser;
-        PetscCheck(ready,comm,PETSC_ERR_ARG_WRONGSTATE,"RCR port PC has no valid prepared generation");
+        // A rejected numerical refresh invalidates the cached action. Report
+        // this through PC failure rather than returning an API error: PETSc's
+        // PCApply must finish its input-lock cleanup before the outer KSP
+        // observes the failure, and a later successful refresh can recover.
+        if(!ready) {
+            PetscCall(PCSetFailedReason(pc,PC_SUBPC_ERROR));
+            PetscCall(VecSet(output,PETSC_INFINITY));
+            PetscFunctionReturn(PETSC_SUCCESS);
+        }
         std::fill(local_rhs.begin(),local_rhs.end(),0.);
         const PetscScalar* in=nullptr; PetscScalar* b=nullptr;
         PetscCall(VecGetArrayRead(input,&in)); PetscCall(VecGetArray(rhs.get(),&b));
