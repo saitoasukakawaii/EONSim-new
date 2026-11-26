@@ -1,5 +1,80 @@
 # EONSim Codex Session Log
 
+## 2026-11-27 · FSI-SCALE-01 — 精确作用、紧凑存储与有界收敛验证
+
+按北京时间记录，任务起始于 2026-11-26。用户指定十二项优化，并要求源码完成→远端同步
+→算例验证→最后合并。从 `main@88257a9`（#63）恢复，分支 `codex/fsi-scalable-matrix-free`，
+对应 [PR #64](https://github.com/saitoasukakawaii/EONSim-new/pull/64)。生产、驱动与独立审计
+分别负责实现、执行和重读原件；每次修正均先同步完整 tree，再进行受影响的 Release 验证。
+固定归档二进制与 source/hash 绑定，后续编译不会改变先前实验的执行身份。
+
+实现 reduced P 的真实 AIJ/COO 图、积分系数缓存与批量精确方向核、owned/halo 方向重叠，
+以及物理缩放/粗空间、adaptive patch、native FP32 紧凑存储、有限 K-cycle、inexact forcing
+和当前算子下的修正子空间复用。规模驱动使用实际 host/DoF、原件哈希和磁盘全场拓扑比较；
+串行 mesh/partition 准备与单机资源边界明确保留，没有模拟多节点或改变物理方程。
+
+本轮实际故障及修复沿各自源码记录，未被最终通过覆盖：
+
+- `e0edc6b` 的 MG 1/2 rank 暴露约束投影舍入被精确线搜索放大；`707a6a6` 只抑制机器精度
+  量级的零投影，保持候选再现门槛。首批 physical 24 次中 9 次缺 action telemetry，离线
+  数值通过也不改写其原 failed 收据；补启用报告后复验。
+- `707a6a6` moving scaled 的原算子残差超限。初版 `8410818` guard 又过早发布正 reason，
+  导致 `KSPBuildSolution` 读取旧 restart solution；MF 1/2/4 失败，weak smoke 被中断。
+  `6378f4c` 在 ITERATING 状态构造当前残差后才发布原因，三 rank 档及 moving 对照通过。
+  原失败、过度迭代诊断和 interrupted 收据分开保留；没有访问 PETSc 私有状态或改预算。
+- PETSc current RSS 与 OS high-water 采样口径不同，曾出现 peak<current；保留 raw OS，
+  归一化峰值明确取二者已观测最大值。`116836b` native-only n8 物理通过但峰值 RSS 增加
+  约 35%；`30e2941` 释放旧 generation、压缩 patch/lifting/halo 后，一次同源 pair 的
+  最大 rank 峰值 210,673,664→202,129,408 bytes（−4.0557%），206/205 次迭代均过原门槛。
+- `30e2941` Python 负例预期 RuntimeError 而既有接口实际抛 ValueError，产生 13 条错误；
+  `0641183` 仅修正测试异常类型，未改变拒绝条件。后续新增 supremizer 证据检查亦保持
+  缺失、非有限和配对变化超限的拒绝。
+
+GDB/LLDB 不可用的检测记录保留；实际 guard 故障通过最小复现、日志及 PETSc 3.23.7
+公开源码定位。缩放回归由 `116836b` 的首层带权限制修复；后续有限 K-cycle 和压力
+supremizer 都按独立制造例及真实窗口验证，没有增加粗化/平滑预算或进行参数扫描。
+Supremizer 只替换原 spectral 名额，配对变化 ≤1e-10 只审 FP64 setup；不将其解释为
+native 量化精度或全局 inf-sup 证明。累计 MG work 按 rank/path/generation 保留末次，
+不跨接受步重复相加，也不要求 RCR 的 PC applications 等于外层迭代。
+
+最终源码 `50b41ae19067bd8853a482ab853805e23c096ec5` 本地 MG 1/2/4 rank **3/3**、
+Python **19/19** 通过。固定二进制 `eonsim-50b41ae` SHA256 为
+`dea9ab78339d4d07a8a83bac11fb22f733898d45ef681d51b99f71adfa3522e7`。
+两批串行实际执行的驱动选择如下；完整 wrapper、launcher、绝对路径及输入哈希见原收据：
+
+```text
+tests/verify_fsi_multigrid.py --sections scaling --modes mono_optimized mono_supremizer
+tests/verify_fsi_multigrid.py --sections default moving --modes mono_optimized mono_kcycle mono_supremizer mono_all
+```
+
+第一批 direct 加两候选共 **9/9**；第二批 direct 加四候选共 **15/15**，涵盖双域 1/2 rank、
+变步长 generalized-alpha、移动 NH/RCR 和全功能组合。独立标准库审计分别为
+27/45 接受步、54/117 线性记录、480/643 原件哈希及 144/200 体场分片；最大场差
+`2.9099984e-10`、历史差 `4.1689985e-12`，owner/ghost 差 0。严格残差比最大
+`0.0087292162`，inexact 当次 forcing 比最大 `0.9962145449`，最终物理接受比最大
+`0.5379066790`。原 `2e-9` 对照、字段/约束及各自线性门槛均保持；没有 J/b/dx 原件，
+离线审计只核查求解时原算子诊断，不声称离线重新计算矩阵作用。
+
+`30e2941` 的 MG/patch/smoother **9/9**、K-cycle 网格 **12/12** 和 native-only 同源 pair
+按原 source 复用。该 K-cycle 的平均迭代比 2.0612；最终 `50b41ae` n4/6/8 优化 V
+97/160/227 与 supremizer V 92/138/199 次迭代，平均最大/最小 2.3402/2.1630，均未达到
+预声明 ≤1.3，近似网格无关保持 **OPEN**。`6378f4c` 的 17 次固定输入 PA/SIMD/overlap
+成本对照和 8 次 strong/weak smoke 亦保留原来源；最大实际 10,387 DoF、一个 host，
+百万 DoF、多节点、扩展效率及一般端到端收益未验证。没有继续做无边界参数尝试。
+
+[最终源码 CI 45853312807](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312807)
+实际执行 **4/4 Release、19/19 Python**，另复用 62 项既有 Release，合计覆盖 66。
+merge-preview `3ca62ae4c0c037ca59c255fc8cd1754f1101f7ea` 的 tree
+`7f66c8b02d62ed67606f7bf5f94fd5af34915f6e` 与 `50b41ae` 一致；
+[源码网站检查 45853312823](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312823)
+成功。最终文档 head 继续执行四项必需检查和锁定 head 合并流程，实际结果由 PR #64
+记录确认；本节不以源码检查推定合并，不绕过保护。
+
+[完整证据与失败分类](../research/data/fsi-scale-01-2026-11-26/README.md)、
+[运行指南](FSI_SCALABLE_MATRIX_FREE.md)及
+[未发布草稿](../../website/drafts/fsi-scalable-matrix-free.md)保存来源、数学边界和复核方法。
+本轮未追加全量、常规 Debug 或旧 PETSc；文档与归档不算新的数值执行，草稿未公开发布。
+
 ## 2026-11-26 · FSI-MF-02 — 直接方向作用与已知零状态消除
 
 用户要求继续 EONSim-new 开发，沿既有先源码同步、再算例、最后合并的顺序执行。

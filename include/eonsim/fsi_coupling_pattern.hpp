@@ -21,8 +21,26 @@ inline constexpr std::array<FsiCouplingBlock,5> fsi_coupling_blocks{{
      Tet4Ale::structure_offset,Tet4Vector::components}
 }};
 
-constexpr bool fsi_cell_coupling(int row,int column) noexcept {
-    for(const auto& block:fsi_coupling_blocks)
+/** Frozen-geometry physics preconditioner. Fluid u/p, structural elasticity,
+ * mesh extension and the shared velocity trace remain coupled. The fluid-row
+ * ALE-column derivatives are omitted from P only; exact Jv keeps them. Port
+ * face derivatives are added separately and remain present in either graph.
+ */
+inline constexpr std::array<FsiCouplingBlock,5> fsi_reduced_pc_blocks{{
+    {0,Tet4Flow::components,0,Tet4Flow::components},
+    {Tet4Ale::mesh_offset,1,Tet4Ale::mesh_offset,1},
+    {Tet4Ale::mesh_offset+1,1,Tet4Ale::mesh_offset+1,1},
+    {Tet4Ale::mesh_offset+2,1,Tet4Ale::mesh_offset+2,1},
+    {Tet4Ale::structure_offset,Tet4Vector::components,
+     Tet4Ale::structure_offset,Tet4Vector::components}
+}};
+
+constexpr const std::array<FsiCouplingBlock,5>& fsi_blocks(bool reduced_pc) noexcept {
+    return reduced_pc?fsi_reduced_pc_blocks:fsi_coupling_blocks;
+}
+
+constexpr bool fsi_cell_coupling(int row,int column,bool reduced_pc=false) noexcept {
+    for(const auto& block:fsi_blocks(reduced_pc))
         if(row>=block.row_first&&row<block.row_first+block.row_count&&
            column>=block.column_first&&column<block.column_first+block.column_count)
             return true;

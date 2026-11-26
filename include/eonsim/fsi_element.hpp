@@ -29,6 +29,9 @@ struct FsiElementResult {
 /// 一次当前几何求值返回完整残量/切线：速度/ALE保留24方向链式导数，四个压力列、参考网格和压力面积块解析计算。
 /// 无共享可写状态，可对不同单元并行求值；调用方独占各返回结果，材料/历史输入在求值期间只读。
 FsiElementResult fsi_element(const FsiElementData& data,const Tet4Ale::State<double>& state);
+/// Same physical residual; P freezes current geometry/ALE transport while
+/// differentiating all u/p coefficients. Cell fluid/ALE entries are absent.
+FsiElementResult fsi_element_reduced_preconditioner(const FsiElementData& data,const Tet4Ale::State<double>& state);
 /// 解析体积/梯度导数与固定宽度前向链式传播；包含几何、网格速度和压力面积。
 Tet4Ale::Matrix<double> fsi_element_tangent(const FsiElementData& data,const Tet4Ale::State<double>& state);
 /** Exact directional derivative J(state)*direction, without storing the element
@@ -37,6 +40,24 @@ Tet4Ale::Matrix<double> fsi_element_tangent(const FsiElementData& data,const Tet
  */
 Tet4Ale::State<double> fsi_element_action(const FsiElementData& data,
     const Tet4Ale::State<double>& state,const Tet4Ale::State<double>& direction);
+/** Frozen Newton quadrature data, not a dense element Jacobian. Stores current
+ * geometry, primitive gradients, transport, strong residual and metric factors.
+ * Rebuild whenever state, history, material or time coefficients change, even
+ * when the assembled preconditioner is reused. No history ownership or MPI.
+ */
+struct FsiElementLinearization {
+    std::array<double,132> coefficients{};
+    struct Face { Tri3Topology::Nodal<int> nodes; Point edge1,edge2; double factor; };
+    std::vector<Face> faces;
+};
+FsiElementLinearization fsi_prepare_action(const FsiElementData& data,const Tet4Ale::State<double>& state);
+Tet4Ale::State<double> fsi_element_action(const FsiElementLinearization& data,const Tet4Ale::State<double>& direction);
+/** Batch 1..4 independent cells using SoA arithmetic; supports unequal material,
+ * geometry and time coefficients. Output does not alias directions or caches.
+ * Pressure face actions use their cached signed edges after the volume batch.
+ */
+void fsi_element_action_batch(const FsiElementLinearization* const* data,
+    const Tet4Ale::State<double>* directions,Tet4Ale::State<double>* result,std::size_t count);
 /// 中心差分参考，仅用于导数/性能对照；默认求解使用解析几何与前向链式导数。
 Tet4Ale::Matrix<double> fsi_element_tangent_fd(const FsiElementData&,const Tet4Ale::State<double>&);
 

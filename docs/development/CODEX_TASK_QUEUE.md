@@ -1,5 +1,33 @@
 # EONSim Codex Task Queue
 
+## FSI-SCALE-01 / implementation and bounded validation complete; convergence and scale OPEN / 2026-11-27
+
+北京时间记录，任务起始于 2026-11-26；基线 `main@88257a9`（#63），分支
+`codex/fsi-scalable-matrix-free`，对应 [PR #64](https://github.com/saitoasukakawaii/EONSim-new/pull/64)。
+十二项方向已有实际代码或规模验证入口，最终生产/驱动 `50b41ae19067bd8853a482ab853805e23c096ec5`。
+每批源码及修正均先推送并核对 tree，再构建、运行；**最终文档 head 的四项必需检查及锁定 head 合并结果由 PR #64 记录确认**。
+
+最终本地 MG 1/2/4 rank **3/3**、Python **19/19**、严格网格 **9/9** 与最终物理
+**15/15** 通过，原物理/约束、严格真残量、inexact 当次 forcing 及 `2e-9` 场差门槛保持。
+`30e2941` 的 MG/patch/smoother **9/9**、K-cycle 网格及 native RSS pair 分源复用，
+未伪称最终源码重跑。失败、缺诊断、真实残差缺陷、RSS 负例和中断均保留在
+[证据索引](../research/data/fsi-scale-01-2026-11-26/README.md)。
+
+仍开放：固定 703/2299/5367 DoF 窗口，supremizer V 总迭代 92/138/199，平均最大/最小
+**2.1630 > 1.3**；优化 V 为 2.3402，历史 K 为 2.0612，近似网格无关 **OPEN**。
+最大实测 **10,387 DoF / 单 host**，百万 DoF、多节点和扩展效率 **OPEN / 未运行**。
+native 在 `116836b` 的 RSS 负例经 `30e2941` 修复后仅有一次同源 pair 最大 rank 峰值
+降低 4.0557%的证据；稳定端到端、总内存及带宽收益仍须按规模实测，不能由数组字节推断。
+
+[源码 CI 45853312807](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312807)
+实际 **4/4 Release、19/19 Python**，另复用 62 项 Release、总覆盖 66；预览
+`3ca62ae4c0c037ca59c255fc8cd1754f1101f7ea` 与源码的完整 tree 均为
+`7f66c8b02d62ed67606f7bf5f94fd5af34915f6e`。
+[源码网站检查 45853312823](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312823)
+成功，最终文档 head 检查/合并待办；不绕过保护、不增加参数扫描或全量验证。
+[运行指南](FSI_SCALABLE_MATRIX_FREE.md)与[未发布草稿](../../website/drafts/fsi-scalable-matrix-free.md)
+记录选项、数学范围及后续真实规模验收入口。
+
 ## FSI-MF-02 / implementation and bounded validation complete / 2026-11-26
 
 从已合并 #61 的 `main@6bb6f438b63c` 接续，开发分支 `codex/fsi-mg-performance-followup`。

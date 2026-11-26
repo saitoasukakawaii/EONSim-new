@@ -132,6 +132,8 @@
     "time_retry_verification": {"targets": ["eonsim"], "ranks": [1, 2]}
   },
   "rules": [
+    {"paths": ["include/eonsim/native_float_sparse.hpp"], "tests": ["monolithic_fsi_mg_mpi1", "monolithic_fsi_mg_mpi2", "monolithic_fsi_mg_mpi4", "interface_patch_mpi1", "interface_patch_mpi2", "interface_patch_mpi4", "monolithic_fsi_physical"], "python": []},
+    {"paths": ["include/eonsim/action_lanes.hpp"], "tests": ["fsi_element_jacobian", "solid_element_jacobian", "monolithic_fsi_physical"], "python": []},
     {"paths": ["tests/verify_monolithic_fsi_mg.cpp", "include/eonsim/monolithic_fsi_mg.hpp", "src/algebra/monolithic_fsi_mg.cpp", "src/algebra/pc_plan.cpp", "include/eonsim/pc_plan.hpp", "CMakeLists.txt"], "tests": ["monolithic_fsi_mg_mpi1", "monolithic_fsi_mg_mpi2", "monolithic_fsi_mg_mpi4"], "python": []},
     {"paths": ["tests/verify_fsi_level_smoother.cpp", "include/eonsim/fsi_level_smoother.hpp", "src/algebra/fsi_level_smoother.cpp", "include/eonsim/interface_patch_pc.hpp", "src/algebra/interface_patch_pc.cpp", "CMakeLists.txt"], "tests": ["fsi_level_smoother_mpi1", "fsi_level_smoother_mpi2", "fsi_level_smoother_mpi4"], "python": []},
     {"paths": ["tests/verify_matrix_free.cpp", "include/eonsim/nonlinear_system.hpp", "src/algebra/nonlinear_system.cpp", "CMakeLists.txt"], "tests": ["matrix_free_mpi1", "matrix_free_mpi2", "matrix_free_mpi4"], "python": []},

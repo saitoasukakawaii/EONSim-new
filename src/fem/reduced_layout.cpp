@@ -106,7 +106,7 @@ void build_outlet_traces(MPI_Comm comm,const MeshPartition& mesh,const FsiDomain
 }
 
 template<bool Elastic>
-ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains* domains=nullptr,bool build_pattern=true)
+ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains* domains=nullptr,bool build_pattern=true,bool reduced_pc=false)
 {
     using Layout=CoupledLayout<Tet4Topology,Elastic>;
     constexpr int nc=Layout::components;
@@ -285,7 +285,7 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
             test_rows[active.index(a,c)]=map.test_row;
             trial_columns[active.index(a,c)]=map.column;
         }
-        for(const auto& block:fsi_coupling_blocks) {
+        for(const auto& block:fsi_blocks(reduced_pc)) {
             const int row_begin=std::max(active.first,block.row_first),row_end=std::min(end,block.row_first+block.row_count);
             const int col_begin=std::max(active.first,block.column_first),col_end=std::min(end,block.column_first+block.column_count);
             if(row_begin>=row_end||col_begin>=col_end) continue;
@@ -347,9 +347,9 @@ ReducedLayout build_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDoma
     return reduced;
 }
 } // namespace
-ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern) { return build_layout<false>(comm,mesh,nullptr,build_pattern); }
-ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern) { return build_layout<true>(comm,mesh,nullptr,build_pattern); }
-ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains,bool build_pattern) {
+ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern,bool reduced_pc) { return build_layout<false>(comm,mesh,nullptr,build_pattern,reduced_pc); }
+ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern,bool reduced_pc) { return build_layout<true>(comm,mesh,nullptr,build_pattern,reduced_pc); }
+ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains,bool build_pattern,bool reduced_pc) {
     int counts[4]{},all[4]{};
     for(const auto& c:mesh.cells) {
         if(c.physical_tag==domains.fluid_region) ++counts[0];
@@ -372,6 +372,6 @@ ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const
         MPI_Allreduce(&local,&global,1,MPI_INT,MPI_MAX,comm);
         if(!global) throw std::runtime_error("FSI partition boundary tag missing");
     }
-    return build_layout<true>(comm,mesh,&domains,build_pattern);
+    return build_layout<true>(comm,mesh,&domains,build_pattern,reduced_pc);
 }
 }

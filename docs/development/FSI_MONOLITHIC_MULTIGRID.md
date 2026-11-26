@@ -3,6 +3,10 @@
 本文说明当前源码中的算法、调用选项和使用边界。验收所用提交、实际算例、原始日志及 PR 状态由
 [项目进度](CODEX_PROGRESS.md)、[会话记录](CODEX_SESSION_LOG.md)和本轮证据索引记录；下面的命令是调用示例，不能作为已经运行的证据。
 
+后续的 reduced P、物理缩放/带权限制、pressure supremizer、K-cycle、native 存储压缩与
+partial assembly/SIMD/overlap 选项见 [可扩展 Matrix-free 指南](FSI_SCALABLE_MATRIX_FREE.md)。
+下文完整 assembled P 描述对应默认路径；显式启用 `-fsi_reduced_pc` 时使用缩小的 P 稀疏图。
+
 适用对象是现有共形、低阶、约束消元后的单体 FSI 系统。`monolithic_mg` 对流体速度、压力、结构速度和 ALE 网格未知量共同建立代数多重网格。它是显式选择的预条件器；现有默认求解配置保持原状。
 
 ## 1. 功能与入口

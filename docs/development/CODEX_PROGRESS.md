@@ -1,5 +1,48 @@
 # EONSim Codex Development Progress
 
+## 2026-11-27 · FSI-SCALE-01：实现与有界验收完成，收敛及规模目标仍开放
+
+本节按北京时间记录，任务起始于 2026-11-26。从已合并 #63 的
+`main@88257a9be35008b0063820910843625fa17bb267` 接续，对应
+[PR #64](https://github.com/saitoasukakawaii/EONSim-new/pull/64)。最终生产/验证驱动源码为
+`50b41ae19067bd8853a482ab853805e23c096ec5`；每批实现及修正均先同步远端、核对完整 tree，
+再构建及运行。**实现与本轮有界验收已完成；最终文档提交的四项必需检查及锁定 head 合并结果由 PR #64 记录确认。**
+
+已接入实际缩小符号图的 reduced P、冻结系数与 SIMD 精确方向核、方向 halo 重叠、物理缩放
+与粗空间、选择性 Vanka patch、紧凑 native FP32、有限 K-cycle、自适应 Newton forcing、
+跨步修正子空间复用，以及记录真实节点/DoF 的强弱扩展驱动。新增压力 supremizer 从原
+spectral 预算中替换最多两个方向；局部配对及 FP64 setup 耦合保持不构成全局 inf-sup 证明，
+也不保证 native 量化后的配对达到同样精度。原完整 Jv、最终物理字段/约束门槛保持。
+
+`50b41ae` 本地 **3/3 MG CTest（1/2/4 rank）、19/19 Python、9/9 严格网格求解及
+15/15 最终双域/移动 NH-RCR 求解**通过。后两批独立审计覆盖 72 接受步、171 条线性残差
+记录；最大场差 `2.9099984e-10`、历史差 `4.1689985e-12`，低于原 `2e-9` 门槛，ghost 差为 0。
+`30e2941` 的 **9/9 MG/patch/smoother CTest**、12 次 K-cycle 网格求解和 native RSS pair
+按原源码保留；没有将它们计作最终源码重新运行。
+
+固定 703/2299/5367 DoF、2-rank、六次严格线性修正，优化 V 总迭代为 97/160/227，
+supremizer V 为 92/138/199。平均迭代最大/最小分别 **2.3402 / 2.1630**，均未达到预声明
+的 **≤1.3**；`30e2941` 的 K-cycle 也为 2.0612。近似网格无关仍 **OPEN**。实际最大规模
+为 **10,387 DoF、一个 host**；百万 DoF、多节点及强弱扩展效率仍 **OPEN / 未运行**。
+
+保留投影舍入、缺 action telemetry、真实残差间隙、guard 提前发布 reason、RSS 采样差异、
+Python 负例异常类型等原始失败和中断。`116836b` native-only 的峰值 RSS 曾增加约 35%；
+`30e2941` 修复 generation 生命周期、patch/halo 存储后，一次同源 pair 的最大 rank 归一化
+峰值 RSS 降低 4.0557%。这不代表总内存减半、带宽减半或普遍端到端加速。
+
+最终源码 [CI 45853312807](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312807)
+实际新执行 **4/4 Release、19/19 Python**，另复用 62 项既有 Release 证据，Release 总覆盖
+66 项。合并预览 `3ca62ae4c0c037ca59c255fc8cd1754f1101f7ea` 的完整 tree
+`7f66c8b02d62ed67606f7bf5f94fd5af34915f6e` 与 `50b41ae` 相同；
+[源码网站检查 45853312823](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312823)
+成功。最终文档 head 的四项必需检查与锁定 head 合并结果以 PR #64 的实际记录为准，
+不能由源码检查推定已合并。
+
+[完整命令、分源结果与失败原件](../research/data/fsi-scale-01-2026-11-26/README.md)、
+[运行及数学说明](FSI_SCALABLE_MATRIX_FREE.md)、
+[未发布知识草稿](../../website/drafts/fsi-scalable-matrix-free.md)。未追加全量、常规 Debug、
+旧 PETSc 或无边界参数扫描；原件审计没有声称离线重算未保存的 J、b、dx。
+
 ## 2026-11-26 · FSI-MF-02：固体直接方向核与零初值 V-cycle
 
 从已合并 #61 的 `main@6bb6f438b63c` 接续，交付 [PR #62](https://github.com/saitoasukakawaii/EONSim-new/pull/62)。

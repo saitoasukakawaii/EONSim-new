@@ -37,6 +37,8 @@ FsiLevelSmootherHandle make_fsi_level_smoother(MPI_Comm comm,Mat matrix,
     const FsiLevelSmootherOptions& options);
 /// Collective explicit numeric refresh; matrix identity/graph/constraints stay fixed.
 void refresh_fsi_level_smoother(const FsiLevelSmootherHandle& smoother,Mat matrix);
+/// Native FP32 Vanka only: release all borrowed/owned FP64 setup matrices.
+void release_native_fsi_smoother_setup(const FsiLevelSmootherHandle& smoother);
 /** Applies a zero-initial-guess correction. Expected local numeric failure
  * returns PETSC_ERR_NOT_CONVERGED only after all scheduled communication has
  * completed and borrowed arrays are restored. The caller must complete its

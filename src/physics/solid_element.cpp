@@ -1,6 +1,7 @@
 #include "eonsim/solid_element.hpp"
 #include "eonsim/hyperelastic.hpp"
 #include "eonsim/time_step.hpp"
+#include "eonsim/action_lanes.hpp"
 #include <cmath>
 #include <stdexcept>
 namespace eonsim {
@@ -117,6 +118,85 @@ Tet4Vector::State<double> solid_element_action(const Tet4Geometry& g,const Solid
     }
     return result;
 }
+namespace {
+template<class S>
+Tet4Vector::State<S> cached_solid_action(const std::array<S,27>& c,const Tet4Vector::State<S>& direction) {
+    Space3::Tensor<S> change{},left{},stress{};
+    for(int a=0;a<4;++a) for(int i=0;i<3;++i) for(int j=0;j<3;++j)
+        change[3*i+j]+=c[15]*direction[Tet4Vector::dof(a,i)]*c[1+3*a+j];
+    S log_change{};
+    for(int i=0;i<9;++i) log_change+=c[17+i]*change[i];
+    for(int i=0;i<3;++i) for(int k=0;k<3;++k) for(int j=0;j<3;++j)
+        left[3*i+k]+=c[17+3*i+j]*change[3*k+j];
+    for(int i=0;i<3;++i) for(int j=0;j<3;++j) {
+        S product{};
+        for(int k=0;k<3;++k) product+=left[3*i+k]*c[17+3*k+j];
+        stress[3*i+j]=c[13]*change[3*i+j]+c[14]*log_change*c[17+3*i+j]-c[26]*product;
+    }
+    Tet4Vector::State<S> out{};
+    for(int a=0;a<4;++a) for(int i=0;i<3;++i) {
+        const int row=Tet4Vector::dof(a,i);
+        for(int j=0;j<3;++j) out[row]+=c[0]*stress[3*i+j]*c[1+3*a+j];
+        for(int b=0;b<4;++b) out[row]+=c[0]*c[16]*Tet4Topology::mass_weight(a,b)*direction[Tet4Vector::dof(b,i)];
+    }
+    return out;
+}
+void validate_cached_solid_action(const Tet4Vector::State<double>& values) {
+    for(double value:values) if(!std::isfinite(value)) throw std::runtime_error("Nonfinite cached solid tangent action");
+}
+}
+
+SolidElementLinearization solid_prepare_action(const Tet4Geometry& g,const SolidParameters& p,
+    const Tet4Vector::State<double>& x,const Tet4Vector::State<double>& dn) {
+    if(!(p.young>0&&p.poisson>-1&&p.poisson<.5&&p.density>0&&p.dt>=0&&p.displacement_dt>=0)||
+        !std::isfinite(p.young+p.poisson+p.density+p.dt+p.displacement_dt)) throw std::runtime_error("Invalid solid material/time parameters");
+    if(!(g.volume>0)||!std::isfinite(g.volume)) throw std::runtime_error("Invalid solid reference volume");
+    SolidElementLinearization out;
+    auto& c=out.coefficients;
+    c[0]=g.volume; c[13]=p.young/(2*(1+p.poisson)); c[14]=p.young*p.poisson/((1+p.poisson)*(1-2*p.poisson));
+    c[15]=p.dt>0?(p.displacement_dt>0?p.displacement_dt:p.dt):1.;
+    c[16]=p.dt>0?p.density/p.dt:0.; c[26]=-c[13];
+    for(int a=0;a<4;++a) for(int i=0;i<3;++i) c[1+3*a+i]=g.gradients[a][i];
+    for(int i=0;i<3;++i) c[17+3*i+i]=1.;
+    if(p.neo_hookean) {
+        Space3::Tensor<double> F{};
+        for(int a=0;a<4;++a) for(int i=0;i<3;++i) for(int j=0;j<3;++j)
+            F[3*i+j]+=(p.dt>0?dn[Tet4Vector::dof(a,i)]+c[15]*x[Tet4Vector::dof(a,i)]:x[Tet4Vector::dof(a,i)])*g.gradients[a][j];
+        for(int i=0;i<3;++i) F[3*i+i]+=1.;
+        for(double value:F) if(!std::isfinite(value)) throw std::runtime_error("Nonfinite deformation gradient");
+        const double determinant=F[0]*(F[4]*F[8]-F[5]*F[7])-F[1]*(F[3]*F[8]-F[5]*F[6])+F[2]*(F[3]*F[7]-F[4]*F[6]);
+        if(!(determinant>0)||!std::isfinite(determinant)) throw StepRejected("Nonpositive solid deformation Jacobian");
+        for(int i=0;i<3;++i) for(int j=0;j<3;++j)
+            c[17+3*i+j]=(F[3*((i+1)%3)+(j+1)%3]*F[3*((i+2)%3)+(j+2)%3]-
+                F[3*((i+1)%3)+(j+2)%3]*F[3*((i+2)%3)+(j+1)%3])/determinant;
+        c[26]=c[14]*std::log(determinant)-c[13];
+    }
+    for(double value:c) if(!std::isfinite(value)) throw std::runtime_error("Nonfinite solid partial assembly coefficient");
+    return out;
+}
+
+Tet4Vector::State<double> solid_element_action(const SolidElementLinearization& cache,const Tet4Vector::State<double>& direction) {
+    const auto out=cached_solid_action(cache.coefficients,direction);
+    validate_cached_solid_action(out);
+    return out;
+}
+void solid_element_action_batch(const SolidElementLinearization* const* data,const Tet4Vector::State<double>* directions,
+    Tet4Vector::State<double>* result,std::size_t count) {
+    if(count==0||count>ActionLanes::width) throw std::runtime_error("Solid action batch needs 1..4 cells");
+    std::array<ActionLanes,27> coefficients;
+    Tet4Vector::State<ActionLanes> direction;
+    for(std::size_t lane=0;lane<ActionLanes::width;++lane) {
+        const auto source=lane<count?lane:0;
+        for(std::size_t i=0;i<coefficients.size();++i) coefficients[i].values[lane]=data[source]->coefficients[i];
+        for(std::size_t i=0;i<direction.size();++i) direction[i].values[lane]=lane<count?directions[lane][i]:0.;
+    }
+    const auto out=cached_solid_action(coefficients,direction);
+    for(std::size_t lane=0;lane<count;++lane) {
+        for(std::size_t i=0;i<out.size();++i) result[lane][i]=out[i].values[lane];
+        validate_cached_solid_action(result[lane]);
+    }
+}
+
 SolidElement solid_element(const Tet4Geometry& g,const SolidParameters& p,
     const Tet4Vector::State<double>& x,const Tet4Vector::State<double>& dn,const Tet4Vector::State<double>& vn,bool compute_tangent)
 {

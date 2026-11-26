@@ -1,6 +1,7 @@
 /** @file @brief 全 ALE 局部耦合切线，独立方向扰动覆盖几何/压力面积/网格速度。 */
 #include "eonsim/fsi_element.hpp"
 #include "eonsim/fsi.hpp"
+#include "eonsim/fsi_coupling_pattern.hpp"
 #include "eonsim/reduced_layout.hpp"
 #include "eonsim/boundary_geometry.hpp"
 #include "eonsim/dual.hpp"
@@ -363,6 +364,9 @@ void verify_mesh_and_pressure_blocks() {
         try { if(tangent) (void)fsi_element(data,state); else (void)fsi_element_residual(data,state); }
         catch(const StepRejected&) { rejected=true; }
         if(!rejected) throw std::runtime_error("Inverted trial geometry was not rejected");
+        rejected=false;
+        try { (void)fsi_prepare_action(data,state); } catch(const StepRejected&) {rejected=true;}
+        if(!rejected) throw std::runtime_error("Inverted partial assembly setup was not rejected");
     }
     state.fill(0);
     data.inlet_faces={{0,0,1}};
@@ -372,6 +376,9 @@ void verify_mesh_and_pressure_blocks() {
         try { if(tangent) (void)fsi_element(data,state); else (void)fsi_element_residual(data,state); }
         catch(const StepRejected&) { rejected=true; }
         if(!rejected) throw std::runtime_error("Degenerate pressure face bypassed validation at zero load");
+        rejected=false;
+        try { (void)fsi_prepare_action(data,state); } catch(const StepRejected&) {rejected=true;}
+        if(!rejected) throw std::runtime_error("Partial assembly bypassed degenerate face validation at zero load");
     }
 }
 }
@@ -426,6 +433,34 @@ int main(int argc,char** argv) {
     verify_pressure_columns();
     verify_planar_area_tangent();
     verify_mesh_and_pressure_blocks();
+    {
+        std::array<FsiElementLinearization,7> caches;
+        std::array<Tet4Ale::State<double>,7> changes{},oracle{};
+        for(std::size_t k=0;k<caches.size();++k) {
+            auto cell=data;
+            cell.fluid.convection=k%2; cell.fluid.viscosity+=.1*k;
+            cell.regular_metric_dt=k%3==0?.019:0.; cell.mesh_dt=.021+.002*k;
+            cell.fluid.tau=k%3==1?0.:.02;
+            cell.inlet_faces=k%2?std::vector<Tri3Topology::Nodal<int>>{{0,3,2}}:std::vector<Tri3Topology::Nodal<int>>{};
+            auto state=x;
+            for(int i=0;i<Tet4Ale::dofs;++i) {state[i]+=.002*std::cos(i+k);changes[k][i]=std::sin(2*i+.13*k);}
+            caches[k]=fsi_prepare_action(cell,state);
+            const auto tangent=fsi_element_tangent(cell,state);
+            for(int i=0;i<Tet4Ale::dofs;++i) for(int j=0;j<Tet4Ale::dofs;++j)
+                oracle[k][i]+=tangent[Tet4Ale::matrix(i,j)]*changes[k][j];
+        }
+        for(std::size_t start=0;start<caches.size();start+=4) {
+            const auto count=std::min(std::size_t(4),caches.size()-start);
+            std::array<const FsiElementLinearization*,4> pointers{};
+            std::array<Tet4Ale::State<double>,4> output{};
+            for(std::size_t k=0;k<count;++k) pointers[k]=&caches[start+k];
+            fsi_element_action_batch(pointers.data(),changes.data()+start,output.data(),count);
+            for(std::size_t k=0;k<count;++k) for(int i=0;i<Tet4Ale::dofs;++i)
+                if(!std::isfinite(output[k][i])||std::abs(output[k][i]-oracle[start+k][i])>3e-12*(1+std::abs(oracle[start+k][i])))
+                    throw std::runtime_error("SoA FSI lanes/tail disagree with independent full tangents");
+        }
+        std::cout<<"fsi_partial_assembly mixed_cells=7 simd_tail=3 reference=full_tangent passed\n";
+    }
     for(bool convection:{false,true}) for(bool pressure_face:{false,true})
     for(double mesh_dt:{0.,.043}) for(auto [gd,metric_dt]:{std::pair{0.,0.},std::pair{.7,0.},std::pair{0.,.011}}) {
     data.fluid.convection=convection;
@@ -443,6 +478,17 @@ int main(int argc,char** argv) {
         if(!std::isfinite(element.residual[i]) || std::abs(element.residual[i]-expected[i])>2e-13*(1+std::abs(expected[i])))
             throw std::runtime_error("Fused FSI residual differs from the double evaluation");
     const auto& jac=element.tangent;
+    const auto reduced=fsi_element_reduced_preconditioner(data,x);
+    const auto cache=fsi_prepare_action(data,x);
+    for(int i=0;i<Tet4Ale::dofs;++i) {
+        if(std::abs(reduced.residual[i]-element.residual[i])>2e-13*(1+std::abs(element.residual[i])))
+            throw std::runtime_error("Reduced P changed the physical residual");
+        for(int j=0;j<Tet4Ale::dofs;++j) {
+            const double retained=fsi_cell_coupling(Tet4Ale::component(i),Tet4Ale::component(j),true)?jac[Tet4Ale::matrix(i,j)]:0.;
+            if(std::abs(reduced.tangent[Tet4Ale::matrix(i,j)]-retained)>3e-13*(1+std::abs(retained)))
+                throw std::runtime_error("Reduced P must retain u/p/mesh blocks and omit only fluid/ALE columns");
+        }
+    }
     for(int field=0;field<2;++field) {
         auto plus=x,minus=x;
         Tet4Ale::State<double> selected_direction{};
@@ -453,12 +499,15 @@ int main(int argc,char** argv) {
         }
         const auto rp=fsi_element_residual(data,plus),rm=fsi_element_residual(data,minus);
         const auto action=fsi_element_action(data,x,selected_direction);
+        const auto cached=fsi_element_action(cache,selected_direction);
         double error=0,norm=0;
         for(int i=0;i<Tet4Ale::dofs;++i) {
             double jv=0; for(int j=0;j<Tet4Ale::dofs;++j) if((j%Tet4Ale::components<Tet4Flow::components)==(field==0)) jv+=jac[Tet4Ale::matrix(i,j)]*direction[j];
             const double fd=(rp[i]-rm[i])/(2*eps);
             if(!std::isfinite(action[i])||std::abs(action[i]-jv)>3e-13*(1+std::abs(jv)))
                 throw std::runtime_error("Single-lane FSI action differs from full analytical tangent");
+            if(!std::isfinite(cached[i])||std::abs(cached[i]-jv)>3e-12*(1+std::abs(jv)))
+                throw std::runtime_error("Cached FSI action differs from independent full tangent");
             error+=(fd-jv)*(fd-jv); norm+=jv*jv;
         }
         const double relative=std::sqrt(error/norm);

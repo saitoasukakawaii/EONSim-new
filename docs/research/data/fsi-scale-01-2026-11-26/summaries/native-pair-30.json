@@ -1,0 +1,127 @@
+{
+  "status": "passed",
+  "build_source": "30e29411431d4f721f1a9aa4b9b55fc685f70e7b",
+  "binary_sha256": "bfadbb0c3aab7d3c9507560aaac3940a352f76f16f3de285fb254b8872bd782f",
+  "artifacts_verified": 112,
+  "comparison": {
+    "iteration_change": -1,
+    "first_coefficient_ratio": 0.44799582213882155,
+    "first_coefficient_lu_patch_index_ratio": 0.5172201856606664,
+    "peak_rss_max_ratio": 0.959443169887623,
+    "peak_rss_sum_ratio": 0.9570387220183012,
+    "raw_system_peak_max_ratio": 0.9615744349181605,
+    "raw_system_peak_sum_ratio": 0.9571306531362448
+  },
+  "scope": "Two single observations, fixed source and input, no timing conclusion",
+  "limitations": [
+    "One FP64 and one native observation on the same fixed binary/input; no timing or general RSS scaling claim.",
+    "Per-step rank RSS is exact to printed %.17g precision; normalized and raw OS peaks are retained separately.",
+    "Summed per-rank peak samples are not a simultaneous allocator-wide peak measurement.",
+    "Reported coefficient/LU/patch-index totals exclude other indices, PETSc vectors, communication buffers, outer P and allocator/runtime storage.",
+    "FP64 emitted one initial hierarchy/storage report; native emitted reports for successive rebuilt generations.",
+    "Residual norms are verified against saved original-operator diagnostics, not reconstructed from VTU."
+  ],
+  "runs": [
+    {
+      "mode": "mono",
+      "dofs": 5367,
+      "accepted_steps": 3,
+      "corrections": 6,
+      "outer_iterations": 206,
+      "max_true_residual_ratio": 0.006938085232256278,
+      "true_residual_checks": 6,
+      "true_residual_rejections": 0,
+      "peak_rss_max_bytes": 210673664,
+      "peak_rss_sum_bytes": 316915712,
+      "system_peak_rss_max_bytes": 210206720,
+      "system_peak_rss_sum_bytes": 316448768,
+      "first_reported_storage_total": {
+        "fp32_value_bytes": 0,
+        "retained_fp64_operator_bytes": 14349712,
+        "released_fp64_operator_bytes": 0,
+        "fp32_patch_bytes": 0,
+        "retained_fp64_patch_bytes": 15629264,
+        "fp32_patches": 0,
+        "patches": 1423,
+        "retained_coefficient_bytes": 29978976,
+        "factor_bytes": 40025728,
+        "native_sparse_patches": 0,
+        "native_dense_patches": 0,
+        "native_index_bytes": 0,
+        "reported_coefficients_lu_patch_indices_bytes": 70004704
+      },
+      "last_reported_storage_total": {
+        "fp32_value_bytes": 0,
+        "retained_fp64_operator_bytes": 14349712,
+        "released_fp64_operator_bytes": 0,
+        "fp32_patch_bytes": 0,
+        "retained_fp64_patch_bytes": 15629264,
+        "fp32_patches": 0,
+        "patches": 1423,
+        "retained_coefficient_bytes": 29978976,
+        "factor_bytes": 40025728,
+        "native_sparse_patches": 0,
+        "native_dense_patches": 0,
+        "native_index_bytes": 0,
+        "reported_coefficients_lu_patch_indices_bytes": 70004704
+      }
+    },
+    {
+      "mode": "mono_native_fp32",
+      "dofs": 5367,
+      "accepted_steps": 3,
+      "corrections": 6,
+      "outer_iterations": 205,
+      "max_true_residual_ratio": 0.0069361029682299446,
+      "true_residual_checks": 6,
+      "true_residual_rejections": 0,
+      "peak_rss_max_bytes": 202129408,
+      "peak_rss_sum_bytes": 303300608,
+      "system_peak_rss_max_bytes": 202129408,
+      "system_peak_rss_sum_bytes": 302882816,
+      "first_reported_storage_total": {
+        "fp32_value_bytes": 13416344,
+        "retained_fp64_operator_bytes": 14112,
+        "released_fp64_operator_bytes": 14335600,
+        "fp32_patch_bytes": 5208504,
+        "retained_fp64_patch_bytes": 0,
+        "fp32_patches": 1423,
+        "patches": 1423,
+        "retained_coefficient_bytes": 13430456,
+        "factor_bytes": 20012864,
+        "native_sparse_patches": 1193,
+        "native_dense_patches": 230,
+        "native_index_bytes": 2764526,
+        "reported_coefficients_lu_patch_indices_bytes": 36207846
+      },
+      "last_reported_storage_total": {
+        "fp32_value_bytes": 15853760,
+        "retained_fp64_operator_bytes": 14112,
+        "released_fp64_operator_bytes": 14338296,
+        "fp32_patch_bytes": 7644572,
+        "retained_fp64_patch_bytes": 0,
+        "fp32_patches": 1423,
+        "patches": 1423,
+        "retained_coefficient_bytes": 15867872,
+        "factor_bytes": 20012864,
+        "native_sparse_patches": 1175,
+        "native_dense_patches": 248,
+        "native_index_bytes": 3967996,
+        "reported_coefficients_lu_patch_indices_bytes": 39848732
+      }
+    }
+  ],
+  "native_vs_fp64": {
+    "field_max_difference": 7.534806112374781e-13,
+    "history_max_difference": 2.3314683517128287e-15
+  },
+  "all_vtu": {
+    "files_per_run": 32,
+    "total_files_read": 64,
+    "arrays_compared": 432,
+    "boundary_files_per_run": 16,
+    "max_difference": 7.534806112374781e-13
+  },
+  "distinct_run_artifacts_verified": 110,
+  "reference_direct_artifacts_verified": 54
+}

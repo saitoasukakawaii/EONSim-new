@@ -1,4 +1,5 @@
 #include "eonsim/fsi_level_smoother.hpp"
+#include "eonsim/native_float_sparse.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -110,18 +111,96 @@ void verify(MPI_Comm comm,const std::string& kind,bool coarse,bool single) {
                        "Polynomial smoother did not publish its fixed degree/spectral bound");
     }
 }
+void verify_native_storage(MPI_Comm comm,bool sparse,bool identity) {
+    Example example(comm,false);
+    if(sparse) {
+        example.values.fill(0.);
+        for(PetscInt i=1;i<Example::n;++i) {
+            const double scale=i%3==0?1e-3:i%3==1?1e2:1.;
+            example.values[i*Example::n+i]=4.*scale;
+            if(i>1) example.values[i*Example::n+i-1]=-.25*scale;
+            if(i+1<Example::n) example.values[i*Example::n+i+1]=.125*scale;
+            // With an identity row, all active owners depend on its value,
+            // including rank 1 whose constraint column is remote. Ranks 2/3
+            // remain empty in the existing four-rank layout.
+            example.values[i*Example::n]=.0625*(i+1)*scale;
+        }
+    }
+    example.values[0]=identity?1.:4.;
+    if(!identity) example.values[1]=.125;
+    PetscInt columns[Example::n];std::iota(columns,columns+Example::n,0);
+    for(PetscInt i=example.begin;i<example.end;++i)
+        EONSIM_PETSC(MatSetValues(example.matrix.get(),1,&i,Example::n,columns,
+            example.values.data()+i*Example::n,INSERT_VALUES));
+    EONSIM_PETSC(MatAssemblyBegin(example.matrix.get(),MAT_FINAL_ASSEMBLY));
+    EONSIM_PETSC(MatAssemblyEnd(example.matrix.get(),MAT_FINAL_ASSEMBLY));
+
+    // The source has a fully allocated graph. Its unique halo column map must
+    // occupy halo-sized storage, not retain the nnz-sized sort/erase capacity.
+    NativeFloatSparse compact;
+    compact.update(example.matrix.get());
+    require(comm,compact.columns.capacity()<=compact.columns.size()+1&&
+        compact.values.capacity()<=compact.values.size()+1&&
+        compact.offsets.capacity()<=compact.offsets.size()+1,
+        "Native sparse arrays retain unused graph/growth capacity");
+
+    FsiLevelSmootherOptions options;
+    options.patches.maximum_size=32;
+    options.patches.single_precision=true;options.patches.native_storage=true;
+    auto smoother=make_fsi_level_smoother(comm,example.matrix.get(),example.keys,example.trace,options);
+    const auto before=query_fsi_level_smoother_stats(smoother);
+    PetscOwner<Vec,VecDestroy> rhs,x;
+    EONSIM_PETSC(MatCreateVecs(example.matrix.get(),x.put(),rhs.put()));
+    release_native_fsi_smoother_setup(smoother);
+    const auto released=query_fsi_level_smoother_stats(smoother);
+    const auto& patch=released.patches;
+    require(comm,patch.retained_fp64_matrix_bytes==0&&patch.factor_bytes==before.patches.factor_bytes&&
+        patch.fp32_patches==patch.patches&&patch.fp64_patches==0&&
+        patch.native_sparse_patches==(sparse?patch.patches:0)&&
+        patch.native_dense_patches==(sparse?0:patch.patches),
+        "Native patches did not retain the smaller dense/CSR coefficient representation");
+    const unsigned long long retained=patch.fp32_matrix_bytes+patch.native_index_bytes;
+    const unsigned long long dense=patch.factor_bytes;
+    unsigned long long retained_total=0,dense_total=0;
+    EONSIM_PETSC(MPI_Allreduce(&retained,&retained_total,1,MPI_UNSIGNED_LONG_LONG,MPI_SUM,comm));
+    EONSIM_PETSC(MPI_Allreduce(&dense,&dense_total,1,MPI_UNSIGNED_LONG_LONG,MPI_SUM,comm));
+    if(sparse) require(comm,retained_total<dense_total,
+        "Native CSR coefficients plus indices did not use less memory than dense coefficients");
+
+    // Neither the native action nor its identity lifting may dereference this
+    // source after release. The independent RHS/oracle uses the explicit small
+    // matrix stored in Example, not production compact coefficients or factors.
+    example.matrix=PetscOwner<Mat,MatDestroy>{};
+    for(double amplitude:{1.,-.37}) {
+        PetscScalar* b=nullptr;EONSIM_PETSC(VecGetArray(rhs.get(),&b));
+        for(PetscInt i=example.begin;i<example.end;++i) b[i-example.begin]=amplitude*example.rhs(i);
+        EONSIM_PETSC(VecRestoreArray(rhs.get(),&b));
+        EONSIM_PETSC(apply_fsi_level_smoother(smoother,rhs.get(),x.get()));
+        const PetscScalar* solution=nullptr;EONSIM_PETSC(VecGetArrayRead(x.get(),&solution));
+        bool accurate=true;
+        for(PetscInt i=example.begin;i<example.end;++i) {
+            const double expected=amplitude*example.exact(i);
+            accurate=accurate&&std::isfinite(solution[i-example.begin])&&
+                std::abs(solution[i-example.begin]-expected)<=2e-6*(1.+std::abs(expected));
+            if(identity&&i==0) accurate=accurate&&solution[i-example.begin]==amplitude*example.rhs(0);
+        }
+        EONSIM_PETSC(VecRestoreArrayRead(x.get(),&solution));
+        require(comm,accurate,"Released native coefficients changed the mixed action or remote identity lifting");
+    }
+}
 void run(MPI_Comm comm) {
     int ranks=0;MPI_Comm_size(comm,&ranks);require(comm,ranks==1||ranks==2||ranks==4,"Expected 1, 2 or 4 ranks");
     for(bool coarse:{false,true}) {
         verify(comm,"vanka",coarse,false);verify(comm,"vanka",coarse,true);
         verify(comm,"chebyshev",coarse,false);verify(comm,"block_chebyshev",coarse,false);
     }
+    for(bool sparse:{false,true}) for(bool identity:{false,true}) verify_native_storage(comm,sparse,identity);
     Example example(comm,false);
     FsiLevelSmootherOptions invalid;invalid.kind="chebyshev";invalid.eigenvalue_ratio=1.;
     bool rejected=false;try {make_fsi_level_smoother(comm,example.matrix.get(),example.keys,example.trace,invalid);}
     catch(const std::runtime_error&) {rejected=true;}
     require(comm,rejected,"Invalid Chebyshev spectral interval was accepted");
-    EONSIM_PETSC(PetscPrintf(comm,"Coupled level smoothers: mixed/aggregate Vanka, FP32, identity/port/empty ranks, numeric refresh and normal/block Chebyshev passed\n"));
+    EONSIM_PETSC(PetscPrintf(comm,"Coupled level smoothers: mixed/aggregate Vanka, compact native dense/CSR coefficients, identity/port/empty ranks, numeric refresh and normal/block Chebyshev passed\n"));
 }
 } // namespace
 int main(int argc,char** argv) {
