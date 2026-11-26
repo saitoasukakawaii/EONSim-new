@@ -16,9 +16,11 @@ import math
 import os
 from pathlib import Path
 import re
+import signal
 import statistics
 import subprocess
 import tarfile
+import threading
 import time
 import xml.etree.ElementTree as ET
 
@@ -51,6 +53,72 @@ def digest(path):
 def require(condition, detail):
     if not condition:
         raise ValueError(detail)
+
+
+def timed_command(command, log, timeout, receipt):
+    """Blocking timed wait; the independent watchdog owns only this process group.
+
+    Successful wall time includes launch and process exit, without POSIX timeout
+    polling or subsequent log parsing. Failure cleanup is included in failed
+    timings and never used as a successful performance sample. The receipt gets
+    the observed launcher exit status even when timeout cleanup terminates it.
+    """
+    command = list(map(str, command))
+    log = Path(log)
+    start = time.perf_counter()
+    process = None
+    expired = threading.Event()
+    try:
+        with log.open('w') as stream:
+            process = subprocess.Popen(command, stdout=stream, stderr=subprocess.STDOUT,
+                                       start_new_session=True)
+
+            def stop_group():
+                try:
+                    os.killpg(process.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    process.wait()
+                    return
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    pass
+                # Retire surviving ranks/descendants even if the launcher has
+                # already exited in response to TERM. Never target other jobs.
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                process.wait()
+
+            def deadline():
+                if process.poll() is None:
+                    expired.set()
+                    stop_group()
+
+            watchdog = threading.Timer(max(0., timeout-(time.perf_counter()-start)), deadline)
+            watchdog.daemon = True
+            watchdog.start()
+            try:
+                returncode = process.wait()
+                if returncode and not expired.is_set():
+                    stop_group()
+            except BaseException:
+                stop_group()
+                raise
+            finally:
+                watchdog.cancel()
+                watchdog.join()
+    finally:
+        receipt.update(wall_seconds=time.perf_counter()-start,
+                       exit_code=None if process is None else process.returncode,
+                       timeout=expired.is_set())
+    if expired.is_set():
+        raise subprocess.TimeoutExpired(command, timeout, output=log.read_bytes())
+    output = log.read_text()
+    if returncode:
+        raise subprocess.CalledProcessError(returncode, command, output=output)
+    return output
 
 
 def flags(mode, ordering):
@@ -369,7 +437,7 @@ def main():
                        linear_seconds='rank-max KSP intervals, including PC setup and inner solves',
                        setup_seconds='nonlinear solve initialization, not total PC setup',
                        schur_setup_seconds='explicit tree configuration outside KSP intervals',
-                       wall_seconds='Runner.command elapsed time, including launch and log read'),
+                       wall_seconds='blocking child wait plus launch; independent timeout watchdog; excludes log parsing'),
                    cases=[], failures=[], status='running', **provenance(exe))
     if args.stage == 'robustness':
         summary['robustness'] = dict(density_ratio_definition='solid_density / fluid_density',
@@ -462,8 +530,7 @@ def main():
             save(summary, result_path)
             start = time.monotonic()
             try:
-                text = Runner(exe, str(mpi), out, timeout=budget).command(command, 'solve')
-                row.update(exit_code=0, wall_seconds=time.monotonic()-start)
+                text = timed_command(command, log, budget, row)
                 row.update(audit(text, steps, dofs, ranks, mode, dt=dt))
                 require(row['within_target'] == row['corrections'], ('true residual gate', row['worst_ratio']))
                 ratios = compare_fields(reference or out, out, ranks, steps)
@@ -471,12 +538,14 @@ def main():
                 require(all(v <= FIELD_LIMIT for v in ratios.values()), ('field gate', ratios))
                 row['status'] = 'passed'
             except (AssertionError, ValueError, KeyError, IndexError, OSError,
-                    ET.ParseError, subprocess.TimeoutExpired) as exc:
+                    ET.ParseError, subprocess.TimeoutExpired, subprocess.CalledProcessError) as exc:
                 row.update(status='failed', error=str(exc), timeout=isinstance(exc, subprocess.TimeoutExpired))
                 if isinstance(exc, subprocess.TimeoutExpired):
-                    # Runner killed the timed-out launcher; no normal return
-                    # code was observed, so do not invent one for the receipt.
+                    # The helper retained the actual terminated launcher's
+                    # status, separately from this timeout classification.
                     row['failure_kind'] = 'timeout'
+                elif isinstance(exc, subprocess.CalledProcessError):
+                    row.update(failure_kind='process_exit', exit_code=exc.returncode)
                 else:
                     match = re.search(r'solve exited with (-?\d+):', str(exc))
                     if match:
