@@ -29,6 +29,28 @@ def records(text, marker):
             if line.startswith(prefix)]
 
 
+def check_batch_injection(text, mode):
+    """Validate one complete injection record despite merged MPI stream prefixes."""
+    # A different rank's partial stderr write can precede this flushed stdout
+    # record on the same line. Match the complete token sequence, while still
+    # counting every marker so duplicate or malformed records cannot disappear.
+    marker = 'fsi_batch_failure'
+    matches = list(re.finditer(
+        r'(?<!\w)fsi_batch_failure mode=(?P<mode>\w+) thread=(?P<thread>\d+) '
+        r'team=(?P<team>\d+) batch=(?P<batch>\d+)(?=\s|$)', text))
+    require(text.count(marker) == 1 and len(matches) == 1,
+            f'{mode}: missing, duplicate or malformed batch injection record')
+    fault = matches[0].groupdict()
+    team, thread = int(fault['team']), int(fault['thread'])
+    require(fault['mode'] == mode and team > 1,
+            f'{mode}: missing single injection in an actual multi-thread team')
+    require(int(fault['batch']) == 1,
+            f'{mode}: fault did not follow a complete first kernel/scatter batch')
+    require(0 <= thread < team and (thread > 0 if mode.startswith('worker') else thread == 0),
+            f'{mode}: failure came from the wrong OpenMP thread')
+    return fault
+
+
 def owned_fields(path, ranks, elastic):
     """Use the owner copy on each domain's global support; also check its ghosts."""
     result = {}
@@ -297,22 +319,13 @@ def batch_failures(run, cfg):
     result = []
     previous_timeout = run.timeout
     run.timeout = 60  # A barrier regression must fail promptly, not hang the suite.
-    def check_injection(text, mode):
-        faults = records(text, 'fsi_batch_failure')
-        require(len(faults) == 1 and faults[0]['mode'] == mode and int(faults[0]['team']) > 1,
-                f'{mode}: missing single injection in an actual multi-thread team')
-        require(int(faults[0]['batch']) == 1,
-                f'{mode}: fault did not follow a complete first kernel/scatter batch')
-        thread = int(faults[0]['thread'])
-        require(thread > 0 if mode.startswith('worker') else thread == 0,
-                f'{mode}: failure came from the wrong OpenMP thread')
     try:
         # Keep four faults, but cover both partial COO buffers and ordinary
         # matrix/vector insertion stashes before a rejected or fatal batch.
         for mode, coo, residual_coo in (('worker', True, True), ('insert', False, False)):
             fields, rows, text = run.solve('batch-'+mode, attempted, 2, coo,
                 [*stop, '-verify_fsi_batch_failure', mode], reference=False, residual_coo=residual_coo)
-            check_injection(text, mode)
+            check_batch_injection(text, mode)
             require(text.count('step_retry=') == 1 and len(rows) == 1
                     and abs(rows[0]['accepted_dt']-.004) < 1e-15,
                     f'{mode}: one injected rejection did not cut back exactly once')
@@ -326,7 +339,7 @@ def batch_failures(run, cfg):
             _, _, text = run.solve('batch-'+mode, attempted, 2, coo,
                 [*stop, '-verify_fsi_batch_failure', mode], reference=False,
                 fail='Injected fatal FSI batch failure')
-            check_injection(text, mode)
+            check_batch_injection(text, mode)
             require('step_retry=' not in text and 'fsi_step=' not in text,
                     f'{mode}: fatal batch failure was retried or published an accepted step')
             result.append(dict(mode=mode, coo=coo, residual_coo=True, batch=1, expected_fatal=True))
