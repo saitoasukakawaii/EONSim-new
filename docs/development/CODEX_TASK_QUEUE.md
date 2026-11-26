@@ -1,5 +1,14 @@
 # EONSim Codex Task Queue
 
+## FSI-MG-01 / in progress / 2026-11-26
+
+从远端 `main@3472a18` 接续：完整耦合 Galerkin 多重网格、逐层混合 Vanka、
+结构顺应性压力 Schur、受约束能量插值与谱粗空间；同时接入 PCD Robin/速度质量、
+patch 批量缓存、Chebyshev、混合精度循环、粗层进程聚合、PIPEFGMRES 和精确方向导数
+matrix-free operator/assembled preconditioner。工作分支 `codex/fsi-monolithic-multigrid`。
+源码完成后先推送并核实远端，再运行定向 Release/真实 FSI 算例；验证结果及性能边界待填。
+不把预定实现或算法名称记为已通过验收。
+
 ## FSI-PC-05 / implementation and bounded validation complete; performance goals remain open / 2026-11-26
 
 [PR #59](https://github.com/saitoasukakawaii/EONSim-new/pull/59)交付递归field AMG、稳定化

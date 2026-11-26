@@ -34,6 +34,7 @@ struct IndexSets {
 struct Patch {
     Mat matrix=nullptr; // Borrowed from PatchState's sequential submatrix array.
     PetscInt n=0;
+    bool factor_ready=false;
     std::vector<PetscInt> union_offsets,pivots;
     std::vector<double> rows,columns,double_lu,solution,defect,correction;
     std::vector<float> single_lu,single_work;
@@ -72,7 +73,8 @@ struct Patch {
         }
         return values;
     }
-    bool factor(bool use_single,bool& fallback) {
+    bool prepare_factor() {
+        factor_ready=false;
         EONSIM_PETSC(MatGetSize(matrix,&n,nullptr));
         rows.assign(n,0.); columns.assign(n,0.); pivots.resize(n);
         solution.resize(n); defect.resize(n); correction.resize(n); double_work.resize(n); single_work.resize(n);
@@ -95,17 +97,26 @@ struct Patch {
                 columns[indices[j]]=std::max(columns[indices[j]],std::abs(entries[j]/rows[row]));
             EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&indices,&entries));
         }
-        if(!std::all_of(columns.begin(),columns.end(),[](double x){return x>0&&std::isfinite(x);})) return false;
-        const auto values=scaled_matrix();
-        double_lu.clear(); single_lu.clear();
-        fallback=false;
-        if(use_single&&factor_values(single_lu,values)) {
-            std::vector<double>().swap(double_lu);
-            return true;
+        return std::all_of(columns.begin(),columns.end(),[](double x){return x>0&&std::isfinite(x);});
+    }
+    // Keep the previous sparse values only during a refresh, before PETSc
+    // overwrites its reusable submatrix. Exact comparison permits factor reuse
+    // without a collision-prone hash or a persistent second dense matrix.
+    std::vector<double> numeric_snapshot() const {
+        std::vector<double> values;
+        for(PetscInt row=0;row<n;++row) {
+            PetscInt count=0; const PetscInt* columns_ptr=nullptr; const PetscScalar* entries=nullptr;
+            EONSIM_PETSC(MatGetRow(matrix,row,&count,&columns_ptr,&entries));
+            if(count) values.insert(values.end(),entries,entries+count);
+            EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&columns_ptr,&entries));
         }
-        fallback=use_single;
-        std::vector<float>().swap(single_lu);
-        return factor_values(double_lu,values);
+        return values;
+    }
+    void copy_factor(const Patch& other) {
+        n=other.n; rows=other.rows; columns=other.columns; pivots=other.pivots;
+        double_lu=other.double_lu; single_lu=other.single_lu;
+        factor_ready=other.factor_ready;
+        solution.resize(n); defect.resize(n); correction.resize(n); double_work.resize(n); single_work.resize(n);
     }
     template<class T> bool solve_values(const std::vector<T>& lu,std::vector<T>& work,
                                        const double* rhs,std::vector<double>& result) {
@@ -164,7 +175,7 @@ struct Patch {
             for(PetscInt i=0;i<n;++i) solution[i]+=correction[i];
         }
         const auto values=scaled_matrix();
-        if(!factor_values(double_lu,values)) return false;
+        if(!factor_values(double_lu,values)) {factor_ready=false;return false;}
         stats.factor_bytes+=double_lu.size()*sizeof(double)-single_lu.size()*sizeof(float);
         std::vector<float>().swap(single_lu);
         ++stats.apply_fallbacks; --stats.fp32_patches; ++stats.fp64_patches;
@@ -172,13 +183,91 @@ struct Patch {
     }
 };
 
+// Equal-size patches are factored in short AoSoA batches. Every lane chooses
+// its own row pivots; only independent trailing updates share SIMD loops.
+// There is no threading or PETSc access inside the arithmetic batch.
+template<class T>
+std::vector<unsigned char> factor_batch_values(const std::vector<Patch*>& patches,
+                                               const std::vector<std::vector<double>>& values) {
+    const auto lanes=patches.size();
+    const PetscInt n=patches.front()->n;
+    std::vector<T> packed(static_cast<std::size_t>(n)*n*lanes);
+    std::vector<unsigned char> good(lanes,1);
+    for(std::size_t slot=0;slot<static_cast<std::size_t>(n)*n;++slot)
+        for(std::size_t lane=0;lane<lanes;++lane) packed[slot*lanes+lane]=static_cast<T>(values[lane][slot]);
+    const double tolerance=8.*std::numeric_limits<T>::epsilon()*std::max<PetscInt>(1,n);
+    for(PetscInt k=0;k<n;++k) {
+        for(std::size_t lane=0;lane<lanes;++lane) if(good[lane]) {
+            PetscInt pivot=k;
+            for(PetscInt i=k+1;i<n;++i)
+                if(std::abs(packed[(static_cast<std::size_t>(i)*n+k)*lanes+lane])>
+                   std::abs(packed[(static_cast<std::size_t>(pivot)*n+k)*lanes+lane])) pivot=i;
+            const auto value=packed[(static_cast<std::size_t>(pivot)*n+k)*lanes+lane];
+            if(!std::isfinite(value)||std::abs(value)<=tolerance) {good[lane]=0;continue;}
+            patches[lane]->pivots[k]=pivot;
+            if(pivot!=k) for(PetscInt j=0;j<n;++j)
+                std::swap(packed[(static_cast<std::size_t>(k)*n+j)*lanes+lane],
+                          packed[(static_cast<std::size_t>(pivot)*n+j)*lanes+lane]);
+        }
+        for(PetscInt i=k+1;i<n;++i) {
+            for(std::size_t lane=0;lane<lanes;++lane) if(good[lane])
+                packed[(static_cast<std::size_t>(i)*n+k)*lanes+lane]/=
+                    packed[(static_cast<std::size_t>(k)*n+k)*lanes+lane];
+            for(PetscInt j=k+1;j<n;++j) {
+#if defined(_OPENMP)
+#pragma omp simd
+#endif
+                for(std::size_t lane=0;lane<lanes;++lane) if(good[lane])
+                    packed[(static_cast<std::size_t>(i)*n+j)*lanes+lane]-=
+                        packed[(static_cast<std::size_t>(i)*n+k)*lanes+lane]*
+                        packed[(static_cast<std::size_t>(k)*n+j)*lanes+lane];
+            }
+        }
+    }
+    for(std::size_t lane=0;lane<lanes;++lane) {
+        auto& lu=[&]() -> std::vector<T>& {
+            if constexpr(std::is_same<T,float>::value) return patches[lane]->single_lu;
+            else return patches[lane]->double_lu;
+        }();
+        lu.resize(static_cast<std::size_t>(n)*n);
+        for(std::size_t slot=0;slot<lu.size();++slot) {
+            lu[slot]=packed[slot*lanes+lane];
+            good[lane]=good[lane]&&std::isfinite(lu[slot]);
+        }
+    }
+    return good;
+}
+bool factor_patch_batch(const std::vector<Patch*>& patches,bool single,InterfacePatchPcStats& stats) {
+    bool valid=true;
+    std::vector<std::vector<double>> values;
+    for(auto* patch:patches) {
+        valid=patch->prepare_factor()&&valid;
+        if(valid) values.push_back(patch->scaled_matrix());
+    }
+    if(!valid) return false;
+    auto good=single?factor_batch_values<float>(patches,values):factor_batch_values<double>(patches,values);
+    ++stats.factor_batches; stats.numeric_factorizations+=static_cast<PetscInt>(patches.size());
+    for(std::size_t lane=0;lane<patches.size();++lane) {
+        auto& patch=*patches[lane];
+        if(single&&good[lane]) std::vector<double>().swap(patch.double_lu);
+        else if(single) {
+            ++stats.setup_fallbacks;
+            std::vector<float>().swap(patch.single_lu);
+            good[lane]=patch.factor_values(patch.double_lu,values[lane]);
+        } else std::vector<float>().swap(patch.single_lu);
+        patch.factor_ready=good[lane];
+        valid=valid&&good[lane];
+    }
+    return valid;
+}
+
 struct PatchState {
     MPI_Comm comm;
     Mat source=nullptr; // The parent KSP owns J; it remains the exact current operator.
     PC owner=nullptr;
     PetscObjectState graph=0;
     PetscInt begin=0,end=0,global=0;
-    bool ready=false,submatrices_ready=false,bulk_configured=false;
+    bool ready=false,submatrices_ready=false,bulk_configured=false,level_mode=false;
     PetscBool report=PETSC_FALSE;
     InterfacePatchOptions options;
     std::vector<unsigned char> active_owned;
@@ -210,7 +299,7 @@ struct PatchState {
                 else identity=identity&&values[j]==0.;
             }
             EONSIM_PETSC(MatRestoreRow(full,row,&count,&columns,&values));
-            result[row-begin]=semantics[row-begin].kind!=DofEntity::boundary&&!(identity&&diagonal);
+            result[row-begin]=(level_mode||semantics[row-begin].kind!=DofEntity::boundary)&&!(identity&&diagonal);
         }
         common_check(comm,valid,"nonfinite source Jacobian");
         return result;
@@ -218,8 +307,8 @@ struct PatchState {
     PatchState(MPI_Comm communicator,Mat full,const std::vector<DofKey>& keys,
                const std::vector<unsigned char>& trace,const InterfacePatchOptions& selected,
                const std::string& prefix,
-               const std::function<void(KSP,Mat,PcSchurUpdates*)>& callback):
-        comm(communicator),source(full),options(selected),semantics(keys),configure(callback) {
+               const std::function<void(KSP,Mat,PcSchurUpdates*)>& callback,bool pure_level=false):
+        comm(communicator),source(full),level_mode(pure_level),options(selected),semantics(keys),configure(callback) {
         PetscInt n=0,cbegin=0,cend=0;
         EONSIM_PETSC(MatGetSize(full,&global,&n));
         EONSIM_PETSC(MatGetOwnershipRange(full,&begin,&end));
@@ -232,15 +321,22 @@ struct PatchState {
         active_owned=active_rows(full);
         using Center=std::tuple<std::int64_t,DofEntity,std::uint16_t,std::uint16_t>;
         std::map<Center,std::vector<PetscInt>> centers;
-        for(PetscInt i=0;i<end-begin;++i) if(trace[i]&&active_owned[i]&&keys[i].kind==DofEntity::vertex) {
+        std::map<Center,bool> interface_centers;
+        for(PetscInt i=0;i<end-begin;++i) if(active_owned[i]&&
+            (level_mode||(trace[i]&&keys[i].kind==DofEntity::vertex))) {
             const auto& k=keys[i];
             centers[{k.entity,k.kind,k.mode,k.space}].push_back(begin+i);
+            interface_centers[{k.entity,k.kind,k.mode,k.space}]=
+                interface_centers[{k.entity,k.kind,k.mode,k.space}]||trace[i];
         }
-        for(const auto& center:centers) indices.append(center.second);
+        for(const auto& center:centers) {
+            indices.append(center.second);
+            if(interface_centers[center.first]) ++stats.interface_patches;
+        }
         PetscInt local=static_cast<PetscInt>(indices.values.size()),total=0;
         MPI_Allreduce(&local,&total,1,MPIU_INT,MPI_SUM,comm);
-        common_check(comm,total>0,"no active interface vertices were supplied");
-        if(options.overlap) {
+        common_check(comm,level_mode||total>0,"no active interface vertices were supplied");
+        if(options.overlap&&total>0) {
             // MatIncreaseOverlap's domain count is logically collective; in
             // PETSc 3.23.7 n==0 returns before MPIAIJ overlap communication.
             // Pad only the setup call with empty sets, so ranks without trace
@@ -316,9 +412,11 @@ struct PatchState {
         inverse_multiplicity.resize(union_rows.size());
         for(std::size_t i=0;i<union_rows.size();++i) inverse_multiplicity[i]=allowed[i]>0?1./allowed[i]:0.;
         EONSIM_PETSC(VecRestoreArrayRead(union_rhs.get(),&allowed));
-        EONSIM_PETSC(KSPCreate(comm,bulk.put()));
-        EONSIM_PETSC(KSPSetOptionsPrefix(bulk.get(),prefix.c_str()));
-        EONSIM_PETSC(KSPSetType(bulk.get(),KSPPREONLY));
+        if(!level_mode) {
+            EONSIM_PETSC(KSPCreate(comm,bulk.put()));
+            EONSIM_PETSC(KSPSetOptionsPrefix(bulk.get(),prefix.c_str()));
+            EONSIM_PETSC(KSPSetType(bulk.get(),KSPPREONLY));
+        }
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-pc_plan_report",&report,nullptr));
     }
     void refresh(Mat full) {
@@ -327,16 +425,40 @@ struct PatchState {
         common_check(comm,full==source&&current_graph==graph,"source matrix identity/graph changed; rebuild the PC");
         common_check(comm,active_rows(full)==active_owned,"identity constraints changed; rebuild the interface patches");
         const bool first=!submatrices_ready;
+        std::vector<std::vector<double>> previous_values(patches.size());
+        if(!first) for(std::size_t i=0;i<patches.size();++i)
+            previous_values[i]=patches[i].numeric_snapshot();
         EONSIM_PETSC(MatCreateSubMatrices(full,static_cast<PetscInt>(indices.values.size()),indices.values.data(),
             indices.values.data(),first?MAT_INITIAL_MATRIX:MAT_REUSE_MATRIX,&submatrices));
         submatrices_ready=true;
         bool valid=true;
         stats.fp32_patches=stats.fp64_patches=0; stats.factor_bytes=0;
+        std::map<PetscInt,std::vector<Patch*>> pending;
+        std::map<std::vector<PetscInt>,std::size_t> representatives;
+        std::vector<std::pair<std::size_t,std::size_t>> duplicates;
         for(std::size_t i=0;i<patches.size();++i) {
             auto& patch=patches[i]; patch.matrix=submatrices[i];
-            bool fallback=false;
-            valid=patch.factor(options.single_precision,fallback)&&valid;
-            if(fallback) ++stats.setup_fallbacks;
+            EONSIM_PETSC(MatGetSize(patch.matrix,&patch.n,nullptr));
+            const auto representative=representatives.emplace(patch.union_offsets,i);
+            if(!first&&patch.factor_ready&&previous_values[i]==patch.numeric_snapshot()) ++stats.cached_factorizations;
+            else if(!representative.second) {
+                duplicates.emplace_back(i,representative.first->second);
+                ++stats.cached_factorizations;
+            } else pending[patch.n].push_back(&patch);
+        }
+        for(const auto& size_group:pending) {
+            // Bound transient AoSoA storage even when a user deliberately
+            // requests a much larger patch than the usual small blocks.
+            const auto entries=static_cast<std::size_t>(size_group.first)*size_group.first;
+            const auto width=std::max<std::size_t>(1,std::min<std::size_t>(8,262144/entries));
+            for(std::size_t start=0;start<size_group.second.size();start+=width) {
+                const auto end_index=std::min(start+width,size_group.second.size());
+                const std::vector<Patch*> batch(size_group.second.begin()+start,size_group.second.begin()+end_index);
+                valid=factor_patch_batch(batch,options.single_precision,stats)&&valid;
+            }
+        }
+        for(const auto& duplicate:duplicates) patches[duplicate.first].copy_factor(patches[duplicate.second]);
+        for(const auto& patch:patches) {
             if(patch.single_lu.empty()) ++stats.fp64_patches; else ++stats.fp32_patches;
             stats.factor_bytes+=patch.single_lu.size()*sizeof(float)+patch.double_lu.size()*sizeof(double);
         }
@@ -344,8 +466,9 @@ struct PatchState {
         if(MPI_Allreduce(&bad,&any,1,MPI_INT,MPI_MAX,comm)!=MPI_SUCCESS)
             throw std::runtime_error("Interface patch factor failure reduction failed");
         if(any) throw LinearSolveFailure("Interface patch has a singular/nonfinite pivot (including after FP64 fallback)");
-        EONSIM_PETSC(KSPSetOperators(bulk.get(),full,full));
-        if(!bulk_configured) {
+        if(!level_mode) {
+          EONSIM_PETSC(KSPSetOperators(bulk.get(),full,full));
+          if(!bulk_configured) {
             configure(bulk.get(),full,&bulk_updates);
             KSPType type=nullptr; PetscBool nonzero=PETSC_FALSE;
             EONSIM_PETSC(KSPGetType(bulk.get(),&type));
@@ -354,12 +477,13 @@ struct PatchState {
                          "bulk action requires PREONLY and a zero initial guess");
             EONSIM_PETSC(KSPSetErrorIfNotConverged(bulk.get(),PETSC_FALSE));
             bulk_configured=true;
-        } else bulk_updates.refresh(full);
-        EONSIM_PETSC(KSPSetReusePreconditioner(bulk.get(),PETSC_FALSE));
-        EONSIM_PETSC(KSPSetUp(bulk.get()));
-        // Numerical changes to J between refreshes must not trigger hidden
-        // nested setup and defeat the caller's adaptive reuse decision.
-        EONSIM_PETSC(KSPSetReusePreconditioner(bulk.get(),PETSC_TRUE));
+          } else bulk_updates.refresh(full);
+          EONSIM_PETSC(KSPSetReusePreconditioner(bulk.get(),PETSC_FALSE));
+          EONSIM_PETSC(KSPSetUp(bulk.get()));
+          // Numerical changes to J between refreshes must not trigger hidden
+          // nested setup and defeat the caller's adaptive reuse decision.
+          EONSIM_PETSC(KSPSetReusePreconditioner(bulk.get(),PETSC_TRUE));
+        }
         if(owner) EONSIM_PETSC(PCSetFailedReason(owner,PC_NOERROR));
         ready=true; ++stats.rebuilds;
         if(report) {
@@ -367,9 +491,12 @@ struct PatchState {
             EONSIM_PETSC(PetscSynchronizedPrintf(comm,
                 "interface_patch_pc rank=%d patches=%" PetscInt_FMT " largest=%" PetscInt_FMT
                 " fp32=%" PetscInt_FMT " fp64=%" PetscInt_FMT " factor_bytes=%zu rebuilds=%" PetscInt_FMT
-                " setup_fallbacks=%" PetscInt_FMT " apply_fallbacks=%" PetscInt_FMT " refinements=%" PetscInt_FMT "\n",
+                " setup_fallbacks=%" PetscInt_FMT " apply_fallbacks=%" PetscInt_FMT " refinements=%" PetscInt_FMT
+                " batches=%" PetscInt_FMT " factorizations=%" PetscInt_FMT " cached=%" PetscInt_FMT
+                " interface=%" PetscInt_FMT " level=%d\n",
                 rank,stats.patches,stats.largest_patch,stats.fp32_patches,stats.fp64_patches,stats.factor_bytes,
-                stats.rebuilds,stats.setup_fallbacks,stats.apply_fallbacks,stats.refinements));
+                stats.rebuilds,stats.setup_fallbacks,stats.apply_fallbacks,stats.refinements,
+                stats.factor_batches,stats.numeric_factorizations,stats.cached_factorizations,stats.interface_patches,level_mode?1:0));
             EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
         }
     }
@@ -380,12 +507,20 @@ struct PatchState {
             PetscCall(VecSet(output,PETSC_INFINITY));
             PetscFunctionReturn(PETSC_SUCCESS);
         }
-        const auto solve_error=KSPSolve(bulk.get(),input,output);
-        KSPConvergedReason reason=KSP_CONVERGED_ITERATING;
-        PC bulk_pc=nullptr; PCFailedReason failure=PC_NOERROR;
-        PetscCall(KSPGetConvergedReason(bulk.get(),&reason)); PetscCall(KSPGetPC(bulk.get(),&bulk_pc));
-        PetscCall(PCGetFailedReason(bulk_pc,&failure));
-        bool valid=solve_error==PETSC_SUCCESS&&reason>0&&failure==PC_NOERROR;
+        bool valid=true;
+        if(level_mode) {
+            const PetscScalar* rhs=nullptr; PetscScalar* x=nullptr;
+            PetscCall(VecGetArrayRead(input,&rhs)); PetscCall(VecGetArray(output,&x));
+            for(PetscInt i=0;i<end-begin;++i) x[i]=active_owned[i]?0.:rhs[i];
+            PetscCall(VecRestoreArray(output,&x)); PetscCall(VecRestoreArrayRead(input,&rhs));
+        } else {
+            const auto solve_error=KSPSolve(bulk.get(),input,output);
+            KSPConvergedReason reason=KSP_CONVERGED_ITERATING;
+            PC bulk_pc=nullptr; PCFailedReason failure=PC_NOERROR;
+            PetscCall(KSPGetConvergedReason(bulk.get(),&reason)); PetscCall(KSPGetPC(bulk.get(),&bulk_pc));
+            PetscCall(PCGetFailedReason(bulk_pc,&failure));
+            valid=solve_error==PETSC_SUCCESS&&reason>0&&failure==PC_NOERROR;
+        }
         PetscCall(MatMult(source,output,residual_vector.get()));
         PetscCall(VecAYPX(residual_vector.get(),-1.,input));
         PetscCall(VecScatterBegin(scatter.get(),residual_vector.get(),union_rhs.get(),INSERT_VALUES,SCATTER_FORWARD));
@@ -447,7 +582,7 @@ PetscErrorCode view_patch(PC pc,PetscViewer viewer) {
             s.patches,s.largest_patch,s.fp32_patches,s.fp64_patches,s.factor_bytes,s.rebuilds,
             s.applications,s.refinements,s.setup_fallbacks,s.apply_fallbacks));
         PetscCall(PetscViewerASCIIPushTab(viewer));
-        PetscCall(KSPView((*handle)->bulk.get(),viewer));
+        if((*handle)->bulk.get()) PetscCall(KSPView((*handle)->bulk.get(),viewer));
         PetscCall(PetscViewerASCIIPopTab(viewer));
     }
     PetscFunctionReturn(PETSC_SUCCESS);
@@ -461,7 +596,8 @@ Handle* get_handle(PC pc) {
 }
 } // namespace
 
-void validate_interface_patch_options(MPI_Comm comm,const std::string& prefix,const InterfacePatchOptions& options) {
+void validate_interface_patch_options(MPI_Comm comm,const std::string& prefix,const InterfacePatchOptions& options,
+                                      bool inspect_solver_options) {
     const PetscInt values[]={options.single_precision?1:0,options.overlap,options.maximum_size,options.refinement_steps};
     PetscInt minimum[4]{},maximum[4]{};
     MPI_Allreduce(values,minimum,4,MPIU_INT,MPI_MIN,comm);
@@ -478,6 +614,7 @@ void validate_interface_patch_options(MPI_Comm comm,const std::string& prefix,co
     valid=valid&&options.refinement_tolerance>=1e-14&&options.refinement_tolerance<=1e-4&&
         options.damping>0&&options.damping<=2;
     common_check(comm,valid,"options must be identical across ranks with overlap 0..2, size 1..2048, refinement 0..8, tolerance 1e-14..1e-4, damping (0,2]");
+    if(!inspect_solver_options) return;
     char value[64]{}; PetscBool set=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,("-"+prefix+"pc_type").c_str(),value,sizeof(value),&set));
     common_check(comm,!set||std::strcmp(value,PCSHELL)==0,"interface correction requires a shell PC at "+prefix);
@@ -509,5 +646,27 @@ bool query_interface_patch_pc_stats(PC pc,InterfacePatchPcStats& stats) {
 }
 KSP interface_patch_bulk_solver(PC pc) {
     auto* handle=get_handle(pc); return handle?(*handle)->bulk.get():nullptr;
+}
+void configure_vanka_level_pc(MPI_Comm comm,KSP solver,Mat full,
+    const std::vector<DofKey>& owned_semantics,const std::vector<unsigned char>& owned_interface,
+    const InterfacePatchOptions& options,PcSchurUpdates* updates) {
+    common_check(comm,updates!=nullptr,"level Vanka requires a live numeric update registry");
+    const char* prefix_ptr=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(solver,&prefix_ptr));
+    const std::string prefix=prefix_ptr?prefix_ptr:"";
+    // The enclosing hierarchy validated its own PETSc prefix. A level action
+    // has typed controls and must not consume unrelated root -pc_type options.
+    validate_interface_patch_options(comm,prefix,options,false);
+    auto state=std::make_shared<PatchState>(comm,full,owned_semantics,owned_interface,options,prefix,
+        std::function<void(KSP,Mat,PcSchurUpdates*)>{},true);
+    state->refresh(full);
+    PC pc=nullptr; EONSIM_PETSC(KSPGetPC(solver,&pc));
+    EONSIM_PETSC(KSPSetOperators(solver,full,full)); EONSIM_PETSC(KSPSetType(solver,KSPPREONLY));
+    EONSIM_PETSC(PCSetType(pc,PCSHELL));
+    auto handle=std::make_unique<Handle>(state);
+    EONSIM_PETSC(PCShellSetContext(pc,handle.get())); EONSIM_PETSC(PCShellSetDestroy(pc,destroy_patch));
+    handle.release(); state->owner=pc;
+    EONSIM_PETSC(PCShellSetName(pc,shell_name)); EONSIM_PETSC(PCShellSetApply(pc,apply_patch));
+    EONSIM_PETSC(PCShellSetView(pc,view_patch));
+    updates->refreshers.push_back([state](Mat matrix){state->refresh(matrix);});
 }
 } // namespace eonsim

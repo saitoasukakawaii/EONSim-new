@@ -471,13 +471,17 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     const bool alpha=config.time_integration.scheme==TimeScheme::generalized_alpha;
     bool alpha_ready=false;
     PetscBool finite_difference=PETSC_FALSE,coo=PETSC_FALSE,assembly_report=PETSC_FALSE,residual_coo=PETSC_TRUE;
-    PetscBool overlap=PETSC_FALSE;
+    PetscBool overlap=PETSC_FALSE,matrix_free=PETSC_FALSE;
     PetscInt threads=1;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_fd_tangent",&finite_difference,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_coo",&coo,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_assembly_report",&assembly_report,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_residual_coo",&residual_coo,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_overlap",&overlap,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_matrix_free",&matrix_free,nullptr));
+    int action_bad=matrix_free&&finite_difference,any_action_bad=0;
+    MPI_Allreduce(&action_bad,&any_action_bad,1,MPI_INT,MPI_MAX,comm);
+    if(any_action_bad) throw std::runtime_error("Exact FSI matrix-free action cannot use the finite-difference tangent reference");
     EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-fsi_threads",&threads,nullptr));
     if(threads<1||threads>256) throw std::runtime_error("-fsi_threads must be between 1 and 256");
     char batch_failure_name[32]{};
@@ -889,7 +893,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     MPI_Allreduce(&pcd_local,&pcd_max,1,MPI_INT,MPI_MAX,comm);
     if(pcd_min!=pcd_max) throw std::runtime_error("PCD auxiliary assembly selection differs between ranks");
     std::unique_ptr<FsiPressureOperators> pressure_operators;
-    if(pcd_local) pressure_operators=std::make_unique<FsiPressureOperators>(comm,mesh,reduced,fluid_cell,pressure_tags);
+    if(pcd_local) pressure_operators=std::make_unique<FsiPressureOperators>(comm,mesh,reduced,fluid_cell,pressure_tags,
+        f.inlet?std::vector<int>{f.inlet->tag}:std::vector<int>{});
     NonlinearSystem system(comm,layout,std::move(reduced.jacobian_pattern));
     if(coo) system.set_jacobian_coo(coo_rows,coo_columns);
     if(residual_coo) system.set_residual_coo(residual_rows);
@@ -917,6 +922,13 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             int(coo),counts[0],counts[1],counts[2],counts[3],max_value_bytes,times[0],times[1],times[2],times[3]));
     }
     std::vector<double> assembly_state(mesh.nodes.size()*nc),element_residual,element_tangent;
+    std::vector<double> action_state,action_direction;
+    std::map<PetscInt,PetscInt> action_local_columns;
+    if(matrix_free) {
+        action_state.resize(mesh.nodes.size()*nc); action_direction.resize(action_state.size());
+        for(std::size_t i=0;i<layout.local_to_global.size();++i)
+            action_local_columns.emplace(layout.local_to_global[i],static_cast<PetscInt>(i));
+    }
     element_residual.reserve(Layout::dofs); element_tangent.reserve(Layout::dofs*Layout::dofs);
     // A bounded batch avoids storing one dense tangent for every local element.
     // Only pure kernels and disjoint buffer writes execute on worker threads.
@@ -1324,6 +1336,66 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         };
         NonlinearAssemblyPhases phases;
         phases.preconditioner_context={dt,integration_dt,solid_dt,mesh_dt,stabilization_dt,af};
+        if(matrix_free) phases.jacobian_action=[&](const std::vector<double>& x,
+            const std::vector<double>& direction,Vec output) {
+            expand_into(x,action_state);
+            for(std::size_t i=0;i<action_direction.size();++i) {
+                const auto map=reduced.slot(i,mesh_dt);
+                action_direction[i]=map.local<0?0.:map.trial_weight*direction.at(map.local);
+                if(i%nc<3&&inlet_nodes[i/nc]) action_direction[i]=0.;
+            }
+            for(std::size_t e=0;e<mesh.cells.size();++e) {
+                const auto& cell=assembly_plan.cells[e];
+                std::array<double,Layout::dofs> action{};
+                if(fluid_cell[e]) {
+                    Tet4Ale::State<double> state{},change{};
+                    for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Tet4Ale::components;++c) {
+                        const auto physical=Layout::dof(mesh.cells[e].nodes[a],c);
+                        state[Tet4Ale::dof(a,c)]=action_state[physical];
+                        change[Tet4Ale::dof(a,c)]=action_direction[physical];
+                    }
+                    const auto response=fsi_element_action(data[e],state,change);
+                    for(int i=0;i<Tet4Ale::dofs;++i)
+                        action[cell.active.index(Tet4Ale::node(i),Tet4Ale::component(i))]+=response[i];
+                }
+                if(solid_cell[e]) {
+                    Tet4Vector::State<double> state{},change{},dn{},vn{};
+                    for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c) {
+                        const auto n=mesh.cells[e].nodes[a];
+                        const auto slot=Tet4Vector::dof(a,c);
+                        state[slot]=action_state[Layout::dof(n,Layout::structure_offset+c)];
+                        change[slot]=action_direction[Layout::dof(n,Layout::structure_offset+c)];
+                        dn[slot]=reference_d[Tet4Vector::dof(n,c)];
+                        vn[slot]=reference_physical[Layout::dof(n,Layout::structure_offset+c)];
+                    }
+                    // The existing 12x12 constitutive tangent is local stack
+                    // storage only; no global J is assembled for this action.
+                    auto element=solid_element(solid_geometry[e],
+                        {f.young,f.poisson,f.solid_density,solid_dt,f.neo_hookean,mesh_dt},state,dn,vn,true);
+                    if(!supports.empty()) for(std::size_t i=support_offsets[e];i<support_offsets[e+1];++i)
+                        support_faces[i].face.evaluate(dn,state,mesh_dt,&element,true);
+                    for(int i=0;i<Tet4Vector::dofs;++i) {
+                        double value=0;
+                        for(int k=0;k<Tet4Vector::dofs;++k) value+=element.tangent[Tet4Vector::matrix(i,k)]*change[k];
+                        action[cell.active.index(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i))]+=value;
+                    }
+                }
+                EONSIM_PETSC(VecSetValues(output,cell.active.dofs(),assembly_plan.rows.data()+cell.offset,action.data(),ADD_VALUES));
+            }
+            const auto add_action=[&](PetscInt row,PetscInt column,double value) {
+                if(row<0||column<0) return;
+                const auto local=action_local_columns.find(column);
+                if(local==action_local_columns.end()) throw std::logic_error("FSI action is missing a port ghost column");
+                EONSIM_PETSC(VecSetValue(output,row,value*direction.at(local->second),ADD_VALUES));
+            };
+            for(std::size_t i=0;i<outlets.size();++i) {
+                const auto& port=reduced.outlets[i];
+                outlet_jacobian_entries(reduced,port,&action_state,mesh_dt,x[port.local],
+                    1/outlet_stages[i].total_impedance,mesh.rank==mesh.ranks-1,add_action);
+            }
+            if(!Elastic&&mesh.rank==mesh.ranks-1)
+                add_action(reduced.body,reduced.body,f.mass/solid_dt+f.damping+mesh_dt*f.stiffness);
+        };
         if(pressure_operators) phases.after_jacobian=[&](const std::vector<double>& x,Mat jacobian) {
             // Successful physical assembly has completed all halo exchanges.
             // Reconstruct the same stage state, including interface aliases and

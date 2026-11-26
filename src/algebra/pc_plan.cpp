@@ -4,6 +4,7 @@
 #include "eonsim/pressure_schur_pc.hpp"
 #include "eonsim/interface_patch_pc.hpp"
 #include "eonsim/schur_solver.hpp"
+#include "eonsim/monolithic_fsi_mg.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -98,10 +99,10 @@ int pressure_schur_requested(MPI_Comm comm) {
     char value[32]{}; PetscBool set=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_schur_approx",value,sizeof(value),&set));
     const std::string name=set?value:"diagonal";
-    int local=name=="diagonal"?1:name=="nodal"?2:name=="lsc"?3:name=="bfbt"?4:name=="pcd"?5:0,lo=0,hi=0;
+    int local=name=="diagonal"?1:name=="nodal"?2:name=="lsc"?3:name=="bfbt"?4:name=="pcd"?5:name=="added_mass"?6:0,lo=0,hi=0;
     MPI_Allreduce(&local,&lo,1,MPI_INT,MPI_MIN,comm);
     MPI_Allreduce(&local,&hi,1,MPI_INT,MPI_MAX,comm);
-    common_check(comm,lo==hi&&lo!=0,"Schur approximation must be diagonal, nodal, lsc, bfbt or pcd and identical on every rank");
+    common_check(comm,lo==hi&&lo!=0,"Schur approximation must be diagonal, nodal, lsc, bfbt, pcd or added_mass and identical on every rank");
     return local;
 }
 bool nodal_structure_requested(MPI_Comm comm,bool added_mass) {
@@ -123,6 +124,16 @@ void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,int veloci
     // approximation below has its own mixed fluid groups and separate option.
     node.nodal_schur=node.schur&&nodal&&node.children.at(1).name=="pressure";
     if(node.schur&&pressure_approx>=3&&node.children.at(1).name=="pressure") node.pressure_schur=pressure_approx;
+    if(node.pressure_schur==6) {
+        std::map<DofKey,std::vector<PetscInt>> groups;
+        for(const auto row:node.children.at(0).root_rows) {
+            auto key=layout.owned_semantics.at(row-layout.begin); key.component=0;
+            groups[key].push_back(row);
+        }
+        for(const auto& group:groups) {
+            (group.first.domain==D::solid?node.pressure_structure_groups:node.pressure_fluid_groups).push_back(group.second);
+        }
+    }
     if(node.name=="velocity") {
         node.coupled_velocity=velocity_solver!=1&&node.children.empty();
         node.twolevel_velocity=(velocity_solver==3||velocity_solver==5)&&node.children.empty();
@@ -450,6 +461,11 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
         EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
     }
     PC pc; EONSIM_PETSC(KSPGetPC(ksp,&pc));
+    if(node.monolithic_mg) {
+        configure_monolithic_fsi_mg(comm,ksp,root_matrix,node.monolithic_semantics,
+            node.monolithic_coordinates,node.monolithic_interface,updates);
+        return;
+    }
     if(node.rcr_ports) {
         // The child uses its own compact root numbering, not original J rows.
         // Its refreshers live in the shell and run before new port responses.
@@ -509,9 +525,13 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
             auto& state=schur_cache.pressure[&node];
             if(!state) {
                 const auto kind=node.pressure_schur==3?PressureSchurKind::lsc:
-                    node.pressure_schur==4?PressureSchurKind::bfbt:PressureSchurKind::pcd;
+                    node.pressure_schur==4?PressureSchurKind::bfbt:
+                    node.pressure_schur==6?PressureSchurKind::added_mass:PressureSchurKind::pcd;
+                PressureComplianceLayout compliance;
+                compliance.fluid_groups=node.pressure_fluid_groups;
+                compliance.structure_groups=node.pressure_structure_groups;
                 state=make_pressure_schur_state(comm,root_matrix,node.children.at(0).root_rows,
-                    node.children.at(1).root_rows,kind);
+                    node.children.at(1).root_rows,kind,compliance);
                 updates->refreshers.push_back([state](Mat matrix){refresh_pressure_schur(state,matrix);});
             }
             EONSIM_PETSC(PCFieldSplitSetSchurPre(pc,PC_FIELDSPLIT_SCHUR_PRE_USER,pressure_schur_matrix(state)));
@@ -562,10 +582,10 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
 }
 namespace {
 PcBlock make_pc_plan_impl(MPI_Comm comm,const AlgebraLayout& layout,const std::string& recipe,bool allow_ports,bool allow_interface=true) {
-    int choice=recipe=="physics"?1:recipe=="quantity"?2:recipe=="hybrid"?3:recipe=="added_mass"?4:0;
+    int choice=recipe=="physics"?1:recipe=="quantity"?2:recipe=="hybrid"?3:recipe=="added_mass"?4:recipe=="monolithic_mg"?5:0;
     int lo=0,hi=0;
     MPI_Allreduce(&choice,&lo,1,MPI_INT,MPI_MIN,comm); MPI_Allreduce(&choice,&hi,1,MPI_INT,MPI_MAX,comm);
-    common_check(comm,lo==hi&&lo!=0,"recipe must be physics, quantity, hybrid or added_mass and identical on every rank");
+    common_check(comm,lo==hi&&lo!=0,"recipe must be physics, quantity, hybrid, added_mass or monolithic_mg and identical on every rank");
     common_check(comm,layout.owned>=0&&layout.begin>=0&&layout.global>0&&
         static_cast<long long>(layout.begin)+layout.owned<=layout.global,"invalid root ownership range");
     bool owned_order=layout.local_to_global.size()>=static_cast<std::size_t>(layout.owned);
@@ -623,6 +643,34 @@ PcBlock make_pc_plan_impl(MPI_Comm comm,const AlgebraLayout& layout,const std::s
         wrapper.children.push_back(make_pc_plan_impl(comm,bulk,recipe,false));
         return wrapper;
     }
+    if(choice==5) {
+        int counts[3]{},global_counts[3]{};
+        for(const auto& key:layout.owned_semantics) ++counts[static_cast<int>(key.domain)];
+        MPI_Allreduce(counts,global_counts,3,MPI_INT,MPI_SUM,comm);
+        common_check(comm,global_counts[0]>0&&global_counts[1]>0&&global_counts[2]>0,
+                     "monolithic_mg requires complete fluid/structure/ALE semantics");
+        common_check(comm,layout.owned_reference_coordinates.size()==layout.owned_semantics.size()&&
+                     layout.owned_interface.size()==layout.owned_semantics.size(),
+                     "monolithic_mg requires reference coordinates and interface metadata");
+        common_check(comm,std::none_of(layout.owned_semantics.begin(),layout.owned_semantics.end(),[](const DofKey& key) {
+            return key.kind==DofEntity::boundary;
+        }),"monolithic_mg boundary ports require -pc_plan_rcr_ports true");
+        bool unused=false;
+        for(const char* option:{"-pc_plan_velocity_solver","-pc_plan_velocity_coarse_space","-pc_plan_velocity_aggregate_nodes",
+            "-pc_plan_schur_approx","-pc_plan_structure_approx","-pc_plan_interface_smoother","-pc_plan_patch_precision",
+            "-pc_plan_patch_overlap","-pc_plan_patch_max_size","-pc_plan_patch_refinement_steps",
+            "-pc_plan_patch_refinement_tolerance","-pc_plan_patch_damping","-pc_plan_pcd_robin",
+            "-pc_plan_pcd_velocity_mass","-pc_plan_pcd_velocity_mass_weight"}) {
+            PetscBool found=PETSC_FALSE; EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,option,&found)); unused=unused||found;
+        }
+        common_check(comm,!unused,"monolithic_mg uses its own multilevel options; block recipe/patch options are not consumed");
+        PcBlock plan; plan.name="monolithic_mg"; plan.monolithic_mg=true;
+        plan.begin=layout.begin; plan.global=layout.global;
+        plan.root_rows.resize(layout.owned); std::iota(plan.root_rows.begin(),plan.root_rows.end(),layout.begin);
+        plan.parent_rows=plan.root_rows; plan.monolithic_semantics=layout.owned_semantics;
+        plan.monolithic_coordinates=layout.owned_reference_coordinates; plan.monolithic_interface=layout.owned_interface;
+        return plan;
+    }
     char smoother[32]{}; PetscBool smoother_set=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_interface_smoother",smoother,sizeof(smoother),&smoother_set));
     const std::string smoother_name=smoother_set?smoother:"none";
@@ -666,9 +714,16 @@ PcBlock make_pc_plan_impl(MPI_Comm comm,const AlgebraLayout& layout,const std::s
     const int velocity_solver=velocity_solver_requested(comm);
     const bool rigid_modes=rigid_velocity_modes_requested(comm,velocity_solver);
     const int pressure_approx=pressure_schur_requested(comm);
+    bool pcd_option=false;
+    for(const char* option:{"-pc_plan_pcd_robin","-pc_plan_pcd_velocity_mass","-pc_plan_pcd_velocity_mass_weight"}) {
+        PetscBool found=PETSC_FALSE; EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,option,&found)); pcd_option=pcd_option||found;
+    }
+    common_check(comm,!pcd_option||pressure_approx==5,"PCD Robin/velocity mass options require -pc_plan_schur_approx pcd");
     const bool combined=velocity_solver!=1;
     const bool nodal_structure=nodal_structure_requested(comm,choice==4);
     common_check(comm,choice!=4||coupled,"added_mass requires a complete FSI layout");
+    common_check(comm,pressure_approx!=6||(coupled&&choice==3),
+                 "added_mass pressure Schur requires the hybrid coupled-velocity pressure split");
     common_check(comm,pressure_approx==1||!coupled||choice!=2,"pressure approximation requires a recipe with a pressure Schur block");
     if(pressure_approx==5) common_check(comm,std::none_of(layout.owned_semantics.begin(),layout.owned_semantics.end(),[](const DofKey& key) {
         return key.quantity==Q::pressure&&key.kind==DofEntity::boundary;
@@ -705,10 +760,11 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
 }
 namespace {
 bool requires_flexible_outer(const PcBlock& node) {
-    return node.rcr_ports||node.interface_patch||node.pressure_schur||node.field_amg_velocity||node.added_mass_schur||node.twolevel_velocity||node.gamg_velocity||node.boomeramg_velocity||
+    return node.monolithic_mg||node.rcr_ports||node.interface_patch||node.pressure_schur||node.field_amg_velocity||node.added_mass_schur||node.twolevel_velocity||node.gamg_velocity||node.boomeramg_velocity||
         std::any_of(node.children.begin(),node.children.end(),requires_flexible_outer);
 }
 void validate_options(MPI_Comm comm,const PcBlock& node,const std::string& prefix,const std::vector<std::string>& tokens) {
+    if(node.monolithic_mg) { validate_monolithic_fsi_mg_options(comm,prefix); return; }
     if(node.interface_patch) {
         validate_interface_patch_options(comm,prefix,patch_options(node));
         validate_options(comm,node.children.at(0),prefix+"interface_bulk_",tokens);
@@ -774,15 +830,24 @@ void validate_pc_plan_options(MPI_Comm comm,KSP solver,const PcBlock& plan) {
         const std::string option="-"+std::string(prefix?prefix:"")+"ksp_type";
         EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,option.c_str(),value,sizeof(value),&set));
         KSPType actual=nullptr; EONSIM_PETSC(KSPGetType(solver,&actual));
-        common_check(comm,(!set||std::string(value)==KSPFGMRES)&&(!actual||std::string(actual)==KSPFGMRES),
-                     "RCR ports, added_mass, twolevel and AMG require outer FGMRES for variable inner actions");
+        const auto flexible=[](const char* type) { return !type||std::string(type)==KSPFGMRES||std::string(type)==KSPPIPEFGMRES; };
+        common_check(comm,(!set||flexible(value))&&flexible(actual),
+                     "RCR ports, added_mass, twolevel and AMG require outer FGMRES or PIPEFGMRES for variable inner actions");
+        if((set&&std::string(value)==KSPPIPEFGMRES)||(actual&&std::string(actual)==KSPPIPEFGMRES)) {
+            char side[32]{}; PetscBool side_set=PETSC_FALSE;
+            EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,("-"+std::string(prefix?prefix:"")+"ksp_pc_side").c_str(),side,sizeof(side),&side_set));
+            common_check(comm,!side_set||std::string(side)=="right","PIPEFGMRES requires right preconditioning");
+        }
     }
     validate_options(comm,plan,prefix?prefix:"",tokens);
 }
 void configure_pc_plan(MPI_Comm comm,KSP solver,Mat matrix,const PcBlock& plan,PcSchurUpdates* updates) {
     validate_pc_plan_options(comm,solver,plan);
     common_check(comm,!updates||updates->refreshers.empty(),"PC plan numeric state must be fresh");
-    if(requires_flexible_outer(plan)) EONSIM_PETSC(KSPSetType(solver,KSPFGMRES));
+    if(requires_flexible_outer(plan)) {
+        KSPType method=nullptr; EONSIM_PETSC(KSPGetType(solver,&method));
+        if(!method||std::string(method)!=KSPPIPEFGMRES) EONSIM_PETSC(KSPSetType(solver,KSPFGMRES));
+    }
     EONSIM_PETSC(KSPSetOperators(solver,matrix,matrix));
     SchurCache schur_cache;
     configure(comm,solver,plan,matrix,updates,schur_cache,true);

@@ -11,7 +11,12 @@ struct PcBlock {
     bool schur=false, nodal_schur=false, coupled_velocity=false, twolevel_velocity=false;
     bool gamg_velocity=false, boomeramg_velocity=false, rigid_velocity_modes=false;
     bool field_amg_velocity=false;
-    int pressure_schur=0; ///< 0=native/nodal; 3=LSC, 4=BFBt, 5=physical PCD.
+    bool monolithic_mg=false;
+    std::vector<DofKey> monolithic_semantics;
+    std::vector<std::array<double,3>> monolithic_coordinates;
+    std::vector<unsigned char> monolithic_interface;
+    int pressure_schur=0; ///< 0=native/nodal; 3=LSC, 4=BFBt, 5=physical PCD, 6=structural compliance.
+    std::vector<std::vector<PetscInt>> pressure_fluid_groups,pressure_structure_groups; ///< Root rows.
     bool interface_patch=false,patch_single_precision=false;
     PetscInt patch_overlap=1,patch_maximum_size=256,patch_refinement_steps=3;
     double patch_refinement_tolerance=1e-10,patch_damping=1.;

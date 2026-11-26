@@ -445,13 +445,20 @@ int main(int argc,char** argv) {
     const auto& jac=element.tangent;
     for(int field=0;field<2;++field) {
         auto plus=x,minus=x;
+        Tet4Ale::State<double> selected_direction{};
         const double eps=2e-7;
-        for(int i=0;i<Tet4Ale::dofs;++i) { const double d=(i%Tet4Ale::components<Tet4Flow::components)==(field==0)?direction[i]:0; plus[i]+=eps*d; minus[i]-=eps*d; }
+        for(int i=0;i<Tet4Ale::dofs;++i) {
+            const double d=(i%Tet4Ale::components<Tet4Flow::components)==(field==0)?direction[i]:0;
+            selected_direction[i]=d; plus[i]+=eps*d; minus[i]-=eps*d;
+        }
         const auto rp=fsi_element_residual(data,plus),rm=fsi_element_residual(data,minus);
+        const auto action=fsi_element_action(data,x,selected_direction);
         double error=0,norm=0;
         for(int i=0;i<Tet4Ale::dofs;++i) {
             double jv=0; for(int j=0;j<Tet4Ale::dofs;++j) if((j%Tet4Ale::components<Tet4Flow::components)==(field==0)) jv+=jac[Tet4Ale::matrix(i,j)]*direction[j];
             const double fd=(rp[i]-rm[i])/(2*eps);
+            if(!std::isfinite(action[i])||std::abs(action[i]-jv)>3e-13*(1+std::abs(jv)))
+                throw std::runtime_error("Single-lane FSI action differs from full analytical tangent");
             error+=(fd-jv)*(fd-jv); norm+=jv*jv;
         }
         const double relative=std::sqrt(error/norm);

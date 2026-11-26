@@ -208,6 +208,61 @@ Tet4Ale::Matrix<double> fsi_element_tangent(const FsiElementData& data,const Tet
 {
     return fsi_element(data,x).tangent;
 }
+Tet4Ale::State<double> fsi_element_action(const FsiElementData& data,
+    const Tet4Ale::State<double>& x,const Tet4Ale::State<double>& direction)
+{
+    using D=Dual<1>;
+    const auto coordinates=current_coordinates(data,x);
+    const auto g=tet4_geometry(coordinates);
+    SimplexGeometry<Tet4Topology,D> geometry{};
+    geometry.volume=g.volume;
+    Tet4Ale::State<D> trial{};
+    for(int i=0;i<Tet4Ale::dofs;++i) {
+        trial[i]=x[i]; trial[i].derivative[0]=direction[i];
+    }
+    for(int b=0;b<Tet4Topology::nodes;++b) for(int j=0;j<Space3::dimension;++j)
+        geometry.gradients[b][j]=g.gradients[b][j];
+    for(int a=0;a<Tet4Topology::nodes;++a) for(int i=0;i<Space3::dimension;++i) {
+        const double change=direction[Tet4Ale::dof(a,Tet4Ale::mesh_offset+i)];
+        geometry.volume.derivative[0]+=g.volume*g.gradients[a][i]*change;
+        for(int b=0;b<Tet4Topology::nodes;++b) for(int j=0;j<Space3::dimension;++j)
+            geometry.gradients[b][j].derivative[0]-=g.gradients[b][i]*g.gradients[a][j]*change;
+    }
+    const auto fluid=fluid_ale_residual(data,trial,geometry);
+    Tet4Ale::State<double> action{};
+    for(int i=0;i<Tet4Flow::dofs;++i)
+        action[Tet4Ale::dof(Tet4Flow::node(i),Tet4Flow::component(i))]=fluid[i].derivative[0];
+    for(int a=0;a<Tet4Topology::nodes;++a) for(int c=0;c<Space3::dimension;++c)
+        for(int b=0;b<Tet4Topology::nodes;++b)
+            action[Tet4Ale::dof(a,Tet4Ale::mesh_offset+c)]+=
+                data.mesh_stiffness[Tet4Scalar::matrix(a,b)]*direction[Tet4Ale::dof(b,Tet4Ale::mesh_offset+c)];
+    for(const auto& face:data.inlet_faces) {
+        int opposite=0; while(opposite==face[0]||opposite==face[1]||opposite==face[2]) ++opposite;
+        Tri3Topology::Nodal<Point> points{};
+        Point ab{},ac{},dab{},dac{};
+        for(int c=0;c<Space3::dimension;++c) {
+            for(int a=0;a<Tri3Topology::nodes;++a) points[a][c]=coordinates[face[a]][c];
+            ab[c]=points[1][c]-points[0][c]; ac[c]=points[2][c]-points[0][c];
+            dab[c]=direction[Tet4Ale::dof(face[1],Tet4Ale::mesh_offset+c)]-
+                   direction[Tet4Ale::dof(face[0],Tet4Ale::mesh_offset+c)];
+            dac[c]=direction[Tet4Ale::dof(face[2],Tet4Ale::mesh_offset+c)]-
+                   direction[Tet4Ale::dof(face[0],Tet4Ale::mesh_offset+c)];
+        }
+        const auto surface=triangle_geometry(points,coordinates[opposite]);
+        double orientation=0;
+        for(int c=0;c<Space3::dimension;++c) {
+            const int j=(c+1)%Space3::dimension,k=(c+2)%Space3::dimension;
+            orientation+=(ab[j]*ac[k]-ab[k]*ac[j])*surface.normal[c];
+        }
+        const double factor=data.inlet_pressure*(orientation>0?1.:-1.)*Tri3Topology::mean_weight/2.;
+        for(int c=0;c<Space3::dimension;++c) {
+            const int j=(c+1)%Space3::dimension,k=(c+2)%Space3::dimension;
+            const double change=factor*(dab[j]*ac[k]+ab[j]*dac[k]-dab[k]*ac[j]-ab[k]*dac[j]);
+            for(int a:face) action[Tet4Ale::dof(a,c)]+=change;
+        }
+    }
+    return action;
+}
 Tet4Ale::Matrix<double> fsi_element_tangent_fd(const FsiElementData& data,const Tet4Ale::State<double>& x)
 {
     Tet4Ale::Matrix<double> tangent{};
