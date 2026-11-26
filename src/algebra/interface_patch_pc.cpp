@@ -240,7 +240,19 @@ struct PatchState {
         PetscInt local=static_cast<PetscInt>(indices.values.size()),total=0;
         MPI_Allreduce(&local,&total,1,MPIU_INT,MPI_SUM,comm);
         common_check(comm,total>0,"no active interface vertices were supplied");
-        if(options.overlap) EONSIM_PETSC(MatIncreaseOverlap(full,local,indices.values.data(),options.overlap));
+        if(options.overlap) {
+            // MatIncreaseOverlap's domain count is logically collective; in
+            // PETSc 3.23.7 n==0 returns before MPIAIJ overlap communication.
+            // Pad only the setup call with empty sets, so ranks without trace
+            // vertices still participate and uneven patch counts are valid.
+            // Empty padding never becomes a numerical patch or an unknown.
+            PetscInt maximum=0;
+            EONSIM_PETSC(MPI_Allreduce(&local,&maximum,1,MPIU_INT,MPI_MAX,comm));
+            while(static_cast<PetscInt>(indices.values.size())<maximum) indices.append({});
+            EONSIM_PETSC(MatIncreaseOverlap(full,maximum,indices.values.data(),options.overlap));
+            for(PetscInt i=local;i<maximum;++i) EONSIM_PETSC(ISDestroy(&indices.values[i]));
+            indices.values.resize(local);
+        }
         std::vector<PetscInt> union_rows;
         for(auto is:indices.values) {
             PetscInt size=0; const PetscInt* rows=nullptr;

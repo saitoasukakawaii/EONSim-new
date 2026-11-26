@@ -29,7 +29,8 @@ from generate_domains import generate
 
 MODES = ('nodal_field', 'lsc_field', 'bfbt_field', 'pcd_field',
          'pcd_vanka_double', 'pcd_vanka_single')
-STUDY_MODES = ('aggregate_nodal', 'lsc_vanka_single', 'bfbt_vanka_single', 'pcd_vanka_single')
+STUDY_MODES = ('aggregate_nodal', 'nodal_field', 'lsc_vanka_single',
+               'bfbt_vanka_single', 'pcd_vanka_single')
 FIELD_LIMIT = 2e-9
 
 
@@ -259,12 +260,17 @@ def main():
     parser.add_argument('--work', type=Path, required=True)
     parser.add_argument('--build-source', help='Exact commit used to compile the binary; absence is recorded')
     parser.add_argument('--study', action='store_true')
+    parser.add_argument('--sections', nargs='+', choices=('default', 'scaling', 'coupling', 'rcr'),
+                        help='Run only these sections; omitted runs default+rcr, --study also adds scaling+coupling')
     parser.add_argument('--timeout', type=float, default=180.)
     args = parser.parse_args()
     if args.build_source and not re.fullmatch('[0-9a-f]{40}', args.build_source):
         parser.error('--build-source must be a full commit SHA')
     if not math.isfinite(args.timeout) or args.timeout <= 0:
         parser.error('--timeout must be finite and positive')
+    if args.sections and (args.study or len(set(args.sections)) != len(args.sections)):
+        parser.error('--sections must be unique and cannot be combined with --study')
+    sections = set(args.sections or (['default', 'rcr', 'scaling', 'coupling'] if args.study else ['default', 'rcr']))
     args.executable, args.mpiexec = args.executable.resolve(), args.mpiexec.resolve()
     work = args.work.resolve() / str(time.time_ns())
     work.mkdir(parents=True)
@@ -280,31 +286,36 @@ def main():
                                   ROOT / 'tests/verify_fsi_block_efficiency.py', ROOT / 'scripts/benchmark_fsi_assembly.py',
                                   ROOT / 'cases/fsi/generate_domains.py')},
                   linear_gate='1e-12 + 1e-10 * rhs_norm', field_absolute_limit=FIELD_LIMIT,
-                  study=args.study, commands=[], cases=[], failures=[])
+                  study=bool(sections & {'scaling', 'coupling'}), sections=sorted(sections),
+                  commands=[], cases=[], failures=[])
     save(result, receipt)
-    for ranks in (1, 2):
-        directory = work / f'domains-r{ranks}'
-        cfg = domain_case(directory, 3, unequal=True)
-        campaign(args, result, receipt, directory, cfg, MODES, ranks, restart=ranks == 2)
-    directory = work / 'moving-rcr'
-    cfg, geometry = circular_case(directory, (1., 0., 0.), (0., 0., 0.))
-    cfg['fsi'].update(steps=3, output_interval=1, pressure_face_history=True)
-    cfg['time'] = dict(scheme='generalized_alpha', rho_infinity=.5)
-    cfg['time_control'] = dict(step_sizes=[.015, .013, .017])
-    cfg['fsi']['dt'] = math.fsum(cfg['time_control']['step_sizes']) / 3
-    campaign(args, result, receipt, directory, cfg, ('pcd_vanka_single',), 2,
-             interface_area=geometry['interface_area'], ports=True, restart=True)
-    if args.study:
+    if 'default' in sections:
+        for ranks in (1, 2):
+            directory = work / f'domains-r{ranks}'
+            cfg = domain_case(directory, 3, unequal=True)
+            campaign(args, result, receipt, directory, cfg, MODES, ranks, restart=ranks == 2)
+    if 'rcr' in sections:
+        directory = work / 'moving-rcr'
+        cfg, geometry = circular_case(directory, (1., 0., 0.), (0., 0., 0.))
+        cfg['fsi'].update(steps=3, output_interval=1, pressure_face_history=True)
+        cfg['time'] = dict(scheme='generalized_alpha', rho_infinity=.5)
+        cfg['time_control'] = dict(step_sizes=[.015, .013, .017])
+        cfg['fsi']['dt'] = math.fsum(cfg['time_control']['step_sizes']) / 3
+        campaign(args, result, receipt, directory, cfg, ('pcd_vanka_single',), 2,
+                 interface_area=geometry['interface_area'], ports=True, restart=True)
+    if 'scaling' in sections:
         for ranks in (1, 2):
             for n in (4, 6, 8):
                 directory = work / f'scaling-n{n}-r{ranks}'
                 campaign(args, result, receipt, directory, domain_case(directory, n), STUDY_MODES, ranks)
+    if 'coupling' in sections:
         for ratio in (1., .1, .01):
             for dt in (.02, .005):
                 directory = work / f'coupling-rho{ratio:g}-dt{dt:g}'
                 cfg = domain_case(directory, 4, ratio, dt)
                 campaign(args, result, receipt, directory, cfg,
                          ('bfbt_vanka_single', 'pcd_vanka_single'), 2)
+    if 'scaling' in sections:
         scaling = []
         for ranks in (1, 2):
             for mode in STUDY_MODES:

@@ -52,7 +52,9 @@ struct Example {
             const auto domain=i==2?DofDomain::fluid:i==4?DofDomain::solid:i==6?DofDomain::mesh:DofDomain::fluid;
             const auto quantity=i==2||i==7?DofQuantity::pressure:i==6?DofQuantity::displacement:DofQuantity::velocity;
             semantics.push_back({i,domain,quantity,i==7?DofEntity::boundary:DofEntity::vertex,0,0,1});
-            trace.push_back(i==2||i==4);
+            // The dense four-rank case has patch counts 2/1/0/0. Overlap
+            // setup must support both unequal positive counts and empty ranks.
+            trace.push_back(i==2||i==4||(dense_graph&&i==1));
         }
         fill(0);
     }
@@ -96,7 +98,7 @@ struct Example {
             residual[i]=static_cast<double>(value);
         }
         const std::vector<std::vector<PetscInt>> patches=dense_graph?
-            std::vector<std::vector<PetscInt>>{{1,2,3,4,5,6},{1,2,3,4,5,6}}:
+            std::vector<std::vector<PetscInt>>{{1,2,3,4,5,6},{1,2,3,4,5,6},{1,2,3,4,5,6}}:
             std::vector<std::vector<PetscInt>>{{1,2,3},{3,4,5}};
         for(const auto& patch:patches) for(auto i:patch) ++weight[i];
         for(const auto& patch:patches) {

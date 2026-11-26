@@ -35,10 +35,11 @@ int main(int argc,char** argv) {
         std::array<Mat,3> first{};
         const std::array<const char*,3> keys{pressure_pcd_mass_key,pressure_pcd_laplace_key,pressure_pcd_transport_key};
         double worst=0.;
-        for(int generation=0;generation<3;++generation) {
+        for(int generation=0;generation<4;++generation) {
             const double scale=1.+.15*generation,dt=.08/(generation+1),mesh_dt=.13;
             const double rho=2.3,mu=.7;
-            data[0].fluid={rho,mu,dt,0.,true,0.}; data[0].mesh_dt=mesh_dt;
+            const bool convection=generation!=3;
+            data[0].fluid={rho,mu,dt,0.,convection,0.}; data[0].mesh_dt=mesh_dt;
             std::vector<double> full(n,0.);
             Tet4Topology::Nodal<Point> relative{};
             for(int a=0;a<4;++a) for(int c=0;c<3;++c) {
@@ -66,7 +67,7 @@ int main(int argc,char** argv) {
                         if(kind==1) expected=stiffness;
                         else {
                             expected=rho/dt*volume*(a==b?2.:1.)/20.+mu*stiffness;
-                            for(int q=0;q<4;++q) for(int c=0;c<3;++c)
+                            if(convection) for(int q=0;q<4;++q) for(int c=0;c<3;++c)
                                 expected+=rho*volume*(a==q?2.:1.)/20.*relative[q][c]*gradients[b][c];
                         }
                     }
@@ -81,7 +82,7 @@ int main(int argc,char** argv) {
         try { FsiPressureOperators missing(PETSC_COMM_SELF,mesh,reduced,fluid,{11}); }
         catch(const std::runtime_error&) { rejected=true; }
         if(!rejected) throw std::runtime_error("PCD missing auxiliary gauge was not rejected");
-        std::cout<<"PCD physical matrices: three ALE/time generations, stable handles, exact mass/Laplace/convection, max_error="<<worst<<"\n";
+        std::cout<<"PCD physical matrices: four ALE/time generations including disabled convection, stable handles, exact mass/Laplace/convection, max_error="<<worst<<"\n";
     } catch(const std::exception& error) { std::cerr<<error.what()<<'\n'; status=1; }
     PetscFinalize();
     return status;

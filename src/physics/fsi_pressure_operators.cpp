@@ -84,7 +84,7 @@ void FsiPressureOperators::update(const std::vector<double>& full,
             }
             // q * (u-w) dot grad(p) is quadratic for P1 q,u,w: the symmetric
             // four-point Tet4 rule integrates it exactly on this affine cell.
-            for(const auto& point:SimplexGauss<Tet4Topology,4>::points) {
+            if(coefficients.fluid.convection) for(const auto& point:SimplexGauss<Tet4Topology,4>::points) {
                 Point velocity{};
                 for(int a=0;a<4;++a) for(int c=0;c<3;++c) velocity[c]+=point.shape[a]*relative[a][c];
                 for(int a=0;a<4;++a) for(int b=0;b<4;++b) {

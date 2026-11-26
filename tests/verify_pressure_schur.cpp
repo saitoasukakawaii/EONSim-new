@@ -1,4 +1,5 @@
 #include "eonsim/pressure_schur_pc.hpp"
+#include "eonsim/nonlinear_system.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -295,6 +296,71 @@ void failed_refresh_recovery(MPI_Comm comm) {
         }
     }
 }
+void nonlinear_pcd_callback_contract(MPI_Comm comm) {
+    int rank=0,ranks=0; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
+    AlgebraLayout layout;layout.global=4;layout.begin=4*rank/ranks;
+    const auto end=4*(rank+1)/ranks;layout.owned=end-layout.begin;
+    layout.fields["velocity"];layout.fields["pressure"];
+    for(PetscInt row=layout.begin;row<end;++row) {
+        layout.local_to_global.push_back(row);
+        auto key=DofKey{};key.entity=row/2;
+        key.quantity=row%2?DofQuantity::pressure:DofQuantity::velocity;
+        layout.owned_semantics.push_back(key);
+        layout.fields[row%2?"pressure":"velocity"].push_back(row);
+    }
+    layout.diagonal.assign(layout.owned,1);layout.off_diagonal.assign(layout.owned,0);
+    PetscOwner<Mat,MatDestroy> auxiliary;
+    EONSIM_PETSC(MatCreateAIJ(comm,layout.owned,layout.owned,layout.global,layout.global,
+        1,nullptr,0,nullptr,auxiliary.put()));
+    for(const auto row:layout.fields.at("pressure"))
+        EONSIM_PETSC(MatSetValue(auxiliary.get(),row,row,1.,INSERT_VALUES));
+    EONSIM_PETSC(MatAssemblyBegin(auxiliary.get(),MAT_FINAL_ASSEMBLY));
+    EONSIM_PETSC(MatAssemblyEnd(auxiliary.get(),MAT_FINAL_ASSEMBLY));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_plan_schur_approx","pcd"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-fieldsplit_pressure_pressure_aux_pc_type","jacobi"));
+    NonlinearSystem system(comm,layout);SolverConfig config;config.pc_recipe="hybrid";
+    const std::vector<double> initial(layout.owned,0.);
+    int assemblies=0,auxiliary_updates=0;bool forced=false;
+    const auto assemble=[&](const std::vector<double>& x,Vec residual,Mat jacobian) {
+        ++assemblies;
+        for(PetscInt i=0;i<layout.owned;++i) {
+            const auto row=layout.begin+i;
+            const double diagonal=row%2?1.:2.,target=forced?row+1.:0.;
+            EONSIM_PETSC(VecSetValue(residual,row,diagonal*(x[i]-target),ADD_VALUES));
+            if(jacobian) EONSIM_PETSC(MatSetValue(jacobian,row,row,diagonal,ADD_VALUES));
+        }
+    };
+    const auto missing=[&](const std::vector<double>& state) {
+        bool rejected=false;
+        const auto before=assemblies;
+        try {system.solve(config,state,{}, {},assemble);}
+        catch(const std::runtime_error& error) {
+            rejected=std::string(error.what()).find("after_jacobian auxiliary update callback")!=std::string::npos;
+        }
+        check(comm,rejected&&assemblies==before,
+            "Nonlinear PCD accepted a missing/removed auxiliary producer before a zero-Newton solve");
+    };
+    missing(initial);
+    NonlinearAssemblyPhases phases;
+    phases.after_jacobian=[&](const std::vector<double>&,Mat jacobian) {
+        ++auxiliary_updates;
+        for(const auto key:{pressure_pcd_mass_key,pressure_pcd_laplace_key,pressure_pcd_transport_key})
+            EONSIM_PETSC(PetscObjectCompose(reinterpret_cast<PetscObject>(jacobian),key,
+                reinterpret_cast<PetscObject>(auxiliary.get())));
+    };
+    forced=true;
+    const auto solved=system.solve(config,initial,{}, {},assemble,phases);
+    check(comm,solved.iterations>0&&auxiliary_updates>0,"PCD callback fixture did not exercise a real configured solve");
+    std::vector<double> exact(layout.owned);
+    for(PetscInt i=0;i<layout.owned;++i) exact[i]=layout.begin+i+1.;
+    missing(exact); // Root compositions and a configured PC now exist.
+    const auto before=auxiliary_updates;
+    const auto recovered=system.solve(config,exact,{}, {},assemble,phases);
+    check(comm,recovered.iterations==0&&recovered.residual_norm==0.&&auxiliary_updates>before,
+        "Restoring the PCD producer did not rebuild a valid zero-Newton session");
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_plan_schur_approx"));
+    EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-fieldsplit_pressure_pressure_aux_pc_type"));
+}
 } // namespace
 int main(int argc,char** argv) {
     PetscInitialize(&argc,&argv,nullptr,nullptr);
@@ -303,6 +369,7 @@ int main(int argc,char** argv) {
         try {
             run_oracles(PETSC_COMM_WORLD);negative_cases(PETSC_COMM_WORLD);compact_auxiliary(PETSC_COMM_WORLD);
             failed_refresh_recovery(PETSC_COMM_WORLD);
+            nonlinear_pcd_callback_contract(PETSC_COMM_WORLD);
             PetscPrintf(PETSC_COMM_WORLD,"pressure_schur_oracles passed: LSC/BFBt/PCD, stabilization, shared refresh, empty owners, compact auxiliaries\n");
         } catch(const std::exception& error) {
             PetscPrintf(PETSC_COMM_WORLD,"pressure_schur_oracles failed: %s\n",error.what());result=1;

@@ -1122,17 +1122,28 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     auto& x=solution_; auto& r=residual_; auto& scratch=scratch_; auto& j=matrix_;
     PetscBool reuse=PETSC_TRUE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-nonlinear_reuse",&reuse,nullptr));
+    char pressure_approximation[32]{};
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_schur_approx",pressure_approximation,
+        sizeof(pressure_approximation),nullptr));
+    const bool physical_pcd=std::strcmp(pressure_approximation,"pcd")==0;
     const auto options=petsc_options_snapshot();
     int local[]={initial.size()!=l.local_to_global.size()||constraints.size()!=prescribed.size()||
         bool(phases.owned)!=bool(phases.halo),
         !reuse||!workspace_||!workspace_->reusable||workspace_->options!=options||
         !same_solver_config(workspace_->config,config)||workspace_->constraint_rows!=constraints,
-        bool(phases.owned),!phases.owned,bool(phases.after_jacobian),!phases.after_jacobian};
-    int global[6]{};
-    MPI_Allreduce(local,global,6,MPI_INT,MPI_MAX,comm);
+        bool(phases.owned),!phases.owned,bool(phases.after_jacobian),!phases.after_jacobian,
+        physical_pcd&&!phases.after_jacobian};
+    int global[7]{};
+    MPI_Allreduce(local,global,7,MPI_INT,MPI_MAX,comm);
     if(global[0]) throw std::runtime_error("Invalid nonlinear state/constraint layout");
     if(global[2]&&global[3]) throw std::runtime_error("Nonlinear assembly phases must agree on every rank");
     if(global[4]&&global[5]) throw std::runtime_error("Auxiliary Jacobian callback must agree on every rank");
+    // Root Mat compositions retain their handles across solves. Without a
+    // current producer, a retained PCD recipe could silently reuse old physical
+    // coefficients, including when the new initial residual is already zero.
+    // Standalone algebra callers may still compose static auxiliary operators
+    // explicitly; this requirement belongs to the nonlinear update contract.
+    if(global[6]) throw std::runtime_error("Physical PCD requires an after_jacobian auxiliary update callback for every nonlinear solve");
     const bool solver_reused=!global[1];
     if(!solver_reused) {
         workspace_.reset();
