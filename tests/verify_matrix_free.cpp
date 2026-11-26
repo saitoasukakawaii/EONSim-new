@@ -35,6 +35,7 @@ void verify(MPI_Comm comm) {
     option("-pc_type","jacobi"); option("-ksp_rtol","1e-12"); option("-ksp_atol","1e-14");
     option("-ksp_max_it","100"); option("-ksp_pc_side","right");
     option("-ksp_norm_type","unpreconditioned"); option("-nonlinear_matrix_free_pc_interval","2");
+    option("-nonlinear_true_residual","true");
     for(const char* method:{"fgmres","pipefgmres"}) for(const bool residual_coo:{false,true}) {
         option("-ksp_type",method);
         NonlinearSystem system(comm,layout);
@@ -115,6 +116,7 @@ void verify(MPI_Comm comm) {
                 require(std::abs(result.raw_residual[local[i]]-(i==3?7.:0.))<2e-10,"Matrix-free solve changed physical reaction");
             }
             require(result.matrix_free_actions>0&&result.assembled_pc_reuses>0,"Matrix-free action or assembled P reuse was not exercised");
+            require(result.true_residual_checks>0,"Current-operator convergence verification was not exercised");
             require(result.jacobian_assemblies<result.jacobian_callbacks,"P was assembled for every matrix-free correction");
             require(result.field_residuals[0].equation_rows==3,"Constraint entered the physical field norm");
             require(result.matrix_free_preparations==result.jacobian_callbacks,"Frozen-state setup did not follow every current linearization");

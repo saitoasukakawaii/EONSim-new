@@ -811,6 +811,8 @@ struct Context {
     PetscInt assembled_pc_interval=1,matrix_free_actions=0,assembled_pc_reuses=0;
     PetscInt matrix_free_preparations=0,matrix_free_overlapped_actions=0;
     double matrix_free_seconds=0,matrix_free_overlap_seconds=0,matrix_free_ghost_seconds=0;
+    PetscInt true_residual_checks=0,true_residual_rejections=0;
+    double true_residual_seconds=0;
     std::vector<double> operator_state={},direction={};
     std::string action_error={}; // Fatal and sticky until this solve exits.
     void prepare_direction() {
@@ -1090,28 +1092,54 @@ PetscErrorCode matrix_free_multiply(Mat matrix,Vec input,Vec output) {
     PetscCall(VecRestoreArrayWrite(output,&entries));
     return PETSC_SUCCESS;
 }
-struct MatrixFreeConvergence {
+struct KrylovConvergence {
     ActiveContext* callbacks=nullptr;
+    bool verify_residual=false;
+    PetscOwner<Vec,VecDestroy> solution_work,residual;
     PetscErrorCode (*original)(KSP,PetscInt,PetscReal,KSPConvergedReason*,void*)=nullptr;
     void* original_context=nullptr;
     PetscErrorCode (*original_destroy)(void*)=nullptr;
-    ~MatrixFreeConvergence() { if(original_destroy) (void)original_destroy(original_context); }
+    ~KrylovConvergence() { if(original_destroy) (void)original_destroy(original_context); }
 };
-PetscErrorCode matrix_free_convergence(KSP ksp,PetscInt iteration,PetscReal norm,
-                                      KSPConvergedReason* reason,void* pointer)
+PetscErrorCode guarded_krylov_convergence(KSP ksp,PetscInt iteration,PetscReal norm,
+                                        KSPConvergedReason* reason,void* pointer)
 {
-    auto& guard=*static_cast<MatrixFreeConvergence*>(pointer);
+    auto& guard=*static_cast<KrylovConvergence*>(pointer);
     if(!guard.callbacks||!guard.callbacks->current||!guard.original) return PETSC_ERR_ARG_WRONGSTATE;
-    if(!guard.callbacks->current->action_error.empty()) {
+    auto& context=*guard.callbacks->current;
+    if(!context.action_error.empty()) {
         // Both supported Krylov methods invoke this after their reductions.
         *reason=KSP_DIVERGED_BREAKDOWN;
         return PETSC_SUCCESS;
     }
-    return guard.original(ksp,iteration,norm,reason,guard.original_context);
+    PetscCall(guard.original(ksp,iteration,norm,reason,guard.original_context));
+    if(!guard.verify_residual||*reason<=0) return PETSC_SUCCESS;
+    // Flexible GMRES's recurrence can underestimate ||b-Ax|| when scaled or
+    // inexact PCs generate nearly dependent directions. Verify only proposed
+    // convergence, using the same configured test and the exact current A.
+    // Rejecting a false convergence continues the existing Krylov cycle; its
+    // ordinary restart rebuilds b-Ax. Never reset the iteration budget, change
+    // tolerances, mutate PETSc internals, or re-enter KSPSolve from a callback.
+    const auto start=std::chrono::steady_clock::now();
+    if(!guard.residual.get()) {
+        Vec solution=nullptr;
+        PetscCall(KSPGetSolution(ksp,&solution));
+        PetscCall(VecDuplicate(solution,guard.solution_work.put()));
+        PetscCall(VecDuplicate(solution,guard.residual.put()));
+    }
+    Vec residual=nullptr; PetscReal actual=0;
+    PetscCall(KSPBuildResidual(ksp,guard.solution_work.get(),guard.residual.get(),&residual));
+    PetscCall(VecNorm(residual,NORM_2,&actual));
+    ++context.true_residual_checks;
+    if(!context.action_error.empty()) *reason=KSP_DIVERGED_BREAKDOWN;
+    else PetscCall(guard.original(ksp,iteration,actual,reason,guard.original_context));
+    if(*reason<=0) ++context.true_residual_rejections;
+    context.true_residual_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+    return PETSC_SUCCESS;
 }
-PetscErrorCode destroy_matrix_free_convergence(void* pointer)
+PetscErrorCode destroy_krylov_convergence(void* pointer)
 {
-    auto* guard=static_cast<MatrixFreeConvergence*>(pointer);
+    auto* guard=static_cast<KrylovConvergence*>(pointer);
     const auto error=guard->original_destroy?guard->original_destroy(guard->original_context):PETSC_SUCCESS;
     guard->original_destroy=nullptr;
     delete guard;
@@ -1220,6 +1248,7 @@ struct NonlinearSystem::Workspace {
     PetscBool block=PETSC_FALSE,schur=PETSC_FALSE,report=PETSC_FALSE,rank_report=PETSC_FALSE;
     bool semantic=false,pc_configured=false,reusable=false;
     bool matrix_free=false;
+    bool verify_true_residual=false;
     PetscInt assembled_pc_interval=1;
     PetscOwner<Vec,VecDestroy> direction_ghost;
     PetscOwner<Mat,MatDestroy> action_matrix;
@@ -1371,6 +1400,18 @@ struct NonlinearSystem::Workspace {
             MPI_Allreduce(&bad,&any,1,MPI_INT,MPI_MAX,comm);
             if(any) throw std::runtime_error("Exact matrix-free operator requires fgmres or pipefgmres");
         }
+        PetscBool true_residual=recipe=="monolithic_mg"?PETSC_TRUE:PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-nonlinear_true_residual",&true_residual,nullptr));
+        KSPType method=nullptr; KSPNormType norm_type;
+        EONSIM_PETSC(KSPGetType(ksp,&method)); EONSIM_PETSC(KSPGetNormType(ksp,&norm_type));
+        const int residual_policy[]={int(true_residual),int(!true_residual),
+            true_residual&&(!method||(std::strcmp(method,KSPFGMRES)!=0&&std::strcmp(method,KSPPIPEFGMRES)!=0)||
+                            norm_type!=KSP_NORM_UNPRECONDITIONED)};
+        int global_residual_policy[3]{};
+        MPI_Allreduce(residual_policy,global_residual_policy,3,MPI_INT,MPI_MAX,comm);
+        if((global_residual_policy[0]&&global_residual_policy[1])||global_residual_policy[2])
+            throw std::runtime_error("True residual verification requires the same option on all ranks and unpreconditioned flexible GMRES");
+        verify_true_residual=true_residual;
         // Retain fresh-solver semantics for history-carrying nonlinear algorithms
         // or explicit lagged PCs (including prefixed child PCs). The ordinary
         // Newton path reuses symbolic objects, never stale numerical factors.
@@ -1634,19 +1675,22 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         // only after all child submatrices have been configured.
         EONSIM_PETSC(KSPSetOperators(ksp,workspace.action_matrix.get(),j.get()));
         EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
+    }
+    if(workspace.matrix_free||workspace.verify_true_residual) {
         // Recipe setup can call KSPSetFromOptions, so wrap only its final
         // configured convergence test and retain the wrapper on session reuse.
-        decltype(MatrixFreeConvergence::original) current=nullptr;
+        decltype(KrylovConvergence::original) current=nullptr;
         EONSIM_PETSC(KSPGetConvergenceTest(ksp,&current,nullptr,nullptr));
-        if(current!=matrix_free_convergence) {
+        if(current!=guarded_krylov_convergence) {
             // Transfer without destroying the original context; KSP owns the
             // wrapper and calls its original destructor exactly once.
-            auto guarded=std::make_unique<MatrixFreeConvergence>();
+            auto guarded=std::make_unique<KrylovConvergence>();
             guarded->callbacks=&workspace.callbacks;
+            guarded->verify_residual=workspace.verify_true_residual;
             EONSIM_PETSC(KSPGetAndClearConvergenceTest(ksp,&guarded->original,
                 &guarded->original_context,&guarded->original_destroy));
-            EONSIM_PETSC(KSPSetConvergenceTest(ksp,matrix_free_convergence,guarded.get(),
-                destroy_matrix_free_convergence));
+            EONSIM_PETSC(KSPSetConvergenceTest(ksp,guarded_krylov_convergence,guarded.get(),
+                destroy_krylov_convergence));
             guarded.release();
         }
     }
@@ -1783,6 +1827,9 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     result.matrix_free_overlapped_actions=context.matrix_free_overlapped_actions;
     result.matrix_free_overlap_seconds=context.matrix_free_overlap_seconds;
     result.matrix_free_ghost_seconds=context.matrix_free_ghost_seconds;
+    result.true_residual_checks=context.true_residual_checks;
+    result.true_residual_rejections=context.true_residual_rejections;
+    result.true_residual_seconds=context.true_residual_seconds;
     result.inexact_linear_solves=workspace.linear_policy.forcing_solves;
     result.recycle_projections=workspace.linear_policy.projections;
     result.recycle_vectors=static_cast<PetscInt>(workspace.linear_policy.basis.size());
@@ -1817,12 +1864,16 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             acceptance.reduction_calls,context.ghost_overlap_seconds));
         MatInfo info; EONSIM_PETSC(MatGetInfo(j.get(),MAT_GLOBAL_SUM,&info));
         PetscLogDouble memory=0; EONSIM_PETSC(PetscMemoryGetCurrentUsage(&memory));
-        double peak=memory;
+        double system_peak=memory;
 #if defined(__linux__)
         struct rusage usage{};
         if(getrusage(RUSAGE_SELF,&usage)!=0) throw std::runtime_error("Cannot read peak RSS");
-        peak=1024.0*usage.ru_maxrss;
+        // Linux's getrusage high-water counter and PETSc's /proc current RSS
+        // estimate are sampled differently. A newly observed current value is
+        // also a lower bound on peak usage, even before ru_maxrss catches up.
+        system_peak=1024.0*usage.ru_maxrss;
 #endif
+        const double peak=std::max(double(memory),system_peak);
         double local[]={solve_seconds,assembly_seconds,ghost_seconds,memory,peak,setup_seconds,
             schur_setup_seconds,diagnostics.solve_seconds,diagnostics.diagnostic_seconds,finalize_seconds,
             callback_seconds,failure_sync_seconds,assembly_finalize_seconds,constraint_seconds},maxima[14]{};
@@ -1849,6 +1900,9 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             << " matrix_free_overlapped_actions=" << result.matrix_free_overlapped_actions
             << " matrix_free_overlap_seconds_rank0=" << result.matrix_free_overlap_seconds
             << " matrix_free_ghost_seconds_rank0=" << result.matrix_free_ghost_seconds
+            << " true_residual_checks=" << result.true_residual_checks
+            << " true_residual_rejections=" << result.true_residual_rejections
+            << " true_residual_seconds_rank0=" << result.true_residual_seconds
             << " inexact_linear_solves=" << result.inexact_linear_solves
             << " recycle_projections=" << result.recycle_projections
             << " recycle_vectors=" << result.recycle_vectors
@@ -1879,12 +1933,12 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             " initial_jacobian_reuses=%" PetscInt_FMT " initial_jacobian_deferred=%d user_schur_updates=%" PetscInt_FMT
             " callback_seconds=%.17g failure_sync_seconds=%.17g ghost_seconds=%.17g assembly_seconds=%.17g"
             " assembly_finalize_seconds=%.17g constraint_seconds=%.17g linear_seconds=%.17g"
-            " host=%s rss_bytes=%.17g peak_rss_bytes=%.17g\n",
+            " host=%s rss_bytes=%.17g peak_rss_bytes=%.17g system_peak_rss_bytes=%.17g\n",
             rank,l.owned,l.local_to_global.size()-static_cast<std::size_t>(l.owned),
             result.jacobian_assemblies,result.jacobian_callbacks,result.initial_jacobian_assemblies,
             result.initial_jacobian_reuses,static_cast<int>(result.initial_jacobian_deferred),result.user_schur_updates,
             callback_seconds,failure_sync_seconds,ghost_seconds,assembly_seconds,
-            assembly_finalize_seconds,constraint_seconds,diagnostics.solve_seconds,processor,memory,peak));
+            assembly_finalize_seconds,constraint_seconds,diagnostics.solve_seconds,processor,memory,peak,system_peak));
         const auto tree=local_solver_report(ksp,rank);
         EONSIM_PETSC(PetscSynchronizedPrintf(comm,"%s",tree.c_str()));
         EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));

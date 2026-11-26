@@ -31,6 +31,8 @@ struct NonlinearResult {
     double matrix_free_seconds=0; ///< Rank-local exact directional application, including ghost/assembly.
     PetscInt matrix_free_preparations=0,matrix_free_overlapped_actions=0;
     double matrix_free_overlap_seconds=0,matrix_free_ghost_seconds=0;
+    PetscInt true_residual_checks=0,true_residual_rejections=0; ///< Proposed Krylov convergence checked with the current exact operator.
+    double true_residual_seconds=0;
     PetscInt inexact_linear_solves=0,recycle_projections=0,recycle_vectors=0;
     double recycle_seconds=0;
     double residual_norm=0;
