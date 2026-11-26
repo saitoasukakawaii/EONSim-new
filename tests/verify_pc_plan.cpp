@@ -11,6 +11,7 @@
 #include <limits>
 #include <map>
 #include <numeric>
+#include <set>
 #include <stdexcept>
 using namespace eonsim;
 namespace {
@@ -812,8 +813,8 @@ void verify_coordinate_coarse_spaces(MPI_Comm comm) {
         EONSIM_PETSC(MatAssemblyBegin(matrix.get(),MAT_FINAL_ASSEMBLY));
         EONSIM_PETSC(MatAssemblyEnd(matrix.get(),MAT_FINAL_ASSEMBLY));
     };
-    for(int variant=0;variant<2;++variant) {
-        const bool gamg=variant==1,rigid=!gamg;
+    for(int variant=0;variant<3;++variant) {
+        const bool gamg=variant==1,aggregate=variant==2,rigid=!gamg;
         ScopedOptions options;
         if(gamg) {
             // Force this connected 24-row oracle through actual aggregation,
@@ -821,13 +822,17 @@ void verify_coordinate_coarse_spaces(MPI_Comm comm) {
             options.set("-geometry_gamg_pc_gamg_coarse_eq_limit","2");
             options.set("-geometry_gamg_pc_gamg_threshold","0");
         }
+        if(aggregate) {
+            options.set("-geometry_aggregate_mg_coarse_pc_gamg_coarse_eq_limit","2");
+            options.set("-geometry_aggregate_mg_coarse_pc_gamg_threshold","0");
+        }
         fill(0);
         PetscOwner<KSP,KSPDestroy> solver;
         EONSIM_PETSC(KSPCreate(comm,solver.put()));
-        EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),gamg?"geometry_gamg_":"geometry_twolevel_"));
+        EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),gamg?"geometry_gamg_":aggregate?"geometry_aggregate_":"geometry_twolevel_"));
         EONSIM_PETSC(KSPSetOperators(solver.get(),matrix.get(),matrix.get()));
         if(gamg) configure_coupled_velocity_gamg(comm,solver.get(),keys);
-        else configure_coupled_velocity_twolevel(comm,solver.get(),keys,coordinates,rigid);
+        else configure_coupled_velocity_twolevel(comm,solver.get(),keys,coordinates,rigid,aggregate?2:0);
         EONSIM_PETSC(KSPSetUp(solver.get()));
         PC pc; PCType type=nullptr; PetscInt blocksize=0;
         EONSIM_PETSC(KSPGetPC(solver.get(),&pc)); EONSIM_PETSC(PCGetType(pc,&type));
@@ -855,7 +860,15 @@ void verify_coordinate_coarse_spaces(MPI_Comm comm) {
             EONSIM_PETSC(PCMGGetInterpolation(pc,1,&interpolation));
             PetscInt rows=0,columns=0;
             EONSIM_PETSC(MatGetSize(interpolation,&rows,&columns));
-            check(comm,rows==n&&columns==(size==4?13:10),"Rigid two-level coarse-space rank is incorrect");
+            check(comm,rows==n&&(aggregate?columns>(size==4?13:10):columns==(size==4?13:10)),
+                  "Rigid two-level/aggregate coarse-space rank is incorrect");
+            if(aggregate) {
+                KSP coarse=nullptr; PC coarse_pc; PCType coarse_type=nullptr; PetscInt levels=0;
+                EONSIM_PETSC(PCMGGetCoarseSolve(pc,&coarse)); EONSIM_PETSC(KSPGetPC(coarse,&coarse_pc));
+                EONSIM_PETSC(PCGetType(coarse_pc,&coarse_type)); EONSIM_PETSC(PCMGGetLevels(coarse_pc,&levels));
+                check(comm,std::string(coarse_type)==PCGAMG&&levels>=2,
+                      "Aggregate coarse operator did not use an actual GAMG hierarchy");
+            }
             PetscOwner<Vec,VecDestroy> coarse,fine;
             EONSIM_PETSC(MatCreateVecs(interpolation,coarse.put(),fine.put()));
             PetscInt first=0,last=0; EONSIM_PETSC(VecGetOwnershipRange(coarse.get(),&first,&last));
@@ -871,8 +884,13 @@ void verify_coordinate_coarse_spaces(MPI_Comm comm) {
         for(std::size_t i=0;i<basis.size();++i) {
             const PetscScalar* values=nullptr; EONSIM_PETSC(VecGetArrayRead(basis[i].get(),&values));
             bool valid=true;
+            std::set<std::tuple<DofDomain,DofEntity,std::int64_t>> support_nodes;
             for(PetscInt row=begin;row<end;++row)
                 valid=valid&&std::isfinite(values[row-begin])&&(row!=constrained||values[row-begin]==0.);
+            if(aggregate) for(PetscInt row=begin;row<end;++row) if(values[row-begin]!=0) {
+                const auto& key=keys[row-begin]; support_nodes.insert({key.domain,key.kind,key.entity});
+            }
+            valid=valid&&(!aggregate||support_nodes.size()<=2);
             EONSIM_PETSC(VecRestoreArrayRead(basis[i].get(),&values));
             check(comm,valid,"Geometric coarse vector changed a constrained row or contains nonfinite data");
             for(std::size_t j=0;j<basis.size();++j) {
@@ -928,7 +946,7 @@ void verify_coordinate_coarse_spaces(MPI_Comm comm) {
         EONSIM_PETSC(KSPSetTolerances(solver.get(),1e-12,1e-13,PETSC_DEFAULT,200));
         for(int phase=0;phase<2;++phase) {
             if(phase) fill(phase);
-            solve_exact(comm,solver.get(),matrix.get(),gamg?"gamg_coordinate_refresh":"twolevel_rigid_refresh");
+            solve_exact(comm,solver.get(),matrix.get(),gamg?"gamg_coordinate_refresh":aggregate?"aggregate_rigid_refresh":"twolevel_rigid_refresh");
             if(!gamg) {
                 KSP coarse=nullptr; Mat product=nullptr; PetscInt first=0,last=0;
                 EONSIM_PETSC(PCMGGetCoarseSolve(pc,&coarse));

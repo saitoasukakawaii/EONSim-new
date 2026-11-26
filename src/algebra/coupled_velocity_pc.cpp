@@ -3,6 +3,7 @@
 #include <cmath>
 #include <limits>
 #include <map>
+#include <numeric>
 #include <tuple>
 
 namespace eonsim {
@@ -207,6 +208,112 @@ std::vector<SparseMode> local_modes(MPI_Comm comm,const FineRows& fine,
     }
     return modes;
 }
+// Form a bounded, connected first coarse grid without imposing a packed xyz
+// layout on the constraint-reduced operator. Local QR works only on an
+// aggregate's rows: memory and arithmetic remain linear in owned fine rows.
+std::vector<SparseMode> aggregate_modes(MPI_Comm comm,const FineRows& fine,
+    const std::vector<DofKey>& semantics,const std::vector<std::array<double,3>>& coordinates,
+    bool rigid,PetscInt maximum_nodes) {
+    using Family=std::tuple<DofDomain,DofEntity,std::uint16_t,std::uint16_t>;
+    struct Node { DofKey key; std::vector<PetscInt> rows,neighbors; };
+    std::map<DofKey,PetscInt> node_ids;
+    std::vector<Node> nodes;
+    std::vector<PetscInt> row_node(semantics.size(),-1);
+    for(PetscInt i=0;i<static_cast<PetscInt>(semantics.size());++i) if(fine.active[i]) {
+        auto key=semantics[i]; key.component=0;
+        auto found=node_ids.find(key);
+        if(found==node_ids.end()) {
+            const auto index=static_cast<PetscInt>(nodes.size());
+            found=node_ids.emplace(key,index).first;
+            nodes.push_back({key,{},{}});
+        }
+        row_node[i]=found->second;
+        nodes[found->second].rows.push_back(fine.begin+i);
+    }
+    const auto family=[](const DofKey& key) { return Family{key.domain,key.kind,key.mode,key.space}; };
+    for(PetscInt i=0;i<static_cast<PetscInt>(nodes.size());++i) {
+        auto& node=nodes[i];
+        for(auto row:node.rows) {
+            PetscInt count=0; const PetscInt* columns=nullptr; const PetscScalar* values=nullptr;
+            EONSIM_PETSC(MatGetRow(fine.matrix,row,&count,&columns,&values));
+            for(PetscInt j=0;j<count;++j) if(columns[j]>=fine.begin&&columns[j]<fine.end) {
+                const auto neighbor=row_node[columns[j]-fine.begin];
+                if(neighbor>=0&&neighbor!=i&&family(nodes[neighbor].key)==family(node.key))
+                    node.neighbors.push_back(neighbor);
+            }
+            EONSIM_PETSC(MatRestoreRow(fine.matrix,row,&count,&columns,&values));
+        }
+        std::sort(node.neighbors.begin(),node.neighbors.end());
+        node.neighbors.erase(std::unique(node.neighbors.begin(),node.neighbors.end()),node.neighbors.end());
+    }
+    // Treat the structural adjacency as undirected even for nonsymmetric A.
+    // Only the graph is symmetrized; the actual Galerkin operator remains A.
+    for(PetscInt i=0;i<static_cast<PetscInt>(nodes.size());++i) {
+        const auto neighbors=nodes[i].neighbors;
+        for(auto j:neighbors) nodes[j].neighbors.push_back(i);
+    }
+    for(auto& node:nodes) {
+        std::sort(node.neighbors.begin(),node.neighbors.end());
+        node.neighbors.erase(std::unique(node.neighbors.begin(),node.neighbors.end()),node.neighbors.end());
+    }
+    std::vector<char> assigned(nodes.size(),0);
+    std::vector<SparseMode> modes;
+    bool valid=true;
+    for(PetscInt seed=0;seed<static_cast<PetscInt>(nodes.size());++seed) if(!assigned[seed]) {
+        std::vector<PetscInt> aggregate{seed}; assigned[seed]=1;
+        for(std::size_t cursor=0;cursor<aggregate.size()&&aggregate.size()<static_cast<std::size_t>(maximum_nodes);++cursor)
+            for(auto neighbor:nodes[aggregate[cursor]].neighbors) if(!assigned[neighbor]) {
+                assigned[neighbor]=1; aggregate.push_back(neighbor);
+                if(aggregate.size()==static_cast<std::size_t>(maximum_nodes)) break;
+            }
+        std::vector<PetscInt> rows;
+        for(auto node:aggregate) rows.insert(rows.end(),nodes[node].rows.begin(),nodes[node].rows.end());
+        std::sort(rows.begin(),rows.end());
+        std::vector<std::vector<PetscScalar>> basis;
+        const auto append=[&](std::vector<PetscScalar> candidate) {
+            long double initial_squared=0;
+            for(auto value:candidate) initial_squared+=static_cast<long double>(value)*value;
+            const auto initial=std::sqrt(initial_squared);
+            if(initial==0) return;
+            for(int pass=0;pass<2;++pass) for(const auto& column:basis) {
+                long double product=0;
+                for(std::size_t i=0;i<rows.size();++i) product+=static_cast<long double>(column[i])*candidate[i];
+                for(std::size_t i=0;i<rows.size();++i) candidate[i]-=static_cast<double>(product*column[i]);
+            }
+            long double squared=0;
+            for(auto value:candidate) squared+=static_cast<long double>(value)*value;
+            const auto norm=std::sqrt(squared);
+            valid=valid&&std::isfinite(initial)&&std::isfinite(norm);
+            if(norm<=256*std::numeric_limits<double>::epsilon()*std::max(1.L,initial)) return;
+            for(auto& value:candidate) value=static_cast<double>(value/norm);
+            basis.push_back(std::move(candidate));
+        };
+        for(int component=0;component<3;++component) {
+            std::vector<PetscScalar> candidate(rows.size(),0);
+            for(std::size_t i=0;i<rows.size();++i)
+                candidate[i]=semantics[rows[i]-fine.begin].component==component?1.:0.;
+            append(std::move(candidate));
+        }
+        if(rigid&&nodes[seed].key.domain==DofDomain::solid&&nodes[seed].key.kind==DofEntity::vertex) {
+            const auto frame=coordinate_frame(fine.begin,rows,coordinates);
+            for(int axis=0;axis<3;++axis) {
+                std::vector<PetscScalar> candidate(rows.size(),0);
+                for(std::size_t i=0;i<rows.size();++i) candidate[i]=rotation_component(frame,
+                    coordinates[rows[i]-fine.begin],semantics[rows[i]-fine.begin].component,axis);
+                append(std::move(candidate));
+            }
+        }
+        for(auto& column:basis) {
+            SparseMode mode;
+            for(std::size_t i=0;i<rows.size();++i) if(column[i]!=0) {
+                mode.rows.push_back(rows[i]); mode.values.push_back(column[i]);
+            }
+            modes.push_back(std::move(mode));
+        }
+    }
+    common_check(comm,valid,"nonfinite aggregate coarse-space orthogonalization");
+    return modes;
+}
 std::vector<SparseMode> scalar_mode(MPI_Comm comm,const FineRows& fine) {
     std::vector<SparseMode> modes;
     std::vector<PetscScalar> candidate(fine.end-fine.begin,0);
@@ -237,12 +344,15 @@ void validate_coupled_velocity_twolevel_options(MPI_Comm comm,const std::string&
 
 void configure_coupled_velocity_twolevel(MPI_Comm comm,KSP solver,
     const std::vector<DofKey>& owned_semantics,
-    const std::vector<std::array<double,3>>& owned_coordinates,bool rigid_modes) {
+    const std::vector<std::array<double,3>>& owned_coordinates,bool rigid_modes,PetscInt aggregate_nodes) {
     const char* prefix_ptr=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(solver,&prefix_ptr));
     const std::string prefix=prefix_ptr?prefix_ptr:"",base="-"+prefix;
     validate_coupled_velocity_twolevel_options(comm,prefix);
+    common_choice(comm,aggregate_nodes,aggregate_nodes==0||(aggregate_nodes>=2&&aggregate_nodes<=4096),
+                  "aggregate node count must be identical and either zero or in [2,4096]");
     const auto fine=fine_rows(comm,solver,owned_semantics,owned_coordinates,rigid_modes,false);
-    const auto modes=local_modes(comm,fine,owned_semantics,owned_coordinates,rigid_modes);
+    const auto modes=aggregate_nodes?aggregate_modes(comm,fine,owned_semantics,owned_coordinates,rigid_modes,aggregate_nodes):
+        local_modes(comm,fine,owned_semantics,owned_coordinates,rigid_modes);
     const auto begin=fine.begin,end=fine.end,global=fine.global;
     std::vector<PetscInt> nonzeros(end-begin,0);
     for(const auto& mode:modes) for(auto row:mode.rows) ++nonzeros[row-begin];
@@ -308,13 +418,35 @@ void configure_coupled_velocity_twolevel(MPI_Comm comm,KSP solver,
         EONSIM_PETSC(KSPSetTolerances(coarse,1e-10,PETSC_DEFAULT,PETSC_DEFAULT,200));
         EONSIM_PETSC(KSPSetNormType(coarse,KSP_NORM_UNPRECONDITIONED));
         EONSIM_PETSC(PCSetType(coarse_pc,PCJACOBI));
+        if(aggregate_nodes) {
+            // The first transfer preserves the requested mechanical modes;
+            // native GAMG coarsens its distributed scalar Galerkin matrix.
+            // Use ASM instead of Chebyshev: the coupled operator can be
+            // nonsymmetric, and its near modes do not assert positive definiteness.
+            EONSIM_PETSC(KSPSetType(coarse,KSPPREONLY));
+            EONSIM_PETSC(KSPSetNormType(coarse,KSP_NORM_NONE));
+            EONSIM_PETSC(PCSetType(coarse_pc,PCGAMG));
+            EONSIM_PETSC(PCGAMGSetReuseInterpolation(coarse_pc,PETSC_TRUE));
+            const char* coarse_prefix=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(coarse,&coarse_prefix));
+            const std::string coarse_base="-"+std::string(coarse_prefix?coarse_prefix:"");
+            for(const auto& option:std::vector<std::pair<std::string,std::string>>{
+                {"pc_mg_cycle_type","v"},{"mg_levels_ksp_type","richardson"},
+                {"mg_levels_ksp_norm_type","none"},{"mg_levels_ksp_max_it","1"},
+                {"mg_levels_pc_type","asm"},{"mg_levels_pc_asm_overlap","1"},
+                {"mg_levels_sub_ksp_type","preonly"},{"mg_levels_sub_pc_type","ilu"},
+                {"mg_coarse_ksp_type","gmres"},{"mg_coarse_pc_type","jacobi"},
+                {"mg_coarse_ksp_rtol","1e-10"},{"mg_coarse_ksp_max_it","200"},
+                {"mg_coarse_ksp_norm_type","unpreconditioned"}})
+                option_default(coarse_base+option.first,option.second.c_str());
+        }
         EONSIM_PETSC(KSPSetFromOptions(coarse));
     }
     PetscBool report=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-pc_plan_report",&report,nullptr));
     if(report) EONSIM_PETSC(PetscPrintf(comm,
-        "pc_twolevel prefix=%s global_modes=%" PetscInt_FMT " levels=%d identity=%d rigid_modes=%d\n",
-        prefix.empty()?"-":prefix.c_str(),global_count,global_count?2:1,global_count?0:1,static_cast<int>(rigid_modes)));
+        "pc_twolevel prefix=%s global_modes=%" PetscInt_FMT " levels=%d identity=%d rigid_modes=%d aggregate_nodes=%" PetscInt_FMT " coarse_amg=%d\n",
+        prefix.empty()?"-":prefix.c_str(),global_count,global_count?2:1,global_count?0:1,static_cast<int>(rigid_modes),
+        aggregate_nodes,aggregate_nodes&&global_count?1:0));
 }
 
 void validate_coupled_velocity_gamg_options(MPI_Comm comm,const std::string& prefix) {

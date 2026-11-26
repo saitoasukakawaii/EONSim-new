@@ -1,0 +1,172 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "observed_at_utc": "2026-11-26T03:38:59.980Z",
+  "repository": "saitoasukakawaii/EONSim-new",
+  "pull_request": 55,
+  "head": "ceaa680c5c2c521abc71f0014337dc3ea16796a9",
+  "ci_checkout_commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233",
+  "base": "f8dbd6991f8057fc84d0a49dc6d9c9b3c38028fe",
+  "tree": "f9d7f7c6e16c81d07419809a2746c70d098580df",
+  "fingerprint": "db9becabfc84ba287be60f93c9e5cd17964db93d4a19e9da9ff4f2ddaef69935",
+  "core_run": {
+    "id": 45748579007,
+    "url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45748579007",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "website_run": {
+    "id": 45748578957,
+    "url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45748578957",
+    "status": "completed",
+    "conclusion": "success",
+    "actual_build": false,
+    "reason": "No website changes; required check succeeds without a build"
+  },
+  "release": {
+    "selected": 75,
+    "executed": 75,
+    "passed": 75,
+    "failed": 0,
+    "skipped": 0,
+    "reused": 0,
+    "origin_run_ids": [
+      45748579007
+    ],
+    "mode": "release",
+    "petsc": "3.23.7",
+    "test_names": [
+      "adaptive_pc_mpi1",
+      "adaptive_pc_mpi2",
+      "adaptive_pc_mpi4",
+      "ale_time_verification",
+      "domains_verification",
+      "elastic_fsi_verification",
+      "element2d_oracles",
+      "fluid_alpha_verification",
+      "fluid_coo_verification",
+      "fluid_element_jacobian",
+      "fluid_time_verification",
+      "fluid_verification",
+      "fsi_alpha_verification",
+      "fsi_block_efficiency",
+      "fsi_branched_rcr",
+      "fsi_coo_verification",
+      "fsi_curved_inlet",
+      "fsi_diagnostics",
+      "fsi_diagnostics_mpi",
+      "fsi_element_jacobian",
+      "fsi_flow",
+      "fsi_inlet",
+      "fsi_metric_stabilization",
+      "fsi_moving_plane_rcr",
+      "fsi_periodic",
+      "fsi_pressure_convergence",
+      "fsi_pressure_state",
+      "fsi_reservoir_pressure",
+      "fsi_sampled_inlet",
+      "fsi_time_verification",
+      "fsi_tube",
+      "fsi_tube_rcr",
+      "fsi_tube_rcr_response",
+      "fsi_tube_wall_support",
+      "ghost_overlap_mpi1",
+      "ghost_overlap_mpi2",
+      "ghost_overlap_mpi4",
+      "hyperelastic_element_jacobian",
+      "hyperelastic_verification",
+      "lame_wall",
+      "nonlinear_acceptance",
+      "nonlinear_acceptance_mpi",
+      "p2_space_oracles",
+      "parallel_hdf5",
+      "parallel_hdf5_mpi",
+      "pc_added_mass_nodal_retry",
+      "pc_added_mass_retry",
+      "pc_plan_mpi1",
+      "pc_plan_mpi2",
+      "pc_plan_mpi4",
+      "pc_recipe_hybrid",
+      "pc_recipe_physics",
+      "pc_recipe_quantity",
+      "pc_recipe_restart",
+      "pc_recipe_retry",
+      "pc_twolevel_retry",
+      "poisson_parallel",
+      "poisson_verification",
+      "rigid_fsi_verification",
+      "rigid_tube_verification",
+      "runtime_mpi",
+      "scalar2d_failure",
+      "scalar2d_space",
+      "scalar2d_time",
+      "scalar_p2_failure",
+      "scalar_p2_restart",
+      "scalar_p2_time",
+      "scalar_p2_verification",
+      "solid_element_jacobian",
+      "solid_verification",
+      "solver_failures",
+      "solver_failures_mpi",
+      "tagged_fluid_verification",
+      "tri_p2_oracles",
+      "womersley_flow"
+    ]
+  },
+  "python": {
+    "suite_count": 6,
+    "passed": 75,
+    "reused": 0,
+    "suites": [
+      {
+        "path": "tests/test_ci_selection.py",
+        "passed": 26,
+        "elapsed": "0.068s"
+      },
+      {
+        "path": "tests/test_cloud_evidence.py",
+        "passed": 6,
+        "elapsed": "0.002s"
+      },
+      {
+        "path": "tests/test_lame_wall.py",
+        "passed": 6,
+        "elapsed": "0.043s"
+      },
+      {
+        "path": "tests/test_profile_validation.py",
+        "passed": 21,
+        "elapsed": "0.047s"
+      },
+      {
+        "path": "tests/test_rigid_tube.py",
+        "passed": 3,
+        "elapsed": "0.184s"
+      },
+      {
+        "path": "tests/test_womersley.py",
+        "passed": 13,
+        "elapsed": "0.027s"
+      }
+    ]
+  },
+  "skipped_manual_jobs": [
+    "PETSc 3.23.7 / debug (manual diagnostics)",
+    "PETSc 3.19.6 / release (manual compatibility)"
+  ],
+  "pr_observation": {
+    "head_sha": "ceaa680c5c2c521abc71f0014337dc3ea16796a9",
+    "merge_commit_sha": "10bfcd6e4aaa2d592791bdb67cb08ef172189233",
+    "state": "open",
+    "draft": true,
+    "merged": false
+  },
+  "notes": [
+    "Actual selection has reused=[] and previous_run_id=null; all 75 numerical origins are this source run.",
+    "The selection log contains synthetic receipt reuse and testcase failure/error/skipped markers produced by unit-test fixtures; six Python unittest suites each conclude OK.",
+    "JSON files named *-from-log are decoded from the saved complete raw job logs, not downloaded artifact ZIPs.",
+    "The selector stdout's final JSON brace was buffered until after unittest output; extraction retained its full object fields and restored the matching closing delimiter.",
+    "No workflow/PR mutation, rerun/cancel, build, numerical test, or compression was performed locally during this monitoring task."
+  ]
+}
+

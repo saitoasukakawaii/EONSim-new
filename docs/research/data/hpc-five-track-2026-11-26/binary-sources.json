@@ -1,0 +1,29 @@
+{
+  "binaries": {
+    "production": {
+      "source_commit": "27889707a3c650d532c2845b2f6da7fc5d2324d4",
+      "path": "build/cloud-3.23.7-release/eonsim",
+      "sha256": "b4fe71840296bb0533d95a59c906d3062b14d3bfc1203dac60dfb1f590d0b3d9"
+    },
+    "baseline": {
+      "source_commit": "88e6c3359b742735877177eb4584b987caae1790",
+      "path": "build/hpc-five-track/baseline/eonsim",
+      "sha256": "c57ab409a125d759fd51513cf5c03024feec2f67a0f224fd1aa40cc87be1cf09"
+    },
+    "candidate_kernel": {
+      "source_commit": "27889707a3c650d532c2845b2f6da7fc5d2324d4",
+      "path": "build/cloud-3.23.7-release/verify_fsi_element",
+      "sha256": "4f304b8350abfee7f69a8f1df8d5ace700791d2eb9c0d05e04bfe58b3aadb17e"
+    },
+    "baseline_kernel": {
+      "source_commit": null,
+      "path": "build/hpc-five-track/baseline/verify_fsi_element",
+      "sha256": "ea9eb55e7c643a3216d3df5db1024ae7347984dc5a524d66b7903e316f9f15c3",
+      "saved_at_repository_source": "f8dbd6991f8057fc84d0a49dc6d9c9b3c38028fe",
+      "provenance": "Preexisting pre-change verification executable, byte-identified by SHA256; original build commit not independently established and no baseline rebuild was performed."
+    }
+  },
+  "base_main": "f8dbd6991f8057fc84d0a49dc6d9c9b3c38028fe",
+  "source_and_test_head": "ceaa680c5c2c521abc71f0014337dc3ea16796a9",
+  "note": "Baseline88e6 and merged mainf8db have identical production sources; saved preexisting binaries were not rebuilt for this campaign. Later commits change tests/docs, not production C++."
+}

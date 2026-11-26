@@ -195,15 +195,43 @@ bool accepted(const FieldResidual& f)
     return std::isfinite(f.rms)&&std::isfinite(f.limit)&&std::isfinite(f.constraint_max)&&
         f.rms<=f.limit&&f.constraint_max<=f.tolerance.constraint_tolerance;
 }
+// LAPACK-style scaled sum of squares plus the independent constraint maximum.
+// Every reduction item is exactly three doubles; no global maximum pass is
+// required and neither very small nor very large finite residuals are squared.
+void merge_field_norms(void* input,void* output,int* count,MPI_Datatype*)
+{
+    const auto* in=static_cast<const double*>(input);
+    auto* out=static_cast<double*>(output);
+    for(int i=0;i<*count;++i) {
+        const auto k=3*i;
+        const double a=in[k],b=out[k];
+        if(!std::isfinite(a)||!std::isfinite(b)) {
+            out[k]=std::numeric_limits<double>::infinity(); out[k+1]=1.;
+        } else if(a>b) {
+            const double ratio=b/a;
+            out[k]=a; out[k+1]=in[k+1]+out[k+1]*ratio*ratio;
+        } else if(b>0) {
+            const double ratio=a/b;
+            out[k+1]+=in[k+1]*ratio*ratio;
+        }
+        out[k+2]=std::max(in[k+2],out[k+2]);
+    }
+}
 struct FieldAcceptance {
     MPI_Comm comm;
     std::vector<FieldResidual> values;
     std::vector<std::vector<PetscInt>> equations,constraints;
     std::vector<double> squares,sums,peaks,maxima;
     bool has_constraints=false;
+    PetscBool fused_reductions=PETSC_TRUE;
+    MPI_Datatype norm_type=MPI_DATATYPE_NULL;
+    MPI_Op norm_operation=MPI_OP_NULL;
+    std::vector<double> local_norms,global_norms;
+    PetscInt reduction_calls=0;
 
     FieldAcceptance(MPI_Comm communicator,const AlgebraLayout& l,const SolverConfig& config,
                     const std::vector<PetscInt>& bc):comm(communicator) {
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-nonlinear_fused_reductions",&fused_reductions,nullptr));
         if(!config.fields.empty()) {
             for(const auto& f:config.fields) if(!l.fields.count(f.first))
                 throw std::runtime_error("Unknown solver field for this layout: "+f.first);
@@ -233,7 +261,12 @@ struct FieldAcceptance {
             }
         }
         for(bool present:seen) if(!present) invalid=1;
-        MPI_Allreduce(&invalid,&any_invalid,1,MPI_INT,MPI_MAX,comm);
+        const int local_policy[]{invalid,int(fused_reductions),int(!fused_reductions)};
+        int global_policy[3]{};
+        MPI_Allreduce(local_policy,global_policy,3,MPI_INT,MPI_MAX,comm);
+        any_invalid=global_policy[0];
+        if(global_policy[1]&&global_policy[2])
+            throw std::runtime_error("Nonlinear fused reduction policy must agree on every rank");
         if(any_invalid) throw std::runtime_error("Nonlinear fields must partition owned rows and constraints must be unique/owned");
         std::vector<PetscInt> local(2*values.size()),global(local.size());
         for(std::size_t i=0;i<values.size();++i) {
@@ -246,10 +279,52 @@ struct FieldAcceptance {
         }
         squares.resize(values.size()); sums.resize(values.size());
         peaks.resize(2*values.size()); maxima.resize(2*values.size());
+        if(fused_reductions) {
+            local_norms.resize(3*values.size()); global_norms.resize(3*values.size());
+            if(MPI_Type_contiguous(3,MPI_DOUBLE,&norm_type)!=MPI_SUCCESS||
+               MPI_Type_commit(&norm_type)!=MPI_SUCCESS||
+               MPI_Op_create(merge_field_norms,1,&norm_operation)!=MPI_SUCCESS)
+                throw std::runtime_error("Cannot create nonlinear field norm reduction");
+        }
     }
+    ~FieldAcceptance() {
+        if(norm_operation!=MPI_OP_NULL) MPI_Op_free(&norm_operation);
+        if(norm_type!=MPI_DATATYPE_NULL) MPI_Type_free(&norm_type);
+    }
+    FieldAcceptance(const FieldAcceptance&)=delete;
+    FieldAcceptance& operator=(const FieldAcceptance&)=delete;
     void measure(Vec r,bool initial=false) {
         const PetscScalar* a;
         EONSIM_PETSC(VecGetArrayRead(r,&a));
+        if(fused_reductions) {
+            std::fill(local_norms.begin(),local_norms.end(),0.);
+            for(std::size_t i=0;i<values.size();++i) {
+                auto* norm=local_norms.data()+3*i;
+                for(auto row:equations[i]) {
+                    const double v=std::abs(a[row]/values[i].tolerance.residual_scale);
+                    if(!std::isfinite(v)) {norm[0]=std::numeric_limits<double>::infinity();norm[1]=1.;}
+                    else if(v>norm[0]) {
+                        const double ratio=norm[0]/v;
+                        norm[1]=1.+norm[1]*ratio*ratio; norm[0]=v;
+                    } else if(norm[0]>0&&std::isfinite(norm[0])) {
+                        const double ratio=v/norm[0]; norm[1]+=ratio*ratio;
+                    }
+                }
+                for(auto row:constraints[i]) {
+                    const double v=std::abs(a[row]/values[i].tolerance.constraint_scale);
+                    norm[2]=std::isfinite(v)?std::max(norm[2],v):std::numeric_limits<double>::infinity();
+                }
+            }
+            EONSIM_PETSC(VecRestoreArrayRead(r,&a));
+            if(MPI_Allreduce(local_norms.data(),global_norms.data(),static_cast<int>(values.size()),
+                             norm_type,norm_operation,comm)!=MPI_SUCCESS)
+                throw std::runtime_error("Nonlinear field norm reduction failed");
+            ++reduction_calls;
+            for(std::size_t i=0;i<values.size();++i) {
+                maxima[2*i]=global_norms[3*i]; maxima[2*i+1]=global_norms[3*i+2];
+                sums[i]=global_norms[3*i+1];
+            }
+        } else {
         std::fill(squares.begin(),squares.end(),0.);
         std::fill(peaks.begin(),peaks.end(),0.);
         for(std::size_t i=0;i<values.size();++i) {
@@ -273,6 +348,8 @@ struct FieldAcceptance {
         EONSIM_PETSC(VecRestoreArrayRead(r,&a));
         // 各字段合并规约；物理方程用 RMS，约束用最大误差，避免局部违约被大量零行稀释。
         MPI_Allreduce(squares.data(),sums.data(),static_cast<int>(sums.size()),MPI_DOUBLE,MPI_SUM,comm);
+        reduction_calls+=2;
+        }
         for(std::size_t i=0;i<values.size();++i) {
             auto& f=values[i];
             f.rms=std::isfinite(maxima[2*i])?(f.equation_rows?maxima[2*i]*std::sqrt(sums[i]/f.equation_rows):0):maxima[2*i];
@@ -298,6 +375,117 @@ struct FieldAcceptance {
         std::cout<<out.str();
     }
 };
+// The Jacobian and residual stay current. Only the application of P may use
+// bounded old numerical factors, with a collective drift/age/iteration policy.
+// Setting SNES's PC lag in its Jacobian callback avoids relying on KSP's
+// presolve/setup ordering (which changed in PETSc 3.26).
+struct AdaptivePcState {
+    bool enabled=false,ready=false,force=true,pending=false,pending_rebuild=false,failed_reuse=false;
+    PetscInt maximum_reuse=4,age=0,reference_iterations=0;
+    PetscInt rebuilds=0,reuses=0,drift_rebuilds=0,age_rebuilds=0,iteration_rebuilds=0,context_rebuilds=0;
+    double change_tolerance=.1,iteration_growth=1.5,monitor_seconds=0;
+    bool iteration_trigger=false,context_trigger=false;
+    std::vector<double> time_context,reference_diagonal,reference_row_sum;
+    PetscOwner<Vec,VecDestroy> diagonal,row_sum;
+    void initialize(MPI_Comm comm,Mat matrix,bool eligible,KSP solver) {
+        PetscBool requested=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-nonlinear_adaptive_pc",&requested,nullptr));
+        EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-nonlinear_pc_max_reuse",&maximum_reuse,nullptr));
+        EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,"-nonlinear_pc_change_tolerance",&change_tolerance,nullptr));
+        EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,"-nonlinear_pc_iteration_growth",&iteration_growth,nullptr));
+        KSPType type=nullptr; EONSIM_PETSC(KSPGetType(solver,&type));
+        const double settings[]={static_cast<double>(requested),static_cast<double>(maximum_reuse),
+            change_tolerance,iteration_growth};
+        double low[4]{},high[4]{};
+        MPI_Allreduce(settings,low,4,MPI_DOUBLE,MPI_MIN,comm);
+        MPI_Allreduce(settings,high,4,MPI_DOUBLE,MPI_MAX,comm);
+        bool valid=std::equal(low,low+4,high)&&maximum_reuse>=1&&maximum_reuse<=1000&&
+            std::isfinite(change_tolerance)&&change_tolerance>0&&change_tolerance<=1&&
+            std::isfinite(iteration_growth)&&iteration_growth>=1;
+        valid=valid&&(!requested||(eligible&&type&&std::strcmp(type,KSPFGMRES)==0));
+        int bad=!valid,any=0; MPI_Allreduce(&bad,&any,1,MPI_INT,MPI_MAX,comm);
+        if(any) throw std::runtime_error("Adaptive PC requires default Newton, fresh Jacobians, FGMRES, no manual PC lag/reuse/EW, and identical valid policy options");
+        enabled=requested;
+        if(enabled) {
+            EONSIM_PETSC(MatCreateVecs(matrix,diagonal.put(),nullptr));
+            EONSIM_PETSC(VecDuplicate(diagonal.get(),row_sum.put()));
+        }
+    }
+    void begin_solve(const std::vector<double>& context) {
+        rebuilds=reuses=drift_rebuilds=age_rebuilds=iteration_rebuilds=context_rebuilds=0;
+        monitor_seconds=0; pending=false; failed_reuse=false;
+        if(!enabled) return;
+        // Without a physical time-coefficient token only intra-solve reuse is
+        // permitted. A new caller cannot accidentally reuse unknown history.
+        if(context.empty()||context!=time_context) {
+            force=true;
+            context_trigger=ready;
+        }
+        time_context=context;
+    }
+    bool decide(Mat matrix) {
+        const auto start=std::chrono::steady_clock::now();
+        EONSIM_PETSC(MatGetDiagonal(matrix,diagonal.get()));
+        EONSIM_PETSC(MatGetRowSumAbs(matrix,row_sum.get()));
+        PetscInt local_size=0; EONSIM_PETSC(VecGetLocalSize(diagonal.get(),&local_size));
+        const PetscScalar *diag=nullptr,*rows=nullptr;
+        EONSIM_PETSC(VecGetArrayRead(diagonal.get(),&diag));
+        EONSIM_PETSC(VecGetArrayRead(row_sum.get(),&rows));
+        double drift=0;
+        if(ready) for(PetscInt i=0;i<local_size;++i) {
+            const auto relative=[](double value,double reference,double scale) {
+                if(!std::isfinite(value)||!std::isfinite(reference)) return std::numeric_limits<double>::infinity();
+                if(!std::isfinite(scale)) return std::numeric_limits<double>::infinity();
+                return scale>0?std::abs(value/scale-reference/scale):0.;
+            };
+            // Stabilized pressure diagonals may be tiny compared with the
+            // velocity-pressure couplings in the same row. Normalize both
+            // samples by that row's absolute sum, not by a near-zero diagonal;
+            // unrelated physical fields still never share one global scale.
+            const double scale=std::max(std::abs(rows[i]),std::abs(reference_row_sum[i]));
+            drift=std::max({drift,relative(diag[i],reference_diagonal[i],scale),
+                           relative(rows[i],reference_row_sum[i],scale)});
+        }
+        double local[]={drift,static_cast<double>(!ready||force||age>=maximum_reuse||iteration_trigger)},global[2]{};
+        MPI_Allreduce(local,global,2,MPI_DOUBLE,MPI_MAX,PetscObjectComm(reinterpret_cast<PetscObject>(matrix)));
+        const bool rebuild=global[1]!=0||global[0]>change_tolerance;
+        if(rebuild) {
+            reference_diagonal.resize(local_size); reference_row_sum.resize(local_size);
+            for(PetscInt i=0;i<local_size;++i) {
+                reference_diagonal[i]=diag[i]; reference_row_sum[i]=rows[i];
+            }
+            if(ready&&global[0]>change_tolerance) ++drift_rebuilds;
+            if(ready&&age>=maximum_reuse) ++age_rebuilds;
+            if(iteration_trigger) ++iteration_rebuilds;
+            if(context_trigger) ++context_rebuilds;
+            ++rebuilds;
+            age=0; force=false; iteration_trigger=false; context_trigger=false;
+        } else ++reuses;
+        EONSIM_PETSC(VecRestoreArrayRead(row_sum.get(),&rows));
+        EONSIM_PETSC(VecRestoreArrayRead(diagonal.get(),&diag));
+        pending=true; pending_rebuild=rebuild;
+        monitor_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+        return rebuild;
+    }
+    PetscErrorCode complete(KSP solver) {
+        if(!enabled||!pending) return PETSC_SUCCESS;
+        KSPConvergedReason reason; PetscInt iterations=0;
+        PetscCall(KSPGetConvergedReason(solver,&reason));
+        PetscCall(KSPGetIterationNumber(solver,&iterations));
+        pending=false;
+        failed_reuse=!pending_rebuild&&reason==KSP_DIVERGED_ITS;
+        if(reason<=0) { ready=false; force=true; return PETSC_SUCCESS; }
+        ready=true;
+        if(pending_rebuild) reference_iterations=iterations;
+        else {
+            ++age;
+            const double threshold=std::max(static_cast<double>(reference_iterations+2),
+                                             iteration_growth*reference_iterations);
+            if(iterations>threshold) iteration_trigger=true;
+        }
+        return PETSC_SUCCESS;
+    }
+};
 struct LinearDiagnostics {
     std::optional<FieldAcceptance> fields;
     PetscOwner<Vec,VecDestroy> residual;
@@ -305,6 +493,7 @@ struct LinearDiagnostics {
     double solve_seconds=0,diagnostic_seconds=0;
     PetscInt started=0,completed=0;
     bool enabled=false;
+    AdaptivePcState* adaptive_pc=nullptr;
     int collective_pc_failure=0;
     void reset() {
         solve_seconds=diagnostic_seconds=0.;
@@ -380,6 +569,7 @@ PetscErrorCode linear_complete(KSP ksp,Vec b,Vec x,void* pointer)
                               PetscObjectComm(reinterpret_cast<PetscObject>(ksp))));
     if(d.collective_pc_failure) return PETSC_ERR_NOT_CONVERGED;
 #endif
+    if(d.adaptive_pc) PetscCall(d.adaptive_pc->complete(ksp));
     if(d.enabled) return linear_end(ksp,b,x,pointer);
     return PETSC_SUCCESS;
 }
@@ -392,7 +582,8 @@ void local_values(Vec x,std::vector<double>& values)
     EONSIM_PETSC(VecGhostGetLocalForm(x,&local));
     EONSIM_PETSC(VecGetLocalSize(local,&n));
     EONSIM_PETSC(VecGetArrayRead(local,&a));
-    values.assign(a,a+n);
+    if(n) values.assign(a,a+n);
+    else values.clear();
     EONSIM_PETSC(VecRestoreArrayRead(local,&a));
     EONSIM_PETSC(VecGhostRestoreLocalForm(x,&local));
 }
@@ -425,8 +616,12 @@ struct Context {
     bool recoverable=false;
     PetscInt domain_rejections=0;
     double assembly_seconds=0,ghost_seconds=0;
+    double ghost_overlap_seconds=0;
+    PetscInt ghost_exchanges=0;
+    const NonlinearAssemblyPhases* phases=nullptr;
     double callback_seconds=0,failure_sync_seconds=0,assembly_finalize_seconds=0,constraint_seconds=0;
     PcSchurUpdates* pc_updates=nullptr;
+    AdaptivePcState* adaptive_pc=nullptr;
     PetscInt jacobian_assemblies=0,jacobian_callbacks=0,initial_jacobian_reuses=0,user_schur_updates=0;
     Vec initial_trial=nullptr;
     Mat initial_jacobian=nullptr;
@@ -457,6 +652,16 @@ struct Context {
         pc_updates->refresh(j);
         user_schur_updates+=static_cast<PetscInt>(pc_updates->refreshers.size());
     }
+    void prepare_preconditioner(SNES snes,Mat j,bool user_current=false) {
+        bool refresh=true;
+        if(adaptive_pc&&adaptive_pc->enabled) {
+            // A rejected trial cannot authorize retaining its prior factors.
+            if(domain_rejections) adaptive_pc->force=true;
+            refresh=adaptive_pc->decide(j);
+            EONSIM_PETSC(SNESSetLagPreconditioner(snes,refresh?1:-1));
+        }
+        if(refresh&&!user_current) refresh_user_schur(j);
+    }
     void apply_constraints(Vec r,Mat j) {
         if(!acceptance.has_constraints) return;
         // Only owned rows are replaced. A Jacobian-only callback has no
@@ -477,8 +682,6 @@ struct Context {
         // a startup Jacobian eligible for a later line-search/Newton state.
         initial_trial=nullptr; initial_jacobian=nullptr;
         const auto begin=std::chrono::steady_clock::now();
-        local_values(x,values);
-        ghost_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
         EONSIM_PETSC(VecSetOption(r,VEC_IGNORE_NEGATIVE_INDICES,PETSC_TRUE));
         // 极小残量的 PETSc NORM_2 可能下溢并缓存为零，VecSet(0) 会据此跳过清零。
         // 始终覆盖 owned 数据，保证重复评价不累加旧残量；最终 raw_residual 的 ghost 由 local_values 同步。
@@ -493,12 +696,49 @@ struct Context {
         }
         int failed=0, any_failed=0;
         error.clear(); recoverable=false;
-        const auto callback_begin=std::chrono::steady_clock::now();
-        try { assemble(values,r,j); }
-        catch(const StepRejected& e) { error=e.what(); failed=1; }
-        catch(const std::exception& e) { error=e.what(); failed=2; }
+        double callback_time=0;
+        const auto call_local=[&](const auto& callback) {
+            const auto start=std::chrono::steady_clock::now();
+            try { callback(values,r,j); }
+            catch(const StepRejected& e) { error=e.what(); failed=1; }
+            catch(const std::exception& e) { error=e.what(); failed=2; }
+            catch(...) { error="Unknown local assembly failure"; failed=2; }
+            const double elapsed=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+            callback_time+=elapsed;
+            return elapsed;
+        };
+        const auto ghost_begin=std::chrono::steady_clock::now();
+        ++ghost_exchanges;
+        if(phases&&phases->owned) {
+            // Copy the send-side state before Begin; neither PETSc storage nor
+            // the receive-side ghost values are accessed by the owned phase.
+            const PetscScalar* owned;
+            EONSIM_PETSC(VecGetArrayRead(x,&owned));
+            if(layout.owned) std::copy_n(owned,layout.owned,values.begin());
+            EONSIM_PETSC(VecRestoreArrayRead(x,&owned));
+            EONSIM_PETSC(VecGhostUpdateBegin(x,INSERT_VALUES,SCATTER_FORWARD));
+            const auto posted=std::chrono::steady_clock::now();
+            ghost_seconds+=std::chrono::duration<double>(posted-ghost_begin).count();
+            ghost_overlap_seconds+=call_local(phases->owned);
+            const auto wait_begin=std::chrono::steady_clock::now();
+            // Complete outstanding communication even if a local kernel failed.
+            // Other ranks may still be computing; error collectives come later.
+            EONSIM_PETSC(VecGhostUpdateEnd(x,INSERT_VALUES,SCATTER_FORWARD));
+            Vec local; const PetscScalar* entries;
+            EONSIM_PETSC(VecGhostGetLocalForm(x,&local));
+            EONSIM_PETSC(VecGetArrayRead(local,&entries));
+            if(values.size()>static_cast<std::size_t>(layout.owned))
+                std::copy_n(entries+layout.owned,values.size()-layout.owned,values.begin()+layout.owned);
+            EONSIM_PETSC(VecRestoreArrayRead(local,&entries));
+            EONSIM_PETSC(VecGhostRestoreLocalForm(x,&local));
+            ghost_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-wait_begin).count();
+            if(!failed) call_local(phases->halo);
+        } else {
+            local_values(x,values);
+            ghost_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-ghost_begin).count();
+            call_local(assemble);
+        }
         const auto sync_begin=std::chrono::steady_clock::now();
-        const double callback_time=std::chrono::duration<double>(sync_begin-callback_begin).count();
         MPI_Allreduce(&failed,&any_failed,1,MPI_INT,MPI_MAX,comm);
         const auto assembly_begin=std::chrono::steady_clock::now();
         const double sync_time=std::chrono::duration<double>(assembly_begin-sync_begin).count();
@@ -567,13 +807,16 @@ PetscErrorCode jacobian(SNES snes,Vec x,Mat j,Mat,void* pointer)
     auto& c=*active->current;
     try {
         ++c.jacobian_callbacks;
-        if(c.consume_initial_jacobian(x,j)) return PETSC_SUCCESS;
+        if(c.consume_initial_jacobian(x,j)) {
+            c.prepare_preconditioner(snes,j,true);
+            return PETSC_SUCCESS;
+        }
         // The fused physical callback may compute residual values while forming
         // J, but SNES consumes only J here. Ordinary Vec stashes still drain;
         // COO needs neither a scratch communication plan nor a publication.
         c.evaluate(x,c.scratch,j,true,false);
         // Refresh only after successful assembly, including constraint row replacement.
-        c.refresh_user_schur(j);
+        c.prepare_preconditioner(snes,j);
         return PETSC_SUCCESS;
     }
     catch(const StepRejected& e) { c.error=e.what(); ++c.domain_rejections; return SNESSetJacobianDomainError(snes); }
@@ -624,6 +867,7 @@ struct NonlinearSystem::Workspace {
     std::string options;
     FieldAcceptance acceptance;
     LinearDiagnostics diagnostics;
+    AdaptivePcState adaptive_pc;
     PcBlock plan;
     PcSchurUpdates pc_updates; // Must outlive the SNES/KSP/PC holding its USER matrices.
     ActiveContext callbacks;
@@ -660,12 +904,13 @@ struct NonlinearSystem::Workspace {
         MPI_Allreduce(&conflict,&any_conflict,1,MPI_INT,MPI_MAX,comm);
         if(any_conflict) throw std::runtime_error("Choose only one PC recipe, block_pc or schur_pc");
         PetscBool nodal_option=PETSC_FALSE,velocity_option=PETSC_FALSE,structure_option=PETSC_FALSE,
-            coarse_option=PETSC_FALSE;
+            coarse_option=PETSC_FALSE,aggregate_option=PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_schur_approx",&nodal_option));
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_solver",&velocity_option));
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_structure_approx",&structure_option));
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_coarse_space",&coarse_option));
-        int unused=!semantic&&(nodal_option||velocity_option||structure_option||coarse_option),any_unused=0;
+        EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_aggregate_nodes",&aggregate_option));
+        int unused=!semantic&&(nodal_option||velocity_option||structure_option||coarse_option||aggregate_option),any_unused=0;
         MPI_Allreduce(&unused,&any_unused,1,MPI_INT,MPI_MAX,comm);
         if(any_unused) throw std::runtime_error("pc_plan Schur, velocity and structure options require -pc_recipe");
         if(semantic) plan=make_pc_plan(comm,l,recipe);
@@ -718,7 +963,7 @@ struct NonlinearSystem::Workspace {
         if(rank_report) report=PETSC_TRUE;
         if(linear_report) {
             report=PETSC_TRUE;
-            diagnostics.fields.emplace(acceptance);
+            diagnostics.fields.emplace(comm,l,config,constraint_rows);
             EONSIM_PETSC(VecDuplicate(r,diagnostics.residual.put()));
         }
         diagnostics.enabled=report;
@@ -743,6 +988,8 @@ struct NonlinearSystem::Workspace {
         reusable=nonlinear_type&&std::strcmp(nonlinear_type,SNESNEWTONLS)==0&&
             jacobian_lag==1&&preconditioner_lag==1&&!reuse_preconditioner&&!eisenstat_walker&&!permutation&&
             options.find("_reuse_preconditioner")==std::string::npos;
+        adaptive_pc.initialize(comm,j,reusable,ksp);
+        diagnostics.adaptive_pc=&adaptive_pc;
         if(reusable) {
             SNESLineSearch line_search;
             EONSIM_PETSC(SNESGetLineSearch(snes.get(),&line_search));
@@ -823,7 +1070,8 @@ void NonlinearSystem::set_residual_coo(const std::vector<PetscInt>& rows)
 }
 NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     const std::vector<double>& initial,const std::vector<PetscInt>& constraints,
-    const std::vector<double>& prescribed,const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble)
+    const std::vector<double>& prescribed,const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble,
+    const NonlinearAssemblyPhases& phases)
 {
     const auto setup_begin=std::chrono::steady_clock::now();
     if(solving_) throw std::runtime_error("NonlinearSystem::solve is not reentrant");
@@ -846,12 +1094,15 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     PetscBool reuse=PETSC_TRUE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-nonlinear_reuse",&reuse,nullptr));
     const auto options=petsc_options_snapshot();
-    int local[]={initial.size()!=l.local_to_global.size()||constraints.size()!=prescribed.size(),
+    int local[]={initial.size()!=l.local_to_global.size()||constraints.size()!=prescribed.size()||
+        bool(phases.owned)!=bool(phases.halo),
         !reuse||!workspace_||!workspace_->reusable||workspace_->options!=options||
-        !same_solver_config(workspace_->config,config)||workspace_->constraint_rows!=constraints};
-    int global[2]{};
-    MPI_Allreduce(local,global,2,MPI_INT,MPI_MAX,comm);
+        !same_solver_config(workspace_->config,config)||workspace_->constraint_rows!=constraints,
+        bool(phases.owned),!phases.owned};
+    int global[4]{};
+    MPI_Allreduce(local,global,4,MPI_INT,MPI_MAX,comm);
     if(global[0]) throw std::runtime_error("Invalid nonlinear state/constraint layout");
+    if(global[2]&&global[3]) throw std::runtime_error("Nonlinear assembly phases must agree on every rank");
     const bool solver_reused=!global[1];
     if(!solver_reused) {
         workspace_.reset();
@@ -867,8 +1118,10 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     auto& workspace=*workspace_;
     auto& snes=workspace.snes;
     auto& acceptance=workspace.acceptance;
+    acceptance.reduction_calls=0;
     auto& diagnostics=workspace.diagnostics;
     diagnostics.reset();
+    workspace.adaptive_pc.begin_solve(phases.preconditioner_context);
     const auto schur=workspace.schur,report=workspace.report;
     const bool semantic=workspace.semantic;
     KSP ksp; PC pc;
@@ -886,6 +1139,8 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     Context context{comm,l,constraints,prescribed,assemble,acceptance,scratch.get(),local_trial_,
         coo_enabled_?&coo_values_:nullptr,residual_coo_enabled_?&residual_coo_rows_:nullptr,
         residual_coo_enabled_?&residual_coo_values_:nullptr,residual_coo_vectors_,{}};
+    context.phases=&phases;
+    context.adaptive_pc=&workspace.adaptive_pc;
     struct CallbackScope {
         ActiveContext& callbacks;
         CallbackScope(ActiveContext& target,Context& value):callbacks(target) { callbacks.current=&value; }
@@ -932,7 +1187,7 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             workspace.reusable=workspace.reusable&&options_unchanged&&
                 workspace.options.find("_reuse_preconditioner")==std::string::npos;
             workspace.pc_configured=true;
-        } else if(semantic&&initial_jacobian_assembled) context.refresh_user_schur(j.get());
+        } else if(semantic&&initial_jacobian_assembled&&!workspace.adaptive_pc.enabled) context.refresh_user_schur(j.get());
         if(semantic) context.pc_updates=&workspace.pc_updates;
     }
     // Only startup PC configuration needs a tangent before SNESSolve. The
@@ -948,7 +1203,36 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         if(all) context.remember_initial_jacobian(x.get(),j.get());
     }
     const double schur_setup_seconds=(schur||semantic)?std::chrono::duration<double>(std::chrono::steady_clock::now()-schur_begin).count():0.;
-    const auto error=SNESSolve(snes.get(),nullptr,x.get());
+    auto error=SNESSolve(snes.get(),nullptr,x.get());
+    PetscInt pc_rebuild_retries=0,prior_nonlinear_iterations=0,prior_linear_iterations=0;
+    if(workspace.adaptive_pc.enabled) {
+        SNESConvergedReason first_reason; KSPConvergedReason first_linear_reason; PCFailedReason first_pc_failure;
+        EONSIM_PETSC(SNESGetConvergedReason(snes.get(),&first_reason));
+        EONSIM_PETSC(KSPGetConvergedReason(ksp,&first_linear_reason));
+        EONSIM_PETSC(PCGetFailedReason(pc,&first_pc_failure));
+        const int local_retry=!error&&context.error.empty()&&workspace.adaptive_pc.failed_reuse&&
+            first_reason==SNES_DIVERGED_LINEAR_SOLVE&&first_linear_reason==KSP_DIVERGED_ITS&&
+            first_pc_failure==PC_NOERROR&&!diagnostics.collective_pc_failure;
+        int retry=0; MPI_Allreduce(&local_retry,&retry,1,MPI_INT,MPI_MIN,comm);
+        if(retry) {
+            // The unsuccessful linear correction was never committed to the
+            // Newton iterate. Keep the original physical acceptance baseline,
+            // evaluate that last accepted iterate afresh, and retry once with
+            // a rebuilt PC. No tolerance, iteration budget or state is relaxed.
+            EONSIM_PETSC(SNESGetIterationNumber(snes.get(),&prior_nonlinear_iterations));
+            EONSIM_PETSC(SNESGetLinearSolveIterations(snes.get(),&prior_linear_iterations));
+            workspace.adaptive_pc.force=true; workspace.adaptive_pc.ready=false;
+            workspace.adaptive_pc.failed_reuse=false;
+            EONSIM_PETSC(SNESSetLagPreconditioner(snes.get(),1));
+            EONSIM_PETSC(KSPSetReusePreconditioner(ksp,PETSC_FALSE));
+            context.evaluate(x.get(),r.get(),nullptr,true);
+            EONSIM_PETSC(SNESSetInitialFunction(snes.get(),r.get()));
+            EONSIM_PETSC(PetscPrintf(comm,"pc_rebuild_retry previous_ksp_reason=%d retained_acceptance=1\n",
+                                    static_cast<int>(first_linear_reason)));
+            ++pc_rebuild_retries;
+            error=SNESSolve(snes.get(),nullptr,x.get());
+        }
+    }
     const auto finalize_begin=std::chrono::steady_clock::now();
     const double solve_seconds=std::chrono::duration<double>(finalize_begin-solve_begin).count();
     const double assembly_seconds=context.assembly_seconds,ghost_seconds=context.ghost_seconds;
@@ -992,6 +1276,14 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     result.initial_jacobian_assemblies=initial_jacobian_assembled?1:0;
     result.initial_jacobian_reuses=context.initial_jacobian_reuses;
     result.user_schur_updates=context.user_schur_updates;
+    result.pc_refreshes=workspace.adaptive_pc.rebuilds;
+    result.pc_reuses=workspace.adaptive_pc.reuses;
+    result.pc_rebuild_retries=pc_rebuild_retries;
+    result.pc_drift_refreshes=workspace.adaptive_pc.drift_rebuilds;
+    result.pc_age_refreshes=workspace.adaptive_pc.age_rebuilds;
+    result.pc_iteration_refreshes=workspace.adaptive_pc.iteration_rebuilds;
+    result.pc_context_refreshes=workspace.adaptive_pc.context_rebuilds;
+    result.pc_monitor_seconds=workspace.adaptive_pc.monitor_seconds;
     result.initial_jacobian_deferred=initial_jacobian_deferred;
     // Always assemble once afresh after SNESSolve. Save the unprojected owned
     // and ghost reactions before replacing constraint rows for acceptance.
@@ -1012,8 +1304,15 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     result.values=context.values;
     EONSIM_PETSC(SNESGetIterationNumber(snes.get(),&result.iterations));
     EONSIM_PETSC(SNESGetLinearSolveIterations(snes.get(),&result.linear_iterations));
+    result.iterations+=prior_nonlinear_iterations;
+    result.linear_iterations+=prior_linear_iterations;
     const double finalize_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-finalize_begin).count();
     if(report) {
+        EONSIM_PETSC(PetscPrintf(comm,
+            "nonlinear_communication overlap=%d fused_reductions=%d ghost_exchanges=%" PetscInt_FMT
+            " field_reduction_calls=%" PetscInt_FMT " rank0_overlap_seconds=%.17g\n",
+            int(bool(phases.owned)),int(acceptance.fused_reductions),context.ghost_exchanges,
+            acceptance.reduction_calls,context.ghost_overlap_seconds));
         MatInfo info; EONSIM_PETSC(MatGetInfo(j.get(),MAT_GLOBAL_SUM,&info));
         PetscLogDouble memory=0; EONSIM_PETSC(PetscMemoryGetCurrentUsage(&memory));
         double peak=memory;
@@ -1026,8 +1325,9 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             schur_setup_seconds,diagnostics.solve_seconds,diagnostics.diagnostic_seconds,finalize_seconds,
             callback_seconds,failure_sync_seconds,assembly_finalize_seconds,constraint_seconds},maxima[14]{};
         MPI_Allreduce(local,maxima,14,MPI_DOUBLE,MPI_MAX,comm);
-        double memory_sum=0; MPI_Allreduce(&memory,&memory_sum,1,MPI_DOUBLE,MPI_SUM,comm);
-        double peak_sum=0; MPI_Allreduce(&peak,&peak_sum,1,MPI_DOUBLE,MPI_SUM,comm);
+        const double local_memory[]{memory,peak}; double memory_totals[2]{};
+        MPI_Allreduce(local_memory,memory_totals,2,MPI_DOUBLE,MPI_SUM,comm);
+        const double memory_sum=memory_totals[0],peak_sum=memory_totals[1];
         int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
         KSPType kt; EONSIM_PETSC(KSPGetType(ksp,&kt));
         PCType type; EONSIM_PETSC(PCGetType(pc,&type));
@@ -1040,6 +1340,11 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             << " initial_jacobian_reuses=" << result.initial_jacobian_reuses
             << " initial_jacobian_deferred=" << result.initial_jacobian_deferred
             << " user_schur_updates=" << result.user_schur_updates
+            << " pc_refreshes=" << result.pc_refreshes << " pc_reuses=" << result.pc_reuses
+            << " pc_rebuild_retries=" << result.pc_rebuild_retries
+            << " pc_drift_refreshes=" << result.pc_drift_refreshes << " pc_age_refreshes=" << result.pc_age_refreshes
+            << " pc_iteration_refreshes=" << result.pc_iteration_refreshes << " pc_context_refreshes=" << result.pc_context_refreshes
+            << " pc_monitor_seconds_rank0=" << result.pc_monitor_seconds
             << " ksp=" << kt << " pc=" << type << " linear_iterations=" << result.linear_iterations
             << " snes_reason=" << reason << " ksp_reason=" << linear_reason << " domain_rejections=" << result.domain_rejections
             << " solve_seconds=" << maxima[0] << " assembly_seconds=" << maxima[1] << " ghost_seconds=" << maxima[2]

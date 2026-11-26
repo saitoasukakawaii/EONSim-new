@@ -38,8 +38,8 @@ auto metric_fluid_residual(const FsiElementData& data,const SimplexGeometry<Tet4
         S metric{};
         S transport=sum[i]*sum[j];
         for(int a=0;a<Tet4Topology::nodes;++a) {
-            metric+=geometry.gradients[a][i]*geometry.gradients[a][j];
-            transport+=relative[a][i]*relative[a][j];
+            add_product(metric,geometry.gradients[a][i],geometry.gradients[a][j]);
+            add_product(transport,relative[a][i],relative[a][j]);
         }
         metric=scale*metric;
         const double multiplicity=i==j?1.:2.;

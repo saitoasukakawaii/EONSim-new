@@ -22,9 +22,26 @@ struct NonlinearResult {
     PetscInt jacobian_callbacks=0; ///< SNES 请求 Jacobian 的次数，包含复用而未重装配的请求。
     PetscInt initial_jacobian_assemblies=0,initial_jacobian_reuses=0; ///< 起点预装配/首个回调复用，分别至多一次。
     PetscInt user_schur_updates=0; ///< 正常完成的 nodal USER 矩阵构建/数值刷新次数，不含 PETSc 内部 PC setup。
+    PetscInt pc_refreshes=0,pc_reuses=0; ///< Adaptive policy decisions for actual linear corrections, not symbolic setup calls.
+    PetscInt pc_rebuild_retries=0; ///< At most one current-PC retry after an old PC exhausted KSP iterations.
+    PetscInt pc_drift_refreshes=0,pc_age_refreshes=0,pc_iteration_refreshes=0,pc_context_refreshes=0;
+    double pc_monitor_seconds=0; ///< Rank-local diagonal/row-sum sampling and collective policy time.
     bool initial_jacobian_deferred=false; ///< 已配置会话将起点 Jacobian 交给首个正常 SNES 回调。
     double residual_norm=0;
     std::vector<FieldResidual> field_residuals; ///< 所有 rank 相同；原始反力不参与字段收敛范数。
+};
+/** Optional local assembly split for communication/computation overlap.
+ * owned is called while the forward ghost exchange is pending: it may read
+ * only entries [0, layout.owned) and fixed history, and must not communicate.
+ * halo follows the completed exchange and may read all local entries. Each
+ * contribution belongs to exactly one phase; neither phase finalizes Vec/Mat.
+ * All ranks supply both callbacks or neither. Exceptions are propagated only
+ * after the pending exchange completes. The ordinary callback is the fallback.
+ */
+struct NonlinearAssemblyPhases {
+    std::function<void(const std::vector<double>&,Vec,Mat)> owned,halo;
+    /// Exact physical/time coefficient identity used only for PC reuse policy.
+    std::vector<double> preconditioner_context;
 };
 /** 固定代数布局的非线性存储，复用 ghost Vec、AIJ 图和本地试算缓冲。
  * 构造复制本地 layout；分区、有效编号、字段或稀疏图改变时须重新构造。
@@ -90,10 +107,18 @@ public:
  * 从新残量开始并由 SNES 装配新的数值 Jacobian；从不跨 solve 缓存旧数值。
  * -nonlinear_initial_jacobian_reuse false 保留起点与首个回调各自装配的对照路径。
  * -solver_rank_report 开启原求解报告并附加 rank-local 阶段计时、owned/ghost 与装配计数。
+ * -nonlinear_adaptive_pc enables bounded numerical PC reuse for ordinary Newton
+ * with FGMRES. Every Newton Jacobian remains fresh. Per-row diagonal/absolute
+ * row-sum drift, reuse age, iteration growth and changed time coefficients force
+ * PC refreshes; failure invalidates the workspace. An old PC that exhausts its
+ * KSP iteration budget gets one fresh-PC retry at the same accepted iterate,
+ * retaining the original field acceptance limits. Missing physical context
+ * permits reuse only within this solve. Manual Jacobian/PC lag and EW conflict.
  */
     NonlinearResult solve(const SolverConfig& config, const std::vector<double>& initial,
         const std::vector<PetscInt>& constraints, const std::vector<double>& prescribed,
-        const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble);
+        const std::function<void(const std::vector<double>&,Vec,Mat)>& assemble,
+        const NonlinearAssemblyPhases& phases={});
 private:
     MPI_Comm communicator_;
     const AlgebraLayout layout_;

@@ -13,6 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(BUILD_TESTING "Build numerical and distributed verification" OFF)
 option(EONSIM_VERIFY_LOCKED_RUNTIME "Verify the cloud lock's OpenMPI/int32 ABI" OFF)
 option(EONSIM_ENABLE_OPENMP "Enable optional threaded FSI element batches when available" ON)
+option(EONSIM_ENABLE_ELEMENT_SIMD "Enable SIMD on independent element derivative lanes" ON)
 if(EONSIM_ENABLE_OPENMP)
     find_package(OpenMP QUIET COMPONENTS CXX)
 endif()
@@ -45,6 +46,7 @@ add_library(eonsim_build_options INTERFACE)
 target_compile_definitions(eonsim_build_options INTERFACE
     MHPC_DEBUG=$<IF:$<CONFIG:Debug>,1,0>
     EONSIM_BUILD_TYPE="$<CONFIG>"
+    EONSIM_ELEMENT_SIMD=$<BOOL:${EONSIM_ENABLE_ELEMENT_SIMD}>
 )
 
 add_library(eonsim_core
@@ -79,6 +81,7 @@ add_library(eonsim_core
     src/physics/scalar2d.cpp
     src/io/checkpoint.cpp
     src/io/vtu.cpp
+    src/io/parallel_hdf5.cpp
 )
 target_include_directories(eonsim_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(eonsim_core
@@ -87,7 +90,7 @@ target_link_libraries(eonsim_core
 )
 
 if(EONSIM_ENABLE_OPENMP AND OpenMP_CXX_FOUND)
-    target_link_libraries(eonsim_core PRIVATE OpenMP::OpenMP_CXX)
+    target_link_libraries(eonsim_core PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
 add_executable(eonsim src/main.cpp)
@@ -152,6 +155,25 @@ if(BUILD_TESTING)
     add_test(NAME nonlinear_acceptance_mpi COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" 2
         ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_nonlinear_acceptance> ${MPIEXEC_POSTFLAGS})
     set_tests_properties(nonlinear_acceptance nonlinear_acceptance_mpi PROPERTIES TIMEOUT 60
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_executable(verify_ghost_overlap tests/verify_ghost_overlap.cpp)
+    target_link_libraries(verify_ghost_overlap PRIVATE eonsim_core)
+    add_executable(verify_adaptive_pc tests/verify_adaptive_pc.cpp)
+    target_link_libraries(verify_adaptive_pc PRIVATE eonsim_core)
+    foreach(ranks IN ITEMS 1 2 4)
+        foreach(check IN ITEMS ghost_overlap adaptive_pc)
+            add_test(NAME ${check}_mpi${ranks} COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" ${ranks}
+                ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_${check}> ${MPIEXEC_POSTFLAGS})
+            set_tests_properties(${check}_mpi${ranks} PROPERTIES TIMEOUT 60 PROCESSORS ${ranks}
+                ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+        endforeach()
+    endforeach()
+    add_executable(verify_parallel_hdf5 tests/verify_parallel_hdf5.cpp)
+    target_link_libraries(verify_parallel_hdf5 PRIVATE eonsim_core EONSimPartitionDeps)
+    add_test(NAME parallel_hdf5 COMMAND verify_parallel_hdf5 "${CMAKE_CURRENT_BINARY_DIR}/parallel_hdf5")
+    add_test(NAME parallel_hdf5_mpi COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" 2
+        ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_parallel_hdf5> ${MPIEXEC_POSTFLAGS} "${CMAKE_CURRENT_BINARY_DIR}/parallel_hdf5_mpi")
+    set_tests_properties(parallel_hdf5 parallel_hdf5_mpi PROPERTIES TIMEOUT 60
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_executable(verify_boundary_geometry tests/verify_boundary_geometry.cpp)
     target_link_libraries(verify_boundary_geometry PRIVATE eonsim_core)
@@ -347,7 +369,7 @@ if(BUILD_TESTING)
     add_test(NAME fsi_coo_verification
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_coo.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}"
-        --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_coo_verification" --threads "${EONSIM_FSI_TEST_THREADS}")
+        --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_coo_verification" --threads "${EONSIM_FSI_TEST_THREADS}" --overlap)
     set_tests_properties(fsi_coo_verification PROPERTIES TIMEOUT 600 PROCESSORS ${EONSIM_FSI_TEST_PROCESSORS} LABELS "rank-1;rank-2"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME profile_log_validation

@@ -37,6 +37,8 @@ MODES = ('coupled_nodal', 'added_mass', 'added_mass_a11_onecycle',
          'added_mass_nodal', 'added_mass_fluid_onecycle',
          'twolevel_iterative', 'twolevel_onecycle')
 GEOMETRIC_MODES = ('twolevel_rigid', 'gamg_constants')
+HPC_MODES = ('aggregate_constants', 'aggregate_rigid', 'aggregate_rigid_adaptive',
+             'twolevel_rigid_adaptive', 'coupled_nodal_adaptive')
 ROBUST_MODES = ('twolevel_onecycle', 'twolevel_rigid', 'gamg_constants',
                 'added_mass_fluid_onecycle')
 TARGET = 'max(1e-23, 1e-10*rhs_norm)'
@@ -135,12 +137,16 @@ def timed_command(command, log, timeout, receipt):
     return output
 
 
-def flags(mode, ordering):
+def flags(mode, ordering, outer_rtol='5e-11'):
+    if mode.endswith('_adaptive'):
+        return flags(mode.removesuffix('_adaptive'), ordering, outer_rtol) + [
+            '-nonlinear_adaptive_pc', 'true', '-nonlinear_pc_max_reuse', '4',
+            '-nonlinear_pc_change_tolerance', '0.1', '-nonlinear_pc_iteration_growth', '1.5']
     if mode == 'direct':
         return ['-ksp_type', 'preonly', '-pc_type', 'lu',
                 '-pc_factor_mat_solver_type', 'mumps']
     result = ['-ksp_pc_side', 'right', '-ksp_norm_type', 'unpreconditioned',
-              '-ksp_rtol', '5e-11', '-ksp_atol', '5e-24', '-ksp_max_it', '3000',
+              '-ksp_rtol', outer_rtol, '-ksp_atol', '5e-24', '-ksp_max_it', '3000',
               '-ksp_gmres_restart', '100', '-ksp_gmres_modifiedgramschmidt',
               '-pc_plan_schur_approx', 'nodal',
               '-fieldsplit_dynamics_pc_fieldsplit_schur_fact_type', 'lower']
@@ -159,13 +165,16 @@ def flags(mode, ordering):
         return result
     twolevel = mode.startswith('twolevel_')
     gamg = mode.startswith('gamg_')
-    onecycle = mode in ('twolevel_onecycle', 'twolevel_rigid') or gamg
+    aggregate = mode.startswith('aggregate_')
+    onecycle = mode in ('twolevel_onecycle', 'twolevel_rigid') or gamg or aggregate
     prefix = '-fieldsplit_dynamics_fieldsplit_velocity_'
     result += ['-pc_recipe', 'hybrid', '-pc_plan_velocity_solver',
-               'twolevel' if twolevel else 'gamg' if gamg else 'coupled',
-               prefix + ('mg_levels_' if twolevel or gamg else '') +
+               'twolevel' if twolevel else 'gamg' if gamg else 'aggregate' if aggregate else 'coupled',
+               prefix + ('mg_levels_' if twolevel or gamg or aggregate else '') +
                'sub_pc_factor_mat_ordering_type', ordering]
-    if twolevel or gamg:
+    if aggregate:
+        result += ['-pc_plan_velocity_aggregate_nodes', '16']
+    if twolevel or gamg or aggregate:
         result += ['-pc_plan_velocity_coarse_space',
                    'rigid' if mode.endswith('_rigid') else 'constants']
         result += [prefix + 'ksp_type', 'preonly' if onecycle else 'fgmres',
@@ -177,6 +186,8 @@ def flags(mode, ordering):
 
 def expected_solvers(mode):
     """Prefixes and actual KSP/PC types for each deliberately fixed response."""
+    if mode.endswith('_adaptive'):
+        return expected_solvers(mode.removesuffix('_adaptive'))
     if mode == 'direct':
         return [('-', 'preonly', 'lu')]
     if mode.startswith('added_mass'):
@@ -189,6 +200,9 @@ def expected_solvers(mode):
                  'preonly' if mode in ('twolevel_onecycle', 'twolevel_rigid') else 'fgmres', 'mg')]
     if mode.startswith('gamg_'):
         return [('fieldsplit_dynamics_fieldsplit_velocity_', 'preonly', 'gamg')]
+    if mode.startswith('aggregate_'):
+        return [('fieldsplit_dynamics_fieldsplit_velocity_', 'preonly', 'mg'),
+                ('fieldsplit_dynamics_fieldsplit_velocity_mg_coarse_', 'preonly', 'gamg')]
     if mode == 'coupled_nodal':
         return [('fieldsplit_dynamics_fieldsplit_velocity_', 'gmres', 'asm')]
     raise ValueError(('unknown solver mode', mode))
@@ -341,6 +355,10 @@ def audit(text, steps, dofs, ranks, mode, dt=1/32):
     for step, report in enumerate(reports, 1):
         require(sum(r['step'] == step for r in residuals) == int(report['linear_completed']) and
                 int(report['linear_started']) == int(report['linear_completed']), report)
+        if mode.endswith('_adaptive'):
+            require(int(report['pc_refreshes']) >= 0 and int(report['pc_reuses']) >= 0 and
+                    int(report['pc_refreshes']) + int(report['pc_reuses']) == int(report['linear_completed']),
+                    ('adaptive policy did not account for every true linear correction', report))
     for row in residuals:
         require(row['fields'].keys() == field_counts.keys(), row)
         reconstructed = math.sqrt(sum(field_counts[k] * v*v for k, v in row['fields'].items()))
@@ -350,6 +368,10 @@ def audit(text, steps, dofs, ranks, mode, dt=1/32):
                   worst_ratio=max(r['ratio'] for r in residuals),
                   outer_iterations=sum(int(r['linear_iterations']) for r in reports),
                   correction_history=residuals, step_reports=reports, **node_snapshots(text))
+    if mode.endswith('_adaptive'):
+        for name in ('pc_refreshes', 'pc_reuses', 'pc_drift_refreshes', 'pc_age_refreshes',
+                     'pc_iteration_refreshes', 'pc_context_refreshes'):
+            result[name] = sum(int(report[name]) for report in reports)
     for name in TIMERS:
         values = [float(r[name]) for r in reports]
         require(all(math.isfinite(x) and x >= 0. for x in values), ('invalid timer', name))
@@ -403,7 +425,9 @@ def main():
     parser.add_argument('--work', type=Path, required=True)
     parser.add_argument('--stage', choices=('quick', 'full', 'robustness'), default='quick')
     parser.add_argument('--grids', nargs='+', choices=tuple(GRIDS))
-    parser.add_argument('--modes', nargs='+', choices=MODES + GEOMETRIC_MODES)
+    parser.add_argument('--modes', nargs='+', choices=MODES + GEOMETRIC_MODES + HPC_MODES)
+    parser.add_argument('--outer-rtol', choices=('5e-11', '1e-11'), default='5e-11',
+                        help='common iterative KSP request; the independent true-residual gate stays fixed')
     parser.add_argument('--quick-results', type=Path)
     parser.add_argument('--quick-timeout', type=float, default=130.)
     parser.add_argument('--full-timeout', type=float, default=600.)
@@ -446,6 +470,7 @@ def main():
     result_path = work / ('results-' + args.stage + '.json')
     summary = dict(stage=args.stage, output_directory=str(output), modes=['direct', *args.modes],
                    grids=args.grids, target=TARGET, tolerance_margin=MARGIN,
+                   outer_ksp_rtol=args.outer_rtol,
                    field_relative_peak_limit=FIELD_LIMIT, environment=environment,
                    timing_semantics=dict(
                        linear_seconds='rank-max KSP intervals, including PC setup and inner solves',
@@ -466,7 +491,7 @@ def main():
             quick = json.loads(quick_path.read_text())
             require(quick['stage'] == 'quick', 'full stage requires quick evidence')
             for key in ('executable_sha256', 'input_sha256', 'script_hashes', 'target',
-                        'tolerance_margin', 'field_relative_peak_limit'):
+                        'tolerance_margin', 'field_relative_peak_limit', 'outer_ksp_rtol'):
                 require(quick[key] == summary[key], ('quick evidence differs', key))
             for grid in args.grids:
                 grid_name, _, _, ordering = GRIDS[grid]
@@ -475,7 +500,7 @@ def main():
                 for mode in summary['modes']:
                     runs = [r for r in matches[0]['runs'] if r['mode'] == mode]
                     require(len(runs) == 1 and runs[0]['status'] == 'passed' and
-                            runs[0]['steps'] == 4 and runs[0]['flags'] == flags(mode, ordering),
+                            runs[0]['steps'] == 4 and runs[0]['flags'] == flags(mode, ordering, args.outer_rtol),
                             ('selected mode needs passing quick evidence', grid, mode))
             summary['quick_evidence'] = dict(path=str(quick_path), sha256=digest(quick_path))
     except (ValueError, KeyError, OSError) as exc:
@@ -535,9 +560,9 @@ def main():
             command = [str(mpi), '--map-by', 'core', '--bind-to', 'core', '-n', str(ranks),
                        str(exe), '-case', str(case / 'case.json'), '-partition', str(part),
                        '-output', str(out / 'tube.vtu'), '-solver_report', '-linear_report',
-                       '-stop_after', str(steps), *flags(mode, ordering)]
+                       '-stop_after', str(steps), *flags(mode, ordering, args.outer_rtol)]
             budget = args.full_timeout if steps > 4 else args.quick_timeout
-            row = dict(mode=mode, label=label, steps_requested=steps, flags=flags(mode, ordering),
+            row = dict(mode=mode, label=label, steps_requested=steps, flags=flags(mode, ordering, args.outer_rtol),
                        command=command, output_directory=str(out), execution_budget_seconds=budget,
                        status='running', exit_code=None, timeout=False)
             rec['runs'].append(row)

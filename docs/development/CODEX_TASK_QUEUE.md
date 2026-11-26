@@ -1,5 +1,26 @@
 # EONSim Codex Task Queue
 
+## HPC-05 / implementation and validation complete / 2026-11-26
+
+用户要求的五项开发、先推送后验证、原始证据和独立审计已完成。交付
+[PR #55](https://github.com/saitoasukakawaii/EONSim-new/pull/55)，生产源 `2788970`，驱动源 `ceaa680`。
+最终四项必需检查及锁定 head squash 依 GitHub 权威状态完成，不追加用户审批。
+
+| 已关闭任务 | 已执行证据与范围 |
+| --- | --- |
+| P0 Block AMG | 有界节点聚合、平移/旋转局部 QR、完整 Galerkin、辅助 GAMG；1/2/4-rank 代数检查；四档网格112次对照 |
+| P0 MPI | owned/halo 交换、异常排空、稳定合并范数；37 次真实 FSI 运行均符合预期（含 3 次预期失败）；字段归约6→3 |
+| P1 SIMD | 连续导数 lane、被动标量与融合累加；IEEE/别名/Jacobian检查；20配对核中位下降30.99%～34.58% |
+| P1 adaptive PC | 每次新鲜 J、有界数值复用、时间/漂移/迭代失效；真实 setup及USER更新证据；生成例10→2–3，强变化动脉保持谨慎刷新 |
+| P2 HDF5 | collective hyperslab、owner唯一、原子XDMF与时间集合；8次小实算、24次较大输出、原生精确比较和ParaView |
+
+严格动脉失败已保留并用所有候选共用的更严格 KSP 请求关闭，验收门槛未降低；最终36次
+quick/full全部通过。Ghost/单元/刷新/输出机制有分别的执行证据，但没有普遍加速或多节点
+扩展的承诺。n12只有正确性，HDF5在此主机慢于binary，动脉adaptive无统一时间优势。
+
+[最终证据索引](../research/data/hpc-five-track-2026-11-26/README.md)及未发布草稿已完成。
+后续只有用户提出新规模/平台/算例时才增加对应验证，不把本任务扩展成无限参数调优或全量测试。
+
 ## FSI-PC-04 / implementation and validation complete / 2026-11-26
 
 从 GitHub 已核验的 main `858f021a34ff5bd178287430d8cd45e52ec19f48`（#53 已合并）

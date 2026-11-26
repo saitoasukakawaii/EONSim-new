@@ -1,0 +1,904 @@
+﻿2026-11-26T03:36:05.1702501Z Current runner version: '2.338.2'
+2026-11-26T03:36:05.1720588Z ##[group]Runner Image Provisioner
+2026-11-26T03:36:05.1721238Z Hosted Compute Agent
+2026-11-26T03:36:05.1721664Z Version: 20261111.635
+2026-11-26T03:36:05.1722154Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+2026-11-26T03:36:05.1722661Z Build Date: 2026-11-11T01:49:01Z
+2026-11-26T03:36:05.1723408Z Worker ID: {67b586a6-d758-4146-adb4-8db80142362f}
+2026-11-26T03:36:05.1723932Z Region: us-west-2
+2026-11-26T03:36:05.1724332Z Cloud: AWS
+2026-11-26T03:36:05.1724712Z ##[endgroup]
+2026-11-26T03:36:05.1725644Z ##[group]Operating System
+2026-11-26T03:36:05.1726060Z Ubuntu
+2026-11-26T03:36:05.1726445Z 24.04.5
+2026-11-26T03:36:05.1726812Z LTS
+2026-11-26T03:36:05.1727172Z ##[endgroup]
+2026-11-26T03:36:05.1727579Z ##[group]Runner Image
+2026-11-26T03:36:05.1727981Z Image: ubuntu-24.04
+2026-11-26T03:36:05.1728387Z Version: 20261116.133.1
+2026-11-26T03:36:05.1729301Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261116.133/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-26T03:36:05.1730442Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261116.133
+2026-11-26T03:36:05.1731088Z ##[endgroup]
+2026-11-26T03:36:05.1731986Z ##[group]GITHUB_TOKEN Permissions
+2026-11-26T03:36:05.1733775Z Actions: read
+2026-11-26T03:36:05.1734219Z Contents: read
+2026-11-26T03:36:05.1734600Z Metadata: read
+2026-11-26T03:36:05.1734977Z ##[endgroup]
+2026-11-26T03:36:05.1736482Z Secret source: Actions
+2026-11-26T03:36:05.1737132Z Cache mode: write
+2026-11-26T03:36:05.1737613Z Prepare workflow directory
+2026-11-26T03:36:05.1967724Z Prepare all required actions
+2026-11-26T03:36:05.2004066Z Getting action download info
+2026-11-26T03:36:05.5738633Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-26T03:36:07.2001375Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-11-26T03:36:07.5465812Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-26T03:36:07.9136120Z Complete job name: Record incremental evidence
+2026-11-26T03:36:07.9756525Z ##[group]Run test "$SELECTION_RESULT" = success && test "$RELEASE_RESULT" = success
+2026-11-26T03:36:07.9758349Z [36;1mtest "$SELECTION_RESULT" = success && test "$RELEASE_RESULT" = success[0m
+2026-11-26T03:36:08.2770271Z shell: /usr/bin/bash -e {0}
+2026-11-26T03:36:08.2771665Z env:
+2026-11-26T03:36:08.2772596Z   SELECTION_RESULT: success
+2026-11-26T03:36:08.2774099Z   RELEASE_RESULT: success
+2026-11-26T03:36:08.2775113Z ##[endgroup]
+2026-11-26T03:36:08.3127017Z ##[group]Run actions/checkout@v4
+2026-11-26T03:36:08.3127944Z with:
+2026-11-26T03:36:08.3128670Z   persist-credentials: false
+2026-11-26T03:36:08.3129517Z   repository: saitoasukakawaii/EONSim-new
+2026-11-26T03:36:08.3136325Z   token: ***
+2026-11-26T03:36:08.3137030Z   ssh-strict: true
+2026-11-26T03:36:08.3137719Z   ssh-user: git
+2026-11-26T03:36:08.3138549Z   clean: true
+2026-11-26T03:36:08.3139306Z   sparse-checkout-cone-mode: true
+2026-11-26T03:36:08.3140143Z   fetch-depth: 1
+2026-11-26T03:36:08.3140828Z   fetch-tags: false
+2026-11-26T03:36:08.3141524Z   show-progress: true
+2026-11-26T03:36:08.3142198Z   lfs: false
+2026-11-26T03:36:08.3142833Z   submodules: false
+2026-11-26T03:36:08.3143667Z   set-safe-directory: true
+2026-11-26T03:36:08.3144496Z   allow-unsafe-pr-checkout: false
+2026-11-26T03:36:08.3145277Z ##[endgroup]
+2026-11-26T03:36:09.9734291Z Syncing repository: saitoasukakawaii/EONSim-new
+2026-11-26T03:36:09.9735512Z ##[group]Getting Git version info
+2026-11-26T03:36:09.9736021Z Working directory is '/home/runner/work/EONSim-new/EONSim-new'
+2026-11-26T03:36:09.9736589Z [command]/usr/bin/git version
+2026-11-26T03:36:10.2832682Z git version 2.56.1
+2026-11-26T03:36:10.2848375Z ##[endgroup]
+2026-11-26T03:36:10.2858520Z Temporarily overriding HOME='/home/runner/work/_temp/1f8c8c05-a878-43d0-9286-8bdcba6e8174' before making global git config changes
+2026-11-26T03:36:10.2859466Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-26T03:36:10.2862242Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/EONSim-new/EONSim-new
+2026-11-26T03:36:10.3247411Z Deleting the contents of '/home/runner/work/EONSim-new/EONSim-new'
+2026-11-26T03:36:10.3253399Z ##[group]Initializing the repository
+2026-11-26T03:36:10.3256997Z [command]/usr/bin/git init /home/runner/work/EONSim-new/EONSim-new
+2026-11-26T03:36:10.3415755Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-26T03:36:10.3416450Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-26T03:36:10.3416889Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-26T03:36:10.3417248Z hint: call:
+2026-11-26T03:36:10.3417482Z hint:
+2026-11-26T03:36:10.3417792Z hint: 	git config --global init.defaultBranch <name>
+2026-11-26T03:36:10.3418186Z hint:
+2026-11-26T03:36:10.3418495Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-26T03:36:10.3418962Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-26T03:36:10.3419350Z hint:
+2026-11-26T03:36:10.3419562Z hint: 	git branch -m <name>
+2026-11-26T03:36:10.3419792Z hint:
+2026-11-26T03:36:10.3420099Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-26T03:36:10.3425384Z Initialized empty Git repository in /home/runner/work/EONSim-new/EONSim-new/.git/
+2026-11-26T03:36:10.3432815Z [command]/usr/bin/git remote add origin https://github.com/saitoasukakawaii/EONSim-new
+2026-11-26T03:36:10.3479450Z ##[endgroup]
+2026-11-26T03:36:10.3480067Z ##[group]Disabling automatic garbage collection
+2026-11-26T03:36:10.3482168Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-26T03:36:10.3504585Z ##[endgroup]
+2026-11-26T03:36:10.3505173Z ##[group]Setting up auth
+2026-11-26T03:36:10.3509691Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-26T03:36:10.3536582Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-26T03:36:10.6326820Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-26T03:36:10.6352866Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-26T03:36:10.6503493Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-26T03:36:10.6527089Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-26T03:36:10.6673685Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-26T03:36:10.6701139Z ##[endgroup]
+2026-11-26T03:36:10.6701598Z ##[group]Fetching the repository
+2026-11-26T03:36:10.6712877Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +10bfcd6e4aaa2d592791bdb67cb08ef172189233:refs/remotes/pull/55/merge
+2026-11-26T03:36:32.5024666Z From https://github.com/saitoasukakawaii/EONSim-new
+2026-11-26T03:36:32.5025511Z  * [new ref]         10bfcd6e4aaa2d592791bdb67cb08ef172189233 -> pull/55/merge
+2026-11-26T03:36:32.5028612Z ##[endgroup]
+2026-11-26T03:36:32.5029133Z ##[group]Determining the checkout info
+2026-11-26T03:36:32.5030758Z ##[endgroup]
+2026-11-26T03:36:32.5035565Z [command]/usr/bin/git sparse-checkout disable
+2026-11-26T03:36:32.5109563Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-26T03:36:32.5166849Z ##[group]Checking out the ref
+2026-11-26T03:36:32.5169848Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/55/merge
+2026-11-26T03:36:33.5626556Z Updating files:  44% (627/1419)
+2026-11-26T03:36:33.6354164Z Updating files:  45% (639/1419)
+2026-11-26T03:36:33.6357018Z Updating files:  46% (653/1419)
+2026-11-26T03:36:33.6426473Z Updating files:  47% (667/1419)
+2026-11-26T03:36:33.6585412Z Updating files:  48% (682/1419)
+2026-11-26T03:36:33.6614637Z Updating files:  49% (696/1419)
+2026-11-26T03:36:33.6926646Z Updating files:  50% (710/1419)
+2026-11-26T03:36:33.7000264Z Updating files:  51% (724/1419)
+2026-11-26T03:36:33.7054633Z Updating files:  52% (738/1419)
+2026-11-26T03:36:33.7229224Z Updating files:  53% (753/1419)
+2026-11-26T03:36:33.7238818Z Updating files:  54% (767/1419)
+2026-11-26T03:36:33.7243471Z Updating files:  55% (781/1419)
+2026-11-26T03:36:33.7255065Z Updating files:  56% (795/1419)
+2026-11-26T03:36:33.7270444Z Updating files:  57% (809/1419)
+2026-11-26T03:36:33.7277666Z Updating files:  58% (824/1419)
+2026-11-26T03:36:33.7283245Z Updating files:  59% (838/1419)
+2026-11-26T03:36:33.7536705Z Updating files:  60% (852/1419)
+2026-11-26T03:36:33.7553829Z Updating files:  61% (866/1419)
+2026-11-26T03:36:33.7559375Z Updating files:  62% (880/1419)
+2026-11-26T03:36:33.7567045Z Updating files:  63% (894/1419)
+2026-11-26T03:36:33.7570529Z Updating files:  64% (909/1419)
+2026-11-26T03:36:33.7575125Z Updating files:  65% (923/1419)
+2026-11-26T03:36:33.7716309Z Updating files:  66% (937/1419)
+2026-11-26T03:36:33.7731561Z Updating files:  67% (951/1419)
+2026-11-26T03:36:33.7734777Z Updating files:  68% (965/1419)
+2026-11-26T03:36:33.7739501Z Updating files:  69% (980/1419)
+2026-11-26T03:36:33.7743791Z Updating files:  70% (994/1419)
+2026-11-26T03:36:33.7756138Z Updating files:  71% (1008/1419)
+2026-11-26T03:36:33.9135902Z Updating files:  72% (1022/1419)
+2026-11-26T03:36:33.9685514Z Updating files:  73% (1036/1419)
+2026-11-26T03:36:33.9773619Z Updating files:  74% (1051/1419)
+2026-11-26T03:36:33.9778314Z Updating files:  75% (1065/1419)
+2026-11-26T03:36:33.9778754Z Updating files:  76% (1079/1419)
+2026-11-26T03:36:33.9783792Z Updating files:  77% (1093/1419)
+2026-11-26T03:36:33.9790041Z Updating files:  78% (1107/1419)
+2026-11-26T03:36:33.9795198Z Updating files:  79% (1122/1419)
+2026-11-26T03:36:33.9873379Z Updating files:  80% (1136/1419)
+2026-11-26T03:36:34.0256245Z Updating files:  81% (1150/1419)
+2026-11-26T03:36:34.0256946Z Updating files:  82% (1164/1419)
+2026-11-26T03:36:34.0260445Z Updating files:  83% (1178/1419)
+2026-11-26T03:36:34.0267932Z Updating files:  84% (1192/1419)
+2026-11-26T03:36:34.0274156Z Updating files:  85% (1207/1419)
+2026-11-26T03:36:34.0279684Z Updating files:  86% (1221/1419)
+2026-11-26T03:36:34.0291243Z Updating files:  87% (1235/1419)
+2026-11-26T03:36:34.0302390Z Updating files:  88% (1249/1419)
+2026-11-26T03:36:34.0309453Z Updating files:  89% (1263/1419)
+2026-11-26T03:36:34.0322610Z Updating files:  90% (1278/1419)
+2026-11-26T03:36:34.0343956Z Updating files:  91% (1292/1419)
+2026-11-26T03:36:34.0347022Z Updating files:  92% (1306/1419)
+2026-11-26T03:36:34.0347373Z Updating files:  93% (1320/1419)
+2026-11-26T03:36:34.0353517Z Updating files:  94% (1334/1419)
+2026-11-26T03:36:34.0358543Z Updating files:  95% (1349/1419)
+2026-11-26T03:36:34.0367440Z Updating files:  96% (1363/1419)
+2026-11-26T03:36:34.0372171Z Updating files:  97% (1377/1419)
+2026-11-26T03:36:34.0376938Z Updating files:  98% (1391/1419)
+2026-11-26T03:36:34.0380731Z Updating files:  99% (1405/1419)
+2026-11-26T03:36:34.0381324Z Updating files: 100% (1419/1419)
+2026-11-26T03:36:34.0381665Z Updating files: 100% (1419/1419), done.
+2026-11-26T03:36:34.0400043Z Note: switching to 'refs/remotes/pull/55/merge'.
+2026-11-26T03:36:34.0400470Z 
+2026-11-26T03:36:34.0400750Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-26T03:36:34.0401303Z changes and commit them, and you can discard any commits you make in this
+2026-11-26T03:36:34.0401798Z state without impacting any branches by switching back to a branch.
+2026-11-26T03:36:34.0402087Z 
+2026-11-26T03:36:34.0402239Z If you want to create a new branch to retain commits you create, you may
+2026-11-26T03:36:34.0402800Z do so (now or later) by using -c with the switch command. Example:
+2026-11-26T03:36:34.0403026Z 
+2026-11-26T03:36:34.0403388Z   git switch -c <new-branch-name>
+2026-11-26T03:36:34.0403587Z 
+2026-11-26T03:36:34.0403708Z Or undo this operation with:
+2026-11-26T03:36:34.0403841Z 
+2026-11-26T03:36:34.0403955Z   git switch -
+2026-11-26T03:36:34.0404075Z 
+2026-11-26T03:36:34.0404275Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-26T03:36:34.0404498Z 
+2026-11-26T03:36:34.0404792Z HEAD is now at 10bfcd6 Merge ceaa680c5c2c521abc71f0014337dc3ea16796a9 into f8dbd6991f8057fc84d0a49dc6d9c9b3c38028fe
+2026-11-26T03:36:34.0465140Z ##[endgroup]
+2026-11-26T03:36:34.0524625Z [command]/usr/bin/git log -1 --format=%H
+2026-11-26T03:36:34.0546573Z 10bfcd6e4aaa2d592791bdb67cb08ef172189233
+2026-11-26T03:36:34.0557953Z ##[group]Removing auth
+2026-11-26T03:36:34.0558344Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-26T03:36:34.0582020Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-26T03:36:34.0739722Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-26T03:36:34.0761419Z http.https://github.com/.extraheader
+2026-11-26T03:36:34.0766204Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-26T03:36:34.0789836Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-26T03:36:34.0938632Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-26T03:36:34.0960792Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-26T03:36:34.1105122Z ##[endgroup]
+2026-11-26T03:36:34.1249291Z ##[group]Run actions/download-artifact@v4
+2026-11-26T03:36:34.1249543Z with:
+2026-11-26T03:36:34.1249794Z   name: incremental-plan
+2026-11-26T03:36:34.1250029Z   path: build/ci
+2026-11-26T03:36:34.1250244Z   merge-multiple: false
+2026-11-26T03:36:34.1250582Z   repository: saitoasukakawaii/EONSim-new
+2026-11-26T03:36:34.1250834Z   run-id: 45748579007
+2026-11-26T03:36:34.1251073Z ##[endgroup]
+2026-11-26T03:36:34.2421695Z Downloading single artifact
+2026-11-26T03:36:34.2650601Z (node:2247) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-26T03:36:34.2651254Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-26T03:36:34.5580037Z Preparing to download the following artifacts:
+2026-11-26T03:36:34.5581017Z - incremental-plan (ID: 15084262025, Size: 2012, Expected Digest: sha256:4141894eb49584c5ca8ec369e53c13a7197ba54e3a3f6b1270a1d247f1b5c28b)
+2026-11-26T03:36:34.8152946Z Redirecting to blob download url: https://productionresultssa11.blob.core.windows.net/actions-results/67d08967-5883-811b-bb62-51d9da254e4e/workflow-job-run-dd7bfc00-107e-54d3-9e7e-12abad058188/artifacts/8f45afc5483d3e92e4af2a0dda0fdb632d75ca91935312ba43738fd45c35e751.zip
+2026-11-26T03:36:34.8154592Z Starting download of artifact to: /home/runner/work/EONSim-new/EONSim-new/build/ci
+2026-11-26T03:36:35.1600099Z (node:2247) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-26T03:36:35.1636838Z SHA256 digest of downloaded artifact is 4141894eb49584c5ca8ec369e53c13a7197ba54e3a3f6b1270a1d247f1b5c28b
+2026-11-26T03:36:35.1637586Z Artifact download completed successfully.
+2026-11-26T03:36:35.1638060Z Total of 1 artifact(s) downloaded
+2026-11-26T03:36:35.1640794Z Download artifact has finished successfully
+2026-11-26T03:36:35.1774687Z ##[group]Run actions/download-artifact@v4
+2026-11-26T03:36:35.1775091Z with:
+2026-11-26T03:36:35.1775374Z   pattern: numerics-3.23.7-*
+2026-11-26T03:36:35.1775621Z   path: build/ci/results
+2026-11-26T03:36:35.1775862Z   merge-multiple: false
+2026-11-26T03:36:35.1776120Z   repository: saitoasukakawaii/EONSim-new
+2026-11-26T03:36:35.1776413Z   run-id: 45748579007
+2026-11-26T03:36:35.1776661Z ##[endgroup]
+2026-11-26T03:36:35.3027862Z (node:2259) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-26T03:36:35.3028497Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-26T03:36:35.5510617Z Found 2 artifact(s)
+2026-11-26T03:36:35.5511306Z Filtering artifacts by pattern 'numerics-3.23.7-*'
+2026-11-26T03:36:35.5525359Z Preparing to download the following artifacts:
+2026-11-26T03:36:35.5526664Z - numerics-3.23.7-release-10bfcd6e4aaa2d592791bdb67cb08ef172189233 (ID: 15085028019, Size: 4698711, Expected Digest: sha256:fac116ebe582a74af57d212dea1c569c6b9c36b9e9760654cb4eff1baac19978)
+2026-11-26T03:36:35.7975601Z Redirecting to blob download url: https://productionresultssa11.blob.core.windows.net/actions-results/67d08967-5883-811b-bb62-51d9da254e4e/workflow-job-run-2e03f7e8-aa11-5070-aa7f-8e33baf39c2a/artifacts/4122d6ef16a6451ff6a00e0d0cd5f0abdd27a5bb73b2affeda335b8b36ff3265.zip
+2026-11-26T03:36:35.7977176Z Starting download of artifact to: /home/runner/work/EONSim-new/EONSim-new/build/ci/results/numerics-3.23.7-release-10bfcd6e4aaa2d592791bdb67cb08ef172189233
+2026-11-26T03:36:36.1794097Z (node:2259) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-26T03:36:37.5278337Z SHA256 digest of downloaded artifact is fac116ebe582a74af57d212dea1c569c6b9c36b9e9760654cb4eff1baac19978
+2026-11-26T03:36:37.5279041Z Artifact download completed successfully.
+2026-11-26T03:36:37.5279403Z Total of 1 artifact(s) downloaded
+2026-11-26T03:36:37.5284914Z Download artifact has finished successfully
+2026-11-26T03:36:37.5440283Z ##[group]Run python3 scripts/cloud/receipt.py --plan build/ci/plan.json --evidence build/ci/results --output build/ci/receipt.json
+2026-11-26T03:36:37.5440981Z [36;1mpython3 scripts/cloud/receipt.py --plan build/ci/plan.json --evidence build/ci/results --output build/ci/receipt.json[0m
+2026-11-26T03:36:37.5467365Z shell: /usr/bin/bash -e {0}
+2026-11-26T03:36:37.5467630Z ##[endgroup]
+2026-11-26T03:36:37.6005414Z {
+2026-11-26T03:36:37.6006031Z   "schema": 1,
+2026-11-26T03:36:37.6006456Z   "repository": "saitoasukakawaii/EONSim-new",
+2026-11-26T03:36:37.6006938Z   "pr": 55,
+2026-11-26T03:36:37.6007285Z   "base": "f8dbd6991f8057fc84d0a49dc6d9c9b3c38028fe",
+2026-11-26T03:36:37.6007722Z   "head": "ceaa680c5c2c521abc71f0014337dc3ea16796a9",
+2026-11-26T03:36:37.6008145Z   "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233",
+2026-11-26T03:36:37.6008644Z   "tree": "f9d7f7c6e16c81d07419809a2746c70d098580df",
+2026-11-26T03:36:37.6009299Z   "fingerprint": "db9becabfc84ba287be60f93c9e5cd17964db93d4a19e9da9ff4f2ddaef69935",
+2026-11-26T03:36:37.6009830Z   "run_id": 45748579007,
+2026-11-26T03:36:37.6010209Z   "status": "passed",
+2026-11-26T03:36:37.6010588Z   "covered": [
+2026-11-26T03:36:37.6010889Z     "adaptive_pc_mpi1",
+2026-11-26T03:36:37.6011205Z     "adaptive_pc_mpi2",
+2026-11-26T03:36:37.6011501Z     "adaptive_pc_mpi4",
+2026-11-26T03:36:37.6011817Z     "ale_time_verification",
+2026-11-26T03:36:37.6012162Z     "domains_verification",
+2026-11-26T03:36:37.6012481Z     "elastic_fsi_verification",
+2026-11-26T03:36:37.6012807Z     "element2d_oracles",
+2026-11-26T03:36:37.6013351Z     "fluid_alpha_verification",
+2026-11-26T03:36:37.6013705Z     "fluid_coo_verification",
+2026-11-26T03:36:37.6014042Z     "fluid_element_jacobian",
+2026-11-26T03:36:37.6014290Z     "fluid_time_verification",
+2026-11-26T03:36:37.6014569Z     "fluid_verification",
+2026-11-26T03:36:37.6014826Z     "fsi_alpha_verification",
+2026-11-26T03:36:37.6015068Z     "fsi_block_efficiency",
+2026-11-26T03:36:37.6015556Z     "fsi_branched_rcr",
+2026-11-26T03:36:37.6015789Z     "fsi_coo_verification",
+2026-11-26T03:36:37.6016022Z     "fsi_curved_inlet",
+2026-11-26T03:36:37.6016307Z     "fsi_diagnostics",
+2026-11-26T03:36:37.6016525Z     "fsi_diagnostics_mpi",
+2026-11-26T03:36:37.6016815Z     "fsi_element_jacobian",
+2026-11-26T03:36:37.6017038Z     "fsi_flow",
+2026-11-26T03:36:37.6017269Z     "fsi_inlet",
+2026-11-26T03:36:37.6017514Z     "fsi_metric_stabilization",
+2026-11-26T03:36:37.6017762Z     "fsi_moving_plane_rcr",
+2026-11-26T03:36:37.6018026Z     "fsi_periodic",
+2026-11-26T03:36:37.6018370Z     "fsi_pressure_convergence",
+2026-11-26T03:36:37.6018675Z     "fsi_pressure_state",
+2026-11-26T03:36:37.6018946Z     "fsi_reservoir_pressure",
+2026-11-26T03:36:37.6019198Z     "fsi_sampled_inlet",
+2026-11-26T03:36:37.6019434Z     "fsi_time_verification",
+2026-11-26T03:36:37.6019717Z     "fsi_tube",
+2026-11-26T03:36:37.6019937Z     "fsi_tube_rcr",
+2026-11-26T03:36:37.6020158Z     "fsi_tube_rcr_response",
+2026-11-26T03:36:37.6020788Z     "fsi_tube_wall_support",
+2026-11-26T03:36:37.6021033Z     "ghost_overlap_mpi1",
+2026-11-26T03:36:37.6021373Z     "ghost_overlap_mpi2",
+2026-11-26T03:36:37.6021602Z     "ghost_overlap_mpi4",
+2026-11-26T03:36:37.6021829Z     "hyperelastic_element_jacobian",
+2026-11-26T03:36:37.6022135Z     "hyperelastic_verification",
+2026-11-26T03:36:37.6022395Z     "lame_wall",
+2026-11-26T03:36:37.6022648Z     "nonlinear_acceptance",
+2026-11-26T03:36:37.6022888Z     "nonlinear_acceptance_mpi",
+2026-11-26T03:36:37.6023302Z     "p2_space_oracles",
+2026-11-26T03:36:37.6023579Z     "parallel_hdf5",
+2026-11-26T03:36:37.6023811Z     "parallel_hdf5_mpi",
+2026-11-26T03:36:37.6024174Z     "pc_added_mass_nodal_retry",
+2026-11-26T03:36:37.6024425Z     "pc_added_mass_retry",
+2026-11-26T03:36:37.6024690Z     "pc_plan_mpi1",
+2026-11-26T03:36:37.6024919Z     "pc_plan_mpi2",
+2026-11-26T03:36:37.6025126Z     "pc_plan_mpi4",
+2026-11-26T03:36:37.6025372Z     "pc_recipe_hybrid",
+2026-11-26T03:36:37.6025587Z     "pc_recipe_physics",
+2026-11-26T03:36:37.6025967Z     "pc_recipe_quantity",
+2026-11-26T03:36:37.6026243Z     "pc_recipe_restart",
+2026-11-26T03:36:37.6026485Z     "pc_recipe_retry",
+2026-11-26T03:36:37.6026736Z     "pc_twolevel_retry",
+2026-11-26T03:36:37.6026957Z     "poisson_parallel",
+2026-11-26T03:36:37.6027210Z     "poisson_verification",
+2026-11-26T03:36:37.6027464Z     "rigid_fsi_verification",
+2026-11-26T03:36:37.6027730Z     "rigid_tube_verification",
+2026-11-26T03:36:37.6027995Z     "runtime_mpi",
+2026-11-26T03:36:37.6028221Z     "scalar2d_failure",
+2026-11-26T03:36:37.6028453Z     "scalar2d_space",
+2026-11-26T03:36:37.6028697Z     "scalar2d_time",
+2026-11-26T03:36:37.6028927Z     "scalar_p2_failure",
+2026-11-26T03:36:37.6029152Z     "scalar_p2_restart",
+2026-11-26T03:36:37.6029425Z     "scalar_p2_time",
+2026-11-26T03:36:37.6029649Z     "scalar_p2_verification",
+2026-11-26T03:36:37.6029920Z     "solid_element_jacobian",
+2026-11-26T03:36:37.6030151Z     "solid_verification",
+2026-11-26T03:36:37.6030368Z     "solver_failures",
+2026-11-26T03:36:37.6030657Z     "solver_failures_mpi",
+2026-11-26T03:36:37.6030899Z     "tagged_fluid_verification",
+2026-11-26T03:36:37.6031149Z     "tri_p2_oracles",
+2026-11-26T03:36:37.6031395Z     "womersley_flow"
+2026-11-26T03:36:37.6031650Z   ],
+2026-11-26T03:36:37.6031900Z   "executed": [
+2026-11-26T03:36:37.6032106Z     "adaptive_pc_mpi1",
+2026-11-26T03:36:37.6032356Z     "adaptive_pc_mpi2",
+2026-11-26T03:36:37.6032607Z     "adaptive_pc_mpi4",
+2026-11-26T03:36:37.6032860Z     "ale_time_verification",
+2026-11-26T03:36:37.6033100Z     "domains_verification",
+2026-11-26T03:36:37.6033550Z     "elastic_fsi_verification",
+2026-11-26T03:36:37.6033811Z     "element2d_oracles",
+2026-11-26T03:36:37.6034065Z     "fluid_alpha_verification",
+2026-11-26T03:36:37.6034351Z     "fluid_coo_verification",
+2026-11-26T03:36:37.6034592Z     "fluid_element_jacobian",
+2026-11-26T03:36:37.6034872Z     "fluid_time_verification",
+2026-11-26T03:36:37.6035113Z     "fluid_verification",
+2026-11-26T03:36:37.6035467Z     "fsi_alpha_verification",
+2026-11-26T03:36:37.6035722Z     "fsi_block_efficiency",
+2026-11-26T03:36:37.6035961Z     "fsi_branched_rcr",
+2026-11-26T03:36:37.6036232Z     "fsi_coo_verification",
+2026-11-26T03:36:37.6036460Z     "fsi_curved_inlet",
+2026-11-26T03:36:37.6036694Z     "fsi_diagnostics",
+2026-11-26T03:36:37.6036959Z     "fsi_diagnostics_mpi",
+2026-11-26T03:36:37.6037181Z     "fsi_element_jacobian",
+2026-11-26T03:36:37.6037454Z     "fsi_flow",
+2026-11-26T03:36:37.6037677Z     "fsi_inlet",
+2026-11-26T03:36:37.6037908Z     "fsi_metric_stabilization",
+2026-11-26T03:36:37.6038180Z     "fsi_moving_plane_rcr",
+2026-11-26T03:36:37.6038405Z     "fsi_periodic",
+2026-11-26T03:36:37.6038659Z     "fsi_pressure_convergence",
+2026-11-26T03:36:37.6038899Z     "fsi_pressure_state",
+2026-11-26T03:36:37.6039155Z     "fsi_reservoir_pressure",
+2026-11-26T03:36:37.6039423Z     "fsi_sampled_inlet",
+2026-11-26T03:36:37.6039665Z     "fsi_time_verification",
+2026-11-26T03:36:37.6039891Z     "fsi_tube",
+2026-11-26T03:36:37.6040153Z     "fsi_tube_rcr",
+2026-11-26T03:36:37.6040385Z     "fsi_tube_rcr_response",
+2026-11-26T03:36:37.6040642Z     "fsi_tube_wall_support",
+2026-11-26T03:36:37.6040891Z     "ghost_overlap_mpi1",
+2026-11-26T03:36:37.6041138Z     "ghost_overlap_mpi2",
+2026-11-26T03:36:37.6041399Z     "ghost_overlap_mpi4",
+2026-11-26T03:36:37.6041635Z     "hyperelastic_element_jacobian",
+2026-11-26T03:36:37.6041992Z     "hyperelastic_verification",
+2026-11-26T03:36:37.6042247Z     "lame_wall",
+2026-11-26T03:36:37.6042474Z     "nonlinear_acceptance",
+2026-11-26T03:36:37.6042746Z     "nonlinear_acceptance_mpi",
+2026-11-26T03:36:37.6042986Z     "p2_space_oracles",
+2026-11-26T03:36:37.6043392Z     "parallel_hdf5",
+2026-11-26T03:36:37.6043671Z     "parallel_hdf5_mpi",
+2026-11-26T03:36:37.6043893Z     "pc_added_mass_nodal_retry",
+2026-11-26T03:36:37.6044177Z     "pc_added_mass_retry",
+2026-11-26T03:36:37.6044407Z     "pc_plan_mpi1",
+2026-11-26T03:36:37.6044629Z     "pc_plan_mpi2",
+2026-11-26T03:36:37.6044882Z     "pc_plan_mpi4",
+2026-11-26T03:36:37.6045189Z     "pc_recipe_hybrid",
+2026-11-26T03:36:37.6045429Z     "pc_recipe_physics",
+2026-11-26T03:36:37.6045673Z     "pc_recipe_quantity",
+2026-11-26T03:36:37.6045941Z     "pc_recipe_restart",
+2026-11-26T03:36:37.6046188Z     "pc_recipe_retry",
+2026-11-26T03:36:37.6046416Z     "pc_twolevel_retry",
+2026-11-26T03:36:37.6046640Z     "poisson_parallel",
+2026-11-26T03:36:37.6046894Z     "poisson_verification",
+2026-11-26T03:36:37.6047155Z     "rigid_fsi_verification",
+2026-11-26T03:36:37.6047396Z     "rigid_tube_verification",
+2026-11-26T03:36:37.6047666Z     "runtime_mpi",
+2026-11-26T03:36:37.6047891Z     "scalar2d_failure",
+2026-11-26T03:36:37.6048171Z     "scalar2d_space",
+2026-11-26T03:36:37.6048393Z     "scalar2d_time",
+2026-11-26T03:36:37.6048598Z     "scalar_p2_failure",
+2026-11-26T03:36:37.6049013Z     "scalar_p2_restart",
+2026-11-26T03:36:37.6049221Z     "scalar_p2_time",
+2026-11-26T03:36:37.6049500Z     "scalar_p2_verification",
+2026-11-26T03:36:37.6049740Z     "solid_element_jacobian",
+2026-11-26T03:36:37.6049990Z     "solid_verification",
+2026-11-26T03:36:37.6050238Z     "solver_failures",
+2026-11-26T03:36:37.6050476Z     "solver_failures_mpi",
+2026-11-26T03:36:37.6050724Z     "tagged_fluid_verification",
+2026-11-26T03:36:37.6050981Z     "tri_p2_oracles",
+2026-11-26T03:36:37.6051222Z     "womersley_flow"
+2026-11-26T03:36:37.6051475Z   ],
+2026-11-26T03:36:37.6051677Z   "reused": [],
+2026-11-26T03:36:37.6051884Z   "origins": {
+2026-11-26T03:36:37.6052119Z     "runtime_mpi": {
+2026-11-26T03:36:37.6052389Z       "release": {
+2026-11-26T03:36:37.6052622Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6052940Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6053400Z       }
+2026-11-26T03:36:37.6053650Z     },
+2026-11-26T03:36:37.6053861Z     "pc_plan_mpi1": {
+2026-11-26T03:36:37.6054088Z       "release": {
+2026-11-26T03:36:37.6054355Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6054624Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6055020Z       }
+2026-11-26T03:36:37.6055231Z     },
+2026-11-26T03:36:37.6055434Z     "pc_plan_mpi2": {
+2026-11-26T03:36:37.6055696Z       "release": {
+2026-11-26T03:36:37.6055898Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6056184Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6056498Z       }
+2026-11-26T03:36:37.6056694Z     },
+2026-11-26T03:36:37.6056950Z     "pc_plan_mpi4": {
+2026-11-26T03:36:37.6057205Z       "release": {
+2026-11-26T03:36:37.6057439Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6057694Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6058014Z       }
+2026-11-26T03:36:37.6058316Z     },
+2026-11-26T03:36:37.6058538Z     "solver_failures": {
+2026-11-26T03:36:37.6058815Z       "release": {
+2026-11-26T03:36:37.6059035Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6059352Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6059605Z       }
+2026-11-26T03:36:37.6059913Z     },
+2026-11-26T03:36:37.6060162Z     "solver_failures_mpi": {
+2026-11-26T03:36:37.6060412Z       "release": {
+2026-11-26T03:36:37.6060641Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6060938Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6061242Z       }
+2026-11-26T03:36:37.6061450Z     },
+2026-11-26T03:36:37.6061674Z     "nonlinear_acceptance": {
+2026-11-26T03:36:37.6061907Z       "release": {
+2026-11-26T03:36:37.6062171Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6062434Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6062727Z       }
+2026-11-26T03:36:37.6062968Z     },
+2026-11-26T03:36:37.6063343Z     "nonlinear_acceptance_mpi": {
+2026-11-26T03:36:37.6063658Z       "release": {
+2026-11-26T03:36:37.6063871Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6064132Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6064435Z       }
+2026-11-26T03:36:37.6064609Z     },
+2026-11-26T03:36:37.6064959Z     "ghost_overlap_mpi1": {
+2026-11-26T03:36:37.6065195Z       "release": {
+2026-11-26T03:36:37.6065409Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6065701Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6065996Z       }
+2026-11-26T03:36:37.6066191Z     },
+2026-11-26T03:36:37.6066408Z     "adaptive_pc_mpi1": {
+2026-11-26T03:36:37.6066652Z       "release": {
+2026-11-26T03:36:37.6066910Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6067184Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6067447Z       }
+2026-11-26T03:36:37.6067667Z     },
+2026-11-26T03:36:37.6067876Z     "ghost_overlap_mpi2": {
+2026-11-26T03:36:37.6068136Z       "release": {
+2026-11-26T03:36:37.6068364Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6068630Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6068925Z       }
+2026-11-26T03:36:37.6069112Z     },
+2026-11-26T03:36:37.6069315Z     "adaptive_pc_mpi2": {
+2026-11-26T03:36:37.6069594Z       "release": {
+2026-11-26T03:36:37.6069803Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6070097Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6070386Z       }
+2026-11-26T03:36:37.6070581Z     },
+2026-11-26T03:36:37.6070822Z     "ghost_overlap_mpi4": {
+2026-11-26T03:36:37.6071041Z       "release": {
+2026-11-26T03:36:37.6071304Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6071588Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6071867Z       }
+2026-11-26T03:36:37.6072088Z     },
+2026-11-26T03:36:37.6072289Z     "adaptive_pc_mpi4": {
+2026-11-26T03:36:37.6072583Z       "release": {
+2026-11-26T03:36:37.6073911Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6074284Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6074652Z       }
+2026-11-26T03:36:37.6074906Z     },
+2026-11-26T03:36:37.6075171Z     "parallel_hdf5": {
+2026-11-26T03:36:37.6075611Z       "release": {
+2026-11-26T03:36:37.6076024Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6076357Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6076678Z       }
+2026-11-26T03:36:37.6076882Z     },
+2026-11-26T03:36:37.6077109Z     "parallel_hdf5_mpi": {
+2026-11-26T03:36:37.6077338Z       "release": {
+2026-11-26T03:36:37.6077560Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6077857Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6078146Z       }
+2026-11-26T03:36:37.6078361Z     },
+2026-11-26T03:36:37.6078578Z     "scalar_p2_verification": {
+2026-11-26T03:36:37.6078828Z       "release": {
+2026-11-26T03:36:37.6079066Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6079340Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6079613Z       }
+2026-11-26T03:36:37.6079838Z     },
+2026-11-26T03:36:37.6080052Z     "scalar_p2_time": {
+2026-11-26T03:36:37.6080315Z       "release": {
+2026-11-26T03:36:37.6080529Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6080783Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6081116Z       }
+2026-11-26T03:36:37.6081311Z     },
+2026-11-26T03:36:37.6081523Z     "scalar_p2_restart": {
+2026-11-26T03:36:37.6081786Z       "release": {
+2026-11-26T03:36:37.6081993Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6082306Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6082564Z       }
+2026-11-26T03:36:37.6082771Z     },
+2026-11-26T03:36:37.6083006Z     "scalar_p2_failure": {
+2026-11-26T03:36:37.6083609Z       "release": {
+2026-11-26T03:36:37.6083902Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6084178Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6084459Z       }
+2026-11-26T03:36:37.6084666Z     },
+2026-11-26T03:36:37.6084915Z     "p2_space_oracles": {
+2026-11-26T03:36:37.6085139Z       "release": {
+2026-11-26T03:36:37.6085387Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6085785Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6086085Z       }
+2026-11-26T03:36:37.6086303Z     },
+2026-11-26T03:36:37.6086509Z     "tri_p2_oracles": {
+2026-11-26T03:36:37.6086769Z       "release": {
+2026-11-26T03:36:37.6086980Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6087240Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6087565Z       }
+2026-11-26T03:36:37.6087743Z     },
+2026-11-26T03:36:37.6087994Z     "element2d_oracles": {
+2026-11-26T03:36:37.6088228Z       "release": {
+2026-11-26T03:36:37.6088466Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6088756Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6089025Z       }
+2026-11-26T03:36:37.6089242Z     },
+2026-11-26T03:36:37.6089443Z     "hyperelastic_element_jacobian": {
+2026-11-26T03:36:37.6089733Z       "release": {
+2026-11-26T03:36:37.6089970Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6090245Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6090516Z       }
+2026-11-26T03:36:37.6090747Z     },
+2026-11-26T03:36:37.6090949Z     "fsi_diagnostics": {
+2026-11-26T03:36:37.6091185Z       "release": {
+2026-11-26T03:36:37.6091415Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6091679Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6092002Z       }
+2026-11-26T03:36:37.6092189Z     },
+2026-11-26T03:36:37.6092421Z     "fsi_diagnostics_mpi": {
+2026-11-26T03:36:37.6092661Z       "release": {
+2026-11-26T03:36:37.6092885Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6093379Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6093660Z       }
+2026-11-26T03:36:37.6093853Z     },
+2026-11-26T03:36:37.6094097Z     "fsi_periodic": {
+2026-11-26T03:36:37.6094373Z       "release": {
+2026-11-26T03:36:37.6094628Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6094888Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6095295Z       }
+2026-11-26T03:36:37.6095529Z     },
+2026-11-26T03:36:37.6095724Z     "fsi_tube": {
+2026-11-26T03:36:37.6095937Z       "release": {
+2026-11-26T03:36:37.6096162Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6096447Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6096759Z       }
+2026-11-26T03:36:37.6096951Z     },
+2026-11-26T03:36:37.6097156Z     "fsi_tube_wall_support": {
+2026-11-26T03:36:37.6097408Z       "release": {
+2026-11-26T03:36:37.6097640Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6097901Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6098325Z       }
+2026-11-26T03:36:37.6098521Z     },
+2026-11-26T03:36:37.6098760Z     "fsi_tube_rcr": {
+2026-11-26T03:36:37.6098999Z       "release": {
+2026-11-26T03:36:37.6099204Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6099525Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6099803Z       }
+2026-11-26T03:36:37.6100132Z     },
+2026-11-26T03:36:37.6100346Z     "fsi_tube_rcr_response": {
+2026-11-26T03:36:37.6100595Z       "release": {
+2026-11-26T03:36:37.6100837Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6101085Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6101387Z       }
+2026-11-26T03:36:37.6101603Z     },
+2026-11-26T03:36:37.6101817Z     "fsi_block_efficiency": {
+2026-11-26T03:36:37.6102071Z       "release": {
+2026-11-26T03:36:37.6102279Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6102561Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6102842Z       }
+2026-11-26T03:36:37.6103048Z     },
+2026-11-26T03:36:37.6103454Z     "fsi_flow": {
+2026-11-26T03:36:37.6103696Z       "release": {
+2026-11-26T03:36:37.6103908Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6104207Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6104485Z       }
+2026-11-26T03:36:37.6104718Z     },
+2026-11-26T03:36:37.6104967Z     "fsi_branched_rcr": {
+2026-11-26T03:36:37.6105263Z       "release": {
+2026-11-26T03:36:37.6105516Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6105785Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6106064Z       }
+2026-11-26T03:36:37.6106307Z     },
+2026-11-26T03:36:37.6106506Z     "fsi_curved_inlet": {
+2026-11-26T03:36:37.6106735Z       "release": {
+2026-11-26T03:36:37.6106988Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6107252Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6107563Z       }
+2026-11-26T03:36:37.6107742Z     },
+2026-11-26T03:36:37.6107965Z     "fsi_sampled_inlet": {
+2026-11-26T03:36:37.6108238Z       "release": {
+2026-11-26T03:36:37.6108458Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6108747Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6109011Z       }
+2026-11-26T03:36:37.6109207Z     },
+2026-11-26T03:36:37.6109450Z     "fsi_metric_stabilization": {
+2026-11-26T03:36:37.6109717Z       "release": {
+2026-11-26T03:36:37.6109932Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6110234Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6110518Z       }
+2026-11-26T03:36:37.6110733Z     },
+2026-11-26T03:36:37.6110945Z     "fsi_moving_plane_rcr": {
+2026-11-26T03:36:37.6111177Z       "release": {
+2026-11-26T03:36:37.6111423Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6111702Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6112010Z       }
+2026-11-26T03:36:37.6112200Z     },
+2026-11-26T03:36:37.6112395Z     "fsi_reservoir_pressure": {
+2026-11-26T03:36:37.6112695Z       "release": {
+2026-11-26T03:36:37.6112907Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6113341Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6113655Z       }
+2026-11-26T03:36:37.6113852Z     },
+2026-11-26T03:36:37.6114103Z     "fsi_inlet": {
+2026-11-26T03:36:37.6114301Z       "release": {
+2026-11-26T03:36:37.6114609Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6114915Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6115260Z       }
+2026-11-26T03:36:37.6115447Z     },
+2026-11-26T03:36:37.6115673Z     "fsi_element_jacobian": {
+2026-11-26T03:36:37.6115911Z       "release": {
+2026-11-26T03:36:37.6116132Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6116432Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6116697Z       }
+2026-11-26T03:36:37.6116913Z     },
+2026-11-26T03:36:37.6117117Z     "solid_element_jacobian": {
+2026-11-26T03:36:37.6117388Z       "release": {
+2026-11-26T03:36:37.6117604Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6117864Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6118171Z       }
+2026-11-26T03:36:37.6118358Z     },
+2026-11-26T03:36:37.6118581Z     "fluid_element_jacobian": {
+2026-11-26T03:36:37.6118845Z       "release": {
+2026-11-26T03:36:37.6119052Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6119367Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6119638Z       }
+2026-11-26T03:36:37.6119890Z     },
+2026-11-26T03:36:37.6120114Z     "scalar2d_space": {
+2026-11-26T03:36:37.6120333Z       "release": {
+2026-11-26T03:36:37.6120549Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6120841Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6121134Z       }
+2026-11-26T03:36:37.6121346Z     },
+2026-11-26T03:36:37.6121551Z     "scalar2d_time": {
+2026-11-26T03:36:37.6121768Z       "release": {
+2026-11-26T03:36:37.6122018Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6122290Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6122572Z       }
+2026-11-26T03:36:37.6122775Z     },
+2026-11-26T03:36:37.6122990Z     "scalar2d_failure": {
+2026-11-26T03:36:37.6123427Z       "release": {
+2026-11-26T03:36:37.6123640Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6123972Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6124404Z       }
+2026-11-26T03:36:37.6124579Z     },
+2026-11-26T03:36:37.6124838Z     "fluid_alpha_verification": {
+2026-11-26T03:36:37.6125080Z       "release": {
+2026-11-26T03:36:37.6125304Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6125609Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6125925Z       }
+2026-11-26T03:36:37.6126154Z     },
+2026-11-26T03:36:37.6126346Z     "ale_time_verification": {
+2026-11-26T03:36:37.6126599Z       "release": {
+2026-11-26T03:36:37.6126855Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6127125Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6127393Z       }
+2026-11-26T03:36:37.6127606Z     },
+2026-11-26T03:36:37.6127828Z     "fsi_pressure_state": {
+2026-11-26T03:36:37.6128069Z       "release": {
+2026-11-26T03:36:37.6128300Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6128564Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6128875Z       }
+2026-11-26T03:36:37.6129080Z     },
+2026-11-26T03:36:37.6129266Z     "fsi_pressure_convergence": {
+2026-11-26T03:36:37.6129592Z       "release": {
+2026-11-26T03:36:37.6129805Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6130128Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6130398Z       }
+2026-11-26T03:36:37.6130585Z     },
+2026-11-26T03:36:37.6130830Z     "fsi_alpha_verification": {
+2026-11-26T03:36:37.6131059Z       "release": {
+2026-11-26T03:36:37.6131338Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6131602Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6131880Z       }
+2026-11-26T03:36:37.6132102Z     },
+2026-11-26T03:36:37.6132307Z     "fsi_time_verification": {
+2026-11-26T03:36:37.6132567Z       "release": {
+2026-11-26T03:36:37.6132795Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6133081Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6133644Z       }
+2026-11-26T03:36:37.6133869Z     },
+2026-11-26T03:36:37.6134075Z     "fluid_time_verification": {
+2026-11-26T03:36:37.6134344Z       "release": {
+2026-11-26T03:36:37.6134563Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6134844Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6135154Z       }
+2026-11-26T03:36:37.6135343Z     },
+2026-11-26T03:36:37.6135583Z     "fluid_coo_verification": {
+2026-11-26T03:36:37.6135824Z       "release": {
+2026-11-26T03:36:37.6136089Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6136397Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6136666Z       }
+2026-11-26T03:36:37.6136888Z     },
+2026-11-26T03:36:37.6137110Z     "fsi_coo_verification": {
+2026-11-26T03:36:37.6137343Z       "release": {
+2026-11-26T03:36:37.6137586Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6137838Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6138240Z       }
+2026-11-26T03:36:37.6138496Z     },
+2026-11-26T03:36:37.6138791Z     "pc_recipe_retry": {
+2026-11-26T03:36:37.6139046Z       "release": {
+2026-11-26T03:36:37.6139264Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6139542Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6139850Z       }
+2026-11-26T03:36:37.6140068Z     },
+2026-11-26T03:36:37.6140307Z     "pc_added_mass_retry": {
+2026-11-26T03:36:37.6140551Z       "release": {
+2026-11-26T03:36:37.6140783Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6141081Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6141373Z       }
+2026-11-26T03:36:37.6141561Z     },
+2026-11-26T03:36:37.6141802Z     "pc_added_mass_nodal_retry": {
+2026-11-26T03:36:37.6142058Z       "release": {
+2026-11-26T03:36:37.6142298Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6142560Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6142813Z       }
+2026-11-26T03:36:37.6143064Z     },
+2026-11-26T03:36:37.6143520Z     "pc_twolevel_retry": {
+2026-11-26T03:36:37.6143768Z       "release": {
+2026-11-26T03:36:37.6144013Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6144279Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6144605Z       }
+2026-11-26T03:36:37.6144782Z     },
+2026-11-26T03:36:37.6145000Z     "pc_recipe_restart": {
+2026-11-26T03:36:37.6145255Z       "release": {
+2026-11-26T03:36:37.6145489Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6145772Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6146037Z       }
+2026-11-26T03:36:37.6146231Z     },
+2026-11-26T03:36:37.6146447Z     "pc_recipe_physics": {
+2026-11-26T03:36:37.6146754Z       "release": {
+2026-11-26T03:36:37.6146966Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6147266Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6147539Z       }
+2026-11-26T03:36:37.6147770Z     },
+2026-11-26T03:36:37.6147982Z     "pc_recipe_quantity": {
+2026-11-26T03:36:37.6148218Z       "release": {
+2026-11-26T03:36:37.6148466Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6148733Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6149064Z       }
+2026-11-26T03:36:37.6149252Z     },
+2026-11-26T03:36:37.6149445Z     "pc_recipe_hybrid": {
+2026-11-26T03:36:37.6149720Z       "release": {
+2026-11-26T03:36:37.6149935Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6150223Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6150519Z       }
+2026-11-26T03:36:37.6150711Z     },
+2026-11-26T03:36:37.6150953Z     "domains_verification": {
+2026-11-26T03:36:37.6151195Z       "release": {
+2026-11-26T03:36:37.6151422Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6151720Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6152002Z       }
+2026-11-26T03:36:37.6152195Z     },
+2026-11-26T03:36:37.6152450Z     "tagged_fluid_verification": {
+2026-11-26T03:36:37.6152763Z       "release": {
+2026-11-26T03:36:37.6152988Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6153448Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6153747Z       }
+2026-11-26T03:36:37.6153990Z     },
+2026-11-26T03:36:37.6154201Z     "rigid_tube_verification": {
+2026-11-26T03:36:37.6154479Z       "release": {
+2026-11-26T03:36:37.6154701Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6154984Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6155290Z       }
+2026-11-26T03:36:37.6155483Z     },
+2026-11-26T03:36:37.6155684Z     "womersley_flow": {
+2026-11-26T03:36:37.6155958Z       "release": {
+2026-11-26T03:36:37.6156157Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6156465Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6156734Z       }
+2026-11-26T03:36:37.6156931Z     },
+2026-11-26T03:36:37.6157226Z     "hyperelastic_verification": {
+2026-11-26T03:36:37.6157468Z       "release": {
+2026-11-26T03:36:37.6157693Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6157979Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6158290Z       }
+2026-11-26T03:36:37.6158506Z     },
+2026-11-26T03:36:37.6158724Z     "elastic_fsi_verification": {
+2026-11-26T03:36:37.6158968Z       "release": {
+2026-11-26T03:36:37.6159202Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6159492Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6159774Z       }
+2026-11-26T03:36:37.6159985Z     },
+2026-11-26T03:36:37.6160192Z     "rigid_fsi_verification": {
+2026-11-26T03:36:37.6160480Z       "release": {
+2026-11-26T03:36:37.6160687Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6160943Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6161268Z       }
+2026-11-26T03:36:37.6161459Z     },
+2026-11-26T03:36:37.6161708Z     "solid_verification": {
+2026-11-26T03:36:37.6161939Z       "release": {
+2026-11-26T03:36:37.6162225Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6162529Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6162782Z       }
+2026-11-26T03:36:37.6163044Z     },
+2026-11-26T03:36:37.6163412Z     "lame_wall": {
+2026-11-26T03:36:37.6163642Z       "release": {
+2026-11-26T03:36:37.6163881Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6164160Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6164440Z       }
+2026-11-26T03:36:37.6164647Z     },
+2026-11-26T03:36:37.6164867Z     "fluid_verification": {
+2026-11-26T03:36:37.6165174Z       "release": {
+2026-11-26T03:36:37.6165389Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6165652Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6165948Z       }
+2026-11-26T03:36:37.6166144Z     },
+2026-11-26T03:36:37.6166365Z     "poisson_verification": {
+2026-11-26T03:36:37.6166631Z       "release": {
+2026-11-26T03:36:37.6166845Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6167145Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6167458Z       }
+2026-11-26T03:36:37.6167729Z     },
+2026-11-26T03:36:37.6167987Z     "poisson_parallel": {
+2026-11-26T03:36:37.6168214Z       "release": {
+2026-11-26T03:36:37.6168457Z         "run_id": 45748579007,
+2026-11-26T03:36:37.6168736Z         "commit": "10bfcd6e4aaa2d592791bdb67cb08ef172189233"
+2026-11-26T03:36:37.6169002Z       }
+2026-11-26T03:36:37.6169228Z     }
+2026-11-26T03:36:37.6169410Z   },
+2026-11-26T03:36:37.6169635Z   "previous_run_id": null,
+2026-11-26T03:36:37.6169912Z   "disposition": "run"
+2026-11-26T03:36:37.6170138Z }
+2026-11-26T03:36:37.6221867Z ##[group]Run actions/upload-artifact@v4
+2026-11-26T03:36:37.6222187Z with:
+2026-11-26T03:36:37.6222408Z   name: incremental-receipt
+2026-11-26T03:36:37.6222688Z   path: build/ci/receipt.json
+2026-11-26T03:36:37.6222963Z   if-no-files-found: error
+2026-11-26T03:36:37.6223442Z   retention-days: 14
+2026-11-26T03:36:37.6223732Z   compression-level: 6
+2026-11-26T03:36:37.6224184Z   overwrite: false
+2026-11-26T03:36:37.6224425Z   include-hidden-files: false
+2026-11-26T03:36:37.6224701Z ##[endgroup]
+2026-11-26T03:36:37.7407701Z (node:2279) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-26T03:36:37.7408346Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-26T03:36:37.7444787Z With the provided path, there will be 1 file uploaded
+2026-11-26T03:36:37.7446193Z Artifact name is valid!
+2026-11-26T03:36:37.7446859Z Root directory input is valid!
+2026-11-26T03:36:38.2619400Z Beginning upload of artifact content to blob storage
+2026-11-26T03:36:38.2754712Z (node:2279) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-26T03:36:38.6015325Z Uploaded bytes 1418
+2026-11-26T03:36:38.6927262Z Finished uploading artifact content to blob storage!
+2026-11-26T03:36:38.6927960Z SHA256 digest of uploaded artifact zip is 02a766c56209e1633e54621b447830bf49881ca1716d837ba37415980336c037
+2026-11-26T03:36:38.6941028Z Finalizing artifact upload
+2026-11-26T03:36:39.0908506Z Artifact incremental-receipt.zip successfully finalized. Artifact ID 15084992510
+2026-11-26T03:36:39.0909204Z Artifact incremental-receipt has been successfully uploaded! Final size is 1418 bytes. Artifact ID is 15084992510
+2026-11-26T03:36:39.0915628Z Artifact download URL: https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45748579007/artifacts/15084992510
+2026-11-26T03:36:39.1054263Z Post job cleanup.
+2026-11-26T03:36:39.1695152Z [command]/usr/bin/git version
+2026-11-26T03:36:39.1726249Z git version 2.56.1
+2026-11-26T03:36:39.1752121Z Temporarily overriding HOME='/home/runner/work/_temp/244c55f0-9549-415b-8d2c-4c37b2eec2d8' before making global git config changes
+2026-11-26T03:36:39.1752931Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-26T03:36:39.1756409Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/EONSim-new/EONSim-new
+2026-11-26T03:36:39.1785913Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-26T03:36:39.1807944Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-26T03:36:39.1969789Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-26T03:36:39.1993125Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-26T03:36:39.2150414Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-26T03:36:39.2172282Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-26T03:36:39.2471194Z Cleaning up orphan processes
+2026-11-26T03:36:39.2712532Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

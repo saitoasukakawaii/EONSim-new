@@ -139,9 +139,10 @@ def check_reuse(text, reference):
 
 class AssemblyRunner(Runner):
     """Use the existing command/log lifecycle for both rigid and elastic FSI."""
-    def __init__(self, *args, threads=1, **kwargs):
+    def __init__(self, *args, threads=1, overlap=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.threads = threads
+        self.overlap = overlap
         self.evidence = []
 
     def solve(self, label, cfg, ranks=1, coo=False, extra=(), fail=None, reference=None,
@@ -169,12 +170,22 @@ class AssemblyRunner(Runner):
             command.extend(['-fsi_residual_coo', 'false'])
         if reference:
             command.extend(['-nonlinear_reuse', 'false'])
+        if self.overlap:
+            enabled = 'false' if reference else 'true'
+            command.extend(['-fsi_overlap', enabled, '-nonlinear_fused_reductions', enabled])
         command.extend(extra)
         text = self.command(command, label, fail)
         evidence = dict(label=label, ranks=ranks, coo=coo, residual_coo=residual_coo,
                         element_threads_per_rank=threads, reference=reference,
                         command=list(map(str, command)), expected_failure=fail, log=label+'.log')
         self.evidence.append(evidence)
+        if self.overlap:
+            communication = records(text, 'nonlinear_communication')
+            if not fail:
+                require(communication and all(int(row['overlap']) == int(not reference) and
+                        int(row['fused_reductions']) == int(not reference) for row in communication),
+                        'Requested overlap/reduction execution path was not used')
+            evidence['communication'] = communication
         plans = records(text, 'fsi_assembly_plan')
         require(len(plans) == 1, 'The fixed assembly plan must be reported once on rank zero')
         plan = plans[0]
@@ -330,6 +341,8 @@ def main():
     parser.add_argument('--mpiexec', required=True)
     parser.add_argument('--work', type=Path, required=True)
     parser.add_argument('--threads', type=int, default=1, help='Element threads per rank for optimized execution paths')
+    parser.add_argument('--overlap', action='store_true',
+                        help='Compare owned/halo overlap and fused reductions against the ordinary reference')
     args = parser.parse_args()
     if not 1 <= args.threads <= 256:
         parser.error('threads must be between 1 and 256')
@@ -350,7 +363,7 @@ def main():
         cfg['fsi'].update(dt=.01, steps=3, output_interval=1, stabilization_tau=.05)
         cfg['time'] = dict(scheme='generalized_alpha', rho_infinity=.5)
         cfg['time_control'] = dict(step_sizes=[.008, .012, .01])
-        run = AssemblyRunner(args.executable, args.mpiexec, directory, threads=args.threads)
+        run = AssemblyRunner(args.executable, args.mpiexec, directory, threads=args.threads, overlap=args.overlap)
         runners.append(run)
         observations, report[body] = parity(run, cfg, body)
         if body == 'rigid':
@@ -368,7 +381,7 @@ def main():
                 failure_directory = work/'batch-failures'
                 generate(failure_directory, n=3)
                 failure_run = AssemblyRunner(args.executable, args.mpiexec, failure_directory,
-                                             threads=args.threads)
+                                             threads=args.threads, overlap=args.overlap)
                 runners.append(failure_run)
                 report['batch-failures'] = batch_failures(failure_run, cfg)
 
@@ -377,7 +390,7 @@ def main():
     cfg['fsi'].update(steps=3, output_interval=1)
     cfg['time'] = dict(scheme='generalized_alpha', rho_infinity=.5)
     cfg['time_control'] = dict(step_sizes=[.015, .013, .017])
-    run = AssemblyRunner(args.executable, args.mpiexec, directory, threads=args.threads,
+    run = AssemblyRunner(args.executable, args.mpiexec, directory, threads=args.threads, overlap=args.overlap,
                          interface_area=geometry['interface_area'])
     runners.append(run)
     observations, report['moving-port'] = parity(run, cfg, 'moving', jacobian=True)
@@ -456,6 +469,7 @@ def main():
                     'unsupported-fluid-'+option[0][1:], fail='require the monolithic FSI problem')
 
     report['element_threads_per_rank'] = args.threads
+    report['overlap_comparison'] = args.overlap
     report['commands'] = [entry for runner in runners for entry in runner.evidence]
     report['executable_sha256'] = hashlib.sha256(Path(args.executable).read_bytes()).hexdigest()
     (work/'results.json').write_text(json.dumps(report, indent=2, allow_nan=False)+'\n')

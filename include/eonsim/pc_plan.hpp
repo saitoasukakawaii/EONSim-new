@@ -10,6 +10,7 @@ struct PcBlock {
     std::string name;
     bool schur=false, nodal_schur=false, coupled_velocity=false, twolevel_velocity=false;
     bool gamg_velocity=false, rigid_velocity_modes=false;
+    PetscInt velocity_aggregate_nodes=0; ///< Positive selects graph aggregates plus a GAMG coarse solve.
     // Added-mass retains full fluid saddle-point blocks with an approximate inverse action.
     // fluid_response defaults to PREONLY; explicit FGMRES keeps its bounded budget.
     // structure_response selects the historical iterative solve preconditioned by A11.
@@ -33,7 +34,10 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
 void validate_pc_plan_options(MPI_Comm comm,KSP solver,const PcBlock& plan);
 /** Numeric state for the user Schur matrices. The plan itself still owns no PETSc
  * handles. Keep this object alive for the configured KSP and refresh after every
- * successful, constrained Jacobian assembly; the matrix graph must stay fixed.
+ * successful, constrained Jacobian assembly by default. Adaptive PC reuse may
+ * retain these USER matrices with the rest of P until its next chosen numerical
+ * refresh; the root Jacobian still changes on every Newton correction. The
+ * matrix graph must stay fixed.
  */
 struct PcSchurUpdates {
     std::vector<std::function<void(Mat)>> refreshers;

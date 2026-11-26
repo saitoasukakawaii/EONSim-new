@@ -1,5 +1,30 @@
 # EONSim Knowledge Log
 
+## 2026-11-26 · HPC-05：聚合粗空间、通信、SIMD、自适应与共享输出
+
+[未发布草稿](../../website/drafts/hpc-five-track-optimization.md)及
+[完整证据](data/hpc-five-track-2026-11-26/README.md)对应生产2788970、驱动ceaa680、交付PR#55。
+理论/API、源码实现、正确性与性能分别列明；草稿未晋升公开页面。
+
+可复用结论包括：缩减语义节点聚合须局部去秩退化并保留完整Galerkin交叉项；ghost pending
+期间只能读owned依赖，失败先完成通信；缩放平方和可与约束max组合为一次稳定归约；AD SIMD
+必须验证标量提升的IEEE/别名语义；实际PC数值复用需与J组装分开计数；HDF5发布入口必须晚于
+集体数据关闭，不能把requested collective当作actual collective。
+
+15 项定向检查通过；37 次真实 FSI 运行均符合预期（含 3 次预期失败）；SIMD20配对中位下降
+30.99%～34.58%，MPI字段归约6→3。
+112次网格系列独立核验实际USER10→2–3、J10，n8/2rank配对线性−27.85%、wall−13.35%；
+fresh aggregate本身不保证更快。HDF5相对ASCII输出−73.22%/−44.73%，却慢于现有binary。
+
+保留首轮缺诊断的元数据失败和一次真实FGMRES残差间隙；公共外层请求收紧到1e-11后，原严格
+真实残差门槛下最终动脉36runs/312步/624修正通过，worst ratio.8439101351、场差7.5813e-12。
+动脉实际USER64→61/62，四步计时没有统一优势。估计残差reason不能替代显式Jdx-rhs；
+四步样本不能冒充32步轨迹性能；新证据提交不代表重新执行既有检查。
+
+所有计时限定共享主机1/2rank，部分代数验证到4rank。迭代随网格增长，没有mesh-independent、
+多节点、GPU、并行文件系统或高阶HDF结果输出结论。待人工公开发表审查的问题是不同平台的
+收益能否复现，而不是已授权PR合并的额外审批门槛。
+
 ## 2026-11-26 · FSI-PC-04：参考旋转模式与联合速度 GAMG
 
 [未发布算法草稿](../../website/drafts/fsi-reference-modes-and-gamg.md)记录缩减语义行的参考

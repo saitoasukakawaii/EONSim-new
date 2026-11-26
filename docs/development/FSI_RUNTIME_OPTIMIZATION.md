@@ -40,7 +40,7 @@ Release; no default full-suite, Debug or legacy-version rebuild is added.
 - `-partition_report` reports METIS, layout and write time, per-rank cells,
   owned/ghost nodes, boundary faces, tag counts and assigned costs. These timings
   start after source mesh input; `total_seconds` is the prepare function scope.
-- `-vtu_format ascii|binary` keeps ASCII as the default and offers standard VTK
+- `-vtu_format ascii|binary|hdf5` keeps ASCII as the default and offers standard VTK
   appended raw binary with little-endian data and UInt64 block lengths.
 - `-vtu_compact_boundary false` restores full local point sets in boundary
   pieces for comparisons. The default keeps only nodes referenced by boundary
@@ -103,3 +103,21 @@ universal speedup. Multi-node, GPU, nonmatching interfaces and a universal
 optimal preconditioner are outside the implemented and measured scope.
 Delivery and authoritative merge state are
 [PR #53](https://github.com/saitoasukakawaii/EONSim-new/pull/53).
+
+
+## HPC-05 continuation (2026-11-26)
+
+The five-track continuation adds bounded semantic aggregate coarse modes with a
+GAMG auxiliary solve, optional owned/halo exchange overlap, stable fused field
+reductions, AD SIMD/dataflow optimization, optional adaptive numeric PC updates,
+and collective HDF5/XDMF result output. The exact Jacobian and physical acceptance
+remain independent of PC reuse. Aggregate, overlap, adaptive reuse and HDF5 are
+explicit options; they are not universal performance defaults.
+
+[Implementation, controls, failures and independently audited evidence](../research/data/hpc-five-track-2026-11-26/README.md)
+record the production binary source `2788970` and final verification driver `ceaa680`.
+The generated case reduces actual USER Schur updates from 10 to 2–3 while retaining 10 J
+assemblies, but the strongly changing arterial trajectory still needs 61/62 updates
+out of 64. HDF5 improves on ASCII here but is slower than binary; small-rank data do
+not establish multi-node scalability. The earlier per-J USER refresh description
+above applies to the original nonadaptive mode.

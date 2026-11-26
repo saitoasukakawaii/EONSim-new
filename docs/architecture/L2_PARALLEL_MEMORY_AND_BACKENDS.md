@@ -119,13 +119,16 @@ VTU 默认保留 ASCII；边界 piece 默认只保存其单元引用的节点，
 
 组件接收所属 communicator，应用入口才决定使用 MPI_COMM_WORLD；首版 communicator 可以相同，无须先实现动态拆分。非阻塞通信在完成前不得覆写/释放发送缓冲，也不得读取尚未就绪的接收缓冲。
 
-当前非线性驱动仍先完成 ghost 更新，再调用完整装配回调；没有 interior/boundary
-双阶段 callback，也未实现 MPI 通信与单元计算的重叠。若后续引入，必须先识别只依赖
-owned trial 值的单元，保证 ghost 完成前不读远程值，并在所有 rank 上共同结束已发起的
-通信后再传播失败。`ghost_seconds` 包含本地 Vec 取值，`assembly_finalize_seconds`
+非线性驱动保留完整装配回调，并可由 `NonlinearAssemblyPhases` 提供 owned/halo 两阶段。
+FSI 的显式 `-fsi_overlap true` 按 reduced trial alias 判定单元依赖，先复制 owned 值、发起
+ghost exchange、计算仅依赖 owned 的单元、完成通信，再处理 halo 单元和端口/刚体项。
+各单元只处理一次；两阶段仍使用相同物理核和有界线程批次，COO 的跨单元加和次序可能改变。
+任一局部回调失败时也必须完成已发起的 exchange 后才共同传播；不读取 pending ghost。
+默认保持原装配顺序，开启重叠不构成实际通信进展或多节点加速保证。
+`ghost_seconds` 包含本地 Vec 取值、发起和等待，`assembly_finalize_seconds`
 包含本地整理和 COO 归并；二者均不能直接当作可隐藏的网络等待。逐项取最大 rank 的
 `callback_seconds` 和 `failure_sync_seconds` 可能来自不同 rank，不能相加推断通信占比。
-是否值得改变 callback 契约应由实际分区、通信等待和可重叠 owned 工作量的测量决定。
+是否开启两阶段路径由实际分区、通信等待和可重叠 owned 工作量的测量决定。
 
 普通 Mat/Vec 双插入路径的最终装配按共同的 `VecBegin → MatBegin → VecEnd → MatEnd`
 次序排空两个独立 stash，允许已经发起的两类装配通信同时推进；被拒绝试探点使用相同
@@ -158,3 +161,24 @@ COO 路径继续使用 PETSc 的集体数值更新，不额外实现另一套通
 
 依据：[libCEED、MFEM、LifeV、Kokkos](../research/UPSTREAM_ARCHITECTURE_REVIEW.md)。
 
+
+
+### 字段归约、SIMD 与共享 HDF5 结果
+
+非线性字段验收默认使用一个自定义 MPI reduction，将每字段的 `(scale,ssq,constraint_max)`
+一起规约；局部及归约均采用缩放平方和，避免先平方极小/极大残量。
+`-nonlinear_fused_reductions false` 保留原两阶段最大值/平方和对照。字段方程数及约束语义不变，
+各 rank 必须选择同一协议。通信报告分别给出 ghost 次数、归约次数及 rank0 的重叠计算区间；
+重叠计算时间不是已隐藏的网络时间。
+
+`EONSIM_ENABLE_ELEMENT_SIMD` 默认开启独立 AD 导数 lane 的 OpenMP SIMD。固定宽度导数
+连续存储；被动标量运算、就地加减和乘积累加避免完整临时导数数组，不重排 lane 内加和、
+不启用 fast-math。无 OpenMP 时仍为同一普通循环；编译器向量化与实际收益需分别给证据。
+
+`-vtu_format hdf5` 在 parallel HDF5 构建使用 communicator 上的 MPI-IO collective hyperslab。
+每个 owner 节点仅写一次，单元 connectivity 用全局 algebra ID，保留稳定节点/单元 ID、
+物理标签、边界与 owned 点字段。首阶 Tet4、Tri3/Quad4 结果均支持；P2 输出明确拒绝。
+空 rank/空选择仍参与所有 collective。XDMF 仅在所有数据集和文件成功关闭后原子发布；
+该顺序不声称 fsync 耐久性。串行 HDF5 不静默降级；checkpoint 仍沿已有同分区协议。
+使用唯一 payload 保留失败前已发布快照；同进程成功覆盖同一 entry 后仅清理自己创建且
+已经被替换的旧 payload，不删除此前进程或用户创建的文件。
