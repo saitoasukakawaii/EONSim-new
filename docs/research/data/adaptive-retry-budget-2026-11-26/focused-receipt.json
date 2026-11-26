@@ -1,0 +1,56 @@
+{
+  "source_commit": "bce292a1870c38686e44514e2879009ebb9a736a",
+  "started_utc": "2026-11-26T04:47:02.513623+00:00",
+  "commands": [
+    {
+      "log": "build.log",
+      "command": [
+        "cmake",
+        "--build",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release",
+        "--target",
+        "eonsim",
+        "verify_adaptive_pc",
+        "verify_nonlinear_acceptance",
+        "--parallel",
+        "4"
+      ],
+      "exit_code": 0
+    },
+    {
+      "log": "inventory.log",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release",
+        "-N",
+        "-R",
+        "^(adaptive_pc_mpi[124]|nonlinear_acceptance(_mpi)?)$"
+      ],
+      "exit_code": 0
+    },
+    {
+      "log": "ctest.log",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/cloud-3.23.7-release",
+        "-R",
+        "^(adaptive_pc_mpi[124]|nonlinear_acceptance(_mpi)?)$",
+        "--output-on-failure",
+        "-V",
+        "-j",
+        "1",
+        "--output-junit",
+        "/workspace/scratch/ae740e1dde63/EONSim-new/build/adaptive-retry-budget/junit.xml"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "completed_utc": "2026-11-26T04:47:24.434649+00:00",
+  "binaries": {
+    "eonsim": "6efb5845aee29e3d7e3c47860ce35aac5c35950367f5ac9f6cef86f591754289",
+    "verify_adaptive_pc": "5831d7170377f735674f72bc10e81a5027d42906a6148f2cab316fa187592d7c",
+    "verify_nonlinear_acceptance": "84fdd7aef0c4c39b574a2572ff374b282bc3818cced941e6fd0397cdf1c56bcc"
+  }
+}

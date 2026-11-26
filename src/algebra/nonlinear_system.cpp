@@ -1221,16 +1221,48 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             // a rebuilt PC. No tolerance, iteration budget or state is relaxed.
             EONSIM_PETSC(SNESGetIterationNumber(snes.get(),&prior_nonlinear_iterations));
             EONSIM_PETSC(SNESGetLinearSolveIterations(snes.get(),&prior_linear_iterations));
+            PetscInt prior_function_evaluations=0;
+            EONSIM_PETSC(SNESGetNumberFunctionEvals(snes.get(),&prior_function_evaluations));
+            struct RetryBudget {
+                SNES solver;
+                PetscReal absolute=0,relative=0,step=0;
+                PetscInt iterations=0,functions=0;
+                bool active=false;
+                ~RetryBudget() {
+                    // Restore even if a callback throws; a successful session
+                    // is retained for the next time step with its original limits.
+                    if(active) (void)SNESSetTolerances(solver,absolute,relative,step,iterations,functions);
+                }
+            } budget{snes.get()};
+            // Query the effective values, including -snes_max_it/max_funcs.
+            // SNESSolve resets both counters, so only the unspent allowances
+            // belong to this retry. The function count is PETSc's, excluding
+            // the explicit initial/final physical checks as before. A negative
+            // function limit means unlimited.
+            EONSIM_PETSC(SNESGetTolerances(snes.get(),&budget.absolute,&budget.relative,
+                &budget.step,&budget.iterations,&budget.functions));
+            const PetscInt remaining_iterations=std::max(PetscInt{0},budget.iterations-prior_nonlinear_iterations);
+            const PetscInt remaining_functions=budget.functions<0?budget.functions:
+                std::max(PetscInt{0},budget.functions-prior_function_evaluations);
+            budget.active=true;
+            EONSIM_PETSC(SNESSetTolerances(snes.get(),budget.absolute,budget.relative,budget.step,
+                remaining_iterations,remaining_functions));
             workspace.adaptive_pc.force=true; workspace.adaptive_pc.ready=false;
             workspace.adaptive_pc.failed_reuse=false;
             EONSIM_PETSC(SNESSetLagPreconditioner(snes.get(),1));
             EONSIM_PETSC(KSPSetReusePreconditioner(ksp,PETSC_FALSE));
             context.evaluate(x.get(),r.get(),nullptr,true);
             EONSIM_PETSC(SNESSetInitialFunction(snes.get(),r.get()));
-            EONSIM_PETSC(PetscPrintf(comm,"pc_rebuild_retry previous_ksp_reason=%d retained_acceptance=1\n",
-                                    static_cast<int>(first_linear_reason)));
+            EONSIM_PETSC(PetscPrintf(comm,"pc_rebuild_retry previous_ksp_reason=%d retained_acceptance=1"
+                " newton_used=%" PetscInt_FMT " newton_remaining=%" PetscInt_FMT
+                " snes_functions_used=%" PetscInt_FMT " snes_functions_remaining=%" PetscInt_FMT "\n",
+                static_cast<int>(first_linear_reason),prior_nonlinear_iterations,remaining_iterations,
+                prior_function_evaluations,remaining_functions));
             ++pc_rebuild_retries;
             error=SNESSolve(snes.get(),nullptr,x.get());
+            EONSIM_PETSC(SNESSetTolerances(snes.get(),budget.absolute,budget.relative,budget.step,
+                budget.iterations,budget.functions));
+            budget.active=false;
         }
     }
     const auto finalize_begin=std::chrono::steady_clock::now();

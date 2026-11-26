@@ -1,5 +1,17 @@
 # EONSim Knowledge Log
 
+## 2026-11-26 · HPC-06：库级重启不能重置应用级求解预算
+
+[未发布草稿](../../website/drafts/adaptive-pc-retry-budgets.md)记录自适应 PC 的一次恢复
+为何必须扣除已接受 Newton 步和 PETSc 计数的函数评价，并恢复下一次 solve 的原上限。
+实现与回归源 `bce292a1870c38686e44514e2879009ebb9a736a`，交付 PR#56。
+旧 main 加新测试准确失败；新代码本地5项、源码CI17项Release通过；6次真实动脉的
+24步/48修正满足原门槛，最大五场差4.68297e-13。独立原始日志/owner-VTU/哈希审计已归档。
+
+理论/API、实际代码、负对照与正确性证据分开陈述；没有新增性能结论。实际动脉未触发
+重建重试，预算证明来自有意构造的晚发生KSP失败。函数预算仅指PETSc计数，不包括
+已有显式初始/重试起点与最终物理验收组装。[完整证据](data/adaptive-retry-budget-2026-11-26/README.md)。
+
 ## 2026-11-26 · HPC-05：聚合粗空间、通信、SIMD、自适应与共享输出
 
 [未发布草稿](../../website/drafts/hpc-five-track-optimization.md)及

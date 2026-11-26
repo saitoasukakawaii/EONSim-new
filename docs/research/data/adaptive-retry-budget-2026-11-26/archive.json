@@ -1,0 +1,811 @@
+{
+  "schema": 1,
+  "source_commit": "bce292a1870c38686e44514e2879009ebb9a736a",
+  "file": "evidence.tar.xz",
+  "sha256": "f290f6b218a715ce0bd0ac07e4267399f127e2a5c908ef9ee179f2644a03a9ab",
+  "bytes": 296600,
+  "members": 160,
+  "uncompressed_bytes": 6028148,
+  "manifest": [
+    {
+      "path": "baseline/nonlinear_system.cpp",
+      "bytes": 81819,
+      "sha256": "89a876111a0ab59b71f4a990b176b800c113171b7d5b59c6ee659be8446f5e97"
+    },
+    {
+      "path": "baseline-capture.json",
+      "bytes": 771,
+      "sha256": "14ec68a085bc1948c9adaa287a45e80f38545e9d44fef5c6ba3add3e1635ebed"
+    },
+    {
+      "path": "build.log",
+      "bytes": 1936,
+      "sha256": "e177edf5bf8120e0ba2ff44579c15504dffcd2cd2087cdcd88de0d7a91adc4d2"
+    },
+    {
+      "path": "ctest.log",
+      "bytes": 225201,
+      "sha256": "244383ea2f35269959cbdc5375d1b353cd81d5b2943e454930509bf596c76acf"
+    },
+    {
+      "path": "environment/compile-commands.json",
+      "bytes": 1508,
+      "sha256": "7f9b360ab9a8ecebe2da290d0dc1c66b8b62e482920fe09f37a90d8cb375c8eb"
+    },
+    {
+      "path": "environment/locked.sh",
+      "bytes": 842,
+      "sha256": "48e96f86b46990730e83f47b531c7ea3d1111e64e8116ea0b81c5def077951c5"
+    },
+    {
+      "path": "environment/versions.json",
+      "bytes": 317,
+      "sha256": "87b0c992738370bf880b3677e6b7fb9ef62e05b407c441ae31123af7df5a69d5"
+    },
+    {
+      "path": "focused-receipt.json",
+      "bytes": 1617,
+      "sha256": "e36a840a8b2564ff981b4b282a5cd8c25cd375c24c9e2670cce515ea107962a5"
+    },
+    {
+      "path": "fsi-command.json",
+      "bytes": 920,
+      "sha256": "d23957c45f38aef9d593c129f4fc7c3e60b8d0fba61963cd45e49a6f9cf56f44"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/input/case.json",
+      "bytes": 1942,
+      "sha256": "436d8bed9ac9aadb7def6defa1b0ffa7e10baf9642dc377018b50cc3fbd4f7a9"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/input/fluid.msh",
+      "bytes": 28885,
+      "sha256": "1fa0f0964747eb27afe2521c77705a426066e940e4c27048a230647befd88d16"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/input/solid.msh",
+      "bytes": 26599,
+      "sha256": "abb75c9acbabb20976f5b1aec0c14330c4a9f6f8f7633bd62542dee4ab291db9"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/partition/manifest.yaml",
+      "bytes": 56,
+      "sha256": "c767e36eb00a52b014927bb70a8f2a185165b879196a4bf698d0028fe9126862"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/partition/rank_0.h5",
+      "bytes": 91936,
+      "sha256": "7d75cc33f942869ba38d74e89ce1ee1d6a5b9804bfe06b71421a29e087613829"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/prepare.log",
+      "bytes": 326,
+      "sha256": "b7e8c245aa5604261082bd3b4b5192e697d1501c751800d25477e0147a9f343e"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/solve.log",
+      "bytes": 37590,
+      "sha256": "c8f42fdcc3aa5aeb3b829a1d347b7066c105a39dfc2d458add078097d5b75943"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube.csv",
+      "bytes": 2483,
+      "sha256": "d57aab8a1d088a51982fcc8138b4715b3109ff0c8fe63370223b76b62566b04b"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube.pvd",
+      "bytes": 194,
+      "sha256": "5a7e731bd2717eb9ddc270f42760a83a870fbb8bdf2e272fff3f1e3c99f96442"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube.vtu",
+      "bytes": 81632,
+      "sha256": "61e362196e6c1f846eb6fd100fc20b939d790bf62c6f54938b4c1f290f021042"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube_boundary.vtu",
+      "bytes": 27507,
+      "sha256": "268a2b84afe46edd79b4147d8be105ed8f9067d0b17e33a4478e5ab17472802a"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube_pressure_faces.csv",
+      "bytes": 2674,
+      "sha256": "63aa8b41aab9ccb2c242a1b7091dcfad065c23ec4c17928aba6cb705b79f61d5"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube_solid.pvd",
+      "bytes": 200,
+      "sha256": "0bbad87ce287682d7f0201b55d8b77d45415fad56aa71b34d53e34c0bc841c80"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube_solid.vtu",
+      "bytes": 56698,
+      "sha256": "a9c41f174316d377ae5d357bc32d8ff29cc74a60697d7d35d682a534e3b57bd3"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube_solid_boundary.vtu",
+      "bytes": 25209,
+      "sha256": "3af325608962e8f74d1557f916bbc2ccde7f14f7a710228dfc1f08b51a02a14c"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube_step4.vtu",
+      "bytes": 81632,
+      "sha256": "61e362196e6c1f846eb6fd100fc20b939d790bf62c6f54938b4c1f290f021042"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube_step4_boundary.vtu",
+      "bytes": 27507,
+      "sha256": "268a2b84afe46edd79b4147d8be105ed8f9067d0b17e33a4478e5ab17472802a"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube_step4_solid.vtu",
+      "bytes": 56698,
+      "sha256": "a9c41f174316d377ae5d357bc32d8ff29cc74a60697d7d35d682a534e3b57bd3"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid/tube_step4_solid_boundary.vtu",
+      "bytes": 25209,
+      "sha256": "3af325608962e8f74d1557f916bbc2ccde7f14f7a710228dfc1f08b51a02a14c"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/solve.log",
+      "bytes": 37634,
+      "sha256": "8264ae1c2fdee86734e9686fb3c59c807d30c46f4afdd2339c9e9778d85c4272"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube.csv",
+      "bytes": 2485,
+      "sha256": "99353e39427010e6a0b3113f5b17bfdb250f5ed4b62f5709fac69f2a2ac816df"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube.pvd",
+      "bytes": 194,
+      "sha256": "5a7e731bd2717eb9ddc270f42760a83a870fbb8bdf2e272fff3f1e3c99f96442"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube.vtu",
+      "bytes": 81601,
+      "sha256": "f9240f1204e74e838bb594f01bdc9f66315c6737fb09ec8a8472d3688b2b2e08"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube_boundary.vtu",
+      "bytes": 27512,
+      "sha256": "ecf5bb9ad98418035d6661e5e3bba31081742c37f8ec84bbeef4e5a4c9962333"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube_pressure_faces.csv",
+      "bytes": 2671,
+      "sha256": "c2765968d6f67e2e79f9945e8fba94f3b27898f9b248e52d00a24d7cab5b91f5"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube_solid.pvd",
+      "bytes": 200,
+      "sha256": "0bbad87ce287682d7f0201b55d8b77d45415fad56aa71b34d53e34c0bc841c80"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube_solid.vtu",
+      "bytes": 56691,
+      "sha256": "a179a97651779155708e14f49fa4b4864d404d4dae4d90b2634363272984ca0f"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube_solid_boundary.vtu",
+      "bytes": 25208,
+      "sha256": "6cb7c2bf1d4dd47919a0fd5ba4a41532df0771e644507169e60f85cbb201a6ee"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube_step4.vtu",
+      "bytes": 81601,
+      "sha256": "f9240f1204e74e838bb594f01bdc9f66315c6737fb09ec8a8472d3688b2b2e08"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube_step4_boundary.vtu",
+      "bytes": 27512,
+      "sha256": "ecf5bb9ad98418035d6661e5e3bba31081742c37f8ec84bbeef4e5a4c9962333"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube_step4_solid.vtu",
+      "bytes": 56691,
+      "sha256": "a179a97651779155708e14f49fa4b4864d404d4dae4d90b2634363272984ca0f"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-aggregate_rigid_adaptive/tube_step4_solid_boundary.vtu",
+      "bytes": 25208,
+      "sha256": "6cb7c2bf1d4dd47919a0fd5ba4a41532df0771e644507169e60f85cbb201a6ee"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/solve.log",
+      "bytes": 16902,
+      "sha256": "b2723117c82eec622549d6d5c17105aa44d435d53f20d28dc36bd6fb88ce041b"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube.csv",
+      "bytes": 2479,
+      "sha256": "ddd1eb2f777045e4737a06ad00eabcab21e230315f8d7d5cc965484567e3d301"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube.pvd",
+      "bytes": 194,
+      "sha256": "5a7e731bd2717eb9ddc270f42760a83a870fbb8bdf2e272fff3f1e3c99f96442"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube.vtu",
+      "bytes": 81611,
+      "sha256": "dc67093f59e13e3c6972e871aa65d063d728df19104345e5ffa252a502a48bcc"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube_boundary.vtu",
+      "bytes": 27506,
+      "sha256": "cf5e60e2c58b95707f798ee960a09cb985121a8374989034eeebd67feaf7c82b"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube_pressure_faces.csv",
+      "bytes": 2677,
+      "sha256": "fe3dd1aca625b21c269bb432c33ca6df3f1ce98ddcdc676253669060ace9491a"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube_solid.pvd",
+      "bytes": 200,
+      "sha256": "0bbad87ce287682d7f0201b55d8b77d45415fad56aa71b34d53e34c0bc841c80"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube_solid.vtu",
+      "bytes": 56700,
+      "sha256": "b1eaca22d3ff37101a7adbd5e078c08c023a256007c6fd9c9790fce04523ff19"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube_solid_boundary.vtu",
+      "bytes": 25215,
+      "sha256": "48296d417bb6deadd069f6c4d27c91f278e703d3d7bebabec130331c7349ef19"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube_step4.vtu",
+      "bytes": 81611,
+      "sha256": "dc67093f59e13e3c6972e871aa65d063d728df19104345e5ffa252a502a48bcc"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube_step4_boundary.vtu",
+      "bytes": 27506,
+      "sha256": "cf5e60e2c58b95707f798ee960a09cb985121a8374989034eeebd67feaf7c82b"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube_step4_solid.vtu",
+      "bytes": 56700,
+      "sha256": "b1eaca22d3ff37101a7adbd5e078c08c023a256007c6fd9c9790fce04523ff19"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s24-r3-w2-a6/quick-direct/tube_step4_solid_boundary.vtu",
+      "bytes": 25215,
+      "sha256": "48296d417bb6deadd069f6c4d27c91f278e703d3d7bebabec130331c7349ef19"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/input/case.json",
+      "bytes": 1942,
+      "sha256": "436d8bed9ac9aadb7def6defa1b0ffa7e10baf9642dc377018b50cc3fbd4f7a9"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/input/fluid.msh",
+      "bytes": 79161,
+      "sha256": "7124e8f5a6a21a88731d109a79cd00ee15aaf324e81fdfa4d430d6459e7eabee"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/input/solid.msh",
+      "bytes": 97781,
+      "sha256": "88e8adf13651217e6306f871e32cad4b7e621cc97893ed76fa67a8ee7ab14cd7"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/partition/manifest.yaml",
+      "bytes": 57,
+      "sha256": "70749ac6068ad1878436105b55f3dd876ccef1abc956c78b0495d09155479bb4"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/partition/rank_0.h5",
+      "bytes": 141520,
+      "sha256": "139564a8306fd29f8139f206e32fad47483f7d93ad042d38a9f934ef1aad707e"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/partition/rank_1.h5",
+      "bytes": 135136,
+      "sha256": "170031853d1fc5067e0f73f2b59bcac93d51a5dae3cdeef834d46594dd159a47"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/prepare.log",
+      "bytes": 326,
+      "sha256": "31f011fd250ba9982929b006a4e742b33e777bc3c0f08d1fca14a17d5c223283"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/solve.log",
+      "bytes": 59251,
+      "sha256": "b75b29812e8fd9e02ad2a5a7d6b2469f43fcc64d84dc8db5751dab6014ad6b3a"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube.csv",
+      "bytes": 2492,
+      "sha256": "0652cb34a03031567b138d9195b389fccbb46ae6ab2af953950150e9714df8e4"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube.pvd",
+      "bytes": 195,
+      "sha256": "99820a06f62f94335174ea64fd08f1ca0d172cada877a943727f0130b62ed699"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube.pvtu",
+      "bytes": 1049,
+      "sha256": "700cff65cbf7c1c7d3cef717e720fd199b09666a9b6c87a46d8573e09d83c706"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_boundary.pvtu",
+      "bytes": 1067,
+      "sha256": "0da1ab5d1dff0514b267c7b87dbcc81f8acb51a2a54d14143f7f61967b59e826"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_pressure_faces.csv",
+      "bytes": 2666,
+      "sha256": "ffc978ae39b6ca2fac138d88d09e338972fa9fb05c1f09ede87d0905ed31c6f7"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_rank0.vtu",
+      "bytes": 125812,
+      "sha256": "7fa6f33d3cb5d868340e6f7553ffd6c2639145fb9b116c0b474a7143fc2422ec"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_rank0_boundary.vtu",
+      "bytes": 30348,
+      "sha256": "6d606042860bb7bcf21b4b88112b156cfb367caeeed8f71d2dc569546ce589b0"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_rank1.vtu",
+      "bytes": 117743,
+      "sha256": "cd93ee2abdce7e7756adb7f1ff90752a8acdb20b341eb2d0b1a05500b062e2ec"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_rank1_boundary.vtu",
+      "bytes": 29660,
+      "sha256": "b317e55f1e8d2f76f94a8aa59f453755966cac351f0dfc39bfa3423c2019363c"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_solid.pvd",
+      "bytes": 201,
+      "sha256": "37cdeb67288b6665b62c01e010bb9c2639a180479445aeeaeb828e3b08879208"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_solid.pvtu",
+      "bytes": 823,
+      "sha256": "e685e979fd9c6e27416ec2373dddfa5a8979d8a665c8484bc22748dc8f99813f"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_solid_boundary.pvtu",
+      "bytes": 841,
+      "sha256": "8ac92e00d00fa3421e4ee09546eb51a0e04dac30566f6fd622c51bab2fac3bc1"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_solid_rank0.vtu",
+      "bytes": 97580,
+      "sha256": "0ead85836206477c665e765bf61f791f3fe0c9a3523b7879624157341d9fbb78"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_solid_rank0_boundary.vtu",
+      "bytes": 30447,
+      "sha256": "51e054de609e0e40134a862105ddd8c931349e05945c0ed83ddddb4b2eb92b28"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_solid_rank1.vtu",
+      "bytes": 106712,
+      "sha256": "b38ab0755eb8e7461077837e528dce850e3595a954e300274e1bb882fa98d10e"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_solid_rank1_boundary.vtu",
+      "bytes": 34739,
+      "sha256": "5e1e8bf37118d0ab9ffd1b4069a25945e3598e295b23036250c85e7442ac7269"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4.pvtu",
+      "bytes": 1061,
+      "sha256": "bf3e3a466ae89ed869b2173f27283cf95fe505eba5879cda03022f809c0b1f08"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4_boundary.pvtu",
+      "bytes": 1079,
+      "sha256": "43b1f60cd85ddec49346535add26d72b71dbfd0645c0130ff28d7314a777580a"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4_rank0.vtu",
+      "bytes": 125812,
+      "sha256": "7fa6f33d3cb5d868340e6f7553ffd6c2639145fb9b116c0b474a7143fc2422ec"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4_rank0_boundary.vtu",
+      "bytes": 30348,
+      "sha256": "6d606042860bb7bcf21b4b88112b156cfb367caeeed8f71d2dc569546ce589b0"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4_rank1.vtu",
+      "bytes": 117743,
+      "sha256": "cd93ee2abdce7e7756adb7f1ff90752a8acdb20b341eb2d0b1a05500b062e2ec"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4_rank1_boundary.vtu",
+      "bytes": 29660,
+      "sha256": "b317e55f1e8d2f76f94a8aa59f453755966cac351f0dfc39bfa3423c2019363c"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4_solid.pvtu",
+      "bytes": 835,
+      "sha256": "12988227ed27dc02bafb93bf4172adb49ffb2a061092dbff988cc7e231f7deb4"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4_solid_boundary.pvtu",
+      "bytes": 853,
+      "sha256": "77e41f294a6158f3752409ffd50d91d1404bf219775720cd57bea68478ef5a33"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4_solid_rank0.vtu",
+      "bytes": 97580,
+      "sha256": "0ead85836206477c665e765bf61f791f3fe0c9a3523b7879624157341d9fbb78"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4_solid_rank0_boundary.vtu",
+      "bytes": 30447,
+      "sha256": "51e054de609e0e40134a862105ddd8c931349e05945c0ed83ddddb4b2eb92b28"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4_solid_rank1.vtu",
+      "bytes": 106712,
+      "sha256": "b38ab0755eb8e7461077837e528dce850e3595a954e300274e1bb882fa98d10e"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid/tube_step4_solid_rank1_boundary.vtu",
+      "bytes": 34739,
+      "sha256": "5e1e8bf37118d0ab9ffd1b4069a25945e3598e295b23036250c85e7442ac7269"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/solve.log",
+      "bytes": 59329,
+      "sha256": "ba58d1ace527a0c7e302c54695021161ce5283f67028e2ad4688abe473f001a1"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube.csv",
+      "bytes": 2492,
+      "sha256": "0652cb34a03031567b138d9195b389fccbb46ae6ab2af953950150e9714df8e4"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube.pvd",
+      "bytes": 195,
+      "sha256": "99820a06f62f94335174ea64fd08f1ca0d172cada877a943727f0130b62ed699"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube.pvtu",
+      "bytes": 1049,
+      "sha256": "700cff65cbf7c1c7d3cef717e720fd199b09666a9b6c87a46d8573e09d83c706"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_boundary.pvtu",
+      "bytes": 1067,
+      "sha256": "0da1ab5d1dff0514b267c7b87dbcc81f8acb51a2a54d14143f7f61967b59e826"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_pressure_faces.csv",
+      "bytes": 2666,
+      "sha256": "ffc978ae39b6ca2fac138d88d09e338972fa9fb05c1f09ede87d0905ed31c6f7"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_rank0.vtu",
+      "bytes": 125812,
+      "sha256": "7fa6f33d3cb5d868340e6f7553ffd6c2639145fb9b116c0b474a7143fc2422ec"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_rank0_boundary.vtu",
+      "bytes": 30348,
+      "sha256": "6d606042860bb7bcf21b4b88112b156cfb367caeeed8f71d2dc569546ce589b0"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_rank1.vtu",
+      "bytes": 117743,
+      "sha256": "cd93ee2abdce7e7756adb7f1ff90752a8acdb20b341eb2d0b1a05500b062e2ec"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_rank1_boundary.vtu",
+      "bytes": 29660,
+      "sha256": "b317e55f1e8d2f76f94a8aa59f453755966cac351f0dfc39bfa3423c2019363c"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_solid.pvd",
+      "bytes": 201,
+      "sha256": "37cdeb67288b6665b62c01e010bb9c2639a180479445aeeaeb828e3b08879208"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_solid.pvtu",
+      "bytes": 823,
+      "sha256": "e685e979fd9c6e27416ec2373dddfa5a8979d8a665c8484bc22748dc8f99813f"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_solid_boundary.pvtu",
+      "bytes": 841,
+      "sha256": "8ac92e00d00fa3421e4ee09546eb51a0e04dac30566f6fd622c51bab2fac3bc1"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_solid_rank0.vtu",
+      "bytes": 97580,
+      "sha256": "0ead85836206477c665e765bf61f791f3fe0c9a3523b7879624157341d9fbb78"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_solid_rank0_boundary.vtu",
+      "bytes": 30447,
+      "sha256": "51e054de609e0e40134a862105ddd8c931349e05945c0ed83ddddb4b2eb92b28"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_solid_rank1.vtu",
+      "bytes": 106712,
+      "sha256": "b38ab0755eb8e7461077837e528dce850e3595a954e300274e1bb882fa98d10e"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_solid_rank1_boundary.vtu",
+      "bytes": 34739,
+      "sha256": "5e1e8bf37118d0ab9ffd1b4069a25945e3598e295b23036250c85e7442ac7269"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4.pvtu",
+      "bytes": 1061,
+      "sha256": "bf3e3a466ae89ed869b2173f27283cf95fe505eba5879cda03022f809c0b1f08"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4_boundary.pvtu",
+      "bytes": 1079,
+      "sha256": "43b1f60cd85ddec49346535add26d72b71dbfd0645c0130ff28d7314a777580a"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4_rank0.vtu",
+      "bytes": 125812,
+      "sha256": "7fa6f33d3cb5d868340e6f7553ffd6c2639145fb9b116c0b474a7143fc2422ec"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4_rank0_boundary.vtu",
+      "bytes": 30348,
+      "sha256": "6d606042860bb7bcf21b4b88112b156cfb367caeeed8f71d2dc569546ce589b0"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4_rank1.vtu",
+      "bytes": 117743,
+      "sha256": "cd93ee2abdce7e7756adb7f1ff90752a8acdb20b341eb2d0b1a05500b062e2ec"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4_rank1_boundary.vtu",
+      "bytes": 29660,
+      "sha256": "b317e55f1e8d2f76f94a8aa59f453755966cac351f0dfc39bfa3423c2019363c"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4_solid.pvtu",
+      "bytes": 835,
+      "sha256": "12988227ed27dc02bafb93bf4172adb49ffb2a061092dbff988cc7e231f7deb4"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4_solid_boundary.pvtu",
+      "bytes": 853,
+      "sha256": "77e41f294a6158f3752409ffd50d91d1404bf219775720cd57bea68478ef5a33"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4_solid_rank0.vtu",
+      "bytes": 97580,
+      "sha256": "0ead85836206477c665e765bf61f791f3fe0c9a3523b7879624157341d9fbb78"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4_solid_rank0_boundary.vtu",
+      "bytes": 30447,
+      "sha256": "51e054de609e0e40134a862105ddd8c931349e05945c0ed83ddddb4b2eb92b28"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4_solid_rank1.vtu",
+      "bytes": 106712,
+      "sha256": "b38ab0755eb8e7461077837e528dce850e3595a954e300274e1bb882fa98d10e"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-aggregate_rigid_adaptive/tube_step4_solid_rank1_boundary.vtu",
+      "bytes": 34739,
+      "sha256": "5e1e8bf37118d0ab9ffd1b4069a25945e3598e295b23036250c85e7442ac7269"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/solve.log",
+      "bytes": 18139,
+      "sha256": "05b67fb60602b24bddc5dd8d857609c403684b41c64980002b0cab3c061bac3b"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube.csv",
+      "bytes": 2489,
+      "sha256": "777b39c9b1ee1de0e98e720f9867b2e80bb51c9e17155256fe3c0dbf54c85b55"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube.pvd",
+      "bytes": 195,
+      "sha256": "99820a06f62f94335174ea64fd08f1ca0d172cada877a943727f0130b62ed699"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube.pvtu",
+      "bytes": 1049,
+      "sha256": "700cff65cbf7c1c7d3cef717e720fd199b09666a9b6c87a46d8573e09d83c706"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_boundary.pvtu",
+      "bytes": 1067,
+      "sha256": "0da1ab5d1dff0514b267c7b87dbcc81f8acb51a2a54d14143f7f61967b59e826"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_pressure_faces.csv",
+      "bytes": 2665,
+      "sha256": "ae182fc8c3810c921dcbaef230dc69fbb4fa5f4e1150f665019ad67b411b53c3"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_rank0.vtu",
+      "bytes": 125800,
+      "sha256": "dc840d4f2b5121b464539e9879534ca4f999c2eeac845ecbe14956b8119d915c"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_rank0_boundary.vtu",
+      "bytes": 30346,
+      "sha256": "94b035f3a4378dc9591217380d3e79b1611707d50faa34e75af8944b50887970"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_rank1.vtu",
+      "bytes": 117763,
+      "sha256": "9558fa586ec8287bdcc6ce7e013f1be48800884eace7209f0e77d2f63f79d177"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_rank1_boundary.vtu",
+      "bytes": 29654,
+      "sha256": "a8bb269b183c8ea5ba0d309961b0dd1f0ff2c00a3069f3ae537803d984c135c8"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_solid.pvd",
+      "bytes": 201,
+      "sha256": "37cdeb67288b6665b62c01e010bb9c2639a180479445aeeaeb828e3b08879208"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_solid.pvtu",
+      "bytes": 823,
+      "sha256": "e685e979fd9c6e27416ec2373dddfa5a8979d8a665c8484bc22748dc8f99813f"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_solid_boundary.pvtu",
+      "bytes": 841,
+      "sha256": "8ac92e00d00fa3421e4ee09546eb51a0e04dac30566f6fd622c51bab2fac3bc1"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_solid_rank0.vtu",
+      "bytes": 97588,
+      "sha256": "2b7fd84ffee9b020fee7977fd7d220c7ebb24cbb9516d88cf74f506219a47eda"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_solid_rank0_boundary.vtu",
+      "bytes": 30444,
+      "sha256": "3cfb3db9193d38ec2a4cdd4acd48a2ab3cc9ba9d2ce8eb694c5d92bada082987"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_solid_rank1.vtu",
+      "bytes": 106744,
+      "sha256": "0d27e0a42125632cdc04dd926dc51d69582c0953fb1b1c5f9f2af72e57ab3f32"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_solid_rank1_boundary.vtu",
+      "bytes": 34751,
+      "sha256": "68914c3e6b5f4617365c93ace2e5e8831c3423385407835c00a380e25ebc988d"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4.pvtu",
+      "bytes": 1061,
+      "sha256": "bf3e3a466ae89ed869b2173f27283cf95fe505eba5879cda03022f809c0b1f08"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4_boundary.pvtu",
+      "bytes": 1079,
+      "sha256": "43b1f60cd85ddec49346535add26d72b71dbfd0645c0130ff28d7314a777580a"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4_rank0.vtu",
+      "bytes": 125800,
+      "sha256": "dc840d4f2b5121b464539e9879534ca4f999c2eeac845ecbe14956b8119d915c"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4_rank0_boundary.vtu",
+      "bytes": 30346,
+      "sha256": "94b035f3a4378dc9591217380d3e79b1611707d50faa34e75af8944b50887970"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4_rank1.vtu",
+      "bytes": 117763,
+      "sha256": "9558fa586ec8287bdcc6ce7e013f1be48800884eace7209f0e77d2f63f79d177"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4_rank1_boundary.vtu",
+      "bytes": 29654,
+      "sha256": "a8bb269b183c8ea5ba0d309961b0dd1f0ff2c00a3069f3ae537803d984c135c8"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4_solid.pvtu",
+      "bytes": 835,
+      "sha256": "12988227ed27dc02bafb93bf4172adb49ffb2a061092dbff988cc7e231f7deb4"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4_solid_boundary.pvtu",
+      "bytes": 853,
+      "sha256": "77e41f294a6158f3752409ffd50d91d1404bf219775720cd57bea68478ef5a33"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4_solid_rank0.vtu",
+      "bytes": 97588,
+      "sha256": "2b7fd84ffee9b020fee7977fd7d220c7ebb24cbb9516d88cf74f506219a47eda"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4_solid_rank0_boundary.vtu",
+      "bytes": 30444,
+      "sha256": "3cfb3db9193d38ec2a4cdd4acd48a2ab3cc9ba9d2ce8eb694c5d92bada082987"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4_solid_rank1.vtu",
+      "bytes": 106744,
+      "sha256": "0d27e0a42125632cdc04dd926dc51d69582c0953fb1b1c5f9f2af72e57ab3f32"
+    },
+    {
+      "path": "fsi-quick/quick/1795668476697174385/s48-r4-w4-a6/quick-direct/tube_step4_solid_rank1_boundary.vtu",
+      "bytes": 34751,
+      "sha256": "68914c3e6b5f4617365c93ace2e5e8831c3423385407835c00a380e25ebc988d"
+    },
+    {
+      "path": "fsi-quick/results-quick.json",
+      "bytes": 201214,
+      "sha256": "0a8df90047f3ae2e6798a4f302589465fe1099f4b4535a8c7400f9b77e65aebe"
+    },
+    {
+      "path": "fsi-quick.log",
+      "bytes": 7631,
+      "sha256": "9af69506876e5542f29d9548c571b66bf037cf3872f4931bd3961ddebc4462b5"
+    },
+    {
+      "path": "independent-audit.json",
+      "bytes": 4809,
+      "sha256": "1b15bcdad4908410c8e173e6fcef8a3aa4ba1285b1aef8824b3986bd014717fb"
+    },
+    {
+      "path": "independent-audit.py",
+      "bytes": 4556,
+      "sha256": "3c4e55fea4fb843293c1351e700b4239976496bc05d40ef468e140004c17d12d"
+    },
+    {
+      "path": "inventory.log",
+      "bytes": 256,
+      "sha256": "26ec564025163f5ea4e9c1d9eaa68182ecfde25b59bb2bc187d0d742548c6bcc"
+    },
+    {
+      "path": "junit.xml",
+      "bytes": 6349,
+      "sha256": "620d6444dc2860dea252781bab728acc4a5eeb476d3d33440fac8723ae2e845e"
+    },
+    {
+      "path": "negative-control-build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "negative-control-compile-commands.json",
+      "bytes": 1340,
+      "sha256": "00707408a6547a1458349542d8004f29ef5a6da8d731f5df87c4a0d953acfc8d"
+    },
+    {
+      "path": "negative-control.json",
+      "bytes": 2678,
+      "sha256": "2f8fa1ee48deb2e9b826143899308c1c8460f9e9d4df0672a02e995c30d15155"
+    },
+    {
+      "path": "negative-control.log",
+      "bytes": 272,
+      "sha256": "75292184536964b6c3e44c37c319df8772830ca8c15714e8627c5c8dcf357e54"
+    },
+    {
+      "path": "source-ci.json",
+      "bytes": 8625,
+      "sha256": "8639279149753ce1abd7e53228583b3b7939f327fe53b90861f94eb856ea6f8b"
+    },
+    {
+      "path": "sync-before-validation.json",
+      "bytes": 318,
+      "sha256": "ece377f70c439e1f5b4055fde86de278e6d06652329bf0d04fe62da7383180fc"
+    }
+  ]
+}

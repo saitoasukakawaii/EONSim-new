@@ -1,0 +1,46 @@
+{
+  "baseline_source": "2d0e9b79e90ac0b7332b22e900e50e3306a68a35",
+  "test_source": "bce292a1870c38686e44514e2879009ebb9a736a",
+  "started_utc": "2026-11-26T04:46:41.542966+00:00",
+  "completed_utc": "2026-11-26T04:46:41.859698+00:00",
+  "commands": [
+    [
+      "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/gcc-ar",
+      "r",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/build/adaptive-retry-budget/baseline/libeonsim_core.a",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/build/adaptive-retry-budget/baseline/nonlinear_system.cpp.o"
+    ],
+    [
+      "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/g++",
+      "-O3",
+      "-DNDEBUG",
+      "-Wl,--allow-shlib-undefined",
+      "-Wl,-rpath",
+      "-Wl,/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/lib",
+      "-pthread",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/build/adaptive-retry-budget/baseline/verify_adaptive_pc.cpp.o",
+      "-o",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/build/adaptive-retry-budget/baseline/verify_adaptive_pc",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/build/adaptive-retry-budget/baseline/libeonsim_core.a",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/lib/libpetsc.so",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/lib/libmpi.so",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/lib/libopenblas.so",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/lib/libyaml-cpp.so.0.8.0",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/lib/libmetis.so",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/lib/libhdf5.so",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/lib/gcc/x86_64-conda-linux-gnu/15.3.0/libgomp.so",
+      "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/x86_64-conda-linux-gnu/sysroot/lib64/libpthread.a"
+    ]
+  ],
+  "run_command": [
+    "/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec",
+    "-n",
+    "1",
+    "/workspace/scratch/ae740e1dde63/EONSim-new/build/adaptive-retry-budget/baseline/verify_adaptive_pc"
+  ],
+  "exit_code": 1,
+  "expected_failure": "Fresh-PC retry reset the caller's total Newton iteration budget",
+  "expected_failure_seen": true,
+  "baseline_executable_sha256": "b7ce2041c4e12435c3b368d65bb422e6e3c181841eb6ad56182858fd8fca2687",
+  "build_note": "Recompiled pinned baseline nonlinear_system.cpp and new regression using current Release compile_commands. Initial archive command used absent bin/ar; resumed with configured gcc-ar without rebuilding objects."
+}
