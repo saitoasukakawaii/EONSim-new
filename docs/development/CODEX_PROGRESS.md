@@ -1,5 +1,30 @@
 # EONSim Codex Development Progress
 
+## 2026-11-26 · RCR-PC-01：端口 Schur 与低秩预条件器
+
+从已合并 #57 的 `main@b731d471` 接续，交付 [PR #58](https://github.com/saitoasukakawaii/EONSim-new/pull/58)。
+完成 RCR-aware Port Schur、单出口 Sherman–Morrison、多出口 Woodbury、GAMG/BoomerAMG
+组合、出口内积合并归约和同代自适应缓存六项开发。实际约束后的 U/V 分开提取，保留移动
+几何与非对称耦合；根 PCSHELL 包裹原语义 bulk，原完整 Jacobian 和物理接受门槛保持。
+
+首版 `94046b1`、失效缓存修复 `28e6d54`、时间计划驱动修复 `ad08887` 均先同步并核对远端
+完整 tree，再执行对应构建和验证。首轮故障负控发现 PCApply 提前返回遗留向量读锁，改为
+PETSc PC failure 协议；FSI 首次失败为名义终点与变步长和不一致，测试明确终点并加强时间
+比较。两次失败原件均保留；后两次只执行受影响验证，不改接受门槛。
+
+本地32/32 Python通过，旧4项代数/自适应在首版通过并复用；修复后新1/2/4rank代数3/3
+通过，最终FSI1/1通过。13次求解、43接受步，独立重读96个真残差，最坏与严格门槛之比
+0.0997252；最大场差7.57780e-11，历史2.15827e-12，电路1.69548e-13。
+总114 Newton迭代中直接参考18次没有额外线性诊断，不计为已观测真残差样本。
+实际adaptive为12次新鲜Jacobian、8次PC刷新、4次复用；798个内层solver记录无失败。
+
+GAMG外层迭代单出口145→144、双出口53→53；短样本耗时不作普遍加速结论。
+[完整证据](../research/data/rcr-port-2026-11-26/README.md)、[使用文档](RCR_PORT_PRECONDITIONER.md)
+及[未发布草稿](../../website/drafts/rcr-port-schur-low-rank.md)已归档。最终源码
+[CI45776829333](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45776829333)实际
+65/65 Release、54/54 Python通过，0数值失败/跳过/复用，成功receipt已核实。
+后续文档head四项必需检查及按用户授权的合并以GitHub为准；文档证据复用不算新数值执行。
+
 ## 2026-11-26 · HPC-07：固定 Schur 刷新与重叠场展开
 
 从已合并 #56 的 `main@55a04f7` 接续，交付 [PR #57](https://github.com/saitoasukakawaii/EONSim-new/pull/57)。

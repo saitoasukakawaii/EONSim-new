@@ -1,5 +1,21 @@
 # EONSim Codex Task Queue
 
+## RCR-PC-01 / implementation and validation complete / 2026-11-26
+
+[PR #58](https://github.com/saitoasukakawaii/EONSim-new/pull/58)完成用户要求的六项P0/P1：完整
+RCR端口Schur、单/多出口低秩响应、GAMG/BoomerAMG组合、端口层单次合并归约、同代
+缓存与自适应更新。最终生产源28e6d54、FSI驱动ad08887；每次源码/驱动修复均先同步远端。
+
+本地32项Python、旧4项代数/自适应通过；新1/2/4rank代数修复后3/3、真实FSI1/1通过。
+13runs/43步，96个实测真残差全部满足原门槛；114 Newton总数另含直接参考18次。
+独立原件回放及683项归档摘要通过；最大场差7.57780e-11，adaptive刷新/复用8/4。
+失效缓存read-lock与变步长终点测试错误的失败原件、修复及复验分开保存。
+
+[完整证据](../research/data/rcr-port-2026-11-26/README.md)。最终源码CI45776829333实际
+65/65 Release、54/54 Python通过，0数值跳过/复用，成功receipt已独立核实并归档。
+最终文档head四项检查与精确head合并以GitHub为准。原默认路径保留，新开关显式选择；
+单/双出口GAMG迭代145→144/53→53，不宣称普遍性能或多节点规模收益。
+
 ## HPC-07 / implementation and validation complete / 2026-11-26
 
 从已合并 #56 的 `main@55a04f7` 接续用户要求，交付

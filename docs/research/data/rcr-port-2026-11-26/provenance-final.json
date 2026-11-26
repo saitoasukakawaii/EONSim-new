@@ -1,0 +1,152 @@
+{
+  "recorded_utc": "2026-11-26T07:43:42.228692+00:00",
+  "record_kind": "post-validation provenance, no solver rerun",
+  "source_commit": "28e6d54701abced040752aff70b69d29b35f1d01",
+  "driver_commit": "ad08887f8b357ef16e6a6b49b89d968f531f8053",
+  "base_commit": "b731d4713ab8428e02fb52af6547e1aa3097eca0",
+  "remote_branch": "codex/rcr-port-schur",
+  "remote_tracking_head": "ad08887f8b357ef16e6a6b49b89d968f531f8053",
+  "commits": {
+    "94046b1a1fc1182937dd170a5777f2a7e6c5ba88": {
+      "tree": "a1eef79f61858bf74daf8ec2bf0eedf9dc648c0f",
+      "committed_at": "2026-11-26T15:32:54+08:00",
+      "subject": "feat: add RCR port Schur and low-rank response preconditioning"
+    },
+    "28e6d54701abced040752aff70b69d29b35f1d01": {
+      "tree": "abe936f13dc408c5c14fefbb5197498d655cc1d9",
+      "committed_at": "2026-11-26T15:35:29+08:00",
+      "subject": "fix: propagate invalid RCR generations through PC failure status"
+    },
+    "ad08887f8b357ef16e6a6b49b89d968f531f8053": {
+      "tree": "d537b74017181bdc279e97da96db6caabf271b73",
+      "committed_at": "2026-11-26T15:38:19+08:00",
+      "subject": "test: align RCR variable-step schedules with physical end times"
+    }
+  },
+  "current_worktree_status": "M docs/development/RCR_PORT_PRECONDITIONER.md\n M website/drafts/rcr-port-schur-low-rank.md\n?? docs/research/data/rcr-port-2026-11-26/",
+  "production_matches_source_commit": true,
+  "tests_match_driver_commit": true,
+  "later_docs_do_not_rebuild_or_reexecute": true,
+  "build_type": "Release",
+  "petsc": "3.23.7 real double",
+  "hypre": "2.32.0",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "logical_cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+  "memory_total": "MemTotal:       10206472 kB",
+  "exclusive_host_resources_confirmed": false,
+  "binaries": {
+    "eonsim": {
+      "bytes": 2261144,
+      "sha256": "71d4c649fe60f834ba98782069bfaa9e26d9c7df651384170e0c67b589008b7b",
+      "modified_utc": "2026-11-26T07:35:40.614349+00:00"
+    },
+    "verify_rcr_port": {
+      "bytes": 525736,
+      "sha256": "ab1f59aec44bcbb8204257d68fbde4ff738ceb111d25781d6151d2181c502e67",
+      "modified_utc": "2026-11-26T07:35:40.592870+00:00"
+    },
+    "verify_pc_plan": {
+      "bytes": 711776,
+      "sha256": "caaa401f503d5737d5baf48d80175953d38283235215f5f1c98ca0a90ff3ed73",
+      "modified_utc": "2026-11-26T07:33:53.400294+00:00"
+    },
+    "verify_adaptive_pc": {
+      "bytes": 509960,
+      "sha256": "b2b7502fc1b8c9bbe626dcafc28dbc1a5581d3c81c188293494924da9f98c19d",
+      "modified_utc": "2026-11-26T07:33:53.519103+00:00"
+    }
+  },
+  "source_files": {
+    "CMakeLists.txt": {
+      "bytes": 40646,
+      "sha256": "25e7d30fa4a5b1e00fcfec82ccd1e1d9e58765bf67034c3b911b135a8370c6e0",
+      "modified_utc": "2026-11-26T07:27:26.043681+00:00"
+    },
+    "include/eonsim/coupled_velocity_pc.hpp": {
+      "bytes": 4564,
+      "sha256": "b66a26e0a17fc5763519cacab2b6c81ea26279c56580e838313fc05c6569c2b5",
+      "modified_utc": "2026-11-26T07:26:19.296171+00:00"
+    },
+    "include/eonsim/pc_plan.hpp": {
+      "bytes": 3334,
+      "sha256": "8bcb326db570fea8a871ce583b5f73e04ea0572fb5918765635e9aa0cb2914e1",
+      "modified_utc": "2026-11-26T07:25:51.152426+00:00"
+    },
+    "include/eonsim/rcr_port_pc.hpp": {
+      "bytes": 2230,
+      "sha256": "d1facc60708f40e4106b2e20d694105e97b4466d22a9fde1fab3b00b382e9a40",
+      "modified_utc": "2026-11-26T07:30:11.570207+00:00"
+    },
+    "src/algebra/coupled_velocity_pc.cpp": {
+      "bytes": 35201,
+      "sha256": "3cf2ca787b87b38a31034f6b3e5cc4fd8253d9ccf9a1d44981a556401e5c0bcc",
+      "modified_utc": "2026-11-26T07:26:20.140164+00:00"
+    },
+    "src/algebra/nonlinear_system.cpp": {
+      "bytes": 84685,
+      "sha256": "4f3acec78f57a053e65c4d08ace654799df78eb0e6ce789f83c6d49dc836ef73",
+      "modified_utc": "2026-11-26T07:29:44.626491+00:00"
+    },
+    "src/algebra/pc_plan.cpp": {
+      "bytes": 41780,
+      "sha256": "4955bb442318662042a62c109072f12334aaa794c2a8f71f91bdefcbff949ff7",
+      "modified_utc": "2026-11-26T07:26:51.639901+00:00"
+    },
+    "src/algebra/rcr_port_pc.cpp": {
+      "bytes": 21467,
+      "sha256": "64c1268af6fd9d8d85edddf2b90e55e8ed96689d309c5b1ae2f3a84c864099ab",
+      "modified_utc": "2026-11-26T07:35:05.147675+00:00"
+    }
+  },
+  "driver": {
+    "bytes": 10341,
+    "sha256": "df2531b5bf651f793b4eb6d85edc3c6791061555d0892e079b617cafd560b9c7",
+    "modified_utc": "2026-11-26T07:38:02.070344+00:00"
+  },
+  "dependency_files": {
+    ".cloud/petsc-3.23.7/include/petscconf.h": {
+      "bytes": 8423,
+      "sha256": "554f53847bb0d42d0073af8ba83636ec33efec94565606453681bf0bbba0027f",
+      "modified_utc": "2026-11-25T21:56:51.385046+00:00"
+    },
+    ".cloud/petsc-3.23.7/include/petscversion.h": {
+      "bytes": 1507,
+      "sha256": "427bb7f292a0e6dfb9fa94fd19dd740f7a3c8e3f0c309d21852fb109d09ecdb2",
+      "modified_utc": "2025-09-29T19:01:24+00:00"
+    },
+    ".cloud/petsc-3.23.7/include/petscpkg_version.h": {
+      "bytes": 16130,
+      "sha256": "7bc56428f0c995cb6d4ece30cb170af4dd4a4e66d2060b0cbbbe7fcddebf0344",
+      "modified_utc": "2025-09-29T19:01:24+00:00"
+    },
+    "environments/petsc-3.23.7-linux-64.lock": {
+      "bytes": 15026,
+      "sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+      "modified_utc": "2026-11-25T21:54:48.509439+00:00"
+    }
+  },
+  "build_logs": {
+    "build-94046b1.log": {
+      "bytes": 1408,
+      "sha256": "3d677017ddd37afc0ae0f91eb50107ea36c922e2d13a44c9ce64a0ae13a43fc6",
+      "modified_utc": "2026-11-26T07:33:53.520295+00:00"
+    },
+    "build-28e6d54.log": {
+      "bytes": 214,
+      "sha256": "90b8d4de5f29859500ca8440854561ad8d61ce43ba908328217a7f452a9e7605",
+      "modified_utc": "2026-11-26T07:35:40.614602+00:00"
+    }
+  },
+  "ctest_timestamp_note": "Raw CTest logs preserve their runtime PST labels; commit/provenance times use UTC. The final local FSI test is Nov 26 UTC/Asia-Shanghai."
+}

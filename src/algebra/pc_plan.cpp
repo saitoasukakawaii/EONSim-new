@@ -1,5 +1,6 @@
 #include "eonsim/pc_plan.hpp"
 #include "eonsim/coupled_velocity_pc.hpp"
+#include "eonsim/rcr_port_pc.hpp"
 #include "eonsim/schur_solver.hpp"
 #include <algorithm>
 #include <array>
@@ -71,10 +72,10 @@ int velocity_solver_requested(MPI_Comm comm) {
     char value[32]{}; PetscBool set=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_velocity_solver",value,sizeof(value),&set));
     const std::string name=set?value:"split";
-    int local=name=="split"?1:name=="coupled"?2:name=="twolevel"?3:name=="gamg"?4:name=="aggregate"?5:0,lo=0,hi=0;
+    int local=name=="split"?1:name=="coupled"?2:name=="twolevel"?3:name=="gamg"?4:name=="aggregate"?5:name=="boomeramg"?6:0,lo=0,hi=0;
     MPI_Allreduce(&local,&lo,1,MPI_INT,MPI_MIN,comm);
     MPI_Allreduce(&local,&hi,1,MPI_INT,MPI_MAX,comm);
-    common_check(comm,lo==hi&&lo!=0,"velocity solver must be split, coupled, twolevel, gamg or aggregate and identical on every rank");
+    common_check(comm,lo==hi&&lo!=0,"velocity solver must be split, coupled, twolevel, gamg, aggregate or boomeramg and identical on every rank");
     return local;
 }
 bool rigid_velocity_modes_requested(MPI_Comm comm,int velocity_solver) {
@@ -85,8 +86,8 @@ bool rigid_velocity_modes_requested(MPI_Comm comm,int velocity_solver) {
     MPI_Allreduce(&local,&lo,1,MPI_INT,MPI_MIN,comm);
     MPI_Allreduce(&local,&hi,1,MPI_INT,MPI_MAX,comm);
     common_check(comm,lo==hi&&lo!=0,"velocity coarse space must be constants or rigid and identical on every rank");
-    common_check(comm,!set||velocity_solver==3||velocity_solver==4||velocity_solver==5,
-                 "velocity coarse space requires the twolevel, gamg or aggregate velocity solver");
+    common_check(comm,!set||velocity_solver==3||velocity_solver==4||velocity_solver==5||velocity_solver==6,
+                 "velocity coarse space requires the twolevel, gamg, aggregate or boomeramg velocity solver");
     common_check(comm,local!=2||velocity_solver==3||velocity_solver==5,
                  "rigid velocity coarse space requires twolevel or aggregate; scalar GAMG supports constants only");
     return local==2;
@@ -122,6 +123,7 @@ void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,int veloci
         node.coupled_velocity=velocity_solver!=1&&node.children.empty();
         node.twolevel_velocity=(velocity_solver==3||velocity_solver==5)&&node.children.empty();
         node.gamg_velocity=velocity_solver==4&&node.children.empty();
+        node.boomeramg_velocity=velocity_solver==6&&node.children.empty();
         PetscInt aggregate_nodes=16; PetscBool aggregate_set=PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-pc_plan_velocity_aggregate_nodes",&aggregate_nodes,&aggregate_set));
         PetscInt minimum=0,maximum=0;
@@ -132,7 +134,7 @@ void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,int veloci
                      "velocity aggregate nodes must be identical in [2,4096] and require aggregate solver");
         node.velocity_aggregate_nodes=velocity_solver==5?aggregate_nodes:0;
         node.rigid_velocity_modes=rigid_modes&&(node.twolevel_velocity||node.gamg_velocity);
-        if(node.twolevel_velocity||node.gamg_velocity) {
+        if(node.twolevel_velocity||node.gamg_velocity||node.boomeramg_velocity) {
             if(node.rigid_velocity_modes)
                 common_check(comm,layout.owned_reference_coordinates.size()==static_cast<std::size_t>(layout.owned),
                              "rigid velocity coarse space requires owned reference coordinates");
@@ -141,7 +143,7 @@ void decorate(MPI_Comm comm,const AlgebraLayout& layout,PcBlock& node,int veloci
                 const auto offset=row-layout.begin;
                 const auto& key=layout.owned_semantics.at(offset);
                 node.velocity_semantics.push_back(key);
-                if(node.gamg_velocity)
+                if(node.gamg_velocity||node.boomeramg_velocity)
                     valid=valid&&(key.kind==DofEntity::body||
                         (key.kind==DofEntity::vertex&&key.mode==0&&key.space==1));
                 if(node.rigid_velocity_modes) {
@@ -431,6 +433,16 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
         EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
     }
     PC pc; EONSIM_PETSC(KSPGetPC(ksp,&pc));
+    if(node.rcr_ports) {
+        // The child uses its own compact root numbering, not original J rows.
+        // Its refreshers live in the shell and run before new port responses.
+        configure_rcr_port_pc(comm,ksp,root_matrix,node.rcr_port_rows,
+            [comm,bulk_plan=node.children.at(0)](KSP bulk,Mat matrix,PcSchurUpdates* bulk_updates) {
+                SchurCache bulk_cache;
+                configure(comm,bulk,bulk_plan,matrix,bulk_updates,bulk_cache,true);
+            },updates);
+        return;
+    }
     if(node.children.empty()) {
         // Raw stabilized J_pp may have a constant nullspace even when the full
         // traction-coupled system is nonsingular. Do not invert that block with
@@ -439,6 +451,7 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
             node.velocity_reference_coordinates,node.rigid_velocity_modes,node.velocity_aggregate_nodes);
         else if(node.gamg_velocity) configure_coupled_velocity_gamg(comm,ksp,node.velocity_semantics,
             node.velocity_reference_coordinates,node.rigid_velocity_modes);
+        else if(node.boomeramg_velocity) configure_coupled_velocity_boomeramg(comm,ksp,node.velocity_semantics);
         else if(node.global==1 || (node.name=="pressure"&&!schur_parent)) {
             EONSIM_PETSC(KSPSetType(ksp,KSPPREONLY)); EONSIM_PETSC(PCSetType(pc,PCJACOBI));
             EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
@@ -506,7 +519,8 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
     for(PetscInt i=0;i<count;++i) configure(comm,sub.values[i],node.children[i],root_matrix,updates,schur_cache,false,node.schur);
 }
 }
-PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string& recipe) {
+namespace {
+PcBlock make_pc_plan_impl(MPI_Comm comm,const AlgebraLayout& layout,const std::string& recipe,bool allow_ports) {
     int choice=recipe=="physics"?1:recipe=="quantity"?2:recipe=="hybrid"?3:recipe=="added_mass"?4:0;
     int lo=0,hi=0;
     MPI_Allreduce(&choice,&lo,1,MPI_INT,MPI_MIN,comm); MPI_Allreduce(&choice,&hi,1,MPI_INT,MPI_MAX,comm);
@@ -527,6 +541,44 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
         return field&&static_cast<int>(k.kind)<=static_cast<int>(DofEntity::boundary)&&
             (k.kind!=DofEntity::body||(k.domain==D::solid&&k.component==0));
     }),"invalid semantic domain, quantity, entity kind or component");
+    PetscBool port_option=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-pc_plan_rcr_ports",&port_option,nullptr));
+    int port_local=port_option?1:0,port_min=0,port_max=0;
+    MPI_Allreduce(&port_local,&port_min,1,MPI_INT,MPI_MIN,comm);
+    MPI_Allreduce(&port_local,&port_max,1,MPI_INT,MPI_MAX,comm);
+    common_check(comm,port_min==port_max,"RCR port selection differs between ranks");
+    if(allow_ports&&port_option) {
+        PcBlock wrapper; wrapper.name="rcr_ports"; wrapper.rcr_ports=true;
+        wrapper.begin=layout.begin; wrapper.global=layout.global;
+        wrapper.root_rows.resize(layout.owned);
+        std::iota(wrapper.root_rows.begin(),wrapper.root_rows.end(),layout.begin);
+        wrapper.parent_rows=wrapper.root_rows;
+        AlgebraLayout bulk;
+        common_check(comm,layout.owned_reference_coordinates.empty()||
+            layout.owned_reference_coordinates.size()==layout.owned_semantics.size(),
+            "RCR bulk reference coordinates must follow owned rows");
+        for(PetscInt i=0;i<layout.owned;++i) {
+            const auto& key=layout.owned_semantics[i];
+            if(key.domain==D::fluid&&key.quantity==Q::pressure&&key.kind==DofEntity::boundary)
+                wrapper.rcr_port_rows.push_back(layout.begin+i);
+            else {
+                bulk.owned_semantics.push_back(key);
+                if(!layout.owned_reference_coordinates.empty())
+                    bulk.owned_reference_coordinates.push_back(layout.owned_reference_coordinates[i]);
+            }
+        }
+        bulk.owned=static_cast<PetscInt>(bulk.owned_semantics.size());
+        int rank=0; MPI_Comm_rank(comm,&rank);
+        MPI_Exscan(&bulk.owned,&bulk.begin,1,MPIU_INT,MPI_SUM,comm);
+        if(rank==0) bulk.begin=0;
+        MPI_Allreduce(&bulk.owned,&bulk.global,1,MPIU_INT,MPI_SUM,comm);
+        common_check(comm,bulk.global>0&&bulk.global<layout.global,
+            "RCR port correction requires boundary-pressure ports and a nonempty bulk");
+        bulk.local_to_global.resize(bulk.owned);
+        std::iota(bulk.local_to_global.begin(),bulk.local_to_global.end(),bulk.begin);
+        wrapper.children.push_back(make_pc_plan_impl(comm,bulk,recipe,false));
+        return wrapper;
+    }
     int local[3]{},global[3]{};
     for(const auto& key:layout.owned_semantics) ++local[static_cast<int>(key.domain)];
     MPI_Allreduce(local,global,3,MPI_INT,MPI_SUM,comm);
@@ -564,15 +616,30 @@ PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string
     }
     return plan;
 }
+}
+PcBlock make_pc_plan(MPI_Comm comm,const AlgebraLayout& layout,const std::string& recipe) {
+    return make_pc_plan_impl(comm,layout,recipe,true);
+}
 namespace {
 bool requires_flexible_outer(const PcBlock& node) {
-    return node.added_mass_schur||node.twolevel_velocity||node.gamg_velocity||
+    return node.rcr_ports||node.added_mass_schur||node.twolevel_velocity||node.gamg_velocity||node.boomeramg_velocity||
         std::any_of(node.children.begin(),node.children.end(),requires_flexible_outer);
 }
 void validate_options(MPI_Comm comm,const PcBlock& node,const std::string& prefix,const std::vector<std::string>& tokens) {
+    if(node.rcr_ports) {
+        const std::string base="-"+prefix;
+        char value[64]{}; PetscBool set=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+"pc_type").c_str(),value,sizeof(value),&set));
+        common_check(comm,!set||std::string(value)==PCSHELL,"RCR port correction requires a shell PC at "+prefix);
+        EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+"rcr_bulk_ksp_type").c_str(),value,sizeof(value),&set));
+        common_check(comm,!set||std::string(value)==KSPPREONLY,"RCR bulk must use one PREONLY response at "+prefix);
+        validate_options(comm,node.children.at(0),prefix+"rcr_bulk_",tokens);
+        return;
+    }
     if(node.children.empty()) {
         if(node.twolevel_velocity) validate_coupled_velocity_twolevel_options(comm,prefix);
         else if(node.gamg_velocity) validate_coupled_velocity_gamg_options(comm,prefix);
+        else if(node.boomeramg_velocity) validate_coupled_velocity_boomeramg_options(comm,prefix);
         return;
     }
     const auto base="-"+prefix;
@@ -618,7 +685,7 @@ void validate_pc_plan_options(MPI_Comm comm,KSP solver,const PcBlock& plan) {
         EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,option.c_str(),value,sizeof(value),&set));
         KSPType actual=nullptr; EONSIM_PETSC(KSPGetType(solver,&actual));
         common_check(comm,(!set||std::string(value)==KSPFGMRES)&&(!actual||std::string(actual)==KSPFGMRES),
-                     "added_mass, twolevel and gamg require outer FGMRES for variable inner actions");
+                     "RCR ports, added_mass, twolevel and AMG require outer FGMRES for variable inner actions");
     }
     validate_options(comm,plan,prefix?prefix:"",tokens);
 }

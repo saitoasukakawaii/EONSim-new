@@ -1,0 +1,518 @@
+{
+  "schema_version": 1,
+  "audited_at_utc": "2026-11-26T07:56:09.838248+00:00",
+  "repository": "saitoasukakawaii/EONSim-new",
+  "pr": 58,
+  "source_head": "ad08887f8b357ef16e6a6b49b89d968f531f8053",
+  "tested_merge_preview_commit": "cf648a39c3223641898e91983a8ae2f1110179b2",
+  "tested_tree": "d537b74017181bdc279e97da96db6caabf271b73",
+  "base": "b731d4713ab8428e02fb52af6547e1aa3097eca0",
+  "fingerprint": "a5884a141e4704cd26c612d6fe681c3a7200d39f5d1dfff973e4d3e8b5de8abe",
+  "run": {
+    "id": 45776829333,
+    "url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45776829333",
+    "attempt": 1,
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "jobs": [
+    {
+      "id": 139764311186,
+      "name": "Select affected checks",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "id": 139764312317,
+      "name": "PETSc 3.19.6 / release (manual compatibility)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "id": 139764529452,
+      "name": "PETSc 3.23.7 / release",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "id": 139764531524,
+      "name": "PETSc 3.23.7 / debug (manual diagnostics)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "id": 139768476803,
+      "name": "Record incremental evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": null,
+      "completed_at": null
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 15097635900,
+      "name": "incremental-receipt",
+      "bytes": 1317,
+      "sha256": "af0901043e02cf92c5144c18d29e04bba48ecf6ccaba81b0974c5306dc02d244",
+      "github_digest_matched": true,
+      "extracted_files": 1,
+      "archived_files": 1,
+      "downloaded_zip_path": "build/rcr-port/source-ci-work/incremental-receipt.zip",
+      "archived_zip_path": "artifacts/incremental-receipt.zip",
+      "member_inventory": "metadata/incremental-receipt.members.json",
+      "created_at": "2026-11-26T07:53:50Z",
+      "expires_at": "2026-12-10T07:53:50Z"
+    },
+    {
+      "id": 15097207156,
+      "name": "numerics-3.23.7-release-cf648a39c3223641898e91983a8ae2f1110179b2",
+      "bytes": 3569690,
+      "sha256": "693b17b871065e7a900e836dffd26310c352a11e52090514beffac872d5e8d8f",
+      "github_digest_matched": true,
+      "extracted_files": 1042,
+      "archived_files": 39,
+      "downloaded_zip_path": "build/rcr-port/source-ci-work/numerics-3.23.7-release-cf648a39c3223641898e91983a8ae2f1110179b2.zip",
+      "archived_zip_path": null,
+      "member_inventory": "metadata/numerics-3.23.7-release-cf648a39c3223641898e91983a8ae2f1110179b2.members.json",
+      "created_at": "2026-11-26T07:53:03Z",
+      "expires_at": "2026-12-10T07:53:01Z"
+    },
+    {
+      "id": 15096278424,
+      "name": "incremental-plan",
+      "bytes": 1582,
+      "sha256": "459fc32482a7bbfeba98ed496b6d20b2e6913a14a72ef62ef07839fffcf85a9b",
+      "github_digest_matched": true,
+      "extracted_files": 1,
+      "archived_files": 1,
+      "downloaded_zip_path": "build/rcr-port/source-ci-work/incremental-plan.zip",
+      "archived_zip_path": "artifacts/incremental-plan.zip",
+      "member_inventory": "metadata/incremental-plan.members.json",
+      "created_at": "2026-11-26T07:43:39Z",
+      "expires_at": "2026-12-10T07:43:38Z"
+    }
+  ],
+  "numerical": {
+    "required": 65,
+    "selected": 65,
+    "executed": 65,
+    "passed": 65,
+    "failed": 0,
+    "skipped": 0,
+    "reused": 0,
+    "summary_status": "passed",
+    "petsc": "3.23.7",
+    "mode": "release",
+    "results": [
+      {
+        "name": "runtime_mpi",
+        "status": "passed",
+        "seconds": 0.131217
+      },
+      {
+        "name": "pc_rcr_port_mpi1",
+        "status": "passed",
+        "seconds": 0.134522
+      },
+      {
+        "name": "pc_rcr_port_mpi2",
+        "status": "passed",
+        "seconds": 0.139906
+      },
+      {
+        "name": "pc_rcr_port_mpi4",
+        "status": "passed",
+        "seconds": 0.159454
+      },
+      {
+        "name": "pc_plan_mpi1",
+        "status": "passed",
+        "seconds": 0.23917
+      },
+      {
+        "name": "pc_plan_mpi2",
+        "status": "passed",
+        "seconds": 0.327922
+      },
+      {
+        "name": "pc_plan_mpi4",
+        "status": "passed",
+        "seconds": 0.481817
+      },
+      {
+        "name": "solver_failures",
+        "status": "passed",
+        "seconds": 0.0782519
+      },
+      {
+        "name": "solver_failures_mpi",
+        "status": "passed",
+        "seconds": 0.139662
+      },
+      {
+        "name": "nonlinear_acceptance",
+        "status": "passed",
+        "seconds": 0.094256
+      },
+      {
+        "name": "nonlinear_acceptance_mpi",
+        "status": "passed",
+        "seconds": 0.186341
+      },
+      {
+        "name": "ghost_overlap_mpi1",
+        "status": "passed",
+        "seconds": 0.135243
+      },
+      {
+        "name": "adaptive_pc_mpi1",
+        "status": "passed",
+        "seconds": 0.131819
+      },
+      {
+        "name": "ghost_overlap_mpi2",
+        "status": "passed",
+        "seconds": 0.159057
+      },
+      {
+        "name": "adaptive_pc_mpi2",
+        "status": "passed",
+        "seconds": 0.137285
+      },
+      {
+        "name": "ghost_overlap_mpi4",
+        "status": "passed",
+        "seconds": 0.192191
+      },
+      {
+        "name": "adaptive_pc_mpi4",
+        "status": "passed",
+        "seconds": 0.146771
+      },
+      {
+        "name": "parallel_hdf5",
+        "status": "passed",
+        "seconds": 0.0822351
+      },
+      {
+        "name": "parallel_hdf5_mpi",
+        "status": "passed",
+        "seconds": 0.140413
+      },
+      {
+        "name": "scalar_p2_verification",
+        "status": "passed",
+        "seconds": 3.18257
+      },
+      {
+        "name": "scalar_p2_time",
+        "status": "passed",
+        "seconds": 7.29203
+      },
+      {
+        "name": "scalar_p2_restart",
+        "status": "passed",
+        "seconds": 7.35593
+      },
+      {
+        "name": "scalar_p2_failure",
+        "status": "passed",
+        "seconds": 4.28806
+      },
+      {
+        "name": "p2_space_oracles",
+        "status": "passed",
+        "seconds": 0.00146555
+      },
+      {
+        "name": "tri_p2_oracles",
+        "status": "passed",
+        "seconds": 0.00128501
+      },
+      {
+        "name": "fsi_diagnostics",
+        "status": "passed",
+        "seconds": 0.0729624
+      },
+      {
+        "name": "fsi_diagnostics_mpi",
+        "status": "passed",
+        "seconds": 0.130293
+      },
+      {
+        "name": "fsi_periodic",
+        "status": "passed",
+        "seconds": 5.23917
+      },
+      {
+        "name": "fsi_tube",
+        "status": "passed",
+        "seconds": 130.085
+      },
+      {
+        "name": "fsi_tube_wall_support",
+        "status": "passed",
+        "seconds": 5.54552
+      },
+      {
+        "name": "fsi_tube_rcr",
+        "status": "passed",
+        "seconds": 9.06446
+      },
+      {
+        "name": "fsi_tube_rcr_response",
+        "status": "passed",
+        "seconds": 3.80104
+      },
+      {
+        "name": "fsi_block_efficiency",
+        "status": "passed",
+        "seconds": 134.285
+      },
+      {
+        "name": "fsi_flow",
+        "status": "passed",
+        "seconds": 5.30321
+      },
+      {
+        "name": "fsi_branched_rcr",
+        "status": "passed",
+        "seconds": 5.65078
+      },
+      {
+        "name": "fsi_curved_inlet",
+        "status": "passed",
+        "seconds": 2.02446
+      },
+      {
+        "name": "fsi_sampled_inlet",
+        "status": "passed",
+        "seconds": 2.71992
+      },
+      {
+        "name": "fsi_metric_stabilization",
+        "status": "passed",
+        "seconds": 2.3262
+      },
+      {
+        "name": "fsi_moving_plane_rcr",
+        "status": "passed",
+        "seconds": 7.63523
+      },
+      {
+        "name": "rcr_port_fsi",
+        "status": "passed",
+        "seconds": 3.62677
+      },
+      {
+        "name": "fsi_reservoir_pressure",
+        "status": "passed",
+        "seconds": 9.2322
+      },
+      {
+        "name": "fsi_inlet",
+        "status": "passed",
+        "seconds": 7.48796
+      },
+      {
+        "name": "scalar2d_space",
+        "status": "passed",
+        "seconds": 7.35694
+      },
+      {
+        "name": "fsi_pressure_state",
+        "status": "passed",
+        "seconds": 9.5002
+      },
+      {
+        "name": "fsi_pressure_convergence",
+        "status": "passed",
+        "seconds": 8.79
+      },
+      {
+        "name": "fluid_coo_verification",
+        "status": "passed",
+        "seconds": 12.217
+      },
+      {
+        "name": "fsi_coo_verification",
+        "status": "passed",
+        "seconds": 8.72065
+      },
+      {
+        "name": "pc_recipe_retry",
+        "status": "passed",
+        "seconds": 2.75942
+      },
+      {
+        "name": "pc_added_mass_retry",
+        "status": "passed",
+        "seconds": 2.80434
+      },
+      {
+        "name": "pc_added_mass_nodal_retry",
+        "status": "passed",
+        "seconds": 2.37209
+      },
+      {
+        "name": "pc_twolevel_retry",
+        "status": "passed",
+        "seconds": 2.13456
+      },
+      {
+        "name": "pc_recipe_restart",
+        "status": "passed",
+        "seconds": 18.8611
+      },
+      {
+        "name": "pc_recipe_physics",
+        "status": "passed",
+        "seconds": 5.52937
+      },
+      {
+        "name": "pc_recipe_quantity",
+        "status": "passed",
+        "seconds": 5.32664
+      },
+      {
+        "name": "pc_recipe_hybrid",
+        "status": "passed",
+        "seconds": 8.75115
+      },
+      {
+        "name": "domains_verification",
+        "status": "passed",
+        "seconds": 1.91625
+      },
+      {
+        "name": "rigid_tube_verification",
+        "status": "passed",
+        "seconds": 0.683772
+      },
+      {
+        "name": "womersley_flow",
+        "status": "passed",
+        "seconds": 3.13486
+      },
+      {
+        "name": "elastic_fsi_verification",
+        "status": "passed",
+        "seconds": 0.889888
+      },
+      {
+        "name": "rigid_fsi_verification",
+        "status": "passed",
+        "seconds": 0.516886
+      },
+      {
+        "name": "solid_verification",
+        "status": "passed",
+        "seconds": 0.662407
+      },
+      {
+        "name": "lame_wall",
+        "status": "passed",
+        "seconds": 0.803944
+      },
+      {
+        "name": "fluid_verification",
+        "status": "passed",
+        "seconds": 1.5532
+      },
+      {
+        "name": "poisson_verification",
+        "status": "passed",
+        "seconds": 0.775226
+      },
+      {
+        "name": "poisson_parallel",
+        "status": "passed",
+        "seconds": 1.64211
+      }
+    ]
+  },
+  "python": {
+    "scripts": 5,
+    "executed": 54,
+    "passed": 54,
+    "failed": 0,
+    "skipped": 0,
+    "results": [
+      {
+        "script": "tests/test_ci_selection.py",
+        "executed": 26,
+        "passed": 26,
+        "failed": 0,
+        "skipped": 0,
+        "seconds": 0.089,
+        "result": "OK"
+      },
+      {
+        "script": "tests/test_cloud_evidence.py",
+        "executed": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "seconds": 0.001,
+        "result": "OK"
+      },
+      {
+        "script": "tests/test_lame_wall.py",
+        "executed": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "seconds": 0.041,
+        "result": "OK"
+      },
+      {
+        "script": "tests/test_rigid_tube.py",
+        "executed": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "seconds": 0.173,
+        "result": "OK"
+      },
+      {
+        "script": "tests/test_womersley.py",
+        "executed": 13,
+        "passed": 13,
+        "failed": 0,
+        "skipped": 0,
+        "seconds": 0.032,
+        "result": "OK"
+      }
+    ],
+    "negative_control_annotations": "test_cloud_evidence.py intentionally emits failure/skip XML annotations; its unittest result is OK."
+  },
+  "independent_checks": {
+    "github_artifact_digests": true,
+    "exact_selected_inventory": true,
+    "junit": true,
+    "ctest_test_xml": true,
+    "ctest_log": true,
+    "summary": true,
+    "receipt_and_origins": true,
+    "python_unittest_results": true,
+    "archive_reopened_and_rehashed": true,
+    "source_files_unchanged": true,
+    "local_frozen_archive_unchanged": true
+  },
+  "archive": {
+    "path": "source-ci.tar.xz",
+    "bytes": 191528,
+    "sha256": "20b91d875e12ea9fb3c69b76e55f89f70217141f3334683c9125131c4ecbb849",
+    "members": 56,
+    "uncompressed_bytes": 3136473
+  }
+}

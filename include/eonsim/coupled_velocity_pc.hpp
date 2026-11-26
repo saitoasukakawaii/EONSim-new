@@ -61,4 +61,11 @@ void validate_coupled_velocity_gamg_options(MPI_Comm comm,const std::string& pre
 void configure_coupled_velocity_gamg(MPI_Comm comm,KSP solver,
     const std::vector<DofKey>& owned_semantics,
     const std::vector<std::array<double,3>>& owned_coordinates={},bool rigid_modes=false);
+
+/// Scalar-AIJ BoomerAMG on the complete velocity block, using one fixed cycle.
+/// Requires PETSc built with hypre. No uniform xyz packing or elasticity modes
+/// are assumed. Prefix options retain hypre coarsening/smoothing controls.
+void validate_coupled_velocity_boomeramg_options(MPI_Comm comm,const std::string& prefix);
+void configure_coupled_velocity_boomeramg(MPI_Comm comm,KSP solver,
+    const std::vector<DofKey>& owned_semantics);
 } // namespace eonsim

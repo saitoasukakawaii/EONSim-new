@@ -2,6 +2,7 @@
 #include <cstdint>
 #include "eonsim/schur_solver.hpp"
 #include "eonsim/pc_plan.hpp"
+#include "eonsim/rcr_port_pc.hpp"
 #include "eonsim/time_step.hpp"
 #include <cmath>
 #include <stdexcept>
@@ -159,6 +160,14 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
             PetscCall(PetscFree(sub));
         }
         // FieldSplit arrays belong to the caller; all child KSPs are borrowed.
+    } else if(std::strcmp(pt,PCSHELL)==0) {
+        if(KSP bulk=rcr_port_bulk_solver(pc)) children.emplace_back("rcr_bulk",bulk);
+        RcrPortPcStats stats;
+        if(query_rcr_port_pc_stats(pc,stats))
+            out<<"rcr_port_stats rank="<<rank<<" path="<<path<<" ports="<<stats.ports
+               <<" rebuilds="<<stats.rebuilds<<" responses="<<stats.response_solves
+               <<" setup_reductions="<<stats.setup_reductions<<" applications="<<stats.applications
+               <<" apply_reductions="<<stats.apply_reductions<<'\n';
     } else if(std::strcmp(pt,PCASM)==0||std::strcmp(pt,PCBJACOBI)==0) {
         if(std::strcmp(pt,PCASM)==0) { PetscCall(PCASMGetSubKSP(pc,&count,nullptr,&sub)); }
         else { PetscCall(PCBJacobiGetSubKSP(pc,&count,nullptr,&sub)); }
@@ -904,13 +913,14 @@ struct NonlinearSystem::Workspace {
         MPI_Allreduce(&conflict,&any_conflict,1,MPI_INT,MPI_MAX,comm);
         if(any_conflict) throw std::runtime_error("Choose only one PC recipe, block_pc or schur_pc");
         PetscBool nodal_option=PETSC_FALSE,velocity_option=PETSC_FALSE,structure_option=PETSC_FALSE,
-            coarse_option=PETSC_FALSE,aggregate_option=PETSC_FALSE;
+            coarse_option=PETSC_FALSE,aggregate_option=PETSC_FALSE,port_option=PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_schur_approx",&nodal_option));
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_solver",&velocity_option));
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_structure_approx",&structure_option));
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_coarse_space",&coarse_option));
         EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_velocity_aggregate_nodes",&aggregate_option));
-        int unused=!semantic&&(nodal_option||velocity_option||structure_option||coarse_option||aggregate_option),any_unused=0;
+        EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,"-pc_plan_rcr_ports",&port_option));
+        int unused=!semantic&&(nodal_option||velocity_option||structure_option||coarse_option||aggregate_option||port_option),any_unused=0;
         MPI_Allreduce(&unused,&any_unused,1,MPI_INT,MPI_MAX,comm);
         if(any_unused) throw std::runtime_error("pc_plan Schur, velocity and structure options require -pc_recipe");
         if(semantic) plan=make_pc_plan(comm,l,recipe);

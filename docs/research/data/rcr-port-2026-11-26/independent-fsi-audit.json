@@ -1,0 +1,2163 @@
+{
+  "production_source": "28e6d54701abced040752aff70b69d29b35f1d01",
+  "driver_source": "ad08887f8b357ef16e6a6b49b89d968f531f8053",
+  "audit_method": "Independent Python parsing of saved files; no solver/build/test launch; no imports from verification helpers",
+  "raw_directory": "build/cloud-3.23.7-release/rcr_port_fsi",
+  "runs": {
+    "single/direct": {
+      "ranks": 1,
+      "accepted_steps": 4,
+      "steps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "times": [
+        0.015,
+        0.03,
+        0.043,
+        0.055999999999999994
+      ],
+      "accepted_dt": [
+        0.015,
+        0.015,
+        0.013,
+        0.012999999999999998
+      ],
+      "newton_iterations": 12,
+      "min_recorded_determinant": 0.9961542257828468,
+      "max_body_or_power_balance": 1.4105470264036413e-16,
+      "fields": {
+        "nodes": {
+          "fluid": 68,
+          "solid": 64
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 2060,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 3.2959746043559335e-17,
+        "by_relation": {
+          "stage_face_flow": 4.336808689942018e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 3.2959746043559335e-17,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 1.0408340855860843e-17,
+          "applied_pressure": 0.0,
+          "endpoint_face_flow": 4.336808689942018e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 2.2551405187698492e-17,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 24,
+            "reference_area": 0.17677669529663684,
+            "current_area": 0.1766848182407428,
+            "fractional_area_change": -0.0005197351140650008,
+            "signed_flux": -0.0009118783562066233,
+            "area_defect": 2.7755575615628914e-17,
+            "flux_defect": 0.0,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.2659683572546185,
+        "endpoint_volume_defect": 0.0
+      },
+      "solver_node_records": 0,
+      "true_residual_samples": 0,
+      "direct_reference_diagnostic_limit": "No solver_report/linear_report; Newton counts imply corrections but their true linear residuals and reason codes were not recorded"
+    },
+    "single/gamg-baseline-two": {
+      "ranks": 2,
+      "accepted_steps": 4,
+      "steps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "times": [
+        0.015,
+        0.03,
+        0.043,
+        0.055999999999999994
+      ],
+      "accepted_dt": [
+        0.015,
+        0.015,
+        0.013,
+        0.012999999999999998
+      ],
+      "newton_iterations": 12,
+      "min_recorded_determinant": 0.9961542257828427,
+      "max_body_or_power_balance": 2.65672900345848e-15,
+      "fields": {
+        "nodes": {
+          "fluid": 68,
+          "solid": 64
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 2060,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 7.679620828149325e-15,
+        "by_relation": {
+          "stage_face_flow": 2.168404344971009e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 7.679620828149325e-15,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 2.55351295663786e-15,
+          "applied_pressure": 0.0,
+          "endpoint_face_flow": 3.2526065174565133e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 1.9081958235744878e-17,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 24,
+            "reference_area": 0.17677669529663684,
+            "current_area": 0.17668481824073828,
+            "fractional_area_change": -0.000519735114090536,
+            "signed_flux": -0.0009118783562213968,
+            "area_defect": 0.0,
+            "flux_defect": 1.0842021724855044e-19,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.26596835725461726,
+        "endpoint_volume_defect": 1.1102230246251565e-16
+      },
+      "solver_node_records": 96,
+      "true_residual_samples": 12,
+      "worst_true_residual_ratio": 0.09507589982241775,
+      "nonlinear_reason_values": [
+        2
+      ],
+      "outer_reason_values": [
+        3
+      ],
+      "nested_reason_values": [
+        2,
+        3,
+        4
+      ],
+      "dofs": [
+        350
+      ],
+      "linear_iterations": 145,
+      "linear_started": 12,
+      "linear_completed": 12,
+      "jacobian_assemblies": 12,
+      "user_schur_updates": 12,
+      "pc_refreshes": 0,
+      "pc_reuses": 0,
+      "pc_context_refreshes": 0,
+      "linear_seconds": 0.034642544,
+      "schur_setup_seconds": 0.011082686999999999,
+      "solve_seconds": 0.081757459,
+      "verified_velocity_leaf": {
+        "prefix": "fieldsplit_dynamics_fieldsplit_velocity_",
+        "ksp": "preonly",
+        "pc": "gamg",
+        "records": 8
+      }
+    },
+    "single/split-one": {
+      "ranks": 1,
+      "accepted_steps": 4,
+      "steps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "times": [
+        0.015,
+        0.03,
+        0.043,
+        0.055999999999999994
+      ],
+      "accepted_dt": [
+        0.015,
+        0.015,
+        0.013,
+        0.012999999999999998
+      ],
+      "newton_iterations": 12,
+      "min_recorded_determinant": 0.9961542257828324,
+      "max_body_or_power_balance": 2.3303028343774068e-14,
+      "fields": {
+        "nodes": {
+          "fluid": 68,
+          "solid": 64
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 2060,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 3.903127820947816e-17,
+        "by_relation": {
+          "stage_face_flow": 6.505213034913027e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 3.903127820947816e-17,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 6.938893903907228e-18,
+          "applied_pressure": 0.0,
+          "endpoint_face_flow": 6.505213034913027e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 1.474514954580286e-17,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 24,
+            "reference_area": 0.17677669529663684,
+            "current_area": 0.17668481824073867,
+            "fractional_area_change": -0.0005197351140884265,
+            "signed_flux": -0.0009118783562166366,
+            "area_defect": 0.0,
+            "flux_defect": 1.0842021724855044e-19,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.265968357254619,
+        "endpoint_volume_defect": 0.0
+      },
+      "solver_node_records": 64,
+      "true_residual_samples": 12,
+      "worst_true_residual_ratio": 0.09758365456373759,
+      "nonlinear_reason_values": [
+        2
+      ],
+      "outer_reason_values": [
+        3
+      ],
+      "nested_reason_values": [
+        2,
+        3,
+        4
+      ],
+      "dofs": [
+        350
+      ],
+      "linear_iterations": 208,
+      "linear_started": 12,
+      "linear_completed": 12,
+      "jacobian_assemblies": 12,
+      "user_schur_updates": 12,
+      "pc_refreshes": 0,
+      "pc_reuses": 0,
+      "pc_context_refreshes": 0,
+      "linear_seconds": 0.018151226,
+      "schur_setup_seconds": 0.005817654,
+      "solve_seconds": 0.06578017,
+      "port_stats_final_per_rank": {
+        "ports": 1,
+        "rebuilds": 12,
+        "responses": 12,
+        "setup_reductions": 12,
+        "applications": 208,
+        "apply_reductions": 208
+      }
+    },
+    "single/gamg-two": {
+      "ranks": 2,
+      "accepted_steps": 4,
+      "steps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "times": [
+        0.015,
+        0.03,
+        0.043,
+        0.055999999999999994
+      ],
+      "accepted_dt": [
+        0.015,
+        0.015,
+        0.013,
+        0.012999999999999998
+      ],
+      "newton_iterations": 12,
+      "min_recorded_determinant": 0.996154225782845,
+      "max_body_or_power_balance": 2.8792072892525056e-15,
+      "fields": {
+        "nodes": {
+          "fluid": 68,
+          "solid": 64
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 2060,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 3.5128150388530344e-17,
+        "by_relation": {
+          "stage_face_flow": 2.168404344971009e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 3.5128150388530344e-17,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 6.938893903907228e-18,
+          "applied_pressure": 0.0,
+          "endpoint_face_flow": 3.2526065174565133e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 2.42861286636753e-17,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 24,
+            "reference_area": 0.17677669529663684,
+            "current_area": 0.17668481824074295,
+            "fractional_area_change": -0.0005197351140642237,
+            "signed_flux": -0.0009118783562052966,
+            "area_defect": 2.7755575615628914e-17,
+            "flux_defect": 0.0,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.2659683572546177,
+        "endpoint_volume_defect": 1.6653345369377348e-16
+      },
+      "solver_node_records": 104,
+      "true_residual_samples": 12,
+      "worst_true_residual_ratio": 0.09972517246553696,
+      "nonlinear_reason_values": [
+        2
+      ],
+      "outer_reason_values": [
+        3
+      ],
+      "nested_reason_values": [
+        2,
+        3,
+        4
+      ],
+      "dofs": [
+        350
+      ],
+      "linear_iterations": 144,
+      "linear_started": 12,
+      "linear_completed": 12,
+      "jacobian_assemblies": 12,
+      "user_schur_updates": 12,
+      "pc_refreshes": 0,
+      "pc_reuses": 0,
+      "pc_context_refreshes": 0,
+      "linear_seconds": 0.017748919,
+      "schur_setup_seconds": 0.015333407,
+      "solve_seconds": 0.076039519,
+      "verified_velocity_leaf": {
+        "prefix": "rcr_bulk_fieldsplit_dynamics_fieldsplit_velocity_",
+        "ksp": "preonly",
+        "pc": "gamg",
+        "records": 8
+      },
+      "port_stats_final_per_rank": {
+        "ports": 1,
+        "rebuilds": 12,
+        "responses": 12,
+        "setup_reductions": 12,
+        "applications": 144,
+        "apply_reductions": 144
+      }
+    },
+    "single/boomeramg-two": {
+      "ranks": 2,
+      "accepted_steps": 4,
+      "steps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "times": [
+        0.015,
+        0.03,
+        0.043,
+        0.055999999999999994
+      ],
+      "accepted_dt": [
+        0.015,
+        0.015,
+        0.013,
+        0.012999999999999998
+      ],
+      "newton_iterations": 12,
+      "min_recorded_determinant": 0.9961542257828422,
+      "max_body_or_power_balance": 8.40928889023207e-15,
+      "fields": {
+        "nodes": {
+          "fluid": 68,
+          "solid": 64
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 2060,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 1.1145598333150986e-16,
+        "by_relation": {
+          "stage_face_flow": 2.168404344971009e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 1.1145598333150986e-16,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 2.42861286636753e-17,
+          "applied_pressure": 0.0,
+          "endpoint_face_flow": 4.336808689942018e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 1.9081958235744878e-17,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 24,
+            "reference_area": 0.17677669529663684,
+            "current_area": 0.17668481824073906,
+            "fractional_area_change": -0.0005197351140862061,
+            "signed_flux": -0.0009118783562063832,
+            "area_defect": 2.7755575615628914e-17,
+            "flux_defect": 0.0,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.2659683572546181,
+        "endpoint_volume_defect": 2.220446049250313e-16
+      },
+      "solver_node_records": 80,
+      "true_residual_samples": 12,
+      "worst_true_residual_ratio": 0.0786088728179717,
+      "nonlinear_reason_values": [
+        2
+      ],
+      "outer_reason_values": [
+        3
+      ],
+      "nested_reason_values": [
+        2,
+        3,
+        4
+      ],
+      "dofs": [
+        350
+      ],
+      "linear_iterations": 147,
+      "linear_started": 12,
+      "linear_completed": 12,
+      "jacobian_assemblies": 12,
+      "user_schur_updates": 12,
+      "pc_refreshes": 0,
+      "pc_reuses": 0,
+      "pc_context_refreshes": 0,
+      "linear_seconds": 0.028810411,
+      "schur_setup_seconds": 0.01224926,
+      "solve_seconds": 0.118544675,
+      "verified_velocity_leaf": {
+        "prefix": "rcr_bulk_fieldsplit_dynamics_fieldsplit_velocity_",
+        "ksp": "preonly",
+        "pc": "hypre",
+        "records": 8
+      },
+      "port_stats_final_per_rank": {
+        "ports": 1,
+        "rebuilds": 12,
+        "responses": 12,
+        "setup_reductions": 12,
+        "applications": 147,
+        "apply_reductions": 147
+      }
+    },
+    "single/adaptive-two": {
+      "ranks": 2,
+      "accepted_steps": 4,
+      "steps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "times": [
+        0.015,
+        0.03,
+        0.043,
+        0.055999999999999994
+      ],
+      "accepted_dt": [
+        0.015,
+        0.015,
+        0.013,
+        0.012999999999999998
+      ],
+      "newton_iterations": 12,
+      "min_recorded_determinant": 0.996154225782845,
+      "max_body_or_power_balance": 2.839091808870542e-15,
+      "fields": {
+        "nodes": {
+          "fluid": 68,
+          "solid": 64
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 2060,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 3.382710778154774e-17,
+        "by_relation": {
+          "stage_face_flow": 4.336808689942018e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 3.382710778154774e-17,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 6.938893903907228e-18,
+          "applied_pressure": 0.0,
+          "endpoint_face_flow": 4.336808689942018e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 2.5153490401663703e-17,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 24,
+            "reference_area": 0.17677669529663684,
+            "current_area": 0.17668481824074295,
+            "fractional_area_change": -0.0005197351140642237,
+            "signed_flux": -0.0009118783562052936,
+            "area_defect": 2.7755575615628914e-17,
+            "flux_defect": 0.0,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.2659683572546177,
+        "endpoint_volume_defect": 1.6653345369377348e-16
+      },
+      "solver_node_records": 104,
+      "true_residual_samples": 12,
+      "worst_true_residual_ratio": 0.09972509135426391,
+      "nonlinear_reason_values": [
+        2
+      ],
+      "outer_reason_values": [
+        3
+      ],
+      "nested_reason_values": [
+        2,
+        3,
+        4
+      ],
+      "dofs": [
+        350
+      ],
+      "linear_iterations": 144,
+      "linear_started": 12,
+      "linear_completed": 12,
+      "jacobian_assemblies": 12,
+      "user_schur_updates": 8,
+      "pc_refreshes": 8,
+      "pc_reuses": 4,
+      "pc_context_refreshes": 3,
+      "linear_seconds": 0.017824284,
+      "schur_setup_seconds": 0.013156217000000001,
+      "solve_seconds": 0.06699936100000001,
+      "verified_velocity_leaf": {
+        "prefix": "rcr_bulk_fieldsplit_dynamics_fieldsplit_velocity_",
+        "ksp": "preonly",
+        "pc": "gamg",
+        "records": 8
+      },
+      "port_stats_final_per_rank": {
+        "ports": 1,
+        "rebuilds": 8,
+        "responses": 8,
+        "setup_reductions": 8,
+        "applications": 144,
+        "apply_reductions": 144
+      },
+      "adaptive_generation": 1
+    },
+    "single/checkpoint": {
+      "ranks": 2,
+      "accepted_steps": 2,
+      "steps": [
+        1,
+        2
+      ],
+      "times": [
+        0.015,
+        0.03
+      ],
+      "accepted_dt": [
+        0.015,
+        0.015
+      ],
+      "newton_iterations": 6,
+      "min_recorded_determinant": 0.9966246958756029,
+      "max_body_or_power_balance": 2.8792072892525056e-15,
+      "fields": {
+        "nodes": {
+          "fluid": 68,
+          "solid": 64
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 2060,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 2.905661822261152e-17,
+        "by_relation": {
+          "stage_face_flow": 0.0,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 2.905661822261152e-17,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 6.938893903907228e-18,
+          "applied_pressure": 0.0,
+          "endpoint_face_flow": 0.0,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 2.42861286636753e-17,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 24,
+            "reference_area": 0.17677669529663684,
+            "current_area": 0.1767054173303232,
+            "fractional_area_change": -0.0004032090666364896,
+            "signed_flux": -0.0012537515644523885,
+            "area_defect": 0.0,
+            "flux_defect": 0.0,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.2656735930323585,
+        "endpoint_volume_defect": 1.1102230246251565e-16
+      },
+      "solver_node_records": 52,
+      "true_residual_samples": 6,
+      "worst_true_residual_ratio": 0.09972517246553696,
+      "nonlinear_reason_values": [
+        2
+      ],
+      "outer_reason_values": [
+        3
+      ],
+      "nested_reason_values": [
+        2,
+        3,
+        4
+      ],
+      "dofs": [
+        350
+      ],
+      "linear_iterations": 76,
+      "linear_started": 6,
+      "linear_completed": 6,
+      "jacobian_assemblies": 6,
+      "user_schur_updates": 6,
+      "pc_refreshes": 0,
+      "pc_reuses": 0,
+      "pc_context_refreshes": 0,
+      "linear_seconds": 0.013244841,
+      "schur_setup_seconds": 0.017856514,
+      "solve_seconds": 0.062131015000000005,
+      "verified_velocity_leaf": {
+        "prefix": "rcr_bulk_fieldsplit_dynamics_fieldsplit_velocity_",
+        "ksp": "preonly",
+        "pc": "gamg",
+        "records": 4
+      },
+      "port_stats_final_per_rank": {
+        "ports": 1,
+        "rebuilds": 6,
+        "responses": 6,
+        "setup_reductions": 6,
+        "applications": 76,
+        "apply_reductions": 76
+      }
+    },
+    "single/resume": {
+      "ranks": 2,
+      "accepted_steps": 2,
+      "steps": [
+        3,
+        4
+      ],
+      "times": [
+        0.043,
+        0.055999999999999994
+      ],
+      "accepted_dt": [
+        0.013,
+        0.012999999999999998
+      ],
+      "newton_iterations": 6,
+      "min_recorded_determinant": 0.9961542257828457,
+      "max_body_or_power_balance": 1.2707933663702597e-15,
+      "fields": {
+        "nodes": {
+          "fluid": 68,
+          "solid": 64
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 2060,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 3.7730235602495554e-17,
+        "by_relation": {
+          "stage_face_flow": 2.168404344971009e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 3.7730235602495554e-17,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 6.938893903907228e-18,
+          "applied_pressure": 0.0,
+          "endpoint_face_flow": 2.168404344971009e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 9.107298248878237e-18,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 24,
+            "reference_area": 0.17677669529663684,
+            "current_area": 0.17668481824074558,
+            "fractional_area_change": -0.0005197351140492357,
+            "signed_flux": -0.0009118783562136905,
+            "area_defect": 2.7755575615628914e-17,
+            "flux_defect": 1.0842021724855044e-19,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.26596835725461837,
+        "endpoint_volume_defect": 2.220446049250313e-16
+      },
+      "solver_node_records": 40,
+      "true_residual_samples": 6,
+      "worst_true_residual_ratio": 0.06817787407437827,
+      "nonlinear_reason_values": [
+        2
+      ],
+      "outer_reason_values": [
+        3
+      ],
+      "nested_reason_values": [
+        2,
+        3,
+        4
+      ],
+      "dofs": [
+        350
+      ],
+      "linear_iterations": 70,
+      "linear_started": 6,
+      "linear_completed": 6,
+      "jacobian_assemblies": 6,
+      "user_schur_updates": 6,
+      "pc_refreshes": 0,
+      "pc_reuses": 0,
+      "pc_context_refreshes": 0,
+      "linear_seconds": 0.012639772,
+      "schur_setup_seconds": 0.009829172,
+      "solve_seconds": 0.047482683,
+      "verified_velocity_leaf": {
+        "prefix": "rcr_bulk_fieldsplit_dynamics_fieldsplit_velocity_",
+        "ksp": "preonly",
+        "pc": "hypre",
+        "records": 4
+      },
+      "port_stats_final_per_rank": {
+        "ports": 1,
+        "rebuilds": 6,
+        "responses": 6,
+        "setup_reductions": 6,
+        "applications": 70,
+        "apply_reductions": 70
+      }
+    },
+    "multiple/direct-two": {
+      "ranks": 2,
+      "accepted_steps": 3,
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "times": [
+        0.016,
+        0.03,
+        0.047
+      ],
+      "accepted_dt": [
+        0.016,
+        0.014,
+        0.017
+      ],
+      "newton_iterations": 6,
+      "min_recorded_determinant": 0.9998247390981518,
+      "max_body_or_power_balance": 8.239069149151845e-15,
+      "fields": {
+        "nodes": {
+          "fluid": 126,
+          "solid": 310
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 6114,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 3.1051550219984847e-16,
+        "by_relation": {
+          "stage_face_flow": 3.2526065174565133e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 3.1051550219984847e-16,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 2.688821387764051e-17,
+          "endpoint_face_flow": 1.0842021724855044e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 1.3010426069826053e-17,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 8,
+            "reference_area": 0.25,
+            "current_area": 0.2500338747144739,
+            "fractional_area_change": 0.00013549885789565508,
+            "signed_flux": -0.0005817620681184053,
+            "area_defect": 0.0,
+            "flux_defect": 1.0842021724855044e-19,
+            "max_normal_displacement": 0.0
+          },
+          "3": {
+            "faces": 8,
+            "reference_area": 0.25,
+            "current_area": 0.2500177673362088,
+            "fractional_area_change": 7.10693448351396e-05,
+            "signed_flux": -0.0003069817236771477,
+            "area_defect": 0.0,
+            "flux_defect": 0.0,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.8126099574813205,
+        "endpoint_volume_defect": 0.0
+      },
+      "solver_node_records": 0,
+      "true_residual_samples": 0,
+      "direct_reference_diagnostic_limit": "No solver_report/linear_report; Newton counts imply corrections but their true linear residuals and reason codes were not recorded"
+    },
+    "multiple/gamg-baseline-two": {
+      "ranks": 2,
+      "accepted_steps": 3,
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "times": [
+        0.016,
+        0.03,
+        0.047
+      ],
+      "accepted_dt": [
+        0.016,
+        0.014,
+        0.017
+      ],
+      "newton_iterations": 6,
+      "min_recorded_determinant": 0.9998247390981492,
+      "max_body_or_power_balance": 7.43545849890559e-15,
+      "fields": {
+        "nodes": {
+          "fluid": 126,
+          "solid": 310
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 6114,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 1.6954840309502117e-13,
+        "by_relation": {
+          "stage_face_flow": 1.0842021724855044e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 1.6954840309502117e-13,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 2.851364977463078e-14,
+          "endpoint_face_flow": 1.0842021724855044e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 1.214306433183765e-17,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 8,
+            "reference_area": 0.25,
+            "current_area": 0.25003387471447347,
+            "fractional_area_change": 0.00013549885789387872,
+            "signed_flux": -0.0005817620681179966,
+            "area_defect": 0.0,
+            "flux_defect": 1.0842021724855044e-19,
+            "max_normal_displacement": 0.0
+          },
+          "3": {
+            "faces": 8,
+            "reference_area": 0.25,
+            "current_area": 0.2500177673362099,
+            "fractional_area_change": 7.10693448395805e-05,
+            "signed_flux": -0.00030698172367883285,
+            "area_defect": 0.0,
+            "flux_defect": 0.0,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.8126099574813185,
+        "endpoint_volume_defect": 1.1102230246251565e-16
+      },
+      "solver_node_records": 72,
+      "true_residual_samples": 6,
+      "worst_true_residual_ratio": 0.06270133847018884,
+      "nonlinear_reason_values": [
+        2
+      ],
+      "outer_reason_values": [
+        3
+      ],
+      "nested_reason_values": [
+        2,
+        3,
+        4
+      ],
+      "dofs": [
+        1020
+      ],
+      "linear_iterations": 53,
+      "linear_started": 6,
+      "linear_completed": 6,
+      "jacobian_assemblies": 6,
+      "user_schur_updates": 6,
+      "pc_refreshes": 0,
+      "pc_reuses": 0,
+      "pc_context_refreshes": 0,
+      "linear_seconds": 0.024721305,
+      "schur_setup_seconds": 0.016433555,
+      "solve_seconds": 0.072828065,
+      "verified_velocity_leaf": {
+        "prefix": "fieldsplit_dynamics_fieldsplit_velocity_",
+        "ksp": "preonly",
+        "pc": "gamg",
+        "records": 6
+      }
+    },
+    "multiple/split-one": {
+      "ranks": 1,
+      "accepted_steps": 3,
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "times": [
+        0.016,
+        0.03,
+        0.047
+      ],
+      "accepted_dt": [
+        0.016,
+        0.014,
+        0.017
+      ],
+      "newton_iterations": 6,
+      "min_recorded_determinant": 0.9998247390981511,
+      "max_body_or_power_balance": 4.206209423189382e-14,
+      "fields": {
+        "nodes": {
+          "fluid": 126,
+          "solid": 310
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 6114,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 1.8621389152873036e-14,
+        "by_relation": {
+          "stage_face_flow": 1.0842021724855044e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 1.8621389152873036e-14,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 1.5508427875232655e-15,
+          "endpoint_face_flow": 2.168404344971009e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 1.214306433183765e-17,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 8,
+            "reference_area": 0.25,
+            "current_area": 0.25003387471447414,
+            "fractional_area_change": 0.00013549885789654326,
+            "signed_flux": -0.000581762068117959,
+            "area_defect": 0.0,
+            "flux_defect": 0.0,
+            "max_normal_displacement": 0.0
+          },
+          "3": {
+            "faces": 8,
+            "reference_area": 0.25,
+            "current_area": 0.2500177673362088,
+            "fractional_area_change": 7.10693448351396e-05,
+            "signed_flux": -0.0003069817236770698,
+            "area_defect": 5.551115123125783e-17,
+            "flux_defect": 5.421010862427522e-20,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.8126099574813209,
+        "endpoint_volume_defect": 1.1102230246251565e-16
+      },
+      "solver_node_records": 48,
+      "true_residual_samples": 6,
+      "worst_true_residual_ratio": 0.08614619210810476,
+      "nonlinear_reason_values": [
+        2
+      ],
+      "outer_reason_values": [
+        3
+      ],
+      "nested_reason_values": [
+        2,
+        3,
+        4
+      ],
+      "dofs": [
+        1020
+      ],
+      "linear_iterations": 71,
+      "linear_started": 6,
+      "linear_completed": 6,
+      "jacobian_assemblies": 6,
+      "user_schur_updates": 6,
+      "pc_refreshes": 0,
+      "pc_reuses": 0,
+      "pc_context_refreshes": 0,
+      "linear_seconds": 0.013397397,
+      "schur_setup_seconds": 0.009842735,
+      "solve_seconds": 0.072210654,
+      "port_stats_final_per_rank": {
+        "ports": 2,
+        "rebuilds": 6,
+        "responses": 12,
+        "setup_reductions": 6,
+        "applications": 71,
+        "apply_reductions": 71
+      }
+    },
+    "multiple/gamg-two": {
+      "ranks": 2,
+      "accepted_steps": 3,
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "times": [
+        0.016,
+        0.03,
+        0.047
+      ],
+      "accepted_dt": [
+        0.016,
+        0.014,
+        0.017
+      ],
+      "newton_iterations": 6,
+      "min_recorded_determinant": 0.9998247390981511,
+      "max_body_or_power_balance": 3.524958103184872e-15,
+      "fields": {
+        "nodes": {
+          "fluid": 126,
+          "solid": 310
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 6114,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 3.5735303605122226e-16,
+        "by_relation": {
+          "stage_face_flow": 1.0842021724855044e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 3.5735303605122226e-16,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 3.0357660829594124e-17,
+          "endpoint_face_flow": 1.0842021724855044e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 5.204170427930421e-18,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 8,
+            "reference_area": 0.25,
+            "current_area": 0.2500338747144733,
+            "fractional_area_change": 0.0001354988578932126,
+            "signed_flux": -0.0005817620681296152,
+            "area_defect": 0.0,
+            "flux_defect": 1.0842021724855044e-19,
+            "max_normal_displacement": 0.0
+          },
+          "3": {
+            "faces": 8,
+            "reference_area": 0.25,
+            "current_area": 0.2500177673362105,
+            "fractional_area_change": 7.106934484202299e-05,
+            "signed_flux": -0.00030698172368663976,
+            "area_defect": 0.0,
+            "flux_defect": 0.0,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.8126099574813183,
+        "endpoint_volume_defect": 0.0
+      },
+      "solver_node_records": 78,
+      "true_residual_samples": 6,
+      "worst_true_residual_ratio": 0.08431858671613794,
+      "nonlinear_reason_values": [
+        2
+      ],
+      "outer_reason_values": [
+        3
+      ],
+      "nested_reason_values": [
+        2,
+        3,
+        4
+      ],
+      "dofs": [
+        1020
+      ],
+      "linear_iterations": 53,
+      "linear_started": 6,
+      "linear_completed": 6,
+      "jacobian_assemblies": 6,
+      "user_schur_updates": 6,
+      "pc_refreshes": 0,
+      "pc_reuses": 0,
+      "pc_context_refreshes": 0,
+      "linear_seconds": 0.012196229999999999,
+      "schur_setup_seconds": 0.017931555,
+      "solve_seconds": 0.068904157,
+      "verified_velocity_leaf": {
+        "prefix": "rcr_bulk_fieldsplit_dynamics_fieldsplit_velocity_",
+        "ksp": "preonly",
+        "pc": "gamg",
+        "records": 6
+      },
+      "port_stats_final_per_rank": {
+        "ports": 2,
+        "rebuilds": 6,
+        "responses": 12,
+        "setup_reductions": 6,
+        "applications": 53,
+        "apply_reductions": 53
+      }
+    },
+    "multiple/boomeramg-two": {
+      "ranks": 2,
+      "accepted_steps": 3,
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "times": [
+        0.016,
+        0.03,
+        0.047
+      ],
+      "accepted_dt": [
+        0.016,
+        0.014,
+        0.017
+      ],
+      "newton_iterations": 6,
+      "min_recorded_determinant": 0.9998247390981508,
+      "max_body_or_power_balance": 4.118667212837934e-14,
+      "fields": {
+        "nodes": {
+          "fluid": 126,
+          "solid": 310
+        },
+        "fields": {
+          "fluid": [
+            "coordinates",
+            "fluid_algorithmic_acceleration",
+            "mesh_algorithmic_acceleration",
+            "mesh_displacement",
+            "mesh_velocity",
+            "pressure",
+            "velocity"
+          ],
+          "solid": [
+            "algorithmic_acceleration",
+            "coordinates",
+            "displacement",
+            "velocity"
+          ]
+        },
+        "scalar_values": 6114,
+        "max_duplicate_ghost_disagreement": 0.0
+      },
+      "circuit": {
+        "max_abs": 1.425075335514947e-15,
+        "by_relation": {
+          "stage_face_flow": 1.0842021724855044e-19,
+          "stage_face_pressure": 0.0,
+          "stage_proximal_relation": 1.425075335514947e-15,
+          "stage_pressure_power": 0.0,
+          "stage_capacitor_ode": 1.1709383462843448e-16,
+          "endpoint_face_flow": 1.0842021724855044e-19,
+          "endpoint_face_pressure": 0.0,
+          "endpoint_proximal_relation": 1.1275702593849246e-17,
+          "endpoint_pressure_power": 0.0
+        }
+      },
+      "geometry": {
+        "ports": {
+          "2": {
+            "faces": 8,
+            "reference_area": 0.25,
+            "current_area": 0.2500338747144736,
+            "fractional_area_change": 0.0001354988578943228,
+            "signed_flux": -0.0005817620681245302,
+            "area_defect": 5.551115123125783e-17,
+            "flux_defect": 1.0842021724855044e-19,
+            "max_normal_displacement": 0.0
+          },
+          "3": {
+            "faces": 8,
+            "reference_area": 0.25,
+            "current_area": 0.25001776733621095,
+            "fractional_area_change": 7.106934484379934e-05,
+            "signed_flux": -0.00030698172367868627,
+            "area_defect": 0.0,
+            "flux_defect": 5.421010862427522e-20,
+            "max_normal_displacement": 0.0
+          }
+        },
+        "endpoint_volume_from_tetrahedra": 0.8126099574813219,
+        "endpoint_volume_defect": 0.0
+      },
+      "solver_node_records": 60,
+      "true_residual_samples": 6,
+      "worst_true_residual_ratio": 0.09505210402999087,
+      "nonlinear_reason_values": [
+        2
+      ],
+      "outer_reason_values": [
+        3
+      ],
+      "nested_reason_values": [
+        2,
+        3,
+        4
+      ],
+      "dofs": [
+        1020
+      ],
+      "linear_iterations": 55,
+      "linear_started": 6,
+      "linear_completed": 6,
+      "jacobian_assemblies": 6,
+      "user_schur_updates": 6,
+      "pc_refreshes": 0,
+      "pc_reuses": 0,
+      "pc_context_refreshes": 0,
+      "linear_seconds": 0.025745734,
+      "schur_setup_seconds": 0.022186274,
+      "solve_seconds": 0.09867236,
+      "verified_velocity_leaf": {
+        "prefix": "rcr_bulk_fieldsplit_dynamics_fieldsplit_velocity_",
+        "ksp": "preonly",
+        "pc": "hypre",
+        "records": 6
+      },
+      "port_stats_final_per_rank": {
+        "ports": 2,
+        "rebuilds": 6,
+        "responses": 12,
+        "setup_reductions": 6,
+        "applications": 55,
+        "apply_reductions": 55
+      }
+    }
+  },
+  "comparisons": {
+    "single/gamg-baseline-two": {
+      "reference": "single/direct",
+      "fields": {
+        "max_abs": 2.4075408333601445e-11,
+        "location": {
+          "domain": "fluid",
+          "node": 26,
+          "field": "fluid_algorithmic_acceleration",
+          "component": 0
+        },
+        "by_field": {
+          "fluid/coordinates": 3.247402347028583e-15,
+          "fluid/velocity": 2.874909511840773e-13,
+          "fluid/pressure": 2.3946622462744926e-11,
+          "fluid/mesh_displacement": 3.2483374714023516e-15,
+          "fluid/mesh_velocity": 2.874909511840773e-13,
+          "fluid/fluid_algorithmic_acceleration": 2.4075408333601445e-11,
+          "fluid/mesh_algorithmic_acceleration": 2.263961240700496e-11,
+          "solid/coordinates": 3.247402347028583e-15,
+          "solid/velocity": 3.5334669218345383e-13,
+          "solid/displacement": 3.2483374714023516e-15,
+          "solid/algorithmic_acceleration": 1.9434953646424447e-11
+        }
+      },
+      "circuit_history": {
+        "max_abs": 6.029621246739225e-13,
+        "by_field": {
+          "rcr_tag": 0.0,
+          "stage_rcr_flow": 1.401960145197556e-14,
+          "stage_rcr_pressure": 4.96269692007445e-14,
+          "stage_capacitor_pressure": 3.191891195797325e-15,
+          "stage_capacitor_rate": 6.029621246739225e-13,
+          "endpoint_rcr_flow": 1.4773338802287483e-14,
+          "endpoint_rcr_pressure": 4.979350265443827e-14,
+          "endpoint_capacitor_pressure": 5.467848396278896e-15
+        }
+      }
+    },
+    "single/split-one": {
+      "reference": "single/direct",
+      "fields": {
+        "max_abs": 2.7922997247742387e-11,
+        "location": {
+          "domain": "fluid",
+          "node": 65,
+          "field": "fluid_algorithmic_acceleration",
+          "component": 1
+        },
+        "by_field": {
+          "fluid/coordinates": 5.995204332975845e-15,
+          "fluid/velocity": 2.9095129083778204e-13,
+          "fluid/pressure": 7.132294754796931e-12,
+          "fluid/mesh_displacement": 6.031633525971358e-15,
+          "fluid/mesh_velocity": 2.7775698407950244e-13,
+          "fluid/fluid_algorithmic_acceleration": 2.7922997247742387e-11,
+          "fluid/mesh_algorithmic_acceleration": 1.8261447909395656e-11,
+          "solid/coordinates": 5.995204332975845e-15,
+          "solid/velocity": 3.084719979451478e-13,
+          "solid/displacement": 6.031633525971358e-15,
+          "solid/algorithmic_acceleration": 1.8261447909395656e-11
+        }
+      },
+      "circuit_history": {
+        "max_abs": 2.510214258677479e-13,
+        "by_field": {
+          "rcr_tag": 0.0,
+          "stage_rcr_flow": 6.944098074335159e-15,
+          "stage_rcr_pressure": 2.628453010800058e-14,
+          "stage_capacitor_pressure": 5.412337245047638e-15,
+          "stage_capacitor_rate": 2.510214258677479e-13,
+          "endpoint_rcr_flow": 1.0013149163989876e-14,
+          "endpoint_rcr_pressure": 3.6387559632089506e-14,
+          "endpoint_capacitor_pressure": 6.356026815979021e-15
+        }
+      }
+    },
+    "single/gamg-two": {
+      "reference": "single/direct",
+      "fields": {
+        "max_abs": 7.57779949900339e-11,
+        "location": {
+          "domain": "fluid",
+          "node": 35,
+          "field": "mesh_algorithmic_acceleration",
+          "component": 0
+        },
+        "by_field": {
+          "fluid/coordinates": 1.887379141862766e-15,
+          "fluid/velocity": 9.226647224025442e-14,
+          "fluid/pressure": 1.3228647344210032e-11,
+          "fluid/mesh_displacement": 1.8528473026691028e-15,
+          "fluid/mesh_velocity": 4.2737688388250206e-13,
+          "fluid/fluid_algorithmic_acceleration": 7.509037835973231e-11,
+          "fluid/mesh_algorithmic_acceleration": 7.57779949900339e-11,
+          "solid/coordinates": 1.887379141862766e-15,
+          "solid/velocity": 2.5722609806044794e-13,
+          "solid/displacement": 1.8528473026691028e-15,
+          "solid/algorithmic_acceleration": 3.1318392323953503e-11
+        }
+      },
+      "circuit_history": {
+        "max_abs": 4.0034642267983145e-13,
+        "by_field": {
+          "rcr_tag": 0.0,
+          "stage_rcr_flow": 1.0359768598533492e-14,
+          "stage_rcr_pressure": 3.391731340229853e-14,
+          "stage_capacitor_pressure": 3.164135620181696e-15,
+          "stage_capacitor_rate": 4.0034642267983145e-13,
+          "endpoint_rcr_flow": 1.8670828771938375e-14,
+          "endpoint_rcr_pressure": 5.3512749786932545e-14,
+          "endpoint_capacitor_pressure": 4.385380947269368e-15
+        }
+      }
+    },
+    "single/boomeramg-two": {
+      "reference": "single/direct",
+      "fields": {
+        "max_abs": 4.595490654679679e-11,
+        "location": {
+          "domain": "fluid",
+          "node": 52,
+          "field": "fluid_algorithmic_acceleration",
+          "component": 0
+        },
+        "by_field": {
+          "fluid/coordinates": 3.219646771412954e-15,
+          "fluid/velocity": 1.3306716839522892e-13,
+          "fluid/pressure": 1.4150902671872245e-11,
+          "fluid/mesh_displacement": 3.2420626513290918e-15,
+          "fluid/mesh_velocity": 1.288275042199416e-13,
+          "fluid/fluid_algorithmic_acceleration": 4.595490654679679e-11,
+          "fluid/mesh_algorithmic_acceleration": 2.381345121094114e-11,
+          "solid/coordinates": 3.219646771412954e-15,
+          "solid/velocity": 1.4715572510537456e-13,
+          "solid/displacement": 3.2420626513290918e-15,
+          "solid/algorithmic_acceleration": 2.381345121094114e-11
+        }
+      },
+      "circuit_history": {
+        "max_abs": 3.1907809727727e-13,
+        "by_field": {
+          "rcr_tag": 0.0,
+          "stage_rcr_flow": 8.257934266953093e-15,
+          "stage_rcr_pressure": 2.65898414397725e-14,
+          "stage_capacitor_pressure": 4.773959005888173e-15,
+          "stage_capacitor_rate": 3.1907809727727e-13,
+          "endpoint_rcr_flow": 1.4638030371161292e-14,
+          "endpoint_rcr_pressure": 4.6851411639181606e-14,
+          "endpoint_capacitor_pressure": 5.717648576819556e-15
+        }
+      }
+    },
+    "single/adaptive-two": {
+      "reference": "single/direct",
+      "fields": {
+        "max_abs": 7.577627414434573e-11,
+        "location": {
+          "domain": "fluid",
+          "node": 35,
+          "field": "mesh_algorithmic_acceleration",
+          "component": 0
+        },
+        "by_field": {
+          "fluid/coordinates": 1.887379141862766e-15,
+          "fluid/velocity": 9.227341113415832e-14,
+          "fluid/pressure": 1.3229597972674867e-11,
+          "fluid/mesh_displacement": 1.854283870547646e-15,
+          "fluid/mesh_velocity": 4.273595366477423e-13,
+          "fluid/fluid_algorithmic_acceleration": 7.509648458636775e-11,
+          "fluid/mesh_algorithmic_acceleration": 7.577627414434573e-11,
+          "solid/coordinates": 1.887379141862766e-15,
+          "solid/velocity": 2.5694116972951875e-13,
+          "solid/displacement": 1.854283870547646e-15,
+          "solid/algorithmic_acceleration": 3.123756808776079e-11
+        }
+      },
+      "circuit_history": {
+        "max_abs": 4.0034642267983145e-13,
+        "by_field": {
+          "rcr_tag": 0.0,
+          "stage_rcr_flow": 1.0359551758098995e-14,
+          "stage_rcr_pressure": 3.391731340229853e-14,
+          "stage_capacitor_pressure": 3.164135620181696e-15,
+          "stage_capacitor_rate": 4.0034642267983145e-13,
+          "endpoint_rcr_flow": 1.8671696133676363e-14,
+          "endpoint_rcr_pressure": 5.3512749786932545e-14,
+          "endpoint_capacitor_pressure": 4.385380947269368e-15
+        }
+      }
+    },
+    "single/resume": {
+      "reference": "single/direct",
+      "fields": {
+        "max_abs": 6.984463007952968e-11,
+        "location": {
+          "domain": "fluid",
+          "node": 35,
+          "field": "mesh_algorithmic_acceleration",
+          "component": 0
+        },
+        "by_field": {
+          "fluid/coordinates": 1.9984014443252818e-15,
+          "fluid/velocity": 1.7132475993442142e-13,
+          "fluid/pressure": 1.1252998532995662e-11,
+          "fluid/mesh_displacement": 2.002778910596692e-15,
+          "fluid/mesh_velocity": 3.4774440271778673e-13,
+          "fluid/fluid_algorithmic_acceleration": 3.138211912556699e-11,
+          "fluid/mesh_algorithmic_acceleration": 6.984463007952968e-11,
+          "solid/coordinates": 1.9984014443252818e-15,
+          "solid/velocity": 2.31344023798874e-13,
+          "solid/displacement": 2.002778910596692e-15,
+          "solid/algorithmic_acceleration": 2.0681567569624804e-11
+        }
+      },
+      "circuit_history": {
+        "max_abs": 2.9676261448230434e-13,
+        "by_field": {
+          "rcr_tag": 0.0,
+          "stage_rcr_flow": 6.9928871720970065e-15,
+          "stage_rcr_pressure": 1.7541523789077473e-14,
+          "stage_capacitor_pressure": 5.2735593669694936e-15,
+          "stage_capacitor_rate": 2.9676261448230434e-13,
+          "endpoint_rcr_flow": 7.067263441129512e-15,
+          "endpoint_rcr_pressure": 1.887379141862766e-14,
+          "endpoint_capacitor_pressure": 5.662137425588298e-15
+        }
+      }
+    },
+    "multiple/gamg-baseline-two": {
+      "reference": "multiple/direct-two",
+      "fields": {
+        "max_abs": 6.358272588991021e-11,
+        "location": {
+          "domain": "fluid",
+          "node": 41,
+          "field": "mesh_algorithmic_acceleration",
+          "component": 0
+        },
+        "by_field": {
+          "fluid/coordinates": 2.3314683517128287e-15,
+          "fluid/velocity": 1.5308067313757334e-13,
+          "fluid/pressure": 1.359240497933456e-11,
+          "fluid/mesh_displacement": 2.3044717176179397e-15,
+          "fluid/mesh_velocity": 5.64613785412893e-13,
+          "fluid/fluid_algorithmic_acceleration": 4.599462477550276e-11,
+          "fluid/mesh_algorithmic_acceleration": 6.358272588991021e-11,
+          "solid/coordinates": 2.3314683517128287e-15,
+          "solid/velocity": 1.9506098125621207e-13,
+          "solid/displacement": 2.3044717176179397e-15,
+          "solid/algorithmic_acceleration": 3.1174104964115656e-11
+        }
+      },
+      "circuit_history": {
+        "max_abs": 2.1582735598713043e-12,
+        "by_field": {
+          "rcr_tag_2": 0.0,
+          "stage_rcr_flow_2": 1.4661665978521476e-15,
+          "stage_rcr_pressure_2": 1.746103261979215e-13,
+          "stage_capacitor_pressure_2": 2.1316282072803006e-14,
+          "stage_capacitor_rate_2": 2.1582735598713043e-12,
+          "endpoint_rcr_flow_2": 1.4661665978521476e-15,
+          "endpoint_rcr_pressure_2": 2.842170943040401e-14,
+          "endpoint_capacitor_pressure_2": 2.350897254643769e-14,
+          "rcr_tag_3": 0.0,
+          "stage_rcr_flow_3": 2.7484525072507537e-15,
+          "stage_rcr_pressure_3": 8.483491686916977e-14,
+          "stage_capacitor_pressure_3": 1.5029644195863057e-14,
+          "stage_capacitor_rate_3": 9.928724509222775e-13,
+          "endpoint_rcr_flow_3": 3.799369673040953e-15,
+          "endpoint_rcr_pressure_3": 2.1996293675385914e-14,
+          "endpoint_capacitor_pressure_3": 1.6944778913341452e-14
+        }
+      }
+    },
+    "multiple/split-one": {
+      "reference": "multiple/direct-two",
+      "fields": {
+        "max_abs": 6.51798753859012e-12,
+        "location": {
+          "domain": "fluid",
+          "node": 14,
+          "field": "mesh_algorithmic_acceleration",
+          "component": 0
+        },
+        "by_field": {
+          "fluid/coordinates": 2.220446049250313e-16,
+          "fluid/velocity": 2.2013640910145682e-14,
+          "fluid/pressure": 1.3985618219081175e-12,
+          "fluid/mesh_displacement": 2.3554292197247584e-16,
+          "fluid/mesh_velocity": 5.6290692593274905e-14,
+          "fluid/fluid_algorithmic_acceleration": 4.115707774587918e-12,
+          "fluid/mesh_algorithmic_acceleration": 6.51798753859012e-12,
+          "solid/coordinates": 4.440892098500626e-16,
+          "solid/velocity": 2.2013640910145682e-14,
+          "solid/displacement": 2.52710585747426e-16,
+          "solid/algorithmic_acceleration": 2.7101168531551423e-12
+        }
+      },
+      "circuit_history": {
+        "max_abs": 2.1183055309847987e-13,
+        "by_field": {
+          "rcr_tag_2": 0.0,
+          "stage_rcr_flow_2": 5.033950686850197e-16,
+          "stage_rcr_pressure_2": 2.0539125955565396e-14,
+          "stage_capacitor_pressure_2": 4.468647674116255e-15,
+          "stage_capacitor_rate_2": 2.1183055309847987e-13,
+          "endpoint_rcr_flow_2": 8.293062417341623e-16,
+          "endpoint_rcr_pressure_2": 1.454392162258955e-14,
+          "endpoint_capacitor_pressure_2": 4.6074255521944e-15,
+          "rcr_tag_3": 0.0,
+          "stage_rcr_flow_3": 2.7506209115957247e-16,
+          "stage_rcr_pressure_3": 2.4980018054066022e-15,
+          "stage_capacitor_pressure_3": 4.718447854656915e-16,
+          "stage_capacitor_rate_3": 2.5757174171303632e-14,
+          "endpoint_rcr_flow_3": 2.7506209115957247e-16,
+          "endpoint_rcr_pressure_3": 1.2351231148954867e-15,
+          "endpoint_capacitor_pressure_3": 4.996003610813204e-16
+        }
+      }
+    },
+    "multiple/gamg-two": {
+      "reference": "multiple/direct-two",
+      "fields": {
+        "max_abs": 4.672802422778233e-11,
+        "location": {
+          "domain": "fluid",
+          "node": 98,
+          "field": "fluid_algorithmic_acceleration",
+          "component": 1
+        },
+        "by_field": {
+          "fluid/coordinates": 1.4988010832439613e-15,
+          "fluid/velocity": 1.79359999075146e-13,
+          "fluid/pressure": 7.980413205266323e-12,
+          "fluid/mesh_displacement": 1.4951486771754008e-15,
+          "fluid/mesh_velocity": 9.802987414875286e-14,
+          "fluid/fluid_algorithmic_acceleration": 4.672802422778233e-11,
+          "fluid/mesh_algorithmic_acceleration": 1.6868718227813773e-11,
+          "solid/coordinates": 1.4988010832439613e-15,
+          "solid/velocity": 9.802987414875286e-14,
+          "solid/displacement": 1.4951486771754008e-15,
+          "solid/algorithmic_acceleration": 1.6868718227813773e-11
+        }
+      },
+      "circuit_history": {
+        "max_abs": 1.0054179711005418e-12,
+        "by_field": {
+          "rcr_tag_2": 0.0,
+          "stage_rcr_flow_2": 6.14894420103429e-15,
+          "stage_rcr_pressure_2": 6.94999613415348e-14,
+          "stage_capacitor_pressure_2": 1.0547118733938987e-14,
+          "stage_capacitor_rate_2": 1.0054179711005418e-12,
+          "endpoint_rcr_flow_2": 1.1449283361664175e-14,
+          "endpoint_rcr_pressure_2": 1.3883338922937583e-13,
+          "endpoint_capacitor_pressure_2": 1.0547118733938987e-14,
+          "rcr_tag_3": 0.0,
+          "stage_rcr_flow_3": 4.6223875421746996e-15,
+          "stage_rcr_pressure_3": 1.6986412276764895e-14,
+          "stage_capacitor_pressure_3": 3.427813588530171e-15,
+          "stage_capacitor_rate_3": 1.986188991054405e-13,
+          "endpoint_rcr_flow_3": 9.492081599893343e-15,
+          "endpoint_rcr_pressure_3": 2.643718577388654e-14,
+          "endpoint_capacitor_pressure_3": 4.1494585545365226e-15
+        }
+      }
+    },
+    "multiple/boomeramg-two": {
+      "reference": "multiple/direct-two",
+      "fields": {
+        "max_abs": 3.7359337845543905e-11,
+        "location": {
+          "domain": "fluid",
+          "node": 98,
+          "field": "fluid_algorithmic_acceleration",
+          "component": 1
+        },
+        "by_field": {
+          "fluid/coordinates": 1.4432899320127035e-15,
+          "fluid/velocity": 9.799799860488179e-14,
+          "fluid/pressure": 6.116702630509785e-12,
+          "fluid/mesh_displacement": 1.4294443314568847e-15,
+          "fluid/mesh_velocity": 1.5596154061140247e-13,
+          "fluid/fluid_algorithmic_acceleration": 3.7359337845543905e-11,
+          "fluid/mesh_algorithmic_acceleration": 1.852123749507273e-11,
+          "solid/coordinates": 1.4432899320127035e-15,
+          "solid/velocity": 5.132805530431994e-14,
+          "solid/displacement": 1.4294443314568847e-15,
+          "solid/algorithmic_acceleration": 1.1417023576543173e-11
+        }
+      },
+      "circuit_history": {
+        "max_abs": 9.421352586969078e-13,
+        "by_field": {
+          "rcr_tag_2": 0.0,
+          "stage_rcr_flow_2": 5.776087073916525e-15,
+          "stage_rcr_pressure_2": 6.589173651150304e-14,
+          "stage_capacitor_pressure_2": 9.381384558082573e-15,
+          "stage_capacitor_rate_2": 9.421352586969078e-13,
+          "endpoint_rcr_flow_2": 1.0684920830061895e-14,
+          "endpoint_rcr_pressure_2": 1.277589145587399e-13,
+          "endpoint_capacitor_pressure_2": 9.381384558082573e-15,
+          "rcr_tag_3": 0.0,
+          "stage_rcr_flow_3": 3.0566369747797584e-15,
+          "stage_rcr_pressure_3": 1.1074474670635936e-14,
+          "stage_capacitor_pressure_3": 3.219646771412954e-15,
+          "stage_capacitor_rate_3": 1.1418643808269735e-13,
+          "endpoint_rcr_flow_3": 3.0566369747797584e-15,
+          "endpoint_rcr_pressure_3": 1.099120794378905e-14,
+          "endpoint_capacitor_pressure_3": 3.219646771412954e-15
+        }
+      }
+    }
+  },
+  "performance": {
+    "single": {
+      "linear_iterations": {
+        "baseline": 145,
+        "wrapped": 144,
+        "relative_change": -0.006896551724137945
+      },
+      "linear_seconds": {
+        "baseline": 0.034642544,
+        "wrapped": 0.017748919,
+        "relative_change": -0.487655438930813
+      },
+      "schur_setup_seconds": {
+        "baseline": 0.011082686999999999,
+        "wrapped": 0.015333407,
+        "relative_change": 0.38354597580893524
+      },
+      "solve_seconds": {
+        "baseline": 0.081757459,
+        "wrapped": 0.076039519,
+        "relative_change": -0.06993783894384487
+      }
+    },
+    "multiple": {
+      "linear_iterations": {
+        "baseline": 53,
+        "wrapped": 53,
+        "relative_change": 0.0
+      },
+      "linear_seconds": {
+        "baseline": 0.024721305,
+        "wrapped": 0.012196229999999999,
+        "relative_change": -0.5066510445140335
+      },
+      "schur_setup_seconds": {
+        "baseline": 0.016433555,
+        "wrapped": 0.017931555,
+        "relative_change": 0.0911549570375978
+      },
+      "solve_seconds": {
+        "baseline": 0.072828065,
+        "wrapped": 0.068904157,
+        "relative_change": -0.05387906434147338
+      }
+    }
+  },
+  "restart_comparison": {
+    "reference": "single/boomeramg-two",
+    "fields": {
+      "max_abs": 5.771050304304026e-11,
+      "location": {
+        "domain": "fluid",
+        "node": 35,
+        "field": "mesh_algorithmic_acceleration",
+        "component": 0
+      },
+      "by_field": {
+        "fluid/coordinates": 5.218048215738236e-15,
+        "fluid/velocity": 1.0309982034772958e-13,
+        "fluid/pressure": 4.374556272779273e-12,
+        "fluid/mesh_displacement": 5.233416781533218e-15,
+        "fluid/mesh_velocity": 2.975293622586861e-13,
+        "fluid/fluid_algorithmic_acceleration": 2.3215318556424336e-11,
+        "fluid/mesh_algorithmic_acceleration": 5.771050304304026e-11,
+        "solid/coordinates": 5.218048215738236e-15,
+        "solid/velocity": 1.0175974646253749e-13,
+        "solid/displacement": 5.233416781533218e-15,
+        "solid/algorithmic_acceleration": 2.389288766835307e-11
+      }
+    },
+    "circuit_history": {
+      "max_abs": 3.2152058793144533e-13,
+      "by_field": {
+        "rcr_tag": 0.0,
+        "stage_rcr_flow": 8.968086689931098e-15,
+        "stage_rcr_pressure": 3.397282455352979e-14,
+        "stage_capacitor_pressure": 8.215650382226158e-15,
+        "stage_capacitor_rate": 3.2152058793144533e-13,
+        "endpoint_rcr_flow": 7.791293651915332e-15,
+        "endpoint_rcr_pressure": 3.197442310920451e-14,
+        "endpoint_capacitor_pressure": 8.604228440844963e-15
+      }
+    },
+    "checkpoint_steps": [
+      1,
+      2
+    ],
+    "resume_steps": [
+      3,
+      4
+    ],
+    "checkpoint_velocity_pc": "gamg",
+    "resume_velocity_pc": "hypre/boomeramg"
+  },
+  "summary": {
+    "runs": 13,
+    "accepted_steps": 43,
+    "observed_true_residual_samples": 96,
+    "newton_iterations": 114,
+    "uninstrumented_direct_newton_iterations": 18,
+    "solver_node_records": 798,
+    "max_field_difference": 7.57779949900339e-11,
+    "max_circuit_history_difference": 2.1582735598713043e-12,
+    "max_circuit_defect": 1.6954840309502117e-13,
+    "worst_true_residual_ratio": 0.09972517246553696,
+    "max_raw_geometry_area_defect": 5.551115123125783e-17,
+    "max_raw_geometry_flux_defect": 1.0842021724855044e-19,
+    "max_raw_endpoint_volume_defect": 2.220446049250313e-16,
+    "min_recorded_determinant": 0.9961542257828324
+  },
+  "ctest": {
+    "tests": 1,
+    "failures": 0,
+    "skipped": 0,
+    "seconds": 21.5413
+  },
+  "metrics_crosscheck": "All listed field errors, circuit defects, correction counts, outer iteration totals and true-residual ratios match independent reconstruction",
+  "performance_limit": "Single shared-host samples at 350 and 1020 DoF; timings are sums of solver_report phase fields, not controlled repeated benchmarks or whole-job wall times; no stable speedup/scaling claim",
+  "sha256": {
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/fluid.msh": "3ec4258dfdfd5a968ab9528fe56697a9affb53bd601403dedeebe66b9b0284ee",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/direct.json": "4545a8d790ad9134c99a1eb30800dc6c5e1906f08a897814eea9e27f40e227ee",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/direct.csv": "973c0deb6ad37fba0f39df44758121f879b44f37781e593a1fb7992f35c865de",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/direct_pressure_faces.csv": "96315fc3d8c60ac09e4828c0b4fac26315fc0400462d847e104833b0674863c3",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/direct.vtu": "a14c4416b6690faa941c2c88c017dd56b4ad81ac824ba1b626024248aae2571e",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/direct_solid.vtu": "a66fec41520ca0211671e37cbc65340635c844e6975ac08f45f7491cb70a2dc0",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/direct.log": "ad223170dbafe5453ddd347b213c2966bcdff9eab2bfcd5a18008093ee8603e5",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-baseline-two.json": "e5874e272fdd914b9c5f211c2007c97004ab121af5c9f0fad3b14f4cd5df84a1",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-baseline-two.csv": "3c3e2c7d0a276ecd8a01f05bce298ce8699ee8cef84e7c92a0335aabadeebd29",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-baseline-two_pressure_faces.csv": "1ba1e7de5dc6fb4aa742769c2e257bd6029cd5c1056ef2b8de5177a41de8936f",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-baseline-two_rank0.vtu": "4ec4b3108f01088ee99c1a0eda7c1be2a952b50808f239426345a44dc4067161",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-baseline-two_rank1.vtu": "a94221977485dabeacb7c469f3f24a33e892653a7fcb3dbdf5cfbf533f67ee91",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-baseline-two_solid_rank0.vtu": "ffffb87b9c49a834bb00d8c0abc76625337fbe49cf062bacd9eba58eaee593eb",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-baseline-two_solid_rank1.vtu": "47a276ce9089bb20b11c18a586fe90d859ef4e849d6c04fbb79edda0ea942ee5",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-baseline-two.log": "d4cd9d22da394a093b95e012351bf9a5ae8eca4704dc8e8ec76e4eebd39c9752",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/split-one.json": "977763a75c2abea8e3c6900910708dbb5a6732f11ec9b17c4cb114d32618b4c6",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/split-one.csv": "945bdc54dabc4700e98b5fbccb3e25ae1bc4898c9ad47e8cb58c684b60be5551",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/split-one_pressure_faces.csv": "aac32c7a0d91d82742c6a305974ed8a120d2bcadd6b5d675c2e388e3b5d0652e",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/split-one.vtu": "eb59f7d3aaab2116a7170a911ca461f20f6f573ef18eb82fda0e6c077c0fa2e4",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/split-one_solid.vtu": "e4b541f5b70cfed2573af484626e3763824d3446740569ef6b39936eed01c691",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/split-one.log": "d1cc767606daab6a14b27cf2099ee1cfd37475746959386534865cf550b48bc8",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-two.json": "39d60127f22aef942d80985d53b2df7d4d64a7b4be655dabd41fb61c8feb7db3",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-two.csv": "760eb0fbef2f3962ae790fcf724e89b81a746b80510eaa9ef4b3b6c4b4f77ba1",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-two_pressure_faces.csv": "893ce882a20dbec0fe30adc9b620dd7445cf431831758a6a4bb2ca94c88a40c9",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-two_rank0.vtu": "a8dfe4e475857826c6408d3491329780fc5db86034cf3f45c3a14eba241ca9c1",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-two_rank1.vtu": "0a57b49a25504f71fdd8fd48bd9ffe490dbb6f23e9fa9b6439d68bbe3883bc36",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-two_solid_rank0.vtu": "634528cb31ac2d75eb77ff9e4b3b6e8b11821fe812a78a286af2c720fb496b6c",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-two_solid_rank1.vtu": "ba84ac06a2a12a16e511748739ae024cdd9e678e9e0f0fbe93854f5f6a615b8f",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/gamg-two.log": "f5781c19164af5eabeec53ad67ebe978dce0fe8b9aa20cf3ebd60492be255342",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/boomeramg-two.json": "da0b63a2bb3726304b4eb063441eb7bc90a8c1f2d9fa8094b887fd415cbd0f06",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/boomeramg-two.csv": "2a13de9a4e3ec7b472b406c143782471395655c4afb28ae3807219b09803cbf7",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/boomeramg-two_pressure_faces.csv": "a307bcaf238dc49be69be3ad9a4f9326a3eae3169c8a8f1009def2c42bc28787",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/boomeramg-two_rank0.vtu": "5ae82cf4bae4ba74c9ba90306288dba86002a700eaa49d87c64c8c6d4f9163e5",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/boomeramg-two_rank1.vtu": "457159ea79fef7a436f96d236de1d177c34b71606fb9557adc2575aa5716e315",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/boomeramg-two_solid_rank0.vtu": "ea6daa018ea6e72166db94ee2cf35c1612b8fd6fe6d3a1dbe875743eab2a45df",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/boomeramg-two_solid_rank1.vtu": "924126d785474d9f3fec6b5f69f3dfa3b93f224226bfa9e2822e3d959137bc53",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/boomeramg-two.log": "e3eed58f2aad605062535a8b84581b8e0d281345553cff84aad547ba644d0e20",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/adaptive-two.json": "b90f35d828af1482436de8ea55a663516b866e8994c01096f7965c5016327b37",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/adaptive-two.csv": "d4417d72c9762cf9fda75290333e0ccdec268bb69c9af6c9cabad0bca0ad1505",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/adaptive-two_pressure_faces.csv": "65c5aec3de4a04ff276d266193b90f10a3f518642f65a173232566f6da0f344c",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/adaptive-two_rank0.vtu": "6f5e2bcc3582d121c8f062006a8394769cf0fb640ed5f71d9e08fae7ea460d5b",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/adaptive-two_rank1.vtu": "87dd9f41a8a9d7d69efc648edf8ae655cf0516781f511a6628a98992e15e127d",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/adaptive-two_solid_rank0.vtu": "901da7285f102fe349b741e1e50f2a0be758674e22985c7201769303a5246b8f",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/adaptive-two_solid_rank1.vtu": "88312ff45daf1a6aeab1774ee2601c0f89b9a3fd4892da1bb653060509418817",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/adaptive-two.log": "d1bc01ed7d018594c312f316ecfc47766d70349789020d421cb245b58793ed9f",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/checkpoint.json": "1da9cb5bfa88216b125d264824e0e09b17646e0722b8f958408931e47c05e97a",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/checkpoint.csv": "606b7bdb68b372271133ec4482fc47ca457731bc01b3aff52d2d3fea36bcbbe6",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/checkpoint_pressure_faces.csv": "85c74426c5ea3ad3a0ceea1542512d445a7450f012f84f0c92209bab5fdc5865",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/checkpoint_rank0.vtu": "ce7afd907163bc67dea987987d70ddc81ad511d4ae1379ae24d2c3f63007e00c",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/checkpoint_rank1.vtu": "7df3722357b265f1a06ab5fef71b0ee39874250b1ae18bfcdecec350b94d8ae3",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/checkpoint_solid_rank0.vtu": "48aaa6c97a0d62a22ceff8dc8362f620aa651415f5877b7c981637c797ba27d8",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/checkpoint_solid_rank1.vtu": "c4547890cc4a90479847a851f01d009be7f95a78cf5514584013a513baf0235c",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/checkpoint.log": "74436c82557e17e70c63282db96bd86b495de4efce4fde14be09c64c9e18255b",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/resume.json": "fd69bf1fbb63c38fb63b7665d14d5e13b95f3069059b388e3690097fcbbc37bc",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/resume_restart2.csv": "440dd4d9f2ec741f6539df0db73cd531c91650c5fbd47ba5ad366cca340a1230",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/resume_restart2_pressure_faces.csv": "7a3c18992c28893bd6ff3be4331c838d9d3a5c282d16c8fb87aa60e0f6fcad3a",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/resume_rank0.vtu": "ff3cb3317e23051bc02bfb79b69fbb26060b22687988964a97c9f9c2527daa7c",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/resume_rank1.vtu": "d919df04f4e6fa17c497a863ac7adcab55d85a357f2f01a7bb055ca9c04e857c",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/resume_solid_rank0.vtu": "ec83eb1cfd81efffc28e583bd79f88c07311e2e609f467ed57d75e7e8362415d",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/resume_solid_rank1.vtu": "1a417e70a9d9fb04f9fee080daf14209cbbaa139021ebdd5f4784925bc1a2263",
+    "build/cloud-3.23.7-release/rcr_port_fsi/single/resume.log": "273c4cdbf6027f9276980532ebad2e9420da58f4cf5e8b8d6ff5dc10a41c35ee",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/fluid.msh": "0a9bd2e9a7004dd3128f8fa536c6a39f945a226cedc2def2cb447b011497a0ce",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/direct-two.json": "74103dff5aedceddbc086dcfd436183265afd967d6f83601795a845f6ca7e0d0",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/direct-two.csv": "ec41bd94fff7c1398b6f87ca2e1e9af9b33b0e4cdb44128fcada4d76ce10d36d",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/direct-two_pressure_faces.csv": "268888de1a2c5f36ec54e970e6cb330668e4bc91a93ca09727264d2c95d9fd13",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/direct-two_rank0.vtu": "570b627bcc481dbdee31b69045d579b911bd2d40dd09165af2c8b16988a86cb0",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/direct-two_rank1.vtu": "101f43009d9e32cefe0dafc341247b1734d2173fab59618053ab47d9e89fb1d0",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/direct-two_solid_rank0.vtu": "5be2ab6b68109d84e63ed75514bcbb1b6562241befe23d30eaaec1a8a547226c",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/direct-two_solid_rank1.vtu": "bcf0464b4ce3c8defb5dadfb48d8551fa45b0a9c02afaad193f8e9c249af5704",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/direct-two.log": "98c3ab20d458c068e1511c57e5dee4cdc1aef1b6ac7f08e5c462bcaaa7e6c245",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-baseline-two.json": "e0fdb9c021ebc974a6a7a7f43e1bab7f615bb6380866a2b924337eba7fc3ed91",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-baseline-two.csv": "5b10f454147cb0b008bd1f245f518aa6356d99dd0e6538015b84d213a20b1e3d",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-baseline-two_pressure_faces.csv": "57102f5a4aafc2ff56508bd2d957bce516750e829ab0e9d50c6e949782f51595",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-baseline-two_rank0.vtu": "47d8e9cdb6952f17d6e11ca601552e7d85838dbc4f03ac1cac83cd89528a3547",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-baseline-two_rank1.vtu": "e2b6b2478635c3d668cd5f729de0c85f6acde9bb9a0a4b9bc23fed46d8a07f53",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-baseline-two_solid_rank0.vtu": "b6cb77357e15b1099fef9bd6b1588c2ddd7e09dfb091101c6046f4a7adef78ec",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-baseline-two_solid_rank1.vtu": "702e942a55d58688079a24259a7588273337d80db645e61fa9b64568020377c2",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-baseline-two.log": "0d9207e6a71c24e33e14905b4df5763c9ce00429578a1c4d8061b5eafb69f5fc",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/split-one.json": "6481f7d56316d6ffa886dd92111cef1126af343586adda5fcf09f1f4c6e19051",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/split-one.csv": "723a4a96a2368512f9a76386a614becc09e0e5e3d44556935517cb9cc2b7540f",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/split-one_pressure_faces.csv": "e1dd0e247200d7e0ec2e8310622e1f06a0e1e92060337f44361d32f78a7d7ae8",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/split-one.vtu": "fa92c7096698c55814f2484545954c6d055f2771ab0cffbed4caadb164e9cb2c",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/split-one_solid.vtu": "a583a8efd0f91267cada45e41ed0029504c93c0e5dfd947dcaecd3d177e5e857",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/split-one.log": "52ef53c441a537ce9def22c9eb6ca070e145e2808f3aeaa556ebc8cdce6aa7d9",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-two.json": "7a42b9d30096ac13e1066fc633e50e311f41211ad303306caac24fecddf099ab",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-two.csv": "40aba8d12fff19205c9fb7114c5db023f01a4e0f9bbc6cc0bb363276ff8366df",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-two_pressure_faces.csv": "026c67dc53faa45b326993773a7f191ecc31948b4a86e52e1b86382dd544e411",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-two_rank0.vtu": "3a14ea56b341832d994dd782e18be7e672858e0210872726c78a3edcf412bd72",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-two_rank1.vtu": "3eaa1399759657436509ee1ebcc18021ed014839d72fde961dbab3d37b6df37c",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-two_solid_rank0.vtu": "ccfe37828d9a6acaf25c11bff7f8c8b34bb3b9e3ff6a1354d3d4ab447ef4eb77",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-two_solid_rank1.vtu": "9cd12786de0ebc5c946e68410619b8fe3f1be3f6ddd99f958f49f5392cdb069c",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/gamg-two.log": "cbc57f4a7553dee2b027cfd9de0832fc18bc2e50f5b37c006cc0396951d2a2da",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/boomeramg-two.json": "cb90b3cdfe179cbd850d785328aca27b077872ff8d65cdba050b708a3e920601",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/boomeramg-two.csv": "f3b48a723dac5c9df92d02e067643e71a967980a0e3fe776fb178ad6d13807a6",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/boomeramg-two_pressure_faces.csv": "961291373691a713e70fb7d3e1a6e4fae7453cc35646f04cc67c9ad1af33c503",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/boomeramg-two_rank0.vtu": "8d48e0daf5137e7aa5298949132c064d3afb8c130d8cb4f52660c97bfcaf0afb",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/boomeramg-two_rank1.vtu": "7b2026ebcd4dcdc854c364eac7319f1e69aafba2ae74100a166ef99aad9e0739",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/boomeramg-two_solid_rank0.vtu": "55e97c3d5e9625028906c575f3a37254213672d70554a62dfddd9b477af95f77",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/boomeramg-two_solid_rank1.vtu": "313b149ba096e37123d597830f4bcc44c05ed39eedd532318b0337dbffa77445",
+    "build/cloud-3.23.7-release/rcr_port_fsi/multiple/boomeramg-two.log": "7d6ca609223e2f0c98456fd6c7bc168a4acb3ffcd47125b360e1c6a946115cb2",
+    "build/rcr-port/fsi-ad08887.xml": "8425b318853b1f6595f5f2982f2c552499da54ea296d7acc5b2a8d1d5ca69b83",
+    "build/cloud-3.23.7-release/rcr_port_fsi/metrics.json": "2e3a41746f355eeccd9a64a3386a03a97ebdedc8c635f62701489bbd342022bd",
+    "build/rcr-port/fsi-ad08887.log": "80f7fbd518721e97564b7a480180a0714c07687220ca4bd38a26aefeb54bd2d1",
+    "build/rcr-port/fsi-ad08887-LastTest.log": "a8890e2500cd2235c978d5897dc10e81c57e36fdc5d069ad89741bdd076b2b7a",
+    "build/rcr-port/independent-algebra-audit.json": "cd9f7ef512030ae298481fb6fd0757ede3c4d2263c6f234fed34053ae9dfbd0e",
+    "tests/verify_rcr_port_fsi.py": "df2531b5bf651f793b4eb6d85edc3c6791061555d0892e079b617cafd560b9c7",
+    "src/algebra/rcr_port_pc.cpp": "64c1268af6fd9d8d85edddf2b90e55e8ed96689d309c5b1ae2f3a84c864099ab",
+    "include/eonsim/rcr_port_pc.hpp": "d1facc60708f40e4106b2e20d694105e97b4466d22a9fde1fab3b00b382e9a40",
+    "build/rcr-port/independent_fsi_audit.py": "35b7f165cefa940da1140bf7e4ea96a63a7cb18c8312c8729d6bedbb071604fd"
+  }
+}
