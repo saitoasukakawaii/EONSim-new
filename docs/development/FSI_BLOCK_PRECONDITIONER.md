@@ -1,5 +1,8 @@
 # FSI 分块预条件器
 
+RCR出口的可选外层端口Schur、单/多出口低秩响应、GAMG/BoomerAMG组合及缓存证据，
+见[RCR_PORT_PRECONDITIONER](RCR_PORT_PRECONDITIONER.md)。原有recipe默认路径保持。
+
 ## FSI-PC-04：联合速度多层与参考几何粗空间（2026-11-26）
 
 本轮从已合并 #53 的 `main@858f021` 接续，分支 `codex/fsi-block-amg-robustness`。

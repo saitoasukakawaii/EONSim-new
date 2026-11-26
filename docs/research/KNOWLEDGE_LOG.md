@@ -1,5 +1,21 @@
 # EONSim Knowledge Log
 
+## 2026-11-26 · RCR-PC-01：端口 Schur 的低秩响应与失败恢复
+
+[未发布草稿](../../website/drafts/rcr-port-schur-low-rank.md)、[使用与推导](../development/RCR_PORT_PRECONDITIONER.md)
+及[原始证据](data/rcr-port-2026-11-26/README.md)对应PR#58、生产28e6d54、驱动ad08887。
+理论区分固定线性H的Woodbury恒等式与含内层求解的近似响应；移动出口及行约束不保证
+V=-Uᵀ。实现逐代缓存HU和D-VHU，端口层内积合并归约，基础GAMG/BoomerAMG保持可选。
+
+1/2/4rank独立代数、奇异/NaN拒绝与恢复及13真实FSI运行已验证；独立原件回放确认
+43接受步、96真残差、798无失败内层记录，adaptive12新鲜J/8刷新/4复用。
+114Newton总数另含没有线性诊断的18直接参考迭代；不混淆观测范围。
+保留PCApply失败路径向量读锁与变步长名义终点的两次失败、对应修复及定向复验。
+
+GAMG单/双出口迭代145→144和53→53，单次短样本不支持普遍加速或网格扩展结论。
+文章仅保留在drafts，未发布。最终源码CI实际65/65 Release、54/54 Python通过，
+0数值跳过/复用；成功receipt与CI原件见证据页，后续文档不算新的数值执行。
+
 ## 2026-11-26 · HPC-07：固定结构复用与对照器完整性
 
 [草稿](../../website/drafts/hpc-fixed-structure-refresh.md)及

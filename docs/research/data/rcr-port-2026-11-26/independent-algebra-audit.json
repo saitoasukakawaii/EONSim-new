@@ -1,0 +1,146 @@
+{
+  "kind": "independent_read_only_evidence_audit",
+  "physical_solves_rerun": 0,
+  "source_commit": "28e6d54701abced040752aff70b69d29b35f1d01",
+  "algebra": {
+    "algebra-94046b1": {
+      "counts": {
+        "name": "(empty)",
+        "tests": "7",
+        "failures": "3",
+        "disabled": "0",
+        "skipped": "0",
+        "hostname": "",
+        "time": "9",
+        "timestamp": "2026-11-25T23:34:22"
+      },
+      "cases": [
+        {
+          "name": "pc_rcr_port_mpi1",
+          "passed": false,
+          "seconds": 1.44412,
+          "adaptive_receipts": []
+        },
+        {
+          "name": "pc_rcr_port_mpi2",
+          "passed": false,
+          "seconds": 1.17602,
+          "adaptive_receipts": []
+        },
+        {
+          "name": "pc_rcr_port_mpi4",
+          "passed": false,
+          "seconds": 1.18973,
+          "adaptive_receipts": []
+        },
+        {
+          "name": "pc_plan_mpi1",
+          "passed": true,
+          "seconds": 1.30894,
+          "adaptive_receipts": []
+        },
+        {
+          "name": "pc_plan_mpi2",
+          "passed": true,
+          "seconds": 1.44454,
+          "adaptive_receipts": []
+        },
+        {
+          "name": "pc_plan_mpi4",
+          "passed": true,
+          "seconds": 1.68598,
+          "adaptive_receipts": []
+        },
+        {
+          "name": "adaptive_pc_mpi2",
+          "passed": true,
+          "seconds": 1.16341,
+          "adaptive_receipts": []
+        }
+      ]
+    },
+    "algebra-28e6d54": {
+      "counts": {
+        "name": "(empty)",
+        "tests": "3",
+        "failures": "0",
+        "disabled": "0",
+        "skipped": "0",
+        "hostname": "",
+        "time": "3",
+        "timestamp": "2026-11-25T23:36:10"
+      },
+      "cases": [
+        {
+          "name": "pc_rcr_port_mpi1",
+          "passed": true,
+          "seconds": 1.19037,
+          "adaptive_receipts": [
+            "rcr_adaptive_verification reused_generation=1 fresh_jacobians=2 reused_user_updates=0 recovered_generation=2"
+          ]
+        },
+        {
+          "name": "pc_rcr_port_mpi2",
+          "passed": true,
+          "seconds": 1.20313,
+          "adaptive_receipts": [
+            "rcr_adaptive_verification reused_generation=1 fresh_jacobians=2 reused_user_updates=0 recovered_generation=2"
+          ]
+        },
+        {
+          "name": "pc_rcr_port_mpi4",
+          "passed": true,
+          "seconds": 1.19909,
+          "adaptive_receipts": [
+            "rcr_adaptive_verification reused_generation=1 fresh_jacobians=2 reused_user_updates=0 recovered_generation=2"
+          ]
+        }
+      ]
+    }
+  },
+  "files": {
+    "build/rcr-port/algebra-94046b1.xml": {
+      "bytes": 36070,
+      "sha256": "68f202f72a83e9ce38b523c12002d8965e308cbfa14a0a399c8a57a90777c69f"
+    },
+    "build/rcr-port/algebra-94046b1.log": {
+      "bytes": 31133,
+      "sha256": "77f659a824ea4b25629340e88a60d6731b3bf9688e1bee48b7476b9ebd47e2da"
+    },
+    "build/rcr-port/algebra-94046b1-LastTest.log": {
+      "bytes": 189222,
+      "sha256": "3fc828d1738505f02b22304f7e0efa955e8d1c9ca28db631ebdab18375e67047"
+    },
+    "build/rcr-port/algebra-28e6d54.xml": {
+      "bytes": 2709,
+      "sha256": "dea78d2df53ada2f39be4be37c42498d9b1b42a2fb3baba8f018529d2d7719c0"
+    },
+    "build/rcr-port/algebra-28e6d54.log": {
+      "bytes": 678,
+      "sha256": "ea0ca6ee0aca5abe7e5c67573de72db2cd96a109178a3200615321cf79033619"
+    },
+    "build/rcr-port/algebra-28e6d54-LastTest.log": {
+      "bytes": 4176,
+      "sha256": "0b2a7d6f057c85b3868d407f263434f86f383d8ddfb09935fe9d029537f4f885"
+    },
+    "build/rcr-port/python-94046b1.log": {
+      "bytes": 178,
+      "sha256": "f4fe427ce55be295f41b416ad42768b2c6e03658af9c9d23b9e6d8741e65bb25"
+    }
+  },
+  "correction_changed_files": [
+    "src/algebra/rcr_port_pc.cpp"
+  ],
+  "tests_and_thresholds_changed_in_correction": false,
+  "new_source_3_passes_plus_reused_source_4_passes": true,
+  "python": {
+    "tests": 32,
+    "status": "passed",
+    "source_commit": "94046b1a1fc1182937dd170a5777f2a7e6c5ba88"
+  },
+  "limitations": [
+    "The algebra driver asserts action/residual gates but does not print measured maxima. No numeric maximum is inferred.",
+    "Run source provenance is linked through build/commit records; this audit re-read existing output and did not rebuild or rerun.",
+    "Algebra audit completed before FSI; final FSI tracked in independent-fsi-audit.json"
+  ]
+}

@@ -352,3 +352,19 @@ P2 几何继续使用 Tri3，ScalarP2Space 独立持有顶点/边中点的 cell-
 重试只使用原求解尚未消耗的 Newton 迭代与 PETSc 计数的函数评价预算；以实际 SNES
 设置为准，保留命令行覆盖和无限函数评价设置。重试退出后恢复原始上限，成功保留的
 会话不会将减少后的预算带入下一时间步。显式初始/重试起点及最终物理验收组装不属于 SNES 函数计数。
+
+### RCR 端口低秩响应（RCR-PC-01）
+
+显式 `-pc_plan_rcr_ports true` 在现有语义recipe外包一层端口PCSHELL，按boundary-pressure
+实体识别端口，bulk保留全部其他自由度。完整约束后Jacobian与验收字段不变；U和V必须
+分别从真实矩阵提取，不能对移动出口或只替换约束行的矩阵强加V=-Uᵀ。
+
+端口层缓存Y=HU及S=D-VY，应用z=H r_bulk、q=S⁻¹(r_port-Vz)、x_bulk=z-Yq。
+H=A⁻¹时是原J的精确块逆；固定可逆线性H对应将A替换为H⁻¹的块逆。
+含残量相关内层求解时为响应近似；外层要求FGMRES。
+bulk必须以PREONLY执行一次现有语义PC；前缀按原根KSP前缀、rcr_bulk_、原子树前缀组合。
+固定索引/图可跨数值刷新复用，bulk、U/V/D、响应和小矩阵必须同代刷新并整体发布；
+失败generation不可应用，成功重建后才清除PC failure。缓存随已有PcSchurUpdates决策，
+不因单次J数值状态变化擅自绕过自适应复用，也不进入物理checkpoint。
+端口层每apply/每generation各一次合并投影归约，基础PC内部通信另计。
+实际支持范围、基础GAMG/BoomerAMG配置和证据见[RCR预条件器](../development/RCR_PORT_PRECONDITIONER.md)。
