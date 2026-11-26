@@ -1,5 +1,13 @@
 # EONSim Codex Task Queue
 
+## RCR-PC-01 / implementation in progress / 2026-11-26
+
+从已合并 #57 的 `main@b731d471` 接续，分支 `codex/rcr-port-schur`。
+本轮实现完整 Jacobian 的端口 Schur、单出口 Sherman–Morrison / 多出口 Woodbury
+响应、GAMG/BoomerAMG 基础速度块组合、一次合并出口归约及与自适应 PC 同代刷新。
+保留移动出口的非对称 U/V；所有源代码先同步远端，再进行 Release 增量与真实算例验证，
+最后按用户授权完成 head-locked PR 合并。当前尚未运行本轮数值验证。
+
 ## HPC-07 / implementation and validation complete / 2026-11-26
 
 从已合并 #56 的 `main@55a04f7` 接续用户要求，交付

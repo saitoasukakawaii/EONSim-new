@@ -554,4 +554,51 @@ void configure_coupled_velocity_gamg(MPI_Comm comm,KSP solver,
         " identity=%d reuse_interpolation=%d basis=scalar_constant\n",prefix.empty()?"-":prefix.c_str(),
         modes.size(),levels,coarse_rows,modes.empty()?1:0,static_cast<int>(reuse)));
 }
+void validate_coupled_velocity_boomeramg_options(MPI_Comm comm,const std::string& prefix) {
+    response_options(comm,prefix);
+    const auto base="-"+prefix;
+    for(const auto& option:std::vector<std::pair<std::string,std::string>>{
+        {"pc_type","hypre"},{"pc_hypre_type","boomeramg"}}) {
+        char value[64]{}; PetscBool set=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+option.first).c_str(),value,sizeof(value),&set));
+        common_check(comm,!set||value==option.second,"incompatible "+prefix+option.first);
+    }
+#if !defined(PETSC_HAVE_HYPRE)
+    common_check(comm,false,"BoomerAMG requires a PETSc build with hypre");
+#endif
+}
+
+void configure_coupled_velocity_boomeramg(MPI_Comm comm,KSP solver,
+    const std::vector<DofKey>& owned_semantics) {
+    const char* prefix_ptr=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(solver,&prefix_ptr));
+    const std::string prefix=prefix_ptr?prefix_ptr:"",base="-"+prefix;
+    validate_coupled_velocity_boomeramg_options(comm,prefix);
+    const auto fine=fine_rows(comm,solver,owned_semantics,{},false,true);
+    int active=std::any_of(fine.active.begin(),fine.active.end(),[](char x){return x!=0;}),any=0;
+    MPI_Allreduce(&active,&any,1,MPI_INT,MPI_MAX,comm);
+    PC pc; EONSIM_PETSC(KSPGetPC(solver,&pc));
+    EONSIM_PETSC(KSPSetType(solver,KSPPREONLY));
+    EONSIM_PETSC(KSPSetTolerances(solver,1e-4,PETSC_DEFAULT,PETSC_DEFAULT,20));
+#if defined(PETSC_HAVE_HYPRE)
+    EONSIM_PETSC(PCSetType(pc,PCHYPRE));
+    EONSIM_PETSC(PCHYPRESetType(pc,"boomeramg"));
+#endif
+    EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
+    // One fixed V-cycle is a linear response with the built hierarchy. Users
+    // can select a different inner budget; the containing solve is flexible.
+    option_default(base+"pc_hypre_boomeramg_max_iter","1");
+    option_default(base+"pc_hypre_boomeramg_tol","0");
+    EONSIM_PETSC(KSPSetFromOptions(solver));
+    if(!any) {
+        EONSIM_PETSC(KSPSetType(solver,KSPPREONLY));
+        EONSIM_PETSC(PCSetType(pc,PCJACOBI));
+        EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
+    }
+    EONSIM_PETSC(PCSetUp(pc));
+    PetscBool report=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-pc_plan_report",&report,nullptr));
+    if(report) EONSIM_PETSC(PetscPrintf(comm,
+        "pc_coupled_boomeramg prefix=%s identity=%d basis=scalar\n",
+        prefix.empty()?"-":prefix.c_str(),any?0:1));
+}
 } // namespace eonsim

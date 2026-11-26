@@ -9,7 +9,11 @@ namespace eonsim {
 struct PcBlock {
     std::string name;
     bool schur=false, nodal_schur=false, coupled_velocity=false, twolevel_velocity=false;
-    bool gamg_velocity=false, rigid_velocity_modes=false;
+    bool gamg_velocity=false, boomeramg_velocity=false, rigid_velocity_modes=false;
+    // Optional outer port Schur action. The sole child describes the reindexed
+    // bulk matrix; boundary-pressure rows retain their full-matrix provenance.
+    bool rcr_ports=false;
+    std::vector<PetscInt> rcr_port_rows;
     PetscInt velocity_aggregate_nodes=0; ///< Positive selects graph aggregates plus a GAMG coarse solve.
     // Added-mass retains full fluid saddle-point blocks with an approximate inverse action.
     // fluid_response defaults to PREONLY; explicit FGMRES keeps its bounded budget.

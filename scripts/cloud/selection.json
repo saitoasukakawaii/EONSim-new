@@ -1,6 +1,10 @@
 {
   "schema": 1,
   "tests": {
+    "pc_rcr_port_mpi1": {"targets": ["verify_rcr_port"], "ranks": [1]},
+    "pc_rcr_port_mpi2": {"targets": ["verify_rcr_port"], "ranks": [2]},
+    "pc_rcr_port_mpi4": {"targets": ["verify_rcr_port"], "ranks": [4]},
+    "rcr_port_fsi": {"targets": ["eonsim"], "ranks": [1, 2]},
     "ghost_overlap_mpi1": {"targets": ["verify_ghost_overlap"], "ranks": [1]},
     "ghost_overlap_mpi2": {"targets": ["verify_ghost_overlap"], "ranks": [2]},
     "ghost_overlap_mpi4": {"targets": ["verify_ghost_overlap"], "ranks": [4]},
@@ -103,6 +107,8 @@
     "time_retry_verification": {"targets": ["eonsim"], "ranks": [1, 2]}
   },
   "rules": [
+    {"paths": ["tests/verify_rcr_port.cpp", "include/eonsim/rcr_port_pc.hpp", "src/algebra/rcr_port_pc.cpp", "include/eonsim/pc_plan.hpp", "src/algebra/pc_plan.cpp", "include/eonsim/coupled_velocity_pc.hpp", "src/algebra/coupled_velocity_pc.cpp", "CMakeLists.txt"], "tests": ["pc_rcr_port_mpi1", "pc_rcr_port_mpi2", "pc_rcr_port_mpi4"], "python": []},
+    {"paths": ["tests/verify_rcr_port_fsi.py", "tests/verify_fsi_moving_port.py", "tests/verify_fsi_inlet.py", "tests/verify_curved_fsi.py", "cases/fsi/generate_branched.py", "cases/fsi/generate_tube.py", "include/eonsim/rcr_port_pc.hpp", "src/algebra/rcr_port_pc.cpp", "include/eonsim/pc_plan.hpp", "src/algebra/pc_plan.cpp", "include/eonsim/coupled_velocity_pc.hpp", "src/algebra/coupled_velocity_pc.cpp", "src/algebra/nonlinear_system.cpp", "CMakeLists.txt"], "tests": ["rcr_port_fsi"], "python": []},
     {"paths": ["tests/verify_ghost_overlap.cpp", "include/eonsim/nonlinear_system.hpp", "src/algebra/nonlinear_system.cpp", "src/physics/fsi.cpp", "CMakeLists.txt"], "tests": ["ghost_overlap_mpi1", "ghost_overlap_mpi2", "ghost_overlap_mpi4"], "python": []},
     {"paths": ["tests/verify_adaptive_pc.cpp", "include/eonsim/nonlinear_system.hpp", "src/algebra/nonlinear_system.cpp", "CMakeLists.txt"], "tests": ["adaptive_pc_mpi1", "adaptive_pc_mpi2", "adaptive_pc_mpi4"], "python": []},
     {"paths": ["tests/verify_parallel_hdf5.cpp", "scripts/verify_hdf5_outputs.py", "src/io/parallel_hdf5.cpp", "src/io/parallel_hdf5.hpp", "include/eonsim/vtu.hpp", "src/io/vtu.cpp", "src/main.cpp", "CMakeLists.txt"], "tests": ["parallel_hdf5", "parallel_hdf5_mpi"], "python": []},

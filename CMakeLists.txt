@@ -63,6 +63,7 @@ add_library(eonsim_core
     src/algebra/nonlinear_system.cpp
     src/algebra/schur_solver.cpp
     src/algebra/pc_plan.cpp
+    src/algebra/rcr_port_pc.cpp
     src/algebra/coupled_velocity_pc.cpp
     src/physics/fluid_element.cpp
     src/fem/reduced_layout.cpp
@@ -112,6 +113,14 @@ if(BUILD_TESTING)
     endif()
     add_executable(verify_pc_plan tests/verify_pc_plan.cpp)
     target_link_libraries(verify_pc_plan PRIVATE eonsim_core)
+    add_executable(verify_rcr_port tests/verify_rcr_port.cpp)
+    target_link_libraries(verify_rcr_port PRIVATE eonsim_core)
+    foreach(ranks IN ITEMS 1 2 4)
+        add_test(NAME pc_rcr_port_mpi${ranks} COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" ${ranks}
+            ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_rcr_port> ${MPIEXEC_POSTFLAGS})
+        set_tests_properties(pc_rcr_port_mpi${ranks} PROPERTIES TIMEOUT 60 PROCESSORS ${ranks}
+            LABELS "core;mpi-failure;rank-${ranks}" ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    endforeach()
     foreach(ranks IN ITEMS 1 2 4)
         add_test(NAME pc_plan_mpi${ranks} COMMAND "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" ${ranks}
             ${MPIEXEC_PREFLAGS} $<TARGET_FILE:verify_pc_plan> ${MPIEXEC_POSTFLAGS})
@@ -250,6 +259,10 @@ if(BUILD_TESTING)
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_metric")
     add_test(NAME fsi_moving_plane_rcr COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_moving_port.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_moving_plane_rcr")
+    add_test(NAME rcr_port_fsi COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_rcr_port_fsi.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/rcr_port_fsi")
+    set_tests_properties(rcr_port_fsi PROPERTIES TIMEOUT 600 PROCESSORS 2 LABELS "core;rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     add_test(NAME fsi_reservoir_pressure COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_reservoir.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/fsi_reservoir_pressure")
     set_tests_properties(fsi_branched_rcr fsi_curved_inlet fsi_sampled_inlet fsi_metric_stabilization fsi_moving_plane_rcr fsi_reservoir_pressure PROPERTIES TIMEOUT 600 PROCESSORS 2
