@@ -85,7 +85,8 @@ void verify(const std::filesystem::path& directory) {
     auto mesh=fixture(rank,ranks);const auto path=directory/"solution.vtu",index=directory/"solution.xdmf";
     auto values=fields(mesh);
     write_fields(path,mesh,values);
-    const auto first=bytes(index),old_payload=payload(index);
+    const auto first=bytes(index);
+    const auto old_payload=payload(index);
     if(rank==0)inspect(index,ranks);
     MPI_Barrier(MPI_COMM_WORLD);
     const auto fail_all=[&](const auto& action,const char* reason) {
