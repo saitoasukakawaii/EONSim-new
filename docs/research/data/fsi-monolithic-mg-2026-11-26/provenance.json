@@ -1,0 +1,102 @@
+{
+  "repository": "saitoasukakawaii/EONSim-new",
+  "pull_request": 61,
+  "base": "3472a18a5c7ad112084ec551a28a11d84bd3c4e7",
+  "final_production_source": "3b5cbddb928dfa789dc1f3f424dba451f33107e6",
+  "final_source_tree": "2cca4aba25978f91a557dae538b2e056c2ab80c3",
+  "binary_sha256": "e36709e019aa2312e4f5da3145a0c1ac59650d3086841554f228f5a91584e83e",
+  "driver_sha256": "b09fc5e4f3a32f759b59c81f695b3f992e3d6f9da460f0709ea434755b833667",
+  "environment": {
+    "captured_utc": "2026-11-26T11:58:30.541346+00:00",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "meminfo": {
+      "MemTotal": "       10206472 kB",
+      "MemFree": "         7930252 kB",
+      "MemAvailable": "    8634512 kB"
+    },
+    "cgroup": "0::/\n",
+    "build_type": "Release",
+    "petsc_version": "3.23.7",
+    "build_jobs": 2,
+    "threads_per_rank": 1,
+    "binding": "default oversubscribe; correctness and small-host timings only"
+  },
+  "source_sync_before_execution": [
+    {
+      "remote_commit": "03b922c5070bd444180d23868c20482c93701e18",
+      "local_tree": "44afb4e53f30f16fd814bf21e921b21fc6b51d3c",
+      "remote_tree": "44afb4e53f30f16fd814bf21e921b21fc6b51d3c",
+      "verified_utc": "2026-11-26T11:56:54.544144+00:00",
+      "before_any_build_or_numerical_test": true
+    },
+    {
+      "remote_commit": "4d3fd8e4e4779f6e03858f7865ec4b2b4c7df176",
+      "local_tree": "506545f287d36f6b2ddfdfaca1cd55d2fd953062",
+      "remote_tree": "506545f287d36f6b2ddfdfaca1cd55d2fd953062",
+      "verified_utc": "2026-11-26T11:57:24.053851+00:00",
+      "before_build": true
+    },
+    {
+      "remote_commit": "87c2456e714bc9853b7d112f69964af7e1fbb0c1",
+      "local_tree": "280de1ec744c228ca43048d0f6fb908357761415",
+      "remote_tree": "280de1ec744c228ca43048d0f6fb908357761415",
+      "verified_utc": "2026-11-26T12:08:10.796513+00:00",
+      "before_build": true
+    },
+    {
+      "remote_commit": "3b5cbddb928dfa789dc1f3f424dba451f33107e6",
+      "local_tree": "2cca4aba25978f91a557dae538b2e056c2ab80c3",
+      "remote_tree": "2cca4aba25978f91a557dae538b2e056c2ab80c3",
+      "verified_utc": "2026-11-26T12:19:42.556086+00:00",
+      "before_build": true
+    }
+  ],
+  "config": {
+    "mode": "Release",
+    "petsc": "3.23.7",
+    "mpi": "Open MPI 5.0.8",
+    "scalar": "real double",
+    "petsc_int_bits": 32,
+    "blas": "OpenBLAS",
+    "compiler": "GNU 15.3.0",
+    "threads_per_rank": 1,
+    "build_parallelism": 2,
+    "debug_executed": false,
+    "legacy_petsc_executed": false,
+    "multi_node_executed": false
+  },
+  "commands": {
+    "wrapper": "bash /workspace/scratch/ae740e1dde63/EONSim-new/build/locked.sh",
+    "configure": "cmake --preset release -B build/cloud-3.23.7-release -DBUILD_TESTING=ON -DEONSIM_PETSC_ROOT=/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7 -DCMAKE_PREFIX_PATH=/workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7 -DEONSIM_BLAS_LAPACK_PROVIDER=OPENBLAS -DEONSIM_VERIFY_LOCKED_RUNTIME=ON",
+    "build_targets_initial": [
+      "eonsim",
+      "verify_runtime",
+      "verify_fsi_element",
+      "verify_matrix_free",
+      "verify_monolithic_fsi_mg",
+      "verify_fsi_level_smoother",
+      "verify_interface_patch",
+      "verify_pressure_schur",
+      "verify_added_mass_pressure",
+      "verify_fsi_pressure_operators"
+    ],
+    "physical_base": "python tests/verify_fsi_multigrid.py --executable build/cloud-3.23.7-release/eonsim --mpiexec /workspace/scratch/ae740e1dde63/EONSim-new/.cloud/petsc-3.23.7/bin/mpiexec --work <campaign-dir> --build-source <source>"
+  },
+  "limitations": [
+    "The oldest executable was overwritten; its identity is pinned in its original receipt, not rehashed from a retained binary.",
+    "J, b and Newton corrections were not archived; the independent audit rechecks logged original-operator norms, not offline J multiplication.",
+    "Single shared host timings are observations, not independent repeated hardware benchmarks."
+  ]
+}

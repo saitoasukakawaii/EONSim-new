@@ -266,6 +266,8 @@ T_\theta=K_\theta+F_\theta M_p^{-1}D,\qquad
 \]
 
 同时修改输运中的扩散部分保留了该 PCD 模型的稳态 Stokes 质量极限；原反应、对流及 Robin 项继续参与。
+精确辅助求解且反应/对流为零时，保留完整稳定化的作用极限为
+\((\mu^{-1}M_p+D)^{-1}\)；仅在 \(D=0\) 时化为 \(\mu M_p^{-1}\)。
 默认混合权重保留几何 Laplace 份额。这是离散 Laplace 混合增强，不等同于文献中的完整加法 PCDR 公式；也没有声称在所有瞬态和强耦合条件下优于原 PCD。
 
 ## 6. Matrix-free 与 Krylov 的运行约束
@@ -277,6 +279,11 @@ T_\theta=K_\theta+F_\theta M_p^{-1}D,\qquad
 随后按该间隔复用 P，精确方向算子仍随每次 Newton 线性化更新。间隔大于 1 只有在实际发生多个相应修正时才减少装配；应读取 `assembled_pc_reuses`。
 
 当前 P 是完整 AIJ 矩阵，尚未提供另一个低阶、稀疏化或 partial-assembly P。因此不能仅凭开启 Matrix-free 宣称全局矩阵存储或总内存减少。
+
+实际执行的源码、1/2/4-rank 检查、物理对照、失败修复及成本数据见
+[FSI-MG-01 证据索引](../research/data/fsi-monolithic-mg-2026-11-26/README.md)。
+Matrix-free 与 PIPEFGMRES 可以组合；在上面的 Matrix-free 示例中将
+`-ksp_type fgmres` 改为 `-ksp_type pipefgmres` 即可，仍使用右预条件。
 组装成本、每次方向作用成本和外层迭代次数需要一起比较，尤其本实现仍在每次方向应用中计算局部结构切线。
 
 精确 Matrix-free 要求 `fgmres` 或 `pipefgmres`，使用自身 P 刷新间隔；它拒绝 `-fsi_fd_tangent`、PETSc SNES FD/MF 替代算子、手工 Jacobian/PC lag/reuse、EW 覆盖以及另一个 `-nonlinear_adaptive_pc` 策略。
