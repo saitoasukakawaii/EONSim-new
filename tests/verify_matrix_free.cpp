@@ -27,7 +27,8 @@ void verify(MPI_Comm comm) {
     if(3>=layout.begin&&3<layout.begin+layout.owned) constraints.push_back(3);
     std::vector<double> prescribed(constraints.size(),1.75),initial(4,.5);
     const double coupling[4][4]={{0,.11,-.03,.07},{-.06,0,.09,.02},{.04,-.12,0,.05},{.08,.02,-.07,0}};
-    const auto target=[](int i) {return 1.+.25*i;};
+    double target_shift=0.;
+    const auto target=[&](int i) {return 1.+.25*i+(i<3?target_shift:0.);};
     const PetscInt ids[]{0,1,2,3};
     SolverConfig settings; settings.relative_tolerance=1e-12; settings.absolute_tolerance=1e-12;
     settings.maximum_iterations=20;
@@ -45,6 +46,8 @@ void verify(MPI_Comm comm) {
         PetscInt fail_action=-1;
         PetscInt assemblies_after_failure=0;
         bool action_failed=false;
+        bool failure_in_owned=false,fail_prepare=false;
+        std::vector<double> frozen;
         const auto assemble=[&](const std::vector<double>& x,Vec residual,Mat matrix) {
             if(action_failed) ++assemblies_after_failure;
             if(matrix) ++tangent_calls;
@@ -63,7 +66,12 @@ void verify(MPI_Comm comm) {
             if(matrix) EONSIM_PETSC(MatSetValues(matrix,4,ids,4,ids,jacobian,ADD_VALUES));
         };
         NonlinearAssemblyPhases phases;
+        phases.prepare_jacobian_action=[&](const std::vector<double>& x) {
+            if(fail_prepare&&rank==ranks-1) throw std::runtime_error("injected frozen-state setup failure");
+            frozen=x;
+        };
         phases.jacobian_action=[&](const std::vector<double>& x,const std::vector<double>& direction,Vec result) {
+            require(x==frozen,"Stale frozen-state cache reached matrix-free action");
             ++action_calls;
             if(rank!=ranks-1) return;
             double values[4]{};
@@ -77,6 +85,29 @@ void verify(MPI_Comm comm) {
                 throw std::runtime_error("injected directional failure after off-rank insertion");
             }
         };
+        if(residual_coo) {
+            const auto apply_phase=[&](const std::vector<double>& x,const std::vector<double>& direction,Vec result,bool owned) {
+                require(x==frozen,"Phased action used a stale frozen-state cache");
+                if(owned) ++action_calls;
+                if(rank!=ranks-1) return;
+                double values[4]{};
+                for(int i=0;i<4;++i) {
+                    if((local[i]<layout.owned)==owned)
+                        values[i]=2*(i+2)*x[local[i]]*direction[local[i]];
+                    for(int j=0;j<4;++j) if((local[j]<layout.owned)==owned)
+                        values[i]+=coupling[i][j]*direction[local[j]];
+                }
+                EONSIM_PETSC(VecSetValues(result,4,ids,values,ADD_VALUES));
+                if(action_calls==fail_action&&owned==failure_in_owned) {
+                    action_failed=true;
+                    throw std::runtime_error("injected directional failure after off-rank insertion");
+                }
+            };
+            // Keep the local dispatcher alive for the callbacks below.
+            // Copying it copies only references to this enclosing solve scope.
+            phases.jacobian_action_owned=[apply_phase](const auto& x,const auto& d,Vec r) {apply_phase(x,d,r,true);};
+            phases.jacobian_action_halo=[apply_phase](const auto& x,const auto& d,Vec r) {apply_phase(x,d,r,false);};
+        }
         const auto solve=[&] {return system.solve(settings,initial,constraints,prescribed,assemble,phases);};
         const auto check=[&](const NonlinearResult& result) {
             for(int i=0;i<4;++i) {
@@ -86,6 +117,8 @@ void verify(MPI_Comm comm) {
             require(result.matrix_free_actions>0&&result.assembled_pc_reuses>0,"Matrix-free action or assembled P reuse was not exercised");
             require(result.jacobian_assemblies<result.jacobian_callbacks,"P was assembled for every matrix-free correction");
             require(result.field_residuals[0].equation_rows==3,"Constraint entered the physical field norm");
+            require(result.matrix_free_preparations==result.jacobian_callbacks,"Frozen-state setup did not follow every current linearization");
+            require((result.matrix_free_overlapped_actions>0)==residual_coo,"Exact action phase selection was ignored");
         };
         const auto first=solve(); check(first);
         const auto repeated=solve(); check(repeated);
@@ -96,6 +129,7 @@ void verify(MPI_Comm comm) {
             // runs with an outstanding split reduction, which must also drain
             // before this failed solve can be safely retried.
             fail_action=action_calls+failure_offset;
+            failure_in_owned=failure_offset==1;
             bool caught=false;
             try { (void)solve(); }
             catch(const std::runtime_error& e) { caught=std::string(e.what()).find("injected directional failure")!=std::string::npos; }
@@ -110,6 +144,38 @@ void verify(MPI_Comm comm) {
             require(recovered_repeated.solver_reused&&recovered_repeated.solver_generation==recovered.solver_generation,
                     "Recovered matrix-free session or residual plan was not reusable");
             generation=recovered_repeated.solver_generation;
+        }
+        fail_prepare=true;
+        bool prepare_caught=false;
+        try { (void)solve(); }
+        catch(const std::runtime_error& e) {prepare_caught=std::string(e.what()).find("injected frozen-state setup failure")!=std::string::npos;}
+        require(prepare_caught,"Frozen-state failure was not propagated collectively");
+        fail_prepare=false;
+        check(solve());
+        if(!residual_coo) {
+            option("-nonlinear_inexact_newton","true"); option("-nonlinear_krylov_recycle","2");
+            const auto seeded=solve(); check(seeded);
+            require(seeded.inexact_linear_solves>0&&seeded.recycle_vectors>0&&seeded.recycle_vectors<=2,
+                    "Inexact forcing/recycled Krylov correction space was not exercised");
+            target_shift=.035;
+            const auto advanced=solve(); check(advanced);
+            require(advanced.solver_reused&&advanced.recycle_projections>0,
+                    "Recycled subspace did not cross the solve boundary with a changed RHS/operator");
+            target_shift=0.;
+            EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-nonlinear_matrix_free_pc_interval"));
+            NonlinearSystem assembled_system(comm,layout);
+            const auto assembled_first=assembled_system.solve(settings,initial,constraints,prescribed,assemble);
+            target_shift=.021;
+            const auto assembled_next=assembled_system.solve(settings,initial,constraints,prescribed,assemble);
+            for(int i=0;i<4;++i)
+                require(std::abs(assembled_next.values[local[i]]-target(i))<2e-11,
+                        "Assembled inexact/recycled Newton changed the independent root");
+            require(assembled_first.inexact_linear_solves>0&&assembled_next.recycle_projections>0&&assembled_next.solver_reused,
+                    "Assembled solver did not retain its recycled correction space");
+            target_shift=0.;
+            option("-nonlinear_matrix_free_pc_interval","2");
+            EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-nonlinear_inexact_newton"));
+            EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-nonlinear_krylov_recycle"));
         }
         require(tangent_calls>0&&action_calls>tangent_calls,"Exact actions did not avoid assembled P work");
         if(rank==0) std::cout<<"matrix_free_oracle method="<<method<<" residual_coo="<<residual_coo<<" ranks="<<ranks

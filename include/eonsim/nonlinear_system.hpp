@@ -29,6 +29,10 @@ struct NonlinearResult {
     bool initial_jacobian_deferred=false; ///< 已配置会话将起点 Jacobian 交给首个正常 SNES 回调。
     PetscInt matrix_free_actions=0,assembled_pc_reuses=0;
     double matrix_free_seconds=0; ///< Rank-local exact directional application, including ghost/assembly.
+    PetscInt matrix_free_preparations=0,matrix_free_overlapped_actions=0;
+    double matrix_free_overlap_seconds=0,matrix_free_ghost_seconds=0;
+    PetscInt inexact_linear_solves=0,recycle_projections=0,recycle_vectors=0;
+    double recycle_seconds=0;
     double residual_norm=0;
     std::vector<FieldResidual> field_residuals; ///< 所有 rank 相同；原始反力不参与字段收敛范数。
 };
@@ -58,6 +62,20 @@ struct NonlinearAssemblyPhases {
      * a solve (default 1). The first correction in every solve always refreshes P.
      */
     std::function<void(const std::vector<double>&,const std::vector<double>&,Vec)> jacobian_action;
+    /** Optional local frozen-state setup before each new exact linearization,
+     * including when P is reused. It may cache quadrature coefficients, but
+     * must not communicate or commit physical history. Its lifetime is this
+     * solve callback; failures propagate collectively before any action.
+     */
+    std::function<void(const std::vector<double>&)> prepare_jacobian_action;
+    /** Optional exact-action split. Supply both callbacks on all ranks or
+     * neither. owned executes during the direction's forward ghost update and
+     * may read only owned direction entries (the frozen state is complete).
+     * halo follows the completed update. The driver always drains the exchange
+     * and off-rank result stash before propagating a local kernel failure.
+     * The ordinary jacobian_action remains the synchronous reference.
+     */
+    std::function<void(const std::vector<double>&,const std::vector<double>&,Vec)> jacobian_action_owned,jacobian_action_halo;
     /// Exact physical/time coefficient identity used only for PC reuse policy.
     std::vector<double> preconditioner_context;
 };
@@ -133,6 +151,15 @@ public:
  * KSP iteration budget gets one fresh-PC retry at the same accepted iterate,
  * retaining the original field acceptance limits. Missing physical context
  * permits reuse only within this solve. Manual Jacobian/PC lag and EW conflict.
+ * -nonlinear_inexact_newton enables bounded EW-II-style forcing based on the
+ * current Newton RHS norm, with the requested KSP rtol as its lower bound.
+ * Every resulting correction is checked with the current exact operator;
+ * final independent physical field/constraint acceptance remains unchanged.
+ * -nonlinear_krylov_recycle N retains at most N distributed Krylov correction
+ * directions across successful solves. A current-operator minimum-residual
+ * projection supplies a nonzero starting guess; harmful/dependent projections
+ * are discarded. It is solution-subspace recycling, not GCRO-DR or storage of
+ * the complete Arnoldi basis. A failed/incompatible workspace drops the basis.
  */
     NonlinearResult solve(const SolverConfig& config, const std::vector<double>& initial,
         const std::vector<PetscInt>& constraints, const std::vector<double>& prescribed,

@@ -268,6 +268,13 @@ FsiLevelSmootherHandle make_fsi_level_smoother(MPI_Comm comm,Mat matrix,
     return std::make_shared<FsiLevelSmoother>(comm,matrix,semantics,trace,options);
 }
 void refresh_fsi_level_smoother(const FsiLevelSmootherHandle& smoother,Mat matrix) {smoother->refresh(matrix);}
+void release_native_fsi_smoother_setup(const FsiLevelSmootherHandle& smoother) {
+    common_check(smoother->comm,smoother->options.kind=="vanka"&&smoother->options.patches.native_storage,
+                 "native setup release requires native Vanka");
+    release_native_vanka_setup(smoother->solver.get());
+    smoother->source=nullptr;
+    smoother->source_reference=PetscOwner<Mat,MatDestroy>{};
+}
 PetscErrorCode apply_fsi_level_smoother(const FsiLevelSmootherHandle& smoother,Vec rhs,Vec correction) {
     return smoother->apply(rhs,correction);
 }

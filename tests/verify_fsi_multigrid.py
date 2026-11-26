@@ -22,8 +22,23 @@ from verify_fsi_moving_port import circular_case
 
 assembly = previous.assembly
 ROOT = Path(__file__).resolve().parents[1]
+FEATURES = {
+    'mono_scaled': {'scaling'}, 'mono_candidates': {'candidates'},
+    'mono_adaptive': {'adaptive'}, 'mono_native_fp32': {'native'},
+    'mono_optimized': {'scaling', 'candidates', 'adaptive', 'native'},
+    'mono_reduced': {'mf', 'reduced'}, 'mono_reduced_coo': {'mf', 'reduced', 'coo'},
+    'mono_partial': {'mf', 'partial'},
+    'mono_simd': {'mf', 'partial', 'simd'}, 'mono_overlap': {'mf', 'overlap'},
+    'mono_inexact': {'mf', 'inexact'}, 'mono_recycle': {'mf', 'recycle'},
+    'mono_all': {'scaling', 'candidates', 'adaptive', 'native', 'mf', 'reduced',
+                 'partial', 'simd', 'overlap', 'inexact', 'recycle'},
+}
 MODES = ('mono', 'mono_fp32', 'mono_pipe', 'mono_mf', 'mono_mf_pipe', 'mono_chebyshev',
-         'mono_block_chebyshev', 'added_mass', 'pcd_mass', 'pcd_robin')
+         'mono_block_chebyshev', 'added_mass', 'pcd_mass', 'pcd_robin', *FEATURES)
+
+
+def features(mode):
+    return FEATURES.get(mode, {'mf'} if mode in ('mono_mf', 'mono_mf_pipe') else set())
 
 
 def flags(mode, ports=False):
@@ -38,14 +53,32 @@ def flags(mode, ports=False):
         result += ['-ksp_gmres_modifiedgramschmidt']
     if ports:
         result += ['-pc_plan_rcr_ports', 'true', '-rcr_port_report']
+    selected = features(mode)
     if mode.startswith('mono'):
         prefix = '-rcr_bulk_monolithic_mg_' if ports else '-monolithic_mg_'
         result += ['-pc_recipe', 'monolithic_mg', prefix + 'coarse_limit', '48',
                    prefix + 'coarse_processes', '1']
         if mode == 'mono_fp32':
             result += [prefix + 'single_precision', 'true']
-        if mode in ('mono_mf', 'mono_mf_pipe'):
+        if 'mf' in selected:
             result += ['-fsi_matrix_free', '-nonlinear_matrix_free_pc_interval', '2']
+        for feature, option in (('scaling', 'field_scaling'), ('candidates', 'fsi_candidates'),
+                                ('adaptive', 'adaptive_patches'), ('native', 'native_fp32')):
+            if feature in selected:
+                result += [prefix + option, 'true']
+        if 'adaptive' in selected:
+            result += [prefix + 'patch_strength', '0.25']
+        for feature, option in (('reduced', '-fsi_reduced_pc'), ('partial', '-fsi_partial_assembly'),
+                                ('simd', '-fsi_matrix_free_simd'), ('overlap', '-fsi_matrix_free_overlap'),
+                                ('inexact', '-nonlinear_inexact_newton')):
+            if feature in selected:
+                result += [option, 'true']
+        if 'recycle' in selected:
+            result += ['-nonlinear_krylov_recycle', '4']
+        if 'reduced' in selected:
+            result += ['-fsi_assembly_report']
+        if 'coo' in selected:
+            result += ['-fsi_coo', 'true']
         if mode in ('mono_chebyshev', 'mono_block_chebyshev'):
             result += [prefix + 'smoother', mode.removeprefix('mono_')]
     else:
@@ -60,6 +93,7 @@ def flags(mode, ports=False):
 
 
 def audit(log, trace, ranks, mode):
+    selected = features(mode)
     reports = assembly.records(log, 'solver_report ')
     residuals = assembly.records(log, 'linear_residual ')
     block.require(reports and len(reports) == len(trace) and residuals, 'Incomplete physical solve evidence')
@@ -73,12 +107,31 @@ def audit(log, trace, ranks, mode):
         block.require(int(row['ranks']) == ranks and row['ksp'] == expected and
                       min(int(row['snes_reason']), int(row['ksp_reason'])) > 0 and
                       int(row['linear_started']) == int(row['linear_completed']), 'Invalid solver result')
+    # Final physical acceptance is independent of the forcing tolerance used
+    # for intermediate inexact Newton corrections.
+    fields = assembly.records(log, 'field_residual ')
+    names = {row['name'] for row in fields}
+    block.require({'velocity', 'pressure', 'mesh', 'structure'} <= names and
+                  len(fields) == len(names) * len(trace) and
+                  Counter(row['name'] for row in fields) == Counter({name: len(trace) for name in names}),
+                  'Missing or duplicate final physical field acceptance')
+    for row in fields:
+        block.require(int(row['accepted']) == 1 and 0 <= float(row['rms']) <= float(row['limit']) and
+                      0 <= float(row['constraint_max']) <= float(row['constraint_limit']),
+                      'Final physical field or constraint rejected')
     ratios = []
     for row in residuals:
         norm, rhs = float(row['norm']), float(row['rhs_norm'])
         block.require(math.isfinite(norm) and math.isfinite(rhs) and min(norm, rhs) >= 0, 'Nonfinite true residual')
-        ratios.append(norm / (1e-12 + 1e-10 * rhs))
-    block.require(max(ratios) <= 1, ('Unchanged true-residual gate failed', max(ratios)))
+        target = 1e-12 + 1e-10 * rhs
+        if 'inexact' in selected:
+            relative, absolute = float(row['requested_rtol']), float(row['requested_atol'])
+            block.require(int(row['forcing']) == 1 and math.isfinite(relative + absolute) and
+                          0 < relative <= .5 and 0 <= absolute <= 1e-12,
+                          'Invalid or missing requested inexact forcing tolerance')
+            target = (absolute + relative * rhs) * (1 + 64 * math.ulp(1.))
+        ratios.append(norm / target)
+    block.require(max(ratios) <= 1, ('Original-operator true-residual gate failed', max(ratios)))
     result = dict(dofs=int(reports[-1]['dofs']), accepted_steps=len(trace), corrections=len(residuals),
                   max_true_residual_ratio=max(ratios),
                   outer_iterations=sum(int(row['linear_iterations']) for row in reports),
@@ -88,6 +141,8 @@ def audit(log, trace, ranks, mode):
                   solve_seconds=sum(float(row['solve_seconds']) for row in reports),
                   assembly_seconds=sum(float(row['assembly_seconds']) for row in reports),
                   peak_rss_max_bytes=max(float(row['peak_rss_max_bytes']) for row in reports))
+    result.update(nnz=max(float(row['nnz']) for row in reports), final_fields=fields,
+                  linear_gate='requested inexact forcing' if 'inexact' in selected else '1e-12 + 1e-10*rhs_norm')
     result['iterations_per_correction'] = result['outer_iterations'] / result['corrections']
     if mode.startswith('mono'):
         hierarchy = assembly.records(log, 'pc_monolithic_mg ')
@@ -121,14 +176,61 @@ def audit(log, trace, ranks, mode):
                               'Polynomial level smoother absent')
         if mode == 'mono_fp32':
             block.require(all(int(row['single_precision']) == 1 for row in hierarchy), 'FP32 cycle absent')
+        for feature, counter in (('scaling', 'field_scaling'), ('candidates', 'fsi_candidates'),
+                                 ('native', 'native_fp32')):
+            if feature in selected:
+                block.require(all(int(row[counter]) == 1 for row in hierarchy),
+                              ('Requested MG mechanism absent', feature))
+        if 'adaptive' in selected:
+            block.require(all(int(row['expanded_patches']) + int(row['core_patches']) == int(row['patches'])
+                              for row in smoothers), 'Adaptive patch classification is incomplete')
+        if 'native' in selected:
+            storage = assembly.records(log, 'pc_monolithic_mg_storage ')
+            block.require(storage and {int(row['rank']) for row in storage} == set(range(ranks)) and
+                          sum(int(row['released_fp64_operator_bytes']) for row in storage) > 0,
+                          'Native FP32 did not release double operator storage')
+            result['storage'] = storage
         result.update(hierarchies=hierarchy, transfers=transfers,
                       smoothers=smoothers)
-    if mode in ('mono_mf', 'mono_mf_pipe'):
+    if 'mf' in selected:
         block.require(all(int(row['matrix_free']) == 1 and int(row['matrix_free_actions']) > 0 for row in reports),
                       'Exact matrix-free path absent')
         result.update(matrix_free_actions=sum(int(row['matrix_free_actions']) for row in reports),
                       assembled_pc_reuses=sum(int(row['assembled_pc_reuses']) for row in reports))
         block.require(result['assembled_pc_reuses'] > 0, 'Matrix-free trajectory did not reuse assembled P')
+    if 'inexact' in selected:
+        block.require(sum(int(row['inexact_linear_solves']) for row in reports) == len(residuals),
+                      'Inexact correction accounting disagrees with true residuals')
+        result['requested_forcing'] = [float(row['requested_rtol']) for row in residuals]
+    if 'recycle' in selected:
+        block.require(sum(int(row['recycle_projections']) for row in reports) > 0 and
+                      max(int(row['recycle_vectors']) for row in reports) > 0,
+                      'No correction-subspace projection was used')
+        result['recycle_projections'] = sum(int(row['recycle_projections']) for row in reports)
+        result['recycle_vectors'] = max(int(row['recycle_vectors']) for row in reports)
+    if 'reduced' in selected:
+        preconditioners = assembly.records(log, 'fsi_preconditioner ')
+        block.require(preconditioners and all(int(row['reduced']) == 1 and
+                      int(row['stores_full_jacobian']) == 0 for row in preconditioners),
+                      'Reduced preconditioner storage was not selected')
+    if selected & {'partial', 'simd', 'overlap'}:
+        actions = assembly.records(log, 'fsi_action_report ')
+        block.require(actions, 'Missing frozen-action kernel accounting')
+        for feature, counter in (('partial', 'partial_assembly'), ('simd', 'simd'), ('overlap', 'overlap')):
+            if feature in selected:
+                block.require(all(int(row[counter]) == 1 for row in actions),
+                              ('Requested action mechanism absent', feature))
+        if 'partial' in selected:
+            block.require(sum(int(row['prepared_cells']) for row in actions) > 0 and
+                          sum(int(row['cached_actions']) for row in actions) > 0 and
+                          max(int(row['cache_bytes']) for row in actions) > 0,
+                          'Partial assembly did not prepare and reuse qdata')
+        if 'simd' in selected:
+            block.require(sum(int(row['simd_batches']) for row in actions) > 0, 'No SIMD batches executed')
+        if 'overlap' in selected:
+            block.require(sum(int(row['owned_cells']) for row in actions) > 0,
+                          'No owned-cell Jv work overlapped communication')
+        result['action_reports'] = actions
     if mode == 'added_mass' or mode.startswith('pcd'):
         operators = assembly.records(log, 'pressure_schur ')
         kind = 'added_mass' if mode == 'added_mass' else 'pcd'
@@ -158,11 +260,14 @@ def campaign(args, receipt, result, name, cfg, ranks, modes, ports=False, area=1
             row.update(audit(log, trace, ranks, mode))
             if reference is None:
                 block.require(mode == 'direct', 'No direct reference available')
-                reference = fields, trace, snapshots
+                reference = fields, trace, snapshots, row['nnz']
             block.require(len(snapshots) == len(reference[2]), 'Saved trajectory length changed')
             row['field_max_difference'] = max(error(fields, reference[0]), *(
                 assembly.compare_fields(first, second) for first, second in zip(snapshots, reference[2])))
             block.require(row['field_max_difference'] <= previous.FIELD_LIMIT, 'Physical field mismatch')
+            if 'reduced' in features(mode):
+                block.require(0 < row['nnz'] < reference[3], 'Reduced P retained the full Jacobian graph')
+                row['preconditioner_nnz_ratio'] = row['nnz'] / reference[3]
             row['history_max_difference'] = previous.compare_history(reference[1], trace)
             if ports:
                 row['circuit_defect'] = check_rcr_history(runner, mode, cfg['fsi']['domains']['rcr_outlet'], trace)
@@ -199,7 +304,7 @@ def main():
                   field_absolute_limit=previous.FIELD_LIMIT, cases=[], commands=[], failures=[])
     previous.save(result, receipt)
     def select(default):
-        chosen = tuple(mode for mode in default if not args.modes or mode in args.modes)
+        chosen = tuple(mode for mode in (*default, *FEATURES) if mode in args.modes) if args.modes else default
         block.require(chosen, 'No candidate modes selected for a requested section')
         return chosen
     if 'default' in args.sections:

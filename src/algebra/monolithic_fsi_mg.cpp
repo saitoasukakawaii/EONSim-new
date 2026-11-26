@@ -1,5 +1,6 @@
 #include "eonsim/monolithic_fsi_mg.hpp"
 #include "eonsim/fsi_level_smoother.hpp"
+#include "eonsim/native_float_sparse.hpp"
 #include <petscblaslapack.h>
 #include <algorithm>
 #include <cmath>
@@ -14,7 +15,7 @@
 namespace eonsim {
 namespace {
 constexpr const char* shell_name="EONSim all-field monolithic FSI multigrid";
-constexpr std::size_t candidate_count=22;
+constexpr std::size_t candidate_count=32;
 using Candidate=std::array<double,candidate_count>;
 void check(MPI_Comm comm,bool valid,const std::string& message) {
     int bad=!valid,any=0;
@@ -32,7 +33,7 @@ struct Options {
     PetscInt energy_steps=1,spectral_modes=2,pre_smooth=1,post_smooth=1,coarse_processes=1;
     PetscInt spectral_refresh_period=0,coarse_patch_overlap=0;
     double spectral_tolerance=.1;
-    bool single_precision=false,report=false;
+    bool single_precision=false,report=false,field_scaling=false,fsi_candidates=false,native_fp32=false,w_cycle=false;
     FsiLevelSmootherOptions smoother;
 };
 Options options(MPI_Comm comm,const std::string& prefix) {
@@ -51,18 +52,30 @@ Options options(MPI_Comm comm,const std::string& prefix) {
     EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"spectral_tolerance").c_str(),&o.spectral_tolerance,nullptr));
     EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"eigenvalue_ratio").c_str(),&o.smoother.eigenvalue_ratio,nullptr));
     EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"patch_damping").c_str(),&o.smoother.patches.damping,nullptr));
-    PetscBool single=PETSC_FALSE,report=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"patch_strength").c_str(),&o.smoother.patches.strength_threshold,nullptr));
+    PetscBool single=PETSC_FALSE,report=PETSC_FALSE,scaling=PETSC_FALSE,candidates=PETSC_FALSE,native=PETSC_FALSE,adaptive=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"single_precision").c_str(),&single,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-pc_plan_report",&report,nullptr));
-    o.single_precision=single; o.report=report; o.smoother.patches.single_precision=single;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"field_scaling").c_str(),&scaling,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"fsi_candidates").c_str(),&candidates,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"native_fp32").c_str(),&native,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"adaptive_patches").c_str(),&adaptive,nullptr));
+    o.single_precision=single||native; o.report=report; o.smoother.patches.single_precision=o.single_precision;
+    o.field_scaling=scaling;o.fsi_candidates=candidates;o.native_fp32=native;
+    o.smoother.patches.adaptive=adaptive;o.smoother.patches.native_storage=native;
     char type[64]{}; PetscBool set=PETSC_FALSE;
     EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+"smoother").c_str(),type,sizeof(type),&set));
     if(set) o.smoother.kind=type;
+    char cycle[16]="v";
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+"cycle").c_str(),cycle,sizeof(cycle),nullptr));
+    o.w_cycle=std::strcmp(cycle,"w")==0;
     const PetscInt values[]={o.aggregate_nodes,o.aggregate_rows,o.max_levels,o.coarse_limit,o.energy_steps,
         o.spectral_modes,o.pre_smooth,o.post_smooth,o.coarse_processes,o.single_precision?1:0,
         o.smoother.patches.overlap,o.smoother.patches.maximum_size,o.smoother.polynomial_degree,
         o.smoother.kind=="vanka"?1:o.smoother.kind=="chebyshev"?2:o.smoother.kind=="block_chebyshev"?3:0,
-        o.spectral_refresh_period,o.report?1:0,o.coarse_patch_overlap};
+        o.spectral_refresh_period,o.report?1:0,o.coarse_patch_overlap,o.field_scaling?1:0,
+        o.fsi_candidates?1:0,o.native_fp32?1:0,o.smoother.patches.adaptive?1:0,
+        o.w_cycle?2:std::strcmp(cycle,"v")==0?1:0};
     constexpr int option_count=static_cast<int>(sizeof(values)/sizeof(values[0]));
     PetscInt minimum[option_count]{},maximum[option_count]{};
     MPI_Allreduce(values,minimum,option_count,MPIU_INT,MPI_MIN,comm);
@@ -73,7 +86,8 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         o.spectral_modes>=0&&o.spectral_modes<=8&&o.pre_smooth>=0&&o.post_smooth>=0&&
         o.pre_smooth+o.post_smooth>0&&o.pre_smooth<=8&&o.post_smooth<=8&&o.coarse_processes>=1&&values[13]!=0&&
         o.spectral_refresh_period>=0&&o.spectral_refresh_period<=1000000&&
-        o.coarse_patch_overlap>=0&&o.coarse_patch_overlap<=2;
+        o.coarse_patch_overlap>=0&&o.coarse_patch_overlap<=2&&values[21]!=0&&
+        (!o.native_fp32||o.smoother.kind=="vanka")&&(!o.smoother.patches.adaptive||o.smoother.kind=="vanka");
     const double real[]={o.spectral_tolerance,o.smoother.eigenvalue_ratio,o.smoother.patches.damping};
     double min_real[3]{},max_real[3]{};
     MPI_Allreduce(real,min_real,3,MPI_DOUBLE,MPI_MIN,comm);
@@ -115,7 +129,7 @@ bool append_basis(std::vector<double> candidate,std::vector<std::vector<double>>
     basis.push_back(std::move(candidate)); return true;
 }
 LevelData fine_data(MPI_Comm comm,Mat matrix,const std::vector<DofKey>& semantics,
-    const std::vector<std::array<double,3>>& coordinates,const std::vector<unsigned char>& trace) {
+    const std::vector<std::array<double,3>>& coordinates,const std::vector<unsigned char>& trace,bool enrich) {
     PetscInt begin=0,end=0,n=0,m=0,cbegin=0,cend=0;
     EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
     EONSIM_PETSC(MatGetOwnershipRangeColumn(matrix,&cbegin,&cend));
@@ -176,6 +190,19 @@ LevelData fine_data(MPI_Comm comm,Mat matrix,const std::vector<DofKey>& semantic
                 for(int axis=0;axis<3;++axis) modes[rotation_offset+axis]=rotations[axis][key.component];
             }
         }
+        if(enrich) {
+            std::array<double,3> x{};
+            if(!coordinates.empty()) for(int c=0;c<3;++c) x[c]=(coordinates[local][c]-center[c])/scale;
+            if(key.quantity==DofQuantity::pressure) {
+                for(int c=0;c<3;++c) modes[22+c]=x[c];
+                if(trace[local]) modes[31]=1.;
+            }
+            if(trace[local]&&vector_offset>=0&&key.component<3) {
+                modes[25+key.component]=1.;
+                const double rotations[3][3]={{0,-x[2],x[1]},{x[2],0,-x[0]},{-x[1],x[0],0}};
+                for(int axis=0;axis<3;++axis) modes[28+axis]=rotations[axis][key.component];
+            }
+        }
         const Node node{key.entity,key.kind,key.mode,key.space};
         auto found=blocks.find(node);
         if(found==blocks.end()) {
@@ -234,10 +261,19 @@ PetscInt spectral_enrichment(Mat matrix,PetscInt begin,const std::vector<PetscIn
 }
 
 struct Column { std::vector<PetscInt> rows; std::vector<double> values; };
+Candidate candidate_scales(MPI_Comm comm,const LevelData& data) {
+    Candidate local{},global{};
+    for(const auto& row:data.candidates) for(std::size_t c=0;c<candidate_count;++c)
+        local[c]=std::max(local[c],std::abs(row[c]));
+    EONSIM_PETSC(MPI_Allreduce(local.data(),global.data(),static_cast<int>(candidate_count),MPI_DOUBLE,MPI_MAX,comm));
+    for(auto& value:global) if(value==0) value=1.;
+    return global;
+}
 Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const Options& o) {
     PetscInt begin=0,end=0,global=0;
     EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
     EONSIM_PETSC(MatGetSize(matrix,&global,nullptr));
+    const auto mode_scale=candidate_scales(comm,fine);
     std::vector<PetscInt> row_block(end-begin,-1);
     for(PetscInt block=0;block<static_cast<PetscInt>(fine.blocks.size());++block)
         for(auto row:fine.blocks[block]) row_block[row]=block;
@@ -285,7 +321,7 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
             std::vector<std::vector<double>> basis;
             for(std::size_t component=0;component<candidate_count;++component) {
                 std::vector<double> candidate(rows.size());
-                for(std::size_t i=0;i<rows.size();++i) candidate[i]=fine.candidates[rows[i]][component];
+                for(std::size_t i=0;i<rows.size();++i) candidate[i]=fine.candidates[rows[i]][component]/mode_scale[component];
                 append_basis(std::move(candidate),basis);
             }
             spectral+=spectral_enrichment(matrix,begin,rows,o.spectral_modes,o.spectral_tolerance,basis);
@@ -440,6 +476,7 @@ PetscOwner<Mat,MatDestroy> row_scaled_operator(MPI_Comm comm,Mat matrix) {
 }
 
 void minimize_transfer_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Transfer& transfer,PetscInt steps) {
+    const auto mode_scale=candidate_scales(comm,transfer.coarse);
     auto scaled=row_scaled_operator(comm,matrix);
     PetscOwner<Mat,MatDestroy> action;
     EONSIM_PETSC(MatMatMult(scaled.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,action.put()));
@@ -473,7 +510,7 @@ void minimize_transfer_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Tra
             std::vector<std::vector<double>> constraints;
             for(std::size_t component=0;component<candidate_count;++component) {
                 std::vector<double> column; column.reserve(row.size());
-                for(const auto& entry:row) column.push_back(halo[positions.at(entry.first)][component]);
+                for(const auto& entry:row) column.push_back(halo[positions.at(entry.first)][component]/mode_scale[component]);
                 try { append_basis(std::move(column),constraints); } catch(...) { valid=false; }
             }
             std::vector<double> direction; direction.reserve(row.size());
@@ -554,111 +591,13 @@ void minimize_transfer_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Tra
     EONSIM_PETSC(VecRestoreArrayRead(coarse.get(),&traces));
 }
 
-// Float coefficients are normalized per row; gathered vectors are normalized
-// per local apply before conversion. This protects the float arithmetic from
-// dimensional FSI scaling without changing the outer FP64 operator. Only the
-// actual sparse column halo is communicated, including on empty owners.
-struct FloatSparse {
-    MPI_Comm comm=PETSC_COMM_SELF;
-    PetscInt begin=0,end=0,global_rows=0,global_columns=0;
-    std::vector<PetscInt> offsets,columns,slots;
-    std::vector<float> values,input_values,output_values;
-    std::vector<double> scales;
-    PetscOwner<Vec,VecDestroy> gathered;
-    PetscOwner<VecScatter,VecScatterDestroy> scatter;
-    bool prepared=false;
-    void update(Mat matrix) {
-        comm=PetscObjectComm(reinterpret_cast<PetscObject>(matrix));
-        PetscInt new_begin=0,new_end=0,new_rows=0,new_columns=0;
-        EONSIM_PETSC(MatGetOwnershipRange(matrix,&new_begin,&new_end));
-        EONSIM_PETSC(MatGetSize(matrix,&new_rows,&new_columns));
-        std::vector<PetscInt> new_offsets(1,0),all_columns;
-        std::vector<float> new_values; std::vector<double> new_scales;
-        bool valid=true;
-        for(PetscInt row=new_begin;row<new_end;++row) {
-            PetscInt count=0; const PetscInt* indices=nullptr; const PetscScalar* entries=nullptr;
-            EONSIM_PETSC(MatGetRow(matrix,row,&count,&indices,&entries));
-            double scale=0;
-            for(PetscInt j=0;j<count;++j) { scale=std::max(scale,std::abs(entries[j])); valid=valid&&std::isfinite(entries[j]); }
-            if(scale==0) scale=1.;
-            new_scales.push_back(scale);
-            for(PetscInt j=0;j<count;++j) {
-                all_columns.push_back(indices[j]); new_values.push_back(static_cast<float>(entries[j]/scale));
-                valid=valid&&std::isfinite(new_values.back());
-            }
-            new_offsets.push_back(static_cast<PetscInt>(all_columns.size()));
-            EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&indices,&entries));
-        }
-        std::vector<PetscInt> unique_columns=all_columns;
-        std::sort(unique_columns.begin(),unique_columns.end());
-        unique_columns.erase(std::unique(unique_columns.begin(),unique_columns.end()),unique_columns.end());
-        std::vector<PetscInt> new_slots; new_slots.reserve(all_columns.size());
-        for(auto column:all_columns) new_slots.push_back(static_cast<PetscInt>(
-            std::lower_bound(unique_columns.begin(),unique_columns.end(),column)-unique_columns.begin()));
-        if(prepared) valid=valid&&begin==new_begin&&end==new_end&&global_rows==new_rows&&
-            global_columns==new_columns&&offsets==new_offsets&&columns==unique_columns&&slots==new_slots;
-        check(comm,valid,"float sparse refresh changed the graph/ownership or received nonfinite entries");
-        if(!prepared) {
-            begin=new_begin; end=new_end; global_rows=new_rows; global_columns=new_columns;
-            offsets=std::move(new_offsets); columns=std::move(unique_columns); slots=std::move(new_slots);
-            PetscOwner<Vec,VecDestroy> input;
-            EONSIM_PETSC(MatCreateVecs(matrix,input.put(),nullptr));
-            EONSIM_PETSC(VecCreateSeq(PETSC_COMM_SELF,static_cast<PetscInt>(columns.size()),gathered.put()));
-            PetscOwner<IS,ISDestroy> source;
-            EONSIM_PETSC(ISCreateGeneral(PETSC_COMM_SELF,static_cast<PetscInt>(columns.size()),
-                columns.data(),PETSC_COPY_VALUES,source.put()));
-            EONSIM_PETSC(VecScatterCreate(input.get(),source.get(),gathered.get(),nullptr,scatter.put()));
-            input_values.resize(columns.size()); output_values.resize(columns.size()); prepared=true;
-        }
-        scales=std::move(new_scales); values=std::move(new_values);
-    }
-    PetscErrorCode multiply(Vec input,Vec output,bool transpose) {
-        PetscFunctionBeginUser;
-        if(!transpose) {
-            PetscCall(VecScatterBegin(scatter.get(),input,gathered.get(),INSERT_VALUES,SCATTER_FORWARD));
-            PetscCall(VecScatterEnd(scatter.get(),input,gathered.get(),INSERT_VALUES,SCATTER_FORWARD));
-            const PetscScalar* x=nullptr; PetscScalar* y=nullptr;
-            PetscCall(VecGetArrayRead(gathered.get(),&x));
-            double scale=0; for(std::size_t i=0;i<columns.size();++i) scale=std::max(scale,std::abs(x[i]));
-            if(scale==0) scale=1;
-            for(std::size_t i=0;i<columns.size();++i) input_values[i]=static_cast<float>(x[i]/scale);
-            PetscCall(VecRestoreArrayRead(gathered.get(),&x));
-            PetscCall(VecGetArray(output,&y));
-            for(PetscInt row=0;row<end-begin;++row) {
-                float value=0;
-                for(PetscInt j=offsets[row];j<offsets[row+1];++j) value+=values[j]*input_values[slots[j]];
-                y[row]=static_cast<double>(value)*scale*scales[row];
-            }
-            PetscCall(VecRestoreArray(output,&y));
-        } else {
-            const PetscScalar* x=nullptr; PetscScalar* y=nullptr;
-            PetscCall(VecGetArrayRead(input,&x));
-            double scale=0;
-            for(PetscInt row=0;row<end-begin;++row) scale=std::max(scale,std::abs(x[row]*scales[row]));
-            if(scale==0) scale=1;
-            std::fill(output_values.begin(),output_values.end(),0.f);
-            for(PetscInt row=0;row<end-begin;++row) {
-                const auto value=static_cast<float>((x[row]*scales[row])/scale);
-                for(PetscInt j=offsets[row];j<offsets[row+1];++j) output_values[slots[j]]+=values[j]*value;
-            }
-            PetscCall(VecRestoreArrayRead(input,&x));
-            PetscCall(VecGetArray(gathered.get(),&y));
-            for(std::size_t i=0;i<columns.size();++i) y[i]=static_cast<double>(output_values[i])*scale;
-            PetscCall(VecRestoreArray(gathered.get(),&y));
-            PetscCall(VecSet(output,0));
-            PetscCall(VecScatterBegin(scatter.get(),gathered.get(),output,ADD_VALUES,SCATTER_REVERSE));
-            PetscCall(VecScatterEnd(scatter.get(),gathered.get(),output,ADD_VALUES,SCATTER_REVERSE));
-        }
-        PetscFunctionReturn(PETSC_SUCCESS);
-    }
-};
 
 struct Level {
     PetscOwner<Mat,MatDestroy> matrix,prolongation;
     LevelData data;
     std::shared_ptr<FsiLevelSmoother> smoother;
-    PetscOwner<Vec,VecDestroy> rhs,solution,residual,correction;
-    FloatSparse float_matrix,float_transfer;
+    PetscOwner<Vec,VecDestroy> rhs,solution,residual,correction,second_rhs,second_solution;
+    NativeFloatSparse float_matrix,float_transfer;
 };
 struct Hierarchy {
     MPI_Comm comm;
@@ -666,6 +605,8 @@ struct Hierarchy {
     std::string prefix;
     std::vector<std::array<double,3>> reference_coordinates;
     std::vector<Level> levels;
+    PetscOwner<Mat,MatDestroy> source_reference;
+    PetscOwner<Vec,VecDestroy> left_scale,right_scale,scaled_input,scaled_output;
     PetscOwner<KSP,KSPDestroy> coarse;
     MonolithicFsiMgStats stats;
     PC owner=nullptr;
@@ -677,8 +618,14 @@ struct Hierarchy {
         comm(communicator),configuration(selected),prefix(options_prefix),reference_coordinates(coordinates) {
         Level fine;
         EONSIM_PETSC(MatGetNonzeroState(matrix,&graph));
-        EONSIM_PETSC(PetscObjectReference(reinterpret_cast<PetscObject>(matrix))); *fine.matrix.put()=matrix;
-        fine.data=fine_data(comm,matrix,semantics,coordinates,trace);
+        EONSIM_PETSC(PetscObjectReference(reinterpret_cast<PetscObject>(matrix)));*source_reference.put()=matrix;
+        fine.data=fine_data(comm,matrix,semantics,coordinates,trace,configuration.fsi_candidates);
+        if(configuration.field_scaling) {
+            EONSIM_PETSC(MatDuplicate(matrix,MAT_COPY_VALUES,fine.matrix.put()));
+            equilibrate(fine.matrix.get(),fine.data);
+        } else {
+            EONSIM_PETSC(PetscObjectReference(reinterpret_cast<PetscObject>(matrix)));*fine.matrix.put()=matrix;
+        }
         levels.push_back(std::move(fine));
         for(PetscInt depth=1;depth<configuration.max_levels;++depth) {
             PetscInt global=0; EONSIM_PETSC(MatGetSize(levels.back().matrix.get(),&global,nullptr));
@@ -693,11 +640,17 @@ struct Hierarchy {
             levels.push_back(std::move(next));
         }
         stats.levels=static_cast<PetscInt>(levels.size()); stats.single_precision=configuration.single_precision;
+        stats.native_fp32=configuration.native_fp32;stats.field_scaling=configuration.field_scaling;
+        stats.fsi_candidates=configuration.fsi_candidates;stats.w_cycle=configuration.w_cycle;
         for(std::size_t level=0;level<levels.size();++level) {
             auto& data=levels[level];
             EONSIM_PETSC(MatCreateVecs(data.matrix.get(),data.solution.put(),data.rhs.put()));
             EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.residual.put()));
             EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.correction.put()));
+            if(configuration.w_cycle&&level>0) {
+                EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.second_rhs.put()));
+                EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.second_solution.put()));
+            }
             if(level+1<levels.size()) {
                 auto smoother_options=configuration.smoother;
                 // A coarse semantic entity is already a complete mixed
@@ -714,9 +667,104 @@ struct Hierarchy {
             }
         }
         configure_coarse();
+        update_storage_stats();
+        if(configuration.native_fp32) release_native_setup();
         EONSIM_PETSC(MatGetState(matrix,&numeric_state));
         ready=true; stats.refreshes=1; stats.hierarchy_rebuilds=1;
         if(emit_report) report();
+    }
+    static int field(const DofKey& key) {
+        if(key.kind==DofEntity::body) return 4;
+        if(key.kind==DofEntity::boundary) return 5;
+        if(key.quantity==DofQuantity::pressure) return 1;
+        if(key.domain==DofDomain::solid) return 2;
+        if(key.domain==DofDomain::mesh) return 3;
+        return key.domain==DofDomain::fluid?0:6;
+    }
+    void equilibrate(Mat matrix,LevelData& data) {
+        PetscInt begin=0,end=0;EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
+        EONSIM_PETSC(MatCreateVecs(matrix,right_scale.put(),left_scale.put()));
+        EONSIM_PETSC(VecDuplicate(left_scale.get(),scaled_input.put()));
+        EONSIM_PETSC(VecDuplicate(right_scale.get(),scaled_output.put()));
+        double local[7]{},maximum[7]{};
+        for(PetscInt row=begin;row<end;++row) if(data.active[row-begin]) {
+            PetscInt count=0;const PetscInt* columns=nullptr;const PetscScalar* values=nullptr;
+            EONSIM_PETSC(MatGetRow(matrix,row,&count,&columns,&values));
+            auto& largest=local[field(data.semantics[row-begin])];
+            for(PetscInt j=0;j<count;++j) largest=std::max(largest,std::abs(values[j]));
+            EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&columns,&values));
+        }
+        EONSIM_PETSC(MPI_Allreduce(local,maximum,7,MPI_DOUBLE,MPI_MAX,comm));
+        PetscScalar* scale=nullptr;bool valid=true;
+        EONSIM_PETSC(VecGetArray(left_scale.get(),&scale));
+        for(PetscInt i=0;i<end-begin;++i) {
+            const auto magnitude=maximum[field(data.semantics[i])];
+            scale[i]=data.active[i]&&magnitude>0?1./magnitude:1.;
+            valid=valid&&scale[i]>0&&std::isfinite(scale[i]);
+        }
+        EONSIM_PETSC(VecRestoreArray(left_scale.get(),&scale));
+        check(comm,valid,"field row scaling is outside representable precision");
+        EONSIM_PETSC(MatDiagonalScale(matrix,left_scale.get(),nullptr));
+        PetscOwner<Mat,MatDestroy> transpose;
+        EONSIM_PETSC(MatTranspose(matrix,MAT_INITIAL_MATRIX,transpose.put()));
+        std::fill(std::begin(local),std::end(local),0.);
+        for(PetscInt row=begin;row<end;++row) if(data.active[row-begin]) {
+            PetscInt count=0;const PetscInt* columns=nullptr;const PetscScalar* values=nullptr;
+            EONSIM_PETSC(MatGetRow(transpose.get(),row,&count,&columns,&values));
+            auto& largest=local[field(data.semantics[row-begin])];
+            for(PetscInt j=0;j<count;++j) largest=std::max(largest,std::abs(values[j]));
+            EONSIM_PETSC(MatRestoreRow(transpose.get(),row,&count,&columns,&values));
+        }
+        EONSIM_PETSC(MPI_Allreduce(local,maximum,7,MPI_DOUBLE,MPI_MAX,comm));
+        EONSIM_PETSC(VecGetArray(right_scale.get(),&scale));
+        for(PetscInt i=0;i<end-begin;++i) {
+            const auto magnitude=maximum[field(data.semantics[i])];
+            scale[i]=data.active[i]&&magnitude>0?1./magnitude:1.;
+            valid=valid&&scale[i]>0&&std::isfinite(scale[i]);
+            // x=R*y: coarse candidates must be R^-1 times physical modes.
+            for(auto& candidate:data.candidates[i]) candidate/=scale[i];
+        }
+        EONSIM_PETSC(VecRestoreArray(right_scale.get(),&scale));
+        check(comm,valid,"field column scaling is outside representable precision");
+        EONSIM_PETSC(MatDiagonalScale(matrix,nullptr,right_scale.get()));
+    }
+    static std::size_t coefficient_bytes(Mat matrix) {
+        if(!matrix) return 0;
+        MatInfo info{};EONSIM_PETSC(MatGetInfo(matrix,MAT_LOCAL,&info));
+        return static_cast<std::size_t>(info.nz_allocated)*sizeof(PetscScalar);
+    }
+    void update_storage_stats() {
+        stats.retained_fp64_operator_bytes=0;
+        for(std::size_t i=0;i<levels.size();++i) {
+            // The original fine P belongs to the outer nonlinear solver and
+            // is not duplicated by this hierarchy. Count only owned extras.
+            if(i>0||configuration.field_scaling)
+                stats.retained_fp64_operator_bytes+=coefficient_bytes(levels[i].matrix.get());
+            stats.retained_fp64_operator_bytes+=coefficient_bytes(levels[i].prolongation.get());
+        }
+    }
+    void release_native_setup() {
+        const auto before=stats.retained_fp64_operator_bytes;
+        // PETSc Galerkin product metadata retains references to its operands.
+        // Native refresh rebuilds setup, so symbolic product contexts can go.
+        for(std::size_t i=1;i<levels.size();++i) EONSIM_PETSC(MatProductClear(levels[i].matrix.get()));
+        for(std::size_t i=0;i+1<levels.size();++i) {
+            release_native_fsi_smoother_setup(levels[i].smoother);
+            const auto patch=query_fsi_level_smoother_stats(levels[i].smoother);
+            stats.fp32_value_bytes+=patch.patches.fp32_matrix_bytes;
+            levels[i].matrix=PetscOwner<Mat,MatDestroy>{};
+            levels[i].prolongation=PetscOwner<Mat,MatDestroy>{};
+        }
+        for(std::size_t i=0;i<levels.size();++i) {
+            std::vector<Candidate>().swap(levels[i].data.candidates);
+            std::vector<std::vector<PetscInt>>().swap(levels[i].data.blocks);
+            if(i>0) {
+                std::vector<DofKey>().swap(levels[i].data.semantics);
+                std::vector<unsigned char>().swap(levels[i].data.trace);
+            }
+        }
+        update_storage_stats();
+        stats.released_fp64_operator_bytes=before-stats.retained_fp64_operator_bytes;
     }
     void configure_coarse() {
         int size=1; MPI_Comm_size(comm,&size);
@@ -767,9 +815,11 @@ struct Hierarchy {
         if(!configuration.report) return;
         EONSIM_PETSC(PetscPrintf(comm,
             "pc_monolithic_mg prefix=%s levels=%" PetscInt_FMT " coarse_processes=%" PetscInt_FMT
-            " single_precision=%d refreshes=%" PetscInt_FMT " hierarchy_rebuilds=%" PetscInt_FMT " smoother=%s\n",
+            " single_precision=%d refreshes=%" PetscInt_FMT " hierarchy_rebuilds=%" PetscInt_FMT
+            " smoother=%s field_scaling=%d fsi_candidates=%d native_fp32=%d cycle=%s\n",
             prefix.empty()?"-":prefix.c_str(),stats.levels,stats.coarse_processes,
-            stats.single_precision?1:0,stats.refreshes,stats.hierarchy_rebuilds,configuration.smoother.kind.c_str()));
+            stats.single_precision?1:0,stats.refreshes,stats.hierarchy_rebuilds,configuration.smoother.kind.c_str(),
+            stats.field_scaling?1:0,stats.fsi_candidates?1:0,stats.native_fp32?1:0,stats.w_cycle?"w":"v"));
         for(std::size_t i=0;i<stats.transfers.size();++i) {
             const auto& level=stats.transfers[i];
             EONSIM_PETSC(PetscPrintf(comm,
@@ -778,6 +828,9 @@ struct Hierarchy {
                 i,level.rows,level.coarse_rows,level.spectral_modes,level.reproduction_error,level.energy_before,level.energy_after));
         }
         int rank=0; MPI_Comm_rank(comm,&rank);
+        EONSIM_PETSC(PetscSynchronizedPrintf(comm,
+            "pc_monolithic_mg_storage rank=%d fp32_value_bytes=%zu retained_fp64_operator_bytes=%zu released_fp64_operator_bytes=%zu\n",
+            rank,stats.fp32_value_bytes,stats.retained_fp64_operator_bytes,stats.released_fp64_operator_bytes));
         for(std::size_t i=0;i+1<levels.size();++i) {
             const auto smoother=query_fsi_level_smoother_stats(levels[i].smoother);
             EONSIM_PETSC(PetscSynchronizedPrintf(comm,
@@ -786,12 +839,15 @@ struct Hierarchy {
                 " patch_rows=%" PetscInt_FMT " covered_owned_rows=%" PetscInt_FMT
                 " interface_patches=%" PetscInt_FMT " factor_batches=%" PetscInt_FMT
                 " numeric_factorizations=%" PetscInt_FMT " cached_factorizations=%" PetscInt_FMT
-                " fp32_patches=%" PetscInt_FMT " polynomial_degree=%" PetscInt_FMT " eigenvalue_upper=%.17g\n",
+                " fp32_patches=%" PetscInt_FMT " polynomial_degree=%" PetscInt_FMT " eigenvalue_upper=%.17g"
+                " expanded_patches=%" PetscInt_FMT " core_patches=%" PetscInt_FMT
+                " retained_fp64_patch_bytes=%zu fp32_patch_bytes=%zu\n",
                 rank,i,smoother.patches.patches,smoother.patches.overlap,smoother.patches.largest_patch,
                 smoother.patches.patch_rows,smoother.patches.covered_owned_rows,smoother.patches.interface_patches,
                 smoother.patches.factor_batches,smoother.patches.numeric_factorizations,
                 smoother.patches.cached_factorizations,smoother.patches.fp32_patches,
-                smoother.polynomial_degree,smoother.eigenvalue_upper));
+                smoother.polynomial_degree,smoother.eigenvalue_upper,smoother.patches.expanded_patches,
+                smoother.patches.core_patches,smoother.patches.retained_fp64_matrix_bytes,smoother.patches.fp32_matrix_bytes));
         }
         EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
     }
@@ -799,10 +855,10 @@ struct Hierarchy {
         ready=false;
         PetscInt begin=0,end=0,old_begin=0,old_end=0,n=0,old_n=0;
         EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
-        EONSIM_PETSC(MatGetOwnershipRange(levels.front().matrix.get(),&old_begin,&old_end));
-        EONSIM_PETSC(MatGetSize(matrix,&n,nullptr)); EONSIM_PETSC(MatGetSize(levels.front().matrix.get(),&old_n,nullptr));
+        EONSIM_PETSC(MatGetOwnershipRange(source_reference.get(),&old_begin,&old_end));
+        EONSIM_PETSC(MatGetSize(matrix,&n,nullptr)); EONSIM_PETSC(MatGetSize(source_reference.get(),&old_n,nullptr));
         PetscObjectState current_graph=0; EONSIM_PETSC(MatGetNonzeroState(matrix,&current_graph));
-        check(comm,matrix==levels.front().matrix.get()&&begin==old_begin&&end==old_end&&n==old_n&&current_graph==graph,
+        check(comm,matrix==source_reference.get()&&begin==old_begin&&end==old_end&&n==old_n&&current_graph==graph,
             "refresh changed hierarchy matrix identity, graph, ownership or dimension");
         bool same_constraints=true;
         for(PetscInt row=begin;row<end;++row) {
@@ -822,18 +878,28 @@ struct Hierarchy {
         EONSIM_PETSC(MatGetState(matrix,&current_numeric_state));
         int local_changed=current_numeric_state!=numeric_state,changed=0;
         EONSIM_PETSC(MPI_Allreduce(&local_changed,&changed,1,MPI_INT,MPI_MAX,comm));
-        if(configuration.spectral_refresh_period>0&&stats.refreshes%configuration.spectral_refresh_period==0) {
+        if((changed&&(configuration.native_fp32||configuration.field_scaling||configuration.smoother.patches.adaptive))||
+           (configuration.spectral_refresh_period>0&&stats.refreshes%configuration.spectral_refresh_period==0)) {
             Hierarchy rebuilt(comm,matrix,levels.front().data.semantics,reference_coordinates,
                 levels.front().data.trace,configuration,prefix,false);
             rebuilt.stats.applications=stats.applications;
             rebuilt.stats.level_matvecs=stats.level_matvecs;
             rebuilt.stats.zero_start_skips=stats.zero_start_skips;
+            rebuilt.stats.coarse_revisits=stats.coarse_revisits;
             rebuilt.stats.refreshes=stats.refreshes+1;
             rebuilt.stats.hierarchy_rebuilds=stats.hierarchy_rebuilds+1;
             coarse=std::move(rebuilt.coarse); levels=std::move(rebuilt.levels); stats=std::move(rebuilt.stats);
+            left_scale=std::move(rebuilt.left_scale);right_scale=std::move(rebuilt.right_scale);
+            scaled_input=std::move(rebuilt.scaled_input);scaled_output=std::move(rebuilt.scaled_output);
             numeric_state=current_numeric_state;
             if(owner) EONSIM_PETSC(PCSetFailedReason(owner,PC_NOERROR));
             ready=true; report(); return;
+        }
+        if(configuration.native_fp32) {
+            // An unchanged numeric generation has no FP64 setup to refresh.
+            // Its compact coefficients/factors are already the exact cache.
+            if(owner) EONSIM_PETSC(PCSetFailedReason(owner,PC_NOERROR));
+            ready=true;++stats.refreshes;return;
         }
         for(std::size_t i=0;i+1<levels.size();++i) {
             // Re-evaluating an unchanged distributed PtAP can reorder sums at
@@ -859,7 +925,7 @@ struct Hierarchy {
     }
     PetscErrorCode multiply(std::size_t level,Vec x,Vec y) {
         PetscFunctionBeginUser;
-        if(configuration.single_precision) PetscCall(levels[level].float_matrix.multiply(x,y,false));
+        if(configuration.single_precision&&level+1<levels.size()) PetscCall(levels[level].float_matrix.multiply(x,y,false));
         else PetscCall(MatMult(levels[level].matrix.get(),x,y));
         ++stats.level_matvecs;
         PetscFunctionReturn(PETSC_SUCCESS);
@@ -911,6 +977,13 @@ struct Hierarchy {
             PetscCall(level.float_transfer.multiply(level.residual.get(),coarse_level.rhs.get(),true));
         else PetscCall(MatMultTranspose(level.prolongation.get(),level.residual.get(),coarse_level.rhs.get()));
         PetscCall(cycle(index+1,coarse_level.rhs.get(),coarse_level.solution.get(),valid));
+        if(configuration.w_cycle&&index+2<levels.size()) {
+            PetscCall(multiply(index+1,coarse_level.solution.get(),coarse_level.second_rhs.get()));
+            PetscCall(VecAYPX(coarse_level.second_rhs.get(),-1.,coarse_level.rhs.get()));
+            PetscCall(cycle(index+1,coarse_level.second_rhs.get(),coarse_level.second_solution.get(),valid));
+            PetscCall(VecAXPY(coarse_level.solution.get(),1.,coarse_level.second_solution.get()));
+            ++stats.coarse_revisits;
+        }
         if(configuration.single_precision)
             PetscCall(level.float_transfer.multiply(coarse_level.solution.get(),level.correction.get(),false));
         else PetscCall(MatMult(level.prolongation.get(),coarse_level.solution.get(),level.correction.get()));
@@ -931,7 +1004,12 @@ struct Hierarchy {
             PetscCall(PCSetFailedReason(pc,PC_SUBPC_ERROR)); PetscCall(VecSet(output,PETSC_INFINITY));
             PetscFunctionReturn(PETSC_SUCCESS);
         }
-        bool valid=true; PetscCall(cycle(0,input,output,valid));
+        bool valid=true;
+        if(configuration.field_scaling) {
+            PetscCall(VecPointwiseMult(scaled_input.get(),left_scale.get(),input));
+            PetscCall(cycle(0,scaled_input.get(),scaled_output.get(),valid));
+            PetscCall(VecPointwiseMult(output,right_scale.get(),scaled_output.get()));
+        } else PetscCall(cycle(0,input,output,valid));
         const PetscScalar* result=nullptr; PetscInt local=0;
         PetscCall(VecGetLocalSize(output,&local)); PetscCall(VecGetArrayRead(output,&result));
         for(PetscInt i=0;i<local;++i) valid=valid&&std::isfinite(result[i]);

@@ -1,5 +1,15 @@
 # EONSim Codex Task Queue
 
+## FSI-SCALE-01 / implementation in progress / 2026-11-26
+
+从已核实合并的 `main@88257a9be35008b0063820910843625fa17bb267` 接续，分支
+`codex/fsi-scalable-matrix-free`。用户要求十二项优化，并遵循源码完成→推送远端→算例验证→合并。
+本轮分别推进减少 ALE 交叉块的实际 P 稀疏图、冻结积分点系数及批量方向核、方向通信重叠、
+物理字段缩放及粗空间、选择性 patch/双重粗校正、释放双精度非粗层 setup 存储的 FP32、
+自适应线性精度与当前算子下的跨步修正子空间，以及可记录真实节点分布的强弱扩展基准。
+保持原残量、最终字段和约束验收；每条能力的性能与规模结论须等待实际记录。
+代码尚未发布、未运行本轮数值验证；当前可用资源为单节点，不能承诺多节点验证已完成。
+
 ## FSI-MF-02 / implementation and bounded validation complete / 2026-11-26
 
 从已合并 #61 的 `main@6bb6f438b63c` 接续，开发分支 `codex/fsi-mg-performance-followup`。

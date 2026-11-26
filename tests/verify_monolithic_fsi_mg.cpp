@@ -217,6 +217,78 @@ void oversized_coarse_overlap(MPI_Comm comm) {
     check(comm,rejected,"Explicit oversized coarse overlap was silently capped, truncated or ignored");
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,(base+"coarse_patch_overlap").c_str()));
 }
+void verify_enhancements(MPI_Comm comm,bool native,bool only_scaling) {
+    const std::string prefix="mgnew_",base="-"+prefix+"monolithic_mg_";
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"aggregate_nodes").c_str(),"4"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"coarse_limit").c_str(),"8"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"max_levels").c_str(),only_scaling?"1":"6"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"spectral_modes").c_str(),"0"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"energy_steps").c_str(),only_scaling?"0":"1"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"field_scaling").c_str(),"true"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"fsi_candidates").c_str(),only_scaling?"false":"true"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"adaptive_patches").c_str(),only_scaling?"false":"true"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"patch_strength").c_str(),"0.9"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"native_fp32").c_str(),native?"true":"false"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"cycle").c_str(),only_scaling?"v":"w"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+"patch_maximum_size").c_str(),"64"));
+    Problem problem(comm,true);
+    PcSchurUpdates updates;
+    PetscOwner<KSP,KSPDestroy> solver;
+    EONSIM_PETSC(KSPCreate(comm,solver.put()));
+    EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),prefix.c_str()));
+    EONSIM_PETSC(KSPSetType(solver.get(),KSPFGMRES));
+    EONSIM_PETSC(KSPGMRESSetRestart(solver.get(),80));
+    EONSIM_PETSC(KSPSetTolerances(solver.get(),1e-12,1e-14,PETSC_DEFAULT,500));
+    EONSIM_PETSC(KSPSetOperators(solver.get(),problem.matrix.get(),problem.matrix.get()));
+    const auto rescale=[&]() {
+        PetscOwner<Vec,VecDestroy> left,right;
+        EONSIM_PETSC(MatCreateVecs(problem.matrix.get(),right.put(),left.put()));
+        PetscScalar *l=nullptr,*r=nullptr;
+        EONSIM_PETSC(VecGetArray(left.get(),&l));EONSIM_PETSC(VecGetArray(right.get(),&r));
+        const double ls[4]={1e3,1e-3,1e2,1.},rs[4]={1e-1,1e2,1e-2,1.};
+        for(PetscInt row=problem.begin;row<problem.end;++row) {
+            l[row-problem.begin]=row==0?1.:ls[row%4];
+            r[row-problem.begin]=row==0?1.:rs[row%4];
+        }
+        EONSIM_PETSC(VecRestoreArray(right.get(),&r));EONSIM_PETSC(VecRestoreArray(left.get(),&l));
+        EONSIM_PETSC(MatDiagonalScale(problem.matrix.get(),left.get(),right.get()));
+    };
+    if(only_scaling) rescale();
+    configure_monolithic_fsi_mg(comm,solver.get(),problem.matrix.get(),problem.semantics,
+        problem.coordinates,problem.trace,&updates);
+    PC pc=nullptr;EONSIM_PETSC(KSPGetPC(solver.get(),&pc));
+    for(int phase=0;phase<2;++phase) {
+        if(phase) {problem.fill(phase);if(only_scaling) rescale();updates.refresh(problem.matrix.get());}
+        action(problem,solver.get(),phase);
+        MonolithicFsiMgStats stats;query_monolithic_fsi_mg_stats(pc,stats);
+        check(comm,stats.field_scaling&&stats.native_fp32==native&&stats.hierarchy_rebuilds==phase+1,
+              "Scaled/native hierarchy did not preserve mapping or rebuild on actual numerical change");
+        if(only_scaling) continue;
+        check(comm,stats.fsi_candidates&&stats.w_cycle&&stats.levels>=3&&stats.coarse_revisits>0,
+              "FSI coarse enrichment or residual W-cycle was not exercised");
+        PetscInt expanded=0,core=0;
+        for(const auto& smoother:stats.smoothers) {
+            expanded+=smoother.patches.expanded_patches;core+=smoother.patches.core_patches;
+            if(native) check(comm,smoother.patches.retained_fp64_matrix_bytes==0&&smoother.patches.fp64_patches==0,
+                             "Native Vanka retained double matrix coefficients or fallback factors");
+        }
+        const PetscInt local[3]={expanded,core,stats.smoothers.front().patches.covered_owned_rows};
+        PetscInt total[3]{};MPI_Allreduce(local,total,3,MPIU_INT,MPI_SUM,comm);
+        check(comm,total[0]>0&&total[1]>0&&total[2]==Problem::n-1,
+              "Adaptive Vanka failed to distinguish core/strong patches or lost active coverage");
+        if(native) {
+            unsigned long long local_bytes=stats.released_fp64_operator_bytes,total_bytes=0;
+            MPI_Allreduce(&local_bytes,&total_bytes,1,MPI_UNSIGNED_LONG_LONG,MPI_SUM,comm);
+            check(comm,total_bytes>0,"Native MG retained all noncoarse FP64 setup operators/transfers");
+        }
+    }
+    MonolithicFsiMgStats before,after;
+    query_monolithic_fsi_mg_stats(pc,before);updates.refresh(problem.matrix.get());query_monolithic_fsi_mg_stats(pc,after);
+    check(comm,after.hierarchy_rebuilds==before.hierarchy_rebuilds,
+          "An unchanged numerical generation rebuilt scaled/native hierarchy");
+    action(problem,solver.get(),3);
+}
+
 void run(MPI_Comm comm) {
     int size=0; MPI_Comm_size(comm,&size); check(comm,size==1||size==2||size==4,"Expected 1, 2 or 4 ranks");
     verify(comm,"vanka",false,false,true);
@@ -228,6 +300,9 @@ void run(MPI_Comm comm) {
     verify(comm,"vanka",false,false,false,0,1);
     verify(comm,"vanka",true,true,false,2,0);
     oversized_coarse_overlap(comm);
+    verify_enhancements(comm,false,true);
+    verify_enhancements(comm,false,false);
+    verify_enhancements(comm,true,false);
     EONSIM_PETSC(PetscPrintf(comm,
         "Monolithic FSI MG: full indefinite manufactured solutions, bounded whole-aggregate coarse Vanka/explicit oversize rejection, candidate preservation, energy descent, spectral enrichment, FP32 V-cycle, coarse MPI aggregation, numeric refresh/recovery and polynomial smoothers passed\n"));
 }

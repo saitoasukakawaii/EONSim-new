@@ -5,6 +5,9 @@
 namespace eonsim {
 struct InterfacePatchOptions {
     bool single_precision=false;
+    /// Level-only options: selective overlap and released FP64 setup storage.
+    bool adaptive=false,native_storage=false;
+    double strength_threshold=.25;
     PetscInt overlap=1,maximum_size=256,refinement_steps=3;
     double refinement_tolerance=1e-10,damping=1.;
 };
@@ -23,8 +26,10 @@ struct InterfacePatchPcStats {
     PetscInt fp32_patches=0,fp64_patches=0,setup_fallbacks=0,apply_fallbacks=0,refinements=0;
     PetscInt factor_batches=0,numeric_factorizations=0,cached_factorizations=0;
     PetscInt interface_patches=0;
+    PetscInt expanded_patches=0,core_patches=0;
     PetscInt overlap=0,patch_rows=0,covered_owned_rows=0;
     std::size_t factor_bytes=0;
+    std::size_t retained_fp64_matrix_bytes=0,fp32_matrix_bytes=0;
 };
 /// Collective validation, also usable before an exactly converged solve.
 void validate_interface_patch_options(MPI_Comm comm,const std::string& prefix,
@@ -66,6 +71,13 @@ KSP interface_patch_bulk_solver(PC pc);
  * true trace flags only identify interface patches for diagnostics. All fields
  * of the same entity share one seed. Identity rows are solved exactly and
  * excluded from patch factors; boundary and rigid-body scalars remain active.
+ * Adaptive overlap always retains each core. Only true trace or a core whose
+ * inter-entity row-sum fraction reaches strength_threshold expands its graph
+ * stencil. A numerical change requires rebuilding adaptive selection at the
+ * enclosing hierarchy; fixed selection is not called value-adaptive refresh.
+ * Native storage requires FP32 factors, retains equilibrated FP32 patch values
+ * for refinement, and releases the FP64 submatrices/source via the function
+ * below. Native factor failure is explicit, never hidden by FP64 fallback.
  * Numeric refresh uses updates and keeps the graph, seed membership and
  * constraints fixed. A level with no active rows is a valid identity action.
  */
@@ -73,4 +85,7 @@ void configure_vanka_level_pc(MPI_Comm comm,KSP solver,Mat full,
     const std::vector<DofKey>& owned_semantics,
     const std::vector<unsigned char>& owned_interface,
     const InterfacePatchOptions& options,PcSchurUpdates* updates);
+/** Release native Vanka's FP64 setup source/submatrices. A source change after
+ * release requires rebuilding this level; no stale source is dereferenced. */
+void release_native_vanka_setup(KSP solver);
 } // namespace eonsim

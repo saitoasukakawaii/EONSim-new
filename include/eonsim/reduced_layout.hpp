@@ -73,9 +73,10 @@ struct ReducedLayout {
 };
 /// collective；只交换 ghost 编号和 rank 计数，稀疏图通过 PETSc 分布式预分配器装配。
 /// build_pattern=false leaves the matrix/counts empty for a caller-provided COO plan.
-ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern=true);
+/// reduced_pc selects the frozen-geometry P graph; never use it for an exact assembled J.
+ReducedLayout make_rigid_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern=true,bool reduced_pc=false);
 /// 共形弹性块：额外节点分量 [vs_x,vs_y,vs_z]，界面流体/网格映射到同节点结构速度。
-ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern=true);
+ReducedLayout make_elastic_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,bool build_pattern=true,bool reduced_pc=false);
 /// 独立双域联合网格，inactive 分量消元，界面共享结构速度。
-ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains,bool build_pattern=true);
+ReducedLayout make_dual_fsi_layout(MPI_Comm comm,const MeshPartition& mesh,const FsiDomains& domains,bool build_pattern=true,bool reduced_pc=false);
 }

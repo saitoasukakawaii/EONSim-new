@@ -9,15 +9,17 @@ struct MonolithicFsiMgLevelStats {
     double reproduction_error=0,energy_before=0,energy_after=0;
 };
 /** Inspection is local. Row counts and transfer audits are globally agreed;
- * fp32_value_bytes counts only local float CSR coefficients (operators and
- * transfers), not retained FP64 setup matrices, factors, indices or vectors.
+ * fp32_value_bytes counts local float operator/transfer coefficients and native
+ * patch/lifting coefficients, not factors, indices or PETSc FP64 vectors.
  */
 struct MonolithicFsiMgStats {
     PetscInt levels=0,applications=0,refreshes=0,hierarchy_rebuilds=0,coarse_processes=0;
     /// Actual level residual matvecs and omitted A*0 actions, excluding smoothers/transfers/coarse solves.
-    PetscInt level_matvecs=0,zero_start_skips=0;
-    bool single_precision=false;
+    PetscInt level_matvecs=0,zero_start_skips=0,coarse_revisits=0;
+    bool single_precision=false,native_fp32=false,field_scaling=false,fsi_candidates=false,w_cycle=false;
     std::size_t fp32_value_bytes=0;
+    /// Additional level/transfer coefficient storage, excluding original outer P, indices and PETSc vectors.
+    std::size_t retained_fp64_operator_bytes=0,released_fp64_operator_bytes=0;
     std::vector<MonolithicFsiMgLevelStats> transfers;
     std::vector<FsiLevelSmootherStats> smoothers;
 };
@@ -55,12 +57,31 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * An unchanged source Mat numeric state retains the existing Galerkin values
  * and coarse factorization, allowing exact local patch-factor cache reuse.
  *
+ * Explicit field_scaling builds A_s=L A R from globally agreed semantic-field
+ * row/column maxima. The PC action is R M_s^-1 L; the outer Jacobian/residual
+ * are unchanged. Physical candidates are transformed by R^-1. Changes to the
+ * source rebuild these scales and their hierarchy. fsi_candidates additionally
+ * preserves pressure coordinate modes and interface-local coherent translation,
+ * rotation and pressure modes; no new exact nullspace is asserted.
+ * cycle=w revisits each noncoarsest coarse level with its current residual.
+ * adaptive_patches keeps every entity core covered and grows overlap only on
+ * the true interface or rows whose inter-entity absolute coupling fraction
+ * reaches patch_strength. Numeric changes rebuild this selection.
+ *
  * Explicit single precision uses row-scaled float CSR coefficients and float
  * sparse arithmetic for level matvecs and restriction/prolongation, plus the
  * smoother's float factors with FP64 refinement. FP64 setup matrices and the
  * coarse solve remain: this is a bandwidth optimization, not a claim that the
- * complete hierarchy uses half the memory. The outer flexible Krylov method
- * and original physical residual remain full precision. Collective on comm.
+ * complete hierarchy uses half the memory. native_fp32 (Vanka only) additionally
+ * releases noncoarse FP64 setup operators/transfers, patch submatrices and
+ * Galerkin product references. Native patch residual refinement uses retained
+ * equilibrated FP32 coefficients; unrepresentable FP32 factors fail explicitly,
+ * with no hidden FP64 fallback. The original outer P and coarsest solve remain
+ * FP64, as do PETSc vectors/communication. Actual numeric changes rebuild the
+ * transient setup; unchanged generations reuse compact coefficients. Native
+ * storage reduces retained coefficient memory, not peak setup memory. The
+ * outer flexible Krylov method and original physical residual remain full
+ * precision. Collective on comm.
  */
 void configure_monolithic_fsi_mg(MPI_Comm comm,KSP solver,Mat assembled,
     const std::vector<DofKey>& owned_semantics,

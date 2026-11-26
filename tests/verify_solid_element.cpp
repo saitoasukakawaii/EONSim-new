@@ -35,6 +35,9 @@ void check_action(const Tet4Geometry& geometry,const SolidParameters& parameters
     const auto action=solid_element_action(geometry,parameters,state,direction,dn);
     const auto reference=multiply(solid_element(geometry,parameters,state,dn,vn,true),direction);
     const double direct_error=difference(action,reference);
+    const auto cache=solid_prepare_action(geometry,parameters,state,dn);
+    const auto cached=solid_element_action(cache,direction);
+    if(difference(cached,reference)>2e-12) throw std::runtime_error("Cached solid action disagrees with independent tangent");
     auto plus=state,minus=state;
     constexpr double eps=1e-6;
     for(std::size_t i=0;i<state.size();++i) { plus[i]+=eps*direction[i];minus[i]-=eps*direction[i]; }
@@ -87,6 +90,9 @@ void verify_direct_actions() {
     try { (void)solid_element_action(geometry,nonlinear,inverted,{},{}); }
     catch(const StepRejected&) { new_rejected=true; }
     if(!old_rejected||!new_rejected) throw std::runtime_error("Inverted zero-direction solid action lost recoverable rejection");
+    bool cache_rejected=false;
+    try { (void)solid_prepare_action(geometry,nonlinear,inverted,{}); } catch(const StepRejected&) {cache_rejected=true;}
+    if(!cache_rejected) throw std::runtime_error("Inverted partial assembly solid cache lost recoverable rejection");
     auto nonfinite=state;nonfinite[1]=std::numeric_limits<double>::infinity();
     old_rejected=new_rejected=false;
     try { (void)solid_element(geometry,nonlinear,nonfinite,{},{}); }
@@ -96,6 +102,11 @@ void verify_direct_actions() {
     catch(const StepRejected&) { throw std::runtime_error("Nonfinite action deformation changed to recoverable failure"); }
     catch(const std::runtime_error&) { new_rejected=true; }
     if(!old_rejected||!new_rejected) throw std::runtime_error("Nonfinite zero-direction solid action lost fatal rejection");
+    cache_rejected=false;
+    try { (void)solid_prepare_action(geometry,nonlinear,nonfinite,{}); }
+    catch(const StepRejected&) {throw std::runtime_error("Nonfinite cache deformation changed to recoverable failure");}
+    catch(const std::runtime_error&) {cache_rejected=true;}
+    if(!cache_rejected) throw std::runtime_error("Nonfinite partial assembly cache lost fatal rejection");
     std::cout<<"solid_direct_action cases="<<audit.cases<<" tangent_error="<<audit.tangent_error
              <<" residual_fd_error="<<audit.fd_error<<" invalid_zero_direction=passed\n";
 }
@@ -261,6 +272,28 @@ int main(int argc,char** argv) {
     verify_normal_support();
     verify_support_actions();
     verify_direct_actions();
+    {
+        std::array<SolidElementLinearization,7> caches;
+        std::array<State,7> changes{},oracle{};
+        const auto geometry=tet4_geometry(coordinates);
+        for(std::size_t k=0;k<caches.size();++k) {
+            SolidParameters p{120.+k*17,.28,1.+.3*k,k%3==0?0.:.013+.001*k,bool(k%2),.023};
+            State state{},dn{};
+            for(int i=0;i<12;++i) {state[i]=.02*std::sin(i+k);dn[i]=.003*std::cos(i-k*.2);changes[k][i]=std::cos(3*i+.3*k);}
+            caches[k]=solid_prepare_action(geometry,p,state,dn);
+            oracle[k]=multiply(solid_element(geometry,p,state,dn,{},true),changes[k]);
+        }
+        for(std::size_t start=0;start<caches.size();start+=4) {
+            const auto count=std::min(std::size_t(4),caches.size()-start);
+            std::array<const SolidElementLinearization*,4> pointers{};
+            std::array<State,4> output{};
+            for(std::size_t k=0;k<count;++k) pointers[k]=&caches[start+k];
+            solid_element_action_batch(pointers.data(),changes.data()+start,output.data(),count);
+            for(std::size_t k=0;k<count;++k) if(difference(output[k],oracle[start+k])>2e-12)
+                throw std::runtime_error("SoA solid lanes/tail disagree with independent full tangents");
+        }
+        std::cout<<"solid_partial_assembly mixed_cells=7 simd_tail=3 reference=full_tangent passed\n";
+    }
     const auto g=tet4_geometry({Point{0,0,0},Point{1.1,.1,0},Point{.2,.9,.1},Point{.1,.2,1.2}});
     std::array<double,12> x{},dn{},vn{},direction{};
     for(int i=0;i<12;++i) { x[i]=.03*std::sin(i+1); dn[i]=.02*std::cos(i+1); vn[i]=.04*std::sin(2*i); direction[i]=std::sin(3*i+.7); }
