@@ -26,6 +26,17 @@
 [混合 patch](../../src/algebra/interface_patch_pc.cpp)、[压力 Schur](../../src/algebra/pressure_schur_pc.cpp)、
 [物理 PCD 辅助装配](../../src/physics/fsi_pressure_operators.cpp)、[非线性算子管理](../../src/algebra/nonlinear_system.cpp)。
 
+### FSI-MF-02 的作用成本改进
+
+`-fsi_matrix_free` 的固体及参考面壁支撑现在直接计算方向导数，不再为一个方向生成完整
+12×12单元切线或9×9材料切线；线弹性/NH、一致质量及独立位移链系数与装配路径相同。
+原装配残量/切线保留作为对照，完整assembled P仍保留，调用参数不变。
+MG每个非粗层的已知零初始校正直接给出残量rhs，省一次A*0及halo通信；即使关闭
+presmoothing也适用，不增加范数归约。默认一前一后平滑的**层残量矩阵乘**从3次减为2次，
+这不包括平滑器内部矩阵乘、传递和粗解。`MonolithicFsiMgStats`/PC view中的
+`level_matvecs`和`zero_start_skips`分别记录实际作用和省略次数，谱重建保留累计值。
+实现、独立检查与有界性能证据见 [FSI-MF-02](../research/data/fsi-mf-02-2026-11-26/README.md)。
+
 ## 2. 常用调用
 
 在已配置的 Release 环境中，先为所用 rank 数准备分区。以下使用仓库双域小例展示调用方式；实际是否产生多个网格层须检查 `pc_monolithic_mg levels=`。
@@ -272,7 +283,7 @@ T_\theta=K_\theta+F_\theta M_p^{-1}D,\qquad
 
 ## 6. Matrix-free 与 Krylov 的运行约束
 
-`-fsi_matrix_free` 通过 `MatShell` 提供当前 Newton 冻结状态上的精确 \(Jv\)：流体/ALE 使用单方向链式微分，结构使用局部本构切线作用，入口提升、界面消元、支撑及 RCR 导数沿原装配映射进入同一方向响应。
+`-fsi_matrix_free` 通过 `MatShell` 提供当前 Newton 冻结状态上的精确 \(Jv\)：流体/ALE 使用单方向链式微分，结构使用直接解析方向导数，入口提升、界面消元、支撑及 RCR 导数沿原装配映射进入同一方向响应。
 方向应用不提交材料或时间历史。[FSI 作用实现](../../src/physics/fsi.cpp)、[单元方向接口](../../include/eonsim/fsi_element.hpp)
 
 `-nonlinear_matrix_free_pc_interval` 默认 1，范围 1–1000，每次新的非线性 solve 的首个修正总刷新 assembled P。
@@ -284,7 +295,8 @@ T_\theta=K_\theta+F_\theta M_p^{-1}D,\qquad
 [FSI-MG-01 证据索引](../research/data/fsi-monolithic-mg-2026-11-26/README.md)。
 Matrix-free 与 PIPEFGMRES 可以组合；在上面的 Matrix-free 示例中将
 `-ksp_type fgmres` 改为 `-ksp_type pipefgmres` 即可，仍使用右预条件。
-组装成本、每次方向作用成本和外层迭代次数需要一起比较，尤其本实现仍在每次方向应用中计算局部结构切线。
+固体与参考面壁支撑已使用直接方向作用，完整 assembled P 仍保留；组装、方向作用、预条件及外层迭代成本需要一起比较。
+本轮局部核与真实算例成本见 [FSI-MF-02 证据索引](../research/data/fsi-mf-02-2026-11-26/README.md)。
 
 精确 Matrix-free 要求 `fgmres` 或 `pipefgmres`，使用自身 P 刷新间隔；它拒绝 `-fsi_fd_tangent`、PETSc SNES FD/MF 替代算子、手工 Jacobian/PC lag/reuse、EW 覆盖以及另一个 `-nonlinear_adaptive_pc` 策略。
 PIPEFGMRES 的异步归约由 PETSc 管理，实际能否隐藏同步等待取决于 MPI progress、算例大小和预条件工作量。

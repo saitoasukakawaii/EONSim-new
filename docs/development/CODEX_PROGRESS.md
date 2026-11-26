@@ -1,5 +1,33 @@
 # EONSim Codex Development Progress
 
+## 2026-11-26 · FSI-MF-02：固体直接方向核与零初值 V-cycle
+
+从已合并 #61 的 `main@6bb6f438b63c` 接续，交付 [PR #62](https://github.com/saitoasukakawaii/EONSim-new/pull/62)。
+生产/数值测试源码 `b7d727bd10231c22987b18114d1e25d622b2b8f1`，完整远端 tree
+`f62deb159dcadde5a48aca8a7af4063bc4628204` 先核对一致，再进行 Release 增量构建和验证。
+
+新增线弹性/Neo-Hookean 直接方向作用、一致质量作用及参考面壁支撑方向作用；FSI 的
+matrix-free 固体分支不再形成 9×9 材料或 12×12 单元切线，也不计算该作用不使用的
+残量/能量。原装配路径保留为独立对照。每个非粗 MG 层利用已知零初值省一次残量矩阵
+乘及其 halo 通信，覆盖 `pre_smooth=0`、多次预平滑、无后平滑、FP32、空 owner 与谱重建。
+
+本地 **4/4 定向 CTest**（固体方向核、MG 1/2/4 rank）及 **11/11 真实 FSI** 通过。
+14 组固体/12 组支撑直接作用对旧切线最大归一化差为 `3.3998581e-16`/`1.4946835e-16`；
+残量中心差分也通过。物理检查含非等步长 generalized-alpha、运动血管、NH、壁支撑、
+移动 RCR、FGMRES/PIPEFGMRES，33 接受步、75 条真残量，原门槛保持。
+
+局部核 4 配置、每配置 7 对×20,000 次测量，配对耗时中位降低 **75.75%–82.08%**。
+归档旧二进制经 SHA256 核对，与新二进制在同一个 350 DoF、2-rank 移动血管上做
+3 对交替测量：两者均 155 次外层迭代、173 次 matrix-free 作用；该作用阶段 rank0
+耗时中位降低 **23.27%**，整程序 wall 中位反而增加 **1.44%**，波动范围跨零。
+局部收益不等于稳定端到端加速；本轮没有解决完整 P 存储、网格无关或多节点目标。
+
+[原始证据与测量范围](../research/data/fsi-mf-02-2026-11-26/README.md)、
+[未发布草稿](../../website/drafts/fsi-direct-solid-action.md)。没有追加本地全量、Debug 或旧锁验证。
+源码CI45832884735实际 **42/42 Release、6/6 Python** 通过，0数值失败/跳过/复用；
+选测及成功收据的完整tree与b7d727b相同。PR#62已于北京时间21:57由既有保护流程合入
+`194c96eda208ae49de1b0a65e5a36d60acca76b6`。后续原件/文档归档单独提交，不算新的数值执行。
+
 ## 2026-11-26 · FSI-MG-01：整体多重网格、逐层校正与精确 Matrix-free
 
 从已合并 #59 的 `main@3472a18` 接续，交付 [PR #61](https://github.com/saitoasukakawaii/EONSim-new/pull/61)。
