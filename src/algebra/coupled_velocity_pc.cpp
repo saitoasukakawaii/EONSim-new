@@ -322,6 +322,195 @@ std::vector<SparseMode> scalar_mode(MPI_Comm comm,const FineRows& fine) {
     common_check(comm,valid,"nonfinite global scalar near mode");
     return modes;
 }
+
+// The candidate index denotes physical meaning, not an algebraic block size:
+// fluid xyz, solid xyz, fluid rotations, solid rotations, scalar body motion.
+// The same columns are propagated at every level. A scalar GAMG restarted on
+// P^T A P would instead lose this information after the first transfer.
+constexpr std::size_t field_candidate_count=13;
+using FieldCandidate=std::array<PetscScalar,field_candidate_count>;
+struct FieldLevel {
+    std::vector<FieldCandidate> candidates;
+    std::vector<std::vector<PetscInt>> blocks; // Local row offsets, no ghost copy.
+};
+struct FieldTransfer {
+    PetscOwner<Mat,MatDestroy> interpolation;
+    FieldLevel coarse;
+    PetscInt global_size=0;
+    double reproduction_error=0;
+};
+FieldLevel field_candidates(MPI_Comm comm,const FineRows& fine,
+    const std::vector<DofKey>& semantics,const std::vector<std::array<double,3>>& coordinates,bool rigid) {
+    FieldLevel data;
+    data.candidates.resize(semantics.size());
+    CoordinateFrame frame;
+    if(rigid) {
+        long double local[4]{},global[4]{};
+        for(std::size_t row=0;row<semantics.size();++row)
+            if(fine.active[row]&&semantics[row].kind==DofEntity::vertex) {
+                for(int c=0;c<3;++c) local[c]+=coordinates[row][c];
+                local[3]+=1;
+            }
+        if(MPI_Allreduce(local,global,4,MPI_LONG_DOUBLE,MPI_SUM,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("Field AMG coordinate reduction failed");
+        if(global[3]>0) for(int c=0;c<3;++c) frame.center[c]=global[c]/global[3];
+        long double scale=0;
+        for(std::size_t row=0;row<semantics.size();++row)
+            if(fine.active[row]&&semantics[row].kind==DofEntity::vertex)
+                for(int c=0;c<3;++c)
+                    scale=std::max(scale,std::abs(static_cast<long double>(coordinates[row][c])-frame.center[c]));
+        if(MPI_Allreduce(&scale,&frame.scale,1,MPI_LONG_DOUBLE,MPI_MAX,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("Field AMG coordinate scale reduction failed");
+    }
+    std::map<DofKey,PetscInt> block_ids;
+    for(PetscInt row=0;row<static_cast<PetscInt>(semantics.size());++row) if(fine.active[row]) {
+        const auto& key=semantics[row];
+        auto block_key=key; block_key.component=0;
+        auto found=block_ids.find(block_key);
+        if(found==block_ids.end()) {
+            const auto index=static_cast<PetscInt>(data.blocks.size());
+            found=block_ids.emplace(block_key,index).first;
+            data.blocks.push_back({});
+        }
+        data.blocks[found->second].push_back(row);
+        auto& candidate=data.candidates[row];
+        if(key.kind==DofEntity::body) candidate[12]=1.;
+        else {
+            const bool solid=key.domain==DofDomain::solid;
+            candidate[(solid?3:0)+key.component]=1.;
+            if(rigid) for(int axis=0;axis<3;++axis)
+                candidate[(solid?9:6)+axis]=rotation_component(frame,coordinates[row],key.component,axis);
+        }
+    }
+    return data;
+}
+
+FieldTransfer field_transfer(MPI_Comm comm,Mat matrix,const FieldLevel& fine,PetscInt maximum_blocks) {
+    PetscInt begin=0,end=0,global=0;
+    EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
+    EONSIM_PETSC(MatGetSize(matrix,&global,nullptr));
+    common_check(comm,end-begin==static_cast<PetscInt>(fine.candidates.size()),
+                 "field AMG candidate ownership differs from its matrix");
+    std::vector<PetscInt> row_block(fine.candidates.size(),-1);
+    bool valid=true;
+    for(PetscInt block=0;block<static_cast<PetscInt>(fine.blocks.size());++block)
+        for(auto row:fine.blocks[block]) {
+            if(row<0||row>=end-begin||row_block[row]!=-1) valid=false;
+            else row_block[row]=block;
+        }
+    common_check(comm,valid,"field AMG blocks must be disjoint owned row sets");
+    std::vector<std::vector<PetscInt>> neighbors(fine.blocks.size());
+    for(PetscInt row=0;row<end-begin;++row) if(row_block[row]>=0) {
+        PetscInt count=0; const PetscInt* columns=nullptr; const PetscScalar* values=nullptr;
+        EONSIM_PETSC(MatGetRow(matrix,begin+row,&count,&columns,&values));
+        for(PetscInt j=0;j<count;++j) if(columns[j]>=begin&&columns[j]<end) {
+            const auto adjacent=row_block[columns[j]-begin];
+            if(adjacent>=0&&adjacent!=row_block[row]) {
+                neighbors[row_block[row]].push_back(adjacent);
+                neighbors[adjacent].push_back(row_block[row]);
+            }
+        }
+        EONSIM_PETSC(MatRestoreRow(matrix,begin+row,&count,&columns,&values));
+    }
+    for(auto& adjacent:neighbors) {
+        std::sort(adjacent.begin(),adjacent.end());
+        adjacent.erase(std::unique(adjacent.begin(),adjacent.end()),adjacent.end());
+    }
+    std::vector<char> assigned(fine.blocks.size(),0);
+    std::vector<SparseMode> modes;
+    FieldTransfer result;
+    long double local_error=0,local_norm=0;
+    for(PetscInt seed=0;seed<static_cast<PetscInt>(fine.blocks.size());++seed) if(!assigned[seed]) {
+        std::vector<PetscInt> aggregate{seed}; assigned[seed]=1;
+        for(std::size_t cursor=0;cursor<aggregate.size()&&aggregate.size()<static_cast<std::size_t>(maximum_blocks);++cursor)
+            for(auto adjacent:neighbors[aggregate[cursor]]) if(!assigned[adjacent]) {
+                assigned[adjacent]=1; aggregate.push_back(adjacent);
+                if(aggregate.size()==static_cast<std::size_t>(maximum_blocks)) break;
+            }
+        std::vector<PetscInt> rows;
+        for(auto block:aggregate) rows.insert(rows.end(),fine.blocks[block].begin(),fine.blocks[block].end());
+        std::sort(rows.begin(),rows.end());
+        std::vector<std::vector<PetscScalar>> basis;
+        for(std::size_t component=0;component<field_candidate_count;++component) {
+            std::vector<PetscScalar> candidate(rows.size());
+            long double initial_squared=0;
+            for(std::size_t i=0;i<rows.size();++i) {
+                candidate[i]=fine.candidates[rows[i]][component];
+                initial_squared+=static_cast<long double>(candidate[i])*candidate[i];
+            }
+            const auto initial=std::sqrt(initial_squared);
+            if(initial==0) continue;
+            for(int pass=0;pass<2;++pass) for(const auto& previous:basis) {
+                long double product=0;
+                for(std::size_t i=0;i<rows.size();++i) product+=static_cast<long double>(previous[i])*candidate[i];
+                for(std::size_t i=0;i<rows.size();++i) candidate[i]-=static_cast<double>(product*previous[i]);
+            }
+            long double squared=0;
+            for(auto value:candidate) squared+=static_cast<long double>(value)*value;
+            const auto norm=std::sqrt(squared);
+            valid=valid&&std::isfinite(initial)&&std::isfinite(norm);
+            if(norm<=256*std::numeric_limits<double>::epsilon()*std::max(1.L,initial)) continue;
+            for(auto& value:candidate) value=static_cast<double>(value/norm);
+            basis.push_back(std::move(candidate));
+        }
+        std::vector<PetscInt> coarse_block;
+        const auto first=result.coarse.candidates.size();
+        for(const auto& column:basis) {
+            SparseMode mode;
+            FieldCandidate propagated{};
+            for(std::size_t component=0;component<field_candidate_count;++component) {
+                long double product=0;
+                for(std::size_t i=0;i<rows.size();++i)
+                    product+=static_cast<long double>(column[i])*fine.candidates[rows[i]][component];
+                propagated[component]=static_cast<double>(product);
+            }
+            for(std::size_t i=0;i<rows.size();++i) if(column[i]!=0) {
+                mode.rows.push_back(begin+rows[i]); mode.values.push_back(column[i]);
+            }
+            coarse_block.push_back(static_cast<PetscInt>(result.coarse.candidates.size()));
+            result.coarse.candidates.push_back(propagated);
+            modes.push_back(std::move(mode));
+        }
+        if(!coarse_block.empty()) result.coarse.blocks.push_back(std::move(coarse_block));
+        for(std::size_t i=0;i<rows.size();++i)
+            for(std::size_t component=0;component<field_candidate_count;++component) {
+                long double reconstructed=0;
+                for(std::size_t k=0;k<basis.size();++k)
+                    reconstructed+=static_cast<long double>(basis[k][i])*result.coarse.candidates[first+k][component];
+                const long double expected=fine.candidates[rows[i]][component];
+                local_error+=(reconstructed-expected)*(reconstructed-expected);
+                local_norm+=expected*expected;
+            }
+    }
+    long double local[2]{local_error,local_norm},sums[2]{};
+    if(MPI_Allreduce(local,sums,2,MPI_LONG_DOUBLE,MPI_SUM,comm)!=MPI_SUCCESS)
+        throw std::runtime_error("Field AMG reproduction audit reduction failed");
+    result.reproduction_error=static_cast<double>(std::sqrt(sums[0]/std::max(1.L,sums[1])));
+    common_check(comm,valid&&std::isfinite(result.reproduction_error)&&result.reproduction_error<=1e-10,
+                 "field AMG failed to preserve the physical candidate span");
+    const auto local_count=static_cast<PetscInt>(modes.size());
+    PetscInt coarse_begin=0;
+    int rank=0; MPI_Comm_rank(comm,&rank);
+    if(MPI_Exscan(&local_count,&coarse_begin,1,MPIU_INT,MPI_SUM,comm)!=MPI_SUCCESS||
+       MPI_Allreduce(&local_count,&result.global_size,1,MPIU_INT,MPI_SUM,comm)!=MPI_SUCCESS)
+        throw std::runtime_error("Field AMG coarse size reduction failed");
+    if(rank==0) coarse_begin=0;
+    // No transfer is installed if QR could not reduce the global dimension.
+    // The caller then solves this level with the bounded coarse KSP.
+    if(result.global_size==0||result.global_size>=global) return result;
+    std::vector<PetscInt> nonzeros(end-begin,0);
+    for(const auto& mode:modes) for(auto row:mode.rows) ++nonzeros[row-begin];
+    EONSIM_PETSC(MatCreateAIJ(comm,end-begin,local_count,global,result.global_size,
+        0,nonzeros.data(),0,nullptr,result.interpolation.put()));
+    EONSIM_PETSC(MatSetOption(result.interpolation.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE));
+    for(PetscInt column=0;column<local_count;++column)
+        for(std::size_t i=0;i<modes[column].rows.size();++i)
+            EONSIM_PETSC(MatSetValue(result.interpolation.get(),modes[column].rows[i],coarse_begin+column,
+                                    modes[column].values[i],INSERT_VALUES));
+    EONSIM_PETSC(MatAssemblyBegin(result.interpolation.get(),MAT_FINAL_ASSEMBLY));
+    EONSIM_PETSC(MatAssemblyEnd(result.interpolation.get(),MAT_FINAL_ASSEMBLY));
+    return result;
+}
 }
 
 void validate_coupled_velocity_twolevel_options(MPI_Comm comm,const std::string& prefix) {
@@ -447,6 +636,124 @@ void configure_coupled_velocity_twolevel(MPI_Comm comm,KSP solver,
         "pc_twolevel prefix=%s global_modes=%" PetscInt_FMT " levels=%d identity=%d rigid_modes=%d aggregate_nodes=%" PetscInt_FMT " coarse_amg=%d\n",
         prefix.empty()?"-":prefix.c_str(),global_count,global_count?2:1,global_count?0:1,static_cast<int>(rigid_modes),
         aggregate_nodes,aggregate_nodes&&global_count?1:0));
+}
+
+void validate_coupled_velocity_field_amg_options(MPI_Comm comm,const std::string& prefix) {
+    response_options(comm,prefix);
+    const auto base="-"+prefix;
+    for(const auto& option:std::vector<std::pair<std::string,std::string>>{
+        {"pc_type","mg"},{"pc_mg_type","multiplicative"},
+        {"pc_mg_galerkin","both"},{"pc_mg_adapt_interp_coarse_space","none"}}) {
+        char value[64]{}; PetscBool set=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,(base+option.first).c_str(),value,sizeof(value),&set));
+        common_check(comm,!set||value==option.second,"incompatible "+prefix+option.first);
+    }
+    PetscBool fixed=PETSC_FALSE,adapt=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,(base+"pc_mg_levels").c_str(),&fixed));
+    common_check(comm,!fixed,"field AMG determines its own level count at "+prefix);
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"pc_mg_adapt_cr").c_str(),&adapt,nullptr));
+    common_check(comm,!adapt,"field AMG uses its fixed physical candidate hierarchy at "+prefix);
+    for(const auto& option:std::vector<std::tuple<std::string,PetscInt,PetscInt>>{
+        {"field_amg_coarse_limit",64,1000000},{"field_amg_max_levels",10,16}}) {
+        PetscInt value=std::get<1>(option),minimum=0,maximum=0;
+        EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,(base+std::get<0>(option)).c_str(),&value,nullptr));
+        if(MPI_Allreduce(&value,&minimum,1,MPIU_INT,MPI_MIN,comm)!=MPI_SUCCESS||
+           MPI_Allreduce(&value,&maximum,1,MPIU_INT,MPI_MAX,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("Field AMG option reduction failed");
+        common_check(comm,value>=1&&value<=std::get<2>(option)&&minimum==maximum,
+                     "invalid or rank-inconsistent "+prefix+std::get<0>(option));
+    }
+}
+
+void configure_coupled_velocity_field_amg(MPI_Comm comm,KSP solver,
+    const std::vector<DofKey>& owned_semantics,
+    const std::vector<std::array<double,3>>& owned_coordinates,bool rigid_modes,PetscInt aggregate_nodes) {
+    const char* prefix_ptr=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(solver,&prefix_ptr));
+    const std::string prefix=prefix_ptr?prefix_ptr:"",base="-"+prefix;
+    validate_coupled_velocity_field_amg_options(comm,prefix);
+    common_choice(comm,aggregate_nodes,aggregate_nodes>=2&&aggregate_nodes<=4096,
+                  "field AMG aggregate nodes must be identical in [2,4096]");
+    const auto fine=fine_rows(comm,solver,owned_semantics,owned_coordinates,rigid_modes,true);
+    auto data=field_candidates(comm,fine,owned_semantics,owned_coordinates,rigid_modes);
+    PetscInt coarse_limit=64,maximum_levels=10,active=0,local_active=0;
+    EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,(base+"field_amg_coarse_limit").c_str(),&coarse_limit,nullptr));
+    EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,(base+"field_amg_max_levels").c_str(),&maximum_levels,nullptr));
+    for(auto value:fine.active) local_active+=value!=0;
+    if(MPI_Allreduce(&local_active,&active,1,MPIU_INT,MPI_SUM,comm)!=MPI_SUCCESS)
+        throw std::runtime_error("Field AMG active-row reduction failed");
+    std::vector<PetscOwner<Mat,MatDestroy>> transfers;
+    PetscOwner<Mat,MatDestroy> temporary_operator;
+    std::vector<PetscInt> dimensions{fine.global};
+    std::vector<double> reproduction_errors;
+    Mat current=fine.matrix;
+    while(active&&dimensions.back()>coarse_limit&&static_cast<PetscInt>(dimensions.size())<maximum_levels) {
+        auto transfer=field_transfer(comm,current,data,aggregate_nodes);
+        if(!transfer.interpolation.get()) break;
+        PetscOwner<Mat,MatDestroy> coarse;
+        // This initial Galerkin matrix supplies the next graph. PCMG owns all
+        // installed transfers and rebuilds numerical operators after J changes;
+        // these temporary matrices do not persist as stale runtime operators.
+        EONSIM_PETSC(MatPtAP(current,transfer.interpolation.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,coarse.put()));
+        temporary_operator=std::move(coarse);
+        current=temporary_operator.get();
+        dimensions.push_back(transfer.global_size);
+        reproduction_errors.push_back(transfer.reproduction_error);
+        data=std::move(transfer.coarse);
+        transfers.push_back(std::move(transfer.interpolation));
+    }
+    const auto levels=static_cast<PetscInt>(dimensions.size());
+    PC pc; EONSIM_PETSC(KSPGetPC(solver,&pc));
+    EONSIM_PETSC(KSPSetType(solver,KSPPREONLY));
+    EONSIM_PETSC(KSPSetTolerances(solver,1e-4,PETSC_DEFAULT,PETSC_DEFAULT,20));
+    EONSIM_PETSC(PCSetType(pc,PCMG));
+    EONSIM_PETSC(PCMGSetLevels(pc,levels,nullptr));
+    EONSIM_PETSC(PCMGSetType(pc,PC_MG_MULTIPLICATIVE));
+    EONSIM_PETSC(PCMGSetGalerkin(pc,levels>1?PC_MG_GALERKIN_BOTH:PC_MG_GALERKIN_NONE));
+    EONSIM_PETSC(KSPSetFromOptions(solver));
+    PetscBool distinct=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+"pc_mg_distinct_smoothup").c_str(),&distinct,nullptr));
+    for(PetscInt level=1;level<levels;++level) {
+        EONSIM_PETSC(PCMGSetInterpolation(pc,level,transfers[levels-1-level].get()));
+        KSP down=nullptr; EONSIM_PETSC(PCMGGetSmoother(pc,level,&down));
+        smoother_defaults(down);
+        if(distinct) {
+            KSP up=nullptr; EONSIM_PETSC(PCMGGetSmootherUp(pc,level,&up));
+            if(up!=down) smoother_defaults(up);
+        }
+    }
+    KSP coarse=nullptr; PC coarse_pc;
+    EONSIM_PETSC(PCMGGetCoarseSolve(pc,&coarse));
+    EONSIM_PETSC(KSPGetPC(coarse,&coarse_pc));
+    if(active==0) {
+        EONSIM_PETSC(KSPSetType(coarse,KSPPREONLY));
+        EONSIM_PETSC(PCSetType(coarse_pc,PCJACOBI));
+    } else {
+        EONSIM_PETSC(KSPSetType(coarse,KSPGMRES));
+        EONSIM_PETSC(KSPSetTolerances(coarse,1e-10,PETSC_DEFAULT,PETSC_DEFAULT,200));
+        EONSIM_PETSC(KSPSetNormType(coarse,KSP_NORM_UNPRECONDITIONED));
+        EONSIM_PETSC(PCSetType(coarse_pc,PCASM));
+        EONSIM_PETSC(PCASMSetOverlap(coarse_pc,1));
+        const char* coarse_prefix=nullptr; EONSIM_PETSC(KSPGetOptionsPrefix(coarse,&coarse_prefix));
+        const auto coarse_base="-"+std::string(coarse_prefix?coarse_prefix:"");
+        option_default(coarse_base+"sub_ksp_type","preonly");
+        option_default(coarse_base+"sub_pc_type","lu");
+        EONSIM_PETSC(KSPSetFromOptions(coarse));
+    }
+    PetscBool report=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-pc_plan_report",&report,nullptr));
+    if(report) {
+        EONSIM_PETSC(PetscPrintf(comm,
+            "pc_field_amg prefix=%s global_rows=%" PetscInt_FMT " levels=%" PetscInt_FMT " coarse_rows=%" PetscInt_FMT
+            " identity=%d rigid_modes=%d aggregate_nodes=%" PetscInt_FMT " candidate_columns=%d\n",
+            prefix.empty()?"-":prefix.c_str(),fine.global,levels,dimensions.back(),active==0?1:0,
+            static_cast<int>(rigid_modes),aggregate_nodes,static_cast<int>(field_candidate_count)));
+        for(PetscInt index=0;index<levels-1;++index)
+            EONSIM_PETSC(PetscPrintf(comm,
+                "pc_field_amg_level prefix=%s fine_level=%" PetscInt_FMT " fine_rows=%" PetscInt_FMT
+                " coarse_rows=%" PetscInt_FMT " reproduction_error=%.17g\n",
+                prefix.empty()?"-":prefix.c_str(),levels-1-index,dimensions[index],dimensions[index+1],
+                reproduction_errors[index]));
+    }
 }
 
 void validate_coupled_velocity_gamg_options(MPI_Comm comm,const std::string& prefix) {

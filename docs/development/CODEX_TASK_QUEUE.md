@@ -1,5 +1,15 @@
 # EONSim Codex Task Queue
 
+## FSI-PC-05 / in progress / 2026-11-26
+
+From verified main `af4a7fb` (#58), branch `codex/fsi-schur-interface-amg`.
+Implement stabilized PCD/LSC/BFBt pressure actions, field-aware multilevel
+velocity AMG, coupled interface patches and mixed-precision patch factors.
+Publish code before compiling/running. Acceptance requires independent algebra
+oracles, real FSI direct-reference comparison, MPI/refinement evidence and the
+existing protected PR checks. Mesh-independent convergence remains a measured
+goal, not an implementation claim. No tests have been run for this task yet.
+
 ## RCR-PC-01 / implementation and validation complete / 2026-11-26
 
 [PR #58](https://github.com/saitoasukakawaii/EONSim-new/pull/58)完成用户要求的六项P0/P1：完整

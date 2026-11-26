@@ -1,6 +1,17 @@
 {
   "schema": 1,
   "tests": {
+    "pressure_schur_mpi1": {"targets": ["verify_pressure_schur"], "ranks": [1]},
+    "pressure_schur_mpi2": {"targets": ["verify_pressure_schur"], "ranks": [2]},
+    "pressure_schur_mpi4": {"targets": ["verify_pressure_schur"], "ranks": [4]},
+    "interface_patch_mpi1": {"targets": ["verify_interface_patch"], "ranks": [1]},
+    "interface_patch_mpi2": {"targets": ["verify_interface_patch"], "ranks": [2]},
+    "interface_patch_mpi4": {"targets": ["verify_interface_patch"], "ranks": [4]},
+    "field_amg_mpi1": {"targets": ["verify_field_amg"], "ranks": [1]},
+    "field_amg_mpi2": {"targets": ["verify_field_amg"], "ranks": [2]},
+    "field_amg_mpi4": {"targets": ["verify_field_amg"], "ranks": [4]},
+    "fsi_pressure_operators": {"targets": ["verify_fsi_pressure_operators"], "ranks": [1]},
+    "advanced_fsi_pc": {"targets": ["eonsim"], "ranks": [1, 2]},
     "pc_rcr_port_mpi1": {"targets": ["verify_rcr_port"], "ranks": [1]},
     "pc_rcr_port_mpi2": {"targets": ["verify_rcr_port"], "ranks": [2]},
     "pc_rcr_port_mpi4": {"targets": ["verify_rcr_port"], "ranks": [4]},
@@ -107,6 +118,11 @@
     "time_retry_verification": {"targets": ["eonsim"], "ranks": [1, 2]}
   },
   "rules": [
+    {"paths": ["tests/verify_pressure_schur.cpp", "include/eonsim/pressure_schur_pc.hpp", "src/algebra/pressure_schur_pc.cpp", "src/algebra/pc_plan.cpp", "include/eonsim/pc_plan.hpp", "src/algebra/rcr_port_pc.cpp", "CMakeLists.txt"], "tests": ["pressure_schur_mpi1", "pressure_schur_mpi2", "pressure_schur_mpi4"], "python": []},
+    {"paths": ["tests/verify_interface_patch.cpp", "include/eonsim/interface_patch_pc.hpp", "src/algebra/interface_patch_pc.cpp", "src/algebra/pc_plan.cpp", "include/eonsim/pc_plan.hpp", "src/fem/reduced_layout.cpp", "include/eonsim/linear_system.hpp", "CMakeLists.txt"], "tests": ["interface_patch_mpi1", "interface_patch_mpi2", "interface_patch_mpi4"], "python": []},
+    {"paths": ["tests/verify_field_amg.cpp", "include/eonsim/coupled_velocity_pc.hpp", "src/algebra/coupled_velocity_pc.cpp", "src/algebra/pc_plan.cpp", "include/eonsim/pc_plan.hpp", "CMakeLists.txt"], "tests": ["field_amg_mpi1", "field_amg_mpi2", "field_amg_mpi4"], "python": []},
+    {"paths": ["tests/verify_fsi_pressure_operators.cpp", "include/eonsim/fsi_pressure_operators.hpp", "src/physics/fsi_pressure_operators.cpp", "src/physics/fsi.cpp", "include/eonsim/fsi_element.hpp", "CMakeLists.txt"], "tests": ["fsi_pressure_operators"], "python": []},
+    {"paths": ["tests/verify_fsi_advanced_pc.py", "src/algebra/pressure_schur_pc.cpp", "src/algebra/interface_patch_pc.cpp", "src/algebra/coupled_velocity_pc.cpp", "include/eonsim/pressure_schur_pc.hpp", "include/eonsim/interface_patch_pc.hpp", "include/eonsim/coupled_velocity_pc.hpp", "src/algebra/pc_plan.cpp", "include/eonsim/pc_plan.hpp", "src/algebra/nonlinear_system.cpp", "include/eonsim/nonlinear_system.hpp", "src/physics/fsi.cpp", "src/physics/fsi_pressure_operators.cpp", "include/eonsim/fsi_pressure_operators.hpp", "src/fem/reduced_layout.cpp", "include/eonsim/linear_system.hpp", "CMakeLists.txt"], "tests": ["advanced_fsi_pc"], "python": []},
     {"paths": ["tests/verify_rcr_port.cpp", "include/eonsim/rcr_port_pc.hpp", "src/algebra/rcr_port_pc.cpp", "include/eonsim/pc_plan.hpp", "src/algebra/pc_plan.cpp", "include/eonsim/coupled_velocity_pc.hpp", "src/algebra/coupled_velocity_pc.cpp", "CMakeLists.txt"], "tests": ["pc_rcr_port_mpi1", "pc_rcr_port_mpi2", "pc_rcr_port_mpi4"], "python": []},
     {"paths": ["tests/verify_rcr_port_fsi.py", "tests/verify_fsi_moving_port.py", "tests/verify_fsi_inlet.py", "tests/verify_curved_fsi.py", "cases/fsi/generate_branched.py", "cases/fsi/generate_tube.py", "include/eonsim/rcr_port_pc.hpp", "src/algebra/rcr_port_pc.cpp", "include/eonsim/pc_plan.hpp", "src/algebra/pc_plan.cpp", "include/eonsim/coupled_velocity_pc.hpp", "src/algebra/coupled_velocity_pc.cpp", "src/algebra/nonlinear_system.cpp", "CMakeLists.txt"], "tests": ["rcr_port_fsi"], "python": []},
     {"paths": ["tests/verify_ghost_overlap.cpp", "include/eonsim/nonlinear_system.hpp", "src/algebra/nonlinear_system.cpp", "src/physics/fsi.cpp", "CMakeLists.txt"], "tests": ["ghost_overlap_mpi1", "ghost_overlap_mpi2", "ghost_overlap_mpi4"], "python": []},

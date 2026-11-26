@@ -40,6 +40,12 @@ struct NonlinearResult {
  */
 struct NonlinearAssemblyPhases {
     std::function<void(const std::vector<double>&,Vec,Mat)> owned,halo;
+    /** Optional collective auxiliary-operator publication, after a successful
+     * constrained Jacobian and completed ghost exchange. All ranks provide it
+     * or none. It may attach preconditioning data to J, never alter J or history.
+     * The callback must propagate its own local failures collectively.
+     */
+    std::function<void(const std::vector<double>&,Mat)> after_jacobian;
     /// Exact physical/time coefficient identity used only for PC reuse policy.
     std::vector<double> preconditioner_context;
 };

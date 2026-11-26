@@ -6,6 +6,7 @@
 #include "eonsim/fsi_domains.hpp"
 #include "eonsim/checkpoint.hpp"
 #include "eonsim/fsi_element.hpp"
+#include "eonsim/fsi_pressure_operators.hpp"
 #include "eonsim/fsi_coupling_pattern.hpp"
 #include "eonsim/reduced_layout.hpp"
 #include "eonsim/motion.hpp"
@@ -881,6 +882,14 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     }
     const double plan_seconds=MPI_Wtime()-plan_start;
     const double system_start=MPI_Wtime();
+    char pressure_approximation[32]{};
+    EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-pc_plan_schur_approx",pressure_approximation,sizeof(pressure_approximation),nullptr));
+    int pcd_local=std::string(pressure_approximation)=="pcd",pcd_min=0,pcd_max=0;
+    MPI_Allreduce(&pcd_local,&pcd_min,1,MPI_INT,MPI_MIN,comm);
+    MPI_Allreduce(&pcd_local,&pcd_max,1,MPI_INT,MPI_MAX,comm);
+    if(pcd_min!=pcd_max) throw std::runtime_error("PCD auxiliary assembly selection differs between ranks");
+    std::unique_ptr<FsiPressureOperators> pressure_operators;
+    if(pcd_local) pressure_operators=std::make_unique<FsiPressureOperators>(comm,mesh,reduced,fluid_cell,pressure_tags);
     NonlinearSystem system(comm,layout,std::move(reduced.jacobian_pattern));
     if(coo) system.set_jacobian_coo(coo_rows,coo_columns);
     if(residual_coo) system.set_residual_coo(residual_rows);
@@ -1315,6 +1324,13 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         };
         NonlinearAssemblyPhases phases;
         phases.preconditioner_context={dt,integration_dt,solid_dt,mesh_dt,stabilization_dt,af};
+        if(pressure_operators) phases.after_jacobian=[&](const std::vector<double>& x,Mat jacobian) {
+            // Successful physical assembly has completed all halo exchanges.
+            // Reconstruct the same stage state, including interface aliases and
+            // nonzero inlet lifting, before publishing auxiliary operators.
+            expand_into(x,assembly_state);
+            pressure_operators->update(assembly_state,data,jacobian);
+        };
         if(overlap) {
             phases.owned=[&](const std::vector<double>& x,Vec r,Mat j) {
                 assemble_phase(x,r,j,&owned_cells,true);
