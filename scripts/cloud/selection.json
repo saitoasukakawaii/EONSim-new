@@ -155,7 +155,7 @@
     {"paths": ["tests/verify_nonlinear_acceptance.cpp"], "tests": ["nonlinear_acceptance", "nonlinear_acceptance_mpi"], "python": []},
     {"paths": ["tests/verify_parallel.py"], "tests": ["poisson_parallel"], "python": []},
     {"paths": ["tests/verify_pc_plan.cpp"], "tests": ["pc_plan_mpi1", "pc_plan_mpi2", "pc_plan_mpi4"], "python": []},
-    {"paths": ["tests/verify_fsi_block_efficiency.py", "tests/verify_fsi_tube.py", "tests/verify_fsi_inlet.py", "CMakeLists.txt", "include/eonsim/pc_plan.hpp", "src/algebra/pc_plan.cpp"], "tests": ["fsi_block_efficiency"], "python": []},
+    {"paths": ["tests/verify_fsi_block_efficiency.py", "scripts/benchmark_fsi_block_scaling.py", "tests/verify_fsi_tube.py", "tests/verify_fsi_inlet.py", "CMakeLists.txt", "include/eonsim/pc_plan.hpp", "src/algebra/pc_plan.cpp"], "tests": ["fsi_block_efficiency"], "python": []},
     {"paths": ["tests/verify_pc_restart.py"], "tests": ["pc_recipe_restart"], "python": []},
     {"paths": ["tests/verify_poisson.py"], "tests": ["poisson_verification"], "python": []},
     {"paths": ["tests/verify_quadrature.cpp"], "tests": ["quadrature_moments"], "python": []},
