@@ -1,5 +1,15 @@
 # EONSim Codex Development Progress
 
+## 2026-11-27 · FSI-SADDLE-01：鞍点多层、跨 rank 聚合与子空间消除（开发中）
+
+从已合并 PR #64 的 `main@036f865e3570905a58da465c91873678de485119` 接续，
+分支 `codex/saddle-point-multigrid`。本轮目标为保留逐层压力/非压力语义、离散散度约束插值、
+逐层压力响应、耦合 Schur/Braess–Sarazin、乘性及彩色 Vanka、跨 rank 聚合、层级自适应及复用、
+精确 matrix-free 最细层、分布式粗解、deflated FGMRES 与减少通信的循环。
+开发和验证代码先完成并推送远端，再执行 Release 定向算例；当前尚未执行新数值验证。
+锁定 PETSc 3.23.7 环境已恢复；所有完成/性能结论须由后续实际证据更新。
+
+
 ## 2026-11-27 · FSI-SCALE-01：实现与有界验收完成，收敛及规模目标仍开放
 
 本节按北京时间记录，任务起始于 2026-11-26。从已合并 #63 的

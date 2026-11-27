@@ -373,6 +373,7 @@ struct PatchState {
     IndexSets indices;
     Mat* submatrices=nullptr;
     std::vector<Patch> patches;
+    std::vector<PetscInt> patch_colors;
     std::vector<double> inverse_multiplicity,patch_rhs;
     PcSchurUpdates bulk_updates; // Must outlive the KSP retaining USER matrices.
     PetscOwner<KSP,KSPDestroy> bulk;
@@ -380,7 +381,7 @@ struct PatchState {
     PetscOwner<VecScatter,VecScatterDestroy> scatter;
     std::function<void(KSP,Mat,PcSchurUpdates*)> configure;
     InterfacePatchPcStats stats;
-    NativeFloatSparse identity_lift;
+    NativeFloatSparse native_residual;
     bool released=false;
 
     ~PatchState() {
@@ -404,6 +405,45 @@ struct PatchState {
         common_check(comm,valid,"nonfinite source Jacobian");
         return result;
     }
+    void prepare_schedule(const std::vector<PetscInt>& union_rows,PetscInt total) {
+        const auto local=static_cast<PetscInt>(patches.size());
+        patch_colors.assign(patches.size(),0);
+        if(options.sweep=="additive"||total==0) return;
+        PetscInt offset=0;
+        int rank=0;EONSIM_PETSC(MPI_Comm_rank(comm,&rank));
+        EONSIM_PETSC(MPI_Exscan(&local,&offset,1,MPIU_INT,MPI_SUM,comm));
+        if(rank==0) offset=0;
+        if(options.sweep=="multiplicative") {
+            std::iota(patch_colors.begin(),patch_colors.end(),offset);
+            stats.colors=total;
+            return;
+        }
+        // R maps patch amplitudes to their participating rows. R^T R is the
+        // exact shared-row conflict graph, including off-rank patch overlap.
+        // Its row ownership is the patch seed ownership, not a gathered graph.
+        PetscOwner<Mat,MatDestroy> incidence,conflicts;
+        EONSIM_PETSC(MatCreateAIJ(comm,end-begin,local,global,total,0,nullptr,0,nullptr,incidence.put()));
+        EONSIM_PETSC(MatSetOption(incidence.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_FALSE));
+        for(PetscInt p=0;p<local;++p) for(auto row_offset:patches[p].union_offsets)
+            EONSIM_PETSC(MatSetValue(incidence.get(),union_rows[row_offset],offset+p,1.,INSERT_VALUES));
+        EONSIM_PETSC(MatAssemblyBegin(incidence.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatAssemblyEnd(incidence.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatTransposeMatMult(incidence.get(),incidence.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,conflicts.put()));
+        PetscOwner<MatColoring,MatColoringDestroy> coloring;
+        PetscOwner<ISColoring,ISColoringDestroy> schedule;
+        EONSIM_PETSC(MatColoringCreate(conflicts.get(),coloring.put()));
+        EONSIM_PETSC(MatColoringSetType(coloring.get(),MATCOLORINGGREEDY));
+        EONSIM_PETSC(MatColoringSetDistance(coloring.get(),1));
+        EONSIM_PETSC(MatColoringApply(coloring.get(),schedule.put()));
+        PetscInt count=0,colors=0;
+        const ISColoringValue* values=nullptr;
+        EONSIM_PETSC(ISColoringGetColors(schedule.get(),&count,&colors,&values));
+        common_check(comm,count==local,"distributed coloring changed patch ownership");
+        for(PetscInt p=0;p<local;++p) patch_colors[p]=static_cast<PetscInt>(values[p]);
+        EONSIM_PETSC(MPI_Allreduce(&colors,&stats.colors,1,MPIU_INT,MPI_MAX,comm));
+        common_check(comm,stats.colors>0&&std::all_of(patch_colors.begin(),patch_colors.end(),
+            [&](PetscInt color){return color>=0&&color<stats.colors;}),"invalid distributed patch color");
+    }
     PatchState(MPI_Comm communicator,Mat full,const std::vector<DofKey>& keys,
                const std::vector<unsigned char>& trace,const InterfacePatchOptions& selected,
                const std::string& prefix,
@@ -419,6 +459,8 @@ struct PatchState {
             "metadata must follow matching owned row/column ordering");
         common_check(comm,(!options.adaptive&&!options.native_storage)||level_mode,
                      "adaptive/native storage options require a pure Vanka level");
+        common_check(comm,level_mode||options.sweep=="additive",
+                     "multiplicative/colored sweeps require a pure Vanka level");
         EONSIM_PETSC(MatGetNonzeroState(full,&graph));
         stats.overlap=options.overlap;
         active_owned=active_rows(full);
@@ -529,6 +571,7 @@ struct PatchState {
         EONSIM_PETSC(VecRestoreArrayRead(union_rhs.get(),&allowed));
         common_check(comm,bounded,"an interface patch is empty or exceeds the maximum size; no rows were truncated");
         stats.patches=local;
+        prepare_schedule(union_rows,total);
         patch_rhs.resize(stats.largest_patch);
         EONSIM_PETSC(VecSet(union_correction.get(),0.));
         PetscScalar* counts=nullptr;
@@ -643,10 +686,11 @@ struct PatchState {
                 " fp32=%" PetscInt_FMT " fp64=%" PetscInt_FMT " factor_bytes=%zu rebuilds=%" PetscInt_FMT
                 " setup_fallbacks=%" PetscInt_FMT " apply_fallbacks=%" PetscInt_FMT " refinements=%" PetscInt_FMT
                 " batches=%" PetscInt_FMT " factorizations=%" PetscInt_FMT " cached=%" PetscInt_FMT
-                " interface=%" PetscInt_FMT " level=%d\n",
+                " interface=%" PetscInt_FMT " level=%d colors=%" PetscInt_FMT " sweep=%s\n",
                 rank,stats.patches,stats.largest_patch,stats.fp32_patches,stats.fp64_patches,stats.factor_bytes,
                 stats.rebuilds,stats.setup_fallbacks,stats.apply_fallbacks,stats.refinements,
-                stats.factor_batches,stats.numeric_factorizations,stats.cached_factorizations,stats.interface_patches,level_mode?1:0));
+                stats.factor_batches,stats.numeric_factorizations,stats.cached_factorizations,stats.interface_patches,level_mode?1:0,
+                stats.colors,options.sweep.c_str()));
             EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
         }
     }
@@ -656,15 +700,16 @@ struct PatchState {
         int local_identity=std::any_of(active_owned.begin(),active_owned.end(),[](unsigned char x){return !x;});
         int any_identity=0;
         EONSIM_PETSC(MPI_Allreduce(&local_identity,&any_identity,1,MPI_INT,MPI_MAX,comm));
-        if(any_identity) {
+        if(options.sweep!="additive") native_residual.update(source,true);
+        else if(any_identity) {
             PetscOwner<Vec,VecDestroy> mask;
             EONSIM_PETSC(MatCreateVecs(source,mask.put(),nullptr));
             PetscScalar* values=nullptr;EONSIM_PETSC(VecGetArray(mask.get(),&values));
             for(PetscInt i=0;i<end-begin;++i) values[i]=active_owned[i]?0.:1.;
             EONSIM_PETSC(VecRestoreArray(mask.get(),&values));
-            identity_lift.update(source,true,mask.get());
+            native_residual.update(source,true,mask.get());
         }
-        stats.fp32_matrix_bytes=identity_lift.values.size()*sizeof(float);
+        stats.fp32_matrix_bytes=native_residual.values.size()*sizeof(float);
         stats.native_sparse_patches=stats.native_dense_patches=0;stats.native_index_bytes=0;
         for(auto& patch:patches) {
             patch.retain_native_coefficients();
@@ -703,34 +748,40 @@ struct PatchState {
             PetscCall(PCGetFailedReason(bulk_pc,&failure));
             valid=solve_error==PETSC_SUCCESS&&reason>0&&failure==PC_NOERROR;
         }
-        if(released) {
-            if(identity_lift.prepared) PetscCall(identity_lift.multiply(output,residual_vector.get(),false));
-            else PetscCall(VecSet(residual_vector.get(),0.));
-        }
-        else PetscCall(MatMult(source,output,residual_vector.get()));
-        PetscCall(VecAYPX(residual_vector.get(),-1.,input));
-        PetscCall(VecScatterBegin(scatter.get(),residual_vector.get(),union_rhs.get(),INSERT_VALUES,SCATTER_FORWARD));
-        PetscCall(VecScatterEnd(scatter.get(),residual_vector.get(),union_rhs.get(),INSERT_VALUES,SCATTER_FORWARD));
-        const PetscScalar* rhs=nullptr; PetscScalar* correction=nullptr;
-        PetscCall(VecGetArrayRead(union_rhs.get(),&rhs));
-        PetscCall(VecGetArray(union_correction.get(),&correction));
-        if(!inverse_multiplicity.empty()) std::fill(correction,correction+inverse_multiplicity.size(),0.);
-        // Every rank completes both scatters even if a local factor fails.
-        // Catch local C++ setup/check exceptions before restoring borrowed arrays.
-        for(auto& patch:patches) {
-            for(PetscInt i=0;i<patch.n;++i) patch_rhs[i]=rhs[patch.union_offsets[i]];
-            bool solved=false;
-            try { solved=patch.solve(patch_rhs.data(),options,stats); } catch(...) { solved=false; }
-            valid=valid&&solved;
-            if(solved) for(PetscInt i=0;i<patch.n;++i) {
-                const auto offset=patch.union_offsets[i];
-                correction[offset]+=options.damping*inverse_multiplicity[offset]*patch.solution[i];
+        for(PetscInt color=0;color<stats.colors;++color) {
+            if(released) {
+                if(native_residual.prepared) {
+                    PetscCall(native_residual.multiply(output,residual_vector.get(),false));
+                    ++stats.residual_products;
+                } else PetscCall(VecSet(residual_vector.get(),0.));
+            } else {PetscCall(MatMult(source,output,residual_vector.get()));++stats.residual_products;}
+            PetscCall(VecAYPX(residual_vector.get(),-1.,input));
+            PetscCall(VecScatterBegin(scatter.get(),residual_vector.get(),union_rhs.get(),INSERT_VALUES,SCATTER_FORWARD));
+            PetscCall(VecScatterEnd(scatter.get(),residual_vector.get(),union_rhs.get(),INSERT_VALUES,SCATTER_FORWARD));
+            const PetscScalar* rhs=nullptr; PetscScalar* correction=nullptr;
+            PetscCall(VecGetArrayRead(union_rhs.get(),&rhs));
+            PetscCall(VecGetArray(union_correction.get(),&correction));
+            if(!inverse_multiplicity.empty()) std::fill(correction,correction+inverse_multiplicity.size(),0.);
+            // Every rank completes every color/scatter even after a local
+            // factor failure. No rank-local branch changes the MPI schedule.
+            for(std::size_t p=0;p<patches.size();++p) if(patch_colors[p]==color) {
+                auto& patch=patches[p];
+                for(PetscInt i=0;i<patch.n;++i) patch_rhs[i]=rhs[patch.union_offsets[i]];
+                bool solved=false;
+                try { solved=patch.solve(patch_rhs.data(),options,stats); } catch(...) { solved=false; }
+                valid=valid&&solved;
+                if(solved) for(PetscInt i=0;i<patch.n;++i) {
+                    const auto offset=patch.union_offsets[i];
+                    const auto weight=options.sweep=="additive"?inverse_multiplicity[offset]:1.;
+                    correction[offset]+=options.damping*weight*patch.solution[i];
+                }
             }
+            PetscCall(VecRestoreArray(union_correction.get(),&correction));
+            PetscCall(VecRestoreArrayRead(union_rhs.get(),&rhs));
+            PetscCall(VecScatterBegin(scatter.get(),union_correction.get(),output,ADD_VALUES,SCATTER_REVERSE));
+            PetscCall(VecScatterEnd(scatter.get(),union_correction.get(),output,ADD_VALUES,SCATTER_REVERSE));
+            ++stats.color_stages;
         }
-        PetscCall(VecRestoreArray(union_correction.get(),&correction));
-        PetscCall(VecRestoreArrayRead(union_rhs.get(),&rhs));
-        PetscCall(VecScatterBegin(scatter.get(),union_correction.get(),output,ADD_VALUES,SCATTER_REVERSE));
-        PetscCall(VecScatterEnd(scatter.get(),union_correction.get(),output,ADD_VALUES,SCATTER_REVERSE));
         const PetscScalar* result=nullptr;
         PetscCall(VecGetArrayRead(output,&result));
         for(PetscInt i=0;i<end-begin;++i) valid=valid&&std::isfinite(result[i]);
@@ -764,9 +815,10 @@ PetscErrorCode view_patch(PC pc,PetscViewer viewer) {
         PetscCall(PetscViewerASCIIPrintf(viewer,
             "Interface mixed patches: local=%" PetscInt_FMT ", largest=%" PetscInt_FMT
             ", FP32/FP64=%" PetscInt_FMT "/%" PetscInt_FMT ", LU bytes=%zu, generations=%" PetscInt_FMT
-            ", applications=%" PetscInt_FMT ", refinements=%" PetscInt_FMT ", setup/apply fallback=%" PetscInt_FMT "/%" PetscInt_FMT "\n",
+            ", applications=%" PetscInt_FMT ", refinements=%" PetscInt_FMT ", setup/apply fallback=%" PetscInt_FMT "/%" PetscInt_FMT
+            ", colors=%" PetscInt_FMT ", color stages=%" PetscInt_FMT ", residual products=%" PetscInt_FMT "\n",
             s.patches,s.largest_patch,s.fp32_patches,s.fp64_patches,s.factor_bytes,s.rebuilds,
-            s.applications,s.refinements,s.setup_fallbacks,s.apply_fallbacks));
+            s.applications,s.refinements,s.setup_fallbacks,s.apply_fallbacks,s.colors,s.color_stages,s.residual_products));
         PetscCall(PetscViewerASCIIPushTab(viewer));
         if((*handle)->bulk.get()) PetscCall(KSPView((*handle)->bulk.get(),viewer));
         PetscCall(PetscViewerASCIIPopTab(viewer));
@@ -785,14 +837,15 @@ Handle* get_handle(PC pc) {
 void validate_interface_patch_options(MPI_Comm comm,const std::string& prefix,const InterfacePatchOptions& options,
                                       bool inspect_solver_options) {
     const PetscInt values[]={options.single_precision?1:0,options.overlap,options.maximum_size,options.refinement_steps,
-        options.adaptive?1:0,options.native_storage?1:0};
-    PetscInt minimum[6]{},maximum[6]{};
-    MPI_Allreduce(values,minimum,6,MPIU_INT,MPI_MIN,comm);
-    MPI_Allreduce(values,maximum,6,MPIU_INT,MPI_MAX,comm);
+        options.adaptive?1:0,options.native_storage?1:0,
+        options.sweep=="additive"?1:options.sweep=="multiplicative"?2:options.sweep=="colored"?3:0};
+    PetscInt minimum[7]{},maximum[7]{};
+    MPI_Allreduce(values,minimum,7,MPIU_INT,MPI_MIN,comm);
+    MPI_Allreduce(values,maximum,7,MPIU_INT,MPI_MAX,comm);
     bool valid=true;
-    for(int i=0;i<6;++i) valid=valid&&minimum[i]==maximum[i];
+    for(int i=0;i<7;++i) valid=valid&&minimum[i]==maximum[i];
     valid=valid&&options.overlap>=0&&options.overlap<=2&&options.maximum_size>=1&&options.maximum_size<=2048&&
-        options.refinement_steps>=0&&options.refinement_steps<=8&&(!options.native_storage||options.single_precision);
+        options.refinement_steps>=0&&options.refinement_steps<=8&&(!options.native_storage||options.single_precision)&&values[6]!=0;
     const double real[]={options.refinement_tolerance,options.damping,options.strength_threshold};
     double min_real[3]{},max_real[3]{};
     MPI_Allreduce(real,min_real,3,MPI_DOUBLE,MPI_MIN,comm);
@@ -868,5 +921,19 @@ void release_native_vanka_setup(KSP solver) {
     EONSIM_PETSC(MatCreateShell(state.comm,state.end-state.begin,state.end-state.begin,
         state.global,state.global,nullptr,placeholder.put()));
     EONSIM_PETSC(KSPSetOperators(solver,placeholder.get(),placeholder.get()));
+}
+bool query_vanka_patch_schedule(KSP solver,std::vector<std::vector<PetscInt>>& rows,
+                               std::vector<PetscInt>& colors) {
+    PC pc=nullptr;EONSIM_PETSC(KSPGetPC(solver,&pc));
+    auto* handle=get_handle(pc);
+    if(!handle||!(*handle)->level_mode||(*handle)->released) return false;
+    rows.clear();colors=(*handle)->patch_colors;
+    for(auto is:(*handle)->indices.values) {
+        PetscInt count=0;const PetscInt* indices=nullptr;
+        EONSIM_PETSC(ISGetLocalSize(is,&count));EONSIM_PETSC(ISGetIndices(is,&indices));
+        rows.emplace_back(indices,indices+count);
+        EONSIM_PETSC(ISRestoreIndices(is,&indices));
+    }
+    return true;
 }
 } // namespace eonsim

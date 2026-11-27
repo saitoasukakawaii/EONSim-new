@@ -10,6 +10,9 @@ struct InterfacePatchOptions {
     double strength_threshold=.25;
     PetscInt overlap=1,maximum_size=256,refinement_steps=3;
     double refinement_tolerance=1e-10,damping=1.;
+    /// Additive uses global overlap weights. Multiplicative uses one global
+    /// patch per stage; colored uses distributed overlap-conflict coloring.
+    std::string sweep="additive";
 };
 /** Counters are rank-local; no hidden collective is performed by the query.
  * factor_bytes counts dense LU values only, excluding sparse patch matrices,
@@ -30,6 +33,7 @@ struct InterfacePatchPcStats {
     PetscInt overlap=0,patch_rows=0,covered_owned_rows=0;
     /// Released native patches select the smaller dense/CSR coefficient layout.
     PetscInt native_sparse_patches=0,native_dense_patches=0;
+    PetscInt colors=1,color_stages=0,residual_products=0;
     std::size_t factor_bytes=0;
     std::size_t retained_fp64_matrix_bytes=0,fp32_matrix_bytes=0;
     /// Local CSR offsets/columns only; separate from FP32 coefficients and LU.
@@ -70,7 +74,7 @@ void configure_interface_patch_pc(MPI_Comm comm,KSP solver,Mat full,
 /// Local inspection only; false/nullptr means this is a different PC type.
 bool query_interface_patch_pc_stats(PC pc,InterfacePatchPcStats& stats);
 KSP interface_patch_bulk_solver(PC pc);
-/** Pure additive mixed Vanka action, for an arbitrary monolithic grid level.
+/** Mixed Vanka action, for an arbitrary monolithic grid level.
  * Every active owned entity seeds a patch, including coarse algebraic entities;
  * true trace flags only identify interface patches for diagnostics. All fields
  * of the same entity share one seed. Identity rows are solved exactly and
@@ -87,6 +91,13 @@ KSP interface_patch_bulk_solver(PC pc);
  * by FP64 fallback.
  * Numeric refresh uses updates and keeps the graph, seed membership and
  * constraints fixed. A level with no active rows is a valid identity action.
+ * Multiplicative applies one patch at a time in global rank/seed order.
+ * Colored builds R^T R from the distributed row/patch incidence and colors
+ * shared-row conflicts across every rank; disjoint patches within a color
+ * act additively, colors act multiplicatively. Both recompute the global
+ * residual after every color and use unweighted corrections. This is not
+ * rank-local Gauss-Seidel with frozen halo values. Native nonadditive modes
+ * retain an FP32 sparse level operator for these residual updates.
  */
 void configure_vanka_level_pc(MPI_Comm comm,KSP solver,Mat full,
     const std::vector<DofKey>& owned_semantics,
@@ -95,4 +106,7 @@ void configure_vanka_level_pc(MPI_Comm comm,KSP solver,Mat full,
 /** Release native Vanka's FP64 setup source/submatrices. A source change after
  * release requires rebuilding this level; no stale source is dereferenced. */
 void release_native_vanka_setup(KSP solver);
+/// Local setup schedule for diagnostics; native release clears row membership.
+bool query_vanka_patch_schedule(KSP solver,std::vector<std::vector<PetscInt>>& rows,
+                               std::vector<PetscInt>& colors);
 } // namespace eonsim

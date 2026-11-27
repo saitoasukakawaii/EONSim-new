@@ -34,6 +34,24 @@ FEATURES = {
     'mono_inexact': {'mf', 'inexact'}, 'mono_recycle': {'mf', 'recycle'},
     'mono_all': {'scaling', 'candidates', 'adaptive', 'native', 'mf', 'reduced',
                  'partial', 'simd', 'overlap', 'inexact', 'recycle', 'kcycle', 'supremizer'},
+    'mono_saddle': {'saddle'},
+    'mono_divergence': {'saddle', 'divergence'},
+    'mono_commuting': {'saddle', 'divergence', 'commuting'},
+    'mono_multilevel': {'saddle', 'candidates', 'supremizer'},
+    'mono_braess': {'saddle', 'braess'},
+    'mono_colored': {'saddle', 'colored'},
+    'mono_multiplicative': {'saddle', 'multiplicative'},
+    'mono_distributed': {'saddle', 'distributed'},
+    'mono_reuse': {'saddle', 'candidates', 'supremizer', 'reuse'},
+    'mono_adaptive_hierarchy': {'saddle', 'reuse', 'adaptive_hierarchy'},
+    'mono_mf_fine': {'saddle', 'mf', 'reduced', 'mf_fine'},
+    'mono_coarse_distributed': {'saddle', 'distributed_coarse'},
+    'mono_deflated': {'saddle', 'deflation'},
+    'mono_communication': {'saddle', 'communication', 'kcycle'},
+    'mono_saddle_all': {'saddle', 'divergence', 'commuting', 'candidates', 'supremizer', 'distributed',
+                        'adaptive_hierarchy', 'reuse', 'mf', 'reduced', 'partial', 'simd',
+                        'overlap', 'mf_fine', 'distributed_coarse', 'deflation', 'colored',
+                        'communication', 'kcycle'},
 }
 MODES = ('mono', 'mono_fp32', 'mono_pipe', 'mono_mf', 'mono_mf_pipe', 'mono_chebyshev',
          'mono_block_chebyshev', 'added_mass', 'pcd_mass', 'pcd_robin', *FEATURES)
@@ -61,7 +79,7 @@ def flags(mode, ports=False):
     if mode.startswith('mono'):
         prefix = '-rcr_bulk_monolithic_mg_' if ports else '-monolithic_mg_'
         result += ['-pc_recipe', 'monolithic_mg', prefix + 'coarse_limit', '48',
-                   prefix + 'coarse_processes', '1']
+                   prefix + 'coarse_processes', '0' if 'distributed_coarse' in selected else '1']
         if mode == 'mono_fp32':
             result += [prefix + 'single_precision', 'true']
         if 'kcycle' in selected:
@@ -72,7 +90,11 @@ def flags(mode, ports=False):
             result += ['-fsi_matrix_free', '-nonlinear_matrix_free_pc_interval', '2']
         for feature, option in (('scaling', 'field_scaling'), ('candidates', 'fsi_candidates'),
                                 ('adaptive', 'adaptive_patches'), ('native', 'native_fp32'),
-                                ('supremizer', 'pressure_supremizers')):
+                                ('supremizer', 'pressure_supremizers'), ('saddle', 'saddle_point'),
+                                ('divergence', 'divergence_preserving'), ('commuting', 'divergence_commuting'),
+                                ('distributed', 'distributed_aggregation'),
+                                ('adaptive_hierarchy', 'adaptive_hierarchy'), ('reuse', 'reuse_hierarchy'),
+                                ('mf_fine', 'matrix_free_fine'), ('communication', 'communication_avoiding')):
             if feature in selected:
                 result += [prefix + option, 'true']
         if 'adaptive' in selected:
@@ -84,6 +106,14 @@ def flags(mode, ports=False):
                 result += [option, 'true']
         if 'recycle' in selected:
             result += ['-nonlinear_krylov_recycle', '4']
+        if 'deflation' in selected:
+            result += ['-nonlinear_krylov_deflation', '4']
+        if 'adaptive_hierarchy' in selected:
+            result += [prefix + 'adaptive_interval', '4']
+        for feature, kind in (('braess', 'braess_sarazin'), ('colored', 'vanka_colored'),
+                              ('multiplicative', 'vanka_multiplicative')):
+            if feature in selected:
+                result += [prefix + 'smoother', kind]
         if selected & {'reduced', 'partial', 'simd', 'overlap'}:
             result += ['-fsi_assembly_report']
         if 'coo' in selected:
@@ -101,7 +131,7 @@ def flags(mode, ports=False):
     return result
 
 
-def pressure_supremizer_evidence(hierarchy, transfers):
+def pressure_supremizer_evidence(hierarchy, transfers, multilevel=False):
     """Audit local pairs and FP64 setup preservation, not native-action accuracy."""
     block.require(hierarchy and all(int(row.get('pressure_supremizers', 0)) == 1 for row in hierarchy),
                   'Requested pressure supremizers are absent from the hierarchy')
@@ -121,10 +151,14 @@ def pressure_supremizer_evidence(hierarchy, transfers):
             block.require(0 < pairs <= modes <= 2 * pairs and singular > 0,
                           'No positive fine-level pressure-supremizer pairing was exercised')
             fine.append(row)
-        else:
+        elif not multilevel:
             block.require(modes == 0 and pairs == 0, 'Pressure supremizers escaped the semantic fine level')
+        else:
+            block.require(pairs <= modes <= 2 * pairs and (pairs == 0 or singular > 0),
+                          'Invalid coarse-level pressure response pairing')
     block.require(len(fine) == len(hierarchy), 'Missing fine-level pressure pairing for a hierarchy setup')
-    return dict(scope='fine-level aggregate-local pairs, not a global inf-sup bound',
+    return dict(scope=('all pressure-bearing levels, aggregate-local pairs, not a global inf-sup bound'
+                       if multilevel else 'fine-level aggregate-local pairs, not a global inf-sup bound'),
                 pair_relative_change_scope='FP64 setup coupling before and after energy minimization; '
                                            'does not certify native FP32 action pairing to 1e-10',
                 outer_true_residual_gate_independent=True,
@@ -275,8 +309,14 @@ def audit(log, trace, ranks, mode):
             before, after = float(row['energy_before']), float(row['energy_after'])
             block.require(math.isfinite(before + after) and after <= before * (1 + 1e-10) + 1e-12,
                           'Prolongation increased the defined positive energy')
-        block.require(all(int(row['coarse_processes']) == 1 for row in hierarchy), 'Coarse process aggregation absent')
+        expected_processes = ranks if 'distributed_coarse' in selected else 1
+        block.require(all(int(row['coarse_processes']) == expected_processes for row in hierarchy),
+                      'Requested coarse-process distribution absent')
         smoother_kind = mode.removeprefix('mono_') if mode in ('mono_chebyshev', 'mono_block_chebyshev') else 'vanka'
+        for feature, kind in (('braess', 'braess_sarazin'), ('colored', 'vanka_colored'),
+                              ('multiplicative', 'vanka_multiplicative')):
+            if feature in selected:
+                smoother_kind = kind
         block.require(all(row['smoother'] == smoother_kind for row in hierarchy), 'Requested level smoother absent')
         smoothers = assembly.records(log, 'pc_monolithic_mg_smoother ')
         levels = max(int(row['levels']) for row in hierarchy)
@@ -286,9 +326,14 @@ def audit(log, trace, ranks, mode):
                       'Missing rank or level smoother evidence')
         for level in range(levels - 1):
             rows = [row for row in smoothers if int(row['level']) == level]
-            if smoother_kind == 'vanka':
+            if smoother_kind.startswith('vanka'):
                 block.require(sum(int(row['interface_patches']) for row in rows) > 0,
                               'A multigrid level did not smooth the coupled interface')
+            elif smoother_kind == 'braess_sarazin':
+                block.require(sum(int(row['primal_rows']) for row in rows) > 0 and
+                              sum(int(row['pressure_rows']) for row in rows) > 0 and
+                              all(int(row['schur_budget']) > 0 for row in rows),
+                              'Coupled Braess-Sarazin level construction absent')
             else:
                 block.require(all(int(row['polynomial_degree']) > 0 and
                                   math.isfinite(float(row['eigenvalue_upper'])) and
@@ -315,7 +360,50 @@ def audit(log, trace, ranks, mode):
         elif mode in ('mono_optimized', 'mono_supremizer'):
             block.require(all(row.get('cycle') == 'v' for row in hierarchy), 'V-cycle comparison mode changed')
         if 'supremizer' in selected:
-            result['pressure_supremizer_evidence'] = pressure_supremizer_evidence(hierarchy, transfers)
+            result['pressure_supremizer_evidence'] = pressure_supremizer_evidence(hierarchy, transfers,
+                                                                                'saddle' in selected)
+        for feature, counter in (('saddle', 'saddle_point'), ('divergence', 'divergence_preserving'),
+                                 ('commuting', 'divergence_commuting'),
+                                 ('distributed', 'distributed_aggregation'), ('reuse', 'reuse_hierarchy'),
+                                 ('adaptive_hierarchy', 'adaptive_hierarchy'), ('mf_fine', 'matrix_free_fine')):
+            if feature in selected:
+                block.require(all(int(row.get(counter, 0)) == 1 for row in hierarchy),
+                              ('Requested saddle hierarchy feature absent', feature))
+        if 'saddle' in selected:
+            block.require(all(int(row['pressure_rows']) >= int(row['coarse_pressure_rows']) > 0
+                              for row in transfers), 'Pressure typing was lost on a coarse level')
+        if 'divergence' in selected:
+            block.require(all(math.isfinite(float(row['divergence_change'])) and
+                              float(row['divergence_change']) <= 1e-10 for row in transfers),
+                          'Energy optimization changed the discrete pressure-primal divergence map')
+        if 'commuting' in selected:
+            block.require(all(math.isfinite(float(row['divergence_commuting_defect'])) and
+                              float(row['divergence_commuting_defect']) <= 1e-10 for row in transfers),
+                          'Coarse/fine discrete divergence diagram does not commute')
+        if 'distributed' in selected and ranks > 1:
+            block.require(sum(int(row.get('migrated_rows', 0)) for row in transfers) > 0 and
+                          sum(int(row.get('distributed_aggregates', 0)) for row in transfers) > 0,
+                          'No actual aggregate crossed an original MPI ownership boundary')
+        if 'saddle' in selected:
+            work = assembly.records(log, 'monolithic_mg_stats ')
+            block.require(work and {int(row['rank']) for row in work} == set(range(ranks)),
+                          'Missing actual saddle-MG action records')
+            for feature, counter in (('mf_fine', 'matrix_free_fine_actions'),
+                                     ('reuse', 'hierarchy_reuses'),
+                                     ('adaptive_hierarchy', 'adaptive_probes'),
+                                     ('braess', 'schur_applications'),
+                                     ('colored', 'vanka_color_stages'),
+                                     ('multiplicative', 'vanka_color_stages')):
+                if feature in selected:
+                    block.require(sum(int(row.get(counter, 0)) for row in work) > 0,
+                                  ('Requested mechanism was configured but never executed', feature))
+            if 'reuse' in selected:
+                block.require(sum(int(row.get('symbolic_reuses', 0)) for row in work) > 0,
+                              'Hierarchy reuse did not retain Galerkin symbolic structures')
+            if 'communication' in selected and max(int(row['levels']) for row in work) > 2:
+                block.require(sum(int(row.get('batched_reduction_groups', 0)) for row in work) > 0,
+                              'K-cycle reductions were not actually batched')
+            result['saddle_work_snapshots'] = work
         result.update(hierarchies=hierarchy, transfers=transfers,
                       smoothers=smoothers)
     if 'mf' in selected:
@@ -334,6 +422,13 @@ def audit(log, trace, ranks, mode):
                       'No correction-subspace projection was used')
         result['recycle_projections'] = sum(int(row['recycle_projections']) for row in reports)
         result['recycle_vectors'] = max(int(row['recycle_vectors']) for row in reports)
+    if 'deflation' in selected:
+        block.require(sum(int(row.get('deflation_applications', 0)) for row in reports) > 0 and
+                      sum(int(row.get('deflation_spectral_updates', 0)) for row in reports) > 0 and
+                      max(int(row.get('deflation_vectors', 0)) for row in reports) > 0,
+                      'Actual projected FGMRES and spectral extraction were not used')
+        result['deflation_applications'] = sum(int(row['deflation_applications']) for row in reports)
+        result['deflation_vectors'] = max(int(row['deflation_vectors']) for row in reports)
     if 'reduced' in selected:
         preconditioners = assembly.records(log, 'fsi_preconditioner ')
         block.require(preconditioners and all(int(row['reduced']) == 1 and

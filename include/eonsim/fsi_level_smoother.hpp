@@ -5,14 +5,17 @@
 
 namespace eonsim {
 struct FsiLevelSmootherOptions {
-    std::string kind="vanka"; ///< vanka, chebyshev, or block_chebyshev.
+    std::string kind="vanka"; ///< vanka[_multiplicative|_colored], braess_sarazin, or [block_]chebyshev.
     InterfacePatchOptions patches;
     PetscInt polynomial_degree=3;
     double eigenvalue_ratio=.1;
+    double braess_alpha=1.;
+    PetscInt schur_iterations=3;
 };
 struct FsiLevelSmootherStats {
     PetscInt applications=0,refreshes=0,polynomial_degree=0;
     double eigenvalue_upper=0.;
+    PetscInt primal_rows=0,pressure_rows=0,schur_budget=0,schur_iterations=0,schur_applications=0;
     InterfacePatchPcStats patches;
 };
 struct FsiLevelSmoother;
@@ -20,7 +23,8 @@ using FsiLevelSmootherHandle=std::shared_ptr<FsiLevelSmoother>;
 
 /** Collective setup on an assembled scalar AIJ with matching row/column
  * ownership. Semantics and trace follow owned row order. Coarse semantics may
- * identify algebraic aggregates; they are not interpreted as physical fields.
+ * identify algebraic aggregates. Braess-Sarazin requires preserved pressure
+ * quantity tags on every level; all other active fields are primal.
  * Vanka includes all fields and the true interface on each level.
  *
  * Chebyshev acts on B^T B, B=D A C, not directly on the indefinite Jacobian.
@@ -30,6 +34,15 @@ using FsiLevelSmootherHandle=std::shared_ptr<FsiLevelSmoother>;
  * modes are left to coarse correction. Its normal operator is implicit, and
  * polynomial applications use no dot products or eigenvalue estimation.
  * Identity constraints are solved exactly before either action.
+ *
+ * Braess-Sarazin uses H=alpha*blockdiag(F), with every owned entity's full
+ * nonpressure block (fluid, structure and ALE) inverted using scaled pivoting.
+ * It forms S=C-D H^-1 G on the distributed pressure partition, solves it with
+ * a fixed-budget GMRES/Jacobi action, and recovers du=H^-1(ru-G dp). No sign
+ * convention, pressure pin, shift, global field gather or serial direct
+ * coarse solve is introduced. Structural compliance enters D H^-1 G through
+ * the retained primal blocks; coupling between different blocks remains an
+ * approximation. The outer solver must be flexible and check true residuals.
  */
 FsiLevelSmootherHandle make_fsi_level_smoother(MPI_Comm comm,Mat matrix,
     const std::vector<DofKey>& owned_semantics,

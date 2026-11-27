@@ -1,5 +1,15 @@
 # EONSim Codex Task Queue
 
+## FSI-SADDLE-01 / IN PROGRESS / 2026-11-27
+
+基线 `main@036f865e3570905a58da465c91873678de485119`（PR #64），分支
+`codex/saddle-point-multigrid`。领取用户本轮十三项鞍点 AMG / MPI / Krylov 开发任务。
+所有权：MG 层级及插值、smoother/patch、Krylov 消除分别并行实现；跨 rank ownership helper、
+物理验证入口、构建选测与证据由集成任务统一维护。当前未运行数值测试。
+交付顺序：实现和测试源码 → 远端完整 tree 核对 → Release 定向与真实 FSI 对照 →
+保留失败及有效范围 → 四项必需检查 → 锁定 head squash 合并；不放宽任何数值门槛。
+
+
 ## FSI-SCALE-01 / implementation and bounded validation complete; convergence and scale OPEN / 2026-11-27
 
 北京时间记录，任务起始于 2026-11-26；基线 `main@88257a9`（#63），分支

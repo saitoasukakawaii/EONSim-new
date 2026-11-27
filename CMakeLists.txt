@@ -68,6 +68,8 @@ add_library(eonsim_core
     src/algebra/pressure_schur_pc.cpp
     src/algebra/interface_patch_pc.cpp
     src/algebra/monolithic_fsi_mg.cpp
+    src/algebra/distributed_mg_layout.cpp
+    src/algebra/deflated_fgmres.cpp
     src/algebra/fsi_level_smoother.cpp
     src/physics/fsi_pressure_operators.cpp
     src/physics/fluid_element.cpp
@@ -118,7 +120,7 @@ if(BUILD_TESTING)
     endif()
     add_executable(verify_pc_plan tests/verify_pc_plan.cpp)
     target_link_libraries(verify_pc_plan PRIVATE eonsim_core)
-    foreach(verification IN ITEMS pressure_schur interface_patch field_amg monolithic_fsi_mg matrix_free added_mass_pressure fsi_level_smoother)
+    foreach(verification IN ITEMS pressure_schur interface_patch field_amg monolithic_fsi_mg matrix_free added_mass_pressure fsi_level_smoother distributed_mg_layout)
         add_executable(verify_${verification} tests/verify_${verification}.cpp)
         target_link_libraries(verify_${verification} PRIVATE eonsim_core)
         foreach(ranks IN ITEMS 1 2 4)

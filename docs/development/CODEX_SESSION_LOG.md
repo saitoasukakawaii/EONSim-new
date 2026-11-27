@@ -1,5 +1,24 @@
 # EONSim Codex Session Log
 
+## 2026-11-27 · FSI-SADDLE-01 — 初始实现，等待推送后验证
+
+从 GitHub 核实 PR #64 已合并，当前 main 为 `036f865e3570905a58da465c91873678de485119`。
+旧 Codex workspace 连接返回 internal error；当前会话取得独立可写 checkout 并恢复仓库锁定
+PETSc 3.23.7 环境。普通 git HTTPS push 缺少认证，后续使用已连接 GitHub 的对象/引用接口
+同步源码，再 fetch 回同一远端提交及核对完整 tree；不寻找、打印或复制凭据。
+
+并行实现 MG、smoother 和 Krylov，集成新增跨 rank ownership helper、物理验证模式和选测映射。
+静态交叉审阅促成几项修正：保留每层 pressure 语义；将 B delta(Pv)=0 与真正交换关系分开，
+增加压力像空间闭包；修复精确算子重绑定引用、RCR bootstrap 生命周期、rank-local PC 失败
+后的 collective 路径，以及 Braess 内层失败前借用子向量的释放。强闭包可能保留完整压力空间，
+必须与粗化成本共同评价。上述目前仅为源码审阅结论；本轮数值检查尚未运行。
+
+定向检查覆盖独立近似块解、分布式置换/空 owner、跨 rank Vanka 冲突、实际多层响应、
+变化算子 deflation 与单 rank PC 故障，以及 exact RCR bulk lifting。全部先推送，再运行。
+可复用数学及边界已形成[未发布算法草稿](../../website/drafts/fsi-saddle-point-multigrid.md)
+与[运行说明](FSI_SADDLE_POINT_MULTIGRID.md)，最终源码/结果由后续证据更新。
+
+
 ## 2026-11-27 · FSI-SCALE-01 — 精确作用、紧凑存储与有界收敛验证
 
 按北京时间记录，任务起始于 2026-11-26。用户指定十二项优化，并要求源码完成→远端同步

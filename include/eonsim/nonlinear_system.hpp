@@ -34,6 +34,8 @@ struct NonlinearResult {
     PetscInt true_residual_checks=0,true_residual_rejections=0; ///< Proposed Krylov convergence checked with the current exact operator.
     double true_residual_seconds=0;
     PetscInt inexact_linear_solves=0,recycle_projections=0,recycle_vectors=0;
+    PetscInt deflation_vectors=0,deflation_projections=0,deflation_applications=0;
+    PetscInt deflation_spectral_updates=0,deflation_operator_actions=0;
     double recycle_seconds=0;
     double residual_norm=0;
     std::vector<FieldResidual> field_residuals; ///< 所有 rank 相同；原始反力不参与字段收敛范数。
@@ -162,6 +164,14 @@ public:
  * projection supplies a nonzero starting guess; harmful/dependent projections
  * are discarded. It is solution-subspace recycling, not GCRO-DR or storage of
  * the complete Arnoldi basis. A failed/incompatible workspace drops the basis.
+ * -nonlinear_krylov_deflation N instead enables two-level right-deflated FGMRES,
+ * with current AU=C, paired projection/lifting inside every preconditioner
+ * application, and bounded spectral selection of actual Krylov search vectors.
+ * Image QR followed by a small SVD selects small nonzero singular responses;
+ * it does not use normal equations or claim harmonic-Ritz GCRO-DR. Requires
+ * ordinary fgmres, its original-operator true-residual guard, and no simultaneous
+ * correction warm-start option. The underlying PC can vary with iteration.
+ * Failure, layout/constraint/options changes retire all retained vectors.
  */
     NonlinearResult solve(const SolverConfig& config, const std::vector<double>& initial,
         const std::vector<PetscInt>& constraints, const std::vector<double>& prescribed,

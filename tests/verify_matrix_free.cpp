@@ -1,6 +1,7 @@
 /** Exact matrix-free Newton action: independent nonlinear root, off-rank
  * contributions, constraints, frozen linearizations, P lag and failure recovery. */
 #include "eonsim/nonlinear_system.hpp"
+#include "eonsim/deflated_fgmres.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -9,6 +10,113 @@ using namespace eonsim;
 namespace {
 void require(bool value,const char* message) { if(!value) throw std::runtime_error(message); }
 void option(const char* key,const char* value) { EONSIM_PETSC(PetscOptionsSetValue(nullptr,key,value)); }
+struct ChangingPc { PetscInt applications=0; bool fail=false; };
+PetscErrorCode changing_preconditioner(PC pc,Vec input,Vec output) {
+    ChangingPc* state=nullptr; PetscCall(PCShellGetContext(pc,&state));
+    ++state->applications; PetscCall(VecCopy(input,output));
+    int rank=0,size=0; PetscCallMPI(MPI_Comm_rank(PetscObjectComm(reinterpret_cast<PetscObject>(pc)),&rank));
+    PetscCallMPI(MPI_Comm_size(PetscObjectComm(reinterpret_cast<PetscObject>(pc)),&size));
+    if(state->fail&&rank==size-1) { PetscCall(PCSetFailedReason(pc,PC_SUBPC_ERROR)); return PETSC_SUCCESS; }
+    // FGMRES must retain each actual right-preconditioned direction; applying
+    // a fixed PC to a combined Arnoldi vector is deliberately incorrect here.
+    PetscCall(VecScale(output,1.+.2*std::sin(double(state->applications))));
+    return PETSC_SUCCESS;
+}
+void verify_deflated_space(MPI_Comm comm) {
+    int rank=0,ranks=0; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
+    constexpr PetscInt size=12;
+    // The first rank has no rows for every parallel invocation. It must still
+    // participate in QR, SVD decisions and the projected PC applications.
+    const PetscInt owned=ranks==1?size:rank==0?0:size/(ranks-1);
+    PetscOwner<Mat,MatDestroy> matrix;
+    EONSIM_PETSC(MatCreateAIJ(comm,owned,owned,size,size,owned,nullptr,size-owned,nullptr,matrix.put()));
+    PetscInt begin=0,end=0; EONSIM_PETSC(MatGetOwnershipRange(matrix.get(),&begin,&end));
+    const auto assemble=[&](double change) {
+        EONSIM_PETSC(MatZeroEntries(matrix.get()));
+        for(PetscInt row=begin;row<end;++row) {
+            const PetscScalar diagonal=row==0?.025+change:row==1?.07+change:1.+.23*row;
+            EONSIM_PETSC(MatSetValue(matrix.get(),row,row,diagonal,INSERT_VALUES));
+            EONSIM_PETSC(MatSetValue(matrix.get(),row,(row+1)%size,.017*(1+row%3),INSERT_VALUES));
+        }
+        EONSIM_PETSC(MatAssemblyBegin(matrix.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatAssemblyEnd(matrix.get(),MAT_FINAL_ASSEMBLY));
+    };
+    assemble(0.);
+    PetscOwner<Vec,VecDestroy> exact,rhs,x,work,projected,coarse,correction;
+    EONSIM_PETSC(MatCreateVecs(matrix.get(),exact.put(),rhs.put()));
+    for(auto* vector:{&x,&work,&projected,&coarse,&correction}) EONSIM_PETSC(VecDuplicate(exact.get(),vector->put()));
+    PetscOwner<KSP,KSPDestroy> solver; EONSIM_PETSC(KSPCreate(comm,solver.put()));
+    EONSIM_PETSC(KSPSetOperators(solver.get(),matrix.get(),matrix.get()));
+    EONSIM_PETSC(KSPSetType(solver.get(),KSPFGMRES)); EONSIM_PETSC(KSPSetPCSide(solver.get(),PC_RIGHT));
+    EONSIM_PETSC(KSPGMRESSetRestart(solver.get(),12));
+    EONSIM_PETSC(KSPSetTolerances(solver.get(),1e-11,1e-13,PETSC_DEFAULT,120));
+    PC original=nullptr; EONSIM_PETSC(KSPGetPC(solver.get(),&original));
+    ChangingPc changing_pc; EONSIM_PETSC(PCSetType(original,PCSHELL));
+    EONSIM_PETSC(PCShellSetContext(original,&changing_pc));
+    EONSIM_PETSC(PCShellSetApply(original,changing_preconditioner));
+    configure_deflated_fgmres(solver.get(),2);
+    PC wrapper=nullptr; EONSIM_PETSC(KSPGetPC(solver.get(),&wrapper));
+    require(deflated_fgmres_bulk_solver(wrapper)!=nullptr,"Deflation did not retain the configured PC");
+    for(int generation=0;generation<3;++generation) {
+        if(generation==2) assemble(.013); // Same graph, different current A.
+        PetscScalar* values=nullptr; EONSIM_PETSC(VecGetArray(exact.get(),&values));
+        for(PetscInt row=begin;row<end;++row) values[row-begin]=.3+std::sin(.31*(row+1)+.1*generation);
+        EONSIM_PETSC(VecRestoreArray(exact.get(),&values));
+        EONSIM_PETSC(MatMult(matrix.get(),exact.get(),rhs.get()));
+        prepare_deflated_fgmres(solver.get(),rhs.get(),x.get());
+        if(generation) {
+            // On range(C), the complete two-level preconditioner must be the
+            // exact coarse inverse even while its base PC varies.
+            EONSIM_PETSC(MatMult(matrix.get(),x.get(),coarse.get()));
+            EONSIM_PETSC(PCApply(wrapper,coarse.get(),correction.get()));
+            EONSIM_PETSC(VecAXPY(correction.get(),-1.,x.get()));
+            PetscReal error=0,scale=0; EONSIM_PETSC(VecNorm(correction.get(),NORM_2,&error));
+            EONSIM_PETSC(VecNorm(x.get(),NORM_2,&scale));
+            require(error<2e-10*(1+scale),"Two-level deflation fails its exact coarse-image identity");
+            EONSIM_PETSC(VecWAXPY(projected.get(),-1.,coarse.get(),rhs.get()));
+            EONSIM_PETSC(PCApply(wrapper,projected.get(),correction.get()));
+            EONSIM_PETSC(MatMult(matrix.get(),correction.get(),work.get()));
+            PetscScalar coupling=0; EONSIM_PETSC(VecDot(coarse.get(),work.get(),&coupling));
+            EONSIM_PETSC(VecNorm(work.get(),NORM_2,&scale));
+            PetscReal coarse_norm=0; EONSIM_PETSC(VecNorm(coarse.get(),NORM_2,&coarse_norm));
+            require(std::abs(coupling)<2e-10*(1+scale*coarse_norm),
+                    "Right-deflated Krylov image reintroduced a removed coarse component");
+            prepare_deflated_fgmres(solver.get(),rhs.get(),x.get());
+        }
+        EONSIM_PETSC(KSPSolve(solver.get(),rhs.get(),x.get()));
+        KSPConvergedReason reason; EONSIM_PETSC(KSPGetConvergedReason(solver.get(),&reason));
+        require(reason>0,"Deflated FGMRES with varying PC did not converge");
+        EONSIM_PETSC(MatMult(matrix.get(),x.get(),work.get())); EONSIM_PETSC(VecAXPY(work.get(),-1.,rhs.get()));
+        PetscReal error=0; EONSIM_PETSC(VecNorm(work.get(),NORM_2,&error));
+        require(error<2e-10,"Deflated FGMRES failed independent original-operator residual");
+        EONSIM_PETSC(VecCopy(x.get(),work.get())); EONSIM_PETSC(VecAXPY(work.get(),-1.,exact.get()));
+        EONSIM_PETSC(VecNorm(work.get(),NORM_INFINITY,&error));
+        require(error<2e-9,"Deflated FGMRES changed the manufactured discrete solution");
+        complete_deflated_fgmres(solver.get(),x.get());
+        DeflatedFgmresStats stats;
+        require(query_deflated_fgmres_stats(wrapper,stats)&&stats.vectors>0&&stats.vectors<=2&&stats.spectral_updates==generation+1,
+                "Bounded Krylov spectral extraction was not executed");
+        if(generation) require(stats.projected_applications>0&&stats.projections>0,
+                               "Recycling was only a warm start instead of projected FGMRES");
+    }
+    prepare_deflated_fgmres(solver.get(),rhs.get(),x.get());
+    changing_pc.fail=true;
+    EONSIM_PETSC(PCApply(wrapper,rhs.get(),correction.get()));
+    PCFailedReason propagated=PC_NOERROR; EONSIM_PETSC(PCGetFailedReason(wrapper,&propagated));
+    require(propagated==PC_SUBPC_ERROR,"Rank-local base-PC failure was not propagated before projected collectives");
+    changing_pc.fail=false; EONSIM_PETSC(PCSetFailedReason(original,PC_NOERROR));
+    prepare_deflated_fgmres(solver.get(),rhs.get(),x.get());
+    EONSIM_PETSC(PCApply(wrapper,rhs.get(),correction.get()));
+    EONSIM_PETSC(PCGetFailedReason(wrapper,&propagated));
+    require(propagated==PC_NOERROR,"A fresh deflated generation retained a previous base-PC failure");
+    EONSIM_PETSC(KSPSetType(solver.get(),KSPGMRES));
+    bool rejected=false;
+    try { configure_deflated_fgmres(solver.get(),2); }
+    catch(const std::runtime_error& e) { rejected=std::string(e.what()).find("right-preconditioned FGMRES")!=std::string::npos; }
+    require(rejected,"Deflation accepted an unsupported nonflexible Krylov method");
+    if(rank==0) std::cout<<"deflated_fgmres_oracle ranks="<<ranks<<" empty_owner="<<(ranks>1)
+        <<" varying_pc_applications="<<changing_pc.applications<<" generations=3 passed=1\n";
+}
 void verify(MPI_Comm comm) {
     int rank=0,ranks=0; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
     require(ranks==1||ranks==2||ranks==4,"Use 1, 2 or 4 MPI ranks");
@@ -178,6 +286,27 @@ void verify(MPI_Comm comm) {
             option("-nonlinear_matrix_free_pc_interval","2");
             EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-nonlinear_inexact_newton"));
             EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-nonlinear_krylov_recycle"));
+            if(std::string(method)=="fgmres") {
+                option("-nonlinear_krylov_deflation","2");
+                const auto seeded_deflation=solve(); check(seeded_deflation);
+                target_shift=.017;
+                const auto deflated_next=solve(); check(deflated_next);
+                require(deflated_next.solver_reused&&deflated_next.deflation_vectors>0&&deflated_next.deflation_vectors<=2&&
+                        deflated_next.deflation_projections>0&&deflated_next.deflation_applications>0&&
+                        deflated_next.deflation_spectral_updates>0,
+                        "Nonlinear driver failed to preserve actual deflation across current operators");
+                target_shift=0.;
+                fail_action=action_calls+1;
+                bool deflated_failure=false;
+                try { (void)solve(); }
+                catch(const std::runtime_error& e) {deflated_failure=std::string(e.what()).find("injected directional failure")!=std::string::npos;}
+                require(deflated_failure,"Failure during recycle-image refresh did not propagate");
+                fail_action=-1; action_failed=false;
+                const auto deflated_recovered=solve(); check(deflated_recovered);
+                require(!deflated_recovered.solver_reused&&deflated_recovered.solver_generation==deflated_next.solver_generation+1,
+                        "Failed deflated session retained its stale recycle space");
+                EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-nonlinear_krylov_deflation"));
+            }
         }
         require(tangent_calls>0&&action_calls>tangent_calls,"Exact actions did not avoid assembled P work");
         if(rank==0) std::cout<<"matrix_free_oracle method="<<method<<" residual_coo="<<residual_coo<<" ranks="<<ranks
@@ -213,6 +342,7 @@ void verify(MPI_Comm comm) {
         require(caught,"True residual guard accepted a convergence test that ignores residuals");
         EONSIM_PETSC(PetscOptionsClearValue(nullptr,policy.first));
     }
+    verify_deflated_space(comm);
 }
 }
 int main(int argc,char** argv) {

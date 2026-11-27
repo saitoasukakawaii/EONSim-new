@@ -12,6 +12,26 @@ void require(MPI_Comm comm,bool valid,const char* message) {
     int bad=!valid,any=0;MPI_Allreduce(&bad,&any,1,MPI_INT,MPI_MAX,comm);
     if(any) throw std::runtime_error(message);
 }
+std::vector<double> dense_solve(std::vector<long double> a,std::vector<long double> b) {
+    const auto n=b.size();
+    for(std::size_t k=0;k<n;++k) {
+        std::size_t pivot=k;
+        for(std::size_t i=k+1;i<n;++i) if(std::abs(a[i*n+k])>std::abs(a[pivot*n+k])) pivot=i;
+        if(std::abs(a[pivot*n+k])<1e-24L) throw std::runtime_error("Singular independent smoother oracle");
+        for(std::size_t j=0;j<n;++j) std::swap(a[k*n+j],a[pivot*n+j]);
+        std::swap(b[k],b[pivot]);
+        for(std::size_t i=k+1;i<n;++i) {
+            const auto factor=a[i*n+k]/a[k*n+k];
+            for(std::size_t j=k;j<n;++j) a[i*n+j]-=factor*a[k*n+j];
+            b[i]-=factor*b[k];
+        }
+    }
+    for(std::size_t i=n;i-->0;) {
+        for(std::size_t j=i+1;j<n;++j) b[i]-=a[i*n+j]*b[j];
+        b[i]/=a[i*n+i];
+    }
+    return std::vector<double>(b.begin(),b.end());
+}
 struct Example {
     static constexpr PetscInt n=9;
     MPI_Comm comm;
@@ -76,6 +96,7 @@ void verify(MPI_Comm comm,const std::string& kind,bool coarse,bool single) {
     FsiLevelSmootherOptions options;options.kind=kind;options.patches.maximum_size=32;
     options.patches.single_precision=single;options.polynomial_degree=5;
     auto smoother=make_fsi_level_smoother(comm,example.matrix.get(),example.keys,example.trace,options);
+    const bool vanka=kind.find("vanka")==0;
     PetscOwner<Vec,VecDestroy> rhs,x,r,reference;
     EONSIM_PETSC(MatCreateVecs(example.matrix.get(),x.put(),rhs.put()));
     EONSIM_PETSC(VecDuplicate(x.get(),r.put()));EONSIM_PETSC(VecDuplicate(x.get(),reference.put()));
@@ -94,15 +115,15 @@ void verify(MPI_Comm comm,const std::string& kind,bool coarse,bool single) {
         bool correct=true;
         for(PetscInt i=example.begin;i<example.end;++i) {
             if(i==0) correct=correct&&solution[i-example.begin]==example.rhs(0);
-            if(kind=="vanka") correct=correct&&std::abs(solution[i-example.begin]-example.exact(i))<2e-9;
+            if(vanka) correct=correct&&std::abs(solution[i-example.begin]-example.exact(i))<2e-9;
         }
         EONSIM_PETSC(VecRestoreArrayRead(x.get(),&solution));
         require(comm,correct,"Level smoother altered identity constraints or full-patch exact solution");
-        require(comm,std::isfinite(after)&&after<(kind=="vanka"?1e-9:.9)*before,
+        require(comm,std::isfinite(after)&&after<(vanka?1e-9:.9)*before,
                 "Level smoother failed its independently measured residual reduction");
         const auto stats=query_fsi_level_smoother_stats(smoother);
         require(comm,stats.refreshes==phase+1&&stats.applications==phase+1,"Level smoother generation/application accounting mismatch");
-        if(kind=="vanka") {
+        if(vanka) {
             PetscInt interfaces=stats.patches.interface_patches,total=0;
             MPI_Allreduce(&interfaces,&total,1,MPIU_INT,MPI_SUM,comm);
             require(comm,total>0&&stats.patches.numeric_factorizations<=stats.patches.patches*(phase+1),
@@ -111,7 +132,7 @@ void verify(MPI_Comm comm,const std::string& kind,bool coarse,bool single) {
                        "Polynomial smoother did not publish its fixed degree/spectral bound");
     }
 }
-void verify_native_storage(MPI_Comm comm,bool sparse,bool identity) {
+void verify_native_storage(MPI_Comm comm,bool sparse,bool identity,const std::string& kind="vanka") {
     Example example(comm,false);
     if(sparse) {
         example.values.fill(0.);
@@ -144,7 +165,7 @@ void verify_native_storage(MPI_Comm comm,bool sparse,bool identity) {
         compact.offsets.capacity()<=compact.offsets.size()+1,
         "Native sparse arrays retain unused graph/growth capacity");
 
-    FsiLevelSmootherOptions options;
+    FsiLevelSmootherOptions options;options.kind=kind;
     options.patches.maximum_size=32;
     options.patches.single_precision=true;options.patches.native_storage=true;
     auto smoother=make_fsi_level_smoother(comm,example.matrix.get(),example.keys,example.trace,options);
@@ -164,7 +185,7 @@ void verify_native_storage(MPI_Comm comm,bool sparse,bool identity) {
     unsigned long long retained_total=0,dense_total=0;
     EONSIM_PETSC(MPI_Allreduce(&retained,&retained_total,1,MPI_UNSIGNED_LONG_LONG,MPI_SUM,comm));
     EONSIM_PETSC(MPI_Allreduce(&dense,&dense_total,1,MPI_UNSIGNED_LONG_LONG,MPI_SUM,comm));
-    if(sparse) require(comm,retained_total<dense_total,
+    if(sparse&&kind=="vanka") require(comm,retained_total<dense_total,
         "Native CSR coefficients plus indices did not use less memory than dense coefficients");
 
     // Neither the native action nor its identity lifting may dereference this
@@ -188,6 +209,79 @@ void verify_native_storage(MPI_Comm comm,bool sparse,bool identity) {
         require(comm,accurate,"Released native coefficients changed the mixed action or remote identity lifting");
     }
 }
+void verify_braess(MPI_Comm comm,bool coarse,double alpha) {
+    Example example(comm,coarse);
+    // Retain a pure algebraic pressure tag on coarse entities, independently
+    // of the fine physical domains. RCR-like boundary scalars remain primal.
+    if(coarse) for(PetscInt i=example.begin;i<example.end;++i)
+        if(i%3==0) example.keys[i-example.begin].quantity=DofQuantity::pressure;
+    FsiLevelSmootherOptions options;
+    options.kind="braess_sarazin";options.braess_alpha=alpha;options.schur_iterations=3;
+    auto smoother=make_fsi_level_smoother(comm,example.matrix.get(),example.keys,example.trace,options);
+    PetscOwner<Vec,VecDestroy> rhs,x;
+    EONSIM_PETSC(MatCreateVecs(example.matrix.get(),x.put(),rhs.put()));
+    int ranks=0;MPI_Comm_size(comm,&ranks);
+    const auto owner=[&](PetscInt row) {
+        if(ranks==4) return row<5?0:1;
+        for(int rank=0;rank<ranks;++rank) if(row<Example::n*(rank+1)/ranks) return rank;
+        return ranks-1;
+    };
+    for(int phase=0;phase<2;++phase) {
+        if(phase) {example.fill(phase);refresh_fsi_level_smoother(smoother,example.matrix.get());}
+        // Independently solve [alpha blockdiag(F),G;D,C], with the original
+        // constraint-column lifting. The oracle neither forms nor reads the
+        // production inverse, Schur matrix or PETSc field submatrices.
+        std::vector<long double> approximate(example.values.begin(),example.values.end()),b(Example::n);
+        for(PetscInt i=0;i<Example::n;++i) {
+            b[i]=.4+std::sin(.7*i)+.2*phase;
+            for(PetscInt j=1;j<Example::n;++j) if(i>0&&i%3!=0&&j%3!=0) {
+                const bool same_entity=i/3==j/3&&(i==8)==(j==8)&&owner(i)==owner(j);
+                approximate[i*Example::n+j]=same_entity?alpha*example.values[i*Example::n+j]:0.;
+            }
+        }
+        const auto expected=dense_solve(approximate,b);
+        PetscScalar* data=nullptr;EONSIM_PETSC(VecGetArray(rhs.get(),&data));
+        for(PetscInt i=example.begin;i<example.end;++i) data[i-example.begin]=static_cast<double>(b[i]);
+        EONSIM_PETSC(VecRestoreArray(rhs.get(),&data));
+        EONSIM_PETSC(apply_fsi_level_smoother(smoother,rhs.get(),x.get()));
+        const PetscScalar* actual=nullptr;EONSIM_PETSC(VecGetArrayRead(x.get(),&actual));
+        bool correct=true;
+        for(PetscInt i=example.begin;i<example.end;++i)
+            correct=correct&&std::isfinite(actual[i-example.begin])&&
+                std::abs(actual[i-example.begin]-expected[i])<2e-9*(1.+std::abs(expected[i]));
+        EONSIM_PETSC(VecRestoreArrayRead(x.get(),&actual));
+        const auto stats=query_fsi_level_smoother_stats(smoother);
+        require(comm,correct,"Braess-Sarazin disagrees with independent full block inverse or loses structure/ALE compliance");
+        require(comm,stats.refreshes==phase+1&&stats.schur_applications==phase+1&&stats.schur_budget==options.schur_iterations&&
+            stats.schur_iterations<=options.schur_iterations*stats.schur_applications,
+            "Braess-Sarazin exceeded its fixed pressure budget or failed numeric refresh");
+    }
+    if(!coarse&&alpha==1.) {
+        // Zero one primal-block row while retaining pressure coupling and the
+        // allocated graph. A failed refresh must invalidate its old factors.
+        example.values[1*Example::n+1]=0.;example.values[1*Example::n+2]=0.;
+        PetscInt columns[Example::n];std::iota(columns,columns+Example::n,0);
+        if(example.begin<=1&&example.end>1) {
+            const PetscInt row=1;
+            EONSIM_PETSC(MatSetValues(example.matrix.get(),1,&row,Example::n,columns,
+                example.values.data()+Example::n,INSERT_VALUES));
+        }
+        EONSIM_PETSC(MatAssemblyBegin(example.matrix.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatAssemblyEnd(example.matrix.get(),MAT_FINAL_ASSEMBLY));
+        bool rejected=false;
+        try {refresh_fsi_level_smoother(smoother,example.matrix.get());}
+        catch(const std::runtime_error&) {rejected=true;}
+        require(comm,rejected,"Singular Braess-Sarazin primal block retained a usable previous generation");
+        require(comm,apply_fsi_level_smoother(smoother,rhs.get(),x.get())==PETSC_ERR_NOT_CONVERGED,
+                "Failed Braess-Sarazin refresh did not invalidate the action");
+        EONSIM_PETSC(VecSet(rhs.get(),2.));
+        example.fill(0);refresh_fsi_level_smoother(smoother,example.matrix.get());
+        EONSIM_PETSC(apply_fsi_level_smoother(smoother,rhs.get(),x.get()));
+        EONSIM_PETSC(VecSet(rhs.get(),3.)); // Every inner-solve subvector was restored.
+        require(comm,query_fsi_level_smoother_stats(smoother).refreshes==3,
+                "Braess-Sarazin did not recover after a failed numeric refresh");
+    }
+}
 void run(MPI_Comm comm) {
     int ranks=0;MPI_Comm_size(comm,&ranks);require(comm,ranks==1||ranks==2||ranks==4,"Expected 1, 2 or 4 ranks");
     for(bool coarse:{false,true}) {
@@ -195,12 +289,17 @@ void run(MPI_Comm comm) {
         verify(comm,"chebyshev",coarse,false);verify(comm,"block_chebyshev",coarse,false);
     }
     for(bool sparse:{false,true}) for(bool identity:{false,true}) verify_native_storage(comm,sparse,identity);
+    for(const std::string kind:{"vanka_multiplicative","vanka_colored"}) {
+        verify(comm,kind,false,false);
+        verify_native_storage(comm,true,true,kind);
+    }
+    for(bool coarse:{false,true}) for(double alpha:{1.,1.7}) verify_braess(comm,coarse,alpha);
     Example example(comm,false);
     FsiLevelSmootherOptions invalid;invalid.kind="chebyshev";invalid.eigenvalue_ratio=1.;
     bool rejected=false;try {make_fsi_level_smoother(comm,example.matrix.get(),example.keys,example.trace,invalid);}
     catch(const std::runtime_error&) {rejected=true;}
     require(comm,rejected,"Invalid Chebyshev spectral interval was accepted");
-    EONSIM_PETSC(PetscPrintf(comm,"Coupled level smoothers: mixed/aggregate Vanka, compact native dense/CSR coefficients, identity/port/empty ranks, numeric refresh and normal/block Chebyshev passed\n"));
+    EONSIM_PETSC(PetscPrintf(comm,"Coupled level smoothers: mixed/aggregate additive/multiplicative/colored Vanka, native residuals after source release, coupled Braess-Sarazin block oracle, identity/port/empty ranks, numeric refresh and normal/block Chebyshev passed\n"));
 }
 } // namespace
 int main(int argc,char** argv) {

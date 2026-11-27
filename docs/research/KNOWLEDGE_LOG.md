@@ -1,5 +1,16 @@
 # EONSim Knowledge Log
 
+## 2026-11-27 · FSI-SADDLE-01：鞍点配对、散度闭包和逐次投影
+
+[未发布草稿](../../website/drafts/fsi-saddle-point-multigrid.md)与
+[运行说明](../development/FSI_SADDLE_POINT_MULTIGRID.md)记录本轮理论及源码机制。
+分支 `codex/saddle-point-multigrid`，基线 `036f865e`；当前尚未运行新数值验证。
+主要可复用结论：Galerkin 压力配对不等于粗细散度交换；压力像空间闭包可保证交换但可能
+牺牲压力粗化；owner 置换必须保留完整语义和原算子；彩色 Vanka 必须按色刷新残量；
+deflated FGMRES 的每次投影/提升与仅 warm start 的修正回收不同。失败、实际执行和性能
+证据将在验收后分源记录，不能由现有源码入口推出网格无关或多节点收益。
+
+
 ## 2026-11-27 · FSI-SCALE-01：精确作用、预条件近似与性能证据的边界
 
 北京时间记录，任务起始于 2026-11-26。[未发布草稿](../../website/drafts/fsi-scalable-matrix-free.md)、
