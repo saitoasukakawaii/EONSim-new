@@ -1,5 +1,7 @@
 # EONSim Codex Session Log
 
+FSI-SCALABLE-02 现场续跑点（2026-11-27 22:21，上海）：运行根目录 `$HOME/workspace/fsi-scalable-02-runs`。`squeue -u "$USER"` 核对作业；395 固定 `610eadd` 二进制运行五十万/百万级两种混合和三种纯 MPI 配比；403 使用 `f42faae` 修复的精确末端坐标重建 C 网格；404 汇总规模数据；405/406 构建及运行 `39e642e` 的额外诊断分离版。核对所有终态后读取 `large-scaling.json`、`C20-fixed/summary.json`、`screen-prefixed/summary.json`、`formal-{20,32,100}/summary.json`、`audited-{32,100}/summary.json`，归档各速度比、失败、源码和日志哈希，并更新 #70 的检查状态。作业结束之前保持 Draft。
+
 FSI-SCALABLE-02 从已含 #69 的 `4974cb6` 开始。现场作业 383/384 为严格对照，389 为 128 核配比，390 为首轮物理筛选，391 为独立 profiling，392 为较宽的原版 GMRES。失败的 Slurm PMI 启动和 RCR 接口参数检查均保存在本轮独立目录。见[现场收据](FSI_SCALABLE_02.md)。
 
 2026-11-27 核对：主线已合入 #65（`2463f717`）；以下历史记录保留实际执行日期、源码、失败与验收边界。当前能力与开放目标见 [当前能力矩阵](CURRENT_STATUS.md)。历史 review/Draft 不代表当前 PR 状态，历史证据不计为本次执行。
