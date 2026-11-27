@@ -67,6 +67,10 @@ add_library(eonsim_core
     src/algebra/coupled_velocity_pc.cpp
     src/algebra/pressure_schur_pc.cpp
     src/algebra/interface_patch_pc.cpp
+    src/algebra/monolithic_fsi_mg.cpp
+    src/algebra/distributed_mg_layout.cpp
+    src/algebra/deflated_fgmres.cpp
+    src/algebra/fsi_level_smoother.cpp
     src/physics/fsi_pressure_operators.cpp
     src/physics/fluid_element.cpp
     src/fem/reduced_layout.cpp
@@ -116,7 +120,7 @@ if(BUILD_TESTING)
     endif()
     add_executable(verify_pc_plan tests/verify_pc_plan.cpp)
     target_link_libraries(verify_pc_plan PRIVATE eonsim_core)
-    foreach(verification IN ITEMS pressure_schur interface_patch field_amg)
+    foreach(verification IN ITEMS pressure_schur interface_patch field_amg monolithic_fsi_mg matrix_free added_mass_pressure fsi_level_smoother distributed_mg_layout)
         add_executable(verify_${verification} tests/verify_${verification}.cpp)
         target_link_libraries(verify_${verification} PRIVATE eonsim_core)
         foreach(ranks IN ITEMS 1 2 4)
@@ -286,6 +290,10 @@ if(BUILD_TESTING)
     add_test(NAME advanced_fsi_pc COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_advanced_pc.py"
         --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/advanced_fsi_pc")
     set_tests_properties(advanced_fsi_pc PROPERTIES TIMEOUT 900 PROCESSORS 2 LABELS "core;rank-1;rank-2"
+        ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
+    add_test(NAME monolithic_fsi_physical COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_fsi_multigrid.py"
+        --executable $<TARGET_FILE:eonsim> --mpiexec "${MPIEXEC_EXECUTABLE}" --work "${CMAKE_CURRENT_BINARY_DIR}/monolithic_fsi_physical")
+    set_tests_properties(monolithic_fsi_physical PROPERTIES TIMEOUT 1200 PROCESSORS 2 LABELS "core;rank-1;rank-2"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")
     set_tests_properties(rcr_port_fsi PROPERTIES TIMEOUT 600 PROCESSORS 2 LABELS "core;rank-1;rank-2"
         ENVIRONMENT "OMP_NUM_THREADS=1;OPENBLAS_NUM_THREADS=1;MKL_NUM_THREADS=1")

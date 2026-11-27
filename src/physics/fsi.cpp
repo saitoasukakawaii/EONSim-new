@@ -218,7 +218,7 @@ struct FsiAssemblyPlan {
     std::size_t coo_entries=0,coo_contributions=0,residual_entries=0;
 
     FsiAssemblyPlan(const MeshPartition& mesh,const ReducedLayout& reduced,const FsiDomains* domains,
-                    bool coo,std::vector<PetscInt>& coo_rows,std::vector<PetscInt>& coo_columns,
+                    bool coo,bool reduced_pc,std::vector<PetscInt>& coo_rows,std::vector<PetscInt>& coo_columns,
                     std::vector<PetscInt>* residual_rows) {
         static_assert(Tet4Elastic::dofs*Tet4Elastic::dofs<=std::numeric_limits<std::uint16_t>::max());
         const int nc=reduced.components;
@@ -253,7 +253,7 @@ struct FsiAssemblyPlan {
                     const int component=active.first+row%active.count;
                     row_blocks[row]=fsi_coupling_blocks.size();
                     for(std::size_t b=0;b<fsi_coupling_blocks.size();++b) {
-                        const auto& block=fsi_coupling_blocks[b];
+                        const auto& block=fsi_blocks(reduced_pc)[b];
                         if(component>=block.row_first&&component<block.row_first+block.row_count) {
                             row_blocks[row]=b; break;
                         }
@@ -282,7 +282,7 @@ struct FsiAssemblyPlan {
                 for(int row=0;row<nd;++row) {
                     if(rows[cell.offset+row]<0) continue;
                     for(int col=0;col<nd;++col) {
-                        if(columns[cell.offset+col]<0||!fsi_cell_coupling(active.first+row%active.count,active.first+col%active.count)) continue;
+                        if(columns[cell.offset+col]<0||!fsi_cell_coupling(active.first+row%active.count,active.first+col%active.count,reduced_pc)) continue;
                         visit(rows[cell.offset+row],columns[cell.offset+col],static_cast<std::uint16_t>(nd*row+col));
                     }
                 }
@@ -471,13 +471,29 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     const bool alpha=config.time_integration.scheme==TimeScheme::generalized_alpha;
     bool alpha_ready=false;
     PetscBool finite_difference=PETSC_FALSE,coo=PETSC_FALSE,assembly_report=PETSC_FALSE,residual_coo=PETSC_TRUE;
-    PetscBool overlap=PETSC_FALSE;
+    PetscBool overlap=PETSC_FALSE,matrix_free=PETSC_FALSE,reduced_pc=PETSC_FALSE;
+    PetscBool partial_assembly=PETSC_FALSE,action_simd=PETSC_FALSE,action_overlap=PETSC_FALSE;
     PetscInt threads=1;
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_fd_tangent",&finite_difference,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_coo",&coo,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_assembly_report",&assembly_report,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_residual_coo",&residual_coo,nullptr));
     EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_overlap",&overlap,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_matrix_free",&matrix_free,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_reduced_pc",&reduced_pc,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_partial_assembly",&partial_assembly,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_matrix_free_simd",&action_simd,nullptr));
+    action_overlap=overlap;
+    PetscBool action_overlap_set=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_matrix_free_overlap",&action_overlap,&action_overlap_set));
+    int action_options[]{int(matrix_free),int(reduced_pc),int(partial_assembly),int(action_simd),int(action_overlap)};
+    int action_min[5]{},action_max[5]{};
+    MPI_Allreduce(action_options,action_min,5,MPI_INT,MPI_MIN,comm);
+    MPI_Allreduce(action_options,action_max,5,MPI_INT,MPI_MAX,comm);
+    for(int i=0;i<5;++i) if(action_min[i]!=action_max[i]) throw std::runtime_error("FSI matrix-free execution options differ between ranks");
+    int action_bad=(matrix_free&&finite_difference)||(!matrix_free&&(reduced_pc||partial_assembly||action_simd||(action_overlap_set&&action_overlap)))||(action_simd&&!partial_assembly),any_action_bad=0;
+    MPI_Allreduce(&action_bad,&any_action_bad,1,MPI_INT,MPI_MAX,comm);
+    if(any_action_bad) throw std::runtime_error("FSI reduced PC/partial assembly/SIMD require exact matrix-free; SIMD requires partial assembly, and FD tangent is incompatible");
     EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-fsi_threads",&threads,nullptr));
     if(threads<1||threads>256) throw std::runtime_error("-fsi_threads must be between 1 and 256");
     char batch_failure_name[32]{};
@@ -505,7 +521,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         domains.mesh_constraints.push_back({f.inlet->tag,{0,1,2}});
     }
     const double pattern_start=MPI_Wtime();
-    auto reduced=dual?make_dual_fsi_layout(comm,mesh,domains,!coo):Elastic?make_elastic_fsi_layout(comm,mesh,!coo):make_rigid_fsi_layout(comm,mesh,!coo);
+    auto reduced=dual?make_dual_fsi_layout(comm,mesh,domains,!coo,reduced_pc):Elastic?make_elastic_fsi_layout(comm,mesh,!coo,reduced_pc):make_rigid_fsi_layout(comm,mesh,!coo,reduced_pc);
     if constexpr(Elastic) if(!dual) {
         // The legacy example shares a logical mesh, but its solid occupies
         // [1,1+thickness]. Coarse rotations use the same physical reference
@@ -863,14 +879,14 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     std::vector<PetscInt> coo_rows,coo_columns,residual_rows;
     std::optional<FsiAssemblyPlan> plan_storage;
     output_stage(comm,"assembly plan",[&] {
-        plan_storage.emplace(mesh,reduced,dual?&domains:nullptr,coo,coo_rows,coo_columns,
+        plan_storage.emplace(mesh,reduced,dual?&domains:nullptr,coo,reduced_pc,coo_rows,coo_columns,
                              residual_coo?&residual_rows:nullptr);
     });
     const auto& assembly_plan=*plan_storage;
     std::vector<std::size_t> owned_cells,halo_cells,halo_slots;
-    if(overlap) for(std::size_t i=0;i<reduced.local.size();++i)
+    if(overlap||(matrix_free&&action_overlap)) for(std::size_t i=0;i<reduced.local.size();++i)
         if(reduced.local[i]>=layout.owned) halo_slots.push_back(i);
-    if(overlap) for(std::size_t e=0;e<mesh.cells.size();++e) {
+    if(overlap||(matrix_free&&action_overlap)) for(std::size_t e=0;e<mesh.cells.size();++e) {
         // Classification follows reduced trial aliases, not mesh-node owners:
         // interface and rigid-body slots can depend on a different rank.
         const auto active=assembly_plan.cells[e].active;
@@ -889,7 +905,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     MPI_Allreduce(&pcd_local,&pcd_max,1,MPI_INT,MPI_MAX,comm);
     if(pcd_min!=pcd_max) throw std::runtime_error("PCD auxiliary assembly selection differs between ranks");
     std::unique_ptr<FsiPressureOperators> pressure_operators;
-    if(pcd_local) pressure_operators=std::make_unique<FsiPressureOperators>(comm,mesh,reduced,fluid_cell,pressure_tags);
+    if(pcd_local) pressure_operators=std::make_unique<FsiPressureOperators>(comm,mesh,reduced,fluid_cell,pressure_tags,
+        f.inlet?std::vector<int>{f.inlet->tag}:std::vector<int>{});
     NonlinearSystem system(comm,layout,std::move(reduced.jacobian_pattern));
     if(coo) system.set_jacobian_coo(coo_rows,coo_columns);
     if(residual_coo) system.set_residual_coo(residual_rows);
@@ -898,6 +915,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
     std::vector<PetscInt>().swap(residual_rows);
     const double system_seconds=MPI_Wtime()-system_start;
     if(assembly_report) {
+        EONSIM_PETSC(PetscPrintf(comm,"fsi_preconditioner reduced=%d stores_full_jacobian=%d\n",int(reduced_pc),int(!reduced_pc)));
         unsigned long long local_overlap[]{static_cast<unsigned long long>(owned_cells.size()),
             static_cast<unsigned long long>(halo_cells.size())},total_overlap[2]{};
         MPI_Reduce(local_overlap,total_overlap,2,MPI_UNSIGNED_LONG_LONG,MPI_SUM,0,comm);
@@ -917,6 +935,22 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             int(coo),counts[0],counts[1],counts[2],counts[3],max_value_bytes,times[0],times[1],times[2],times[3]));
     }
     std::vector<double> assembly_state(mesh.nodes.size()*nc),element_residual,element_tangent;
+    std::vector<double> action_state,action_direction;
+    std::map<PetscInt,PetscInt> action_local_columns;
+    if(matrix_free) {
+        action_state.resize(mesh.nodes.size()*nc); action_direction.resize(action_state.size());
+        for(std::size_t i=0;i<layout.local_to_global.size();++i)
+            action_local_columns.emplace(layout.local_to_global[i],static_cast<PetscInt>(i));
+    }
+    std::vector<FsiElementLinearization> fluid_action_cache;
+    std::vector<SolidElementLinearization> solid_action_cache;
+    std::vector<std::size_t> fluid_cache_slot(mesh.cells.size()),solid_cache_slot(mesh.cells.size());
+    if(partial_assembly) {
+        for(std::size_t e=0;e<mesh.cells.size();++e) {
+            if(fluid_cell[e]) {fluid_cache_slot[e]=fluid_action_cache.size();fluid_action_cache.emplace_back();}
+            if(solid_cell[e]) {solid_cache_slot[e]=solid_action_cache.size();solid_action_cache.emplace_back();}
+        }
+    }
     element_residual.reserve(Layout::dofs); element_tangent.reserve(Layout::dofs*Layout::dofs);
     // A bounded batch avoids storing one dense tangent for every local element.
     // Only pure kernels and disjoint buffer writes execute on worker threads.
@@ -1080,7 +1114,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                         j[active.index(Tet4Ale::node(i),Tet4Ale::component(i))*nd+active.index(Tet4Ale::node(k),Tet4Ale::component(k))]=fj[Tet4Ale::matrix(i,k)];
                 };
                 if(tangent&&!finite_difference) measured(log.fluid_ale_tangent,[&] {
-                    const auto element=fsi_element(data[e],state);
+                    const auto element=reduced_pc?fsi_element_reduced_preconditioner(data[e],state):fsi_element(data[e],state);
                     copy_residual(element.residual); copy_tangent(element.tangent);
                 });
                 else {
@@ -1134,6 +1168,23 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                 if(j&&!coo_jacobian) {
                     const auto* cols=assembly_plan.columns.data()+cell.offset;
                     const auto* trace=assembly_plan.mesh_trace.data()+cell.offset;
+                    if(!cell.compact_aij&&reduced_pc) {
+                        // Preserve original physical row/column addition order,
+                        // but never allocate a dropped ALE entry through a dense insertion.
+                        std::array<PetscInt,Layout::dofs> retained_columns;
+                        std::array<double,Layout::dofs> retained_values;
+                        for(int row=0;row<nd;++row) {
+                            if(rows[row]<0) continue;
+                            PetscInt count=0;
+                            for(int col=0;col<nd;++col) if(cols[col]>=0&&fsi_cell_coupling(
+                                cell.active.first+row%cell.active.count,cell.active.first+col%cell.active.count,true)) {
+                                retained_columns[count]=cols[col];
+                                retained_values[count++]=tangent[nd*row+col]*(trace[col]?mesh_dt:1.);
+                            }
+                            EONSIM_PETSC(MatSetValues(j,1,rows+row,count,retained_columns.data(),retained_values.data(),ADD_VALUES));
+                        }
+                        return;
+                    }
                     if(!cell.compact_aij) {
                         // An unusual cross-block alias must retain dense row
                         // order; do not sort or pre-sum its repeated entries.
@@ -1147,7 +1198,7 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
                     std::array<double,Layout::dofs*Layout::dofs> values;
                     const auto active=cell.active;
                     const int end=active.first+active.count;
-                    for(const auto& block:fsi_coupling_blocks) {
+                    for(const auto& block:fsi_blocks(reduced_pc)) {
                         const int row_begin=std::max(active.first,block.row_first),row_end=std::min(end,block.row_first+block.row_count);
                         const int col_begin=std::max(active.first,block.column_first),col_end=std::min(end,block.column_first+block.column_count);
                         if(row_begin>=row_end||col_begin>=col_end) continue;
@@ -1324,6 +1375,152 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         };
         NonlinearAssemblyPhases phases;
         phases.preconditioner_context={dt,integration_dt,solid_dt,mesh_dt,stabilization_dt,af};
+        unsigned long long prepared_action_cells=0,cached_action_cells=0,simd_action_batches=0;
+        bool action_ready=false;
+        if(matrix_free) phases.prepare_jacobian_action=[&](const std::vector<double>& x) {
+            action_ready=false;
+            expand_into(x,action_state);
+            if(partial_assembly) for(std::size_t e=0;e<mesh.cells.size();++e) {
+                if(fluid_cell[e]) {
+                    Tet4Ale::State<double> state{};
+                    for(int a=0;a<4;++a) for(int c=0;c<Tet4Ale::components;++c)
+                        state[Tet4Ale::dof(a,c)]=action_state[Layout::dof(mesh.cells[e].nodes[a],c)];
+                    fluid_action_cache[fluid_cache_slot[e]]=fsi_prepare_action(data[e],state);
+                    ++prepared_action_cells;
+                }
+                if(solid_cell[e]) {
+                    Tet4Vector::State<double> state{},dn{};
+                    for(int a=0;a<4;++a) for(int c=0;c<3;++c) {
+                        const auto node=mesh.cells[e].nodes[a];
+                        state[Tet4Vector::dof(a,c)]=action_state[Layout::dof(node,Layout::structure_offset+c)];
+                        dn[Tet4Vector::dof(a,c)]=reference_d[Tet4Vector::dof(node,c)];
+                    }
+                    solid_action_cache[solid_cache_slot[e]]=solid_prepare_action(solid_geometry[e],
+                        {f.young,f.poisson,f.solid_density,solid_dt,f.neo_hookean,mesh_dt},state,dn);
+                    ++prepared_action_cells;
+                }
+            }
+            action_ready=true;
+        };
+        const auto action_phase=[&](const std::vector<double>& x,const std::vector<double>& direction,
+                                    Vec output,const std::vector<std::size_t>* cells,bool owned_phase) {
+            if(!action_ready) throw std::logic_error("FSI action requires a current frozen Newton state");
+            const auto expand_direction=[&](std::size_t i) {
+                const auto map=reduced.slot(i,mesh_dt);
+                action_direction[i]=map.local<0?0.:map.trial_weight*direction.at(map.local);
+                if(i%nc<3&&inlet_nodes[i/nc]) action_direction[i]=0.;
+            };
+            if(cells&&!owned_phase) for(const auto i:halo_slots) expand_direction(i);
+            else for(std::size_t i=0;i<action_direction.size();++i)
+                if(!owned_phase||reduced.local[i]<layout.owned) expand_direction(i);
+            const auto count=cells?cells->size():mesh.cells.size();
+            const auto index=[&](std::size_t i){return cells?(*cells)[i]:i;};
+            const std::size_t width=action_simd?4:1;
+            for(std::size_t begin=0;begin<count;begin+=width) {
+                const auto batch_count=std::min(width,count-begin);
+                std::array<std::array<double,Layout::dofs>,4> responses{};
+                std::array<Tet4Ale::State<double>,4> fluid_directions{},fluid_responses{};
+                std::array<Tet4Vector::State<double>,4> solid_directions{},solid_responses{};
+                std::array<const FsiElementLinearization*,4> fluid_caches{};
+                std::array<const SolidElementLinearization*,4> solid_caches{};
+                std::array<std::size_t,4> fluid_items{},solid_items{};
+                std::size_t nf=0,ns=0;
+                for(std::size_t item=0;item<batch_count;++item) {
+                    const auto e=index(begin+item);
+                    if(fluid_cell[e]) {
+                        fluid_items[nf]=item;
+                        for(int a=0;a<4;++a) for(int c=0;c<Tet4Ale::components;++c)
+                            fluid_directions[nf][Tet4Ale::dof(a,c)]=action_direction[Layout::dof(mesh.cells[e].nodes[a],c)];
+                        if(partial_assembly) fluid_caches[nf]=&fluid_action_cache[fluid_cache_slot[e]];
+                        else {
+                            Tet4Ale::State<double> state{};
+                            for(int a=0;a<4;++a) for(int c=0;c<Tet4Ale::components;++c)
+                                state[Tet4Ale::dof(a,c)]=action_state[Layout::dof(mesh.cells[e].nodes[a],c)];
+                            fluid_responses[nf]=fsi_element_action(data[e],state,fluid_directions[nf]);
+                        }
+                        ++nf;
+                    }
+                    if(solid_cell[e]) {
+                        solid_items[ns]=item;
+                        for(int a=0;a<4;++a) for(int c=0;c<3;++c)
+                            solid_directions[ns][Tet4Vector::dof(a,c)]=action_direction[Layout::dof(mesh.cells[e].nodes[a],Layout::structure_offset+c)];
+                        if(partial_assembly) solid_caches[ns]=&solid_action_cache[solid_cache_slot[e]];
+                        else {
+                            Tet4Vector::State<double> state{},dn{};
+                            for(int a=0;a<4;++a) for(int c=0;c<3;++c) {
+                                const auto node=mesh.cells[e].nodes[a];
+                                state[Tet4Vector::dof(a,c)]=action_state[Layout::dof(node,Layout::structure_offset+c)];
+                                dn[Tet4Vector::dof(a,c)]=reference_d[Tet4Vector::dof(node,c)];
+                            }
+                            solid_responses[ns]=solid_element_action(solid_geometry[e],
+                                {f.young,f.poisson,f.solid_density,solid_dt,f.neo_hookean,mesh_dt},state,solid_directions[ns],dn);
+                        }
+                        ++ns;
+                    }
+                }
+                if(partial_assembly) {
+                    if(action_simd) {
+                        if(nf) {fsi_element_action_batch(fluid_caches.data(),fluid_directions.data(),fluid_responses.data(),nf);++simd_action_batches;}
+                        if(ns) {solid_element_action_batch(solid_caches.data(),solid_directions.data(),solid_responses.data(),ns);++simd_action_batches;}
+                    } else {
+                        for(std::size_t lane=0;lane<nf;++lane) fluid_responses[lane]=fsi_element_action(*fluid_caches[lane],fluid_directions[lane]);
+                        for(std::size_t lane=0;lane<ns;++lane) solid_responses[lane]=solid_element_action(*solid_caches[lane],solid_directions[lane]);
+                    }
+                    cached_action_cells+=nf+ns;
+                }
+                for(std::size_t lane=0;lane<nf;++lane) {
+                    const auto item=fluid_items[lane],e=index(begin+item);
+                    const auto& cell=assembly_plan.cells[e];
+                    for(int i=0;i<Tet4Ale::dofs;++i)
+                        responses[item][cell.active.index(Tet4Ale::node(i),Tet4Ale::component(i))]+=fluid_responses[lane][i];
+                }
+                for(std::size_t lane=0;lane<ns;++lane) {
+                    const auto item=solid_items[lane],e=index(begin+item);
+                    const auto& cell=assembly_plan.cells[e];
+                    if(!supports.empty()) for(std::size_t k=support_offsets[e];k<support_offsets[e+1];++k) {
+                        const auto support=support_faces[k].face.action(solid_directions[lane],mesh_dt);
+                        for(int i=0;i<Tet4Vector::dofs;++i) solid_responses[lane][i]+=support[i];
+                    }
+                    for(int i=0;i<Tet4Vector::dofs;++i)
+                        responses[item][cell.active.index(Tet4Vector::node(i),Layout::structure_offset+Tet4Vector::component(i))]+=solid_responses[lane][i];
+                }
+                // Ordered PETSc insertion stays on the main thread, after all
+                // independent lane arithmetic. No shared nodal scatter in SIMD.
+                for(std::size_t item=0;item<batch_count;++item) {
+                    const auto& cell=assembly_plan.cells[index(begin+item)];
+                    EONSIM_PETSC(VecSetValues(output,cell.active.dofs(),assembly_plan.rows.data()+cell.offset,responses[item].data(),ADD_VALUES));
+                }
+            }
+            // Port scalars/current face geometry may depend on ghosts even if
+            // their adjacent volume cells are owned. Contribute exactly once.
+            if(owned_phase) return;
+            const auto add_action=[&](PetscInt row,PetscInt column,double value) {
+                if(row<0||column<0) return;
+                const auto local=action_local_columns.find(column);
+                if(local==action_local_columns.end()) throw std::logic_error("FSI action is missing a port ghost column");
+                EONSIM_PETSC(VecSetValue(output,row,value*direction.at(local->second),ADD_VALUES));
+            };
+            for(std::size_t i=0;i<outlets.size();++i) {
+                const auto& port=reduced.outlets[i];
+                outlet_jacobian_entries(reduced,port,&action_state,mesh_dt,x[port.local],
+                    1/outlet_stages[i].total_impedance,mesh.rank==mesh.ranks-1,add_action);
+            }
+            if(!Elastic&&mesh.rank==mesh.ranks-1)
+                add_action(reduced.body,reduced.body,f.mass/solid_dt+f.damping+mesh_dt*f.stiffness);
+        };
+        if(matrix_free) {
+            phases.jacobian_action=[&](const std::vector<double>& x,const std::vector<double>& direction,Vec result) {
+                action_phase(x,direction,result,nullptr,false);
+            };
+            if(action_overlap) {
+                phases.jacobian_action_owned=[&](const std::vector<double>& x,const std::vector<double>& direction,Vec result) {
+                    action_phase(x,direction,result,&owned_cells,true);
+                };
+                phases.jacobian_action_halo=[&](const std::vector<double>& x,const std::vector<double>& direction,Vec result) {
+                    action_phase(x,direction,result,&halo_cells,false);
+                };
+            }
+        }
         if(pressure_operators) phases.after_jacobian=[&](const std::vector<double>& x,Mat jacobian) {
             // Successful physical assembly has completed all halo exchanges.
             // Reconstruct the same stage state, including interface aliases and
@@ -1340,6 +1537,16 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             };
         }
         const auto solved=system.solve(config.solver,accepted,{}, {},assemble,phases);
+        if(matrix_free&&assembly_report) {
+            unsigned long long cache_bytes=fluid_action_cache.size()*sizeof(FsiElementLinearization)+solid_action_cache.size()*sizeof(SolidElementLinearization);
+            for(const auto& cache:fluid_action_cache) cache_bytes+=cache.faces.capacity()*sizeof(FsiElementLinearization::Face);
+            const unsigned long long local_counts[]{prepared_action_cells,cached_action_cells,simd_action_batches,
+                static_cast<unsigned long long>(owned_cells.size()),static_cast<unsigned long long>(halo_cells.size()),cache_bytes};
+            unsigned long long global_counts[6]{};
+            MPI_Reduce(local_counts,global_counts,6,MPI_UNSIGNED_LONG_LONG,MPI_SUM,0,comm);
+            EONSIM_PETSC(PetscPrintf(comm,"fsi_action_report partial_assembly=%d simd=%d overlap=%d prepared_cells=%llu cached_actions=%llu simd_batches=%llu owned_cells=%llu halo_cells=%llu cache_bytes=%llu\n",
+                int(partial_assembly),int(action_simd),int(action_overlap),global_counts[0],global_counts[1],global_counts[2],global_counts[3],global_counts[4],global_counts[5]));
+        }
         const auto next=expand(solved.values);
         double local[4]{},global[4]{};
         measured(events.force_replay,[&] {

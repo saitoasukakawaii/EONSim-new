@@ -1,6 +1,8 @@
 # FSI 专用多层预条件器、压力 Schur 与混合精度界面校正
 
-交付状态：PR [#59](https://github.com/saitoasukakawaii/EONSim-new/pull/59) 已于 2026-11-26 合入 `main@3472a18`；该 PR 的既有源码 CI 为 85/85 Release 与 54/54 Python，后续证据提交复用相容结果。[当前能力矩阵](CURRENT_STATUS.md) 汇总其他已合并实现及未达目标。
+历史交付：PR [#59](https://github.com/saitoasukakawaii/EONSim-new/pull/59) 已合并；源码 CI 85/85 Release、54/54 Python。后续 #61–#65 的分层混合 MG、matrix-free 与鞍点增强见 [当前能力矩阵](CURRENT_STATUS.md) 和 [鞍点 MG](FSI_SADDLE_POINT_MULTIGRID.md)。
+
+本文记录 FSI-PC-05 / PR #59 的实现与当时验证边界。后续 FSI-MG-01 已加入完整混合多重网格、每层 Vanka、入口 Robin 和速度质量混合增强；新接口与证据见[整体 FSI 多重网格说明](FSI_MONOLITHIC_MULTIGRID.md)。本页历史收据及其未实现声明保留为当时状态，不代表后续功能缺失。
 
 本文是 [FSI_BLOCK_PRECONDITIONER.md](FSI_BLOCK_PRECONDITIONER.md) 的增量说明，覆盖本轮五项功能的数学定义、实际开关、并行约束和已执行验证。当前生产实现固定于已同步的 `19cd26f2af9b02859fac28ca8f662c29c20d47f1`，包含 PCD 辅助边界尺度修正。此前代数验证固定于 `e565c9872551dad9dc7a01d4d7b613e8a96d3545`，首轮功能与物理验收固定于 `c5af27de8fdc7a42df855543ad6366ce7db70571`；这些测试均先同步源码、再构建和验证。测试驱动提交 `9dfd8ac` 未改变生产算法。**19cd26f 的 38 次 PCD 受影响物理求解已由原驱动验收通过，独立原件审计及最终归档均已完成，见第 8.4 节；旧收据与新边界收据分开保留。**
 
@@ -77,7 +79,7 @@ K_p=QK^0+E,\qquad F_p=QF^0+\mu E=\mu K_p+QN.
 
 代码只用 `MatZeroRows` 替换 \(K^0,F^0\) 的边界行，分别置对角 1、\(\mu\)，不清除边界列。此表达要求所有流体单元、所有 MPI rank 的正黏度 \(\mu\) 相同；空流体 owner 仍参加校验。非均匀黏度会明确拒绝。其余边界使用自然 Neumann 条件。
 
-边界行由 owned 节点的完整边界标签识别，包括 owner 没有本地牵引面的情况。没有任何此类全局边界行时明确拒绝；没有随意增加压力 pin。原始物理压力未知量和 Jacobian 不因辅助边界而改变。辅助边界只限制 Laplace 校正，不应把整个黏性质量逆项也清掉。FENaPack 的 BRM2 作用与数学说明提供了这一分项处理的概念参考；本轮没有实现其全部入口 Robin 项或基于离散速度质量的 PCDR 增强。[参考文献 7]
+边界行由 owned 节点的完整边界标签识别，包括 owner 没有本地牵引面的情况。没有任何此类全局边界行时明确拒绝；没有随意增加压力 pin。原始物理压力未知量和 Jacobian 不因辅助边界而改变。辅助边界只限制 Laplace 校正，不应把整个黏性质量逆项也清掉。FENaPack 的 BRM2 作用与数学说明提供了这一分项处理的概念参考；FSI-PC-05 当时没有实现其全部入口 Robin 项或基于离散速度质量的 PCDR 增强；后续的 Robin 和离散 Laplace 质量混合见新指南，它仍不等同于完整加性 PCDR。[参考文献 7]
 
 PCD 采用作用顺序 \(K_p^{-1}F_pM_p^{-1}\) 的变体，并以
 

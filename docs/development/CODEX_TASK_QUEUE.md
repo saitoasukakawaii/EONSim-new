@@ -1,8 +1,91 @@
 # EONSim Codex Task Queue
 
-2026-11-26 主线核对：PR #53–#59 均已合入，当前基线 `3472a18`（#59）。[当前能力矩阵](CURRENT_STATUS.md) 是现状入口；以下按会话保留当时的状态、失败、源码及证据，历史 Draft/review/in_progress 等不表示当前 PR 仍开放。未将既有证据重新计为本次执行。
+2026-11-27 核对：主线已合入 #65（`2463f717`）；以下历史记录保留实际执行日期、源码、失败与验收边界。当前能力与开放目标见 [当前能力矩阵](CURRENT_STATUS.md)。历史 review/Draft 不代表当前 PR 状态，历史证据不计为本次执行。
 
-当前未关闭的是性能与生产目标（物理网格无关收敛、稳定端到端收益、层级界面 smoother、更广泛混合精度、多节点及生理资格），而非重复实现 #51–#59 已交付功能。
+## FSI-SADDLE-01 / implementation and bounded validation complete; convergence and scale OPEN / 2026-11-27
+
+基线 `main@036f865e`（#64），最终生产/驱动 `ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba`，交付
+[PR #65](https://github.com/saitoasukakawaii/EONSim-new/pull/65)。十三项方向已有实际实现和对应证据；
+执行顺序为源码/修复同步 → 核对 tree → Release 定向与真实 FSI 验证 → 原件归档 →
+四项必需检查及锁定 head squash 合并。最终检查/合并状态以该 PR 记录为准。
+
+最终源码新执行6项MG/smoother及12条Braess轨迹全通过；不同CTest有效集合17项、
+新增物理配置48条、网格18条全通过，按原执行源码分源复用，不重跑无关路径。
+初版失败、正确重建的审计误判、局部LU极小主元、Braess迭代耗尽及单因子修正均归档。
+原严格残量与 `2e-9` 保存场/历史门槛保持；[完整证据](../research/data/fsi-saddle-01-2026-11-27/README.md)。
+
+仍开放：预声明的703/2299/5367 DoF窗口平均迭代增长比≤1.3；当前colored=1.7857、
+all=1.7037，均未达标。all压力闭包饱和并增加建层/RSS成本；不能从迭代减少推断总耗时下降。
+百万自由度、多节点、扩展效率、普遍inf-sup界及完整harmonic-Ritz GCRO-DR均没有完成证据。
+后续应针对粗化效率和实际工作量推进，不放宽门槛、不用无限参数扫描或默认全量测试替代证据。
+
+[最终源码 CI 45931896224](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896224)
+实际新执行 **83/83 Release、54/54 Python**，没有复用数值记录。合并预览
+`75bb86a0c5e668d497d0e95eb5ed0be4df824550` 与 `ccf1bd7` 的完整 tree 均为
+`014a1de3199b7e476aec00aa63078a13adb60610`，dirty=false；
+[源码网站检查 45931896258](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896258)
+通过。远端检查与本地分源轨迹分别计数；最终文档 head 的四项检查及合并以 PR #65 为准。
+
+
+## FSI-SCALE-01 / implementation and bounded validation complete; convergence and scale OPEN / 2026-11-27
+
+北京时间记录，任务起始于 2026-11-26；基线 `main@88257a9`（#63），分支
+`codex/fsi-scalable-matrix-free`，对应 [PR #64](https://github.com/saitoasukakawaii/EONSim-new/pull/64)。
+十二项方向已有实际代码或规模验证入口，最终生产/驱动 `50b41ae19067bd8853a482ab853805e23c096ec5`。
+每批源码及修正均先推送并核对 tree，再构建、运行；**最终文档 head 的四项必需检查及锁定 head 合并结果由 PR #64 记录确认**。
+
+最终本地 MG 1/2/4 rank **3/3**、Python **19/19**、严格网格 **9/9** 与最终物理
+**15/15** 通过，原物理/约束、严格真残量、inexact 当次 forcing 及 `2e-9` 场差门槛保持。
+`30e2941` 的 MG/patch/smoother **9/9**、K-cycle 网格及 native RSS pair 分源复用，
+未伪称最终源码重跑。失败、缺诊断、真实残差缺陷、RSS 负例和中断均保留在
+[证据索引](../research/data/fsi-scale-01-2026-11-26/README.md)。
+
+仍开放：固定 703/2299/5367 DoF 窗口，supremizer V 总迭代 92/138/199，平均最大/最小
+**2.1630 > 1.3**；优化 V 为 2.3402，历史 K 为 2.0612，近似网格无关 **OPEN**。
+最大实测 **10,387 DoF / 单 host**，百万 DoF、多节点和扩展效率 **OPEN / 未运行**。
+native 在 `116836b` 的 RSS 负例经 `30e2941` 修复后仅有一次同源 pair 最大 rank 峰值
+降低 4.0557%的证据；稳定端到端、总内存及带宽收益仍须按规模实测，不能由数组字节推断。
+
+[源码 CI 45853312807](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312807)
+实际 **4/4 Release、19/19 Python**，另复用 62 项 Release、总覆盖 66；预览
+`3ca62ae4c0c037ca59c255fc8cd1754f1101f7ea` 与源码的完整 tree 均为
+`7f66c8b02d62ed67606f7bf5f94fd5af34915f6e`。
+[源码网站检查 45853312823](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312823)
+成功，最终文档 head 检查/合并待办；不绕过保护、不增加参数扫描或全量验证。
+[运行指南](FSI_SCALABLE_MATRIX_FREE.md)与[未发布草稿](../../website/drafts/fsi-scalable-matrix-free.md)
+记录选项、数学范围及后续真实规模验收入口。
+
+## FSI-MF-02 / implementation and bounded validation complete / 2026-11-26
+
+从已合并 #61 的 `main@6bb6f438b63c` 接续，开发分支 `codex/fsi-mg-performance-followup`。
+交付 [PR #62](https://github.com/saitoasukakawaii/EONSim-new/pull/62)，生产/测试源码 `b7d727b`。
+固体与壁支撑直接精确方向核已接入，取消 matrix-free 每次作用中的完整局部切线；
+整体 MG 每个非粗层利用已知零初值省去一次残量矩阵乘及 halo 通信。原方程、装配路径、
+门槛与默认选项保持。先同步完整 tree，后增量构建；4/4 定向 CTest、11/11 物理解通过。
+另有 9 次固定输入成本对照（1 直接参考、2 warmup、3 对旧/新二进制），不与 11 次混计。
+局部核耗时中位降低 75.75%–82.08%；350 DoF/2-rank 的 MF 作用阶段中位降低 23.27%，
+外层迭代均155。wall未见稳定收益。[原件与测量范围](../research/data/fsi-mf-02-2026-11-26/README.md)。
+仍开放：更大真实 FSI 的近似网格无关、完整 P 存储成本、稳定端到端收益与多节点扩展。
+已通过的未受影响检查复用原证据；本轮没有扩大为全量或无边界参数调优。
+
+## FSI-MG-01 / twelve implementations and bounded validation complete; broader performance remains open / 2026-11-26
+
+[PR #61](https://github.com/saitoasukakawaii/EONSim-new/pull/61)完成全部十二条 P0/P1/P2 路径，
+最终生产 `3b5cbdd`，每次修改先同步远端并核对 tree，再构建及验证。完整耦合层级、每层
+混合 Vanka、结构顺应性压力 Schur、能量插值、局部谱增强、PCD 两增强、批量缓存、
+Chebyshev 两变体、真实 FP32 稀疏循环、粗层聚合、PIPEFGMRES 和精确 MF/assembled P
+均有实现与有界验收，参数见[操作指南](FSI_MONOLITHIC_MULTIGRID.md)。
+
+本地有效 22 项 CTest 中最终重跑 12 项、10 项复用未受影响证据；最终 28 次 FSI、84 步、
+177 真残量全部通过原门槛，累计 64 成功与 4 个已修复 setup 失败分别保存。缓存失效、
+读锁、流水线归约和粗 patch 四类故障已闭环；[原件及独立审计](../research/data/fsi-monolithic-mg-2026-11-26/README.md)。
+源码 CI45819157827 实际 95/95 Release、54/54 Python，成功收据与同源 tree 已核实。
+最终文档 head 四项检查及精确 head squash 以 GitHub 为准；没有跳过保护或改数值门槛。
+
+仍开放的性能目标：更大真实 FSI 的近似网格无关、低总内存和稳定端到端收益、多节点通信
+扩展。现 703/2299/5367 DoF 的 MG 迭代 104/151/206，直接解更快；FP32 只证明部分
+值/因子精度与字节变化，整体 RSS 和时间没有下降。局部谱筛选并非全局误差学习，PCD 仍
+要求统一正黏度，MF 保留完整 P。不得用十二条代码路径完成来宣称这些性能目标也已完成。
 
 ## FSI-PC-05 / implementation and bounded validation complete; performance goals remain open / 2026-11-26
 
@@ -15,8 +98,9 @@ LSC/BFBt与物理PCD、真实界面mixed patch、FP32因子/FP64细化回退。�
 最终38；未受修改影响检查复用，不伪称全在最终head重跑。四项必需检查和锁定head合并
 依GitHub核实；草稿未发布，默认不改。
 
-仍开放的性能验收目标：真实FSI近似网格无关、每层界面smoother、PCD入口Robin/瞬态速度
-质量增强及变黏度、多节点更大规模和稳定端到端收益。现网格2rank nodal82→131、最终PCD
+本节保留 FSI-PC-05 的历史验收边界；其中逐层 smoother 和 PCD Robin/速度质量增强现由
+上方 FSI-MG-01 完成。其余仍开放目标为真实 FSI 近似网格无关、变黏度、多节点更大规模
+和稳定端到端收益。FSI-PC-05 当时的网格2rank nodal82→131、最终PCD
 144→225；BFBt六组patch少2.44%–11.96%迭代但小例成本高，FP32只证明因子数组减半。
 不能把“代码路径实现”当作这些尚未达成性能目标的关闭依据。
 

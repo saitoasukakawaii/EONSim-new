@@ -622,9 +622,10 @@ Config read_config(const std::filesystem::path& path)
         if (solver["pc_recipe"]) config.solver.pc_recipe = solver["pc_recipe"].as<std::string>();
         if(!config.solver.pc_recipe.empty()) {
             const auto& recipe=config.solver.pc_recipe;
-            if(recipe!="physics"&&recipe!="quantity"&&recipe!="hybrid"&&recipe!="added_mass") throw std::runtime_error("Unknown solver.pc_recipe");
+            if(recipe!="physics"&&recipe!="quantity"&&recipe!="hybrid"&&recipe!="added_mass"&&recipe!="monolithic_mg") throw std::runtime_error("Unknown solver.pc_recipe");
             if(!config.fluid_problem&&!config.fsi_problem) throw std::runtime_error("solver.pc_recipe currently requires independent fluid or FSI");
             if(recipe=="added_mass"&&!config.fsi_problem) throw std::runtime_error("solver.pc_recipe added_mass requires FSI");
+            if(recipe=="monolithic_mg"&&!config.fsi_problem) throw std::runtime_error("solver.pc_recipe monolithic_mg requires FSI");
         }
         if (solver["relative_tolerance"]) config.solver.relative_tolerance = solver["relative_tolerance"].as<double>();
         if (solver["absolute_tolerance"]) config.solver.absolute_tolerance = solver["absolute_tolerance"].as<double>();

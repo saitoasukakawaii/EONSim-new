@@ -1,0 +1,136 @@
+{
+  "task": "FSI-SCALE-01",
+  "repository": "saitoasukakawaii/EONSim-new",
+  "pr": 64,
+  "base_commit": "88257a9be35008b0063820910843625fa17bb267",
+  "production_source": "50b41ae19067bd8853a482ab853805e23c096ec5",
+  "production_tree": "7f66c8b02d62ed67606f7bf5f94fd5af34915f6e",
+  "source_versions": [
+    {
+      "commit": "e0edc6b83fa2a3b61ac64f758e7be9ab96f40539",
+      "tree": "8774b2618c210a4046f95f2466da1e3941a18009",
+      "message": "feat(fsi): reduce matrix-free storage and improve coupled solver execution"
+    },
+    {
+      "commit": "707a6a6dd92c9cbbea8bb24708c17da5b381aa4a",
+      "tree": "58f900954dacd63c1f6635f0b36184da52cd5c1b",
+      "message": "fix(fsi): suppress null projected transfer noise and expose action evidence"
+    },
+    {
+      "commit": "8410818a4930902ffbef2f16ac35d46bddf21e8a",
+      "tree": "4cc2df29bfb1c8666ff00f23e76829fb8a94f9d6",
+      "message": "fix(solver): verify Krylov convergence against the current operator"
+    },
+    {
+      "commit": "6378f4cca035bcf8a29150ef21588528c70aa824",
+      "tree": "5c7ef69c36f91fcf810f32e390bba8a5cc1002db",
+      "message": "fix(solver): defer convergence publication until residual reconstruction"
+    },
+    {
+      "commit": "116836b9d4143a280759a2e69e6c1b31156fb616",
+      "tree": "9689f3878cda844e7d05c12bf9eeb4ff36e617a5",
+      "message": "fix(fsi): preserve physical coarse projection under block scaling"
+    },
+    {
+      "commit": "30e29411431d4f721f1a9aa4b9b55fc685f70e7b",
+      "tree": "6d0608d21c2ec61626fcbfc90c0dec99fd738809",
+      "message": "feat(fsi): bound coarse Krylov work and compact native hierarchy storage"
+    },
+    {
+      "commit": "06411830f5589a4f295081c099c3a1719733c82f",
+      "tree": "3f328bb557017227723cf991dda83aefe8b239b7",
+      "message": "test(fsi): match audit rejection exception contract"
+    },
+    {
+      "commit": "50b41ae19067bd8853a482ab853805e23c096ec5",
+      "tree": "7f66c8b02d62ed67606f7bf5f94fd5af34915f6e",
+      "message": "feat(fsi): preserve discrete pressure pairs in the fine coarse space"
+    }
+  ],
+  "publication_protocol": "Each tested source batch was complete, uploaded via GitHub API, and matched to the full local Git tree before build or numerical execution. Local equivalent commits were retained in backup branches; same-tree soft alignment only.",
+  "binary_policy": "Numerical studies use immutable per-source copied executables, with hashes before/after execution. ELF binaries excluded from raw archives; their hashes/build provenance remain.",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "local_hostname": "dea1aacc35f0",
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "cgroup": {},
+  "runtime": {
+    "petsc": "3.23.7",
+    "petsc_scalar": "FP64",
+    "petsc_int_bits": 32,
+    "compiler": "GNU 15.3.0",
+    "mpi": "Open MPI 5.0.8",
+    "build_type": "Release",
+    "build_parallel": 2,
+    "simd": true,
+    "openmp": true,
+    "threads_per_rank": {
+      "OMP_NUM_THREADS": 1,
+      "OPENBLAS_NUM_THREADS": 1,
+      "MKL_NUM_THREADS": 1
+    }
+  },
+  "binaries": [
+    {
+      "path": "eonsim-116836b",
+      "bytes": 2943808,
+      "sha256": "5143ccca95eb4c87483ad40fc3f7fb441d8a49f17fbb6f3fd2c9a0a1001dcfbe"
+    },
+    {
+      "path": "eonsim-30e2941",
+      "bytes": 2972832,
+      "sha256": "bfadbb0c3aab7d3c9507560aaac3940a352f76f16f3de285fb254b8872bd782f"
+    },
+    {
+      "path": "eonsim-50b41ae",
+      "bytes": 2998880,
+      "sha256": "dea9ab78339d4d07a8a83bac11fb22f733898d45ef681d51b99f71adfa3522e7"
+    },
+    {
+      "path": "eonsim-6378f4c",
+      "bytes": 2943728,
+      "sha256": "1d5cefe412b290f10b0480709d37fe022529a02579d474b02e627a5d6daf4e4b"
+    },
+    {
+      "path": "eonsim-707a6a6",
+      "bytes": 2939016,
+      "sha256": "e20c4a1b97b56c07953b3da6a4d139813f07b6d5388114da7890d09365800007"
+    },
+    {
+      "path": "eonsim-8410818",
+      "bytes": 2943728,
+      "sha256": "909e5da4f1144e2d180f577b3569a483ba4e1e1404f681a15ac5b1e2ffd1f16f"
+    },
+    {
+      "path": "eonsim-e0edc6b",
+      "bytes": 2939016,
+      "sha256": "8e9e9d05d56fd13cdbe52917c2dabb88a9070522d1878a3aae2a6e7534dd1de7"
+    }
+  ],
+  "maximum_locally_observed_dofs": 10387,
+  "maximum_locally_observed_hosts": 1,
+  "million_dof_runs": 0,
+  "multinode_runs": 0,
+  "source_work_directory": "/workspace/scratch/26ca7243fe5a/EONSim-new",
+  "raw_archive_path_mapping": {
+    "original": "/workspace/scratch/26ca7243fe5a/EONSim-new/build/fsi-scale-01",
+    "extracted": "build/fsi-scale-01",
+    "member_prefix": "fsi-scale-01/"
+  },
+  "recorded_utc": "2026-11-26T15:54:37.347097+00:00",
+  "user_timezone": "Asia/Shanghai",
+  "proc_meminfo_at_capture": {
+    "MemTotal": "10206472 kB",
+    "MemAvailable": "9060432 kB"
+  }
+}

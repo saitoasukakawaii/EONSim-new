@@ -1,0 +1,307 @@
+{
+  "task": "FSI-SCALE-01",
+  "pr": "https://github.com/saitoasukakawaii/EONSim-new/pull/64",
+  "source_commit": "50b41ae19067bd8853a482ab853805e23c096ec5",
+  "source_tree": "7f66c8b02d62ed67606f7bf5f94fd5af34915f6e",
+  "fixed_binary_sha256": "dea9ab78339d4d07a8a83bac11fb22f733898d45ef681d51b99f71adfa3522e7",
+  "overall_status": "implementation_and_bounded_validation_complete; convergence_and_large_scale_qualification_open",
+  "source_protocol": "source completed and remote full tree verified before each affected build or numerical retest",
+  "recorded_utc": "2026-11-26T16:03:10.221755+00:00",
+  "user_timezone": "Asia/Shanghai",
+  "features": [
+    {
+      "priority": "P0",
+      "feature": "FSI Multigrid Convergence Optimization",
+      "implementation": "weighted physical restriction, bounded K-cycle, pressure supremizers",
+      "validation": "passed fixed-window original equation and physical gates",
+      "target_status": "open",
+      "threshold_max_min_mean_iterations": 1.3,
+      "observed_supremizer_ratio": 2.163043478260869
+    },
+    {
+      "priority": "P0",
+      "feature": "Reduced Assembled Preconditioner",
+      "implementation": "smaller AIJ/COO graph for approximate P; exact full matrix-free Jacobian action",
+      "validation": "AIJ/COO and final physical combination passed",
+      "target_status": "implemented_bounded_validation",
+      "nnz_domains": [
+        10170,
+        7788
+      ],
+      "nnz_moving_rcr": [
+        14639,
+        11418
+      ]
+    },
+    {
+      "priority": "P0",
+      "feature": "Physics-aware Block Scaling",
+      "implementation": "two-sided semantic field scaling; physical weighted first restriction",
+      "validation": "manufactured, 1/2/4-rank and physical checks passed",
+      "target_status": "implemented_bounded_validation",
+      "limitation": "does not prove uniform conditioning for general FSI"
+    },
+    {
+      "priority": "P0",
+      "feature": "FSI-aware Coarse Space",
+      "implementation": "physical candidates and bounded selected pressure-velocity response pairs",
+      "validation": "candidate reproduction and actual FP64 coarse pairing checked",
+      "target_status": "implemented_bounded_validation",
+      "limitation": "selected fine-level pairs; no all-level global inf-sup guarantee"
+    },
+    {
+      "priority": "P1",
+      "feature": "Adaptive Vanka Patch Selection",
+      "implementation": "interface or strong interentity growth; preserve all core rows",
+      "validation": "MPI unit and physical combinations passed",
+      "target_status": "implemented_bounded_validation"
+    },
+    {
+      "priority": "P1",
+      "feature": "Partial Assembly",
+      "implementation": "current-Newton quadrature intermediates for fluid/solid; independent P lag",
+      "validation": "exact-action, physics, and three paired cost observations passed",
+      "target_status": "implemented_bounded_validation",
+      "limitation": "no standalone cache preparation timer"
+    },
+    {
+      "priority": "P1",
+      "feature": "Native FP32 Multigrid",
+      "implementation": "float sparse level operations/transfers and local factors; compact patches and setup release",
+      "validation": "MPI lifecycle/failure recovery and same-source FP64/FP32 pair passed",
+      "target_status": "implemented_bounded_validation",
+      "peak_rss_max_ratio": 0.959443169887623,
+      "limitation": "outer P, coarse solve, PETSc vectors/MPI remain FP64; no measured bandwidth-halving claim"
+    },
+    {
+      "priority": "P1",
+      "feature": "SIMD Matrix-free Kernels",
+      "implementation": "four-cell SoA fluid/solid/ALE direction batches and scalar tails",
+      "validation": "exact actions, physical checks, packed machine-code evidence, three paired costs",
+      "target_status": "implemented_bounded_validation",
+      "limitation": "no universal end-to-end speedup claim"
+    },
+    {
+      "priority": "P1",
+      "feature": "Matrix-free MPI Overlap",
+      "implementation": "start direction halo, compute owned cells, finish halo/ports; failure drain",
+      "validation": "MPI correctness, failure recovery, physical and single-host paired costs",
+      "target_status": "implemented_bounded_validation",
+      "limitation": "multinode overlap benefit unmeasured"
+    },
+    {
+      "priority": "P2",
+      "feature": "Adaptive Inexact Newton",
+      "implementation": "bounded EW-II forcing with unchanged final physical acceptance",
+      "validation": "actual forcing and physical gates passed",
+      "target_status": "implemented_bounded_validation",
+      "max_inexact_residual_to_requested_gate": 0.9962145448716808
+    },
+    {
+      "priority": "P2",
+      "feature": "Krylov Subspace Recycling",
+      "implementation": "bounded successful correction span; current-operator images and checked initial projection",
+      "validation": "cross-step projection counters and original residual gates passed",
+      "target_status": "implemented_bounded_validation",
+      "limitation": "correction-space recycling, not full Arnoldi/GCRO-DR"
+    },
+    {
+      "priority": "P2",
+      "feature": "Large-scale FSI Benchmark",
+      "implementation": "strong/weak launcher, minimum DoF/host gates and disk-backed topology/field audit",
+      "validation": "eight single-host strong/weak smoke runs passed",
+      "target_status": "open",
+      "maximum_actual_dofs": 10387,
+      "maximum_actual_hosts": 1,
+      "million_dof_runs": 0,
+      "multinode_runs": 0
+    }
+  ],
+  "latest_local_tests": {
+    "mpi_mg_executed": 3,
+    "mpi_mg_passed": 3,
+    "python_methods_executed": 19,
+    "python_methods_passed": 19
+  },
+  "latest_grid": {
+    "runs": 9,
+    "accepted_steps": 27,
+    "linear_corrections": 54,
+    "artifact_hashes_verified": 480,
+    "volume_pieces_parsed": 144,
+    "command_logs_verified": 12,
+    "max_field_difference": 3.577971252610723e-13,
+    "max_history_difference": 8.049116928532385e-16,
+    "max_ghost_difference": 0.0,
+    "max_strict_linear_ratio": 0.00872921617003258,
+    "max_inexact_linear_ratio": null,
+    "true_residual_checks": 36,
+    "true_residual_rejections": 0
+  },
+  "latest_physical": {
+    "runs": 15,
+    "accepted_steps": 45,
+    "linear_corrections": 117,
+    "artifact_hashes_verified": 643,
+    "volume_pieces_parsed": 200,
+    "command_logs_verified": 18,
+    "max_field_difference": 2.909998353395338e-10,
+    "max_history_difference": 4.168998479769925e-12,
+    "max_ghost_difference": 0.0,
+    "max_strict_linear_ratio": 0.007862816997846028,
+    "max_inexact_linear_ratio": 0.9962145448716808,
+    "true_residual_checks": 96,
+    "true_residual_rejections": 0
+  },
+  "finite_window_goal": {
+    "maximum_ratio": 1.3,
+    "subdivisions": [
+      4,
+      6,
+      8
+    ],
+    "modes": {
+      "mono_optimized": {
+        "status": "open",
+        "observed_ratio": 2.3402061855670104,
+        "dofs": [
+          703,
+          2299,
+          5367
+        ],
+        "iterations_per_correction": [
+          16.166666666666668,
+          26.666666666666668,
+          37.833333333333336
+        ]
+      },
+      "mono_supremizer": {
+        "status": "open",
+        "observed_ratio": 2.163043478260869,
+        "dofs": [
+          703,
+          2299,
+          5367
+        ],
+        "iterations_per_correction": [
+          15.333333333333334,
+          23.0,
+          33.166666666666664
+        ]
+      }
+    }
+  },
+  "source_ci": {
+    "run_id": 45853312807,
+    "status": "success",
+    "website_run_id": 45853312823,
+    "website_status": "success",
+    "source": "50b41ae19067bd8853a482ab853805e23c096ec5",
+    "merge_preview": "3ca62ae4c0c037ca59c255fc8cd1754f1101f7ea",
+    "tree": "7f66c8b02d62ed67606f7bf5f94fd5af34915f6e",
+    "release_executed": 4,
+    "release_reused": 62,
+    "release_covered": 66,
+    "release_failed": 0,
+    "release_skipped": 0,
+    "python_methods_executed": 19,
+    "receipt": "summaries/source-ci-receipt.json",
+    "artifact_hashes": "summaries/source-ci-artifact-hashes.json"
+  },
+  "preserved_failure_classes": [
+    "initial wrapper exit126",
+    "initial projected-gradient roundoff MG failures",
+    "missing action telemetry audit failures",
+    "recursive/true residual mismatch",
+    "early reason publication guard defect",
+    "current/peak RSS telemetry mismatch",
+    "interrupted weak smoke",
+    "native FP32 peak RSS regression before lifecycle fix",
+    "Python negative-test exception expectation error",
+    "zero-test CTest selection is not a pass"
+  ],
+  "not_claimed": [
+    "near mesh independence",
+    "million-DoF or multinode validation",
+    "uniform global inf-sup stability",
+    "universal end-to-end speedup",
+    "whole-process memory or bandwidth halving",
+    "offline reconstruction of unsaved J,b,dx"
+  ],
+  "curated_evidence": [
+    {
+      "path": "summaries/grid-final.json",
+      "original": "fsi-scale-01/grid-supremizer-50b41ae-summary.json",
+      "sha256": "437f0b5ad520ac01d2fadc5911ca41c3aea05775b5d062f6772dbb65ec4a78af",
+      "bytes": 25058
+    },
+    {
+      "path": "summaries/physical-final.json",
+      "original": "fsi-scale-01/physical-supremizer-50b41ae-summary.json",
+      "sha256": "d253fcef7d2c0ff89309e8adfe682ef27720fe78aac09559b6c7e2396aadbb2d",
+      "bytes": 43290
+    },
+    {
+      "path": "summaries/grid-final-audit.json",
+      "original": "fsi-scale-01/grid-supremizer-50b41ae-independent-audit.json",
+      "sha256": "12ed81be86919267a2a0efad4ee53ac2dbf3342d73947166df0c6f2b025b461d",
+      "bytes": 591944
+    },
+    {
+      "path": "summaries/physical-final-audit.json",
+      "original": "fsi-scale-01/physical-supremizer-50b41ae-independent-audit.json",
+      "sha256": "8c119838ada123e57ede0b1399ca2db02ab6877a12b8f75a00ba1a039cba665d",
+      "bytes": 902654
+    },
+    {
+      "path": "summaries/grid-kcycle-30.json",
+      "original": "fsi-scale-01/grid-kcycle-30-summary.json",
+      "sha256": "d30c0e280f5b803cf345b704c64702ada1879bfe499a174426ae4158c7982a74",
+      "bytes": 32581
+    },
+    {
+      "path": "summaries/native-pair-30.json",
+      "original": "fsi-scale-01/native-paired-30e2941/summary.json",
+      "sha256": "be1d41d2e6b67865b4a410484026de67377fe0425e2721140a4f90d204c78c94",
+      "bytes": 4922
+    },
+    {
+      "path": "summaries/paired-actions-6378.json",
+      "original": "fsi-scale-01/paired-actions-6378-summary.json",
+      "sha256": "82113a7e9244712be54f845cb656388fbefe4eeab0667bfe276bfac63ca93b12",
+      "bytes": 201139
+    },
+    {
+      "path": "summaries/cluster-smoke-6378.json",
+      "original": "fsi-scale-01/cluster-smoke-6378-summary.json",
+      "sha256": "3dfaf5c9d2741df7cb1f118924c2f37da880f046155d55d83e74f308e1bcc3ab",
+      "bytes": 7080
+    },
+    {
+      "path": "summaries/source-ci-receipt.json",
+      "original": "fsi-scale-01/ci-50b41ae/receipt/receipt.json",
+      "sha256": "a61371c2b0de279e4412059ddb0715454cb067f797986d883158df59c19eb493",
+      "bytes": 14271
+    },
+    {
+      "path": "summaries/source-ci-artifact-hashes.json",
+      "original": "fsi-scale-01/ci-50b41ae/download-verification.json",
+      "sha256": "8c57f258dbd6fe7d79b1ae4d015c0fa9c5757e66465ba487300f5c070e6e3bc2",
+      "bytes": 996
+    }
+  ],
+  "raw_evidence": {
+    "manifest": "raw-manifest.json",
+    "checksums": "raw-SHA256SUMS.txt",
+    "archives_directory": "raw",
+    "path_mapping": "fsi-scale-01/... -> build/fsi-scale-01/...",
+    "binary_policy": "ELF excluded; exact source and SHA256 recorded",
+    "excluded_rebuildable": "SQLite audit spools and Python caches",
+    "archive_count": 28,
+    "file_count": 9195,
+    "uncompressed_file_bytes": 240375784,
+    "compressed_bytes": 15024112,
+    "manifest_sha256": "2d925488cb25a77aabcfa4af3a4e754a649a069e77f1ddf4c86cc6e33e316332"
+  },
+  "merge_status": "See GitHub PR for final documentation head checks and protected head-pinned squash result; no merge is asserted by this premerge record."
+}

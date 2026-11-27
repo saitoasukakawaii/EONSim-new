@@ -1,6 +1,6 @@
 # EONSim 并行稀疏矩阵装配
 
-2026-11-26 更新：本文保留分布式装配原理；当前单体 FSI 已有固定 reduced AIJ 图、默认固定残量 COO、显式 FSI Jacobian COO、可选 owned/halo overlap、AD SIMD、持久会话及数值 PC 更新。详见[当前能力矩阵](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/development/CURRENT_STATUS.md)；仍不声明 matrix-free 或多节点扩展。
+2026-11-26 更新：本文保留分布式装配原理；当前单体 FSI 已有固定 reduced AIJ 图、默认固定残量 COO、显式 FSI Jacobian COO、可选 owned/halo overlap、AD SIMD、持久会话及数值 PC 更新。详见[当前能力矩阵](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/development/CURRENT_STATUS.md)；#61–#65 已另行增加可选精确 matrix-free、reduced P 和鞍点多重网格；不声明多节点扩展。
 
 本文解释 EONSim 当前如何把 Tet4 网格分区映射为 PETSc 分布式稀疏矩阵，并区分网格分区、自由度分区和矩阵行分区。
 

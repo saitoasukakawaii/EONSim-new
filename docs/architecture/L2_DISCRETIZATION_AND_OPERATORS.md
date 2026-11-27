@@ -1,8 +1,8 @@
 # L2：离散、算子与约束
 
-状态：采用。首版以 assembled 低阶 FEM 为执行路径；高阶、partial assembly 和 matrix-free 为需求触发的扩展。
+状态：采用。首版以 assembled 低阶 FEM 为执行路径；高阶及通用设备路径仍按需求扩展；FSI 已有显式选择的 partial assembly 和 matrix-free。
 
-2026-10-30 的扩展契约集中于 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)：§4 区分空间/基/DoF 泛函，§5 规定一般边界与 lifting，§7 分离排列和 PC 树，§8 从形式项及约束支撑生成图，§11 规定批次模板分派。G0 已接入语义身份与 PC 树，G1 已实现二维标量所需边界和图/输出子集；完整多阶空间、通用形式图和高阶批次仍待实现。后续 #51–#53 已交付固定 FSI 图、可选 FSI Jacobian COO、默认固定残量 COO 及合资格持久求解会话；#55–#59 新增自适应 PC/USER 数值刷新、RCR port Schur、field AMG 与压力/界面 PC，具体支持见 [当前能力矩阵](../development/CURRENT_STATUS.md)。
+2026-10-30 的扩展契约集中于 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)：§4 区分空间/基/DoF 泛函，§5 规定一般边界与 lifting，§7 分离排列和 PC 树，§8 从形式项及约束支撑生成图，§11 规定批次模板分派。G0 已接入语义身份与 PC 树，G1 已实现二维标量所需边界和图/输出子集；完整多阶空间、通用形式图和高阶批次仍待实现。后续 #51–#53 已交付固定 FSI 图、可选 Jacobian COO、默认固定残量 COO 和合资格持久求解会话；#55–#59 扩展自适应 PC、RCR、field AMG 与压力/界面 PC；#61–#65 已增加显式选择的精确 matrix-free Jv、partial assembly、reduced P 和多层鞍点机制。具体支持与限制见 [当前能力矩阵](../development/CURRENT_STATUS.md)。
 
 ### 物理场的实现顺序
 
@@ -197,7 +197,21 @@ Newton Jacobian 回调消费一次。必须是相同 Vec/Mat、全部 owner 的�
 物理回调、初值或 prescribed 的栈引用。SNES/KSP/PC 先于所引用的 Schur USER 矩阵销毁。
 任何异常或最终 `StepRejected` 使会话失效，下一次调用重新创建；同一次线搜索中已恢复的
 domain rejection 不使最终成功的会话失效。fatal callback 遗留的 trial Vec 只读锁通过
-替换该 Vec 隔离，固定矩阵图保留。每次调用重置计数与线搜索初始系数。
+替换该 Vec 隔离；matrix-free action 失败还隔离 KSP 残量 RHS 并重新准备其 COO 计划。
+不手工修改 PETSc 的锁栈，固定矩阵图保留。每次调用重置计数与线搜索初始系数。
+
+显式 matrix-free 路径通过 `NonlinearAssemblyPhases::jacobian_action` 提供精确方向作用；
+回调须在所有 rank 一致存在。求解器冻结当前 Newton 状态并更新独立方向 ghost，物理回调
+只做局部计算及向量插入，不通信、不结束装配、不提交历史。驱动完成共同错误传播、
+向量装配及约束行的单位作用。`-nonlinear_matrix_free_pc_interval` 只控制 assembled P 的
+刷新；每次新的非线性 solve 必须首先刷新 P，物理残量及 Jv 始终使用当前状态。
+当前 P 仍是完整 AIJ 图，不能从使用 MatShell 推导总矩阵存储已经下降。
+
+matrix-free 仅接受 FGMRES/PIPEFGMRES；PIPEFGMRES 使用右预条件。方向回调发生共同 fatal
+错误后，MatShell 暂填有限零值使流水线完成已经发出的 split reduction；KSP 收敛回调在
+归约完成后设置负停止原因，驱动无条件抛出原 fatal 错误。错误状态粘滞，后续物理 kernel
+不再执行，临时向量从不成为已接受解。正常收敛调用原配置的 PETSc convergence test，
+不更改容差或接受条件，不直接访问库内部 split-reduction 状态。
 
 `solver_report` 的 `solver_reused=0|1` 表示本次是否复用成功会话，`solver_generation`
 是同一 `NonlinearSystem` 的 SNES 创建序号，从 1 递增；这些字段是生命周期证据，不是

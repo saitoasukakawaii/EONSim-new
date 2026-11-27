@@ -1,0 +1,738 @@
+{
+  "build_source": "50b41ae19067bd8853a482ab853805e23c096ec5",
+  "driver_source_commit": "50b41ae19067bd8853a482ab853805e23c096ec5",
+  "executable_sha256": "dea9ab78339d4d07a8a83bac11fb22f733898d45ef681d51b99f71adfa3522e7",
+  "driver_sha256": "eaec2fbd29be1f758bd081d3c5cdc1bf0846a941fe1eae7ee4bfee56f0dea049",
+  "receipt_sha256": "6aa08a683aaa87d606534c8ae972e6e3c040c1f2b106be093fbe3bade6ff4e8c",
+  "driver_matches_production_source": true,
+  "status": "physical_and_independent_audit_passed_convergence_target_open",
+  "independent_audit": "build/fsi-scale-01/grid-supremizer-50b41ae-independent-audit.json",
+  "independent_audit_sha256": "12ed81be86919267a2a0efad4ee53ac2dbf3342d73947166df0c6f2b025b461d",
+  "campaign": "/workspace/scratch/26ca7243fe5a/EONSim-new/build/fsi-scale-01/grid-supremizer-50b41ae/1795708473541778599",
+  "rows": [
+    {
+      "mode": "direct",
+      "status": "passed",
+      "dofs": 703,
+      "accepted_steps": 3,
+      "corrections": 6,
+      "outer_iterations": 6,
+      "iterations_per_correction": 1.0,
+      "field_max_difference": 0.0,
+      "history_max_difference": 0.0,
+      "max_true_residual_ratio": 1.423667978895304e-05,
+      "linear_gate": "1e-12 + 1e-10*rhs_norm",
+      "true_residual_checks": 0,
+      "true_residual_rejections": 0,
+      "nnz": 27226,
+      "timings": {
+        "solve_seconds": 0.068963048,
+        "linear_seconds": 0.041375245,
+        "assembly_seconds": 0.026416272000000005,
+        "setup_seconds": 0.001728968,
+        "schur_setup_seconds": 0.0
+      },
+      "case": "scaling-n4-r2",
+      "ranks": 2
+    },
+    {
+      "mode": "mono_optimized",
+      "status": "passed",
+      "dofs": 703,
+      "accepted_steps": 3,
+      "corrections": 6,
+      "outer_iterations": 97,
+      "iterations_per_correction": 16.166666666666668,
+      "field_max_difference": 2.1235790903517682e-13,
+      "history_max_difference": 3.3306690738754696e-16,
+      "max_true_residual_ratio": 0.0021112747822872808,
+      "linear_gate": "1e-12 + 1e-10*rhs_norm",
+      "true_residual_checks": 6,
+      "true_residual_rejections": 0,
+      "nnz": 27226,
+      "timings": {
+        "solve_seconds": 2.799261779,
+        "linear_seconds": 0.30636657,
+        "assembly_seconds": 0.028942166,
+        "setup_seconds": 0.001837716,
+        "schur_setup_seconds": 0.44574703
+      },
+      "case": "scaling-n4-r2",
+      "ranks": 2,
+      "last_hierarchy_storage_sum_across_ranks": {
+        "fp32_value_bytes": 1596620,
+        "retained_fp64_operator_bytes": 16928,
+        "released_fp64_operator_bytes": 1561208,
+        "fp32_patches": 223,
+        "fp32_patch_bytes": 816016,
+        "retained_fp64_patch_bytes": 0,
+        "factor_bytes": 1832392,
+        "native_sparse_patches": 151,
+        "native_dense_patches": 72,
+        "native_index_bytes": 387490
+      },
+      "storage_note": "Last refresh only; float coefficients exclude dense factors and indices, reported separately. Not an RSS reduction or a ratio against released operator bytes.",
+      "last_work_by_rank_path_generation": [
+        {
+          "rank": 0,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 4,
+          "counters": {
+            "applications": 97,
+            "level_matvecs": 582,
+            "zero_start_skips": 291,
+            "coarse_revisits": 0,
+            "coarse_solves": 97,
+            "coarse_iterations": 97,
+            "smoother_applications": 582,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        },
+        {
+          "rank": 1,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 4,
+          "counters": {
+            "applications": 97,
+            "level_matvecs": 582,
+            "zero_start_skips": 291,
+            "coarse_revisits": 0,
+            "coarse_solves": 97,
+            "coarse_iterations": 97,
+            "smoother_applications": 582,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        }
+      ],
+      "work_scope": "Cumulative snapshots are not summed. Counts are rank-local; VecNorm/VecDot requests are not measured MPI collectives."
+    },
+    {
+      "mode": "mono_supremizer",
+      "status": "passed",
+      "dofs": 703,
+      "accepted_steps": 3,
+      "corrections": 6,
+      "outer_iterations": 92,
+      "iterations_per_correction": 15.333333333333334,
+      "field_max_difference": 2.488287353941132e-13,
+      "history_max_difference": 6.661338147750939e-16,
+      "max_true_residual_ratio": 0.007687505346813262,
+      "linear_gate": "1e-12 + 1e-10*rhs_norm",
+      "true_residual_checks": 6,
+      "true_residual_rejections": 0,
+      "nnz": 27226,
+      "timings": {
+        "solve_seconds": 2.272716073,
+        "linear_seconds": 0.2655953,
+        "assembly_seconds": 0.027140629,
+        "setup_seconds": 0.001328827,
+        "schur_setup_seconds": 0.329386506
+      },
+      "case": "scaling-n4-r2",
+      "ranks": 2,
+      "last_hierarchy_storage_sum_across_ranks": {
+        "fp32_value_bytes": 1534192,
+        "retained_fp64_operator_bytes": 16928,
+        "released_fp64_operator_bytes": 1436352,
+        "fp32_patches": 223,
+        "fp32_patch_bytes": 816016,
+        "retained_fp64_patch_bytes": 0,
+        "factor_bytes": 1832392,
+        "native_sparse_patches": 151,
+        "native_dense_patches": 72,
+        "native_index_bytes": 387490
+      },
+      "storage_note": "Last refresh only; float coefficients exclude dense factors and indices, reported separately. Not an RSS reduction or a ratio against released operator bytes.",
+      "pressure_pairs": {
+        "scope": "Aggregate-local pairs, not a global inf-sup bound. Relative change checks FP64 setup coupling before/after energy minimization, not native FP32 action preservation to 1e-10.",
+        "minimum_local_singular": 0.22296017330362636,
+        "maximum_setup_relative_change": 3.6505504122740457e-16,
+        "counts_by_setup": [
+          {
+            "modes": 20,
+            "aggregates": 10
+          },
+          {
+            "modes": 20,
+            "aggregates": 10
+          },
+          {
+            "modes": 20,
+            "aggregates": 10
+          },
+          {
+            "modes": 20,
+            "aggregates": 10
+          },
+          {
+            "modes": 20,
+            "aggregates": 10
+          },
+          {
+            "modes": 20,
+            "aggregates": 10
+          }
+        ]
+      },
+      "last_work_by_rank_path_generation": [
+        {
+          "rank": 0,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 4,
+          "counters": {
+            "applications": 92,
+            "level_matvecs": 552,
+            "zero_start_skips": 276,
+            "coarse_revisits": 0,
+            "coarse_solves": 92,
+            "coarse_iterations": 92,
+            "smoother_applications": 552,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        },
+        {
+          "rank": 1,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 4,
+          "counters": {
+            "applications": 92,
+            "level_matvecs": 552,
+            "zero_start_skips": 276,
+            "coarse_revisits": 0,
+            "coarse_solves": 92,
+            "coarse_iterations": 92,
+            "smoother_applications": 552,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        }
+      ],
+      "work_scope": "Cumulative snapshots are not summed. Counts are rank-local; VecNorm/VecDot requests are not measured MPI collectives."
+    },
+    {
+      "mode": "direct",
+      "status": "passed",
+      "dofs": 2299,
+      "accepted_steps": 3,
+      "corrections": 6,
+      "outer_iterations": 6,
+      "iterations_per_correction": 1.0,
+      "field_max_difference": 0.0,
+      "history_max_difference": 0.0,
+      "max_true_residual_ratio": 2.8966084216476173e-05,
+      "linear_gate": "1e-12 + 1e-10*rhs_norm",
+      "true_residual_checks": 0,
+      "true_residual_rejections": 0,
+      "nnz": 103506,
+      "timings": {
+        "solve_seconds": 0.20954361700000002,
+        "linear_seconds": 0.124262638,
+        "assembly_seconds": 0.083176064,
+        "setup_seconds": 0.001294884,
+        "schur_setup_seconds": 0.0
+      },
+      "case": "scaling-n6-r2",
+      "ranks": 2
+    },
+    {
+      "mode": "mono_optimized",
+      "status": "passed",
+      "dofs": 2299,
+      "accepted_steps": 3,
+      "corrections": 6,
+      "outer_iterations": 160,
+      "iterations_per_correction": 26.666666666666668,
+      "field_max_difference": 3.102657020193078e-13,
+      "history_max_difference": 3.608224830031759e-16,
+      "max_true_residual_ratio": 0.004463735945539721,
+      "linear_gate": "1e-12 + 1e-10*rhs_norm",
+      "true_residual_checks": 6,
+      "true_residual_rejections": 0,
+      "nnz": 103506,
+      "timings": {
+        "solve_seconds": 12.955154884,
+        "linear_seconds": 1.7904278729999998,
+        "assembly_seconds": 0.079872967,
+        "setup_seconds": 0.001059801,
+        "schur_setup_seconds": 1.928015668
+      },
+      "case": "scaling-n6-r2",
+      "ranks": 2,
+      "last_hierarchy_storage_sum_across_ranks": {
+        "fp32_value_bytes": 7488992,
+        "retained_fp64_operator_bytes": 39200,
+        "released_fp64_operator_bytes": 8807344,
+        "fp32_patches": 647,
+        "fp32_patch_bytes": 3085320,
+        "retained_fp64_patch_bytes": 0,
+        "factor_bytes": 7658828,
+        "native_sparse_patches": 503,
+        "native_dense_patches": 144,
+        "native_index_bytes": 1548404
+      },
+      "storage_note": "Last refresh only; float coefficients exclude dense factors and indices, reported separately. Not an RSS reduction or a ratio against released operator bytes.",
+      "last_work_by_rank_path_generation": [
+        {
+          "rank": 0,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 4,
+          "counters": {
+            "applications": 160,
+            "level_matvecs": 960,
+            "zero_start_skips": 480,
+            "coarse_revisits": 0,
+            "coarse_solves": 160,
+            "coarse_iterations": 160,
+            "smoother_applications": 960,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        },
+        {
+          "rank": 1,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 4,
+          "counters": {
+            "applications": 160,
+            "level_matvecs": 960,
+            "zero_start_skips": 480,
+            "coarse_revisits": 0,
+            "coarse_solves": 160,
+            "coarse_iterations": 160,
+            "smoother_applications": 960,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        }
+      ],
+      "work_scope": "Cumulative snapshots are not summed. Counts are rank-local; VecNorm/VecDot requests are not measured MPI collectives."
+    },
+    {
+      "mode": "mono_supremizer",
+      "status": "passed",
+      "dofs": 2299,
+      "accepted_steps": 3,
+      "corrections": 6,
+      "outer_iterations": 138,
+      "iterations_per_correction": 23.0,
+      "field_max_difference": 2.4924506902834764e-13,
+      "history_max_difference": 8.049116928532385e-16,
+      "max_true_residual_ratio": 0.004124918330896844,
+      "linear_gate": "1e-12 + 1e-10*rhs_norm",
+      "true_residual_checks": 6,
+      "true_residual_rejections": 0,
+      "nnz": 103506,
+      "timings": {
+        "solve_seconds": 10.421126133,
+        "linear_seconds": 1.5614626290000002,
+        "assembly_seconds": 0.091100929,
+        "setup_seconds": 0.002937345,
+        "schur_setup_seconds": 1.429025398
+      },
+      "case": "scaling-n6-r2",
+      "ranks": 2,
+      "last_hierarchy_storage_sum_across_ranks": {
+        "fp32_value_bytes": 6901164,
+        "retained_fp64_operator_bytes": 39200,
+        "released_fp64_operator_bytes": 7631688,
+        "fp32_patches": 647,
+        "fp32_patch_bytes": 3085320,
+        "retained_fp64_patch_bytes": 0,
+        "factor_bytes": 7658828,
+        "native_sparse_patches": 503,
+        "native_dense_patches": 144,
+        "native_index_bytes": 1548404
+      },
+      "storage_note": "Last refresh only; float coefficients exclude dense factors and indices, reported separately. Not an RSS reduction or a ratio against released operator bytes.",
+      "pressure_pairs": {
+        "scope": "Aggregate-local pairs, not a global inf-sup bound. Relative change checks FP64 setup coupling before/after energy minimization, not native FP32 action preservation to 1e-10.",
+        "minimum_local_singular": 0.14988491515473604,
+        "maximum_setup_relative_change": 2.9845993472620643e-16,
+        "counts_by_setup": [
+          {
+            "modes": 56,
+            "aggregates": 28
+          },
+          {
+            "modes": 56,
+            "aggregates": 28
+          },
+          {
+            "modes": 56,
+            "aggregates": 28
+          },
+          {
+            "modes": 56,
+            "aggregates": 28
+          },
+          {
+            "modes": 56,
+            "aggregates": 28
+          },
+          {
+            "modes": 56,
+            "aggregates": 28
+          }
+        ]
+      },
+      "last_work_by_rank_path_generation": [
+        {
+          "rank": 0,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 4,
+          "counters": {
+            "applications": 138,
+            "level_matvecs": 828,
+            "zero_start_skips": 414,
+            "coarse_revisits": 0,
+            "coarse_solves": 138,
+            "coarse_iterations": 138,
+            "smoother_applications": 828,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        },
+        {
+          "rank": 1,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 4,
+          "counters": {
+            "applications": 138,
+            "level_matvecs": 828,
+            "zero_start_skips": 414,
+            "coarse_revisits": 0,
+            "coarse_solves": 138,
+            "coarse_iterations": 138,
+            "smoother_applications": 828,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        }
+      ],
+      "work_scope": "Cumulative snapshots are not summed. Counts are rank-local; VecNorm/VecDot requests are not measured MPI collectives."
+    },
+    {
+      "mode": "direct",
+      "status": "passed",
+      "dofs": 5367,
+      "accepted_steps": 3,
+      "corrections": 6,
+      "outer_iterations": 6,
+      "iterations_per_correction": 1.0,
+      "field_max_difference": 0.0,
+      "history_max_difference": 0.0,
+      "max_true_residual_ratio": 6.041558765606117e-05,
+      "linear_gate": "1e-12 + 1e-10*rhs_norm",
+      "true_residual_checks": 0,
+      "true_residual_rejections": 0,
+      "nnz": 260010,
+      "timings": {
+        "solve_seconds": 0.617218124,
+        "linear_seconds": 0.405527963,
+        "assembly_seconds": 0.207145776,
+        "setup_seconds": 0.002249698,
+        "schur_setup_seconds": 0.0
+      },
+      "case": "scaling-n8-r2",
+      "ranks": 2
+    },
+    {
+      "mode": "mono_optimized",
+      "status": "passed",
+      "dofs": 5367,
+      "accepted_steps": 3,
+      "corrections": 6,
+      "outer_iterations": 227,
+      "iterations_per_correction": 37.833333333333336,
+      "field_max_difference": 1.902644708451362e-13,
+      "history_max_difference": 4.440892098500626e-16,
+      "max_true_residual_ratio": 0.008201356570989377,
+      "linear_gate": "1e-12 + 1e-10*rhs_norm",
+      "true_residual_checks": 6,
+      "true_residual_rejections": 0,
+      "nnz": 260010,
+      "timings": {
+        "solve_seconds": 54.28932120899999,
+        "linear_seconds": 7.8570227699999995,
+        "assembly_seconds": 0.187229915,
+        "setup_seconds": 0.001788926,
+        "schur_setup_seconds": 8.235428653
+      },
+      "case": "scaling-n8-r2",
+      "ranks": 2,
+      "last_hierarchy_storage_sum_across_ranks": {
+        "fp32_value_bytes": 21572796,
+        "retained_fp64_operator_bytes": 38088,
+        "released_fp64_operator_bytes": 27632000,
+        "fp32_patches": 1427,
+        "fp32_patch_bytes": 7756796,
+        "retained_fp64_patch_bytes": 0,
+        "factor_bytes": 20125088,
+        "native_sparse_patches": 1175,
+        "native_dense_patches": 252,
+        "native_index_bytes": 3967996
+      },
+      "storage_note": "Last refresh only; float coefficients exclude dense factors and indices, reported separately. Not an RSS reduction or a ratio against released operator bytes.",
+      "last_work_by_rank_path_generation": [
+        {
+          "rank": 0,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 5,
+          "counters": {
+            "applications": 227,
+            "level_matvecs": 1816,
+            "zero_start_skips": 908,
+            "coarse_revisits": 0,
+            "coarse_solves": 227,
+            "coarse_iterations": 227,
+            "smoother_applications": 1816,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        },
+        {
+          "rank": 1,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 5,
+          "counters": {
+            "applications": 227,
+            "level_matvecs": 1816,
+            "zero_start_skips": 908,
+            "coarse_revisits": 0,
+            "coarse_solves": 227,
+            "coarse_iterations": 227,
+            "smoother_applications": 1816,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        }
+      ],
+      "work_scope": "Cumulative snapshots are not summed. Counts are rank-local; VecNorm/VecDot requests are not measured MPI collectives."
+    },
+    {
+      "mode": "mono_supremizer",
+      "status": "passed",
+      "dofs": 5367,
+      "accepted_steps": 3,
+      "corrections": 6,
+      "outer_iterations": 199,
+      "iterations_per_correction": 33.166666666666664,
+      "field_max_difference": 3.577971252610723e-13,
+      "history_max_difference": 8.049116928532385e-16,
+      "max_true_residual_ratio": 0.00872921617003258,
+      "linear_gate": "1e-12 + 1e-10*rhs_norm",
+      "true_residual_checks": 6,
+      "true_residual_rejections": 0,
+      "nnz": 260010,
+      "timings": {
+        "solve_seconds": 43.766503354,
+        "linear_seconds": 6.707461703,
+        "assembly_seconds": 0.179652716,
+        "setup_seconds": 0.0017959130000000001,
+        "schur_setup_seconds": 6.178928913
+      },
+      "case": "scaling-n8-r2",
+      "ranks": 2,
+      "last_hierarchy_storage_sum_across_ranks": {
+        "fp32_value_bytes": 19570476,
+        "retained_fp64_operator_bytes": 38088,
+        "released_fp64_operator_bytes": 23627360,
+        "fp32_patches": 1427,
+        "fp32_patch_bytes": 7756796,
+        "retained_fp64_patch_bytes": 0,
+        "factor_bytes": 20125088,
+        "native_sparse_patches": 1175,
+        "native_dense_patches": 252,
+        "native_index_bytes": 3967996
+      },
+      "storage_note": "Last refresh only; float coefficients exclude dense factors and indices, reported separately. Not an RSS reduction or a ratio against released operator bytes.",
+      "pressure_pairs": {
+        "scope": "Aggregate-local pairs, not a global inf-sup bound. Relative change checks FP64 setup coupling before/after energy minimization, not native FP32 action preservation to 1e-10.",
+        "minimum_local_singular": 0.1498419920143982,
+        "maximum_setup_relative_change": 3.3667204146742716e-16,
+        "counts_by_setup": [
+          {
+            "modes": 118,
+            "aggregates": 59
+          },
+          {
+            "modes": 118,
+            "aggregates": 59
+          },
+          {
+            "modes": 118,
+            "aggregates": 59
+          },
+          {
+            "modes": 118,
+            "aggregates": 59
+          },
+          {
+            "modes": 118,
+            "aggregates": 59
+          },
+          {
+            "modes": 118,
+            "aggregates": 59
+          }
+        ]
+      },
+      "last_work_by_rank_path_generation": [
+        {
+          "rank": 0,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 5,
+          "counters": {
+            "applications": 199,
+            "level_matvecs": 1592,
+            "zero_start_skips": 796,
+            "coarse_revisits": 0,
+            "coarse_solves": 199,
+            "coarse_iterations": 199,
+            "smoother_applications": 1592,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        },
+        {
+          "rank": 1,
+          "path": "root",
+          "solver_generation": 1,
+          "accepted_step": 3,
+          "levels": 5,
+          "counters": {
+            "applications": 199,
+            "level_matvecs": 1592,
+            "zero_start_skips": 796,
+            "coarse_revisits": 0,
+            "coarse_solves": 199,
+            "coarse_iterations": 199,
+            "smoother_applications": 1592,
+            "coarse_krylov_directions": 0,
+            "coarse_krylov_rank_drops": 0,
+            "coarse_krylov_rejections": 0,
+            "coarse_krylov_reductions": 0
+          },
+          "coarse_krylov_max_residual_ratio": 0.0
+        }
+      ],
+      "work_scope": "Cumulative snapshots are not summed. Counts are rank-local; VecNorm/VecDot requests are not measured MPI collectives."
+    }
+  ],
+  "finite_window_goal": {
+    "maximum_ratio": 1.3,
+    "subdivisions": [
+      4,
+      6,
+      8
+    ],
+    "modes": {
+      "mono_optimized": {
+        "status": "open",
+        "observed_ratio": 2.3402061855670104,
+        "dofs": [
+          703,
+          2299,
+          5367
+        ],
+        "iterations_per_correction": [
+          16.166666666666668,
+          26.666666666666668,
+          37.833333333333336
+        ]
+      },
+      "mono_supremizer": {
+        "status": "open",
+        "observed_ratio": 2.163043478260869,
+        "dofs": [
+          703,
+          2299,
+          5367
+        ],
+        "iterations_per_correction": [
+          15.333333333333334,
+          23.0,
+          33.166666666666664
+        ]
+      }
+    }
+  },
+  "checks": {
+    "runs": 9,
+    "accepted_steps": 27,
+    "linear_corrections": 54,
+    "artifact_hashes_verified": 480,
+    "volume_pieces_parsed": 144,
+    "command_logs_verified": 12,
+    "max_field_difference": 3.577971252610723e-13,
+    "max_history_difference": 8.049116928532385e-16,
+    "max_ghost_difference": 0.0,
+    "max_strict_linear_ratio": 0.00872921617003258,
+    "max_inexact_linear_ratio": null,
+    "true_residual_checks": 36,
+    "true_residual_rejections": 0
+  },
+  "limitations": [
+    "Residual norms originate from solver diagnostics; visualization cannot reconstruct J.",
+    "Storage values are coefficient counts from the final hierarchy, not measured total memory savings.",
+    "Small single-host cases only; any n4/6/8 convergence target is a finite window. Correctness-run timings are not a repeated speedup study or multi-node claim."
+  ]
+}

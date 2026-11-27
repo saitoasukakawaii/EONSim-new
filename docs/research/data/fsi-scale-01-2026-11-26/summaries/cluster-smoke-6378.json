@@ -1,0 +1,211 @@
+{
+  "status": "passed_single_node_smoke",
+  "source_commit": "6378f4cca035bcf8a29150ef21588528c70aa824",
+  "campaigns": [
+    {
+      "campaign": "strong",
+      "status": "passed",
+      "source_commit": "6378f4cca035bcf8a29150ef21588528c70aa824",
+      "receipt": "/workspace/scratch/26ca7243fe5a/EONSim-new/build/fsi-scale-01/cluster-strong-smoke-6378f4c/1795704733705400557/results.json",
+      "receipt_sha256": "554bdc9d2ed45e5231409a7156763940302ca45ac8067ce689cdfff1b5937d88",
+      "points": [
+        {
+          "subdivisions": 3,
+          "ranks": 1,
+          "mode": "mono",
+          "status": "passed",
+          "dofs": 307,
+          "dofs_per_rank": 307.0,
+          "observed_nodes": 1,
+          "hosts": {
+            "0": "dea1aacc35f0"
+          },
+          "outer_iterations": 58,
+          "corrections": 4,
+          "field_max_difference": 0.0,
+          "history_max_difference": 0.0,
+          "max_true_residual_ratio": 0.006554498379834186,
+          "final_snapshot_difference": 0.0,
+          "peak_rss_max_bytes": 49664000.0,
+          "peak_rss_sum_bytes": 49664000.0
+        },
+        {
+          "subdivisions": 3,
+          "ranks": 1,
+          "mode": "mono_mf",
+          "status": "passed",
+          "dofs": 307,
+          "dofs_per_rank": 307.0,
+          "observed_nodes": 1,
+          "hosts": {
+            "0": "dea1aacc35f0"
+          },
+          "outer_iterations": 58,
+          "corrections": 4,
+          "field_max_difference": 2.220446049250313e-16,
+          "history_max_difference": 7.994635769364988e-17,
+          "max_true_residual_ratio": 0.006553436663922497,
+          "final_snapshot_difference": 0.0,
+          "peak_rss_max_bytes": 49819648.0,
+          "peak_rss_sum_bytes": 49819648.0
+        },
+        {
+          "subdivisions": 3,
+          "ranks": 2,
+          "mode": "mono",
+          "status": "passed",
+          "dofs": 307,
+          "dofs_per_rank": 153.5,
+          "observed_nodes": 1,
+          "hosts": {
+            "0": "dea1aacc35f0",
+            "1": "dea1aacc35f0"
+          },
+          "outer_iterations": 56,
+          "corrections": 4,
+          "field_max_difference": 0.0,
+          "history_max_difference": 0.0,
+          "max_true_residual_ratio": 0.004056453076684322,
+          "final_snapshot_difference": 0.0,
+          "peak_rss_max_bytes": 48553984.0,
+          "peak_rss_sum_bytes": 95522816.0
+        },
+        {
+          "subdivisions": 3,
+          "ranks": 2,
+          "mode": "mono_mf",
+          "status": "passed",
+          "dofs": 307,
+          "dofs_per_rank": 153.5,
+          "observed_nodes": 1,
+          "hosts": {
+            "0": "dea1aacc35f0",
+            "1": "dea1aacc35f0"
+          },
+          "outer_iterations": 56,
+          "corrections": 4,
+          "field_max_difference": 2.220446049250313e-16,
+          "history_max_difference": 3.3306690738754696e-16,
+          "max_true_residual_ratio": 0.004056423649541527,
+          "final_snapshot_difference": 0.0,
+          "peak_rss_max_bytes": 49156096.0,
+          "peak_rss_sum_bytes": 96305152.0
+        }
+      ],
+      "observed_scale": {
+        "maximum_dofs": 307,
+        "maximum_nodes": 1,
+        "million_dof_multinode_runs": 0
+      }
+    },
+    {
+      "campaign": "weak",
+      "status": "passed",
+      "source_commit": "6378f4cca035bcf8a29150ef21588528c70aa824",
+      "receipt": "/workspace/scratch/26ca7243fe5a/EONSim-new/build/fsi-scale-01/cluster-weak-smoke-6378f4c/1795704763288239855/results.json",
+      "receipt_sha256": "6214cb050849ced2153a7b3e8cdaec6bcf6b7adafcac37bef88af422515a3f46",
+      "points": [
+        {
+          "subdivisions": 8,
+          "ranks": 1,
+          "mode": "mono",
+          "status": "passed",
+          "dofs": 5367,
+          "dofs_per_rank": 5367.0,
+          "observed_nodes": 1,
+          "hosts": {
+            "0": "dea1aacc35f0"
+          },
+          "outer_iterations": 162,
+          "corrections": 4,
+          "field_max_difference": 0.0,
+          "history_max_difference": 0.0,
+          "max_true_residual_ratio": 0.008077073344542692,
+          "final_snapshot_difference": 0.0,
+          "peak_rss_max_bytes": 198406144.0,
+          "peak_rss_sum_bytes": 198406144.0
+        },
+        {
+          "subdivisions": 8,
+          "ranks": 1,
+          "mode": "mono_mf",
+          "status": "passed",
+          "dofs": 5367,
+          "dofs_per_rank": 5367.0,
+          "observed_nodes": 1,
+          "hosts": {
+            "0": "dea1aacc35f0"
+          },
+          "outer_iterations": 162,
+          "corrections": 4,
+          "field_max_difference": 2.220446049250313e-16,
+          "history_max_difference": 4.458262626666444e-16,
+          "max_true_residual_ratio": 0.008066906054497853,
+          "final_snapshot_difference": 0.0,
+          "peak_rss_max_bytes": 194859008.0,
+          "peak_rss_sum_bytes": 194859008.0
+        },
+        {
+          "subdivisions": 10,
+          "ranks": 2,
+          "mode": "mono",
+          "status": "passed",
+          "dofs": 10387,
+          "dofs_per_rank": 5193.5,
+          "observed_nodes": 1,
+          "hosts": {
+            "0": "dea1aacc35f0",
+            "1": "dea1aacc35f0"
+          },
+          "outer_iterations": 210,
+          "corrections": 4,
+          "field_max_difference": 0.0,
+          "history_max_difference": 0.0,
+          "max_true_residual_ratio": 0.008882482695115141,
+          "final_snapshot_difference": 0.0,
+          "peak_rss_max_bytes": 368549888.0,
+          "peak_rss_sum_bytes": 566808576.0
+        },
+        {
+          "subdivisions": 10,
+          "ranks": 2,
+          "mode": "mono_mf",
+          "status": "passed",
+          "dofs": 10387,
+          "dofs_per_rank": 5193.5,
+          "observed_nodes": 1,
+          "hosts": {
+            "0": "dea1aacc35f0",
+            "1": "dea1aacc35f0"
+          },
+          "outer_iterations": 210,
+          "corrections": 4,
+          "field_max_difference": 2.220446049250313e-16,
+          "history_max_difference": 4.996003610813204e-16,
+          "max_true_residual_ratio": 0.008876957203529382,
+          "final_snapshot_difference": 0.0,
+          "peak_rss_max_bytes": 360710144.0,
+          "peak_rss_sum_bytes": 548941824.0
+        }
+      ],
+      "observed_scale": {
+        "maximum_dofs": 10387,
+        "maximum_nodes": 1,
+        "million_dof_multinode_runs": 0
+      },
+      "workload_per_rank_ratio": 0.9676728153530837,
+      "workload_per_rank_drift": -0.03232718464691631,
+      "weak_load_comparable_at_default_tolerance": true
+    }
+  ],
+  "accepted_runs": 8,
+  "max_field_difference": 2.220446049250313e-16,
+  "max_true_residual_ratio": 0.008882482695115141,
+  "qualifications": [
+    "Actual placement is one host; no multinode claim.",
+    "No timing repeats; no strong/weak scaling efficiency inferred.",
+    "Weak loads are within default10percent only at these measured constrained DoFs.",
+    "Maximum tested10387DoF; millionDoF and multi-node validation NOT RUN.",
+    "Original707 failed and841 interrupted receipts remain preserved."
+  ]
+}

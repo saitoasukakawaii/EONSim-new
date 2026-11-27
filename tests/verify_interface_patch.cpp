@@ -166,11 +166,25 @@ void verify(MPI_Comm comm,bool dense,bool empty,bool single) {
               stats.factor_bytes==static_cast<std::size_t>(stats.patches)*(dense?36:9)*(single?sizeof(float):sizeof(double)),
               "Patch refresh count or FP32 factor storage accounting is wrong");
     }
+    InterfacePatchPcStats before_cache;query_interface_patch_pc_stats(pc,before_cache);
+    // Reassemble the same numeric values, changing PETSc object state. A cache
+    // keyed only by object identity/state would miss this reusable generation.
+    example.fill(1);updates.refresh(example.matrix.get());
+    action(comm,solver.get(),example,options.damping,0);
+    InterfacePatchPcStats after_cache;query_interface_patch_pc_stats(pc,after_cache);
+    check(comm,after_cache.numeric_factorizations==before_cache.numeric_factorizations&&
+        after_cache.factor_batches==before_cache.factor_batches&&
+        after_cache.cached_factorizations==before_cache.cached_factorizations+after_cache.patches&&
+        after_cache.rebuilds==before_cache.rebuilds+1,
+        "Exactly unchanged patch matrices were needlessly refactored");
+    check(comm,after_cache.numeric_factorizations==2*(dense?(after_cache.patches?1:0):after_cache.patches)&&
+        after_cache.factor_batches<=after_cache.numeric_factorizations,
+        "Equal-size batching or identical-patch factorization reuse was not exercised");
     if(dense&&single) {
         example.fill(2);updates.refresh(example.matrix.get());
         action(comm,solver.get(),example,options.damping,0,true);
         InterfacePatchPcStats stats; query_interface_patch_pc_stats(pc,stats);
-        check(comm,stats.setup_fallbacks==stats.patches&&stats.fp64_patches==stats.patches,
+        check(comm,stats.setup_fallbacks==(stats.patches?1:0)&&stats.fp64_patches==stats.patches,
               "FP32 singular rounding did not trigger explicit FP64 fallback");
         example.fill(0);updates.refresh(example.matrix.get());
     }
@@ -199,6 +213,79 @@ void verify(MPI_Comm comm,bool dense,bool empty,bool single) {
     catch(const std::runtime_error&) {rejected=true;}
     check(comm,rejected,"Oversize interface patch was silently truncated");
 }
+void verify_sweep(MPI_Comm comm,const std::string& sweep) {
+    Example example(comm,false,true);
+    PcSchurUpdates updates;
+    PetscOwner<KSP,KSPDestroy> solver;EONSIM_PETSC(KSPCreate(comm,solver.put()));
+    InterfacePatchOptions options;options.sweep=sweep;options.damping=.8;
+    configure_vanka_level_pc(comm,solver.get(),example.matrix.get(),example.semantics,example.trace,options,&updates);
+    std::vector<std::vector<PetscInt>> rows;
+    std::vector<PetscInt> colors;
+    check(comm,query_vanka_patch_schedule(solver.get(),rows,colors),"Vanka did not expose its local color schedule");
+    // Only this eight-row test gathers the tiny patch schedule. Production
+    // builds and colors its conflict graph through distributed sparse products.
+    std::vector<PetscInt> encoded;
+    for(std::size_t p=0;p<rows.size();++p) {
+        encoded.push_back(colors[p]);encoded.push_back(static_cast<PetscInt>(rows[p].size()));
+        encoded.insert(encoded.end(),rows[p].begin(),rows[p].end());
+    }
+    int ranks=0;MPI_Comm_size(comm,&ranks);
+    const int local=static_cast<int>(encoded.size());
+    std::vector<int> counts(ranks),offsets(ranks,0);
+    MPI_Allgather(&local,1,MPI_INT,counts.data(),1,MPI_INT,comm);
+    for(int i=1;i<ranks;++i) offsets[i]=offsets[i-1]+counts[i-1];
+    std::vector<PetscInt> all(offsets.back()+counts.back());
+    MPI_Allgatherv(encoded.data(),local,MPIU_INT,all.data(),counts.data(),offsets.data(),MPIU_INT,comm);
+    rows.clear();colors.clear();
+    for(std::size_t position=0;position<all.size();) {
+        colors.push_back(all[position++]);const auto n=static_cast<std::size_t>(all[position++]);
+        rows.emplace_back(all.begin()+position,all.begin()+position+n);position+=n;
+    }
+    bool conflict_free=true;
+    for(std::size_t p=0;p<rows.size();++p) for(std::size_t q=0;q<p;++q) if(colors[p]==colors[q])
+        for(auto row:rows[p]) conflict_free=conflict_free&&!std::binary_search(rows[q].begin(),rows[q].end(),row);
+    PC pc=nullptr;EONSIM_PETSC(KSPGetPC(solver.get(),&pc));
+    InterfacePatchPcStats before;query_interface_patch_pc_stats(pc,before);
+    check(comm,conflict_free&&before.colors>1&&
+        (sweep=="multiplicative"?before.colors==static_cast<PetscInt>(rows.size()):before.colors<static_cast<PetscInt>(rows.size())),
+        "Patch colors conflict across owners or fail to group independent patches");
+    PetscOwner<Vec,VecDestroy> rhs,solution;
+    EONSIM_PETSC(MatCreateVecs(example.matrix.get(),solution.put(),rhs.put()));
+    for(int phase=0;phase<2;++phase) {
+        if(phase) {example.fill(phase);updates.refresh(example.matrix.get());}
+        std::vector<double> b(Example::n),expected(Example::n,0.);
+        for(PetscInt i=0;i<Example::n;++i) b[i]=std::sin(.4*(i+1))+.1*phase;
+        expected[0]=b[0];
+        for(PetscInt color=0;color<before.colors;++color) {
+            std::vector<long double> residual(Example::n);
+            for(PetscInt i=0;i<Example::n;++i) {
+                residual[i]=b[i];
+                for(PetscInt j=0;j<Example::n;++j) residual[i]-=example.a[i*Example::n+j]*expected[j];
+            }
+            for(std::size_t p=0;p<rows.size();++p) if(colors[p]==color) {
+                std::vector<long double> a,r;
+                for(auto i:rows[p]) {
+                    r.push_back(residual[i]);
+                    for(auto j:rows[p]) a.push_back(example.a[i*Example::n+j]);
+                }
+                const auto dx=inverse_action(a,r);
+                for(std::size_t j=0;j<rows[p].size();++j) expected[rows[p][j]]+=options.damping*dx[j];
+            }
+        }
+        PetscScalar* data=nullptr;EONSIM_PETSC(VecGetArray(rhs.get(),&data));
+        for(PetscInt i=example.begin;i<example.end;++i) data[i-example.begin]=b[i];
+        EONSIM_PETSC(VecRestoreArray(rhs.get(),&data));
+        EONSIM_PETSC(PCApply(pc,rhs.get(),solution.get()));
+        const PetscScalar* actual=nullptr;EONSIM_PETSC(VecGetArrayRead(solution.get(),&actual));
+        bool accurate=true;
+        for(PetscInt i=example.begin;i<example.end;++i)
+            accurate=accurate&&std::abs(actual[i-example.begin]-expected[i])<2e-11*(1.+std::abs(expected[i]));
+        EONSIM_PETSC(VecRestoreArrayRead(solution.get(),&actual));
+        InterfacePatchPcStats stats;query_interface_patch_pc_stats(pc,stats);
+        check(comm,accurate&&stats.color_stages==stats.colors*(phase+1)&&stats.residual_products==stats.color_stages,
+            "Vanka sweep does not match independent color-by-color residuals or kept additive overlap weights");
+    }
+}
 void run(MPI_Comm comm) {
     int ranks=0; MPI_Comm_size(comm,&ranks);
     check(comm,ranks==1||ranks==2||ranks==4,"Expected 1, 2 or 4 ranks");
@@ -206,7 +293,8 @@ void run(MPI_Comm comm) {
         verify(comm,true,true,single);
         verify(comm,false,false,single);
     }
-    EONSIM_PETSC(PetscPrintf(comm,"Interface mixed patches: exact weighted action, ghost rows, empty ranks, refresh, FP32 refinement/fallback and failed-generation recovery passed\n"));
+    verify_sweep(comm,"multiplicative");verify_sweep(comm,"colored");
+    EONSIM_PETSC(PetscPrintf(comm,"Interface mixed patches: exact weighted action, distributed conflict coloring, multiplicative per-color residual oracle, ghost rows, empty ranks, batched LU, exact factor cache, FP32 refinement/fallback and failed-generation recovery passed\n"));
 }
 } // namespace
 int main(int argc,char** argv) {

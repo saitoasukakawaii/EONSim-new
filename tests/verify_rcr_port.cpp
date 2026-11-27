@@ -122,6 +122,56 @@ void configure_diagonal(KSP solver,Mat matrix,PcSchurUpdates*) {
     PC pc=nullptr; EONSIM_PETSC(KSPGetPC(solver,&pc));
     EONSIM_PETSC(PCSetType(pc,PCJACOBI));
 }
+struct ShiftedExact {
+    Mat matrix=nullptr;
+    double shift=.37;
+};
+PetscErrorCode shifted_action(Mat shell,Vec input,Vec output) {
+    ShiftedExact* context=nullptr; PetscCall(MatShellGetContext(shell,&context));
+    PetscCall(MatMult(context->matrix,input,output));
+    PetscCall(VecAXPY(output,context->shift,input)); return PETSC_SUCCESS;
+}
+PetscErrorCode destroy_shifted_action(Mat shell) {
+    ShiftedExact* context=nullptr; PetscCall(MatShellGetContext(shell,&context));
+    if(context) { PetscCall(MatDestroy(&context->matrix));delete context; }
+    return PETSC_SUCCESS;
+}
+void verify_bulk_exact_adapter(MPI_Comm comm,PC pc,const Example& example) {
+    PetscOwner<Mat,MatDestroy> shell;
+    auto context=std::make_unique<ShiftedExact>();
+    EONSIM_PETSC(PetscObjectReference(reinterpret_cast<PetscObject>(example.matrix.get())));
+    context->matrix=example.matrix.get();
+    EONSIM_PETSC(MatCreateShell(comm,example.end-example.begin,example.end-example.begin,
+        example.n,example.n,context.get(),shell.put()));
+    EONSIM_PETSC(MatShellSetOperation(shell.get(),MATOP_MULT,reinterpret_cast<void(*)(void)>(shifted_action)));
+    EONSIM_PETSC(MatShellSetOperation(shell.get(),MATOP_DESTROY,reinterpret_cast<void(*)(void)>(destroy_shifted_action)));
+    auto* changing=context.release();
+    Mat reduced=rcr_port_bulk_exact_operator(pc,shell.get());
+    check(comm,reduced!=nullptr,"RCR failed to bind a reduced exact action");
+    PetscOwner<Vec,VecDestroy> input,output;
+    EONSIM_PETSC(MatCreateVecs(reduced,input.put(),output.put()));
+    std::vector<PetscInt> local_rows;
+    for(const auto row:example.bulk) if(row>=example.begin&&row<example.end) local_rows.push_back(row);
+    PetscScalar* data=nullptr;EONSIM_PETSC(VecGetArray(input.get(),&data));
+    for(std::size_t i=0;i<local_rows.size();++i) data[i]=.19+.13*local_rows[i];
+    EONSIM_PETSC(VecRestoreArray(input.get(),&data));
+    for(const double shift:{.37,-.19}) {
+        changing->shift=shift;
+        EONSIM_PETSC(MatMult(reduced,input.get(),output.get()));
+        const PetscScalar* actual=nullptr;EONSIM_PETSC(VecGetArrayRead(output.get(),&actual));
+        bool valid=true;
+        for(std::size_t i=0;i<local_rows.size();++i) {
+            const auto row=local_rows[i];
+            const double expected=(example.dense[row*example.n+row]+shift)*(.19+.13*row);
+            valid=valid&&std::abs(actual[i]-expected)<2e-13*(1+std::abs(expected));
+        }
+        EONSIM_PETSC(VecRestoreArrayRead(output.get(),&actual));
+        check(comm,valid,"Reduced exact RCR action lost a bulk row, included port directions or used assembled P");
+    }
+    RcrPortPcStats stats;
+    check(comm,query_rcr_port_pc_stats(pc,stats)&&stats.exact_bulk_actions>=2,
+          "RCR exact restriction did not execute its full-operator lift");
+}
 
 void verify_action(MPI_Comm comm,KSP solver,const Example& example,int sample) {
     PetscOwner<Vec,VecDestroy> rhs,solution,defect;
@@ -271,6 +321,7 @@ void run(MPI_Comm comm) {
         EONSIM_PETSC(KSPSetOperators(solver.get(),example.matrix.get(),example.matrix.get()));
         configure_rcr_port_pc(comm,solver.get(),example.matrix.get(),local_ports,configure_diagonal,&updates);
         PC pc=nullptr; EONSIM_PETSC(KSPGetPC(solver.get(),&pc));
+        if(spec.ports==2&&!spec.scaled) verify_bulk_exact_adapter(comm,pc,example);
         for(int phase=0;phase<4;++phase) {
             if(phase) {example.fill(phase);updates.refresh(example.matrix.get());}
             for(int sample=0;sample<3;++sample) verify_action(comm,solver.get(),example,sample);

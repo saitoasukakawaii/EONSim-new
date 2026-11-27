@@ -1,6 +1,6 @@
 # 知识草稿与选题目录
 
-2026-11-26 核对，共 48 篇技术草稿（不含本目录索引）。所有草稿保持未发布；源码 PR 已合入不等于文章已发布。最新能力与验证边界见 [当前状态](../../docs/development/CURRENT_STATUS.md)。下表保留原稿链接，方便追溯历史实验；公开页面在独立的知识、学习或教程栏目编辑。正式展示以网站发布 PR 经人工审阅并合入主线为准。[网站贡献规范](../development/contribution.md) · [研究记录](../../docs/research/KNOWLEDGE_LOG.md)
+2026-11-27 核对，共 52 篇技术草稿（不含本目录索引）。所有草稿保持未发布；源码 PR 已合入不等于文章已发布。最新能力与验证边界见 [当前状态](../../docs/development/CURRENT_STATUS.md)。下表保留原稿链接，方便追溯历史实验；公开页面在独立的知识、学习或教程栏目编辑。正式展示以网站发布 PR 经人工审阅并合入主线为准。[网站贡献规范](../development/contribution.md) · [研究记录](../../docs/research/KNOWLEDGE_LOG.md)
 
 ## 2026-11-25 开发增补
 
@@ -59,3 +59,11 @@
 - [hpc fixed structure refresh](hpc-fixed-structure-refresh.md)
 - [pressure area and lame wall](pressure-area-and-lame-wall.md)
 - [rcr port schur low rank](rcr-port-schur-low-rank.md)
+
+
+## 其余现有草稿（2026-11-27）
+
+- [fsi direct solid action](fsi-direct-solid-action.md)
+- [fsi monolithic multigrid matrix free](fsi-monolithic-multigrid-matrix-free.md)
+- [fsi saddle point multigrid](fsi-saddle-point-multigrid.md)
+- [fsi scalable matrix free](fsi-scalable-matrix-free.md)

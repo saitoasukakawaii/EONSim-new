@@ -1,0 +1,322 @@
+{
+  "repository": "saitoasukakawaii/EONSim-new",
+  "pr": 65,
+  "source_head": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+  "merge_preview_commit": "75bb86a0c5e668d497d0e95eb5ed0be4df824550",
+  "source_and_preview_tree": "014a1de3199b7e476aec00aa63078a13adb60610",
+  "source_tree_verified_equal": true,
+  "dirty": false,
+  "run_id": 45931896224,
+  "run_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896224",
+  "status": "passed",
+  "completed_at_utc": "2026-11-27T03:20:38Z",
+  "petsc": "3.23.7",
+  "mode": "release",
+  "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892",
+  "selection": "explicit",
+  "requested": "incremental",
+  "tests": {
+    "fresh_release_passed": 83,
+    "release_failed": 0,
+    "release_reused": 0,
+    "release_covered": 83,
+    "python_passed": 54,
+    "python_scripts": {
+      "tests/test_ci_selection.py": 26,
+      "tests/test_cloud_evidence.py": 6,
+      "tests/test_lame_wall.py": 6,
+      "tests/test_rigid_tube.py": 3,
+      "tests/test_womersley.py": 13
+    }
+  },
+  "website": {
+    "id": 45931896258,
+    "head_sha": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896258",
+    "updated_at": "2026-11-27T03:04:09Z"
+  },
+  "jobs": [
+    {
+      "id": 140288504999,
+      "name": "Select affected checks",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45931896224,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Select tests and check changed CI scripts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Preserve selection evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        }
+      ]
+    },
+    {
+      "id": 140288506162,
+      "name": "PETSc 3.19.6 / release (manual compatibility)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 45931896224,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 140288614048,
+      "name": "PETSc 3.23.7 / release",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45931896224,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Require successful selection",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "No new numerical tests required",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 3
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Dependency package cache",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Restore locked environment",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Build and verify selected numerical contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Preserve evidence even on failure",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Dependency package cache",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        }
+      ]
+    },
+    {
+      "id": 140288616089,
+      "name": "PETSc 3.23.7 / debug (manual diagnostics)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 45931896224,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 140291461806,
+      "name": "Record incremental evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45931896224,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Require successful selection and Release validation",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run actions/download-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Verify results and record historical origins",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 15169900871,
+      "name": "numerics-3.23.7-release-75bb86a0c5e668d497d0e95eb5ed0be4df824550",
+      "size_in_bytes": 3615432,
+      "url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/artifacts/15169900871",
+      "archive_download_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/artifacts/15169900871/zip",
+      "expired": false,
+      "created_at": "2026-11-27T03:20:06Z",
+      "expires_at": "2026-12-11T03:20:05Z",
+      "updated_at": "2026-11-27T03:20:06Z",
+      "digest": "sha256:67628e928082759b79b4e2ca56e10383ed66e8501ab0816144f76cd29116dcd0",
+      "workflow_run": {
+        "id": 45931896224,
+        "repository_id": 1439324333,
+        "head_repository_id": 1439324333,
+        "head_branch": "codex/saddle-point-multigrid",
+        "head_sha": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+      }
+    },
+    {
+      "id": 15169187821,
+      "name": "incremental-receipt",
+      "size_in_bytes": 1511,
+      "url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/artifacts/15169187821",
+      "archive_download_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/artifacts/15169187821/zip",
+      "expired": false,
+      "created_at": "2026-11-27T03:20:36Z",
+      "expires_at": "2026-12-11T03:20:35Z",
+      "updated_at": "2026-11-27T03:20:36Z",
+      "digest": "sha256:0c60ae36a8baf80d4df7158112b1c8d0730726364d83334259f104dce8d81c0f",
+      "workflow_run": {
+        "id": 45931896224,
+        "repository_id": 1439324333,
+        "head_repository_id": 1439324333,
+        "head_branch": "codex/saddle-point-multigrid",
+        "head_sha": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+      }
+    },
+    {
+      "id": 15168769921,
+      "name": "incremental-plan",
+      "size_in_bytes": 1966,
+      "url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/artifacts/15168769921",
+      "archive_download_url": "https://api.github.com/repos/saitoasukakawaii/EONSim-new/actions/artifacts/15168769921/zip",
+      "expired": false,
+      "created_at": "2026-11-27T03:11:04Z",
+      "expires_at": "2026-12-11T03:11:03Z",
+      "updated_at": "2026-11-27T03:11:04Z",
+      "digest": "sha256:204edeb49e3431f9b3488b49527d0d5585b8a5729458f37c4fba5a4386d6b416",
+      "workflow_run": {
+        "id": 45931896224,
+        "repository_id": 1439324333,
+        "head_repository_id": 1439324333,
+        "head_branch": "codex/saddle-point-multigrid",
+        "head_sha": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+      }
+    }
+  ],
+  "raw_archive": "source-ci.tar.xz",
+  "raw_paths": {
+    "plan": "saddle-source-ci-plan/plan.json",
+    "receipt": "saddle-source-ci-receipt/receipt.json",
+    "numerics_summary": "saddle-source-ci-numerics/cloud-3.23.7-release/evidence/summary.json",
+    "selection_log": "selection-job.log",
+    "release_log": "release-job.log",
+    "receipt_log": "receipt-job.log"
+  },
+  "scope": "Source CI executed 83 affected Release tests and 54 Python checks. These are distinct from the reconciled local physical/grid trajectories. Final documentation head checks and exact-head merge are recorded by PR #65.",
+  "artifact_verification": "Downloaded ZIP byte lengths and SHA256 match GitHub metadata; every extracted member equals its original ZIP bytes."
+}

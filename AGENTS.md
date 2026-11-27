@@ -15,7 +15,7 @@
 
 ## 当前状态与目标
 
-2026-11-26 当前交付见[能力矩阵](docs/development/CURRENT_STATUS.md)：#27–#29 二维 P2 标量，#51–#59 FSI COO、持久会话、MPI/SIMD、自适应 PC、HDF5、RCR port Schur 与高级预条件器已合入；默认策略、审批权限和验收门槛不变。
+2026-11-27 当前交付见[能力矩阵](docs/development/CURRENT_STATUS.md)：#27–#29 二维 P2 标量，#51–#59 FSI COO、持久会话、MPI/SIMD、自适应 PC、HDF5、RCR port Schur 与高级预条件器已合入；#61–#65 增加整体 MG、精确 matrix-free、reduced P、逐层鞍点与回收机制，性能和规模目标仍开放；默认策略、审批权限和验收门槛不变。
 
 2026-10-31 历史交付：G0B/G0/G5/G1已通过PR #23合入main。具备DoF语义与三种PC树、BE/变步BDF2/两类generalized-alpha及适用ALE/FSI接入、Gmsh4.1与Tri3/Quad4相容混合二维标量闭环。本地及云端主锁Debug/Release各60项、兼容锁13项通过；数量为该检查点实际inventory，后续执行应重新读取。详细适用范围见[集成验收](docs/development/FEM_INTEGRATION_VALIDATION.md)。下文20项等记录为B5历史，不覆盖本次交付；验证仍最多4rank。
 

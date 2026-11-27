@@ -1,6 +1,211 @@
 # EONSim Codex Session Log
 
-2026-11-26 主线核对：PR #53–#59 均已合入，当前基线 `3472a18`（#59）。[当前能力矩阵](CURRENT_STATUS.md) 是现状入口；以下按会话保留当时的状态、失败、源码及证据，历史 Draft/review/in_progress 等不表示当前 PR 仍开放。未将既有证据重新计为本次执行。
+2026-11-27 核对：主线已合入 #65（`2463f717`）；以下历史记录保留实际执行日期、源码、失败与验收边界。当前能力与开放目标见 [当前能力矩阵](CURRENT_STATUS.md)。历史 review/Draft 不代表当前 PR 状态，历史证据不计为本次执行。
+
+## 2026-11-27 · FSI-SADDLE-01 — 分层鞍点机制、真实故障与有界验证
+
+由 GitHub 核实 #64 已合并，基线 `036f865e3570905a58da465c91873678de485119`。
+独立 checkout 恢复 PETSc 3.23.7 主锁；普通 HTTPS push 无登录，使用已连接的 GitHub 对象/
+引用接口同步，然后 fetch 并核对完整 tree，没有寻找或复制凭据。开发分支
+`codex/saddle-point-multigrid`，对应 [PR #65](https://github.com/saitoasukakawaii/EONSim-new/pull/65)。
+
+并行实现 MG、smoother、Krylov，集成跨 rank ownership helper、15个物理模式和选测映射。
+审阅区分 `B delta(Pv)=0` 与真正交换关系，补压力像空间闭包；精确RCR限制使用零端口lifting，
+bootstrap与当前shell作用分别计数；rank-local PC失败先统一传播，借用子向量在内层solve前恢复。
+
+实际执行和修复按提交保留：
+
+- `bfb5d0c` 先远端同步后构建，16项CTest中13通过、3个MG失败；19个Python runner检查通过。
+  原因是 compatible 复用无条件要求压力满维，即使B不变也重建。`bd2f010` 加实际B全部系数的
+  精确比较，并以改变B的负例验证必要重建；4项MG/原物理CTest通过，后者含24条轨迹。
+- `bd2f010` 新增物理48次，45通过。两条失败为审计误把真实numeric drift/adaptive收缩重建
+  当作复用未执行；后续加入真实reason计数并单独标注guard拒绝，单独mono_reuse仍要求正复用。
+- 同批moving-RCR allmode真实失败。PETSc-info定位为128×128局部粗块第70行极小主元，
+  粗GMRES第0步PC_FAILED。旧binary仅切换ASM局部MUMPS后通过3步，末步残量约6.107e-15。
+  `24b8056` 共同检测backend、保留用户覆盖，默认启用可用主元；不加shift、不降门槛。
+  GDB/LLDB不可用且安装权限被拒，保留PETSc原始info/view/reason诊断。修复后MG3/3、物理12/12。
+- `24b8056` 固定网格18次，17通过；Braess alpha=1在5367DoF首修正1500次后残量4.21e-4。
+  唯一变因alpha=2使首修正83次后残量8.80e-14，完整三步404次，保存场通过direct对照。
+  `ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba` 仅修默认值与独立块oracle；先同步再构建，MG/smoother6/6及
+  Braess-only default/moving/scaling12/12全部通过。Schur预算仍3，外层上限/精度未改。
+
+最终有效集合是17个CTest、48条新增物理和18条网格配置；各行绑定真实源码和binary hash，
+没有把旧记录改成最终源码的新执行。最大场差4.31688e-12、历史差7.99361e-15，真残量gate比
+0.00948933。原失败收据、两次单因子诊断、原场/历史/mesh/命令均保留并逐成员校验SHA256。
+
+n8 colored从baseline206次降到50次，实测总求解11.0836→7.2638秒；all降到46次，却需
+18.8386秒，压力729→729→729，RSS最大rank值+86.19%。有限窗口增长比最优1.7037仍高于1.3，
+保留OPEN；多节点/百万DoF未运行。没有为获得更好比例调整门槛、物理输入或增加无界搜索。
+最终源码之外只补文档/证据；四项必需检查和锁定head合并结果由PR#65记录确认。
+[证据索引](../research/data/fsi-saddle-01-2026-11-27/README.md)、[运行说明](FSI_SADDLE_POINT_MULTIGRID.md)
+及[未发布算法草稿](../../website/drafts/fsi-saddle-point-multigrid.md)完成知识沉淀。
+
+[最终源码 CI 45931896224](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896224)
+实际新执行 **83/83 Release、54/54 Python**，没有复用数值记录。合并预览
+`75bb86a0c5e668d497d0e95eb5ed0be4df824550` 与 `ccf1bd7` 的完整 tree 均为
+`014a1de3199b7e476aec00aa63078a13adb60610`，dirty=false；
+[源码网站检查 45931896258](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896258)
+通过。远端检查与本地分源轨迹分别计数；最终文档 head 的四项检查及合并以 PR #65 为准。
+
+
+## 2026-11-27 · FSI-SCALE-01 — 精确作用、紧凑存储与有界收敛验证
+
+按北京时间记录，任务起始于 2026-11-26。用户指定十二项优化，并要求源码完成→远端同步
+→算例验证→最后合并。从 `main@88257a9`（#63）恢复，分支 `codex/fsi-scalable-matrix-free`，
+对应 [PR #64](https://github.com/saitoasukakawaii/EONSim-new/pull/64)。生产、驱动与独立审计
+分别负责实现、执行和重读原件；每次修正均先同步完整 tree，再进行受影响的 Release 验证。
+固定归档二进制与 source/hash 绑定，后续编译不会改变先前实验的执行身份。
+
+实现 reduced P 的真实 AIJ/COO 图、积分系数缓存与批量精确方向核、owned/halo 方向重叠，
+以及物理缩放/粗空间、adaptive patch、native FP32 紧凑存储、有限 K-cycle、inexact forcing
+和当前算子下的修正子空间复用。规模驱动使用实际 host/DoF、原件哈希和磁盘全场拓扑比较；
+串行 mesh/partition 准备与单机资源边界明确保留，没有模拟多节点或改变物理方程。
+
+本轮实际故障及修复沿各自源码记录，未被最终通过覆盖：
+
+- `e0edc6b` 的 MG 1/2 rank 暴露约束投影舍入被精确线搜索放大；`707a6a6` 只抑制机器精度
+  量级的零投影，保持候选再现门槛。首批 physical 24 次中 9 次缺 action telemetry，离线
+  数值通过也不改写其原 failed 收据；补启用报告后复验。
+- `707a6a6` moving scaled 的原算子残差超限。初版 `8410818` guard 又过早发布正 reason，
+  导致 `KSPBuildSolution` 读取旧 restart solution；MF 1/2/4 失败，weak smoke 被中断。
+  `6378f4c` 在 ITERATING 状态构造当前残差后才发布原因，三 rank 档及 moving 对照通过。
+  原失败、过度迭代诊断和 interrupted 收据分开保留；没有访问 PETSc 私有状态或改预算。
+- PETSc current RSS 与 OS high-water 采样口径不同，曾出现 peak<current；保留 raw OS，
+  归一化峰值明确取二者已观测最大值。`116836b` native-only n8 物理通过但峰值 RSS 增加
+  约 35%；`30e2941` 释放旧 generation、压缩 patch/lifting/halo 后，一次同源 pair 的
+  最大 rank 峰值 210,673,664→202,129,408 bytes（−4.0557%），206/205 次迭代均过原门槛。
+- `30e2941` Python 负例预期 RuntimeError 而既有接口实际抛 ValueError，产生 13 条错误；
+  `0641183` 仅修正测试异常类型，未改变拒绝条件。后续新增 supremizer 证据检查亦保持
+  缺失、非有限和配对变化超限的拒绝。
+
+GDB/LLDB 不可用的检测记录保留；实际 guard 故障通过最小复现、日志及 PETSc 3.23.7
+公开源码定位。缩放回归由 `116836b` 的首层带权限制修复；后续有限 K-cycle 和压力
+supremizer 都按独立制造例及真实窗口验证，没有增加粗化/平滑预算或进行参数扫描。
+Supremizer 只替换原 spectral 名额，配对变化 ≤1e-10 只审 FP64 setup；不将其解释为
+native 量化精度或全局 inf-sup 证明。累计 MG work 按 rank/path/generation 保留末次，
+不跨接受步重复相加，也不要求 RCR 的 PC applications 等于外层迭代。
+
+最终源码 `50b41ae19067bd8853a482ab853805e23c096ec5` 本地 MG 1/2/4 rank **3/3**、
+Python **19/19** 通过。固定二进制 `eonsim-50b41ae` SHA256 为
+`dea9ab78339d4d07a8a83bac11fb22f733898d45ef681d51b99f71adfa3522e7`。
+两批串行实际执行的驱动选择如下；完整 wrapper、launcher、绝对路径及输入哈希见原收据：
+
+```text
+tests/verify_fsi_multigrid.py --sections scaling --modes mono_optimized mono_supremizer
+tests/verify_fsi_multigrid.py --sections default moving --modes mono_optimized mono_kcycle mono_supremizer mono_all
+```
+
+第一批 direct 加两候选共 **9/9**；第二批 direct 加四候选共 **15/15**，涵盖双域 1/2 rank、
+变步长 generalized-alpha、移动 NH/RCR 和全功能组合。独立标准库审计分别为
+27/45 接受步、54/117 线性记录、480/643 原件哈希及 144/200 体场分片；最大场差
+`2.9099984e-10`、历史差 `4.1689985e-12`，owner/ghost 差 0。严格残差比最大
+`0.0087292162`，inexact 当次 forcing 比最大 `0.9962145449`，最终物理接受比最大
+`0.5379066790`。原 `2e-9` 对照、字段/约束及各自线性门槛均保持；没有 J/b/dx 原件，
+离线审计只核查求解时原算子诊断，不声称离线重新计算矩阵作用。
+
+`30e2941` 的 MG/patch/smoother **9/9**、K-cycle 网格 **12/12** 和 native-only 同源 pair
+按原 source 复用。该 K-cycle 的平均迭代比 2.0612；最终 `50b41ae` n4/6/8 优化 V
+97/160/227 与 supremizer V 92/138/199 次迭代，平均最大/最小 2.3402/2.1630，均未达到
+预声明 ≤1.3，近似网格无关保持 **OPEN**。`6378f4c` 的 17 次固定输入 PA/SIMD/overlap
+成本对照和 8 次 strong/weak smoke 亦保留原来源；最大实际 10,387 DoF、一个 host，
+百万 DoF、多节点、扩展效率及一般端到端收益未验证。没有继续做无边界参数尝试。
+
+[最终源码 CI 45853312807](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312807)
+实际执行 **4/4 Release、19/19 Python**，另复用 62 项既有 Release，合计覆盖 66。
+merge-preview `3ca62ae4c0c037ca59c255fc8cd1754f1101f7ea` 的 tree
+`7f66c8b02d62ed67606f7bf5f94fd5af34915f6e` 与 `50b41ae` 一致；
+[源码网站检查 45853312823](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45853312823)
+成功。最终文档 head 继续执行四项必需检查和锁定 head 合并流程，实际结果由 PR #64
+记录确认；本节不以源码检查推定合并，不绕过保护。
+
+[完整证据与失败分类](../research/data/fsi-scale-01-2026-11-26/README.md)、
+[运行指南](FSI_SCALABLE_MATRIX_FREE.md)及
+[未发布草稿](../../website/drafts/fsi-scalable-matrix-free.md)保存来源、数学边界和复核方法。
+本轮未追加全量、常规 Debug 或旧 PETSc；文档与归档不算新的数值执行，草稿未公开发布。
+
+## 2026-11-26 · FSI-MF-02 — 直接方向作用与已知零状态消除
+
+用户要求继续 EONSim-new 开发，沿既有先源码同步、再算例、最后合并的顺序执行。
+核实 main@6bb6f438b63c/#61 后发现：流体已直接计算 Jv，固体仍对每个方向生成完整
+12×12 切线（NH 另生成9×9材料切线）、残量及能量；MG首次平滑还计算已知A*0。
+选择该明确闭环，分别实现生产方向核、独立数值检查、MG优化，并交叉审查公式与MPI语义。
+
+直接解析收缩 δF/δP、保留一致质量与独立位移/惯性时间系数，支撑使用固定参考面投影。
+原装配内核保留。审查阶段将NH的F累加顺序对齐旧核；MG增加谱重建保留计数检查。
+普通 Git 推送因没有 HTTPS 写凭据失败，使用已连接 GitHub API同步完整 tree，不修改权限。
+本地b1931c2与远端b7d727b完整tree相同；API核对后开始构建。本地窄fetch未创建远程
+tracking ref，之后用已经获取的同tree远端commit对齐本地分支；没有修改构建中的文件。
+
+Release增量只构建 eonsim、verify_solid_element、verify_monolithic_fsi_mg。4项选测全部通过，
+未出现数值失败或调整门槛。11次实际FSI通过；另进行9次固定moving输入的成本参考/
+warmup/3对测量，基线二进制hash与#61归档相等。每次保存原log/CSV/VTU和命令收据，
+独立审阅逐文件重算，不将日志中的真残量标量核查声称为离线重新计算J*dx-b。
+
+固体/支撑方向核与旧切线分别差3.40e-16/1.49e-16；局部计时中位降低75.75%–82.08%。
+350DoF、2rank小例MF阶段中位降低23.27%，迭代155与作用173不变，但wall中位+1.44%，
+不能报告整程序稳定加速。完整P仍存储；没有修改网格、材料、非线性接受或线性容差。
+本轮没有全量、Debug、旧PETSc、百万自由度或多节点新验证。相关原件见
+[证据索引](../research/data/fsi-mf-02-2026-11-26/README.md)；[PR #62](https://github.com/saitoasukakawaii/EONSim-new/pull/62)
+保留既有必需检查与锁定head合并。可复用推导及测量教训整理在未发布草稿中。
+
+源码CI45832884735的42项Release及6项Python实际通过；直接读取官方job日志、选测JSON
+和成功receipt，核对merge-preview 7eb6830与生产b7d727b的tree一致，0数值复用/失败/跳过。
+PR#62已于北京时间21:57由既有自动合并流程合入194c96e。归档随后基于该main创建
+`codex/fsi-mf02-evidence`纯文档分支，单独补齐原始数据、审计与状态，不重跑数值计算。
+
+## 2026-11-26 · FSI-MG-01 — 完整混合层级与 Matrix-free 通信失败恢复
+
+用户指定十二条优化及代码→远端→算例→合并顺序。从 main@3472a18（#59）恢复，三路
+负责整体层级、压力与方向作用、逐层平滑/patch，根集成非线性会话、错误协议及证据。
+沿既有多物理语义布局和共同状态提交开发，没有另设交替流固求解。只读交叉复核覆盖数学、
+MPI/lifecycle、原件审计与性能解释；未更改物理容差或默认求解配方。
+
+本地 Git 缺少 HTTPS 写凭据，沿已连接 GitHub API 同步 tree/commit。03b922c、4d3fd8e、
+87c2456、3b5cbdd 的完整 tree 均远端相等后才构建/运行；最终生产 tree 为
+2cca4aba25978f91a557dae538b2e056c2ab80c3。首次 wrapper 直接调用因执行权限未运行，
+改为 bash 后正常；保留失败命令。首次构建前另补 PETSc source Mat 引用生命周期。
+
+首轮 MG 1/2 rank 通过，4 rank 精确缓存断言失败。重复 PtAP 的舍入会改变粗层值，不能
+把它与新矩阵混淆，也不能放宽精确缓存比较。87c2456 用共同源 Mat 数值状态守卫避免
+未变化层级再计算，1/2/4 通过。后续源状态改变仍刷新完整 Galerkin 及数值因子。
+
+MF 第一次故障复用发现 PETSc RHS read lock 遗留，先隔离 trial/残量并重建残量 COO。
+扩展第二次 action 后，普通 FGMRES 的 insertion/COO 全过，PIPEFGMRES 的 split
+reduction 报 Operation done in wrong order。环境没有 GDB/LLDB，依据监控轨迹与
+PETSc v3.23.7 标记源码定位 Begin/End 间回调提前返回。最终保留共同错误、完成输出插入、
+用有限零临时作用排空已启动归约，再由 convergence callback 负原因退出；正常路径转发
+原收敛测试并只转交一次析构责任。post-SNESSolve 无条件抛原 fatal，不接受临时结果，不
+读取库私有锁或 split 状态。最终 MPI 1/2/4 × 两种 Krylov × insertion/COO × 第一/二次
+action 注入与恢复全部通过；两轮失败日志仍保留。
+
+真实规模扩展在 n6/n8、FP64/FP32 各失败一次：Galerkin 粗图稠密，粗 patch 邻接重叠
+超过 256 cap。最终保留细层 overlap=1，粗层默认额外 overlap=0，每个 patch 包含一个
+完整混合聚合体的物理和谱列；完整矩阵仍含跨聚合体耦合，不截断行或提高 cap。新增小 cap
+覆盖 oracle 与显式粗 overlap=1 拒绝检查；最终 patch/smoother/MG 共9项通过。5367 DoF
+实际层级 5367→1354→178→42，两中间层覆盖1354/178行，最大 coarse patch 21。
+
+最终受影响12项CTest重跑、早期未受影响10项复用；本地路径选择26Python通过。五批物理
+分别4、21、11、15、13成功，第三批另4次已修复setup失败。最后两批28次、84步、177
+真残量；累计64成功、192步、402真残量、384个保存状态。独立标准库脚本重读所有原件，
+验证拓扑、owner/ghost、边界、RCR方程、时间及hash；最终1305个唯一审计文件/6136副本，
+累计2881文件/11216副本。没有J/b/dx原件，真残量只重审原程序诊断标量和原门槛。
+旧ELF已被增量构建替换，旧身份仅来自当时receipt，不宣称重新hash旧二进制。
+
+2-rank三步六修正：MG迭代104/151/206（703/2299/5367 DoF），FP32相同；线性秒数
+FP64为0.387775/2.524272/10.205967，FP32为0.770415/4.199273/15.263721，均慢于
+直接解。5367的LU值数组40025728→20012864字节，但最大rank RSS 198.668→214.629
+MiB；FP64 setup矩阵仍存储。703粗patch修复的solve 2.321530→0.741733秒仅为共享主机
+观察；无重复独占benchmark。点/块Chebyshev在本例迭代更多，不改默认；MF小例P装配6→3，
+完整P保留。实现完成与网格无关、总内存/普遍加速目标明确分开。
+
+源码 [CI45819157827](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45819157827)
+实际95/95 Release、54/54 Python，0数值失败/跳过/复用。merge preview 29f1ed80与3b5cbdd
+完整tree相同，成功receipt和JUnit的95个名称逐一对应；官方下载ZIP独立核实SHA。
+[完整命令、失败、原件及审计](../research/data/fsi-monolithic-mg-2026-11-26/README.md)随
+[PR#61](https://github.com/saitoasukakawaii/EONSim-new/pull/61)归档；按 eonsim-knowledge-capture
+完成[算法草稿](../../website/drafts/fsi-monolithic-multigrid-matrix-free.md)，保留draft未发布。
+最终文档head只复用数值证据，四项必需检查及锁定head squash按GitHub核实；不追加全量、
+常规Debug、旧PETSc或多节点验证。
 
 ## 2026-11-26 · FSI-PC-05 — 完整压力块、物理模态与界面校正
 

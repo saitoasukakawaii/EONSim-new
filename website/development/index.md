@@ -5,13 +5,15 @@
 ## 当前主线
 
 - 仓库：[saitoasukakawaii/EONSim-new](https://github.com/saitoasukakawaii/EONSim-new)
-- 此页按 2026-11-26 的 [主线提交 3472a18](https://github.com/saitoasukakawaii/EONSim-new/commit/3472a18a5c7ad112084ec551a28a11d84bd3c4e7) 核对；[当前能力矩阵](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/development/CURRENT_STATUS.md) 记录实现和证据边界。
+- 此页按 2026-11-27 的 [主线提交 2463f717](https://github.com/saitoasukakawaii/EONSim-new/commit/2463f71765067212912d55eb3c32fddc85c883ad) 核对；[当前能力矩阵](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/development/CURRENT_STATUS.md) 记录实现和证据边界。
 - 刚性管已有稳态与振荡流对照，弹性通道有移动域质量预算。仿射 Tet4 黏性项的单进程测量分别给出了单元核和整次运行的收益。
 
 ## 最近合入的研发里程碑
 
 | 任务 | 合入状态 | 主要交付 |
 |---|---|---|
+| FSI-SADDLE-01 · [PR #65](https://github.com/saitoasukakawaii/EONSim-new/pull/65) | 已合入 | 逐层鞍点、散度闭包、耦合平滑、跨 rank 聚合、复用、deflated FGMRES；性能/规模目标开放 |
+| FSI-MG/MF · [PR #61](https://github.com/saitoasukakawaii/EONSim-new/pull/61)–[#64](https://github.com/saitoasukakawaii/EONSim-new/pull/64) | 已合入 | 整体 MG、精确 Jv、直接固体方向作用、reduced P、partial assembly、原生 FP32 和 Krylov 回收 |
 | FSI-PC-05 · [PR #59](https://github.com/saitoasukakawaii/EONSim-new/pull/59) | 已合入 | field-aware 速度 AMG、稳定化 LSC/BFBt、物理 PCD、界面 mixed patch 与局部 FP32；均为可选 |
 | RCR-PC-01 · [PR #58](https://github.com/saitoasukakawaii/EONSim-new/pull/58) | 已合入 | RCR port Schur、单/多出口低秩缓存与 GAMG/BoomerAMG 组合 |
 | HPC · [PR #55](https://github.com/saitoasukakawaii/EONSim-new/pull/55)、[#56](https://github.com/saitoasukakawaii/EONSim-new/pull/56)、[#57](https://github.com/saitoasukakawaii/EONSim-new/pull/57) | 已合入 | 聚合多层、MPI overlap、AD SIMD、自适应 PC、collective HDF5 及后续修复 |
@@ -28,6 +30,7 @@
 
 ## 验证证据
 
+- #65 源码 CI 新执行 83/83 Release、54/54 Python；48 条物理与 18 条有效网格记录通过原门槛，保留各自源码来源。迭代增长比、组合时间与多节点收益仍未达目标。
 - #59 源码 CI 85/85 选测 Release、54/54 Python；最终 PCD 38 次物理求解通过。#55 的 703–17,839 DoF 研究不支持网格无关迭代；FP32 只减少 patch 局部因子数组，未证明全局内存或时间收益。新方案保留显式选择，合成曲管的 8 本地 rank 验证不代表多节点扩展。
 
 - FSI-LOAD-01：PETSc 3.23.7 云端 Debug/Release 各 24/24 项相关检查通过；网站构建检查通过。
