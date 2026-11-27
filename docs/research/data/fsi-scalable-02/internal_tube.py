@@ -1,0 +1,64 @@
+"""Matched direct/ASM trials and separately timed native/EONSim loop diagnostics."""
+import argparse
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import statistics
+from paired_tube import DT, arterial_options, digest, physical, read_mesh, run, save
+from study_hydrostatic_fsi import recovered_state
+
+
+def compare_states(root,steps,meshes):
+    maximum=0.
+    for step in range(4,steps+1,4):
+        for i,suffix in enumerate(('','_solid')):
+            name=f'tube_step{step}'+suffix
+            states=[recovered_state(root/mode,name,meshes[i],bool(i),1) for mode in ('direct','asm')]
+            if states[0].keys()!=states[1].keys():raise ValueError('Field node coverage differs')
+            for node,a in states[0].items():
+                b=states[1][node]
+                maximum=max(maximum,abs(a.pressure-b.pressure),*(abs(x-y) for x,y in zip(a.velocity+a.displacement,b.velocity+b.displacement)))
+    if maximum>2e-9:raise ValueError(f'Field mismatch {maximum}')
+    return maximum
+
+
+def main():
+    cli=argparse.ArgumentParser(description=__doc__)
+    for k in ('gate','root','eon','native'):cli.add_argument('--'+k,required=True,type=Path)
+    a=cli.parse_args(); root=a.root.resolve(); gate=a.gate.resolve()
+    receipt=json.loads((gate/'summary.json').read_text());steps=receipt['steps']
+    if not receipt['passed'] or receipt['ranks']!=1 or receipt['eon_linear']!='asm' or len(os.sched_getaffinity(0))!=1 or not os.getenv('SLURM_JOB_ID'):
+        cli.error('requires validated single-core physical window and single-core Slurm allocation')
+    root.mkdir(parents=True,exist_ok=False);src=gate/'prepared'; meshes=[read_mesh(src/'eon'/(s+'.msh')) for s in ('fluid','solid')]
+    results=dict(steps=steps,slurm=os.environ['SLURM_JOB_ID'],source_input=receipt['inputs'],binary=digest(a.eon),native_diagnostic_binary=digest(a.native),runs=[],passed=False)
+    for repeat in range(4):
+        trial=root/str(repeat);trial.mkdir()
+        for mode in (('direct','asm') if repeat%2==0 else ('asm','direct')):
+            folder=trial/mode;shutil.copytree(src/'eon',folder)
+            command=[str(a.eon.resolve()),'-case','case.json',*arterial_options(mode)]
+            if mode=='asm':command+=['-nonlinear_true_residual','true','-linear_report','-solver_report']
+            row=dict(repeat=repeat,mode=mode,kind='timed' if repeat else 'warmup');results['runs'].append(row)
+            try:
+                run(folder,command,row,180);data=physical(folder,'eon',meshes,steps)
+                if data['circuit_error']>2e-6:raise ValueError('RCR check')
+                row['residual']=data['convergence']['maximum_accepted_residual']
+            finally:save(root/'summary.json',results)
+        results.setdefault('field_differences',[]).append(compare_states(trial,steps,meshes))
+    results['medians']={m:statistics.median(r['T_job'] for r in results['runs'] if r['repeat'] and r['mode']==m) for m in ('direct','asm')}
+    if steps==32:
+        for solver,binary,extra,pattern in [('eon',a.eon,['-case','case.json',*arterial_options('asm'),'-nonlinear_true_residual','true','-fsi_step_timing','true'],r'^fsi_step_timing step=(\d+) elapsed=(\S+)'),('svfsi',a.native,['svFSI.inp'],r'^\s*svfsi_step_timing\s+(\d+)\s+([\d.]+)')]:
+            folder=root/('diag-'+solver);shutil.copytree(src/solver,folder);r={};run(folder,[str(binary.resolve()),*extra],r,180)
+            measured=physical(folder,solver,meshes,steps);reference=json.loads((gate/('1-'+solver)/'physical.json').read_text())
+            for old,new in zip(reference['trace'],measured['trace']):
+                for key in old:
+                    v,w=old[key],new[key];v=v if isinstance(v,list) else [v];w=w if isinstance(w,list) else [w]
+                    if any(abs(x-y)>2e-9 for x,y in zip(v,w)):raise ValueError('Diagnostic trajectory changed')
+            pairs=[(int(n),float(v)) for n,v in re.findall(pattern,(folder/'solve.log').read_text(),re.M)]
+            if [n for n,_ in pairs]!=list(range(1,steps+1)):raise ValueError('Missing timing records')
+            elapsed=[v for _,v in pairs];results.setdefault('loop',{})[solver]=dict(elapsed=elapsed,first=elapsed[0],T_loop=elapsed[-1],T_job=r['T_job'])
+    results['passed']=True;save(root/'summary.json',results)
+
+
+if __name__=='__main__':main()

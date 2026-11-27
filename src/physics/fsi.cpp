@@ -998,6 +998,11 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
         throw StepRejected("Injected recoverable FSI batch failure");
     };
     std::optional<double> accepted_mass_volume;
+    PetscBool step_timing=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-fsi_step_timing",&step_timing,nullptr));
+    const bool time_rank_zero=step_timing&&mesh.rank==0;
+    const double loop_start=time_rank_zero?MPI_Wtime():0.;
+    double last_accept=loop_start;
     while(clock.active(config.stop_after)) {
         if(bdf2&&physical_history.previous_dt>0) clock.next_dt=std::min(clock.next_dt,2*physical_history.previous_dt);
         const int step=clock.step+1; const double dt=clock.dt(),time=clock.time+dt;
@@ -1828,6 +1833,12 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             << " area_displacement_x=" << surface[2] << " area_displacement_y=" << surface[3]
             << " endpoint_min_fluid_j=" << min_quality[2] << " endpoint_min_solid_j=" << min_quality[3]
             << " residual=" << solved.residual_norm << " time_order=" << (alpha_step?2:derivative.order) << '\n';
+        if(time_rank_zero) {
+            const double now=MPI_Wtime();
+            std::cout << "fsi_step_timing step=" << step << " elapsed=" << now-loop_start
+                      << " step_seconds=" << now-last_accept << '\n';
+            last_accept=now;
+        }
         } catch(const StepRejected& error) {
             clock.reject(error.what());
             if(mesh.rank==0) std::cout << "step_retry=" << clock.retries << " time=" << clock.time << " next_dt=" << clock.next_dt << '\n';
