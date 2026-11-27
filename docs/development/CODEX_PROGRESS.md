@@ -1,13 +1,40 @@
 # EONSim Codex Development Progress
 
-## 2026-11-27 · FSI-SADDLE-01：鞍点多层、跨 rank 聚合与子空间消除（开发中）
+## 2026-11-27 · FSI-SADDLE-01：十三项机制实现与有界验收完成，网格及规模目标仍开放
 
-从已合并 PR #64 的 `main@036f865e3570905a58da465c91873678de485119` 接续，
-分支 `codex/saddle-point-multigrid`。本轮目标为保留逐层压力/非压力语义、离散散度约束插值、
-逐层压力响应、耦合 Schur/Braess–Sarazin、乘性及彩色 Vanka、跨 rank 聚合、层级自适应及复用、
-精确 matrix-free 最细层、分布式粗解、deflated FGMRES 与减少通信的循环。
-开发和验证代码先完成并推送远端，再执行 Release 定向算例；当前尚未执行新数值验证。
-锁定 PETSc 3.23.7 环境已恢复；所有完成/性能结论须由后续实际证据更新。
+从 #64 的 `main@036f865e3570905a58da465c91873678de485119` 接续，对应
+[PR #65](https://github.com/saitoasukakawaii/EONSim-new/pull/65)，分支 `codex/saddle-point-multigrid`。
+最终生产/验证驱动源码 **`ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba`**。每批实现和修正均先同步远端并核对完整 tree，
+再构建及执行；最终文档 head 的四项必需检查及锁定 SHA 合并状态由 PR #65 记录确认。
+
+已实现逐层 pressure/primal AMG、散度约束与真正压力像空间闭包、多层离散 supremizer、
+耦合 Schur/Braess–Sarazin、乘性/着色 Vanka、跨 rank 聚合、层级自适应/复用、exact
+matrix-free fine、分布式 coarse、逐次 deflated FGMRES 和独立归约批处理。最后一项 Krylov
+采用有界 QR/SVD 回收，不宣称完整 harmonic-Ritz GCRO-DR；通信指标也不等同于实际网络延迟。
+
+最终源码新跑 **6/6 MG/smoother（1/2/4 rank）及 12/12 Braess 物理/网格轨迹**。本地不同
+CTest 有效覆盖 **17/17**，新增物理配置汇总 **48/48**、网格配置汇总 **18/18**；复用记录均
+保留原源码/binary，不冒充最终提交重跑。最大场差 `4.316880187e-12`、历史差
+`7.993605777e-15`，低于原 `2e-9`；真实残量 gate 比最大 `0.00948933`，交换缺陷最大
+`1.245817331e-15`。原失败和单因子诊断见[证据索引](../research/data/fsi-saddle-01-2026-11-27/README.md)。
+
+固定 703/2299/5367 DoF、2 rank，colored 总迭代 **28/39/50**，全开组合 **27/36/46**；
+平均迭代增长比分别 **1.7857 / 1.7037 > 1.3**，近似网格无关仍 **OPEN**。同批 n8 colored
+求解时间比既有 mono 减少 34.46%；全开组合反增 69.97%，峰值 RSS 最大 rank 值增加
+86.19%，压力 729→729→729 饱和。全部开关同时启用不代表总体加速。
+
+保留并修复：不变 B 的过度重建、正确 guard 被物理审计误拒、粗层无主元 LU 失败、
+Braess alpha=1 在 n8 达到1500次仍失败。局部 MUMPS 主元与默认 alpha=2 分别经单因子
+诊断和正式复验，未改变模型、外层上限或任何精度门槛。本轮单机最大5367 DoF；旧10387 DoF
+仍是历史证据，百万 DoF/多节点/扩展效率未运行。[算法说明](FSI_SADDLE_POINT_MULTIGRID.md)
+及[文章草稿](../../website/drafts/fsi-saddle-point-multigrid.md)记录机制、成本和边界；草稿未发布。
+
+[最终源码 CI 45931896224](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896224)
+实际新执行 **83/83 Release、54/54 Python**，没有复用数值记录。合并预览
+`75bb86a0c5e668d497d0e95eb5ed0be4df824550` 与 `ccf1bd7` 的完整 tree 均为
+`014a1de3199b7e476aec00aa63078a13adb60610`，dirty=false；
+[源码网站检查 45931896258](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896258)
+通过。远端检查与本地分源轨迹分别计数；最终文档 head 的四项检查及合并以 PR #65 为准。
 
 
 ## 2026-11-27 · FSI-SCALE-01：实现与有界验收完成，收敛及规模目标仍开放

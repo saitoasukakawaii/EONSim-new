@@ -1,14 +1,33 @@
 # EONSim Knowledge Log
 
-## 2026-11-27 · FSI-SADDLE-01：鞍点配对、散度闭包和逐次投影
+## 2026-11-27 · FSI-SADDLE-01：兼容性、复用失效与实际工作量
 
-[未发布草稿](../../website/drafts/fsi-saddle-point-multigrid.md)与
-[运行说明](../development/FSI_SADDLE_POINT_MULTIGRID.md)记录本轮理论及源码机制。
-分支 `codex/saddle-point-multigrid`，基线 `036f865e`；当前尚未运行新数值验证。
-主要可复用结论：Galerkin 压力配对不等于粗细散度交换；压力像空间闭包可保证交换但可能
-牺牲压力粗化；owner 置换必须保留完整语义和原算子；彩色 Vanka 必须按色刷新残量；
-deflated FGMRES 的每次投影/提升与仅 warm start 的修正回收不同。失败、实际执行和性能
-证据将在验收后分源记录，不能由现有源码入口推出网格无关或多节点收益。
+[未发布草稿](../../website/drafts/fsi-saddle-point-multigrid.md)、
+[机制说明](../development/FSI_SADDLE_POINT_MULTIGRID.md)和
+[原件/失败索引](data/fsi-saddle-01-2026-11-27/README.md)对应
+[PR #65](https://github.com/saitoasukakawaii/EONSim-new/pull/65)。最终生产/驱动源码
+`ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba`；实现与有界验收完成，最终检查和锁定head合并状态由PR记录确认。
+
+Galerkin定义不等于粗细散度交换；实际压力像空间闭包可以保证交换，但在本轮n8保留全部
+729个压力自由度，增加建层和存储成本。兼容transfer的复用应审实际B变化：固定缩放及typed
+transfer下B不变可安全保持粗层B，变化且压力未满维必须重建。真实重建guard不能被当作复用
+失败，也不能被记作复用已经执行；生命周期reason计数与配置开关分开。
+
+分布式ASM局部LU需要适合鞍点的数值主元，不能用shift或降低零主元阈值处理错误。Braess
+实体块逆的alpha影响实际平滑稳定性；由同源单因子诊断确认alpha=2修复n8失效，并由独立
+块oracle核对默认值。两个修复都保持原方程和残量/字段接受门槛。逐次投影/提升的deflated
+FGMRES与一次warm start不同，但有限QR/SVD谱选择不等于完整harmonic-Ritz GCRO-DR。
+
+有效集合48条物理/18条网格全通过，分源复用明确；原始失败保留。colored在本次n8实测总
+求解时间减少34.46%，all反增69.97%；最优网格增长比1.7037>1.3，目标OPEN。单host、最大
+本轮5367DoF的证据不支持百万DoF、多节点、普遍inf-sup或稳定加速结论。文章仍在drafts。
+
+[最终源码 CI 45931896224](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896224)
+实际新执行 **83/83 Release、54/54 Python**，没有复用数值记录。合并预览
+`75bb86a0c5e668d497d0e95eb5ed0be4df824550` 与 `ccf1bd7` 的完整 tree 均为
+`014a1de3199b7e476aec00aa63078a13adb60610`，dirty=false；
+[源码网站检查 45931896258](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896258)
+通过。远端检查与本地分源轨迹分别计数；最终文档 head 的四项检查及合并以 PR #65 为准。
 
 
 ## 2026-11-27 · FSI-SCALE-01：精确作用、预条件近似与性能证据的边界

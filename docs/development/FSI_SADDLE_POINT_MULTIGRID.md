@@ -2,9 +2,10 @@
 
 本页对应 FSI-SADDLE-01，基线为已合并 PR #64 的
 `036f865e3570905a58da465c91873678de485119`。
-实现分支为 `codex/saddle-point-multigrid`；当前为源码待验证说明。
+实现分支为 `codex/saddle-point-multigrid`，对应 [PR #65](https://github.com/saitoasukakawaii/EONSim-new/pull/65)。
+最终生产/验证驱动源码为 `ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba`；实现与有界验收完成。
 本轮执行遵循源码先同步远端、再构建与运行、最后按锁定 head 合并。
-实际运行及失败证据会写入 `docs/research/data/fsi-saddle-01-2026-11-27/`。
+实际运行、原始失败、分源复用与哈希见[完整证据](../research/data/fsi-saddle-01-2026-11-27/README.md)。
 
 ## 1. 本轮路径及适用边界
 
@@ -163,7 +164,7 @@ Krylov 图像经过 `(I-C C^T)` 投影；校正同步由 `I-U C^T A` 提升回�
 
 ## 7. 可复现入口与验收口径
 
-在锁定环境中构建受影响目标，源码必须先同步。以下是使用示例，当前不表示已经执行：
+在锁定环境中构建受影响目标，源码必须先同步。以下是复现入口；本次实际执行命令及 binary hash 保留在证据收据中：
 
 ```bash
 python tests/verify_fsi_multigrid.py \
@@ -176,7 +177,7 @@ python tests/verify_fsi_multigrid.py \
 python tests/verify_fsi_multigrid.py \
   --executable "$FSI_BIN" --mpiexec "$FSI_MPI" --build-source "$FSI_SOURCE" \
   --work results/fsi_saddle_grid --sections scaling \
-  --modes mono mono_saddle mono_braess
+  --modes mono mono_saddle mono_braess mono_colored mono_saddle_all
 ```
 
 每种模式与独立 direct 轨迹、全部保存场、时间历史和原算子残量比较。
@@ -192,7 +193,37 @@ smoother，重建后重新开始；hierarchy 的动作计数跨重建保留，�
 起始独立范数对及自适应探测范数对的 Begin/End 调度；二者不是 MPI 包数或网络延迟测量。
 网格窗口仍预声明迭代比上限 `1.3`，没有达标则保留开放状态。
 
-## 8. 来源与证据类别
+## 8. 本轮实测结果与尚未达标项
+
+最终源码新跑 MG/smoother 1/2/4 rank 共 6/6；本地不同 CTest 的有效覆盖为 17/17，其余项
+明确保留原执行源码。新增物理配置汇总 48/48、固定网格对照汇总 18/18，通过的旧记录仅在
+后续变更不影响对应算法时复用，不写成最终源码重新执行。原始 3 个 MG 失败、两项复用审计
+误判、RCR 局部主元失败和 Braess n8 迭代耗尽均保留。
+
+48+18 条有效轨迹最大保存场差 `4.316880187e-12`、历史差 `7.993605777e-15`，均低于
+`2e-9`；最大真实残量 gate 比 `0.00948933`，强交换缺陷最大 `1.245817331e-15`。
+
+| 模式 | 703 / 2299 / 5367 DoF 总迭代 | 平均迭代最大/最小 |
+| --- | --- | ---: |
+| 既有 mono | 103 / 151 / 206 | 2.0000 |
+| saddle | 104 / 151 / 204 | 1.9615 |
+| Braess，alpha=2 | 214 / 314 / 404 | 1.8879 |
+| colored Vanka | 28 / 39 / 50 | 1.7857 |
+| 全开组合 | 27 / 36 / 46 | 1.7037 |
+
+预声明 `≤1.3` 的有限网格目标仍 **OPEN**。同批 n8 colored 的总求解时间为 7.2638 s，
+既有 mono 为 11.0836 s；全开组合为 18.8386 s，虽迭代最少但建层成本更高，不能称整体更快。
+全开压力空间为 729→729→729，复杂度上限限制后续粗化；其峰值 RSS 最大 rank 值增加约
+86.19%。这些均为单 host、2 rank 的一次窗口测量，无多节点或百万自由度结论。
+
+[最终源码 CI 45931896224](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896224)
+实际新执行 **83/83 Release、54/54 Python**，没有复用数值记录。合并预览
+`75bb86a0c5e668d497d0e95eb5ed0be4df824550` 与 `ccf1bd7` 的完整 tree 均为
+`014a1de3199b7e476aec00aa63078a13adb60610`，dirty=false；
+[源码网站检查 45931896258](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896258)
+通过。远端检查与本地分源轨迹分别计数；最终文档 head 的四项检查及合并以 PR #65 为准。
+
+## 9. 来源与证据类别
 
 数学块消元和投影恒等式在上述方程及代码中直接给出。相关原始资料为：
 
