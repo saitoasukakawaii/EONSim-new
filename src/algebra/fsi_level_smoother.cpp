@@ -1,4 +1,5 @@
 #include "eonsim/fsi_level_smoother.hpp"
+#include "fsi_profile.hpp"
 #include <petscblaslapack.h>
 #include <algorithm>
 #include <cmath>
@@ -343,7 +344,9 @@ struct FsiLevelSmoother {
         // including its recoverable failure paths and PETSc error handlers.
         PetscCall(VecRestoreSubVector(active_rhs,pressure_is.get(),&rp));
         PetscCall(VecRestoreSubVector(active_rhs,primal_is.get(),&ru));
-        const auto error=KSPSolve(solver.get(),pressure_rhs.get(),pressure_solution.get());
+        const auto error=profile_fsi_operation(options.schur_event,[&]{
+            return KSPSolve(solver.get(),pressure_rhs.get(),pressure_solution.get());
+        });
         KSPConvergedReason reason=KSP_CONVERGED_ITERATING;
         PC pressure_pc=nullptr;PCFailedReason failure=PC_NOERROR;PetscInt iterations=0;
         PetscCall(KSPGetConvergedReason(solver.get(),&reason));

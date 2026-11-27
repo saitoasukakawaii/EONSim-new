@@ -12,6 +12,7 @@ struct FsiLevelSmootherOptions {
     /// H=alpha*blockdiag(F); the default damps the primal block inverse.
     double braess_alpha=2.;
     PetscInt schur_iterations=3;
+    PetscLogEvent schur_event=-1;
 };
 struct FsiLevelSmootherStats {
     PetscInt applications=0,refreshes=0,polynomial_degree=0;

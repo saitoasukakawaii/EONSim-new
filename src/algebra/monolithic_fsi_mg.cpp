@@ -1,4 +1,5 @@
 #include "eonsim/monolithic_fsi_mg.hpp"
+#include "fsi_profile.hpp"
 #include "eonsim/fsi_level_smoother.hpp"
 #include "eonsim/native_float_sparse.hpp"
 #include "eonsim/distributed_mg_layout.hpp"
@@ -38,6 +39,7 @@ struct Options {
     bool pressure_supremizers=false,saddle_point=false,divergence_preserving=false,divergence_commuting=false;
     bool distributed_aggregation=false,adaptive_hierarchy=false,reuse_hierarchy=false;
     bool matrix_free_fine=false,communication_avoiding=false;
+    bool profile_levels=false;
     PetscInt hierarchy_max_age=8,adaptive_interval=16;
     double hierarchy_drift=.2,adaptive_threshold=.9,maximum_complexity=8.;
     FsiLevelSmootherOptions smoother;
@@ -79,7 +81,7 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         {"divergence_commuting",&o.divergence_commuting},
         {"distributed_aggregation",&o.distributed_aggregation},{"adaptive_hierarchy",&o.adaptive_hierarchy},
         {"reuse_hierarchy",&o.reuse_hierarchy},{"matrix_free_fine",&o.matrix_free_fine},
-        {"communication_avoiding",&o.communication_avoiding}}) {
+        {"communication_avoiding",&o.communication_avoiding},{"profile_levels",&o.profile_levels}}) {
         PetscBool value=PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+entry.first).c_str(),&value,nullptr));
         *entry.second=value;
@@ -1331,6 +1333,7 @@ void audit_pressure_pairs(MPI_Comm comm,Mat coarse,Transfer& transfer) {
 
 
 struct Level {
+    PetscLogEvent smooth_event=-1,restrict_event=-1,prolong_event=-1,coarse_event=-1,schur_event=-1;
     PetscOwner<Mat,MatDestroy> matrix,prolongation,restriction_form;
     LevelData data;
     std::shared_ptr<FsiLevelSmoother> smoother;
@@ -1456,6 +1459,19 @@ struct Hierarchy {
         stats.matrix_free_fine=configuration.matrix_free_fine;
         for(std::size_t level=0;level<levels.size();++level) {
             auto& data=levels[level];
+            if(configuration.profile_levels) {
+                const std::string name="FSI_L"+std::to_string(level)+"_";
+                auto register_event=[&](const char* suffix,PetscLogEvent& event) {
+                    EONSIM_PETSC(PetscLogEventRegister((name+suffix).c_str(),PC_CLASSID,&event));
+                };
+                if(level+1==levels.size()) register_event("Coarse",data.coarse_event);
+                else {
+                    register_event("Smooth",data.smooth_event);
+                    register_event("Schur",data.schur_event);
+                    register_event("Restrict",data.restrict_event);
+                    register_event("Prolong",data.prolong_event);
+                }
+            }
             EONSIM_PETSC(MatCreateVecs(data.matrix.get(),data.solution.put(),data.rhs.put()));
             EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.residual.put()));
             EONSIM_PETSC(VecDuplicate(data.rhs.get(),data.correction.put()));
@@ -1472,6 +1488,7 @@ struct Hierarchy {
             }
             if(level+1<levels.size()) {
                 auto smoother_options=configuration.smoother;
+                smoother_options.schur_event=data.schur_event;
                 // A coarse semantic entity is already a complete mixed
                 // aggregate basis, including its spectral columns. Growing it
                 // through a filled Galerkin graph can turn a bounded patch into
@@ -2069,7 +2086,9 @@ struct Hierarchy {
         auto& level=levels[index];
         PetscCall(residual(index,rhs,solution,zero_start));
         ++stats.smoother_applications;
-        const auto error=apply_fsi_level_smoother(level.smoother,level.residual.get(),level.correction.get());
+        const auto error=profile_fsi_operation(level.smooth_event,[&]{
+            return apply_fsi_level_smoother(level.smoother,level.residual.get(),level.correction.get());
+        });
         if(error==PETSC_ERR_NOT_CONVERGED) {
             valid=false; PetscCall(VecSet(level.correction.get(),0.));
         } else PetscCall(error);
@@ -2229,7 +2248,7 @@ struct Hierarchy {
         auto& level=levels[index]; PetscCall(VecSet(solution,0.));
         if(index+1==levels.size()) {
             ++stats.coarse_solves;
-            const auto error=KSPSolve(coarse.get(),rhs,solution);
+            const auto error=profile_fsi_operation(level.coarse_event,[&]{return KSPSolve(coarse.get(),rhs,solution);});
             if(error) PetscFunctionReturn(error);
             PetscInt iterations=0;PetscCall(KSPGetIterationNumber(coarse.get(),&iterations));
             stats.coarse_iterations+=iterations;
@@ -2248,9 +2267,10 @@ struct Hierarchy {
             PetscCall(VecPointwiseMult(level.restriction_input.get(),level.restriction_weights.get(),restriction_input));
             restriction_input=level.restriction_input.get();
         }
-        if(configuration.single_precision)
-            PetscCall(level.float_transfer.multiply(restriction_input,coarse_level.rhs.get(),true));
-        else PetscCall(MatMultTranspose(level.prolongation.get(),restriction_input,coarse_level.rhs.get()));
+        PetscCall(profile_fsi_operation(level.restrict_event,[&]{
+            if(configuration.single_precision) return level.float_transfer.multiply(restriction_input,coarse_level.rhs.get(),true);
+            return MatMultTranspose(level.prolongation.get(),restriction_input,coarse_level.rhs.get());
+        }));
         PetscCall(cycle(index+1,coarse_level.rhs.get(),coarse_level.solution.get(),valid));
         if(configuration.k_cycle&&index+2<levels.size()) {
             PetscCall(minimize_coarse_residual(index+1,valid));
@@ -2261,9 +2281,10 @@ struct Hierarchy {
             PetscCall(VecAXPY(coarse_level.solution.get(),1.,coarse_level.second_solution.get()));
             ++stats.coarse_revisits;
         }
-        if(configuration.single_precision)
-            PetscCall(level.float_transfer.multiply(coarse_level.solution.get(),level.correction.get(),false));
-        else PetscCall(MatMult(level.prolongation.get(),coarse_level.solution.get(),level.correction.get()));
+        PetscCall(profile_fsi_operation(level.prolong_event,[&]{
+            if(configuration.single_precision) return level.float_transfer.multiply(coarse_level.solution.get(),level.correction.get(),false);
+            return MatMult(level.prolongation.get(),coarse_level.solution.get(),level.correction.get());
+        }));
         PetscCall(VecAXPY(solution,1.,level.correction.get()));
         for(PetscInt step=0;step<configuration.post_smooth;++step) PetscCall(smooth(index,rhs,solution,valid));
         // No coarse correction is allowed on exact constraint rows. Correct
