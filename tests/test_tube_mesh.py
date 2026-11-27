@@ -82,6 +82,15 @@ class TubeMesh(unittest.TestCase):
             for kwargs in [dict(direction=(0,0,0)),dict(bend_degrees=360),dict(length=.25,bend_degrees=170)]:
                 with self.assertRaises(ValueError):curved(Path(temp)/'invalid',**kwargs)
 
+    def test_decimal_outlet_station(self):
+        with tempfile.TemporaryDirectory() as root:
+            generate(root,sectors=6,axial=9,length=.12,radial=1)
+            for domain,tag in [('fluid',2),('solid',12)]:
+                xyz,_,boundary=read(Path(root)/(domain+'.msh'))
+                cap={face for face in boundary if all(xyz[n][0]==.12 for n in face)}
+                self.assertTrue(cap)
+                self.assertEqual(cap,{face for face,value in boundary.items() if value==tag})
+
     def test_invalid_geometry(self):
         with tempfile.TemporaryDirectory() as root:
             for change in (dict(radius=0),dict(thickness=-1),dict(length=float('nan')),dict(sectors=3),dict(axial=1)):

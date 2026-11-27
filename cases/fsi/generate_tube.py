@@ -43,7 +43,8 @@ def generate(directory, sectors=12, axial=4, radial=2, radius=1., thickness=.2, 
             target.extend(((a,b,d),(a,d,c)))
     for name,triangles,offset,region in (('fluid',fluid,0,10),('solid',solid,10,20)):
         active=sorted(set(v for tri in triangles for v in tri));lookup={v:i for i,v in enumerate(active)};width=len(active)
-        xyz=[(length*k/axial,*points[v]) for k in range(axial+1) for v in active]
+        stations=[length*k/axial for k in range(axial)]+[length]
+        xyz=[(station,*points[v]) for station in stations for v in active]
         cells=[]
         for k in range(axial):
             for tri in triangles:

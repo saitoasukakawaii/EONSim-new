@@ -1,5 +1,7 @@
 # EONSim Knowledge Log
 
+2026-11-27：[如何比较脉动弹性管的完整运行时间](../../website/drafts/perfused-tube-time-to-solution.md)。[求解器实测和原始收据](../development/FSI_SCALABLE_02.md)。
+
 2026-11-27 核对：主线已合入 #65（`2463f717`）；以下历史记录保留实际执行日期、源码、失败与验收边界。当前能力与开放目标见 [当前能力矩阵](../development/CURRENT_STATUS.md)。历史 review/Draft 不代表当前 PR 状态，历史证据不计为本次执行。
 
 ## 2026-11-27 · FSI-SCALABLE-01

@@ -1,0 +1,3083 @@
+{
+  "owned-false": {
+    "medians": {
+      "mono_braess_tentative": {
+        "wall_seconds": {
+          "median": 12.624593424145132,
+          "minimum": 12.550250831060112,
+          "maximum": 12.667434245813638
+        },
+        "linear_seconds": {
+          "median": 11.009083853,
+          "minimum": 10.970026802,
+          "maximum": 11.017733865
+        },
+        "solve_seconds": {
+          "median": 12.070678824,
+          "minimum": 12.01377072,
+          "maximum": 12.079890554
+        },
+        "assembly_seconds": {
+          "median": 0.559405932,
+          "minimum": 0.550693266,
+          "maximum": 0.575676305
+        },
+        "outer_iterations": {
+          "median": 1740,
+          "minimum": 1740,
+          "maximum": 1740
+        },
+        "iterations_per_correction": {
+          "median": 174.0,
+          "minimum": 174.0,
+          "maximum": 174.0
+        },
+        "peak_rss_max_bytes": {
+          "median": 74100736.0,
+          "minimum": 73945088.0,
+          "maximum": 74403840.0
+        },
+        "local_job_peak_sampled_rss_bytes": {
+          "median": 3418583040,
+          "minimum": 3404963840,
+          "maximum": 3581190144
+        }
+      }
+    },
+    "binary": "8226cfb592789c81369c1999c8616d4108f713a00bbeb2957d9e5217ddb75f33",
+    "input_sha256": [
+      {
+        "path": "n22-input/case.yaml",
+        "bytes": 2368,
+        "sha256": "cc707aec5028f08925ae374ec6616e1a6f88414e9dbafe2aa05be0ecfbe26d99"
+      },
+      {
+        "path": "n22-input/fluid.msh",
+        "bytes": 3357186,
+        "sha256": "21077662c7d113a83650756bb515ac3b7906a846c334e4b6228dacd0e4921910"
+      },
+      {
+        "path": "n22-input/solid.msh",
+        "bytes": 3672424,
+        "sha256": "522e923d2c676dc78228122a1b61b7e4350d7cd2d159192b81e7dd96b25c7b44"
+      }
+    ],
+    "PETSC_OPTIONS": "-monolithic_mg_braess_local_fields false",
+    "runs": [
+      {
+        "mode": "mono_pressure_auto",
+        "label": "reference",
+        "status": "passed",
+        "outer_iterations": 1717,
+        "corrections": 10,
+        "local_job_peak_sampled_rss_bytes": 3624554496,
+        "peak_rss_max_bytes": 78254080.0,
+        "dofs": 108379,
+        "nnz": 6021010.0,
+        "linear_seconds": 23.602861628,
+        "assembly_seconds": 0.578984368,
+        "wall_seconds": 25.550974561832845,
+        "history_max_difference": 0.0,
+        "field_max_difference": 0.0,
+        "log_sha256": "032b5946ed6f1c5991ebb28a4a4e874355d6f0c00e2024f281c29eed028685c2",
+        "max_true_residual_ratio": 0.008151229779211793
+      },
+      {
+        "mode": "mono_braess_tentative",
+        "label": "warmup-mono_braess_tentative",
+        "status": "passed",
+        "outer_iterations": 1740,
+        "corrections": 10,
+        "local_job_peak_sampled_rss_bytes": 3421806592,
+        "peak_rss_max_bytes": 75075584.0,
+        "dofs": 108379,
+        "nnz": 6021010.0,
+        "linear_seconds": 10.908990701,
+        "assembly_seconds": 0.5586677840000001,
+        "wall_seconds": 12.493642227258533,
+        "history_max_difference": 1.0103029524088925e-14,
+        "field_max_difference": 1.1102230246251565e-14,
+        "log_sha256": "cadad47500471fe1739387503c058b54dbd836bb32c52ae39bb93ba7c710dc3c",
+        "max_true_residual_ratio": 0.007399573422530134
+      },
+      {
+        "mode": "mono_braess_tentative",
+        "label": "timing-1-mono_braess_tentative",
+        "status": "passed",
+        "outer_iterations": 1740,
+        "corrections": 10,
+        "local_job_peak_sampled_rss_bytes": 3404963840,
+        "peak_rss_max_bytes": 74100736.0,
+        "dofs": 108379,
+        "nnz": 6021010.0,
+        "linear_seconds": 10.970026802,
+        "assembly_seconds": 0.550693266,
+        "wall_seconds": 12.550250831060112,
+        "history_max_difference": 1.0103029524088925e-14,
+        "field_max_difference": 1.1102230246251565e-14,
+        "log_sha256": "ecf4a03959fdfe8a3440b021eb1f9b21020675132f31247f33a693f09c8f27ad",
+        "max_true_residual_ratio": 0.007396068038730488
+      },
+      {
+        "mode": "mono_braess_tentative",
+        "label": "timing-2-mono_braess_tentative",
+        "status": "passed",
+        "outer_iterations": 1740,
+        "corrections": 10,
+        "local_job_peak_sampled_rss_bytes": 3581190144,
+        "peak_rss_max_bytes": 74403840.0,
+        "dofs": 108379,
+        "nnz": 6021010.0,
+        "linear_seconds": 11.009083853,
+        "assembly_seconds": 0.575676305,
+        "wall_seconds": 12.667434245813638,
+        "history_max_difference": 1.0103029524088925e-14,
+        "field_max_difference": 1.1324274851176597e-14,
+        "log_sha256": "ad84cd632e8d5fcc6d095b7a608009bd2d65fa7275e42e0d29299e7a18b2298e",
+        "max_true_residual_ratio": 0.007399464409106745
+      },
+      {
+        "mode": "mono_braess_tentative",
+        "label": "timing-3-mono_braess_tentative",
+        "status": "passed",
+        "outer_iterations": 1740,
+        "corrections": 10,
+        "local_job_peak_sampled_rss_bytes": 3418583040,
+        "peak_rss_max_bytes": 73945088.0,
+        "dofs": 108379,
+        "nnz": 6021010.0,
+        "linear_seconds": 11.017733865,
+        "assembly_seconds": 0.559405932,
+        "wall_seconds": 12.624593424145132,
+        "history_max_difference": 1.0103029524088925e-14,
+        "field_max_difference": 1.1102230246251565e-14,
+        "log_sha256": "195c6c17aa3ae9bd7b6b64bf1530b5fa040eb4af958cd14a41718cdb85dc4b45",
+        "max_true_residual_ratio": 0.007393255815398935
+      }
+    ]
+  },
+  "owned-true": {
+    "medians": {
+      "mono_braess_tentative": {
+        "wall_seconds": {
+          "median": 8.033143722917885,
+          "minimum": 7.945337169338018,
+          "maximum": 8.070183975156397
+        },
+        "linear_seconds": {
+          "median": 6.4114527820000005,
+          "minimum": 6.351021424000001,
+          "maximum": 6.461674198
+        },
+        "solve_seconds": {
+          "median": 7.464708315,
+          "minimum": 7.416607812,
+          "maximum": 7.520906039
+        },
+        "assembly_seconds": {
+          "median": 0.566297221,
+          "minimum": 0.5600480400000001,
+          "maximum": 0.571782386
+        },
+        "outer_iterations": {
+          "median": 1740,
+          "minimum": 1740,
+          "maximum": 1740
+        },
+        "iterations_per_correction": {
+          "median": 174.0,
+          "minimum": 174.0,
+          "maximum": 174.0
+        },
+        "peak_rss_max_bytes": {
+          "median": 73256960.0,
+          "minimum": 73170944.0,
+          "maximum": 74870784.0
+        },
+        "local_job_peak_sampled_rss_bytes": {
+          "median": 3412291584,
+          "minimum": 3410046976,
+          "maximum": 3540705280
+        }
+      }
+    },
+    "binary": "8226cfb592789c81369c1999c8616d4108f713a00bbeb2957d9e5217ddb75f33",
+    "input_sha256": [
+      {
+        "path": "n22-input/case.yaml",
+        "bytes": 2368,
+        "sha256": "cc707aec5028f08925ae374ec6616e1a6f88414e9dbafe2aa05be0ecfbe26d99"
+      },
+      {
+        "path": "n22-input/fluid.msh",
+        "bytes": 3357186,
+        "sha256": "21077662c7d113a83650756bb515ac3b7906a846c334e4b6228dacd0e4921910"
+      },
+      {
+        "path": "n22-input/solid.msh",
+        "bytes": 3672424,
+        "sha256": "522e923d2c676dc78228122a1b61b7e4350d7cd2d159192b81e7dd96b25c7b44"
+      }
+    ],
+    "PETSC_OPTIONS": "-monolithic_mg_braess_local_fields true",
+    "runs": [
+      {
+        "mode": "mono_pressure_auto",
+        "label": "reference",
+        "status": "passed",
+        "outer_iterations": 1717,
+        "corrections": 10,
+        "local_job_peak_sampled_rss_bytes": 3719712768,
+        "peak_rss_max_bytes": 79921152.0,
+        "dofs": 108379,
+        "nnz": 6021010.0,
+        "linear_seconds": 18.973643797999998,
+        "assembly_seconds": 0.5818032200000001,
+        "wall_seconds": 20.7956336569041,
+        "history_max_difference": 0.0,
+        "field_max_difference": 0.0,
+        "log_sha256": "25e508e3fc8902500638985cb69aa6211332b45fa301789fea4b28d95b6bcfd4",
+        "max_true_residual_ratio": 0.008152920322388287
+      },
+      {
+        "mode": "mono_braess_tentative",
+        "label": "warmup-mono_braess_tentative",
+        "status": "passed",
+        "outer_iterations": 1740,
+        "corrections": 10,
+        "local_job_peak_sampled_rss_bytes": 3417571328,
+        "peak_rss_max_bytes": 74125312.0,
+        "dofs": 108379,
+        "nnz": 6021010.0,
+        "linear_seconds": 6.463027999,
+        "assembly_seconds": 0.562703769,
+        "wall_seconds": 8.062500814907253,
+        "history_max_difference": 4.954370247389761e-15,
+        "field_max_difference": 1.1102230246251565e-14,
+        "log_sha256": "1090ec326cd0cfbb8814a8e87d626cb03dbe8ca1e8abc346f8cf38a72d966e85",
+        "max_true_residual_ratio": 0.007399717144714706
+      },
+      {
+        "mode": "mono_braess_tentative",
+        "label": "timing-1-mono_braess_tentative",
+        "status": "passed",
+        "outer_iterations": 1740,
+        "corrections": 10,
+        "local_job_peak_sampled_rss_bytes": 3412291584,
+        "peak_rss_max_bytes": 74870784.0,
+        "dofs": 108379,
+        "nnz": 6021010.0,
+        "linear_seconds": 6.351021424000001,
+        "assembly_seconds": 0.571782386,
+        "wall_seconds": 7.945337169338018,
+        "history_max_difference": 1.0963452368173421e-14,
+        "field_max_difference": 1.0880185641326534e-14,
+        "log_sha256": "360f40697e5e75fa786681964973a30aa15eba0cfaaf211e5c25a1938fa654be",
+        "max_true_residual_ratio": 0.00739951171257872
+      },
+      {
+        "mode": "mono_braess_tentative",
+        "label": "timing-2-mono_braess_tentative",
+        "status": "passed",
+        "outer_iterations": 1740,
+        "corrections": 10,
+        "local_job_peak_sampled_rss_bytes": 3410046976,
+        "peak_rss_max_bytes": 73256960.0,
+        "dofs": 108379,
+        "nnz": 6021010.0,
+        "linear_seconds": 6.4114527820000005,
+        "assembly_seconds": 0.5600480400000001,
+        "wall_seconds": 8.033143722917885,
+        "history_max_difference": 7.105427357601002e-15,
+        "field_max_difference": 1.1102230246251565e-14,
+        "log_sha256": "4d6daa719f206ecaf31af35c99e0a13a4245d23b53c5705d080090c16c2a676d",
+        "max_true_residual_ratio": 0.007395635183014605
+      },
+      {
+        "mode": "mono_braess_tentative",
+        "label": "timing-3-mono_braess_tentative",
+        "status": "passed",
+        "outer_iterations": 1740,
+        "corrections": 10,
+        "local_job_peak_sampled_rss_bytes": 3540705280,
+        "peak_rss_max_bytes": 73170944.0,
+        "dofs": 108379,
+        "nnz": 6021010.0,
+        "linear_seconds": 6.461674198,
+        "assembly_seconds": 0.566297221,
+        "wall_seconds": 8.070183975156397,
+        "history_max_difference": 3.837208328860697e-15,
+        "field_max_difference": 1.1102230246251565e-14,
+        "log_sha256": "e6dff397816ca0992f1b5f3573397105f071eb3e32fc272f454b45f3af936229",
+        "max_true_residual_ratio": 0.0074006109175886285
+      }
+    ]
+  },
+  "profile-owned": {
+    "binary": "8226cfb592789c81369c1999c8616d4108f713a00bbeb2957d9e5217ddb75f33",
+    "runs": [
+      {
+        "ranks": 32,
+        "profile": false,
+        "command": [
+          "/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/orterun",
+          "--bind-to",
+          "core",
+          "--map-by",
+          "socket",
+          "-n",
+          "32",
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "$HOME/workspace/fsi-scalable-01-runs/scale-n22/1795753257759852998/n22-input/case.yaml",
+          "-partition",
+          "$HOME/workspace/fsi-scalable-01-runs/scale-n22/1795753257759852998/n22-r32/partition",
+          "-output",
+          "$HOME/workspace/fsi-scalable-02-runs/profile-owned/r32-profile0/solution.vtu",
+          "-vtu_format",
+          "ascii",
+          "-vtu_boundary",
+          "false",
+          "-fsi_threads",
+          "1",
+          "-ksp_type",
+          "fgmres",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-12",
+          "-ksp_atol",
+          "1e-15",
+          "-ksp_max_it",
+          "1500",
+          "-ksp_gmres_restart",
+          "100",
+          "-linear_report",
+          "-solver_report",
+          "-pc_plan_report",
+          "-ksp_gmres_modifiedgramschmidt",
+          "-pc_recipe",
+          "monolithic_mg",
+          "-monolithic_mg_coarse_limit",
+          "48",
+          "-monolithic_mg_coarse_processes",
+          "0",
+          "-monolithic_mg_saddle_point",
+          "true",
+          "-monolithic_mg_energy_steps",
+          "0",
+          "-monolithic_mg_pressure_image_modes",
+          "2",
+          "-monolithic_mg_coarse_rows_per_rank",
+          "64",
+          "-monolithic_mg_smoother",
+          "braess_sarazin"
+        ],
+        "status": "passed",
+        "local_job_rss_samples": 41,
+        "local_job_peak_sampled_rss_bytes": 2452377600,
+        "memory_failure": null,
+        "wall_seconds": 22.659312958829105,
+        "exit_code": 0,
+        "timeout": false,
+        "outer_iterations": 1764,
+        "dofs": 108379,
+        "history_difference": 5.995204332975845e-15,
+        "field_difference": 1.7763568394002505e-15
+      },
+      {
+        "ranks": 32,
+        "profile": true,
+        "command": [
+          "/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/orterun",
+          "--bind-to",
+          "core",
+          "--map-by",
+          "socket",
+          "-n",
+          "32",
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "$HOME/workspace/fsi-scalable-01-runs/scale-n22/1795753257759852998/n22-input/case.yaml",
+          "-partition",
+          "$HOME/workspace/fsi-scalable-01-runs/scale-n22/1795753257759852998/n22-r32/partition",
+          "-output",
+          "$HOME/workspace/fsi-scalable-02-runs/profile-owned/r32-profile1/solution.vtu",
+          "-vtu_format",
+          "ascii",
+          "-vtu_boundary",
+          "false",
+          "-fsi_threads",
+          "1",
+          "-ksp_type",
+          "fgmres",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-12",
+          "-ksp_atol",
+          "1e-15",
+          "-ksp_max_it",
+          "1500",
+          "-ksp_gmres_restart",
+          "100",
+          "-linear_report",
+          "-solver_report",
+          "-pc_plan_report",
+          "-ksp_gmres_modifiedgramschmidt",
+          "-pc_recipe",
+          "monolithic_mg",
+          "-monolithic_mg_coarse_limit",
+          "48",
+          "-monolithic_mg_coarse_processes",
+          "0",
+          "-monolithic_mg_saddle_point",
+          "true",
+          "-monolithic_mg_energy_steps",
+          "0",
+          "-monolithic_mg_pressure_image_modes",
+          "2",
+          "-monolithic_mg_coarse_rows_per_rank",
+          "64",
+          "-monolithic_mg_smoother",
+          "braess_sarazin",
+          "-monolithic_mg_profile_levels",
+          "true",
+          "-log_view",
+          ":$HOME/workspace/fsi-scalable-02-runs/profile-owned/r32-profile1/events.csv:ascii_csv"
+        ],
+        "status": "passed",
+        "local_job_rss_samples": 43,
+        "local_job_peak_sampled_rss_bytes": 2444271616,
+        "memory_failure": null,
+        "wall_seconds": 23.640747358091176,
+        "exit_code": 0,
+        "timeout": false,
+        "outer_iterations": 1763,
+        "dofs": 108379,
+        "history_difference": 2.4424906541753444e-15,
+        "field_difference": 8.881784197001252e-16,
+        "event_sha256": "3707ab6ee888e62238f9fc73669cff01e35366c5e5ef469314a0b0b556babe6d"
+      },
+      {
+        "ranks": 128,
+        "profile": false,
+        "command": [
+          "/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/orterun",
+          "--bind-to",
+          "core",
+          "--map-by",
+          "socket",
+          "-n",
+          "128",
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "$HOME/workspace/fsi-scalable-01-runs/scale-n22/1795753257759852998/n22-input/case.yaml",
+          "-partition",
+          "$HOME/workspace/fsi-scalable-01-runs/scale-n22/1795753257759852998/n22-r128/partition",
+          "-output",
+          "$HOME/workspace/fsi-scalable-02-runs/profile-owned/r128-profile0/solution.vtu",
+          "-vtu_format",
+          "ascii",
+          "-vtu_boundary",
+          "false",
+          "-fsi_threads",
+          "1",
+          "-ksp_type",
+          "fgmres",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-12",
+          "-ksp_atol",
+          "1e-15",
+          "-ksp_max_it",
+          "1500",
+          "-ksp_gmres_restart",
+          "100",
+          "-linear_report",
+          "-solver_report",
+          "-pc_plan_report",
+          "-ksp_gmres_modifiedgramschmidt",
+          "-pc_recipe",
+          "monolithic_mg",
+          "-monolithic_mg_coarse_limit",
+          "48",
+          "-monolithic_mg_coarse_processes",
+          "0",
+          "-monolithic_mg_saddle_point",
+          "true",
+          "-monolithic_mg_energy_steps",
+          "0",
+          "-monolithic_mg_pressure_image_modes",
+          "2",
+          "-monolithic_mg_coarse_rows_per_rank",
+          "64",
+          "-monolithic_mg_smoother",
+          "braess_sarazin"
+        ],
+        "status": "passed",
+        "local_job_rss_samples": 71,
+        "local_job_peak_sampled_rss_bytes": 6241509376,
+        "memory_failure": null,
+        "wall_seconds": 43.22870618337765,
+        "exit_code": 0,
+        "timeout": false,
+        "outer_iterations": 1726,
+        "dofs": 108379,
+        "history_difference": 8.132383655379272e-15,
+        "field_difference": 8.881784197001252e-16
+      },
+      {
+        "ranks": 128,
+        "profile": true,
+        "command": [
+          "/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/orterun",
+          "--bind-to",
+          "core",
+          "--map-by",
+          "socket",
+          "-n",
+          "128",
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "$HOME/workspace/fsi-scalable-01-runs/scale-n22/1795753257759852998/n22-input/case.yaml",
+          "-partition",
+          "$HOME/workspace/fsi-scalable-01-runs/scale-n22/1795753257759852998/n22-r128/partition",
+          "-output",
+          "$HOME/workspace/fsi-scalable-02-runs/profile-owned/r128-profile1/solution.vtu",
+          "-vtu_format",
+          "ascii",
+          "-vtu_boundary",
+          "false",
+          "-fsi_threads",
+          "1",
+          "-ksp_type",
+          "fgmres",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-12",
+          "-ksp_atol",
+          "1e-15",
+          "-ksp_max_it",
+          "1500",
+          "-ksp_gmres_restart",
+          "100",
+          "-linear_report",
+          "-solver_report",
+          "-pc_plan_report",
+          "-ksp_gmres_modifiedgramschmidt",
+          "-pc_recipe",
+          "monolithic_mg",
+          "-monolithic_mg_coarse_limit",
+          "48",
+          "-monolithic_mg_coarse_processes",
+          "0",
+          "-monolithic_mg_saddle_point",
+          "true",
+          "-monolithic_mg_energy_steps",
+          "0",
+          "-monolithic_mg_pressure_image_modes",
+          "2",
+          "-monolithic_mg_coarse_rows_per_rank",
+          "64",
+          "-monolithic_mg_smoother",
+          "braess_sarazin",
+          "-monolithic_mg_profile_levels",
+          "true",
+          "-log_view",
+          ":$HOME/workspace/fsi-scalable-02-runs/profile-owned/r128-profile1/events.csv:ascii_csv"
+        ],
+        "status": "passed",
+        "local_job_rss_samples": 75,
+        "local_job_peak_sampled_rss_bytes": 6342709248,
+        "memory_failure": null,
+        "wall_seconds": 45.780299053993076,
+        "exit_code": 0,
+        "timeout": false,
+        "outer_iterations": 1726,
+        "dofs": 108379,
+        "history_difference": 1.1823875212257917e-14,
+        "field_difference": 1.1102230246251565e-15,
+        "event_sha256": "231851cc687c00287725aeb23cc6879647c184dbf09138e9e265f57932a30920"
+      }
+    ]
+  },
+  "r32-profile1": {
+    "column_order": [
+      "rank0",
+      "min",
+      "mean",
+      "max"
+    ],
+    "events": {
+      "FSI_L4_Schur": {
+        "Time": [
+          0.614375,
+          0.592014,
+          0.6340583125,
+          0.718277
+        ],
+        "Num Reductions": [
+          24682.0,
+          24682.0,
+          24682.0,
+          24682.0
+        ],
+        "Num Messages": [
+          317340.0,
+          0.0,
+          230071.5,
+          444276.0
+        ],
+        "Message Length": [
+          2538720.0,
+          0.0,
+          1840571.25,
+          3554210.0
+        ],
+        "Count": [
+          3526.0,
+          3526.0,
+          3526.0,
+          3526.0
+        ]
+      },
+      "VecScatterBegin": {
+        "Time": [
+          1.93147,
+          0.346764,
+          1.3987070625,
+          2.86654
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          2684710.0,
+          300546.0,
+          1896612.875,
+          3953940.0
+        ],
+        "Message Length": [
+          1165480000.0,
+          150234000.0,
+          705034500.0,
+          1548460000.0
+        ],
+        "Count": [
+          392848.0,
+          164266.0,
+          221411.5,
+          392848.0
+        ]
+      },
+      "FSI_L1_Prolong": {
+        "Time": [
+          0.0414426,
+          0.00705085,
+          0.027270939375,
+          0.0624652
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "BuildTwoSided": {
+        "Time": [
+          0.275907,
+          0.150704,
+          0.4340179375,
+          0.718653
+        ],
+        "Num Reductions": [
+          637.0,
+          635.0,
+          635.5,
+          637.0
+        ],
+        "Num Messages": [
+          1038.0,
+          397.0,
+          1024.3125,
+          1639.0
+        ],
+        "Message Length": [
+          4152.0,
+          1588.0,
+          4097.25,
+          6556.0
+        ],
+        "Count": [
+          639.0,
+          635.0,
+          636.0,
+          639.0
+        ]
+      },
+      "FSI_L4_Smooth": {
+        "Time": [
+          0.801657,
+          0.768208,
+          0.81178890625,
+          0.840846
+        ],
+        "Num Reductions": [
+          28208.0,
+          28208.0,
+          28208.0,
+          28208.0
+        ],
+        "Num Messages": [
+          401964.0,
+          28208.0,
+          312932.5,
+          585316.0
+        ],
+        "Message Length": [
+          7362290.0,
+          1523230.0,
+          7584429.375,
+          13455200.0
+        ],
+        "Count": [
+          3526.0,
+          3526.0,
+          3526.0,
+          3526.0
+        ]
+      },
+      "FSI_L1_Schur": {
+        "Time": [
+          1.13002,
+          1.13002,
+          1.692855,
+          3.30622
+        ],
+        "Num Reductions": [
+          24682.0,
+          24682.0,
+          24682.0,
+          24682.0
+        ],
+        "Num Messages": [
+          190404.0,
+          0.0,
+          132225.0,
+          296184.0
+        ],
+        "Message Length": [
+          123382000.0,
+          0.0,
+          65038840.625,
+          159093000.0
+        ],
+        "Count": [
+          3526.0,
+          3526.0,
+          3526.0,
+          3526.0
+        ]
+      },
+      "FSI_L0_Schur": {
+        "Time": [
+          1.2483,
+          1.24342,
+          1.8360734375,
+          3.23619
+        ],
+        "Num Reductions": [
+          24682.0,
+          24682.0,
+          24682.0,
+          24682.0
+        ],
+        "Num Messages": [
+          169248.0,
+          0.0,
+          109746.75,
+          253872.0
+        ],
+        "Message Length": [
+          155962000.0,
+          0.0,
+          76595254.0625,
+          181857000.0
+        ],
+        "Count": [
+          3526.0,
+          3526.0,
+          3526.0,
+          3526.0
+        ]
+      },
+      "FSI_L4_Restrict": {
+        "Time": [
+          0.00729886,
+          0.00449606,
+          0.0065407678125,
+          0.00898048
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "VecMDot": {
+        "Time": [
+          1.84391,
+          0.344941,
+          1.7719544375,
+          4.92352
+        ],
+        "Num Reductions": [
+          97196.0,
+          52890.0,
+          63966.5,
+          97196.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          97196.0,
+          52890.0,
+          63966.5,
+          97196.0
+        ]
+      },
+      "FSI_L2_Prolong": {
+        "Time": [
+          0.0077067,
+          0.002451,
+          0.00640495125,
+          0.0130827
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "FSI_L1_Smooth": {
+        "Time": [
+          1.8767,
+          1.8767,
+          2.61907375,
+          3.60336
+        ],
+        "Num Reductions": [
+          28208.0,
+          28208.0,
+          28208.0,
+          28208.0
+        ],
+        "Num Messages": [
+          275028.0,
+          28208.0,
+          215086.0,
+          437224.0
+        ],
+        "Message Length": [
+          205270000.0,
+          21522700.0,
+          126980112.5,
+          260078000.0
+        ],
+        "Count": [
+          3526.0,
+          3526.0,
+          3526.0,
+          3526.0
+        ]
+      },
+      "FSI_L0_Prolong": {
+        "Time": [
+          0.130809,
+          0.0156935,
+          0.06115985625,
+          0.130809
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "KSPSolve": {
+        "Time": [
+          20.8228,
+          20.8197,
+          20.82129375,
+          20.8232
+        ],
+        "Num Reductions": [
+          316743.0,
+          226362.0,
+          248957.25,
+          316743.0
+        ],
+        "Num Messages": [
+          2683840.0,
+          299878.0,
+          1895475.9375,
+          3952660.0
+        ],
+        "Message Length": [
+          1166170000.0,
+          149685000.0,
+          704595062.5,
+          1553140000.0
+        ],
+        "Count": [
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ]
+      },
+      "FSI_L2_Schur": {
+        "Time": [
+          0.750938,
+          0.719782,
+          0.99378746875,
+          1.86922
+        ],
+        "Num Reductions": [
+          24682.0,
+          24682.0,
+          24682.0,
+          24682.0
+        ],
+        "Num Messages": [
+          296184.0,
+          0.0,
+          212882.25,
+          423120.0
+        ],
+        "Message Length": [
+          38927000.0,
+          0.0,
+          21023765.9375,
+          48574200.0
+        ],
+        "Count": [
+          3526.0,
+          3526.0,
+          3526.0,
+          3526.0
+        ]
+      },
+      "FSI_L4_Prolong": {
+        "Time": [
+          0.00641766,
+          0.00205574,
+          0.00321835375,
+          0.00641766
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "FSI_L0_Smooth": {
+        "Time": [
+          2.70805,
+          2.65563,
+          3.0788790625,
+          3.60395
+        ],
+        "Num Reductions": [
+          28208.0,
+          28208.0,
+          28208.0,
+          28208.0
+        ],
+        "Num Messages": [
+          253872.0,
+          28208.0,
+          192607.75,
+          394912.0
+        ],
+        "Message Length": [
+          315563000.0,
+          35372800.0,
+          183882625.0,
+          363093000.0
+        ],
+        "Count": [
+          3526.0,
+          3526.0,
+          3526.0,
+          3526.0
+        ]
+      },
+      "FSI_L3_Restrict": {
+        "Time": [
+          0.00847578,
+          0.00419814,
+          0.0067960731250000005,
+          0.00902465
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "FSI_L3_Prolong": {
+        "Time": [
+          0.00560952,
+          0.00184957,
+          0.0035224259375,
+          0.00560952
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "FSI_L1_Restrict": {
+        "Time": [
+          0.0375565,
+          0.0104193,
+          0.030380971875,
+          0.0752507
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "PCApply": {
+        "Time": [
+          18.7036,
+          18.3952,
+          18.560134375,
+          18.7036
+        ],
+        "Num Reductions": [
+          233184.0,
+          142803.0,
+          165398.25,
+          233184.0
+        ],
+        "Num Messages": [
+          2662430.0,
+          285606.0,
+          1870054.125,
+          3920550.0
+        ],
+        "Message Length": [
+          1085420000.0,
+          131788000.0,
+          650312468.75,
+          1460560000.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "FSI_L0_Restrict": {
+        "Time": [
+          0.0868453,
+          0.0212622,
+          0.047688590625,
+          0.0868453
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "FSI_L3_Schur": {
+        "Time": [
+          0.636633,
+          0.598297,
+          0.6859785625,
+          0.881632
+        ],
+        "Num Reductions": [
+          24682.0,
+          24682.0,
+          24682.0,
+          24682.0
+        ],
+        "Num Messages": [
+          317340.0,
+          0.0,
+          230071.5,
+          444276.0
+        ],
+        "Message Length": [
+          7616160.0,
+          0.0,
+          5331311.875,
+          10324100.0
+        ],
+        "Count": [
+          3526.0,
+          3526.0,
+          3526.0,
+          3526.0
+        ]
+      },
+      "FSI_L2_Restrict": {
+        "Time": [
+          0.026098,
+          0.00449178,
+          0.011546079375,
+          0.026098
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "FSI_L3_Smooth": {
+        "Time": [
+          0.849093,
+          0.804141,
+          0.89840559375,
+          1.01202
+        ],
+        "Num Reductions": [
+          28208.0,
+          28208.0,
+          28208.0,
+          28208.0
+        ],
+        "Num Messages": [
+          401964.0,
+          28208.0,
+          312932.5,
+          585316.0
+        ],
+        "Message Length": [
+          13709100.0,
+          1805310.0,
+          12030713.75,
+          21099600.0
+        ],
+        "Count": [
+          3526.0,
+          3526.0,
+          3526.0,
+          3526.0
+        ]
+      },
+      "FSI_L5_Coarse": {
+        "Time": [
+          6.19705,
+          6.17871,
+          6.2045503125,
+          6.24635
+        ],
+        "Num Reductions": [
+          92144.0,
+          1763.0,
+          24358.25,
+          92144.0
+        ],
+        "Num Messages": [
+          737232.0,
+          3526.0,
+          289523.75,
+          1283100.0
+        ],
+        "Message Length": [
+          204508000.0,
+          169248.0,
+          76745091.75,
+          415480000.0
+        ],
+        "Count": [
+          1763.0,
+          1763.0,
+          1763.0,
+          1763.0
+        ]
+      },
+      "summary": {
+        "Time": [
+          23.204,
+          23.2032,
+          23.203546875,
+          23.2041
+        ],
+        "Num Reductions": [
+          318919.0,
+          228527.0,
+          251125.0,
+          318919.0
+        ],
+        "Num Messages": [
+          2690420.0,
+          302852.0,
+          1901415.1875,
+          3960560.0
+        ],
+        "Message Length": [
+          1225690000.0,
+          156381000.0,
+          740375875.0,
+          1621660000.0
+        ],
+        "Count": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "FSI_L2_Smooth": {
+        "Time": [
+          1.01566,
+          1.01566,
+          1.45110625,
+          2.04027
+        ],
+        "Num Reductions": [
+          28208.0,
+          28208.0,
+          28208.0,
+          28208.0
+        ],
+        "Num Messages": [
+          380808.0,
+          28208.0,
+          295743.25,
+          564160.0
+        ],
+        "Message Length": [
+          62762800.0,
+          5585180.0,
+          41220695.0,
+          83918800.0
+        ],
+        "Count": [
+          3526.0,
+          3526.0,
+          3526.0,
+          3526.0
+        ]
+      },
+      "MatMult": {
+        "Time": [
+          12.1163,
+          2.08719,
+          9.1098496875,
+          12.5602
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          2301290.0,
+          296512.0,
+          1744692.5625,
+          3297260.0
+        ],
+        "Message Length": [
+          1060750000.0,
+          149716000.0,
+          665188656.25,
+          1338250000.0
+        ],
+        "Count": [
+          196145.0,
+          151839.0,
+          162915.5,
+          196145.0
+        ]
+      }
+    }
+  },
+  "r128-profile1": {
+    "column_order": [
+      "rank0",
+      "min",
+      "mean",
+      "max"
+    ],
+    "events": {
+      "FSI_L4_Schur": {
+        "Time": [
+          2.12148,
+          1.91845,
+          2.056686484375,
+          2.29665
+        ],
+        "Num Reductions": [
+          24164.0,
+          24164.0,
+          24164.0,
+          24164.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          389968.109375,
+          1077020.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          3119745.0,
+          8616190.0
+        ],
+        "Count": [
+          3452.0,
+          3452.0,
+          3452.0,
+          3452.0
+        ]
+      },
+      "VecScatterBegin": {
+        "Time": [
+          1.51101,
+          0.267875,
+          2.402698109375,
+          6.71734
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          2730670.0,
+          297700.0,
+          3579230.640625,
+          10858600.0
+        ],
+        "Message Length": [
+          527169000.0,
+          75845800.0,
+          574939450.78125,
+          1934020000.0
+        ],
+        "Count": [
+          658293.0,
+          160824.0,
+          285191.25,
+          658293.0
+        ]
+      },
+      "FSI_L1_Prolong": {
+        "Time": [
+          0.00605254,
+          0.00321928,
+          0.01271753515625,
+          0.0567797
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "BuildTwoSided": {
+        "Time": [
+          0.43142,
+          0.159168,
+          0.3261751640625,
+          0.457884
+        ],
+        "Num Reductions": [
+          637.0,
+          635.0,
+          635.5,
+          637.0
+        ],
+        "Num Messages": [
+          1017.0,
+          398.0,
+          1482.140625,
+          3050.0
+        ],
+        "Message Length": [
+          4068.0,
+          1592.0,
+          5928.5625,
+          12200.0
+        ],
+        "Count": [
+          639.0,
+          635.0,
+          636.0,
+          639.0
+        ]
+      },
+      "FSI_L4_Smooth": {
+        "Time": [
+          2.36017,
+          2.28651,
+          2.3649821875,
+          2.44972
+        ],
+        "Num Reductions": [
+          27616.0,
+          27616.0,
+          27616.0,
+          27616.0
+        ],
+        "Num Messages": [
+          69040.0,
+          27616.0,
+          499461.546875,
+          1311760.0
+        ],
+        "Message Length": [
+          4667100.0,
+          1518880.0,
+          9890406.71875,
+          25268600.0
+        ],
+        "Count": [
+          3452.0,
+          3452.0,
+          3452.0,
+          3452.0
+        ]
+      },
+      "FSI_L1_Schur": {
+        "Time": [
+          2.56036,
+          1.95607,
+          2.407481875,
+          3.14224
+        ],
+        "Num Reductions": [
+          24164.0,
+          24164.0,
+          24164.0,
+          24164.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          229773.75,
+          704208.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          40778041.5625,
+          125432000.0
+        ],
+        "Count": [
+          3452.0,
+          3452.0,
+          3452.0,
+          3452.0
+        ]
+      },
+      "FSI_L0_Schur": {
+        "Time": [
+          2.53879,
+          1.83884,
+          2.29178375,
+          3.04544
+        ],
+        "Num Reductions": [
+          24164.0,
+          24164.0,
+          24164.0,
+          24164.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          139158.75,
+          434952.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          40748270.546875,
+          111182000.0
+        ],
+        "Count": [
+          3452.0,
+          3452.0,
+          3452.0,
+          3452.0
+        ]
+      },
+      "FSI_L4_Restrict": {
+        "Time": [
+          0.00322155,
+          0.00267184,
+          0.0044909409375,
+          0.00884131
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "VecMDot": {
+        "Time": [
+          20.5437,
+          0.740049,
+          6.1363672421875,
+          20.5437
+        ],
+        "Num Reductions": [
+          148167.0,
+          51780.0,
+          75876.75,
+          148167.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          148167.0,
+          51780.0,
+          75876.75,
+          148167.0
+        ]
+      },
+      "FSI_L2_Prolong": {
+        "Time": [
+          0.00212802,
+          0.00199973,
+          0.00350659359375,
+          0.00781018
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "FSI_L1_Smooth": {
+        "Time": [
+          3.22072,
+          2.63281,
+          2.98910015625,
+          3.41415
+        ],
+        "Num Reductions": [
+          27616.0,
+          27616.0,
+          27616.0,
+          27616.0
+        ],
+        "Num Messages": [
+          69040.0,
+          27616.0,
+          339266.875,
+          925136.0
+        ],
+        "Message Length": [
+          27118900.0,
+          10245500.0,
+          74465250.78125,
+          192207000.0
+        ],
+        "Count": [
+          3452.0,
+          3452.0,
+          3452.0,
+          3452.0
+        ]
+      },
+      "FSI_L0_Prolong": {
+        "Time": [
+          0.0143681,
+          0.005905,
+          0.02693855546875,
+          0.0980071
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "KSPSolve": {
+        "Time": [
+          42.9499,
+          42.9485,
+          42.949765625,
+          42.9515
+        ],
+        "Num Reductions": [
+          416648.0,
+          220416.0,
+          269474.0,
+          416648.0
+        ],
+        "Num Messages": [
+          2729160.0,
+          297032.0,
+          3577626.921875,
+          10856400.0
+        ],
+        "Message Length": [
+          528123000.0,
+          75558200.0,
+          575988279.6875,
+          1944440000.0
+        ],
+        "Count": [
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ]
+      },
+      "FSI_L2_Schur": {
+        "Time": [
+          2.09885,
+          1.80359,
+          2.04720734375,
+          2.48483
+        ],
+        "Num Reductions": [
+          24164.0,
+          24164.0,
+          24164.0,
+          24164.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          372168.75,
+          994176.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          14058269.375,
+          42252500.0
+        ],
+        "Count": [
+          3452.0,
+          3452.0,
+          3452.0,
+          3452.0
+        ]
+      },
+      "FSI_L4_Prolong": {
+        "Time": [
+          0.00448945,
+          0.00213131,
+          0.003763901796875,
+          0.00938846
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "FSI_L0_Smooth": {
+        "Time": [
+          3.24788,
+          2.92329,
+          3.223181640625,
+          3.39362
+        ],
+        "Num Reductions": [
+          27616.0,
+          27616.0,
+          27616.0,
+          27616.0
+        ],
+        "Num Messages": [
+          69040.0,
+          27616.0,
+          248651.875,
+          676592.0
+        ],
+        "Message Length": [
+          41948700.0,
+          15575400.0,
+          93403379.6875,
+          215626000.0
+        ],
+        "Count": [
+          3452.0,
+          3452.0,
+          3452.0,
+          3452.0
+        ]
+      },
+      "FSI_L3_Restrict": {
+        "Time": [
+          0.00309995,
+          0.00270422,
+          0.0045549425,
+          0.0104585
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "FSI_L3_Prolong": {
+        "Time": [
+          0.00222467,
+          0.00182987,
+          0.003014589140625,
+          0.0062493
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "FSI_L1_Restrict": {
+        "Time": [
+          0.0116248,
+          0.00456449,
+          0.010556013359375,
+          0.0203347
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "PCApply": {
+        "Time": [
+          41.2095,
+          41.1965,
+          41.30618828125,
+          41.4605
+        ],
+        "Num Reductions": [
+          336038.0,
+          139806.0,
+          188864.0,
+          336038.0
+        ],
+        "Num Messages": [
+          2694240.0,
+          283064.0,
+          3542051.78125,
+          10800500.0
+        ],
+        "Message Length": [
+          506905000.0,
+          67051600.0,
+          549355628.90625,
+          1891730000.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "FSI_L0_Restrict": {
+        "Time": [
+          0.0184414,
+          0.00796194,
+          0.017589334375,
+          0.0408633
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "FSI_L3_Schur": {
+        "Time": [
+          1.99398,
+          1.74134,
+          1.9122171875,
+          2.21079
+        ],
+        "Num Reductions": [
+          24164.0,
+          24164.0,
+          24164.0,
+          24164.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          389968.109375,
+          1077020.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          7612954.453125,
+          22203300.0
+        ],
+        "Count": [
+          3452.0,
+          3452.0,
+          3452.0,
+          3452.0
+        ]
+      },
+      "FSI_L2_Restrict": {
+        "Time": [
+          0.00352903,
+          0.0027906,
+          0.005091870234375,
+          0.0107648
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Message Length": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "FSI_L3_Smooth": {
+        "Time": [
+          2.25595,
+          2.09337,
+          2.19979078125,
+          2.34293
+        ],
+        "Num Reductions": [
+          27616.0,
+          27616.0,
+          27616.0,
+          27616.0
+        ],
+        "Num Messages": [
+          69040.0,
+          27616.0,
+          499461.546875,
+          1311760.0
+        ],
+        "Message Length": [
+          5191810.0,
+          1767420.0,
+          15401529.765625,
+          40678400.0
+        ],
+        "Count": [
+          3452.0,
+          3452.0,
+          3452.0,
+          3452.0
+        ]
+      },
+      "FSI_L5_Coarse": {
+        "Time": [
+          26.2165,
+          26.0917,
+          26.1692609375,
+          26.2606
+        ],
+        "Num Reductions": [
+          197958.0,
+          1726.0,
+          50784.0,
+          197958.0
+        ],
+        "Num Messages": [
+          2003840.0,
+          3452.0,
+          1121876.234375,
+          7147560.0
+        ],
+        "Message Length": [
+          333753000.0,
+          165696.0,
+          218090612.8125,
+          1411200000.0
+        ],
+        "Count": [
+          1726.0,
+          1726.0,
+          1726.0,
+          1726.0
+        ]
+      },
+      "summary": {
+        "Time": [
+          44.4175,
+          44.4155,
+          44.416821875000004,
+          44.4181
+        ],
+        "Num Reductions": [
+          418824.0,
+          222581.0,
+          271641.75,
+          418824.0
+        ],
+        "Num Messages": [
+          2741590.0,
+          300058.0,
+          3586090.921875,
+          10870500.0
+        ],
+        "Message Length": [
+          549286000.0,
+          79132100.0,
+          595071821.875,
+          1991580000.0
+        ],
+        "Count": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "FSI_L2_Smooth": {
+        "Time": [
+          2.55392,
+          2.2341,
+          2.415995078125,
+          2.69223
+        ],
+        "Num Reductions": [
+          27616.0,
+          27616.0,
+          27616.0,
+          27616.0
+        ],
+        "Num Messages": [
+          69040.0,
+          27616.0,
+          481661.8125,
+          1235820.0
+        ],
+        "Message Length": [
+          7649630.0,
+          2954910.0,
+          25630668.90625,
+          67079300.0
+        ],
+        "Count": [
+          3452.0,
+          3452.0,
+          3452.0,
+          3452.0
+        ]
+      },
+      "MatMult": {
+        "Time": [
+          4.93842,
+          1.66338,
+          8.2773928125,
+          14.6656
+        ],
+        "Num Reductions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Num Messages": [
+          1706850.0,
+          290288.0,
+          3008043.25,
+          8043810.0
+        ],
+        "Message Length": [
+          358658000.0,
+          75489900.0,
+          465035417.96875,
+          1363200000.0
+        ],
+        "Count": [
+          246769.0,
+          148656.0,
+          173184.25,
+          246769.0
+        ]
+      }
+    }
+  },
+  "internal-32": {
+    "steps": 32,
+    "slurm": "402",
+    "source_input": {
+      "eon/case.json": "9ace2184e62d613a46ca03bc20f3e2bed852d34cb1b69d64d1b2090fbe0e1c1b",
+      "eon/fluid.msh": "1fa0f0964747eb27afe2521c77705a426066e940e4c27048a230647befd88d16",
+      "eon/solid.msh": "abb75c9acbabb20976f5b1aec0c14330c4a9f6f8f7633bd62542dee4ab291db9",
+      "svfsi/flow.fcs": "270072f77b00bd93b4a11b1de54188c4b46816902be6fa1f4a8fb3979d766e4a",
+      "svfsi/fluid_in.vtp": "2fc62fa9d1847131a8299f6c513a97e915767a34380ebf704784d332de6c49d0",
+      "svfsi/fluid_out.vtp": "7973c2ea75d9316374f4e1b5eba79b3ced903d35250bb2187d785c79467e69cf",
+      "svfsi/fluid_y.vtp": "c797632db65d86d7df433d8ee64597529410fa3509f9aec605fe5b94eaf0d051",
+      "svfsi/fluid_z.vtp": "6a50f92a4afd3246450094b359f0f856e0b5edbf12e6717248d18ce84eccc472",
+      "svfsi/interface_fluid.vtp": "f37174613838c63dfdf2735b3b8b88d1df978095feb60d569a2c79e09be34262",
+      "svfsi/interface_solid.vtp": "14c169eb753d8dd9f00459ca383dfd6aec59a46ed3e8a9ce83543ea7c3dd8010",
+      "svfsi/lumen.vtu": "dc04fab6a78da08d902caeacf5c14c33a43d2b1dcbea60aa2c229a370966a731",
+      "svfsi/outer.vtp": "b4752d04125be1c81d98444e2b220fcee5c93999a7aab11d828adfdd545f7f4f",
+      "svfsi/profile.dat": "f0bda2604e240466f1a1ed504d9d4afa97cb14fe6e548d45582cdac16033a7ae",
+      "svfsi/svFSI.inp": "b7ca92ca3fc92778531231c02609de66ec83a8e197f6f399cf91c31776fe0456",
+      "svfsi/wall.vtu": "1c5715bf713b1b8af9ae1a1f37fd3a791c7cadcd1c127f5b58e5d5eec8b23e3f",
+      "svfsi/wall_in.vtp": "9f76d2004fd7f0698ef62336aaa2d003c20700870cf46ee5a86fa86a1b40a920",
+      "svfsi/wall_out.vtp": "d0cdb774d4971133cdce470ac640df8311f63b6c25fd1ae62a914fbce83f6289",
+      "svfsi/wall_y.vtp": "ea80199f0e7864c0242af52bea11141b4e567b1f0b431a382a79540ca185b8e7",
+      "svfsi/wall_z.vtp": "a6c8ba761bcb90b3763197e9042e8cd2fbfde78f688b26b85a00cb56c1160790"
+    },
+    "binary": "125cfbbab2fb7f49901988aabb377eaa7ec2199533de3bdd40b520d8b2f85d87",
+    "native_diagnostic_binary": "18b38ed365b51cac1872dac43b316b4d550f74c5309e131af42cba4febf316a5",
+    "runs": [
+      {
+        "repeat": 0,
+        "mode": "direct",
+        "kind": "warmup",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json"
+        ],
+        "status": "exited",
+        "rss_peak": 46956544,
+        "process_rss_peak": 31465472,
+        "T_job": 1.4046585178002715,
+        "exit_code": 0,
+        "log_sha256": "5bc5e629bf45d2b6a39707b7f4185a12fa33e747ab17b7a8ceb56dcfb6d14ea0",
+        "residual": 1.4685353284085754e-16
+      },
+      {
+        "repeat": 0,
+        "mode": "asm",
+        "kind": "warmup",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-10",
+          "-ksp_atol",
+          "1e-23",
+          "-ksp_max_it",
+          "3000",
+          "-ksp_gmres_restart",
+          "100",
+          "-ksp_type",
+          "fgmres",
+          "-pc_type",
+          "asm",
+          "-pc_asm_overlap",
+          "1",
+          "-sub_ksp_type",
+          "preonly",
+          "-sub_pc_type",
+          "ilu",
+          "-sub_pc_factor_levels",
+          "2",
+          "-nonlinear_true_residual",
+          "true",
+          "-linear_report",
+          "-solver_report"
+        ],
+        "status": "exited",
+        "rss_peak": 39903232,
+        "process_rss_peak": 24420352,
+        "T_job": 1.1159651009365916,
+        "exit_code": 0,
+        "log_sha256": "a78b9a5cf8ab3c703b7eaee6101437fbcf4fd7b6ae42c12ff1b1a3de724a33f0",
+        "residual": 1.205842626778863e-16
+      },
+      {
+        "repeat": 1,
+        "mode": "asm",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-10",
+          "-ksp_atol",
+          "1e-23",
+          "-ksp_max_it",
+          "3000",
+          "-ksp_gmres_restart",
+          "100",
+          "-ksp_type",
+          "fgmres",
+          "-pc_type",
+          "asm",
+          "-pc_asm_overlap",
+          "1",
+          "-sub_ksp_type",
+          "preonly",
+          "-sub_pc_type",
+          "ilu",
+          "-sub_pc_factor_levels",
+          "2",
+          "-nonlinear_true_residual",
+          "true",
+          "-linear_report",
+          "-solver_report"
+        ],
+        "status": "exited",
+        "rss_peak": 41893888,
+        "process_rss_peak": 26406912,
+        "T_job": 1.1160056120716035,
+        "exit_code": 0,
+        "log_sha256": "4786826f3d9ed25dffce1097dd6d1bdfb9a249076781080636f0dfe2082ca009",
+        "residual": 1.205842626778863e-16
+      },
+      {
+        "repeat": 1,
+        "mode": "direct",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json"
+        ],
+        "status": "exited",
+        "rss_peak": 46649344,
+        "process_rss_peak": 31158272,
+        "T_job": 1.4029275719076395,
+        "exit_code": 0,
+        "log_sha256": "5bc5e629bf45d2b6a39707b7f4185a12fa33e747ab17b7a8ceb56dcfb6d14ea0",
+        "residual": 1.4685353284085754e-16
+      },
+      {
+        "repeat": 2,
+        "mode": "direct",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json"
+        ],
+        "status": "exited",
+        "rss_peak": 44982272,
+        "process_rss_peak": 29491200,
+        "T_job": 1.4029487231746316,
+        "exit_code": 0,
+        "log_sha256": "5bc5e629bf45d2b6a39707b7f4185a12fa33e747ab17b7a8ceb56dcfb6d14ea0",
+        "residual": 1.4685353284085754e-16
+      },
+      {
+        "repeat": 2,
+        "mode": "asm",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-10",
+          "-ksp_atol",
+          "1e-23",
+          "-ksp_max_it",
+          "3000",
+          "-ksp_gmres_restart",
+          "100",
+          "-ksp_type",
+          "fgmres",
+          "-pc_type",
+          "asm",
+          "-pc_asm_overlap",
+          "1",
+          "-sub_ksp_type",
+          "preonly",
+          "-sub_pc_type",
+          "ilu",
+          "-sub_pc_factor_levels",
+          "2",
+          "-nonlinear_true_residual",
+          "true",
+          "-linear_report",
+          "-solver_report"
+        ],
+        "status": "exited",
+        "rss_peak": 42000384,
+        "process_rss_peak": 24428544,
+        "T_job": 1.1159645798616111,
+        "exit_code": 0,
+        "log_sha256": "6aaf0fbc1129feefbfff13ba6281ff37229fcd579851ca0e124a386fec0728fc",
+        "residual": 1.205842626778863e-16
+      },
+      {
+        "repeat": 3,
+        "mode": "asm",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-10",
+          "-ksp_atol",
+          "1e-23",
+          "-ksp_max_it",
+          "3000",
+          "-ksp_gmres_restart",
+          "100",
+          "-ksp_type",
+          "fgmres",
+          "-pc_type",
+          "asm",
+          "-pc_asm_overlap",
+          "1",
+          "-sub_ksp_type",
+          "preonly",
+          "-sub_pc_type",
+          "ilu",
+          "-sub_pc_factor_levels",
+          "2",
+          "-nonlinear_true_residual",
+          "true",
+          "-linear_report",
+          "-solver_report"
+        ],
+        "status": "exited",
+        "rss_peak": 39911424,
+        "process_rss_peak": 24420352,
+        "T_job": 1.1160228019580245,
+        "exit_code": 0,
+        "log_sha256": "8e020bc1fe975e0450cc863f14377273e632b8b45e98489de6965f362773c061",
+        "residual": 1.205842626778863e-16
+      },
+      {
+        "repeat": 3,
+        "mode": "direct",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json"
+        ],
+        "status": "exited",
+        "rss_peak": 44961792,
+        "process_rss_peak": 29466624,
+        "T_job": 1.4030183660797775,
+        "exit_code": 0,
+        "log_sha256": "5bc5e629bf45d2b6a39707b7f4185a12fa33e747ab17b7a8ceb56dcfb6d14ea0",
+        "residual": 1.4685353284085754e-16
+      }
+    ],
+    "passed": true,
+    "field_differences": [
+      4.3520742565306136e-14,
+      4.3520742565306136e-14,
+      4.3520742565306136e-14,
+      4.3520742565306136e-14
+    ],
+    "medians": {
+      "direct": 1.4029487231746316,
+      "asm": 1.1160056120716035
+    },
+    "loop": {
+      "eon": {
+        "elapsed": [
+          0.046288212,
+          0.07314266900000001,
+          0.100555966,
+          0.13217755299999998,
+          0.15907502099999998,
+          0.18593442799999998,
+          0.21279928500000003,
+          0.24435840899999997,
+          0.27126649799999997,
+          0.29851161900000006,
+          0.32543446800000003,
+          0.35712236700000005,
+          0.38416949100000003,
+          0.411062129,
+          0.437863764,
+          0.469373246,
+          0.49665369900000006,
+          0.523658941,
+          0.5508441,
+          0.582430826,
+          0.609402567,
+          0.636274114,
+          0.663088159,
+          0.6959636029999999,
+          0.722905603,
+          0.749807971,
+          0.776637857,
+          0.808297595,
+          0.8352045739999999,
+          0.862100472,
+          0.8889099859999999,
+          0.920828275
+        ],
+        "first": 0.046288212,
+        "T_loop": 0.920828275,
+        "T_job": 1.1159643311984837
+      },
+      "svfsi": {
+        "elapsed": [
+          0.288833103,
+          0.694349192,
+          1.081526897,
+          1.489537861,
+          1.897493992,
+          2.303843213,
+          2.702324846,
+          3.057928726,
+          3.420435627,
+          3.79935674,
+          4.174452797,
+          4.512380108,
+          4.881687607,
+          5.280595501,
+          5.707928167,
+          6.12536986,
+          6.520837165,
+          6.928559341,
+          7.334581304,
+          7.742136564,
+          8.133975336,
+          8.524353285,
+          8.873913504,
+          9.267394457,
+          9.660303608,
+          10.037399809,
+          10.389951159,
+          10.773017669,
+          11.130067873,
+          11.540442516,
+          11.93613065,
+          12.345751095
+        ],
+        "first": 0.288833103,
+        "T_loop": 12.345751095,
+        "T_job": 12.534964121878147
+      }
+    }
+  },
+  "internal-100": {
+    "steps": 100,
+    "slurm": "402",
+    "source_input": {
+      "eon/case.json": "ab0cd8b5e6489f235a2d68e7d787924aa24446f806c36fecc0f73d3deef72196",
+      "eon/fluid.msh": "1fa0f0964747eb27afe2521c77705a426066e940e4c27048a230647befd88d16",
+      "eon/solid.msh": "abb75c9acbabb20976f5b1aec0c14330c4a9f6f8f7633bd62542dee4ab291db9",
+      "svfsi/flow.fcs": "270072f77b00bd93b4a11b1de54188c4b46816902be6fa1f4a8fb3979d766e4a",
+      "svfsi/fluid_in.vtp": "2fc62fa9d1847131a8299f6c513a97e915767a34380ebf704784d332de6c49d0",
+      "svfsi/fluid_out.vtp": "7973c2ea75d9316374f4e1b5eba79b3ced903d35250bb2187d785c79467e69cf",
+      "svfsi/fluid_y.vtp": "c797632db65d86d7df433d8ee64597529410fa3509f9aec605fe5b94eaf0d051",
+      "svfsi/fluid_z.vtp": "6a50f92a4afd3246450094b359f0f856e0b5edbf12e6717248d18ce84eccc472",
+      "svfsi/interface_fluid.vtp": "f37174613838c63dfdf2735b3b8b88d1df978095feb60d569a2c79e09be34262",
+      "svfsi/interface_solid.vtp": "14c169eb753d8dd9f00459ca383dfd6aec59a46ed3e8a9ce83543ea7c3dd8010",
+      "svfsi/lumen.vtu": "dc04fab6a78da08d902caeacf5c14c33a43d2b1dcbea60aa2c229a370966a731",
+      "svfsi/outer.vtp": "b4752d04125be1c81d98444e2b220fcee5c93999a7aab11d828adfdd545f7f4f",
+      "svfsi/profile.dat": "f0bda2604e240466f1a1ed504d9d4afa97cb14fe6e548d45582cdac16033a7ae",
+      "svfsi/svFSI.inp": "dca53f6d083c10471dc01366e6b918cc6d71df5d80e2762ca66bc7a5c6b98926",
+      "svfsi/wall.vtu": "1c5715bf713b1b8af9ae1a1f37fd3a791c7cadcd1c127f5b58e5d5eec8b23e3f",
+      "svfsi/wall_in.vtp": "9f76d2004fd7f0698ef62336aaa2d003c20700870cf46ee5a86fa86a1b40a920",
+      "svfsi/wall_out.vtp": "d0cdb774d4971133cdce470ac640df8311f63b6c25fd1ae62a914fbce83f6289",
+      "svfsi/wall_y.vtp": "ea80199f0e7864c0242af52bea11141b4e567b1f0b431a382a79540ca185b8e7",
+      "svfsi/wall_z.vtp": "a6c8ba761bcb90b3763197e9042e8cd2fbfde78f688b26b85a00cb56c1160790"
+    },
+    "binary": "125cfbbab2fb7f49901988aabb377eaa7ec2199533de3bdd40b520d8b2f85d87",
+    "native_diagnostic_binary": "18b38ed365b51cac1872dac43b316b4d550f74c5309e131af42cba4febf316a5",
+    "runs": [
+      {
+        "repeat": 0,
+        "mode": "direct",
+        "kind": "warmup",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json"
+        ],
+        "status": "exited",
+        "rss_peak": 45350912,
+        "process_rss_peak": 29868032,
+        "T_job": 4.00749086542055,
+        "exit_code": 0,
+        "log_sha256": "a815022b1e48cb51873902b78af86819ab36916b8985679c511cd46ea33e5db2",
+        "residual": 1.4685353284085754e-16
+      },
+      {
+        "repeat": 0,
+        "mode": "asm",
+        "kind": "warmup",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-10",
+          "-ksp_atol",
+          "1e-23",
+          "-ksp_max_it",
+          "3000",
+          "-ksp_gmres_restart",
+          "100",
+          "-ksp_type",
+          "fgmres",
+          "-pc_type",
+          "asm",
+          "-pc_asm_overlap",
+          "1",
+          "-sub_ksp_type",
+          "preonly",
+          "-sub_pc_type",
+          "ilu",
+          "-sub_pc_factor_levels",
+          "2",
+          "-nonlinear_true_residual",
+          "true",
+          "-linear_report",
+          "-solver_report"
+        ],
+        "status": "exited",
+        "rss_peak": 39911424,
+        "process_rss_peak": 24428544,
+        "T_job": 3.0693560680374503,
+        "exit_code": 0,
+        "log_sha256": "d2f18b3c1d97ba98845deba2bb3c48baff7c1aaa2216894c3f6186fedd29087b",
+        "residual": 1.205842626778863e-16
+      },
+      {
+        "repeat": 1,
+        "mode": "asm",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-10",
+          "-ksp_atol",
+          "1e-23",
+          "-ksp_max_it",
+          "3000",
+          "-ksp_gmres_restart",
+          "100",
+          "-ksp_type",
+          "fgmres",
+          "-pc_type",
+          "asm",
+          "-pc_asm_overlap",
+          "1",
+          "-sub_ksp_type",
+          "preonly",
+          "-sub_pc_type",
+          "ilu",
+          "-sub_pc_factor_levels",
+          "2",
+          "-nonlinear_true_residual",
+          "true",
+          "-linear_report",
+          "-solver_report"
+        ],
+        "status": "exited",
+        "rss_peak": 39911424,
+        "process_rss_peak": 24424448,
+        "T_job": 3.0220243888907135,
+        "exit_code": 0,
+        "log_sha256": "eb9a6278f551f03ab4163474bda8f72e99175649e5aec0554053bcc9d87aba4c",
+        "residual": 1.205842626778863e-16
+      },
+      {
+        "repeat": 1,
+        "mode": "direct",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json"
+        ],
+        "status": "exited",
+        "rss_peak": 45350912,
+        "process_rss_peak": 29863936,
+        "T_job": 3.970899731852114,
+        "exit_code": 0,
+        "log_sha256": "a815022b1e48cb51873902b78af86819ab36916b8985679c511cd46ea33e5db2",
+        "residual": 1.4685353284085754e-16
+      },
+      {
+        "repeat": 2,
+        "mode": "direct",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json"
+        ],
+        "status": "exited",
+        "rss_peak": 43290624,
+        "process_rss_peak": 27799552,
+        "T_job": 3.971315626986325,
+        "exit_code": 0,
+        "log_sha256": "a815022b1e48cb51873902b78af86819ab36916b8985679c511cd46ea33e5db2",
+        "residual": 1.4685353284085754e-16
+      },
+      {
+        "repeat": 2,
+        "mode": "asm",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-10",
+          "-ksp_atol",
+          "1e-23",
+          "-ksp_max_it",
+          "3000",
+          "-ksp_gmres_restart",
+          "100",
+          "-ksp_type",
+          "fgmres",
+          "-pc_type",
+          "asm",
+          "-pc_asm_overlap",
+          "1",
+          "-sub_ksp_type",
+          "preonly",
+          "-sub_pc_type",
+          "ilu",
+          "-sub_pc_factor_levels",
+          "2",
+          "-nonlinear_true_residual",
+          "true",
+          "-linear_report",
+          "-solver_report"
+        ],
+        "status": "exited",
+        "rss_peak": 41902080,
+        "process_rss_peak": 26411008,
+        "T_job": 3.119543551001698,
+        "exit_code": 0,
+        "log_sha256": "590a567056205a64cd3a7aa36f00968f6b8c2b92160c3918195a4f19b8fa862c",
+        "residual": 1.205842626778863e-16
+      },
+      {
+        "repeat": 3,
+        "mode": "asm",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json",
+          "-ksp_pc_side",
+          "right",
+          "-ksp_norm_type",
+          "unpreconditioned",
+          "-ksp_rtol",
+          "1e-10",
+          "-ksp_atol",
+          "1e-23",
+          "-ksp_max_it",
+          "3000",
+          "-ksp_gmres_restart",
+          "100",
+          "-ksp_type",
+          "fgmres",
+          "-pc_type",
+          "asm",
+          "-pc_asm_overlap",
+          "1",
+          "-sub_ksp_type",
+          "preonly",
+          "-sub_pc_type",
+          "ilu",
+          "-sub_pc_factor_levels",
+          "2",
+          "-nonlinear_true_residual",
+          "true",
+          "-linear_report",
+          "-solver_report"
+        ],
+        "status": "exited",
+        "rss_peak": 39919616,
+        "process_rss_peak": 24424448,
+        "T_job": 3.0374429561197758,
+        "exit_code": 0,
+        "log_sha256": "c1b1ac372bb4415114cc8e89e74c87e420b9904cb8e175571af101dae71bacfe",
+        "residual": 1.205842626778863e-16
+      },
+      {
+        "repeat": 3,
+        "mode": "direct",
+        "kind": "timed",
+        "command": [
+          "$HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim",
+          "-case",
+          "case.json"
+        ],
+        "status": "exited",
+        "rss_peak": 43257856,
+        "process_rss_peak": 27762688,
+        "T_job": 3.970933532807976,
+        "exit_code": 0,
+        "log_sha256": "a815022b1e48cb51873902b78af86819ab36916b8985679c511cd46ea33e5db2",
+        "residual": 1.4685353284085754e-16
+      }
+    ],
+    "passed": true,
+    "field_differences": [
+      4.3520742565306136e-14,
+      4.3520742565306136e-14,
+      4.3520742565306136e-14,
+      4.3520742565306136e-14
+    ],
+    "medians": {
+      "direct": 3.970933532807976,
+      "asm": 3.0374429561197758
+    }
+  }
+}

@@ -1,0 +1,77 @@
+CPU(s):                128
+On-line CPU(s) list:   0-127
+Thread(s) per core:    1
+Core(s) per socket:    64
+Socket(s):             2
+NUMA node(s):          2
+Model name:            AMD EPYC 7763 64-Core Processor
+NUMA node0 CPU(s):     0-63
+NUMA node1 CPU(s):     64-127
+              total        used        free      shared  buff/cache   available
+Mem:    270205767680 12471394304 224566358016   915931136 33168015360 255889604608
+Swap:   32398897152           0 32398897152
+Cpus_allowed_list:	0-127
+gcc (GCC) 11.5.0
+cmake version 3.31.8
+mpiexec (OpenRTE) 4.1.8
+	linux-vdso.so.1 => 
+	/usr/local/lib/libmount.so
+	libpetsc.so.3.23 => $HOME/software/petsc-3.23.7/arch-linux-c-opt/lib/libpetsc.so.3.23
+	libopenblas.so.0 => /opt/software/openblas-0.3.29-gcc-11.5.0/lib/libopenblas.so.0
+	libyaml-cpp.so.0.8 => $HOME/miniforge/pkgs/yaml-cpp-0.8.0-h59595ed_0/lib/libyaml-cpp.so.0.8
+	libmetis.so => $HOME/software/petsc-3.23.7/arch-linux-c-opt/lib/libmetis.so
+	libhdf5.so.310 => $HOME/software/petsc-3.23.7/arch-linux-c-opt/lib/libhdf5.so.310
+	libgomp.so.1 => /opt/software/gcc-11.5.0/lib64/libgomp.so.1
+	libmpi.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libmpi.so.40
+	libstdc++.so.6 => /opt/software/gcc-11.5.0/lib64/libstdc++.so.6
+	libm.so.6 => /lib64/libm.so.6
+	libgcc_s.so.1 => /opt/software/gcc-11.5.0/lib64/libgcc_s.so.1
+	libpthread.so.0 => /lib64/libpthread.so.0
+	libc.so.6 => /lib64/libc.so.6
+	libdl.so.2 => /lib64/libdl.so.2
+	libHYPRE-2.32.0.so => $HOME/software/petsc-3.23.7/arch-linux-c-opt/lib/libHYPRE-2.32.0.so
+	libsuperlu_dist.so.9 => $HOME/software/petsc-3.23.7/arch-linux-c-opt/lib/libsuperlu_dist.so.9
+	libscalapack.so.2.2 => $HOME/software/petsc-3.23.7/arch-linux-c-opt/lib/libscalapack.so.2.2
+	liblapack.so.3 => /lib64/liblapack.so.3
+	libblas.so.3 => /lib64/libblas.so.3
+	libparmetis.so => $HOME/software/petsc-3.23.7/arch-linux-c-opt/lib/libparmetis.so
+	libhdf5_hl.so.310 => $HOME/software/petsc-3.23.7/arch-linux-c-opt/lib/libhdf5_hl.so.310
+	libmpi_usempif08.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libmpi_usempif08.so.40
+	libmpi_usempi_ignore_tkr.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libmpi_usempi_ignore_tkr.so.40
+	libmpi_mpifh.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libmpi_mpifh.so.40
+	libgfortran.so.5 => /opt/software/gcc-11.5.0/lib64/libgfortran.so.5
+	libquadmath.so.0 => /opt/software/gcc-11.5.0/lib64/libquadmath.so.0
+	/lib64/ld-linux-x86-64.so.2
+	libopen-rte.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libopen-rte.so.40
+	libopen-pal.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libopen-pal.so.40
+	librt.so.1 => /lib64/librt.so.1
+	libutil.so.1 => /lib64/libutil.so.1
+	libz.so.1 => /lib64/libz.so.1
+	libgfortran.so.3 => /lib64/libgfortran.so.3
+	linux-vdso.so.1 => 
+	/usr/local/lib/libmount.so
+	libmpi_usempif08.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libmpi_usempif08.so.40
+	libmpi_usempi_ignore_tkr.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libmpi_usempi_ignore_tkr.so.40
+	libmpi_mpifh.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libmpi_mpifh.so.40
+	libmpi.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libmpi.so.40
+	libopenblas.so.0 => /opt/software/openblas-0.3.29-gcc-11.5.0/lib/libopenblas.so.0
+	libdl.so.2 => /lib64/libdl.so.2
+	libgfortran.so.5 => /opt/software/gcc-11.5.0/lib64/libgfortran.so.5
+	libquadmath.so.0 => /opt/software/gcc-11.5.0/lib64/libquadmath.so.0
+	libstdc++.so.6 => /opt/software/gcc-11.5.0/lib64/libstdc++.so.6
+	libm.so.6 => /lib64/libm.so.6
+	libgcc_s.so.1 => /opt/software/gcc-11.5.0/lib64/libgcc_s.so.1
+	libc.so.6 => /lib64/libc.so.6
+	libopen-rte.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libopen-rte.so.40
+	libopen-pal.so.40 => /opt/software/openmpi-4.1.8-gcc-11.5.0/lib/libopen-pal.so.40
+	librt.so.1 => /lib64/librt.so.1
+	libutil.so.1 => /lib64/libutil.so.1
+	libz.so.1 => /lib64/libz.so.1
+	libpthread.so.0 => /lib64/libpthread.so.0
+	/lib64/ld-linux-x86-64.so.2
+4c4ecf58bfda79664169455625babe83392d056509fc08ab1bc404c345032a80  $HOME/workspace/EONSim-fsi-scalable-01/build/release/eonsim
+da9122fdb08d469daaf25f8aac77eabcd6a2985cab5282f6bd1c0bbaf8cd654f  $HOME/workspace/fsi-scalable-02-runs/eonsim-610eadd
+125cfbbab2fb7f49901988aabb377eaa7ec2199533de3bdd40b520d8b2f85d87  $HOME/workspace/EONSim-fsi-scalable-02/build/release/eonsim
+0a141a59e1d284e689cca4d236f4e2c6d6d63492d6bf820112a4b78039605a60  $HOME/software/svFSI/svFSI/build/svFSI-build/bin/svFSI
+18b38ed365b51cac1872dac43b316b4d550f74c5309e131af42cba4febf316a5  $HOME/workspace/fsi-scalable-02-runs/native-timing-build/svFSI
+7bdb74cdd517310d6bf32c0bb7d42072aeac8658
