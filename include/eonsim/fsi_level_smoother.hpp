@@ -16,7 +16,7 @@ struct FsiLevelSmootherOptions {
 struct FsiLevelSmootherStats {
     PetscInt applications=0,refreshes=0,polynomial_degree=0;
     double eigenvalue_upper=0.;
-    PetscInt primal_rows=0,pressure_rows=0,schur_budget=0,schur_iterations=0,schur_applications=0;
+    PetscInt primal_rows=0,pressure_rows=0,schur_budget=0,schur_iterations=0,schur_applications=0,zero_lift_skips=0;
     InterfacePatchPcStats patches;
 };
 struct FsiLevelSmoother;
