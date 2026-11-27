@@ -36,7 +36,7 @@ struct InterfacePatchPcStats {
     PetscInt colors=1,color_stages=0,residual_products=0;
     std::size_t factor_bytes=0;
     std::size_t retained_fp64_matrix_bytes=0,fp32_matrix_bytes=0;
-    /// Local CSR offsets/columns only; separate from FP32 coefficients and LU.
+    /// Retained patch/residual CSR and halo indices; separate from FP32 values and LU.
     std::size_t native_index_bytes=0;
 };
 /// Collective validation, also usable before an exactly converged solve.

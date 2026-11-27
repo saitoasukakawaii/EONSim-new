@@ -710,7 +710,9 @@ struct PatchState {
             native_residual.update(source,true,mask.get());
         }
         stats.fp32_matrix_bytes=native_residual.values.size()*sizeof(float);
-        stats.native_sparse_patches=stats.native_dense_patches=0;stats.native_index_bytes=0;
+        stats.native_sparse_patches=stats.native_dense_patches=0;
+        stats.native_index_bytes=(native_residual.offsets.capacity()+native_residual.columns.capacity()+
+            native_residual.slots.capacity())*sizeof(PetscInt);
         for(auto& patch:patches) {
             patch.retain_native_coefficients();
             stats.fp32_matrix_bytes+=patch.single_matrix.size()*sizeof(float);

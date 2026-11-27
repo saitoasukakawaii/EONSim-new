@@ -389,7 +389,6 @@ def audit(log, trace, ranks, mode):
             block.require(work and {int(row['rank']) for row in work} == set(range(ranks)),
                           'Missing actual saddle-MG action records')
             for feature, counter in (('mf_fine', 'matrix_free_fine_actions'),
-                                     ('reuse', 'hierarchy_reuses'),
                                      ('adaptive_hierarchy', 'adaptive_probes'),
                                      ('braess', 'schur_applications'),
                                      ('colored', 'vanka_color_stages'),
@@ -398,8 +397,24 @@ def audit(log, trace, ranks, mode):
                     block.require(sum(int(row.get(counter, 0)) for row in work) > 0,
                                   ('Requested mechanism was configured but never executed', feature))
             if 'reuse' in selected:
-                block.require(sum(int(row.get('symbolic_reuses', 0)) for row in work) > 0,
-                              'Hierarchy reuse did not retain Galerkin symbolic structures')
+                reused = max(int(row.get('hierarchy_reuses', 0)) for row in work)
+                symbolic = max(int(row.get('symbolic_reuses', 0)) for row in work)
+                divergence_rebuilds = max(int(row.get('divergence_rebuilds', 0)) for row in work)
+                if reused:
+                    block.require(symbolic > 0, 'Hierarchy reuse did not retain Galerkin symbolic structures')
+                    assessment = 'executed'
+                else:
+                    # A changing B invalidates a non-full pressure image space.
+                    # The combined mode must rebuild that closure; it cannot
+                    # use an obsolete transfer merely to satisfy a reuse count.
+                    # Standalone mono_reuse still requires actual reuse above.
+                    block.require('commuting' in selected and divergence_rebuilds > 0 and
+                                  any(int(row['pressure_rows']) > int(row['coarse_pressure_rows'])
+                                      for row in transfers),
+                                  'Hierarchy reuse neither executed nor rebuilt an invalid divergence closure')
+                    assessment = 'invalidated_by_changed_divergence'
+                result['hierarchy_reuse_evidence'] = dict(status=assessment, hierarchy_reuses=reused,
+                    symbolic_reuses=symbolic, divergence_rebuilds=divergence_rebuilds)
             if 'communication' in selected and max(int(row['levels']) for row in work) > 2:
                 block.require(sum(int(row.get('batched_reduction_groups', 0)) for row in work) > 0,
                               'K-cycle reductions were not actually batched')

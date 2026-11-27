@@ -589,8 +589,25 @@ void verify_saddle_extensions(MPI_Comm comm,bool combined) {
     action(problem,solver.get(),1);
     MonolithicFsiMgStats refreshed;query_monolithic_fsi_mg_stats(pc,refreshed);
     if(combined) check(comm,refreshed.hierarchy_rebuilds==initial.hierarchy_rebuilds&&
-        refreshed.hierarchy_reuses==1&&refreshed.symbolic_reuses>=refreshed.levels-1,
+        refreshed.hierarchy_reuses==1&&refreshed.unchanged_divergence_reuses==1&&
+        refreshed.symbolic_reuses>=refreshed.levels-1,
         "Compatible mild numeric update rebuilt the coarse space or skipped fresh symbolic-product reuse");
+    if(combined) {
+        // A change to B, rather than F/C, invalidates the reduced pressure-image
+        // closure even at small row drift. It must rebuild, never keep a stale
+        // compatibility certificate or merely relax its numerical audit.
+        if(problem.begin<=5&&5<problem.end) EONSIM_PETSC(MatSetValue(problem.matrix.get(),5,4,-1.02,INSERT_VALUES));
+        EONSIM_PETSC(MatAssemblyBegin(problem.matrix.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatAssemblyEnd(problem.matrix.get(),MAT_FINAL_ASSEMBLY));
+        updates.refresh(problem.matrix.get());
+        MonolithicFsiMgStats changed_B;query_monolithic_fsi_mg_stats(pc,changed_B);
+        check(comm,changed_B.hierarchy_rebuilds==refreshed.hierarchy_rebuilds+1&&
+            changed_B.divergence_rebuilds==1&&changed_B.hierarchy_reuses==refreshed.hierarchy_reuses,
+            "Changed B reused a reduced compatible pressure space without rebuilding its closure");
+        for(const auto& level:changed_B.transfers)
+            check(comm,level.divergence_commuting_defect<=1e-10,"Rebuilt pressure closure lost the commuting relation");
+        action(problem,solver.get(),2);
+    }
     EONSIM_PETSC(PetscPrintf(comm,
         "saddle_extension combined=%d levels=%" PetscInt_FMT " supremizer_modes=%" PetscInt_FMT
         " intermediate_supremizer_modes=%" PetscInt_FMT " cut_aggregates=%" PetscInt_FMT

@@ -206,6 +206,10 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
                <<" coarse_krylov_max_residual_ratio="<<multigrid.coarse_krylov_max_residual_ratio
                <<" fp32_value_bytes="<<multigrid.fp32_value_bytes
                <<" matrix_free_fine_actions="<<multigrid.matrix_free_fine_actions
+               <<" fine_bootstrap_actions="<<multigrid.fine_bootstrap_actions
+               <<" hierarchy_rebuilds="<<multigrid.hierarchy_rebuilds
+               <<" divergence_rebuilds="<<multigrid.divergence_rebuilds
+               <<" unchanged_divergence_reuses="<<multigrid.unchanged_divergence_reuses
                <<" hierarchy_reuses="<<multigrid.hierarchy_reuses<<" symbolic_reuses="<<multigrid.symbolic_reuses
                <<" adaptive_rebuilds="<<multigrid.adaptive_rebuilds<<" adaptive_probes="<<multigrid.adaptive_probes
                <<" batched_reduction_groups="<<multigrid.batched_reduction_groups

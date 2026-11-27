@@ -39,6 +39,7 @@ struct MonolithicFsiMgStats {
     bool distributed_aggregation=false,adaptive_hierarchy=false,reuse_hierarchy=false;
     PetscInt matrix_free_fine_actions=0,fine_bootstrap_actions=0,hierarchy_reuses=0,symbolic_reuses=0,adaptive_rebuilds=0;
     PetscInt adaptive_probes=0,batched_reduction_groups=0,complexity_stop_rows=0;
+    PetscInt divergence_rebuilds=0,unchanged_divergence_reuses=0;
     double operator_complexity=1.,adaptive_residual_ratio=0.,hierarchy_numeric_drift=0.;
     std::size_t fp32_value_bytes=0;
     /// Additional level/transfer coefficient storage, excluding original outer P, indices and PETSc vectors.
@@ -161,8 +162,11 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * global diagonal/absolute-row-sum drift trigger rebuilding; this drift is a
  * heuristic, not an operator-error bound. Frozen scaling remains a valid
  * L*A_current*R transformation. Compatible pressure reuse additionally requires
- * a full active pressure span at every level; otherwise the image closure is
- * rebuilt. Native released setup/adaptive patch membership cannot use this
+ * either a full active pressure span at every level or exactly unchanged fine
+ * pressure-to-primal coefficients (including off-rank columns and zeros).
+ * With fixed scaling and typed transfers the latter keeps every coarse B
+ * unchanged. Changed B with a reduced pressure span rebuilds image closure;
+ * both paths have separate counters. Native released setup/adaptive patch membership cannot use this
  * option. Pair/transfer audits refer to their reported setup generation.
  * adaptive_hierarchy probes ||r-A*M*r||/||r|| every adaptive_interval applies;
  * poor contraction schedules a rebuild at the next explicit refresh, with
