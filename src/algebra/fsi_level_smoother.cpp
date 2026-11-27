@@ -114,6 +114,7 @@ struct FsiLevelSmoother {
     PetscOwner<Mat,MatDestroy> primal,gradient,divergence,pressure_block,primal_inverse,inverse_gradient,schur_product,schur;
     PetscOwner<Vec,VecDestroy> primal_solution,primal_rhs,primal_work,pressure_rhs,pressure_solution;
     std::vector<std::vector<PetscInt>> primal_blocks;
+    std::vector<PetscInt> primal_offsets,pressure_offsets;
 
     std::vector<unsigned char> inspect_constraints(Mat matrix) const {
         std::vector<unsigned char> result(end-begin,0);
@@ -257,6 +258,10 @@ struct FsiLevelSmoother {
             primal_blocks.push_back(std::move(group.second));
         }
         common_check(comm,bounded,"a Braess-Sarazin primal entity exceeds the patch size limit");
+        if(options.braess_local_fields) {
+            for(auto index:u) primal_offsets.push_back(index-begin);
+            for(auto index:p) pressure_offsets.push_back(index-begin);
+        }
     }
 
     void refresh_braess(Mat matrix) {
@@ -316,6 +321,24 @@ struct FsiLevelSmoother {
         EONSIM_PETSC(KSPSetUp(solver.get()));
     }
 
+    PetscErrorCode gather_field(const PetscScalar* mixed,const std::vector<PetscInt>& offsets,Vec field) {
+        PetscFunctionBeginUser;
+        PetscScalar* values=nullptr;
+        PetscCall(VecGetArrayWrite(field,&values));
+        for(std::size_t i=0;i<offsets.size();++i) values[i]=mixed[offsets[i]];
+        PetscCall(VecRestoreArrayWrite(field,&values));
+        PetscFunctionReturn(PETSC_SUCCESS);
+    }
+
+    PetscErrorCode add_field(Vec field,const std::vector<PetscInt>& offsets,PetscScalar* mixed) {
+        PetscFunctionBeginUser;
+        const PetscScalar* values=nullptr;
+        PetscCall(VecGetArrayRead(field,&values));
+        for(std::size_t i=0;i<offsets.size();++i) mixed[offsets[i]]+=options.patches.damping*values[i];
+        PetscCall(VecRestoreArrayRead(field,&values));
+        PetscFunctionReturn(PETSC_SUCCESS);
+    }
+
     PetscErrorCode apply_braess(Vec input,Vec output,bool& valid) {
         PetscFunctionBeginUser;
         Vec active_rhs=input;
@@ -334,16 +357,27 @@ struct FsiLevelSmoother {
             ++stats.zero_lift_skips;
         }
         Vec ru=nullptr,rp=nullptr;
-        PetscCall(VecGetSubVector(active_rhs,primal_is.get(),&ru));
-        PetscCall(VecGetSubVector(active_rhs,pressure_is.get(),&rp));
+        if(options.braess_local_fields) {
+            const PetscScalar* mixed=nullptr;
+            PetscCall(VecGetArrayRead(active_rhs,&mixed));
+            ru=primal_rhs.get();
+            // The pressure KSP has a zero initial guess. Reuse its output for rp until KSPSolve.
+            rp=pressure_solution.get();
+            PetscCall(gather_field(mixed,primal_offsets,ru));
+            PetscCall(gather_field(mixed,pressure_offsets,rp));
+            PetscCall(VecRestoreArrayRead(active_rhs,&mixed));
+        } else {
+            PetscCall(VecGetSubVector(active_rhs,primal_is.get(),&ru));
+            PetscCall(VecGetSubVector(active_rhs,pressure_is.get(),&rp));
+        }
         PetscCall(MatMult(primal_inverse.get(),ru,primal_solution.get()));
         PetscCall(MatMult(divergence.get(),primal_solution.get(),pressure_rhs.get()));
         PetscCall(VecAYPX(pressure_rhs.get(),-1.,rp));
-        PetscCall(VecCopy(ru,primal_rhs.get()));
-        // Finish every borrowed subvector before entering an inner solve,
-        // including its recoverable failure paths and PETSc error handlers.
-        PetscCall(VecRestoreSubVector(active_rhs,pressure_is.get(),&rp));
-        PetscCall(VecRestoreSubVector(active_rhs,primal_is.get(),&ru));
+        if(!options.braess_local_fields) {
+            PetscCall(VecCopy(ru,primal_rhs.get()));
+            PetscCall(VecRestoreSubVector(active_rhs,pressure_is.get(),&rp));
+            PetscCall(VecRestoreSubVector(active_rhs,primal_is.get(),&ru));
+        }
         const auto error=profile_fsi_operation(options.schur_event,[&]{
             return KSPSolve(solver.get(),pressure_rhs.get(),pressure_solution.get());
         });
@@ -365,6 +399,14 @@ struct FsiLevelSmoother {
         PetscCall(MatMult(gradient.get(),pressure_solution.get(),primal_work.get()));
         PetscCall(VecAYPX(primal_work.get(),-1.,primal_rhs.get()));
         PetscCall(MatMult(primal_inverse.get(),primal_work.get(),primal_solution.get()));
+        if(options.braess_local_fields) {
+            PetscScalar* mixed=nullptr;
+            PetscCall(VecGetArray(output,&mixed));
+            PetscCall(add_field(primal_solution.get(),primal_offsets,mixed));
+            PetscCall(add_field(pressure_solution.get(),pressure_offsets,mixed));
+            PetscCall(VecRestoreArray(output,&mixed));
+            PetscFunctionReturn(PETSC_SUCCESS);
+        }
         Vec du=nullptr,dp=nullptr;
         PetscCall(VecGetSubVector(output,primal_is.get(),&du));
         PetscCall(VecGetSubVector(output,pressure_is.get(),&dp));

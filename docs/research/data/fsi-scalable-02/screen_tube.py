@@ -24,7 +24,7 @@ def main():
     source=gate/'prepared/eon'; ref=gate/'0-eon'
     meshes=[read_mesh(source/(s+'.msh')) for s in ('fluid','solid')]
     root.mkdir(parents=True,exist_ok=False)
-    flags={mode:mg.flags(mode) for mode in ('mono_braess_tentative','mono_pressure_auto')}
+    flags={mode:[*mg.flags(mode),'-pc_plan_rcr_ports','true'] for mode in ('mono_braess_tentative','mono_pressure_auto')}
     flags.update(asm=arterial_ksp.options('asm'),physics=arterial_ksp.options('inner-mgs'))
     results=dict(binary=digest(binary),input=receipt['inputs'],runs=[])
     for mode,options in flags.items():

@@ -81,6 +81,7 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         {"divergence_commuting",&o.divergence_commuting},
         {"distributed_aggregation",&o.distributed_aggregation},{"adaptive_hierarchy",&o.adaptive_hierarchy},
         {"reuse_hierarchy",&o.reuse_hierarchy},{"matrix_free_fine",&o.matrix_free_fine},
+        {"braess_local_fields",&o.smoother.braess_local_fields},
         {"communication_avoiding",&o.communication_avoiding},{"profile_levels",&o.profile_levels}}) {
         PetscBool value=PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+entry.first).c_str(),&value,nullptr));
@@ -116,7 +117,8 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         o.saddle_point?1:0,o.divergence_preserving?1:0,o.distributed_aggregation?1:0,
         o.adaptive_hierarchy?1:0,o.reuse_hierarchy?1:0,o.matrix_free_fine?1:0,
         o.communication_avoiding?1:0,o.hierarchy_max_age,o.adaptive_interval,o.smoother.schur_iterations,
-        o.divergence_commuting?1:0,o.pressure_image_modes,o.coarse_rows_per_rank};
+        o.divergence_commuting?1:0,o.pressure_image_modes,o.coarse_rows_per_rank,
+        o.smoother.braess_local_fields?1:0,o.profile_levels?1:0};
     constexpr int option_count=static_cast<int>(sizeof(values)/sizeof(values[0]));
     PetscInt minimum[option_count]{},maximum[option_count]{};
     MPI_Allreduce(values,minimum,option_count,MPIU_INT,MPI_MIN,comm);
