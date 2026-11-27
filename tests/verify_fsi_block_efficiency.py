@@ -57,7 +57,30 @@ def require(condition, detail):
         raise ValueError(detail)
 
 
-def timed_command(command, log, timeout, receipt):
+def session_rss_bytes(session):
+    """Sum local RSS once per process, including MPI children in other groups."""
+    result = subprocess.check_output(
+        ['ps', '-e', '-o', 'pid=', '-o', 'ppid=', '-o', 'sid=', '-o', 'rss='],
+        text=True, timeout=5)
+    children = {}
+    memory = {}
+    members = set()
+    for line in result.splitlines():
+        pid, parent, sid, rss_kib = map(int, line.split())
+        children.setdefault(parent, []).append(pid)
+        memory[pid] = rss_kib * 1024
+        if sid == session or pid == session:
+            members.add(pid)
+    pending = list(members)
+    while pending:
+        for child in children.get(pending.pop(), ()):
+            if child not in members:
+                members.add(child)
+                pending.append(child)
+    return sum(memory[pid] for pid in members)
+
+
+def timed_command(command, log, timeout, receipt, *, rss_interval=None, rss_limit=None):
     """Blocking timed wait; the independent watchdog owns only this process group.
 
     Successful wall time includes launch and process exit, without POSIX timeout
@@ -72,6 +95,11 @@ def timed_command(command, log, timeout, receipt):
     watchdog = None
     watchdog_started = False
     expired = threading.Event()
+    finished = threading.Event()
+    rss_monitor = None
+    rss_samples = 0
+    peak_rss = 0
+    memory_failure = None
 
     def stop_group():
         if process is None:
@@ -98,6 +126,24 @@ def timed_command(command, log, timeout, receipt):
             expired.set()
             stop_group()
 
+    def monitor_memory():
+        nonlocal rss_samples, peak_rss, memory_failure
+        while not finished.is_set():
+            try:
+                rss = session_rss_bytes(process.pid)
+            except (OSError, subprocess.SubprocessError, ValueError) as exc:
+                memory_failure = f'Cannot sample local job RSS: {exc}'
+                stop_group()
+                return
+            if rss:
+                rss_samples += 1
+                peak_rss = max(peak_rss, rss)
+                if rss_limit is not None and rss > rss_limit:
+                    memory_failure = f'Local job RSS {rss} exceeded the {rss_limit} byte budget'
+                    stop_group()
+                    return
+            finished.wait(rss_interval)
+
     def terminated(signum, _frame):
         # The driver calls this helper on the main thread. A default SIGTERM
         # would bypass Python cleanup and leave the detached MPI job alive.
@@ -114,6 +160,9 @@ def timed_command(command, log, timeout, receipt):
             watchdog.daemon = True
             watchdog.start()
             watchdog_started = True
+            if rss_interval is not None:
+                rss_monitor = threading.Thread(target=monitor_memory, daemon=True)
+                rss_monitor.start()
             returncode = process.wait()
             if returncode and not expired.is_set():
                 stop_group()
@@ -121,16 +170,25 @@ def timed_command(command, log, timeout, receipt):
         stop_group()
         raise
     finally:
+        wall = time.perf_counter()-start
+        finished.set()
+        if rss_monitor is not None:
+            rss_monitor.join()
+            receipt.update(local_job_rss_samples=rss_samples,
+                           local_job_peak_sampled_rss_bytes=peak_rss if rss_samples else None,
+                           memory_failure=memory_failure)
         if watchdog is not None:
             watchdog.cancel()
             if watchdog_started:
                 watchdog.join()
         signal.signal(signal.SIGTERM, original_term_handler)
-        receipt.update(wall_seconds=time.perf_counter()-start,
+        receipt.update(wall_seconds=wall,
                        exit_code=None if process is None else process.returncode,
                        timeout=expired.is_set())
     if expired.is_set():
         raise subprocess.TimeoutExpired(command, timeout, output=log.read_bytes())
+    if memory_failure is not None:
+        raise RuntimeError(memory_failure)
     output = log.read_text()
     if returncode:
         raise subprocess.CalledProcessError(returncode, command, output=output)

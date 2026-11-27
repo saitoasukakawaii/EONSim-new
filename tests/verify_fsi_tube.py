@@ -391,7 +391,9 @@ def verify_arterial_block(executable, mpiexec, work):
     work.mkdir(parents=True, exist_ok=True)
     digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
     env = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1',
-               MKL_NUM_THREADS='1', OMPI_MCA_pml='ob1', OMPI_MCA_btl='self,sm,tcp')
+               MKL_NUM_THREADS='1')
+    env.setdefault('OMPI_MCA_pml', 'ob1')
+    env.setdefault('OMPI_MCA_btl', 'self,sm,tcp')
     exe, mpi = str(Path(executable).resolve()), str(Path(mpiexec).resolve())
     summary = dict(input_sha256=digest(archive), executable_sha256=digest(exe),
                    target='max(1e-23, 1e-10*rhs_norm)', tolerance_margin=1.00001,

@@ -39,6 +39,11 @@ FEATURES = {
     'mono_commuting': {'saddle', 'divergence', 'commuting'},
     'mono_multilevel': {'saddle', 'candidates', 'supremizer'},
     'mono_braess': {'saddle', 'braess'},
+    'mono_braess_tentative': {'saddle', 'braess', 'tentative'},
+    'mono_pressure_image': {'saddle', 'braess', 'tentative', 'pressure_image'},
+    'mono_pressure_auto': {'saddle', 'braess', 'tentative', 'pressure_image', 'coarse_auto'},
+    'mono_pressure_joint': {'saddle', 'braess', 'tentative', 'pressure_image', 'coarse_auto',
+                            'scaling', 'candidates', 'supremizer'},
     'mono_colored': {'saddle', 'colored'},
     'mono_multiplicative': {'saddle', 'multiplicative'},
     'mono_distributed': {'saddle', 'distributed'},
@@ -79,7 +84,7 @@ def flags(mode, ports=False):
     if mode.startswith('mono'):
         prefix = '-rcr_bulk_monolithic_mg_' if ports else '-monolithic_mg_'
         result += ['-pc_recipe', 'monolithic_mg', prefix + 'coarse_limit', '48',
-                   prefix + 'coarse_processes', '0' if 'distributed_coarse' in selected else '1']
+                   prefix + 'coarse_processes', '0' if selected & {'distributed_coarse', 'coarse_auto'} else '1']
         if mode == 'mono_fp32':
             result += [prefix + 'single_precision', 'true']
         if 'kcycle' in selected:
@@ -110,6 +115,12 @@ def flags(mode, ports=False):
             result += ['-nonlinear_krylov_deflation', '4']
         if 'adaptive_hierarchy' in selected:
             result += [prefix + 'adaptive_interval', '4']
+        if 'tentative' in selected:
+            result += [prefix + 'energy_steps', '0']
+        if 'pressure_image' in selected:
+            result += [prefix + 'pressure_image_modes', '2']
+        if 'coarse_auto' in selected:
+            result += [prefix + 'coarse_rows_per_rank', '64']
         for feature, kind in (('braess', 'braess_sarazin'), ('colored', 'vanka_colored'),
                               ('multiplicative', 'vanka_multiplicative')):
             if feature in selected:
@@ -309,9 +320,19 @@ def audit(log, trace, ranks, mode):
             before, after = float(row['energy_before']), float(row['energy_after'])
             block.require(math.isfinite(before + after) and after <= before * (1 + 1e-10) + 1e-12,
                           'Prolongation increased the defined positive energy')
-        expected_processes = ranks if 'distributed_coarse' in selected else 1
-        block.require(all(int(row['coarse_processes']) == expected_processes for row in hierarchy),
-                      'Requested coarse-process distribution absent')
+        if 'coarse_auto' in selected:
+            for row in hierarchy:
+                rows = int(row['coarsest_rows'])
+                block.require(rows > 0 and int(row['coarse_rows_per_rank']) == 64,
+                              'Missing observed row-budget inputs')
+                minimum = 1 if rows == 1 else min(ranks, max(2, math.ceil(rows / 64)))
+                expected = next(count for count in range(minimum, ranks + 1) if ranks % count == 0)
+                block.require(int(row['coarse_processes']) == expected,
+                              ('Incorrect row-budget coarse communicator', rows, expected))
+        else:
+            expected_processes = ranks if 'distributed_coarse' in selected else 1
+            block.require(all(int(row['coarse_processes']) == expected_processes for row in hierarchy),
+                          'Requested coarse-process distribution absent')
         smoother_kind = mode.removeprefix('mono_') if mode in ('mono_chebyshev', 'mono_block_chebyshev') else 'vanka'
         for feature, kind in (('braess', 'braess_sarazin'), ('colored', 'vanka_colored'),
                               ('multiplicative', 'vanka_multiplicative')):
@@ -349,6 +370,16 @@ def audit(log, trace, ranks, mode):
         if 'adaptive' in selected:
             block.require(all(int(row['expanded_patches']) + int(row['core_patches']) == int(row['patches'])
                               for row in smoothers), 'Adaptive patch classification is incomplete')
+        if 'pressure_image' in selected:
+            block.require(all(int(row['pressure_image_modes']) == 2 for row in hierarchy),
+                          'Requested pressure image budget was not applied')
+            transfers = assembly.records(log, 'pc_monolithic_mg_level ')
+            fine = [row for row in transfers if int(row['level']) == 0]
+            block.require(fine and any(int(row['compatible_pressure_modes']) > 0 for row in fine)
+                          and all(0 < int(row['coarse_pressure_rows']) < int(row['pressure_rows']) for row in fine)
+                          and all(0 <= float(row['divergence_commuting_defect']) <= 1 + 1e-10
+                                  for row in transfers), 'Invalid compressed pressure hierarchy evidence')
+            result['compressed_pressure_transfers'] = transfers
         if 'native' in selected:
             storage = assembly.records(log, 'pc_monolithic_mg_storage ')
             block.require(storage and {int(row['rank']) for row in storage} == set(range(ranks)) and

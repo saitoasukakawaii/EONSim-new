@@ -185,9 +185,10 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
         MonolithicFsiMgStats multigrid;
         if(query_monolithic_fsi_mg_stats(pc,multigrid))
         {
-            PetscInt schur_applications=0,vanka_color_stages=0,vanka_residual_products=0;
+            PetscInt schur_applications=0,zero_lift_skips=0,vanka_color_stages=0,vanka_residual_products=0;
             for(const auto& smoother:multigrid.smoothers) {
                 schur_applications+=smoother.schur_applications;
+                zero_lift_skips+=smoother.zero_lift_skips;
                 vanka_color_stages+=smoother.patches.color_stages;
                 vanka_residual_products+=smoother.patches.residual_products;
             }
@@ -219,6 +220,7 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
                <<" hierarchy_numeric_drift="<<multigrid.hierarchy_numeric_drift
                <<" adaptive_residual_ratio="<<multigrid.adaptive_residual_ratio
                <<" schur_applications="<<schur_applications
+               <<" braess_zero_lift_skips="<<zero_lift_skips
                <<" vanka_color_stages="<<vanka_color_stages
                <<" vanka_residual_products="<<vanka_residual_products<<'\n';
         }

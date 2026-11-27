@@ -40,7 +40,8 @@ struct Example {
     std::vector<DofKey> keys;
     std::vector<unsigned char> trace;
     PetscOwner<Mat,MatDestroy> matrix;
-    Example(MPI_Comm communicator,bool coarse):comm(communicator) {
+    PetscInt first_active;
+    Example(MPI_Comm communicator,bool coarse,bool constrained=true):comm(communicator),first_active(constrained?1:0) {
         int rank=0,ranks=0;MPI_Comm_rank(comm,&rank);MPI_Comm_size(comm,&ranks);
         // Two ranks have no owned rows in the four-rank negative/empty case.
         if(ranks==4) {const PetscInt cuts[]={0,5,n,n,n};begin=cuts[rank];end=cuts[rank+1];}
@@ -58,8 +59,9 @@ struct Example {
         fill(0);
     }
     void fill(int phase) {
-        values.fill(0.);values[0]=1.;
-        for(PetscInt i=1;i<n;++i) {
+        values.fill(0.);
+        if(first_active) values[0]=1.;
+        for(PetscInt i=first_active;i<n;++i) {
             // Nonsymmetric and genuinely indefinite (pressure rows negative).
             const double row_scale=i%3==0?1e-3:i%3==1?1e2:1.;
             for(PetscInt j=0;j<n;++j)
@@ -209,8 +211,8 @@ void verify_native_storage(MPI_Comm comm,bool sparse,bool identity,const std::st
         require(comm,accurate,"Released native coefficients changed the mixed action or remote identity lifting");
     }
 }
-void verify_braess(MPI_Comm comm,bool coarse,double alpha,bool use_default=false) {
-    Example example(comm,coarse);
+void verify_braess(MPI_Comm comm,bool coarse,double alpha,bool use_default=false,bool constrained=true) {
+    Example example(comm,coarse,constrained);
     // Retain a pure algebraic pressure tag on coarse entities, independently
     // of the fine physical domains. RCR-like boundary scalars remain primal.
     if(coarse) for(PetscInt i=example.begin;i<example.end;++i)
@@ -235,7 +237,7 @@ void verify_braess(MPI_Comm comm,bool coarse,double alpha,bool use_default=false
         std::vector<long double> approximate(example.values.begin(),example.values.end()),b(Example::n);
         for(PetscInt i=0;i<Example::n;++i) {
             b[i]=.4+std::sin(.7*i)+.2*phase;
-            for(PetscInt j=1;j<Example::n;++j) if(i>0&&i%3!=0&&j%3!=0) {
+            for(PetscInt j=example.first_active;j<Example::n;++j) if(i>=example.first_active&&i%3!=0&&j%3!=0) {
                 const bool same_entity=i/3==j/3&&(i==8)==(j==8)&&owner(i)==owner(j);
                 approximate[i*Example::n+j]=same_entity?alpha*example.values[i*Example::n+j]:0.;
             }
@@ -256,8 +258,10 @@ void verify_braess(MPI_Comm comm,bool coarse,double alpha,bool use_default=false
         require(comm,stats.refreshes==phase+1&&stats.schur_applications==phase+1&&stats.schur_budget==options.schur_iterations&&
             stats.schur_iterations<=options.schur_iterations*stats.schur_applications,
             "Braess-Sarazin exceeded its fixed pressure budget or failed numeric refresh");
+        require(comm,stats.zero_lift_skips==(constrained?0:phase+1),
+                "Braess-Sarazin used the wrong identity lifting path");
     }
-    if(!coarse&&alpha==1.) {
+    if(constrained&&!coarse&&alpha==1.) {
         // Zero one primal-block row while retaining pressure coupling and the
         // allocated graph. A failed refresh must invalidate its old factors.
         example.values[1*Example::n+1]=0.;example.values[1*Example::n+2]=0.;
@@ -299,6 +303,7 @@ void run(MPI_Comm comm) {
         // Exercise the production default without overriding it. The dense
         // oracle independently expects H=2*blockdiag(F) on both typed levels.
         verify_braess(comm,coarse,2.,true);
+        verify_braess(comm,coarse,2.,true,false);
     }
     Example example(comm,false);
     FsiLevelSmootherOptions invalid;invalid.kind="chebyshev";invalid.eigenvalue_ratio=1.;

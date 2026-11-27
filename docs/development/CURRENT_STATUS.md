@@ -4,6 +4,8 @@
 
 ## 能力矩阵
 
+FSI-SCALABLE-01 的独立开发分支证据见[整体求解与单节点性能](FSI_SCALABLE_SOLVER.md)。该研究从最新主线 `04e2af9` 起步，含原配置对照、显式压力粗化、粗层 MPI 重分布及双路 EPYC 上的网格试跑。下表记录已进入主线的能力。
+
 | 方向 | 当前已合入的实现 | 证据与限制 |
 |---|---|---|
 | FEM / 时间 | 三维 Tet4 多物理；二维 Tri3/P1、Quad4/Q1、直边 Tri3/P2 标量 Poisson/扩散，含 D/N/Robin 与纯 Neumann；适用 BE、变步 BDF2、generalized-alpha | [二维标量](SCALAR_2D.md)、[时间契约](TIME_INTEGRATION.md)；P2 不等于三维高阶 FSI 或一般混合空间 |

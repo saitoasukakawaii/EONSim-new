@@ -98,7 +98,7 @@ struct FsiLevelSmoother {
     PetscOwner<Mat,MatDestroy> source_reference;
     PetscObjectState graph=0;
     PetscInt begin=0,end=0,global=0;
-    bool ready=false;
+    bool ready=false,braess_identity_lift=false;
     FsiLevelSmootherOptions options;
     FsiLevelSmootherStats stats;
     std::vector<DofKey> semantics;
@@ -185,7 +185,7 @@ struct FsiLevelSmoother {
                 "Braess-Sarazin requires equal positive alpha, 1..32 Schur iterations and FP64 setup storage");
             prepare_braess_partition();
             stats.schur_budget=options.schur_iterations;
-            EONSIM_PETSC(MatCreateVecs(source,residual.put(),nullptr));
+            if(braess_identity_lift) EONSIM_PETSC(MatCreateVecs(source,residual.put(),nullptr));
             EONSIM_PETSC(KSPSetType(solver.get(),KSPGMRES));
             EONSIM_PETSC(KSPSetPCSide(solver.get(),PC_RIGHT));
             EONSIM_PETSC(KSPSetNormType(solver.get(),KSP_NORM_UNPRECONDITIONED));
@@ -238,6 +238,7 @@ struct FsiLevelSmoother {
         common_check(comm,totals[0]>0&&totals[1]>0,
                      "Braess-Sarazin needs active pressure and primal rows with preserved quantity tags");
         stats.primal_rows=local[0];stats.pressure_rows=local[1];
+        braess_identity_lift=totals[0]+totals[1]!=global;
         EONSIM_PETSC(ISCreateGeneral(comm,local[0],u.data(),PETSC_COPY_VALUES,primal_is.put()));
         EONSIM_PETSC(ISCreateGeneral(comm,local[1],p.data(),PETSC_COPY_VALUES,pressure_is.put()));
         PetscInt offset=0;int rank=0;
@@ -316,23 +317,32 @@ struct FsiLevelSmoother {
 
     PetscErrorCode apply_braess(Vec input,Vec output,bool& valid) {
         PetscFunctionBeginUser;
-        const PetscScalar* rhs=nullptr;PetscScalar* x=nullptr;
-        PetscCall(VecGetArrayRead(input,&rhs));PetscCall(VecGetArray(output,&x));
-        for(PetscInt i=0;i<end-begin;++i) x[i]=identity[i]?rhs[i]:0.;
-        PetscCall(VecRestoreArray(output,&x));PetscCall(VecRestoreArrayRead(input,&rhs));
-        PetscCall(MatMult(source,output,residual.get()));
-        PetscCall(VecAYPX(residual.get(),-1.,input));
+        Vec active_rhs=input;
+        if(braess_identity_lift) {
+            const PetscScalar* rhs=nullptr;PetscScalar* x=nullptr;
+            PetscCall(VecGetArrayRead(input,&rhs));PetscCall(VecGetArray(output,&x));
+            for(PetscInt i=0;i<end-begin;++i) x[i]=identity[i]?rhs[i]:0.;
+            PetscCall(VecRestoreArray(output,&x));PetscCall(VecRestoreArrayRead(input,&rhs));
+            PetscCall(MatMult(source,output,residual.get()));
+            PetscCall(VecAYPX(residual.get(),-1.,input));
+            active_rhs=residual.get();
+        } else {
+            // The global lift is exactly zero, so applying A would perform a
+            // halo exchange with no effect on the active right-hand side.
+            PetscCall(VecSet(output,0.));
+            ++stats.zero_lift_skips;
+        }
         Vec ru=nullptr,rp=nullptr;
-        PetscCall(VecGetSubVector(residual.get(),primal_is.get(),&ru));
-        PetscCall(VecGetSubVector(residual.get(),pressure_is.get(),&rp));
+        PetscCall(VecGetSubVector(active_rhs,primal_is.get(),&ru));
+        PetscCall(VecGetSubVector(active_rhs,pressure_is.get(),&rp));
         PetscCall(MatMult(primal_inverse.get(),ru,primal_solution.get()));
         PetscCall(MatMult(divergence.get(),primal_solution.get(),pressure_rhs.get()));
         PetscCall(VecAYPX(pressure_rhs.get(),-1.,rp));
         PetscCall(VecCopy(ru,primal_rhs.get()));
         // Finish every borrowed subvector before entering an inner solve,
         // including its recoverable failure paths and PETSc error handlers.
-        PetscCall(VecRestoreSubVector(residual.get(),pressure_is.get(),&rp));
-        PetscCall(VecRestoreSubVector(residual.get(),primal_is.get(),&ru));
+        PetscCall(VecRestoreSubVector(active_rhs,pressure_is.get(),&rp));
+        PetscCall(VecRestoreSubVector(active_rhs,primal_is.get(),&ru));
         const auto error=KSPSolve(solver.get(),pressure_rhs.get(),pressure_solution.get());
         KSPConvergedReason reason=KSP_CONVERGED_ITERATING;
         PC pressure_pc=nullptr;PCFailedReason failure=PC_NOERROR;PetscInt iterations=0;

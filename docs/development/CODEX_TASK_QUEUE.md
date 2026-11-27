@@ -2,6 +2,10 @@
 
 2026-11-27 核对：主线已合入 #65（`2463f717`）；以下历史记录保留实际执行日期、源码、失败与验收边界。当前能力与开放目标见 [当前能力矩阵](CURRENT_STATUS.md)。历史 review/Draft 不代表当前 PR 状态，历史证据不计为本次执行。
 
+## FSI-SCALABLE-01 · 规模与优化实测
+
+基线、具备独立直接参考的小 FSI、近似及联合压力空间、粗层通信器选择和单节点扩展证据已建立。128 rank 的最大合成规模为 1,259,907 自由度。网格无关迭代目标与强扩展速度门槛仍开放，五十万及百万网格保留完整强扩展矩阵任务。下一批按[本轮证据](FSI_SCALABLE_SOLVER.md)审计高 rank 的 PC 应用求解和归约。分布式网格前处理、一般跨分区重启以及混合精度层级复用各保留独立验收。
+
 ## FSI-SADDLE-01 / implementation and bounded validation complete; convergence and scale OPEN / 2026-11-27
 
 基线 `main@036f865e`（#64），最终生产/驱动 `ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba`，交付
