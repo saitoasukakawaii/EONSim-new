@@ -1,0 +1,46 @@
+[
+  {
+    "mode": "mono_braess_tentative",
+    "status": "failed",
+    "rss_peak": 16384,
+    "process_rss_peak": 16384,
+    "error": "exit 1",
+    "T_job": 0.20082358783110976,
+    "exit_code": 1,
+    "log_sha256": "f8f0520d0c0d5bd46199c9174b7e61a8b5e9c417641854c7af8faef2b5e79540"
+  },
+  {
+    "mode": "mono_pressure_auto",
+    "status": "failed",
+    "rss_peak": 16384,
+    "process_rss_peak": 16384,
+    "error": "exit 1",
+    "T_job": 0.16791683016344905,
+    "exit_code": 1,
+    "log_sha256": "2fb802e6a24c10913cbe066550a801acf69173e2ca454d267816bde3674dd1a1"
+  },
+  {
+    "mode": "asm",
+    "status": "passed",
+    "rss_peak": 39923712,
+    "process_rss_peak": 24440832,
+    "T_job": 0.765265145804733,
+    "exit_code": 0,
+    "log_sha256": "c1c5e5d68adadc6de66d9fb2b341eba9faaf1692def8e9566a95a21b32dd5a06",
+    "history_difference": 1.2096990076315706e-12,
+    "field_difference": 4.3520742565306136e-14,
+    "true_residual_checks": 105
+  },
+  {
+    "mode": "physics",
+    "status": "passed",
+    "rss_peak": 45252608,
+    "process_rss_peak": 27672576,
+    "T_job": 1.8037696774117649,
+    "exit_code": 0,
+    "log_sha256": "482c0f2a466845d2ae31fed94ec091d609af1c207c895efa64101743af1ac0b4",
+    "history_difference": 1.496225365826831e-11,
+    "field_difference": 1.3535839116229909e-12,
+    "true_residual_checks": 88
+  }
+]

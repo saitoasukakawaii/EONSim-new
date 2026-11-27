@@ -1,5 +1,7 @@
 # EONSim Codex Task Queue
 
+FSI-SCALABLE-02 位于 [#70](https://github.com/saitoasukakawaii/EONSim-new/pull/70)。小管外部对照已有资格。跟踪 B/C 资格、owner 本地字段消融、粗层归约、固定 rank 迭代增长和强扩展。运行状态与指标见[第二阶段报告](FSI_SCALABLE_02.md)。
+
 2026-11-27 核对：主线已合入 #65（`2463f717`）；以下历史记录保留实际执行日期、源码、失败与验收边界。当前能力与开放目标见 [当前能力矩阵](CURRENT_STATUS.md)。历史 review/Draft 不代表当前 PR 状态，历史证据不计为本次执行。
 
 ## FSI-SCALABLE-01 · 规模与优化实测

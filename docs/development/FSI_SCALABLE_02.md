@@ -1,0 +1,39 @@
+# 原版 svFSI 与 EONSim 的血管 FSI 对标
+
+2026-11-27。PR #69 已合入 `main@4974cb6`。本轮在 [Draft PR #70](https://github.com/saitoasukakawaii/EONSim-new/pull/70) 上开发。物理预算、时间步、输出和采用门槛见[先于测量提交的协议](FSI_SVFSI_BENCHMARK.md)。
+
+## 同机、单核、从静止开始的脉动弹性管
+
+四分之一管有 540 个流体四面体、432 个壁四面体，界面合并后 252 个几何节点。EONSim 单体代数系统有 869 个自由度。Slurm 同一物理核交错运行，双方各预热一次，表中为三次正式 T_job 的中位数。从启动到退出包含原生场与历史写盘。svFSI 另写原生重启文件，EONSim 本批没有指定独立 checkpoint 文件。输入转换在计时外另计，约 0.01 秒。监控每 0.2 秒采样一次进程树，进程退出轮询及调度给短作业带来计时量化。
+
+| svFSI FSI GMRES 相对容差 | 窗口 | EONSim 直接法 (s) | svFSI (s) | S_svFSI |
+|---|---|---:|---:|---:|
+| 1e-3 | 32 步，首个 1 s 周期 | 1.403 | 12.535 | 8.935 |
+| 1e-3 | 100 步，3.125 s | 4.007 | 38.629 | 9.639 |
+| 1e-10 | 32 步，首个 1 s 周期 | 1.403 | 19.095 | 13.611 |
+| 1e-10 | 100 步，3.125 s | 3.971 | 57.711 | 14.533 |
+
+1e-3 是两档实际合格原版配置中较快的一档。其 100 步预热与另一项网格准备有少量时间重合。三对正式样本均在网格准备结束后启动，32 步整批独立。各组独立通过 20 步和长窗口的全部物理门槛。1e-3 的 100 步内，最大出口流量差为整圆入口峰值的 1.254%，最大压差差约 0.01690 Pa，最大截面面积应变差为 20 Pa Lamé 静态应变的 3.121%，界面位移差为零。每一输出相位与全部质量、入口和 RCR 指标见 [paired-summary.json](../research/data/fsi-scalable-02/paired-summary.json)。
+
+首个周期的 1e-3 配置中，EONSim 直接法累计 64 次 Newton 迭代，最大接受残量 1.47e-16。svFSI 的 FS 和 MS 各有 159 次校正，原生线性迭代数分别合计 49,250 和 14,589，最差终止相对指标分别为 9.40e-10 和 5.28e-9。正式样本的整组 RSS 峰值为 EONSim 43.1–44.9 MiB、svFSI 30.5–32.6 MiB，共享页可能重复计数。单个首周期只覆盖启动响应；七周期生产资格开放。
+
+## 构建和运行现场
+
+双路 EPYC 7763，物理核 0–63 和 64–127 分属两个 NUMA 节点，系统可见内存 251 GiB。MPI 绑物理核，OpenBLAS 单线程。单核外部对照使用 Slurm 分配的核、多核测试在单节点执行。T400 可见显存 1876 MiB；本轮求解均使用 CPU。CMake 3.31.8、GCC 11.5、OpenMPI 4.1.8、PETSc 3.23.7、OpenBLAS 0.3.29。EONSim Release 单核基线二进制 SHA256 `4c4ecf58bfda79664169455625babe83392d056509fc08ab1bc404c345032a80`，已有构建 `7242bc9` 的求解器源码、头文件及 CMake 与主线基准一致。原版 Fortran svFSI 源码 `7bdb74cdd517310d6bf32c0bb7d42072aeac8658`，RelWithDebInfo，内建 FSILS，Trilinos 关闭。其 CMake 缓存使用 GCC 11.3 / OpenMPI 4.1.4，运行环境解析到 OpenMPI 4.1.8。可执行文件 SHA256 `0a141a59e1d284e689cca4d236f4e2c6d6d63492d6bf820112a4b78039605a60`。
+
+## 同一 128 核预算的合成五步诊断
+
+`610eadd` 构建 SHA256 `da9122fdb08d469daaf25f8aac77eabcd6a2985cab5282f6bd1c0bbaf8cd654f`。108,379 DoF、暂定插值、每档三次正式样本。64×2 和 32×4 进入后续筛选。完整残量、场差、每次迭代和内存见 [hybrid-100k.json](../research/data/fsi-scalable-02/hybrid-100k.json)。
+
+| MPI × 线程 | 128×1 | 64×2 | 32×4 | 16×8 |
+|---|---:|---:|---:|---:|
+| 中位数 (s) | 20.669 | 12.639 | 13.623 | 18.964 |
+| 五步外层迭代 | 1748 | 1740 | 1789 | 1852 |
+
+压缩压力配置的独立剖析通过场和历史门槛。rank 0 在 32→128 MPI 时，最粗层累计时间从 6.232 s 增至 25.797 s，对应 PETSc 归约计数从 92,280 增至 198,008。128 MPI 最细层平滑 5.668 s，内含 Schur 2.217 s；限制和延拓分别约 0.016 和 0.017 s。事件含嵌套，跨 rank 的最大值不能相加成墙钟。每个事件的 rank 0、最大、最小及平均值见 [level-events.json](../research/data/fsi-scalable-02/level-events.json)。`-monolithic_mg_braess_local_fields true` 实验性地直接收集和写回 owner 本地的活动行，保留原 Schur 方程、身份行提升和失败归约。
+
+## 证据索引与开放目标
+
+[逐次时间、收敛、RSS 和日志 SHA256](../research/data/fsi-scalable-02/runs.csv) 覆盖预热和正式样本。现场根目录为 `$HOME/workspace/fsi-scalable-02-runs`。严格 GMRES 的原始运行目录为 `A20-batch`、`A100`、`A32`，较宽配置为 `native-20`、`native-100`、`native-32`。日志及物理摘要导出包 `receipts-first.tgz` SHA256 为 `8d2d98bd492b6a9c153695e0d3c2a2cf841c3589847f410824d1a04e37726895`，`receipts-native.tgz` 为 `54cc254096e034dbb6d2a2fa63c5bf42b1b5007bb456e2f1838892cd4b8c26b5`。原始场在服务器上按运行保留。
+
+初筛中 ASM/ILU(2) 和物理 Schur 均通过 20 步完整场校验，最大场差分别为 4.35e-14 与 1.35e-12。两种 MG 初次遇到 RCR 端口配置检查，修复驱动后单列复验。初筛每档一次，只用于选择。[初筛日志摘要](../research/data/fsi-scalable-02/screen-initial.json)。B/C、15% 内部采用目标、代表算例 5% 退化预算、固定 rank 迭代增长 ≤1.30 和强扩展 ≥8 分别验收。直接法小管结果不能证明这些目标。

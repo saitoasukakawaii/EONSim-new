@@ -211,7 +211,8 @@ void verify_native_storage(MPI_Comm comm,bool sparse,bool identity,const std::st
         require(comm,accurate,"Released native coefficients changed the mixed action or remote identity lifting");
     }
 }
-void verify_braess(MPI_Comm comm,bool coarse,double alpha,bool use_default=false,bool constrained=true) {
+void verify_braess(MPI_Comm comm,bool coarse,double alpha,bool use_default=false,bool constrained=true,
+                   bool local_fields=false) {
     Example example(comm,coarse,constrained);
     // Retain a pure algebraic pressure tag on coarse entities, independently
     // of the fine physical domains. RCR-like boundary scalars remain primal.
@@ -219,6 +220,7 @@ void verify_braess(MPI_Comm comm,bool coarse,double alpha,bool use_default=false
         if(i%3==0) example.keys[i-example.begin].quantity=DofQuantity::pressure;
     FsiLevelSmootherOptions options;
     options.kind="braess_sarazin";options.schur_iterations=3;
+    options.braess_local_fields=local_fields;
     if(!use_default) options.braess_alpha=alpha;
     auto smoother=make_fsi_level_smoother(comm,example.matrix.get(),example.keys,example.trace,options);
     PetscOwner<Vec,VecDestroy> rhs,x;
@@ -304,6 +306,7 @@ void run(MPI_Comm comm) {
         // oracle independently expects H=2*blockdiag(F) on both typed levels.
         verify_braess(comm,coarse,2.,true);
         verify_braess(comm,coarse,2.,true,false);
+        for(bool constrained:{false,true}) verify_braess(comm,coarse,2.,true,constrained,true);
     }
     Example example(comm,false);
     FsiLevelSmootherOptions invalid;invalid.kind="chebyshev";invalid.eigenvalue_ratio=1.;

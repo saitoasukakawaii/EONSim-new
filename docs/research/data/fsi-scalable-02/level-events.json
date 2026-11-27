@@ -1,0 +1,2548 @@
+{
+  "profile_runs": [
+    {
+      "ranks": 32,
+      "profile": false,
+      "status": "passed",
+      "local_job_rss_samples": 53,
+      "local_job_peak_sampled_rss_bytes": 2438520832,
+      "memory_failure": null,
+      "wall_seconds": 29.549171914812177,
+      "exit_code": 0,
+      "timeout": false,
+      "outer_iterations": 1763,
+      "dofs": 108379,
+      "history_difference": 3.885780586188048e-15,
+      "field_difference": 6.661338147750939e-16
+    },
+    {
+      "ranks": 32,
+      "profile": true,
+      "status": "passed",
+      "local_job_rss_samples": 56,
+      "local_job_peak_sampled_rss_bytes": 2446610432,
+      "memory_failure": null,
+      "wall_seconds": 30.374522735364735,
+      "exit_code": 0,
+      "timeout": false,
+      "outer_iterations": 1764,
+      "dofs": 108379,
+      "history_difference": 4.565792188770956e-15,
+      "field_difference": 1.7763568394002505e-15,
+      "event_sha256": "51f15f3479cfd41378419b9883ae3e8971436b9a4aa2640aceed646f45f4c263"
+    },
+    {
+      "ranks": 128,
+      "profile": false,
+      "status": "passed",
+      "local_job_rss_samples": 88,
+      "local_job_peak_sampled_rss_bytes": 6247309312,
+      "memory_failure": null,
+      "wall_seconds": 54.405319932848215,
+      "exit_code": 0,
+      "timeout": false,
+      "outer_iterations": 1726,
+      "dofs": 108379,
+      "history_difference": 4.801714581503802e-15,
+      "field_difference": 8.881784197001252e-16
+    },
+    {
+      "ranks": 128,
+      "profile": true,
+      "status": "passed",
+      "local_job_rss_samples": 88,
+      "local_job_peak_sampled_rss_bytes": 6271078400,
+      "memory_failure": null,
+      "wall_seconds": 54.07819119701162,
+      "exit_code": 0,
+      "timeout": false,
+      "outer_iterations": 1726,
+      "dofs": 108379,
+      "history_difference": 2.1788126858268697e-15,
+      "field_difference": 1.1102230246251565e-15,
+      "event_sha256": "052ddef581256a1b1a4ce8e1085d2472bf5490163a6807fb6068fdd417a9b396"
+    }
+  ],
+  "events": [
+    {
+      "ranks": 32,
+      "event": "BuildTwoSided",
+      "Time": {
+        "rank0": 0.921197,
+        "min": 0.921197,
+        "max": 2.70453,
+        "mean": 1.88263021875
+      },
+      "Count": {
+        "rank0": 64143.0,
+        "min": 64139.0,
+        "max": 64143.0,
+        "mean": 64140.0
+      },
+      "Num Messages": {
+        "rank0": 1038.0,
+        "min": 397.0,
+        "max": 1639.0,
+        "mean": 1024.3125
+      },
+      "Message Length": {
+        "rank0": 4152.0,
+        "min": 1588.0,
+        "max": 6556.0,
+        "mean": 4097.25
+      },
+      "Num Reductions": {
+        "rank0": 64141.0,
+        "min": 64139.0,
+        "max": 64141.0,
+        "mean": 64139.5
+      },
+      "FLOP": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L0_Prolong",
+      "Time": {
+        "rank0": 0.130931,
+        "min": 0.0221269,
+        "max": 0.130931,
+        "mean": 0.06671159375
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 101368000.0,
+        "min": 26458200.0,
+        "max": 101368000.0,
+        "mean": 55736500.0
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L0_Restrict",
+      "Time": {
+        "rank0": 0.0677151,
+        "min": 0.0196188,
+        "max": 0.0677151,
+        "mean": 0.04004394375
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 112342000.0,
+        "min": 29074200.0,
+        "max": 112342000.0,
+        "mean": 61710884.375
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L0_Schur",
+      "Time": {
+        "rank0": 1.2495,
+        "min": 1.24477,
+        "max": 2.10359,
+        "mean": 1.55256375
+      },
+      "Count": {
+        "rank0": 3528.0,
+        "min": 3528.0,
+        "max": 3528.0,
+        "mean": 3528.0
+      },
+      "Num Messages": {
+        "rank0": 169344.0,
+        "min": 0.0,
+        "max": 254016.0,
+        "mean": 109809.0
+      },
+      "Message Length": {
+        "rank0": 156050000.0,
+        "min": 0.0,
+        "max": 181960000.0,
+        "mean": 76638686.875
+      },
+      "Num Reductions": {
+        "rank0": 24696.0,
+        "min": 24696.0,
+        "max": 24696.0,
+        "mean": 24696.0
+      },
+      "FLOP": {
+        "rank0": 1308920000.0,
+        "min": 0.0,
+        "max": 1308920000.0,
+        "mean": 519092053.75
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L0_Smooth",
+      "Time": {
+        "rank0": 5.61952,
+        "min": 5.61689,
+        "max": 6.71423,
+        "mean": 6.054880625
+      },
+      "Count": {
+        "rank0": 3528.0,
+        "min": 3528.0,
+        "max": 3528.0,
+        "mean": 3528.0
+      },
+      "Num Messages": {
+        "rank0": 338688.0,
+        "min": 70560.0,
+        "max": 479808.0,
+        "mean": 265482.0
+      },
+      "Message Length": {
+        "rank0": 1018180000.0,
+        "min": 216619000.0,
+        "max": 1018180000.0,
+        "mean": 566445000.0
+      },
+      "Num Reductions": {
+        "rank0": 98784.0,
+        "min": 98784.0,
+        "max": 98784.0,
+        "mean": 98784.0
+      },
+      "FLOP": {
+        "rank0": 2541380000.0,
+        "min": 66492200.0,
+        "max": 2541380000.0,
+        "mean": 1041621587.5
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L1_Prolong",
+      "Time": {
+        "rank0": 0.052443,
+        "min": 0.00876096,
+        "max": 0.052443,
+        "mean": 0.030317739375
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 47026500.0,
+        "min": 8513060.0,
+        "max": 49026900.0,
+        "mean": 27459639.0625
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L1_Restrict",
+      "Time": {
+        "rank0": 0.0342562,
+        "min": 0.0104535,
+        "max": 0.0764831,
+        "mean": 0.03031448125
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 49434300.0,
+        "min": 9141050.0,
+        "max": 51089000.0,
+        "mean": 28863558.4375
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L1_Schur",
+      "Time": {
+        "rank0": 1.13713,
+        "min": 1.12991,
+        "max": 1.61092,
+        "mean": 1.3040465625
+      },
+      "Count": {
+        "rank0": 3528.0,
+        "min": 3528.0,
+        "max": 3528.0,
+        "mean": 3528.0
+      },
+      "Num Messages": {
+        "rank0": 190512.0,
+        "min": 0.0,
+        "max": 296352.0,
+        "mean": 132300.0
+      },
+      "Message Length": {
+        "rank0": 123452000.0,
+        "min": 0.0,
+        "max": 159183000.0,
+        "mean": 65075759.0625
+      },
+      "Num Reductions": {
+        "rank0": 24696.0,
+        "min": 24696.0,
+        "max": 24696.0,
+        "mean": 24696.0
+      },
+      "FLOP": {
+        "rank0": 987769000.0,
+        "min": 0.0,
+        "max": 987769000.0,
+        "mean": 403442017.8125
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L1_Smooth",
+      "Time": {
+        "rank0": 3.27347,
+        "min": 3.27347,
+        "max": 4.97055,
+        "mean": 3.992215625
+      },
+      "Count": {
+        "rank0": 3528.0,
+        "min": 3528.0,
+        "max": 3528.0,
+        "mean": 3528.0
+      },
+      "Num Messages": {
+        "rank0": 359856.0,
+        "min": 70560.0,
+        "max": 522144.0,
+        "mean": 287973.0
+      },
+      "Message Length": {
+        "rank0": 359602000.0,
+        "min": 71378500.0,
+        "max": 389943000.0,
+        "mean": 217000275.0
+      },
+      "Num Reductions": {
+        "rank0": 98784.0,
+        "min": 98784.0,
+        "max": 98784.0,
+        "mean": 98784.0
+      },
+      "FLOP": {
+        "rank0": 1747770000.0,
+        "min": 40826000.0,
+        "max": 1747770000.0,
+        "mean": 744537025.0
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L2_Prolong",
+      "Time": {
+        "rank0": 0.0103705,
+        "min": 0.00312346,
+        "max": 0.0108847,
+        "mean": 0.0070737271875
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 6031120.0,
+        "min": 846720.0,
+        "max": 9059900.0,
+        "mean": 4135807.5
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L2_Restrict",
+      "Time": {
+        "rank0": 0.0205965,
+        "min": 0.0056546,
+        "max": 0.0246426,
+        "mean": 0.0119392709375
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 6290420.0,
+        "min": 903168.0,
+        "max": 9331560.0,
+        "mean": 4292142.125
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L2_Schur",
+      "Time": {
+        "rank0": 0.754118,
+        "min": 0.715692,
+        "max": 0.865989,
+        "mean": 0.7677518437499999
+      },
+      "Count": {
+        "rank0": 3528.0,
+        "min": 3528.0,
+        "max": 3528.0,
+        "mean": 3528.0
+      },
+      "Num Messages": {
+        "rank0": 296352.0,
+        "min": 0.0,
+        "max": 423360.0,
+        "mean": 213003.0
+      },
+      "Message Length": {
+        "rank0": 38949100.0,
+        "min": 0.0,
+        "max": 48601700.0,
+        "mean": 21035694.0625
+      },
+      "Num Reductions": {
+        "rank0": 24696.0,
+        "min": 24696.0,
+        "max": 24696.0,
+        "mean": 24696.0
+      },
+      "FLOP": {
+        "rank0": 74063300.0,
+        "min": 0.0,
+        "max": 85292900.0,
+        "mean": 33592065.0
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L2_Smooth",
+      "Time": {
+        "rank0": 1.90831,
+        "min": 1.88758,
+        "max": 2.82614,
+        "mean": 2.2691465625
+      },
+      "Count": {
+        "rank0": 3528.0,
+        "min": 3528.0,
+        "max": 3528.0,
+        "mean": 3528.0
+      },
+      "Num Messages": {
+        "rank0": 465696.0,
+        "min": 70560.0,
+        "max": 649152.0,
+        "mean": 368676.0
+      },
+      "Message Length": {
+        "rank0": 79507000.0,
+        "min": 10442900.0,
+        "max": 101465000.0,
+        "mean": 51346503.125
+      },
+      "Num Reductions": {
+        "rank0": 98784.0,
+        "min": 98784.0,
+        "max": 98784.0,
+        "mean": 98784.0
+      },
+      "FLOP": {
+        "rank0": 157303000.0,
+        "min": 3725570.0,
+        "max": 179141000.0,
+        "mean": 78861399.6875
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L3_Prolong",
+      "Time": {
+        "rank0": 0.00563917,
+        "min": 0.00252624,
+        "max": 0.00582842,
+        "mean": 0.0042746178125
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 573300.0,
+        "min": 155232.0,
+        "max": 1310650.0,
+        "mean": 742698.3125
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L3_Restrict",
+      "Time": {
+        "rank0": 0.00956776,
+        "min": 0.00510156,
+        "max": 0.00956776,
+        "mean": 0.007277425
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 603288.0,
+        "min": 169344.0,
+        "max": 1351220.0,
+        "mean": 771969.1875
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L3_Schur",
+      "Time": {
+        "rank0": 0.636773,
+        "min": 0.611975,
+        "max": 0.688136,
+        "mean": 0.63644884375
+      },
+      "Count": {
+        "rank0": 3528.0,
+        "min": 3528.0,
+        "max": 3528.0,
+        "mean": 3528.0
+      },
+      "Num Messages": {
+        "rank0": 317520.0,
+        "min": 0.0,
+        "max": 444528.0,
+        "mean": 230202.0
+      },
+      "Message Length": {
+        "rank0": 7620480.0,
+        "min": 0.0,
+        "max": 10330000.0,
+        "mean": 5334335.0
+      },
+      "Num Reductions": {
+        "rank0": 24696.0,
+        "min": 24696.0,
+        "max": 24696.0,
+        "mean": 24696.0
+      },
+      "FLOP": {
+        "rank0": 3489190.0,
+        "min": 0.0,
+        "max": 4441750.0,
+        "mean": 2357696.125
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L3_Smooth",
+      "Time": {
+        "rank0": 1.64343,
+        "min": 1.59512,
+        "max": 1.8336,
+        "mean": 1.697510625
+      },
+      "Count": {
+        "rank0": 3528.0,
+        "min": 3528.0,
+        "max": 3528.0,
+        "mean": 3528.0
+      },
+      "Num Messages": {
+        "rank0": 486864.0,
+        "min": 70560.0,
+        "max": 670320.0,
+        "mean": 385875.0
+      },
+      "Message Length": {
+        "rank0": 15749000.0,
+        "min": 2765950.0,
+        "max": 23708200.0,
+        "mean": 13997338.125
+      },
+      "Num Reductions": {
+        "rank0": 98784.0,
+        "min": 98784.0,
+        "max": 98784.0,
+        "mean": 98784.0
+      },
+      "FLOP": {
+        "rank0": 10679300.0,
+        "min": 931392.0,
+        "max": 17939900.0,
+        "mean": 9439825.5625
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L4_Prolong",
+      "Time": {
+        "rank0": 0.00610293,
+        "min": 0.00270726,
+        "max": 0.00647607,
+        "mean": 0.0036514909375
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 488628.0,
+        "min": 116424.0,
+        "max": 1174820.0,
+        "mean": 649977.375
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L4_Restrict",
+      "Time": {
+        "rank0": 0.00820159,
+        "min": 0.00454112,
+        "max": 0.00948958,
+        "mean": 0.00695042875
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 511560.0,
+        "min": 127008.0,
+        "max": 1210100.0,
+        "mean": 674618.25
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L4_Schur",
+      "Time": {
+        "rank0": 0.629077,
+        "min": 0.607623,
+        "max": 0.682545,
+        "mean": 0.63160340625
+      },
+      "Count": {
+        "rank0": 3528.0,
+        "min": 3528.0,
+        "max": 3528.0,
+        "mean": 3528.0
+      },
+      "Num Messages": {
+        "rank0": 317520.0,
+        "min": 0.0,
+        "max": 444528.0,
+        "mean": 230202.0
+      },
+      "Message Length": {
+        "rank0": 2540160.0,
+        "min": 0.0,
+        "max": 3556220.0,
+        "mean": 1841616.25
+      },
+      "Num Reductions": {
+        "rank0": 24696.0,
+        "min": 24696.0,
+        "max": 24696.0,
+        "mean": 24696.0
+      },
+      "FLOP": {
+        "rank0": 462168.0,
+        "min": 0.0,
+        "max": 589176.0,
+        "mean": 334167.75
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L4_Smooth",
+      "Time": {
+        "rank0": 1.36452,
+        "min": 1.34381,
+        "max": 1.4445,
+        "mean": 1.3799678125000001
+      },
+      "Count": {
+        "rank0": 3528.0,
+        "min": 3528.0,
+        "max": 3528.0,
+        "mean": 3528.0
+      },
+      "Num Messages": {
+        "rank0": 444528.0,
+        "min": 70560.0,
+        "max": 627984.0,
+        "mean": 355446.0
+      },
+      "Message Length": {
+        "rank0": 8777660.0,
+        "min": 2370820.0,
+        "max": 15664300.0,
+        "mean": 9141054.6875
+      },
+      "Num Reductions": {
+        "rank0": 77616.0,
+        "min": 77616.0,
+        "max": 77616.0,
+        "mean": 77616.0
+      },
+      "FLOP": {
+        "rank0": 3792600.0,
+        "min": 529200.0,
+        "max": 8188490.0,
+        "mean": 4361159.8125
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "FSI_L5_Coarse",
+      "Time": {
+        "rank0": 6.23243,
+        "min": 6.21748,
+        "max": 6.26828,
+        "mean": 6.23656
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 738320.0,
+        "min": 3528.0,
+        "max": 1285000.0,
+        "mean": 289949.8125
+      },
+      "Message Length": {
+        "rank0": 204808000.0,
+        "min": 169344.0,
+        "max": 416089000.0,
+        "mean": 76857344.0
+      },
+      "Num Reductions": {
+        "rank0": 92280.0,
+        "min": 1764.0,
+        "max": 92280.0,
+        "mean": 24393.0
+      },
+      "FLOP": {
+        "rank0": 3106410000.0,
+        "min": 0.0,
+        "max": 6348790000.0,
+        "mean": 1102474062.5
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "KSPSolve",
+      "Time": {
+        "rank0": 27.4293,
+        "min": 27.4255,
+        "max": 27.4293,
+        "mean": 27.427225
+      },
+      "Count": {
+        "rank0": 10.0,
+        "min": 10.0,
+        "max": 10.0,
+        "mean": 10.0
+      },
+      "Num Messages": {
+        "rank0": 3067050.0,
+        "min": 511728.0,
+        "max": 4337100.0,
+        "mean": 2230208.0
+      },
+      "Message Length": {
+        "rank0": 2043820000.0,
+        "min": 432190000.0,
+        "max": 2298210000.0,
+        "mean": 1191073062.5
+      },
+      "Num Reductions": {
+        "rank0": 648653.0,
+        "min": 558137.0,
+        "max": 648653.0,
+        "mean": 580766.0
+      },
+      "FLOP": {
+        "rank0": 16133800000.0,
+        "min": 1694440000.0,
+        "max": 16664300000.0,
+        "mean": 7457505625.0
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "MatMult",
+      "Time": {
+        "rank0": 12.7903,
+        "min": 1.96806,
+        "max": 13.159,
+        "mean": 8.7306409375
+      },
+      "Count": {
+        "rank0": 196298.0,
+        "min": 151925.0,
+        "max": 196298.0,
+        "mean": 163018.25
+      },
+      "Num Messages": {
+        "rank0": 2302930.0,
+        "min": 296680.0,
+        "max": 3299710.0,
+        "mean": 1745812.875
+      },
+      "Message Length": {
+        "rank0": 1061440000.0,
+        "min": 149801000.0,
+        "max": 1339200000.0,
+        "mean": 665578656.25
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 10878200000.0,
+        "min": 1110740000.0,
+        "max": 10878200000.0,
+        "mean": 5077919062.5
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "MatPtAPNumeric",
+      "Time": {
+        "rank0": 0.193708,
+        "min": 0.193656,
+        "max": 0.194104,
+        "mean": 0.1938966875
+      },
+      "Count": {
+        "rank0": 50.0,
+        "min": 50.0,
+        "max": 50.0,
+        "mean": 50.0
+      },
+      "Num Messages": {
+        "rank0": 660.0,
+        "min": 440.0,
+        "max": 1100.0,
+        "mean": 783.75
+      },
+      "Message Length": {
+        "rank0": 5400460.0,
+        "min": 1087330.0,
+        "max": 7922140.0,
+        "mean": 4204324.0625
+      },
+      "Num Reductions": {
+        "rank0": 75.0,
+        "min": 75.0,
+        "max": 75.0,
+        "mean": 75.0
+      },
+      "FLOP": {
+        "rank0": 172376000.0,
+        "min": 23917000.0,
+        "max": 188533000.0,
+        "mean": 93351318.75
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "MatPtAPSymbolic",
+      "Time": {
+        "rank0": 0.0445281,
+        "min": 0.044516,
+        "max": 0.0445649,
+        "mean": 0.044541196875
+      },
+      "Count": {
+        "rank0": 5.0,
+        "min": 5.0,
+        "max": 5.0,
+        "mean": 5.0
+      },
+      "Num Messages": {
+        "rank0": 180.0,
+        "min": 120.0,
+        "max": 300.0,
+        "mean": 213.75
+      },
+      "Message Length": {
+        "rank0": 936340.0,
+        "min": 189776.0,
+        "max": 1364850.0,
+        "mean": 726932.5625
+      },
+      "Num Reductions": {
+        "rank0": 35.0,
+        "min": 35.0,
+        "max": 35.0,
+        "mean": 35.0
+      },
+      "FLOP": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "PCApply",
+      "Time": {
+        "rank0": 25.1994,
+        "min": 25.16,
+        "max": 25.1994,
+        "mean": 25.17560625
+      },
+      "Count": {
+        "rank0": 1764.0,
+        "min": 1764.0,
+        "max": 1764.0,
+        "mean": 1764.0
+      },
+      "Num Messages": {
+        "rank0": 3045630.0,
+        "min": 497448.0,
+        "max": 4304970.0,
+        "mean": 2204771.75
+      },
+      "Message Length": {
+        "rank0": 1963020000.0,
+        "min": 407329000.0,
+        "max": 2205580000.0,
+        "mean": 1136759906.25
+      },
+      "Num Reductions": {
+        "rank0": 565032.0,
+        "min": 474516.0,
+        "max": 565032.0,
+        "mean": 497145.0
+      },
+      "FLOP": {
+        "rank0": 12698400000.0,
+        "min": 975684000.0,
+        "max": 13675900000.0,
+        "mean": 5648456062.5
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "VecDot",
+      "Time": {
+        "rank0": 0.84579,
+        "min": 0.84579,
+        "max": 1.90769,
+        "mean": 1.28964271875
+      },
+      "Count": {
+        "rank0": 81836.0,
+        "min": 81836.0,
+        "max": 81836.0,
+        "mean": 81836.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 81836.0,
+        "min": 81836.0,
+        "max": 81836.0,
+        "mean": 81836.0
+      },
+      "FLOP": {
+        "rank0": 1018120000.0,
+        "min": 242644000.0,
+        "max": 1018120000.0,
+        "mean": 554249562.5
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "VecMDot",
+      "Time": {
+        "rank0": 1.77755,
+        "min": 0.353201,
+        "max": 4.99274,
+        "mean": 1.7716139375
+      },
+      "Count": {
+        "rank0": 97293.0,
+        "min": 52920.0,
+        "max": 97293.0,
+        "mean": 64013.25
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 97293.0,
+        "min": 52920.0,
+        "max": 97293.0,
+        "mean": 64013.25
+      },
+      "FLOP": {
+        "rank0": 113993000.0,
+        "min": 0.0,
+        "max": 113993000.0,
+        "mean": 36057257.5
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "VecScatterBegin",
+      "Time": {
+        "rank0": 2.41752,
+        "min": 0.406226,
+        "max": 3.36817,
+        "mean": 1.72011759375
+      },
+      "Count": {
+        "rank0": 488536.0,
+        "min": 259615.0,
+        "max": 488536.0,
+        "mean": 316845.25
+      },
+      "Num Messages": {
+        "rank0": 2686900.0,
+        "min": 300716.0,
+        "max": 3957360.0,
+        "mean": 1897949.0
+      },
+      "Message Length": {
+        "rank0": 1166330000.0,
+        "min": 150319000.0,
+        "max": 1549710000.0,
+        "mean": 705481062.5
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      }
+    },
+    {
+      "ranks": 32,
+      "event": "summary",
+      "Time": {
+        "rank0": 29.879,
+        "min": 29.8784,
+        "max": 29.879,
+        "mean": 29.878678125
+      },
+      "Count": {
+        "rank0": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "mean": 1.0
+      },
+      "Num Messages": {
+        "rank0": 3073630.0,
+        "min": 514702.0,
+        "max": 4345000.0,
+        "mean": 2236147.875
+      },
+      "Message Length": {
+        "rank0": 2103340000.0,
+        "min": 442818000.0,
+        "max": 2366720000.0,
+        "mean": 1226850031.25
+      },
+      "Num Reductions": {
+        "rank0": 650829.0,
+        "min": 560302.0,
+        "max": 650829.0,
+        "mean": 582933.75
+      },
+      "FLOP": {
+        "rank0": 16482800000.0,
+        "min": 1731840000.0,
+        "max": 16995600000.0,
+        "mean": 7634261250.0
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "BuildTwoSided",
+      "Time": {
+        "rank0": 2.57233,
+        "min": 1.81102,
+        "max": 2.7573,
+        "mean": 2.30407015625
+      },
+      "Count": {
+        "rank0": 62775.0,
+        "min": 62771.0,
+        "max": 62775.0,
+        "mean": 62772.0
+      },
+      "Num Messages": {
+        "rank0": 1017.0,
+        "min": 398.0,
+        "max": 3050.0,
+        "mean": 1482.140625
+      },
+      "Message Length": {
+        "rank0": 4068.0,
+        "min": 1592.0,
+        "max": 12200.0,
+        "mean": 5928.5625
+      },
+      "Num Reductions": {
+        "rank0": 62773.0,
+        "min": 62771.0,
+        "max": 62773.0,
+        "mean": 62771.5
+      },
+      "FLOP": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L0_Prolong",
+      "Time": {
+        "rank0": 0.0169154,
+        "min": 0.00722383,
+        "max": 0.0385332,
+        "mean": 0.0183649746875
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 14296500.0,
+        "min": 4841430.0,
+        "max": 28630900.0,
+        "mean": 13425894.375
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L0_Restrict",
+      "Time": {
+        "rank0": 0.0156385,
+        "min": 0.00778616,
+        "max": 0.032871,
+        "mean": 0.017551158359375
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 15685900.0,
+        "min": 5329890.0,
+        "max": 31813600.0,
+        "mean": 14887314.609375
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L0_Schur",
+      "Time": {
+        "rank0": 2.21705,
+        "min": 1.7881,
+        "max": 2.59841,
+        "mean": 2.063877734375
+      },
+      "Count": {
+        "rank0": 3452.0,
+        "min": 3452.0,
+        "max": 3452.0,
+        "mean": 3452.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 434952.0,
+        "mean": 139158.75
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 111182000.0,
+        "mean": 40748270.546875
+      },
+      "Num Reductions": {
+        "rank0": 24164.0,
+        "min": 24164.0,
+        "max": 24164.0,
+        "mean": 24164.0
+      },
+      "FLOP": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 390728000.0,
+        "mean": 126962555.859375
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L0_Smooth",
+      "Time": {
+        "rank0": 5.66802,
+        "min": 5.36942,
+        "max": 5.85423,
+        "mean": 5.581065390625
+      },
+      "Count": {
+        "rank0": 3452.0,
+        "min": 3452.0,
+        "max": 3452.0,
+        "mean": 3452.0
+      },
+      "Num Messages": {
+        "rank0": 110464.0,
+        "min": 69040.0,
+        "max": 759440.0,
+        "mean": 315318.625
+      },
+      "Message Length": {
+        "rank0": 130927000.0,
+        "min": 52691300.0,
+        "max": 406728000.0,
+        "mean": 187023350.78125
+      },
+      "Num Reductions": {
+        "rank0": 96656.0,
+        "min": 96656.0,
+        "max": 96656.0,
+        "mean": 96656.0
+      },
+      "FLOP": {
+        "rank0": 35075800.0,
+        "min": 12230400.0,
+        "max": 754007000.0,
+        "mean": 254781148.4375
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L1_Prolong",
+      "Time": {
+        "rank0": 0.00708692,
+        "min": 0.00396216,
+        "max": 0.0291438,
+        "mean": 0.011431671484375
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 4567000.0,
+        "min": 1738080.0,
+        "max": 17486100.0,
+        "mean": 6729726.015625
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L1_Restrict",
+      "Time": {
+        "rank0": 0.00820284,
+        "min": 0.00470241,
+        "max": 0.0210117,
+        "mean": 0.011491978515625
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 4898390.0,
+        "min": 1864080.0,
+        "max": 18209300.0,
+        "mean": 7079376.796875
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L1_Schur",
+      "Time": {
+        "rank0": 2.16551,
+        "min": 1.92611,
+        "max": 2.43818,
+        "mean": 2.09457109375
+      },
+      "Count": {
+        "rank0": 3452.0,
+        "min": 3452.0,
+        "max": 3452.0,
+        "mean": 3452.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 704208.0,
+        "mean": 229773.75
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 125432000.0,
+        "mean": 40778041.5625
+      },
+      "Num Reductions": {
+        "rank0": 24164.0,
+        "min": 24164.0,
+        "max": 24164.0,
+        "mean": 24164.0
+      },
+      "FLOP": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 327205000.0,
+        "mean": 103370904.0625
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L1_Smooth",
+      "Time": {
+        "rank0": 5.11868,
+        "min": 4.55839,
+        "max": 5.41622,
+        "mean": 4.92262828125
+      },
+      "Count": {
+        "rank0": 3452.0,
+        "min": 3452.0,
+        "max": 3452.0,
+        "mean": 3452.0
+      },
+      "Num Messages": {
+        "rank0": 110464.0,
+        "min": 69040.0,
+        "max": 1007980.0,
+        "mean": 405933.59375
+      },
+      "Message Length": {
+        "rank0": 48383200.0,
+        "min": 20076800.0,
+        "max": 230428000.0,
+        "mean": 96931750.0
+      },
+      "Num Reductions": {
+        "rank0": 96656.0,
+        "min": 96656.0,
+        "max": 96656.0,
+        "mean": 96656.0
+      },
+      "FLOP": {
+        "rank0": 21871900.0,
+        "min": 7694510.0,
+        "max": 550708000.0,
+        "mean": 187697766.640625
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L2_Prolong",
+      "Time": {
+        "rank0": 0.00272748,
+        "min": 0.00236204,
+        "max": 0.007865,
+        "mean": 0.004401249375
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 359008.0,
+        "min": 151888.0,
+        "max": 3704000.0,
+        "mean": 1110924.21875
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L2_Restrict",
+      "Time": {
+        "rank0": 0.00387289,
+        "min": 0.00324419,
+        "max": 0.00979145,
+        "mean": 0.005759338359375
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 386624.0,
+        "min": 165696.0,
+        "max": 3811010.0,
+        "mean": 1158172.921875
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L2_Schur",
+      "Time": {
+        "rank0": 1.84469,
+        "min": 1.76716,
+        "max": 1.98988,
+        "mean": 1.84635796875
+      },
+      "Count": {
+        "rank0": 3452.0,
+        "min": 3452.0,
+        "max": 3452.0,
+        "mean": 3452.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 994176.0,
+        "mean": 372168.75
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 42252500.0,
+        "mean": 14058269.375
+      },
+      "Num Reductions": {
+        "rank0": 24164.0,
+        "min": 24164.0,
+        "max": 24164.0,
+        "mean": 24164.0
+      },
+      "FLOP": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 28485900.0,
+        "mean": 9003492.5
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L2_Smooth",
+      "Time": {
+        "rank0": 4.08877,
+        "min": 3.80091,
+        "max": 4.31441,
+        "mean": 4.012526875
+      },
+      "Count": {
+        "rank0": 3452.0,
+        "min": 3452.0,
+        "max": 3452.0,
+        "mean": 3452.0
+      },
+      "Num Messages": {
+        "rank0": 110464.0,
+        "min": 69040.0,
+        "max": 1318660.0,
+        "mean": 548328.484375
+      },
+      "Message Length": {
+        "rank0": 9472290.0,
+        "min": 4252860.0,
+        "max": 74038500.0,
+        "mean": 28745667.8125
+      },
+      "Num Reductions": {
+        "rank0": 96656.0,
+        "min": 96656.0,
+        "max": 96656.0,
+        "mean": 96656.0
+      },
+      "FLOP": {
+        "rank0": 1822660.0,
+        "min": 911328.0,
+        "max": 69909900.0,
+        "mean": 21453340.109375
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L3_Prolong",
+      "Time": {
+        "rank0": 0.00327344,
+        "min": 0.00236779,
+        "max": 0.00554961,
+        "mean": 0.0039568953906249996
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 132902.0,
+        "min": 113916.0,
+        "max": 1282420.0,
+        "mean": 539928.171875
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L3_Restrict",
+      "Time": {
+        "rank0": 0.00359478,
+        "min": 0.00314338,
+        "max": 0.00804041,
+        "mean": 0.005122318359375
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 144984.0,
+        "min": 124272.0,
+        "max": 1322120.0,
+        "mean": 563997.4375
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L3_Schur",
+      "Time": {
+        "rank0": 1.89764,
+        "min": 1.85031,
+        "max": 2.02094,
+        "mean": 1.91123375
+      },
+      "Count": {
+        "rank0": 3452.0,
+        "min": 3452.0,
+        "max": 3452.0,
+        "mean": 3452.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 1077020.0,
+        "mean": 389968.109375
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 22203300.0,
+        "mean": 7612954.453125
+      },
+      "Num Reductions": {
+        "rank0": 24164.0,
+        "min": 24164.0,
+        "max": 24164.0,
+        "mean": 24164.0
+      },
+      "FLOP": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 8136360.0,
+        "mean": 2623223.203125
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L3_Smooth",
+      "Time": {
+        "rank0": 3.96971,
+        "min": 3.84208,
+        "max": 4.0984,
+        "mean": 3.956719921875
+      },
+      "Count": {
+        "rank0": 3452.0,
+        "min": 3452.0,
+        "max": 3452.0,
+        "mean": 3452.0
+      },
+      "Num Messages": {
+        "rank0": 110464.0,
+        "min": 69040.0,
+        "max": 1394610.0,
+        "mean": 566127.859375
+      },
+      "Message Length": {
+        "rank0": 6047900.0,
+        "min": 2706370.0,
+        "max": 43108600.0,
+        "mean": 17033466.484375
+      },
+      "Num Reductions": {
+        "rank0": 96656.0,
+        "min": 96656.0,
+        "max": 96656.0,
+        "mean": 96656.0
+      },
+      "FLOP": {
+        "rank0": 700756.0,
+        "min": 517800.0,
+        "max": 23918900.0,
+        "mean": 8230997.984375
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L4_Prolong",
+      "Time": {
+        "rank0": 0.00490988,
+        "min": 0.00275678,
+        "max": 0.00712995,
+        "mean": 0.004409203515625
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 113916.0,
+        "min": 113916.0,
+        "max": 1149520.0,
+        "mean": 482700.953125
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L4_Restrict",
+      "Time": {
+        "rank0": 0.00421951,
+        "min": 0.00311949,
+        "max": 0.00811251,
+        "mean": 0.005139100078125
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 124272.0,
+        "min": 124272.0,
+        "max": 1184040.0,
+        "mean": 503453.15625
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L4_Schur",
+      "Time": {
+        "rank0": 1.70179,
+        "min": 1.6627,
+        "max": 1.82326,
+        "mean": 1.733970234375
+      },
+      "Count": {
+        "rank0": 3452.0,
+        "min": 3452.0,
+        "max": 3452.0,
+        "mean": 3452.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 1077020.0,
+        "mean": 389968.109375
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 8616190.0,
+        "mean": 3119745.0
+      },
+      "Num Reductions": {
+        "rank0": 24164.0,
+        "min": 24164.0,
+        "max": 24164.0,
+        "mean": 24164.0
+      },
+      "FLOP": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 1218560.0,
+        "mean": 476214.28125
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L4_Smooth",
+      "Time": {
+        "rank0": 3.28907,
+        "min": 3.17396,
+        "max": 3.39126,
+        "mean": 3.26414703125
+      },
+      "Count": {
+        "rank0": 3452.0,
+        "min": 3452.0,
+        "max": 3452.0,
+        "mean": 3452.0
+      },
+      "Num Messages": {
+        "rank0": 110464.0,
+        "min": 69040.0,
+        "max": 1353180.0,
+        "mean": 540885.109375
+      },
+      "Message Length": {
+        "rank0": 5412740.0,
+        "min": 2347360.0,
+        "max": 27312200.0,
+        "mean": 11209507.8125
+      },
+      "Num Reductions": {
+        "rank0": 75944.0,
+        "min": 75944.0,
+        "max": 75944.0,
+        "mean": 75944.0
+      },
+      "FLOP": {
+        "rank0": 517800.0,
+        "min": 517800.0,
+        "max": 9979730.0,
+        "mean": 3800220.453125
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "FSI_L5_Coarse",
+      "Time": {
+        "rank0": 25.7967,
+        "min": 25.7259,
+        "max": 25.8371,
+        "mean": 25.7840328125
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 2004340.0,
+        "min": 3452.0,
+        "max": 7149360.0,
+        "mean": 1122157.484375
+      },
+      "Message Length": {
+        "rank0": 335437000.0,
+        "min": 165696.0,
+        "max": 1411560000.0,
+        "mean": 218245698.75
+      },
+      "Num Reductions": {
+        "rank0": 198008.0,
+        "min": 1726.0,
+        "max": 198008.0,
+        "mean": 50796.5
+      },
+      "FLOP": {
+        "rank0": 3568700000.0,
+        "min": 0.0,
+        "max": 27954200000.0,
+        "mean": 3163724218.75
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "KSPSolve",
+      "Time": {
+        "rank0": 51.1741,
+        "min": 51.1735,
+        "max": 51.1766,
+        "mean": 51.1746828125
+      },
+      "Count": {
+        "rank0": 10.0,
+        "min": 10.0,
+        "max": 10.0,
+        "mean": 10.0
+      },
+      "Num Messages": {
+        "rank0": 2936780.0,
+        "min": 504152.0,
+        "max": 11230600.0,
+        "mean": 3885999.234375
+      },
+      "Message Length": {
+        "rank0": 643530000.0,
+        "min": 130484000.0,
+        "max": 2199350000.0,
+        "mean": 698303718.75
+      },
+      "Num Reductions": {
+        "rank0": 741186.0,
+        "min": 544904.0,
+        "max": 741186.0,
+        "mean": 593974.5
+      },
+      "FLOP": {
+        "rank0": 4484720000.0,
+        "min": 322797000.0,
+        "max": 31424400000.0,
+        "mean": 4760606562.5
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "MatMult",
+      "Time": {
+        "rank0": 4.76976,
+        "min": 1.16831,
+        "max": 15.1325,
+        "mean": 8.248110390625
+      },
+      "Count": {
+        "rank0": 246794.0,
+        "min": 148656.0,
+        "max": 246794.0,
+        "mean": 173190.5
+      },
+      "Num Messages": {
+        "rank0": 1707100.0,
+        "min": 290288.0,
+        "max": 8044510.0,
+        "mean": 3008183.875
+      },
+      "Message Length": {
+        "rank0": 359595000.0,
+        "min": 75489900.0,
+        "max": 1364130000.0,
+        "mean": 465127378.90625
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 1136180000.0,
+        "min": 205265000.0,
+        "max": 5094620000.0,
+        "mean": 1585370273.4375
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "MatPtAPNumeric",
+      "Time": {
+        "rank0": 0.130549,
+        "min": 0.110323,
+        "max": 0.130674,
+        "mean": 0.129611609375
+      },
+      "Count": {
+        "rank0": 50.0,
+        "min": 50.0,
+        "max": 50.0,
+        "mean": 50.0
+      },
+      "Num Messages": {
+        "rank0": 1100.0,
+        "min": 440.0,
+        "max": 1980.0,
+        "mean": 1120.625
+      },
+      "Message Length": {
+        "rank0": 1638180.0,
+        "min": 556512.0,
+        "max": 6018860.0,
+        "mean": 2428422.453125
+      },
+      "Num Reductions": {
+        "rank0": 75.0,
+        "min": 75.0,
+        "max": 75.0,
+        "mean": 75.0
+      },
+      "FLOP": {
+        "rank0": 14318700.0,
+        "min": 4494430.0,
+        "max": 70416100.0,
+        "mean": 25114299.6875
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "MatPtAPSymbolic",
+      "Time": {
+        "rank0": 0.02525,
+        "min": 0.0251601,
+        "max": 0.0252634,
+        "mean": 0.02520840859375
+      },
+      "Count": {
+        "rank0": 5.0,
+        "min": 5.0,
+        "max": 5.0,
+        "mean": 5.0
+      },
+      "Num Messages": {
+        "rank0": 300.0,
+        "min": 120.0,
+        "max": 540.0,
+        "mean": 305.625
+      },
+      "Message Length": {
+        "rank0": 284324.0,
+        "min": 97136.0,
+        "max": 1033380.0,
+        "mean": 419358.59375
+      },
+      "Num Reductions": {
+        "rank0": 35.0,
+        "min": 35.0,
+        "max": 35.0,
+        "mean": 35.0
+      },
+      "FLOP": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "PCApply",
+      "Time": {
+        "rank0": 49.4923,
+        "min": 49.4856,
+        "max": 49.51,
+        "mean": 49.49749453125
+      },
+      "Count": {
+        "rank0": 1726.0,
+        "min": 1726.0,
+        "max": 1726.0,
+        "mean": 1726.0
+      },
+      "Num Messages": {
+        "rank0": 2901860.0,
+        "min": 490184.0,
+        "max": 11174700.0,
+        "mean": 3850423.890625
+      },
+      "Message Length": {
+        "rank0": 622312000.0,
+        "min": 121013000.0,
+        "max": 2146630000.0,
+        "mean": 671671140.625
+      },
+      "Num Reductions": {
+        "rank0": 660576.0,
+        "min": 464294.0,
+        "max": 660576.0,
+        "mean": 513364.5
+      },
+      "FLOP": {
+        "rank0": 4104270000.0,
+        "min": 184378000.0,
+        "max": 30514800000.0,
+        "mean": 4322165101.5625
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "VecDot",
+      "Time": {
+        "rank0": 1.3409,
+        "min": 0.984136,
+        "max": 1.50305,
+        "mean": 1.2152163515625
+      },
+      "Count": {
+        "rank0": 78864.0,
+        "min": 78864.0,
+        "max": 78864.0,
+        "mean": 78864.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 78864.0,
+        "min": 78864.0,
+        "max": 78864.0,
+        "mean": 78864.0
+      },
+      "FLOP": {
+        "rank0": 126892000.0,
+        "min": 44558200.0,
+        "max": 290772000.0,
+        "mean": 133471180.46875
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "VecMDot",
+      "Time": {
+        "rank0": 20.5501,
+        "min": 1.12075,
+        "max": 20.5501,
+        "mean": 6.365446640625
+      },
+      "Count": {
+        "rank0": 148192.0,
+        "min": 51780.0,
+        "max": 148192.0,
+        "mean": 75883.0
+      },
+      "Num Messages": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Message Length": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "Num Reductions": {
+        "rank0": 148192.0,
+        "min": 51780.0,
+        "max": 148192.0,
+        "mean": 75883.0
+      },
+      "FLOP": {
+        "rank0": 130466000.0,
+        "min": 0.0,
+        "max": 142635000.0,
+        "mean": 37395510.171875
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "VecScatterBegin",
+      "Time": {
+        "rank0": 1.49539,
+        "min": 0.287882,
+        "max": 7.20447,
+        "mean": 2.7583632109375
+      },
+      "Count": {
+        "rank0": 751622.0,
+        "min": 254028.0,
+        "max": 751622.0,
+        "mean": 378426.5
+      },
+      "Num Messages": {
+        "rank0": 2731170.0,
+        "min": 297700.0,
+        "max": 10860000.0,
+        "mean": 3579511.890625
+      },
+      "Message Length": {
+        "rank0": 528948000.0,
+        "min": 75845800.0,
+        "max": 1935890000.0,
+        "mean": 575108013.28125
+      },
+      "Num Reductions": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "FLOP": {
+        "rank0": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      }
+    },
+    {
+      "ranks": 128,
+      "event": "summary",
+      "Time": {
+        "rank0": 52.7159,
+        "min": 52.7151,
+        "max": 52.7172,
+        "mean": 52.71617109375
+      },
+      "Count": {
+        "rank0": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "mean": 1.0
+      },
+      "Num Messages": {
+        "rank0": 2949210.0,
+        "min": 507178.0,
+        "max": 11244700.0,
+        "mean": 3894462.71875
+      },
+      "Message Length": {
+        "rank0": 664705000.0,
+        "min": 134460000.0,
+        "max": 2246490000.0,
+        "mean": 717389812.5
+      },
+      "Num Reductions": {
+        "rank0": 743362.0,
+        "min": 547069.0,
+        "max": 743362.0,
+        "mean": 596142.25
+      },
+      "FLOP": {
+        "rank0": 4506520000.0,
+        "min": 329768000.0,
+        "max": 31520700000.0,
+        "mean": 4807070906.25
+      }
+    }
+  ]
+}
