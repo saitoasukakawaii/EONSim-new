@@ -1798,6 +1798,8 @@ struct Hierarchy {
     }
     void report() {
         if(!configuration.report) return;
+        PetscInt coarse_rows=0;
+        EONSIM_PETSC(MatGetSize(levels.back().matrix.get(),&coarse_rows,nullptr));
         EONSIM_PETSC(PetscPrintf(comm,
             "pc_monolithic_mg prefix=%s levels=%" PetscInt_FMT " coarse_processes=%" PetscInt_FMT
             " single_precision=%d refreshes=%" PetscInt_FMT " hierarchy_rebuilds=%" PetscInt_FMT
@@ -1807,7 +1809,8 @@ struct Hierarchy {
             " saddle_point=%d divergence_preserving=%d divergence_commuting=%d distributed_aggregation=%d adaptive_hierarchy=%d"
             " reuse_hierarchy=%d matrix_free_fine=%d communication_avoiding=%d"
             " operator_complexity=%.17g complexity_stop_rows=%" PetscInt_FMT " transfer_setup_generation=%" PetscInt_FMT
-            " pressure_image_modes=%" PetscInt_FMT " coarse_rows_per_rank=%" PetscInt_FMT "\n",
+            " pressure_image_modes=%" PetscInt_FMT " coarse_rows_per_rank=%" PetscInt_FMT
+            " coarsest_rows=%" PetscInt_FMT "\n",
             prefix.empty()?"-":prefix.c_str(),stats.levels,stats.coarse_processes,
             stats.single_precision?1:0,stats.refreshes,stats.hierarchy_rebuilds,configuration.smoother.kind.c_str(),
             stats.field_scaling?1:0,stats.fsi_candidates?1:0,stats.native_fp32?1:0,stats.k_cycle?"k":stats.w_cycle?"w":"v",
@@ -1816,7 +1819,7 @@ struct Hierarchy {
             stats.distributed_aggregation?1:0,stats.adaptive_hierarchy?1:0,stats.reuse_hierarchy?1:0,
             stats.matrix_free_fine?1:0,configuration.communication_avoiding?1:0,stats.operator_complexity,
             stats.complexity_stop_rows,stats.hierarchy_rebuilds,configuration.pressure_image_modes,
-            configuration.coarse_rows_per_rank));
+            configuration.coarse_rows_per_rank,coarse_rows));
         for(std::size_t i=0;i<stats.transfers.size();++i) {
             const auto& level=stats.transfers[i];
             EONSIM_PETSC(PetscPrintf(comm,

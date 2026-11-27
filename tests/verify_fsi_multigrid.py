@@ -318,9 +318,19 @@ def audit(log, trace, ranks, mode):
             before, after = float(row['energy_before']), float(row['energy_after'])
             block.require(math.isfinite(before + after) and after <= before * (1 + 1e-10) + 1e-12,
                           'Prolongation increased the defined positive energy')
-        expected_processes = ranks if 'distributed_coarse' in selected else 1
-        block.require(all(int(row['coarse_processes']) == expected_processes for row in hierarchy),
-                      'Requested coarse-process distribution absent')
+        if 'coarse_auto' in selected:
+            for row in hierarchy:
+                rows = int(row['coarsest_rows'])
+                block.require(rows > 0 and int(row['coarse_rows_per_rank']) == 64,
+                              'Missing observed row-budget inputs')
+                minimum = 1 if rows == 1 else min(ranks, max(2, math.ceil(rows / 64)))
+                expected = next(count for count in range(minimum, ranks + 1) if ranks % count == 0)
+                block.require(int(row['coarse_processes']) == expected,
+                              ('Incorrect row-budget coarse communicator', rows, expected))
+        else:
+            expected_processes = ranks if 'distributed_coarse' in selected else 1
+            block.require(all(int(row['coarse_processes']) == expected_processes for row in hierarchy),
+                          'Requested coarse-process distribution absent')
         smoother_kind = mode.removeprefix('mono_') if mode in ('mono_chebyshev', 'mono_block_chebyshev') else 'vanka'
         for feature, kind in (('braess', 'braess_sarazin'), ('colored', 'vanka_colored'),
                               ('multiplicative', 'vanka_multiplicative')):
@@ -368,11 +378,6 @@ def audit(log, trace, ranks, mode):
                           and all(0 <= float(row['divergence_commuting_defect']) <= 1 + 1e-10
                                   for row in transfers), 'Invalid compressed pressure hierarchy evidence')
             result['compressed_pressure_transfers'] = transfers
-        if 'coarse_auto' in selected:
-            block.require(all(int(row['coarse_rows_per_rank']) == 64 and
-                              min(2, ranks) <= int(row['coarse_processes']) <= ranks and
-                              ranks % int(row['coarse_processes']) == 0 for row in hierarchy),
-                          'Invalid row-budget coarse communicator')
         if 'native' in selected:
             storage = assembly.records(log, 'pc_monolithic_mg_storage ')
             block.require(storage and {int(row['rank']) for row in storage} == set(range(ranks)) and
