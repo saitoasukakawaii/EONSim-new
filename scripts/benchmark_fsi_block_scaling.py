@@ -306,7 +306,9 @@ def large_campaign(args):
     work = args.work.resolve() / str(time.time_ns())
     work.mkdir(parents=True)
     receipt = work / 'results.json'
-    environment = dict(OMP_NUM_THREADS='1', OMP_DYNAMIC='FALSE', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
+    environment = dict(OMP_NUM_THREADS=str(args.omp_threads), OMP_DYNAMIC='FALSE',
+                       OMP_PLACES='cores', OMP_PROC_BIND='close',
+                       OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
     os.environ.update(environment)
     inherited = {name: value for name, value in os.environ.items()
                  if name.startswith(('OMPI_MCA_', 'PRTE_MCA_', 'SLURM_')) and
@@ -320,6 +322,9 @@ def large_campaign(args):
                   reference_kind='direct' if args.reference_mode == 'direct' else 'same-equation iterative',
                   expected_steps=args.steps, timing_repeats=args.timing_repeats,
                   minimum_nodes=args.minimum_nodes, minimum_dofs=args.minimum_dofs,
+                  fsi_threads=args.omp_threads,
+                  local_job_rss_interval_seconds=args.local_rss_interval,
+                  local_job_rss_limit_bytes=args.local_rss_limit_bytes,
                   field_absolute_limit=assembly.FIELD_LIMIT,
                   audit_scope='all accepted histories, final fields and topology, all true linear residuals',
                   cases=[], failures=[], scaling=[])
@@ -331,7 +336,9 @@ def large_campaign(args):
         row.update(command=list(map(str, command)), log=str(log))
         save(result, receipt)
         try:
-            return block.timed_command(command, log, args.timeout, row)
+            return block.timed_command(command, log, args.timeout, row,
+                                       rss_interval=args.local_rss_interval,
+                                       rss_limit=args.local_rss_limit_bytes)
         finally:
             if log.is_file():
                 row['log_sha256'] = assembly.digest(log)
@@ -381,14 +388,22 @@ def large_campaign(args):
             try:
                 assembly.require(hashes == file_receipts(case.parent.iterdir(), work) and
                                  partition_files == file_receipts(partition.iterdir(), work), 'Inputs changed before run')
+                flags = multigrid.flags(mode)
+                if '-fsi_assembly_report' not in flags:
+                    flags.append('-fsi_assembly_report')
                 text = run_command([mpiexec, *args.mpi_arg, '-n', ranks, executable, '-case', case,
                                     '-partition', partition, '-output', output,
                                     '-vtu_format', 'ascii', '-vtu_boundary', 'false', '-solver_rank_report',
-                                    *multigrid.flags(mode)], run_dir/'solver.log', row)
+                                    '-fsi_threads', args.omp_threads,
+                                    *flags], run_dir/'solver.log', row)
                 assembly.require(hashes == file_receipts(case.parent.iterdir(), work) and
                                  partition_files == file_receipts(partition.iterdir(), work), 'Inputs changed during run')
                 trace = assembly.history(output.with_suffix('.csv'), args.steps, cfg['fsi']['dt'])
                 row.update(multigrid.audit(text, trace, ranks, mode))
+                execution = assembly.records(text, 'fsi_execution_plan ')
+                assembly.require(execution and all(int(plan['threads_requested']) == args.omp_threads
+                                                   for plan in execution),
+                                 'FSI execution reports a different OpenMP thread count')
                 row['placement'] = rank_placement(text, ranks, args.steps, args.minimum_nodes)
                 assembly.require(row['dofs'] >= args.minimum_dofs, ('Observed DoFs below required minimum', row['dofs']))
                 row['dofs_per_rank'] = row['dofs']/ranks
@@ -435,6 +450,9 @@ def large_campaign(args):
                     record['medians'][mode] = {key: assembly.stats([row[key] for row in samples]) for key in
                         ('wall_seconds', 'linear_seconds', 'solve_seconds', 'assembly_seconds', 'outer_iterations',
                          'iterations_per_correction', 'peak_rss_max_bytes')}
+                    rss_key = 'local_job_peak_sampled_rss_bytes'
+                    if all(row.get(rss_key) is not None for row in samples):
+                        record['medians'][mode][rss_key] = assembly.stats([row[rss_key] for row in samples])
         record['status'] = 'passed' if all(row['status'] == 'passed' for row in record['runs']) else 'failed'
         save(result, receipt)
     for mode in args.modes:
@@ -484,6 +502,12 @@ def main():
                         help='Large campaign baseline: same-equation iterative mono by default')
     parser.add_argument('--mpi-arg', action='append', default=[],
                         help='One MPI launcher argument, repeat as --mpi-arg=--hostfile --mpi-arg=/path')
+    parser.add_argument('--omp-threads', type=int, default=1,
+                        help='FSI element threads per rank on strong/weak campaigns; bind MPI ranks to enough cores')
+    parser.add_argument('--local-rss-interval', type=float,
+                        help='Seconds between local process RSS samples; rank/launcher RSS may double-count shared pages')
+    parser.add_argument('--local-rss-limit-gib', type=float,
+                        help='Terminate a single-node command if sampled local RSS exceeds this GiB budget')
     parser.add_argument('--minimum-nodes', type=int, default=1,
                         help='Require this many distinct observed MPI host names for every large run')
     parser.add_argument('--minimum-dofs', type=int, default=0,
@@ -511,6 +535,22 @@ def main():
         parser.error('Minimum nodes must be positive; DoFs and finite weak-load tolerance must be nonnegative')
     if args.campaign == 'bounded' and (args.mpi_arg or args.minimum_nodes != 1 or args.minimum_dofs != 0):
         parser.error('Cluster launcher/qualification options require --campaign strong or weak')
+    if not 1 <= args.omp_threads <= 256:
+        parser.error('--omp-threads must be in [1, 256]')
+    if args.campaign == 'bounded' and (args.omp_threads != 1 or args.local_rss_interval is not None
+                                        or args.local_rss_limit_gib is not None):
+        parser.error('OpenMP and local RSS options require --campaign strong or weak')
+    args.local_rss_limit_bytes = None
+    if args.local_rss_interval is not None and (not math.isfinite(args.local_rss_interval)
+                                                or args.local_rss_interval <= 0):
+        parser.error('--local-rss-interval must be finite and positive')
+    if args.local_rss_limit_gib is not None:
+        if (args.minimum_nodes != 1 or not math.isfinite(args.local_rss_limit_gib)
+                or not 2**-30 <= args.local_rss_limit_gib < 2**33):
+            parser.error('--local-rss-limit-gib must specify a positive byte budget for a single-node job')
+        args.local_rss_limit_bytes = int(args.local_rss_limit_gib * 2**30)
+        if args.local_rss_interval is None:
+            args.local_rss_interval = 0.5
     if (len(set(args.modes)) != len(args.modes) or args.steps < 1 or
             not math.isfinite(args.timeout) or args.timeout <= 0):
         parser.error('Modes must be unique and steps/timeout positive')
