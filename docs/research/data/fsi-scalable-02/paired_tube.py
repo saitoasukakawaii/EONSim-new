@@ -212,13 +212,13 @@ def main():
         gate=json.loads(args.gate.read_text()) if args.gate else {}
         if not (gate.get('passed') and gate.get('steps')==20 and gate.get('binaries')==identities and gate.get('case')==case_files
                 and gate.get('svfsi_linear','reference')==args.svfsi_linear and gate.get('ranks',1)==args.ranks
-                and gate.get('eon_linear','direct')==args.eon_linear):
+                and gate.get('eon_linear','direct')==args.eon_linear and gate.get('timing_protocol')==2):
             cli.error('requires a passing 20-step receipt with the same inputs and binaries')
     os.environ.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
     root=args.root.resolve(); root.mkdir(parents=True,exist_ok=False)
     prepared=root/'prepared'; prepared.mkdir(); start=time.monotonic(); files=prepare(args.case,prepared,args.steps,args.svfsi_linear)
     result=dict(steps=args.steps,binaries=identities,case=case_files,inputs=files,affinity=affinity,slurm=os.environ['SLURM_JOB_ID'],
-                T_prepare=time.monotonic()-start,ranks=args.ranks,svfsi_linear=args.svfsi_linear,eon_linear=args.eon_linear,passed=False,runs=[])
+                T_prepare=time.monotonic()-start,ranks=args.ranks,svfsi_linear=args.svfsi_linear,eon_linear=args.eon_linear,timing_protocol=2,passed=False,runs=[])
     save(root/'summary.json',result)
     launcher=[]; part=[]
     if args.ranks>1:
@@ -234,7 +234,7 @@ def main():
             folder=root/f'{iteration}-{solver}'; shutil.copytree(prepared/solver,folder)
             extra=['-case','case.json',*part] if solver=='eon' else ['svFSI.inp']
             if solver=='eon' and args.eon_linear=='asm':
-                extra.extend([*arterial_options('asm'),'-nonlinear_true_residual','true','-linear_report','-solver_report'])
+                extra.extend([*arterial_options('asm'),'-nonlinear_true_residual','true'])
             kind='correctness' if args.steps==20 else 'timed' if iteration else 'warmup'
             receipt=dict(solver=solver,kind=kind,iteration=iteration)
             receipts[solver]=receipt; result['runs'].append(receipt)

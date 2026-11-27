@@ -176,13 +176,14 @@ struct FsiLevelSmoother {
         }
         if(selection==4) {
             validate_interface_patch_options(comm,"",options.patches,false);
-            PetscInt minimum=0,maximum=0;
+            const PetscInt parameters[]={options.schur_iterations,options.braess_local_fields?1:0};
+            PetscInt minimum[2]{},maximum[2]{};
             double alpha_min=0.,alpha_max=0.;
-            EONSIM_PETSC(MPI_Allreduce(&options.schur_iterations,&minimum,1,MPIU_INT,MPI_MIN,comm));
-            EONSIM_PETSC(MPI_Allreduce(&options.schur_iterations,&maximum,1,MPIU_INT,MPI_MAX,comm));
+            EONSIM_PETSC(MPI_Allreduce(parameters,minimum,2,MPIU_INT,MPI_MIN,comm));
+            EONSIM_PETSC(MPI_Allreduce(parameters,maximum,2,MPIU_INT,MPI_MAX,comm));
             EONSIM_PETSC(MPI_Allreduce(&options.braess_alpha,&alpha_min,1,MPI_DOUBLE,MPI_MIN,comm));
             EONSIM_PETSC(MPI_Allreduce(&options.braess_alpha,&alpha_max,1,MPI_DOUBLE,MPI_MAX,comm));
-            common_check(comm,minimum==maximum&&minimum>=1&&maximum<=32&&std::isfinite(options.braess_alpha)&&
+            common_check(comm,minimum[1]==maximum[1]&&minimum[0]==maximum[0]&&minimum[0]>=1&&maximum[0]<=32&&std::isfinite(options.braess_alpha)&&
                 alpha_min==alpha_max&&alpha_min>0.&&!options.patches.native_storage,
                 "Braess-Sarazin requires equal positive alpha, 1..32 Schur iterations and FP64 setup storage");
             prepare_braess_partition();
@@ -363,9 +364,10 @@ struct FsiLevelSmoother {
             ru=primal_rhs.get();
             // The pressure KSP has a zero initial guess. Reuse its output for rp until KSPSolve.
             rp=pressure_solution.get();
-            PetscCall(gather_field(mixed,primal_offsets,ru));
-            PetscCall(gather_field(mixed,pressure_offsets,rp));
-            PetscCall(VecRestoreArrayRead(active_rhs,&mixed));
+            auto status=gather_field(mixed,primal_offsets,ru);
+            if(!status) status=gather_field(mixed,pressure_offsets,rp);
+            const auto restored=VecRestoreArrayRead(active_rhs,&mixed);
+            PetscCall(status);PetscCall(restored);
         } else {
             PetscCall(VecGetSubVector(active_rhs,primal_is.get(),&ru));
             PetscCall(VecGetSubVector(active_rhs,pressure_is.get(),&rp));
@@ -402,9 +404,10 @@ struct FsiLevelSmoother {
         if(options.braess_local_fields) {
             PetscScalar* mixed=nullptr;
             PetscCall(VecGetArray(output,&mixed));
-            PetscCall(add_field(primal_solution.get(),primal_offsets,mixed));
-            PetscCall(add_field(pressure_solution.get(),pressure_offsets,mixed));
-            PetscCall(VecRestoreArray(output,&mixed));
+            auto status=add_field(primal_solution.get(),primal_offsets,mixed);
+            if(!status) status=add_field(pressure_solution.get(),pressure_offsets,mixed);
+            const auto restored=VecRestoreArray(output,&mixed);
+            PetscCall(status);PetscCall(restored);
             PetscFunctionReturn(PETSC_SUCCESS);
         }
         Vec du=nullptr,dp=nullptr;

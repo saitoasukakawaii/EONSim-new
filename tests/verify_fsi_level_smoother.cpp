@@ -291,6 +291,7 @@ void verify_braess(MPI_Comm comm,bool coarse,double alpha,bool use_default=false
 }
 void run(MPI_Comm comm) {
     int ranks=0;MPI_Comm_size(comm,&ranks);require(comm,ranks==1||ranks==2||ranks==4,"Expected 1, 2 or 4 ranks");
+    verify_braess(comm,false,1.,false,true,true);
     for(bool coarse:{false,true}) {
         verify(comm,"vanka",coarse,false);verify(comm,"vanka",coarse,true);
         verify(comm,"chebyshev",coarse,false);verify(comm,"block_chebyshev",coarse,false);

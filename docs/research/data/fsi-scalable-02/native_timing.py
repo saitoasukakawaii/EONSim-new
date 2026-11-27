@@ -33,7 +33,8 @@ def main():
     link_cmd[link_cmd.index('-o')+1]=str(exe)
     for command in (compile_cmd,link_cmd):subprocess.run(command,cwd=cwd,check=True)
     (folder/'build.json').write_text(json.dumps(dict(source_sha256=sha,commands=[compile_cmd,link_cmd],
-        binary_sha256=hashlib.sha256(exe.read_bytes()).hexdigest()),indent=2)+'\n')
+        binary_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),source_binary_sha256=
+        hashlib.sha256((args.build/'bin/svFSI').read_bytes()).hexdigest()),indent=2)+'\n')
 
 
 if __name__=='__main__':main()
