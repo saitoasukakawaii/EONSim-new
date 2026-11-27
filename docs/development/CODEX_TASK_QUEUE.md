@@ -2,6 +2,10 @@
 
 2026-11-27 核对：主线已合入 #65（`2463f717`）；以下历史记录保留实际执行日期、源码、失败与验收边界。当前能力与开放目标见 [当前能力矩阵](CURRENT_STATUS.md)。历史 review/Draft 不代表当前 PR 状态，历史证据不计为本次执行。
 
+## FSI-SCALABLE-01 · 规模与优化实测
+
+基线、具备独立直接参考的小 FSI、近似压力空间和粗层通信器选择已建立。网格无关迭代目标仍开放。先按[本轮证据](FSI_SCALABLE_SOLVER.md)筛选上大网格的配置，再以完整场和实际残量对照评估扩展。分布式网格前处理、一般跨分区重启以及混合精度层级复用各保留独立验收。
+
 ## FSI-SADDLE-01 / implementation and bounded validation complete; convergence and scale OPEN / 2026-11-27
 
 基线 `main@036f865e`（#64），最终生产/驱动 `ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba`，交付
