@@ -41,6 +41,7 @@ FEATURES = {
     'mono_braess': {'saddle', 'braess'},
     'mono_braess_tentative': {'saddle', 'braess', 'tentative'},
     'mono_pressure_image': {'saddle', 'braess', 'tentative', 'pressure_image'},
+    'mono_pressure_auto': {'saddle', 'braess', 'tentative', 'pressure_image', 'coarse_auto'},
     'mono_colored': {'saddle', 'colored'},
     'mono_multiplicative': {'saddle', 'multiplicative'},
     'mono_distributed': {'saddle', 'distributed'},
@@ -81,7 +82,7 @@ def flags(mode, ports=False):
     if mode.startswith('mono'):
         prefix = '-rcr_bulk_monolithic_mg_' if ports else '-monolithic_mg_'
         result += ['-pc_recipe', 'monolithic_mg', prefix + 'coarse_limit', '48',
-                   prefix + 'coarse_processes', '0' if 'distributed_coarse' in selected else '1']
+                   prefix + 'coarse_processes', '0' if selected & {'distributed_coarse', 'coarse_auto'} else '1']
         if mode == 'mono_fp32':
             result += [prefix + 'single_precision', 'true']
         if 'kcycle' in selected:
@@ -116,6 +117,8 @@ def flags(mode, ports=False):
             result += [prefix + 'energy_steps', '0']
         if 'pressure_image' in selected:
             result += [prefix + 'pressure_image_modes', '2']
+        if 'coarse_auto' in selected:
+            result += [prefix + 'coarse_rows_per_rank', '64']
         for feature, kind in (('braess', 'braess_sarazin'), ('colored', 'vanka_colored'),
                               ('multiplicative', 'vanka_multiplicative')):
             if feature in selected:
@@ -365,6 +368,11 @@ def audit(log, trace, ranks, mode):
                           and all(0 <= float(row['divergence_commuting_defect']) <= 1 + 1e-10
                                   for row in transfers), 'Invalid compressed pressure hierarchy evidence')
             result['compressed_pressure_transfers'] = transfers
+        if 'coarse_auto' in selected:
+            block.require(all(int(row['coarse_rows_per_rank']) == 64 and
+                              min(2, ranks) <= int(row['coarse_processes']) <= ranks and
+                              ranks % int(row['coarse_processes']) == 0 for row in hierarchy),
+                          'Invalid row-budget coarse communicator')
         if 'native' in selected:
             storage = assembly.records(log, 'pc_monolithic_mg_storage ')
             block.require(storage and {int(row['rank']) for row in storage} == set(range(ranks)) and

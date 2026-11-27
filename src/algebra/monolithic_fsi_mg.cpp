@@ -32,7 +32,7 @@ void option_default(const std::string& name,const char* value) {
 struct Options {
     PetscInt aggregate_nodes=12,aggregate_rows=192,max_levels=8,coarse_limit=96;
     PetscInt energy_steps=1,spectral_modes=2,pre_smooth=1,post_smooth=1,coarse_processes=1;
-    PetscInt spectral_refresh_period=0,coarse_patch_overlap=0,pressure_image_modes=0;
+    PetscInt spectral_refresh_period=0,coarse_patch_overlap=0,pressure_image_modes=0,coarse_rows_per_rank=0;
     double spectral_tolerance=.1,max_coarse_ratio=1.;
     bool single_precision=false,report=false,field_scaling=false,fsi_candidates=false,native_fp32=false,w_cycle=false,k_cycle=false;
     bool pressure_supremizers=false,saddle_point=false,divergence_preserving=false,divergence_commuting=false;
@@ -55,7 +55,8 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         {"patch_maximum_size",&o.smoother.patches.maximum_size},
         {"polynomial_degree",&o.smoother.polynomial_degree},
         {"schur_iterations",&o.smoother.schur_iterations},{"hierarchy_max_age",&o.hierarchy_max_age},
-        {"adaptive_interval",&o.adaptive_interval},{"pressure_image_modes",&o.pressure_image_modes}})
+        {"adaptive_interval",&o.adaptive_interval},{"pressure_image_modes",&o.pressure_image_modes},
+        {"coarse_rows_per_rank",&o.coarse_rows_per_rank}})
         EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,(base+entry.first).c_str(),entry.second,nullptr));
     EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"spectral_tolerance").c_str(),&o.spectral_tolerance,nullptr));
     EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"eigenvalue_ratio").c_str(),&o.smoother.eigenvalue_ratio,nullptr));
@@ -113,7 +114,7 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         o.saddle_point?1:0,o.divergence_preserving?1:0,o.distributed_aggregation?1:0,
         o.adaptive_hierarchy?1:0,o.reuse_hierarchy?1:0,o.matrix_free_fine?1:0,
         o.communication_avoiding?1:0,o.hierarchy_max_age,o.adaptive_interval,o.smoother.schur_iterations,
-        o.divergence_commuting?1:0,o.pressure_image_modes};
+        o.divergence_commuting?1:0,o.pressure_image_modes,o.coarse_rows_per_rank};
     constexpr int option_count=static_cast<int>(sizeof(values)/sizeof(values[0]));
     PetscInt minimum[option_count]{},maximum[option_count]{};
     MPI_Allreduce(values,minimum,option_count,MPIU_INT,MPI_MIN,comm);
@@ -123,6 +124,7 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         o.max_levels>=1&&o.max_levels<=20&&o.coarse_limit>=1&&o.energy_steps>=0&&o.energy_steps<=3&&
         o.spectral_modes>=0&&o.spectral_modes<=8&&o.pre_smooth>=0&&o.post_smooth>=0&&
         o.pre_smooth+o.post_smooth>0&&o.pre_smooth<=8&&o.post_smooth<=8&&o.coarse_processes>=0&&values[13]!=0&&
+        o.coarse_rows_per_rank>=0&&(!o.coarse_rows_per_rank||o.coarse_processes==0)&&
         o.spectral_refresh_period>=0&&o.spectral_refresh_period<=1000000&&
         o.coarse_patch_overlap>=0&&o.coarse_patch_overlap<=2&&values[21]!=0&&
         (!o.pressure_supremizers||(o.fsi_candidates&&o.spectral_modes>0))&&
@@ -1717,11 +1719,21 @@ struct Hierarchy {
     }
     void configure_coarse() {
         int size=1; MPI_Comm_size(comm,&size);
+        PetscInt rows=0;
+        EONSIM_PETSC(MatGetSize(levels.back().matrix.get(),&rows,nullptr));
         const auto requested=configuration.coarse_processes==0?static_cast<PetscInt>(size):
             std::min<PetscInt>(size,configuration.coarse_processes);
-        // Choose the largest divisor no greater than the requested rank budget.
         PetscInt target=requested;
-        while(target>1&&size%target!=0) --target;
+        if(configuration.coarse_rows_per_rank) {
+            // Avoid a single rank on a nontrivial distributed coarse problem.
+            // Use the smallest admissible communicator meeting the load target.
+            const auto budget=configuration.coarse_rows_per_rank;
+            const auto minimum=rows==1?1:std::min<PetscInt>(size,std::max<PetscInt>(2,1+(rows-1)/budget));
+            target=minimum;
+            while(size%target!=0) ++target;
+        } else {
+            while(target>1&&size%target!=0) --target;
+        }
         stats.coarse_processes=target;
         EONSIM_PETSC(KSPCreate(comm,coarse.put()));
         const auto coarse_prefix=prefix+"monolithic_mg_coarse_";
@@ -1795,7 +1807,7 @@ struct Hierarchy {
             " saddle_point=%d divergence_preserving=%d divergence_commuting=%d distributed_aggregation=%d adaptive_hierarchy=%d"
             " reuse_hierarchy=%d matrix_free_fine=%d communication_avoiding=%d"
             " operator_complexity=%.17g complexity_stop_rows=%" PetscInt_FMT " transfer_setup_generation=%" PetscInt_FMT
-            " pressure_image_modes=%" PetscInt_FMT "\n",
+            " pressure_image_modes=%" PetscInt_FMT " coarse_rows_per_rank=%" PetscInt_FMT "\n",
             prefix.empty()?"-":prefix.c_str(),stats.levels,stats.coarse_processes,
             stats.single_precision?1:0,stats.refreshes,stats.hierarchy_rebuilds,configuration.smoother.kind.c_str(),
             stats.field_scaling?1:0,stats.fsi_candidates?1:0,stats.native_fp32?1:0,stats.k_cycle?"k":stats.w_cycle?"w":"v",
@@ -1803,7 +1815,8 @@ struct Hierarchy {
             stats.pressure_supremizers?1:0,stats.saddle_point?1:0,stats.divergence_preserving?1:0,stats.divergence_commuting?1:0,
             stats.distributed_aggregation?1:0,stats.adaptive_hierarchy?1:0,stats.reuse_hierarchy?1:0,
             stats.matrix_free_fine?1:0,configuration.communication_avoiding?1:0,stats.operator_complexity,
-            stats.complexity_stop_rows,stats.hierarchy_rebuilds,configuration.pressure_image_modes));
+            stats.complexity_stop_rows,stats.hierarchy_rebuilds,configuration.pressure_image_modes,
+            configuration.coarse_rows_per_rank));
         for(std::size_t i=0;i<stats.transfers.size();++i) {
             const auto& level=stats.transfers[i];
             EONSIM_PETSC(PetscPrintf(comm,
