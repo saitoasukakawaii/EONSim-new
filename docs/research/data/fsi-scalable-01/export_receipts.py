@@ -84,11 +84,11 @@ def main():
     pulsatile = root / "pulsatile-robin-rcr-retry/summary.json"
     if pulsatile.is_file():
         summary["pulsatile_robin_rcr"] = json.loads(pulsatile.read_bytes())
-    patterns = ("environment.log", "*-source.txt", "*-ctest.log", "*-verify-*.log", "*-build.log",
-                "*driver.log", "memory-guard.json", "physics-coverage.log", "petsc-profiles/*/petsc.txt",
-                "run-*.sh", "profile-fsi.py", "zero-lift-ab.py", "benchmark_hybrid.py",
-                "verify_pulsatile_robin_rcr*.py", "pulsatile-robin-rcr*.log", "zero-lift-ab*.py",
-                "benchmark_hybrid*.py", "*.exit")
+    patterns = ("environment.log", "omp-binding.c", "omp-binding.log",
+                "*-source.txt", "*-ctest.log", "*-verify-*.log", "*-build.log",
+                "*driver.log", "memory-guard.json", "physics-*.log", "petsc-profiles/*/petsc.txt",
+                "run-*.sh", "profile-fsi.py", "zero-lift-ab*.py", "benchmark_hybrid*.py",
+                "verify_pulsatile_robin_rcr*.py", "pulsatile-robin-rcr*.log", "*.exit")
     summary["raw_artifacts"] = {
         str(file.relative_to(root)): digest(file)
         for pattern in patterns for file in sorted(root.glob(pattern)) if file.is_file()

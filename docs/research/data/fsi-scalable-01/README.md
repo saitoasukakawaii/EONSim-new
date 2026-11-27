@@ -2,13 +2,14 @@
 
 实现和结果解读见[整体求解报告](../../../development/FSI_SCALABLE_SOLVER.md)。原始文件保存在实验服务器的 `$HOME/workspace/fsi-scalable-01-runs/`。每个基准批次有独立的 `results.json`、输入、分区、求解日志和最终场。仓库内的摘要省略了主机路径，原件相对路径和 SHA-256 可用于回查。
 
-[结果与原件索引](summary.json) · [逐次运行数据](runs.csv) · [能量优化对照](energy-and-pressure.png) · [强扩展](strong-scaling.png)
+[结果与原件索引](summary.json) · [逐次运行数据](runs.csv) · [能量优化对照](energy-and-pressure.png) · [强扩展](strong-scaling.png) · [弱扩展](weak-scaling.png) · [混合并行](hybrid-scaling.png)
 
 ## 证据目录
 
 | 远端相对路径 | 内容 |
 |---|---|
 | `environment.log` | CPU 拓扑、NUMA、主机内存、磁盘、依赖、绑定探针和用户级 perf 可用性 |
+| `omp-binding.c` 与 `omp-binding.log` | 两个 NUMA 域的实际双线程绑定探针 |
 | `baseline-source.txt` / `baseline-build.log` | 基线提交、树、可执行文件摘要和 Release 构建 |
 | `baseline-ctest.log` | 基线 2 rank 通过与 4 rank 超时 |
 | `smoke/*/results.json` | 703 自由度、2 rank 的直接参考与严格交换对照 |
@@ -21,11 +22,15 @@
 | `petsc-profiles/*/petsc.txt` | 与正式计时分开的 PETSc 事件分析 |
 | `memory-guard.json` | 低上限的受控终止，退出码 -15 |
 | `scale-n22/*/results.json` | 108,379 自由度的五档强扩展正式收据 |
+| `weak/*/results.json` | 4–128 rank、41,959–1,259,907 自由度六档弱扩展正式收据 |
+| `hybrid-128/results.json` | 五种等 128 核配比的预热与交错三次测试 |
 | `pilot-n37/*/results.json` 与 `pilot-n47/*/results.json` | 511,939 与 1,046,979 自由度的五步对照 |
 | `joint-pressure/*/results.json` | 按 Galerkin 测试权重压缩压力、联合增强及 2/4 rank 直接参考 |
 | `zero-lift-verify-{1,2,4}.log` 与 `zero-lift-ab/results.json` | 独立密集块参考和零提升交错计时 |
 | `pulsatile-robin-rcr-retry/summary.json` | 615 自由度的脉动 ALE、Robin、RCR 联合算例 |
 | `physics-coverage.log` | 既有物理回归与归档输入缺失的原始记录 |
+| `physics-tube-rerun.log` 与 `physics-arterial-clean.log` | MPI 传输错误及修正后的干净复跑 |
+| `explicit-binding-ctest.log` | 最新运行源码的 2/4 rank 整体 MG CTest |
 
 ## 复跑
 

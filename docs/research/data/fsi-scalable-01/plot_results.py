@@ -17,7 +17,7 @@ def cases(campaigns, prefix):
             if directory.startswith(prefix + "/") for case in campaign["cases"]]
 
 
-def write_csv(campaigns, directory):
+def write_csv(summary, directory):
     columns = ("campaign", "build_source", "subdivisions", "ranks", "omp_threads",
                "mode", "label", "status", "timing_sample", "dofs", "accepted_steps",
                "outer_iterations", "wall_seconds", "linear_seconds", "solve_seconds",
@@ -27,7 +27,7 @@ def write_csv(campaigns, directory):
     with (directory / "runs.csv").open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, columns, extrasaction="ignore")
         writer.writeheader()
-        for name, campaign in campaigns.items():
+        for name, campaign in summary["campaigns"].items():
             for case in campaign["cases"]:
                 mesh = case["mesh"] or {}
                 for run in case["runs"]:
@@ -36,6 +36,15 @@ def write_csv(campaigns, directory):
                                          omp_threads=campaign.get("fsi_threads", 1),
                                          prepare_seconds=case["prepare_seconds"],
                                          global_nodes=mesh.get("global_nodes"), global_cells=mesh.get("global_cells")))
+        for phase in ("zero-lift-ab", "hybrid-128"):
+            evidence = summary.get(phase, {})
+            for run in evidence.get("runs", []):
+                source = evidence.get("build_source") or evidence["modes"][run["mode"]]["build_source"]
+                writer.writerow(dict(run, campaign=phase, build_source=source,
+                                     subdivisions=10 if phase == "zero-lift-ab" else 22,
+                                     ranks=run.get("ranks", 8), omp_threads=run.get("threads", 1),
+                                     mode=run.get("mode", "mono_pressure_auto"),
+                                     label=run.get("label", run.get("repeat"))))
 
 
 def plot_energy_and_pressure(campaigns, directory):
@@ -132,7 +141,7 @@ def main():
     summary = json.loads(args.summary.read_bytes())
     campaigns = summary["campaigns"]
     directory = args.summary.resolve().parent
-    write_csv(campaigns, directory)
+    write_csv(summary, directory)
     plot_energy_and_pressure(campaigns, directory)
     plot_strong_scaling(campaigns, directory)
     plot_weak_scaling(campaigns, directory)
