@@ -43,7 +43,7 @@ def save(path, data):
     path.write_text(json.dumps(data, indent=2, allow_nan=False) + '\n')
 
 
-def prepare(source, root, steps):
+def prepare(source, root, steps, native_linear='reference'):
     eon, native = root / 'eon', root / 'svfsi'
     eon.mkdir(); native.mkdir()
     cfg = json.loads((source / 'case.json').read_text())
@@ -77,7 +77,12 @@ def prepare(source, root, steps):
         profile[node] = max(0., 1-(y*y+z*z)/.01**2)
     (native/'profile.dat').write_text(''.join(f'{node} {v:.17g}\n' for node,v in sorted(profile.items())))
     (native/'flow.fcs').write_text(native_waveform(1., 0., PEAK))
-    (native/'svFSI.inp').write_text(deck(wall, MATERIAL, steps, DT, 4, False))
+    native_input=deck(wall, MATERIAL, steps, DT, 4, False)
+    if native_linear=='moderate':
+        marker='LS type: GMRES {\n      Tolerance: 1e-10'
+        if native_input.count(marker)!=1: raise ValueError('Missing FSILS GMRES settings')
+        native_input=native_input.replace(marker,marker.replace('1e-10','1e-3'))
+    (native/'svFSI.inp').write_text(native_input)
     return {str(p.relative_to(root)):digest(p) for folder in (eon,native) for p in sorted(folder.iterdir())}
 
 
@@ -97,7 +102,7 @@ def samples(pid):
     return sum(rss), max(rss, default=0)
 
 
-def run(folder, command, receipt, limit):
+def run(folder, command, receipt, limit, rss_limit=8*2**30):
     receipt.update(command=command, status='running', rss_peak=0, process_rss_peak=0)
     save(folder/'run.json',receipt)
     with (folder/'solve.log').open('w') as stream:
@@ -108,7 +113,7 @@ def run(folder, command, receipt, limit):
                 group, largest=samples(process.pid)
                 receipt['rss_peak']=max(receipt['rss_peak'], group)
                 receipt['process_rss_peak']=max(receipt['process_rss_peak'], largest)
-                if group>8*2**30: raise MemoryError('8 GiB process-tree budget')
+                if group>rss_limit: raise MemoryError(f'{rss_limit} byte process-tree budget')
                 if time.monotonic()-start>limit: raise TimeoutError('job time budget')
                 try: process.wait(timeout=.2)
                 except subprocess.TimeoutExpired: pass
@@ -124,7 +129,7 @@ def run(folder, command, receipt, limit):
             stream.flush(); receipt['log_sha256']=digest(folder/'solve.log'); save(folder/'run.json',receipt)
 
 
-def physical(folder, solver, meshes, steps):
+def physical(folder, solver, meshes, steps, ranks=1):
     log=(folder/'solve.log').read_text(errors='replace')
     if solver=='eon':
         rows=re.findall(r'^fsi_step=(\d+) .*? residual=([^ ]+) ',log,re.M)
@@ -135,7 +140,7 @@ def physical(folder, solver, meshes, steps):
         convergence={'maximum_accepted_residual':max(residuals)}
         with (folder/'tube.csv').open() as stream: history=list(csv.DictReader(stream))
     else:
-        outputs=folder/'1-procs'
+        outputs=folder/f'{ranks}-procs'
         history=[list(map(float,row.split())) for row in (outputs/'RCR.dat').read_text().splitlines()]
         convergence={eq:check_convergence((outputs/'histor.dat').read_text(),steps,eq) for eq in ('FS','MS')}
     if len(history)!=steps: raise ValueError('Incomplete terminal history')
@@ -161,7 +166,7 @@ def physical(folder, solver, meshes, steps):
     if not interface[0] or interface[0].keys()!=interface[1].keys(): raise ValueError('Interface identity mismatch')
     for step in range(4,steps+1,4):
         if solver=='eon':
-            states=[recovered_state(folder,f'tube_step{step}'+suffix,mesh,bool(i),1) for i,(suffix,mesh) in enumerate(zip(('','_solid'),meshes))]
+            states=[recovered_state(folder,f'tube_step{step}'+suffix,mesh,bool(i),ranks) for i,(suffix,mesh) in enumerate(zip(('','_solid'),meshes))]
         else: states=wall.external_fields(outputs/f'result_{step:03d}.vtu',meshes)
         ports=audit.observe(audit.array(states[0]),0.,.004)
         flow=[4*ports[tag]['outward_flow']/PEAK for tag in (1,2,3)]
@@ -190,34 +195,47 @@ def main():
     cli.add_argument('--steps',type=int,choices=(20,32,100),required=True)
     cli.add_argument('--timeout',type=int,default=1800)
     cli.add_argument('--gate',type=Path)
+    cli.add_argument('--svfsi-linear',choices=('reference','moderate'),default='reference')
+    cli.add_argument('--ranks',type=int,default=1)
+    cli.add_argument('--mpiexec',type=Path)
     args=cli.parse_args()
     binaries={name:getattr(args,name).resolve() for name in ('eon','svfsi')}
     identities={name:digest(file) for name,file in binaries.items()}
     case_files={name:digest(args.case/name) for name in ('case.json','fluid.msh','solid.msh')}
     affinity=sorted(os.sched_getaffinity(0))
-    if len(affinity)!=1 or not os.environ.get('SLURM_JOB_ID'): cli.error('requires a one-core Slurm job step')
+    if args.ranks<1 or len(affinity)!=args.ranks or not os.environ.get('SLURM_JOB_ID'):
+        cli.error('requires one physical core per MPI process inside a Slurm allocation')
+    if args.ranks>1 and not args.mpiexec: cli.error('requires an MPI launcher')
     if args.steps!=20:
         gate=json.loads(args.gate.read_text()) if args.gate else {}
-        if not (gate.get('passed') and gate.get('steps')==20 and gate.get('binaries')==identities and gate.get('case')==case_files):
+        if not (gate.get('passed') and gate.get('steps')==20 and gate.get('binaries')==identities and gate.get('case')==case_files
+                and gate.get('svfsi_linear','reference')==args.svfsi_linear and gate.get('ranks',1)==args.ranks):
             cli.error('requires a passing 20-step receipt with the same inputs and binaries')
     os.environ.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
     root=args.root.resolve(); root.mkdir(parents=True,exist_ok=False)
-    prepared=root/'prepared'; prepared.mkdir(); start=time.monotonic(); files=prepare(args.case,prepared,args.steps)
+    prepared=root/'prepared'; prepared.mkdir(); start=time.monotonic(); files=prepare(args.case,prepared,args.steps,args.svfsi_linear)
     result=dict(steps=args.steps,binaries=identities,case=case_files,inputs=files,affinity=affinity,slurm=os.environ['SLURM_JOB_ID'],
-                T_prepare=time.monotonic()-start,passed=False,runs=[])
+                T_prepare=time.monotonic()-start,ranks=args.ranks,svfsi_linear=args.svfsi_linear,passed=False,runs=[])
     save(root/'summary.json',result)
+    launcher=[]; part=[]
+    if args.ranks>1:
+        part=['-partition',str(root/'partition')]
+        command=[str(binaries['eon']),'-case','case.json','-prepare',part[1],'-parts',str(args.ranks)]
+        prep={}; run(prepared/'eon',command,prep,args.timeout,140*2**30)
+        result['eon_partition']=prep
+        launcher=[str(args.mpiexec.resolve()),'--map-by','core','--bind-to','core','-n',str(args.ranks)]
     meshes=[read_mesh(args.case/(s+'.msh')) for s in ('fluid','solid')]
     for iteration in range(1 if args.steps==20 else 4):
         pair={}; receipts={}
         for solver in (('eon','svfsi') if iteration%2==0 else ('svfsi','eon')):
             folder=root/f'{iteration}-{solver}'; shutil.copytree(prepared/solver,folder)
-            extra=['-case','case.json'] if solver=='eon' else ['svFSI.inp']
+            extra=['-case','case.json',*part] if solver=='eon' else ['svFSI.inp']
             kind='correctness' if args.steps==20 else 'timed' if iteration else 'warmup'
             receipt=dict(solver=solver,kind=kind,iteration=iteration)
             receipts[solver]=receipt; result['runs'].append(receipt)
             try:
-                run(folder,[str(binaries[solver]),*extra],receipt,args.timeout)
-                pair[solver]=physical(folder,solver,meshes,args.steps)
+                run(folder,[*launcher,str(binaries[solver]),*extra],receipt,args.timeout,140*2**30 if args.ranks>1 else 8*2**30)
+                pair[solver]=physical(folder,solver,meshes,args.steps,args.ranks)
                 receipt['status']='validated-output'
             except Exception as error:
                 receipt.update(error=str(error),status='failed'); raise
