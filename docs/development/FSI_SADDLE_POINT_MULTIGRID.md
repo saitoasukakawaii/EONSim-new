@@ -57,6 +57,9 @@ Braess–Sarazin 使用 `H_l=alpha*blockdiag(F_l)`。每个 rank 拥有的实体
 压力解使用固定迭代预算的 GMRES/Jacobi。达到该预算的有限校正可以作为平滑作用，
 数值失败或非有限值不能视为有效校正。内层近似和可变 PC 要求外层 flexible GMRES。
 代码分别记录预算、实际压力迭代数、作用次数及 primal/pressure 行数。
+默认 `braess_alpha=2`、`schur_iterations=3`。原 `alpha=1` 在 5367 DoF FSI 网格上达到
+1500 次外迭代仍未满足原始残量门槛；保持 Schur 预算、模型和容差，仅改 `alpha=2` 后完成
+同一轨迹。该默认值由实际失效及独立块 oracle 校准，不是任意 FSI 算子的谱稳定性保证。
 
 ## 3. 两种散度保证
 

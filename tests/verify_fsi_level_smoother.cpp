@@ -209,14 +209,15 @@ void verify_native_storage(MPI_Comm comm,bool sparse,bool identity,const std::st
         require(comm,accurate,"Released native coefficients changed the mixed action or remote identity lifting");
     }
 }
-void verify_braess(MPI_Comm comm,bool coarse,double alpha) {
+void verify_braess(MPI_Comm comm,bool coarse,double alpha,bool use_default=false) {
     Example example(comm,coarse);
     // Retain a pure algebraic pressure tag on coarse entities, independently
     // of the fine physical domains. RCR-like boundary scalars remain primal.
     if(coarse) for(PetscInt i=example.begin;i<example.end;++i)
         if(i%3==0) example.keys[i-example.begin].quantity=DofQuantity::pressure;
     FsiLevelSmootherOptions options;
-    options.kind="braess_sarazin";options.braess_alpha=alpha;options.schur_iterations=3;
+    options.kind="braess_sarazin";options.schur_iterations=3;
+    if(!use_default) options.braess_alpha=alpha;
     auto smoother=make_fsi_level_smoother(comm,example.matrix.get(),example.keys,example.trace,options);
     PetscOwner<Vec,VecDestroy> rhs,x;
     EONSIM_PETSC(MatCreateVecs(example.matrix.get(),x.put(),rhs.put()));
@@ -293,7 +294,12 @@ void run(MPI_Comm comm) {
         verify(comm,kind,false,false);
         verify_native_storage(comm,true,true,kind);
     }
-    for(bool coarse:{false,true}) for(double alpha:{1.,1.7}) verify_braess(comm,coarse,alpha);
+    for(bool coarse:{false,true}) {
+        for(double alpha:{1.,1.7}) verify_braess(comm,coarse,alpha);
+        // Exercise the production default without overriding it. The dense
+        // oracle independently expects H=2*blockdiag(F) on both typed levels.
+        verify_braess(comm,coarse,2.,true);
+    }
     Example example(comm,false);
     FsiLevelSmootherOptions invalid;invalid.kind="chebyshev";invalid.eigenvalue_ratio=1.;
     bool rejected=false;try {make_fsi_level_smoother(comm,example.matrix.get(),example.keys,example.trace,invalid);}

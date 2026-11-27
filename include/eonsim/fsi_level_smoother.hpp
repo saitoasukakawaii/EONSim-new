@@ -9,7 +9,8 @@ struct FsiLevelSmootherOptions {
     InterfacePatchOptions patches;
     PetscInt polynomial_degree=3;
     double eigenvalue_ratio=.1;
-    double braess_alpha=1.;
+    /// H=alpha*blockdiag(F); the default damps the primal block inverse.
+    double braess_alpha=2.;
     PetscInt schur_iterations=3;
 };
 struct FsiLevelSmootherStats {
