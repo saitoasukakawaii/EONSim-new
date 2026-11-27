@@ -4,7 +4,7 @@
 
 原设计日期：2026-10-29；2026-10-31 同步 PR #23/#24 交付状态。范围：在现有 C++17、Tet4、MPI、PETSc、单体 FSI 主线上提高可靠性、精度和规模能力。
 
-**最新扩展规划：** [通用 FEM 架构规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) 集中规定多拓扑/多格式、有限元空间、一般边界、非一致界面、DoF 排列与预条件树、稀疏图、时间积分及并行输出；[20 组上游学习矩阵](../research/FEM_FRAMEWORK_LEARNING_2026-10-30.md) 给出逐项目取舍。G0B/G0/G5/G1 已通过 PR #23 交付；G2/G4 只实施必需子集，其余目标仍 deferred。本文保留已有可靠性主线，不将新方案写成已实现能力。
+**最新扩展规划：** [通用 FEM 架构规划](GENERAL_FEM_ARCHITECTURE_PLAN.md) 集中规定多拓扑/多格式、有限元空间、一般边界、非一致界面、DoF 排列与预条件树、稀疏图、时间积分及并行输出；[20 组上游学习矩阵](../research/FEM_FRAMEWORK_LEARNING_2026-10-30.md) 给出逐项目取舍。G0B/G0/G5/G1 已通过 PR #23 交付；G2/G4 已有必需子集，#27–#29 另交付直边 Tri3/P2 稳态和瞬态标量；其余完整通用目标仍 deferred。本文保留已有可靠性主线，不将新方案写成已实现能力。
 
 本文是用户要求的深入设计方案，**不是下列接口已经实现的声明，也不新增日常审批或全量验证门禁**。历史复现依据见 [架构审查](../research/EONSIM_ARCHITECTURE_AUDIT_2026-10-29.md)，最新实现和验证见 [集成验收](../development/FEM_INTEGRATION_VALIDATION.md)。沿用现行 L1/L2 决策；新增方案在对应功能落地时归并到所属主题文件，避免长期维护两份规范。
 
@@ -273,7 +273,7 @@ G5 已为共形 FSI 增加接口离散功率对照，alpha 日志明确标记 st
 | 冻结 tau、时间链式系数 | 同一求解时间步 | 缩 dt 或接受下一步 |
 | Jacobian 数值/PC 数值/AMG 插值 | 各自明确策略 | 状态、dt、系数及迭代表现；三者不共用一个 valid 标记 |
 
-成本优化按现有问题选择：先改善有证据的求解瓶颈，复用对象/参考数据和 residual-only。PR #21 已交付独立固定网格流体的可选 COO Jacobian，见 [HPC-02 实测范围](../research/FLUID_COO_ASSEMBLY_2026-10-30.md)；FSI/ALE/残量 COO 与通信重叠仍未实现。COO 坐标映射一次准备、重复贡献允许，但可能增加中间值存储，扩展前须比较端到端时间和峰值内存。[PETSc COO](https://petsc.org/release/manualpages/Mat/MatSetPreallocationCOO/)
+成本优化按现有问题选择：先改善有证据的求解瓶颈，复用对象/参考数据和 residual-only。PR #21 已交付独立固定网格流体的可选 COO Jacobian，见 [HPC-02 实测范围](../research/FLUID_COO_ASSEMBLY_2026-10-30.md)；后续 #51–#53 已实现 FSI/ALE Jacobian COO、默认固定残量 COO 和合资格的跨 solve SNES/KSP/PC 会话复用；#55–#57 已实现可选 ghost overlap 和有界自适应 PC 更新。现行状态见 [当前能力矩阵](../development/CURRENT_STATUS.md)。COO 坐标映射一次准备、重复贡献允许，但可能增加中间值存储，扩展前须比较端到端时间和峰值内存。[PETSc COO](https://petsc.org/release/manualpages/Mat/MatSetPreallocationCOO/)
 
 Release 规模研究以能够占据足够求解时间的网格为对象。先 1/2/4 rank；后续硬件可用再增加 rank/节点，不承诺未经测量的效率。报告强扩展和弱扩展时分别说明固定总问题/固定每 rank 工作量，同时给出迭代数、setup/solve/I/O、最慢 rank 时间、owned/ghost、nnz 与峰值内存。总作业还要计入串行预处理。
 

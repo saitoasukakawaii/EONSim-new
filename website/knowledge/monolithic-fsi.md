@@ -1,5 +1,7 @@
 # EONSim 单体流固耦合架构
 
+进度补注（2026-11-26）：本文保留原单体 FSI 推导和阶段验收；最新代码另有 added_mass 语义树、field-aware 速度 AMG、PCD/LSC/BFBt、RCR 端口 Schur、界面 mixed patch 与局部 FP32 等可选能力，详见[当前能力矩阵](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/development/CURRENT_STATUS.md)。这些尚未证明网格无关收敛、多节点扩展或普遍加速。
+
 ## 1. 单体法的基本思想
 
 单体 FSI 将流体、结构以及界面约束放入一个联合非线性系统中：

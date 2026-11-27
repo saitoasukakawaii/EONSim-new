@@ -1,12 +1,14 @@
 # EONSim
 
 C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体刚体 FSI 和单体弹性 FSI 的可运行基线。
-使用 Tet4 多物理场、Tri3/Quad4 二维标量、MPI owned/ghost 分区、METIS/HDF5 预处理和 PETSc KSP/SNES。
+使用 Tet4 多物理场、Tri3/P1、Quad4/Q1 及直边 Tri3/P2 二维标量、MPI owned/ghost 分区、METIS/HDF5 预处理和 PETSc KSP/SNES。
 时间格式包含BE、变步BDF2及适用的一阶/二阶generalized-alpha；具体支持矩阵见[时间离散](docs/development/TIME_INTEGRATION.md)。
 有限变形固体支持可压缩 Neo-Hookean；耦合流体、结构/刚体和 ALE 同时收敛后提交状态。
 
 当前验证包括随仓库提供的立方体/旋转通道、弹性块和活塞算例；流体/固体支持区域材料与分量约束，弹性 FSI 支持独立共形双网格。尚不包含通用表达式、非匹配界面、重网格或大规模扩展性保证。
-各阶段的实际结果与限制见下文及 [开发路线](docs/development/ROADMAP.md)。
+**当前主线（2026-11-27，PR #65 已合并）**：固定 AIJ/可选 FSI Jacobian COO、默认残量 COO、合资格 SNES/KSP/PC 复用、可选 ghost overlap、SIMD、自适应 PC、collective HDF5/XDMF 输出；可选联合速度 field AMG/GAMG/BoomerAMG、LSC/BFBt/物理 PCD、RCR 端口 Schur、界面 mixed patch 及局部 FP32。后续 #61–#65 增加可选整体 FSI MG、精确 matrix-free、reduced P、partial assembly、native FP32、逐层鞍点/散度增强、colored Vanka 与 deflated FGMRES。默认求解配置不因新选项自动改变。
+
+各阶段的实际结果、使用入口、最新证据及未达目标见 [当前能力矩阵](docs/development/CURRENT_STATUS.md) 和 [开发路线](docs/development/ROADMAP.md)。尚未证明网格无关收敛、多节点生产扩展或全局混合精度收益。
 
 2026-10-30 新增 [通用 FEM 架构规划](docs/architecture/GENERAL_FEM_ARCHITECTURE_PLAN.md) 与
 [20 组上游学习矩阵](docs/research/FEM_FRAMEWORK_LEARNING_2026-10-30.md)，覆盖多拓扑/空间、边界与非匹配接口、时间格式、DoF/预条件及并行输出。它们提供总体路线；本次G0/G5/G1实现范围见[集成验证](docs/development/FEM_INTEGRATION_VALIDATION.md)，其他阶段不随之完成。

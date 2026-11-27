@@ -1,8 +1,8 @@
 # L2：离散、算子与约束
 
-状态：采用。首版以 assembled 低阶 FEM 为执行路径；高阶、partial assembly 和 matrix-free 为需求触发的扩展。
+状态：采用。首版以 assembled 低阶 FEM 为执行路径；高阶及通用设备路径仍按需求扩展；FSI 已有显式选择的 partial assembly 和 matrix-free。
 
-2026-10-30 的扩展契约集中于 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)：§4 区分空间/基/DoF 泛函，§5 规定一般边界与 lifting，§7 分离排列和 PC 树，§8 从形式项及约束支撑生成图，§11 规定批次模板分派。G0 已接入语义身份与 PC 树，G1 已实现二维标量所需边界和图/输出子集；完整多阶空间、通用形式图和高阶批次仍待实现。独立流体 COO 的范围不变。
+2026-10-30 的扩展契约集中于 [通用 FEM 规划](GENERAL_FEM_ARCHITECTURE_PLAN.md)：§4 区分空间/基/DoF 泛函，§5 规定一般边界与 lifting，§7 分离排列和 PC 树，§8 从形式项及约束支撑生成图，§11 规定批次模板分派。G0 已接入语义身份与 PC 树，G1 已实现二维标量所需边界和图/输出子集；完整多阶空间、通用形式图和高阶批次仍待实现。后续 #51–#53 已交付固定 FSI 图、可选 Jacobian COO、默认固定残量 COO 和合资格持久求解会话；#55–#59 扩展自适应 PC、RCR、field AMG 与压力/界面 PC；#61–#65 已增加显式选择的精确 matrix-free Jv、partial assembly、reduced P 和多层鞍点机制。具体支持与限制见 [当前能力矩阵](../development/CURRENT_STATUS.md)。
 
 ### 物理场的实现顺序
 

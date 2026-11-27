@@ -1,5 +1,7 @@
 # FSI 分块预条件器
 
+2026-11-26 状态：PR #54/#55/#58/#59 已合入；[当前能力矩阵](CURRENT_STATUS.md) 为统一入口。下文历史测试按固定源码解释，不能把较早选项表视为完整当前选项清单。
+
 最新 FSI-PC-05 的递归 field AMG、PCD/LSC/BFBt、界面 patch 与局部混合精度见
 [FSI_ADVANCED_PRECONDITIONERS.md](FSI_ADVANCED_PRECONDITIONERS.md)；下列既有记录保留原版本范围。
 

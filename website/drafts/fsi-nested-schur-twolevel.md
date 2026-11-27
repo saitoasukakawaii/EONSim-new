@@ -212,7 +212,7 @@ RCR 新模式独立覆盖 generalized-alpha、2 rank、两个时间步及重启�
 检查，记录在 `build/cloud-3.23.7-release/fsi_tube_rcr/metrics.json`。
 既有 BE/BDF2 RCR 回归使用直接解，不构成两种新增模式在这些格式下的验证。
 
-本文继续保留为 `website/drafts/` 草稿，等待用户审阅，不自动发布或合并。
+源码 PR #49 已合入 main `296246e`；本文继续保留为 `website/drafts/` 草稿，等待独立人工审阅，不自动发布。
 
 ## 9. 适用范围与失效模式
 

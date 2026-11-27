@@ -192,7 +192,7 @@ Doxygen 是可选开发工具，单独生成 HTML；不加入默认 build，也�
 
 ## 已执行的阶段交付验证
 
-最新功能交付见 [PR #23 集成验收](FEM_INTEGRATION_VALIDATION.md)：主锁 Debug/Release 各 60 项、兼容专项 13 项通过，最多 4 rank。这是归档结果，本次文档同步未重新运行。PR #24 后旧版不进入日常 CI。以下为历史基线。
+历史 G0B/G0/G5/G1 功能交付见 [PR #23 集成验收](FEM_INTEGRATION_VALIDATION.md)：主锁 Debug/Release 各 60 项、兼容专项 13 项通过，最多 4 rank。这是归档结果，本次文档同步未重新运行。PR #24 后旧版不进入日常 CI；2026-11-13 起默认仅 Release 增量检查。历史 #59 源码 CI 实际选测 85/85 Release、54/54 Python；最新 #65 源码 CI 实际新执行 83/83 Release、54/54 Python，未新增全量、Debug 或旧版验证。见 [当前状态](CURRENT_STATUS.md)。以下为历史基线。
 
 2026-10-29：Debug 和 Release 均通过 13 项 CTest，涵盖 Poisson、分布式布局、
 流体/固体/ALE、刚体/弹性/超弹性 FSI 的局部与总系统导数、接受状态、失败退出和重启。

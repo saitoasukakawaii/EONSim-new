@@ -1,5 +1,7 @@
 # EONSim Codex Task Queue
 
+2026-11-27 核对：主线已合入 #65（`2463f717`）；以下历史记录保留实际执行日期、源码、失败与验收边界。当前能力与开放目标见 [当前能力矩阵](CURRENT_STATUS.md)。历史 review/Draft 不代表当前 PR 状态，历史证据不计为本次执行。
+
 ## FSI-SADDLE-01 / implementation and bounded validation complete; convergence and scale OPEN / 2026-11-27
 
 基线 `main@036f865e`（#64），最终生产/驱动 `ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba`，交付

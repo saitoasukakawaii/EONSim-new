@@ -5,13 +5,19 @@
 ## 当前主线
 
 - 仓库：[saitoasukakawaii/EONSim-new](https://github.com/saitoasukakawaii/EONSim-new)
-- 此页按 2026-11-24 的 [主线提交 5781ae0](https://github.com/saitoasukakawaii/EONSim-new/commit/5781ae0c01953d123e91cd0ea9f44cd970674b93)核对。
+- 此页按 2026-11-27 的 [主线提交 2463f717](https://github.com/saitoasukakawaii/EONSim-new/commit/2463f71765067212912d55eb3c32fddc85c883ad) 核对；[当前能力矩阵](https://github.com/saitoasukakawaii/EONSim-new/blob/main/docs/development/CURRENT_STATUS.md) 记录实现和证据边界。
 - 刚性管已有稳态与振荡流对照，弹性通道有移动域质量预算。仿射 Tet4 黏性项的单进程测量分别给出了单元核和整次运行的收益。
 
 ## 最近合入的研发里程碑
 
 | 任务 | 合入状态 | 主要交付 |
 |---|---|---|
+| FSI-SADDLE-01 · [PR #65](https://github.com/saitoasukakawaii/EONSim-new/pull/65) | 已合入 | 逐层鞍点、散度闭包、耦合平滑、跨 rank 聚合、复用、deflated FGMRES；性能/规模目标开放 |
+| FSI-MG/MF · [PR #61](https://github.com/saitoasukakawaii/EONSim-new/pull/61)–[#64](https://github.com/saitoasukakawaii/EONSim-new/pull/64) | 已合入 | 整体 MG、精确 Jv、直接固体方向作用、reduced P、partial assembly、原生 FP32 和 Krylov 回收 |
+| FSI-PC-05 · [PR #59](https://github.com/saitoasukakawaii/EONSim-new/pull/59) | 已合入 | field-aware 速度 AMG、稳定化 LSC/BFBt、物理 PCD、界面 mixed patch 与局部 FP32；均为可选 |
+| RCR-PC-01 · [PR #58](https://github.com/saitoasukakawaii/EONSim-new/pull/58) | 已合入 | RCR port Schur、单/多出口低秩缓存与 GAMG/BoomerAMG 组合 |
+| HPC · [PR #55](https://github.com/saitoasukakawaii/EONSim-new/pull/55)、[#56](https://github.com/saitoasukakawaii/EONSim-new/pull/56)、[#57](https://github.com/saitoasukakawaii/EONSim-new/pull/57) | 已合入 | 聚合多层、MPI overlap、AD SIMD、自适应 PC、collective HDF5 及后续修复 |
+| FSI 性能 · [PR #51](https://github.com/saitoasukakawaii/EONSim-new/pull/51)–[#54](https://github.com/saitoasukakawaii/EONSim-new/pull/54) | 已合入 | 固定稀疏图/COO、持久会话、运行与输出优化、联合速度 GAMG/参考刚体模式 |
 | HPC 单元积分 · [PR #43](https://github.com/saitoasukakawaii/EONSim-new/pull/43) | 已合入 | [Tet4 黏性积分与配对性能](/knowledge/tet4-viscosity)，以及 [50 个上游项目的阅读入口](/learning/open-source-hpc) |
 | FSI-PROD-02B · [PR #41](https://github.com/saitoasukakawaii/EONSim-new/pull/41) | 已合入 | [Womersley 振荡圆管](/knowledge/womersley-verification)的解析流量、端面压差和同网格 svFSI 对照 |
 | FSI-PROD-02A · [PR #38](https://github.com/saitoasukakawaii/EONSim-new/pull/38) | 已合入 | [稳态刚性管的网格与压力验证](https://github.com/saitoasukakawaii/EONSim-new/blob/5781ae0c01953d123e91cd0ea9f44cd970674b93/docs/development/RIGID_TUBE_QUALIFICATION.md) |
@@ -23,6 +29,9 @@
 | FEM-G2C · [PR #29](https://github.com/saitoasukakawaii/EONSim-new/pull/29) | 已合入 `dff9116` | P2 瞬态扩散、一致质量矩阵、BE/BDF2/alpha、同分区历史恢复与接受步输出 |
 
 ## 验证证据
+
+- #65 源码 CI 新执行 83/83 Release、54/54 Python；48 条物理与 18 条有效网格记录通过原门槛，保留各自源码来源。迭代增长比、组合时间与多节点收益仍未达目标。
+- #59 源码 CI 85/85 选测 Release、54/54 Python；最终 PCD 38 次物理求解通过。#55 的 703–17,839 DoF 研究不支持网格无关迭代；FP32 只减少 patch 局部因子数组，未证明全局内存或时间收益。新方案保留显式选择，合成曲管的 8 本地 rank 验证不代表多节点扩展。
 
 - FSI-LOAD-01：PETSc 3.23.7 云端 Debug/Release 各 24/24 项相关检查通过；网站构建检查通过。
 - FSI-NEXT-01：本地 Debug/Release 各累计 5 项针对性检查通过；开展 1/2/4 rank 小规模测量。测量不支持大规模扩展或稳定加速结论。

@@ -1,6 +1,6 @@
 # SOLVER-01：PETSc 非线性对象生命周期审计
 
-后续状态：重复 LinearSystem::solve 的 KSP 所有权缺陷已由 SOLVER-05 修复，见 [修复草稿及证据](../../website/drafts/linear-solve-ksp-lifetime.md)。SOLVER-02 测量已完成且继续暂缓持久 SNES/PC；下面的风险与实验建议针对原审计 SHA。
+后续状态：重复 LinearSystem::solve 的 KSP 所有权缺陷已由 SOLVER-05 修复，见 [修复草稿及证据](../../website/drafts/linear-solve-ksp-lifetime.md)。SOLVER-02 测量已完成且当时暂缓持久 SNES/PC。2026-11-26 后续状态：#52–#53 已实现合资格的跨 solve SNES/KSP/PC 会话及起点切线复用，#55–#57 已实现可选自适应数值 PC/USER Schur 更新与预算修复。原实验的测量、失败及当时暂缓决定不变；最新能力见 [当前状态](../development/CURRENT_STATUS.md)。；下面的风险与实验建议针对原审计 SHA。
 
 日期：2026-10-30。源码基线：`0828f41b62391239b14a05e57a161defae1c8866`。结论：**需要额外测量，暂不实施持久化 SNES 重构。** 本任务只审计，不修改求解器。
 

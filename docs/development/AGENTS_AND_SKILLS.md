@@ -1,5 +1,7 @@
 # 项目文档、AGENTS.md 与 skill 的使用方法
 
+当前项目进度统一入口为 [CURRENT_STATUS.md](CURRENT_STATUS.md)；历史进度、队列、会话记录与证据按检查点解释。合并与公开网站审批仍以 [自动合并规则](AGENT_AUTO_MERGE.md) 为准。
+
 ## 建议：项目文档为主，AGENTS.md 作为入口，skill 可选
 
 | 载体 | 保存什么 | 如何生效 |

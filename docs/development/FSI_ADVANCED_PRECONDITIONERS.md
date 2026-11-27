@@ -1,5 +1,7 @@
 # FSI 专用多层预条件器、压力 Schur 与混合精度界面校正
 
+历史交付：PR [#59](https://github.com/saitoasukakawaii/EONSim-new/pull/59) 已合并；源码 CI 85/85 Release、54/54 Python。后续 #61–#65 的分层混合 MG、matrix-free 与鞍点增强见 [当前能力矩阵](CURRENT_STATUS.md) 和 [鞍点 MG](FSI_SADDLE_POINT_MULTIGRID.md)。
+
 本文记录 FSI-PC-05 / PR #59 的实现与当时验证边界。后续 FSI-MG-01 已加入完整混合多重网格、每层 Vanka、入口 Robin 和速度质量混合增强；新接口与证据见[整体 FSI 多重网格说明](FSI_MONOLITHIC_MULTIGRID.md)。本页历史收据及其未实现声明保留为当时状态，不代表后续功能缺失。
 
 本文是 [FSI_BLOCK_PRECONDITIONER.md](FSI_BLOCK_PRECONDITIONER.md) 的增量说明，覆盖本轮五项功能的数学定义、实际开关、并行约束和已执行验证。当前生产实现固定于已同步的 `19cd26f2af9b02859fac28ca8f662c29c20d47f1`，包含 PCD 辅助边界尺度修正。此前代数验证固定于 `e565c9872551dad9dc7a01d4d7b613e8a96d3545`，首轮功能与物理验收固定于 `c5af27de8fdc7a42df855543ad6366ce7db70571`；这些测试均先同步源码、再构建和验证。测试驱动提交 `9dfd8ac` 未改变生产算法。**19cd26f 的 38 次 PCD 受影响物理求解已由原驱动验收通过，独立原件审计及最终归档均已完成，见第 8.4 节；旧收据与新边界收据分开保留。**
