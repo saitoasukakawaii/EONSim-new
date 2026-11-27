@@ -32,7 +32,7 @@ void option_default(const std::string& name,const char* value) {
 struct Options {
     PetscInt aggregate_nodes=12,aggregate_rows=192,max_levels=8,coarse_limit=96;
     PetscInt energy_steps=1,spectral_modes=2,pre_smooth=1,post_smooth=1,coarse_processes=1;
-    PetscInt spectral_refresh_period=0,coarse_patch_overlap=0;
+    PetscInt spectral_refresh_period=0,coarse_patch_overlap=0,pressure_image_modes=0;
     double spectral_tolerance=.1,max_coarse_ratio=1.;
     bool single_precision=false,report=false,field_scaling=false,fsi_candidates=false,native_fp32=false,w_cycle=false,k_cycle=false;
     bool pressure_supremizers=false,saddle_point=false,divergence_preserving=false,divergence_commuting=false;
@@ -55,7 +55,7 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         {"patch_maximum_size",&o.smoother.patches.maximum_size},
         {"polynomial_degree",&o.smoother.polynomial_degree},
         {"schur_iterations",&o.smoother.schur_iterations},{"hierarchy_max_age",&o.hierarchy_max_age},
-        {"adaptive_interval",&o.adaptive_interval}})
+        {"adaptive_interval",&o.adaptive_interval},{"pressure_image_modes",&o.pressure_image_modes}})
         EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,(base+entry.first).c_str(),entry.second,nullptr));
     EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"spectral_tolerance").c_str(),&o.spectral_tolerance,nullptr));
     EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"eigenvalue_ratio").c_str(),&o.smoother.eigenvalue_ratio,nullptr));
@@ -113,7 +113,7 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         o.saddle_point?1:0,o.divergence_preserving?1:0,o.distributed_aggregation?1:0,
         o.adaptive_hierarchy?1:0,o.reuse_hierarchy?1:0,o.matrix_free_fine?1:0,
         o.communication_avoiding?1:0,o.hierarchy_max_age,o.adaptive_interval,o.smoother.schur_iterations,
-        o.divergence_commuting?1:0};
+        o.divergence_commuting?1:0,o.pressure_image_modes};
     constexpr int option_count=static_cast<int>(sizeof(values)/sizeof(values[0]));
     PetscInt minimum[option_count]{},maximum[option_count]{};
     MPI_Allreduce(values,minimum,option_count,MPIU_INT,MPI_MIN,comm);
@@ -130,6 +130,9 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         (!o.smoother.patches.adaptive||o.smoother.kind.find("vanka")==0)&&
         (!o.divergence_preserving||(o.saddle_point&&!o.single_precision))&&
         (!o.divergence_commuting||o.divergence_preserving)&&
+        o.pressure_image_modes>=0&&o.pressure_image_modes<=8&&
+        (!o.pressure_image_modes||(o.saddle_point&&!o.divergence_commuting&&
+          !o.divergence_preserving&&o.energy_steps==0&&!o.reuse_hierarchy))&&
         (!o.reuse_hierarchy||(!o.native_fp32&&!o.smoother.patches.adaptive))&&
         (o.smoother.kind!="braess_sarazin"||o.saddle_point)&&
         o.hierarchy_max_age>=1&&o.hierarchy_max_age<=1000000&&
@@ -519,18 +522,23 @@ PressurePair pressure_enrichment(Mat matrix,PetscInt begin,const std::vector<Pet
     return PressurePair{};
 }
 
-// Close each local pressure space under the actual divergence image. Reading
-// every nonzero primal column includes off-rank support. This is a conservative
-// compatible closure: it can saturate local pressure rank, retaining more
-// pressure DoFs than an approximate AMG transfer. No small coupling is dropped.
-PetscInt close_pressure_image(Mat divergence,PetscInt begin,const std::vector<PetscInt>& rows,
-    const LevelData& fine,std::vector<std::vector<double>>& basis,bool& saturated) {
+// Both modes include off-rank primal support. Strict QR may fill the pressure
+// space. The compressed mode keeps physical candidates and adds leading left
+// singular vectors of the remaining local divergence image.
+PetscInt enrich_pressure_image(Mat divergence,PetscInt begin,const std::vector<PetscInt>& rows,
+    const LevelData& fine,std::vector<std::vector<double>>& basis,PetscInt budget,bool& saturated) {
     std::vector<PetscInt> pressure;
     for(std::size_t i=0;i<rows.size();++i) if(is_pressure(fine.semantics[rows[i]])) pressure.push_back(static_cast<PetscInt>(i));
     if(pressure.empty()) return 0;
     std::vector<std::vector<double>> pressure_basis;
     for(const auto& q:basis) {
         std::vector<double> p;for(auto i:pressure) p.push_back(q[i]);append_basis(std::move(p),pressure_basis);
+    }
+    const auto initial=pressure_basis.size();
+    const auto limit=pressure.size()/2;
+    if(budget&&initial>=limit) {
+        saturated=initial==pressure.size();
+        return 0;
     }
     std::map<PetscInt,std::vector<double>> images;
     for(std::size_t i=0;i<pressure.size();++i) {
@@ -541,11 +549,42 @@ PetscInt close_pressure_image(Mat divergence,PetscInt begin,const std::vector<Pe
         }
         EONSIM_PETSC(MatRestoreRow(divergence,begin+rows[pressure[i]],&count,&columns,&values));
     }
-    const auto initial=pressure_basis.size();
-    for(auto& item:images) {
-        double magnitude=0.;for(auto x:item.second) magnitude=std::max(magnitude,std::abs(x));
-        if(magnitude>0) {for(auto& x:item.second) x/=magnitude;append_basis(std::move(item.second),pressure_basis);}
-        if(pressure_basis.size()==pressure.size()) break;
+    if(budget) {
+        const auto n=pressure.size();
+        double scale=0.;
+        for(const auto& item:images) for(double value:item.second) scale=std::max(scale,std::abs(value));
+        if(scale>0.) {
+            std::vector<double> gram(n*n,0.);
+            for(auto& item:images) {
+                auto& column=item.second;
+                for(auto& value:column) value/=scale;
+                for(const auto& mode:pressure_basis) {
+                    const auto coefficient=dot(column,mode);
+                    for(std::size_t i=0;i<n;++i) column[i]-=static_cast<double>(coefficient*mode[i]);
+                }
+                for(std::size_t j=0;j<n;++j) for(std::size_t i=0;i<=j;++i)
+                    gram[i+j*n]+=column[i]*column[j];
+            }
+            PetscBLASInt dimension=0,lwork=0,info=0;
+            EONSIM_PETSC(PetscBLASIntCast(static_cast<PetscInt>(n),&dimension));
+            EONSIM_PETSC(PetscBLASIntCast(3*static_cast<PetscInt>(n)-1,&lwork));
+            std::vector<double> eigenvalues(n),work(lwork);
+            LAPACKsyev_("V","U",&dimension,gram.data(),&dimension,eigenvalues.data(),work.data(),&lwork,&info);
+            if(info!=0||!std::isfinite(eigenvalues.back()))
+                throw std::runtime_error("Compressed pressure image eigensolve failed");
+            const auto target=std::min(limit,initial+static_cast<std::size_t>(budget));
+            const auto tolerance=256*std::numeric_limits<double>::epsilon()*eigenvalues.back();
+            for(std::size_t j=n;j>0&&pressure_basis.size()<target;--j) {
+                if(eigenvalues[j-1]<=std::max(0.,tolerance)) break;
+                append_basis(std::vector<double>(gram.begin()+(j-1)*n,gram.begin()+j*n),pressure_basis);
+            }
+        }
+    } else {
+        for(auto& item:images) {
+            double magnitude=0.;for(auto x:item.second) magnitude=std::max(magnitude,std::abs(x));
+            if(magnitude>0) {for(auto& x:item.second) x/=magnitude;append_basis(std::move(item.second),pressure_basis);}
+            if(pressure_basis.size()==pressure.size()) break;
+        }
     }
     for(std::size_t k=initial;k<pressure_basis.size();++k) {
         std::vector<double> full(rows.size(),0.);
@@ -567,6 +606,7 @@ Candidate candidate_scales(MPI_Comm comm,const LevelData& data) {
 }
 void minimize_divergence_preserving_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Transfer& transfer,
     PetscInt steps,Vec physical_test_weights);
+double pressure_projection_defect(Mat image,const Transfer& transfer);
 Transfer local_tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const Options& o,Vec physical_test_weights) {
     PetscInt begin=0,end=0,global=0;
     EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
@@ -580,7 +620,7 @@ Transfer local_tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine
         EONSIM_PETSC(VecRestoreArrayRead(physical_test_weights,&weights));
     }
     PetscOwner<Mat,MatDestroy> compatible_divergence;
-    if(o.divergence_commuting) {
+    if(o.divergence_commuting||o.pressure_image_modes) {
         PetscOwner<Vec,VecDestroy> pressure_mask,primal_mask;
         EONSIM_PETSC(MatCreateVecs(matrix,primal_mask.put(),pressure_mask.put()));
         PetscScalar *p=nullptr,*u=nullptr;
@@ -666,9 +706,9 @@ Transfer local_tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine
                     }
                 } else append_basis(std::move(candidate),basis);
             }
-            if(o.divergence_commuting) {
+            if(o.divergence_commuting||o.pressure_image_modes) {
                 bool saturated=false;
-                closure+=close_pressure_image(compatible_divergence.get(),begin,rows,fine,basis,saturated);
+                closure+=enrich_pressure_image(compatible_divergence.get(),begin,rows,fine,basis,o.pressure_image_modes,saturated);
                 if(saturated) ++saturated_pressure;
             }
             auto pair=o.pressure_supremizers?
@@ -814,6 +854,14 @@ Transfer local_tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine
         result.energy_completed=true;
         if(o.divergence_commuting) check(comm,std::isfinite(result.stats.divergence_commuting_defect)&&
             result.stats.divergence_commuting_defect<=1e-10,"compatible pressure closure failed the commuting relation");
+    }
+    if(o.pressure_image_modes) {
+        PetscOwner<Mat,MatDestroy> image;
+        EONSIM_PETSC(MatMatMult(compatible_divergence.get(),result.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,image.put()));
+        result.stats.divergence_commuting_defect=pressure_projection_defect(image.get(),result);
+        check(comm,std::isfinite(result.stats.divergence_commuting_defect)&&
+              result.stats.divergence_commuting_defect<=1.+1e-10,
+              "compressed pressure projection exceeds the divergence image norm");
     }
     return result;
 }
@@ -1180,10 +1228,17 @@ void minimize_divergence_preserving_energy(MPI_Comm comm,Mat matrix,const LevelD
     EONSIM_PETSC(MatDuplicate(transfer.matrix.get(),MAT_COPY_VALUES,delta.put()));
     EONSIM_PETSC(MatAXPY(delta.get(),-1.,initial.get(),DIFFERENT_NONZERO_PATTERN));
     EONSIM_PETSC(MatNorm(delta.get(),NORM_FROBENIUS,&norm));transfer.stats.divergence_update_norm=norm;
-    // Pressure columns remain the original disjoint orthonormal QR basis.
-    // This diagnostic measures the stronger commuting relation independently;
-    // the divergence_commuting caller requires it to pass. It is not set to
-    // zero by the Galerkin definition of the coarse B.
+    transfer.stats.divergence_commuting_defect=pressure_projection_defect(after.get(),transfer);
+    const double before_energy=transfer.stats.energy_before,after_energy=transfer.stats.energy_after;
+    minimize_transfer_energy(comm,matrix,fine,transfer,0,true); // independent candidate-span audit
+    transfer.stats.energy_before=before_energy;transfer.stats.energy_after=after_energy;
+}
+
+double pressure_projection_defect(Mat image,const Transfer& transfer) {
+    // Pressure columns are a disjoint orthonormal basis. Measure the part of
+    // B Pv outside their span independently of the coarse Galerkin identity.
+    PetscInt cbegin=0,cend=0;
+    EONSIM_PETSC(MatGetOwnershipRangeColumn(transfer.matrix.get(),&cbegin,&cend));
     PetscOwner<Mat,MatDestroy> pp,restricted,projected;
     PetscOwner<Vec,VecDestroy> coarse_mask;
     EONSIM_PETSC(MatCreateVecs(transfer.matrix.get(),coarse_mask.put(),nullptr));
@@ -1192,15 +1247,13 @@ void minimize_divergence_preserving_energy(MPI_Comm comm,Mat matrix,const LevelD
     EONSIM_PETSC(VecRestoreArray(coarse_mask.get(),&mask));
     EONSIM_PETSC(MatDuplicate(transfer.matrix.get(),MAT_COPY_VALUES,pp.put()));
     EONSIM_PETSC(MatDiagonalScale(pp.get(),nullptr,coarse_mask.get()));
-    EONSIM_PETSC(MatTransposeMatMult(pp.get(),after.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,restricted.put()));
+    EONSIM_PETSC(MatTransposeMatMult(pp.get(),image,MAT_INITIAL_MATRIX,PETSC_DEFAULT,restricted.put()));
     EONSIM_PETSC(MatMatMult(pp.get(),restricted.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,projected.put()));
-    EONSIM_PETSC(MatAXPY(projected.get(),-1.,after.get(),DIFFERENT_NONZERO_PATTERN));
-    PetscReal image_norm=0.;EONSIM_PETSC(MatNorm(after.get(),NORM_FROBENIUS,&image_norm));
+    EONSIM_PETSC(MatAXPY(projected.get(),-1.,image,DIFFERENT_NONZERO_PATTERN));
+    PetscReal image_norm=0.,norm=0.;
+    EONSIM_PETSC(MatNorm(image,NORM_FROBENIUS,&image_norm));
     EONSIM_PETSC(MatNorm(projected.get(),NORM_FROBENIUS,&norm));
-    transfer.stats.divergence_commuting_defect=image_norm>0?norm/image_norm:0.;
-    const double before_energy=transfer.stats.energy_before,after_energy=transfer.stats.energy_after;
-    minimize_transfer_energy(comm,matrix,fine,transfer,0,true); // independent candidate-span audit
-    transfer.stats.energy_before=before_energy;transfer.stats.energy_after=after_energy;
+    return image_norm==0.&&norm==0.?0.:norm/image_norm;
 }
 
 Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const Options& o,Vec physical_test_weights) {
@@ -1741,7 +1794,8 @@ struct Hierarchy {
             " weak_coarsening_proposed_rows=%" PetscInt_FMT " pressure_supremizers=%d"
             " saddle_point=%d divergence_preserving=%d divergence_commuting=%d distributed_aggregation=%d adaptive_hierarchy=%d"
             " reuse_hierarchy=%d matrix_free_fine=%d communication_avoiding=%d"
-            " operator_complexity=%.17g complexity_stop_rows=%" PetscInt_FMT " transfer_setup_generation=%" PetscInt_FMT "\n",
+            " operator_complexity=%.17g complexity_stop_rows=%" PetscInt_FMT " transfer_setup_generation=%" PetscInt_FMT
+            " pressure_image_modes=%" PetscInt_FMT "\n",
             prefix.empty()?"-":prefix.c_str(),stats.levels,stats.coarse_processes,
             stats.single_precision?1:0,stats.refreshes,stats.hierarchy_rebuilds,configuration.smoother.kind.c_str(),
             stats.field_scaling?1:0,stats.fsi_candidates?1:0,stats.native_fp32?1:0,stats.k_cycle?"k":stats.w_cycle?"w":"v",
@@ -1749,7 +1803,7 @@ struct Hierarchy {
             stats.pressure_supremizers?1:0,stats.saddle_point?1:0,stats.divergence_preserving?1:0,stats.divergence_commuting?1:0,
             stats.distributed_aggregation?1:0,stats.adaptive_hierarchy?1:0,stats.reuse_hierarchy?1:0,
             stats.matrix_free_fine?1:0,configuration.communication_avoiding?1:0,stats.operator_complexity,
-            stats.complexity_stop_rows,stats.hierarchy_rebuilds));
+            stats.complexity_stop_rows,stats.hierarchy_rebuilds,configuration.pressure_image_modes));
         for(std::size_t i=0;i<stats.transfers.size();++i) {
             const auto& level=stats.transfers[i];
             EONSIM_PETSC(PetscPrintf(comm,

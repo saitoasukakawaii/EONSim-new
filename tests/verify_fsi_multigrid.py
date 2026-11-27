@@ -39,6 +39,8 @@ FEATURES = {
     'mono_commuting': {'saddle', 'divergence', 'commuting'},
     'mono_multilevel': {'saddle', 'candidates', 'supremizer'},
     'mono_braess': {'saddle', 'braess'},
+    'mono_braess_tentative': {'saddle', 'braess', 'tentative'},
+    'mono_pressure_image': {'saddle', 'braess', 'tentative', 'pressure_image'},
     'mono_colored': {'saddle', 'colored'},
     'mono_multiplicative': {'saddle', 'multiplicative'},
     'mono_distributed': {'saddle', 'distributed'},
@@ -110,6 +112,10 @@ def flags(mode, ports=False):
             result += ['-nonlinear_krylov_deflation', '4']
         if 'adaptive_hierarchy' in selected:
             result += [prefix + 'adaptive_interval', '4']
+        if 'tentative' in selected:
+            result += [prefix + 'energy_steps', '0']
+        if 'pressure_image' in selected:
+            result += [prefix + 'pressure_image_modes', '2']
         for feature, kind in (('braess', 'braess_sarazin'), ('colored', 'vanka_colored'),
                               ('multiplicative', 'vanka_multiplicative')):
             if feature in selected:
@@ -349,6 +355,16 @@ def audit(log, trace, ranks, mode):
         if 'adaptive' in selected:
             block.require(all(int(row['expanded_patches']) + int(row['core_patches']) == int(row['patches'])
                               for row in smoothers), 'Adaptive patch classification is incomplete')
+        if 'pressure_image' in selected:
+            block.require(all(int(row['pressure_image_modes']) == 2 for row in hierarchy),
+                          'Requested pressure image budget was not applied')
+            transfers = assembly.records(log, 'pc_monolithic_mg_level ')
+            fine = [row for row in transfers if int(row['level']) == 0]
+            block.require(fine and any(int(row['compatible_pressure_modes']) > 0 for row in fine)
+                          and all(0 < int(row['coarse_pressure_rows']) < int(row['pressure_rows']) for row in fine)
+                          and all(0 <= float(row['divergence_commuting_defect']) <= 1 + 1e-10
+                                  for row in transfers), 'Invalid compressed pressure hierarchy evidence')
+            result['compressed_pressure_transfers'] = transfers
         if 'native' in selected:
             storage = assembly.records(log, 'pc_monolithic_mg_storage ')
             block.require(storage and {int(row['rank']) for row in storage} == set(range(ranks)) and

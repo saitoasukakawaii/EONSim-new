@@ -640,9 +640,45 @@ void verify_adaptive_hierarchy(MPI_Comm comm) {
         rebuilt.operator_complexity<=8.,"Poor measured contraction did not trigger a bounded hierarchy adaptation");
 }
 
+void verify_compressed_pressure_image(MPI_Comm comm) {
+    const std::string prefix="mgimage_",base="-"+prefix+"monolithic_mg_";
+    for(const auto& option:std::vector<std::pair<std::string,std::string>>{
+        {"aggregate_nodes","6"},{"saddle_point","true"},{"pressure_image_modes","1"},
+        {"energy_steps","0"},{"max_levels","2"},{"coarse_limit","8"},
+        {"coarse_processes","0"},{"smoother","braess_sarazin"}})
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+option.first).c_str(),option.second.c_str()));
+    Problem problem(comm,false);
+    PcSchurUpdates updates;
+    PetscOwner<KSP,KSPDestroy> solver;
+    EONSIM_PETSC(KSPCreate(comm,solver.put()));
+    EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),prefix.c_str()));
+    EONSIM_PETSC(KSPSetType(solver.get(),KSPFGMRES));
+    EONSIM_PETSC(KSPSetTolerances(solver.get(),1e-12,1e-14,PETSC_DEFAULT,120));
+    EONSIM_PETSC(KSPSetOperators(solver.get(),problem.matrix.get(),problem.matrix.get()));
+    configure_monolithic_fsi_mg(comm,solver.get(),problem.matrix.get(),problem.semantics,problem.coordinates,problem.trace,&updates);
+    PC pc=nullptr;
+    EONSIM_PETSC(KSPGetPC(solver.get(),&pc));
+    MonolithicFsiMgStats stats;
+    check(comm,query_monolithic_fsi_mg_stats(pc,stats)&&stats.transfers.size()==1,
+          "Compressed pressure image did not build a two-level hierarchy");
+    const auto& level=stats.transfers.front();
+    check(comm,level.compatible_pressure_modes>0&&level.coarse_pressure_rows<level.pressure_rows&&
+          level.reproduction_error<1e-10&&std::isfinite(level.divergence_commuting_defect)&&
+          level.divergence_commuting_defect>0.&&level.divergence_commuting_defect<1.,
+          "Compressed pressure image lost its candidate span, enrichment or compression");
+    action(problem,solver.get(),3);
+    EONSIM_PETSC(PetscPrintf(comm,"compressed_pressure_rows=%" PetscInt_FMT " fine_pressure_rows=%" PetscInt_FMT
+                            " projected_divergence_defect=%.9g\n",
+                            level.coarse_pressure_rows,level.pressure_rows,level.divergence_commuting_defect));
+}
+
 void run(MPI_Comm comm) {
     int size=0; MPI_Comm_size(comm,&size); check(comm,size==1||size==2||size==4,"Expected 1, 2 or 4 ranks");
-    PetscBool only=PETSC_FALSE;EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-mgverify_saddle_only",&only,nullptr));
+    PetscBool only=PETSC_FALSE,image_only=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-mgverify_saddle_only",&only,nullptr));
+    EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-mgverify_pressure_image_only",&image_only,nullptr));
+    verify_compressed_pressure_image(comm);
+    if(image_only) return;
     verify_saddle_extensions(comm,false);
     verify_saddle_extensions(comm,true);
     verify_adaptive_hierarchy(comm);
