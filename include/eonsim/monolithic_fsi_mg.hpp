@@ -9,6 +9,7 @@ struct MonolithicFsiMgLevelStats {
     PetscInt pressure_rows=0,coarse_pressure_rows=0,distributed_aggregates=0,migrated_rows=0;
     PetscInt divergence_constraints=0,divergence_nullity=0,divergence_updates=0;
     PetscInt compatible_pressure_modes=0,saturated_pressure_aggregates=0;
+    double operator_nnz=0.,coarse_operator_nnz=0.,interpolation_nnz=0.;
     double divergence_change=0.,divergence_update_norm=0.,divergence_commuting_defect=0.;
     double reproduction_error=0,energy_before=0,energy_after=0;
     /// Aggregate-local pairs at every typed level (fine-only in legacy mode),
@@ -42,7 +43,7 @@ struct MonolithicFsiMgStats {
     PetscInt divergence_rebuilds=0,unchanged_divergence_reuses=0;
     /// Nonexclusive actual reuse-invalidation reasons, counted only on rebuild.
     PetscInt drift_rebuilds=0,age_rebuilds=0;
-    double operator_complexity=1.,adaptive_residual_ratio=0.,hierarchy_numeric_drift=0.;
+    double operator_complexity=1.,interpolation_complexity=0.,adaptive_residual_ratio=0.,hierarchy_numeric_drift=0.;
     std::size_t fp32_value_bytes=0;
     /// Additional level/transfer coefficient storage, excluding original outer P, indices and PETSc vectors.
     std::size_t retained_fp64_operator_bytes=0,released_fp64_operator_bytes=0;

@@ -1381,10 +1381,12 @@ struct Hierarchy {
         MatInfo fine_info{};EONSIM_PETSC(MatGetInfo(matrix,MAT_GLOBAL_SUM,&fine_info));
         const double fine_nnz=std::max(1.,static_cast<double>(fine_info.nz_used));
         double hierarchy_nnz=fine_nnz;
+        double level_nnz=fine_info.nz_used;
         for(PetscInt depth=1;depth<configuration.max_levels;++depth) {
             PetscInt global=0; EONSIM_PETSC(MatGetSize(levels.back().matrix.get(),&global,nullptr));
             if(global<=configuration.coarse_limit) break;
-            if(depth==1&&configuration.field_scaling&&(configuration.pressure_supremizers||configuration.divergence_preserving))
+            if(depth==1&&configuration.field_scaling&&(configuration.pressure_supremizers||
+               configuration.divergence_preserving||configuration.pressure_image_modes))
                 prepare_restriction_weights(levels.back());
             auto transfer=tentative_transfer(comm,levels.back().matrix.get(),levels.back().data,configuration,
                                              levels.back().restriction_weights.get());
@@ -1424,12 +1426,21 @@ struct Hierarchy {
             } else {
                 EONSIM_PETSC(MatPtAP(levels.back().matrix.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,next.matrix.put()));
             }
-            MatInfo next_info{};EONSIM_PETSC(MatGetInfo(next.matrix.get(),MAT_GLOBAL_SUM,&next_info));
-            const double proposed=hierarchy_nnz+next_info.nz_used;
+            MatInfo next_info{},transfer_info{};
+            EONSIM_PETSC(MatGetInfo(next.matrix.get(),MAT_LOCAL,&next_info));
+            EONSIM_PETSC(MatGetInfo(transfer.matrix.get(),MAT_LOCAL,&transfer_info));
+            const double local_nnz[]={next_info.nz_used,transfer_info.nz_used};
+            double global_nnz[2]{};
+            EONSIM_PETSC(MPI_Allreduce(local_nnz,global_nnz,2,MPI_DOUBLE,MPI_SUM,comm));
+            const double proposed=hierarchy_nnz+global_nnz[0];
             if(configuration.adaptive_hierarchy&&proposed>configuration.maximum_complexity*fine_nnz) {
                 stats.complexity_stop_rows=global;break;
             }
             hierarchy_nnz=proposed;stats.operator_complexity=hierarchy_nnz/fine_nnz;
+            stats.interpolation_complexity+=global_nnz[1]/fine_nnz;
+            transfer.stats.operator_nnz=level_nnz;
+            transfer.stats.coarse_operator_nnz=level_nnz=global_nnz[0];
+            transfer.stats.interpolation_nnz=global_nnz[1];
             audit_pressure_pairs(comm,next.matrix.get(),transfer);
             levels.back().prolongation=std::move(transfer.matrix);
             next.data=std::move(transfer.coarse); stats.transfers.push_back(transfer.stats);
@@ -1808,7 +1819,8 @@ struct Hierarchy {
             " weak_coarsening_proposed_rows=%" PetscInt_FMT " pressure_supremizers=%d"
             " saddle_point=%d divergence_preserving=%d divergence_commuting=%d distributed_aggregation=%d adaptive_hierarchy=%d"
             " reuse_hierarchy=%d matrix_free_fine=%d communication_avoiding=%d"
-            " operator_complexity=%.17g complexity_stop_rows=%" PetscInt_FMT " transfer_setup_generation=%" PetscInt_FMT
+            " operator_complexity=%.17g interpolation_complexity=%.17g complexity_stop_rows=%" PetscInt_FMT
+            " transfer_setup_generation=%" PetscInt_FMT
             " pressure_image_modes=%" PetscInt_FMT " coarse_rows_per_rank=%" PetscInt_FMT
             " coarsest_rows=%" PetscInt_FMT "\n",
             prefix.empty()?"-":prefix.c_str(),stats.levels,stats.coarse_processes,
@@ -1818,6 +1830,7 @@ struct Hierarchy {
             stats.pressure_supremizers?1:0,stats.saddle_point?1:0,stats.divergence_preserving?1:0,stats.divergence_commuting?1:0,
             stats.distributed_aggregation?1:0,stats.adaptive_hierarchy?1:0,stats.reuse_hierarchy?1:0,
             stats.matrix_free_fine?1:0,configuration.communication_avoiding?1:0,stats.operator_complexity,
+            stats.interpolation_complexity,
             stats.complexity_stop_rows,stats.hierarchy_rebuilds,configuration.pressure_image_modes,
             configuration.coarse_rows_per_rank,coarse_rows));
         for(std::size_t i=0;i<stats.transfers.size();++i) {
@@ -1832,14 +1845,16 @@ struct Hierarchy {
                 " divergence_constraints=%" PetscInt_FMT " divergence_nullity=%" PetscInt_FMT
                 " divergence_updates=%" PetscInt_FMT " divergence_change=%.17g divergence_update_norm=%.17g"
                 " divergence_commuting_defect=%.17g compatible_pressure_modes=%" PetscInt_FMT
-                " saturated_pressure_aggregates=%" PetscInt_FMT "\n",
+                " saturated_pressure_aggregates=%" PetscInt_FMT
+                " operator_nnz=%.0f coarse_operator_nnz=%.0f interpolation_nnz=%.0f\n",
                 i,level.rows,level.coarse_rows,level.spectral_modes,level.reproduction_error,level.energy_before,level.energy_after,
                 level.pressure_supremizer_modes,level.pressure_paired_aggregates,
                 level.pressure_pair_min_singular,level.pressure_pair_relative_change,
                 level.pressure_rows,level.coarse_pressure_rows,level.distributed_aggregates,level.migrated_rows,
                 level.divergence_constraints,level.divergence_nullity,level.divergence_updates,
                 level.divergence_change,level.divergence_update_norm,level.divergence_commuting_defect,
-                level.compatible_pressure_modes,level.saturated_pressure_aggregates));
+                level.compatible_pressure_modes,level.saturated_pressure_aggregates,
+                level.operator_nnz,level.coarse_operator_nnz,level.interpolation_nnz));
         }
         int rank=0; MPI_Comm_rank(comm,&rank);
         EONSIM_PETSC(PetscSynchronizedPrintf(comm,

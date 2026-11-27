@@ -645,7 +645,8 @@ void verify_compressed_pressure_image(MPI_Comm comm,bool redistribute) {
     for(const auto& option:std::vector<std::pair<std::string,std::string>>{
         {"aggregate_nodes","6"},{"saddle_point","true"},{"pressure_image_modes","1"},
         {"energy_steps","0"},{"max_levels","2"},{"coarse_limit","8"},
-        {"coarse_processes","0"},{"coarse_rows_per_rank",redistribute?"64":"0"},{"smoother","braess_sarazin"}})
+        {"coarse_processes","0"},{"coarse_rows_per_rank",redistribute?"64":"0"},
+        {"field_scaling",redistribute?"true":"false"},{"smoother","braess_sarazin"}})
         EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+option.first).c_str(),option.second.c_str()));
     Problem problem(comm,false);
     PcSchurUpdates updates;
@@ -666,6 +667,9 @@ void verify_compressed_pressure_image(MPI_Comm comm,bool redistribute) {
     EONSIM_PETSC(MPI_Comm_size(comm,&ranks));
     check(comm,stats.coarse_processes==(redistribute?std::min(2,ranks):ranks),
           "Coarse communicator did not match the row-budget selection");
+    check(comm,level.operator_nnz>0.&&level.coarse_operator_nnz>0.&&level.interpolation_nnz>0.&&
+          std::abs(level.interpolation_nnz/level.operator_nnz-stats.interpolation_complexity)<1e-12,
+          "Interpolation complexity disagrees with retained prolongation storage");
     check(comm,level.compatible_pressure_modes>0&&level.coarse_pressure_rows<level.pressure_rows&&
           level.reproduction_error<1e-10&&std::isfinite(level.divergence_commuting_defect)&&
           level.divergence_commuting_defect>0.&&level.divergence_commuting_defect<1.,

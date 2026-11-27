@@ -42,6 +42,8 @@ FEATURES = {
     'mono_braess_tentative': {'saddle', 'braess', 'tentative'},
     'mono_pressure_image': {'saddle', 'braess', 'tentative', 'pressure_image'},
     'mono_pressure_auto': {'saddle', 'braess', 'tentative', 'pressure_image', 'coarse_auto'},
+    'mono_pressure_joint': {'saddle', 'braess', 'tentative', 'pressure_image', 'coarse_auto',
+                            'scaling', 'candidates', 'supremizer'},
     'mono_colored': {'saddle', 'colored'},
     'mono_multiplicative': {'saddle', 'multiplicative'},
     'mono_distributed': {'saddle', 'distributed'},
