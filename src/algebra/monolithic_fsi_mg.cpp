@@ -1672,6 +1672,27 @@ struct Hierarchy {
         stats.coarse_processes=target;
         EONSIM_PETSC(KSPCreate(comm,coarse.put()));
         const auto coarse_prefix=prefix+"monolithic_mg_coarse_";
+        const auto prefer_pivoted_local_lu=[&](const std::string& sub_prefix) {
+            const auto solver_option="-"+sub_prefix+"pc_factor_mat_solver_type";
+            PetscBool explicit_solver=PETSC_FALSE;
+            EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,solver_option.c_str(),&explicit_solver));
+            char local_pc[32]="lu";
+            EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,("-"+sub_prefix+"pc_type").c_str(),local_pc,sizeof(local_pc),nullptr));
+            // ASM's matrices are sequential even when the coarse operator is
+            // distributed. PETSc's native sparse LU has no numerical row
+            // pivoting and can reject a nonsingular saddle block. Select the
+            // available pivoted backend, never a shift or a smaller pivot gate.
+            PetscOwner<Mat,MatDestroy> probe;
+            EONSIM_PETSC(MatCreateSeqAIJ(PETSC_COMM_SELF,1,1,1,nullptr,probe.put()));
+            PetscBool available=PETSC_FALSE;
+            EONSIM_PETSC(MatGetFactorAvailable(probe.get(),MATSOLVERMUMPS,MAT_FACTOR_LU,&available));
+            int local=available?1:0,all=0;
+            EONSIM_PETSC(MPI_Allreduce(&local,&all,1,MPI_INT,MPI_MIN,comm));
+            // Keep this collective unconditional: PETSc options can differ
+            // by rank even when the hierarchy itself is collective.
+            if(all&&!explicit_solver&&std::strcmp(local_pc,"lu")==0)
+                option_default(solver_option,"mumps");
+        };
         EONSIM_PETSC(KSPSetOptionsPrefix(coarse.get(),coarse_prefix.c_str()));
         EONSIM_PETSC(KSPSetOperators(coarse.get(),levels.back().matrix.get(),levels.back().matrix.get()));
         PC pc=nullptr; EONSIM_PETSC(KSPGetPC(coarse.get(),&pc));
@@ -1684,6 +1705,7 @@ struct Hierarchy {
             option_default("-"+coarse_prefix+"telescope_pc_type",target==1?"lu":"asm");
             option_default("-"+coarse_prefix+"telescope_sub_ksp_type","preonly");
             option_default("-"+coarse_prefix+"telescope_sub_pc_type","lu");
+            if(target>1) prefer_pivoted_local_lu(coarse_prefix+"telescope_sub_");
             option_default("-"+coarse_prefix+"telescope_ksp_rtol","1e-12");
             option_default("-"+coarse_prefix+"telescope_ksp_max_it","200");
         } else if(size==1) {
@@ -1695,6 +1717,7 @@ struct Hierarchy {
             EONSIM_PETSC(PCSetType(pc,PCASM)); EONSIM_PETSC(PCASMSetOverlap(pc,1));
             option_default("-"+coarse_prefix+"sub_ksp_type","preonly");
             option_default("-"+coarse_prefix+"sub_pc_type","lu");
+            prefer_pivoted_local_lu(coarse_prefix+"sub_");
         }
         EONSIM_PETSC(KSPSetFromOptions(coarse.get()));
         if(target<size) {
@@ -1808,10 +1831,12 @@ struct Hierarchy {
         int local_changed=current_numeric_state!=numeric_state,changed=0;
         EONSIM_PETSC(MPI_Allreduce(&local_changed,&changed,1,MPI_INT,MPI_MAX,comm));
         bool reusable=false,unchanged_coupling_reuse=false,divergence_rebuild=false;
+        bool drift_rebuild=false,age_rebuild=false;
         if(configuration.reuse_hierarchy&&changed) {
             stats.hierarchy_numeric_drift=signature_drift(matrix);
-            reusable=hierarchy_age<configuration.hierarchy_max_age&&
-                stats.hierarchy_numeric_drift<=configuration.hierarchy_drift&&!adaptation_pending;
+            drift_rebuild=stats.hierarchy_numeric_drift>configuration.hierarchy_drift;
+            age_rebuild=hierarchy_age>=configuration.hierarchy_max_age;
+            reusable=!age_rebuild&&!drift_rebuild&&!adaptation_pending;
             if(configuration.divergence_commuting) {
                 bool full_pressure_span=true;
                 for(const auto& level:stats.transfers)
@@ -1858,6 +1883,8 @@ struct Hierarchy {
             rebuilt.stats.fine_bootstrap_actions=stats.fine_bootstrap_actions;
             rebuilt.stats.hierarchy_reuses=stats.hierarchy_reuses;
             rebuilt.stats.divergence_rebuilds=stats.divergence_rebuilds+(divergence_rebuild?1:0);
+            rebuilt.stats.drift_rebuilds=stats.drift_rebuilds+(drift_rebuild?1:0);
+            rebuilt.stats.age_rebuilds=stats.age_rebuilds+(age_rebuild?1:0);
             rebuilt.stats.unchanged_divergence_reuses=stats.unchanged_divergence_reuses;
             rebuilt.stats.symbolic_reuses=stats.symbolic_reuses;
             rebuilt.stats.adaptive_rebuilds=stats.adaptive_rebuilds+(adapted?1:0);

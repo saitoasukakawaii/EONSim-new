@@ -40,6 +40,8 @@ struct MonolithicFsiMgStats {
     PetscInt matrix_free_fine_actions=0,fine_bootstrap_actions=0,hierarchy_reuses=0,symbolic_reuses=0,adaptive_rebuilds=0;
     PetscInt adaptive_probes=0,batched_reduction_groups=0,complexity_stop_rows=0;
     PetscInt divergence_rebuilds=0,unchanged_divergence_reuses=0;
+    /// Nonexclusive actual reuse-invalidation reasons, counted only on rebuild.
+    PetscInt drift_rebuilds=0,age_rebuilds=0;
     double operator_complexity=1.,adaptive_residual_ratio=0.,hierarchy_numeric_drift=0.;
     std::size_t fp32_value_bytes=0;
     /// Additional level/transfer coefficient storage, excluding original outer P, indices and PETSc vectors.
@@ -156,6 +158,10 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * that truly contain more than one original rank. No global field replication.
  * coarse_processes=0 keeps all MPI ranks for GMRES/ASM on the full coupled
  * coarse matrix; saddle/distributed modes select this unless explicitly set.
+ * Multi-rank ASM subdomain LU uses MUMPS when its sequential factor backend
+ * is available on every rank, preserving explicit backend/PC overrides. This
+ * provides numerical pivoting without diagonal shifts or reduced pivot gates;
+ * installations without MUMPS retain PETSc's existing backend selection.
  *
  * reuse_hierarchy retains transfer and PtAP symbolic graphs while refreshing
  * current numerical Galerkin matrices and every level factor. Bounded age and
@@ -166,7 +172,10 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * pressure-to-primal coefficients (including off-rank columns and zeros).
  * With fixed scaling and typed transfers the latter keeps every coarse B
  * unchanged. Changed B with a reduced pressure span rebuilds image closure;
- * both paths have separate counters. Native released setup/adaptive patch membership cannot use this
+ * both paths have separate counters. drift_rebuilds and age_rebuilds count
+ * actual rejection/rebuilds at the unchanged drift/age bounds; reasons may
+ * overlap with each other or adaptive/divergence rebuilding and are not a
+ * partition of total rebuilds. Native released setup/adaptive patch membership cannot use this
  * option. Pair/transfer audits refer to their reported setup generation.
  * adaptive_hierarchy probes ||r-A*M*r||/||r|| every adaptive_interval applies;
  * poor contraction schedules a rebuild at the next explicit refresh, with

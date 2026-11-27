@@ -400,21 +400,25 @@ def audit(log, trace, ranks, mode):
                 reused = max(int(row.get('hierarchy_reuses', 0)) for row in work)
                 symbolic = max(int(row.get('symbolic_reuses', 0)) for row in work)
                 divergence_rebuilds = max(int(row.get('divergence_rebuilds', 0)) for row in work)
+                policy_rebuilds = {key: max(int(row.get(key, 0)) for row in work)
+                                   for key in ('adaptive_rebuilds', 'drift_rebuilds', 'age_rebuilds')}
                 if reused:
                     block.require(symbolic > 0, 'Hierarchy reuse did not retain Galerkin symbolic structures')
                     assessment = 'executed'
                 else:
-                    # A changing B invalidates a non-full pressure image space.
-                    # The combined mode must rebuild that closure; it cannot
-                    # use an obsolete transfer merely to satisfy a reuse count.
+                    # Combined adaptive/compatible modes must reject reuse
+                    # when its actual guard fails. Report that rejection as a
+                    # rebuild, not as evidence that a coarse space was reused.
                     # Standalone mono_reuse still requires actual reuse above.
-                    block.require('commuting' in selected and divergence_rebuilds > 0 and
-                                  any(int(row['pressure_rows']) > int(row['coarse_pressure_rows'])
-                                      for row in transfers),
-                                  'Hierarchy reuse neither executed nor rebuilt an invalid divergence closure')
-                    assessment = 'invalidated_by_changed_divergence'
+                    closure_invalidated = ('commuting' in selected and divergence_rebuilds > 0 and
+                        any(int(row['pressure_rows']) > int(row['coarse_pressure_rows']) for row in transfers))
+                    policy_invalidated = ('adaptive_hierarchy' in selected and sum(policy_rebuilds.values()) > 0)
+                    block.require((closure_invalidated or policy_invalidated) and
+                                  max(int(row.get('hierarchy_rebuilds', 0)) for row in work) > 1,
+                                  'Hierarchy reuse neither executed nor rejected by an observed rebuild guard')
+                    assessment = 'rebuilt_by_guard'
                 result['hierarchy_reuse_evidence'] = dict(status=assessment, hierarchy_reuses=reused,
-                    symbolic_reuses=symbolic, divergence_rebuilds=divergence_rebuilds)
+                    symbolic_reuses=symbolic, divergence_rebuilds=divergence_rebuilds, **policy_rebuilds)
             if 'communication' in selected and max(int(row['levels']) for row in work) > 2:
                 block.require(sum(int(row.get('batched_reduction_groups', 0)) for row in work) > 0,
                               'K-cycle reductions were not actually batched')
