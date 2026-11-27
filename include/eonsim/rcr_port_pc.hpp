@@ -9,6 +9,7 @@ namespace eonsim {
 struct RcrPortPcStats {
     PetscInt ports=0,rebuilds=0,applications=0,response_solves=0;
     PetscInt setup_reductions=0,apply_reductions=0;
+    PetscInt exact_bulk_actions=0;
 };
 /** Collective; full is the assembled, constrained Jacobian with blocks
  * [A U; V D]. Only owned full-matrix port rows are supplied. The remaining
@@ -39,4 +40,12 @@ void configure_rcr_port_pc(MPI_Comm comm,KSP solver,Mat full,
 bool query_rcr_port_pc_stats(PC pc,RcrPortPcStats& stats);
 /// Borrowed child, or nullptr for a different PC; does not set up the child.
 KSP rcr_port_bulk_solver(PC pc);
+/** Bind a full-layout exact operator and return its borrowed bulk restriction
+ * E^T A E, where E inserts zeros on all port rows. The adapter owns its full
+ * vectors and retains A; its layout follows the existing distributed bulk IS.
+ * It does not change the assembled port blocks or their symbolic graph.
+ * Any nested MG requesting an exact fine operator receives this restriction.
+ * Returns nullptr for a different PC. Collective when this is an RCR shell.
+ */
+Mat rcr_port_bulk_exact_operator(PC pc,Mat full_exact);
 } // namespace eonsim

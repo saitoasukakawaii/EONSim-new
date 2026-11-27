@@ -1,8 +1,10 @@
 #include "eonsim/fsi_level_smoother.hpp"
+#include <petscblaslapack.h>
 #include <algorithm>
 #include <cmath>
 #include <limits>
 #include <map>
+#include <numeric>
 #include <tuple>
 
 namespace eonsim {
@@ -15,6 +17,37 @@ void common_check(MPI_Comm comm,bool valid,const std::string& message) {
 }
 using Entity=std::tuple<std::int64_t,DofEntity,std::uint16_t,std::uint16_t>;
 using SparseRow=std::vector<std::pair<PetscInt,double>>;
+bool vanka_kind(const std::string& kind) {
+    return kind=="vanka"||kind=="vanka_multiplicative"||kind=="vanka_colored";
+}
+// Invert a small coupled primal block after two-sided equilibration. The
+// scales are undone explicitly; no pressure stabilization or pivot shift is
+// introduced to make an inadmissible block appear invertible.
+bool invert_primal_block(const std::vector<double>& matrix,std::vector<double>& inverse) {
+    const auto n=static_cast<PetscBLASInt>(std::sqrt(static_cast<double>(matrix.size())));
+    std::vector<double> rows(n,0.),columns(n,0.),lu(matrix.size()),solved(matrix.size(),0.);
+    for(PetscBLASInt i=0;i<n;++i) for(PetscBLASInt j=0;j<n;++j)
+        rows[i]=std::max(rows[i],std::abs(matrix[i*n+j]));
+    for(auto scale:rows) if(!(scale>0.&&std::isfinite(scale))) return false;
+    for(PetscBLASInt i=0;i<n;++i) for(PetscBLASInt j=0;j<n;++j)
+        columns[j]=std::max(columns[j],std::abs(matrix[i*n+j]/rows[i]));
+    for(auto scale:columns) if(!(scale>0.&&std::isfinite(scale))) return false;
+    for(PetscBLASInt i=0;i<n;++i) for(PetscBLASInt j=0;j<n;++j)
+        lu[i+j*n]=(matrix[i*n+j]/rows[i])/columns[j];
+    for(PetscBLASInt i=0;i<n;++i) solved[i+i*n]=1.;
+    std::vector<PetscBLASInt> pivots(n);
+    PetscBLASInt info=0;
+    LAPACKgetrf_(&n,&n,lu.data(),&n,pivots.data(),&info);
+    if(info) return false;
+    LAPACKgetrs_("N",&n,&n,lu.data(),&n,pivots.data(),solved.data(),&n,&info);
+    if(info) return false;
+    inverse.resize(matrix.size());
+    for(PetscBLASInt i=0;i<n;++i) for(PetscBLASInt j=0;j<n;++j) {
+        inverse[i*n+j]=(solved[i+j*n]/columns[i])/rows[j];
+        if(!std::isfinite(inverse[i*n+j])) return false;
+    }
+    return true;
+}
 long double inner_product(const SparseRow& a,const SparseRow& b) {
     std::size_t i=0,j=0; long double sum=0.;
     while(i<a.size()&&j<b.size()) {
@@ -76,6 +109,10 @@ struct FsiLevelSmoother {
     PetscOwner<KSP,KSPDestroy> solver;
     PetscOwner<Mat,MatDestroy> right_transform,transformed,normal;
     PetscOwner<Vec,VecDestroy> row_scale,residual,scaled_rhs,normal_rhs,normal_solution,work;
+    PetscOwner<IS,ISDestroy> primal_is,pressure_is;
+    PetscOwner<Mat,MatDestroy> primal,gradient,divergence,pressure_block,primal_inverse,inverse_gradient,schur_product,schur;
+    PetscOwner<Vec,VecDestroy> primal_solution,primal_rhs,primal_work,pressure_rhs,pressure_solution;
+    std::vector<std::vector<PetscInt>> primal_blocks;
 
     std::vector<unsigned char> inspect_constraints(Mat matrix) const {
         std::vector<unsigned char> result(end-begin,0);
@@ -107,11 +144,14 @@ struct FsiLevelSmoother {
         EONSIM_PETSC(MatGetOwnershipRangeColumn(matrix,&cbegin,&cend));
         common_check(comm,global>0&&global==columns&&begin==cbegin&&end==cend&&
             static_cast<PetscInt>(keys.size())==end-begin&&trace.size()==keys.size(),"owned metadata/level layout mismatch");
-        int selection=options.kind=="vanka"?1:options.kind=="chebyshev"?2:options.kind=="block_chebyshev"?3:0;
+        int selection=vanka_kind(options.kind)?1:options.kind=="chebyshev"?2:options.kind=="block_chebyshev"?3:
+            options.kind=="braess_sarazin"?4:0;
         int lo=0,hi=0;
         EONSIM_PETSC(MPI_Allreduce(&selection,&lo,1,MPI_INT,MPI_MIN,comm));
         EONSIM_PETSC(MPI_Allreduce(&selection,&hi,1,MPI_INT,MPI_MAX,comm));
-        common_check(comm,selection&&lo==hi,"kind must be vanka, chebyshev or block_chebyshev on every rank");
+        common_check(comm,selection&&lo==hi,"kind must select Vanka, Chebyshev or Braess-Sarazin on every rank");
+        if(options.kind=="vanka_multiplicative") options.patches.sweep="multiplicative";
+        if(options.kind=="vanka_colored") options.patches.sweep="colored";
         PetscInt degree_min=0,degree_max=0;
         EONSIM_PETSC(MPI_Allreduce(&options.polynomial_degree,&degree_min,1,MPIU_INT,MPI_MIN,comm));
         EONSIM_PETSC(MPI_Allreduce(&options.polynomial_degree,&degree_max,1,MPIU_INT,MPI_MAX,comm));
@@ -130,6 +170,31 @@ struct FsiLevelSmoother {
         if(selection==1) {
             configure_vanka_level_pc(comm,solver.get(),matrix,keys,trace,options.patches,&updates);
             ready=true; stats.refreshes=1;
+            return;
+        }
+        if(selection==4) {
+            validate_interface_patch_options(comm,"",options.patches,false);
+            PetscInt minimum=0,maximum=0;
+            double alpha_min=0.,alpha_max=0.;
+            EONSIM_PETSC(MPI_Allreduce(&options.schur_iterations,&minimum,1,MPIU_INT,MPI_MIN,comm));
+            EONSIM_PETSC(MPI_Allreduce(&options.schur_iterations,&maximum,1,MPIU_INT,MPI_MAX,comm));
+            EONSIM_PETSC(MPI_Allreduce(&options.braess_alpha,&alpha_min,1,MPI_DOUBLE,MPI_MIN,comm));
+            EONSIM_PETSC(MPI_Allreduce(&options.braess_alpha,&alpha_max,1,MPI_DOUBLE,MPI_MAX,comm));
+            common_check(comm,minimum==maximum&&minimum>=1&&maximum<=32&&std::isfinite(options.braess_alpha)&&
+                alpha_min==alpha_max&&alpha_min>0.&&!options.patches.native_storage,
+                "Braess-Sarazin requires equal positive alpha, 1..32 Schur iterations and FP64 setup storage");
+            prepare_braess_partition();
+            stats.schur_budget=options.schur_iterations;
+            EONSIM_PETSC(MatCreateVecs(source,residual.put(),nullptr));
+            EONSIM_PETSC(KSPSetType(solver.get(),KSPGMRES));
+            EONSIM_PETSC(KSPSetPCSide(solver.get(),PC_RIGHT));
+            EONSIM_PETSC(KSPSetNormType(solver.get(),KSP_NORM_UNPRECONDITIONED));
+            EONSIM_PETSC(KSPSetTolerances(solver.get(),1e-12,1e-50,PETSC_DEFAULT,options.schur_iterations));
+            EONSIM_PETSC(KSPGMRESSetRestart(solver.get(),options.schur_iterations));
+            EONSIM_PETSC(KSPSetInitialGuessNonzero(solver.get(),PETSC_FALSE));
+            PC pressure_pc=nullptr;EONSIM_PETSC(KSPGetPC(solver.get(),&pressure_pc));
+            EONSIM_PETSC(PCSetType(pressure_pc,PCJACOBI));
+            refresh(matrix);
             return;
         }
         // Polynomial modes also validate damping and precision/refinement
@@ -161,13 +226,152 @@ struct FsiLevelSmoother {
         refresh(matrix);
     }
 
+    void prepare_braess_partition() {
+        std::vector<PetscInt> u,p;
+        for(PetscInt i=0;i<end-begin;++i) if(!identity[i]) {
+            const auto& key=semantics[i];
+            (key.quantity==DofQuantity::pressure&&key.kind!=DofEntity::boundary?p:u).push_back(begin+i);
+        }
+        const PetscInt local[]={static_cast<PetscInt>(u.size()),static_cast<PetscInt>(p.size())};
+        PetscInt totals[2]{};
+        EONSIM_PETSC(MPI_Allreduce(local,totals,2,MPIU_INT,MPI_SUM,comm));
+        common_check(comm,totals[0]>0&&totals[1]>0,
+                     "Braess-Sarazin needs active pressure and primal rows with preserved quantity tags");
+        stats.primal_rows=local[0];stats.pressure_rows=local[1];
+        EONSIM_PETSC(ISCreateGeneral(comm,local[0],u.data(),PETSC_COPY_VALUES,primal_is.put()));
+        EONSIM_PETSC(ISCreateGeneral(comm,local[1],p.data(),PETSC_COPY_VALUES,pressure_is.put()));
+        PetscInt offset=0;int rank=0;
+        EONSIM_PETSC(MPI_Comm_rank(comm,&rank));
+        EONSIM_PETSC(MPI_Exscan(&local[0],&offset,1,MPIU_INT,MPI_SUM,comm));
+        if(rank==0) offset=0;
+        std::map<Entity,std::vector<PetscInt>> grouped;
+        for(std::size_t i=0;i<u.size();++i) {
+            const auto& key=semantics[u[i]-begin];
+            grouped[{key.entity,key.kind,key.mode,key.space}].push_back(offset+static_cast<PetscInt>(i));
+        }
+        bool bounded=true;
+        for(auto& group:grouped) {
+            bounded=bounded&&group.second.size()<=static_cast<std::size_t>(options.patches.maximum_size);
+            primal_blocks.push_back(std::move(group.second));
+        }
+        common_check(comm,bounded,"a Braess-Sarazin primal entity exceeds the patch size limit");
+    }
+
+    void refresh_braess(Mat matrix) {
+        const bool first=!primal.get();
+        const auto reuse=first?MAT_INITIAL_MATRIX:MAT_REUSE_MATRIX;
+        EONSIM_PETSC(MatCreateSubMatrix(matrix,primal_is.get(),primal_is.get(),reuse,primal.put()));
+        EONSIM_PETSC(MatCreateSubMatrix(matrix,primal_is.get(),pressure_is.get(),reuse,gradient.put()));
+        EONSIM_PETSC(MatCreateSubMatrix(matrix,pressure_is.get(),primal_is.get(),reuse,divergence.put()));
+        EONSIM_PETSC(MatCreateSubMatrix(matrix,pressure_is.get(),pressure_is.get(),reuse,pressure_block.put()));
+        PetscInt ubegin=0,uend=0,usize=0;
+        EONSIM_PETSC(MatGetOwnershipRange(primal.get(),&ubegin,&uend));
+        EONSIM_PETSC(MatGetSize(primal.get(),&usize,nullptr));
+        if(first) {
+            std::vector<PetscInt> nonzeros(uend-ubegin,0);
+            for(const auto& block:primal_blocks) for(auto row:block)
+                nonzeros[row-ubegin]=static_cast<PetscInt>(block.size());
+            EONSIM_PETSC(MatCreateAIJ(comm,uend-ubegin,uend-ubegin,usize,usize,0,nonzeros.data(),0,nullptr,primal_inverse.put()));
+        } else EONSIM_PETSC(MatZeroEntries(primal_inverse.get()));
+        bool valid=true;
+        for(const auto& block:primal_blocks) {
+            const auto n=static_cast<PetscInt>(block.size());
+            std::vector<double> values(static_cast<std::size_t>(n)*n),inverse;
+            EONSIM_PETSC(MatGetValues(primal.get(),n,block.data(),n,block.data(),values.data()));
+            const bool nonsingular=invert_primal_block(values,inverse);
+            valid=valid&&nonsingular;
+            if(nonsingular) {
+                for(auto& value:inverse) {value/=options.braess_alpha;valid=valid&&std::isfinite(value);}
+                EONSIM_PETSC(MatSetValues(primal_inverse.get(),n,block.data(),n,block.data(),inverse.data(),INSERT_VALUES));
+            }
+        }
+        EONSIM_PETSC(MatAssemblyBegin(primal_inverse.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatAssemblyEnd(primal_inverse.get(),MAT_FINAL_ASSEMBLY));
+        common_check(comm,valid,"a coupled Braess-Sarazin primal block is singular or nonfinite; no shift was applied");
+        EONSIM_PETSC(MatMatMult(primal_inverse.get(),gradient.get(),reuse,PETSC_DEFAULT,inverse_gradient.put()));
+        EONSIM_PETSC(MatMatMult(divergence.get(),inverse_gradient.get(),reuse,PETSC_DEFAULT,schur_product.put()));
+        if(first) {
+            EONSIM_PETSC(MatDuplicate(pressure_block.get(),MAT_COPY_VALUES,schur.put()));
+            EONSIM_PETSC(MatAXPY(schur.get(),-1.,schur_product.get(),DIFFERENT_NONZERO_PATTERN));
+            EONSIM_PETSC(MatSetOption(schur.get(),MAT_NEW_NONZERO_LOCATION_ERR,PETSC_TRUE));
+            EONSIM_PETSC(MatCreateVecs(primal.get(),primal_solution.put(),primal_work.put()));
+            EONSIM_PETSC(VecDuplicate(primal_solution.get(),primal_rhs.put()));
+            EONSIM_PETSC(MatCreateVecs(schur.get(),pressure_solution.put(),pressure_rhs.put()));
+        } else {
+            EONSIM_PETSC(MatZeroEntries(schur.get()));
+            EONSIM_PETSC(MatAXPY(schur.get(),1.,pressure_block.get(),SUBSET_NONZERO_PATTERN));
+            EONSIM_PETSC(MatAXPY(schur.get(),-1.,schur_product.get(),SUBSET_NONZERO_PATTERN));
+        }
+        EONSIM_PETSC(MatGetDiagonal(schur.get(),pressure_rhs.get()));
+        const PetscScalar* diagonal=nullptr;
+        EONSIM_PETSC(VecGetArrayRead(pressure_rhs.get(),&diagonal));
+        for(PetscInt i=0;i<stats.pressure_rows;++i)
+            valid=valid&&std::isfinite(diagonal[i])&&diagonal[i]!=0.;
+        EONSIM_PETSC(VecRestoreArrayRead(pressure_rhs.get(),&diagonal));
+        common_check(comm,valid,"Braess-Sarazin Schur Jacobi diagonal is zero or nonfinite; no pressure pin was added");
+        EONSIM_PETSC(KSPSetOperators(solver.get(),schur.get(),schur.get()));
+        EONSIM_PETSC(KSPSetReusePreconditioner(solver.get(),PETSC_FALSE));
+        EONSIM_PETSC(KSPSetUp(solver.get()));
+    }
+
+    PetscErrorCode apply_braess(Vec input,Vec output,bool& valid) {
+        PetscFunctionBeginUser;
+        const PetscScalar* rhs=nullptr;PetscScalar* x=nullptr;
+        PetscCall(VecGetArrayRead(input,&rhs));PetscCall(VecGetArray(output,&x));
+        for(PetscInt i=0;i<end-begin;++i) x[i]=identity[i]?rhs[i]:0.;
+        PetscCall(VecRestoreArray(output,&x));PetscCall(VecRestoreArrayRead(input,&rhs));
+        PetscCall(MatMult(source,output,residual.get()));
+        PetscCall(VecAYPX(residual.get(),-1.,input));
+        Vec ru=nullptr,rp=nullptr;
+        PetscCall(VecGetSubVector(residual.get(),primal_is.get(),&ru));
+        PetscCall(VecGetSubVector(residual.get(),pressure_is.get(),&rp));
+        PetscCall(MatMult(primal_inverse.get(),ru,primal_solution.get()));
+        PetscCall(MatMult(divergence.get(),primal_solution.get(),pressure_rhs.get()));
+        PetscCall(VecAYPX(pressure_rhs.get(),-1.,rp));
+        PetscCall(VecCopy(ru,primal_rhs.get()));
+        // Finish every borrowed subvector before entering an inner solve,
+        // including its recoverable failure paths and PETSc error handlers.
+        PetscCall(VecRestoreSubVector(residual.get(),pressure_is.get(),&rp));
+        PetscCall(VecRestoreSubVector(residual.get(),primal_is.get(),&ru));
+        const auto error=KSPSolve(solver.get(),pressure_rhs.get(),pressure_solution.get());
+        KSPConvergedReason reason=KSP_CONVERGED_ITERATING;
+        PC pressure_pc=nullptr;PCFailedReason failure=PC_NOERROR;PetscInt iterations=0;
+        PetscCall(KSPGetConvergedReason(solver.get(),&reason));
+        PetscCall(KSPGetPC(solver.get(),&pressure_pc));PetscCall(PCGetFailedReason(pressure_pc,&failure));
+        PetscCall(KSPGetIterationNumber(solver.get(),&iterations));
+        // Exhausting the explicitly fixed inner budget is a valid smoother
+        // action, not a claim that the Schur system was solved to tolerance.
+        valid=error==PETSC_SUCCESS&&(reason>0||reason==KSP_DIVERGED_ITS)&&failure==PC_NOERROR;
+        stats.schur_iterations+=iterations;++stats.schur_applications;
+        int bad=!valid,any_bad=0;
+        PetscCallMPI(MPI_Allreduce(&bad,&any_bad,1,MPI_INT,MPI_MAX,comm));
+        if(any_bad) {
+            valid=false;PetscCall(VecSet(output,0.));
+            PetscFunctionReturn(PETSC_ERR_NOT_CONVERGED);
+        }
+        PetscCall(MatMult(gradient.get(),pressure_solution.get(),primal_work.get()));
+        PetscCall(VecAYPX(primal_work.get(),-1.,primal_rhs.get()));
+        PetscCall(MatMult(primal_inverse.get(),primal_work.get(),primal_solution.get()));
+        Vec du=nullptr,dp=nullptr;
+        PetscCall(VecGetSubVector(output,primal_is.get(),&du));
+        PetscCall(VecGetSubVector(output,pressure_is.get(),&dp));
+        PetscCall(VecAXPY(du,options.patches.damping,primal_solution.get()));
+        PetscCall(VecAXPY(dp,options.patches.damping,pressure_solution.get()));
+        PetscCall(VecRestoreSubVector(output,pressure_is.get(),&dp));
+        PetscCall(VecRestoreSubVector(output,primal_is.get(),&du));
+        PetscFunctionReturn(PETSC_SUCCESS);
+    }
+
     void refresh(Mat matrix) {
         ready=false;
         PetscObjectState current_graph=0;EONSIM_PETSC(MatGetNonzeroState(matrix,&current_graph));
         common_check(comm,matrix==source&&graph==current_graph,"matrix identity/graph changed; rebuild the level");
         common_check(comm,identity==inspect_constraints(matrix),"identity rows changed; rebuild the level");
-        if(options.kind=="vanka") {
+        if(vanka_kind(options.kind)) {
             updates.refresh(matrix);ready=true;++stats.refreshes;return;
+        }
+        if(options.kind=="braess_sarazin") {
+            refresh_braess(matrix);ready=true;++stats.refreshes;return;
         }
         PetscOwner<Mat,MatDestroy> scaled,transpose,c,b,n;
         EONSIM_PETSC(MatDuplicate(matrix,MAT_COPY_VALUES,scaled.put()));
@@ -231,12 +435,14 @@ struct FsiLevelSmoother {
         PetscFunctionBeginUser;
         if(!ready) {PetscCall(VecSet(output,0.));PetscFunctionReturn(PETSC_ERR_NOT_CONVERGED);}
         bool valid=true;
-        if(options.kind=="vanka") {
+        if(vanka_kind(options.kind)) {
             PC pc=nullptr;PetscCall(KSPGetPC(solver.get(),&pc));
             PetscCall(PCSetFailedReason(pc,PC_NOERROR));
             const auto error=PCApply(pc,input,output);
             PCFailedReason failure=PC_NOERROR;PetscCall(PCGetFailedReason(pc,&failure));
             valid=error==PETSC_SUCCESS&&failure==PC_NOERROR;
+        } else if(options.kind=="braess_sarazin") {
+            PetscCall(apply_braess(input,output,valid));
         } else {
             const PetscScalar* rhs=nullptr;PetscScalar* x=nullptr;
             PetscCall(VecGetArrayRead(input,&rhs));PetscCall(VecGetArray(output,&x));
@@ -269,7 +475,7 @@ FsiLevelSmootherHandle make_fsi_level_smoother(MPI_Comm comm,Mat matrix,
 }
 void refresh_fsi_level_smoother(const FsiLevelSmootherHandle& smoother,Mat matrix) {smoother->refresh(matrix);}
 void release_native_fsi_smoother_setup(const FsiLevelSmootherHandle& smoother) {
-    common_check(smoother->comm,smoother->options.kind=="vanka"&&smoother->options.patches.native_storage,
+    common_check(smoother->comm,vanka_kind(smoother->options.kind)&&smoother->options.patches.native_storage,
                  "native setup release requires native Vanka");
     release_native_vanka_setup(smoother->solver.get());
     smoother->source=nullptr;
@@ -285,7 +491,7 @@ PetscErrorCode apply_fsi_level_smoother(const FsiLevelSmootherHandle& smoother,V
 }
 FsiLevelSmootherStats query_fsi_level_smoother_stats(const FsiLevelSmootherHandle& smoother) {
     auto stats=smoother->stats;
-    if(smoother->options.kind=="vanka") {
+    if(vanka_kind(smoother->options.kind)) {
         PC pc=nullptr;EONSIM_PETSC(KSPGetPC(smoother->solver.get(),&pc));
         (void)query_interface_patch_pc_stats(pc,stats.patches);
     }

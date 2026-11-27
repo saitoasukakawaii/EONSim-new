@@ -1,5 +1,7 @@
 #include "eonsim/rcr_port_pc.hpp"
 #include "eonsim/pressure_schur_pc.hpp"
+#include "eonsim/monolithic_fsi_mg.hpp"
+#include "eonsim/interface_patch_pc.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -16,6 +18,11 @@ void common_check(MPI_Comm comm,bool valid,const std::string& message) {
         throw std::runtime_error("RCR port validation communication failed");
     if(any) throw std::runtime_error("RCR port PC: "+message);
 }
+void bind_bulk_fine_action(KSP solver,Mat exact) {
+    PC pc=nullptr; EONSIM_PETSC(KSPGetPC(solver,&pc));
+    if(set_monolithic_fsi_mg_fine_operator(pc,exact)) return;
+    if(KSP nested=interface_patch_bulk_solver(pc)) bind_bulk_fine_action(nested,exact);
+}
 
 struct PortState {
     MPI_Comm comm;
@@ -28,6 +35,8 @@ struct PortState {
     std::vector<PetscInt> bulk_offsets,port_offsets;
     PetscOwner<IS,ISDestroy> bulk_is,port_is;
     PetscOwner<Mat,MatDestroy> a,u,v,d,vt;
+    PetscOwner<Mat,MatDestroy> full_exact,bulk_exact;
+    PetscOwner<Vec,VecDestroy> full_direction,full_action;
     PcSchurUpdates bulk_updates;
     PetscOwner<KSP,KSPDestroy> bulk;
     PetscOwner<Vec,VecDestroy> rhs,solution;
@@ -39,6 +48,42 @@ struct PortState {
     std::vector<PetscInt> pivots;
     std::function<void(KSP,Mat,PcSchurUpdates*)> configure;
     RcrPortPcStats stats;
+
+    static PetscErrorCode exact_multiply(Mat matrix,Vec input,Vec output) {
+        PortState* state=nullptr; PetscCall(MatShellGetContext(matrix,&state));
+        if(!state||!state->full_exact.get()) return PETSC_ERR_ARG_WRONGSTATE;
+        PetscCall(VecSet(state->full_direction.get(),0.));
+        const PetscScalar* values=nullptr; PetscScalar* lifted=nullptr;
+        PetscCall(VecGetArrayRead(input,&values)); PetscCall(VecGetArray(state->full_direction.get(),&lifted));
+        for(PetscInt i=0;i<state->bulk_local;++i) lifted[state->bulk_offsets[i]]=values[i];
+        PetscCall(VecRestoreArray(state->full_direction.get(),&lifted)); PetscCall(VecRestoreArrayRead(input,&values));
+        PetscCall(MatMult(state->full_exact.get(),state->full_direction.get(),state->full_action.get()));
+        PetscCall(VecGetArrayRead(state->full_action.get(),&values)); PetscCall(VecGetArray(output,&lifted));
+        for(PetscInt i=0;i<state->bulk_local;++i) lifted[i]=values[state->bulk_offsets[i]];
+        PetscCall(VecRestoreArray(output,&lifted)); PetscCall(VecRestoreArrayRead(state->full_action.get(),&values));
+        ++state->stats.exact_bulk_actions;
+        return PETSC_SUCCESS;
+    }
+    Mat bind_exact(Mat exact) {
+        PetscInt rows=0,columns=0,local_rows=0,local_columns=0;
+        EONSIM_PETSC(MatGetSize(exact,&rows,&columns));
+        EONSIM_PETSC(MatGetLocalSize(exact,&local_rows,&local_columns));
+        common_check(comm,rows==global&&columns==global&&local_rows==end-begin&&local_columns==end-begin,
+                     "exact full operator does not match the port layout");
+        if(full_exact.get()!=exact) {
+            PetscOwner<Mat,MatDestroy> retained;
+            EONSIM_PETSC(PetscObjectReference(reinterpret_cast<PetscObject>(exact)));
+            *retained.put()=exact; full_exact=std::move(retained);
+        }
+        if(!bulk_exact.get()) {
+            EONSIM_PETSC(MatCreateVecs(exact,full_direction.put(),full_action.put()));
+            EONSIM_PETSC(MatCreateShell(comm,bulk_local,bulk_local,global-count,global-count,this,bulk_exact.put()));
+            EONSIM_PETSC(MatShellSetOperation(bulk_exact.get(),MATOP_MULT,
+                reinterpret_cast<void(*)(void)>(exact_multiply)));
+        }
+        bind_bulk_fine_action(bulk.get(),bulk_exact.get());
+        return bulk_exact.get();
+    }
 
     PortState(MPI_Comm communicator,Mat full,const std::vector<PetscInt>& ports,
               const std::string& prefix,
@@ -211,6 +256,11 @@ struct PortState {
                          "bulk response requires PREONLY and a zero initial guess");
             EONSIM_PETSC(KSPSetErrorIfNotConverged(bulk.get(),PETSC_FALSE));
         } else bulk_updates.refresh(a.get());
+        // Initial low-rank setup precedes the driver's frozen exact Newton
+        // state. Use the assembled bulk for those first responses; once the
+        // exact restriction is bound, later generations and outer V-cycles
+        // use its current action. Port blocks and Galerkin P remain assembled.
+        bind_bulk_fine_action(bulk.get(),bulk_exact.get()?bulk_exact.get():a.get());
         EONSIM_PETSC(KSPSetReusePreconditioner(bulk.get(),PETSC_FALSE));
         EONSIM_PETSC(KSPSetUp(bulk.get()));
         bool valid=true;
@@ -391,5 +441,9 @@ bool query_rcr_port_pc_stats(PC pc,RcrPortPcStats& stats) {
 KSP rcr_port_bulk_solver(PC pc) {
     auto* handle=get_handle(pc);
     return handle?(*handle)->bulk.get():nullptr;
+}
+Mat rcr_port_bulk_exact_operator(PC pc,Mat full_exact) {
+    auto* handle=get_handle(pc);
+    return handle?(*handle)->bind_exact(full_exact):nullptr;
 }
 } // namespace eonsim

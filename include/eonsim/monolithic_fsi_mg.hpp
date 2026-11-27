@@ -6,8 +6,13 @@
 namespace eonsim {
 struct MonolithicFsiMgLevelStats {
     PetscInt rows=0,coarse_rows=0,spectral_modes=0;
+    PetscInt pressure_rows=0,coarse_pressure_rows=0,distributed_aggregates=0,migrated_rows=0;
+    PetscInt divergence_constraints=0,divergence_nullity=0,divergence_updates=0;
+    PetscInt compatible_pressure_modes=0,saturated_pressure_aggregates=0;
+    double divergence_change=0.,divergence_update_norm=0.,divergence_commuting_defect=0.;
     double reproduction_error=0,energy_before=0,energy_after=0;
-    /// Fine-level local pairs, audited on FP64 setup before native quantization;
+    /// Aggregate-local pairs at every typed level (fine-only in legacy mode),
+    /// audited on FP64 setup before native quantization;
     /// these are not a global coarse inf-sup bound or an FP32 action guarantee.
     PetscInt pressure_supremizer_modes=0,pressure_paired_aggregates=0;
     double pressure_pair_min_singular=0,pressure_pair_relative_change=0;
@@ -30,7 +35,14 @@ struct MonolithicFsiMgStats {
     /// Worst explicitly recomputed row-equilibrated coarse residual ratio returned by a K-cycle projection.
     double coarse_krylov_max_residual_ratio=0.;
     bool single_precision=false,native_fp32=false,field_scaling=false,fsi_candidates=false,w_cycle=false,k_cycle=false;
-    bool pressure_supremizers=false;
+    bool pressure_supremizers=false,saddle_point=false,divergence_preserving=false,divergence_commuting=false,matrix_free_fine=false;
+    bool distributed_aggregation=false,adaptive_hierarchy=false,reuse_hierarchy=false;
+    PetscInt matrix_free_fine_actions=0,fine_bootstrap_actions=0,hierarchy_reuses=0,symbolic_reuses=0,adaptive_rebuilds=0;
+    PetscInt adaptive_probes=0,batched_reduction_groups=0,complexity_stop_rows=0;
+    PetscInt divergence_rebuilds=0,unchanged_divergence_reuses=0;
+    /// Nonexclusive actual reuse-invalidation reasons, counted only on rebuild.
+    PetscInt drift_rebuilds=0,age_rebuilds=0;
+    double operator_complexity=1.,adaptive_residual_ratio=0.,hierarchy_numeric_drift=0.;
     std::size_t fp32_value_bytes=0;
     /// Additional level/transfer coefficient storage, excluding original outer P, indices and PETSc vectors.
     std::size_t retained_fp64_operator_bytes=0,released_fp64_operator_bytes=0;
@@ -121,6 +133,66 @@ void validate_monolithic_fsi_mg_options(MPI_Comm comm,const std::string& prefix)
  * the true interface or rows whose inter-entity absolute coupling fraction
  * reaches patch_strength. Numeric changes rebuild this selection.
  *
+ * saddle_point preserves separate pressure and primal interpolation columns
+ * and coarse pressure quantity tags at every level. Spectral enrichment stays
+ * primal; discrete supremizers use every nonpressure field, so structural and
+ * ALE responses enter the actual pressure coupling. Braess-Sarazin applies
+ * a coupled Schur correction on every noncoarse typed level.
+ *
+ * divergence_preserving (FP64 transfers) projects interpolation energy updates
+ * onto B*dP_primal=0 using ALL incident pressure rows, including off-rank rows,
+ * and onto dP*N_coarse=0; anchor rows/selected pairs/pressure columns are fixed.
+ * The audit is a backward-normalized actual B*(P_after-P_before), not a
+ * Galerkin identity. divergence_commuting additionally closes each aggregate
+ * pressure basis under B[p_aggregate, all primal columns]. Its independently
+ * measured ||B*P_primal-P_pressure*(P_pressure^T*B*P_primal)||/||B*P_primal||
+ * must be <=1e-10. Pressure columns are orthonormal in algebraic coordinates;
+ * B is the weighted Galerkin form when field_scaling is enabled. This closure
+ * can retain every active pressure row. It is a compatible transfer, not a
+ * proof of a uniform inf-sup constant or useful pressure coarsening. Actual
+ * closure/saturation/nullity/update counters expose that cost and constraints.
+ *
+ * distributed_aggregation migrates bounded complete boundary entities over
+ * actual rank cuts before constructing aggregates, then maps P back by an
+ * exact distributed permutation. Counts distinguish moved rows from aggregates
+ * that truly contain more than one original rank. No global field replication.
+ * coarse_processes=0 keeps all MPI ranks for GMRES/ASM on the full coupled
+ * coarse matrix; saddle/distributed modes select this unless explicitly set.
+ * Multi-rank ASM subdomain LU uses MUMPS when its sequential factor backend
+ * is available on every rank, preserving explicit backend/PC overrides. This
+ * provides numerical pivoting without diagonal shifts or reduced pivot gates;
+ * installations without MUMPS retain PETSc's existing backend selection.
+ *
+ * reuse_hierarchy retains transfer and PtAP symbolic graphs while refreshing
+ * current numerical Galerkin matrices and every level factor. Bounded age and
+ * global diagonal/absolute-row-sum drift trigger rebuilding; this drift is a
+ * heuristic, not an operator-error bound. Frozen scaling remains a valid
+ * L*A_current*R transformation. Compatible pressure reuse additionally requires
+ * either a full active pressure span at every level or exactly unchanged fine
+ * pressure-to-primal coefficients (including off-rank columns and zeros).
+ * With fixed scaling and typed transfers the latter keeps every coarse B
+ * unchanged. Changed B with a reduced pressure span rebuilds image closure;
+ * both paths have separate counters. drift_rebuilds and age_rebuilds count
+ * actual rejection/rebuilds at the unchanged drift/age bounds; reasons may
+ * overlap with each other or adaptive/divergence rebuilding and are not a
+ * partition of total rebuilds. Native released setup/adaptive patch membership cannot use this
+ * option. Pair/transfer audits refer to their reported setup generation.
+ * adaptive_hierarchy probes ||r-A*M*r||/||r|| every adaptive_interval applies;
+ * poor contraction schedules a rebuild at the next explicit refresh, with
+ * bounded energy/spectral enrichment. Two coarsening retries and a total-nnz
+ * complexity cap bound setup work. No convergence tolerance is changed.
+ * communication_avoiding batches independent K-cycle/adaptive-probe norm
+ * reductions with PETSc Begin/End, draining them before branching. It retains
+ * stable explicit norms and twice Gram-Schmidt. The batching count is an API
+ * schedule count, not a measured network-latency speedup.
+ *
+ * matrix_free_fine requires a same-layout exact shell bound by the driver. All
+ * fine residuals use that current action (L*A_exact*R when scaled); coarse
+ * Galerkin setup and local smoother construction still use assembled P. The
+ * redundant native whole-fine operator is omitted. An assembled bootstrap may
+ * prepare RCR response vectors before the Newton shell is ready; those actions
+ * have a separate counter and are not reported as matrix-free executions.
+ *
  * Explicit single precision uses row-scaled float CSR coefficients and float
  * sparse arithmetic for level matvecs and restriction/prolongation, plus the
  * smoother's float factors with FP64 refinement. FP64 setup matrices and the
@@ -144,6 +216,11 @@ void configure_monolithic_fsi_mg(MPI_Comm comm,KSP solver,Mat assembled,
     const std::vector<DofKey>& owned_semantics,
     const std::vector<std::array<double,3>>& owned_coordinates,
     const std::vector<unsigned char>& owned_interface,PcSchurUpdates* updates);
+/** Bind a same-layout current exact operator after the nonlinear driver installs
+ * its MatShell. False means the PC is not MG or matrix_free_fine was not requested.
+ * Retains a reference; the shell context must follow the current linearization.
+ * Setup and coarse Galerkin products still use assembled P. */
+bool set_monolithic_fsi_mg_fine_operator(PC pc,Mat exact_operator);
 bool query_monolithic_fsi_mg_stats(PC pc,MonolithicFsiMgStats& stats);
 KSP monolithic_fsi_mg_coarse_solver(PC pc);
 } // namespace eonsim

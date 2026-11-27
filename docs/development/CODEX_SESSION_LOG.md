@@ -1,5 +1,51 @@
 # EONSim Codex Session Log
 
+## 2026-11-27 · FSI-SADDLE-01 — 分层鞍点机制、真实故障与有界验证
+
+由 GitHub 核实 #64 已合并，基线 `036f865e3570905a58da465c91873678de485119`。
+独立 checkout 恢复 PETSc 3.23.7 主锁；普通 HTTPS push 无登录，使用已连接的 GitHub 对象/
+引用接口同步，然后 fetch 并核对完整 tree，没有寻找或复制凭据。开发分支
+`codex/saddle-point-multigrid`，对应 [PR #65](https://github.com/saitoasukakawaii/EONSim-new/pull/65)。
+
+并行实现 MG、smoother、Krylov，集成跨 rank ownership helper、15个物理模式和选测映射。
+审阅区分 `B delta(Pv)=0` 与真正交换关系，补压力像空间闭包；精确RCR限制使用零端口lifting，
+bootstrap与当前shell作用分别计数；rank-local PC失败先统一传播，借用子向量在内层solve前恢复。
+
+实际执行和修复按提交保留：
+
+- `bfb5d0c` 先远端同步后构建，16项CTest中13通过、3个MG失败；19个Python runner检查通过。
+  原因是 compatible 复用无条件要求压力满维，即使B不变也重建。`bd2f010` 加实际B全部系数的
+  精确比较，并以改变B的负例验证必要重建；4项MG/原物理CTest通过，后者含24条轨迹。
+- `bd2f010` 新增物理48次，45通过。两条失败为审计误把真实numeric drift/adaptive收缩重建
+  当作复用未执行；后续加入真实reason计数并单独标注guard拒绝，单独mono_reuse仍要求正复用。
+- 同批moving-RCR allmode真实失败。PETSc-info定位为128×128局部粗块第70行极小主元，
+  粗GMRES第0步PC_FAILED。旧binary仅切换ASM局部MUMPS后通过3步，末步残量约6.107e-15。
+  `24b8056` 共同检测backend、保留用户覆盖，默认启用可用主元；不加shift、不降门槛。
+  GDB/LLDB不可用且安装权限被拒，保留PETSc原始info/view/reason诊断。修复后MG3/3、物理12/12。
+- `24b8056` 固定网格18次，17通过；Braess alpha=1在5367DoF首修正1500次后残量4.21e-4。
+  唯一变因alpha=2使首修正83次后残量8.80e-14，完整三步404次，保存场通过direct对照。
+  `ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba` 仅修默认值与独立块oracle；先同步再构建，MG/smoother6/6及
+  Braess-only default/moving/scaling12/12全部通过。Schur预算仍3，外层上限/精度未改。
+
+最终有效集合是17个CTest、48条新增物理和18条网格配置；各行绑定真实源码和binary hash，
+没有把旧记录改成最终源码的新执行。最大场差4.31688e-12、历史差7.99361e-15，真残量gate比
+0.00948933。原失败收据、两次单因子诊断、原场/历史/mesh/命令均保留并逐成员校验SHA256。
+
+n8 colored从baseline206次降到50次，实测总求解11.0836→7.2638秒；all降到46次，却需
+18.8386秒，压力729→729→729，RSS最大rank值+86.19%。有限窗口增长比最优1.7037仍高于1.3，
+保留OPEN；多节点/百万DoF未运行。没有为获得更好比例调整门槛、物理输入或增加无界搜索。
+最终源码之外只补文档/证据；四项必需检查和锁定head合并结果由PR#65记录确认。
+[证据索引](../research/data/fsi-saddle-01-2026-11-27/README.md)、[运行说明](FSI_SADDLE_POINT_MULTIGRID.md)
+及[未发布算法草稿](../../website/drafts/fsi-saddle-point-multigrid.md)完成知识沉淀。
+
+[最终源码 CI 45931896224](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896224)
+实际新执行 **83/83 Release、54/54 Python**，没有复用数值记录。合并预览
+`75bb86a0c5e668d497d0e95eb5ed0be4df824550` 与 `ccf1bd7` 的完整 tree 均为
+`014a1de3199b7e476aec00aa63078a13adb60610`，dirty=false；
+[源码网站检查 45931896258](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896258)
+通过。远端检查与本地分源轨迹分别计数；最终文档 head 的四项检查及合并以 PR #65 为准。
+
+
 ## 2026-11-27 · FSI-SCALE-01 — 精确作用、紧凑存储与有界收敛验证
 
 按北京时间记录，任务起始于 2026-11-26。用户指定十二项优化，并要求源码完成→远端同步

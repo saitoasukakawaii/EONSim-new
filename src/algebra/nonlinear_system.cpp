@@ -6,6 +6,7 @@
 #include "eonsim/interface_patch_pc.hpp"
 #include "eonsim/pressure_schur_pc.hpp"
 #include "eonsim/monolithic_fsi_mg.hpp"
+#include "eonsim/deflated_fgmres.hpp"
 #include "eonsim/time_step.hpp"
 #include <cmath>
 #include <stdexcept>
@@ -164,12 +165,32 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
         }
         // FieldSplit arrays belong to the caller; all child KSPs are borrowed.
     } else if(std::strcmp(pt,PCSHELL)==0) {
+        if(KSP bulk=deflated_fgmres_bulk_solver(pc)) children.emplace_back("deflated_bulk",bulk);
+        DeflatedFgmresStats deflated;
+        if(query_deflated_fgmres_stats(pc,deflated))
+            out<<"deflated_fgmres_stats rank="<<rank<<" path="<<path<<" capacity="<<deflated.capacity
+               <<" vectors="<<deflated.vectors<<" refreshes="<<deflated.refreshes
+               <<" projections="<<deflated.projections<<" applications="<<deflated.applications
+               <<" projected_applications="<<deflated.projected_applications
+               <<" candidates="<<deflated.candidates<<" rank_drops="<<deflated.rank_drops
+               <<" spectral_updates="<<deflated.spectral_updates<<" operator_actions="<<deflated.operator_actions
+               <<" projection_reductions="<<deflated.projection_reductions
+               <<" failure_reductions="<<deflated.failure_reductions
+               <<" smallest_response="<<deflated.smallest_retained_response
+               <<" largest_response="<<deflated.largest_retained_response<<'\n';
         if(KSP bulk=rcr_port_bulk_solver(pc)) children.emplace_back("rcr_bulk",bulk);
         if(KSP bulk=interface_patch_bulk_solver(pc)) children.emplace_back("interface_bulk",bulk);
         if(KSP auxiliary=pressure_schur_auxiliary_solver(pc)) children.emplace_back("pressure_aux",auxiliary);
         if(KSP coarse=monolithic_fsi_mg_coarse_solver(pc)) children.emplace_back("monolithic_coarse",coarse);
         MonolithicFsiMgStats multigrid;
         if(query_monolithic_fsi_mg_stats(pc,multigrid))
+        {
+            PetscInt schur_applications=0,vanka_color_stages=0,vanka_residual_products=0;
+            for(const auto& smoother:multigrid.smoothers) {
+                schur_applications+=smoother.schur_applications;
+                vanka_color_stages+=smoother.patches.color_stages;
+                vanka_residual_products+=smoother.patches.residual_products;
+            }
             out<<"monolithic_mg_stats rank="<<rank<<" path="<<path<<" levels="<<multigrid.levels
                <<" applications="<<multigrid.applications<<" refreshes="<<multigrid.refreshes
                <<" coarse_processes="<<multigrid.coarse_processes<<" fp32="<<multigrid.single_precision
@@ -183,7 +204,24 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
                <<" coarse_krylov_rejections="<<multigrid.coarse_krylov_rejections
                <<" coarse_krylov_reductions="<<multigrid.coarse_krylov_reductions
                <<" coarse_krylov_max_residual_ratio="<<multigrid.coarse_krylov_max_residual_ratio
-               <<" fp32_value_bytes="<<multigrid.fp32_value_bytes<<'\n';
+               <<" fp32_value_bytes="<<multigrid.fp32_value_bytes
+               <<" matrix_free_fine_actions="<<multigrid.matrix_free_fine_actions
+               <<" fine_bootstrap_actions="<<multigrid.fine_bootstrap_actions
+               <<" hierarchy_rebuilds="<<multigrid.hierarchy_rebuilds
+               <<" divergence_rebuilds="<<multigrid.divergence_rebuilds
+               <<" drift_rebuilds="<<multigrid.drift_rebuilds
+               <<" age_rebuilds="<<multigrid.age_rebuilds
+               <<" unchanged_divergence_reuses="<<multigrid.unchanged_divergence_reuses
+               <<" hierarchy_reuses="<<multigrid.hierarchy_reuses<<" symbolic_reuses="<<multigrid.symbolic_reuses
+               <<" adaptive_rebuilds="<<multigrid.adaptive_rebuilds<<" adaptive_probes="<<multigrid.adaptive_probes
+               <<" batched_reduction_groups="<<multigrid.batched_reduction_groups
+               <<" operator_complexity="<<multigrid.operator_complexity
+               <<" hierarchy_numeric_drift="<<multigrid.hierarchy_numeric_drift
+               <<" adaptive_residual_ratio="<<multigrid.adaptive_residual_ratio
+               <<" schur_applications="<<schur_applications
+               <<" vanka_color_stages="<<vanka_color_stages
+               <<" vanka_residual_products="<<vanka_residual_products<<'\n';
+        }
         InterfacePatchPcStats patch_stats;
         if(query_interface_patch_pc_stats(pc,patch_stats))
             out<<"interface_patch_stats rank="<<rank<<" path="<<path<<" patches="<<patch_stats.patches
@@ -199,7 +237,8 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
             out<<"rcr_port_stats rank="<<rank<<" path="<<path<<" ports="<<stats.ports
                <<" rebuilds="<<stats.rebuilds<<" responses="<<stats.response_solves
                <<" setup_reductions="<<stats.setup_reductions<<" applications="<<stats.applications
-               <<" apply_reductions="<<stats.apply_reductions<<'\n';
+               <<" apply_reductions="<<stats.apply_reductions
+               <<" exact_bulk_actions="<<stats.exact_bulk_actions<<'\n';
     } else if(std::strcmp(pt,PCASM)==0||std::strcmp(pt,PCBJACOBI)==0) {
         if(std::strcmp(pt,PCASM)==0) { PetscCall(PCASMGetSubKSP(pc,&count,nullptr,&sub)); }
         else { PetscCall(PCBJacobiGetSubKSP(pc,&count,nullptr,&sub)); }
@@ -534,27 +573,28 @@ struct AdaptivePcState {
  * No old Jacobian, RHS, or nonlinear/physical state is reused. */
 struct LinearPolicy {
     bool inexact=false;
-    PetscInt capacity=0,forcing_solves=0,projections=0;
+    PetscInt capacity=0,deflation_capacity=0,forcing_solves=0,projections=0;
     double initial_eta=.1,maximum_eta=.5,gamma=.9,alpha=1.5;
     double base_rtol=0,base_atol=0,base_dtol=0,requested_rtol=0,previous_rhs=0,previous_eta=0;
     PetscInt maximum_iterations=0;
     double seconds=0;
     std::vector<PetscOwner<Vec,VecDestroy>> basis;
     PetscOwner<Vec,VecDestroy> residual;
-    bool active() const { return inexact||capacity>0; }
+    bool active() const { return inexact||capacity>0||deflation_capacity>0; }
     void initialize(MPI_Comm comm,KSP ksp,Vec prototype,bool eligible) {
         PetscBool requested=PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-nonlinear_inexact_newton",&requested,nullptr));
         EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-nonlinear_krylov_recycle",&capacity,nullptr));
+        EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-nonlinear_krylov_deflation",&deflation_capacity,nullptr));
         EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,"-nonlinear_forcing_initial",&initial_eta,nullptr));
         EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,"-nonlinear_forcing_max",&maximum_eta,nullptr));
         EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,"-nonlinear_forcing_gamma",&gamma,nullptr));
         EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,"-nonlinear_forcing_alpha",&alpha,nullptr));
         EONSIM_PETSC(KSPGetTolerances(ksp,&base_rtol,&base_atol,&base_dtol,&maximum_iterations));
-        const double values[]={double(requested),double(capacity),initial_eta,maximum_eta,gamma,alpha};
-        double low[6]{},high[6]{};
-        MPI_Allreduce(values,low,6,MPI_DOUBLE,MPI_MIN,comm);
-        MPI_Allreduce(values,high,6,MPI_DOUBLE,MPI_MAX,comm);
+        const double values[]={double(requested),double(capacity),initial_eta,maximum_eta,gamma,alpha,double(deflation_capacity)};
+        double low[7]{},high[7]{};
+        MPI_Allreduce(values,low,7,MPI_DOUBLE,MPI_MIN,comm);
+        MPI_Allreduce(values,high,7,MPI_DOUBLE,MPI_MAX,comm);
         KSPType type=nullptr; PetscBool scaled=PETSC_FALSE,nonzero=PETSC_FALSE,knoll=PETSC_FALSE;
         EONSIM_PETSC(KSPGetType(ksp,&type)); EONSIM_PETSC(KSPGetDiagonalScale(ksp,&scaled));
         EONSIM_PETSC(KSPGetInitialGuessNonzero(ksp,&nonzero)); EONSIM_PETSC(KSPGetInitialGuessKnoll(ksp,&knoll));
@@ -563,21 +603,24 @@ struct LinearPolicy {
             PetscBool found=PETSC_FALSE; EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,name,&found));
             other_guess=other_guess||found;
         }
-        bool valid=std::equal(low,low+6,high)&&capacity>=0&&capacity<=32&&
+        bool valid=std::equal(low,low+7,high)&&capacity>=0&&capacity<=32&&
+            deflation_capacity>=0&&deflation_capacity<=32&&!(capacity&&deflation_capacity)&&
             std::isfinite(initial_eta)&&std::isfinite(maximum_eta)&&std::isfinite(gamma)&&std::isfinite(alpha)&&
             initial_eta>0&&initial_eta<=maximum_eta&&maximum_eta<1&&gamma>0&&gamma<=1&&alpha>1&&alpha<=2;
-        if(requested||capacity) valid=valid&&eligible&&!scaled&&type&&
+        if(requested||capacity||deflation_capacity) valid=valid&&eligible&&!scaled&&type&&
             (std::strcmp(type,KSPFGMRES)==0||std::strcmp(type,KSPPIPEFGMRES)==0);
+        if(deflation_capacity) valid=valid&&type&&std::strcmp(type,KSPFGMRES)==0;
         if(requested) valid=valid&&base_rtol>0&&base_rtol<=initial_eta;
-        if(capacity) valid=valid&&!nonzero&&!knoll&&!other_guess;
+        if(capacity||deflation_capacity) valid=valid&&!nonzero&&!knoll&&!other_guess;
         int invalid=!valid,any=0; MPI_Allreduce(&invalid,&any,1,MPI_INT,MPI_MAX,comm);
-        if(any) throw std::runtime_error("Inexact Newton/recycling requires ordinary fresh Newton, flexible GMRES, identical bounded forcing options, no diagonal scaling or conflicting initial-guess policy");
+        if(any) throw std::runtime_error("Inexact Newton/recycling requires ordinary fresh Newton, flexible GMRES, identical bounded forcing options, no diagonal scaling or conflicting initial-guess policy; deflation requires fgmres and cannot combine with correction warm starts");
         inexact=requested;
         if(active()) EONSIM_PETSC(VecDuplicate(prototype,residual.put()));
     }
     void begin_solve(KSP ksp) {
         forcing_solves=projections=0; previous_rhs=0; previous_eta=initial_eta; seconds=0;
         requested_rtol=base_rtol;
+        if(deflation_capacity) { PC pc=nullptr; EONSIM_PETSC(KSPGetPC(ksp,&pc)); reset_deflated_fgmres_stats(pc); }
         if(inexact) EONSIM_PETSC(KSPSetTolerances(ksp,base_rtol,base_atol,base_dtol,maximum_iterations));
     }
     void before(KSP ksp,Vec b,Vec x) {
@@ -597,6 +640,12 @@ struct LinearPolicy {
             requested_rtol=std::clamp(eta,base_rtol,maximum_eta);
             previous_eta=requested_rtol; previous_rhs=rhs; ++forcing_solves;
             EONSIM_PETSC(KSPSetTolerances(ksp,requested_rtol,base_atol,base_dtol,maximum_iterations));
+        }
+        if(deflation_capacity) {
+            const auto start=std::chrono::steady_clock::now();
+            prepare_deflated_fgmres(ksp,b,x);
+            seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+            return;
         }
         if(!capacity) return;
         const auto start=std::chrono::steady_clock::now();
@@ -646,6 +695,11 @@ struct LinearPolicy {
             if(!std::isfinite(error)||!std::isfinite(rhs)||!std::isfinite(limit)||
                error>limit*(1+64*std::numeric_limits<double>::epsilon()))
                 throw std::runtime_error("Inexact/recycled correction failed current-operator true residual gate");
+            if(deflation_capacity) {
+                const auto start=std::chrono::steady_clock::now();
+                complete_deflated_fgmres(ksp,x);
+                seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+            }
             if(capacity) {
                 const auto start=std::chrono::steady_clock::now();
                 // Keep recent independent correction directions, with bounded
@@ -1235,6 +1289,26 @@ std::string petsc_options_snapshot()
     EONSIM_PETSC(PetscFree(text));
     return result;
 }
+bool requires_exact_multigrid_action(KSP solver) {
+    PC pc=nullptr; EONSIM_PETSC(KSPGetPC(solver,&pc));
+    MonolithicFsiMgStats stats;
+    if(query_monolithic_fsi_mg_stats(pc,stats)) return stats.matrix_free_fine;
+    if(KSP bulk=deflated_fgmres_bulk_solver(pc)) return requires_exact_multigrid_action(bulk);
+    if(KSP bulk=interface_patch_bulk_solver(pc)) return requires_exact_multigrid_action(bulk);
+    if(KSP bulk=rcr_port_bulk_solver(pc)) return requires_exact_multigrid_action(bulk);
+    return false;
+}
+// A reduced RCR bulk receives E^T A E through its owned zero-port lift, while
+// full-layout wrappers retain the same exact current Newton action.
+void bind_exact_multigrid_action(KSP solver,Mat exact) {
+    PC pc=nullptr; EONSIM_PETSC(KSPGetPC(solver,&pc));
+    if(set_monolithic_fsi_mg_fine_operator(pc,exact)) return;
+    if(KSP bulk=deflated_fgmres_bulk_solver(pc)) bind_exact_multigrid_action(bulk,exact);
+    else if(KSP bulk=interface_patch_bulk_solver(pc)) bind_exact_multigrid_action(bulk,exact);
+    else if(KSP bulk=rcr_port_bulk_solver(pc)) {
+        if(requires_exact_multigrid_action(bulk)) (void)rcr_port_bulk_exact_operator(pc,exact);
+    }
+}
 bool same_solver_config(const SolverConfig& a,const SolverConfig& b)
 {
     if(a.pc_recipe!=b.pc_recipe||a.relative_tolerance!=b.relative_tolerance||
@@ -1416,7 +1490,9 @@ struct NonlinearSystem::Workspace {
             MPI_Allreduce(&bad,&any,1,MPI_INT,MPI_MAX,comm);
             if(any) throw std::runtime_error("Exact matrix-free operator requires fgmres or pipefgmres");
         }
-        PetscBool true_residual=recipe=="monolithic_mg"?PETSC_TRUE:PETSC_FALSE;
+        PetscInt deflation_capacity=0;
+        EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-nonlinear_krylov_deflation",&deflation_capacity,nullptr));
+        PetscBool true_residual=recipe=="monolithic_mg"||deflation_capacity>0?PETSC_TRUE:PETSC_FALSE;
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-nonlinear_true_residual",&true_residual,nullptr));
         PetscBool converge_at_limit=PETSC_FALSE,convergence_test_set=PETSC_FALSE;
         char convergence_test[32]{};
@@ -1426,9 +1502,9 @@ struct NonlinearSystem::Workspace {
         KSPType method=nullptr; KSPNormType norm_type;
         EONSIM_PETSC(KSPGetType(ksp,&method)); EONSIM_PETSC(KSPGetNormType(ksp,&norm_type));
         const int residual_policy[]={int(true_residual),int(!true_residual),
-            true_residual&&(!method||(std::strcmp(method,KSPFGMRES)!=0&&std::strcmp(method,KSPPIPEFGMRES)!=0)||
+            (deflation_capacity>0&&!true_residual)||(true_residual&&(!method||(std::strcmp(method,KSPFGMRES)!=0&&std::strcmp(method,KSPPIPEFGMRES)!=0)||
                             norm_type!=KSP_NORM_UNPRECONDITIONED||converge_at_limit||
-                            (convergence_test_set&&std::strcmp(convergence_test,"default")!=0))};
+                            (convergence_test_set&&std::strcmp(convergence_test,"default")!=0)))};
         int global_residual_policy[3]{};
         MPI_Allreduce(residual_policy,global_residual_policy,3,MPI_INT,MPI_MAX,comm);
         if((global_residual_policy[0]&&global_residual_policy[1])||global_residual_policy[2])
@@ -1697,6 +1773,11 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         // only after all child submatrices have been configured.
         EONSIM_PETSC(KSPSetOperators(ksp,workspace.action_matrix.get(),j.get()));
         EONSIM_PETSC(PCSetUseAmat(pc,PETSC_FALSE));
+        bind_exact_multigrid_action(ksp,workspace.action_matrix.get());
+    }
+    if(workspace.linear_policy.deflation_capacity) {
+        configure_deflated_fgmres(ksp,workspace.linear_policy.deflation_capacity);
+        EONSIM_PETSC(KSPGetPC(ksp,&pc));
     }
     if(workspace.matrix_free||workspace.verify_true_residual) {
         // Recipe setup can call KSPSetFromOptions, so wrap only its final
@@ -1856,6 +1937,14 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     result.recycle_projections=workspace.linear_policy.projections;
     result.recycle_vectors=static_cast<PetscInt>(workspace.linear_policy.basis.size());
     result.recycle_seconds=workspace.linear_policy.seconds;
+    DeflatedFgmresStats deflated;
+    if(query_deflated_fgmres_stats(pc,deflated)) {
+        result.deflation_vectors=deflated.vectors;
+        result.deflation_projections=deflated.projections;
+        result.deflation_applications=deflated.projected_applications;
+        result.deflation_spectral_updates=deflated.spectral_updates;
+        result.deflation_operator_actions=deflated.operator_actions;
+    }
     // Always assemble once afresh after SNESSolve. Save the unprojected owned
     // and ghost reactions before replacing constraint rows for acceptance.
     // Both outputs now describe this same evaluation, without a second kernel
@@ -1929,6 +2018,11 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             << " recycle_projections=" << result.recycle_projections
             << " recycle_vectors=" << result.recycle_vectors
             << " recycle_seconds_rank0=" << result.recycle_seconds
+            << " deflation_vectors=" << result.deflation_vectors
+            << " deflation_projections=" << result.deflation_projections
+            << " deflation_applications=" << result.deflation_applications
+            << " deflation_spectral_updates=" << result.deflation_spectral_updates
+            << " deflation_operator_actions=" << result.deflation_operator_actions
             << " pc_refreshes=" << result.pc_refreshes << " pc_reuses=" << result.pc_reuses
             << " pc_rebuild_retries=" << result.pc_rebuild_retries
             << " pc_drift_refreshes=" << result.pc_drift_refreshes << " pc_age_refreshes=" << result.pc_age_refreshes

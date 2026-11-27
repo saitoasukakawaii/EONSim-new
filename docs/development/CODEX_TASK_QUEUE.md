@@ -1,5 +1,30 @@
 # EONSim Codex Task Queue
 
+## FSI-SADDLE-01 / implementation and bounded validation complete; convergence and scale OPEN / 2026-11-27
+
+基线 `main@036f865e`（#64），最终生产/驱动 `ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba`，交付
+[PR #65](https://github.com/saitoasukakawaii/EONSim-new/pull/65)。十三项方向已有实际实现和对应证据；
+执行顺序为源码/修复同步 → 核对 tree → Release 定向与真实 FSI 验证 → 原件归档 →
+四项必需检查及锁定 head squash 合并。最终检查/合并状态以该 PR 记录为准。
+
+最终源码新执行6项MG/smoother及12条Braess轨迹全通过；不同CTest有效集合17项、
+新增物理配置48条、网格18条全通过，按原执行源码分源复用，不重跑无关路径。
+初版失败、正确重建的审计误判、局部LU极小主元、Braess迭代耗尽及单因子修正均归档。
+原严格残量与 `2e-9` 保存场/历史门槛保持；[完整证据](../research/data/fsi-saddle-01-2026-11-27/README.md)。
+
+仍开放：预声明的703/2299/5367 DoF窗口平均迭代增长比≤1.3；当前colored=1.7857、
+all=1.7037，均未达标。all压力闭包饱和并增加建层/RSS成本；不能从迭代减少推断总耗时下降。
+百万自由度、多节点、扩展效率、普遍inf-sup界及完整harmonic-Ritz GCRO-DR均没有完成证据。
+后续应针对粗化效率和实际工作量推进，不放宽门槛、不用无限参数扫描或默认全量测试替代证据。
+
+[最终源码 CI 45931896224](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896224)
+实际新执行 **83/83 Release、54/54 Python**，没有复用数值记录。合并预览
+`75bb86a0c5e668d497d0e95eb5ed0be4df824550` 与 `ccf1bd7` 的完整 tree 均为
+`014a1de3199b7e476aec00aa63078a13adb60610`，dirty=false；
+[源码网站检查 45931896258](https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896258)
+通过。远端检查与本地分源轨迹分别计数；最终文档 head 的四项检查及合并以 PR #65 为准。
+
+
 ## FSI-SCALE-01 / implementation and bounded validation complete; convergence and scale OPEN / 2026-11-27
 
 北京时间记录，任务起始于 2026-11-26；基线 `main@88257a9`（#63），分支

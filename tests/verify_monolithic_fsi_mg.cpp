@@ -511,8 +511,142 @@ void verify_pressure_supremizers(MPI_Comm comm,bool scaled,bool native) {
     }
 }
 
+struct FineShell {
+    Mat actual=nullptr;
+    PetscInt calls=0;
+};
+PetscErrorCode fine_shell_mult(Mat shell,Vec x,Vec y) {
+    PetscFunctionBeginUser;
+    FineShell* context=nullptr;PetscCall(MatShellGetContext(shell,&context));
+    ++context->calls;PetscCall(MatMult(context->actual,x,y));
+    PetscFunctionReturn(PETSC_SUCCESS);
+}
+void verify_saddle_extensions(MPI_Comm comm,bool combined) {
+    const std::string prefix=combined?"mgcompatible_":"mgsaddle_",base="-"+prefix+"monolithic_mg_";
+    for(const auto& option:std::vector<std::pair<std::string,std::string>>{
+        {"aggregate_nodes","4"},{"aggregate_rows","128"},{"max_levels","6"},{"coarse_limit","8"},
+        {"max_coarse_ratio","1"},{"patch_maximum_size","128"},{"spectral_modes","4"},
+        {"spectral_tolerance","1"},{"fsi_candidates","true"},{"pressure_supremizers","true"},
+        {"saddle_point","true"},{"smoother",combined?"vanka_colored":"braess_sarazin"},
+        {"coarse_processes","0"},{"schur_iterations","3"},{"energy_steps","1"},
+        {"divergence_preserving",combined?"true":"false"},{"divergence_commuting",combined?"true":"false"},
+        {"distributed_aggregation",combined?"true":"false"},{"field_scaling",combined?"true":"false"},
+        {"reuse_hierarchy",combined?"true":"false"},{"matrix_free_fine",combined?"true":"false"},
+        {"communication_avoiding",combined?"true":"false"},{"cycle",combined?"k":"v"},
+        {"hierarchy_drift","0.5"},{"hierarchy_max_age","2"}})
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+option.first).c_str(),option.second.c_str()));
+    int ranks=0;MPI_Comm_size(comm,&ranks);
+    Problem problem(comm,!combined);
+    PcSchurUpdates updates;
+    FineShell context{problem.matrix.get(),0};
+    PetscOwner<Mat,MatDestroy> shell;
+    if(combined) {
+        EONSIM_PETSC(MatCreateShell(comm,problem.end-problem.begin,problem.end-problem.begin,
+            Problem::n,Problem::n,&context,shell.put()));
+        EONSIM_PETSC(MatShellSetOperation(shell.get(),MATOP_MULT,reinterpret_cast<void(*)(void)>(fine_shell_mult)));
+    }
+    PetscOwner<KSP,KSPDestroy> solver;EONSIM_PETSC(KSPCreate(comm,solver.put()));
+    EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),prefix.c_str()));
+    EONSIM_PETSC(KSPSetType(solver.get(),KSPFGMRES));EONSIM_PETSC(KSPGMRESSetRestart(solver.get(),96));
+    EONSIM_PETSC(KSPSetTolerances(solver.get(),1e-12,1e-14,PETSC_DEFAULT,400));
+    EONSIM_PETSC(KSPSetOperators(solver.get(),combined?shell.get():problem.matrix.get(),problem.matrix.get()));
+    configure_monolithic_fsi_mg(comm,solver.get(),problem.matrix.get(),problem.semantics,problem.coordinates,problem.trace,&updates);
+    PC pc=nullptr;EONSIM_PETSC(KSPGetPC(solver.get(),&pc));
+    if(combined) check(comm,set_monolithic_fsi_mg_fine_operator(pc,shell.get()),"Requested exact fine operator was not bound");
+    MonolithicFsiMgStats initial;query_monolithic_fsi_mg_stats(pc,initial);
+    check(comm,initial.saddle_point&&initial.levels>=2&&initial.coarse_processes==ranks,
+          "Typed saddle hierarchy or distributed coarse solve was not created");
+    PetscInt cross_rank=0,closure=0,pressure_modes=0,coarse_pair_modes=0;
+    for(std::size_t l=0;l<initial.transfers.size();++l) {
+        const auto& transfer=initial.transfers[l];
+        check(comm,transfer.pressure_rows>0&&transfer.coarse_pressure_rows>0&&transfer.reproduction_error<1e-9,
+              "Pressure type or physical span was lost on a coarse level");
+        pressure_modes+=transfer.pressure_supremizer_modes;
+        if(l>0) coarse_pair_modes+=transfer.pressure_supremizer_modes;
+        cross_rank+=transfer.distributed_aggregates;closure+=transfer.compatible_pressure_modes;
+        if(combined) check(comm,transfer.divergence_change<=1e-10&&transfer.divergence_commuting_defect<=1e-10&&
+            std::isfinite(transfer.divergence_update_norm),"Compatible interpolation failed independent divergence/commuting audit");
+    }
+    check(comm,pressure_modes>0,"Saddle hierarchy failed to construct pressure supremizer responses");
+    if(!combined) check(comm,initial.levels>=3&&coarse_pair_modes>0,
+        "Multilevel supremizer fixture did not exercise an actual intermediate-level pressure response");
+    if(combined&&ranks>1) check(comm,cross_rank>0,"Distributed option migrated rows without building a cut-spanning aggregate");
+    if(combined) check(comm,closure>0,"Commuting transfer did not add any missing pressure-image modes");
+    action(problem,solver.get(),0);
+    MonolithicFsiMgStats solved;query_monolithic_fsi_mg_stats(pc,solved);
+    if(combined) check(comm,solved.matrix_free_fine_actions>0&&context.calls>solved.matrix_free_fine_actions&&
+        (solved.levels<3||solved.batched_reduction_groups>0),
+        "Exact fine action or combined K-cycle reduction path did not actually execute");
+    else {
+        for(const auto& smooth:solved.smoothers) {
+            const PetscInt local[]={smooth.pressure_rows,smooth.primal_rows};PetscInt global[2]{};
+            MPI_Allreduce(local,global,2,MPIU_INT,MPI_SUM,comm);
+            check(comm,global[0]>0&&global[1]>0&&smooth.schur_applications>0,
+                  "Coupled pressure/structure Schur action was omitted on a multigrid level");
+        }
+    }
+    problem.fill(1);updates.refresh(problem.matrix.get());
+    action(problem,solver.get(),1);
+    MonolithicFsiMgStats refreshed;query_monolithic_fsi_mg_stats(pc,refreshed);
+    if(combined) check(comm,refreshed.hierarchy_rebuilds==initial.hierarchy_rebuilds&&
+        refreshed.hierarchy_reuses==1&&refreshed.unchanged_divergence_reuses==1&&
+        refreshed.symbolic_reuses>=refreshed.levels-1,
+        "Compatible mild numeric update rebuilt the coarse space or skipped fresh symbolic-product reuse");
+    if(combined) {
+        // A change to B, rather than F/C, invalidates the reduced pressure-image
+        // closure even at small row drift. It must rebuild, never keep a stale
+        // compatibility certificate or merely relax its numerical audit.
+        if(problem.begin<=5&&5<problem.end) EONSIM_PETSC(MatSetValue(problem.matrix.get(),5,4,-1.02,INSERT_VALUES));
+        EONSIM_PETSC(MatAssemblyBegin(problem.matrix.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatAssemblyEnd(problem.matrix.get(),MAT_FINAL_ASSEMBLY));
+        updates.refresh(problem.matrix.get());
+        MonolithicFsiMgStats changed_B;query_monolithic_fsi_mg_stats(pc,changed_B);
+        check(comm,changed_B.hierarchy_rebuilds==refreshed.hierarchy_rebuilds+1&&
+            changed_B.divergence_rebuilds==1&&changed_B.hierarchy_reuses==refreshed.hierarchy_reuses,
+            "Changed B reused a reduced compatible pressure space without rebuilding its closure");
+        for(const auto& level:changed_B.transfers)
+            check(comm,level.divergence_commuting_defect<=1e-10,"Rebuilt pressure closure lost the commuting relation");
+        action(problem,solver.get(),2);
+    }
+    EONSIM_PETSC(PetscPrintf(comm,
+        "saddle_extension combined=%d levels=%" PetscInt_FMT " supremizer_modes=%" PetscInt_FMT
+        " intermediate_supremizer_modes=%" PetscInt_FMT " cut_aggregates=%" PetscInt_FMT
+        " closure_modes=%" PetscInt_FMT " fine_actions=%" PetscInt_FMT " hierarchy_reuses=%" PetscInt_FMT "\n",
+        combined?1:0,initial.levels,pressure_modes,coarse_pair_modes,cross_rank,closure,
+        refreshed.matrix_free_fine_actions,refreshed.hierarchy_reuses));
+}
+void verify_adaptive_hierarchy(MPI_Comm comm) {
+    const std::string prefix="mgadapt_",base="-"+prefix+"monolithic_mg_";
+    for(const auto& option:std::vector<std::pair<std::string,std::string>>{
+        {"aggregate_nodes","4"},{"coarse_limit","8"},{"spectral_modes","1"},{"energy_steps","0"},
+        {"adaptive_hierarchy","true"},{"reuse_hierarchy","true"},{"adaptive_interval","1"},
+        {"adaptive_threshold","1e-30"},{"communication_avoiding","true"},{"maximum_complexity","8"}})
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,(base+option.first).c_str(),option.second.c_str()));
+    Problem problem(comm,true);PcSchurUpdates updates;
+    PetscOwner<KSP,KSPDestroy> solver;EONSIM_PETSC(KSPCreate(comm,solver.put()));
+    EONSIM_PETSC(KSPSetOptionsPrefix(solver.get(),prefix.c_str()));
+    EONSIM_PETSC(KSPSetOperators(solver.get(),problem.matrix.get(),problem.matrix.get()));
+    configure_monolithic_fsi_mg(comm,solver.get(),problem.matrix.get(),problem.semantics,problem.coordinates,problem.trace,&updates);
+    PC pc=nullptr;EONSIM_PETSC(KSPGetPC(solver.get(),&pc));
+    PetscOwner<Vec,VecDestroy> rhs,correction;
+    EONSIM_PETSC(MatCreateVecs(problem.matrix.get(),correction.put(),rhs.put()));EONSIM_PETSC(VecSet(rhs.get(),1.));
+    EONSIM_PETSC(PCApply(pc,rhs.get(),correction.get()));
+    MonolithicFsiMgStats probed;query_monolithic_fsi_mg_stats(pc,probed);
+    check(comm,probed.adaptive_probes==1&&probed.adaptive_residual_ratio>1e-30&&probed.batched_reduction_groups==1,
+          "Adaptive hierarchy did not measure the original level residual");
+    updates.refresh(problem.matrix.get());
+    MonolithicFsiMgStats rebuilt;query_monolithic_fsi_mg_stats(pc,rebuilt);
+    check(comm,rebuilt.hierarchy_rebuilds==probed.hierarchy_rebuilds+1&&rebuilt.adaptive_rebuilds==1&&
+        rebuilt.operator_complexity<=8.,"Poor measured contraction did not trigger a bounded hierarchy adaptation");
+}
+
 void run(MPI_Comm comm) {
     int size=0; MPI_Comm_size(comm,&size); check(comm,size==1||size==2||size==4,"Expected 1, 2 or 4 ranks");
+    PetscBool only=PETSC_FALSE;EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-mgverify_saddle_only",&only,nullptr));
+    verify_saddle_extensions(comm,false);
+    verify_saddle_extensions(comm,true);
+    verify_adaptive_hierarchy(comm);
+    if(only) return;
     verify(comm,"vanka",false,false,true);
     verify(comm,"vanka",true,true,true);
     verify(comm,"chebyshev",false,false,true);

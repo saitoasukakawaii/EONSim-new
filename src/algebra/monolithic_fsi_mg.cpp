@@ -1,6 +1,7 @@
 #include "eonsim/monolithic_fsi_mg.hpp"
 #include "eonsim/fsi_level_smoother.hpp"
 #include "eonsim/native_float_sparse.hpp"
+#include "eonsim/distributed_mg_layout.hpp"
 #include <petscblaslapack.h>
 #include <algorithm>
 #include <cmath>
@@ -34,7 +35,11 @@ struct Options {
     PetscInt spectral_refresh_period=0,coarse_patch_overlap=0;
     double spectral_tolerance=.1,max_coarse_ratio=1.;
     bool single_precision=false,report=false,field_scaling=false,fsi_candidates=false,native_fp32=false,w_cycle=false,k_cycle=false;
-    bool pressure_supremizers=false;
+    bool pressure_supremizers=false,saddle_point=false,divergence_preserving=false,divergence_commuting=false;
+    bool distributed_aggregation=false,adaptive_hierarchy=false,reuse_hierarchy=false;
+    bool matrix_free_fine=false,communication_avoiding=false;
+    PetscInt hierarchy_max_age=8,adaptive_interval=16;
+    double hierarchy_drift=.2,adaptive_threshold=.9,maximum_complexity=8.;
     FsiLevelSmootherOptions smoother;
 };
 Options options(MPI_Comm comm,const std::string& prefix) {
@@ -48,7 +53,9 @@ Options options(MPI_Comm comm,const std::string& prefix) {
         {"spectral_refresh_period",&o.spectral_refresh_period},
         {"coarse_patch_overlap",&o.coarse_patch_overlap},
         {"patch_maximum_size",&o.smoother.patches.maximum_size},
-        {"polynomial_degree",&o.smoother.polynomial_degree}})
+        {"polynomial_degree",&o.smoother.polynomial_degree},
+        {"schur_iterations",&o.smoother.schur_iterations},{"hierarchy_max_age",&o.hierarchy_max_age},
+        {"adaptive_interval",&o.adaptive_interval}})
         EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,(base+entry.first).c_str(),entry.second,nullptr));
     EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"spectral_tolerance").c_str(),&o.spectral_tolerance,nullptr));
     EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+"eigenvalue_ratio").c_str(),&o.smoother.eigenvalue_ratio,nullptr));
@@ -66,6 +73,23 @@ Options options(MPI_Comm comm,const std::string& prefix) {
     o.single_precision=single||native; o.report=report; o.smoother.patches.single_precision=o.single_precision;
     o.field_scaling=scaling;o.fsi_candidates=candidates;o.native_fp32=native;
     o.pressure_supremizers=supremizers;
+    for(const auto& entry:std::vector<std::pair<const char*,bool*>>{
+        {"saddle_point",&o.saddle_point},{"divergence_preserving",&o.divergence_preserving},
+        {"divergence_commuting",&o.divergence_commuting},
+        {"distributed_aggregation",&o.distributed_aggregation},{"adaptive_hierarchy",&o.adaptive_hierarchy},
+        {"reuse_hierarchy",&o.reuse_hierarchy},{"matrix_free_fine",&o.matrix_free_fine},
+        {"communication_avoiding",&o.communication_avoiding}}) {
+        PetscBool value=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,(base+entry.first).c_str(),&value,nullptr));
+        *entry.second=value;
+    }
+    for(const auto& entry:std::vector<std::pair<const char*,double*>>{
+        {"braess_alpha",&o.smoother.braess_alpha},{"hierarchy_drift",&o.hierarchy_drift},
+        {"adaptive_threshold",&o.adaptive_threshold},{"maximum_complexity",&o.maximum_complexity}})
+        EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,(base+entry.first).c_str(),entry.second,nullptr));
+    PetscBool coarse_explicit=PETSC_FALSE;
+    EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,(base+"coarse_processes").c_str(),&coarse_explicit));
+    if(!coarse_explicit&&(o.saddle_point||o.distributed_aggregation)) o.coarse_processes=0;
     // An enriched local basis has a finite rank floor. Stop before another
     // level costs almost as much as its parent without reducing the problem.
     if(o.fsi_candidates) o.max_coarse_ratio=.8;
@@ -81,10 +105,15 @@ Options options(MPI_Comm comm,const std::string& prefix) {
     const PetscInt values[]={o.aggregate_nodes,o.aggregate_rows,o.max_levels,o.coarse_limit,o.energy_steps,
         o.spectral_modes,o.pre_smooth,o.post_smooth,o.coarse_processes,o.single_precision?1:0,
         o.smoother.patches.overlap,o.smoother.patches.maximum_size,o.smoother.polynomial_degree,
-        o.smoother.kind=="vanka"?1:o.smoother.kind=="chebyshev"?2:o.smoother.kind=="block_chebyshev"?3:0,
+        o.smoother.kind=="vanka"?1:o.smoother.kind=="chebyshev"?2:o.smoother.kind=="block_chebyshev"?3:o.smoother.kind=="braess_sarazin"?4:
+        o.smoother.kind=="vanka_multiplicative"?5:o.smoother.kind=="vanka_colored"?6:0,
         o.spectral_refresh_period,o.report?1:0,o.coarse_patch_overlap,o.field_scaling?1:0,
         o.fsi_candidates?1:0,o.native_fp32?1:0,o.smoother.patches.adaptive?1:0,
-        o.k_cycle?3:o.w_cycle?2:std::strcmp(cycle,"v")==0?1:0,o.pressure_supremizers?1:0};
+        o.k_cycle?3:o.w_cycle?2:std::strcmp(cycle,"v")==0?1:0,o.pressure_supremizers?1:0,
+        o.saddle_point?1:0,o.divergence_preserving?1:0,o.distributed_aggregation?1:0,
+        o.adaptive_hierarchy?1:0,o.reuse_hierarchy?1:0,o.matrix_free_fine?1:0,
+        o.communication_avoiding?1:0,o.hierarchy_max_age,o.adaptive_interval,o.smoother.schur_iterations,
+        o.divergence_commuting?1:0};
     constexpr int option_count=static_cast<int>(sizeof(values)/sizeof(values[0]));
     PetscInt minimum[option_count]{},maximum[option_count]{};
     MPI_Allreduce(values,minimum,option_count,MPIU_INT,MPI_MIN,comm);
@@ -93,19 +122,30 @@ Options options(MPI_Comm comm,const std::string& prefix) {
     valid=valid&&o.aggregate_nodes>=2&&o.aggregate_nodes<=128&&o.aggregate_rows>=8&&o.aggregate_rows<=512&&
         o.max_levels>=1&&o.max_levels<=20&&o.coarse_limit>=1&&o.energy_steps>=0&&o.energy_steps<=3&&
         o.spectral_modes>=0&&o.spectral_modes<=8&&o.pre_smooth>=0&&o.post_smooth>=0&&
-        o.pre_smooth+o.post_smooth>0&&o.pre_smooth<=8&&o.post_smooth<=8&&o.coarse_processes>=1&&values[13]!=0&&
+        o.pre_smooth+o.post_smooth>0&&o.pre_smooth<=8&&o.post_smooth<=8&&o.coarse_processes>=0&&values[13]!=0&&
         o.spectral_refresh_period>=0&&o.spectral_refresh_period<=1000000&&
         o.coarse_patch_overlap>=0&&o.coarse_patch_overlap<=2&&values[21]!=0&&
         (!o.pressure_supremizers||(o.fsi_candidates&&o.spectral_modes>0))&&
-        (!o.native_fp32||o.smoother.kind=="vanka")&&(!o.smoother.patches.adaptive||o.smoother.kind=="vanka");
-    const double real[]={o.spectral_tolerance,o.smoother.eigenvalue_ratio,o.smoother.patches.damping,o.max_coarse_ratio};
-    double min_real[4]{},max_real[4]{};
-    MPI_Allreduce(real,min_real,4,MPI_DOUBLE,MPI_MIN,comm);
-    MPI_Allreduce(real,max_real,4,MPI_DOUBLE,MPI_MAX,comm);
-    for(int i=0;i<4;++i) valid=valid&&std::isfinite(real[i])&&min_real[i]==max_real[i];
+        (!o.native_fp32||o.smoother.kind.find("vanka")==0)&&
+        (!o.smoother.patches.adaptive||o.smoother.kind.find("vanka")==0)&&
+        (!o.divergence_preserving||(o.saddle_point&&!o.single_precision))&&
+        (!o.divergence_commuting||o.divergence_preserving)&&
+        (!o.reuse_hierarchy||(!o.native_fp32&&!o.smoother.patches.adaptive))&&
+        (o.smoother.kind!="braess_sarazin"||o.saddle_point)&&
+        o.hierarchy_max_age>=1&&o.hierarchy_max_age<=1000000&&
+        o.adaptive_interval>=1&&o.adaptive_interval<=1000000&&
+        o.smoother.schur_iterations>=1&&o.smoother.schur_iterations<=32;
+    const double real[]={o.spectral_tolerance,o.smoother.eigenvalue_ratio,o.smoother.patches.damping,o.max_coarse_ratio,
+        o.smoother.braess_alpha,o.hierarchy_drift,o.adaptive_threshold,o.maximum_complexity};
+    double min_real[8]{},max_real[8]{};
+    MPI_Allreduce(real,min_real,8,MPI_DOUBLE,MPI_MIN,comm);
+    MPI_Allreduce(real,max_real,8,MPI_DOUBLE,MPI_MAX,comm);
+    for(int i=0;i<8;++i) valid=valid&&std::isfinite(real[i])&&min_real[i]==max_real[i];
     valid=valid&&o.spectral_tolerance>=0&&o.spectral_tolerance<=1&&
         o.smoother.eigenvalue_ratio>0&&o.smoother.eigenvalue_ratio<1&&
-        o.max_coarse_ratio>0&&o.max_coarse_ratio<=1;
+        o.max_coarse_ratio>0&&o.max_coarse_ratio<=1&&o.smoother.braess_alpha>0&&
+        o.hierarchy_drift>0&&o.hierarchy_drift<=1&&o.adaptive_threshold>0&&
+        o.maximum_complexity>=1.;
     check(comm,valid,"inconsistent or out-of-range hierarchy options");
     return o;
 }
@@ -114,7 +154,11 @@ struct LevelData {
     std::vector<std::vector<PetscInt>> blocks;
     std::vector<DofKey> semantics;
     std::vector<unsigned char> trace,active;
+    std::vector<int> origin_rank;
 };
+bool is_pressure(const DofKey& key) {
+    return key.quantity==DofQuantity::pressure&&key.kind!=DofEntity::boundary;
+}
 struct PressurePair {
     // Initially aggregate-basis indices; made global coarse indices below.
     std::vector<PetscInt> pressure_columns,velocity_columns;
@@ -129,6 +173,9 @@ struct Transfer {
     std::vector<unsigned char> fixed_columns;
     std::vector<PressurePair> pressure_pairs;
     MonolithicFsiMgLevelStats stats;
+    bool energy_completed=false;
+    std::vector<std::pair<PetscInt,PetscInt>> aggregate_columns;
+    std::vector<std::vector<PetscInt>> aggregate_rows;
 };
 long double dot(const std::vector<double>& x,const std::vector<double>& y) {
     long double result=0;
@@ -289,6 +336,28 @@ PetscInt spectral_enrichment(Mat matrix,PetscInt begin,const std::vector<PetscIn
     return added;
 }
 
+// Typed enrichment never introduces pressure values in a primal column.
+// The full coupled Galerkin operator still includes both offdiagonal blocks.
+PetscInt saddle_spectral_enrichment(Mat matrix,PetscInt begin,const std::vector<PetscInt>& rows,
+    const LevelData& fine,PetscInt maximum,double threshold,std::vector<std::vector<double>>& basis) {
+    std::vector<PetscInt> primal,positions;
+    for(std::size_t i=0;i<rows.size();++i) if(!is_pressure(fine.semantics[rows[i]])) {
+        primal.push_back(rows[i]);positions.push_back(static_cast<PetscInt>(i));
+    }
+    std::vector<std::vector<double>> restricted;
+    for(const auto& q:basis) {
+        std::vector<double> v;for(auto i:positions) v.push_back(q[i]);append_basis(std::move(v),restricted);
+    }
+    const auto previous=restricted.size();
+    spectral_enrichment(matrix,begin,primal,maximum,threshold,restricted);
+    for(std::size_t k=previous;k<restricted.size();++k) {
+        std::vector<double> q(rows.size(),0.);
+        for(std::size_t j=0;j<positions.size();++j) q[positions[j]]=restricted[k][j];
+        basis.push_back(std::move(q));
+    }
+    return static_cast<PetscInt>(restricted.size()-previous);
+}
+
 double paired_minimum_singular(const std::vector<double>& matrix,std::size_t n) {
     if(n==1) return std::abs(matrix[0]);
     if(n!=2) return 0.;
@@ -302,16 +371,16 @@ double paired_minimum_singular(const std::vector<double>& matrix,std::size_t n) 
 
 PressurePair pressure_enrichment(Mat matrix,PetscInt begin,const std::vector<PetscInt>& rows,
     const LevelData& fine,const std::vector<double>& test_weights,PetscInt maximum,
-    std::vector<std::vector<double>>& basis) {
+    std::vector<std::vector<double>>& basis,bool saddle_point=false) {
     PressurePair pair;
     if(maximum==0||basis.size()+1>=rows.size()) return pair;
     std::vector<PetscInt> pressure,velocity,pressure_position(rows.size(),-1);
     std::map<PetscInt,PetscInt> velocity_position;
     for(std::size_t i=0;i<rows.size();++i) {
         const auto& key=fine.semantics[rows[i]];
-        if(key.domain==DofDomain::fluid&&key.quantity==DofQuantity::pressure) {
+        if(saddle_point?is_pressure(key):(key.domain==DofDomain::fluid&&key.quantity==DofQuantity::pressure)) {
             pressure_position[i]=static_cast<PetscInt>(pressure.size());pressure.push_back(static_cast<PetscInt>(i));
-        } else if(key.domain==DofDomain::fluid&&key.quantity==DofQuantity::velocity) {
+        } else if((saddle_point&&!is_pressure(key))||(key.domain==DofDomain::fluid&&key.quantity==DofQuantity::velocity)) {
             velocity_position.emplace(begin+rows[i],static_cast<PetscInt>(velocity.size()));
             velocity.push_back(static_cast<PetscInt>(i));
         }
@@ -450,6 +519,43 @@ PressurePair pressure_enrichment(Mat matrix,PetscInt begin,const std::vector<Pet
     return PressurePair{};
 }
 
+// Close each local pressure space under the actual divergence image. Reading
+// every nonzero primal column includes off-rank support. This is a conservative
+// compatible closure: it can saturate local pressure rank, retaining more
+// pressure DoFs than an approximate AMG transfer. No small coupling is dropped.
+PetscInt close_pressure_image(Mat divergence,PetscInt begin,const std::vector<PetscInt>& rows,
+    const LevelData& fine,std::vector<std::vector<double>>& basis,bool& saturated) {
+    std::vector<PetscInt> pressure;
+    for(std::size_t i=0;i<rows.size();++i) if(is_pressure(fine.semantics[rows[i]])) pressure.push_back(static_cast<PetscInt>(i));
+    if(pressure.empty()) return 0;
+    std::vector<std::vector<double>> pressure_basis;
+    for(const auto& q:basis) {
+        std::vector<double> p;for(auto i:pressure) p.push_back(q[i]);append_basis(std::move(p),pressure_basis);
+    }
+    std::map<PetscInt,std::vector<double>> images;
+    for(std::size_t i=0;i<pressure.size();++i) {
+        PetscInt count=0;const PetscInt* columns=nullptr;const PetscScalar* values=nullptr;
+        EONSIM_PETSC(MatGetRow(divergence,begin+rows[pressure[i]],&count,&columns,&values));
+        for(PetscInt j=0;j<count;++j) if(values[j]!=0.) {
+            auto& image=images[columns[j]];if(image.empty()) image.assign(pressure.size(),0.);image[i]=values[j];
+        }
+        EONSIM_PETSC(MatRestoreRow(divergence,begin+rows[pressure[i]],&count,&columns,&values));
+    }
+    const auto initial=pressure_basis.size();
+    for(auto& item:images) {
+        double magnitude=0.;for(auto x:item.second) magnitude=std::max(magnitude,std::abs(x));
+        if(magnitude>0) {for(auto& x:item.second) x/=magnitude;append_basis(std::move(item.second),pressure_basis);}
+        if(pressure_basis.size()==pressure.size()) break;
+    }
+    for(std::size_t k=initial;k<pressure_basis.size();++k) {
+        std::vector<double> full(rows.size(),0.);
+        for(std::size_t i=0;i<pressure.size();++i) full[pressure[i]]=pressure_basis[k][i];
+        basis.push_back(std::move(full));
+    }
+    saturated=pressure_basis.size()==pressure.size();
+    return static_cast<PetscInt>(pressure_basis.size()-initial);
+}
+
 struct Column { std::vector<PetscInt> rows; std::vector<double> values; };
 Candidate candidate_scales(MPI_Comm comm,const LevelData& data) {
     Candidate local{},global{};
@@ -459,7 +565,9 @@ Candidate candidate_scales(MPI_Comm comm,const LevelData& data) {
     for(auto& value:global) if(value==0) value=1.;
     return global;
 }
-Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const Options& o,Vec physical_test_weights) {
+void minimize_divergence_preserving_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Transfer& transfer,
+    PetscInt steps,Vec physical_test_weights);
+Transfer local_tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const Options& o,Vec physical_test_weights) {
     PetscInt begin=0,end=0,global=0;
     EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
     EONSIM_PETSC(MatGetSize(matrix,&global,nullptr));
@@ -470,6 +578,21 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
         const PetscScalar* weights=nullptr;EONSIM_PETSC(VecGetArrayRead(physical_test_weights,&weights));
         for(PetscInt i=0;i<end-begin;++i) test_weights[i]=weights[i];
         EONSIM_PETSC(VecRestoreArrayRead(physical_test_weights,&weights));
+    }
+    PetscOwner<Mat,MatDestroy> compatible_divergence;
+    if(o.divergence_commuting) {
+        PetscOwner<Vec,VecDestroy> pressure_mask,primal_mask;
+        EONSIM_PETSC(MatCreateVecs(matrix,primal_mask.put(),pressure_mask.put()));
+        PetscScalar *p=nullptr,*u=nullptr;
+        EONSIM_PETSC(VecGetArray(pressure_mask.get(),&p));EONSIM_PETSC(VecGetArray(primal_mask.get(),&u));
+        for(PetscInt i=0;i<end-begin;++i) {
+            p[i]=fine.active[i]&&is_pressure(fine.semantics[i])?1.:0.;
+            u[i]=fine.active[i]&&!is_pressure(fine.semantics[i])?1.:0.;
+        }
+        EONSIM_PETSC(VecRestoreArray(primal_mask.get(),&u));EONSIM_PETSC(VecRestoreArray(pressure_mask.get(),&p));
+        if(physical_test_weights) EONSIM_PETSC(VecPointwiseMult(pressure_mask.get(),physical_test_weights,pressure_mask.get()));
+        EONSIM_PETSC(MatDuplicate(matrix,MAT_COPY_VALUES,compatible_divergence.put()));
+        EONSIM_PETSC(MatDiagonalScale(compatible_divergence.get(),pressure_mask.get(),primal_mask.get()));
     }
     std::vector<PetscInt> row_block(end-begin,-1);
     for(PetscInt block=0;block<static_cast<PetscInt>(fine.blocks.size());++block)
@@ -487,18 +610,33 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
         }
         EONSIM_PETSC(MatRestoreRow(matrix,begin+row,&count,&columns,&values));
     }
-    for(auto& adjacent:neighbors) {
+    for(std::size_t block=0;block<neighbors.size();++block) {
+        auto& adjacent=neighbors[block];
         std::sort(adjacent.begin(),adjacent.end());
         adjacent.erase(std::unique(adjacent.begin(),adjacent.end()),adjacent.end());
+        if(!fine.origin_rank.empty()) std::stable_sort(adjacent.begin(),adjacent.end(),[&](PetscInt a,PetscInt b){
+            const int origin=fine.origin_rank[fine.blocks[block].front()];
+            const bool remote_a=fine.origin_rank[fine.blocks[a].front()]!=origin;
+            const bool remote_b=fine.origin_rank[fine.blocks[b].front()]!=origin;
+            return remote_a&&!remote_b;
+        });
     }
     Transfer result; result.stats.rows=global; result.anchors.resize(end-begin,0);
     std::vector<unsigned char> assigned(fine.blocks.size(),0);
     std::vector<Column> columns;
     std::vector<std::pair<PetscInt,PetscInt>> coarse_blocks;
     long double local_error=0,local_norm=0;
-    PetscInt spectral=0,supremizers=0; bool valid=true; std::string local_error_message;
+    PetscInt spectral=0,supremizers=0,cross_rank=0,closure=0,saturated_pressure=0; bool valid=true; std::string local_error_message;
+    std::vector<PetscInt> seed_order(fine.blocks.size());
+    std::iota(seed_order.begin(),seed_order.end(),0);
+    if(!fine.origin_rank.empty()) {
+        std::vector<unsigned char> cut(fine.blocks.size(),0);
+        for(std::size_t block=0;block<fine.blocks.size();++block) for(auto neighbor:neighbors[block])
+            cut[block]=cut[block]||(fine.origin_rank[fine.blocks[block].front()]!=fine.origin_rank[fine.blocks[neighbor].front()]);
+        std::stable_sort(seed_order.begin(),seed_order.end(),[&](PetscInt a,PetscInt b){return cut[a]>cut[b];});
+    }
     try {
-        for(PetscInt seed=0;seed<static_cast<PetscInt>(fine.blocks.size());++seed) if(!assigned[seed]) {
+        for(auto seed:seed_order) if(!assigned[seed]) {
             std::vector<PetscInt> aggregate{seed}; assigned[seed]=1;
             std::size_t row_count=fine.blocks[seed].size();
             const bool protected_scalar=fine.semantics[fine.blocks[seed].front()].kind!=DofEntity::vertex;
@@ -519,15 +657,28 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
             for(std::size_t component=0;component<candidate_count;++component) {
                 std::vector<double> candidate(rows.size());
                 for(std::size_t i=0;i<rows.size();++i) candidate[i]=fine.candidates[rows[i]][component]/mode_scale[component];
-                append_basis(std::move(candidate),basis);
+                if(o.saddle_point) {
+                    for(int field=0;field<2;++field) {
+                        auto separated=candidate;
+                        for(std::size_t i=0;i<rows.size();++i)
+                            if(is_pressure(fine.semantics[rows[i]])!=(field==1)) separated[i]=0.;
+                        append_basis(std::move(separated),basis);
+                    }
+                } else append_basis(std::move(candidate),basis);
+            }
+            if(o.divergence_commuting) {
+                bool saturated=false;
+                closure+=close_pressure_image(compatible_divergence.get(),begin,rows,fine,basis,saturated);
+                if(saturated) ++saturated_pressure;
             }
             auto pair=o.pressure_supremizers?
-                pressure_enrichment(matrix,begin,rows,fine,test_weights,o.spectral_modes,basis):PressurePair{};
+                pressure_enrichment(matrix,begin,rows,fine,test_weights,o.spectral_modes,basis,o.saddle_point):PressurePair{};
             const auto paired_modes=static_cast<PetscInt>(pair.velocity_columns.size());
             supremizers+=paired_modes;
-            spectral+=spectral_enrichment(matrix,begin,rows,o.spectral_modes-paired_modes,o.spectral_tolerance,basis);
-            std::vector<unsigned char> fixed;
-            if(o.pressure_supremizers) fixed.assign(basis.size(),0);
+            spectral+=o.saddle_point?
+                saddle_spectral_enrichment(matrix,begin,rows,fine,o.spectral_modes-paired_modes,o.spectral_tolerance,basis):
+                spectral_enrichment(matrix,begin,rows,o.spectral_modes-paired_modes,o.spectral_tolerance,basis);
+            std::vector<unsigned char> fixed(basis.size(),0);
             if(paired_modes) {
                 for(const auto column:pair.pressure_columns) fixed[column]=1;
                 for(const auto column:pair.velocity_columns) fixed[column]=1;
@@ -570,7 +721,14 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
                     column.rows.push_back(rows[i]); column.values.push_back(basis_column[i]);
                 }
                 columns.push_back(std::move(column)); result.coarse.candidates.push_back(propagated);
-                if(o.pressure_supremizers) result.fixed_columns.push_back(fixed[basis_index]);
+                bool pressure_column=false,primal_column=false;
+                if(o.saddle_point) for(std::size_t i=0;i<rows.size();++i) if(basis_column[i]!=0.) {
+                    pressure_column=pressure_column||is_pressure(fine.semantics[rows[i]]);
+                    primal_column=primal_column||!is_pressure(fine.semantics[rows[i]]);
+                }
+                if(o.saddle_point&&pressure_column&&primal_column)
+                    throw std::runtime_error("Saddle-point interpolation mixed primal and pressure entries");
+                result.fixed_columns.push_back(fixed[basis_index]|(pressure_column?2:0));
                 result.coarse.trace.push_back(trace); result.coarse.active.push_back(1);
             }
             if(paired_modes) {
@@ -579,7 +737,15 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
                 result.pressure_pairs.push_back(std::move(pair));
             }
             const auto last=static_cast<PetscInt>(columns.size());
-            if(last>first) coarse_blocks.emplace_back(first,last);
+            if(last>first) {
+                coarse_blocks.emplace_back(first,last);
+                result.aggregate_columns.emplace_back(first,last);
+                result.aggregate_rows.push_back(rows);
+                if(!fine.origin_rank.empty()) {
+                    const auto origin=fine.origin_rank[rows.front()];
+                    if(std::any_of(rows.begin(),rows.end(),[&](PetscInt row){return fine.origin_rank[row]!=origin;})) ++cross_rank;
+                }
+            }
             for(std::size_t i=0;i<rows.size();++i) for(std::size_t component=0;component<candidate_count;++component) {
                 long double reconstructed=0;
                 for(std::size_t k=0;k<basis.size();++k)
@@ -596,6 +762,14 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
     MPI_Exscan(&local,&coarse_begin,1,MPIU_INT,MPI_SUM,comm);
     MPI_Allreduce(&local,&result.stats.coarse_rows,1,MPIU_INT,MPI_SUM,comm);
     MPI_Allreduce(&spectral,&result.stats.spectral_modes,1,MPIU_INT,MPI_SUM,comm);
+    MPI_Allreduce(&cross_rank,&result.stats.distributed_aggregates,1,MPIU_INT,MPI_SUM,comm);
+    MPI_Allreduce(&closure,&result.stats.compatible_pressure_modes,1,MPIU_INT,MPI_SUM,comm);
+    MPI_Allreduce(&saturated_pressure,&result.stats.saturated_pressure_aggregates,1,MPIU_INT,MPI_SUM,comm);
+    PetscInt pressure_count=0,coarse_pressure_count=0;
+    for(std::size_t i=0;i<fine.semantics.size();++i) if(fine.active[i]&&is_pressure(fine.semantics[i])) ++pressure_count;
+    for(const auto tag:result.fixed_columns) if(tag&2) ++coarse_pressure_count;
+    MPI_Allreduce(&pressure_count,&result.stats.pressure_rows,1,MPIU_INT,MPI_SUM,comm);
+    MPI_Allreduce(&coarse_pressure_count,&result.stats.coarse_pressure_rows,1,MPIU_INT,MPI_SUM,comm);
     if(o.pressure_supremizers) {
         MPI_Allreduce(&supremizers,&result.stats.pressure_supremizer_modes,1,MPIU_INT,MPI_SUM,comm);
         const auto paired_aggregates=static_cast<PetscInt>(result.pressure_pairs.size());
@@ -629,10 +803,17 @@ Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const
         for(PetscInt i=block.first;i<block.second;++i) {
             DofKey key; key.entity=coarse_begin+block.first; key.domain=DofDomain::scalar;
             key.quantity=DofQuantity::scalar_value; key.kind=DofEntity::vertex;
+            if(o.saddle_point&&(result.fixed_columns[i]&2)) {key.domain=DofDomain::fluid;key.quantity=DofQuantity::pressure;}
             key.component=static_cast<std::uint16_t>(i-block.first); key.space=0;
             result.coarse.semantics[i]=key; indices.push_back(i);
         }
         result.coarse.blocks.push_back(std::move(indices));
+    }
+    if(o.divergence_preserving) {
+        minimize_divergence_preserving_energy(comm,matrix,fine,result,o.energy_steps,physical_test_weights);
+        result.energy_completed=true;
+        if(o.divergence_commuting) check(comm,std::isfinite(result.stats.divergence_commuting_defect)&&
+            result.stats.divergence_commuting_defect<=1e-10,"compatible pressure closure failed the commuting relation");
     }
     return result;
 }
@@ -669,7 +850,7 @@ std::vector<Candidate> gather_candidates(Mat transfer,const LevelData& coarse,
         EONSIM_PETSC(VecScatterEnd(scatter.get(),global.get(),local.get(),INSERT_VALUES,SCATTER_FORWARD));
         const PetscScalar* gathered=nullptr;EONSIM_PETSC(VecGetArrayRead(local.get(),&gathered));
         fixed_halo->resize(columns.size());
-        for(std::size_t i=0;i<columns.size();++i) (*fixed_halo)[i]=gathered[i]!=0.;
+        for(std::size_t i=0;i<columns.size();++i) (*fixed_halo)[i]=static_cast<unsigned char>(gathered[i]);
         EONSIM_PETSC(VecRestoreArrayRead(local.get(),&gathered));
     }
     return values;
@@ -710,7 +891,7 @@ PetscOwner<Mat,MatDestroy> row_scaled_operator(MPI_Comm comm,Mat matrix) {
     EONSIM_PETSC(MatDiagonalScale(scaled.get(),inverse.get(),nullptr)); return scaled;
 }
 
-void minimize_transfer_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Transfer& transfer,PetscInt steps) {
+void minimize_transfer_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Transfer& transfer,PetscInt steps,bool saddle_point=false) {
     const auto mode_scale=candidate_scales(comm,transfer.coarse);
     auto scaled=row_scaled_operator(comm,matrix);
     PetscOwner<Mat,MatDestroy> action;
@@ -738,19 +919,25 @@ void minimize_transfer_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Tra
         }
         const std::vector<PetscInt> columns(union_columns.begin(),union_columns.end());
         std::vector<unsigned char> fixed_halo;
-        const bool paired=transfer.stats.pressure_supremizer_modes>0;
+        const bool paired=transfer.stats.pressure_supremizer_modes>0||saddle_point;
         const auto halo=gather_candidates(transfer.matrix.get(),transfer.coarse,columns,transfer.fixed_columns,
                                          paired?&fixed_halo:nullptr);
         std::map<PetscInt,std::size_t> positions;
         for(std::size_t i=0;i<columns.size();++i) positions.emplace(columns[i],i);
         bool valid=true;
-        for(auto& row:rows) {
+        for(PetscInt local=0;local<end-begin;++local) {
+            auto& row=rows[local];
             // Fixed whole columns preserve the selected actual discrete
             // pressure/velocity pairing. Include remote columns in the halo:
             // energy stencils cross ownership even though aggregates do not.
-            if(paired) for(auto entry=row.begin();entry!=row.end();)
-                if(fixed_halo[positions.at(entry->first)]) entry=row.erase(entry);
-                else ++entry;
+            if(paired) {
+                for(auto entry=row.begin();entry!=row.end();) {
+                    if((fixed_halo[positions.at(entry->first)]&1)||
+                       (saddle_point&&bool(fixed_halo[positions.at(entry->first)]&2)!=is_pressure(fine.semantics[local])))
+                        entry=row.erase(entry);
+                    else ++entry;
+                }
+            }
             std::vector<std::vector<double>> constraints;
             for(std::size_t component=0;component<candidate_count;++component) {
                 std::vector<double> column; column.reserve(row.size());
@@ -844,6 +1031,216 @@ void minimize_transfer_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Tra
     EONSIM_PETSC(VecRestoreArrayRead(coarse.get(),&traces));
 }
 
+// Constrain the *change* of every primal transfer column to ker(B). B contains
+// all active pressure equations and all active nonpressure columns, including
+// structural/ALE couplings. Transposing B exposes every pressure equation
+// incident to an aggregate, including equations owned by another MPI rank.
+// Pressure interpolation is fixed. Thus B P_v and the coarse pressure/primal
+// pairing survive energy minimization. A commuting diagram additionally needs
+// the separate compatible pressure-image closure and its caller's audit gate.
+void minimize_divergence_preserving_energy(MPI_Comm comm,Mat matrix,const LevelData& fine,Transfer& transfer,
+    PetscInt steps,Vec physical_test_weights) {
+    PetscInt begin=0,end=0,n=0,nc=0,cbegin=0,cend=0;
+    EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
+    EONSIM_PETSC(MatGetSize(transfer.matrix.get(),&n,&nc));
+    EONSIM_PETSC(MatGetOwnershipRangeColumn(transfer.matrix.get(),&cbegin,&cend));
+    PetscOwner<Vec,VecDestroy> pressure,primal;
+    EONSIM_PETSC(MatCreateVecs(matrix,primal.put(),pressure.put()));
+    PetscScalar *pv=nullptr,*uv=nullptr;
+    EONSIM_PETSC(VecGetArray(pressure.get(),&pv));EONSIM_PETSC(VecGetArray(primal.get(),&uv));
+    for(PetscInt i=0;i<end-begin;++i) {
+        pv[i]=fine.active[i]&&is_pressure(fine.semantics[i])?1.:0.;
+        uv[i]=fine.active[i]&&!is_pressure(fine.semantics[i])?1.:0.;
+    }
+    EONSIM_PETSC(VecRestoreArray(primal.get(),&uv));EONSIM_PETSC(VecRestoreArray(pressure.get(),&pv));
+    if(physical_test_weights) EONSIM_PETSC(VecPointwiseMult(pressure.get(),physical_test_weights,pressure.get()));
+    PetscOwner<Mat,MatDestroy> divergence,transpose,initial,before;
+    EONSIM_PETSC(MatDuplicate(matrix,MAT_COPY_VALUES,divergence.put()));
+    EONSIM_PETSC(MatDiagonalScale(divergence.get(),pressure.get(),primal.get()));
+    EONSIM_PETSC(MatTranspose(divergence.get(),MAT_INITIAL_MATRIX,transpose.put()));
+    EONSIM_PETSC(MatDuplicate(transfer.matrix.get(),MAT_COPY_VALUES,initial.put()));
+    EONSIM_PETSC(MatMatMult(divergence.get(),initial.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,before.put()));
+    auto scaled=row_scaled_operator(comm,matrix);
+    PetscOwner<Mat,MatDestroy> action;
+    EONSIM_PETSC(MatMatMult(scaled.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,action.put()));
+    PetscReal norm=0.;EONSIM_PETSC(MatNorm(action.get(),NORM_FROBENIUS,&norm));
+    transfer.stats.energy_before=transfer.stats.energy_after=norm*norm;
+    struct ConstraintBlock {
+        std::vector<PetscInt> rows,columns;
+        std::vector<std::vector<double>> left,right;
+    };
+    std::vector<ConstraintBlock> blocks;
+    PetscInt constraints=0,nullity=0;
+    const auto scales=candidate_scales(comm,transfer.coarse);
+    bool valid=true;std::string error;
+    try {
+        for(std::size_t a=0;a<transfer.aggregate_rows.size();++a) {
+            ConstraintBlock block;
+            for(auto row:transfer.aggregate_rows[a])
+                if(!is_pressure(fine.semantics[row])&&!transfer.anchors[row]) block.rows.push_back(row);
+            for(PetscInt column=transfer.aggregate_columns[a].first;column<transfer.aggregate_columns[a].second;++column)
+                if((transfer.fixed_columns[column]&3)==0) block.columns.push_back(column);
+            if(block.rows.empty()||block.columns.empty()) continue;
+            std::map<PetscInt,std::vector<double>> incidence;
+            for(std::size_t i=0;i<block.rows.size();++i) {
+                PetscInt count=0;const PetscInt* columns=nullptr;const PetscScalar* values=nullptr;
+                EONSIM_PETSC(MatGetRow(transpose.get(),begin+block.rows[i],&count,&columns,&values));
+                for(PetscInt j=0;j<count;++j) if(values[j]!=0.) {
+                    auto& constraint=incidence[columns[j]];
+                    if(constraint.empty()) constraint.assign(block.rows.size(),0.);
+                    constraint[i]=values[j];
+                }
+                EONSIM_PETSC(MatRestoreRow(transpose.get(),begin+block.rows[i],&count,&columns,&values));
+            }
+            for(auto& entry:incidence) {
+                double magnitude=0.;for(auto x:entry.second) magnitude=std::max(magnitude,std::abs(x));
+                if(magnitude>0) {for(auto& x:entry.second) x/=magnitude;append_basis(std::move(entry.second),block.left);}
+            }
+            for(std::size_t k=0;k<candidate_count;++k) {
+                std::vector<double> constraint;
+                for(auto column:block.columns) constraint.push_back(transfer.coarse.candidates[column][k]/scales[k]);
+                append_basis(std::move(constraint),block.right);
+            }
+            constraints+=static_cast<PetscInt>(block.left.size());
+            nullity+=static_cast<PetscInt>(block.rows.size()-block.left.size());
+            blocks.push_back(std::move(block));
+        }
+    } catch(const std::exception& e) {valid=false;error=e.what();}
+    check(comm,valid,"divergence constraint QR failed: "+error);
+    MPI_Allreduce(&constraints,&transfer.stats.divergence_constraints,1,MPIU_INT,MPI_SUM,comm);
+    MPI_Allreduce(&nullity,&transfer.stats.divergence_nullity,1,MPIU_INT,MPI_SUM,comm);
+    for(PetscInt iteration=0;iteration<steps;++iteration) {
+        PetscOwner<Mat,MatDestroy> gradient,direction,direction_action;
+        EONSIM_PETSC(MatTransposeMatMult(scaled.get(),action.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,gradient.put()));
+        std::vector<PetscInt> nnz(end-begin,0);
+        for(const auto& block:blocks) for(auto row:block.rows) nnz[row]=static_cast<PetscInt>(block.columns.size());
+        EONSIM_PETSC(MatCreateAIJ(comm,end-begin,cend-cbegin,n,nc,0,nnz.data(),0,nullptr,direction.put()));
+        for(const auto& block:blocks) {
+            const auto nr=block.rows.size(),nk=block.columns.size();
+            if(block.left.size()>=nr||block.right.size()>=nk) continue;
+            std::vector<double> dense(nr*nk,0.);
+            for(std::size_t i=0;i<nr;++i) {
+                PetscInt count=0;const PetscInt* columns=nullptr;const PetscScalar* values=nullptr;
+                EONSIM_PETSC(MatGetRow(gradient.get(),begin+block.rows[i],&count,&columns,&values));
+                for(std::size_t j=0;j<nk&&count>0;++j) {
+                    const auto found=std::lower_bound(columns,columns+count,cbegin+block.columns[j]);
+                    if(found!=columns+count&&*found==cbegin+block.columns[j]) dense[i*nk+j]=-values[found-columns];
+                }
+                EONSIM_PETSC(MatRestoreRow(gradient.get(),begin+block.rows[i],&count,&columns,&values));
+            }
+            const long double original_norm=std::sqrt(dot(dense,dense));
+            // Orthogonal left and right projections commute. Two QR passes
+            // retain accuracy for disparate physical field scales.
+            for(int pass=0;pass<2;++pass) {
+                for(const auto& q:block.left) for(std::size_t j=0;j<nk;++j) {
+                    long double d=0.;for(std::size_t i=0;i<nr;++i) d+=q[i]*static_cast<long double>(dense[i*nk+j]);
+                    for(std::size_t i=0;i<nr;++i) dense[i*nk+j]-=static_cast<double>(d*q[i]);
+                }
+                for(const auto& q:block.right) for(std::size_t i=0;i<nr;++i) {
+                    long double d=0.;for(std::size_t j=0;j<nk;++j) d+=q[j]*static_cast<long double>(dense[i*nk+j]);
+                    for(std::size_t j=0;j<nk;++j) dense[i*nk+j]-=static_cast<double>(d*q[j]);
+                }
+            }
+            if(std::sqrt(dot(dense,dense))<=1024.*std::numeric_limits<double>::epsilon()*original_norm)
+                std::fill(dense.begin(),dense.end(),0.);
+            for(std::size_t i=0;i<nr;++i) for(std::size_t j=0;j<nk;++j)
+                EONSIM_PETSC(MatSetValue(direction.get(),begin+block.rows[i],cbegin+block.columns[j],dense[i*nk+j],INSERT_VALUES));
+        }
+        EONSIM_PETSC(MatAssemblyBegin(direction.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatAssemblyEnd(direction.get(),MAT_FINAL_ASSEMBLY));
+        EONSIM_PETSC(MatMatMult(scaled.get(),direction.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,direction_action.put()));
+        const double derivative=frobenius_product(comm,action.get(),direction_action.get());
+        EONSIM_PETSC(MatNorm(direction_action.get(),NORM_FROBENIUS,&norm));
+        const double curvature=norm*norm;
+        check(comm,std::isfinite(derivative)&&std::isfinite(curvature),"nonfinite divergence-constrained energy");
+        if(derivative>=0||curvature<=std::numeric_limits<double>::min()) break;
+        const double alpha=-derivative/curvature;
+        check(comm,std::isfinite(alpha)&&alpha>0,"invalid divergence-constrained energy step");
+        EONSIM_PETSC(MatSetOption(transfer.matrix.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_FALSE));
+        EONSIM_PETSC(MatAXPY(transfer.matrix.get(),alpha,direction.get(),DIFFERENT_NONZERO_PATTERN));
+        EONSIM_PETSC(MatSetOption(transfer.matrix.get(),MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE));
+        action=PetscOwner<Mat,MatDestroy>{};
+        EONSIM_PETSC(MatMatMult(scaled.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,action.put()));
+        EONSIM_PETSC(MatNorm(action.get(),NORM_FROBENIUS,&norm));
+        transfer.stats.energy_after=norm*norm;++transfer.stats.divergence_updates;
+        check(comm,transfer.stats.energy_after<=transfer.stats.energy_before*(1.+1e-10),
+              "divergence-constrained interpolation increased energy");
+    }
+    PetscOwner<Mat,MatDestroy> after,change,delta;
+    EONSIM_PETSC(MatMatMult(divergence.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,after.put()));
+    EONSIM_PETSC(MatDuplicate(after.get(),MAT_COPY_VALUES,change.put()));
+    EONSIM_PETSC(MatAXPY(change.get(),-1.,before.get(),DIFFERENT_NONZERO_PATTERN));
+    PetscReal defect=0.,bnorm=0.,pnorm=0.;
+    EONSIM_PETSC(MatNorm(change.get(),NORM_FROBENIUS,&defect));
+    EONSIM_PETSC(MatNorm(divergence.get(),NORM_FROBENIUS,&bnorm));
+    EONSIM_PETSC(MatNorm(initial.get(),NORM_FROBENIUS,&pnorm));
+    transfer.stats.divergence_change=defect/std::max(1e-300,bnorm*pnorm);
+    check(comm,std::isfinite(transfer.stats.divergence_change)&&transfer.stats.divergence_change<=1e-10,
+          "interpolation energy change violated discrete divergence preservation");
+    EONSIM_PETSC(MatDuplicate(transfer.matrix.get(),MAT_COPY_VALUES,delta.put()));
+    EONSIM_PETSC(MatAXPY(delta.get(),-1.,initial.get(),DIFFERENT_NONZERO_PATTERN));
+    EONSIM_PETSC(MatNorm(delta.get(),NORM_FROBENIUS,&norm));transfer.stats.divergence_update_norm=norm;
+    // Pressure columns remain the original disjoint orthonormal QR basis.
+    // This diagnostic measures the stronger commuting relation independently;
+    // the divergence_commuting caller requires it to pass. It is not set to
+    // zero by the Galerkin definition of the coarse B.
+    PetscOwner<Mat,MatDestroy> pp,restricted,projected;
+    PetscOwner<Vec,VecDestroy> coarse_mask;
+    EONSIM_PETSC(MatCreateVecs(transfer.matrix.get(),coarse_mask.put(),nullptr));
+    PetscScalar* mask=nullptr;EONSIM_PETSC(VecGetArray(coarse_mask.get(),&mask));
+    for(PetscInt i=0;i<cend-cbegin;++i) mask[i]=(transfer.fixed_columns[i]&2)?1.:0.;
+    EONSIM_PETSC(VecRestoreArray(coarse_mask.get(),&mask));
+    EONSIM_PETSC(MatDuplicate(transfer.matrix.get(),MAT_COPY_VALUES,pp.put()));
+    EONSIM_PETSC(MatDiagonalScale(pp.get(),nullptr,coarse_mask.get()));
+    EONSIM_PETSC(MatTransposeMatMult(pp.get(),after.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,restricted.put()));
+    EONSIM_PETSC(MatMatMult(pp.get(),restricted.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,projected.put()));
+    EONSIM_PETSC(MatAXPY(projected.get(),-1.,after.get(),DIFFERENT_NONZERO_PATTERN));
+    PetscReal image_norm=0.;EONSIM_PETSC(MatNorm(after.get(),NORM_FROBENIUS,&image_norm));
+    EONSIM_PETSC(MatNorm(projected.get(),NORM_FROBENIUS,&norm));
+    transfer.stats.divergence_commuting_defect=image_norm>0?norm/image_norm:0.;
+    const double before_energy=transfer.stats.energy_before,after_energy=transfer.stats.energy_after;
+    minimize_transfer_energy(comm,matrix,fine,transfer,0,true); // independent candidate-span audit
+    transfer.stats.energy_before=before_energy;transfer.stats.energy_after=after_energy;
+}
+
+Transfer tentative_transfer(MPI_Comm comm,Mat matrix,const LevelData& fine,const Options& o,Vec physical_test_weights) {
+    if(!o.distributed_aggregation) return local_tentative_transfer(comm,matrix,fine,o,physical_test_weights);
+    auto moved=redistribute_mg_layout(comm,matrix,fine.semantics,fine.candidates,fine.trace,fine.active);
+    LevelData local;
+    local.semantics=std::move(moved.semantics);local.candidates=std::move(moved.candidates);
+    local.trace=std::move(moved.trace);local.active=std::move(moved.active);local.origin_rank=std::move(moved.origin_rank);
+    using Node=std::tuple<std::int64_t,DofEntity,std::uint16_t,std::uint16_t>;
+    std::map<Node,PetscInt> blocks;
+    for(PetscInt row=0;row<static_cast<PetscInt>(local.semantics.size());++row) if(local.active[row]) {
+        const auto& key=local.semantics[row];const Node node{key.entity,key.kind,key.mode,key.space};
+        auto inserted=blocks.emplace(node,static_cast<PetscInt>(local.blocks.size()));
+        if(inserted.second) local.blocks.push_back({});
+        local.blocks[inserted.first->second].push_back(row);
+    }
+    PetscOwner<Vec,VecDestroy> weights;
+    if(physical_test_weights) {
+        EONSIM_PETSC(MatCreateVecs(moved.permutation.get(),weights.put(),nullptr));
+        EONSIM_PETSC(MatMultTranspose(moved.permutation.get(),physical_test_weights,weights.get()));
+    }
+    auto result=local_tentative_transfer(comm,moved.matrix.get(),local,o,weights.get());
+    result.stats.migrated_rows=moved.moved_rows;
+    if(!result.matrix.get()) return result;
+    if(!result.energy_completed) {
+        minimize_transfer_energy(comm,moved.matrix.get(),local,result,o.energy_steps,o.saddle_point);
+        result.energy_completed=true;
+    }
+    PetscOwner<Mat,MatDestroy> physical;
+    EONSIM_PETSC(MatMatMult(moved.permutation.get(),result.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,physical.put()));
+    // MatProduct retains operands; numeric refresh uses the resulting physical
+    // transfer, so release this setup-only migration and tentative factor.
+    EONSIM_PETSC(MatProductClear(physical.get()));
+    result.matrix=std::move(physical);
+    std::vector<unsigned char>().swap(result.anchors);
+    std::vector<std::vector<PetscInt>>().swap(result.aggregate_rows);
+    std::vector<std::pair<PetscInt,PetscInt>>().swap(result.aggregate_columns);
+    return result;
+}
+
 void audit_pressure_pairs(MPI_Comm comm,Mat coarse,Transfer& transfer) {
     if(transfer.stats.pressure_supremizer_modes==0) return;
     double local_change=0.,local_minimum=std::numeric_limits<double>::infinity();
@@ -879,7 +1276,7 @@ void audit_pressure_pairs(MPI_Comm comm,Mat coarse,Transfer& transfer) {
 
 
 struct Level {
-    PetscOwner<Mat,MatDestroy> matrix,prolongation;
+    PetscOwner<Mat,MatDestroy> matrix,prolongation,restriction_form;
     LevelData data;
     std::shared_ptr<FsiLevelSmoother> smoother;
     PetscOwner<Vec,VecDestroy> rhs,solution,residual,correction,second_rhs,second_solution;
@@ -893,7 +1290,16 @@ struct Hierarchy {
     std::string prefix;
     std::vector<std::array<double,3>> reference_coordinates;
     std::vector<Level> levels;
-    PetscOwner<Mat,MatDestroy> source_reference;
+    PetscOwner<Mat,MatDestroy> source_reference,exact_fine;
+    PetscOwner<Vec,VecDestroy> exact_input,adaptive_action;
+    std::vector<std::array<double,2>> hierarchy_reference;
+    // Exact B-only generation signature. The entry mask covers the fixed
+    // pressure-row graph including numerical zeros; reference values include
+    // every active primal column, local or remote. This is not a hash.
+    std::vector<unsigned char> divergence_entries;
+    std::vector<double> divergence_reference;
+    PetscInt hierarchy_age=0;
+    bool adaptation_pending=false,exact_is_shell=false;
     PetscOwner<Vec,VecDestroy> left_scale,right_scale,scaled_input,scaled_output;
     PetscOwner<KSP,KSPDestroy> coarse;
     MonolithicFsiMgStats stats;
@@ -917,13 +1323,23 @@ struct Hierarchy {
             EONSIM_PETSC(PetscObjectReference(reinterpret_cast<PetscObject>(matrix)));*fine.matrix.put()=matrix;
         }
         levels.push_back(std::move(fine));
+        MatInfo fine_info{};EONSIM_PETSC(MatGetInfo(matrix,MAT_GLOBAL_SUM,&fine_info));
+        const double fine_nnz=std::max(1.,static_cast<double>(fine_info.nz_used));
+        double hierarchy_nnz=fine_nnz;
         for(PetscInt depth=1;depth<configuration.max_levels;++depth) {
             PetscInt global=0; EONSIM_PETSC(MatGetSize(levels.back().matrix.get(),&global,nullptr));
             if(global<=configuration.coarse_limit) break;
-            if(depth==1&&configuration.field_scaling&&configuration.pressure_supremizers)
+            if(depth==1&&configuration.field_scaling&&(configuration.pressure_supremizers||configuration.divergence_preserving))
                 prepare_restriction_weights(levels.back());
             auto transfer=tentative_transfer(comm,levels.back().matrix.get(),levels.back().data,configuration,
                                              levels.back().restriction_weights.get());
+            for(int retry=0;configuration.adaptive_hierarchy&&retry<2&&transfer.matrix.get()&&
+                static_cast<double>(transfer.stats.coarse_rows)>configuration.max_coarse_ratio*global&&
+                configuration.aggregate_nodes<128;++retry) {
+                configuration.aggregate_nodes=std::min<PetscInt>(128,2*configuration.aggregate_nodes);
+                transfer=tentative_transfer(comm,levels.back().matrix.get(),levels.back().data,configuration,
+                    levels.back().restriction_weights.get());
+            }
             if(!transfer.matrix.get()) break;
             if(static_cast<double>(transfer.stats.coarse_rows)>
                configuration.max_coarse_ratio*static_cast<double>(global)) {
@@ -931,7 +1347,8 @@ struct Hierarchy {
                 stats.weak_coarsening_proposed_rows=transfer.stats.coarse_rows;
                 break;
             }
-            minimize_transfer_energy(comm,levels.back().matrix.get(),levels.back().data,transfer,configuration.energy_steps);
+            if(!transfer.energy_completed)
+                minimize_transfer_energy(comm,levels.back().matrix.get(),levels.back().data,transfer,configuration.energy_steps,configuration.saddle_point);
             Level next;
             if(depth==1&&configuration.field_scaling) {
                 // P interpolates scaled unknowns y, x=R*y. Retain the original
@@ -942,16 +1359,22 @@ struct Hierarchy {
                 auto& parent=levels.back();
                 prepare_restriction_weights(parent);
                 EONSIM_PETSC(VecDuplicate(left_scale.get(),parent.restriction_input.put()));
-                PetscOwner<Mat,MatDestroy> form;
-                EONSIM_PETSC(MatDuplicate(parent.matrix.get(),MAT_COPY_VALUES,form.put()));
-                EONSIM_PETSC(MatDiagonalScale(form.get(),parent.restriction_weights.get(),nullptr));
-                EONSIM_PETSC(MatPtAP(form.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,next.matrix.put()));
-                // Scaled hierarchies rebuild on actual numeric changes. No
-                // product reuse needs to retain this temporary FP64 operator.
-                EONSIM_PETSC(MatProductClear(next.matrix.get()));
+                EONSIM_PETSC(MatDuplicate(parent.matrix.get(),MAT_COPY_VALUES,parent.restriction_form.put()));
+                EONSIM_PETSC(MatDiagonalScale(parent.restriction_form.get(),parent.restriction_weights.get(),nullptr));
+                EONSIM_PETSC(MatPtAP(parent.restriction_form.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,next.matrix.put()));
+                if(!configuration.reuse_hierarchy) {
+                    EONSIM_PETSC(MatProductClear(next.matrix.get()));
+                    parent.restriction_form=PetscOwner<Mat,MatDestroy>{};
+                }
             } else {
                 EONSIM_PETSC(MatPtAP(levels.back().matrix.get(),transfer.matrix.get(),MAT_INITIAL_MATRIX,PETSC_DEFAULT,next.matrix.put()));
             }
+            MatInfo next_info{};EONSIM_PETSC(MatGetInfo(next.matrix.get(),MAT_GLOBAL_SUM,&next_info));
+            const double proposed=hierarchy_nnz+next_info.nz_used;
+            if(configuration.adaptive_hierarchy&&proposed>configuration.maximum_complexity*fine_nnz) {
+                stats.complexity_stop_rows=global;break;
+            }
+            hierarchy_nnz=proposed;stats.operator_complexity=hierarchy_nnz/fine_nnz;
             audit_pressure_pairs(comm,next.matrix.get(),transfer);
             levels.back().prolongation=std::move(transfer.matrix);
             next.data=std::move(transfer.coarse); stats.transfers.push_back(transfer.stats);
@@ -961,6 +1384,10 @@ struct Hierarchy {
         stats.native_fp32=configuration.native_fp32;stats.field_scaling=configuration.field_scaling;
         stats.fsi_candidates=configuration.fsi_candidates;stats.w_cycle=configuration.w_cycle;stats.k_cycle=configuration.k_cycle;
         stats.pressure_supremizers=configuration.pressure_supremizers;
+        stats.saddle_point=configuration.saddle_point;stats.divergence_preserving=configuration.divergence_preserving;stats.divergence_commuting=configuration.divergence_commuting;
+        stats.distributed_aggregation=configuration.distributed_aggregation;
+        stats.adaptive_hierarchy=configuration.adaptive_hierarchy;stats.reuse_hierarchy=configuration.reuse_hierarchy;
+        stats.matrix_free_fine=configuration.matrix_free_fine;
         for(std::size_t level=0;level<levels.size();++level) {
             auto& data=levels[level];
             EONSIM_PETSC(MatCreateVecs(data.matrix.get(),data.solution.put(),data.rhs.put()));
@@ -987,10 +1414,17 @@ struct Hierarchy {
                 if(level>0) smoother_options.patches.overlap=configuration.coarse_patch_overlap;
                 data.smoother=make_fsi_level_smoother(comm,data.matrix.get(),data.data.semantics,data.data.trace,smoother_options);
                 if(configuration.single_precision) {
-                    data.float_matrix.update(data.matrix.get()); data.float_transfer.update(data.prolongation.get());
+                    if(level>0||!configuration.matrix_free_fine) data.float_matrix.update(data.matrix.get());
+                    data.float_transfer.update(data.prolongation.get());
                     stats.fp32_value_bytes+=(data.float_matrix.values.size()+data.float_transfer.values.size())*sizeof(float);
                 }
             }
+        }
+        if(configuration.matrix_free_fine) EONSIM_PETSC(VecDuplicate(levels.front().rhs.get(),exact_input.put()));
+        if(configuration.adaptive_hierarchy) EONSIM_PETSC(VecDuplicate(levels.front().rhs.get(),adaptive_action.put()));
+        if(configuration.reuse_hierarchy) {
+            hierarchy_reference=numeric_signature(matrix);
+            if(configuration.divergence_commuting) prepare_divergence_reference(matrix);
         }
         configure_coarse();
         update_storage_stats();
@@ -998,6 +1432,98 @@ struct Hierarchy {
         EONSIM_PETSC(MatGetState(matrix,&numeric_state));
         ready=true; stats.refreshes=1; stats.hierarchy_rebuilds=1;
         if(emit_report) report();
+    }
+    std::vector<std::array<double,2>> numeric_signature(Mat matrix) const {
+        PetscInt begin=0,end=0;EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
+        std::vector<std::array<double,2>> signature(end-begin);
+        for(PetscInt row=begin;row<end;++row) {
+            PetscInt count=0;const PetscInt* columns=nullptr;const PetscScalar* values=nullptr;
+            EONSIM_PETSC(MatGetRow(matrix,row,&count,&columns,&values));
+            long double norm=0.;
+            for(PetscInt j=0;j<count;++j) {norm+=std::abs(static_cast<long double>(values[j]));if(columns[j]==row) signature[row-begin][0]=values[j];}
+            signature[row-begin][1]=static_cast<double>(norm);
+            EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&columns,&values));
+        }
+        return signature;
+    }
+    void prepare_divergence_reference(Mat matrix) {
+        PetscInt begin=0,end=0;EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
+        const auto& data=levels.front().data;
+        std::vector<PetscInt> columns;
+        for(PetscInt row=begin;row<end;++row) if(data.active[row-begin]&&is_pressure(data.semantics[row-begin])) {
+            PetscInt count=0;const PetscInt* indices=nullptr;const PetscScalar* values=nullptr;
+            EONSIM_PETSC(MatGetRow(matrix,row,&count,&indices,&values));
+            if(count) columns.insert(columns.end(),indices,indices+count);
+            EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&indices,&values));
+        }
+        std::sort(columns.begin(),columns.end());columns.erase(std::unique(columns.begin(),columns.end()),columns.end());
+        PetscOwner<Vec,VecDestroy> mask,halo;
+        EONSIM_PETSC(MatCreateVecs(matrix,mask.put(),nullptr));
+        PetscScalar* entries=nullptr;EONSIM_PETSC(VecGetArray(mask.get(),&entries));
+        for(PetscInt i=0;i<end-begin;++i) entries[i]=data.active[i]&&!is_pressure(data.semantics[i])?1.:0.;
+        EONSIM_PETSC(VecRestoreArray(mask.get(),&entries));
+        EONSIM_PETSC(VecCreateSeq(PETSC_COMM_SELF,static_cast<PetscInt>(columns.size()),halo.put()));
+        PetscOwner<IS,ISDestroy> selected;
+        EONSIM_PETSC(ISCreateGeneral(PETSC_COMM_SELF,static_cast<PetscInt>(columns.size()),columns.data(),PETSC_COPY_VALUES,selected.put()));
+        PetscOwner<VecScatter,VecScatterDestroy> scatter;
+        EONSIM_PETSC(VecScatterCreate(mask.get(),selected.get(),halo.get(),nullptr,scatter.put()));
+        EONSIM_PETSC(VecScatterBegin(scatter.get(),mask.get(),halo.get(),INSERT_VALUES,SCATTER_FORWARD));
+        EONSIM_PETSC(VecScatterEnd(scatter.get(),mask.get(),halo.get(),INSERT_VALUES,SCATTER_FORWARD));
+        const PetscScalar* flags=nullptr;EONSIM_PETSC(VecGetArrayRead(halo.get(),&flags));
+        divergence_entries.clear();divergence_reference.clear();
+        for(PetscInt row=begin;row<end;++row) if(data.active[row-begin]&&is_pressure(data.semantics[row-begin])) {
+            PetscInt count=0;const PetscInt* indices=nullptr;const PetscScalar* values=nullptr;
+            EONSIM_PETSC(MatGetRow(matrix,row,&count,&indices,&values));
+            for(PetscInt j=0;j<count;++j) {
+                const auto slot=std::lower_bound(columns.begin(),columns.end(),indices[j])-columns.begin();
+                const bool primal=flags[slot]!=0.;divergence_entries.push_back(primal);
+                if(primal) divergence_reference.push_back(values[j]);
+            }
+            EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&indices,&values));
+        }
+        EONSIM_PETSC(VecRestoreArrayRead(halo.get(),&flags));
+    }
+    bool unchanged_divergence(Mat matrix) const {
+        PetscInt begin=0,end=0;EONSIM_PETSC(MatGetOwnershipRange(matrix,&begin,&end));
+        const auto& data=levels.front().data;
+        std::size_t entry=0,value=0;bool same=true;
+        for(PetscInt row=begin;row<end;++row) if(data.active[row-begin]&&is_pressure(data.semantics[row-begin])) {
+            PetscInt count=0;const PetscInt* indices=nullptr;const PetscScalar* values=nullptr;
+            EONSIM_PETSC(MatGetRow(matrix,row,&count,&indices,&values));
+            for(PetscInt j=0;j<count;++j,++entry) {
+                if(entry>=divergence_entries.size()) {same=false;continue;}
+                if(divergence_entries[entry]) {
+                    same=same&&value<divergence_reference.size()&&values[j]==divergence_reference[value];++value;
+                }
+            }
+            EONSIM_PETSC(MatRestoreRow(matrix,row,&count,&indices,&values));
+        }
+        same=same&&entry==divergence_entries.size()&&value==divergence_reference.size();
+        int changed=!same,any=0;EONSIM_PETSC(MPI_Allreduce(&changed,&any,1,MPI_INT,MPI_MAX,comm));return any==0;
+    }
+    double signature_drift(Mat matrix) const {
+        const auto current=numeric_signature(matrix);double local=0.,global=0.;
+        for(std::size_t i=0;i<current.size();++i) for(int k=0;k<2;++k) {
+            const auto denominator=std::max({std::abs(current[i][k]),std::abs(hierarchy_reference[i][k]),
+                current[i][1]*64.*std::numeric_limits<double>::epsilon(),std::numeric_limits<double>::min()});
+            local=std::max(local,std::abs(current[i][k]-hierarchy_reference[i][k])/denominator);
+        }
+        EONSIM_PETSC(MPI_Allreduce(&local,&global,1,MPI_DOUBLE,MPI_MAX,comm));return global;
+    }
+    void bind_exact(Mat matrix) {
+        PetscInt m=0,n=0,lm=0,ln=0,expected_m=0,expected_n=0,expected_lm=0,expected_ln=0;
+        EONSIM_PETSC(MatGetSize(matrix,&m,&n));EONSIM_PETSC(MatGetLocalSize(matrix,&lm,&ln));
+        EONSIM_PETSC(MatGetSize(source_reference.get(),&expected_m,&expected_n));
+        EONSIM_PETSC(MatGetLocalSize(source_reference.get(),&expected_lm,&expected_ln));
+        check(comm,m==expected_m&&n==expected_n&&lm==expected_lm&&ln==expected_ln,
+              "exact fine operator has incompatible ownership or dimensions");
+        PetscBool shell=PETSC_FALSE;
+        EONSIM_PETSC(PetscObjectTypeCompare(reinterpret_cast<PetscObject>(matrix),MATSHELL,&shell));
+        exact_is_shell=shell;
+        if(matrix!=exact_fine.get()) {
+            EONSIM_PETSC(PetscObjectReference(reinterpret_cast<PetscObject>(matrix)));
+            PetscOwner<Mat,MatDestroy> replacement;*replacement.put()=matrix;exact_fine=std::move(replacement);
+        }
     }
     void update_krylov_scale(Level& level) {
         PetscInt begin=0,end=0;EONSIM_PETSC(MatGetOwnershipRange(level.matrix.get(),&begin,&end));
@@ -1138,13 +1664,35 @@ struct Hierarchy {
     }
     void configure_coarse() {
         int size=1; MPI_Comm_size(comm,&size);
-        const auto requested=std::min<PetscInt>(size,configuration.coarse_processes);
+        const auto requested=configuration.coarse_processes==0?static_cast<PetscInt>(size):
+            std::min<PetscInt>(size,configuration.coarse_processes);
         // Choose the largest divisor no greater than the requested rank budget.
         PetscInt target=requested;
         while(target>1&&size%target!=0) --target;
         stats.coarse_processes=target;
         EONSIM_PETSC(KSPCreate(comm,coarse.put()));
         const auto coarse_prefix=prefix+"monolithic_mg_coarse_";
+        const auto prefer_pivoted_local_lu=[&](const std::string& sub_prefix) {
+            const auto solver_option="-"+sub_prefix+"pc_factor_mat_solver_type";
+            PetscBool explicit_solver=PETSC_FALSE;
+            EONSIM_PETSC(PetscOptionsHasName(nullptr,nullptr,solver_option.c_str(),&explicit_solver));
+            char local_pc[32]="lu";
+            EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,("-"+sub_prefix+"pc_type").c_str(),local_pc,sizeof(local_pc),nullptr));
+            // ASM's matrices are sequential even when the coarse operator is
+            // distributed. PETSc's native sparse LU has no numerical row
+            // pivoting and can reject a nonsingular saddle block. Select the
+            // available pivoted backend, never a shift or a smaller pivot gate.
+            PetscOwner<Mat,MatDestroy> probe;
+            EONSIM_PETSC(MatCreateSeqAIJ(PETSC_COMM_SELF,1,1,1,nullptr,probe.put()));
+            PetscBool available=PETSC_FALSE;
+            EONSIM_PETSC(MatGetFactorAvailable(probe.get(),MATSOLVERMUMPS,MAT_FACTOR_LU,&available));
+            int local=available?1:0,all=0;
+            EONSIM_PETSC(MPI_Allreduce(&local,&all,1,MPI_INT,MPI_MIN,comm));
+            // Keep this collective unconditional: PETSc options can differ
+            // by rank even when the hierarchy itself is collective.
+            if(all&&!explicit_solver&&std::strcmp(local_pc,"lu")==0)
+                option_default(solver_option,"mumps");
+        };
         EONSIM_PETSC(KSPSetOptionsPrefix(coarse.get(),coarse_prefix.c_str()));
         EONSIM_PETSC(KSPSetOperators(coarse.get(),levels.back().matrix.get(),levels.back().matrix.get()));
         PC pc=nullptr; EONSIM_PETSC(KSPGetPC(coarse.get(),&pc));
@@ -1157,6 +1705,7 @@ struct Hierarchy {
             option_default("-"+coarse_prefix+"telescope_pc_type",target==1?"lu":"asm");
             option_default("-"+coarse_prefix+"telescope_sub_ksp_type","preonly");
             option_default("-"+coarse_prefix+"telescope_sub_pc_type","lu");
+            if(target>1) prefer_pivoted_local_lu(coarse_prefix+"telescope_sub_");
             option_default("-"+coarse_prefix+"telescope_ksp_rtol","1e-12");
             option_default("-"+coarse_prefix+"telescope_ksp_max_it","200");
         } else if(size==1) {
@@ -1168,6 +1717,7 @@ struct Hierarchy {
             EONSIM_PETSC(PCSetType(pc,PCASM)); EONSIM_PETSC(PCASMSetOverlap(pc,1));
             option_default("-"+coarse_prefix+"sub_ksp_type","preonly");
             option_default("-"+coarse_prefix+"sub_pc_type","lu");
+            prefer_pivoted_local_lu(coarse_prefix+"sub_");
         }
         EONSIM_PETSC(KSPSetFromOptions(coarse.get()));
         if(target<size) {
@@ -1188,22 +1738,38 @@ struct Hierarchy {
             " single_precision=%d refreshes=%" PetscInt_FMT " hierarchy_rebuilds=%" PetscInt_FMT
             " smoother=%s field_scaling=%d fsi_candidates=%d native_fp32=%d cycle=%s"
             " max_coarse_ratio=%.17g weak_coarsening_stop_rows=%" PetscInt_FMT
-            " weak_coarsening_proposed_rows=%" PetscInt_FMT " pressure_supremizers=%d\n",
+            " weak_coarsening_proposed_rows=%" PetscInt_FMT " pressure_supremizers=%d"
+            " saddle_point=%d divergence_preserving=%d divergence_commuting=%d distributed_aggregation=%d adaptive_hierarchy=%d"
+            " reuse_hierarchy=%d matrix_free_fine=%d communication_avoiding=%d"
+            " operator_complexity=%.17g complexity_stop_rows=%" PetscInt_FMT " transfer_setup_generation=%" PetscInt_FMT "\n",
             prefix.empty()?"-":prefix.c_str(),stats.levels,stats.coarse_processes,
             stats.single_precision?1:0,stats.refreshes,stats.hierarchy_rebuilds,configuration.smoother.kind.c_str(),
             stats.field_scaling?1:0,stats.fsi_candidates?1:0,stats.native_fp32?1:0,stats.k_cycle?"k":stats.w_cycle?"w":"v",
             configuration.max_coarse_ratio,stats.weak_coarsening_stop_rows,stats.weak_coarsening_proposed_rows,
-            stats.pressure_supremizers?1:0));
+            stats.pressure_supremizers?1:0,stats.saddle_point?1:0,stats.divergence_preserving?1:0,stats.divergence_commuting?1:0,
+            stats.distributed_aggregation?1:0,stats.adaptive_hierarchy?1:0,stats.reuse_hierarchy?1:0,
+            stats.matrix_free_fine?1:0,configuration.communication_avoiding?1:0,stats.operator_complexity,
+            stats.complexity_stop_rows,stats.hierarchy_rebuilds));
         for(std::size_t i=0;i<stats.transfers.size();++i) {
             const auto& level=stats.transfers[i];
             EONSIM_PETSC(PetscPrintf(comm,
                 "pc_monolithic_mg_level level=%zu rows=%" PetscInt_FMT " coarse_rows=%" PetscInt_FMT
                 " spectral_modes=%" PetscInt_FMT " reproduction_error=%.17g energy_before=%.17g energy_after=%.17g"
                 " pressure_supremizer_modes=%" PetscInt_FMT " pressure_paired_aggregates=%" PetscInt_FMT
-                " pressure_pair_min_singular=%.17g pressure_pair_relative_change=%.17g\n",
+                " pressure_pair_min_singular=%.17g pressure_pair_relative_change=%.17g"
+                " pressure_rows=%" PetscInt_FMT " coarse_pressure_rows=%" PetscInt_FMT
+                " distributed_aggregates=%" PetscInt_FMT " migrated_rows=%" PetscInt_FMT
+                " divergence_constraints=%" PetscInt_FMT " divergence_nullity=%" PetscInt_FMT
+                " divergence_updates=%" PetscInt_FMT " divergence_change=%.17g divergence_update_norm=%.17g"
+                " divergence_commuting_defect=%.17g compatible_pressure_modes=%" PetscInt_FMT
+                " saturated_pressure_aggregates=%" PetscInt_FMT "\n",
                 i,level.rows,level.coarse_rows,level.spectral_modes,level.reproduction_error,level.energy_before,level.energy_after,
                 level.pressure_supremizer_modes,level.pressure_paired_aggregates,
-                level.pressure_pair_min_singular,level.pressure_pair_relative_change));
+                level.pressure_pair_min_singular,level.pressure_pair_relative_change,
+                level.pressure_rows,level.coarse_pressure_rows,level.distributed_aggregates,level.migrated_rows,
+                level.divergence_constraints,level.divergence_nullity,level.divergence_updates,
+                level.divergence_change,level.divergence_update_norm,level.divergence_commuting_defect,
+                level.compatible_pressure_modes,level.saturated_pressure_aggregates));
         }
         int rank=0; MPI_Comm_rank(comm,&rank);
         EONSIM_PETSC(PetscSynchronizedPrintf(comm,
@@ -1221,7 +1787,9 @@ struct Hierarchy {
                 " expanded_patches=%" PetscInt_FMT " core_patches=%" PetscInt_FMT
                 " retained_fp64_patch_bytes=%zu fp32_patch_bytes=%zu factor_bytes=%zu"
                 " native_sparse_patches=%" PetscInt_FMT " native_dense_patches=%" PetscInt_FMT
-                " native_index_bytes=%zu\n",
+                " native_index_bytes=%zu primal_rows=%" PetscInt_FMT " pressure_rows=%" PetscInt_FMT
+                " schur_iterations=%" PetscInt_FMT " schur_budget=%" PetscInt_FMT " schur_applications=%" PetscInt_FMT
+                " colors=%" PetscInt_FMT " color_stages=%" PetscInt_FMT " residual_products=%" PetscInt_FMT "\n",
                 rank,i,smoother.patches.patches,smoother.patches.overlap,smoother.patches.largest_patch,
                 smoother.patches.patch_rows,smoother.patches.covered_owned_rows,smoother.patches.interface_patches,
                 smoother.patches.factor_batches,smoother.patches.numeric_factorizations,
@@ -1229,7 +1797,9 @@ struct Hierarchy {
                 smoother.polynomial_degree,smoother.eigenvalue_upper,smoother.patches.expanded_patches,
                 smoother.patches.core_patches,smoother.patches.retained_fp64_matrix_bytes,smoother.patches.fp32_matrix_bytes,
                 smoother.patches.factor_bytes,smoother.patches.native_sparse_patches,smoother.patches.native_dense_patches,
-                smoother.patches.native_index_bytes));
+                smoother.patches.native_index_bytes,smoother.primal_rows,smoother.pressure_rows,
+                smoother.schur_iterations,smoother.schur_budget,smoother.schur_applications,smoother.patches.colors,
+                smoother.patches.color_stages,smoother.patches.residual_products));
         }
         EONSIM_PETSC(PetscSynchronizedFlush(comm,PETSC_STDOUT));
     }
@@ -1260,9 +1830,40 @@ struct Hierarchy {
         EONSIM_PETSC(MatGetState(matrix,&current_numeric_state));
         int local_changed=current_numeric_state!=numeric_state,changed=0;
         EONSIM_PETSC(MPI_Allreduce(&local_changed,&changed,1,MPI_INT,MPI_MAX,comm));
-        if((changed&&(configuration.native_fp32||configuration.field_scaling||configuration.smoother.patches.adaptive||
-                      configuration.pressure_supremizers))||
-           (configuration.spectral_refresh_period>0&&stats.refreshes%configuration.spectral_refresh_period==0)) {
+        bool reusable=false,unchanged_coupling_reuse=false,divergence_rebuild=false;
+        bool drift_rebuild=false,age_rebuild=false;
+        if(configuration.reuse_hierarchy&&changed) {
+            stats.hierarchy_numeric_drift=signature_drift(matrix);
+            drift_rebuild=stats.hierarchy_numeric_drift>configuration.hierarchy_drift;
+            age_rebuild=hierarchy_age>=configuration.hierarchy_max_age;
+            reusable=!age_rebuild&&!drift_rebuild&&!adaptation_pending;
+            if(configuration.divergence_commuting) {
+                bool full_pressure_span=true;
+                for(const auto& level:stats.transfers)
+                    full_pressure_span=full_pressure_span&&level.pressure_rows==level.coarse_pressure_rows;
+                if(!full_pressure_span) {
+                    // With fixed L/R and typed block-diagonal transfers,
+                    // unchanged fine B implies every Galerkin B is unchanged.
+                    // Exact comparison includes all remote primal couplings;
+                    // diagonal F/C changes alone do not invalidate closure.
+                    const bool same_B=unchanged_divergence(matrix);
+                    unchanged_coupling_reuse=reusable&&same_B;
+                    divergence_rebuild=!same_B;
+                    reusable=reusable&&same_B;
+                }
+            }
+        }
+        const bool periodic=configuration.spectral_refresh_period>0&&stats.refreshes%configuration.spectral_refresh_period==0;
+        const bool must_rebuild=adaptation_pending||periodic||
+            (changed&&((configuration.reuse_hierarchy&&!reusable)||
+             (!reusable&&(configuration.native_fp32||configuration.field_scaling||configuration.smoother.patches.adaptive||
+                          configuration.pressure_supremizers||configuration.divergence_preserving))));
+        if(must_rebuild) {
+            const bool adapted=adaptation_pending;
+            if(adapted) {
+                configuration.energy_steps=std::min<PetscInt>(3,configuration.energy_steps+1);
+                configuration.spectral_modes=std::min<PetscInt>(8,configuration.spectral_modes+1);
+            }
             if(configuration.native_fp32) release_native_before_rebuild();
             Hierarchy rebuilt(comm,matrix,levels.front().data.semantics,reference_coordinates,
                 levels.front().data.trace,configuration,prefix,false,false);
@@ -1278,11 +1879,27 @@ struct Hierarchy {
             rebuilt.stats.coarse_krylov_rejections=stats.coarse_krylov_rejections;
             rebuilt.stats.coarse_krylov_reductions=stats.coarse_krylov_reductions;
             rebuilt.stats.coarse_krylov_max_residual_ratio=stats.coarse_krylov_max_residual_ratio;
+            rebuilt.stats.matrix_free_fine_actions=stats.matrix_free_fine_actions;
+            rebuilt.stats.fine_bootstrap_actions=stats.fine_bootstrap_actions;
+            rebuilt.stats.hierarchy_reuses=stats.hierarchy_reuses;
+            rebuilt.stats.divergence_rebuilds=stats.divergence_rebuilds+(divergence_rebuild?1:0);
+            rebuilt.stats.drift_rebuilds=stats.drift_rebuilds+(drift_rebuild?1:0);
+            rebuilt.stats.age_rebuilds=stats.age_rebuilds+(age_rebuild?1:0);
+            rebuilt.stats.unchanged_divergence_reuses=stats.unchanged_divergence_reuses;
+            rebuilt.stats.symbolic_reuses=stats.symbolic_reuses;
+            rebuilt.stats.adaptive_rebuilds=stats.adaptive_rebuilds+(adapted?1:0);
+            rebuilt.stats.adaptive_probes=stats.adaptive_probes;
+            rebuilt.stats.batched_reduction_groups=stats.batched_reduction_groups;
+            rebuilt.stats.adaptive_residual_ratio=stats.adaptive_residual_ratio;
+            rebuilt.stats.hierarchy_numeric_drift=stats.hierarchy_numeric_drift;
             rebuilt.stats.refreshes=stats.refreshes+1;
             rebuilt.stats.hierarchy_rebuilds=stats.hierarchy_rebuilds+1;
             coarse=std::move(rebuilt.coarse); levels=std::move(rebuilt.levels); stats=std::move(rebuilt.stats);
             left_scale=std::move(rebuilt.left_scale);right_scale=std::move(rebuilt.right_scale);
             scaled_input=std::move(rebuilt.scaled_input);scaled_output=std::move(rebuilt.scaled_output);
+            hierarchy_reference=std::move(rebuilt.hierarchy_reference);
+            divergence_entries=std::move(rebuilt.divergence_entries);divergence_reference=std::move(rebuilt.divergence_reference);
+            configuration=rebuilt.configuration;hierarchy_age=0;adaptation_pending=false;
             numeric_state=current_numeric_state;
             if(owner) EONSIM_PETSC(PCSetFailedReason(owner,PC_NOERROR));
             ready=true; report(); return;
@@ -1293,17 +1910,28 @@ struct Hierarchy {
             if(owner) EONSIM_PETSC(PCSetFailedReason(owner,PC_NOERROR));
             ready=true;++stats.refreshes;return;
         }
+        if(changed&&configuration.field_scaling) {
+            EONSIM_PETSC(MatCopy(matrix,levels.front().matrix.get(),SAME_NONZERO_PATTERN));
+            EONSIM_PETSC(MatDiagonalScale(levels.front().matrix.get(),left_scale.get(),right_scale.get()));
+            if(levels.front().restriction_form.get()) {
+                EONSIM_PETSC(MatCopy(levels.front().matrix.get(),levels.front().restriction_form.get(),SAME_NONZERO_PATTERN));
+                EONSIM_PETSC(MatDiagonalScale(levels.front().restriction_form.get(),levels.front().restriction_weights.get(),nullptr));
+            }
+        }
         for(std::size_t i=0;i+1<levels.size();++i) {
             // Re-evaluating an unchanged distributed PtAP can reorder sums at
             // deeper levels. Avoid both that roundoff churn and needless exact
             // factor-cache misses by retaining a truly unchanged generation.
             if(changed) {
                 Mat next=levels[i+1].matrix.get();
-                EONSIM_PETSC(MatPtAP(levels[i].matrix.get(),levels[i].prolongation.get(),MAT_REUSE_MATRIX,PETSC_DEFAULT,&next));
+                Mat form=levels[i].restriction_form.get()?levels[i].restriction_form.get():levels[i].matrix.get();
+                EONSIM_PETSC(MatPtAP(form,levels[i].prolongation.get(),MAT_REUSE_MATRIX,PETSC_DEFAULT,&next));
+                ++stats.symbolic_reuses;
                 if(configuration.k_cycle&&i>0) update_krylov_scale(levels[i]);
             }
             refresh_fsi_level_smoother(levels[i].smoother,levels[i].matrix.get());
-            if(changed&&configuration.single_precision) levels[i].float_matrix.update(levels[i].matrix.get());
+            if(changed&&configuration.single_precision&&(i>0||!configuration.matrix_free_fine))
+                levels[i].float_matrix.update(levels[i].matrix.get());
         }
         if(changed) {
             EONSIM_PETSC(KSPSetOperators(coarse.get(),levels.back().matrix.get(),levels.back().matrix.get()));
@@ -1314,11 +1942,23 @@ struct Hierarchy {
         // registry. A later J change must not silently rebuild coarse factors.
         EONSIM_PETSC(KSPSetReusePreconditioner(coarse.get(),PETSC_TRUE));
         if(owner) EONSIM_PETSC(PCSetFailedReason(owner,PC_NOERROR));
+        if(reusable) {++stats.hierarchy_reuses;++hierarchy_age;
+            if(unchanged_coupling_reuse) ++stats.unchanged_divergence_reuses;
+        }
         numeric_state=current_numeric_state; ready=true; ++stats.refreshes;
     }
     PetscErrorCode multiply(std::size_t level,Vec x,Vec y) {
         PetscFunctionBeginUser;
-        if(configuration.single_precision&&level+1<levels.size()) PetscCall(levels[level].float_matrix.multiply(x,y,false));
+        if(level==0&&configuration.matrix_free_fine) {
+            if(!exact_fine.get()) PetscFunctionReturn(PETSC_ERR_ARG_WRONGSTATE);
+            if(configuration.field_scaling) {
+                PetscCall(VecPointwiseMult(exact_input.get(),right_scale.get(),x));
+                PetscCall(MatMult(exact_fine.get(),exact_input.get(),y));
+                PetscCall(VecPointwiseMult(y,left_scale.get(),y));
+            } else PetscCall(MatMult(exact_fine.get(),x,y));
+            if(exact_is_shell) ++stats.matrix_free_fine_actions;
+            else ++stats.fine_bootstrap_actions;
+        } else if(configuration.single_precision&&level+1<levels.size()) PetscCall(levels[level].float_matrix.multiply(x,y,false));
         else PetscCall(MatMult(levels[level].matrix.get(),x,y));
         ++stats.level_matvecs;
         PetscFunctionReturn(PETSC_SUCCESS);
@@ -1371,14 +2011,30 @@ struct Hierarchy {
         // equilibration defines the norm only; the coarse equations and all
         // transfer candidates remain unchanged.
         PetscCall(VecPointwiseMult(level.metric_residual.get(),level.krylov_scale.get(),level.rhs.get()));
-        PetscReal rhs_norm=0.;PetscCall(krylov_norm(level.metric_residual.get(),&rhs_norm));
+        PetscReal rhs_norm=0.,first_norm=0.;
+        if(configuration.communication_avoiding) {
+            PetscCall(multiply(index,level.solution.get(),level.first_action.get()));
+            PetscCall(VecPointwiseMult(level.first_action.get(),level.krylov_scale.get(),level.first_action.get()));
+            // Both local norm contributions are ready before Begin. End both
+            // requests before any failure branch; PETSc combines their MPI
+            // reduction without a cancellation-prone Gram/norm identity.
+            PetscCall(VecNormBegin(level.metric_residual.get(),NORM_2,&rhs_norm));
+            PetscCall(VecNormBegin(level.first_action.get(),NORM_2,&first_norm));
+            PetscCall(VecNormEnd(level.metric_residual.get(),NORM_2,&rhs_norm));
+            PetscCall(VecNormEnd(level.first_action.get(),NORM_2,&first_norm));
+            stats.coarse_krylov_reductions+=2;++stats.batched_reduction_groups;
+        } else {
+            PetscCall(krylov_norm(level.metric_residual.get(),&rhs_norm));
+            if(std::isfinite(rhs_norm)&&rhs_norm>0) {
+                PetscCall(multiply(index,level.solution.get(),level.first_action.get()));
+                PetscCall(VecPointwiseMult(level.first_action.get(),level.krylov_scale.get(),level.first_action.get()));
+                PetscCall(krylov_norm(level.first_action.get(),&first_norm));
+            }
+        }
         if(!std::isfinite(rhs_norm)) {
             valid=false;PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
         }
         if(rhs_norm==0.) {PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);}
-        PetscCall(multiply(index,level.solution.get(),level.first_action.get()));
-        PetscCall(VecPointwiseMult(level.first_action.get(),level.krylov_scale.get(),level.first_action.get()));
-        PetscReal first_norm=0.;PetscCall(krylov_norm(level.first_action.get(),&first_norm));
         if(!std::isfinite(first_norm)) {
             valid=false;PetscCall(VecSet(level.solution.get(),0.));PetscFunctionReturn(PETSC_SUCCESS);
         }
@@ -1536,7 +2192,7 @@ struct Hierarchy {
     }
     PetscErrorCode apply(PC pc,Vec input,Vec output) {
         PetscFunctionBeginUser;
-        if(!ready) {
+        if(!ready||(configuration.matrix_free_fine&&!exact_fine.get())) {
             PetscCall(PCSetFailedReason(pc,PC_SUBPC_ERROR)); PetscCall(VecSet(output,PETSC_INFINITY));
             PetscFunctionReturn(PETSC_SUCCESS);
         }
@@ -1546,6 +2202,23 @@ struct Hierarchy {
             PetscCall(cycle(0,scaled_input.get(),scaled_output.get(),valid));
             PetscCall(VecPointwiseMult(output,right_scale.get(),scaled_output.get()));
         } else PetscCall(cycle(0,input,output,valid));
+        if(configuration.adaptive_hierarchy&&(stats.applications+1)%configuration.adaptive_interval==0) {
+            if(configuration.matrix_free_fine) PetscCall(MatMult(exact_fine.get(),output,adaptive_action.get()));
+            else PetscCall(MatMult(source_reference.get(),output,adaptive_action.get()));
+            PetscCall(VecAYPX(adaptive_action.get(),-1.,input));
+            PetscReal rn=0.,bn=0.;
+            if(configuration.communication_avoiding) {
+                PetscCall(VecNormBegin(adaptive_action.get(),NORM_2,&rn));
+                PetscCall(VecNormBegin(input,NORM_2,&bn));
+                PetscCall(VecNormEnd(adaptive_action.get(),NORM_2,&rn));
+                PetscCall(VecNormEnd(input,NORM_2,&bn));
+                ++stats.batched_reduction_groups;
+            } else {PetscCall(VecNorm(adaptive_action.get(),NORM_2,&rn));PetscCall(VecNorm(input,NORM_2,&bn));}
+            const double ratio=bn>0?rn/bn:0.;
+            stats.adaptive_residual_ratio=ratio;++stats.adaptive_probes;
+            if(!std::isfinite(ratio)) valid=false;
+            else if(ratio>configuration.adaptive_threshold) adaptation_pending=true;
+        }
         const PetscScalar* result=nullptr; PetscInt local=0;
         PetscCall(VecGetLocalSize(output,&local)); PetscCall(VecGetArrayRead(output,&result));
         for(PetscInt i=0;i<local;++i) valid=valid&&std::isfinite(result[i]);
@@ -1618,6 +2291,11 @@ void configure_monolithic_fsi_mg(MPI_Comm comm,KSP solver,Mat assembled,
     EONSIM_PETSC(PCShellSetName(pc,shell_name)); EONSIM_PETSC(PCShellSetApply(pc,apply_hierarchy));
     EONSIM_PETSC(PCShellSetView(pc,view_hierarchy));
     updates->refreshers.push_back([state](Mat matrix){state->refresh(matrix);});
+}
+bool set_monolithic_fsi_mg_fine_operator(PC pc,Mat exact_operator) {
+    auto* state=hierarchy_handle(pc);
+    if(!state||!(*state)->configuration.matrix_free_fine) return false;
+    (*state)->bind_exact(exact_operator);return true;
 }
 bool query_monolithic_fsi_mg_stats(PC pc,MonolithicFsiMgStats& stats) {
     auto* state=hierarchy_handle(pc); if(!state) return false;

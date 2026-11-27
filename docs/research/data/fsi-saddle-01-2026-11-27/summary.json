@@ -1,0 +1,2595 @@
+{
+  "task": "FSI-SADDLE-01",
+  "final_source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+  "baseline": "036f865e3570905a58da465c91873678de485119",
+  "pull_request": "https://github.com/saitoasukakawaii/EONSim-new/pull/65",
+  "environment": {
+    "mode": "release",
+    "petsc": "3.23.7",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "resources": {
+      "cpu_budget": 9,
+      "memory_bytes": 10451423232,
+      "cgroup": {},
+      "build_jobs": 4
+    },
+    "lock_sha256": "4b83ceb31a805aab979b5f14fd6cb22ccf777659767f27b44c08ed73ac186892"
+  },
+  "scope": {
+    "hosts": 1,
+    "unit_ranks": [
+      1,
+      2,
+      4
+    ],
+    "physical_ranks": [
+      1,
+      2
+    ],
+    "grid_dofs": [
+      703,
+      2299,
+      5367
+    ],
+    "time_steps_per_trajectory": 3
+  },
+  "gates": {
+    "true_residual": "1e-12 + 1e-10*rhs_norm",
+    "field_absolute": 2e-09,
+    "commuting_defect": 1e-10,
+    "mesh_iteration_ratio": 1.3
+  },
+  "validation_attempts": [
+    {
+      "label": "initial-bfb5d0c",
+      "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75",
+      "dirty": false,
+      "status": "failed",
+      "counts": {
+        "passed": 13,
+        "failed": 3
+      },
+      "tests": [
+        {
+          "name": "interface_patch_mpi1",
+          "status": "passed",
+          "seconds": 0.138831,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "interface_patch_mpi2",
+          "status": "passed",
+          "seconds": 0.13898,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "interface_patch_mpi4",
+          "status": "passed",
+          "seconds": 0.156693,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "monolithic_fsi_mg_mpi1",
+          "status": "failed",
+          "seconds": 0.195782,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "monolithic_fsi_mg_mpi2",
+          "status": "failed",
+          "seconds": 0.239868,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "monolithic_fsi_mg_mpi4",
+          "status": "failed",
+          "seconds": 0.273037,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "matrix_free_mpi1",
+          "status": "passed",
+          "seconds": 0.149564,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "matrix_free_mpi2",
+          "status": "passed",
+          "seconds": 0.212176,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "matrix_free_mpi4",
+          "status": "passed",
+          "seconds": 0.192872,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "fsi_level_smoother_mpi1",
+          "status": "passed",
+          "seconds": 0.141547,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "fsi_level_smoother_mpi2",
+          "status": "passed",
+          "seconds": 0.15392,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "fsi_level_smoother_mpi4",
+          "status": "passed",
+          "seconds": 0.174707,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "distributed_mg_layout_mpi1",
+          "status": "passed",
+          "seconds": 0.130956,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "distributed_mg_layout_mpi2",
+          "status": "passed",
+          "seconds": 0.165358,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "distributed_mg_layout_mpi4",
+          "status": "passed",
+          "seconds": 0.154788,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        },
+        {
+          "name": "pc_rcr_port_mpi2",
+          "status": "passed",
+          "seconds": 0.151632,
+          "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+        }
+      ]
+    },
+    {
+      "label": "fix1-bd2f010",
+      "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+      "dirty": false,
+      "status": "passed",
+      "counts": {
+        "passed": 4
+      },
+      "tests": [
+        {
+          "name": "monolithic_fsi_mg_mpi1",
+          "status": "passed",
+          "seconds": 0.301943,
+          "source": "bd2f0105a423c41daac6235b8dffb52127a9d638"
+        },
+        {
+          "name": "monolithic_fsi_mg_mpi2",
+          "status": "passed",
+          "seconds": 0.439774,
+          "source": "bd2f0105a423c41daac6235b8dffb52127a9d638"
+        },
+        {
+          "name": "monolithic_fsi_mg_mpi4",
+          "status": "passed",
+          "seconds": 0.546038,
+          "source": "bd2f0105a423c41daac6235b8dffb52127a9d638"
+        },
+        {
+          "name": "monolithic_fsi_physical",
+          "status": "passed",
+          "seconds": 9.29185,
+          "source": "bd2f0105a423c41daac6235b8dffb52127a9d638"
+        }
+      ]
+    },
+    {
+      "label": "fix2-24b8056",
+      "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+      "dirty": false,
+      "status": "passed",
+      "counts": {
+        "passed": 3
+      },
+      "tests": [
+        {
+          "name": "monolithic_fsi_mg_mpi1",
+          "status": "passed",
+          "seconds": 0.307542,
+          "source": "24b80563cd5af76c885577789a9cc3751a4758f3"
+        },
+        {
+          "name": "monolithic_fsi_mg_mpi2",
+          "status": "passed",
+          "seconds": 0.467733,
+          "source": "24b80563cd5af76c885577789a9cc3751a4758f3"
+        },
+        {
+          "name": "monolithic_fsi_mg_mpi4",
+          "status": "passed",
+          "seconds": 0.640295,
+          "source": "24b80563cd5af76c885577789a9cc3751a4758f3"
+        }
+      ]
+    },
+    {
+      "label": "fix3-ccf1bd7",
+      "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+      "dirty": false,
+      "status": "passed",
+      "counts": {
+        "passed": 6
+      },
+      "tests": [
+        {
+          "name": "monolithic_fsi_mg_mpi1",
+          "status": "passed",
+          "seconds": 0.309041,
+          "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+        },
+        {
+          "name": "monolithic_fsi_mg_mpi2",
+          "status": "passed",
+          "seconds": 0.493176,
+          "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+        },
+        {
+          "name": "monolithic_fsi_mg_mpi4",
+          "status": "passed",
+          "seconds": 0.675837,
+          "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+        },
+        {
+          "name": "fsi_level_smoother_mpi1",
+          "status": "passed",
+          "seconds": 0.1458,
+          "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+        },
+        {
+          "name": "fsi_level_smoother_mpi2",
+          "status": "passed",
+          "seconds": 0.156505,
+          "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+        },
+        {
+          "name": "fsi_level_smoother_mpi4",
+          "status": "passed",
+          "seconds": 0.178303,
+          "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+        }
+      ]
+    }
+  ],
+  "latest_local_checks": [
+    {
+      "name": "interface_patch_mpi1",
+      "status": "passed",
+      "seconds": 0.138831,
+      "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+    },
+    {
+      "name": "interface_patch_mpi2",
+      "status": "passed",
+      "seconds": 0.13898,
+      "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+    },
+    {
+      "name": "interface_patch_mpi4",
+      "status": "passed",
+      "seconds": 0.156693,
+      "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+    },
+    {
+      "name": "monolithic_fsi_mg_mpi1",
+      "status": "passed",
+      "seconds": 0.309041,
+      "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+    },
+    {
+      "name": "monolithic_fsi_mg_mpi2",
+      "status": "passed",
+      "seconds": 0.493176,
+      "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+    },
+    {
+      "name": "monolithic_fsi_mg_mpi4",
+      "status": "passed",
+      "seconds": 0.675837,
+      "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+    },
+    {
+      "name": "matrix_free_mpi1",
+      "status": "passed",
+      "seconds": 0.149564,
+      "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+    },
+    {
+      "name": "matrix_free_mpi2",
+      "status": "passed",
+      "seconds": 0.212176,
+      "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+    },
+    {
+      "name": "matrix_free_mpi4",
+      "status": "passed",
+      "seconds": 0.192872,
+      "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+    },
+    {
+      "name": "fsi_level_smoother_mpi1",
+      "status": "passed",
+      "seconds": 0.1458,
+      "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+    },
+    {
+      "name": "fsi_level_smoother_mpi2",
+      "status": "passed",
+      "seconds": 0.156505,
+      "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+    },
+    {
+      "name": "fsi_level_smoother_mpi4",
+      "status": "passed",
+      "seconds": 0.178303,
+      "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+    },
+    {
+      "name": "distributed_mg_layout_mpi1",
+      "status": "passed",
+      "seconds": 0.130956,
+      "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+    },
+    {
+      "name": "distributed_mg_layout_mpi2",
+      "status": "passed",
+      "seconds": 0.165358,
+      "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+    },
+    {
+      "name": "distributed_mg_layout_mpi4",
+      "status": "passed",
+      "seconds": 0.154788,
+      "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+    },
+    {
+      "name": "pc_rcr_port_mpi2",
+      "status": "passed",
+      "seconds": 0.151632,
+      "source": "bfb5d0c737c7ed181a3b8a3be205fe3278708b75"
+    },
+    {
+      "name": "monolithic_fsi_physical",
+      "status": "passed",
+      "seconds": 9.29185,
+      "source": "bd2f0105a423c41daac6235b8dffb52127a9d638"
+    }
+  ],
+  "local_reconciled_checks": {
+    "count": 17,
+    "status": "passed",
+    "source_counts": {
+      "bfb5d0c737c7ed181a3b8a3be205fe3278708b75": 10,
+      "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba": 6,
+      "bd2f0105a423c41daac6235b8dffb52127a9d638": 1
+    }
+  },
+  "physical_attempts": [
+    {
+      "label": "physical_initial",
+      "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+      "status": "failed",
+      "counts": {
+        "passed": 45,
+        "failed": 3
+      },
+      "archive": "physical-initial.tar.xz",
+      "receipt_sha256": "f8973665870dbf8d82547c91e20a7322eddb02ba1c54a7cac0472374164929c8"
+    },
+    {
+      "label": "physical_coarse_fix",
+      "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+      "status": "passed",
+      "counts": {
+        "passed": 12
+      },
+      "archive": "physical-coarse-fix.tar.xz",
+      "receipt_sha256": "44c5e250e9bbc8357ee5e8885ac5588268677b8d27ab26150b875faa19ee7555"
+    },
+    {
+      "label": "grid_initial",
+      "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+      "status": "failed",
+      "counts": {
+        "passed": 17,
+        "failed": 1
+      },
+      "archive": "grid-initial.tar.xz",
+      "receipt_sha256": "1b63a80db48c137dc10648e0a1195d33b1acc424257c684832da3136cded4cb4"
+    },
+    {
+      "label": "braess_final",
+      "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+      "status": "passed",
+      "counts": {
+        "passed": 12
+      },
+      "archive": "braess-final-physical-grid.tar.xz",
+      "receipt_sha256": "5dabc597a0a2030e52946891759e421e9a6e6e23174ef9b70aa790a2897dabf6"
+    }
+  ],
+  "initial_physical_failures": [
+    {
+      "label": "physical_initial",
+      "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+      "case": "domains-r2",
+      "mode": "mono_saddle_all",
+      "error": "Hierarchy reuse neither executed nor rebuilt an invalid divergence closure"
+    },
+    {
+      "label": "physical_initial",
+      "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+      "case": "moving-rcr",
+      "mode": "mono_adaptive_hierarchy",
+      "error": "Hierarchy reuse neither executed nor rebuilt an invalid divergence closure"
+    },
+    {
+      "label": "physical_initial",
+      "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+      "case": "moving-rcr",
+      "mode": "mono_saddle_all",
+      "error": "Command ['/workspace/scratch/2185eeebac03/eonsim-tools/petsc-3.23.7/bin/mpirun', '-n', '2', '/workspace/scratch/2185eeebac03/EONSim-new/build/cloud-3.23.7-release/eonsim', '-case', '/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/moving-rcr/mono_saddle_all.json', '-partition', '/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/moving-rcr/part-2', '-ksp_type', 'fgmres', '-ksp_pc_side', 'right', '-ksp_norm_type', 'unpreconditioned', '-ksp_rtol', '1e-12', '-ksp_atol', '1e-15', '-ksp_max_it', '1500', '-ksp_gmres_restart', '100', '-linear_report', '-solver_report', '-pc_plan_report', '-ksp_gmres_modifiedgramschmidt', '-pc_plan_rcr_ports', 'true', '-rcr_port_report', '-pc_recipe', 'monolithic_mg', '-rcr_bulk_monolithic_mg_coarse_limit', '48', '-rcr_bulk_monolithic_mg_coarse_processes', '0', '-rcr_bulk_monolithic_mg_cycle', 'k', '-fsi_matrix_free', '-nonlinear_matrix_free_pc_interval', '2', '-rcr_bulk_monolithic_mg_fsi_candidates', 'true', '-rcr_bulk_monolithic_mg_pressure_supremizers', 'true', '-rcr_bulk_monolithic_mg_saddle_point', 'true', '-rcr_bulk_monolithic_mg_divergence_preserving', 'true', '-rcr_bulk_monolithic_mg_divergence_commuting', 'true', '-rcr_bulk_monolithic_mg_distributed_aggregation', 'true', '-rcr_bulk_monolithic_mg_adaptive_hierarchy', 'true', '-rcr_bulk_monolithic_mg_reuse_hierarchy', 'true', '-rcr_bulk_monolithic_mg_matrix_free_fine', 'true', '-rcr_bulk_monolithic_mg_communication_avoiding', 'true', '-fsi_reduced_pc', 'true', '-fsi_partial_assembly', 'true', '-fsi_matrix_free_simd', 'true', '-fsi_matrix_free_overlap', 'true', '-nonlinear_krylov_deflation', '4', '-rcr_bulk_monolithic_mg_adaptive_interval', '4', '-rcr_bulk_monolithic_mg_smoother', 'vanka_colored', '-fsi_assembly_report'] returned non-zero exit status 1."
+    },
+    {
+      "label": "grid_initial",
+      "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+      "case": "scaling-n8-r2",
+      "mode": "mono_braess",
+      "error": "Command ['/workspace/scratch/2185eeebac03/eonsim-tools/petsc-3.23.7/bin/mpirun', '-n', '2', '/workspace/scratch/2185eeebac03/EONSim-new/build/cloud-3.23.7-release/eonsim', '-case', '/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/scaling-n8-r2/mono_braess.json', '-partition', '/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/scaling-n8-r2/part-2', '-ksp_type', 'fgmres', '-ksp_pc_side', 'right', '-ksp_norm_type', 'unpreconditioned', '-ksp_rtol', '1e-12', '-ksp_atol', '1e-15', '-ksp_max_it', '1500', '-ksp_gmres_restart', '100', '-linear_report', '-solver_report', '-pc_plan_report', '-ksp_gmres_modifiedgramschmidt', '-pc_recipe', 'monolithic_mg', '-monolithic_mg_coarse_limit', '48', '-monolithic_mg_coarse_processes', '1', '-monolithic_mg_saddle_point', 'true', '-monolithic_mg_smoother', 'braess_sarazin'] returned non-zero exit status 1."
+    }
+  ],
+  "physical_final": {
+    "status": "passed",
+    "count": 48,
+    "source_counts": {
+      "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba": 6,
+      "bd2f0105a423c41daac6235b8dffb52127a9d638": 33,
+      "24b80563cd5af76c885577789a9cc3751a4758f3": 9
+    },
+    "records": [
+      {
+        "mode": "direct",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 6,
+        "iterations_per_correction": 1.0,
+        "solve_seconds": 0.024478952999999998,
+        "linear_seconds": 0.009932283,
+        "assembly_seconds": 0.013527923,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 46534656.0,
+        "max_true_residual_ratio": 9.182731068993753e-06,
+        "field_max_difference": 0.0,
+        "history_max_difference": 0.0,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false
+      },
+      {
+        "mode": "mono_saddle",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 75,
+        "iterations_per_correction": 12.5,
+        "solve_seconds": 0.199513051,
+        "linear_seconds": 0.11025925,
+        "assembly_seconds": 0.01189909,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49512448.0,
+        "max_true_residual_ratio": 0.007748637113281003,
+        "field_max_difference": 2.3425705819590803e-14,
+        "history_max_difference": 4.440892098500626e-16,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.0861356932153394,
+          2.0861356932153394
+        ]
+      },
+      {
+        "mode": "mono_divergence",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 77,
+        "iterations_per_correction": 12.833333333333334,
+        "solve_seconds": 0.296301417,
+        "linear_seconds": 0.120949206,
+        "assembly_seconds": 0.012955782999999998,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 53108736.0,
+        "max_true_residual_ratio": 0.00820121086269898,
+        "field_max_difference": 1.0677569939332443e-13,
+        "history_max_difference": 4.634422186289289e-16,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          1.7967551622418878,
+          1.8784660766961652
+        ]
+      },
+      {
+        "mode": "mono_commuting",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 74,
+        "iterations_per_correction": 12.333333333333334,
+        "solve_seconds": 1.108396156,
+        "linear_seconds": 0.128523287,
+        "assembly_seconds": 0.018535983,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 54964224.0,
+        "max_true_residual_ratio": 0.003879006838066962,
+        "field_max_difference": 5.482836407111336e-13,
+        "history_max_difference": 7.771561172376096e-16,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          3.6713864306784663,
+          3.831661750245821
+        ],
+        "maximum_commuting_defect": 4.4211464303640303e-16
+      },
+      {
+        "mode": "mono_multilevel",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 72,
+        "iterations_per_correction": 12.0,
+        "solve_seconds": 0.494475612,
+        "linear_seconds": 0.117973958,
+        "assembly_seconds": 0.012074238,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 54329344.0,
+        "max_true_residual_ratio": 0.0022929231929082923,
+        "field_max_difference": 1.2927159342979166e-13,
+        "history_max_difference": 3.8453262926271825e-16,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          3.2658800393313667,
+          3.2964601769911503
+        ]
+      },
+      {
+        "mode": "mono_braess",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 151,
+        "iterations_per_correction": 25.166666666666668,
+        "solve_seconds": 0.122597316,
+        "linear_seconds": 0.043158945,
+        "assembly_seconds": 0.020107372999999998,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 47161344.0,
+        "max_true_residual_ratio": 0.0059848379510913435,
+        "field_max_difference": 4.3681724903876784e-13,
+        "history_max_difference": 3.3306690738754696e-16,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false,
+        "operator_complexity_range": [
+          2.0861356932153394,
+          2.0861356932153394
+        ]
+      },
+      {
+        "mode": "mono_colored",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 19,
+        "iterations_per_correction": 3.1666666666666665,
+        "solve_seconds": 0.136394398,
+        "linear_seconds": 0.034245218,
+        "assembly_seconds": 0.011902299,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49393664.0,
+        "max_true_residual_ratio": 0.0019823316608403975,
+        "field_max_difference": 1.3211653993039363e-14,
+        "history_max_difference": 3.347135394370093e-16,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.0861356932153394,
+          2.0861356932153394
+        ]
+      },
+      {
+        "mode": "mono_multiplicative",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 27,
+        "iterations_per_correction": 4.5,
+        "solve_seconds": 0.15968812500000001,
+        "linear_seconds": 0.06930423699999999,
+        "assembly_seconds": 0.011398534,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49229824.0,
+        "max_true_residual_ratio": 0.008561671652021107,
+        "field_max_difference": 4.718447854656915e-15,
+        "history_max_difference": 1.2838986601301783e-16,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.0861356932153394,
+          2.0861356932153394
+        ]
+      },
+      {
+        "mode": "mono_distributed",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 75,
+        "iterations_per_correction": 12.5,
+        "solve_seconds": 0.214148933,
+        "linear_seconds": 0.113673378,
+        "assembly_seconds": 0.011654090999999998,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49246208.0,
+        "max_true_residual_ratio": 0.007748637113281003,
+        "field_max_difference": 2.3425705819590803e-14,
+        "history_max_difference": 4.440892098500626e-16,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.0861356932153394,
+          2.0861356932153394
+        ]
+      },
+      {
+        "mode": "mono_reuse",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 72,
+        "iterations_per_correction": 12.0,
+        "solve_seconds": 0.336452769,
+        "linear_seconds": 0.11197878,
+        "assembly_seconds": 0.014152647,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 53903360.0,
+        "max_true_residual_ratio": 0.0022931579693200735,
+        "field_max_difference": 2.731148640577885e-14,
+        "history_max_difference": 2.4440627473254484e-16,
+        "hierarchy_reuse_evidence": {
+          "status": "executed",
+          "hierarchy_reuses": 3,
+          "symbolic_reuses": 6,
+          "divergence_rebuilds": 0
+        },
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          3.2658800393313667,
+          3.2964601769911503
+        ]
+      },
+      {
+        "mode": "mono_adaptive_hierarchy",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 76,
+        "iterations_per_correction": 12.666666666666666,
+        "solve_seconds": 0.275999864,
+        "linear_seconds": 0.117096589,
+        "assembly_seconds": 0.011903516999999999,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 53547008.0,
+        "max_true_residual_ratio": 0.007748637113281003,
+        "field_max_difference": 7.230327447871332e-14,
+        "history_max_difference": 3.0921445959286586e-16,
+        "hierarchy_reuse_evidence": {
+          "status": "executed",
+          "hierarchy_reuses": 3,
+          "symbolic_reuses": 6,
+          "divergence_rebuilds": 0,
+          "adaptive_rebuilds": 0,
+          "drift_rebuilds": 2,
+          "age_rebuilds": 0
+        },
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical-fix2/1795748080344447055/results.json",
+        "archive": "physical-coarse-fix.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.0659783677482793,
+          2.0861356932153394
+        ]
+      },
+      {
+        "mode": "mono_mf_fine",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 75,
+        "iterations_per_correction": 12.5,
+        "solve_seconds": 0.193897614,
+        "linear_seconds": 0.137661599,
+        "assembly_seconds": 0.006942238,
+        "nnz": 7788.0,
+        "peak_rss_max_bytes": 48873472.0,
+        "max_true_residual_ratio": 0.007783442889121436,
+        "field_max_difference": 2.5091040356528538e-14,
+        "history_max_difference": 4.440892098500626e-16,
+        "matrix_free_actions": 243,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.4180790960451977,
+          2.4180790960451977
+        ]
+      },
+      {
+        "mode": "mono_coarse_distributed",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 75,
+        "iterations_per_correction": 12.5,
+        "solve_seconds": 0.202080028,
+        "linear_seconds": 0.112277235,
+        "assembly_seconds": 0.013464529,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49721344.0,
+        "max_true_residual_ratio": 0.007748637113281003,
+        "field_max_difference": 2.3425705819590803e-14,
+        "history_max_difference": 4.440892098500626e-16,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical-fix2/1795748080344447055/results.json",
+        "archive": "physical-coarse-fix.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.0861356932153394,
+          2.0861356932153394
+        ]
+      },
+      {
+        "mode": "mono_deflated",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 75,
+        "iterations_per_correction": 12.5,
+        "solve_seconds": 0.211171097,
+        "linear_seconds": 0.120686761,
+        "assembly_seconds": 0.012753232,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49893376.0,
+        "max_true_residual_ratio": 0.007748637113281003,
+        "field_max_difference": 4.335420911161236e-14,
+        "history_max_difference": 7.494005416219807e-16,
+        "deflation_applications": 61,
+        "deflation_vectors": 4,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.0861356932153394,
+          2.0861356932153394
+        ]
+      },
+      {
+        "mode": "mono_communication",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 75,
+        "iterations_per_correction": 12.5,
+        "solve_seconds": 0.210440201,
+        "linear_seconds": 0.12115357200000001,
+        "assembly_seconds": 0.012868491,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49537024.0,
+        "max_true_residual_ratio": 0.009489329700586524,
+        "field_max_difference": 2.653433028854124e-14,
+        "history_max_difference": 3.3306690738754696e-16,
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.0861356932153394,
+          2.0861356932153394
+        ]
+      },
+      {
+        "mode": "mono_saddle_all",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 18,
+        "iterations_per_correction": 3.0,
+        "solve_seconds": 0.6830106810000001,
+        "linear_seconds": 0.048564317,
+        "assembly_seconds": 0.0057143030000000004,
+        "nnz": 7788.0,
+        "peak_rss_max_bytes": 53161984.0,
+        "max_true_residual_ratio": 0.001297118574229974,
+        "field_max_difference": 6.661338147750939e-15,
+        "history_max_difference": 5.15273858737314e-16,
+        "matrix_free_actions": 135,
+        "deflation_applications": 15,
+        "deflation_vectors": 4,
+        "hierarchy_reuse_evidence": {
+          "status": "rebuilt_by_guard",
+          "hierarchy_reuses": 0,
+          "symbolic_reuses": 0,
+          "divergence_rebuilds": 2,
+          "adaptive_rebuilds": 0,
+          "drift_rebuilds": 2,
+          "age_rebuilds": 0
+        },
+        "case": "domains-r1",
+        "ranks": 1,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical-fix2/1795748080344447055/results.json",
+        "archive": "physical-coarse-fix.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.7045454545454546,
+          4.872624550590652
+        ],
+        "maximum_commuting_defect": 4.0803217300706017e-16
+      },
+      {
+        "mode": "direct",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 6,
+        "iterations_per_correction": 1.0,
+        "solve_seconds": 0.069593941,
+        "linear_seconds": 0.035449167000000004,
+        "assembly_seconds": 0.030947677,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 46702592.0,
+        "max_true_residual_ratio": 9.321631008671375e-06,
+        "field_max_difference": 0.0,
+        "history_max_difference": 0.0,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false
+      },
+      {
+        "mode": "mono_saddle",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 78,
+        "iterations_per_correction": 13.0,
+        "solve_seconds": 0.168797136,
+        "linear_seconds": 0.07966596100000001,
+        "assembly_seconds": 0.013423409,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49266688.0,
+        "max_true_residual_ratio": 0.004033176376165601,
+        "field_max_difference": 3.597122599785507e-14,
+        "history_max_difference": 7.993605777301127e-15,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          1.9701081612586038,
+          1.9701081612586038
+        ]
+      },
+      {
+        "mode": "mono_divergence",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 78,
+        "iterations_per_correction": 13.0,
+        "solve_seconds": 0.254987601,
+        "linear_seconds": 0.080531353,
+        "assembly_seconds": 0.015677315,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 51572736.0,
+        "max_true_residual_ratio": 0.003184700576387702,
+        "field_max_difference": 2.0382306953337093e-13,
+        "history_max_difference": 4.996003610813204e-16,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          1.632251720747296,
+          1.7152409046214356
+        ]
+      },
+      {
+        "mode": "mono_commuting",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 75,
+        "iterations_per_correction": 12.5,
+        "solve_seconds": 0.7039729220000001,
+        "linear_seconds": 0.10388315000000001,
+        "assembly_seconds": 0.013267948,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 54755328.0,
+        "max_true_residual_ratio": 0.0037404271387987396,
+        "field_max_difference": 3.6040614936894144e-14,
+        "history_max_difference": 4.440892098500626e-16,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          4.090658800393314,
+          4.634414945919371
+        ],
+        "maximum_commuting_defect": 3.062443012380643e-16
+      },
+      {
+        "mode": "mono_multilevel",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 72,
+        "iterations_per_correction": 12.0,
+        "solve_seconds": 0.41118185,
+        "linear_seconds": 0.088007634,
+        "assembly_seconds": 0.012171129999999999,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 53559296.0,
+        "max_true_residual_ratio": 0.002035003740514224,
+        "field_max_difference": 3.33288951992472e-13,
+        "history_max_difference": 5.551115123125783e-16,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          3.2774827925270404,
+          3.3058997050147494
+        ]
+      },
+      {
+        "mode": "mono_braess",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 159,
+        "iterations_per_correction": 26.5,
+        "solve_seconds": 0.121733918,
+        "linear_seconds": 0.066324106,
+        "assembly_seconds": 0.014425102,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 47923200.0,
+        "max_true_residual_ratio": 0.007698280838639941,
+        "field_max_difference": 7.163714066393823e-14,
+        "history_max_difference": 4.440892098500626e-16,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false,
+        "operator_complexity_range": [
+          1.9701081612586038,
+          1.9701081612586038
+        ]
+      },
+      {
+        "mode": "mono_colored",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 23,
+        "iterations_per_correction": 3.8333333333333335,
+        "solve_seconds": 0.11792971199999999,
+        "linear_seconds": 0.039450565,
+        "assembly_seconds": 0.014507656,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49344512.0,
+        "max_true_residual_ratio": 0.0006275491912782088,
+        "field_max_difference": 6.8833827526759706e-15,
+        "history_max_difference": 1.1102230246251565e-16,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          1.9701081612586038,
+          1.9701081612586038
+        ]
+      },
+      {
+        "mode": "mono_multiplicative",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 25,
+        "iterations_per_correction": 4.166666666666667,
+        "solve_seconds": 0.18459947699999998,
+        "linear_seconds": 0.10228972,
+        "assembly_seconds": 0.012391391,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49008640.0,
+        "max_true_residual_ratio": 0.0004950623916111761,
+        "field_max_difference": 1.7674750552032492e-13,
+        "history_max_difference": 6.106226635438361e-16,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          1.9701081612586038,
+          1.9701081612586038
+        ]
+      },
+      {
+        "mode": "mono_distributed",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 75,
+        "iterations_per_correction": 12.5,
+        "solve_seconds": 0.142978317,
+        "linear_seconds": 0.07074818399999999,
+        "assembly_seconds": 0.011555810000000001,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49549312.0,
+        "max_true_residual_ratio": 0.00878925703198106,
+        "field_max_difference": 1.2601031329495527e-14,
+        "history_max_difference": 6.661338147750939e-16,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.338938053097345,
+          2.338938053097345
+        ]
+      },
+      {
+        "mode": "mono_reuse",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 72,
+        "iterations_per_correction": 12.0,
+        "solve_seconds": 0.282930267,
+        "linear_seconds": 0.080299936,
+        "assembly_seconds": 0.014600045,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 53284864.0,
+        "max_true_residual_ratio": 0.002073438297788249,
+        "field_max_difference": 4.063416270128073e-14,
+        "history_max_difference": 3.3306690738754696e-16,
+        "hierarchy_reuse_evidence": {
+          "status": "executed",
+          "hierarchy_reuses": 3,
+          "symbolic_reuses": 6,
+          "divergence_rebuilds": 0
+        },
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          3.2774827925270404,
+          3.3058997050147494
+        ]
+      },
+      {
+        "mode": "mono_adaptive_hierarchy",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 78,
+        "iterations_per_correction": 13.0,
+        "solve_seconds": 0.22158534900000001,
+        "linear_seconds": 0.076956594,
+        "assembly_seconds": 0.013588803,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 52379648.0,
+        "max_true_residual_ratio": 0.0047656200057359915,
+        "field_max_difference": 1.1575462810498038e-13,
+        "history_max_difference": 4.996003610813204e-16,
+        "hierarchy_reuse_evidence": {
+          "status": "executed",
+          "hierarchy_reuses": 3,
+          "symbolic_reuses": 6,
+          "divergence_rebuilds": 0,
+          "adaptive_rebuilds": 0,
+          "drift_rebuilds": 2,
+          "age_rebuilds": 0
+        },
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical-fix2/1795748080344447055/results.json",
+        "archive": "physical-coarse-fix.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          1.9515240904621436,
+          1.9701081612586038
+        ]
+      },
+      {
+        "mode": "mono_mf_fine",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 78,
+        "iterations_per_correction": 13.0,
+        "solve_seconds": 0.146636983,
+        "linear_seconds": 0.09539001899999999,
+        "assembly_seconds": 0.006725722,
+        "nnz": 7788.0,
+        "peak_rss_max_bytes": 48676864.0,
+        "max_true_residual_ratio": 0.0040057742632534496,
+        "field_max_difference": 3.5416114485542494e-14,
+        "history_max_difference": 7.993605777301127e-15,
+        "matrix_free_actions": 252,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.2668207498715973,
+          2.2668207498715973
+        ]
+      },
+      {
+        "mode": "mono_coarse_distributed",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 78,
+        "iterations_per_correction": 13.0,
+        "solve_seconds": 0.17483875399999999,
+        "linear_seconds": 0.09641132499999999,
+        "assembly_seconds": 0.017369615999999997,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 52686848.0,
+        "max_true_residual_ratio": 0.004033568425868453,
+        "field_max_difference": 3.6637359812630166e-14,
+        "history_max_difference": 7.993605777301127e-15,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical-fix2/1795748080344447055/results.json",
+        "archive": "physical-coarse-fix.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          1.9701081612586038,
+          1.9701081612586038
+        ]
+      },
+      {
+        "mode": "mono_deflated",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 78,
+        "iterations_per_correction": 13.0,
+        "solve_seconds": 0.16320357600000002,
+        "linear_seconds": 0.090441572,
+        "assembly_seconds": 0.013882887,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49467392.0,
+        "max_true_residual_ratio": 0.006826356047143452,
+        "field_max_difference": 3.7192471324942744e-14,
+        "history_max_difference": 5.551115123125783e-16,
+        "deflation_applications": 63,
+        "deflation_vectors": 4,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          1.9701081612586038,
+          1.9701081612586038
+        ]
+      },
+      {
+        "mode": "mono_communication",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 77,
+        "iterations_per_correction": 12.833333333333334,
+        "solve_seconds": 0.165044953,
+        "linear_seconds": 0.085349053,
+        "assembly_seconds": 0.013391843,
+        "nnz": 10170.0,
+        "peak_rss_max_bytes": 49324032.0,
+        "max_true_residual_ratio": 0.009021079148160261,
+        "field_max_difference": 3.008704396734174e-14,
+        "history_max_difference": 7.216449660063518e-16,
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          1.9701081612586038,
+          1.9701081612586038
+        ]
+      },
+      {
+        "mode": "mono_saddle_all",
+        "status": "passed",
+        "dofs": 307,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 20,
+        "iterations_per_correction": 3.3333333333333335,
+        "solve_seconds": 0.43123680799999997,
+        "linear_seconds": 0.051102510000000004,
+        "assembly_seconds": 0.005070717000000001,
+        "nnz": 7788.0,
+        "peak_rss_max_bytes": 56172544.0,
+        "max_true_residual_ratio": 0.0004060285212645917,
+        "field_max_difference": 3.9968028886505635e-15,
+        "history_max_difference": 2.220446049250313e-16,
+        "matrix_free_actions": 145,
+        "deflation_applications": 16,
+        "deflation_vectors": 4,
+        "hierarchy_reuse_evidence": {
+          "status": "rebuilt_by_guard",
+          "hierarchy_reuses": 0,
+          "symbolic_reuses": 0,
+          "divergence_rebuilds": 0,
+          "adaptive_rebuilds": 0,
+          "drift_rebuilds": 2,
+          "age_rebuilds": 0
+        },
+        "case": "domains-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical-fix2/1795748080344447055/results.json",
+        "archive": "physical-coarse-fix.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.2420390344119157,
+          5.284411915767848
+        ],
+        "maximum_commuting_defect": 3.057504476613931e-16
+      },
+      {
+        "mode": "direct",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 9,
+        "iterations_per_correction": 1.0,
+        "solve_seconds": 0.041237778,
+        "linear_seconds": 0.015498766,
+        "assembly_seconds": 0.023816397,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 47763456.0,
+        "max_true_residual_ratio": 4.050982713843283e-05,
+        "field_max_difference": 0.0,
+        "history_max_difference": 0.0,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false
+      },
+      {
+        "mode": "mono_saddle",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 151,
+        "iterations_per_correction": 16.77777777777778,
+        "solve_seconds": 0.360564699,
+        "linear_seconds": 0.190522848,
+        "assembly_seconds": 0.02366457,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 51888128.0,
+        "max_true_residual_ratio": 0.007769738465473164,
+        "field_max_difference": 2.587235981010849e-12,
+        "history_max_difference": 4.291705879566621e-15,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.6226518579459754,
+          2.6226518579459754
+        ]
+      },
+      {
+        "mode": "mono_divergence",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 150,
+        "iterations_per_correction": 16.666666666666668,
+        "solve_seconds": 0.627533654,
+        "linear_seconds": 0.224814727,
+        "assembly_seconds": 0.022515353000000002,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 55975936.0,
+        "max_true_residual_ratio": 0.008190416929661104,
+        "field_max_difference": 2.1535551120166474e-12,
+        "history_max_difference": 4.277828091758806e-15,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.1626902509255452,
+          2.2433840669134786
+        ]
+      },
+      {
+        "mode": "mono_commuting",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 119,
+        "iterations_per_correction": 13.222222222222221,
+        "solve_seconds": 1.68376158,
+        "linear_seconds": 0.19993989,
+        "assembly_seconds": 0.022647644,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 60891136.0,
+        "max_true_residual_ratio": 0.004711900646510712,
+        "field_max_difference": 9.867107131356079e-13,
+        "history_max_difference": 4.270889197854899e-15,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          5.93089263677499,
+          6.031057178116002
+        ],
+        "maximum_commuting_defect": 3.4739670108995796e-16
+      },
+      {
+        "mode": "mono_multilevel",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 134,
+        "iterations_per_correction": 14.88888888888889,
+        "solve_seconds": 0.9457918160000001,
+        "linear_seconds": 0.179130874,
+        "assembly_seconds": 0.022616927000000002,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 59752448.0,
+        "max_true_residual_ratio": 0.0073818465934758154,
+        "field_max_difference": 4.664046926450283e-13,
+        "history_max_difference": 1.446488366499152e-15,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          4.562320032908268,
+          4.608391608391608
+        ]
+      },
+      {
+        "mode": "mono_braess",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 261,
+        "iterations_per_correction": 29.0,
+        "solve_seconds": 0.297998475,
+        "linear_seconds": 0.13995688099999998,
+        "assembly_seconds": 0.038466720999999995,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 50307072.0,
+        "max_true_residual_ratio": 0.00681384457132032,
+        "field_max_difference": 1.5093482019779003e-12,
+        "history_max_difference": 4.28129753871076e-15,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false,
+        "operator_complexity_range": [
+          2.6226518579459754,
+          2.6226518579459754
+        ]
+      },
+      {
+        "mode": "mono_colored",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 54,
+        "iterations_per_correction": 6.0,
+        "solve_seconds": 0.309631916,
+        "linear_seconds": 0.12195149999999999,
+        "assembly_seconds": 0.023371419,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 52031488.0,
+        "max_true_residual_ratio": 0.0006730696305098607,
+        "field_max_difference": 3.7891911830456593e-13,
+        "history_max_difference": 3.3306690738754696e-15,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.6226518579459754,
+          2.6226518579459754
+        ]
+      },
+      {
+        "mode": "mono_multiplicative",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 59,
+        "iterations_per_correction": 6.555555555555555,
+        "solve_seconds": 0.43836438,
+        "linear_seconds": 0.228639606,
+        "assembly_seconds": 0.026530546000000002,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 51855360.0,
+        "max_true_residual_ratio": 0.005850438194992593,
+        "field_max_difference": 2.9831692671677956e-13,
+        "history_max_difference": 1.3322676295501878e-15,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.6226518579459754,
+          2.6226518579459754
+        ]
+      },
+      {
+        "mode": "mono_distributed",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 148,
+        "iterations_per_correction": 16.444444444444443,
+        "solve_seconds": 0.401164403,
+        "linear_seconds": 0.216499424,
+        "assembly_seconds": 0.0236803,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 51814400.0,
+        "max_true_residual_ratio": 0.005654057972989516,
+        "field_max_difference": 3.9448999622493375e-13,
+        "history_max_difference": 4.270889197854899e-15,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.3155080213903743,
+          2.3155080213903743
+        ]
+      },
+      {
+        "mode": "mono_reuse",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 135,
+        "iterations_per_correction": 15.0,
+        "solve_seconds": 0.691680647,
+        "linear_seconds": 0.177182622,
+        "assembly_seconds": 0.024280249,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 59170816.0,
+        "max_true_residual_ratio": 0.006709296957100407,
+        "field_max_difference": 4.454214774796128e-13,
+        "history_max_difference": 3.2682190287403046e-15,
+        "hierarchy_reuse_evidence": {
+          "status": "executed",
+          "hierarchy_reuses": 4,
+          "symbolic_reuses": 8,
+          "divergence_rebuilds": 0
+        },
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          4.562320032908268,
+          4.608391608391608
+        ]
+      },
+      {
+        "mode": "mono_adaptive_hierarchy",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 147,
+        "iterations_per_correction": 16.333333333333332,
+        "solve_seconds": 1.488052792,
+        "linear_seconds": 0.21815117099999998,
+        "assembly_seconds": 0.023597411999999998,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 61480960.0,
+        "max_true_residual_ratio": 0.007769738465473164,
+        "field_max_difference": 2.122607645205221e-12,
+        "history_max_difference": 4.270889197854899e-15,
+        "hierarchy_reuse_evidence": {
+          "status": "rebuilt_by_guard",
+          "hierarchy_reuses": 0,
+          "symbolic_reuses": 0,
+          "divergence_rebuilds": 0,
+          "adaptive_rebuilds": 8,
+          "drift_rebuilds": 4,
+          "age_rebuilds": 0
+        },
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical-fix2/1795748080344447055/results.json",
+        "archive": "physical-coarse-fix.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.6226518579459754,
+          3.403263403263403
+        ]
+      },
+      {
+        "mode": "mono_mf_fine",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 151,
+        "iterations_per_correction": 16.77777777777778,
+        "solve_seconds": 0.352241822,
+        "linear_seconds": 0.243126864,
+        "assembly_seconds": 0.012343441,
+        "nnz": 11418.0,
+        "peak_rss_max_bytes": 51359744.0,
+        "max_true_residual_ratio": 0.007061455564410805,
+        "field_max_difference": 4.360956040727615e-13,
+        "history_max_difference": 4.270889197854899e-15,
+        "matrix_free_actions": 490,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          3.056577210734712,
+          3.056577210734712
+        ]
+      },
+      {
+        "mode": "mono_coarse_distributed",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 151,
+        "iterations_per_correction": 16.77777777777778,
+        "solve_seconds": 0.403950403,
+        "linear_seconds": 0.227104093,
+        "assembly_seconds": 0.02533343,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 55287808.0,
+        "max_true_residual_ratio": 0.007758072464985498,
+        "field_max_difference": 2.5855706464739114e-12,
+        "history_max_difference": 4.291705879566621e-15,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical-fix2/1795748080344447055/results.json",
+        "archive": "physical-coarse-fix.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.6226518579459754,
+          2.6226518579459754
+        ]
+      },
+      {
+        "mode": "mono_deflated",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 129,
+        "iterations_per_correction": 14.333333333333334,
+        "solve_seconds": 0.377351082,
+        "linear_seconds": 0.190597942,
+        "assembly_seconds": 0.026896894999999997,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 52502528.0,
+        "max_true_residual_ratio": 0.007769738465473164,
+        "field_max_difference": 4.4497738826976274e-13,
+        "history_max_difference": 8.796556721160963e-16,
+        "deflation_applications": 108,
+        "deflation_vectors": 4,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.6226518579459754,
+          2.6226518579459754
+        ]
+      },
+      {
+        "mode": "mono_communication",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 165,
+        "iterations_per_correction": 18.333333333333332,
+        "solve_seconds": 0.41933284800000004,
+        "linear_seconds": 0.242358942,
+        "assembly_seconds": 0.025907167000000002,
+        "nnz": 14639.0,
+        "peak_rss_max_bytes": 52031488.0,
+        "max_true_residual_ratio": 0.002782974139112822,
+        "field_max_difference": 4.425348976155874e-13,
+        "history_max_difference": 4.270889197854899e-15,
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical/1795747559602748068/results.json",
+        "archive": "physical-initial.tar.xz",
+        "executable_sha256": "ae2a03cf2b41038261f48035d49b284d73c4f7f8394c6e87f64a7b488aeb6411",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.6226518579459754,
+          2.6226518579459754
+        ]
+      },
+      {
+        "mode": "mono_saddle_all",
+        "status": "passed",
+        "dofs": 350,
+        "accepted_steps": 3,
+        "corrections": 9,
+        "outer_iterations": 42,
+        "iterations_per_correction": 4.666666666666667,
+        "solve_seconds": 0.9893084129999999,
+        "linear_seconds": 0.135493061,
+        "assembly_seconds": 0.013049939,
+        "nnz": 11418.0,
+        "peak_rss_max_bytes": 60125184.0,
+        "max_true_residual_ratio": 0.00572868379740975,
+        "field_max_difference": 3.458899833219675e-13,
+        "history_max_difference": 7.541714114132766e-16,
+        "matrix_free_actions": 283,
+        "deflation_applications": 36,
+        "deflation_vectors": 4,
+        "hierarchy_reuse_evidence": {
+          "status": "executed",
+          "hierarchy_reuses": 3,
+          "symbolic_reuses": 4,
+          "divergence_rebuilds": 0,
+          "adaptive_rebuilds": 0,
+          "drift_rebuilds": 2,
+          "age_rebuilds": 0
+        },
+        "case": "moving-rcr",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-physical-fix2/1795748080344447055/results.json",
+        "archive": "physical-coarse-fix.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.609590849098108,
+          5.143862736471624
+        ],
+        "maximum_commuting_defect": 3.505882477518633e-16
+      }
+    ]
+  },
+  "grid_final": {
+    "status": "passed",
+    "count": 18,
+    "source_counts": {
+      "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba": 6,
+      "24b80563cd5af76c885577789a9cc3751a4758f3": 12
+    },
+    "records": [
+      {
+        "mode": "direct",
+        "status": "passed",
+        "dofs": 703,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 6,
+        "iterations_per_correction": 1.0,
+        "solve_seconds": 0.058372681999999995,
+        "linear_seconds": 0.028228418999999998,
+        "assembly_seconds": 0.028992545,
+        "nnz": 27226.0,
+        "peak_rss_max_bytes": 50147328.0,
+        "max_true_residual_ratio": 1.423667978895304e-05,
+        "field_max_difference": 0.0,
+        "history_max_difference": 0.0,
+        "case": "scaling-n4-r2",
+        "ranks": 2,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false
+      },
+      {
+        "mode": "mono",
+        "status": "passed",
+        "dofs": 703,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 103,
+        "iterations_per_correction": 17.166666666666668,
+        "solve_seconds": 0.6987024420000001,
+        "linear_seconds": 0.35802719299999997,
+        "assembly_seconds": 0.031686202,
+        "nnz": 27226.0,
+        "peak_rss_max_bytes": 61112320.0,
+        "max_true_residual_ratio": 0.008145231900274757,
+        "field_max_difference": 4.218847493575595e-14,
+        "history_max_difference": 6.38378239159465e-16,
+        "case": "scaling-n4-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.8660471608021743,
+          2.8660471608021743
+        ]
+      },
+      {
+        "mode": "mono_saddle",
+        "status": "passed",
+        "dofs": 703,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 104,
+        "iterations_per_correction": 17.333333333333332,
+        "solve_seconds": 0.624992016,
+        "linear_seconds": 0.336210721,
+        "assembly_seconds": 0.029031231000000005,
+        "nnz": 27226.0,
+        "peak_rss_max_bytes": 60547072.0,
+        "max_true_residual_ratio": 0.008199499133600487,
+        "field_max_difference": 9.242606680004428e-14,
+        "history_max_difference": 4.440892098500626e-16,
+        "case": "scaling-n4-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.769374862264012,
+          2.769374862264012
+        ]
+      },
+      {
+        "mode": "mono_braess",
+        "status": "passed",
+        "dofs": 703,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 214,
+        "iterations_per_correction": 35.666666666666664,
+        "solve_seconds": 0.37421869,
+        "linear_seconds": 0.152126906,
+        "assembly_seconds": 0.033854046,
+        "nnz": 27226.0,
+        "peak_rss_max_bytes": 55873536.0,
+        "max_true_residual_ratio": 0.007584568548619651,
+        "field_max_difference": 3.2604474675679285e-13,
+        "history_max_difference": 4.440892098500626e-16,
+        "case": "scaling-n4-r2",
+        "ranks": 2,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false,
+        "operator_complexity_range": [
+          2.769374862264012,
+          2.769374862264012
+        ]
+      },
+      {
+        "mode": "mono_colored",
+        "status": "passed",
+        "dofs": 703,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 28,
+        "iterations_per_correction": 4.666666666666667,
+        "solve_seconds": 0.401703739,
+        "linear_seconds": 0.127432135,
+        "assembly_seconds": 0.027241841,
+        "nnz": 27226.0,
+        "peak_rss_max_bytes": 60481536.0,
+        "max_true_residual_ratio": 0.008211930759224804,
+        "field_max_difference": 7.993605777301127e-15,
+        "history_max_difference": 6.106226635438361e-16,
+        "case": "scaling-n4-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          2.769374862264012,
+          2.769374862264012
+        ]
+      },
+      {
+        "mode": "mono_saddle_all",
+        "status": "passed",
+        "dofs": 703,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 27,
+        "iterations_per_correction": 4.5,
+        "solve_seconds": 1.808970898,
+        "linear_seconds": 0.1919542,
+        "assembly_seconds": 0.011348435,
+        "nnz": 20284.0,
+        "peak_rss_max_bytes": 75370496.0,
+        "max_true_residual_ratio": 0.003140929445682969,
+        "field_max_difference": 1.2656542480726785e-14,
+        "history_max_difference": 2.7755575615628914e-16,
+        "matrix_free_actions": 174,
+        "deflation_applications": 21,
+        "deflation_vectors": 4,
+        "hierarchy_reuse_evidence": {
+          "status": "rebuilt_by_guard",
+          "hierarchy_reuses": 0,
+          "symbolic_reuses": 0,
+          "divergence_rebuilds": 2,
+          "adaptive_rebuilds": 0,
+          "drift_rebuilds": 1,
+          "age_rebuilds": 0
+        },
+        "case": "scaling-n4-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          3.9211693945967263,
+          5.50695129165845
+        ],
+        "maximum_commuting_defect": 1.245817331057849e-15
+      },
+      {
+        "mode": "direct",
+        "status": "passed",
+        "dofs": 2299,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 6,
+        "iterations_per_correction": 1.0,
+        "solve_seconds": 0.261921317,
+        "linear_seconds": 0.168082419,
+        "assembly_seconds": 0.09250082,
+        "nnz": 103506.0,
+        "peak_rss_max_bytes": 63918080.0,
+        "max_true_residual_ratio": 2.9374814359186754e-05,
+        "field_max_difference": 0.0,
+        "history_max_difference": 0.0,
+        "case": "scaling-n6-r2",
+        "ranks": 2,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false
+      },
+      {
+        "mode": "mono",
+        "status": "passed",
+        "dofs": 2299,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 151,
+        "iterations_per_correction": 25.166666666666668,
+        "solve_seconds": 3.18118691,
+        "linear_seconds": 1.7527346220000002,
+        "assembly_seconds": 0.094443717,
+        "nnz": 103506.0,
+        "peak_rss_max_bytes": 106774528.0,
+        "max_true_residual_ratio": 0.005701966587659902,
+        "field_max_difference": 2.2581936320875684e-13,
+        "history_max_difference": 8.881784197001252e-16,
+        "case": "scaling-n6-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          4.14411724924159,
+          4.14411724924159
+        ]
+      },
+      {
+        "mode": "mono_saddle",
+        "status": "passed",
+        "dofs": 2299,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 151,
+        "iterations_per_correction": 25.166666666666668,
+        "solve_seconds": 2.7199561140000004,
+        "linear_seconds": 1.5891399549999998,
+        "assembly_seconds": 0.083855793,
+        "nnz": 103506.0,
+        "peak_rss_max_bytes": 104349696.0,
+        "max_true_residual_ratio": 0.007782367755715586,
+        "field_max_difference": 1.4541146065027988e-13,
+        "history_max_difference": 1.2490009027033011e-15,
+        "case": "scaling-n6-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          4.049098602979537,
+          4.049098602979537
+        ]
+      },
+      {
+        "mode": "mono_braess",
+        "status": "passed",
+        "dofs": 2299,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 314,
+        "iterations_per_correction": 52.333333333333336,
+        "solve_seconds": 1.734678575,
+        "linear_seconds": 0.768183284,
+        "assembly_seconds": 0.09057367699999999,
+        "nnz": 103506.0,
+        "peak_rss_max_bytes": 85512200.0,
+        "max_true_residual_ratio": 0.007377154355437307,
+        "field_max_difference": 1.7370826999041356e-13,
+        "history_max_difference": 7.216449660063518e-16,
+        "case": "scaling-n6-r2",
+        "ranks": 2,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false,
+        "operator_complexity_range": [
+          4.049098602979537,
+          4.049098602979537
+        ]
+      },
+      {
+        "mode": "mono_colored",
+        "status": "passed",
+        "dofs": 2299,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 39,
+        "iterations_per_correction": 6.5,
+        "solve_seconds": 1.822554828,
+        "linear_seconds": 0.580055561,
+        "assembly_seconds": 0.093859348,
+        "nnz": 103506.0,
+        "peak_rss_max_bytes": 103514112.0,
+        "max_true_residual_ratio": 0.005207669054496218,
+        "field_max_difference": 3.0558888752807434e-14,
+        "history_max_difference": 2.220446049250313e-16,
+        "case": "scaling-n6-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          4.049098602979537,
+          4.049098602979537
+        ]
+      },
+      {
+        "mode": "mono_saddle_all",
+        "status": "passed",
+        "dofs": 2299,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 36,
+        "iterations_per_correction": 6.0,
+        "solve_seconds": 7.24984857,
+        "linear_seconds": 1.11255262,
+        "assembly_seconds": 0.037655285999999996,
+        "nnz": 75300.0,
+        "peak_rss_max_bytes": 136544256.0,
+        "max_true_residual_ratio": 0.0006978494410666099,
+        "field_max_difference": 2.2243318298365011e-13,
+        "history_max_difference": 7.216449660063518e-16,
+        "matrix_free_actions": 213,
+        "deflation_applications": 28,
+        "deflation_vectors": 4,
+        "hierarchy_reuse_evidence": {
+          "status": "rebuilt_by_guard",
+          "hierarchy_reuses": 0,
+          "symbolic_reuses": 0,
+          "divergence_rebuilds": 2,
+          "adaptive_rebuilds": 0,
+          "drift_rebuilds": 1,
+          "age_rebuilds": 0
+        },
+        "case": "scaling-n6-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          6.130929614873838,
+          7.984369189907039
+        ],
+        "maximum_commuting_defect": 4.1212286181484586e-16
+      },
+      {
+        "mode": "direct",
+        "status": "passed",
+        "dofs": 5367,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 6,
+        "iterations_per_correction": 1.0,
+        "solve_seconds": 0.6215931650000001,
+        "linear_seconds": 0.43783545999999995,
+        "assembly_seconds": 0.181076837,
+        "nnz": 260010.0,
+        "peak_rss_max_bytes": 88387600.0,
+        "max_true_residual_ratio": 5.939935776259369e-05,
+        "field_max_difference": 0.0,
+        "history_max_difference": 0.0,
+        "case": "scaling-n8-r2",
+        "ranks": 2,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false
+      },
+      {
+        "mode": "mono",
+        "status": "passed",
+        "dofs": 5367,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 206,
+        "iterations_per_correction": 34.333333333333336,
+        "solve_seconds": 11.083586002,
+        "linear_seconds": 6.556726414,
+        "assembly_seconds": 0.19102445,
+        "nnz": 260010.0,
+        "peak_rss_max_bytes": 214499328.0,
+        "max_true_residual_ratio": 0.006938085232256278,
+        "field_max_difference": 1.1435297153639112e-13,
+        "history_max_difference": 7.563394355258879e-16,
+        "case": "scaling-n8-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          4.828291219568478,
+          4.828291219568478
+        ]
+      },
+      {
+        "mode": "mono_saddle",
+        "status": "passed",
+        "dofs": 5367,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 204,
+        "iterations_per_correction": 34.0,
+        "solve_seconds": 10.798841175,
+        "linear_seconds": 6.6823565799999995,
+        "assembly_seconds": 0.20320784799999997,
+        "nnz": 260010.0,
+        "peak_rss_max_bytes": 208568320.0,
+        "max_true_residual_ratio": 0.00841827801418902,
+        "field_max_difference": 2.4069635173873394e-13,
+        "history_max_difference": 1.7763568394002505e-15,
+        "case": "scaling-n8-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          4.771366485904388,
+          4.771366485904388
+        ]
+      },
+      {
+        "mode": "mono_braess",
+        "status": "passed",
+        "dofs": 5367,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 404,
+        "iterations_per_correction": 67.33333333333333,
+        "solve_seconds": 6.817998448,
+        "linear_seconds": 3.2775130089999998,
+        "assembly_seconds": 0.197934049,
+        "nnz": 260010.0,
+        "peak_rss_max_bytes": 165892096.0,
+        "max_true_residual_ratio": 0.007153435254363844,
+        "field_max_difference": 3.879119248040297e-13,
+        "history_max_difference": 5.551115123125783e-16,
+        "case": "scaling-n8-r2",
+        "ranks": 2,
+        "source": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-braess-final/1795748828448585227/results.json",
+        "archive": "braess-final-physical-grid.tar.xz",
+        "executable_sha256": "d6ee3d19f1cde98c0fcc8cdd69dc52285a818683bea212aedeab78011d4cdbb7",
+        "reused_after_unaffected_changes": false,
+        "operator_complexity_range": [
+          4.771366485904388,
+          4.771366485904388
+        ]
+      },
+      {
+        "mode": "mono_colored",
+        "status": "passed",
+        "dofs": 5367,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 50,
+        "iterations_per_correction": 8.333333333333334,
+        "solve_seconds": 7.263815942000001,
+        "linear_seconds": 2.631887707,
+        "assembly_seconds": 0.20894050799999997,
+        "nnz": 260010.0,
+        "peak_rss_max_bytes": 205918208.0,
+        "max_true_residual_ratio": 0.002277881253879658,
+        "field_max_difference": 5.30298027712206e-13,
+        "history_max_difference": 1.2212453270876722e-15,
+        "case": "scaling-n8-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          4.771366485904388,
+          4.771366485904388
+        ]
+      },
+      {
+        "mode": "mono_saddle_all",
+        "status": "passed",
+        "dofs": 5367,
+        "accepted_steps": 3,
+        "corrections": 6,
+        "outer_iterations": 46,
+        "iterations_per_correction": 7.666666666666667,
+        "solve_seconds": 18.83856304,
+        "linear_seconds": 3.6664116499999997,
+        "assembly_seconds": 0.07215205,
+        "nnz": 187148.0,
+        "peak_rss_max_bytes": 399372288.0,
+        "max_true_residual_ratio": 0.006263729016846259,
+        "field_max_difference": 4.316880186649996e-12,
+        "history_max_difference": 1.7763568394002505e-15,
+        "matrix_free_actions": 253,
+        "deflation_applications": 36,
+        "deflation_vectors": 4,
+        "hierarchy_reuse_evidence": {
+          "status": "executed",
+          "hierarchy_reuses": 1,
+          "symbolic_reuses": 2,
+          "divergence_rebuilds": 0,
+          "adaptive_rebuilds": 0,
+          "drift_rebuilds": 1,
+          "age_rebuilds": 0
+        },
+        "case": "scaling-n8-r2",
+        "ranks": 2,
+        "source": "24b80563cd5af76c885577789a9cc3751a4758f3",
+        "source_receipt": "/workspace/scratch/2185eeebac03/saddle-grid/1795748125268810100/results.json",
+        "archive": "grid-initial.tar.xz",
+        "executable_sha256": "f011f1dd4ce62bded86cc9751c4b1c15b75c90731071cce6d35f5823e89df31c",
+        "reused_after_unaffected_changes": true,
+        "operator_complexity_range": [
+          6.7653407997948145,
+          6.860260328723791
+        ],
+        "maximum_commuting_defect": 3.8923612557210086e-16
+      }
+    ]
+  },
+  "acceptance_extrema": {
+    "max_true_residual_ratio": 0.009489329700586524,
+    "max_field_difference": 4.316880186649996e-12,
+    "max_history_difference": 7.993605777301127e-15,
+    "max_commuting_defect": 1.245817331057849e-15
+  },
+  "mesh_convergence_goal": {
+    "status": "open",
+    "maximum_ratio": 1.3,
+    "modes": {
+      "mono": {
+        "status": "open",
+        "observed_ratio": 2.0,
+        "total_iterations": [
+          103,
+          151,
+          206
+        ],
+        "iterations_per_correction": [
+          17.166666666666668,
+          25.166666666666668,
+          34.333333333333336
+        ],
+        "solve_seconds": [
+          0.6987024420000001,
+          3.18118691,
+          11.083586002
+        ],
+        "source": [
+          "24b80563cd5af76c885577789a9cc3751a4758f3",
+          "24b80563cd5af76c885577789a9cc3751a4758f3",
+          "24b80563cd5af76c885577789a9cc3751a4758f3"
+        ]
+      },
+      "mono_saddle": {
+        "status": "open",
+        "observed_ratio": 1.9615384615384617,
+        "total_iterations": [
+          104,
+          151,
+          204
+        ],
+        "iterations_per_correction": [
+          17.333333333333332,
+          25.166666666666668,
+          34.0
+        ],
+        "solve_seconds": [
+          0.624992016,
+          2.7199561140000004,
+          10.798841175
+        ],
+        "source": [
+          "24b80563cd5af76c885577789a9cc3751a4758f3",
+          "24b80563cd5af76c885577789a9cc3751a4758f3",
+          "24b80563cd5af76c885577789a9cc3751a4758f3"
+        ]
+      },
+      "mono_braess": {
+        "status": "open",
+        "observed_ratio": 1.8878504672897196,
+        "total_iterations": [
+          214,
+          314,
+          404
+        ],
+        "iterations_per_correction": [
+          35.666666666666664,
+          52.333333333333336,
+          67.33333333333333
+        ],
+        "solve_seconds": [
+          0.37421869,
+          1.734678575,
+          6.817998448
+        ],
+        "source": [
+          "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+          "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+          "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba"
+        ]
+      },
+      "mono_colored": {
+        "status": "open",
+        "observed_ratio": 1.7857142857142858,
+        "total_iterations": [
+          28,
+          39,
+          50
+        ],
+        "iterations_per_correction": [
+          4.666666666666667,
+          6.5,
+          8.333333333333334
+        ],
+        "solve_seconds": [
+          0.401703739,
+          1.822554828,
+          7.263815942000001
+        ],
+        "source": [
+          "24b80563cd5af76c885577789a9cc3751a4758f3",
+          "24b80563cd5af76c885577789a9cc3751a4758f3",
+          "24b80563cd5af76c885577789a9cc3751a4758f3"
+        ]
+      },
+      "mono_saddle_all": {
+        "status": "open",
+        "observed_ratio": 1.7037037037037037,
+        "total_iterations": [
+          27,
+          36,
+          46
+        ],
+        "iterations_per_correction": [
+          4.5,
+          6.0,
+          7.666666666666667
+        ],
+        "solve_seconds": [
+          1.808970898,
+          7.24984857,
+          18.83856304
+        ],
+        "source": [
+          "24b80563cd5af76c885577789a9cc3751a4758f3",
+          "24b80563cd5af76c885577789a9cc3751a4758f3",
+          "24b80563cd5af76c885577789a9cc3751a4758f3"
+        ]
+      }
+    }
+  },
+  "provenance_note": "Each retained pass is bound to its executed binary/source. Later changes affect only the listed rerun modes or diagnostics; retained older records are not claimed as executions of final_source. Original failed receipts are unchanged.",
+  "reuse_boundaries": [
+    {
+      "after": "bd2f0105a423c41daac6235b8dffb52127a9d638",
+      "change": "24b8056 changes distributed coarse local LU and rebuild diagnostics; rerun adaptive_hierarchy/coarse_distributed/saddle_all physical modes and MG unit tests. Other retained physical modes use coarse_processes=1 and unchanged algorithms."
+    },
+    {
+      "after": "24b80563cd5af76c885577789a9cc3751a4758f3",
+      "change": "ccf1bd7 changes only the default Braess alpha plus its oracle/documentation; rerun Braess physical/grid and all affected MG/smoother unit tests. Non-Braess physical/grid algorithms are unchanged."
+    }
+  ],
+  "source_ci": {
+    "source_head": "ccf1bd7b3727a6b3ddd3a85954a3a78c51a652ba",
+    "merge_preview_commit": "75bb86a0c5e668d497d0e95eb5ed0be4df824550",
+    "source_and_preview_tree": "014a1de3199b7e476aec00aa63078a13adb60610",
+    "run_id": 45931896224,
+    "run_url": "https://github.com/saitoasukakawaii/EONSim-new/actions/runs/45931896224",
+    "status": "passed",
+    "tests": {
+      "fresh_release_passed": 83,
+      "release_failed": 0,
+      "release_reused": 0,
+      "release_covered": 83,
+      "python_passed": 54,
+      "python_scripts": {
+        "tests/test_ci_selection.py": 26,
+        "tests/test_cloud_evidence.py": 6,
+        "tests/test_lame_wall.py": 6,
+        "tests/test_rigid_tube.py": 3,
+        "tests/test_womersley.py": 13
+      }
+    }
+  }
+}
