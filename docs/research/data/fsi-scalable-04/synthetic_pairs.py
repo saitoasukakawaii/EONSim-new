@@ -1,9 +1,11 @@
 """Bounded paired timing of existing owner/Telescope options on archived 64x2 inputs."""
 import argparse
+import csv
 import json
+import math
 import os
 from pathlib import Path
-import statistics
+import re
 import subprocess
 import sys
 
@@ -32,7 +34,24 @@ def field_gate(folder, reference, cache):
     return outcomes
 
 
-def telescope_report(text, budget):
+def coarse_events(path, active):
+    """Keep the inclusive coarsest event on each rank, including ranks outside the child."""
+    with path.open(newline='') as stream:
+        rows = [r for r in csv.DictReader(stream) if r['Stage Name'] == 'Main Stage'
+                and re.fullmatch(r'FSI_L\d+_Coarse', r['Event Name'])]
+    if len(rows) != 64 or len({r['Event Name'] for r in rows}) != 1 or {int(r['Rank']) for r in rows} != set(range(64)):
+        raise ValueError('Missing or duplicated rank/level in PETSc coarse events')
+    groups = {'participating': [], 'nonparticipating': []}
+    for row in sorted(rows, key=lambda r: int(r['Rank'])):
+        rank = int(row['Rank'])
+        record = dict(rank=rank, calls=float(row['Count']), seconds=float(row['Time']), reductions=float(row['Num Reductions']))
+        if any(not math.isfinite(value) or value < 0 for value in record.values()) or record['calls'] < 1:
+            raise ValueError(f'Invalid coarse event counters on rank {rank}')
+        groups['participating' if rank in active else 'nonparticipating'].append(record)
+    return dict(event=rows[0]['Event Name'], ranks=groups, csv=str(path), sha256=scaling.assembly.digest(path))
+
+
+def telescope_report(text, budget, events):
     hierarchy = scaling.assembly.records(text, 'pc_monolithic_mg ')
     observed = sorted({(int(row['coarsest_rows']), int(row['coarse_processes'])) for row in hierarchy})
     nodes = scaling.assembly.records(text, 'solver_node ')
@@ -56,6 +75,7 @@ def telescope_report(text, budget):
         raise ValueError('Missing outer coarse PREONLY report')
     counters = [row for row in scaling.assembly.records(text, 'monolithic_mg_stats ') if int(row['rank']) == 0]
     return dict(rows_budget=budget, coarsest_rows=observed[0][0], participating_ranks=sorted(ranks),
+                profile=coarse_events(events, ranks),
                 child=[{k: r[k] for k in ('rank', 'comm_size', 'operator_rows', 'operator_local_rows', 'last_iterations',
                                            'ksp', 'pc', 'ksp_reason')} for r in children],
                 coarse_calls=[int(row['coarse_solves']) for row in counters],
@@ -105,6 +125,8 @@ def run_case(args, case, result):
                     budget = (metadata['coarsest_rows'] + 1) // 2
                 command = command[:command.index('-ksp_type')] + scaling.multigrid.flags(name, coarse_rows_per_rank=budget)
                 command += ['-monolithic_mg_braess_local_fields', 'true']
+                if not repeat:
+                    command += ['-monolithic_mg_profile_levels', 'true', '-log_view', f":{folder / 'events.csv'}:ascii_csv"]
             if repeat:
                 command = [arg for arg in command if arg not in
                            ('-solver_report', '-linear_report', '-pc_plan_report', '-fsi_assembly_report', '-solver_rank_report')]
@@ -125,7 +147,7 @@ def run_case(args, case, result):
                     row['corrections'] = {k: audit[k] for k in
                                           ('outer_iterations', 'corrections', 'dofs', 'max_true_residual_ratio')}
                     if args.experiment == 'telescope':
-                        row['coarse'] = telescope_report(text, budget)
+                        row['coarse'] = telescope_report(text, budget, folder / 'events.csv')
                         if mode == 64:
                             metadata['coarsest_rows'] = row['coarse']['coarsest_rows']
                             if len(row['coarse']['participating_ranks']) <= 2:

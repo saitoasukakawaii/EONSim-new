@@ -3,7 +3,9 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 from pathlib import Path
+import statistics
 
 
 def digest(path):
@@ -40,15 +42,25 @@ def main():
         data = json.loads(path.read_text())
         receipt = verify(path)
         verify(data['seed'], data['seed_sha256'])
-        # The executable can be rebuilt in place between campaigns. Its original
-        # digest is authoritative; only re-hash the live binary if still identical.
+        seed = json.loads(Path(data['seed']).read_text())
+        # The executable can be rebuilt in place between campaigns. Keep the
+        # digest measured by the driver when the job actually used the executable.
         experiments = {}
+        prep = {}
         for n, case in data['cases'].items():
             for p, sha in case['inputs'].items():
                 verify(p, sha)
             for f, sha in case['reference_sha256'].items():
                 verify(Path(case['reference']) / f, sha)
             experiments[n] = {k: case[k] for k in ('stats', 'median_reduction', 'coarsest_rows') if k in case}
+            archived = next(c['preparation'] for c in seed['cases'] if c['subdivisions'] == int(n)
+                            and c['ranks'] == 64 and c['status'] == 'passed')
+            verify(archived['log'], archived['log_sha256'])
+            prep[n] = float(archived['wall_seconds'])
+            if not math.isfinite(prep[n]) or prep[n] <= 0:
+                raise ValueError('Invalid archived partition preparation time')
+            experiments[n]['preparation'] = dict(archived_seconds=prep[n], log=portable(archived['log']),
+                                                 log_sha256=archived['log_sha256'], reused=True)
         counts = {}
         for row in data['runs']:
             if row.get('log_sha256'):
@@ -72,9 +84,15 @@ def main():
                 counts[key] = counts.get(key, 0) + 1
             diag = row.get('corrections', {})
             fields = row.get('fields', {})
+            wall = row.get('wall_seconds')
+            prepare = prep[str(row['subdivisions'])]
+            if certified and (not math.isfinite(wall) or wall <= 0 or row['core_hours'] != 128 * wall / 3600):
+                raise ValueError('Inconsistent T_job or core-hours')
             samples.append(dict(job=data['job'], experiment=data['experiment'], subdivisions=row['subdivisions'],
                                 setting=label, kind=row['kind'], repeat=row['repeat'], status=row['status'],
-                                error=row.get('error'), T_job_s=row.get('wall_seconds'), core_hours=row.get('core_hours'),
+                                error=row.get('error'), T_prepare_archived_s=prepare, T_prepare_in_this_job_s=0,
+                                T_job_s=wall, T_total_with_archived_prepare_s=prepare+wall if certified else None,
+                                core_hours=row.get('core_hours'),
                                 peak_sampled_rss_bytes=row.get('local_job_peak_sampled_rss_bytes'),
                                 corrections=diag.get('corrections'), outer_iterations=diag.get('outer_iterations'),
                                 true_residual_max_ratio=diag.get('max_true_residual_ratio'),
@@ -83,7 +101,12 @@ def main():
                                 last_phase_max_difference=fields.get('solution_step5', {}).get('difference'),
                                 log=portable(row['log']), log_sha256=row.get('log_sha256')))
             if 'coarse' in row:
-                experiments[str(row['subdivisions'])].setdefault('diagnostic_children', {})[label] = row['coarse']
+                detail = dict(row['coarse'])
+                if 'profile' in detail:
+                    event = dict(detail['profile'])
+                    event['csv'] = verify(event['csv'], event['sha256'])
+                    detail['profile'] = event
+                experiments[str(row['subdivisions'])].setdefault('diagnostic_children', {})[label] = detail
         if data['passed']:
             expected = {37, 47} if data['experiment'] == 'owner' else {37}
             for n in expected:
@@ -91,6 +114,23 @@ def main():
                 if len(modes) != 2 or any(counts.get((n, m, 'formal')) != 3 or
                                           counts.get((n, m, 'diagnostic_warmup')) != 1 for m in modes):
                     raise ValueError(f'Incomplete formal pair coverage on n={n}')
+                formal = [r for r in data['runs'] if r['subdivisions'] == n and r['kind'] == 'formal']
+                computed = {}
+                for mode in sorted({r['mode'] for r in formal}):
+                    selected = [r for r in formal if r['mode'] == mode]
+                    if {r['repeat'] for r in selected} != {1, 2, 3}:
+                        raise ValueError('Repeated or missing pair index')
+                    computed[mode] = {}
+                    for key in ('wall_seconds', 'core_hours', 'local_job_peak_sampled_rss_bytes'):
+                        values = [r[key] for r in selected]
+                        stats = dict(median=statistics.median(values), minimum=min(values), maximum=max(values))
+                        if stats != data['cases'][str(n)]['stats'][str(mode)][key]:
+                            raise ValueError(f'Receipt summary differs from formal samples for n={n}, mode={mode}, {key}')
+                        computed[mode][key] = stats
+                baseline, candidate = (0, 1) if data['experiment'] == 'owner' else (64, 0)
+                reduction = 1 - computed[candidate]['wall_seconds']['median'] / computed[baseline]['wall_seconds']['median']
+                if reduction != data['cases'][str(n)]['median_reduction']:
+                    raise ValueError('Median reduction differs from the paired sample receipts')
         jobs.append(dict(experiment=data['experiment'], job=data['job'], completed=data['passed'], driver_commit=data['source'],
                          binary=portable(data['binary']), binary_commit=data['binary_commit'], binary_sha256=data['binary_sha256'],
                          seed=portable(data['seed']), seed_sha256=data['seed_sha256'], cases=experiments,
