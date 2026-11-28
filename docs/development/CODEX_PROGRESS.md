@@ -1,5 +1,7 @@
 # EONSim Codex Development Progress
 
+FSI-SCALABLE-03 已核验 A 的并行内部筛选、A 的 32/100 步外部回归和合成粗层进程数对照。B 的 20 步直接解在新增逐校正复核中未过严格线性门槛；C 的首次失败已重放并保存原系统。[结果与开放范围](FSI_SCALABLE_03.md)
+
 2026-11-27，FSI-SCALABLE-02。原版 FSILS 的两档 GMRES 配置均通过小型脉动弹性管的启动、100 步及完整 1 s 周期。32 和 128 rank 的 PETSc 分层剖析完成，粗层代价随 rank 增长。见[原始数据及对标报告](FSI_SCALABLE_02.md)。
 
 2026-11-27 核对：主线已合入 #65（`2463f717`）；以下历史记录保留实际执行日期、源码、失败与验收边界。当前能力与开放目标见 [当前能力矩阵](CURRENT_STATUS.md)。历史 review/Draft 不代表当前 PR 状态，历史证据不计为本次执行。

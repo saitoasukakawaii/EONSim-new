@@ -48,7 +48,7 @@ def main():
         return obj
     for name in ('A1','A2','A4','A4-422','A2-independent','A2-independent-LU','B20','B-LU','B-system',
                  'A-reg-32','A-reg-100','A-audit-32','A-audit-100','coarse-64','coarse-512',
-                 'coarse-1024','coarse-formal','large-owner','B-native-RCS','C-first-64'):
+                 'coarse-1024','child-1024','coarse-formal','large-owner','B-native-RCS','C-first-64'):
         base=root/name
         file={'B-native-RCS':'screen.json','C-first-64':'diagnosis.json'}.get(name,'summary.json')
         data=load(base/file)
@@ -66,7 +66,7 @@ def main():
             path=Path(log)
             key=identify(path,row.get('log_sha256'))
             seconds=row.get('T_job',row.get('wall_seconds'))
-            cores=128 if name.startswith('coarse-') or name=='large-owner' else data.get('ranks',len(data.get('affinity',[])) or 1)
+            cores=128 if name.startswith(('coarse-','child-')) or name=='large-owner' else data.get('ranks',len(data.get('affinity',[])) or 1)
             solver=row.get('solver',row.get('mode',row.get('budget',row.get('local_fields'))))
             summary.append(dict(campaign=name,solver=solver,kind=row.get('kind','diagnostic'),
                 status=row.get('status'),error=row.get('error'),cores=cores,T_job_s=seconds,
@@ -87,7 +87,7 @@ def main():
     for grid in 'BC':
         for p in sorted((root/(grid+'-layout')).glob('*.csv')):
             identify(p)
-    for name in ('piece-controls.log','algebra-414.log','export_layout','layout-build.log',
+    for name in ('piece-controls-final.log','child-tests-430.log','release-build.log','algebra-414.log','export_layout','layout-build.log',
                  'replay-407.log','replay-408.log','C-first/solve.log','C-first/run.json'):
         identify(root/name)
     old=root.parent/'fsi-scalable-02-runs'
@@ -121,6 +121,15 @@ def main():
                 identify(seed.parent/item['path'],item['sha256'])
             cases.append({k:c[k] for k in ('ranks','subdivisions','input_sha256','preparation')})
         records[key]=dict(cases=cases,source=metadata['build_source'],binary=metadata['executable_sha256'])
+    child=root/'child-1024/r128-profile1/solver.log'
+    child_rows=[]
+    for line in child.read_text(errors='replace').splitlines():
+        if ' path=root/monolithic_coarse/telescope ' in line:
+            fields=dict(token.split('=',1) for token in line.split() if '=' in token)
+            child_rows.append({k:fields[k] for k in ('rank','comm_size','ksp','pc','operator_rows','last_iterations')})
+    if not child_rows or {int(r['comm_size']) for r in child_rows}!={2} or len({r['rank'] for r in child_rows})!=2:
+        raise ValueError('Observed child KSP does not match the qualified two-rank communicator')
+    records['observed_telescope_children']=child_rows
     profiles=[]
     for budget in (64,512,1024):
         folder=root/f'coarse-{budget}/r128-profile1'
