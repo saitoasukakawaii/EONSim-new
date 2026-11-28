@@ -1,0 +1,70 @@
+{
+  "capture_sha256": "0f4caae6a841c0df607cbef076111042029bfc3eed137da640c9f0fb4a0d8796",
+  "systems": {
+    "1": {
+      "native": {
+        "iterations": 922,
+        "initial_norm": 0.03952555763183759,
+        "final_norm": 3.8944278727756e-12
+      },
+      "components": 58695,
+      "free_components": 32256,
+      "constrained_components": 26439,
+      "mixed_rank_masks": 0,
+      "ghost_maximum_difference": {
+        "rhs": 1.3877787807814457e-17,
+        "solution": 3.4770363671610127e-16
+      },
+      "unscaled_rhs_norm": 1.5077435278719136,
+      "unscaled_residual_norm": 4.053451542459931e-10,
+      "constrained_solution_max": 0.0,
+      "matrix_frobenius": 6086897.008132199,
+      "free_diagonal_range": [
+        518.5134704122677,
+        116420.79895579937
+      ],
+      "symmetry_defect": 4.222249915934926e-17,
+      "scaled_symmetry_defect": 6.32105194680033e-17,
+      "componentwise_backward_error": 3.045653465174013e-10,
+      "original_relative_residual": 2.68842244554757e-10,
+      "jacobi_scaled_min_ritz": 0.00024655334529422875,
+      "ritz_residual": 2.358646828620312e-09
+    },
+    "4": {
+      "native": {
+        "iterations": 2000,
+        "initial_norm": 5.13112983784183e-09,
+        "final_norm": 0.0007301147491007885
+      },
+      "components": 58695,
+      "free_components": 32256,
+      "constrained_components": 26439,
+      "mixed_rank_masks": 0,
+      "ghost_maximum_difference": {
+        "rhs": 3.469446951953614e-18,
+        "solution": 0.002378752350521759
+      },
+      "unscaled_rhs_norm": 1.847571856854127e-07,
+      "unscaled_residual_norm": 35.062708602540404,
+      "constrained_solution_max": 0.0,
+      "matrix_frobenius": 6086897.008132199,
+      "free_diagonal_range": [
+        518.5134704122677,
+        116420.79895579937
+      ],
+      "symmetry_defect": 4.222249915934926e-17,
+      "scaled_symmetry_defect": 6.32105194680033e-17,
+      "componentwise_backward_error": 0.988742309830499,
+      "original_relative_residual": 189777239.09608534,
+      "jacobi_scaled_min_ritz": 0.00024655334529422875,
+      "ritz_residual": 2.358646828620312e-09
+    },
+    "first_to_fourth": {
+      "matrix_relative_frobenius": 0.0,
+      "scaled_matrix_relative_frobenius": 0.0,
+      "rhs_norm_ratio": 1.2253886836190635e-07,
+      "rhs_difference_norm": 1.5077435358013334,
+      "returned_correction_norm_ratio": 0.6465326853801376
+    }
+  }
+}
