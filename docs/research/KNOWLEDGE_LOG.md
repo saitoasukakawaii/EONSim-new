@@ -1,5 +1,7 @@
 # EONSim Knowledge Log
 
+2026-11-28，[单 owner GAMG 粗层的真实管配对](../../website/drafts/arterial-first-correction-and-coarse-communicator.md#真实管的四个粗求解器)补充 B20 的实际行所有权、粗层 GMRES 精度和独立等精度计时。
+
 2026-11-28，[逐校正验证弹性管的线性容差](../../website/drafts/forcing-and-returned-tube-corrections.md)结合 production forcing、原 RHS 分母、物理特征尺度及实测 Newton 成本说明校准过程。[数值验证](../development/FSI_SCALABLE_05.md)
 
 2026-11-28，[Newton 校正写回 FP64 后的原方程残量](../../website/drafts/returned-fp64-newton-correction.md)记录临时累加、实际解精度与 PREONLY 选项的区别。[逐校正证据](../development/FSI_SCALABLE_04.md)

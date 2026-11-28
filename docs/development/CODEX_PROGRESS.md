@@ -1,5 +1,7 @@
 # EONSim Codex Development Progress
 
+真实管 B20 在 32 MPI 上保持固定容差并缩减四个 GAMG 粗层，三对正式样本的 T_job 中位数从 53.264 s 降至 37.275 s。[样本与核验](FSI_SCALABLE_05.md#固定精度的真实管-gamg-粗层通信)
+
 FSI-SCALABLE-05 已将生产返回向量、实际 forcing 和物理筛选绑定到显式协议。B20 经直接法与独立迭代交叉核验，三档固定容差的计数、完整场差及耗时见[第五阶段](FSI_SCALABLE_05.md)。
 
 FSI-SCALABLE-04 从 #71 推进到原式 LU 精化、现场 B/C 布局复核和独立参考门槛。A4 有严格直接参考，B 首次 Newton 校正仍失败。[数值与性能资格](FSI_SCALABLE_04.md)
