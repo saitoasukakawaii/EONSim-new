@@ -15,7 +15,15 @@ import benchmark_fsi_assembly as assembly
 import verify_fsi_multigrid as mg
 
 
-def audit_corrections(folder, steps, ranks, rtol=1e-10, atol=1e-23):
+sys.path.insert(0, str(DATA / 'fsi-scalable-05'))
+from tube_protocol import audit_corrections, compare_trajectories, select, solver_options
+
+
+def historical_strict_audit(folder, steps, ranks, policy):
+    # Untagged #72 direct receipts are reusable only under the historical gate.
+    if policy['protocol_id'] != 'STRICT-v1' or policy['mode'] != 'lu':
+        raise ValueError('Untagged correction log is ineligible for this protocol')
+    rtol, atol = policy['rtol'], policy['atol']
     log = (folder / 'solve.log').read_text()
     accepted = assembly.records(log, 'fsi_step=')
     reports = assembly.records(log, 'solver_report ')
@@ -65,6 +73,9 @@ def main():
     cli = argparse.ArgumentParser(description=__doc__)
     for name in ('gate', 'root', 'binary'):
         cli.add_argument('--' + name, type=Path, required=True)
+    cli.add_argument('--protocol', choices=('STRICT-v1','CALIBRATED-v2'), default='STRICT-v1')
+    cli.add_argument('--profile', help='Frozen iterative profile, e.g. fixed-1e-6')
+    cli.add_argument('--steps', type=int, choices=(4,20,32,100,224), default=20)
     cli.add_argument('--ranks', type=int, default=1)
     cli.add_argument('--mpiexec', type=Path)
     cli.add_argument('--timeout', type=int, default=780)
@@ -76,11 +87,19 @@ def main():
                            '-ksp_pc_side','right','-ksp_norm_type','unpreconditioned',
                            '-ksp_gmres_restart','2','-ksp_max_it','12']
     cli.add_argument('--modes', nargs='+', choices=flags, default=['asm','physics','mono_braess_tentative','mono_pressure_auto'])
-    cli.add_argument('--new-reference', choices=('physics','lu-refined'),
-                     help='solve the prepared equations independently at 1e-11/1e-24')
+    cli.add_argument('--new-reference', choices=('physics','lu-refined','direct'),
+                     help='replay the prepared equations under the declared reference profile')
     cli.add_argument('--audited-direct-reference', type=Path,
                      help='reuse a completed direct replay on the requested partition with per-correction reports')
     args = cli.parse_args()
+    strict = args.protocol == 'STRICT-v1'
+    candidate_policy = select(args.protocol,args.profile or ('fixed-1e-10' if strict else 'fixed-1e-8'))
+    if candidate_policy['mode'] == 'lu':
+        cli.error('--profile must be an iterative candidate profile')
+    reference_policy = select(args.protocol, ('lu' if args.new_reference in ('direct',None) else
+                              'strict-reference' if strict else 'fixed-1e-8'))
+    if not strict and not (args.new_reference or args.audited_direct_reference):
+        args.new_reference = 'direct'
     if args.new_reference in args.modes or len(set(args.modes)) != len(args.modes):
         cli.error('reference and candidate modes must be distinct and candidate names unique')
     if args.new_reference and args.audited_direct_reference:
@@ -94,18 +113,33 @@ def main():
     source, ref = gate/'prepared/eon', gate/'0-eon'
     receipt = json.loads((gate/'summary.json').read_text())
     steps, ref_ranks = receipt['steps'], receipt.get('ranks', 1)
-    if steps != 20 or (not args.new_reference and receipt.get('eon_linear','direct') != 'direct'):
+    if steps != 20 or (not (args.new_reference or args.audited_direct_reference) and receipt.get('eon_linear','direct') != 'direct'):
         cli.error('requires prepared 20-step inputs and an archived direct or independent new reference')
+    if args.steps != steps and not args.new_reference:
+        cli.error('a different time window requires a fresh reference')
+    steps = args.steps
     root.mkdir(parents=True, exist_ok=False)
     external = dict(status='OPEN', reason='No matched svFSI run for this screen', paired_receipt=str(gate/'summary.json'),
                     paired_receipt_sha256=digest(gate/'summary.json'), archived_pair_passed=receipt['passed'],
                     archived_binaries=receipt['binaries'], archived_inputs=receipt['inputs'])
     results = dict(binary=digest(binary), slurm=os.environ['SLURM_JOB_ID'], ranks=ranks,
-                   affinity=sorted(os.sched_getaffinity(0)), external=external, runs=[], passed=False)
+                   affinity=sorted(os.sched_getaffinity(0)), external=external,
+                   protocol_id=args.protocol, candidate_profile=candidate_policy['profile'],
+                   candidate_protocol_hash=candidate_policy['hash'], reference_protocol_hash=reference_policy['hash'], runs=[], passed=False)
     try:
         inputs = {n: digest(source/n) for n in ('case.json','fluid.msh','solid.msh')}
         if any(inputs[n] != receipt['inputs']['eon/'+n] for n in inputs):
             raise ValueError('Prepared inputs differ from the archived hashes')
+        if steps != receipt['steps']:
+            frozen = source
+            source = root/'inputs'
+            source.mkdir()
+            cfg = json.loads((frozen/'case.json').read_text())
+            cfg['fsi'].update(steps=steps, checkpoint_interval=steps)
+            save(source/'case.json',cfg)
+            for n in ('fluid.msh','solid.msh'):
+                shutil.copyfile(frozen/n,source/n)
+            inputs = {n:digest(source/n) for n in inputs}
         results.update(inputs=inputs, steps=steps, petsc_options=os.getenv('PETSC_OPTIONS',''))
         meshes = [read_mesh(source/(name+'.msh')) for name in ('fluid','solid')]
         part, launcher = [], []
@@ -129,18 +163,17 @@ def main():
                 shutil.copyfile(source/name,ref/name)
             row = dict(mode=args.new_reference,ranks=ranks,binary=digest(binary),log=str(ref/'solve.log'))
             results['reference'] = row
-            command = launcher + [str(binary),'-case','case.json'] + part + flags[args.new_reference] + [
-                '-ksp_type','fgmres','-ksp_rtol','1e-11','-ksp_atol','1e-24',
-                '-nonlinear_true_residual','true','-linear_report','-solver_report']
+            row.update(protocol_id=args.protocol, protocol_hash=reference_policy['hash'], profile=reference_policy['profile'])
+            command = launcher + [str(binary),'-case','case.json'] + part + flags[args.new_reference] + solver_options(reference_policy)
             run(ref,command,row,args.timeout,140*2**30 if ranks>1 else 8*2**30)
-            row['linear_audit'] = audit_corrections(ref,steps,ranks,1e-11,1e-24)
+            row['linear_audit'] = audit_corrections(ref,steps,ranks,reference_policy)
         else:
-            original = json.loads((ref/'run.json').read_text())
-            if (original['exit_code'] != 0 or original['log_sha256'] != digest(ref/'solve.log')
+            original = json.loads((ref/'run.json').read_text()) if (ref/'run.json').exists() else {}
+            if not args.audited_direct_reference and (original.get('exit_code') != 0 or original['log_sha256'] != digest(ref/'solve.log')
                     or any(inputs[n] != digest(ref/n) for n in inputs)):
                 raise ValueError('Archived direct solve failed or its input/log changed')
             results['reference'] = dict(mode='direct', ranks=ref_ranks, binary=receipt['binaries']['eon'],
-                                        log=str(ref/'solve.log'),log_sha256=original['log_sha256'])
+                                        log=str(ref/'solve.log'),log_sha256=original.get('log_sha256'))
             # A direct trajectory can finish every nonlinear step and still fail its
             # first linear correction. A missing audit requires a separate replay.
             if args.audited_direct_reference or not assembly.records((ref/'solve.log').read_text(),'linear_residual '):
@@ -173,9 +206,10 @@ def main():
                     if ranks > 1:
                         record['partition'] = results['prepare']['pieces']
                     run(ref,launcher+[str(binary),'-case','case.json']+part+
-                        ['-ksp_type','preonly','-pc_type','lu','-pc_factor_mat_solver_type','superlu_dist',
-                         '-linear_report','-solver_report'],record,args.timeout,140*2**30 if ranks>1 else 8*2**30)
-                record['linear_audit'] = audit_corrections(ref,steps,ranks)
+                        solver_options(reference_policy),record,args.timeout,140*2**30 if ranks>1 else 8*2**30)
+                legacy = (args.audited_direct_reference and strict and
+                          not assembly.records((ref/'solve.log').read_text(),'linear_residual ')[0].get('protocol_hash'))
+                record['linear_audit'] = (historical_strict_audit if legacy else audit_corrections)(ref,steps,ranks,reference_policy)
                 if (record['linear_audit']['ksp'],record['linear_audit']['pc']) != ('preonly','lu'):
                     raise ValueError('Replay is not the requested direct reference')
                 # Historical trajectories without a strict linear audit provide
@@ -187,9 +221,7 @@ def main():
                 except (ValueError,RuntimeError,OSError) as error:
                     record['historical_comparison_error'] = str(error)
             else:
-                results['reference']['linear_audit'] = audit_corrections(ref,steps,ref_ranks)
-        baseline = physical(ref,'eon',meshes,steps,ref_ranks,write=False)
-        history = assembly.history(ref/'tube.csv',steps,DT)
+                results['reference']['linear_audit'] = historical_strict_audit(ref,steps,ref_ranks,reference_policy)
         for mode in args.modes:
             folder = root/mode
             folder.mkdir()
@@ -198,24 +230,22 @@ def main():
             row = dict(mode=mode, log=str(folder/'solve.log'))
             results['runs'].append(row)
             try:
-                opts = list(flags[mode])
-                if mode != 'direct':
-                    opts += ['-ksp_type','fgmres','-ksp_rtol','1e-10','-ksp_atol','1e-23','-nonlinear_true_residual','true']
-                command = launcher + [str(binary),'-case','case.json'] + part + opts + ['-linear_report','-solver_report']
+                policy = select(args.protocol,'lu') if mode == 'direct' else candidate_policy
+                row.update(protocol_id=args.protocol, protocol_hash=policy['hash'], profile=policy['profile'])
+                opts = list(flags[mode]) + solver_options(policy)
+                command = launcher + [str(binary),'-case','case.json'] + part + opts
                 run(folder,command,row,args.timeout,140*2**30 if ranks>1 else 8*2**30)
-                row['linear_audit'] = audit_corrections(folder,steps,ranks)
-                measured = physical(folder,'eon',meshes,steps,ranks)
-                row['physical_gates'] = compare(baseline,measured)
-                if not all(math.isfinite(v) and v<=1 for v in row['physical_gates'].values()):
-                    raise ValueError('Frozen physical budget exceeded')
-                row['history_difference'] = assembly.compare_history(history,assembly.history(folder/'tube.csv',steps,DT))
-                row['field_difference'] = compare_states(folder,ref,steps,meshes,ranks=(ranks,ref_ranks))
-                self_comparison = mode == 'direct' and not args.new_reference
+                row['linear_audit'] = audit_corrections(folder,steps,ranks,policy)
+                row.update(compare_trajectories(folder,ref,steps,meshes,(ranks,ref_ranks),policy))
+                reference_mode = args.new_reference or 'direct'
+                self_comparison = (mode == reference_mode or
+                                   {mode,reference_mode} <= {'direct','lu-refined'})
                 row['status'] = 'diagnostic_same_solver' if self_comparison else 'passed'
             except Exception as error:
                 row.update(status='failed', error=str(error))
             save(root/'summary.json',results)
         eligible = [row for row in results['runs'] if row['status']!='diagnostic_same_solver']
+        results['reference']['independent_cross_check'] = any(r['status']=='passed' for r in eligible)
         results['passed'] = bool(eligible) and all(row['status']=='passed' for row in eligible)
     except Exception as error:
         results['error'] = str(error)

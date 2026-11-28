@@ -11,6 +11,8 @@ source = Path(__file__).resolve().parents[4]
 data = source / 'docs/research/data'
 sys.path.insert(0, str(data/'fsi-scalable-02'))
 from paired_tube import digest, run, save
+sys.path.insert(0,str(data/'fsi-scalable-05'))
+from tube_protocol import select, solver_options
 
 
 def main():
@@ -18,6 +20,7 @@ def main():
     cli.add_argument('mode', choices=['A4', 'B32', 'native'])
     cli.add_argument('binary', type=Path)
     cli.add_argument('output', type=Path)
+    cli.add_argument('--protocol', choices=('STRICT-v1','CALIBRATED-v2'), default='STRICT-v1')
     args = cli.parse_args()
     ws = Path.home()/'workspace'
     past = ws/'fsi-scalable-03-runs'
@@ -57,10 +60,9 @@ def main():
         for name in ('case.json','fluid.msh','solid.msh'):
             shutil.copyfile(base/name,out/name)
         info['partition'] = {p.name:digest(p) for p in sorted(part.glob('*')) if p.is_file()}
-        cmd += ['-case','case.json','-partition',str(part),'-ksp_type','preonly','-pc_type','lu',
-                '-pc_factor_mat_solver_type','superlu_dist','-linear_lu_refinement_rtol','1e-10',
-                '-linear_lu_refinement_atol','1e-23',
-                '-linear_lu_refinement_steps','5','-linear_report','-solver_report','-options_view']
+        policy = select(args.protocol,'lu')
+        info.update(protocol_id=args.protocol, protocol_hash=policy['hash'], profile=policy['profile'])
+        cmd += ['-case','case.json','-partition',str(part),*solver_options(policy),'-options_view']
         if args.mode == 'B32':
             cmd += ['-ksp_view_mat','binary:operator.petsc','-ksp_view_rhs','binary:rhs.petsc',
                     '-ksp_view_solution','binary:iterate.petsc']
