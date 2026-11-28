@@ -738,6 +738,7 @@ struct LinearDiagnostics {
     double solve_seconds=0,diagnostic_seconds=0;
     PetscInt started=0,completed=0;
     bool enabled=false;
+    PetscInt lu_refinement_steps=0;
     AdaptivePcState* adaptive_pc=nullptr;
     LinearPolicy* policy=nullptr;
     std::string policy_error;
@@ -747,6 +748,101 @@ struct LinearDiagnostics {
         started=completed=0; collective_pc_failure=0; policy_error.clear();
     }
 };
+
+// Reuse this correction's LU factor only. The snapshot contains each owned row
+// once and imports precisely its column vector entries, including off-rank ones.
+void refine_direct_correction(KSP ksp,Vec b,Vec x,PetscInt budget) {
+    Mat a,p;
+    PC pc;
+    EONSIM_PETSC(KSPGetOperators(ksp,&a,&p));
+    EONSIM_PETSC(KSPGetPC(ksp,&pc));
+    if(a!=p) throw std::runtime_error("LU refinement requires the original assembled operator as P");
+    const auto comm=PetscObjectComm(reinterpret_cast<PetscObject>(ksp));
+    PetscOwner<Mat,MatDestroy> merged;
+    PetscOwner<IS,ISDestroy> columns;
+    PetscBool distributed;
+    EONSIM_PETSC(PetscObjectTypeCompare(reinterpret_cast<PetscObject>(a),MATMPIAIJ,&distributed));
+    Mat local=a;
+    PetscInt n=0;
+    if(distributed) {
+        EONSIM_PETSC(MatMPIAIJGetLocalMatMerge(a,MAT_INITIAL_MATRIX,columns.put(),merged.put()));
+        local=merged.get();
+        EONSIM_PETSC(ISGetLocalSize(columns.get(),&n));
+    } else {
+        PetscBool sequential;
+        EONSIM_PETSC(PetscObjectTypeCompare(reinterpret_cast<PetscObject>(a),MATSEQAIJ,&sequential));
+        if(!sequential) throw std::runtime_error("LU refinement requires CPU AIJ");
+        EONSIM_PETSC(MatGetSize(a,nullptr,&n));
+        EONSIM_PETSC(ISCreateStride(PETSC_COMM_SELF,n,0,1,columns.put()));
+    }
+    PetscOwner<Vec,VecDestroy> imported,residual,delta,previous,product;
+    PetscOwner<VecScatter,VecScatterDestroy> import;
+    EONSIM_PETSC(VecCreateSeq(PETSC_COMM_SELF,n,imported.put()));
+    EONSIM_PETSC(VecScatterCreate(x,columns.get(),imported.get(),nullptr,import.put()));
+    EONSIM_PETSC(VecDuplicate(b,residual.put()));
+    EONSIM_PETSC(VecDuplicate(b,product.put()));
+    EONSIM_PETSC(VecDuplicate(x,delta.put()));
+    EONSIM_PETSC(VecDuplicate(x,previous.put()));
+    PetscReal rtol,atol,bnorm;
+    EONSIM_PETSC(KSPGetTolerances(ksp,&rtol,&atol,nullptr,nullptr));
+    EONSIM_PETSC(VecNorm(b,NORM_2,&bnorm));
+    const double limit=std::max(atol,rtol*bnorm);
+    double best=std::numeric_limits<double>::infinity();
+    PetscReal correction_norm=0;
+    const auto start=std::chrono::steady_clock::now();
+    for(PetscInt i=0;i<=budget;++i) {
+        EONSIM_PETSC(VecScatterBegin(import.get(),x,imported.get(),INSERT_VALUES,SCATTER_FORWARD));
+        EONSIM_PETSC(VecScatterEnd(import.get(),x,imported.get(),INSERT_VALUES,SCATTER_FORWARD));
+        const PetscScalar *values,*rhs;
+        PetscScalar* out;
+        EONSIM_PETSC(VecGetArrayRead(imported.get(),&values));
+        EONSIM_PETSC(VecGetArrayRead(b,&rhs));
+        EONSIM_PETSC(VecGetArray(residual.get(),&out));
+        PetscInt rows;
+        EONSIM_PETSC(VecGetLocalSize(b,&rows));
+        long double local_squared=0;
+        for(PetscInt row=0;row<rows;++row) {
+            PetscInt count;
+            const PetscInt* ids;
+            const PetscScalar* entries;
+            EONSIM_PETSC(MatGetRow(local,row,&count,&ids,&entries));
+            long double value=rhs[row];
+            for(PetscInt j=0;j<count;++j) value-=static_cast<long double>(entries[j])*values[ids[j]];
+            EONSIM_PETSC(MatRestoreRow(local,row,&count,&ids,&entries));
+            out[row]=static_cast<PetscScalar>(value);
+            local_squared+=value*value;
+        }
+        EONSIM_PETSC(VecRestoreArray(residual.get(),&out));
+        EONSIM_PETSC(VecRestoreArrayRead(b,&rhs));
+        EONSIM_PETSC(VecRestoreArrayRead(imported.get(),&values));
+        long double global_squared=0;
+        MPI_Allreduce(&local_squared,&global_squared,1,MPI_LONG_DOUBLE,MPI_SUM,comm);
+        const double wide=static_cast<double>(std::sqrt(global_squared));
+        EONSIM_PETSC(MatMult(a,x,product.get()));
+        EONSIM_PETSC(VecAXPY(product.get(),-1,b));
+        PetscReal native;
+        EONSIM_PETSC(VecNorm(product.get(),NORM_2,&native));
+        PetscBool unchanged=PETSC_FALSE;
+        if(i) EONSIM_PETSC(VecEqual(x,previous.get(),&unchanged));
+        EONSIM_PETSC(PetscPrintf(comm,"lu_refinement step=%" PetscInt_FMT " bits=%d wide=%.17g original=%.17g limit=%.17g delta=%.17g unchanged=%d elapsed=%.9g\n",
+            i,std::numeric_limits<long double>::digits,wide,double(native),limit,double(correction_norm),int(unchanged),
+            std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()));
+        if(!std::isfinite(wide)||!std::isfinite(native)||!std::isfinite(limit))
+            throw std::runtime_error("Nonfinite original LU refinement residual");
+        if(wide<=limit&&native<=limit) return;
+        if(i==budget||unchanged||wide>=best)
+            throw std::runtime_error("LU refinement failed the original equation on the returned FP64 vector");
+        best=wide;
+        EONSIM_PETSC(PCApply(pc,residual.get(),delta.get()));
+        PCFailedReason failure;
+        EONSIM_PETSC(PCGetFailedReasonRank(pc,&failure));
+        if(failure!=PC_NOERROR) throw std::runtime_error("LU refinement factor application failed");
+        EONSIM_PETSC(VecNorm(delta.get(),NORM_2,&correction_norm));
+        if(!std::isfinite(correction_norm)) throw std::runtime_error("Nonfinite LU refinement correction");
+        EONSIM_PETSC(VecCopy(x,previous.get()));
+        EONSIM_PETSC(VecAXPY(x,1,delta.get()));
+    }
+}
 PetscErrorCode linear_begin(KSP ksp,Vec b,Vec x,void* pointer)
 {
     auto& d=*static_cast<LinearDiagnostics*>(pointer);
@@ -822,6 +918,14 @@ PetscErrorCode linear_complete(KSP ksp,Vec b,Vec x,void* pointer)
     if(d.collective_pc_failure) return PETSC_ERR_NOT_CONVERGED;
 #endif
     if(d.adaptive_pc) PetscCall(d.adaptive_pc->complete(ksp));
+    if(d.lu_refinement_steps) {
+        KSPConvergedReason reason;
+        PetscCall(KSPGetConvergedReason(ksp,&reason));
+        if(reason>0) {
+            try { refine_direct_correction(ksp,b,x,d.lu_refinement_steps); }
+            catch(const std::exception& e) { d.policy_error=e.what(); return PETSC_ERR_NOT_CONVERGED; }
+        }
+    }
     try { if(d.policy) d.policy->after(ksp,b,x); }
     catch(const std::exception& e) { d.policy_error=e.what(); return PETSC_ERR_LIB; }
     if(d.enabled) return linear_end(ksp,b,x,pointer);
@@ -1510,6 +1614,18 @@ struct NonlinearSystem::Workspace {
             sizeof(convergence_test),&convergence_test_set));
         KSPType method=nullptr; KSPNormType norm_type;
         EONSIM_PETSC(KSPGetType(ksp,&method)); EONSIM_PETSC(KSPGetNormType(ksp,&norm_type));
+        EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-linear_lu_refinement_steps",
+                                        &diagnostics.lu_refinement_steps,nullptr));
+        if(diagnostics.lu_refinement_steps) {
+            PetscBool diagonal_scale;
+            EONSIM_PETSC(KSPGetDiagonalScale(ksp,&diagonal_scale));
+            if(diagnostics.lu_refinement_steps<1||diagnostics.lu_refinement_steps>5||
+               std::numeric_limits<long double>::digits<=std::numeric_limits<double>::digits||
+               matrix_free||diagonal_scale||!method||std::strcmp(method,KSPPREONLY)!=0||
+               !type||std::strcmp(type,PCLU)!=0||preconditioner_lag!=1||jacobian_lag!=1||
+               reuse_preconditioner||eisenstat_walker)
+                throw std::runtime_error("LU refinement requires 1..5 steps, extended arithmetic and fresh unscaled PREONLY/LU");
+        }
         const int residual_policy[]={int(true_residual),int(!true_residual),
             (deflation_capacity>0&&!true_residual)||(true_residual&&(!method||(std::strcmp(method,KSPFGMRES)!=0&&std::strcmp(method,KSPPIPEFGMRES)!=0)||
                             norm_type!=KSP_NORM_UNPRECONDITIONED||converge_at_limit||

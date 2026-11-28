@@ -173,7 +173,7 @@ def main():
     os.environ.update(threads)
     args.root.mkdir(parents=True, exist_ok=False)
     result = dict(job=os.environ['SLURM_JOB_ID'], affinity=sorted(os.sched_getaffinity(0)),
-                  source=subprocess.check_output(['git', '-C', SOURCE, 'rev-parse', 'HEAD'], text=True).strip(),
+                  source=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=SOURCE, text=True).strip(),
                   binary=str(args.binary), binary_commit=args.binary_commit, binary_sha256=scaling.assembly.digest(args.binary),
                   experiment=args.experiment, environment=threads, seed=str(args.seed), seed_sha256=seed_hash,
                   cases={}, runs=[], passed=False)
