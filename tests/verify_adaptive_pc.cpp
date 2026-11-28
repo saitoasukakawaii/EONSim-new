@@ -1,6 +1,7 @@
 #include "eonsim/nonlinear_system.hpp"
 #include "eonsim/time_step.hpp"
 #include <algorithm>
+#include <charconv>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -232,8 +233,14 @@ void verify(MPI_Comm comm) {
                line.find("linear_residual solve=3 ")!=0) continue;
             auto value=[&](const std::string& key) {
                 const auto pos=line.find(" "+key+"=");
-                return pos==std::string::npos?std::numeric_limits<double>::quiet_NaN():
-                    std::stod(line.substr(pos+key.size()+2));
+                const auto invalid=std::numeric_limits<double>::quiet_NaN();
+                if(pos==std::string::npos) return invalid;
+                const auto begin=pos+key.size()+2;
+                const auto end=line.find(' ',begin);
+                const char* last=line.data()+(end==std::string::npos?line.size():end);
+                double number=0;
+                const auto parsed=std::from_chars(line.data()+begin,last,number);
+                return parsed.ec==std::errc{}&&parsed.ptr==last&&std::isfinite(number)?number:invalid;
             };
             const double eta=value("requested_rtol"),rhs=value("rhs_norm"),limit=value("limit");
             const bool valid=line.find("protocol_hash="+protocol+" ")!=std::string::npos&&
@@ -245,7 +252,8 @@ void verify(MPI_Comm comm) {
                     value("ksp_reason")==KSP_DIVERGED_ITS&&value("ksp_iterations")==2&&value("norm")>limit;
             } else {
                 restarted=valid&&exhausted&&rhs==failed_rhs&&value("pc_attempt")==2&&value("newton")==1&&
-                    eta==1e-4&&value("ksp_reason")>0&&value("norm")<=limit;
+                    eta==1e-4&&value("ksp_reason")>0&&value("ksp_reason")!=KSP_CONVERGED_ITS&&
+                    value("ksp_iterations")>0&&value("ksp_iterations")<=2&&value("norm")<=limit;
             }
             std::cout<<line<<'\n';
         }
