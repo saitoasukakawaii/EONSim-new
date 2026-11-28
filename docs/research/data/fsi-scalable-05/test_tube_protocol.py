@@ -9,6 +9,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 from resource_accounting import formal_resources, resource_hours
+from physics_telescope import COARSE_FIELDS, coarse_receipt, solver_flags
 from scale_c import read_bindings, reference_area_budget
 
 from tube_protocol import (BLOCKS, HERE, audit_corrections, audit_row, budget, compare_face_history,
@@ -63,6 +64,23 @@ def synthetic_log(policy, counts, start_step=0):
 
 
 class ProtocolChecks(unittest.TestCase):
+    def test_physics_telescope_checks_real_coarse_children(self):
+        nodes=[]
+        for prefix,n in COARSE_FIELDS.items():
+            for rank in range(2):
+                nodes.append(f'solver_node prefix={prefix} rank={rank} ksp=preonly pc=telescope '
+                    f'comm_size=2 operator_rows={n} operator_local_rows={0 if rank else n} ksp_reason=4 pc_reason=0')
+            nodes.append(f'solver_node prefix={prefix}telescope_ rank=0 ksp=gmres pc=jacobi '
+                f'comm_size=1 operator_rows={n} operator_local_rows={n} ksp_reason=2 pc_reason=0 '
+                'norm_type=2 last_iterations=7 reported_norm=1e-15')
+        log='\n'.join(nodes)
+        self.assertEqual(len(coarse_receipt(log,2,1,True)),4)
+        self.assertIn('-fieldsplit_mesh_mg_coarse_telescope_ksp_rtol',solver_flags(32))
+        for invalid in ('\n'.join(nodes[:-1]),log.replace('comm_size=1','comm_size=2'),
+                        log.replace('pc=jacobi','pc=lu'),log.replace('ksp_reason=2','ksp_reason=-3')):
+            with self.assertRaises(ValueError):
+                coarse_receipt(invalid,2,1,True)
+
     def test_cross_partition_reference_geometry(self):
         nodes={1:(0,0,0),2:(1,0,0),3:(1,1,0),4:(0,1,0)}
         mesh=nodes,[],[(3,(1,2,3)),(3,(1,3,4)),(2,(1,2,4))]

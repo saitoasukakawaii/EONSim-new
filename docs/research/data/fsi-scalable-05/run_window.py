@@ -15,6 +15,7 @@ from paired_tube import compare, digest, physical, read_mesh, run, save
 from arterial_ksp import options
 from tube_checkpoint import checkpoint_receipt, last_two_cycles, verified_prefix
 from resource_accounting import resource_hours
+from physics_telescope import EXPERIMENT, coarse_receipt, solver_flags as physics_telescope_flags
 from scale_c import SOLVE_SECONDS, prepare_partition, read_bindings, verify_baseline
 from tube_protocol import archived_case, audit_corrections, compare_trajectories, output_manifest, select, solver_options
 
@@ -33,11 +34,17 @@ def main():
     cli.add_argument('--prefix-pair',type=Path,help='independent iterative partner required for a direct prefix')
     cli.add_argument('--formal', action='store_true', help='omit componentwise and line-search diagnostics')
     cli.add_argument('--pc', choices=('physics','pressure-mg'), default='physics')
+    cli.add_argument('--gamg-telescope',choices=(EXPERIMENT,))
+    cli.add_argument('--gamg-baseline',type=Path,help='qualified B20 physics window used to establish coarse owner layout')
     cli.add_argument('--owner', choices=('on','off'), default='on')
     cli.add_argument('--coarse-rows', type=int, default=64)
     cli.add_argument('--mg-scale', action='store_true')
     cli.add_argument('--limit', type=int, required=True, help='Process-tree wall budget in seconds')
     args = cli.parse_args()
+    if args.gamg_telescope or args.gamg_baseline:
+        if (not args.gamg_baseline or not args.gamg_telescope or args.case!='B' or args.steps not in (1,4,20)
+                or args.pc!='physics' or args.profile!='fixed-1e-6' or args.resume_from):
+            cli.error('single-rank GAMG Telescope requires cold B32 physics, fixed-1e-6 and a qualified baseline')
     if (args.prefix_pair and not args.resume_from) or (args.resume_from and args.formal):
         cli.error('a restart is a separately timed continuation; --prefix-pair requires --resume-from')
     if args.coarse_rows<=0 or ((args.pc!='pressure-mg' or args.profile=='lu') and
@@ -73,6 +80,8 @@ def main():
                limit_seconds=args.limit, rss_limit=140*2**30,
                archive_receipt=origin_sha, qualification='open')
     row['preconditioner'] = dict(pc='lu' if args.profile=='lu' else args.pc)
+    if args.gamg_telescope:
+        row['preconditioner']['gamg_telescope']=args.gamg_telescope
     if args.pc=='pressure-mg':
         row['preconditioner'].update(owner=args.owner,coarse_rows=args.coarse_rows,mg_scale=args.mg_scale)
     try:
@@ -110,6 +119,18 @@ def main():
                 row['prefix_pair_directory']=str(args.prefix_pair.resolve())
         row.update(start_step=start, segment_steps=args.steps-start)
         recipe = [] if args.profile == 'lu' else options('inner-mgs')
+        if args.gamg_telescope:
+            baseline=args.gamg_baseline.resolve(strict=True)
+            base=json.loads((baseline/'window.json').read_text())
+            if (base['case']!='B' or base['steps']!=20 or base.get('start_step',0)!=0 or
+                    base['qualification']!='independent_pair_passed' or base.get('preconditioner',{'pc':'physics'})!={'pc':'physics'} or
+                    any(base[k]!=row[k] for k in ('ranks','binary','compiled_source','policy','partition','archive_receipt')) or
+                    base['log_sha256']!=digest(baseline/'solve.log') or
+                    any(base['inputs'][k]!=row['inputs'][k] for k in ('fluid.msh','solid.msh'))):
+                raise ValueError('The single-owner coarse baseline does not match the qualified B20 physics trajectory')
+            row['gamg_baseline']=dict(directory=str(baseline),window_sha256=digest(baseline/'window.json'),
+                fields=coarse_receipt((baseline/'solve.log').read_text(),ranks,20,False))
+            recipe.extend(physics_telescope_flags(ranks))
         if args.pc=='pressure-mg':
             from verify_fsi_multigrid import flags
             recipe = flags('mono_pressure_auto',ports=True,coarse_rows_per_rank=args.coarse_rows)
@@ -146,6 +167,8 @@ def main():
         if check_bindings:
             row['rank_bindings']=read_bindings((out/'solve.log').read_text(),ranks)
         row['linear'] = audit_corrections(out, args.steps, ranks, policy,start)
+        if args.gamg_telescope:
+            row['gamg_coarse_fields']=coarse_receipt((out/'solve.log').read_text(),ranks,args.steps,True)
         if save_checkpoint:
             row['checkpoint'] = checkpoint_receipt(out/'checkpoint',args.steps,ranks)
         row['outputs'] = output_manifest(out, args.steps, ranks,start)
