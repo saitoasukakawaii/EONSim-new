@@ -1,0 +1,88 @@
+{
+  "job": "559",
+  "fixture": "63dfba8056a1a6631b949c4a14c37b39fbfe5737f76e0af6bf64949d930b313c",
+  "archive": "f691f4f6cfcb9ebcbbf3d35f988e2ee8638b9e010d088d17575acaa55a354ee9",
+  "binary": "2b683772d997bd810af02dfc00ae219284676d96a785a02039332755074435bb",
+  "compile": [
+    "/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/mpicxx",
+    "-I/home/shuoxing/workspace/fsi-scalable-05-runs/source/include",
+    "-DEONSIM_BUILD_TYPE=\"Release\"",
+    "-DEONSIM_ELEMENT_SIMD=1",
+    "-DMHPC_DEBUG=0",
+    "-isystem",
+    "/home/shuoxing/software/petsc-3.23.7/include",
+    "-O3",
+    "-DNDEBUG",
+    "-std=c++17",
+    "-fopenmp",
+    "-isystem",
+    "/home/shuoxing/software/petsc-3.23.7/arch-linux-c-opt/include",
+    "-c",
+    "/home/shuoxing/workspace/fsi-scalable-05-forcing-retry/7257837/tests/verify_adaptive_pc.cpp",
+    "-o",
+    "/home/shuoxing/workspace/fsi-scalable-05-forcing-retry/7257837/verify_adaptive_pc.o"
+  ],
+  "link": [
+    "/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/mpicxx",
+    "-O3",
+    "-DNDEBUG",
+    "/home/shuoxing/workspace/fsi-scalable-05-forcing-retry/7257837/verify_adaptive_pc.o",
+    "-o",
+    "verify_adaptive_pc",
+    "-Wl,-rpath,/home/shuoxing/software/petsc-3.23.7/arch-linux-c-opt/lib:/home/shuoxing/miniforge/pkgs/yaml-cpp-0.8.0-h59595ed_0/lib",
+    "/home/shuoxing/workspace/fsi-scalable-05-runs/build/job-466/libeonsim_core.a",
+    "/home/shuoxing/software/petsc-3.23.7/arch-linux-c-opt/lib/libpetsc.so",
+    "/opt/software/openblas-0.3.29-gcc-11.5.0/lib/libopenblas.so",
+    "/home/shuoxing/miniforge/pkgs/yaml-cpp-0.8.0-h59595ed_0/lib/libyaml-cpp.so.0.8.0",
+    "/home/shuoxing/software/petsc-3.23.7/arch-linux-c-opt/lib/libmetis.so",
+    "/home/shuoxing/software/petsc-3.23.7/arch-linux-c-opt/lib/libhdf5.so",
+    "/opt/software/gcc-11.5.0/lib64/libgomp.so"
+  ],
+  "results": [
+    {
+      "ranks": 1,
+      "status": 0,
+      "command": [
+        "/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/mpiexec",
+        "--map-by",
+        "core",
+        "--bind-to",
+        "core",
+        "-n",
+        "1",
+        "/home/shuoxing/workspace/fsi-scalable-05-forcing-retry/7257837/verify_adaptive_pc"
+      ],
+      "log": "844f0684e7da815ac947358d20747a679b0b0031652e6cef491fb329db875caf"
+    },
+    {
+      "ranks": 2,
+      "status": 0,
+      "command": [
+        "/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/mpiexec",
+        "--map-by",
+        "core",
+        "--bind-to",
+        "core",
+        "-n",
+        "2",
+        "/home/shuoxing/workspace/fsi-scalable-05-forcing-retry/7257837/verify_adaptive_pc"
+      ],
+      "log": "744a30934ec8394a759e217971acc942ad01aefe6695d5f2cb2b169853491da8"
+    },
+    {
+      "ranks": 4,
+      "status": 0,
+      "command": [
+        "/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/mpiexec",
+        "--map-by",
+        "core",
+        "--bind-to",
+        "core",
+        "-n",
+        "4",
+        "/home/shuoxing/workspace/fsi-scalable-05-forcing-retry/7257837/verify_adaptive_pc"
+      ],
+      "log": "8e5a7c8cdd9c8960da0fc0adfb73ebe12b5bb926c6f1221b511802d29b1982bc"
+    }
+  ]
+}
