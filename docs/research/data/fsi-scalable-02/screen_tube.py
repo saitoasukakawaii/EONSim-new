@@ -16,7 +16,7 @@ import verify_fsi_multigrid as mg
 
 
 sys.path.insert(0, str(DATA / 'fsi-scalable-05'))
-from tube_protocol import audit_corrections, compare_trajectories, select, solver_options
+from tube_protocol import audit_corrections, compare_trajectories, output_manifest, select, solver_options
 
 
 def historical_strict_audit(folder, steps, ranks, policy):
@@ -229,6 +229,8 @@ def main():
                     record['historical_comparison_error'] = str(error)
             else:
                 results['reference']['linear_audit'] = historical_strict_audit(ref,steps,ref_ranks,reference_policy)
+        if not strict:
+            results['reference']['outputs'] = output_manifest(ref,steps,ref_ranks)
         for mode in args.modes:
             folder = root/mode
             folder.mkdir()
@@ -243,6 +245,8 @@ def main():
                 command = launcher + [str(binary),'-case','case.json'] + part + opts
                 run(folder,command,row,args.timeout,140*2**30 if ranks>1 else 8*2**30)
                 row['linear_audit'] = audit_corrections(folder,steps,ranks,policy)
+                if not strict:
+                    row['outputs'] = output_manifest(folder,steps,ranks)
                 row.update(compare_trajectories(folder,ref,steps,meshes,(ranks,ref_ranks),policy))
                 reference_mode = args.new_reference or 'direct'
                 self_comparison = (mode == reference_mode or

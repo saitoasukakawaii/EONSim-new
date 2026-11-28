@@ -323,6 +323,88 @@ def compare_face_history(candidate, reference, histories, policy):
     return maximum
 
 
+
+def output_manifest(folder, steps, ranks):
+    """Verify the PVD → PVTU → physical VTU chain and bind all saved fields to the receipt."""
+    import xml.etree.ElementTree as ET
+    from paired_tube import digest
+    cfg=json.loads((folder/'case.json').read_text())['fsi']
+    if cfg['steps']!=steps or cfg['output_interval']!=4 or cfg['dt']!=1/32:
+        raise ValueError('Unexpected saved-field schedule')
+    phases=sorted(set(range(4,steps+1,4))|{steps})
+    result={'phase_hashes':{},'indices':{},'history':{'tube.csv':digest(folder/'tube.csv')}}
+    if cfg.get('pressure_face_history'):
+        result['history']['tube_pressure_faces.csv']=digest(folder/'tube_pressure_faces.csv')
+    for domain,suffix in [('fluid',''),('solid','_solid')]:
+        pvd=folder/('tube'+suffix+'.pvd')
+        result['indices'][pvd.name]=digest(pvd)
+        datasets=ET.parse(pvd).findall('./Collection/DataSet')
+        if len(datasets)!=len(phases):
+            raise ValueError(f'Missing or extra {domain} output phases')
+        for step,entry in zip(phases,datasets):
+            stem=f'tube_step{step}'+suffix
+            ext='.pvtu' if ranks>1 else '.vtu'
+            if entry.attrib['file']!=stem+ext or float(entry.attrib['timestep'])!=step/32:
+                raise ValueError(f'Incorrect {domain} output phase {step}')
+            files=[stem+f'_rank{i}.vtu' for i in range(ranks)] if ranks>1 else [stem+ext]
+            if ranks>1:
+                pvtu=folder/(stem+ext)
+                sources=[p.attrib['Source'] for p in ET.parse(pvtu).findall('./PUnstructuredGrid/Piece')]
+                if sources!=files:
+                    raise ValueError(f'Incorrect piece set for {pvtu.name}')
+                result['indices'][pvtu.name]=digest(pvtu)
+            hashes=[digest(folder/n) for n in files]
+            if step==steps:
+                final=['tube'+suffix+(f'_rank{i}' if ranks>1 else '')+'.vtu' for i in range(ranks)]
+                if ranks>1:
+                    index=folder/('tube'+suffix+'.pvtu')
+                    if [p.attrib['Source'] for p in ET.parse(index).findall('./PUnstructuredGrid/Piece')]!=final:
+                        raise ValueError('Final state has missing VTU pieces')
+                    result['indices'][index.name]=digest(index)
+                if [digest(folder/n) for n in final]!=hashes:
+                    raise ValueError('Published final state differs from the last snapshot')
+            result['phase_hashes'][stem] = hashlib.sha256(''.join(hashes).encode()).hexdigest()
+    return result
+
+
+def full_field_differences(candidate,reference,steps,ranks,policy):
+    import benchmark_fsi_assembly as assembly
+    spec_file=HERE/'output-fields-v2.1.json'
+    spec=json.loads(spec_file.read_text())
+    omega=2*math.pi/spec['period_seconds']
+    required={(domain,name) for domain,fields in spec['regions'].items() for name in fields}
+    phases=[]
+    for step in range(4,steps+1,4):
+        fields=[assembly.physical_fields(d/f'tube_step{step}.vtu',n) for d,n in zip((candidate,reference),ranks)]
+        if fields[0].keys()!=fields[1].keys():
+            raise ValueError(f'Physical field node coverage differs at step {step}')
+        stats={}
+        for key,a in fields[0].items():
+            suffix,node,name=key
+            domain='solid' if suffix else 'fluid'
+            b=fields[1][key]
+            if len(a)!=len(b) or len(a)!=(1 if name=='pressure' else 3):
+                raise ValueError(f'Unexpected components for {key}')
+            delta=math.dist(a,b)
+            if not math.isfinite(delta):
+                raise ValueError(f'Nonfinite output {domain}/{name} at node {node}')
+            group=stats.setdefault((domain,name),[0,0.,0.])
+            group[0]+=1
+            group[1]+=delta**2
+            group[2]=max(group[2],delta)
+        if set(stats)!=required:
+            raise ValueError(f'Unbudgeted or missing physical fields at step {step}: {set(stats)^required}')
+        phase={'step':step}
+        for (domain,name),(count,squares,peak) in stats.items():
+            quantity,derivative=spec['regions'][domain][name]
+            limit=budget(policy,quantity)*omega**derivative
+            rms=math.sqrt(squares/count)
+            if rms>limit or peak>limit:
+                raise ValueError(f'Step {step} {domain}/{name} rms {rms}, maximum {peak}, limit {limit}')
+            phase[domain+'/'+name]=dict(nodes=count,rms=rms,maximum=peak,limit=limit)
+        phases.append(phase)
+    return phases,hashlib.sha256(spec_file.read_bytes()).hexdigest()
+
 def compare_trajectories(candidate, reference, steps, meshes, ranks, policy):
     """Complete physical comparison; correction audits and algorithm independence are separate prerequisites."""
     import sys
@@ -330,7 +412,6 @@ def compare_trajectories(candidate, reference, steps, meshes, ranks, policy):
     from paired_tube import compare, digest, physical, DT
     from internal_tube import compare_states
     import benchmark_fsi_assembly as assembly
-    from study_hydrostatic_fsi import recovered_state
     if steps <= 0 or steps % 4:
         raise ValueError('Trajectory qualification requires complete four-step output phases')
     for name in ('case.json','fluid.msh','solid.msh'):
@@ -346,7 +427,7 @@ def compare_trajectories(candidate, reference, steps, meshes, ranks, policy):
                     field_difference=compare_states(candidate,reference,steps,meshes,ranks=ranks))
     faces = compare_face_history(candidate,reference,histories,policy)
     obs_budget = policy['document']['internal_observables']
-    history_max, observable_max, field_phases = {}, {}, []
+    history_max, observable_max = {}, {}
     for x,y in zip(*histories):
         if x.keys()!=y.keys():
             raise ValueError('Mismatched history columns')
@@ -366,32 +447,7 @@ def compare_trajectories(candidate, reference, steps, meshes, ranks, policy):
             observable_max[key] = max(observable_max.get(key,0),delta)
             if delta > limit:
                 raise ValueError(f'Observable step {a["step"]}, {key}: {delta} > {limit}')
-    for step in range(4,steps+1,4):
-        phase = dict(step=step)
-        for solid,mesh in enumerate(meshes):
-            name=f'tube_step{step}' + ('_solid' if solid else '')
-            states=[recovered_state(d,name,mesh,bool(solid),n) for d,n in zip((candidate,reference),ranks)]
-            if not states[0] or states[0].keys() != states[1].keys():
-                raise ValueError('Field node coverage mismatch')
-            measures={'wall_velocity' if solid else 'fluid_velocity':('velocity','wall_velocity' if solid else 'fluid_velocity'),
-                      'wall_displacement' if solid else 'mesh_displacement':('displacement','displacement')}
-            if not solid:
-                measures['pressure']=('pressure','pressure')
-            for field,(attr,quantity) in measures.items():
-                peak = square_sum = 0.
-                for node,left in states[0].items():
-                    a,b = getattr(left,attr), getattr(states[1][node],attr)
-                    delta = abs(a-b) if attr=='pressure' else math.dist(a,b)
-                    if not math.isfinite(delta):
-                        raise ValueError(f'Nonfinite field {field} at node {node}')
-                    peak = max(peak,delta)
-                    square_sum += delta*delta
-                rms=math.sqrt(square_sum / len(states[0]))
-                limit=budget(policy,quantity)
-                phase[field]=dict(nodes=len(states[0]), rms=rms, maximum=peak, limit=limit)
-                if rms > limit or peak > limit:
-                    raise ValueError(f'Field step {step}, {field}: rms {rms}, max {peak}, limit {limit}')
-        field_phases.append(phase)
+    field_phases,field_spec_hash=full_field_differences(candidate,reference,steps,ranks,policy)
     return dict(protocol_hash=policy['hash'], physical_gates=gates, physical=observed, pressure_face_differences=faces,
                 history_maximum_difference=history_max, observable_maximum_difference=observable_max,
-                full_field_differences=field_phases)
+                full_field_differences=field_phases, output_field_budget_sha256=field_spec_hash)

@@ -1,0 +1,56 @@
+{
+  "extension_id": "TUBE-OUTPUTS-v2.1",
+  "scope": "Additional checks on all generalized-alpha VTU arrays. The original linear protocol and the frozen primary field budgets remain unchanged.",
+  "period_seconds": 1,
+  "derivative_scale": "Angular frequency 2*pi/period. Acceleration is the corresponding harmonic velocity scale times angular frequency. Coordinate differences have displacement units.",
+  "regions": {
+    "fluid": {
+      "velocity": [
+        "fluid_velocity",
+        0
+      ],
+      "pressure": [
+        "pressure",
+        0
+      ],
+      "mesh_displacement": [
+        "displacement",
+        0
+      ],
+      "mesh_velocity": [
+        "wall_velocity",
+        0
+      ],
+      "fluid_algorithmic_acceleration": [
+        "fluid_velocity",
+        1
+      ],
+      "mesh_algorithmic_acceleration": [
+        "wall_velocity",
+        1
+      ],
+      "coordinates": [
+        "displacement",
+        0
+      ]
+    },
+    "solid": {
+      "velocity": [
+        "wall_velocity",
+        0
+      ],
+      "displacement": [
+        "displacement",
+        0
+      ],
+      "algorithmic_acceleration": [
+        "wall_velocity",
+        1
+      ],
+      "coordinates": [
+        "displacement",
+        0
+      ]
+    }
+  }
+}

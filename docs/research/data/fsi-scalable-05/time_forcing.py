@@ -1,4 +1,4 @@
-"""Alternate fixed and inexact cold starts under the same independent LU reference."""
+"""Alternate two qualified cold starts under the same independent LU reference."""
 import argparse
 import json
 import os
@@ -14,14 +14,16 @@ from paired_tube import digest, save
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ('fixed','inexact','reference','binary','output'):
+    for name in ('fixed','challenger','reference','binary','output'):
         parser.add_argument(name,type=Path)
+    parser.add_argument('--change',choices=('forcing','fixed-tolerance'),default='forcing')
     args = parser.parse_args()
-    qualified = [json.loads((d/'window.json').read_text()) for d in (args.fixed,args.inexact)]
+    qualified = [json.loads((d/'window.json').read_text()) for d in (args.fixed,args.challenger)]
     base, other = qualified
     reference = args.reference.resolve(strict=True)
-    if (not base['profile'].startswith('fixed-') or
-            other['profile'] != base['profile'].replace('fixed-','inexact-',1) or
+    matched = (other['profile']==base['profile'].replace('fixed-','inexact-',1) if args.change=='forcing'
+               else other['profile'].startswith('fixed-') and other['profile']!=base['profile'])
+    if (not base['profile'].startswith('fixed-') or not matched or
             base['binary']!=digest(args.binary) or
             any(base[k]!=other[k] for k in ('binary','compiled_source','case','inputs','steps','partition','ranks')) or
             any(q['qualification']!='independent_pair_passed' or
@@ -29,7 +31,7 @@ def main():
         parser.error('requires matched, independently qualified fixed and inexact windows')
     root = args.output.resolve()
     root.mkdir(parents=True,exist_ok=False)
-    result = dict(job=os.environ['SLURM_JOB_ID'], experiment='forcing only', runs=[], status='incomplete')
+    result = dict(job=os.environ['SLURM_JOB_ID'], experiment=args.change, runs=[], status='incomplete')
     try:
         for index in range(4):
             for q in (qualified if index%2==0 else reversed(qualified)):

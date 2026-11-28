@@ -13,7 +13,7 @@ SOURCE = HERE.parents[3]
 sys.path.insert(0, str(HERE.parent / 'fsi-scalable-02'))
 from paired_tube import compare, digest, physical, read_mesh, run, save
 from arterial_ksp import options
-from tube_protocol import audit_corrections, compare_trajectories, select, solver_options
+from tube_protocol import audit_corrections, compare_trajectories, output_manifest, select, solver_options
 
 
 def main():
@@ -83,6 +83,7 @@ def main():
         os.environ.update(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
         run(out, cmd, row, args.limit, row['rss_limit'])
         row['linear'] = audit_corrections(out, args.steps, ranks, policy)
+        row['outputs'] = output_manifest(out, args.steps, ranks)
         row['qualification'] = 'linear_window_only'
         if args.steps >= 4:
             meshes = [read_mesh(out/(name+'.msh')) for name in ('fluid','solid')]
@@ -101,6 +102,10 @@ def main():
                         prev['log_sha256'] != digest(ref/'solve.log')):
                     raise ValueError('Invalid or incompatible independent LU reference candidate')
                 audit_corrections(ref, args.steps, ranks, select('CALIBRATED-v2','lu'))
+                snapshot = output_manifest(ref,args.steps,ranks)
+                if 'outputs' in prev and snapshot!=prev['outputs']:
+                    raise ValueError('Reference outputs changed since its run')
+                row['reference_outputs'] = snapshot
                 row['comparison'] = compare_trajectories(out, ref, args.steps, meshes,
                                                           ranks=(ranks,ranks), policy=policy)
                 row['reference_receipt'] = digest(ref/'window.json')
