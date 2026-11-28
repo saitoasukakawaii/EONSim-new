@@ -151,11 +151,21 @@ def main():
                 results['reference'] = record
                 if args.audited_direct_reference:
                     previous = json.loads((ref/'run.json').read_text())
-                    if (previous['exit_code'] != 0 or previous['log_sha256'] != digest(ref/'solve.log')
+                    if previous.get('exit_code') != 0:
+                        raise ValueError(f"Direct reference replay exited {previous.get('exit_code')}: {ref/'solve.log'}")
+                    if (previous['log_sha256'] != digest(ref/'solve.log')
                             or previous.get('binary_sha256') != digest(binary)
                             or any(digest(ref/n) != sha for n,sha in inputs.items())):
                         raise ValueError('Direct replay binary, inputs or log do not match')
                     record['log_sha256'] = previous['log_sha256']
+                    if ranks > 1:
+                        command = previous['command']
+                        partition = Path(command[command.index('-partition')+1])
+                        pieces = {f.name:digest(f) for f in [partition/'manifest.yaml',
+                                  *(partition/f'rank_{i}.h5' for i in range(ranks))]}
+                        if any(previous.get('partition',{}).get(k)!=v for k,v in pieces.items()):
+                            raise ValueError('Direct replay partition provenance differs')
+                        record['partition'] = pieces
                 else:
                     ref.mkdir()
                     for n in inputs:

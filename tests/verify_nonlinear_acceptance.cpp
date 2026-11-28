@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <sstream>
 #include <array>
@@ -130,6 +131,19 @@ void verify(MPI_Comm comm)
         EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_lu_refinement_atol","1e-23"));
         const auto exact=system.solve(config,initial,bc,changed_value,diagonal);
         require(exact.values[index[2]]==7,"LU refinement changed a lifted constraint");
+        // Non-dyadic factor multipliers, exactly representable coupled solution.
+        const auto integers=[&](const std::vector<double>& x,Vec r,Mat j) {
+            const double coefficients[3][3]={{7,2,1},{2,9,-3},{-1,4,7}};
+            const PetscInt columns[]={0,1,2};
+            for(PetscInt row=l.begin;row<l.begin+l.owned;++row) {
+                double value=0;
+                for(int k=0;k<3;++k) value+=coefficients[row][k]*(x[index[k]]-(k+1));
+                EONSIM_PETSC(VecSetValue(r,row,value,ADD_VALUES));
+                if(j) EONSIM_PETSC(MatSetValues(j,1,&row,3,columns,coefficients[row],ADD_VALUES));
+            }
+        };
+        const auto represented=system.solve(config,std::vector<double>(3,0),{}, {},integers);
+        for(int k=0;k<3;++k) require(represented.values[index[k]]==k+1,"Wrong returned FP64 solution");
         // FP64 computes 3*(1/3)==1, but the stored vector fails this original-unit
         // tolerance. A positive PREONLY reason must never admit its Newton step.
         const auto thirds=[&](const std::vector<double>& x,Vec r,Mat j) {
