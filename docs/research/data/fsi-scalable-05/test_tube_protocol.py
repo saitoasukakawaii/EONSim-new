@@ -8,6 +8,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
+from collect_windows import owner_smoother_stats
 from resource_accounting import formal_resources, resource_hours
 from scale_c import hybrid_bindings, read_bindings, reference_area_budget
 from physics_telescope import COARSE_FIELDS, COARSE_ROWS, coarse_receipt, solver_flags
@@ -73,6 +74,23 @@ class ProtocolChecks(unittest.TestCase):
         linear['rows'][1]['newton']=linear['rows'][0]['newton']
         with self.assertRaisesRegex(ValueError,'Misaligned linear correction'):
             checked_corrections(linear,fixed['policy'],range(1,21))
+
+    def test_pressure_owner_requires_active_rcr_smoother(self):
+        row = dict(preconditioner={'owner':'off'}, ranks=2, steps=1, linear={'effective_options':{
+            '-pc_recipe':'monolithic_mg', '-rcr_bulk_monolithic_mg_smoother':'braess_sarazin',
+            '-rcr_bulk_monolithic_mg_braess_local_fields':'false'}})
+        lines = ['solver_report step=1'] + [
+            f'monolithic_mg_stats rank={rank} path=root/rcr_bulk levels=3 coarse_processes=2 '
+            'coarse_solves=6 smoother_applications=24 schur_applications=24' for rank in (0, 1)]
+        log = '\n'.join(lines)
+        self.assertEqual(owner_smoother_stats(log, row)['per_step'][0]['ranks'][0]['smoother_applications'], 24)
+        for bad in ('\n'.join(lines[:-1]), log.replace('levels=3', 'levels=1'),
+                    log.replace('schur_applications=24', 'schur_applications=0')):
+            with self.assertRaises(ValueError):
+                owner_smoother_stats(bad, row)
+        row['preconditioner']['owner'] = 'on'
+        with self.assertRaises(ValueError):
+            owner_smoother_stats(log, row)
 
     def test_hybrid_requires_distinct_actual_workers_and_cores(self):
         topology='0,0,0\n1,1,0\n2,0,1\n3,1,1\n'

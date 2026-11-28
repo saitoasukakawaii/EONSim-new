@@ -2,6 +2,8 @@
 
 真实管 B 的 20 步窗口经独立 LU 和 physics/FGMRES 校准。固定容差从 `1e-8` 调到 `1e-6`，三对正式样本的中位耗时从 67.377 s 降至 53.450 s；实测 inexact forcing 在同一窗口慢 20.47%。[第五阶段验证](docs/development/FSI_SCALABLE_05.md)
 
+同一固定精度下，physics 粗层缩至单 rank 使真实管 B20 与 A20 的正式中位时间分别下降 30.02% 和 22.20%。A20 的整体 pressure-MG 也实测了 Braess owner 本地读写，耗时从 6.334 s 降至 2.974 s。[两组通信样本](docs/development/FSI_SCALABLE_05.md#a20-的两种通信比较)
+
 真实管 C（924,953 DoF）在 64 MPI 上完成 20 步独立 LU 与固定迭代验证。五个保存相位的压力场最大差为 6.746e-9 Pa，质量、界面和 RCR 检查均已通过。[C20 数值结果](docs/development/FSI_SCALABLE_05.md#c20-独立验收)
 
 弹性管第四阶段增加了逐校正的直接法精化和严格参考轨迹检查。B 首系统的写回精度和合成网格的配对计时见[第四阶段收据](docs/development/FSI_SCALABLE_04.md)。
