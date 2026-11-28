@@ -21,18 +21,27 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('root',type=Path)
     parser.add_argument('out',type=Path)
+    parser.add_argument('--runs',nargs='+',type=Path,
+                        help='collect only these completed top-level campaign directories')
     args = parser.parse_args()
     root, out = args.root.resolve(), args.out.resolve()
+    scopes=[(root/p).resolve(strict=True) for p in args.runs] if args.runs else [root]
+    if args.runs and (len(set(scopes))!=len(scopes) or any(
+            p.parent!=root or not p.is_dir() or p==out or p.name=='source' for p in scopes)):
+        parser.error('--runs requires distinct run directories within the campaign root')
     out.mkdir(exist_ok=True,parents=True)
     summary, index, runs = [], {}, []
     legacy_allocations = {}
+    jobs = set()
     for name in ('window.json','first.json','native-mesh.json','timings.json','review.json',
                  'supplement.json','restart-regression.json','continuation.json','admission.json'):
-        for p in sorted(root.rglob(name)):
+        for p in sorted(p for scope in scopes for p in scope.rglob(name)):
             if 'source' in p.relative_to(root).parts or out in p.parents:
                 continue
             work = p.parent
             row = json.loads(p.read_text())
+            if str(row.get('job','')).isdigit():
+                jobs.add(str(row['job']))
             if (work/'solve.log').is_file() and 'log_sha256' in row and row['log_sha256']!=digest(work/'solve.log'):
                 raise ValueError(f'Log differs from receipt: {work}')
             entry = str(p.relative_to(root))
@@ -84,7 +93,13 @@ def main():
                 key = str(f.relative_to(root))
                 if f.is_file() and key not in index:
                     index[key] = dict(bytes=f.stat().st_size,sha256=digest(f))
+    if args.runs:
+        collected={root/Path(r['receipt']).parts[0] for r in runs}
+        if collected!=set(scopes):
+            raise ValueError(f'Missing completed campaign receipts in {set(scopes)-collected}')
     for f in sorted(root.glob('*.log')):
+        if args.runs and f.stem.rsplit('-',1)[-1] not in jobs:
+            continue
         index[f.name] = dict(bytes=f.stat().st_size,sha256=digest(f))
     with (out/'calibration.csv').open('w',newline='') as stream:
         if summary:
