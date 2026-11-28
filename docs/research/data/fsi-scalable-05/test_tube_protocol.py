@@ -65,6 +65,16 @@ def synthetic_log(policy, counts, start_step=0):
 
 
 class ProtocolChecks(unittest.TestCase):
+    def test_c_archive_rejects_repeated_returned_correction(self):
+        from summarize_c_windows import checked_corrections, read_packed
+        windows=read_packed(HERE/'c20/run-receipts.json.gz')
+        fixed=next(x['data'] for x in windows if x['data']['profile']=='fixed-1e-6')
+        linear=fixed['linear']
+        checked_corrections(linear,fixed['policy'],range(1,21))
+        linear['rows'][1]['newton']=linear['rows'][0]['newton']
+        with self.assertRaisesRegex(ValueError,'Misaligned linear correction'):
+            checked_corrections(linear,fixed['policy'],range(1,21))
+
     def test_pressure_owner_requires_active_rcr_smoother(self):
         row = dict(preconditioner={'owner':'off'}, ranks=2, steps=1, linear={'effective_options':{
             '-pc_recipe':'monolithic_mg', '-rcr_bulk_monolithic_mg_smoother':'braess_sarazin',
