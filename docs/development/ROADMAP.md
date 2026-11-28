@@ -1,6 +1,6 @@
 # 开发路线：独立求解器 → 单体刚体 FSI → 单体弹性体 FSI
 
-真实管后续窗口依 CALIBRATED-v2 的逐校正和物理验收推进。B20 固定容差已完成三档标定，C 的每个窗口、整体 MG 和 svFSI 原版对照各自需要独立资格。[第五阶段](FSI_SCALABLE_05.md)
+真实管后续窗口依 CALIBRATED-v2 的逐校正和物理验收推进。B20 固定容差已完成三档标定，C20 的直接法与 physics 已通过独立验证。C32、100 和七周期依次核验原生续算、全场与历史。整体 MG 和 svFSI 原版对照分别需要各自的数值资格。[第五阶段](FSI_SCALABLE_05.md)
 
 已验收 B32/A4 的 physics 粗层缩核和 A4 的 Braess owner 消融。B/C 的 owner 性能仍以合格整体 MG 窗口为前提。[真实管通信比较](FSI_SCALABLE_05.md#a20-的两种通信比较)
 

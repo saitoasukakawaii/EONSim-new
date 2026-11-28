@@ -5,7 +5,9 @@ import json
 import math
 import os
 from pathlib import Path
+import shlex
 import subprocess
+import sys
 
 HERE=Path(__file__).resolve().parent
 PREDECESSOR={32:20,100:32,224:100}
@@ -22,6 +24,47 @@ def sha(path):
         for block in iter(lambda:f.read(1<<20),b''):
             value.update(block)
     return value.hexdigest()
+
+
+def publish(path,record):
+    tmp=path.with_suffix('.json.tmp')
+    tmp.write_text(json.dumps(record,indent=2,allow_nan=False)+'\n')
+    os.replace(tmp,path)
+
+
+def schedule_gate(root,end,qa,dependencies,chain):
+    """Enqueue only the receipt check. The solve allocations are requested by that check after it passes."""
+    if any(not str(job).isdigit() for job in dependencies):
+        raise ValueError('Slurm dependency IDs must be numeric')
+    gate=root/f'C{end}-admission'
+    record=gate/'admission.json'
+    dependency='afterok:'+':'.join(map(str,dependencies))
+    if gate.exists():
+        previous=read(record)
+        if (previous.get('job') and previous['dependency']==dependency and previous['chain']==chain
+                and previous['qa_sha256']==sha(qa)):
+            return previous
+        raise ValueError(f'Existing gate with different or incomplete registration: {gate}')
+    gate.mkdir()
+    command=[sys.executable,str(HERE/'continue_c.py'),str(root),str(end),str(qa),'--submit']
+    if chain:
+        command.append('--chain')
+    registration=dict(end=end,dependency=dependency,chain=chain,command=command,qa_sha256=sha(qa))
+    publish(record,registration)
+    sbatch=['sbatch','--parsable','-n','1','--nodes=1','--no-requeue','--time=5',
+            '--dependency',dependency,'-J',f'C{end}-admission','-o',str(root/f'C{end}-admission-%j.log'),
+            '--wrap',shlex.join(command)]
+    try:
+        job=subprocess.check_output(sbatch,text=True,cwd=HERE).strip().split(';')[0]
+        if not job.isdigit():
+            raise RuntimeError(f'Unexpected admission job ID: {job}')
+        registration['job']=job
+    except (OSError,ValueError,RuntimeError,subprocess.CalledProcessError) as error:
+        registration['error']=str(error)
+        raise
+    finally:
+        publish(record,registration)
+    return registration
 
 
 def elapsed(job):
@@ -68,11 +111,28 @@ def main():
     parser.add_argument('end',type=int,choices=PREDECESSOR)
     parser.add_argument('restart_regression',type=Path)
     parser.add_argument('--submit',action='store_true',help='save the declaration and submit both jobs')
+    parser.add_argument('--after',nargs='+',help='queue a one-core qualification check dependent on these successful Slurm jobs')
+    parser.add_argument('--chain',action='store_true',help='schedule the next receipt check only after this independent pair exits successfully')
     args=parser.parse_args()
     root=args.root.resolve(strict=True)
+    qa=args.restart_regression.resolve(strict=True)
+    if args.after and args.submit or args.chain and not (args.after or args.submit):
+        parser.error('use --after for a queued check, or --submit for an immediate numerical qualification')
+    if args.after:
+        print(json.dumps(schedule_gate(root,args.end,qa,args.after,args.chain),indent=2))
+        return
     start=PREDECESSOR[args.end]
     profiles=('lu',FIXED)
-    paths=[root/f'C{start}-{p}' for p in profiles]
+    partner=root/f'C{start}-{FIXED}'
+    paired=read(partner/'window.json')
+    # Historical receipts identify the direct run by content; failed retries have distinct receipts.
+    direct_paths=([Path(paired['reference_directory'])] if paired.get('reference_directory')
+                  else sorted(root.glob(f'C{start}-lu*')))
+    matches=[d for d in direct_paths if (d/'window.json').is_file()
+             and sha(d/'window.json')==paired['reference_receipt']]
+    if len(matches)!=1:
+        raise ValueError('The qualified iterative run must identify one exact direct reference receipt')
+    paths=[matches[0],partner]
     direct,iterative=[window(d) for d in paths]
     a,b=direct[0],iterative[0]
     if (a['qualification']!='awaiting_independent_crosscheck' or b['qualification']!='independent_pair_passed'
@@ -80,7 +140,6 @@ def main():
             or b['reference_outputs']!=a['outputs'] or a['steps']!=start
             or any(a[k]!=b[k] for k in ('steps','start_step','inputs','partition','compiled_source','binary'))):
         raise ValueError('Prior direct and iterative windows lack an independent cross-check')
-    qa=args.restart_regression.resolve(strict=True)
     restart_qualification(qa,a['binary'])
     binary=Path(a['command'][a['command'].index('-case')-1]).resolve(strict=True)
     if sha(binary)!=a['binary']:
@@ -106,6 +165,8 @@ def main():
         solver=[str(HERE/'run_case.sh'),'C',str(args.end),profile,str(binary),str(out),'--resume-from',str(prev),
                 *(['--prefix-pair',str(paths[1])] if profile=='lu' else ['--reference',str(outdirs[0])]),
                 '--limit',str(solve)]
+        if profile=='lu':
+            solver+=['--direct-rss-gib',str(row['rss_limit']//2**30)]
         plan['runs'].append(dict(profile=profile,anchors=anchors,rss_limit=row['rss_limit'],solver_seconds=solve,
             slurm_minutes=wall,snes_max_it=row['linear']['solver_reports'][0]['snes_max_it'],
             ksp_max_it=row['linear']['effective_options'].get('-ksp_max_it'),rtol=row['policy']['rtol'],
@@ -113,11 +174,8 @@ def main():
     if args.submit:
         target=root/f'C{args.end}-plan'
         target.mkdir(exist_ok=False)
-        def publish():
-            tmp=target/'continuation.json.tmp'
-            tmp.write_text(json.dumps(plan,indent=2,allow_nan=False)+'\n')
-            os.replace(tmp,target/'continuation.json')
-        publish()
+        record=target/'continuation.json'
+        publish(record,plan)
         for i,r in enumerate(plan['runs']):
             name=f"C{args.end}-{r['profile']}"
             cmd=['sbatch','--parsable','-n','64','--exclusive','--time',str(r['slurm_minutes']),
@@ -128,7 +186,11 @@ def main():
                 env={**os.environ,'FSI05_ROOT':str(root)}).strip().split(';')[0]
             if not r['job'].isdigit():
                 raise RuntimeError(f'Unexpected Slurm job ID {r["job"]}')
-            publish()
+            publish(record,plan)
+        if args.chain and args.end!=224:
+            next_end={32:100,100:224}[args.end]
+            plan['next_gate']=schedule_gate(root,next_end,qa,[plan['runs'][1]['job']],True)
+            publish(record,plan)
     print(json.dumps(plan,indent=2,allow_nan=False))
 
 

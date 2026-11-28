@@ -4,6 +4,8 @@
 
 同一固定精度下，physics 粗层缩至单 rank 使真实管 B20 与 A20 的正式中位时间分别下降 30.02% 和 22.20%。A20 的整体 pressure-MG 也实测了 Braess owner 本地读写，耗时从 6.334 s 降至 2.974 s。[两组通信样本](docs/development/FSI_SCALABLE_05.md#a20-的两种通信比较)
 
+真实管 C（924,953 DoF）在 64 MPI 上完成 20 步独立 LU 与固定迭代验证。五个保存相位的压力场最大差为 6.746e-9 Pa，质量、界面和 RCR 检查均已通过。[C20 数值结果](docs/development/FSI_SCALABLE_05.md#c20-独立验收)
+
 弹性管第四阶段增加了逐校正的直接法精化和严格参考轨迹检查。B 首系统的写回精度和合成网格的配对计时见[第四阶段收据](docs/development/FSI_SCALABLE_04.md)。
 
 C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体刚体 FSI 和单体弹性 FSI 的可运行基线。
