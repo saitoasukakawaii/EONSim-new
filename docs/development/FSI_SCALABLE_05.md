@@ -50,6 +50,8 @@ B20 选择固定 `1e-6`。改用 `1e-4` 后，每步多一次 Newton 校正，�
 
 B 第二步的第一次 inexact 校正仅用两次 Krylov 迭代，但该步总共需要四次 Newton 校正。该组 forcing 两个网格上的线性迭代总数和总时间都增加。
 
+C20 作业 532 使用同一套 forcing，独立 LU 仍为 525。20 步及五个完整相位均通过。在 64 MPI 的诊断运行中，固定 → inexact 的 KSP 总数从 6762 降至 6175，Newton 校正从 40 增至 81，T_job 从 630.015 s 变为 627.703 s。0.37% 是两次单样本诊断的差异。[C20 inexact 逐次校正、完整场和物理收据](../research/data/fsi-scalable-05/c20-inexact-532.json.gz)
+
 ## 合格窗口的正式性能
 
 每一侧独立预热一次，再交错运行三对冷启动样本。每份收据都通过同一个直接参考、完整保存场和历史检查。独占 128 核，A 用 4 个、B 用 32 个单线程 MPI 进程。表中资源列取正式样本中位数，core-hours 计入全部分配核。所有原始样本的活跃 rank-hours、绑定、内存和校正明细保存在[运行收据](../research/data/fsi-scalable-05/run-receipts.json.gz)，[校准表](../research/data/fsi-scalable-05/calibration.csv)按窗口列出结果。
