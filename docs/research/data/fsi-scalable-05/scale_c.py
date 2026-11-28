@@ -1,11 +1,37 @@
 """Qualification, partition preparation and MPI binding checks for the C20 scaling diagnostic."""
 import json
+import math
 import os
 import re
+import sys
 
 
 SOLVE_SECONDS = {32: 1800, 128: 1200}
 PREPARE_SECONDS = 120
+
+
+def reference_area_budget(fluid_mesh,interface_tag,ranks,physical_limit):
+    """Independent undeformed Tri3 measure and a bound for summing positive face areas."""
+    nodes,_,faces=fluid_mesh
+    areas=[]
+    for tag,ids in faces:
+        if tag!=interface_tag:
+            continue
+        a,b,c=(nodes[i] for i in ids)
+        u=[y-x for x,y in zip(a,b)]
+        v=[y-x for x,y in zip(a,c)]
+        cross=[u[(j+1)%3]*v[(j+2)%3]-u[(j+2)%3]*v[(j+1)%3] for j in range(3)]
+        areas.append(.5*math.hypot(*cross))
+    if not areas or any(not math.isfinite(x) or x<=0 for x in areas):
+        raise ValueError('Invalid frozen interface triangulation')
+    area=math.fsum(areas)
+    # One local sum per owner, followed by an MPI sum. The count bounds
+    # both serial sums even without a pairwise reduction. 32 covers the
+    # coordinate differences, cross product and norm on these regular Tri3s.
+    n=len(areas)+max(ranks)+32
+    e=n*sys.float_info.epsilon
+    limit=min(physical_limit,area*e/(1.-e))
+    return dict(triangles=len(areas),area=area,absolute_limit=limit)
 
 
 def verify_baseline(path, reference, row, source_pieces):

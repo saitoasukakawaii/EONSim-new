@@ -49,6 +49,8 @@ def verified_prefix(folder, current, output_folder, pair=None):
     lineage.append(dict(directory=str(folder),window_sha256=digest(folder/'window.json'),
                         start_step=prev.get('start_step',0),end_step=prev['steps'],T_job=prev['T_job']))
     end=0
+    generation=None
+    prior_sha=None
     for item in lineage:
         d=Path(item['directory'])
         record=read(d)
@@ -66,10 +68,22 @@ def verified_prefix(folder, current, output_folder, pair=None):
         cfg['fsi'].update(steps=target['fsi']['steps'],checkpoint_interval=target['fsi']['checkpoint_interval'])
         if cfg!=target or any(record['inputs'][n]!=current['inputs'][n] for n in ('fluid.msh','solid.msh')):
             raise ValueError('Changed physics or mesh across checkpoint')
+        command=record['command']
+        if start:
+            if (record['prefix_receipt']!=prior_sha or record['restart_generation']!=str(generation)
+                    or command[command.index('-restart')+1]!=str(generation)):
+                raise ValueError('Prefix solver did not read its preceding verified generation')
+        elif '-restart' in command:
+            raise ValueError('First segment lacks a cold initial state')
         audit_corrections(d,record['steps'],record['ranks'],current['policy'],start)
         if output_manifest(d,record['steps'],record['ranks'],start)!=record['outputs']:
             raise ValueError('Previously accepted prefix fields/history changed')
         end=record['steps']
+        checkpoint=checkpoint_receipt(d/'checkpoint',end,record['ranks'])
+        if checkpoint!=record.get('checkpoint'):
+            raise ValueError('Changed or missing native checkpoint')
+        generation=d/'checkpoint'/checkpoint['generation']
+        prior_sha=item['window_sha256']
     if prev['profile']=='lu':
         if pair is None:
             raise ValueError('A direct prefix needs its independently qualified iterative partner')
@@ -82,10 +96,7 @@ def verified_prefix(folder, current, output_folder, pair=None):
             raise ValueError('Direct prefix lacks a matching independent trajectory')
     elif prev['qualification']!='independent_pair_passed' or pair is not None:
         raise ValueError('Iteration must continue its independently qualified prefix')
-    checkpoint=checkpoint_receipt(folder/'checkpoint',end,prev['ranks'])
-    if checkpoint!=prev.get('checkpoint'):
-        raise ValueError('Changed or missing native checkpoint')
-    return prev,lineage,folder/'checkpoint'/checkpoint['generation']
+    return prev,lineage,generation
 
 def last_two_cycles(folder, meshes, ranks, start_step, physical_state):
     """Evaluate the frozen 6th/7th-cycle harmonics and same-phase interface displacement."""

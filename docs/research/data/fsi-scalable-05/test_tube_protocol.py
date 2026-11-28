@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 from resource_accounting import formal_resources, resource_hours
-from scale_c import read_bindings
+from scale_c import read_bindings, reference_area_budget
 
 from tube_protocol import (BLOCKS, HERE, audit_corrections, audit_row, budget, compare_face_history,
                            full_field_differences, output_manifest, select, solver_options)
@@ -63,6 +63,16 @@ def synthetic_log(policy, counts, start_step=0):
 
 
 class ProtocolChecks(unittest.TestCase):
+    def test_cross_partition_reference_geometry(self):
+        nodes={1:(0,0,0),2:(1,0,0),3:(1,1,0),4:(0,1,0)}
+        mesh=nodes,[],[(3,(1,2,3)),(3,(1,3,4)),(2,(1,2,4))]
+        bound=reference_area_budget(mesh,3,(32,64),1e-6)
+        self.assertEqual((bound['triangles'],bound['area']),(2,1.))
+        self.assertGreater(bound['absolute_limit'],sys.float_info.epsilon)
+        self.assertLess(bound['absolute_limit'],1e-12)
+        with self.assertRaises(ValueError):
+            reference_area_budget(mesh,13,(32,64),1e-6)
+
     def test_physical_core_bindings(self):
         log='[node:123] MCW rank 0 bound to socket 0[core 0[hwt 0]]: [B]\n'
         other='[node:123] MCW rank 1 bound to socket 1[core 0[hwt 0]]: [B]\n'

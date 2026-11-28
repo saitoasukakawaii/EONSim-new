@@ -465,6 +465,11 @@ def compare_trajectories(candidate, reference, steps, meshes, ranks, policy, sta
     histories=[[r for r in history if r['step']>max(starts)] for history in histories]
     obs_budget = policy['document']['internal_observables']
     history_max, observable_max = {}, {}
+    geometry=None
+    if ranks[0]!=ranks[1]:
+        from scale_c import reference_area_budget
+        tag=json.loads((candidate/'case.json').read_text())['fsi']['domains']['fluid_interface']
+        geometry=reference_area_budget(meshes[0],tag,ranks,budget(policy,'area'))
     for x,y in zip(*histories):
         if x.keys()!=y.keys():
             raise ValueError('Mismatched history columns')
@@ -473,6 +478,10 @@ def compare_trajectories(candidate, reference, steps, meshes, ranks, policy, sta
             delta = abs(x[key]-y[key])
             history_max[key] = max(history_max.get(key,0),delta)
             if quantity == 'diagnostic':
+                continue
+            if key=='reference_interface_area' and geometry:
+                if any(abs(v[key]-geometry['area'])>geometry['absolute_limit'] for v in (x,y)):
+                    raise ValueError('Cross-partition reference area differs from the frozen interface geometry')
                 continue
             limit = 0. if quantity == 'exact' else budget(policy,quantity)
             if delta > limit:
@@ -486,5 +495,6 @@ def compare_trajectories(candidate, reference, steps, meshes, ranks, policy, sta
                 raise ValueError(f'Observable step {a["step"]}, {key}: {delta} > {limit}')
     field_phases,field_spec_hash=full_field_differences(candidate,reference,steps,ranks,policy,starts)
     return dict(protocol_hash=policy['hash'], physical_gates=gates, physical=observed, pressure_face_differences=faces,
+                cross_rank_reference_area=geometry,
                 history_maximum_difference=history_max, observable_maximum_difference=observable_max,
                 full_field_differences=field_phases, output_field_budget_sha256=field_spec_hash)
