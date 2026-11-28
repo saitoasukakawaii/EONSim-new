@@ -126,10 +126,21 @@ void verify(MPI_Comm comm)
     const auto released=system.solve(config,initial,{}, {},diagonal);
     for(int row=0;row<3;++row) require(std::abs(released.values[index[row]]-(row+1))<1e-11,"Old constraints or matrix values survived reassembly");
     if(std::numeric_limits<long double>::digits>std::numeric_limits<double>::digits) {
+        const std::string hash(64,'a');
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_protocol_hash",hash.c_str()));
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_componentwise_error","true"));
+        bool unverified=false;
+        try { system.solve(config,initial,bc,changed_value,diagonal); }
+        catch(const std::runtime_error& e) {
+            unverified=std::string(e.what()).find("explicit LU refinement")!=std::string::npos;
+        }
+        require(unverified,"Protocol accepted PREONLY without an explicit original-equation test");
         EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_lu_refinement_steps","2"));
         EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_lu_refinement_rtol","1e-20"));
         EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_lu_refinement_atol","1e-23"));
-        const auto exact=system.solve(config,initial,bc,changed_value,diagonal);
+        NonlinearAssemblyPhases tagged;
+        tagged.step=3; tagged.attempt=2;
+        const auto exact=system.solve(config,initial,bc,changed_value,diagonal,tagged);
         require(exact.values[index[2]]==7,"LU refinement changed a lifted constraint");
         // Non-dyadic factor multipliers, exactly representable coupled solution.
         const auto integers=[&](const std::vector<double>& x,Vec r,Mat j) {
@@ -177,7 +188,8 @@ void verify(MPI_Comm comm)
             const auto result=two.solve(small,{0,0},{},{},rows);
             require(result.values[0]==1&&result.values[1]==2,"Empty owner changed an original-equation solve");
         }
-        for(const char* option:{"-linear_lu_refinement_steps","-linear_lu_refinement_rtol","-linear_lu_refinement_atol"})
+        for(const char* option:{"-linear_lu_refinement_steps","-linear_lu_refinement_rtol","-linear_lu_refinement_atol",
+                                "-linear_protocol_hash","-linear_componentwise_error"})
             EONSIM_PETSC(PetscOptionsClearValue(nullptr,option));
     }
     // preonly/Jacobi 报告范数为零，但首个近似线性解的实际缺陷是 (-1.5,-1.5,0)。
@@ -213,6 +225,54 @@ void verify(MPI_Comm comm)
     }
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-pc_type"));
     EONSIM_PETSC(PetscOptionsClearValue(nullptr,"-linear_report"));
+    // One GMRES iteration leaves a resolvable defect in this diagonal system.
+    // The second time step reuses the SNES but must start again at eta_initial.
+    const std::string hash(64,'b');
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_protocol_hash",hash.c_str()));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-ksp_type","fgmres"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-pc_type","none"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-ksp_atol","1e-23"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-ksp_rtol","1e-6"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-nonlinear_true_residual","true"));
+    EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-nonlinear_inexact_newton","true"));
+    const auto close_diagonal=[&](const std::vector<double>& x,Vec r,Mat j) {
+        for(PetscInt row=l.begin;row<l.begin+l.owned;++row) {
+            const double a=1.+.1*row;
+            EONSIM_PETSC(VecSetValue(r,row,a*(x[index[row]]-1),ADD_VALUES));
+            if(j) EONSIM_PETSC(MatSetValue(j,row,row,a,ADD_VALUES));
+        }
+    };
+    for(PetscInt step:{1,2}) {
+        NonlinearAssemblyPhases phases;
+        phases.step=step;
+        std::ostringstream captured;
+        auto* previous=std::cout.rdbuf(captured.rdbuf());
+        NonlinearResult solved;
+        try { solved=system.solve(config,std::vector<double>(3,0),{}, {},close_diagonal,phases); }
+        catch(...) { std::cout.rdbuf(previous); throw; }
+        std::cout.rdbuf(previous);
+        require(solved.inexact_linear_solves>1,"Forcing fixture did not exercise intermediate corrections");
+        if(step==2) require(solved.solver_reused,"Forcing history fixture did not reuse its solver");
+        if(rank==0) {
+            const auto log=captured.str();
+            const auto first=log.find("linear_residual solve=1 norm=");
+            require(first!=std::string::npos,"Missing inexact correction");
+            const auto line=log.substr(first,log.find('\n',first)-first);
+            const auto number=[&](const std::string& key) {
+                auto pos=line.find(" "+key+"=");
+                require(pos!=std::string::npos,"Missing effective KSP option");
+                return std::stod(line.substr(pos+key.size()+2));
+            };
+            require(number("step")==step&&number("newton")==1&&number("attempt")==1&&
+                number("requested_rtol")==.1&&number("base_rtol")==1e-6&&number("forcing")==1,
+                "Forcing or correction identity leaked across time steps");
+            const double relative=number("norm")/number("rhs_norm");
+            require(relative>1e-6&&relative<=.1,"Fixture missed a legal inexact intermediate correction");
+        }
+    }
+    for(const char* option:{"-linear_protocol_hash","-ksp_type","-pc_type","-ksp_atol","-ksp_rtol",
+                            "-nonlinear_true_residual","-nonlinear_inexact_newton"})
+        EONSIM_PETSC(PetscOptionsClearValue(nullptr,option));
     config.fields.at("mesh").absolute_tolerance=1e-210;
     const auto tiny_residual=[&](const std::vector<double>&,Vec r,Mat) {
         const PetscScalar* previous;
