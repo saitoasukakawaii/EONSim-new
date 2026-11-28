@@ -294,7 +294,7 @@ def audit(log, trace, ranks, mode, coarse_rows_per_rank=64):
             block.require(int(row['forcing']) == 1 and math.isfinite(relative + absolute) and
                           0 < relative <= .5 and 0 <= absolute <= 1e-12,
                           'Invalid or missing requested inexact forcing tolerance')
-            target = (absolute + relative * rhs) * (1 + 64 * math.ulp(1.))
+            target = max(absolute, relative * rhs)
         ratios.append(norm / target)
     block.require(max(ratios) <= 1, ('Original-operator true-residual gate failed', max(ratios)))
     result = dict(dofs=int(reports[-1]['dofs']), accepted_steps=len(trace), corrections=len(residuals),

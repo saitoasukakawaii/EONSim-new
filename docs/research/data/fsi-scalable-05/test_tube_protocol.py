@@ -3,10 +3,14 @@ import csv
 import hashlib
 import json
 from pathlib import Path
+import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
-from tube_protocol import BLOCKS, audit_corrections, audit_row, budget, compare_face_history, select, solver_options
+from tube_protocol import (BLOCKS, HERE, audit_corrections, audit_row, budget, compare_face_history,
+                           full_field_differences, output_manifest, select, solver_options)
 
 
 def correction(policy, step=1, newton=1, eta=None, rhs=1., norm=0.):
@@ -136,6 +140,41 @@ class ProtocolChecks(unittest.TestCase):
                 write(can,bad)
                 with self.assertRaises(ValueError):
                     compare_face_history(can,ref,([h],[h]),p)
+
+    def test_complete_output_manifest(self):
+        fake=SimpleNamespace(digest=lambda path:hashlib.sha256(path.read_bytes()).hexdigest())
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(sys.modules,{'paired_tube':fake}):
+            d=Path(tmp)
+            (d/'case.json').write_text(json.dumps({'fsi':dict(steps=4,dt=1/32,output_interval=4)}))
+            (d/'tube.csv').write_text('history')
+            for suffix in ('','_solid'):
+                step='tube_step4'+suffix
+                (d/('tube'+suffix+'.pvd')).write_text(
+                    f'<VTKFile><Collection><DataSet timestep="0.125" file="{step}.vtu"/></Collection></VTKFile>')
+                for stem in (step,'tube'+suffix):
+                    (d/(stem+'.vtu')).write_bytes(b'saved')
+            self.assertEqual(len(output_manifest(d,4,1)['phase_hashes']),2)
+            (d/'tube_solid.vtu').write_bytes(b'stale')
+            with self.assertRaises(ValueError):
+                output_manifest(d,4,1)
+
+    def test_supplemental_derivative_and_field_coverage(self):
+        spec=json.loads((HERE/'output-fields-v2.1.json').read_text())
+        zero={(suffix,1,name):[0.]*(1 if name=='pressure' else 3)
+              for suffix,region in (('','fluid'),('_solid','solid')) for name in spec['regions'][region]}
+        values=dict(zero)
+        fake=SimpleNamespace(physical_fields=lambda p,n: values if p.parent.name=='candidate' else zero)
+        args=(Path('candidate'),Path('reference'),4,(1,1),select())
+        with patch.dict(sys.modules,{'benchmark_fsi_assembly':fake}):
+            phases,_=full_field_differences(*args)
+            self.assertIn('solid/algorithmic_acceleration',phases[0])
+            k=('_solid',1,'algorithmic_acceleration')
+            values[k]=[1.,0.,0.]
+            with self.assertRaises(ValueError):
+                full_field_differences(*args)
+            del values[k]
+            with self.assertRaises(ValueError):
+                full_field_differences(*args)
 
 
 if __name__=='__main__':

@@ -25,8 +25,16 @@ def main():
     cli.add_argument('output', type=Path)
     cli.add_argument('--reference', type=Path)
     cli.add_argument('--formal', action='store_true', help='omit componentwise and line-search diagnostics')
+    cli.add_argument('--pc', choices=('physics','pressure-mg'), default='physics')
+    cli.add_argument('--owner', choices=('on','off'), default='on')
+    cli.add_argument('--coarse-rows', type=int, default=64)
+    cli.add_argument('--mg-scale', action='store_true')
     cli.add_argument('--limit', type=int, required=True, help='Process-tree wall budget in seconds')
     args = cli.parse_args()
+    if args.coarse_rows<=0 or ((args.pc!='pressure-mg' or args.profile=='lu') and
+            (args.mg_scale or args.owner!='on' or args.coarse_rows!=64 or
+             (args.pc=='pressure-mg' and args.profile=='lu'))):
+        cli.error('owner, Telescope and internal scaling require a pressure-mg candidate')
     work = Path.home() / 'workspace'
     archived = (work / 'fsi-scalable-03-runs/C-first-64' if args.case == 'C'
                 else work / 'fsi-scalable-04-runs' / (args.case + '-return'))
@@ -53,6 +61,9 @@ def main():
                allocation=os.getenv('SLURM_JOB_CPUS_PER_NODE'),
                limit_seconds=args.limit, rss_limit=140*2**30,
                archive_receipt=digest(archived/'run.json'), qualification='open')
+    row['preconditioner'] = dict(pc='lu' if args.profile=='lu' else args.pc)
+    if args.pc=='pressure-mg':
+        row['preconditioner'].update(owner=args.owner,coarse_rows=args.coarse_rows,mg_scale=args.mg_scale)
     try:
         for name in ('case.json', 'fluid.msh', 'solid.msh'):
             if digest(archived/name) != origin['inputs'][name]:
@@ -69,6 +80,18 @@ def main():
             save(out/'case.json', config)
         row['inputs'] = {name: digest(out/name) for name in ('case.json', 'fluid.msh', 'solid.msh')}
         recipe = [] if args.profile == 'lu' else options('inner-mgs')
+        if args.pc=='pressure-mg':
+            from verify_fsi_multigrid import flags
+            recipe = flags('mono_pressure_auto',ports=True,coarse_rows_per_rank=args.coarse_rows)
+            recipe[recipe.index('-ksp_max_it')+1] = '500'
+            prefix = '-rcr_bulk_monolithic_mg_'
+            recipe += [prefix+'braess_local_fields',str(args.owner=='on').lower(),
+                       prefix+'field_scaling',str(args.mg_scale).lower()]
+            recipe = [v for v in recipe if v not in ('-solver_report','-linear_report')]
+            if args.formal:
+                recipe = [v for v in recipe if v not in ('-pc_plan_report','-rcr_port_report')]
+            else:
+                recipe += [prefix+'report','true']
         policy_flags = solver_options(policy, diagnostics=not args.formal)
         # The same outer option must never appear twice in a campaign command.
         for key in ('-ksp_rtol', '-ksp_atol', '-ksp_type', '-ksp_norm_type', '-ksp_pc_side'):
