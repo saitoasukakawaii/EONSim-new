@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <sstream>
 #include <array>
@@ -124,6 +125,61 @@ void verify(MPI_Comm comm)
     require(constrained.values[index[2]]==7,"Updated constraint value was lost");
     const auto released=system.solve(config,initial,{}, {},diagonal);
     for(int row=0;row<3;++row) require(std::abs(released.values[index[row]]-(row+1))<1e-11,"Old constraints or matrix values survived reassembly");
+    if(std::numeric_limits<long double>::digits>std::numeric_limits<double>::digits) {
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_lu_refinement_steps","2"));
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_lu_refinement_rtol","1e-20"));
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_lu_refinement_atol","1e-23"));
+        const auto exact=system.solve(config,initial,bc,changed_value,diagonal);
+        require(exact.values[index[2]]==7,"LU refinement changed a lifted constraint");
+        // Non-dyadic factor multipliers, exactly representable coupled solution.
+        const auto integers=[&](const std::vector<double>& x,Vec r,Mat j) {
+            const double coefficients[3][3]={{7,2,1},{2,9,-3},{-1,4,7}};
+            const PetscInt columns[]={0,1,2};
+            for(PetscInt row=l.begin;row<l.begin+l.owned;++row) {
+                double value=0;
+                for(int k=0;k<3;++k) value+=coefficients[row][k]*(x[index[k]]-(k+1));
+                EONSIM_PETSC(VecSetValue(r,row,value,ADD_VALUES));
+                if(j) EONSIM_PETSC(MatSetValues(j,1,&row,3,columns,coefficients[row],ADD_VALUES));
+            }
+        };
+        const auto represented=system.solve(config,std::vector<double>(3,0),{}, {},integers);
+        for(int k=0;k<3;++k) require(represented.values[index[k]]==k+1,"Wrong returned FP64 solution");
+        // FP64 computes 3*(1/3)==1, but the stored vector fails this original-unit
+        // tolerance. A positive PREONLY reason must never admit its Newton step.
+        const auto thirds=[&](const std::vector<double>& x,Vec r,Mat j) {
+            for(PetscInt row=l.begin;row<l.begin+l.owned;++row) {
+                EONSIM_PETSC(VecSetValue(r,row,3*x[index[row]]-1,ADD_VALUES));
+                if(j) EONSIM_PETSC(MatSetValue(j,row,row,3.,ADD_VALUES));
+            }
+        };
+        bool failed=false;
+        try { system.solve(config,std::vector<double>(3,0),{}, {},thirds); }
+        catch(const std::runtime_error& error) {
+            failed=std::string(error.what()).find("LU refinement failed the original equation")!=std::string::npos;
+        }
+        require(failed,"Rounded direct correction bypassed the explicit original-equation gate");
+        if(ranks==2) {
+            AlgebraLayout empty;
+            empty.global=2; empty.owned=rank==0?2:0; empty.begin=rank==0?0:2;
+            empty.local_to_global={0,1};
+            empty.fields["state"]=rank==0?std::vector<PetscInt>{0,1}:std::vector<PetscInt>{};
+            empty.diagonal.assign(empty.owned,2); empty.off_diagonal.assign(empty.owned,0);
+            NonlinearSystem two(comm,empty);
+            const auto rows=[&](const std::vector<double>& x,Vec r,Mat j) {
+                if(rank!=0) return;
+                const PetscInt ids[]={0,1};
+                const double entries[]={3,1,1,7};
+                const double res[]={3*x[0]+x[1]-5,x[0]+7*x[1]-15};
+                EONSIM_PETSC(VecSetValues(r,2,ids,res,ADD_VALUES));
+                if(j) EONSIM_PETSC(MatSetValues(j,2,ids,2,ids,entries,ADD_VALUES));
+            };
+            SolverConfig small;
+            const auto result=two.solve(small,{0,0},{},{},rows);
+            require(result.values[0]==1&&result.values[1]==2,"Empty owner changed an original-equation solve");
+        }
+        for(const char* option:{"-linear_lu_refinement_steps","-linear_lu_refinement_rtol","-linear_lu_refinement_atol"})
+            EONSIM_PETSC(PetscOptionsClearValue(nullptr,option));
+    }
     // preonly/Jacobi 报告范数为零，但首个近似线性解的实际缺陷是 (-1.5,-1.5,0)。
     // 直接检查非零诊断，避免仅用精确 LU 的近零结果掩盖错误算子或字段映射。
     const auto coupled=[&](const std::vector<double>& x,Vec r,Mat j) {

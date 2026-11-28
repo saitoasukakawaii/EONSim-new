@@ -738,15 +738,133 @@ struct LinearDiagnostics {
     double solve_seconds=0,diagnostic_seconds=0;
     PetscInt started=0,completed=0;
     bool enabled=false;
+    PetscInt lu_refinement_steps=0;
+    PetscReal lu_rtol=0,lu_atol=0;
+    bool lu_rejected=false;
+    PetscErrorCode (*prior_precheck)(SNESLineSearch,Vec,Vec,PetscBool*,void*)=nullptr;
+    void* prior_precheck_data=nullptr;
     AdaptivePcState* adaptive_pc=nullptr;
     LinearPolicy* policy=nullptr;
     std::string policy_error;
     int collective_pc_failure=0;
     void reset() {
         solve_seconds=diagnostic_seconds=0.;
-        started=completed=0; collective_pc_failure=0; policy_error.clear();
+        started=completed=0; collective_pc_failure=0; policy_error.clear(); lu_rejected=false;
     }
 };
+
+PetscErrorCode check_refined_step(SNESLineSearch search,Vec state,Vec step,PetscBool* changed,void* pointer) {
+    auto& d=*static_cast<LinearDiagnostics*>(pointer);
+    if(!d.lu_rejected)
+        return d.prior_precheck?d.prior_precheck(search,state,step,changed,d.prior_precheck_data):PETSC_SUCCESS;
+    // KSPSolve has now unwound and optional PETSc viewers have saved the actual
+    // rejected iterate. Keep the Newton trial at its previous state.
+    SNES snes;
+    PetscCall(SNESLineSearchGetSNES(search,&snes));
+    PetscCall(SNESSetConvergedReason(snes,SNES_DIVERGED_LINEAR_SOLVE));
+    PetscCall(VecSet(step,0));
+    *changed=PETSC_TRUE;
+    return PETSC_SUCCESS;
+}
+
+// Reuse this correction's LU factor only. The snapshot contains each owned row
+// once and imports precisely its column vector entries, including off-rank ones.
+void refine_direct_correction(KSP ksp,Vec b,Vec x,PetscInt budget,PetscReal rtol,PetscReal atol) {
+    Mat a,p;
+    PC pc;
+    EONSIM_PETSC(KSPGetOperators(ksp,&a,&p));
+    EONSIM_PETSC(KSPGetPC(ksp,&pc));
+    if(a!=p) throw std::runtime_error("LU refinement requires the original assembled operator as P");
+    const auto comm=PetscObjectComm(reinterpret_cast<PetscObject>(ksp));
+    PetscOwner<Mat,MatDestroy> merged;
+    PetscOwner<IS,ISDestroy> columns;
+    PetscBool distributed;
+    EONSIM_PETSC(PetscObjectTypeCompare(reinterpret_cast<PetscObject>(a),MATMPIAIJ,&distributed));
+    Mat local=a;
+    PetscInt n=0;
+    if(distributed) {
+        EONSIM_PETSC(MatMPIAIJGetLocalMatMerge(a,MAT_INITIAL_MATRIX,columns.put(),merged.put()));
+        local=merged.get();
+        EONSIM_PETSC(ISGetLocalSize(columns.get(),&n));
+    } else {
+        PetscBool sequential;
+        EONSIM_PETSC(PetscObjectTypeCompare(reinterpret_cast<PetscObject>(a),MATSEQAIJ,&sequential));
+        if(!sequential) throw std::runtime_error("LU refinement requires CPU AIJ");
+        EONSIM_PETSC(MatGetSize(a,nullptr,&n));
+        EONSIM_PETSC(ISCreateStride(PETSC_COMM_SELF,n,0,1,columns.put()));
+    }
+    PetscOwner<Vec,VecDestroy> imported,residual,delta,previous,product;
+    PetscOwner<VecScatter,VecScatterDestroy> import;
+    EONSIM_PETSC(VecCreateSeq(PETSC_COMM_SELF,n,imported.put()));
+    EONSIM_PETSC(VecScatterCreate(x,columns.get(),imported.get(),nullptr,import.put()));
+    EONSIM_PETSC(VecDuplicate(b,residual.put()));
+    EONSIM_PETSC(VecDuplicate(b,product.put()));
+    EONSIM_PETSC(VecDuplicate(x,delta.put()));
+    EONSIM_PETSC(VecDuplicate(x,previous.put()));
+    PetscReal bnorm;
+    EONSIM_PETSC(VecNorm(b,NORM_2,&bnorm));
+    const double limit=std::max(atol,rtol*bnorm);
+    double best=std::numeric_limits<double>::infinity();
+    PetscReal correction_norm=0;
+    const auto start=std::chrono::steady_clock::now();
+    for(PetscInt i=0;i<=budget;++i) {
+        EONSIM_PETSC(VecScatterBegin(import.get(),x,imported.get(),INSERT_VALUES,SCATTER_FORWARD));
+        EONSIM_PETSC(VecScatterEnd(import.get(),x,imported.get(),INSERT_VALUES,SCATTER_FORWARD));
+        const PetscScalar *values,*rhs;
+        PetscScalar* out;
+        EONSIM_PETSC(VecGetArrayRead(imported.get(),&values));
+        EONSIM_PETSC(VecGetArrayRead(b,&rhs));
+        EONSIM_PETSC(VecGetArray(residual.get(),&out));
+        PetscInt rows;
+        EONSIM_PETSC(VecGetLocalSize(b,&rows));
+        long double local_squared=0;
+        for(PetscInt row=0;row<rows;++row) {
+            PetscInt count;
+            const PetscInt* ids;
+            const PetscScalar* entries;
+            EONSIM_PETSC(MatGetRow(local,row,&count,&ids,&entries));
+            long double value=rhs[row];
+            for(PetscInt j=0;j<count;++j) value-=static_cast<long double>(entries[j])*values[ids[j]];
+            EONSIM_PETSC(MatRestoreRow(local,row,&count,&ids,&entries));
+            out[row]=static_cast<PetscScalar>(value);
+            local_squared+=value*value;
+        }
+        EONSIM_PETSC(VecRestoreArray(residual.get(),&out));
+        EONSIM_PETSC(VecRestoreArrayRead(b,&rhs));
+        EONSIM_PETSC(VecRestoreArrayRead(imported.get(),&values));
+        long double global_squared=0;
+        if(MPI_Allreduce(&local_squared,&global_squared,1,MPI_LONG_DOUBLE,MPI_SUM,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("LU refinement global residual reduction failed");
+        const double wide=static_cast<double>(std::sqrt(global_squared));
+        EONSIM_PETSC(MatMult(a,x,product.get()));
+        EONSIM_PETSC(VecAXPY(product.get(),-1,b));
+        PetscReal native;
+        EONSIM_PETSC(VecNorm(product.get(),NORM_2,&native));
+        PetscBool unchanged=PETSC_FALSE;
+        if(i) EONSIM_PETSC(VecEqual(x,previous.get(),&unchanged));
+        EONSIM_PETSC(PetscPrintf(comm,"lu_refinement step=%" PetscInt_FMT " bits=%d wide=%.17g original=%.17g limit=%.17g delta=%.17g unchanged=%d elapsed=%.9g\n",
+            i,std::numeric_limits<long double>::digits,wide,double(native),limit,double(correction_norm),int(unchanged),
+            std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()));
+        if(!std::isfinite(wide)||!std::isfinite(native)||!std::isfinite(limit))
+            throw std::runtime_error("Nonfinite original LU refinement residual");
+        if(wide<=limit&&native<=limit) return;
+        if(i==budget||unchanged||wide>=best)
+            throw std::runtime_error("LU refinement failed the original equation on the returned FP64 vector");
+        best=wide;
+        const auto apply_error=PCApply(pc,residual.get(),delta.get());
+        PCFailedReason failure=PC_NOERROR;
+        const auto reason_error=PCGetFailedReason(pc,&failure);
+        const int local_failure=apply_error||reason_error||failure!=PC_NOERROR;
+        int any_failure=0;
+        if(MPI_Allreduce(&local_failure,&any_failure,1,MPI_INT,MPI_MAX,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("LU refinement factor status reduction failed");
+        if(any_failure) throw std::runtime_error("LU refinement factor application failed");
+        EONSIM_PETSC(VecNorm(delta.get(),NORM_2,&correction_norm));
+        if(!std::isfinite(correction_norm)) throw std::runtime_error("Nonfinite LU refinement correction");
+        EONSIM_PETSC(VecCopy(x,previous.get()));
+        EONSIM_PETSC(VecAXPY(x,1,delta.get()));
+    }
+}
 PetscErrorCode linear_begin(KSP ksp,Vec b,Vec x,void* pointer)
 {
     auto& d=*static_cast<LinearDiagnostics*>(pointer);
@@ -822,6 +940,17 @@ PetscErrorCode linear_complete(KSP ksp,Vec b,Vec x,void* pointer)
     if(d.collective_pc_failure) return PETSC_ERR_NOT_CONVERGED;
 #endif
     if(d.adaptive_pc) PetscCall(d.adaptive_pc->complete(ksp));
+    if(d.lu_refinement_steps) {
+        KSPConvergedReason reason;
+        PetscCall(KSPGetConvergedReason(ksp,&reason));
+        if(reason>0) {
+            try { refine_direct_correction(ksp,b,x,d.lu_refinement_steps,d.lu_rtol,d.lu_atol); }
+            catch(const std::exception& e) {
+                d.policy_error=e.what(); d.lu_rejected=true;
+                return d.enabled?linear_end(ksp,b,x,pointer):PETSC_SUCCESS;
+            }
+        }
+    }
     try { if(d.policy) d.policy->after(ksp,b,x); }
     catch(const std::exception& e) { d.policy_error=e.what(); return PETSC_ERR_LIB; }
     if(d.enabled) return linear_end(ksp,b,x,pointer);
@@ -1510,12 +1639,56 @@ struct NonlinearSystem::Workspace {
             sizeof(convergence_test),&convergence_test_set));
         KSPType method=nullptr; KSPNormType norm_type;
         EONSIM_PETSC(KSPGetType(ksp,&method)); EONSIM_PETSC(KSPGetNormType(ksp,&norm_type));
+        EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-linear_lu_refinement_steps",
+                                        &diagnostics.lu_refinement_steps,nullptr));
+        int invalid_refinement=0;
+        if(diagnostics.lu_refinement_steps) {
+            PetscBool diagonal_scale;
+            EONSIM_PETSC(KSPGetDiagonalScale(ksp,&diagonal_scale));
+            if(diagnostics.lu_refinement_steps<1||diagnostics.lu_refinement_steps>5||
+               std::numeric_limits<long double>::digits<=std::numeric_limits<double>::digits||
+               matrix_free||diagonal_scale||!nonlinear_type||std::strcmp(nonlinear_type,SNESNEWTONLS)!=0||
+               !method||std::strcmp(method,KSPPREONLY)!=0||
+               !type||std::strcmp(type,PCLU)!=0||preconditioner_lag!=1||jacobian_lag!=1||
+               reuse_preconditioner||eisenstat_walker)
+                invalid_refinement=1;
+        }
         const int residual_policy[]={int(true_residual),int(!true_residual),
             (deflation_capacity>0&&!true_residual)||(true_residual&&(!method||(std::strcmp(method,KSPFGMRES)!=0&&std::strcmp(method,KSPPIPEFGMRES)!=0)||
                             norm_type!=KSP_NORM_UNPRECONDITIONED||converge_at_limit||
-                            (convergence_test_set&&std::strcmp(convergence_test,"default")!=0)))};
-        int global_residual_policy[3]{};
-        MPI_Allreduce(residual_policy,global_residual_policy,3,MPI_INT,MPI_MAX,comm);
+                            (convergence_test_set&&std::strcmp(convergence_test,"default")!=0))),
+            invalid_refinement,invalid_refinement?0:int(diagnostics.lu_refinement_steps),
+            invalid_refinement?0:-int(diagnostics.lu_refinement_steps)};
+        int global_residual_policy[6]{};
+        if(MPI_Allreduce(residual_policy,global_residual_policy,6,MPI_INT,MPI_MAX,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("Collective residual policy check failed");
+        if(global_residual_policy[3]||global_residual_policy[4]!=-global_residual_policy[5])
+            throw std::runtime_error("LU refinement requires collective 1..5 steps, extended arithmetic and fresh unscaled PREONLY/LU");
+        if(diagnostics.lu_refinement_steps) {
+            // PREONLY has no iterative stopping criterion; KSPGetTolerances may
+            // return unused PETSc defaults. Require an explicit original-unit gate.
+            PetscBool has_rel,has_abs;
+            EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,"-linear_lu_refinement_rtol",&diagnostics.lu_rtol,&has_rel));
+            EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,"-linear_lu_refinement_atol",&diagnostics.lu_atol,&has_abs));
+            PetscReal tolerances[]={diagnostics.lu_rtol,diagnostics.lu_atol};
+            if(MPI_Bcast(tolerances,2,MPIU_REAL,0,comm)!=MPI_SUCCESS)
+                throw std::runtime_error("LU refinement tolerance broadcast failed");
+            int invalid=!has_rel||!has_abs||!std::isfinite(diagnostics.lu_rtol)||!std::isfinite(diagnostics.lu_atol)||
+                diagnostics.lu_rtol!=tolerances[0]||diagnostics.lu_atol!=tolerances[1]||
+                diagnostics.lu_rtol<0||diagnostics.lu_atol<0||(diagnostics.lu_rtol==0&&diagnostics.lu_atol==0);
+            int any_invalid=0;
+            if(MPI_Allreduce(&invalid,&any_invalid,1,MPI_INT,MPI_MAX,comm)!=MPI_SUCCESS)
+                throw std::runtime_error("LU refinement tolerance check failed");
+            if(any_invalid) throw std::runtime_error("LU refinement requires explicit, consistent original-equation rtol and atol");
+            SNESLineSearch search;
+            SNESLineSearchType search_type;
+            EONSIM_PETSC(SNESGetLineSearch(snes.get(),&search));
+            EONSIM_PETSC(SNESLineSearchGetType(search,&search_type));
+            if(search_type&&std::strcmp(search_type,SNESLINESEARCHBT)&&std::strcmp(search_type,SNESLINESEARCHBASIC))
+                throw std::runtime_error("LU refinement requires a basic or backtracking Newton line search");
+            EONSIM_PETSC(SNESLineSearchGetPreCheck(search,&diagnostics.prior_precheck,&diagnostics.prior_precheck_data));
+            EONSIM_PETSC(SNESLineSearchSetPreCheck(search,check_refined_step,&diagnostics));
+        }
         if((global_residual_policy[0]&&global_residual_policy[1])||global_residual_policy[2])
             throw std::runtime_error("True residual verification requires the same option on all ranks, unpreconditioned flexible GMRES, and a residual-based convergence test without converged_maxits");
         verify_true_residual=true_residual;
@@ -1874,6 +2047,7 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     // Freeze before final physical acceptance/reaction assembly, matching existing assembly timers.
     const double callback_seconds=context.callback_seconds,failure_sync_seconds=context.failure_sync_seconds;
     const double assembly_finalize_seconds=context.assembly_finalize_seconds,constraint_seconds=context.constraint_seconds;
+    if(diagnostics.lu_rejected&&!error) throw std::runtime_error(diagnostics.policy_error);
     if(!context.action_error.empty()) { context.error=context.action_error; context.recoverable=false; }
     if(!diagnostics.policy_error.empty()&&context.error.empty()) {
         context.error=diagnostics.policy_error; context.recoverable=false;
