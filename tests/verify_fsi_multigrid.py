@@ -524,7 +524,14 @@ def campaign(args, receipt, result, name, cfg, ranks, modes, ports=False, area=1
         row = dict(mode=mode, status='running')
         record['runs'].append(row); previous.save(result, receipt)
         try:
-            fields, trace, log = runner.solve(mode, cfg, ranks, flags(mode, ports))
+            options = flags(mode, ports)
+            observe_bulk = ports and mode.startswith('mono')
+            if observe_bulk:
+                options += ['-rcr_bulk_ksp_converged_reason']
+            fields, trace, log = runner.solve(mode, cfg, ranks, options)
+            if observe_bulk:
+                block.require('Linear rcr_bulk_ solve converged due to CONVERGED_ITS' in log,
+                              'RCR bulk PREONLY convergence reason is missing')
             block.require(mesh_hashes == {p.name: assembly.digest(p) for p in directory.glob('*.msh')},
                           'Input geometry changed between solvers')
             snapshots = previous.snapshot(runner, mode, trace, ranks)
