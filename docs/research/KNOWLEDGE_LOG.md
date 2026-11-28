@@ -8,6 +8,8 @@ C20 的[单节点纯 MPI 强扩展](../development/FSI_SCALABLE_05.md#c20-的纯
 
 2026-11-28，[逐校正验证弹性管的线性容差](../../website/drafts/forcing-and-returned-tube-corrections.md)结合 production forcing、原 RHS 分母、物理特征尺度及实测 Newton 成本说明校准过程。[数值验证](../development/FSI_SCALABLE_05.md)
 
+两种算法各自继承 checkpoint，使长窗保留从初态传播的数值差。第 33–100 步的完整场和逐步历史验证了这条续算链。[分段续算的独立性](../../website/drafts/forcing-and-returned-tube-corrections.md#分段续算的独立性)
+
 2026-11-28，[Newton 校正写回 FP64 后的原方程残量](../../website/drafts/returned-fp64-newton-correction.md)记录临时累加、实际解精度与 PREONLY 选项的区别。[逐校正证据](../development/FSI_SCALABLE_04.md)
 
 2026-11-28，[弹性管首个 Newton 校正与粗层通信域的独立核验](../../website/drafts/arterial-first-correction-and-coarse-communicator.md)。草稿记录 B 的结构块残量、C 的首个失败系统和 128 MPI 合成算例的 Telescope 通信域，实测边界见[第三阶段报告](../development/FSI_SCALABLE_03.md)。

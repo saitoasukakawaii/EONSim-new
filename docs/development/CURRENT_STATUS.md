@@ -1,6 +1,6 @@
 # EONSim-new 当前实现、验证与开发边界
 
-FSI-SCALABLE-05 在 CALIBRATED-v2 上已完成 A、B 的独立 20 步验证和 C 的首个 32 步周期。B20 选定固定 `1e-6`，相对固定 `1e-8` 的正式中位耗时下降 20.67%，A20 下降 3.60%。B20 在相同精度下把四个 GAMG 粗层收拢到各自唯一 owner，Telescope 正式耗时下降 30.02%。64 MPI 的 C32 固定迭代累计 64 次校正、10773 次 KSP；八个保存相位、完整历史和两个算法各自的续算点通过核验。STRICT-v1 保留 B/C 的历史失败。[第五阶段测量](FSI_SCALABLE_05.md)
+FSI-SCALABLE-05 在 CALIBRATED-v2 上已完成 A、B 的独立 20 步验证和 C 的 100 步验证。B20 选定固定 `1e-6`，相对固定 `1e-8` 的正式中位耗时下降 20.67%，A20 下降 3.60%。B20 在相同精度下把四个 GAMG 粗层收拢到各自唯一 owner，Telescope 正式耗时下降 30.02%。64 MPI 的 C100 固定迭代累计 200 次校正、33199 次 KSP 和 3108.29 秒。25 个保存相位、完整历史和两个算法各自的续算点通过核验。STRICT-v1 保留 B/C 的历史失败。[第五阶段测量](FSI_SCALABLE_05.md)
 
 固定精度的 physics/Telescope 在 B20 和 A20 分别用时 37.275 s 和 1.806 s。A20 的 pressure-MG 开启 Braess owner 后用时 2.974 s，对应同配置降幅 53.05%。[真实管通信比较](FSI_SCALABLE_05.md#a20-的两种通信比较)
 
