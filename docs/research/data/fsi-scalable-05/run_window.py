@@ -129,7 +129,7 @@ def main():
                     any(base['inputs'][k]!=row['inputs'][k] for k in ('fluid.msh','solid.msh'))):
                 raise ValueError('The single-owner coarse baseline does not match the qualified cold 20-step physics trajectory')
             row['gamg_baseline']=dict(directory=str(baseline),window_sha256=digest(baseline/'window.json'),
-                fields=coarse_receipt((baseline/'solve.log').read_text(),ranks,20,False))
+                fields=coarse_receipt((baseline/'solve.log').read_text(),ranks,20,False,base['linear']['effective_options']))
             recipe.extend(physics_telescope_flags(ranks))
         if args.pc=='pressure-mg':
             from verify_fsi_multigrid import flags
@@ -168,7 +168,8 @@ def main():
             row['rank_bindings']=read_bindings((out/'solve.log').read_text(),ranks)
         row['linear'] = audit_corrections(out, args.steps, ranks, policy,start)
         if args.gamg_telescope:
-            row['gamg_coarse_fields']=coarse_receipt((out/'solve.log').read_text(),ranks,args.steps,True)
+            row['gamg_coarse_fields']=coarse_receipt((out/'solve.log').read_text(),ranks,args.steps,True,
+                row['linear']['effective_options'])
         if save_checkpoint:
             row['checkpoint'] = checkpoint_receipt(out/'checkpoint',args.steps,ranks)
         row['outputs'] = output_manifest(out, args.steps, ranks,start)

@@ -63,7 +63,8 @@ def main():
                 if row['qualification']!='independent_pair_passed' or row['policy']!=q['policy']:
                     raise ValueError('Timing sample failed the qualified profile')
                 if args.change=='gamg_telescope':
-                    coarse_receipt((folder/'solve.log').read_text(),row['ranks'],row['steps'],bool(side))
+                    coarse_receipt((folder/'solve.log').read_text(),row['ranks'],row['steps'],bool(side),
+                                   row['linear']['effective_options'])
                 observed = formal_resources(row)
                 if resource_key is None:
                     resource_key = observed

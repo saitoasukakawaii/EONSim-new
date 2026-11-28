@@ -74,17 +74,24 @@ class ProtocolChecks(unittest.TestCase):
                 f'comm_size=1 operator_rows={n} operator_local_rows={n} ksp_reason=2 pc_reason=0 '
                 'norm_type=2 last_iterations=7 reported_norm=1e-15')
         log='\n'.join(nodes)
-        self.assertEqual(len(coarse_receipt(log,4,1,True)),4)
+        flags=solver_flags(4)
+        options=dict(zip(flags[::2],flags[1::2]))
+        self.assertEqual(len(coarse_receipt(log,4,1,True,options)),4)
         self.assertIn('-fieldsplit_mesh_mg_coarse_telescope_ksp_rtol',solver_flags(32))
         for invalid in ('\n'.join(nodes[:-1]),log.replace('comm_size=1','comm_size=2'),
-                        log.replace('pc=jacobi','pc=lu'),log.replace('ksp_reason=2','ksp_reason=-3')):
+                        log.replace('pc=jacobi','pc=lu'),log.replace('ksp_reason=2','ksp_reason=4'),
+                        log.replace('ksp_reason=2','ksp_reason=-3')):
             with self.assertRaises(ValueError):
-                coarse_receipt(invalid,4,1,True)
+                coarse_receipt(invalid,4,1,True,options)
 
         # Two snapshots in step 1 cannot stand in for the step 2 snapshot.
         duplicate_step = '\n'.join([*nodes, *nodes[2:], 'solver_report step=2'])
         with self.assertRaises(ValueError):
-            coarse_receipt(duplicate_step,4,2,True)
+            coarse_receipt(duplicate_step,4,2,True,options)
+
+        stale_options={**options, '-fieldsplit_mesh_mg_coarse_telescope_ksp_rtol':'1e-4'}
+        with self.assertRaises(ValueError):
+            coarse_receipt(log,4,1,True,stale_options)
 
     def test_cross_partition_reference_geometry(self):
         nodes={1:(0,0,0),2:(1,0,0),3:(1,1,0),4:(0,1,0)}

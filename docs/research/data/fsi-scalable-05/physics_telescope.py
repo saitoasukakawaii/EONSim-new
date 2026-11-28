@@ -15,26 +15,33 @@ COARSE_FIELDS = (
 COARSE_ROWS = {4: (8, 5, 8, 18), 32: (42, 12, 39, 10), 64: (11, 3, 14, 50)}
 
 
+COARSE_KRYLOV = {'ksp_type': 'gmres', 'pc_type': 'jacobi', 'ksp_rtol': '1e-10',
+                 'ksp_max_it': '200', 'ksp_norm_type': 'unpreconditioned'}
+
+
 def solver_flags(ranks):
-    flags=[]
+    flags = []
+    wrapper = {'ksp_type': 'preonly', 'ksp_norm_type': 'none', 'pc_type': 'telescope',
+               'pc_telescope_reduction_factor': str(ranks), 'pc_telescope_ignore_dm': 'true'}
     for prefix in COARSE_FIELDS:
-        options={'ksp_type':'preonly','ksp_norm_type':'none','pc_type':'telescope',
-                 'pc_telescope_reduction_factor':str(ranks),'pc_telescope_ignore_dm':'true',
-                 'telescope_ksp_type':'gmres','telescope_pc_type':'jacobi',
-                 'telescope_ksp_rtol':'1e-10','telescope_ksp_max_it':'200',
-                 'telescope_ksp_norm_type':'unpreconditioned'}
-        for key,value in options.items():
-            flags.extend(['-'+prefix+key,value])
+        for key, value in wrapper.items():
+            flags.extend(['-' + prefix + key, value])
+        for key, value in COARSE_KRYLOV.items():
+            flags.extend(['-' + prefix + 'telescope_' + key, value])
     return flags
 
 
-def coarse_receipt(log,ranks,steps,wrapped):
-    """Verify all owner ranges and every reported last coarse solve on each step."""
+def coarse_receipt(log, ranks, steps, wrapped, effective_options):
+    """Verify ownership, actual inner options, and the final coarse solve on each step."""
     if ranks not in COARSE_ROWS:
         raise ValueError('Undeclared GAMG coarse layout')
     parents = ('preonly', 'telescope') if wrapped else ('gmres', 'jacobi')
     result = {}
     for prefix, rows in zip(COARSE_FIELDS, COARSE_ROWS[ranks]):
+        inner_prefix = '-' + prefix + ('telescope_' if wrapped else '')
+        for key, expected in COARSE_KRYLOV.items():
+            if effective_options.get(inner_prefix + key) != expected:
+                raise ValueError('Unexpected effective coarse Krylov option: ' + inner_prefix + key)
         result[prefix] = dict(rows=rows, owner=0, krylov_communicator=1 if wrapped else ranks,
                               last_iterations=[], last_reported_norms=[], last_ksp_reasons=[])
     # Synchronized solver_node records follow their solver_report. Check each
@@ -71,7 +78,7 @@ def coarse_receipt(log,ranks,steps,wrapped):
             if (int(node['rank']) != 0 or int(node['comm_size']) != field['krylov_communicator'] or
                     (node['ksp'], node['pc']) != ('gmres', 'jacobi') or int(node['norm_type']) != 2 or
                     int(node['operator_local_rows']) != rows or int(node['operator_rows']) != rows or
-                    int(node['pc_reason']) != 0 or reason <= 0 or not 0 <= iterations <= 200 or
+                    int(node['pc_reason']) != 0 or reason not in (2, 3) or not 0 <= iterations <= 200 or
                     not math.isfinite(norm) or norm < 0):
                 raise ValueError('Effective coarse GMRES/Jacobi differs from the qualified solver: ' + prefix)
             field['last_iterations'].append(iterations)
