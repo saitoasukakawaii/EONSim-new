@@ -5,7 +5,12 @@ from pathlib import Path
 
 from collect_windows import digest
 from resource_accounting import resource_hours
-from scale_c import read_bindings
+from scale_c import PREPARE_SECONDS, SOLVE_SECONDS, read_bindings
+
+
+def within_budget(row, limit_key):
+    return (row['status'] == 'exited' and row['exit_code'] == 0 and
+            0 < row['T_job'] <= row[limit_key] and 0 < row['rss_peak'] <= row['rss_limit'])
 
 
 def summarize(direct, paths):
@@ -16,7 +21,7 @@ def summarize(direct, paths):
     reference = json.loads((direct / 'window.json').read_text())
     if (reference['profile'] != 'lu' or reference['qualification'] != 'awaiting_independent_crosscheck' or
             reference['ranks'] != 64 or reference['accepted_steps'] != list(range(1, 21)) or
-            reference['log_sha256'] != digest(direct / 'solve.log') or
+            not within_budget(reference, 'limit_seconds') or reference['log_sha256'] != digest(direct / 'solve.log') or
             any(reference[k] != baseline[k] for k in ('case', 'inputs', 'binary', 'compiled_source', 'partition'))):
         raise ValueError('C64 direct reference differs from the qualified original trajectory')
     entries = []
@@ -28,13 +33,22 @@ def summarize(direct, paths):
                 row['ranks'] != ranks or row['formal'] or row['start_step'] != 0 or row['steps'] != 20 or
                 row['accepted_steps'] != list(range(1, 21)) or row['reference_receipt'] != direct_sha or
                 row['profile'] != 'fixed-1e-6' or row['preconditioner'] != {'pc': 'physics'} or
+                row['reference_outputs'] != reference['outputs'] or row['rss_limit'] != 140 * 2**30 or
+                not within_budget(row, 'limit_seconds') or
                 row['allocated_cpus'] != 128 or row['thread_environment'] != threads or
                 '-fsi_threads' in row['command'] or row['log_sha256'] != digest(log) or
                 row['rank_bindings'] != read_bindings(log.read_text(), ranks) or
                 any(row[k] != baseline[k] for k in ('inputs', 'binary', 'compiled_source', 'policy', 'archive_receipt'))):
             raise ValueError(f'Unmatched or unqualified cold C20 pure-MPI layout: {path}')
-        if ranks != 64 and row['scaling']['baseline_window'] != baseline_sha:
-            raise ValueError(f'New partition was qualified against another C64 baseline: {path}')
+        if ranks != 64:
+            prep = row['partition_preparation']
+            if (row['scaling']['baseline_window'] != baseline_sha or
+                    row['scaling']['source_partition'] != baseline['partition'] or
+                    row['limit_seconds'] != SOLVE_SECONDS[ranks] or prep['wall_limit'] != PREPARE_SECONDS or
+                    prep['parts'] != ranks or not within_budget(prep, 'wall_limit') or
+                    any(prep[k] != row[k] for k in ('job', 'inputs', 'binary', 'rss_limit')) or
+                    prep['log_sha256'] != digest(path / 'prepare' / 'solve.log')):
+                raise ValueError(f'New partition setup differs from its qualified C64 baseline or budget: {path}')
         hours = resource_hours(ranks, row['allocation'], row['T_job'])
         if any(row[key] != value for key, value in hours.items()):
             raise ValueError(f'Inconsistent recorded allocation or rank-hours: {path}')
