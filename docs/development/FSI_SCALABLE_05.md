@@ -98,3 +98,37 @@ sbatch -n32 -t 00:30:00 "$data/run_case.sh" B --timing \
   "$root/recheck-B20-forcing-pairs" --change forcing
 python -B "$data/test_tube_protocol.py" -v
 ```
+
+## 固定精度的真实管 GAMG 粗层通信
+
+B 的作业 505 用 RCR 包装的整体 MG。已启用 owner 本地 Braess-Sarazin smoother 和内部场缩放，最粗的 608 行交给 16 rank。500 次外迭代后，返回校正的原残量为 3.67620e-9，目标为 5.52652e-15，接受零步。速度、结构、压力、网格块的残量分别为 3.039e-9、2.012e-9、4.700e-10、1.082e-10。owner 路径位于 `src/algebra/fsi_level_smoother.cpp` 的 Braess-Sarazin setup/apply。合格的 physics 路径以 field split 调用各个 GAMG。在这条路径中可单独缩减粗层 Krylov 所用的通信域。[作业 505 及原 B20 子树](../research/data/fsi-scalable-05/B-coarse-baseline.json)
+
+在 B20 的 20 个基线快照中，速度、压力、结构、网格粗层各有 42、12、39、10 行。所有行始终位于 rank 0，其余 31 个 rank 各持有零行。为这四个粗层显式启用 PETSc Telescope，设置 reduction factor 为 32，内层继续使用 GMRES/Jacobi、未预条件范数、相对容差 1e-10、最多 200 次迭代。每一步检查四个父求解器的实际通信域和行所有权，逐一检查缩减后内层的类型、范数、有效 options、收敛原因及最后一次迭代数。作业 523 在四个单 rank 子树上的最后一次 GMRES 迭代数分别为 20–22、12、17–18、8–9。[选项和核验逻辑](../research/data/fsi-scalable-05/physics_telescope.py)
+
+作业 521 通过首步两次校正。522 和 523 分别完成 4/20 步并通过同期独立 LU、全部历史与保存场检查。B20 的 40 次 Newton 校正累计 2,362 次 KSP 迭代，最大原残量与允许值之比为 0.991232。压力、流体速度、壁位移和网格位移的最大局部差分别为 9.790e-9 Pa、7.075e-12 m/s、2.150e-16 m 和 3.844e-15 m。每个输出相位的 RMS 和局部最大差均可查。[原始窗口、选项与输出核验](../research/data/fsi-scalable-05/physics-telescope/run-receipts.json.gz)
+
+作业 524 对 B20 双方各预热一次，再交错三对冷启动。双方固定 `CALIBRATED-v2/fixed-1e-6`、相同 LU 参考、分区、二进制、绑核、32 个单线程 MPI 进程和独占单节点 128 核分配。正式计时关闭详细监测，保留生产验收所需的原残量和每步求解器树输出。下表只取三次正式运行的中位数。[样本与资源用量](../research/data/fsi-scalable-05/physics-telescope/calibration.csv)
+
+| B20 的粗层 Krylov 通信域 | 三次 T_job（s，按对次） | 中位 T_job（s） | Newton / KSP 中位数 | 进程树峰值中位数（GiB） | 活跃 rank-hours | 分配 core-hours |
+|---|---|---:|---:|---:|---:|---:|
+| 32 rank | 53.185 / 53.538 / 53.264 | 53.264 | 40 / 2360 | 1.938 | 0.4735 | 1.8938 |
+| 1 rank | 36.843 / 37.291 / 37.275 | 37.275 | 40 / 2360 | 1.931 | 0.3313 | 1.3253 |
+
+B20 的同精度通信收益为 30.02%，达到该主要算例的 15% 目标。上文的 20.67% 来自单独改变线性相对容差的作业 502。配置以 `--gamg-telescope single-rank-v1` 显式选择。A 和 C 分别在原合格的 A20、C4 基线测得单 owner 布局，每个网格还须用自身的合格 20 步窗口进行通信比较。A 四个粗层行数为 8、5、8、18，C 为 11、3、14、50。B 的通信结果仅覆盖该 32 MPI 分区。运行源码为 `12e68f0cc`，后验逐步和有效容差复核为 `8fbc63546`，沿用作业 466 的生产二进制。[服务器原始文件索引及 SHA-256](../research/data/fsi-scalable-05/physics-telescope/log-index.json.gz)
+
+复跑需在独立 checkout 中保留合格基线的编译提交，以便入口核对二进制和实际 C++ 源树。以下以 B20 为例，先按同样的参数在 1 和 4 步完成筛选，4 步使用同期直接参考。正式计时输入须为已完成独立验收的两个 20 步窗口。
+
+```bash
+root="$HOME/workspace/fsi-scalable-05-runs"
+export FSI05_ROOT="$HOME/workspace/fsi-scalable-05-telescope/representative"
+data="$FSI05_ROOT/source/docs/research/data/fsi-scalable-05"
+exe="$root/build/eonsim"
+candidate="$FSI05_ROOT/recheck-B20-gamg"
+sbatch -n32 -t 00:30:00 "$data/run_case.sh" B 20 fixed-1e-6 "$exe" "$candidate" \
+  --limit 1500 --gamg-telescope single-rank-v1 --gamg-baseline "$root/B20-fixed-1e-6" \
+  --reference "$root/B20-lu"
+sbatch -n32 -t 00:35:00 "$data/run_case.sh" B --timing \
+  "$root/B20-fixed-1e-6" "$candidate" "$root/B20-lu" "$exe" \
+  "$FSI05_ROOT/recheck-B20-pairs" --change gamg_telescope
+python -B "$data/test_tube_protocol.py" -v
+```
