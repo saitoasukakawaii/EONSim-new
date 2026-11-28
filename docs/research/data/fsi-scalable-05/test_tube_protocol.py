@@ -8,8 +8,10 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
+from collect_windows import owner_smoother_stats
 from resource_accounting import formal_resources, resource_hours
-from scale_c import read_bindings, reference_area_budget
+from scale_c import hybrid_bindings, read_bindings, reference_area_budget
+from physics_telescope import COARSE_FIELDS, COARSE_ROWS, coarse_receipt, solver_flags
 
 from tube_protocol import (BLOCKS, HERE, audit_corrections, audit_row, budget, compare_face_history,
                            full_field_differences, output_manifest, select, solver_options)
@@ -63,6 +65,93 @@ def synthetic_log(policy, counts, start_step=0):
 
 
 class ProtocolChecks(unittest.TestCase):
+    def test_c_archive_rejects_repeated_returned_correction(self):
+        from summarize_c_windows import checked_corrections, read_packed
+        windows=read_packed(HERE/'c20/run-receipts.json.gz')
+        fixed=next(x['data'] for x in windows if x['data']['profile']=='fixed-1e-6')
+        linear=fixed['linear']
+        checked_corrections(linear,fixed['policy'],range(1,21))
+        linear['rows'][1]['newton']=linear['rows'][0]['newton']
+        with self.assertRaisesRegex(ValueError,'Misaligned linear correction'):
+            checked_corrections(linear,fixed['policy'],range(1,21))
+
+    def test_pressure_owner_requires_active_rcr_smoother(self):
+        row = dict(preconditioner={'owner':'off'}, ranks=2, steps=1, linear={'effective_options':{
+            '-pc_recipe':'monolithic_mg', '-rcr_bulk_monolithic_mg_smoother':'braess_sarazin',
+            '-rcr_bulk_monolithic_mg_braess_local_fields':'false'}})
+        lines = ['solver_report step=1'] + [
+            f'monolithic_mg_stats rank={rank} path=root/rcr_bulk levels=3 coarse_processes=2 '
+            'coarse_solves=6 smoother_applications=24 schur_applications=24' for rank in (0, 1)]
+        log = '\n'.join(lines)
+        self.assertEqual(owner_smoother_stats(log, row)['per_step'][0]['ranks'][0]['smoother_applications'], 24)
+        for bad in ('\n'.join(lines[:-1]), log.replace('levels=3', 'levels=1'),
+                    log.replace('schur_applications=24', 'schur_applications=0')):
+            with self.assertRaises(ValueError):
+                owner_smoother_stats(bad, row)
+        row['preconditioner']['owner'] = 'on'
+        with self.assertRaises(ValueError):
+            owner_smoother_stats(log, row)
+
+    def test_hybrid_requires_distinct_actual_workers_and_cores(self):
+        topology='0,0,0\n1,1,0\n2,0,1\n3,1,1\n'
+        lines=[]
+        for rank in range(2):
+            lines.append(f'fsi05_mpi_mask rank={rank} cpus={rank*2}-{rank*2+1}')
+            for worker in range(2):
+                lines.append(f'fsi05_omp rank={rank} worker={worker} team=2 cpus={2*rank+worker}')
+        trace='\n'.join(lines)
+        self.assertEqual(hybrid_bindings(trace,topology,2)['unique_physical_cores'],4)
+        for corrupted in (trace.replace('worker=1 team=2 cpus=3','worker=1 team=2 cpus=2'),
+                          '\n'.join(lines[:-1]),trace.replace('team=2','team=1')):
+            with self.assertRaises(ValueError):
+                hybrid_bindings(corrupted,topology,2)
+        with self.assertRaises(ValueError):
+            hybrid_bindings(trace,topology.replace('3,1,1','3,0,1'),2)
+
+    def test_continuation_gate_waits_for_dependencies_and_registers_once(self):
+        from continue_c import schedule_gate
+        with tempfile.TemporaryDirectory() as tmp, patch('continue_c.subprocess.check_output',return_value='555\n') as submit:
+            root=Path(tmp)
+            qa=root/'qa.json'
+            qa.write_text('{}')
+            first=schedule_gate(root,32,qa,['520','526'],True)
+            self.assertEqual(first['dependency'],'afterok:520:526')
+            self.assertIn('afterok:520:526',submit.call_args.args[0])
+            self.assertEqual(first['job'],'555')
+            self.assertEqual(first,schedule_gate(root,32,qa,['520','526'],True))
+            with self.assertRaises(ValueError):
+                schedule_gate(root,32,qa,['520','527'],True)
+            submit.assert_called_once()
+
+    def test_physics_telescope_checks_real_coarse_children(self):
+        nodes=['', 'solver_report step=1']
+        for prefix,n in zip(COARSE_FIELDS, COARSE_ROWS[4]):
+            for rank in range(4):
+                nodes.append(f'solver_node prefix={prefix} rank={rank} ksp=preonly pc=telescope '
+                    f'comm_size=4 operator_rows={n} operator_local_rows={0 if rank else n} ksp_reason=4 pc_reason=0')
+            nodes.append(f'solver_node prefix={prefix}telescope_ rank=0 ksp=gmres pc=jacobi '
+                f'comm_size=1 operator_rows={n} operator_local_rows={n} ksp_reason=2 pc_reason=0 '
+                'norm_type=2 last_iterations=7 reported_norm=1e-15')
+        log='\n'.join(nodes)
+        flags=solver_flags(4)
+        options=dict(zip(flags[::2],flags[1::2]))
+        self.assertEqual(len(coarse_receipt(log,4,1,True,options)),4)
+        self.assertIn('-fieldsplit_mesh_mg_coarse_telescope_ksp_rtol',solver_flags(32))
+        for invalid in ('\n'.join(nodes[:-1]),log.replace('comm_size=1','comm_size=2'),
+                        log.replace('pc=jacobi','pc=lu'),log.replace('ksp_reason=2','ksp_reason=4'),
+                        log.replace('ksp_reason=2','ksp_reason=-3')):
+            with self.assertRaises(ValueError):
+                coarse_receipt(invalid,4,1,True,options)
+
+        # Two snapshots in step 1 cannot stand in for the step 2 snapshot.
+        duplicate_step = '\n'.join([*nodes, *nodes[2:], 'solver_report step=2'])
+        with self.assertRaises(ValueError):
+            coarse_receipt(duplicate_step,4,2,True,options)
+
+        stale_options={**options, '-fieldsplit_mesh_mg_coarse_telescope_ksp_rtol':'1e-4'}
+        with self.assertRaises(ValueError):
+            coarse_receipt(log,4,1,True,stale_options)
+
     def test_cross_partition_reference_geometry(self):
         nodes={1:(0,0,0),2:(1,0,0),3:(1,1,0),4:(0,1,0)}
         mesh=nodes,[],[(3,(1,2,3)),(3,(1,3,4)),(2,(1,2,4))]

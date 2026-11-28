@@ -1,6 +1,8 @@
 # 开发路线：独立求解器 → 单体刚体 FSI → 单体弹性体 FSI
 
-真实管后续窗口依 CALIBRATED-v2 的逐校正和物理验收推进。B20 固定容差已完成三档标定，C 的每个窗口、整体 MG 和 svFSI 原版对照各自需要独立资格。[第五阶段](FSI_SCALABLE_05.md)
+真实管 B20 已完成三档线性容差标定，C 的直接法与 physics 已通过 CALIBRATED-v2 的 20 步及 32 步独立验证。下一窗口从各自已验收的第 32 步原生续算点推进至第 100 步，再推进至第 224 步，并单独核对末两周期稳态。整体 MG 和 svFSI 原版对照分别需要各自的数值资格。[第五阶段](FSI_SCALABLE_05.md)
+
+已验收 B32/A4 的 physics 粗层缩核和 A4 的 Braess owner 消融。B/C 的 owner 性能仍以合格整体 MG 窗口为前提。[真实管通信比较](FSI_SCALABLE_05.md#a20-的两种通信比较)
 
 STRICT-v1 保留 B 返回 FP64 向量的严格原残量研究和失败记录。第五阶段的 C 入围依据相应 CALIBRATED-v2 窗口的独立校准。[第四阶段记录](FSI_SCALABLE_04.md)
 

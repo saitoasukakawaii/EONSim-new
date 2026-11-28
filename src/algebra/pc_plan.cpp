@@ -472,6 +472,15 @@ void configure(MPI_Comm comm,KSP ksp,const PcBlock& node,Mat root_matrix,PcSchur
         configure_rcr_port_pc(comm,ksp,root_matrix,node.rcr_port_rows,
             [comm,bulk_plan=node.children.at(0)](KSP bulk,Mat matrix,PcSchurUpdates* bulk_updates) {
                 SchurCache bulk_cache;
+                if(bulk_plan.monolithic_mg) {
+                    // The RCR shell creates this KSP itself. Read its scoped
+                    // viewers before the MG shell attaches its context.
+                    EONSIM_PETSC(KSPSetFromOptions(bulk));
+                    PetscBool scales_matrix=PETSC_FALSE;
+                    EONSIM_PETSC(KSPGetDiagonalScale(bulk,&scales_matrix));
+                    common_check(comm,!scales_matrix,
+                        "RCR bulk monolithic MG requires the original matrix; use monolithic_mg_field_scaling inside MG");
+                }
                 configure(comm,bulk,bulk_plan,matrix,bulk_updates,bulk_cache,true);
             },updates);
         return;
