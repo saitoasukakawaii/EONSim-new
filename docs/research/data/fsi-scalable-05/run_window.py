@@ -15,7 +15,8 @@ from paired_tube import compare, digest, physical, read_mesh, run, save
 from arterial_ksp import options
 from tube_checkpoint import checkpoint_receipt, last_two_cycles, verified_prefix
 from resource_accounting import direct_memory_budget, resource_hours
-from scale_c import SOLVE_SECONDS, prepare_partition, read_bindings, verify_baseline
+from scale_c import (HYBRID_SECONDS, SOLVE_SECONDS, equal_core_reference, hybrid_bindings,
+                     prepare_partition, read_bindings, verify_baseline)
 from tube_protocol import archived_case, audit_corrections, compare_trajectories, output_manifest, select, solver_options
 
 
@@ -28,6 +29,7 @@ def main():
     cli.add_argument('output', type=Path)
     cli.add_argument('--reference', type=Path)
     cli.add_argument('--scaling-from',type=Path,help='32/128-rank cold C20 diagnostic anchored to a qualified C64 fixed window')
+    cli.add_argument('--hybrid-from',type=Path,help='qualified 128-by-1 C20 comparator for the 64-by-2 worker diagnostic')
     cli.add_argument('--save-checkpoint', action='store_true', help='write a checked native HDF5 generation for continuation')
     cli.add_argument('--resume-from',type=Path,help='continue the selected profile from its own qualified window')
     cli.add_argument('--prefix-pair',type=Path,help='independent iterative partner required for a direct prefix')
@@ -56,9 +58,14 @@ def main():
         if (args.case!='C' or args.steps!=20 or ranks not in SOLVE_SECONDS or not args.reference or args.formal
                 or args.resume_from or args.limit!=SOLVE_SECONDS[ranks]):
             cli.error('strong scaling uses cold diagnostic C20, its C64 LU reference and the fixed 32/128-rank budget')
+    if args.hybrid_from and (args.scaling_from or args.case!='C' or args.steps!=20 or args.profile!='fixed-1e-6'
+            or args.pc!='physics' or args.formal or args.resume_from or not args.reference or args.limit!=HYBRID_SECONDS
+            or os.getenv('SLURM_NTASKS')!='64' or os.getenv('SLURM_CPUS_PER_TASK')!='2'
+            or resource_hours(64,os.getenv('SLURM_JOB_CPUS_PER_NODE'),None)['allocated_cpus']!=128):
+        cli.error('hybrid requires cold C20, a qualified C64 pair and the declared 64-by-2 diagnostic allocation')
     affinity = sorted(os.sched_getaffinity(0))
-    if not os.getenv('SLURM_JOB_ID') or len(affinity) != ranks or os.getenv('PETSC_OPTIONS'):
-        cli.error('requires one allocated physical core per rank and no PETSC_OPTIONS override')
+    if not os.getenv('SLURM_JOB_ID') or len(affinity) != ranks*(2 if args.hybrid_from else 1) or os.getenv('PETSC_OPTIONS'):
+        cli.error('CPU allocation or PETSC_OPTIONS differs from the requested layout')
     binary = args.binary.resolve(strict=True)
     source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=SOURCE, text=True).strip()
     build = json.loads((binary.parent / 'build-receipt.json').read_text())
@@ -99,9 +106,15 @@ def main():
             config['fsi'].update(steps=args.steps, checkpoint_interval=args.steps)
             save(out/'case.json', config)
         row['inputs'] = {name: digest(out/name) for name in ('case.json', 'fluid.msh', 'solid.msh')}
-        if args.scaling_from:
-            row['scaling']=verify_baseline(args.scaling_from.resolve(strict=True),
+        scaling_base=args.scaling_from
+        if args.hybrid_from:
+            row['pure_mpi_comparison']=equal_core_reference(args.hybrid_from.resolve(strict=True),
+                args.reference.resolve(strict=True),row)
+            scaling_base=Path(row['pure_mpi_comparison']['baseline_directory'])
+        if scaling_base:
+            row['scaling']=verify_baseline(scaling_base.resolve(strict=True),
                 args.reference.resolve(strict=True),row,pieces)
+        if args.scaling_from:
             part,row['partition']=prepare_partition(out,binary,ranks,row)
         start=0
         generation=None
@@ -137,9 +150,9 @@ def main():
                 pos = recipe.index(key)
                 del recipe[pos:pos+2]
         check_bindings=args.case=='C' and args.steps==20 and not args.formal and not args.resume_from
-        cmd = ['/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/mpiexec', '--map-by', 'core',
+        cmd = ['/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/mpiexec', '--map-by', 'ppr:32:socket:PE=2' if args.hybrid_from else 'core',
                '--bind-to', 'core', *(['--report-bindings'] if check_bindings else []),
-               '-n', str(ranks), str(binary), '-case', 'case.json',
+               '-n', str(ranks), *(['bash',str(HERE/'hybrid_rank.sh')] if args.hybrid_from else []), str(binary), '-case', 'case.json',
                '-partition', str(part), *recipe, *policy_flags]
         save_checkpoint = args.save_checkpoint or (args.case=='C' and args.steps>=20 and not args.formal)
         if save_checkpoint:
@@ -149,9 +162,16 @@ def main():
         if not args.formal:
             cmd.extend(['-snes_monitor', '-snes_linesearch_monitor'])
         row['thread_environment'] = dict(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
+        if args.hybrid_from:
+            cmd.extend(['-fsi_threads','2'])
+            row['thread_environment'].update(OMP_NUM_THREADS='2',OMP_DYNAMIC='FALSE',OMP_PLACES='cores',
+                OMP_PROC_BIND='close',OMP_DISPLAY_AFFINITY='TRUE')
         os.environ.update(row['thread_environment'])
         run(out, cmd, row, args.limit, row['rss_limit'],trace_rss=args.direct_rss_gib==180)
-        if check_bindings:
+        if args.hybrid_from:
+            topology=subprocess.check_output(['lscpu','-p=CPU,CORE,SOCKET'],text=True)
+            row['hybrid_bindings']=hybrid_bindings((out/'solve.log').read_text(),topology)
+        elif check_bindings:
             row['rank_bindings']=read_bindings((out/'solve.log').read_text(),ranks)
         row['linear'] = audit_corrections(out, args.steps, ranks, policy,start)
         if save_checkpoint:
@@ -195,6 +215,11 @@ def main():
                     row['scaling_result']=dict(diagnostic_samples=1,relative_to_64=speedup,
                         relative_parallel_efficiency=speedup*64/ranks,
                         partition_seconds=row['partition_preparation']['T_job'])
+                if args.hybrid_from:
+                    pure_seconds=row['pure_mpi_comparison']['T_job']
+                    row['equal_core_result']=dict(diagnostic_samples=1,pure_128_seconds=pure_seconds,
+                        hybrid_64_by_2_seconds=row['T_job'],relative_to_pure_128=pure_seconds/row['T_job'],
+                        active_physical_core_hours=128*row['T_job']/3600)
         row['covered_steps']=args.steps
         row['cumulative_T_job']=row.get('prefix_T_job',0)+row['T_job']
     except Exception as error:

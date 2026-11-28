@@ -87,6 +87,8 @@ A 上的原生 checkpoint 回归将 4 步结果续至 20 步，并逐相位与�
 
 以下命令在上述节点上用新的输出目录运行。保留旧包与脚本提交的对应关系；后续只有脚本变化时，入口会检查生产源码树和二进制哈希。
 
+C 强扩展使用纯 MPI 分区。等 128 核的混合诊断另要求同一窗口已有合格的 128×1 样本，沿用其 64-rank 参考的原分区，启动时显式设置 `-fsi_threads 2`。每个 MPI rank 先记录实际分配的两核掩码，再用 GNU OpenMP 报告工作线程号、实际队伍大小与各线程亲和性。验收将 128 个线程位置与操作系统的物理核/插槽编号逐一对应，检查 64 个队伍、每个队伍两个线程以及跨 rank 无核重叠。该对照为一次诊断计时。[GNU OpenMP 亲和性格式](https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fAFFINITY_005fFORMAT.html)
+
 ```bash
 root="$HOME/workspace/fsi-scalable-05-runs"
 data="$root/source/docs/research/data/fsi-scalable-05"
@@ -103,4 +105,7 @@ sbatch -n32 -t 00:30:00 "$data/run_case.sh" B --timing \
   "$root/B20-fixed-1e-6" "$root/B20-inexact-1e-6" "$root/B20-lu" "$exe" \
   "$root/recheck-B20-forcing-pairs" --change forcing
 python -B "$data/test_tube_protocol.py" -v
+# 已有窗口 C20-lu-180、C20-fixed-1e-6 和合格 C20-r128 后执行
+sbatch -n64 -c2 -t 00:35:00 "$data/run_case.sh" C 20 fixed-1e-6 "$exe" "$root/recheck-C20-64x2" \
+  --limit 1500 --reference "$root/C20-lu-180" --hybrid-from "$root/C20-r128"
 ```

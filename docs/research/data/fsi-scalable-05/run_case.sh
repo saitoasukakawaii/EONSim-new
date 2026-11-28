@@ -16,6 +16,7 @@ case "$case_name" in A) cores=4;; B) cores=32;; C) cores=64;; *) exit 2;; esac
 if [ "$case_name" = C ]; then
     for arg in "$@"; do
         if [ "$arg" = --scaling-from ]; then cores="${SLURM_NTASKS:?}"; fi
+        if [ "$arg" = --hybrid-from ]; then cores=128; fi
     done
 fi
 cpus=$("$py" -c 'import os,sys; a=sorted(os.sched_getaffinity(0)); n=int(sys.argv[1]); assert len(a)>=n; print(",".join(map(str,a[:n])))' "$cores")
