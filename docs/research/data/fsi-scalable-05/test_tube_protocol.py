@@ -103,6 +103,11 @@ class ProtocolChecks(unittest.TestCase):
                 (folder/'run.json').write_text(json.dumps(meta))
             write_log(good)
             self.assertEqual(audit_corrections(folder,2,1,p)['corrections'],3)
+            already_solved,_=synthetic_log(p,[0,0])
+            write_log(already_solved)
+            empty=audit_corrections(folder,2,1,p)
+            self.assertEqual(empty['corrections'],0)
+            self.assertIsNone(empty['max_ratio'])
             for bad in (good.replace('linear_started=2','linear_started=1'),
                         good.replace('ksp_reason=2','ksp_reason=-2',1),
                         good.replace('accepted=1','accepted=0',1),

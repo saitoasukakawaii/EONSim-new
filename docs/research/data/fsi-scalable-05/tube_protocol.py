@@ -245,10 +245,10 @@ def audit_corrections(folder, steps, ranks, policy):
             corrections.append(dict(**row, fields=blocks))
             previous = row
         offset += count
-    if len(rows) != offset or not corrections:
+    if len(rows) != offset:
         raise ValueError('Unexpected correction count')
     return dict(protocol_id=policy['protocol_id'], profile=policy['profile'], protocol_hash=policy['hash'],
-                corrections=len(rows), max_ratio=max(ratios), dofs=int(reports[0]['dofs']),
+                corrections=len(rows), max_ratio=max(ratios,default=None), dofs=int(reports[0]['dofs']),
                 ksp_iterations=sum(int(r['linear_iterations']) for r in reports),
                 ksp=reports[0]['ksp'], pc=reports[0]['pc'], rows=corrections,
                 accepted_steps=states, solver_reports=reports, nonlinear_fields=finals,

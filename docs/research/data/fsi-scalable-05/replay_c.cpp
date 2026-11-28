@@ -3,6 +3,7 @@
 #include "eonsim/mesh.hpp"
 #include "eonsim/pc_plan.hpp"
 #include "eonsim/reduced_layout.hpp"
+#include <algorithm>
 #include <cmath>
 #include <filesystem>
 #include <iostream>
@@ -11,6 +12,31 @@
 
 namespace {
 using namespace eonsim;
+
+struct OriginalCheck {
+    void* defaults=nullptr;
+    Vec solution=nullptr, residual=nullptr;
+    PetscReal limit=0;
+    ~OriginalCheck() { if(defaults) (void)KSPConvergedDefaultDestroy(defaults); }
+};
+
+PetscErrorCode check_proposed(KSP ksp,PetscInt i,PetscReal estimate,KSPConvergedReason* reason,void* ptr) {
+    auto& state=*static_cast<OriginalCheck*>(ptr);
+    KSPConvergedReason proposed=KSP_CONVERGED_ITERATING;
+    PetscCall(KSPConvergedDefault(ksp,i,estimate,&proposed,state.defaults));
+    if(proposed>0) {
+        // Leave the KSP reason at ITERATING until FGMRES builds its current
+        // solution. Otherwise PETSc can use the restart vector here.
+        Vec exact=nullptr;
+        PetscReal norm=0;
+        PetscCall(KSPBuildResidual(ksp,state.solution,state.residual,&exact));
+        PetscCall(VecNorm(exact,NORM_2,&norm));
+        if(!std::isfinite(norm)) proposed=KSP_DIVERGED_NANORINF;
+        else if(norm>state.limit) proposed=KSP_CONVERGED_ITERATING;
+    }
+    *reason=proposed;
+    return PETSC_SUCCESS;
+}
 
 void replay(const char* snapshot, const char* partition, const std::string& recipe, const char* output) {
     MPI_Comm comm = PETSC_COMM_WORLD;
@@ -43,7 +69,7 @@ void replay(const char* snapshot, const char* partition, const std::string& reci
     if (layout.global!=924953 || begin!=layout.begin || end-begin!=layout.owned) {
         throw std::runtime_error("Replayed ownership differs from semantic rows");
     }
-    PetscOwner<Vec,VecDestroy> x,b,residual;
+    PetscOwner<Vec,VecDestroy> x,b,residual,solution_work;
     EONSIM_PETSC(MatCreateVecs(a.get(),x.put(),b.put()));
     {
         PetscOwner<PetscViewer,PetscViewerDestroy> viewer;
@@ -52,24 +78,30 @@ void replay(const char* snapshot, const char* partition, const std::string& reci
     }
     EONSIM_PETSC(VecSet(x.get(),0.));
     EONSIM_PETSC(VecDuplicate(b.get(),residual.put()));
+    EONSIM_PETSC(VecDuplicate(x.get(),solution_work.put()));
     const auto plan = make_pc_plan(comm,layout,recipe);
     PcSchurUpdates updates;
+    OriginalCheck check;
     PetscOwner<KSP,KSPDestroy> ksp;
     EONSIM_PETSC(KSPCreate(comm,ksp.put()));
     EONSIM_PETSC(KSPSetType(ksp.get(),KSPFGMRES));
     EONSIM_PETSC(KSPSetFromOptions(ksp.get()));
     configure_pc_plan(comm,ksp.get(),a.get(),plan,&updates);
+    PetscReal rhs,norm,rtol,atol;
+    EONSIM_PETSC(VecNorm(b.get(),NORM_2,&rhs));
+    EONSIM_PETSC(KSPGetTolerances(ksp.get(),&rtol,&atol,nullptr,nullptr));
+    check.solution=solution_work.get(); check.residual=residual.get();
+    check.limit=std::max(atol,rtol*rhs);
+    EONSIM_PETSC(KSPConvergedDefaultCreate(&check.defaults));
+    EONSIM_PETSC(KSPSetConvergenceTest(ksp.get(),check_proposed,&check,nullptr));
     EONSIM_PETSC(KSPSolve(ksp.get(),b.get(),x.get()));
     EONSIM_PETSC(MatMult(a.get(),x.get(),residual.get()));
     EONSIM_PETSC(VecAXPY(residual.get(),-1.,b.get()));
-    PetscReal rhs,norm,rtol,atol;
     PetscInt iterations;
     KSPConvergedReason reason;
-    EONSIM_PETSC(VecNorm(b.get(),NORM_2,&rhs));
     EONSIM_PETSC(VecNorm(residual.get(),NORM_2,&norm));
     EONSIM_PETSC(KSPGetConvergedReason(ksp.get(),&reason));
     EONSIM_PETSC(KSPGetIterationNumber(ksp.get(),&iterations));
-    EONSIM_PETSC(KSPGetTolerances(ksp.get(),&rtol,&atol,nullptr,nullptr));
     PetscOwner<PetscViewer,PetscViewerDestroy> viewer;
     EONSIM_PETSC(PetscViewerBinaryOpen(comm,output,FILE_MODE_WRITE,viewer.put()));
     EONSIM_PETSC(VecView(x.get(),viewer.get()));
