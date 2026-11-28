@@ -63,6 +63,21 @@ def synthetic_log(policy, counts, start_step=0):
 
 
 class ProtocolChecks(unittest.TestCase):
+    def test_continuation_gate_waits_for_dependencies_and_registers_once(self):
+        from continue_c import schedule_gate
+        with tempfile.TemporaryDirectory() as tmp, patch('continue_c.subprocess.check_output',return_value='555\n') as submit:
+            root=Path(tmp)
+            qa=root/'qa.json'
+            qa.write_text('{}')
+            first=schedule_gate(root,32,qa,['520','526'],True)
+            self.assertEqual(first['dependency'],'afterok:520:526')
+            self.assertIn('afterok:520:526',submit.call_args.args[0])
+            self.assertEqual(first['job'],'555')
+            self.assertEqual(first,schedule_gate(root,32,qa,['520','526'],True))
+            with self.assertRaises(ValueError):
+                schedule_gate(root,32,qa,['520','527'],True)
+            submit.assert_called_once()
+
     def test_cross_partition_reference_geometry(self):
         nodes={1:(0,0,0),2:(1,0,0),3:(1,1,0),4:(0,1,0)}
         mesh=nodes,[],[(3,(1,2,3)),(3,(1,3,4)),(2,(1,2,4))]
