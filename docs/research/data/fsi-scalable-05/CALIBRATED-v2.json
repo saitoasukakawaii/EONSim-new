@@ -1,0 +1,153 @@
+{
+  "protocol_id": "CALIBRATED-v2",
+  "norm": "Original assembled FP64 A and returned x: unpreconditioned Euclidean norm of b-Ax in original variables.",
+  "denominator": "Original RHS Euclidean norm, including for a nonzero KSP initial guess. A zero RHS uses the absolute tolerance alone.",
+  "comparison": "norm <= max(atol, eta * rhs_norm)",
+  "roundoff_slack": 0,
+  "nonlinear": "Unchanged case solver tolerances, accepted field/constraint checks, positive KSP and SNES reasons, complete fixed-step history and all expected outputs.",
+  "reference": "Audit both independent algorithms on identical original equations/window; compare complete fields/history and frozen physical checks. Self comparison is regression only.",
+  "status": "predeclared candidates; eligibility is specific to a verified case, window and profile",
+  "profiles": {
+    "lu": {
+      "mode": "lu",
+      "rtol": 1e-8,
+      "atol": 1e-23,
+      "refinements": 5
+    },
+    "fixed-1e-8": {
+      "mode": "fixed",
+      "rtol": 1e-8,
+      "atol": 1e-23
+    },
+    "inexact-1e-8": {
+      "mode": "inexact",
+      "rtol": 1e-8,
+      "atol": 1e-23
+    },
+    "fixed-1e-6": {
+      "mode": "fixed",
+      "rtol": 0.000001,
+      "atol": 1e-23
+    },
+    "inexact-1e-6": {
+      "mode": "inexact",
+      "rtol": 0.000001,
+      "atol": 1e-23
+    },
+    "fixed-1e-4": {
+      "mode": "fixed",
+      "rtol": 0.0001,
+      "atol": 1e-23
+    },
+    "inexact-1e-4": {
+      "mode": "inexact",
+      "rtol": 0.0001,
+      "atol": 1e-23
+    }
+  },
+  "forcing": {
+    "initial": 0.1,
+    "max": 0.5,
+    "gamma": 0.9,
+    "alpha": 1.5,
+    "floor": "profile rtol",
+    "safeguard": 0.1
+  },
+  "physical": "FSI_SVFSI_BENCHMARK.md; retain external inlet, outlet, mass, pressure, interface, area and RCR gates. Internal cross-tolerance differences use budgets below.",
+  "full_field_norms": "Unweighted nodal RMS of vector difference lengths and maximum vector difference length, on every saved phase in each active domain.",
+  "field_budgets": {
+    "pressure": {
+      "scale": 20,
+      "absolute": 0,
+      "relative": 0.008,
+      "unit": "Pa",
+      "basis": "10% of the 8% pressure-drop budget, also applied pointwise"
+    },
+    "flow": {
+      "scale": 5e-8,
+      "absolute": 0,
+      "relative": 0.005,
+      "unit": "m^3/s",
+      "basis": "10% of the 5% outlet-flow budget on quarter-domain peak flow"
+    },
+    "fluid_velocity": {
+      "scale": 0.0012732395447351624,
+      "absolute": 0,
+      "relative": 0.005,
+      "unit": "m/s",
+      "basis": "Peak Poiseuille centerline speed; same fractional allowance as flow"
+    },
+    "displacement": {
+      "scale": 0.0000025375000000000007,
+      "absolute": 0,
+      "relative": 0.008,
+      "unit": "m",
+      "basis": "20 Pa Lame radial displacement, 0.5*radius*area strain"
+    },
+    "wall_velocity": {
+      "scale": 0.000015943582716968204,
+      "absolute": 0,
+      "relative": 0.008,
+      "unit": "m/s",
+      "basis": "Harmonic velocity scale from radial displacement at 1 Hz"
+    },
+    "area_strain": {
+      "scale": 0.0005075000000000001,
+      "absolute": 0,
+      "relative": 0.008,
+      "unit": "1",
+      "basis": "10% of the 8% Lame area-strain budget"
+    },
+    "area": {
+      "scale": 9.566149630180925e-7,
+      "absolute": 0,
+      "relative": 0.008,
+      "unit": "m^2",
+      "basis": "Quarter cylindrical interface area times Lame strain"
+    },
+    "volume": {
+      "scale": 4.783074815090462e-9,
+      "absolute": 0,
+      "relative": 0.008,
+      "unit": "m^3",
+      "basis": "Quarter cylinder volume times Lame strain"
+    },
+    "jacobian": {
+      "scale": 0.0005075000000000001,
+      "absolute": 0,
+      "relative": 0.008,
+      "unit": "1",
+      "basis": "Dimensionless change scaled by Lame area strain"
+    },
+    "force": {
+      "scale": 0.03769911184307752,
+      "absolute": 0,
+      "relative": 0.008,
+      "unit": "N",
+      "basis": "Interface area times 20 Pa"
+    },
+    "power": {
+      "scale": 6.010589080263421e-7,
+      "absolute": 0,
+      "relative": 0.008,
+      "unit": "W",
+      "basis": "Wall force times harmonic wall speed"
+    },
+    "pressure_rate": {
+      "scale": 125.66370614359172,
+      "absolute": 0,
+      "relative": 0.008,
+      "unit": "Pa/s",
+      "basis": "Harmonic pressure rate at 1 Hz"
+    }
+  },
+  "internal_observables": {
+    "outlet": 0.005,
+    "dp": 0.16,
+    "area": 0.000004060000000000001
+  },
+  "diagnostic_history": [
+    "snes_iterations",
+    "residual"
+  ]
+}

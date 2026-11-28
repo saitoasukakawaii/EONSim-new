@@ -1,0 +1,31 @@
+{
+  "protocol_id": "STRICT-v1",
+  "norm": "Original assembled FP64 A and returned x: unpreconditioned Euclidean norm of b-Ax in original variables.",
+  "denominator": "Original RHS Euclidean norm, including for a nonzero KSP initial guess. A zero RHS uses the absolute tolerance alone.",
+  "comparison": "norm <= max(atol, eta * rhs_norm)",
+  "roundoff_slack": 0,
+  "nonlinear": "Unchanged case solver tolerances, accepted field/constraint checks, positive KSP and SNES reasons, complete fixed-step history and all expected outputs.",
+  "reference": "Audit both independent algorithms on identical original equations/window; compare complete fields/history and frozen physical checks. Self comparison is regression only.",
+  "status": "historical",
+  "profiles": {
+    "fixed-1e-10": {
+      "mode": "fixed",
+      "rtol": 1e-10,
+      "atol": 1e-23
+    },
+    "lu": {
+      "mode": "lu",
+      "rtol": 1e-10,
+      "atol": 1e-23,
+      "refinements": 5
+    },
+    "strict-reference": {
+      "mode": "fixed",
+      "rtol": 1e-11,
+      "atol": 1e-24
+    }
+  },
+  "physical": "FSI_SVFSI_BENCHMARK.md",
+  "full_field_max_abs": 2e-9,
+  "history_max_abs": 2e-9
+}

@@ -82,6 +82,8 @@ struct NonlinearAssemblyPhases {
     std::function<void(const std::vector<double>&,const std::vector<double>&,Vec)> jacobian_action_owned,jacobian_action_halo;
     /// Exact physical/time coefficient identity used only for PC reuse policy.
     std::vector<double> preconditioner_context;
+    /// Physical step and time-step attempt, one-based when supplied by the driver.
+    PetscInt step=0,attempt=1;
 };
 /** 固定代数布局的非线性存储，复用 ghost Vec、AIJ 图和本地试算缓冲。
  * 构造复制本地 layout；分区、有效编号、字段或稀疏图改变时须重新构造。

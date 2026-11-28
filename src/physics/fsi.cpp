@@ -1379,6 +1379,8 @@ FsiResult solve_fsi_impl(MPI_Comm comm,const MeshPartition& mesh,const Config& c
             assemble_phase(x,r,j,nullptr,false);
         };
         NonlinearAssemblyPhases phases;
+        phases.step=step;
+        phases.attempt=clock.retries+1;
         phases.preconditioner_context={dt,integration_dt,solid_dt,mesh_dt,stabilization_dt,af};
         unsigned long long prepared_action_cells=0,cached_action_cells=0,simd_action_batches=0;
         bool action_ready=false;

@@ -626,11 +626,15 @@ struct LinearPolicy {
         inexact=requested;
         if(active()) EONSIM_PETSC(VecDuplicate(prototype,residual.put()));
     }
-    void begin_solve(KSP ksp) {
-        forcing_solves=projections=0; previous_rhs=0; previous_eta=initial_eta; seconds=0;
+    void reset_forcing(KSP ksp) {
+        previous_rhs=0; previous_eta=initial_eta;
         requested_rtol=base_rtol;
-        if(deflation_capacity) { PC pc=nullptr; EONSIM_PETSC(KSPGetPC(ksp,&pc)); reset_deflated_fgmres_stats(pc); }
         if(inexact) EONSIM_PETSC(KSPSetTolerances(ksp,base_rtol,base_atol,base_dtol,maximum_iterations));
+    }
+    void begin_solve(KSP ksp) {
+        forcing_solves=projections=0; seconds=0;
+        reset_forcing(ksp);
+        if(deflation_capacity) { PC pc=nullptr; EONSIM_PETSC(KSPGetPC(ksp,&pc)); reset_deflated_fgmres_stats(pc); }
     }
     void before(KSP ksp,Vec b,Vec x) {
         if(!active()) return;
@@ -700,9 +704,9 @@ struct LinearPolicy {
             EONSIM_PETSC(MatMult(a,x,residual.get())); EONSIM_PETSC(VecAXPY(residual.get(),-1.,b));
             PetscReal error=0,rhs=0;
             EONSIM_PETSC(VecNorm(residual.get(),NORM_2,&error)); EONSIM_PETSC(VecNorm(b,NORM_2,&rhs));
-            const double limit=base_atol+requested_rtol*rhs;
+            const double limit=std::max(base_atol,requested_rtol*rhs);
             if(!std::isfinite(error)||!std::isfinite(rhs)||!std::isfinite(limit)||
-               error>limit*(1+64*std::numeric_limits<double>::epsilon()))
+               error>limit)
                 throw std::runtime_error("Inexact/recycled correction failed current-operator true residual gate");
             if(deflation_capacity) {
                 const auto start=std::chrono::steady_clock::now();
@@ -738,6 +742,11 @@ struct LinearDiagnostics {
     double solve_seconds=0,diagnostic_seconds=0;
     PetscInt started=0,completed=0;
     bool enabled=false;
+    std::string protocol_hash;
+    SNES snes=nullptr; // Borrowed from the enclosing workspace.
+    PetscInt step=0,attempt=1,pc_attempt=1,newton=0;
+    PetscReal actual_rtol=0,actual_atol=0;
+    PetscBool nonzero=PETSC_FALSE,componentwise=PETSC_FALSE;
     PetscInt lu_refinement_steps=0;
     PetscReal lu_rtol=0,lu_atol=0;
     bool lu_rejected=false;
@@ -749,7 +758,7 @@ struct LinearDiagnostics {
     int collective_pc_failure=0;
     void reset() {
         solve_seconds=diagnostic_seconds=0.;
-        started=completed=0; collective_pc_failure=0; policy_error.clear(); lu_rejected=false;
+        started=completed=0; pc_attempt=1; collective_pc_failure=0; policy_error.clear(); lu_rejected=false;
     }
 };
 
@@ -767,6 +776,82 @@ PetscErrorCode check_refined_step(SNESLineSearch search,Vec state,Vec step,Petsc
     return PETSC_SUCCESS;
 }
 
+// One CPU AIJ snapshot for each frozen operator. Gather only columns referenced
+// by owned rows. Empty owners participate in the same scatters and reductions.
+struct OriginalRows {
+    MPI_Comm comm;
+    PetscOwner<Mat,MatDestroy> merged;
+    Mat local=nullptr;
+    PetscOwner<Vec,VecDestroy> imported;
+    PetscOwner<VecScatter,VecScatterDestroy> import;
+    OriginalRows(Mat a,Vec x):comm(PetscObjectComm(reinterpret_cast<PetscObject>(a))) {
+        PetscOwner<IS,ISDestroy> columns;
+        PetscBool distributed;
+        EONSIM_PETSC(PetscObjectTypeCompare(reinterpret_cast<PetscObject>(a),MATMPIAIJ,&distributed));
+        local=a;
+        PetscInt n=0;
+        if(distributed) {
+            EONSIM_PETSC(MatMPIAIJGetLocalMatMerge(a,MAT_INITIAL_MATRIX,columns.put(),merged.put()));
+            local=merged.get();
+            EONSIM_PETSC(ISGetLocalSize(columns.get(),&n));
+        } else {
+            PetscBool sequential;
+            EONSIM_PETSC(PetscObjectTypeCompare(reinterpret_cast<PetscObject>(a),MATSEQAIJ,&sequential));
+            if(!sequential) throw std::runtime_error("Original-row diagnostics require CPU AIJ");
+            EONSIM_PETSC(MatGetSize(a,nullptr,&n));
+            EONSIM_PETSC(ISCreateStride(PETSC_COMM_SELF,n,0,1,columns.put()));
+        }
+        EONSIM_PETSC(VecCreateSeq(PETSC_COMM_SELF,n,imported.put()));
+        EONSIM_PETSC(VecScatterCreate(x,columns.get(),imported.get(),nullptr,import.put()));
+    }
+    double measure(Vec b,Vec x,Vec residual,double* backward) {
+        EONSIM_PETSC(VecScatterBegin(import.get(),x,imported.get(),INSERT_VALUES,SCATTER_FORWARD));
+        EONSIM_PETSC(VecScatterEnd(import.get(),x,imported.get(),INSERT_VALUES,SCATTER_FORWARD));
+        const PetscScalar *values,*rhs;
+        PetscScalar* out=nullptr;
+        EONSIM_PETSC(VecGetArrayRead(imported.get(),&values));
+        EONSIM_PETSC(VecGetArrayRead(b,&rhs));
+        if(residual) EONSIM_PETSC(VecGetArray(residual,&out));
+        PetscInt rows;
+        EONSIM_PETSC(VecGetLocalSize(b,&rows));
+        long double local_squared=0,local_backward=0;
+        for(PetscInt row=0;row<rows;++row) {
+            PetscInt count;
+            const PetscInt* ids;
+            const PetscScalar* entries;
+            EONSIM_PETSC(MatGetRow(local,row,&count,&ids,&entries));
+            long double value=rhs[row];
+            long double scale=std::abs(value);
+            for(PetscInt j=0;j<count;++j) {
+                const long double term=static_cast<long double>(entries[j])*values[ids[j]];
+                value-=term;
+                if(backward) scale+=std::abs(term);
+            }
+            if(backward) {
+                const long double ratio=scale==0&&value==0?0:std::abs(value)/scale;
+                local_backward=std::isfinite(ratio)?std::max(local_backward,ratio):
+                    std::numeric_limits<long double>::infinity();
+            }
+            EONSIM_PETSC(MatRestoreRow(local,row,&count,&ids,&entries));
+            if(out) out[row]=static_cast<PetscScalar>(value);
+            local_squared+=value*value;
+        }
+        if(residual) EONSIM_PETSC(VecRestoreArray(residual,&out));
+        EONSIM_PETSC(VecRestoreArrayRead(b,&rhs));
+        EONSIM_PETSC(VecRestoreArrayRead(imported.get(),&values));
+        long double global_squared=0;
+        if(MPI_Allreduce(&local_squared,&global_squared,1,MPI_LONG_DOUBLE,MPI_SUM,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("Original-row global residual reduction failed");
+        if(backward) {
+            long double maximum=0;
+            if(MPI_Allreduce(&local_backward,&maximum,1,MPI_LONG_DOUBLE,MPI_MAX,comm)!=MPI_SUCCESS)
+                throw std::runtime_error("Componentwise backward error reduction failed");
+            *backward=static_cast<double>(maximum);
+        }
+        return static_cast<double>(std::sqrt(global_squared));
+    }
+};
+
 // Reuse this correction's LU factor only. The snapshot contains each owned row
 // once and imports precisely its column vector entries, including off-rank ones.
 void refine_direct_correction(KSP ksp,Vec b,Vec x,PetscInt budget,PetscReal rtol,PetscReal atol) {
@@ -776,27 +861,8 @@ void refine_direct_correction(KSP ksp,Vec b,Vec x,PetscInt budget,PetscReal rtol
     EONSIM_PETSC(KSPGetPC(ksp,&pc));
     if(a!=p) throw std::runtime_error("LU refinement requires the original assembled operator as P");
     const auto comm=PetscObjectComm(reinterpret_cast<PetscObject>(ksp));
-    PetscOwner<Mat,MatDestroy> merged;
-    PetscOwner<IS,ISDestroy> columns;
-    PetscBool distributed;
-    EONSIM_PETSC(PetscObjectTypeCompare(reinterpret_cast<PetscObject>(a),MATMPIAIJ,&distributed));
-    Mat local=a;
-    PetscInt n=0;
-    if(distributed) {
-        EONSIM_PETSC(MatMPIAIJGetLocalMatMerge(a,MAT_INITIAL_MATRIX,columns.put(),merged.put()));
-        local=merged.get();
-        EONSIM_PETSC(ISGetLocalSize(columns.get(),&n));
-    } else {
-        PetscBool sequential;
-        EONSIM_PETSC(PetscObjectTypeCompare(reinterpret_cast<PetscObject>(a),MATSEQAIJ,&sequential));
-        if(!sequential) throw std::runtime_error("LU refinement requires CPU AIJ");
-        EONSIM_PETSC(MatGetSize(a,nullptr,&n));
-        EONSIM_PETSC(ISCreateStride(PETSC_COMM_SELF,n,0,1,columns.put()));
-    }
-    PetscOwner<Vec,VecDestroy> imported,residual,delta,previous,product;
-    PetscOwner<VecScatter,VecScatterDestroy> import;
-    EONSIM_PETSC(VecCreateSeq(PETSC_COMM_SELF,n,imported.put()));
-    EONSIM_PETSC(VecScatterCreate(x,columns.get(),imported.get(),nullptr,import.put()));
+    OriginalRows rows(a,x);
+    PetscOwner<Vec,VecDestroy> residual,delta,previous,product;
     EONSIM_PETSC(VecDuplicate(b,residual.put()));
     EONSIM_PETSC(VecDuplicate(b,product.put()));
     EONSIM_PETSC(VecDuplicate(x,delta.put()));
@@ -808,34 +874,7 @@ void refine_direct_correction(KSP ksp,Vec b,Vec x,PetscInt budget,PetscReal rtol
     PetscReal correction_norm=0;
     const auto start=std::chrono::steady_clock::now();
     for(PetscInt i=0;i<=budget;++i) {
-        EONSIM_PETSC(VecScatterBegin(import.get(),x,imported.get(),INSERT_VALUES,SCATTER_FORWARD));
-        EONSIM_PETSC(VecScatterEnd(import.get(),x,imported.get(),INSERT_VALUES,SCATTER_FORWARD));
-        const PetscScalar *values,*rhs;
-        PetscScalar* out;
-        EONSIM_PETSC(VecGetArrayRead(imported.get(),&values));
-        EONSIM_PETSC(VecGetArrayRead(b,&rhs));
-        EONSIM_PETSC(VecGetArray(residual.get(),&out));
-        PetscInt rows;
-        EONSIM_PETSC(VecGetLocalSize(b,&rows));
-        long double local_squared=0;
-        for(PetscInt row=0;row<rows;++row) {
-            PetscInt count;
-            const PetscInt* ids;
-            const PetscScalar* entries;
-            EONSIM_PETSC(MatGetRow(local,row,&count,&ids,&entries));
-            long double value=rhs[row];
-            for(PetscInt j=0;j<count;++j) value-=static_cast<long double>(entries[j])*values[ids[j]];
-            EONSIM_PETSC(MatRestoreRow(local,row,&count,&ids,&entries));
-            out[row]=static_cast<PetscScalar>(value);
-            local_squared+=value*value;
-        }
-        EONSIM_PETSC(VecRestoreArray(residual.get(),&out));
-        EONSIM_PETSC(VecRestoreArrayRead(b,&rhs));
-        EONSIM_PETSC(VecRestoreArrayRead(imported.get(),&values));
-        long double global_squared=0;
-        if(MPI_Allreduce(&local_squared,&global_squared,1,MPI_LONG_DOUBLE,MPI_SUM,comm)!=MPI_SUCCESS)
-            throw std::runtime_error("LU refinement global residual reduction failed");
-        const double wide=static_cast<double>(std::sqrt(global_squared));
+        const double wide=rows.measure(b,x,residual.get(),nullptr);
         EONSIM_PETSC(MatMult(a,x,product.get()));
         EONSIM_PETSC(VecAXPY(product.get(),-1,b));
         PetscReal native;
@@ -869,7 +908,16 @@ PetscErrorCode linear_begin(KSP ksp,Vec b,Vec x,void* pointer)
 {
     auto& d=*static_cast<LinearDiagnostics*>(pointer);
     ++d.started; d.begin=std::chrono::steady_clock::now();
-    try { if(d.policy) d.policy->before(ksp,b,x); }
+    try {
+        if(d.policy) d.policy->before(ksp,b,x);
+        if(!d.protocol_hash.empty()) {
+            EONSIM_PETSC(SNESGetIterationNumber(d.snes,&d.newton));
+            ++d.newton;
+            EONSIM_PETSC(KSPGetInitialGuessNonzero(ksp,&d.nonzero));
+            if(d.lu_refinement_steps) { d.actual_rtol=d.lu_rtol; d.actual_atol=d.lu_atol; }
+            else EONSIM_PETSC(KSPGetTolerances(ksp,&d.actual_rtol,&d.actual_atol,nullptr,nullptr));
+        }
+    }
     catch(const std::exception& e) { d.policy_error=e.what(); return PETSC_ERR_LIB; }
     return PETSC_SUCCESS;
 }
@@ -877,7 +925,8 @@ PetscErrorCode linear_end(KSP ksp,Vec b,Vec x,void* pointer)
 {
     auto& d=*static_cast<LinearDiagnostics*>(pointer);
     const auto end=std::chrono::steady_clock::now();
-    d.solve_seconds+=std::chrono::duration<double>(end-d.begin).count();
+    const double linear_seconds=std::chrono::duration<double>(end-d.begin).count();
+    d.solve_seconds+=linear_seconds;
     ++d.completed;
     if(!d.fields) return PETSC_SUCCESS;
     // 使用实际 KSP 算子和右端项；独立副本不改变非线性验收基线。
@@ -887,9 +936,14 @@ PetscErrorCode linear_end(KSP ksp,Vec b,Vec x,void* pointer)
         EONSIM_PETSC(KSPGetConvergedReason(ksp,&reason));
         EONSIM_PETSC(KSPGetDiagonalScale(ksp,&scaled));
         int rank; MPI_Comm_rank(d.fields->comm,&rank);
+        const bool tagged=!d.protocol_hash.empty();
+        std::ostringstream identity;
+        if(tagged) identity<<" protocol_hash="<<d.protocol_hash<<" step="<<d.step
+            <<" newton="<<d.newton<<" attempt="<<d.attempt<<" pc_attempt="<<d.pc_attempt;
         const bool iteration_limit=reason==KSP_DIVERGED_ITS;
         if((reason<=0&&!iteration_limit)||scaled) {
-            if(rank==0) std::cout<<"linear_residual_unavailable solve="<<d.completed
+            if(rank==0) std::cout<<"linear_residual_unavailable solve="<<d.completed<<identity.str()
+                <<" ksp_reason="<<int(reason)
                 <<" reason="<<(scaled?"diagonal_scaling":"unconverged")<<'\n';
         } else {
             Mat a; EONSIM_PETSC(KSPGetOperators(ksp,&a,nullptr));
@@ -899,25 +953,44 @@ PetscErrorCode linear_end(KSP ksp,Vec b,Vec x,void* pointer)
             EONSIM_PETSC(VecNorm(d.residual.get(),NORM_2,&norm));
             EONSIM_PETSC(VecNorm(b,NORM_2,&rhs));
             d.fields->measure(d.residual.get());
+            PetscInt iterations=0;
+            EONSIM_PETSC(KSPGetIterationNumber(ksp,&iterations));
+            double wide=0,backward=0;
+            if(d.componentwise) wide=OriginalRows(a,x).measure(b,x,nullptr,&backward);
+            const double limit=std::max(d.actual_atol,d.actual_rtol*rhs);
             if(rank==0) {
-                std::ostringstream out; out<<std::setprecision(16);
+                std::ostringstream out; out<<std::setprecision(17);
                 const char* prefix=iteration_limit?"linear_iteration_limit":"linear";
                 out<<prefix<<"_residual solve="<<d.completed<<" norm="<<norm<<" rhs_norm="<<rhs;
-                if(d.policy&&d.policy->active()) out<<" requested_rtol="<<d.policy->requested_rtol
+                if(tagged) {
+                    out<<identity.str()<<" requested_rtol="<<d.actual_rtol<<" requested_atol="<<d.actual_atol
+                       <<" base_rtol="<<(d.lu_refinement_steps?d.lu_rtol:d.policy->base_rtol)
+                       <<" forcing="<<d.policy->inexact<<" ksp_reason="<<int(reason)<<" ksp_iterations="<<iterations
+                       <<" linear_seconds="<<linear_seconds<<" nonzero_guess="<<int(d.nonzero)
+                       <<" roundoff_slack=0 limit="<<limit;
+                    if(d.policy->inexact) out<<" eta_initial="<<d.policy->initial_eta<<" eta_max="<<d.policy->maximum_eta
+                        <<" eta_gamma="<<d.policy->gamma<<" eta_alpha="<<d.policy->alpha;
+                    if(d.componentwise) out<<" wide_norm="<<wide<<" backward_error="<<backward;
+                } else if(d.policy&&d.policy->active()) out<<" requested_rtol="<<d.policy->requested_rtol
                     <<" requested_atol="<<d.policy->base_atol<<" forcing="<<d.policy->inexact;
                 out<<'\n';
                 for(const auto& f:d.fields->values)
-                    out<<prefix<<"_field_residual solve="<<d.completed<<" name="<<f.name
+                    out<<prefix<<"_field_residual solve="<<d.completed<<" name="<<f.name<<identity.str()
                        <<" rms="<<f.rms<<" constraint_max="<<f.constraint_max
+                       <<" equation_rows="<<f.equation_rows<<" constraint_rows="<<f.constraint_rows
                        <<" residual_scale="<<f.tolerance.residual_scale
                        <<" constraint_scale="<<f.tolerance.constraint_scale<<'\n';
                 std::cout<<out.str();
             }
+            if(tagged&&reason>0&&!d.lu_rejected&&(!std::isfinite(norm)||!std::isfinite(rhs)||!std::isfinite(limit)||
+               norm>limit||(d.componentwise&&(!std::isfinite(wide)||!std::isfinite(backward)))))
+                throw std::runtime_error("Returned correction failed original-equation protocol");
         }
     } catch(const std::exception& e) {
         // C++ 异常不能穿越 PETSc 回调；诊断不改变原有求解失败分类。
         int rank; MPI_Comm_rank(d.fields->comm,&rank);
         if(rank==0) std::cout<<"linear_residual_unavailable solve="<<d.completed<<" detail="<<e.what()<<'\n';
+        if(!d.protocol_hash.empty()) { d.policy_error=e.what(); return PETSC_ERR_NOT_CONVERGED; }
     }
     d.diagnostic_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-end).count();
     return PETSC_SUCCESS;
@@ -952,7 +1025,11 @@ PetscErrorCode linear_complete(KSP ksp,Vec b,Vec x,void* pointer)
         }
     }
     try { if(d.policy) d.policy->after(ksp,b,x); }
-    catch(const std::exception& e) { d.policy_error=e.what(); return PETSC_ERR_LIB; }
+    catch(const std::exception& e) {
+        d.policy_error=e.what();
+        if(!d.protocol_hash.empty()) (void)linear_end(ksp,b,x,pointer);
+        return PETSC_ERR_LIB;
+    }
     if(d.enabled) return linear_end(ksp,b,x,pointer);
     return PETSC_SUCCESS;
 }
@@ -1297,6 +1374,7 @@ PetscErrorCode matrix_free_multiply(Mat matrix,Vec input,Vec output) {
 struct KrylovConvergence {
     ActiveContext* callbacks=nullptr;
     bool verify_residual=false;
+    bool rhs_gate=false;
     PetscOwner<Vec,VecDestroy> solution_work,residual;
     PetscErrorCode (*original)(KSP,PetscInt,PetscReal,KSPConvergedReason*,void*)=nullptr;
     void* original_context=nullptr;
@@ -1340,7 +1418,16 @@ PetscErrorCode guarded_krylov_convergence(KSP ksp,PetscInt iteration,PetscReal n
     PetscCall(VecNorm(residual,NORM_2,&actual));
     ++context.true_residual_checks;
     if(!context.action_error.empty()) *reason=KSP_DIVERGED_BREAKDOWN;
-    else PetscCall(guard.original(ksp,iteration,actual,reason,guard.original_context));
+    else if(guard.rhs_gate) {
+        Vec b; PetscReal rhs=0,rtol=0,atol=0;
+        PetscCall(KSPGetRhs(ksp,&b));
+        PetscCall(VecNorm(b,NORM_2,&rhs));
+        PetscCall(KSPGetTolerances(ksp,&rtol,&atol,nullptr,nullptr));
+        const double limit=std::max(atol,rtol*rhs);
+        if(!std::isfinite(actual)||!std::isfinite(rhs)||!std::isfinite(limit)) *reason=KSP_DIVERGED_NANORINF;
+        else if(actual<=limit) *reason=proposed;
+        else *reason=KSP_CONVERGED_ITERATING;
+    } else PetscCall(guard.original(ksp,iteration,actual,reason,guard.original_context));
     if(*reason<=0) ++context.true_residual_rejections;
     context.true_residual_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
     return PETSC_SUCCESS;
@@ -1591,6 +1678,25 @@ struct NonlinearSystem::Workspace {
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-solver_report",&report,nullptr));
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-solver_rank_report",&rank_report,nullptr));
         EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-linear_report",&linear_report,nullptr));
+        // Validate the hash collectively before changing reporting collectives.
+        char hash[66]{},root_hash[66]{};
+        PetscBool has_hash=PETSC_FALSE;
+        EONSIM_PETSC(PetscOptionsGetString(nullptr,nullptr,"-linear_protocol_hash",hash,sizeof(hash),&has_hash));
+        EONSIM_PETSC(PetscOptionsGetBool(nullptr,nullptr,"-linear_componentwise_error",&diagnostics.componentwise,nullptr));
+        std::copy(std::begin(hash),std::end(hash),root_hash);
+        if(MPI_Bcast(root_hash,sizeof(root_hash),MPI_CHAR,0,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("Linear protocol broadcast failed");
+        const bool malformed=has_hash&&(std::strlen(hash)!=64||std::strspn(hash,"0123456789abcdef")!=64);
+        const int protocol_bad[]={int(malformed||std::strcmp(root_hash,hash)!=0||
+            (diagnostics.componentwise&&!has_hash)),int(diagnostics.componentwise),int(!diagnostics.componentwise)};
+        int protocol_flags[3]{};
+        if(MPI_Allreduce(protocol_bad,protocol_flags,3,MPI_INT,MPI_MAX,comm)!=MPI_SUCCESS)
+            throw std::runtime_error("Linear protocol check failed");
+        if(protocol_flags[0]||(protocol_flags[1]&&protocol_flags[2]))
+            throw std::runtime_error("Linear protocol requires a consistent lowercase SHA-256 and diagnostic options");
+        diagnostics.protocol_hash=hash;
+        diagnostics.snes=snes.get();
+        if(has_hash) linear_report=PETSC_TRUE;
         if(rank_report) report=PETSC_TRUE;
         if(linear_report) {
             report=PETSC_TRUE;
@@ -1641,6 +1747,15 @@ struct NonlinearSystem::Workspace {
         EONSIM_PETSC(KSPGetType(ksp,&method)); EONSIM_PETSC(KSPGetNormType(ksp,&norm_type));
         EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-linear_lu_refinement_steps",
                                         &diagnostics.lu_refinement_steps,nullptr));
+        if(has_hash) {
+            PetscBool scaled;
+            EONSIM_PETSC(KSPGetDiagonalScale(ksp,&scaled));
+            const int bad=scaled||matrix_free||eisenstat_walker||(!true_residual&&!diagnostics.lu_refinement_steps);
+            int any=0;
+            if(MPI_Allreduce(&bad,&any,1,MPI_INT,MPI_MAX,comm)!=MPI_SUCCESS)
+                throw std::runtime_error("Linear protocol solver check failed");
+            if(any) throw std::runtime_error("Linear protocol requires assembled unscaled equations, explicit LU refinement or original-residual verification");
+        }
         int invalid_refinement=0;
         if(diagnostics.lu_refinement_steps) {
             PetscBool diagonal_scale;
@@ -1863,6 +1978,8 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
     acceptance.reduction_calls=0;
     auto& diagnostics=workspace.diagnostics;
     diagnostics.reset();
+    diagnostics.step=phases.step;
+    diagnostics.attempt=phases.attempt;
     workspace.adaptive_pc.begin_solve(phases.preconditioner_context);
     const auto schur=workspace.schur,report=workspace.report;
     const bool semantic=workspace.semantic;
@@ -1972,6 +2089,7 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
             auto guarded=std::make_unique<KrylovConvergence>();
             guarded->callbacks=&workspace.callbacks;
             guarded->verify_residual=workspace.verify_true_residual;
+            guarded->rhs_gate=!diagnostics.protocol_hash.empty();
             EONSIM_PETSC(KSPGetAndClearConvergenceTest(ksp,&guarded->original,
                 &guarded->original_context,&guarded->original_destroy));
             EONSIM_PETSC(KSPSetConvergenceTest(ksp,guarded_krylov_convergence,guarded.get(),
@@ -2035,6 +2153,8 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
                 static_cast<int>(first_linear_reason),prior_nonlinear_iterations,remaining_iterations,
                 prior_function_evaluations,remaining_functions));
             ++pc_rebuild_retries;
+            ++diagnostics.pc_attempt;
+            workspace.linear_policy.reset_forcing(ksp);
             error=SNESSolve(snes.get(),nullptr,x.get());
             EONSIM_PETSC(SNESSetTolerances(snes.get(),budget.absolute,budget.relative,budget.step,
                 budget.iterations,budget.functions));
@@ -2178,9 +2298,25 @@ NonlinearResult NonlinearSystem::solve(const SolverConfig& config,
         int rank,ranks; MPI_Comm_rank(comm,&rank); MPI_Comm_size(comm,&ranks);
         KSPType kt; EONSIM_PETSC(KSPGetType(ksp,&kt));
         PCType type; EONSIM_PETSC(PCGetType(pc,&type));
+        std::ostringstream effective;
+        if(!diagnostics.protocol_hash.empty()) {
+            PetscReal absolute,relative,stol,lambda;
+            PetscInt max_it;
+            SNESLineSearch search;
+            SNESLineSearchType ls_type=nullptr;
+            EONSIM_PETSC(SNESGetTolerances(snes.get(),&absolute,&relative,&stol,&max_it,nullptr));
+            EONSIM_PETSC(SNESGetLineSearch(snes.get(),&search));
+            EONSIM_PETSC(SNESLineSearchGetType(search,&ls_type));
+            EONSIM_PETSC(SNESLineSearchGetLambda(search,&lambda));
+            effective<<std::setprecision(17)<<" protocol_hash="<<diagnostics.protocol_hash
+                <<" step="<<diagnostics.step<<" attempt="<<diagnostics.attempt
+                <<" snes_atol="<<absolute<<" snes_rtol="<<relative<<" snes_stol="<<stol
+                <<" snes_max_it="<<max_it<<" linesearch="<<(ls_type?ls_type:"unset")
+                <<" final_lambda="<<lambda;
+        }
         if(rank==0) std::cout << "solver_report ranks=" << ranks << " dofs=" << l.global << " nnz=" << info.nz_used
             << " nnz_allocated=" << info.nz_allocated << " nnz_unneeded=" << info.nz_unneeded
-            << " matrix_mallocs=" << info.mallocs
+            << " matrix_mallocs=" << info.mallocs << effective.str()
             << " solver_reused=" << result.solver_reused << " solver_generation=" << result.solver_generation
             << " jacobian_assemblies=" << result.jacobian_assemblies << " jacobian_callbacks=" << result.jacobian_callbacks
             << " initial_jacobian_assemblies=" << result.initial_jacobian_assemblies

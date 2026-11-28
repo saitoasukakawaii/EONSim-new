@@ -501,12 +501,12 @@ def compare_fields(expected, actual):
     return worst
 
 
-def history(path, steps, dt):
+def history(path, steps, dt, start_step=0):
     with path.open() as stream:
         rows = [{k: float(v) for k, v in row.items()} for row in csv.DictReader(stream)]
-    require(len(rows) == steps and all(all(map(math.isfinite, row.values())) for row in rows),
+    require(0 <= start_step < steps and len(rows) == steps-start_step and all(all(map(math.isfinite, row.values())) for row in rows),
             'Invalid accepted history')
-    for i, row in enumerate(rows, 1):
+    for i, row in enumerate(rows, start_step+1):
         require(row['step'] == i and abs(row['time'] - i * dt) < 1e-13 and
                 abs(row['accepted_dt'] - dt) < 1e-13, 'Incorrect history time grid')
         require(abs(row['evaluation_body_balance']) <= FIELD_LIMIT and
