@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import shlex
 import subprocess
+import sys
 
 from c_first import DATA, ROOT, describe, digest, run, save, select
 from tube_protocol import records
@@ -33,6 +34,7 @@ def main():
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument('mode', choices=('physics','mg-scaled','mg-unscaled'))
     cli.add_argument('stage', type=Path)
+    cli.add_argument('--profile', choices=('fixed-1e-8','fixed-1e-6'), default='fixed-1e-8')
     args = cli.parse_args()
     if not os.getenv('SLURM_JOB_ID') or len(os.sched_getaffinity(0))!=64 or os.getenv('PETSC_OPTIONS'):
         cli.error('requires 64 Slurm cores and a clean PETSc environment')
@@ -57,7 +59,7 @@ def main():
         raise ValueError('Production archive differs from Release receipt')
     subprocess.run(['git','diff','--exit-code',build['source'],'HEAD','--','include','src','cmake','CMakeLists.txt'],
                    cwd=ROOT,check=True)
-    policy = select('CALIBRATED-v2','fixed-1e-8')
+    policy = select('CALIBRATED-v2',args.profile)
     physics = args.mode == 'physics'
     opts = describe('physics' if physics else 'pressure-mg')
     # One cold comparison per MG scale setting. The same 100-iteration prefix
@@ -86,9 +88,21 @@ def main():
         row['event'] = event
         row['artifacts']['iterate.petsc'] = digest(stage/'iterate.petsc')
         actual, rhs = float(event['norm']), float(event['rhs'])
+        # Check the written FP64 iterate with an independent CSR reduction.
+        # Also retain the per-field and componentwise diagnostics for a stalled PC.
+        sys.path.insert(0,str(DATA/'fsi-scalable-04'))
+        from refine_system import WIDE, audit, matrix, read_layout, vector
+        import numpy as np
+        if np.finfo(WIDE).nmant <= 52:
+            raise ValueError('Extended accumulation unavailable')
+        a = matrix(old/'operator.petsc')
+        b = vector(old/'rhs.petsc')
+        row['independent_csr'] = dual = audit(a,a.astype(WIDE),b,vector(stage/'iterate.petsc'),
+                                              read_layout(old.parent/'C-layout',len(b)))
+        limit = max(policy['atol'],policy['rtol']*rhs)
         if (float(event['rtol'])!=policy['rtol'] or float(event['atol'])!=policy['atol']
                 or not all(math.isfinite(n) and n >= 0 for n in (actual,rhs))
-                or int(event['reason'])<=0 or actual>max(policy['atol'],policy['rtol']*rhs)):
+                or int(event['reason'])<=0 or max(actual,dual['wide_norm'],dual['fp64_csr_norm'])>limit):
             raise ValueError('Returned vector fails archived original equation or KSP status')
         row['linear_screen'] = 'passed'
     except Exception as error:

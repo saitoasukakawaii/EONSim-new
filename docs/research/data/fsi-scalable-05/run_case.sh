@@ -13,6 +13,11 @@ export LD_LIBRARY_PATH="/opt/software/gcc-11.5.0/lib64:$mpi/lib:${LD_LIBRARY_PAT
 export PYTHONPATH="$src/tests:$src/scripts:$src/cases/fsi:$data/fsi-pressure-faces-2026-11-24:$data/fsi-smooth-load-2026-11-24"
 py="$HOME/miniforge/envs/moose/bin/python"
 case "$case_name" in A) cores=4;; B) cores=32;; C) cores=64;; *) exit 2;; esac
+if [ "$case_name" = C ]; then
+    for arg in "$@"; do
+        if [ "$arg" = --scaling-from ]; then cores="${SLURM_NTASKS:?}"; fi
+    done
+fi
 cpus=$("$py" -c 'import os,sys; a=sorted(os.sched_getaffinity(0)); n=int(sys.argv[1]); assert len(a)>=n; print(",".join(map(str,a[:n])))' "$cores")
 if [ "${1:-}" = "--timing" ]; then
     shift

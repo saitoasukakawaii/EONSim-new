@@ -73,9 +73,11 @@ def main():
                 saved['derived_resources']=dict(**hours,allocation_source='run_environment' if row.get('allocation') else 'sacct')
                 summary.append(dict(run=str(work.relative_to(root)), job=row['job'],case=row['case'],steps=row['steps'],
                     profile=row['profile'],protocol=row['policy']['protocol_id'],hash=row['policy']['hash'],
-                    accepted=len(row.get('accepted_steps',[])), newton=linear.get('corrections'),
+                    start_step=row.get('start_step',0),accepted_in_segment=len(row.get('accepted_steps',[])),
+                    accepted=row.get('start_step',0)+len(row.get('accepted_steps',[])),newton=linear.get('corrections'),
                     ksp=linear.get('ksp_iterations'),max_ratio=linear.get('max_ratio'),
-                    seconds=row.get('T_job'),rss_bytes=row.get('rss_peak'),**hours,
+                    seconds=row.get('T_job'),cumulative_seconds=row.get('cumulative_T_job',row.get('T_job')),
+                    rss_bytes=row.get('rss_peak'),**hours,
                     qualification=row['qualification'],error=row.get('error','')))
             for f in sorted(work.rglob('*')):
                 key = str(f.relative_to(root))

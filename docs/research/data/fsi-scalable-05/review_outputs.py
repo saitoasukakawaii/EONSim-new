@@ -11,11 +11,16 @@ import sys
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE.parent/'fsi-scalable-02'))
 from paired_tube import compare, digest, physical, read_mesh, save
+from tube_checkpoint import verified_prefix
+from scale_c import read_bindings, verify_baseline
 from tube_protocol import archived_case, audit_corrections, compare_trajectories, output_manifest, select
 
 
 def compatible(a,b):
-    return (all(a[k]==b[k] for k in ('case','steps','inputs','partition','ranks','binary')) and
+    partition_matches=(a['partition']==b['partition'] and a['ranks']==b['ranks'])
+    if 'scaling' in a:
+        partition_matches=(a['scaling']['source_partition']==b['partition'] and b['ranks']==64)
+    return (partition_matches and a.get('start_step',0)==b.get('start_step',0) and all(a[k]==b[k] for k in ('case','steps','inputs','binary')) and
             a.get('compiled_source',a['source'])==b.get('compiled_source',b['source']))
 
 
@@ -52,8 +57,11 @@ def main():
                 raise ValueError('Original input changed')
             archived,origin,origin_sha=archived_case(row['case'])
             result['original_benchmark_sha256']=origin_sha
-            expected_names=['manifest.yaml',*(f'rank_{i}.h5' for i in range(row['ranks']))]
-            if (row['partition']!={n:origin['partition'][n] for n in expected_names}
+            archive_ranks=64 if 'scaling' in row else row['ranks']
+            expected_names=['manifest.yaml',*(f'rank_{i}.h5' for i in range(archive_ranks))]
+            frozen={n:origin['partition'][n] for n in expected_names}
+            originals=row.get('scaling',{}).get('source_partition',row['partition'])
+            if (originals!=frozen
                     or any(row['inputs'][n]!=origin['inputs'][n] for n in ('fluid.msh','solid.msh'))
                     or digest(archived/'case.json')!=origin['inputs']['case.json']):
                 raise ValueError('Mesh, partition or physics differs from archived benchmark')
@@ -66,14 +74,34 @@ def main():
             part=Path(command[command.index('-partition')+1])
             if any(digest(part/n)!=sha for n,sha in row['partition'].items()):
                 raise ValueError('Original partition changed')
-            audit=audit_corrections(d,row['steps'],row['ranks'],policy)
+            if 'scaling' in row:
+                evidence=row['scaling']
+                if evidence!=verify_baseline(Path(evidence['baseline_directory']),
+                        Path(evidence['reference_directory']),row,frozen):
+                    raise ValueError('Scaling baseline identity changed')
+                prep=d/'prepare'
+                info=json.loads((prep/'run.json').read_text())
+                if (info!=row['partition_preparation'] or info['exit_code']!=0 or info['log_sha256']!=digest(prep/'solve.log')
+                        or info['inputs']!=row['inputs'] or info['binary']!=row['binary'] or info['parts']!=row['ranks']
+                        or any(digest(prep/k)!=v for k,v in row['inputs'].items())
+                        or row['rank_bindings']!=read_bindings((d/'solve.log').read_text(),row['ranks'])):
+                    raise ValueError('Scaling preparation or binding receipt changed')
+            start=row.get('start_step',0)
+            if start:
+                prefix=Path(row['prefix_segments'][-1]['directory'])
+                partner=Path(row['prefix_pair_directory']) if row['profile']=='lu' else None
+                previous,segments,generation=verified_prefix(prefix,row,d,partner)
+                if (previous['steps']!=start or segments!=row['prefix_segments']
+                        or str(generation)!=row['restart_generation'] or str(generation)!=command[command.index('-restart')+1]):
+                    raise ValueError('Continuation does not match its declared lineage')
+            audit=audit_corrections(d,row['steps'],row['ranks'],policy,start)
             result.update(linear={k:audit[k] for k in ('corrections','ksp_iterations','max_ratio','ksp','pc')},
-                          outputs=output_manifest(d,row['steps'],row['ranks']), status='linear_window_only')
+                          outputs=output_manifest(d,row['steps'],row['ranks'],start), status='linear_window_only')
             if 'outputs' in row and result['outputs']!=row['outputs']:
                 raise ValueError('Original output snapshot changed')
             if row['steps']>=4:
                 meshes=[read_mesh(d/(n+'.msh')) for n in ('fluid','solid')]
-                state=physical(d,'eon',meshes,row['steps'],row['ranks'],write=False)
+                state=physical(d,'eon',meshes,row['steps'],row['ranks'],write=False,start_step=start)
                 gates=compare(state,state)
                 if not all(0<=v<=1 for v in gates.values()):
                     raise ValueError(f'Frozen individual physical conditions failed: {gates}')
@@ -97,8 +125,13 @@ def main():
             if s['linear']['ksp']!='preonly' or s['linear']['pc']!='lu' or linear['ksp'] not in ('fgmres','pipefgmres') or linear['pc']=='lu':
                 raise ValueError('Independent algorithms required')
             meshes=[read_mesh(d/(n+'.msh')) for n in ('fluid','solid')]
+            start=row.get('start_step',0)
+            if start:
+                prior=json.loads((Path(row['prefix_segments'][-1]['directory'])/'window.json').read_text())
+                if prior['reference_receipt']!=r['prefix_receipt']:
+                    raise ValueError('Independent continuation prefixes differ')
             result['comparison']=compare_trajectories(d,p,row['steps'],meshes,(row['ranks'],r['ranks']),
-                                                       select('CALIBRATED-v2',row['profile']))
+                                                       select('CALIBRATED-v2',row['profile']),starts=(start,start))
             result.update(status='independent_pair_passed',reference=s['run'],reference_window_sha256=s['window_sha256'])
             s['status']='independent_pair_passed'
             s.setdefault('independent_windows',[]).append(result['window_sha256'])

@@ -9,6 +9,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 from resource_accounting import formal_resources, resource_hours
+from scale_c import read_bindings
 
 from tube_protocol import (BLOCKS, HERE, audit_corrections, audit_row, budget, compare_face_history,
                            full_field_differences, output_manifest, select, solver_options)
@@ -26,11 +27,11 @@ def correction(policy, step=1, newton=1, eta=None, rhs=1., norm=0.):
     return row
 
 
-def synthetic_log(policy, counts):
+def synthetic_log(policy, counts, start_step=0):
     def line(marker, data):
         return marker + ' '.join(f'{k}={v}' for k,v in data.items())
     lines = []
-    for step,count in enumerate(counts,1):
+    for step,count in enumerate(counts,start_step+1):
         for i in range(1,count+1):
             row=correction(policy,step,i,eta=.1 if i==1 else .5,norm=.01)
             row.update(wide_norm=.01,backward_error=.001)
@@ -62,6 +63,15 @@ def synthetic_log(policy, counts):
 
 
 class ProtocolChecks(unittest.TestCase):
+    def test_physical_core_bindings(self):
+        log='[node:123] MCW rank 0 bound to socket 0[core 0[hwt 0]]: [B]\n'
+        other='[node:123] MCW rank 1 bound to socket 1[core 0[hwt 0]]: [B]\n'
+        self.assertEqual(read_bindings(log+other,2)['1'],[1,0,0])
+        for invalid in (log,log+log,log+other.replace('socket 1','socket 0'),
+                        log+other.replace(']]:',']], socket 1[core 1[hwt 0]]:')):
+            with self.assertRaises(ValueError):
+                read_bindings(invalid,2)
+
     def test_exclusive_allocation_and_diagnostic_separation(self):
         hours = resource_hours(4,'128(x1)',900.)
         self.assertEqual((hours['active_rank_hours'],hours['allocated_core_hours']),(1.,32.))
@@ -123,6 +133,11 @@ class ProtocolChecks(unittest.TestCase):
             empty=audit_corrections(folder,2,1,p)
             self.assertEqual(empty['corrections'],0)
             self.assertIsNone(empty['max_ratio'])
+            tail,_=synthetic_log(p,[2,1],4)
+            write_log(tail)
+            self.assertEqual(audit_corrections(folder,6,1,p,4)['corrections'],3)
+            with self.assertRaises(ValueError):
+                audit_corrections(folder,6,1,p)
             for bad in (good.replace('linear_started=2','linear_started=1'),
                         good.replace('ksp_reason=2','ksp_reason=-2',1),
                         good.replace('accepted=1','accepted=0',1),

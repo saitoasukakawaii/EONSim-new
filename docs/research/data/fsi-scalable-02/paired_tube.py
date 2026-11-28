@@ -130,23 +130,26 @@ def run(folder, command, receipt, limit, rss_limit=8*2**30):
             stream.flush(); receipt['log_sha256']=digest(folder/'solve.log'); save(folder/'run.json',receipt)
 
 
-def physical(folder, solver, meshes, steps, ranks=1, *, write=True):
+def physical(folder, solver, meshes, steps, ranks=1, *, write=True, start_step=0):
+    if not 0 <= start_step < steps or (start_step and solver!='eon'):
+        raise ValueError('Invalid physical observation window')
+    stem='tube' if not start_step else f'tube_restart{start_step}'
     log=(folder/'solve.log').read_text(errors='replace')
     if solver=='eon':
         rows=re.findall(r'^fsi_step=(\d+) .*? residual=([^ ]+) ',log,re.M)
-        if [int(s) for s,_ in rows]!=list(range(1,steps+1)) or 'status=success' not in log:
+        if [int(s) for s,_ in rows]!=list(range(start_step+1,steps+1)) or 'status=success' not in log:
             raise ValueError('Missing EONSim accepted step or success marker')
         residuals=[float(v) for _,v in rows]
         if not all(map(math.isfinite,residuals)): raise ValueError('Nonfinite EONSim residual')
         convergence={'maximum_accepted_residual':max(residuals)}
-        with (folder/'tube.csv').open() as stream: history=list(csv.DictReader(stream))
+        with (folder/(stem+'.csv')).open() as stream: history=list(csv.DictReader(stream))
     else:
         outputs=folder/f'{ranks}-procs'
         history=[list(map(float,row.split())) for row in (outputs/'RCR.dat').read_text().splitlines()]
         convergence={eq:check_convergence((outputs/'histor.dat').read_text(),steps,eq) for eq in ('FS','MS')}
-    if len(history)!=steps: raise ValueError('Incomplete terminal history')
+    if len(history)!=steps-start_step: raise ValueError('Incomplete terminal history')
     terminal=0.; capacitor=0.; oldq=0.
-    for step, row in enumerate(history,1):
+    for step, row in enumerate(history,start_step+1):
         if solver=='eon':
             if int(row['step'])!=step or abs(float(row['time'])-step*DT)>1e-10: raise ValueError('Time mismatch')
             q,pc,pout,rate=[float(row['stage_'+name]) for name in ('rcr_flow','capacitor_pressure','rcr_pressure','capacitor_rate')]
@@ -165,9 +168,9 @@ def physical(folder, solver, meshes, steps, ranks=1, *, write=True):
     for mesh,tag in zip(meshes,(3,13)):
         interface.append({mesh[0][node]:node for face,triangle in mesh[2] if face==tag for node in triangle})
     if not interface[0] or interface[0].keys()!=interface[1].keys(): raise ValueError('Interface identity mismatch')
-    for step in range(4,steps+1,4):
+    for step in range(start_step//4*4+4,steps+1,4):
         if solver=='eon':
-            states=[recovered_state(folder,f'tube_step{step}'+suffix,mesh,bool(i),ranks) for i,(suffix,mesh) in enumerate(zip(('','_solid'),meshes))]
+            states=[recovered_state(folder,f'{stem}_step{step}'+suffix,mesh,bool(i),ranks) for i,(suffix,mesh) in enumerate(zip(('','_solid'),meshes))]
         else: states=wall.external_fields(outputs/f'result_{step:03d}.vtu',meshes)
         ports=audit.observe(audit.array(states[0]),0.,.004)
         flow=[4*ports[tag]['outward_flow']/PEAK for tag in (1,2,3)]

@@ -167,7 +167,7 @@ def audit_row(row, policy, previous=None):
     return norm / threshold if threshold else 0.
 
 
-def audit_corrections(folder, steps, ranks, policy):
+def audit_corrections(folder, steps, ranks, policy, start_step=0):
     """Audit actual settings against the independently supplied, pre-run selection."""
     if select(policy['protocol_id'], policy['profile']) != policy:
         raise ValueError('Declaration differs from frozen protocol')
@@ -177,13 +177,14 @@ def audit_corrections(folder, steps, ranks, policy):
     rows = records(lines, 'linear_residual ')
     fields = records(lines, 'linear_field_residual ')
     finals = records(lines, 'field_residual ')
-    if (len(reports) != steps or len(states) != steps or len(fields) != 4*len(rows)
-            or len(finals) != 4*steps or 'status=success' not in lines
+    length=steps-start_step
+    if (not 0<=start_step<steps or len(reports) != length or len(states) != length or len(fields) != 4*len(rows)
+            or len(finals) != 4*length or 'status=success' not in lines
             or any(line.startswith(('linear_iteration_limit', 'linear_residual_unavailable')) for line in lines)):
         raise ValueError('Incomplete trajectory, failed correction or missing nonlinear acceptance')
     case = json.loads((folder / 'case.json').read_text())
     ratios, corrections, offset = [], [], 0
-    for step, (s, report) in enumerate(zip(states, reports), 1):
+    for step, (s, report) in enumerate(zip(states, reports), start_step+1):
         count = int(s['snes_iterations'])
         if (int(s['fsi_step']) != step or int(report['step']) != step or int(report['attempt']) != 1
                 or report['protocol_hash'] != policy['hash'] or finite(s, 'residual') < 0 or int(report['ranks']) != ranks
@@ -208,7 +209,7 @@ def audit_corrections(folder, steps, ranks, policy):
             expected_pc='fieldsplit'
         if expected_pc and report['pc']!=expected_pc:
             raise ValueError('Instantiated outer PC differs from invocation')
-        final = finals[(step-1)*4:step*4]
+        final = finals[(step-start_step-1)*4:(step-start_step)*4]
         if {f['name'] for f in final} != BLOCKS or any(int(f['accepted']) != 1 for f in final):
             raise ValueError(f'Unaccepted nonlinear field or constraint at step {step}')
         for f in final:
@@ -308,8 +309,12 @@ def budget(policy, quantity):
     return b['absolute'] + b['relative'] * b['scale']
 
 
-def pressure_face_history(folder, accepted, tags):
-    with (folder/'tube_pressure_faces.csv').open() as stream:
+def tube_stem(start_step):
+    return 'tube' if not start_step else f'tube_restart{start_step}'
+
+
+def pressure_face_history(folder, accepted, tags, start_step=0):
+    with (folder/(tube_stem(start_step)+'_pressure_faces.csv')).open() as stream:
         rows = [{k:finite(r,k) for k in r} for r in csv.DictReader(stream)]
     index = {(r['step'],r['tag']):r for r in rows}
     expected = {(r['step'],tag) for r in accepted for tag in tags}
@@ -323,14 +328,16 @@ def pressure_face_history(folder, accepted, tags):
     return index
 
 
-def compare_face_history(candidate, reference, histories, policy):
+def compare_face_history(candidate, reference, histories, policy, starts=(0,0)):
     case = json.loads((candidate/'case.json').read_text())['fsi']
     if not case.get('pressure_face_history',False):
         return {}
     tags = case['domains']['pressure_tags']
-    groups = [pressure_face_history(d,h,tags) for d,h in zip((candidate,reference),histories)]
+    groups = [pressure_face_history(d,h,tags,start) for d,h,start in zip((candidate,reference),histories,starts)]
     maximum = {}
     for key in groups[0]:
+        if key[0]<=max(starts):
+            continue
         x,y = (g[key] for g in groups)
         for phase in ('stage','endpoint'):
             for column,quantity in [('area','area'),('mean_pressure','pressure'),('mean_normal_traction','pressure'),
@@ -345,25 +352,26 @@ def compare_face_history(candidate, reference, histories, policy):
 
 
 
-def output_manifest(folder, steps, ranks):
+def output_manifest(folder, steps, ranks, start_step=0):
     """Verify the PVD → PVTU → physical VTU chain and bind all saved fields to the receipt."""
     import xml.etree.ElementTree as ET
     from paired_tube import digest
     cfg=json.loads((folder/'case.json').read_text())['fsi']
     if cfg['steps']!=steps or cfg['output_interval']!=4 or cfg['dt']!=1/32:
         raise ValueError('Unexpected saved-field schedule')
-    phases=sorted(set(range(4,steps+1,4))|{steps})
-    result={'phase_hashes':{},'indices':{},'history':{'tube.csv':digest(folder/'tube.csv')}}
+    name=tube_stem(start_step)
+    phases=sorted(set(range(start_step//4*4+4,steps+1,4))|{steps})
+    result={'phase_hashes':{},'indices':{},'history':{name+'.csv':digest(folder/(name+'.csv'))}}
     if cfg.get('pressure_face_history'):
-        result['history']['tube_pressure_faces.csv']=digest(folder/'tube_pressure_faces.csv')
+        result['history'][name+'_pressure_faces.csv']=digest(folder/(name+'_pressure_faces.csv'))
     for domain,suffix in [('fluid',''),('solid','_solid')]:
-        pvd=folder/('tube'+suffix+'.pvd')
+        pvd=folder/(name+suffix+'.pvd')
         result['indices'][pvd.name]=digest(pvd)
         datasets=ET.parse(pvd).findall('./Collection/DataSet')
         if len(datasets)!=len(phases):
             raise ValueError(f'Missing or extra {domain} output phases')
         for step,entry in zip(phases,datasets):
-            stem=f'tube_step{step}'+suffix
+            stem=f'{name}_step{step}'+suffix
             ext='.pvtu' if ranks>1 else '.vtu'
             if entry.attrib['file']!=stem+ext or float(entry.attrib['timestep'])!=step/32:
                 raise ValueError(f'Incorrect {domain} output phase {step}')
@@ -388,15 +396,16 @@ def output_manifest(folder, steps, ranks):
     return result
 
 
-def full_field_differences(candidate,reference,steps,ranks,policy):
+def full_field_differences(candidate,reference,steps,ranks,policy,starts=(0,0)):
     import benchmark_fsi_assembly as assembly
     spec_file=HERE/'output-fields-v2.1.json'
     spec=json.loads(spec_file.read_text())
     omega=2*math.pi/spec['period_seconds']
     required={(domain,name) for domain,fields in spec['regions'].items() for name in fields}
     phases=[]
-    for step in range(4,steps+1,4):
-        fields=[assembly.physical_fields(d/f'tube_step{step}.vtu',n) for d,n in zip((candidate,reference),ranks)]
+    for step in range(max(starts)//4*4+4,steps+1,4):
+        fields=[assembly.physical_fields(d/f'{tube_stem(start)}_step{step}.vtu',n)
+                for d,n,start in zip((candidate,reference),ranks,starts)]
         if fields[0].keys()!=fields[1].keys():
             raise ValueError(f'Physical field node coverage differs at step {step}')
         stats={}
@@ -426,27 +435,34 @@ def full_field_differences(candidate,reference,steps,ranks,policy):
         phases.append(phase)
     return phases,hashlib.sha256(spec_file.read_bytes()).hexdigest()
 
-def compare_trajectories(candidate, reference, steps, meshes, ranks, policy):
+def compare_trajectories(candidate, reference, steps, meshes, ranks, policy, starts=(0,0)):
     """Complete physical comparison; correction audits and algorithm independence are separate prerequisites."""
     import sys
     sys.path.insert(0,str(HERE.parent/'fsi-scalable-02'))
     from paired_tube import compare, digest, physical, DT
     from internal_tube import compare_states
     import benchmark_fsi_assembly as assembly
-    if steps <= 0 or steps % 4:
+    if steps <= 0 or steps % 4 or min(starts)<0 or max(starts)>=steps or any(s%4 for s in starts):
         raise ValueError('Trajectory qualification requires complete four-step output phases')
     for name in ('case.json','fluid.msh','solid.msh'):
         if digest(candidate/name) != digest(reference/name):
             raise ValueError(f'Different physical inputs: {name}')
-    histories = [assembly.history(d/'tube.csv',steps,DT) for d in (candidate,reference)]
-    observed = [physical(d,'eon',meshes,steps,n,write=False) for d,n in zip((candidate,reference),ranks)]
+    if any(starts) and policy['protocol_id']!='CALIBRATED-v2':
+        raise ValueError('Segmented comparisons require the versioned field budgets')
+    histories = [assembly.history(d/(tube_stem(start)+'.csv'),steps,DT,start)
+                 for d,start in zip((candidate,reference),starts)]
+    observed = [physical(d,'eon',meshes,steps,n,write=False,start_step=start)
+                for d,n,start in zip((candidate,reference),ranks,starts)]
+    for state in observed:
+        state['trace']=[r for r in state['trace'] if r['step']>max(starts)]
     gates = compare(*observed)
     if not all(math.isfinite(v) and 0 <= v <= 1 for v in gates.values()):
         raise ValueError(f'Frozen physical constraint failed: {gates}')
     if policy['protocol_id'] == 'STRICT-v1':
         return dict(physical_gates=gates, history_difference=assembly.compare_history(*histories),
                     field_difference=compare_states(candidate,reference,steps,meshes,ranks=ranks))
-    faces = compare_face_history(candidate,reference,histories,policy)
+    faces = compare_face_history(candidate,reference,histories,policy,starts)
+    histories=[[r for r in history if r['step']>max(starts)] for history in histories]
     obs_budget = policy['document']['internal_observables']
     history_max, observable_max = {}, {}
     for x,y in zip(*histories):
@@ -468,7 +484,7 @@ def compare_trajectories(candidate, reference, steps, meshes, ranks, policy):
             observable_max[key] = max(observable_max.get(key,0),delta)
             if delta > limit:
                 raise ValueError(f'Observable step {a["step"]}, {key}: {delta} > {limit}')
-    field_phases,field_spec_hash=full_field_differences(candidate,reference,steps,ranks,policy)
+    field_phases,field_spec_hash=full_field_differences(candidate,reference,steps,ranks,policy,starts)
     return dict(protocol_hash=policy['hash'], physical_gates=gates, physical=observed, pressure_face_differences=faces,
                 history_maximum_difference=history_max, observable_maximum_difference=observable_max,
                 full_field_differences=field_phases, output_field_budget_sha256=field_spec_hash)
