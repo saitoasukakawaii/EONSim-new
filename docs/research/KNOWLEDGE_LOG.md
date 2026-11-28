@@ -1,5 +1,7 @@
 # EONSim Knowledge Log
 
+2026-11-28，从已通信的 RHS、rank-local 稀疏贡献与原生 Dirichlet 权重重建 svFSI 第四次 MS，比较 owner 与真实副本向量的原方程残量，并用原 RCS 矩阵验证单副本 CG。[方法与数据](data/fsi-scalable-05/native-ms.md)
+
 2026-11-28，[单 owner GAMG 粗层的真实管配对](../../website/drafts/arterial-first-correction-and-coarse-communicator.md#真实管的四个粗求解器)补充 B20 的实际行所有权、粗层 GMRES 精度和独立等精度计时。
 
 [同一真实管上两条通信路径的限定比较](../../website/drafts/arterial-first-correction-and-coarse-communicator.md#同一真实管上的两种通信测量)记录 A20 的两组基线、实际调用次数和最快的合格配置。

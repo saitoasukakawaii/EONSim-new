@@ -1,5 +1,7 @@
 # EONSim Codex Development Progress
 
+svFSI 作业 527/545/555 已重建第四次 MS 的原式、约束和实际返回向量，并用 797 次单副本 CG 核对相同 RCS 方程。外部配对仍缺少合格的 B20 轨迹。[原始收据](../research/data/fsi-scalable-05/native-ms.md)
+
 真实管 B20 在 32 MPI 上保持固定容差并缩减四个 GAMG 粗层，三对正式样本的 T_job 中位数从 53.264 s 降至 37.275 s。[样本与核验](FSI_SCALABLE_05.md#固定精度的真实管-gamg-粗层通信)
 
 A20 的两组通信正式时间均独立核过相同 LU。physics/Telescope 从 2.321 s 降至 1.806 s，整体 MG 的 owner 本地读写从 6.334 s 降至 2.974 s。[真实管通信比较](FSI_SCALABLE_05.md#a20-的两种通信比较)
