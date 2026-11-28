@@ -1,5 +1,7 @@
 # EONSim Codex Development Progress
 
+FSI-SCALABLE-04 从 #71 推进到原式 LU 精化、现场 B/C 布局复核和独立参考门槛。A4 有严格直接参考，B 首次 Newton 校正仍失败。[数值与性能资格](FSI_SCALABLE_04.md)
+
 FSI-SCALABLE-03 已核验 A 的并行内部筛选、A 的 32/100 步外部回归和合成粗层进程数对照。B 的 20 步直接解在新增逐校正复核中未过严格线性门槛；C 的首次失败已重放并保存原系统。[结果与开放范围](FSI_SCALABLE_03.md)
 
 2026-11-27，FSI-SCALABLE-02。原版 FSILS 的两档 GMRES 配置均通过小型脉动弹性管的启动、100 步及完整 1 s 周期。32 和 128 rank 的 PETSc 分层剖析完成，粗层代价随 rank 增长。见[原始数据及对标报告](FSI_SCALABLE_02.md)。

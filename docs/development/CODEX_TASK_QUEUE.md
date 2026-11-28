@@ -1,5 +1,7 @@
 # EONSim Codex Task Queue
 
+FSI-SCALABLE-04 待解项为结构内部关联舍入的可达性、B 的严格参考与 C 的真实轨迹。首系统回放已有按块量化及原式残量证据。[数据与复跑](FSI_SCALABLE_04.md)
+
 FSI-SCALABLE-03 继续跟踪 B 首校正的结构块误差、C 的独立 20/32/100 步、B/C 原版对标、物理网格强扩展及七周期资格。B/C 的原始矩阵、右端、行映射和校验值见[第三阶段收据](FSI_SCALABLE_03.md)。
 
 FSI-SCALABLE-02 位于 [#70](https://github.com/saitoasukakawaii/EONSim-new/pull/70)。小管外部对照已有资格。跟踪 B/C 资格、owner 本地字段消融、粗层归约、固定 rank 迭代增长和强扩展。运行状态与指标见[第二阶段报告](FSI_SCALABLE_02.md)。
