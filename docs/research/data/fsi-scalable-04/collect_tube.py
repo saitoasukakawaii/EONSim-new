@@ -22,6 +22,8 @@ def main():
     cli.add_argument('output', type=Path)
     cli.add_argument('production_commit')
     cli.add_argument('--screens', nargs=2, required=True)
+    cli.add_argument('--production-runs',nargs=2,required=True)
+    cli.add_argument('--release',required=True,type=Path)
     a = cli.parse_args()
     root = a.root.resolve()
     src = Path(__file__).resolve().parents[4]
@@ -41,7 +43,7 @@ def main():
     def git(*args):
         return subprocess.check_output(['git',*args], cwd=src, text=True).strip()
 
-    compiled = root/'release'
+    compiled = a.release.resolve()
     build = compiled/'build/release'
     verified = {}
     for line in git('ls-tree','-r',a.production_commit,'--','src','include').splitlines():
@@ -58,13 +60,13 @@ def main():
                            ['scontrol','show','node'],text=True),cache=identify(build/'CMakeCache.txt'))
     (out/'environment.json').write_text(json.dumps(environment,indent=2)+'\n')
     report = {}
-    for name in ('B-refine','B-polish','B-block','B-layout','C-layout'):
+    for name in ('B-refine','B-polish','B-block','B-layout','C-layout','B-returned'):
         report[name] = read(root/(name+'.json'))
     for p in root.glob('*.petsc'):
         identify(p)
     for p in root.glob('*.log'):
         identify(p)
-    for name in ['A4-checked','B32-checked','native-B850',*a.screens]:
+    for name in [*a.production_runs,'native-B850',*a.screens]:
         folder = root/name
         for file in folder.rglob('*'):
             if file.is_file():

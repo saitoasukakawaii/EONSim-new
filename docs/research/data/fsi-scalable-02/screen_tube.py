@@ -154,7 +154,7 @@ def main():
                     if previous.get('exit_code') != 0:
                         raise ValueError(f"Direct reference replay exited {previous.get('exit_code')}: {ref/'solve.log'}")
                     if (previous['log_sha256'] != digest(ref/'solve.log')
-                            or previous.get('binary_sha256') != digest(binary)
+                            or previous.get('binary_sha256',previous.get('binary')) != digest(binary)
                             or any(digest(ref/n) != sha for n,sha in inputs.items())):
                         raise ValueError('Direct replay binary, inputs or log do not match')
                     record['log_sha256'] = previous['log_sha256']
@@ -170,15 +170,22 @@ def main():
                     ref.mkdir()
                     for n in inputs:
                         shutil.copyfile(source/n,ref/n)
+                    if ranks > 1:
+                        record['partition'] = results['prepare']['pieces']
                     run(ref,launcher+[str(binary),'-case','case.json']+part+
                         ['-ksp_type','preonly','-pc_type','lu','-pc_factor_mat_solver_type','superlu_dist',
                          '-linear_report','-solver_report'],record,args.timeout,140*2**30 if ranks>1 else 8*2**30)
                 record['linear_audit'] = audit_corrections(ref,steps,ranks)
                 if (record['linear_audit']['ksp'],record['linear_audit']['pc']) != ('preonly','lu'):
                     raise ValueError('Replay is not the requested direct reference')
-                record['archive_history_difference'] = assembly.compare_history(
-                    assembly.history(archived/'tube.csv',steps,DT),assembly.history(ref/'tube.csv',steps,DT))
-                record['archive_field_difference'] = compare_states(ref,archived,steps,meshes,ranks=(ranks,archived_ranks))
+                # Historical trajectories without a strict linear audit provide
+                # context only. Qualify candidates against the audited replay.
+                try:
+                    record['archive_history_difference'] = assembly.compare_history(
+                        assembly.history(archived/'tube.csv',steps,DT),assembly.history(ref/'tube.csv',steps,DT))
+                    record['archive_field_difference'] = compare_states(ref,archived,steps,meshes,ranks=(ranks,archived_ranks))
+                except (ValueError,RuntimeError,OSError) as error:
+                    record['historical_comparison_error'] = str(error)
             else:
                 results['reference']['linear_audit'] = audit_corrections(ref,steps,ref_ranks)
         baseline = physical(ref,'eon',meshes,steps,ref_ranks,write=False)
@@ -203,11 +210,13 @@ def main():
                     raise ValueError('Frozen physical budget exceeded')
                 row['history_difference'] = assembly.compare_history(history,assembly.history(folder/'tube.csv',steps,DT))
                 row['field_difference'] = compare_states(folder,ref,steps,meshes,ranks=(ranks,ref_ranks))
-                row['status'] = 'passed'
+                self_comparison = mode == 'direct' and not args.new_reference
+                row['status'] = 'diagnostic_same_solver' if self_comparison else 'passed'
             except Exception as error:
                 row.update(status='failed', error=str(error))
             save(root/'summary.json',results)
-        results['passed'] = all(row['status']=='passed' for row in results['runs'])
+        eligible = [row for row in results['runs'] if row['status']!='diagnostic_same_solver']
+        results['passed'] = bool(eligible) and all(row['status']=='passed' for row in eligible)
     except Exception as error:
         results['error'] = str(error)
         raise

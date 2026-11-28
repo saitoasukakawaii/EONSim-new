@@ -158,6 +158,25 @@ void verify(MPI_Comm comm)
             failed=std::string(error.what()).find("LU refinement failed the original equation")!=std::string::npos;
         }
         require(failed,"Rounded direct correction bypassed the explicit original-equation gate");
+        if(ranks==2) {
+            AlgebraLayout empty;
+            empty.global=2; empty.owned=rank==0?2:0; empty.begin=rank==0?0:2;
+            empty.local_to_global={0,1};
+            empty.fields["state"]=rank==0?std::vector<PetscInt>{0,1}:std::vector<PetscInt>{};
+            empty.diagonal.assign(empty.owned,2); empty.off_diagonal.assign(empty.owned,0);
+            NonlinearSystem two(comm,empty);
+            const auto rows=[&](const std::vector<double>& x,Vec r,Mat j) {
+                if(rank!=0) return;
+                const PetscInt ids[]={0,1};
+                const double entries[]={3,1,1,7};
+                const double res[]={3*x[0]+x[1]-5,x[0]+7*x[1]-15};
+                EONSIM_PETSC(VecSetValues(r,2,ids,res,ADD_VALUES));
+                if(j) EONSIM_PETSC(MatSetValues(j,2,ids,2,ids,entries,ADD_VALUES));
+            };
+            SolverConfig small;
+            const auto result=two.solve(small,{0,0},{},{},rows);
+            require(result.values[0]==1&&result.values[1]==2,"Empty owner changed an original-equation solve");
+        }
         for(const char* option:{"-linear_lu_refinement_steps","-linear_lu_refinement_rtol","-linear_lu_refinement_atol"})
             EONSIM_PETSC(PetscOptionsClearValue(nullptr,option));
     }

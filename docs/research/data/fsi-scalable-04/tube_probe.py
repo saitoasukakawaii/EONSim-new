@@ -61,6 +61,9 @@ def main():
                 '-pc_factor_mat_solver_type','superlu_dist','-linear_lu_refinement_rtol','1e-10',
                 '-linear_lu_refinement_atol','1e-23',
                 '-linear_lu_refinement_steps','5','-linear_report','-solver_report','-options_view']
+        if args.mode == 'B32':
+            cmd += ['-ksp_view_mat','binary:operator.petsc','-ksp_view_rhs','binary:rhs.petsc',
+                    '-ksp_view_solution','binary:iterate.petsc']
     info['inputs'] = {p.name:digest(p) for p in out.iterdir()}
     save(out/'probe.json',info)
     run(out,cmd,info,780 if args.mode == 'native' else 300,140*2**30)
