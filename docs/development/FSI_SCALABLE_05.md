@@ -228,3 +228,46 @@ sbatch -n4 -t 00:24:00 "$data/run_case.sh" A --timing \
   "$FSI05_ROOT/recheck-A20-owner-off" "$FSI05_ROOT/recheck-A20-owner-on" \
   "$root/A20-lu" "$exe" "$FSI05_ROOT/recheck-A20-owner-pairs" --change owner
 ```
+
+## C20 的纯 MPI 强扩展
+
+在作业 525/526 已独立验证同一 C64 窗口后，537/538 分别对原始 C 网格生成 32 和 128 份新分区。采用同一个 `CALIBRATED-v2/fixed-1e-6`、physics 配置、Release 二进制和 64-rank LU 参考。每个布局冷启动一次，实际绑定逐 rank 核实为一个独占物理核，OpenMP 和 BLAS 各设一个线程。20 步历史、五个保存相位的全部节点场、质量、界面及 RCR 均通过。32/128 rank 的分区准备分别为 6.023/6.087 s，单列于求解 T_job 之外。64 rank 沿用已归档分区。[独立参考及 64-rank 原件](../research/data/fsi-scalable-05/c20/run-receipts.json.gz)
+
+| MPI rank | 作业 | T_job（s） | T32/Tn | 相对 32 rank 效率 | Newton / KSP | 峰值 RSS（GiB） | 活跃 rank-hours | 分配 core-hours |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 32 | 537 | 928.545 | 1.000 | 100.00% | 40 / 6779 | 10.558 | 8.254 | 33.015 |
+| 64 | 526 | 630.015 | 1.474 | 73.69% | 40 / 6762 | 10.675 | 11.200 | 22.401 |
+| 128 | 538 | 460.145 | 2.018 | 50.45% | 40 / 6842 | 13.518 | 16.361 | 16.361 |
+
+效率为 $(T_{32}/T_n)/(n/32)$。三次诊断都独占整台 128 核节点，所以将求解耗时乘以 128 计算分配核时。活跃核时则乘以实际 MPI 数。32、64、128 rank 的压力场相对同一 LU 的局部最大差分别为 4.709e-9、6.746e-9、5.926e-9 Pa。窗口包含相同的原式诊断、场输出与原生 checkpoint。完整场文件、运行前的分区 SHA、实际绑核记录和原始求解器输出保留在服务器。归档汇总包含新分区的独立原件索引与逐窗收据。[尺度汇总](../research/data/fsi-scalable-05/c20-scaling/strong-scaling.json) · [原件 SHA-256](../research/data/fsi-scalable-05/c20-scaling/log-index.json.gz)
+
+跨分区的参考界面面积从流体网格中 13,824 个原始三角面独立求和，得到 0.0018848714833712772 m²。冻结的 32 与 128 rank 绝对核验界限分别为 5.826e-15 和 5.853e-15 m²。每个布局的原方程、不同分区下的完整保存场和历史都按既有容差核验。这些数值来自每种布局一次冷启动。通信选项的正式三对计时另行报告。[完整场、历史及几何收据](../research/data/fsi-scalable-05/c20-scaling/run-receipts.json.gz)
+
+现场复跑使用作业 466 的编译提交、同源二进制和具备这份源码对象的独立 checkout。原两份窗口的脚本为 `8fbc63546`，64-rank 基线取作业 526。使用新的输出目录保留原记录。
+
+```bash
+root="$HOME/workspace/fsi-scalable-05-runs"
+export FSI05_ROOT="$HOME/workspace/fsi-scalable-05-telescope/representative"
+data="$FSI05_ROOT/source/docs/research/data/fsi-scalable-05"
+exe="$root/build/eonsim"
+for ranks in 32 128; do
+  if [ "$ranks" = 32 ]; then wall=00:36:00; limit=1800; else wall=00:26:00; limit=1200; fi
+  sbatch -n "$ranks" -t "$wall" "$data/run_case.sh" C 20 fixed-1e-6 "$exe" \
+    "$root/recheck-C20-r$ranks" --limit "$limit" --scaling-from "$root/C20-fixed-1e-6" \
+    --reference "$root/C20-lu-180"
+done
+# 两个新窗口取得独立资格后，使用本提交的汇总入口。
+python docs/research/data/fsi-scalable-05/summarize_scaling.py "$root/C20-lu-180" \
+  "$root/recheck-C20-r32" "$root/C20-fixed-1e-6" "$root/recheck-C20-r128"
+```
+
+## C20 的等核混合布局
+
+作业 541 保留 C20 物理和冻结容差，将 128 个物理核分配给 64 个 MPI rank，每个 rank 运行两个实际 OpenMP worker。Release 二进制使用现有 FSI 装配的 `-fsi_threads 2` 实现。OpenMP 启用核绑定，关闭动态线程调整，BLAS 各用一个线程。按进程输出的亲和记录核对了 64 份两核 MPI 掩码以及全部 128 个 worker 的物理核映射，且各组互不重叠。分区沿用原 C64，直接参考仍为作业 525。作业 541 绑定的 128×1 对照是作业 538，原收据 SHA-256 为 `7fc898a4439c62ea384fee0f71442877d7be05d55dc24e1b6a98a9b10798be32`。[两核 worker 与实际亲和记录](../research/data/fsi-scalable-05/c20-hybrid/run-receipts.json.gz)
+
+| 布局 | 作业 | T_job（s） | Newton / KSP | 进程树峰值（GiB） | 活跃 rank-hours | 活跃物理核及分配 core-hours |
+|---|---:|---:|---:|---:|---:|---:|
+| 128 MPI × 1 线程 | 538 | 460.145 | 40 / 6842 | 13.518 | 16.361 | 16.361 |
+| 64 MPI × 2 线程 | 541 | 432.632 | 40 / 6787 | 10.713 | 7.691 | 15.382 |
+
+这是同核数下每种布局一次冷启动诊断。混合布局在这两个样本中用时缩短 5.98%，两者时间比为 1.0636。它包含分区数和装配线程安排的共同变化。两侧均核验全部原校正、20 步历史和五个保存相位，混合布局的压力、流体速度、壁位移和网格位移最大差分别为 5.118e-9 Pa、3.065e-12 m/s、4.096e-17 m 和 1.413e-15 m。作业 541 的运行脚本提交为 `cdbe3e96d`，沿用作业 466 的二进制与编译源码。[混合布局原件索引](../research/data/fsi-scalable-05/c20-hybrid/log-index.json.gz)
