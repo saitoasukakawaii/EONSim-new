@@ -115,6 +115,7 @@ def audit_row(row, policy, previous=None):
     inexact = policy['mode'] == 'inexact'
     if (row['protocol_hash'] != policy['hash'] or finite(row, 'roundoff_slack') != 0
             or int(row['forcing']) != int(inexact) or int(row['ksp_reason']) <= 0
+            or (policy['mode']!='lu' and int(row['ksp_reason'])==4)
             or int(row['ksp_iterations']) < 0 or finite(row, 'linear_seconds') < 0
             or int(row['nonzero_guess']) not in (0, 1) or min(rhs, norm) < 0
             or atol != policy['atol'] or finite(row, 'base_rtol') != policy['rtol']):
@@ -177,7 +178,7 @@ def audit_corrections(folder, steps, ranks, policy):
                 raise ValueError(f'{reported} differs from frozen case at step {step}')
         if finite(report,'snes_stol') != 0:
             raise ValueError('Unexpected SNES step tolerance')
-        if (report['linesearch'] not in ('bt','basic') or not 0 < finite(report,'final_lambda') <= 1
+        if (report['linesearch'] not in ('bt','basic') or (count and not 0 < finite(report,'final_lambda') <= 1)
                 or int(report['matrix_free']) != 0 or int(report['pc_rebuild_retries']) != 0
                 or int(report['inexact_linear_solves']) != (count if policy['mode']=='inexact' else 0)):
             raise ValueError('Effective nonlinear solver differs from the frozen run')
@@ -208,6 +209,9 @@ def audit_corrections(folder, steps, ranks, policy):
         step_rows = rows[offset:offset+count]
         if len(step_rows) != count:
             raise ValueError('Missing correction')
+        if (sum(int(row['ksp_iterations']) for row in step_rows) != int(report['linear_iterations'])
+                or (count and step_rows[-1]['ksp_reason'] != report['ksp_reason'])):
+            raise ValueError('KSP work or final reason disagrees with step summary')
         previous = None
         for i,row in enumerate(step_rows,1):
             if (int(row['step']),int(row['newton']),int(row['solve']),int(row['attempt']),int(row['pc_attempt'])) != (step,i,i,1,1):
@@ -225,11 +229,19 @@ def audit_corrections(folder, steps, ranks, policy):
                 n_eq, n_bc = int(field['equation_rows']), int(field['constraint_rows'])
                 if n_eq < 0 or n_bc < 0 or n_eq + n_bc <= 0:
                     raise ValueError('Invalid global field coverage')
+                matching = next(f for f in final if f['name']==field['name'])
+                for key in ('constraint_scale','residual_scale'):
+                    if not math.isclose(finite(field,key),finite(matching,key),rel_tol=1e-15):
+                        raise ValueError('Linear field scale differs from nonlinear layout')
                 field['equation_l2'] = finite(field,'rms') * finite(field,'residual_scale') * math.sqrt(n_eq)
                 field['constraint_physical_max'] = finite(field,'constraint_max') * finite(field,'constraint_scale')
+            if sum(int(f['equation_rows'])+int(f['constraint_rows']) for f in blocks) != int(report['dofs']):
+                raise ValueError('Linear residual blocks do not cover the system')
             for k in ('wide_norm','backward_error'):
                 if (k in row) != componentwise or (componentwise and finite(row,k)<0):
                     raise ValueError(f'Invalid {k}')
+            if componentwise and policy['mode']=='lu' and finite(row,'wide_norm') > finite(row,'limit'):
+                raise ValueError('Extended residual of the direct reference failed')
             corrections.append(dict(**row, fields=blocks))
             previous = row
         offset += count

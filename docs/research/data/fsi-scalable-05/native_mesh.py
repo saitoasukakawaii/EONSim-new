@@ -1,4 +1,4 @@
-"""Inspect job 438's MS failure or screen one native row/column scaling candidate."""
+"""Inspect job 438's MS failure and screen the native MS and FS solvers separately."""
 import argparse
 import json
 import math
@@ -83,7 +83,7 @@ def history(folder):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode', choices=('inspect','probe'))
+    parser.add_argument('mode', choices=('inspect','probe','probe-bipn'))
     parser.add_argument('output', type=Path)
     args = parser.parse_args()
     old = Path.home()/'workspace/fsi-scalable-04-runs/native-B850'
@@ -125,17 +125,32 @@ def main():
     marker = 'LS type: CG {'
     if text.count(window) != 1 or text.count(marker) != 1:
         raise ValueError('Unexpected native input deck')
-    deck.write_text(text.replace(window,'Number of time steps: 1').replace(marker,marker+'\n      Preconditioner: row-column-scaling'))
+    text = text.replace(window,'Number of time steps: 1').replace(marker,marker+'\n      Preconditioner: row-column-scaling')
+    if args.mode == 'probe-bipn':
+        # The pinned svFSI_master.inp gives a BIPN example for its FSI equation.
+        # Keep both physical equations and their outer/absolute tolerances.
+        if text.count('LS type: GMRES {') != 1 or text.count('Krylov space dimension: 850') != 1:
+            raise ValueError('Unexpected FS block')
+        text = text.replace('LS type: GMRES {','LS type: BIPN {').replace('Krylov space dimension: 850',
+            'Krylov space dimension: 50\n      NS-GM tolerance: 1e-3\n      NS-GM max iterations: 3'
+            '\n      NS-CG tolerance: 1e-3\n      NS-CG max iterations: 500')
+    deck.write_text(text)
+    fs = 'BIPN' if args.mode == 'probe-bipn' else 'GMRES'
+    budget = 120 if fs == 'BIPN' else 360
     report.update(job=job, affinity=sorted(os.sched_getaffinity(0)), inputs={n:digest(root/n) for n in prior['inputs']},
-                  candidate='MS-only FSILS RCS, unchanged CG and FS GMRES(850)',
-                  scope='single-step native linear screen only', limits=dict(seconds=360,rss_bytes=8*2**30))
+                  candidate='MS CG with RCS, FS '+fs, scope='single-step native linear screen only',
+                  limits=dict(seconds=budget,rss_bytes=8*2**30))
     os.environ.update(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
     try:
-        run(root,cmd,report,360,8*2**30)
+        run(root,cmd,report,budget,8*2**30)
         report['native'] = history(root)
         hist = (root/'32-procs/histor.dat').read_text()
-        if ('Using preconditioner: RCS' not in hist or report['native']['completed_rcr_steps'] != 1):
+        if ('Using preconditioner: RCS' not in hist or 'Using linear solver: '+fs not in hist
+                or report['native']['completed_rcr_steps'] != 1):
             raise ValueError('Missing effective MS scaling or incomplete diagnostic window')
+        # NSSOLVER.f can set its reported norm to zero after loss of definiteness.
+        if 'unexpected behavior in FSILS' in (root/'solve.log').read_text(errors='replace'):
+            raise ValueError('Native BIPN reported an invalid residual decomposition')
         report['convergence'] = {eq:check_convergence(hist,1,eq) for eq in ('MS','FS')}
         report['native_linear_screen'] = 'passed'
     except Exception as error:

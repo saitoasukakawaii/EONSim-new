@@ -61,6 +61,10 @@ def main():
     if parts != frozen['partition']:
         raise ValueError('C partition changed')
     exe = args.binary.resolve(strict=True)
+    build_file = exe.parent/'build-receipt.json'
+    build = json.loads(build_file.read_text())
+    if (digest(exe) != build['binary'] or digest(exe.parent/'libeonsim_core.a') != build['archive']):
+        raise ValueError('Release executable or linked archive differs from build receipt')
     root = args.output.resolve()
     root.mkdir(parents=True, exist_ok=False)
     policy = select('CALIBRATED-v2', 'fixed-1e-8')
@@ -79,6 +83,7 @@ def main():
                profile=policy['profile'], protocol_hash=policy['hash'], inputs=frozen['inputs'],
                partition=parts, archive_receipt=digest(case/'diagnosis.json'), job=job,
                source=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+               production_commit=build['source'], build_receipt_sha256=digest(build_file),
                binary_sha256=digest(exe), affinity=sorted(os.sched_getaffinity(0)),
                budget=dict(seconds=420, process_tree_bytes=100*2**30, outer_iterations=500))
     try:

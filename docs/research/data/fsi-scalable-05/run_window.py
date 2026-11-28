@@ -24,6 +24,7 @@ def main():
     cli.add_argument('binary', type=Path)
     cli.add_argument('output', type=Path)
     cli.add_argument('--reference', type=Path)
+    cli.add_argument('--formal', action='store_true', help='omit componentwise and line-search diagnostics')
     cli.add_argument('--limit', type=int, required=True, help='Process-tree wall budget in seconds')
     args = cli.parse_args()
     work = Path.home() / 'workspace'
@@ -48,7 +49,9 @@ def main():
     policy = select('CALIBRATED-v2', args.profile)
     row = dict(case=args.case, steps=args.steps, profile=args.profile, policy=policy,
                source=source, compiled_source=build['source'], binary=build['binary'], job=os.environ['SLURM_JOB_ID'],
-               ranks=ranks, affinity=affinity, limit_seconds=args.limit, rss_limit=140*2**30,
+               ranks=ranks, affinity=affinity, formal=args.formal,
+               allocation=os.getenv('SLURM_JOB_CPUS_PER_NODE'),
+               limit_seconds=args.limit, rss_limit=140*2**30,
                archive_receipt=digest(archived/'run.json'), qualification='open')
     try:
         for name in ('case.json', 'fluid.msh', 'solid.msh'):
@@ -66,7 +69,7 @@ def main():
             save(out/'case.json', config)
         row['inputs'] = {name: digest(out/name) for name in ('case.json', 'fluid.msh', 'solid.msh')}
         recipe = [] if args.profile == 'lu' else options('inner-mgs')
-        policy_flags = solver_options(policy)
+        policy_flags = solver_options(policy, diagnostics=not args.formal)
         # The same outer option must never appear twice in a campaign command.
         for key in ('-ksp_rtol', '-ksp_atol', '-ksp_type', '-ksp_norm_type', '-ksp_pc_side'):
             if key in recipe and key in policy_flags:
@@ -74,8 +77,9 @@ def main():
                 del recipe[pos:pos+2]
         cmd = ['/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/mpiexec', '--map-by', 'core',
                '--bind-to', 'core', '-n', str(ranks), str(binary), '-case', 'case.json',
-               '-partition', str(part), *recipe, *policy_flags, '-snes_monitor',
-               '-snes_linesearch_monitor']
+               '-partition', str(part), *recipe, *policy_flags]
+        if not args.formal:
+            cmd.extend(['-snes_monitor', '-snes_linesearch_monitor'])
         os.environ.update(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
         run(out, cmd, row, args.limit, row['rss_limit'])
         row['linear'] = audit_corrections(out, args.steps, ranks, policy)

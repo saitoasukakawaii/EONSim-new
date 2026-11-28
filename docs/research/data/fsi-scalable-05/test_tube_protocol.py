@@ -21,7 +21,7 @@ def correction(policy, step=1, newton=1, eta=None, rhs=1., norm=0.):
     return row
 
 
-def test_log(policy, counts):
+def synthetic_log(policy, counts):
     def line(marker, data):
         return marker + ' '.join(f'{k}={v}' for k,v in data.items())
     lines = []
@@ -74,7 +74,7 @@ class ProtocolChecks(unittest.TestCase):
         row=correction(adaptive,eta=.1,norm=.05)
         self.assertEqual(audit_row(row,adaptive),.5)
         for key,value in [('requested_rtol',.2),('base_rtol',.01),('eta_gamma',.1),('protocol_hash','bad'),
-                          ('norm',float('nan')),('ksp_reason',-3),('limit',1e10)]:
+                          ('norm',float('nan')),('ksp_reason',-3),('ksp_reason',4),('limit',1e10)]:
             with self.subTest(key=key), self.assertRaises(ValueError):
                 audit_row(dict(row,**{key:value}),adaptive)
 
@@ -92,7 +92,7 @@ class ProtocolChecks(unittest.TestCase):
             folder=Path(tmp)
             (folder/'case.json').write_text(json.dumps({'solver':{}}))
             log=folder/'solve.log'
-            good,command=test_log(p,[2,1])
+            good,command=synthetic_log(p,[2,1])
             def write_log(text):
                 log.write_text(text)
                 meta=dict(command=command,exit_code=0,log_sha256=hashlib.sha256(log.read_bytes()).hexdigest())
