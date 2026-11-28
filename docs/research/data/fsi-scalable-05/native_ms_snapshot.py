@@ -131,6 +131,11 @@ def main():
         row['artifacts']={p.name:digest(p) for p in captured}
         from native_ms_system import compare
         row['systems']=compare(stage)
+        row['diagnostic_status']='captured_and_audited'
+    except Exception as error:
+        row['diagnostic_status']='failed'
+        row['diagnosis']=str(error)
+        raise
     finally:
         save(stage/'ms-snapshot.json',row)
 
