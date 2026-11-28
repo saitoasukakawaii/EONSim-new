@@ -112,13 +112,16 @@ A 上的原生 checkpoint 回归将 4 步结果续至 20 步，并逐相位与�
 |---|---|---:|---:|---:|---:|
 | C20 | 1–20 / 525、526 | 40 / 6762 | 3059.197、630.015 | 3059.197、630.015 | 5 |
 | C32 | 21–32 / 542、543 | 64 / 10773 | 1842.578、373.154 | 4901.775、1003.168 | 8 |
+| C100 | 33–100 / 551、552 | 200 / 33199 | 10362.868、2105.117 | 15264.643、3108.285 | 25 |
 
 C32 新段的最大原残量/限值为 LU 0.001436、固定迭代 0.997868。新增三个相位的压力、速度、壁位移和网格位移最大差分别为 5.740e-10 Pa、1.924e-12 m/s、5.845e-17 m、1.908e-15 m。两个算法均完成第一个完整物理周期。七周期的末两周期检查单独记录。[校准表](../research/data/fsi-scalable-05/c32/calibration.csv) · [资格检查、预算及窗口收据](../research/data/fsi-scalable-05/c32/run-receipts.json.gz) · [2,239 项原件哈希](../research/data/fsi-scalable-05/c32/log-index.json.gz)
+
+第 33–100 步每个算法实际接受 68 步，各完成 136 次 Newton 校正。独立 LU 的最大原残量/限值为 0.001477，进程树峰值为 151.132 GiB。固定迭代完成 22426 次 KSP，最大原残量/限值为 0.999912，峰值为 10.697 GiB。新增 17 个相位的压力、流体速度、壁位移与网格位移最大差分别为 1.967e-9 Pa、3.483e-12 m/s、5.151e-17 m 和 4.577e-15 m。两种算法的质量、界面和 RCR 均通过冻结预算，并分别发布 64 份第 100 步原生状态。[C100 校准表](../research/data/fsi-scalable-05/c100/calibration.csv) · [预算、资格检查与逐次校正](../research/data/fsi-scalable-05/c100/run-receipts.json.gz) · [原始文件索引](../research/data/fsi-scalable-05/c100/log-index.json.gz)
 
 在仓库根目录运行以下命令可复核累计校正、完整保存相位、两种算法各自的续算来源及段耗时。
 
 ```bash
-python -B docs/research/data/fsi-scalable-05/summarize_c_windows.py --through 32
+python -B docs/research/data/fsi-scalable-05/summarize_c_windows.py --through 100
 ```
 
 ## svFSI 原版 B
@@ -161,6 +164,12 @@ cat "$root/C32-plan/continuation.json"
 # 已有窗口 C20-lu-180、C20-fixed-1e-6 和合格 C20-r128 后执行
 sbatch -n64 -c2 -t 00:35:00 "$data/run_case.sh" C 20 fixed-1e-6 "$exe" "$root/recheck-C20-64x2" \
   --limit 1500 --reference "$root/C20-lu-180" --hybrid-from "$root/C20-r128"
+```
+
+在另一个已完成独立 C20 和 A 原生重启回归的实验目录中，下面的命令按 32、100、224 步依次提交。每次资格检查核对前一对窗口、Slurm 成功退出以及二进制哈希，再按已测单步耗时计算下一段预算。各窗口的目录须使用上表原命名。已有实验目录可直接读取其中的 `C100-plan/continuation.json` 复核两个实际启动命令与预算。
+
+```bash
+python -B "$data/continue_c.py" "$root" 32 "$root/A-restart-520/restart-regression.json" --submit --chain
 ```
 
 ## 固定精度的真实管 GAMG 粗层通信
