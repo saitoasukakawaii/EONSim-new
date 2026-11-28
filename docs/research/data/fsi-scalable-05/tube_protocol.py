@@ -3,6 +3,7 @@
 Policy selection has no PETSc or postprocessing dependencies. The numerical
 checks import the existing mesh and history readers only when needed.
 """
+import csv
 import hashlib
 import json
 import math
@@ -208,6 +209,42 @@ def budget(policy, quantity):
     return b['absolute'] + b['relative'] * b['scale']
 
 
+def pressure_face_history(folder, accepted, tags):
+    with (folder/'tube_pressure_faces.csv').open() as stream:
+        rows = [{k:finite(r,k) for k in r} for r in csv.DictReader(stream)]
+    index = {(r['step'],r['tag']):r for r in rows}
+    expected = {(r['step'],tag) for r in accepted for tag in tags}
+    if len(rows)!=len(index) or set(index)!=expected:
+        raise ValueError('Incomplete pressure face history')
+    for row in accepted:
+        for tag in tags:
+            face = index[row['step'],tag]
+            if any(row[k]!=face[k] for k in ('time','accepted_dt','evaluation_time')):
+                raise ValueError('Pressure face time grid mismatch')
+    return index
+
+
+def compare_face_history(candidate, reference, histories, policy):
+    case = json.loads((candidate/'case.json').read_text())['fsi']
+    if not case.get('pressure_face_history',False):
+        return {}
+    tags = case['domains']['pressure_tags']
+    groups = [pressure_face_history(d,h,tags) for d,h in zip((candidate,reference),histories)]
+    maximum = {}
+    for key in groups[0]:
+        x,y = (g[key] for g in groups)
+        for phase in ('stage','endpoint'):
+            for column,quantity in [('area','area'),('mean_pressure','pressure'),('mean_normal_traction','pressure'),
+                                    ('outward_flow','flow'),('prescribed_pressure','pressure'),('pressure_power','power')]:
+                name = phase+'_'+column
+                delta = abs(x[name]-y[name])
+                maximum[name] = max(maximum.get(name,0),delta)
+                limit = budget(policy,quantity) if policy['protocol_id']=='CALIBRATED-v2' else 2e-9
+                if delta > limit:
+                    raise ValueError(f'Pressure face {key}, {name}: {delta} > {limit}')
+    return maximum
+
+
 def compare_trajectories(candidate, reference, steps, meshes, ranks, policy):
     """Complete physical comparison; correction audits and algorithm independence are separate prerequisites."""
     import sys
@@ -229,6 +266,7 @@ def compare_trajectories(candidate, reference, steps, meshes, ranks, policy):
     if policy['protocol_id'] == 'STRICT-v1':
         return dict(physical_gates=gates, history_difference=assembly.compare_history(*histories),
                     field_difference=compare_states(candidate,reference,steps,meshes,ranks=ranks))
+    faces = compare_face_history(candidate,reference,histories,policy)
     obs_budget = policy['document']['internal_observables']
     history_max, observable_max, field_phases = {}, {}, []
     for x,y in zip(*histories):
@@ -276,6 +314,6 @@ def compare_trajectories(candidate, reference, steps, meshes, ranks, policy):
                 if rms > limit or peak > limit:
                     raise ValueError(f'Field step {step}, {field}: rms {rms}, max {peak}, limit {limit}')
         field_phases.append(phase)
-    return dict(protocol_hash=policy['hash'], physical_gates=gates, physical=observed,
+    return dict(protocol_hash=policy['hash'], physical_gates=gates, physical=observed, pressure_face_differences=faces,
                 history_maximum_difference=history_max, observable_maximum_difference=observable_max,
                 full_field_differences=field_phases)

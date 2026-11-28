@@ -1,10 +1,11 @@
 """Small deterministic checks of the FSI-SCALABLE-05 audit without PETSc or VTK."""
+import csv
 import json
 from pathlib import Path
 import tempfile
 import unittest
 
-from tube_protocol import BLOCKS, audit_corrections, audit_row, budget, select, solver_options
+from tube_protocol import BLOCKS, audit_corrections, audit_row, budget, compare_face_history, select, solver_options
 
 
 def correction(policy, step=1, newton=1, eta=None, rhs=1., norm=0.):
@@ -91,6 +92,31 @@ class ProtocolChecks(unittest.TestCase):
                 log.write_text(bad)
                 with self.assertRaises(ValueError):
                     audit_corrections(folder,2,1,p)
+
+    def test_face_history_budget_and_missing_step(self):
+        p=select()
+        with tempfile.TemporaryDirectory() as tmp:
+            ref,can=(Path(tmp)/n for n in ('ref','can'))
+            ref.mkdir()
+            can.mkdir()
+            (can/'case.json').write_text(json.dumps({'fsi':{'pressure_face_history':True,'domains':{'pressure_tags':[2]}}}))
+            h=dict(step=1,time=1/32,accepted_dt=1/32,evaluation_time=.02)
+            row=dict(**h,tag=2)
+            for phase in ('endpoint','stage'):
+                for q in ('area','mean_pressure','mean_normal_traction','outward_flow','prescribed_pressure','pressure_power'):
+                    row[phase+'_'+q]=0.
+            def write(d, rows):
+                with (d/'tube_pressure_faces.csv').open('w',newline='') as stream:
+                    w=csv.DictWriter(stream,fieldnames=row)
+                    w.writeheader()
+                    w.writerows(rows)
+            write(ref,[row])
+            write(can,[dict(row,stage_mean_pressure=.15)])
+            self.assertEqual(compare_face_history(can,ref,([h],[h]),p)['stage_mean_pressure'],.15)
+            for bad in ([],[dict(row,stage_mean_pressure=.161)],[dict(row,stage_area=float('nan'))]):
+                write(can,bad)
+                with self.assertRaises(ValueError):
+                    compare_face_history(can,ref,([h],[h]),p)
 
 
 if __name__=='__main__':
