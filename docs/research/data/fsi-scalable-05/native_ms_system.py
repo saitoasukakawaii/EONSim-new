@@ -3,7 +3,7 @@ from pathlib import Path
 
 import numpy as np
 from scipy.sparse import coo_matrix, diags
-from scipy.sparse.linalg import ArpackNoConvergence, eigsh, norm
+from scipy.sparse.linalg import ArpackNoConvergence, cg, eigsh, norm
 
 
 def read_system(stage, iteration):
@@ -42,7 +42,8 @@ def read_system(stage, iteration):
                 raise ValueError('Trailing bytes in result')
         if rank==0:
             global_nodes=g
-            rhs,solution,mask_sum,mask_votes=np.zeros((4,g,3))
+            rhs,solution,mask_sum,mask_votes,local_action=np.zeros((5,g,3))
+            owner_rank=np.full(g,-1,dtype=int)
             count=np.zeros(g,dtype=int)
             owner=np.zeros(g,dtype=int)
             copies=[]
@@ -51,12 +52,15 @@ def read_system(stage, iteration):
             raise ValueError('Inconsistent rank dimensions or convergence status')
         keep=perm<owned
         np.add.at(owner,ids[keep],1)
+        owner_rank[ids[keep]]=rank
         np.add.at(count,ids,1)
         np.add.at(mask_sum,ids,mask)
         np.add.at(mask_votes,ids,mask>0.5)
         rhs[ids[keep]]=b[keep]
         solution[ids[keep]]=x[keep]
         copies.append((ids,b,x))
+        contributions=np.einsum('eij,ej->ei',v.reshape(-1,3,3),x[col])
+        np.add.at(local_action,ids,np.add.reduceat(contributions,ptr[:-1],axis=0))
         row=3*np.repeat(ids,np.diff(ptr)); column=3*ids[col]
         rows.append(np.repeat(row[:,None]+np.arange(3),3,axis=1).ravel())
         cols.append(np.tile(column[:,None]+np.arange(3),(1,3)).ravel())
@@ -71,6 +75,19 @@ def read_system(stage, iteration):
     a,p=(coo_matrix((np.concatenate(v),ij),shape=(3*g,3*g)).tocsr() for v in (values,scaled))
     free=(mask_sum.ravel()>0.5)  # Same post-MPI normalization as PRECONDRCS.
     mixed=(mask_votes!=0)&(mask_votes!=count[:,None])
+    worst=[]
+    for rank,(ids,b,x) in enumerate(copies):
+        differences=np.abs(x-solution[ids])
+        differences[~free.reshape(-1,3)[ids]]=0
+        node,axis=np.unravel_index(differences.argmax(),differences.shape)
+        worst.append(dict(global_node=int(ids[node])+1,axis='xyz'[axis],copy_rank=rank,
+                          owner_rank=int(owner_rank[ids[node]]),owner_value=float(solution[ids[node],axis]),
+                          copy_value=float(x[node,axis]),gap=float(differences[node,axis])))
+    ghost['worst_free_returned_component']=max(worst,key=lambda e:e['gap'])
+    ghost['free_rhs']=max(float(np.abs(b-rhs[ids])[free.reshape(-1,3)[ids]].max(initial=0.))
+                          for ids,b,x in copies)
+    ghost['free_residual_norm_with_actual_local_copies']=float(np.linalg.norm(
+        (rhs-local_action).ravel()[free]))
     return a,p,rhs.ravel(),solution.ravel(),free,native,ghost,int(mixed.sum())
 
 
@@ -100,6 +117,25 @@ def compare(stage):
                  componentwise_backward_error=float(np.divide(np.abs(r),denom,out=np.zeros_like(r),where=denom!=0).max()))
         row['original_relative_residual']=row['unscaled_residual_norm']/row['unscaled_rhs_norm']
         if np.all(diagonal>0):
+            # Test the same RCS equation with one value per global component.
+            # Reconstruct its positive symmetric congruence and independently
+            # check both the scaled matrix and the native starting RHS norm.
+            weights=np.sqrt(p.diagonal()/diagonal)
+            d=diags(weights)
+            scaled_rhs=weights*b[free]
+            congruence=float(norm(d@a@d-p)/norm(p))
+            rhs_ratio=float(np.linalg.norm(scaled_rhs)/native['initial_norm'])
+            single=dict(congruence_relative_frobenius=congruence,rhs_norm_ratio=rhs_ratio)
+            row['single_copy_cg']=single
+            if congruence<=1e-12 and abs(rhs_ratio-1)<=1e-12:
+                iterations=0
+                def count(_):
+                    nonlocal iterations
+                    iterations+=1
+                y,info=cg(p,scaled_rhs,rtol=1e-10,atol=1e-23,maxiter=2000,callback=count)
+                single.update(info=int(info),iterations=iterations,
+                              scaled_true_relative_residual=float(np.linalg.norm(scaled_rhs-p@y)/np.linalg.norm(scaled_rhs)),
+                              original_true_relative_residual=float(np.linalg.norm(b[free]-a@(weights*y))/np.linalg.norm(b[free])))
             scale=diags(1/np.sqrt(diagonal))
             symmetric=scale@((a+a.T)*.5)@scale
             # A Rayleigh witness is sufficient to demonstrate a negative
