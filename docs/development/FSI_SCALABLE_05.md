@@ -227,3 +227,14 @@ done
 python docs/research/data/fsi-scalable-05/summarize_scaling.py "$root/C20-lu-180" \
   "$root/recheck-C20-r32" "$root/C20-fixed-1e-6" "$root/recheck-C20-r128"
 ```
+
+## C20 的等核混合布局
+
+作业 541 保留 C20 物理和冻结容差，将 128 个物理核分配给 64 个 MPI rank，每个 rank 运行两个实际 OpenMP worker。Release 二进制使用现有 FSI 装配的 `-fsi_threads 2` 实现。OpenMP 启用核绑定，关闭动态线程调整，BLAS 各用一个线程。按进程输出的亲和记录核对了 64 份两核 MPI 掩码以及全部 128 个 worker 的物理核映射，且各组互不重叠。分区沿用原 C64，直接参考仍为作业 525。作业 541 绑定的 128×1 对照是作业 538，原收据 SHA-256 为 `7fc898a4439c62ea384fee0f71442877d7be05d55dc24e1b6a98a9b10798be32`。[两核 worker 与实际亲和记录](../research/data/fsi-scalable-05/c20-hybrid/run-receipts.json.gz)
+
+| 布局 | 作业 | T_job（s） | Newton / KSP | 进程树峰值（GiB） | 活跃 rank-hours | 活跃物理核及分配 core-hours |
+|---|---:|---:|---:|---:|---:|---:|
+| 128 MPI × 1 线程 | 538 | 460.145 | 40 / 6842 | 13.518 | 16.361 | 16.361 |
+| 64 MPI × 2 线程 | 541 | 432.632 | 40 / 6787 | 10.713 | 7.691 | 15.382 |
+
+这是同核数下每种布局一次冷启动诊断。混合布局在这两个样本中用时缩短 5.98%，两者时间比为 1.0636。它包含分区数和装配线程安排的共同变化。两侧均核验全部原校正、20 步历史和五个保存相位，混合布局的压力、流体速度、壁位移和网格位移最大差分别为 5.118e-9 Pa、3.065e-12 m/s、4.096e-17 m 和 1.413e-15 m。作业 541 的运行脚本提交为 `cdbe3e96d`，沿用作业 466 的二进制与编译源码。[混合布局原件索引](../research/data/fsi-scalable-05/c20-hybrid/log-index.json.gz)

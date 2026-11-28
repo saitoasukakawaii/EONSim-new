@@ -1,6 +1,6 @@
 # EONSim Codex Development Progress
 
-独立合格的 C20 在 32/64/128 纯 MPI 上分别用时 928.545、630.015、460.145 s，每档一次。[C20 强扩展](FSI_SCALABLE_05.md#c20-的纯-mpi-强扩展)
+独立合格的 C20 在 32/64/128 纯 MPI 上分别用时 928.545、630.015、460.145 s，每档一次。64×2 混合诊断确认 128 个 OpenMP worker 使用不同物理核，同窗用时 432.632 s。[C20 强扩展](FSI_SCALABLE_05.md#c20-的纯-mpi-强扩展) · [同 128 核布局](FSI_SCALABLE_05.md#c20-的等核混合布局)
 
 真实管 B20 在 32 MPI 上保持固定容差并缩减四个 GAMG 粗层，三对正式样本的 T_job 中位数从 53.264 s 降至 37.275 s。[样本与核验](FSI_SCALABLE_05.md#固定精度的真实管-gamg-粗层通信)
 
