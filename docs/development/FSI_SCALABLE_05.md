@@ -50,11 +50,26 @@ B20 选择固定 `1e-6`。改用 `1e-4` 后，每步多一次 Newton 校正，�
 
 B 第二步的第一次 inexact 校正仅用两次 Krylov 迭代，但该步总共需要四次 Newton 校正。该组 forcing 两个网格上的线性迭代总数和总时间都增加。
 
+## 合格窗口的正式性能
+
+每一侧独立预热一次，再交错运行三对冷启动样本。每份收据都通过同一个直接参考、完整保存场和历史检查。独占 128 核，A 用 4 个、B 用 32 个单线程 MPI 进程。表中资源列取正式样本中位数，core-hours 计入全部分配核。所有原始样本的活跃 rank-hours、绑定、内存和校正明细保存在[运行收据](../research/data/fsi-scalable-05/run-receipts.json.gz)，[校准表](../research/data/fsi-scalable-05/calibration.csv)按窗口列出结果。
+
+| 作业 | 对照 → 候选 | T_job（s） | 时间变化 | Newton | KSP | 进程树峰值（GiB） | 分配 core-hours |
+|---|---|---:|---:|---:|---:|---:|---:|
+| 506 · A20 | 固定 1e-8 → 1e-6 | 2.408 → 2.321 | −3.60% | 40 → 45 | 1541 → 1433 | 0.107 → 0.107 | 0.0856 → 0.0825 |
+| 502 · B20 | 固定 1e-8 → 1e-6 | 67.377 → 53.450 | −20.67% | 40 → 40 | 3060 → 2360 | 1.961 → 1.929 | 2.396 → 1.900 |
+| 507 · A20 | 固定 1e-6 → inexact | 2.321 → 2.773 | +19.45% | 45 → 79 | 1434 → 1553 | 0.109 → 0.107 | 0.0825 → 0.0986 |
+| 503 · B20 | 固定 1e-6 → inexact | 53.349 → 64.271 | +20.47% | 40 → 80 | 2360 → 2578 | 1.941 → 1.923 | 1.897 → 2.285 |
+
+B20 的固定候选达到主要算例 15% 目标，A20 也满足代表算例退化不超过 5% 的要求。两组 inexact 计时支持在这两个窗口继续采用固定配置。上述降幅来自改变线性容差。通信收益的资格单独核验。B 的实际 RCR pressure-MG 作业 505 在第一步预算内原残量仍为 3.6762e-9，原 RHS 为 5.5265e-9，接受零步。A/B 正式样本采用 physics fieldsplit，无法据此计算 owner 或 Telescope 在真实管上的收益。第 4 阶段合成样本保留原基线和原结果。[作业与输出哈希](../research/data/fsi-scalable-05/log-index.json.gz)
+
 ## C 的首系统与独立窗口
 
 C 有 924,953 个自由度。作业 470 在重组系统上使用 physics，486 次 FGMRES 达到原残量 1.88385e-17，目标为 1.90849e-17。作业 495 在保存的原 AIJ 上重算同一 FP64 返回向量，55,761,870 个 CSR 列位置相同，4,796 个系数存在末位差异。保存阵的扩展精度残量为 1.73907e-17，串行 FP64 CSR 为 1.92946e-17。按运行前的双重离线判据，该返回向量未通过严格的首系统诊断档 `CALIBRATED-v2/fixed-1e-8`。
 
 作业 471 的 RCR 压力粗化 MG 用完 500 次，原残量约 1.740e-9。最粗矩阵 1,190 行，实际 Telescope 使用 32 rank；第一级和第二级散度像投影缺陷分别为 0.708 和 0.899。粗求解实际被调用，根迭代仍停滞。
+
+作业 510 直接读取作业 409 的原矩阵和原 RHS。physics 在 479 次 FGMRES 后达到 PETSc 原残量 1.86807e-17，同一返回向量的串行 FP64 CSR 残量为 1.90520e-17，扩展精度为 1.72291e-17，均通过 1.90849e-17 的门槛。选定的固定 `1e-6` 在作业 515 用 384 次迭代通过，PETSc、串行 FP64 和扩展精度残量分别为 1.88404e-15、1.88400e-15、1.88399e-15，门槛为 1.90849e-15。作业 511/512 对这份矩阵比较 MG 内部场缩放，100 次后原残量为 1.80714e-9 / 1.80827e-9。此缩放对该停滞无实质改善。[原 CSR 与返回向量核验](../research/data/fsi-scalable-05/c-native-receipts.json)
 
 C64 的直接参考候选 496/497 用显式 `1e-8/1e-23`，完成 1/4 步。4 步用时 613.525 s，进程树峰值 134.410 GiB，预算 140 GiB。固定 physics `1e-6/1e-23` 作业 499/500 完成相同窗口，4 步为 142.225 s，全部场、历史及物理量通过独立比较。[首系统与外部原件](../research/data/fsi-scalable-05/c-native-receipts.json)
 
@@ -74,5 +89,12 @@ sbatch -n32 -t 00:15:00 "$data/run_case.sh" B 20 lu "$exe" "$root/recheck-B20-lu
 # 独立 LU 窗口实际完成后执行
 sbatch -n32 -t 00:30:00 "$data/run_case.sh" B 20 fixed-1e-6 "$exe" "$root/recheck-B20-fixed" \
   --limit 1500 --reference "$root/recheck-B20-lu"
+# 下列三个输入目录来自上表已经通过的独立 B20 窗口
+sbatch -n32 -t 00:30:00 "$data/run_case.sh" B --timing \
+  "$root/B20-fixed-1e-8" "$root/B20-fixed-1e-6" "$root/B20-lu" "$exe" \
+  "$root/recheck-B20-rtol-pairs" --change fixed-tolerance
+sbatch -n32 -t 00:30:00 "$data/run_case.sh" B --timing \
+  "$root/B20-fixed-1e-6" "$root/B20-inexact-1e-6" "$root/B20-lu" "$exe" \
+  "$root/recheck-B20-forcing-pairs" --change forcing
 python -B "$data/test_tube_protocol.py" -v
 ```

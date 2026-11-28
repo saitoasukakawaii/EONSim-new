@@ -1,6 +1,6 @@
 # EONSim
 
-第五阶段已用独立 LU 和 physics/FGMRES 校准真实管 B 的 20 步窗口，固定 `rtol=1e-6` 在三档合格候选中诊断总耗时最低。逐档物理差异、适用网格与后续窗口见[第五阶段验证](docs/development/FSI_SCALABLE_05.md)。
+真实管 B 的 20 步窗口经独立 LU 和 physics/FGMRES 校准。固定容差从 `1e-8` 调到 `1e-6`，三对正式样本的中位耗时从 67.377 s 降至 53.450 s；实测 inexact forcing 在同一窗口慢 20.47%。[第五阶段验证](docs/development/FSI_SCALABLE_05.md)
 
 弹性管第四阶段增加了逐校正的直接法精化和严格参考轨迹检查。B 首系统的写回精度和合成网格的配对计时见[第四阶段收据](docs/development/FSI_SCALABLE_04.md)。
 
