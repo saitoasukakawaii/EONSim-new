@@ -1,5 +1,7 @@
 # EONSim Knowledge Log
 
+C20 的[单节点纯 MPI 强扩展](../development/FSI_SCALABLE_05.md#c20-的纯-mpi-强扩展)给出重新分区后的参考面积核对、逐 rank 绑定及两种核时口径。
+
 2026-11-28，[单 owner GAMG 粗层的真实管配对](../../website/drafts/arterial-first-correction-and-coarse-communicator.md#真实管的四个粗求解器)补充 B20 的实际行所有权、粗层 GMRES 精度和独立等精度计时。
 
 [同一真实管上两条通信路径的限定比较](../../website/drafts/arterial-first-correction-and-coarse-communicator.md#同一真实管上的两种通信测量)记录 A20 的两组基线、实际调用次数和最快的合格配置。
