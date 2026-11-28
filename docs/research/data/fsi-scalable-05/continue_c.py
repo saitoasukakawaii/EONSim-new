@@ -72,7 +72,16 @@ def main():
     root=args.root.resolve(strict=True)
     start=PREDECESSOR[args.end]
     profiles=('lu',FIXED)
-    paths=[root/f'C{start}-{p}' for p in profiles]
+    partner=root/f'C{start}-{FIXED}'
+    paired=read(partner/'window.json')
+    # Historical receipts identify the direct run by content; failed retries have distinct receipts.
+    direct_paths=([Path(paired['reference_directory'])] if paired.get('reference_directory')
+                  else sorted(root.glob(f'C{start}-lu*')))
+    matches=[d for d in direct_paths if (d/'window.json').is_file()
+             and sha(d/'window.json')==paired['reference_receipt']]
+    if len(matches)!=1:
+        raise ValueError('The qualified iterative run must identify one exact direct reference receipt')
+    paths=[matches[0],partner]
     direct,iterative=[window(d) for d in paths]
     a,b=direct[0],iterative[0]
     if (a['qualification']!='awaiting_independent_crosscheck' or b['qualification']!='independent_pair_passed'
@@ -106,6 +115,8 @@ def main():
         solver=[str(HERE/'run_case.sh'),'C',str(args.end),profile,str(binary),str(out),'--resume-from',str(prev),
                 *(['--prefix-pair',str(paths[1])] if profile=='lu' else ['--reference',str(outdirs[0])]),
                 '--limit',str(solve)]
+        if profile=='lu':
+            solver+=['--direct-rss-gib',str(row['rss_limit']//2**30)]
         plan['runs'].append(dict(profile=profile,anchors=anchors,rss_limit=row['rss_limit'],solver_seconds=solve,
             slurm_minutes=wall,snes_max_it=row['linear']['solver_reports'][0]['snes_max_it'],
             ksp_max_it=row['linear']['effective_options'].get('-ksp_max_it'),rtol=row['policy']['rtol'],

@@ -14,7 +14,7 @@ sys.path.insert(0, str(HERE.parent / 'fsi-scalable-02'))
 from paired_tube import compare, digest, physical, read_mesh, run, save
 from arterial_ksp import options
 from tube_checkpoint import checkpoint_receipt, last_two_cycles, verified_prefix
-from resource_accounting import resource_hours
+from resource_accounting import direct_memory_budget, resource_hours
 from scale_c import SOLVE_SECONDS, prepare_partition, read_bindings, verify_baseline
 from tube_protocol import archived_case, audit_corrections, compare_trajectories, output_manifest, select, solver_options
 
@@ -37,7 +37,11 @@ def main():
     cli.add_argument('--coarse-rows', type=int, default=64)
     cli.add_argument('--mg-scale', action='store_true')
     cli.add_argument('--limit', type=int, required=True, help='Process-tree wall budget in seconds')
+    cli.add_argument('--direct-rss-gib',type=int,choices=(140,180),default=140,
+                     help='Process-tree RSS limit for a diagnostic C LU trajectory')
     args = cli.parse_args()
+    if args.direct_rss_gib!=140 and (args.case!='C' or args.profile!='lu' or args.formal or args.steps<20):
+        cli.error('the 180 GiB envelope is declared only for independent C20+ direct reference jobs')
     if (args.prefix_pair and not args.resume_from) or (args.resume_from and args.formal):
         cli.error('a restart is a separately timed continuation; --prefix-pair requires --resume-from')
     if args.coarse_rows<=0 or ((args.pc!='pressure-mg' or args.profile=='lu') and
@@ -70,12 +74,16 @@ def main():
                source=source, compiled_source=build['source'], binary=build['binary'], job=os.environ['SLURM_JOB_ID'],
                ranks=ranks, affinity=affinity, formal=args.formal,
                allocation=os.getenv('SLURM_JOB_CPUS_PER_NODE'),
-               limit_seconds=args.limit, rss_limit=140*2**30,
+               limit_seconds=args.limit, rss_limit=args.direct_rss_gib*2**30,
                archive_receipt=origin_sha, qualification='open')
     row['preconditioner'] = dict(pc='lu' if args.profile=='lu' else args.pc)
+    if args.reference:
+        row['reference_directory']=str(args.reference.resolve())
     if args.pc=='pressure-mg':
         row['preconditioner'].update(owner=args.owner,coarse_rows=args.coarse_rows,mg_scale=args.mg_scale)
     try:
+        if args.direct_rss_gib==180:
+            row['memory_preflight']=direct_memory_budget(row['rss_limit'])
         for name in ('case.json', 'fluid.msh', 'solid.msh'):
             if digest(archived/name) != origin['inputs'][name]:
                 raise ValueError('Frozen input changed: ' + name)
@@ -142,7 +150,7 @@ def main():
             cmd.extend(['-snes_monitor', '-snes_linesearch_monitor'])
         row['thread_environment'] = dict(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
         os.environ.update(row['thread_environment'])
-        run(out, cmd, row, args.limit, row['rss_limit'])
+        run(out, cmd, row, args.limit, row['rss_limit'],trace_rss=args.direct_rss_gib==180)
         if check_bindings:
             row['rank_bindings']=read_bindings((out/'solve.log').read_text(),ranks)
         row['linear'] = audit_corrections(out, args.steps, ranks, policy,start)
