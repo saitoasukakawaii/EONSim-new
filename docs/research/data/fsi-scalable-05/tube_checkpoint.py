@@ -1,13 +1,51 @@
 """Identity and clock of an accepted, rank-matched generalized-alpha/RCR checkpoint."""
 from pathlib import Path
+import os
 import re
+import subprocess
+import tempfile
+import xml.etree.ElementTree as ET
 
 from paired_tube import digest
 
 
-def checkpoint_receipt(directory, step, ranks):
-    import h5py
+def checkpoint_arrays(path, required):
+    """Use the HDF5 tools shipped alongside the solver; preserve integer signatures and raw FP64."""
     import numpy as np
+    header=subprocess.check_output(['h5dump','-H','-x','-X',':',str(path)])
+    elements=ET.fromstring(header).findall('./RootGroup/Dataset')
+    if sorted(e.get('Name') for e in elements)!=sorted(required):
+        raise ValueError(f'Incomplete generalized-alpha/RCR datasets in {path}')
+    # Explicit dataset order binds binary slices to the header, including empty owner vectors.
+    fields=[]
+    options=[]
+    for element in elements:
+        name=element.attrib['Name']
+        space=element.find('./Dataspace/SimpleDataspace')
+        typ='IntegerType' if name=='metadata' else 'FloatType'
+        kind=element.find('./DataType/AtomicType/'+typ)
+        if (space is None or space.get('Ndims')!='1' or len(space.findall('Dimension'))!=1
+                or kind is None or kind.get('Size')!='8' or (typ=='IntegerType' and kind.get('Sign')!='false')):
+            raise ValueError(f'Invalid native checkpoint type or dimensions: {path} {name}')
+        fields.append((name,int(space.find('Dimension').attrib['DimSize']),'<u8' if name=='metadata' else '<f8'))
+        options+=['-d',name]
+    with tempfile.TemporaryDirectory() as tmp:
+        raw=Path(tmp)/'state.bin'
+        subprocess.run(['h5dump','-O',os.devnull,'-b','LE','-o',str(raw),*options,str(path)],check=True)
+        data=raw.read_bytes()
+    if len(data)!=8*sum(n for _,n,_ in fields):
+        raise ValueError(f'Incomplete native checkpoint data in {path}')
+    values={}
+    offset=0
+    for name,n,dtype in fields:
+        values[name]=np.frombuffer(data,dtype=dtype,count=n,offset=offset)
+        if not np.isfinite(values[name]).all():
+            raise ValueError(f'Nonfinite native checkpoint in {path} {name}')
+        offset+=8*n
+    return values
+
+
+def checkpoint_receipt(directory, step, ranks):
     pointer=(directory/'current').read_text().split()
     if len(pointer)!=2 or pointer[0]!='EONSim_checkpoint_v3' or not re.fullmatch(r'generation_\d+',pointer[1]):
         raise ValueError('Unpublished or malformed checkpoint generation')
@@ -21,17 +59,15 @@ def checkpoint_receipt(directory, step, ranks):
     hashes={}
     for rank in range(ranks):
         path=generation/f'state_rank{rank}.h5'
-        with h5py.File(path,'r') as f:
-            if set(f)!=required:
-                raise ValueError(f'Incomplete generalized-alpha/RCR state for rank {rank}')
-            m=f['metadata'][...]
-            if (m.shape!=(9,) or tuple(m[:3])!=(3,rank,ranks) or int(m[-1])!=step
-                    or tuple(f['clock'][...])!=(step/32,1/32)
-                    or f['rcr_capacitor'].shape!=(3,) or f['rigid'].shape!=(2,)
-                    or f['time_metadata'].shape!=(2,) or f['time_metadata'][0]!=1):
-                raise ValueError(f'Inconsistent checkpoint clock/history at rank {rank}')
-            if any(dataset.ndim!=1 or not np.isfinite(dataset[...]).all() for dataset in f.values()):
-                raise ValueError(f'Nonfinite or invalid native checkpoint values on rank {rank}')
+        f=checkpoint_arrays(path,required)
+        m=f['metadata']
+        if (m.shape!=(9,) or tuple(m[:3])!=(3,rank,ranks) or int(m[-1])!=step
+                or tuple(f['clock'])!=(step/32,1/32)
+                or f['rcr_capacitor'].shape!=(3,) or f['rigid'].shape!=(2,)
+                or f['time_metadata'].shape!=(2,) or f['time_metadata'][0]!=1
+                or any(f[k].shape!=f['solid_displacement'].shape for k in
+                       ('fluid_rate','mesh_velocity','mesh_acceleration','solid_acceleration'))):
+            raise ValueError(f'Inconsistent checkpoint clock/history at rank {rank}')
         hashes[path.name]=digest(path)
     return dict(generation=pointer[1],ranks=ranks,step=step,time=step/32,next_dt=1/32,
                 manifest_sha256=digest(generation/'manifest'),rank_files=hashes)

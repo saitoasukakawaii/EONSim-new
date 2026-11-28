@@ -2,7 +2,7 @@
 
 第五阶段已用独立 LU 和 physics/FGMRES 校准真实管 B 的 20 步窗口，固定 `rtol=1e-6` 在三档合格候选中诊断总耗时最低。逐档物理差异、适用网格与后续窗口见[第五阶段验证](docs/development/FSI_SCALABLE_05.md)。
 
-弹性管第四阶段已增加逐校正的直接法精化和严格参考轨迹检查。B 首系统的写回精度、合成网格的配对计时及待验证窗口见[本轮收据](docs/development/FSI_SCALABLE_04.md)。
+弹性管第四阶段增加了逐校正的直接法精化和严格参考轨迹检查。B 首系统的写回精度和合成网格的配对计时见[第四阶段收据](docs/development/FSI_SCALABLE_04.md)。
 
 C++17 / PETSc 多物理场求解器，包含独立流体、独立固体、单体刚体 FSI 和单体弹性 FSI 的可运行基线。
 使用 Tet4 多物理场、Tri3/P1、Quad4/Q1 及直边 Tri3/P2 二维标量、MPI owned/ghost 分区、METIS/HDF5 预处理和 PETSc KSP/SNES。

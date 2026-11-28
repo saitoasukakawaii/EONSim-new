@@ -26,7 +26,8 @@ def main():
     out.mkdir(exist_ok=True,parents=True)
     summary, index, runs = [], {}, []
     legacy_allocations = {}
-    for name in ('window.json','first.json','native-mesh.json','timings.json','review.json','supplement.json'):
+    for name in ('window.json','first.json','native-mesh.json','timings.json','review.json',
+                 'supplement.json','restart-regression.json'):
         for p in sorted(root.rglob(name)):
             if 'source' in p.relative_to(root).parts or out in p.parents:
                 continue
