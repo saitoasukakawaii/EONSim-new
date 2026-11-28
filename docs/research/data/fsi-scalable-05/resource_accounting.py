@@ -1,6 +1,42 @@
 """Single-node solver-window allocation and active-rank accounting."""
 import math
+from pathlib import Path
 import re
+
+
+def direct_memory_budget(limit):
+    """Check the exclusive reference job against actual RAM and ancestor cgroup limits."""
+    reserve = 32 * 2**30
+    meminfo = Path('/proc/meminfo').read_text()
+    host = {k: int(v)*1024 for k,v in re.findall(r'^(MemTotal|MemAvailable):\s+(\d+) kB$',meminfo,re.M)}
+    if host['MemAvailable'] < limit + reserve:
+        raise ValueError('Insufficient available RAM for the declared direct reference and node reserve')
+    groups = []
+    for line in Path('/proc/self/cgroup').read_text().splitlines():
+        hierarchy,controllers,relative = line.split(':',2)
+        if hierarchy=='0' and not controllers:
+            root = Path('/sys/fs/cgroup')
+            cap,usage = 'memory.max','memory.current'
+        elif 'memory' in controllers.split(','):
+            root = Path('/sys/fs/cgroup/memory')
+            cap,usage = 'memory.limit_in_bytes','memory.usage_in_bytes'
+        else:
+            continue
+        group = root/relative.lstrip('/')
+        while True:
+            if (group/cap).is_file():
+                value = (group/cap).read_text().strip()
+                used = int((group/usage).read_text())
+                ceiling = None if value=='max' else int(value)
+                groups.append(dict(path=str(group),limit=ceiling,usage=used))
+                if ceiling is not None and ceiling-used < limit + reserve:
+                    raise ValueError(f'Insufficient cgroup headroom for direct reference: {group}')
+            if group==root:
+                break
+            group=group.parent
+    if not groups:
+        raise ValueError('Unable to verify the direct reference job memory cgroup')
+    return dict(host=host,cgroups=groups,process_tree_budget=limit,reserved_bytes=reserve)
 
 
 def resource_hours(ranks, allocation, seconds):

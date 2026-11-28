@@ -73,6 +73,21 @@ C 有 924,953 个自由度。作业 470 在重组系统上使用 physics，486 �
 
 C64 的直接参考候选 496/497 用显式 `1e-8/1e-23`，完成 1/4 步。4 步用时 613.525 s，进程树峰值 134.410 GiB，预算 140 GiB。固定 physics `1e-6/1e-23` 作业 499/500 完成相同窗口，4 步为 142.225 s，全部场、历史及物理量通过独立比较。[首系统与外部原件](../research/data/fsi-scalable-05/c-native-receipts.json)
 
+### C20 直接法的内存预算与续算核验
+
+直接参考作业 513 完成前四步，步末进程 RSS 合计依次为 70.67、73.03、73.15、73.29 GiB。第五步第一次线性校正期间，采样进程树 RSS 达 151,229,960,192 B，超过预声明的 140 GiB。作业在 632.93 s 停止，前四步和全部日志保留。该作业计为资源失败。原节点有约 251 GiB 实体内存，作业退出后可用约 237 GiB。直接法的独立重试预声明 180 GiB 上限，启动时核对节点及作业实际 cgroup 余量并额外留出 32 GiB，每 5 s 记录进程树 RSS、最大单进程 RSS 及对应的日志位置。迭代路径继续使用原 140 GiB 上限。[作业 513 原收据](../research/data/fsi-scalable-05/c20-lu-513.json.gz)
+
+A 上的原生 checkpoint 回归将 4 步结果续至 20 步，并逐相位与冷启动比较。作业 516 的固定 `1e-6` 在旧 2e-9 同配置门槛下失败，压力场最大差 2.729e-8 Pa，两次冷启动之间也有 1.054e-8 Pa。两者分别通过预冻结的 v2 物理预算。作业 520 的 LU、固定 `1e-8` 同配置续算均通过旧门槛，场最大差为 1.626e-14、1.365e-10，历史最大差为 2.842e-14、9.264e-10。后继 C 窗口将固定与 LU 各自从相应参考对的原生状态续算。[含冷启动对照的回归收据](../research/data/fsi-scalable-05/restart-520.json.gz)
+
+### C20 独立验收
+
+| 作业 | C64 配置 | 实际接受步 | Newton / KSP | 最大原残量 / 当次门槛 | T_job（s） | 进程树峰值（GiB） |
+|---|---|---:|---:|---:|---:|---:|
+| 525 | PREONLY/LU，显式原式 1e-8 | 20/20 | 40 / 40 | 0.43605 | 3059.197 | 147.414 |
+| 526 | physics/FGMRES，固定 1e-6 | 20/20 | 40 / 6762 | 0.99800 | 630.015 | 10.675 |
+
+五个保存相位均完成 11 种输出量的 RMS 与局部最大值核验。固定迭代相对独立直接参考的压力、流体速度、壁位移、网格位移最大差依次为 6.746e-9 Pa、4.528e-12 m/s、3.425e-17 m、1.587e-15 m。归一化出口流量、压差及面积应变最大差分别为 2.693e-11、1.142e-10 Pa、2.308e-15。两条轨迹各自满足非线性、质量、界面和 RCR 门槛，并各自保存了通过核验的 64 份第 20 步 rank 状态。表中是含详细诊断的冷启动实测时间。[C20 校准表](../research/data/fsi-scalable-05/c20/calibration.csv) · [两个窗口的完整收据](../research/data/fsi-scalable-05/c20/run-receipts.json.gz) · [3,276 项原件哈希](../research/data/fsi-scalable-05/c20/log-index.json.gz)
+
 ## svFSI 原版 B
 
 历史作业 438 的 14 次 MS 全部达到 2,000 次。按相同网格重建初始 MS 的约束后自由块，得到 32,256 个自由分量，初始对角最大/最小约 224.53。原生 CG 改用 RCS 后，作业 467 的首个 MS 校正 922 次达到 9.8e-11，首个 FS 仍需 3,718 次。第 4 次 MS 达到 2,000 次且线性残量比升至 1.422e5，第 4 次 FS 也超出其门槛。作业 494 保留原生 MS 选择，测试 FS 原生 BIPN，首个 FS 残量比约 0.866，随后多次接近 1。这两个未合格的作业均排除在外部配对之外。[日志索引](../research/data/fsi-scalable-05/c-native-log-index.json)
@@ -81,10 +96,16 @@ C64 的直接参考候选 496/497 用显式 `1e-8/1e-23`，完成 1/4 步。4 �
 
 以下命令在上述节点上用新的输出目录运行。保留旧包与脚本提交的对应关系；后续只有脚本变化时，入口会检查生产源码树和二进制哈希。
 
+原实验的 Release 来自 `d672e1ea9a4448658c48f212cac5f71cdffc3793`。C 的续算入口固定为 `cdbe3e96da4dbbeef4a52920d638ca113301d8bc`，相对该 Release 的 `src`、`include`、`cmake` 和顶层构建文件均相同。主线另外合并了 RCR 内层选项补丁；其独立回归和 C 的历史二进制分别归档。旧窗口复核可使用服务器原目录和收据指定的可执行文件。用不同源码构建后开展新对照时，需要该新二进制自己的独立参考窗口。[生产协议和 A/B 原始校准](https://github.com/saitoasukakawaii/EONSim-new/pull/73) · [RCR 局部 KSP 修复](https://github.com/saitoasukakawaii/EONSim-new/pull/74)
+
+C 强扩展使用纯 MPI 分区。等 128 核的混合诊断另要求同一窗口已有合格的 128×1 样本，沿用其 64-rank 参考的原分区，启动时显式设置 `-fsi_threads 2`。每个 MPI rank 先记录实际分配的两核掩码，再用 GNU OpenMP 报告工作线程号、实际队伍大小与各线程亲和性。验收将 128 个线程位置与操作系统的物理核/插槽编号逐一对应，检查 64 个队伍、每个队伍两个线程以及跨 rank 无核重叠。该对照为一次诊断计时。[GNU OpenMP 亲和性格式](https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fAFFINITY_005fFORMAT.html)
+
 ```bash
 root="$HOME/workspace/fsi-scalable-05-runs"
 data="$root/source/docs/research/data/fsi-scalable-05"
 exe="$root/build/eonsim"
+(cd "$root/source" && git diff --quiet d672e1ea9a4448658c48f212cac5f71cdffc3793 HEAD -- src include cmake CMakeLists.txt)
+printf '%s  %s\n' efaad5cc91437ac022606dcf40bded9e9b504a39be8eac84611db44c3156eb05 "$exe" | sha256sum -c -
 sbatch -n32 -t 00:15:00 "$data/run_case.sh" B 20 lu "$exe" "$root/recheck-B20-lu" --limit 420
 # 独立 LU 窗口实际完成后执行
 sbatch -n32 -t 00:30:00 "$data/run_case.sh" B 20 fixed-1e-6 "$exe" "$root/recheck-B20-fixed" \
@@ -97,6 +118,16 @@ sbatch -n32 -t 00:30:00 "$data/run_case.sh" B --timing \
   "$root/B20-fixed-1e-6" "$root/B20-inexact-1e-6" "$root/B20-lu" "$exe" \
   "$root/recheck-B20-forcing-pairs" --change forcing
 python -B "$data/test_tube_protocol.py" -v
+# C20 的两种算法分别从冻结初态开始
+lujob=$(sbatch --parsable -n64 -t 01:16:00 "$data/run_case.sh" C 20 lu "$exe" "$root/recheck-C20-lu" \
+  --direct-rss-gib 180 --limit 4200)
+sbatch --dependency="afterok:$lujob" -n64 -t 01:05:00 "$data/run_case.sh" C 20 fixed-1e-6 \
+  "$exe" "$root/recheck-C20-fixed" --limit 3000 --reference "$root/recheck-C20-lu"
+# 原作业链每次提交前写出依据、内存/时间上限、完整命令和作业 ID
+cat "$root/C32-plan/continuation.json"
+# 已有窗口 C20-lu-180、C20-fixed-1e-6 和合格 C20-r128 后执行
+sbatch -n64 -c2 -t 00:35:00 "$data/run_case.sh" C 20 fixed-1e-6 "$exe" "$root/recheck-C20-64x2" \
+  --limit 1500 --reference "$root/C20-lu-180" --hybrid-from "$root/C20-r128"
 ```
 
 ## 固定精度的真实管 GAMG 粗层通信

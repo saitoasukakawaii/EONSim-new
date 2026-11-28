@@ -9,8 +9,8 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 from resource_accounting import formal_resources, resource_hours
+from scale_c import hybrid_bindings, read_bindings, reference_area_budget
 from physics_telescope import COARSE_FIELDS, COARSE_ROWS, coarse_receipt, solver_flags
-from scale_c import read_bindings, reference_area_budget
 
 from tube_protocol import (BLOCKS, HERE, audit_corrections, audit_row, budget, compare_face_history,
                            full_field_differences, output_manifest, select, solver_options)
@@ -64,6 +64,37 @@ def synthetic_log(policy, counts, start_step=0):
 
 
 class ProtocolChecks(unittest.TestCase):
+    def test_hybrid_requires_distinct_actual_workers_and_cores(self):
+        topology='0,0,0\n1,1,0\n2,0,1\n3,1,1\n'
+        lines=[]
+        for rank in range(2):
+            lines.append(f'fsi05_mpi_mask rank={rank} cpus={rank*2}-{rank*2+1}')
+            for worker in range(2):
+                lines.append(f'fsi05_omp rank={rank} worker={worker} team=2 cpus={2*rank+worker}')
+        trace='\n'.join(lines)
+        self.assertEqual(hybrid_bindings(trace,topology,2)['unique_physical_cores'],4)
+        for corrupted in (trace.replace('worker=1 team=2 cpus=3','worker=1 team=2 cpus=2'),
+                          '\n'.join(lines[:-1]),trace.replace('team=2','team=1')):
+            with self.assertRaises(ValueError):
+                hybrid_bindings(corrupted,topology,2)
+        with self.assertRaises(ValueError):
+            hybrid_bindings(trace,topology.replace('3,1,1','3,0,1'),2)
+
+    def test_continuation_gate_waits_for_dependencies_and_registers_once(self):
+        from continue_c import schedule_gate
+        with tempfile.TemporaryDirectory() as tmp, patch('continue_c.subprocess.check_output',return_value='555\n') as submit:
+            root=Path(tmp)
+            qa=root/'qa.json'
+            qa.write_text('{}')
+            first=schedule_gate(root,32,qa,['520','526'],True)
+            self.assertEqual(first['dependency'],'afterok:520:526')
+            self.assertIn('afterok:520:526',submit.call_args.args[0])
+            self.assertEqual(first['job'],'555')
+            self.assertEqual(first,schedule_gate(root,32,qa,['520','526'],True))
+            with self.assertRaises(ValueError):
+                schedule_gate(root,32,qa,['520','527'],True)
+            submit.assert_called_once()
+
     def test_physics_telescope_checks_real_coarse_children(self):
         nodes=['', 'solver_report step=1']
         for prefix,n in zip(COARSE_FIELDS, COARSE_ROWS[4]):

@@ -103,19 +103,27 @@ def samples(pid):
     return sum(rss), max(rss, default=0)
 
 
-def run(folder, command, receipt, limit, rss_limit=8*2**30):
+def run(folder, command, receipt, limit, rss_limit=8*2**30, *, trace_rss=False):
     receipt.update(command=command, status='running', rss_peak=0, process_rss_peak=0)
     save(folder/'run.json',receipt)
     with (folder/'solve.log').open('w') as stream:
         start=time.monotonic()
+        next_sample=0
+        if trace_rss:
+            receipt['rss_samples']=[]
         process=subprocess.Popen(command,cwd=folder,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
         try:
             while process.poll() is None:
                 group, largest=samples(process.pid)
                 receipt['rss_peak']=max(receipt['rss_peak'], group)
                 receipt['process_rss_peak']=max(receipt['process_rss_peak'], largest)
+                elapsed=time.monotonic()-start
+                if trace_rss and (elapsed>=next_sample or group>rss_limit):
+                    receipt['rss_samples'].append(dict(seconds=elapsed,tree_bytes=group,
+                        largest_process_bytes=largest,log_offset=os.fstat(stream.fileno()).st_size))
+                    next_sample=elapsed+5
                 if group>rss_limit: raise MemoryError(f'{rss_limit} byte process-tree budget')
-                if time.monotonic()-start>limit: raise TimeoutError('job time budget')
+                if elapsed>limit: raise TimeoutError('job time budget')
                 try: process.wait(timeout=.2)
                 except subprocess.TimeoutExpired: pass
             if process.returncode: raise RuntimeError(f'exit {process.returncode}')
