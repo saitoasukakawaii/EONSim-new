@@ -20,6 +20,9 @@ def audit_corrections(folder, steps, ranks):
     accepted = assembly.records(log, 'fsi_step=')
     reports = assembly.records(log, 'solver_report ')
     rows = assembly.records(log, 'linear_residual ')
+    fields = assembly.records(log, 'linear_field_residual ')
+    if len(fields) != 4 * len(rows):
+        raise ValueError('Missing block or constraint residual records')
     if len(reports) != steps or len(accepted) != steps:
         raise ValueError('Missing accepted step or solver report')
     offset = 0
@@ -41,6 +44,13 @@ def audit_corrections(folder, steps, ranks):
             ratio = norm / max(1e-23, 1e-10 * rhs)
             if ratio > 1:
                 raise ValueError(f'Original-operator residual failed at {step}/{index+1}: {ratio}')
+            blocks = fields[4*(offset+index):4*(offset+index+1)]
+            if {field['name'] for field in blocks} != {'mesh','pressure','structure','velocity'}:
+                raise ValueError(f'Incomplete field layout at {step}/{index+1}')
+            for field in blocks:
+                values = [float(field[k]) for k in ('rms','constraint_max')]
+                if int(field['solve']) != index+1 or not all(math.isfinite(v) and v>=0 for v in values):
+                    raise ValueError(f'Invalid block residual at {step}/{index+1}')
             ratios.append(ratio)
         offset += count
     if len(rows) != offset or not ratios:
@@ -59,6 +69,11 @@ def main():
     cli.add_argument('--timeout', type=int, default=780)
     flags = {mode: mg.flags(mode, ports=True) for mode in ('mono_braess_tentative','mono_pressure_auto')}
     flags.update(asm=arterial_ksp.options('asm'), physics=arterial_ksp.options('inner-mgs'), direct=[])
+    # B's one-shot distributed LU missed the first original-operator tolerance.
+    # Use the same numeric factor as a right PC and rebuild b-Ax at short restarts.
+    flags['lu-refined'] = ['-pc_type','lu','-pc_factor_mat_solver_type','superlu_dist',
+                           '-ksp_pc_side','right','-ksp_norm_type','unpreconditioned',
+                           '-ksp_gmres_restart','2','-ksp_max_it','12']
     cli.add_argument('--modes', nargs='+', choices=flags, default=['asm','physics','mono_braess_tentative','mono_pressure_auto'])
     args = cli.parse_args()
     ranks = args.ranks
