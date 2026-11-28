@@ -124,6 +124,29 @@ void verify(MPI_Comm comm)
     require(constrained.values[index[2]]==7,"Updated constraint value was lost");
     const auto released=system.solve(config,initial,{}, {},diagonal);
     for(int row=0;row<3;++row) require(std::abs(released.values[index[row]]-(row+1))<1e-11,"Old constraints or matrix values survived reassembly");
+    if(std::numeric_limits<long double>::digits>std::numeric_limits<double>::digits) {
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_lu_refinement_steps","2"));
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_lu_refinement_rtol","1e-20"));
+        EONSIM_PETSC(PetscOptionsSetValue(nullptr,"-linear_lu_refinement_atol","1e-23"));
+        const auto exact=system.solve(config,initial,bc,changed_value,diagonal);
+        require(exact.values[index[2]]==7,"LU refinement changed a lifted constraint");
+        // FP64 computes 3*(1/3)==1, but the stored vector fails this original-unit
+        // tolerance. A positive PREONLY reason must never admit its Newton step.
+        const auto thirds=[&](const std::vector<double>& x,Vec r,Mat j) {
+            for(PetscInt row=l.begin;row<l.begin+l.owned;++row) {
+                EONSIM_PETSC(VecSetValue(r,row,3*x[index[row]]-1,ADD_VALUES));
+                if(j) EONSIM_PETSC(MatSetValue(j,row,row,3.,ADD_VALUES));
+            }
+        };
+        bool failed=false;
+        try { system.solve(config,std::vector<double>(3,0),{}, {},thirds); }
+        catch(const std::runtime_error& error) {
+            failed=std::string(error.what()).find("LU refinement failed the original equation")!=std::string::npos;
+        }
+        require(failed,"Rounded direct correction bypassed the explicit original-equation gate");
+        for(const char* option:{"-linear_lu_refinement_steps","-linear_lu_refinement_rtol","-linear_lu_refinement_atol"})
+            EONSIM_PETSC(PetscOptionsClearValue(nullptr,option));
+    }
     // preonly/Jacobi 报告范数为零，但首个近似线性解的实际缺陷是 (-1.5,-1.5,0)。
     // 直接检查非零诊断，避免仅用精确 LU 的近零结果掩盖错误算子或字段映射。
     const auto coupled=[&](const std::vector<double>& x,Vec r,Mat j) {

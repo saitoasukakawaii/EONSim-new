@@ -739,6 +739,7 @@ struct LinearDiagnostics {
     PetscInt started=0,completed=0;
     bool enabled=false;
     PetscInt lu_refinement_steps=0;
+    PetscReal lu_rtol=0,lu_atol=0;
     AdaptivePcState* adaptive_pc=nullptr;
     LinearPolicy* policy=nullptr;
     std::string policy_error;
@@ -751,7 +752,7 @@ struct LinearDiagnostics {
 
 // Reuse this correction's LU factor only. The snapshot contains each owned row
 // once and imports precisely its column vector entries, including off-rank ones.
-void refine_direct_correction(KSP ksp,Vec b,Vec x,PetscInt budget) {
+void refine_direct_correction(KSP ksp,Vec b,Vec x,PetscInt budget,PetscReal rtol,PetscReal atol) {
     Mat a,p;
     PC pc;
     EONSIM_PETSC(KSPGetOperators(ksp,&a,&p));
@@ -783,8 +784,7 @@ void refine_direct_correction(KSP ksp,Vec b,Vec x,PetscInt budget) {
     EONSIM_PETSC(VecDuplicate(b,product.put()));
     EONSIM_PETSC(VecDuplicate(x,delta.put()));
     EONSIM_PETSC(VecDuplicate(x,previous.put()));
-    PetscReal rtol,atol,bnorm;
-    EONSIM_PETSC(KSPGetTolerances(ksp,&rtol,&atol,nullptr,nullptr));
+    PetscReal bnorm;
     EONSIM_PETSC(VecNorm(b,NORM_2,&bnorm));
     const double limit=std::max(atol,rtol*bnorm);
     double best=std::numeric_limits<double>::infinity();
@@ -925,7 +925,7 @@ PetscErrorCode linear_complete(KSP ksp,Vec b,Vec x,void* pointer)
         KSPConvergedReason reason;
         PetscCall(KSPGetConvergedReason(ksp,&reason));
         if(reason>0) {
-            try { refine_direct_correction(ksp,b,x,d.lu_refinement_steps); }
+            try { refine_direct_correction(ksp,b,x,d.lu_refinement_steps,d.lu_rtol,d.lu_atol); }
             catch(const std::exception& e) { d.policy_error=e.what(); return PETSC_ERR_NOT_CONVERGED; }
         }
     }
@@ -1640,6 +1640,21 @@ struct NonlinearSystem::Workspace {
         MPI_Allreduce(residual_policy,global_residual_policy,6,MPI_INT,MPI_MAX,comm);
         if(global_residual_policy[3]||global_residual_policy[4]!=-global_residual_policy[5])
             throw std::runtime_error("LU refinement requires collective 1..5 steps, extended arithmetic and fresh unscaled PREONLY/LU");
+        if(diagnostics.lu_refinement_steps) {
+            // PREONLY has no iterative stopping criterion; KSPGetTolerances may
+            // return unused PETSc defaults. Require an explicit original-unit gate.
+            PetscBool has_rel,has_abs;
+            EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,"-linear_lu_refinement_rtol",&diagnostics.lu_rtol,&has_rel));
+            EONSIM_PETSC(PetscOptionsGetReal(nullptr,nullptr,"-linear_lu_refinement_atol",&diagnostics.lu_atol,&has_abs));
+            PetscReal tolerances[]={diagnostics.lu_rtol,diagnostics.lu_atol};
+            MPI_Bcast(tolerances,2,MPIU_REAL,0,comm);
+            int invalid=!has_rel||!has_abs||!std::isfinite(diagnostics.lu_rtol)||!std::isfinite(diagnostics.lu_atol)||
+                diagnostics.lu_rtol!=tolerances[0]||diagnostics.lu_atol!=tolerances[1]||
+                diagnostics.lu_rtol<0||diagnostics.lu_atol<0||(diagnostics.lu_rtol==0&&diagnostics.lu_atol==0);
+            int any_invalid=0;
+            MPI_Allreduce(&invalid,&any_invalid,1,MPI_INT,MPI_MAX,comm);
+            if(any_invalid) throw std::runtime_error("LU refinement requires explicit, consistent original-equation rtol and atol");
+        }
         if((global_residual_policy[0]&&global_residual_policy[1])||global_residual_policy[2])
             throw std::runtime_error("True residual verification requires the same option on all ranks, unpreconditioned flexible GMRES, and a residual-based convergence test without converged_maxits");
         verify_true_residual=true_residual;

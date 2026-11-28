@@ -58,7 +58,8 @@ def main():
             shutil.copyfile(base/name,out/name)
         info['partition'] = {p.name:digest(p) for p in sorted(part.glob('*')) if p.is_file()}
         cmd += ['-case','case.json','-partition',str(part),'-ksp_type','preonly','-pc_type','lu',
-                '-pc_factor_mat_solver_type','superlu_dist','-ksp_rtol','1e-10','-ksp_atol','1e-23',
+                '-pc_factor_mat_solver_type','superlu_dist','-linear_lu_refinement_rtol','1e-10',
+                '-linear_lu_refinement_atol','1e-23',
                 '-linear_lu_refinement_steps','5','-linear_report','-solver_report','-options_view']
     info['inputs'] = {p.name:digest(p) for p in out.iterdir()}
     save(out/'probe.json',info)
