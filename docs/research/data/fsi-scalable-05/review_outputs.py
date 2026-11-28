@@ -11,7 +11,7 @@ import sys
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE.parent/'fsi-scalable-02'))
 from paired_tube import compare, digest, physical, read_mesh, save
-from tube_protocol import audit_corrections, compare_trajectories, output_manifest, select
+from tube_protocol import archived_case, audit_corrections, compare_trajectories, output_manifest, select
 
 
 def compatible(a,b):
@@ -50,6 +50,18 @@ def main():
                 raise ValueError('Original selection or log changed')
             if any(digest(d/n)!=sha for n,sha in row['inputs'].items()):
                 raise ValueError('Original input changed')
+            archived,origin,origin_sha=archived_case(row['case'])
+            result['original_benchmark_sha256']=origin_sha
+            expected_names=['manifest.yaml',*(f'rank_{i}.h5' for i in range(row['ranks']))]
+            if (row['partition']!={n:origin['partition'][n] for n in expected_names}
+                    or any(row['inputs'][n]!=origin['inputs'][n] for n in ('fluid.msh','solid.msh'))
+                    or digest(archived/'case.json')!=origin['inputs']['case.json']):
+                raise ValueError('Mesh, partition or physics differs from archived benchmark')
+            expected=json.loads((archived/'case.json').read_text())
+            if expected['fsi']['steps']!=row['steps']:
+                expected['fsi'].update(steps=row['steps'],checkpoint_interval=row['steps'])
+            if json.loads((d/'case.json').read_text())!=expected:
+                raise ValueError('Window changes more than its declared step/checkpoint count')
             command=row['command']
             part=Path(command[command.index('-partition')+1])
             if any(digest(part/n)!=sha for n,sha in row['partition'].items()):

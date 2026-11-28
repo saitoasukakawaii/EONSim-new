@@ -8,6 +8,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
+from resource_accounting import formal_resources, resource_hours
 
 from tube_protocol import (BLOCKS, HERE, audit_corrections, audit_row, budget, compare_face_history,
                            full_field_differences, output_manifest, select, solver_options)
@@ -61,6 +62,20 @@ def synthetic_log(policy, counts):
 
 
 class ProtocolChecks(unittest.TestCase):
+    def test_exclusive_allocation_and_diagnostic_separation(self):
+        hours = resource_hours(4,'128(x1)',900.)
+        self.assertEqual((hours['active_rank_hours'],hours['allocated_core_hours']),(1.,32.))
+        with self.assertRaises(ValueError):
+            resource_hours(4,'2',900.)
+        opts={'-linear_componentwise_error':'false','-linear_report':'','-solver_report':''}
+        row=dict(formal=True,job='466',ranks=2,allocation='128',T_job=1.,affinity=[0,1],
+                 command=['mpiexec','-n','2','--map-by','core','--bind-to','core'],
+                 linear={'effective_options':opts})
+        self.assertEqual(formal_resources(row)[:3],('466',128,2))
+        opts['-fieldsplit_solid_ksp_monitor']=''
+        with self.assertRaises(ValueError):
+            formal_resources(row)
+
     def test_zero_rhs_nonzero_guess_and_max(self):
         p=select()
         row=correction(p,rhs=0,norm=p['atol'])

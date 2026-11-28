@@ -10,6 +10,7 @@ import sys
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE.parent/'fsi-scalable-02'))
 from paired_tube import digest, save
+from resource_accounting import formal_resources, resource_hours
 
 
 def main():
@@ -32,12 +33,13 @@ def main():
     if (not base['profile'].startswith('fixed-') or not matched or
             base['binary']!=digest(args.binary) or
             any(base[k]!=other[k] for k in ('binary','compiled_source','case','inputs','steps','partition','ranks')) or
-            any(q['qualification']!='independent_pair_passed' or
+            any(q.get('start_step',0)!=0 or q['qualification']!='independent_pair_passed' or
                 q['reference_receipt']!=digest(reference/'window.json') for q in qualified)):
         parser.error('requires matched, independently qualified fixed and inexact windows')
     root = args.output.resolve()
     root.mkdir(parents=True,exist_ok=False)
     result = dict(job=os.environ['SLURM_JOB_ID'], experiment=args.change, runs=[], status='incomplete')
+    resource_key = None
     try:
         for index in range(4):
             for side in ((0,1) if index%2==0 else (1,0)):
@@ -54,9 +56,15 @@ def main():
                 row = json.loads((folder/'window.json').read_text())
                 if row['qualification']!='independent_pair_passed' or row['policy']!=q['policy']:
                     raise ValueError('Timing sample failed the qualified profile')
+                observed = formal_resources(row)
+                if resource_key is None:
+                    resource_key = observed
+                if observed != resource_key or observed[0] != result['job']:
+                    raise ValueError('Matched samples used different Slurm allocations, bindings or MPI launchers')
                 result['runs'].append(dict(side=side, profile=q['profile'], pc=pc, warmup=index==0,
                     receipt_sha256=digest(folder/'window.json'), receipt=str(folder/'window.json'),
-                    T_job=row['T_job'], memory_bytes=row['rss_peak'], core_hours=row['core_hours'],
+                    T_job=row['T_job'], memory_bytes=row['rss_peak'],
+                    **resource_hours(row['ranks'],row['allocation'],row['T_job']),
                     newton=row['linear']['corrections'], ksp=row['linear']['ksp_iterations']))
         timings = [median(r['T_job'] for r in result['runs'] if
                    r['side']==side and not r['warmup']) for side in (0,1)]

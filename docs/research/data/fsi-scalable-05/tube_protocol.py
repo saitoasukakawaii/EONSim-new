@@ -15,6 +15,27 @@ HERE = Path(__file__).resolve().parent
 BLOCKS = {'velocity', 'pressure', 'mesh', 'structure'}
 
 
+def archived_case(case):
+    """Resolve the original meshes, physics and partition from the committed phase-03/04 index."""
+    from paired_tube import digest
+    work=Path.home()/'workspace'
+    if case=='C':
+        directory=work/'fsi-scalable-03-runs/C-first-64'
+        file=directory/'diagnosis.json'
+        index=HERE.parent/'fsi-scalable-03/log-index.json'
+    elif case in ('A','B'):
+        directory=work/'fsi-scalable-04-runs'/(case+'-return')
+        file=directory/'run.json'
+        index=HERE.parent/'fsi-scalable-04/tube-log-index.json'
+    else:
+        raise ValueError(f'Unknown tube mesh {case}')
+    key='$HOME/'+file.relative_to(Path.home()).as_posix()
+    sha=json.loads(index.read_text())[key]['sha256']
+    if digest(file)!=sha:
+        raise ValueError('Historical receipt differs from the committed benchmark index')
+    return directory,json.loads(file.read_text()),sha
+
+
 def select(protocol_id='CALIBRATED-v2', profile='fixed-1e-8'):
     if protocol_id not in ('STRICT-v1', 'CALIBRATED-v2'):
         raise ValueError(f'Unknown tube protocol {protocol_id}')

@@ -13,7 +13,9 @@ SOURCE = HERE.parents[3]
 sys.path.insert(0, str(HERE.parent / 'fsi-scalable-02'))
 from paired_tube import compare, digest, physical, read_mesh, run, save
 from arterial_ksp import options
-from tube_protocol import audit_corrections, compare_trajectories, output_manifest, select, solver_options
+from tube_checkpoint import checkpoint_receipt
+from resource_accounting import resource_hours
+from tube_protocol import archived_case, audit_corrections, compare_trajectories, output_manifest, select, solver_options
 
 
 def main():
@@ -24,6 +26,7 @@ def main():
     cli.add_argument('binary', type=Path)
     cli.add_argument('output', type=Path)
     cli.add_argument('--reference', type=Path)
+    cli.add_argument('--save-checkpoint', action='store_true', help='write a checked native HDF5 generation for continuation')
     cli.add_argument('--formal', action='store_true', help='omit componentwise and line-search diagnostics')
     cli.add_argument('--pc', choices=('physics','pressure-mg'), default='physics')
     cli.add_argument('--owner', choices=('on','off'), default='on')
@@ -35,10 +38,7 @@ def main():
             (args.mg_scale or args.owner!='on' or args.coarse_rows!=64 or
              (args.pc=='pressure-mg' and args.profile=='lu'))):
         cli.error('owner, Telescope and internal scaling require a pressure-mg candidate')
-    work = Path.home() / 'workspace'
-    archived = (work / 'fsi-scalable-03-runs/C-first-64' if args.case == 'C'
-                else work / 'fsi-scalable-04-runs' / (args.case + '-return'))
-    origin = json.loads((archived / 'run.json').read_text())
+    archived,origin,origin_sha = archived_case(args.case)
     part = Path(origin['command'][origin['command'].index('-partition') + 1])
     ranks = {'A': 4, 'B': 32, 'C': 64}[args.case]
     affinity = sorted(os.sched_getaffinity(0))
@@ -60,7 +60,7 @@ def main():
                ranks=ranks, affinity=affinity, formal=args.formal,
                allocation=os.getenv('SLURM_JOB_CPUS_PER_NODE'),
                limit_seconds=args.limit, rss_limit=140*2**30,
-               archive_receipt=digest(archived/'run.json'), qualification='open')
+               archive_receipt=origin_sha, qualification='open')
     row['preconditioner'] = dict(pc='lu' if args.profile=='lu' else args.pc)
     if args.pc=='pressure-mg':
         row['preconditioner'].update(owner=args.owner,coarse_rows=args.coarse_rows,mg_scale=args.mg_scale)
@@ -101,11 +101,17 @@ def main():
         cmd = ['/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/mpiexec', '--map-by', 'core',
                '--bind-to', 'core', '-n', str(ranks), str(binary), '-case', 'case.json',
                '-partition', str(part), *recipe, *policy_flags]
+        save_checkpoint = args.save_checkpoint or (args.case=='C' and args.steps>=20 and not args.formal)
+        if save_checkpoint:
+            cmd += ['-checkpoint',str(out/'checkpoint')]
         if not args.formal:
             cmd.extend(['-snes_monitor', '-snes_linesearch_monitor'])
-        os.environ.update(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
+        row['thread_environment'] = dict(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
+        os.environ.update(row['thread_environment'])
         run(out, cmd, row, args.limit, row['rss_limit'])
         row['linear'] = audit_corrections(out, args.steps, ranks, policy)
+        if save_checkpoint:
+            row['checkpoint'] = checkpoint_receipt(out/'checkpoint',args.steps,ranks)
         row['outputs'] = output_manifest(out, args.steps, ranks)
         row['qualification'] = 'linear_window_only'
         if args.steps >= 4:
@@ -140,7 +146,7 @@ def main():
         if (out/'solve.log').is_file():
             log = (out/'solve.log').read_text(errors='replace')
             row['accepted_steps'] = list(map(int, re.findall(r'^fsi_step=(\d+)', log, re.M)))
-            row['core_hours'] = ranks * row.get('T_job', 0) / 3600
+            row.update(resource_hours(ranks,row['allocation'],row.get('T_job')))
         save(out/'window.json', row)
 
 
