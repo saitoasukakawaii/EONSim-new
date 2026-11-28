@@ -1,26 +1,24 @@
 """Report the three independently qualified C20 pure-MPI layouts relative to 32 ranks."""
 import argparse
-import hashlib
 import json
 from pathlib import Path
 
+from collect_windows import digest
 from resource_accounting import resource_hours
 from scale_c import read_bindings
 
 
-def sha256(path):
-    with path.open('rb') as stream:
-        value = hashlib.sha256()
-        for block in iter(lambda: stream.read(1 << 20), b''):
-            value.update(block)
-        return value.hexdigest()
-
-
 def summarize(direct, paths):
-    direct_sha = sha256(direct / 'window.json')
-    baseline_sha = sha256(paths[1] / 'window.json')
+    direct_sha = digest(direct / 'window.json')
+    baseline_sha = digest(paths[1] / 'window.json')
     threads = dict(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
     baseline = json.loads((paths[1] / 'window.json').read_text())
+    reference = json.loads((direct / 'window.json').read_text())
+    if (reference['profile'] != 'lu' or reference['qualification'] != 'awaiting_independent_crosscheck' or
+            reference['ranks'] != 64 or reference['accepted_steps'] != list(range(1, 21)) or
+            reference['log_sha256'] != digest(direct / 'solve.log') or
+            any(reference[k] != baseline[k] for k in ('case', 'inputs', 'binary', 'compiled_source', 'partition'))):
+        raise ValueError('C64 direct reference differs from the qualified original trajectory')
     entries = []
     for ranks, path in zip((32, 64, 128), paths):
         receipt = path / 'window.json'
@@ -31,7 +29,7 @@ def summarize(direct, paths):
                 row['accepted_steps'] != list(range(1, 21)) or row['reference_receipt'] != direct_sha or
                 row['profile'] != 'fixed-1e-6' or row['preconditioner'] != {'pc': 'physics'} or
                 row['allocated_cpus'] != 128 or row['thread_environment'] != threads or
-                '-fsi_threads' in row['command'] or row['log_sha256'] != sha256(log) or
+                '-fsi_threads' in row['command'] or row['log_sha256'] != digest(log) or
                 row['rank_bindings'] != read_bindings(log.read_text(), ranks) or
                 any(row[k] != baseline[k] for k in ('inputs', 'binary', 'compiled_source', 'policy', 'archive_receipt'))):
             raise ValueError(f'Unmatched or unqualified cold C20 pure-MPI layout: {path}')
@@ -40,7 +38,7 @@ def summarize(direct, paths):
         hours = resource_hours(ranks, row['allocation'], row['T_job'])
         if any(row[key] != value for key, value in hours.items()):
             raise ValueError(f'Inconsistent recorded allocation or rank-hours: {path}')
-        entries.append(dict(ranks=ranks, job=row['job'], window_sha256=sha256(receipt),
+        entries.append(dict(ranks=ranks, job=row['job'], window_sha256=digest(receipt),
                             log_sha256=row['log_sha256'], T_job=row['T_job'],
                             new_partition_seconds=row.get('partition_preparation', {}).get('T_job'),
                             rss_bytes=row['rss_peak'], newton=row['linear']['corrections'],
