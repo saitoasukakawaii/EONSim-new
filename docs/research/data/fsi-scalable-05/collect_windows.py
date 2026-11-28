@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
+from physics_telescope import coarse_receipt
 from resource_accounting import formal_resources, resource_hours
 
 
@@ -55,6 +56,13 @@ def main():
                         raise ValueError(f'Timing source differs: {sample_path}')
                     matched = json.loads(sample_path.read_text())
                     layouts.add(formal_resources(matched))
+                    if row.get('experiment') == 'gamg_telescope':
+                        wrapped = bool(sample['side'])
+                        fields = coarse_receipt((sample_path.parent/'solve.log').read_text(),
+                                                matched['ranks'], matched['steps'], wrapped,
+                                                matched['linear']['effective_options'])
+                        if wrapped and fields != matched['gamg_coarse_fields']:
+                            raise ValueError(f'Coarse subtree differs from receipt: {sample_path}')
                     if matched['T_job'] != sample['T_job'] or matched['job'] != row['job']:
                         raise ValueError(f'Timing sample differs from original: {sample_path}')
                 if len(layouts)>1 or (row['status']=='passed' and len(row['runs'])!=8):

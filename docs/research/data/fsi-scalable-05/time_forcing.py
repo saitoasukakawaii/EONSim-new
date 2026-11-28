@@ -11,19 +11,23 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE.parent/'fsi-scalable-02'))
 from paired_tube import digest, save
 from resource_accounting import formal_resources, resource_hours
+from physics_telescope import EXPERIMENT, coarse_receipt
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('fixed','challenger','reference','binary','output'):
         parser.add_argument(name,type=Path)
-    parser.add_argument('--change',choices=('forcing','fixed-tolerance','owner','coarse_rows'),default='forcing')
+    parser.add_argument('--change',choices=('forcing','fixed-tolerance','owner','coarse_rows','gamg_telescope'),default='forcing')
     args = parser.parse_args()
     qualified = [json.loads((d/'window.json').read_text()) for d in (args.fixed,args.challenger)]
     base, other = qualified
     reference = args.reference.resolve(strict=True)
     pcs = [q.get('preconditioner',{'pc':'physics'}) for q in qualified]
-    if args.change in ('owner','coarse_rows'):
+    if args.change=='gamg_telescope':
+        matched=(base['policy']==other['policy'] and pcs==[{'pc':'physics'},{'pc':'physics','gamg_telescope':EXPERIMENT}]
+                 and other['gamg_baseline']['window_sha256']==digest(args.fixed/'window.json'))
+    elif args.change in ('owner','coarse_rows'):
         different = {k for k in pcs[0].keys() | pcs[1].keys() if pcs[0].get(k)!=pcs[1].get(k)}
         matched = (base['policy']==other['policy'] and different=={args.change} and pcs[0]['pc']=='pressure-mg')
     elif args.change=='forcing':
@@ -52,10 +56,15 @@ def main():
                     command.extend(['--pc','pressure-mg','--owner',pc['owner'],'--coarse-rows',str(pc['coarse_rows'])])
                     if pc['mg_scale']:
                         command.append('--mg-scale')
+                if pc.get('gamg_telescope'):
+                    command.extend(['--gamg-telescope',pc['gamg_telescope'],'--gamg-baseline',str(args.fixed.resolve())])
                 subprocess.run(command,check=True)
                 row = json.loads((folder/'window.json').read_text())
                 if row['qualification']!='independent_pair_passed' or row['policy']!=q['policy']:
                     raise ValueError('Timing sample failed the qualified profile')
+                if args.change=='gamg_telescope':
+                    coarse_receipt((folder/'solve.log').read_text(),row['ranks'],row['steps'],bool(side),
+                                   row['linear']['effective_options'])
                 observed = formal_resources(row)
                 if resource_key is None:
                     resource_key = observed
