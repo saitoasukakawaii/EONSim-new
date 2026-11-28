@@ -28,6 +28,7 @@ def describe(mode):
             opts += ['-fieldsplit_' + field + '_ksp_converged_reason']
     else:
         opts = flags('mono_pressure_auto', ports=True)
+        opts += ['-rcr_bulk_ksp_converged_reason', '-rcr_bulk_monolithic_mg_coarse_ksp_converged_reason']
     # Drop previous outer defaults before adding the frozen fixed profile.
     for key in ('-ksp_type', '-ksp_norm_type', '-ksp_pc_side', '-ksp_rtol', '-ksp_atol', '-ksp_max_it'):
         if key in opts:
@@ -93,6 +94,12 @@ def main():
         row['blocks'] = records(lines, 'linear_field_residual ') + records(lines, 'linear_iteration_limit_field_residual ')
         row['solvers'] = [r for r in records(lines, 'solver_node ') if r.get('rank') == '0']
         row['rcr'] = [r for r in records(lines, 'rcr_port_stats ') if r.get('rank') == '0']
+        row['rcr_setup'] = records(lines, 'rcr_port_pc ')
+        row['mg'] = [r for r in records(lines, 'monolithic_mg_stats ') if r.get('rank') == '0']
+        prefixes = (('rcr_bulk_','rcr_bulk_monolithic_mg_coarse_') if args.mode == 'pressure-mg' else
+                    ('fieldsplit_fluid_fieldsplit_velocity_', 'fieldsplit_solid_'))
+        row['subsolver_invocations'] = {prefix:sum('Linear '+prefix+' solve ' in line for line in lines)
+                                        for prefix in prefixes}
         row['artifacts'] = {n:digest(root/n) for n in ('operator.petsc', 'rhs.petsc', 'iterate.petsc') if (root/n).is_file()}
         if len(row['linear']) != 1 or len(row['blocks']) != 4:
             raise ValueError('Missing or repeated first correction')
@@ -117,6 +124,10 @@ def main():
                        for f in row['blocks'])):
             raise ValueError('First correction or field identity mismatch')
         row['production_ratio'] = audit_row(event, policy)
+        if not all(row['subsolver_invocations'].values()):
+            raise ValueError('Requested child solver did not report an invocation')
+        if args.mode == 'pressure-mg' and not any(int(r['responses']) > 0 for r in row['rcr_setup']):
+            raise ValueError('RCR bulk response missing')
         if row['exit_code'] and not any('SNES did not converge: reason=-5' in line for line in lines):
             raise ValueError('Unrecognized solver failure after linear correction')
         if max(measured['wide_norm'], measured['fp64_csr_norm']) > threshold:

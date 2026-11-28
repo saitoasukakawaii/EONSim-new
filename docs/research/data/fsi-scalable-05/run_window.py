@@ -75,7 +75,7 @@ def main():
         cmd = ['/opt/software/openmpi-4.1.8-gcc-11.5.0/bin/mpiexec', '--map-by', 'core',
                '--bind-to', 'core', '-n', str(ranks), str(binary), '-case', 'case.json',
                '-partition', str(part), *recipe, *policy_flags, '-snes_monitor',
-               '-snes_linesearch_monitor', '-options_view']
+               '-snes_linesearch_monitor']
         os.environ.update(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
         run(out, cmd, row, args.limit, row['rss_limit'])
         row['linear'] = audit_corrections(out, args.steps, ranks, policy)
@@ -93,7 +93,7 @@ def main():
                 prev = json.loads((ref/'window.json').read_text())
                 if (prev['qualification'] != 'awaiting_independent_crosscheck' or
                         prev['profile'] != 'lu' or args.profile == 'lu' or
-                        any(prev[k] != row[k] for k in ('inputs', 'partition', 'binary', 'source')) or
+                        any(prev[k] != row[k] for k in ('inputs', 'partition', 'binary', 'compiled_source')) or
                         prev['log_sha256'] != digest(ref/'solve.log')):
                     raise ValueError('Invalid or incompatible independent LU reference candidate')
                 audit_corrections(ref, args.steps, ranks, select('CALIBRATED-v2','lu'))

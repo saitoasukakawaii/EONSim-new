@@ -7,6 +7,7 @@ import csv
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import re
 
@@ -26,7 +27,9 @@ def select(protocol_id='CALIBRATED-v2', profile='fixed-1e-8'):
 
 
 def solver_options(policy, diagnostics=True):
-    common = ['-linear_protocol_hash', policy['hash'], '-linear_report', '-solver_report',
+    if any(os.getenv(k) for k in ('PETSC_OPTIONS','PETSC_OPTIONS_YAML')):
+        raise ValueError('Tube validation requires a clean PETSc options environment')
+    common = ['-skip_petscrc', '-options_view', '-linear_protocol_hash', policy['hash'], '-linear_report', '-solver_report',
               '-linear_componentwise_error', 'true' if diagnostics else 'false']
     if policy['mode'] == 'lu':
         return common + ['-ksp_type', 'preonly', '-pc_type', 'lu', '-pc_factor_mat_solver_type', 'superlu_dist',
@@ -52,6 +55,58 @@ def finite(row, key):
 
 def records(lines, prefix):
     return [dict(re.findall(r'(\w+)=([^\s]+)', line)) for line in lines if line.startswith(prefix)]
+
+
+def verify_invocation(folder, lines, policy):
+    """Check effective options against the recorded command and the frozen profile."""
+    receipt = json.loads((folder/'run.json').read_text())
+    if receipt.get('exit_code') != 0 or receipt['log_sha256'] != hashlib.sha256((folder/'solve.log').read_bytes()).hexdigest():
+        raise ValueError('Unsuccessful invocation or changed log')
+    command = receipt['command']
+    start, end = '#PETSc Option Table entries:', '#End of PETSc Option Table entries'
+    if lines.count(start)!=1 or lines.count(end)!=1:
+        raise ValueError('Missing effective PETSc option table')
+    table = {}
+    for line in lines[lines.index(start)+1:lines.index(end)]:
+        m = re.fullmatch(r'(-\S+)(?:\s+(.*?))?\s+# \(source: ([^)]+)\)',line)
+        if not m or m[1] in table or m[3] not in ('command line','code'):
+            raise ValueError(f'Unexpected PETSc option source or repetition: {line}')
+        table[m[1]] = (m[2] or '').strip()
+    # Older phase-05 invocations without -skip_petscrc remain verifiable: any
+    # effective option from an external file/environment is rejected above.
+    i = command.index('-case')
+    while i < len(command):
+        key = command[i]
+        if not key.startswith('-'):
+            raise ValueError(f'Invalid option in recorded solver invocation: {key}')
+        value = ''
+        if i+1<len(command) and not command[i+1].startswith('-'):
+            value = command[i+1]
+            i += 1
+        if table.get(key) != value:
+            raise ValueError(f'PETSc options and command differ for {key}')
+        i += 1
+    def produced(key):
+        return table.get(key,'').lower()
+    diagnostics = produced('-linear_componentwise_error')
+    if diagnostics not in ('true','false') or produced('-linear_protocol_hash') != policy['hash']:
+        raise ValueError('Missing or changed effective protocol or diagnostic mode')
+    if policy['mode']=='lu':
+        if (produced('-ksp_type')!='preonly' or produced('-pc_type')!='lu'
+                or produced('-pc_factor_mat_solver_type')!='superlu_dist'
+                or int(table['-linear_lu_refinement_steps'])!=policy['refinements']):
+            raise ValueError('Effective direct reference configuration differs')
+        prefix = '-linear_lu_refinement_'
+    else:
+        if (produced('-ksp_type') not in ('fgmres','pipefgmres') or produced('-nonlinear_true_residual')!='true'
+                or produced('-ksp_norm_type')!='unpreconditioned'
+                or produced('-nonlinear_inexact_newton') != ('true' if policy['mode']=='inexact' else 'false')):
+            raise ValueError('Effective iterative configuration differs')
+        prefix = '-ksp_'
+    for name in ('rtol','atol'):
+        if finite(table,prefix+name)!=policy[name]:
+            raise ValueError('Effective tolerance differs from pre-run selection')
+    return table, diagnostics=='true'
 
 
 def audit_row(row, policy, previous=None):
@@ -95,6 +150,7 @@ def audit_corrections(folder, steps, ranks, policy):
     if select(policy['protocol_id'], policy['profile']) != policy:
         raise ValueError('Declaration differs from frozen protocol')
     lines = (folder / 'solve.log').read_text().splitlines()
+    options, componentwise = verify_invocation(folder,lines,policy)
     reports, states = records(lines, 'solver_report '), records(lines, 'fsi_step=')
     rows = records(lines, 'linear_residual ')
     fields = records(lines, 'linear_field_residual ')
@@ -121,6 +177,15 @@ def audit_corrections(folder, steps, ranks, policy):
                 raise ValueError(f'{reported} differs from frozen case at step {step}')
         if finite(report,'snes_stol') != 0:
             raise ValueError('Unexpected SNES step tolerance')
+        if (report['linesearch'] not in ('bt','basic') or not 0 < finite(report,'final_lambda') <= 1
+                or int(report['matrix_free']) != 0 or int(report['pc_rebuild_retries']) != 0
+                or int(report['inexact_linear_solves']) != (count if policy['mode']=='inexact' else 0)):
+            raise ValueError('Effective nonlinear solver differs from the frozen run')
+        expected_pc = options.get('-pc_type')
+        if options.get('-pc_recipe')=='physics':
+            expected_pc='fieldsplit'
+        if expected_pc and report['pc']!=expected_pc:
+            raise ValueError('Instantiated outer PC differs from invocation')
         final = finals[(step-1)*4:step*4]
         if {f['name'] for f in final} != BLOCKS or any(int(f['accepted']) != 1 for f in final):
             raise ValueError(f'Unaccepted nonlinear field or constraint at step {step}')
@@ -163,7 +228,7 @@ def audit_corrections(folder, steps, ranks, policy):
                 field['equation_l2'] = finite(field,'rms') * finite(field,'residual_scale') * math.sqrt(n_eq)
                 field['constraint_physical_max'] = finite(field,'constraint_max') * finite(field,'constraint_scale')
             for k in ('wide_norm','backward_error'):
-                if k in row and finite(row,k)<0:
+                if (k in row) != componentwise or (componentwise and finite(row,k)<0):
                     raise ValueError(f'Invalid {k}')
             corrections.append(dict(**row, fields=blocks))
             previous = row
@@ -174,7 +239,8 @@ def audit_corrections(folder, steps, ranks, policy):
                 corrections=len(rows), max_ratio=max(ratios), dofs=int(reports[0]['dofs']),
                 ksp_iterations=sum(int(r['linear_iterations']) for r in reports),
                 ksp=reports[0]['ksp'], pc=reports[0]['pc'], rows=corrections,
-                accepted_steps=states, solver_reports=reports, nonlinear_fields=finals)
+                accepted_steps=states, solver_reports=reports, nonlinear_fields=finals,
+                effective_options=options)
 
 def history_quantity(key):
     if key in ('step','time','evaluation_time','accepted_dt','time_order','rcr_tag','reference_interface_area'):

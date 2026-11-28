@@ -1,5 +1,6 @@
 """Small deterministic checks of the FSI-SCALABLE-05 audit without PETSc or VTK."""
 import csv
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -27,6 +28,7 @@ def test_log(policy, counts):
     for step,count in enumerate(counts,1):
         for i in range(1,count+1):
             row=correction(policy,step,i,eta=.1 if i==1 else .5,norm=.01)
+            row.update(wide_norm=.01,backward_error=.001)
             lines.append(line('linear_residual ',row))
             identity={k:row[k] for k in ('protocol_hash','step','newton','attempt','pc_attempt','solve')}
             for name in sorted(BLOCKS):
@@ -37,10 +39,21 @@ def test_log(policy, counts):
                               initial_rms=0,constraint_limit=1e-12,residual_scale=1,constraint_scale=1,accepted=1)))
         lines.append(line('solver_report ',dict(ranks=1,step=step,attempt=1,protocol_hash=policy['hash'],
                           dofs=40, ksp='fgmres',pc='asm', ksp_reason=2,snes_reason=3,snes_stol=0,
+                          linesearch='bt',final_lambda=1,matrix_free=0,pc_rebuild_retries=0,inexact_linear_solves=count,
                           snes_atol=1e-12,snes_rtol=1e-10,snes_max_it=1000,
                           linear_started=count,linear_completed=count,linear_iterations=count)))
         lines.append(line('',dict(fsi_step=step,snes_iterations=count,residual=1e-13)))
-    return '\n'.join(lines+['status=success'])
+    command=['example','-case','case.json','-pc_type','asm',*solver_options(policy)]
+    options=[]
+    for token in command[1:]:
+        if token.startswith('-'):
+            options.append(token)
+        else:
+            options[-1]+=' '+token
+    lines += ['status=success','#PETSc Option Table entries:']
+    lines += [entry+' # (source: command line)' for entry in options]
+    lines.append('#End of PETSc Option Table entries')
+    return '\n'.join(lines),command
 
 
 class ProtocolChecks(unittest.TestCase):
@@ -79,17 +92,23 @@ class ProtocolChecks(unittest.TestCase):
             folder=Path(tmp)
             (folder/'case.json').write_text(json.dumps({'solver':{}}))
             log=folder/'solve.log'
-            good=test_log(p,[2,1])
-            log.write_text(good)
+            good,command=test_log(p,[2,1])
+            def write_log(text):
+                log.write_text(text)
+                meta=dict(command=command,exit_code=0,log_sha256=hashlib.sha256(log.read_bytes()).hexdigest())
+                (folder/'run.json').write_text(json.dumps(meta))
+            write_log(good)
             self.assertEqual(audit_corrections(folder,2,1,p)['corrections'],3)
             for bad in (good.replace('linear_started=2','linear_started=1'),
                         good.replace('ksp_reason=2','ksp_reason=-2',1),
                         good.replace('accepted=1','accepted=0',1),
                         good.replace('requested_rtol=0.1','requested_rtol=0.5'),
                         good.replace('snes_atol=1e-12','snes_atol=1e-3'),
+                        good.replace('(source: command line)','(source: file)',1),
+                        good.replace('pc=asm','pc=lu'),
                         good.replace('step=2','step=1'),
                         good.replace('linear_field_residual','omitted_field',1)):
-                log.write_text(bad)
+                write_log(bad)
                 with self.assertRaises(ValueError):
                     audit_corrections(folder,2,1,p)
 

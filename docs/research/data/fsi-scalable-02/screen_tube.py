@@ -98,6 +98,13 @@ def main():
         cli.error('--profile must be an iterative candidate profile')
     reference_policy = select(args.protocol, ('lu' if args.new_reference in ('direct',None) else
                               'strict-reference' if strict else 'fixed-1e-8'))
+    # Legacy recipes also carry outer tolerances. Keep only the PC and
+    # non-conflicting KSP choices, so PETSc receives one numerical declaration.
+    for opts in flags.values():
+        for key in ('-ksp_rtol','-ksp_atol','-ksp_type','-ksp_pc_side','-ksp_norm_type'):
+            if key in opts:
+                i = opts.index(key)
+                del opts[i:i+2]
     if not strict and not (args.new_reference or args.audited_direct_reference):
         args.new_reference = 'direct'
     if args.new_reference in args.modes or len(set(args.modes)) != len(args.modes):
