@@ -12,14 +12,14 @@ from study_hydrostatic_fsi import recovered_state
 import benchmark_fsi_assembly as assembly
 
 
-def compare_states(first,second,steps,meshes,solver='eon'):
+def compare_states(first,second,steps,meshes,solver='eon',ranks=(1,1)):
     maximum=0.
     for step in range(4,steps+1,4):
         if solver=='svfsi':
             native=[wall.external_fields(folder/'1-procs'/f'result_{step:03d}.vtu',meshes) for folder in (first,second)]
         for i,suffix in enumerate(('','_solid')):
             name=f'tube_step{step}'+suffix
-            states=([recovered_state(folder,name,meshes[i],bool(i),1) for folder in (first,second)]
+            states=([recovered_state(folder,name,meshes[i],bool(i),n) for folder,n in zip((first,second),ranks)]
                     if solver=='eon' else [fields[i] for fields in native])
             if states[0].keys()!=states[1].keys():raise ValueError('Field node coverage differs')
             for node,a in states[0].items():

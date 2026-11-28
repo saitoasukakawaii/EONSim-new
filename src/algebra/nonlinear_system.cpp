@@ -127,11 +127,13 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
         PetscCall(MatGetSize(matrix,&rows,&columns));
         PetscCall(MatGetLocalSize(matrix,&local_rows,&local_columns));
     }
+    int comm_size=0;
+    PetscCallMPI(MPI_Comm_size(PetscObjectComm(reinterpret_cast<PetscObject>(ksp)),&comm_size));
     out<<"solver_node rank="<<rank<<" path="<<path<<" prefix="<<(prefix&&*prefix?prefix:"-")
        <<" ksp="<<(kt?kt:"unset")<<" pc="<<(pt?pt:"unset")
        <<" ksp_reason="<<reason<<" ksp_reason_name="<<KSPConvergedReasons[reason]
        <<" pc_reason="<<failure<<" pc_reason_name="<<PCFailedReasons[failure]
-       <<" operator_set="<<operator_set<<" operator_rows="<<rows<<" operator_columns="<<columns
+       <<" comm_size="<<comm_size<<" operator_set="<<operator_set<<" operator_rows="<<rows<<" operator_columns="<<columns
        <<" operator_local_rows="<<local_rows<<" operator_local_columns="<<local_columns
        <<" last_iterations="<<iterations<<" reported_norm="<<norm<<" norm_type="<<norm_type<<'\n';
     if(!pt) return PETSC_SUCCESS;
@@ -164,6 +166,11 @@ PetscErrorCode describe_solver(KSP ksp,int rank,const std::string& path,
             PetscCall(PetscFree(sub));
         }
         // FieldSplit arrays belong to the caller; all child KSPs are borrowed.
+    } else if(std::strcmp(pt,PCTELESCOPE)==0) {
+        // Local borrowed handle. Ranks outside the reduced communicator have no child.
+        KSP inner=nullptr;
+        PetscCall(PCTelescopeGetKSP(pc,&inner));
+        if(inner) children.emplace_back("telescope",inner);
     } else if(std::strcmp(pt,PCSHELL)==0) {
         if(KSP bulk=deflated_fgmres_bulk_solver(pc)) children.emplace_back("deflated_bulk",bulk);
         DeflatedFgmresStats deflated;

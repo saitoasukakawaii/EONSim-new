@@ -13,7 +13,10 @@ def main():
     cli=argparse.ArgumentParser(description=__doc__)
     for name in ('seed','root','binary','mpiexec'): cli.add_argument('--'+name,type=Path,required=True)
     cli.add_argument('--ranks',type=int,nargs='+',required=True)
+    cli.add_argument('--coarse-rows-per-rank',type=int,default=64)
+    cli.add_argument('--local-fields',action='store_true')
     args=cli.parse_args(); seed=json.loads(args.seed.read_text()); root=args.root.resolve()
+    if args.coarse_rows_per_rank<1: cli.error('coarse row budget must be positive')
     if not os.environ.get('SLURM_JOB_ID'): cli.error('requires a Slurm allocation')
     root.mkdir(parents=True,exist_ok=False); rows=[]
     for rank in args.ranks:
@@ -24,13 +27,18 @@ def main():
             folder=root/f'r{rank}-profile{int(enabled)}'; folder.mkdir(); output=folder/'solution.vtu'
             events=folder/'events.csv'; mode='mono_pressure_auto'
             command=[args.mpiexec.resolve(),'--bind-to','core','--map-by','socket','-n',str(rank),args.binary.resolve(),'-case',casepath,
-                     '-partition',partition,'-output',output,'-vtu_format','ascii','-vtu_boundary','false','-fsi_threads','1',*scaling.multigrid.flags(mode)]
+                     '-partition',partition,'-output',output,'-vtu_format','ascii','-vtu_boundary','false','-fsi_threads','1',
+                     *scaling.multigrid.flags(mode,coarse_rows_per_rank=args.coarse_rows_per_rank)]
+            if args.local_fields: command+=['-monolithic_mg_braess_local_fields','true']
             if enabled: command+=['-monolithic_mg_profile_levels','true','-log_view',f':{events}:ascii_csv']
             row=dict(ranks=rank,profile=enabled,command=list(map(str,command)),status='running'); rows.append(row)
             try:
                 text=scaling.block.timed_command(command,folder/'solver.log',300,row,rss_interval=.5,rss_limit=140*2**30)
                 trace=scaling.assembly.history(output.with_suffix('.csv'),5,float(case['configuration']['fsi']['dt']))
-                audit=scaling.multigrid.audit(text,trace,rank,mode)
+                audit=scaling.multigrid.audit(text,trace,rank,mode,coarse_rows_per_rank=args.coarse_rows_per_rank)
+                observed=scaling.assembly.records(text,'pc_monolithic_mg ')
+                row['coarse_processes']=sorted({int(h['coarse_processes']) for h in observed})
+                row['coarsest_rows']=sorted({int(h['coarsest_rows']) for h in observed})
                 row.update(outer_iterations=audit['outer_iterations'],dofs=audit['dofs'])
                 reference_trace=scaling.assembly.history(parent/'solution.csv',5,float(case['configuration']['fsi']['dt']))
                 row['history_difference']=scaling.multigrid.previous.compare_history(reference_trace,trace)

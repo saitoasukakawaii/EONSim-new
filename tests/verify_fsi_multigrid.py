@@ -68,7 +68,7 @@ def features(mode):
     return FEATURES.get(mode, {'mf'} if mode in ('mono_mf', 'mono_mf_pipe') else set())
 
 
-def flags(mode, ports=False):
+def flags(mode, ports=False, coarse_rows_per_rank=64):
     if mode == 'direct':
         return [*block.flags('direct', 'rcm'), '-linear_report', '-solver_report']
     pipelined = mode in ('mono_pipe', 'mono_mf_pipe')
@@ -120,7 +120,7 @@ def flags(mode, ports=False):
         if 'pressure_image' in selected:
             result += [prefix + 'pressure_image_modes', '2']
         if 'coarse_auto' in selected:
-            result += [prefix + 'coarse_rows_per_rank', '64']
+            result += [prefix + 'coarse_rows_per_rank', str(coarse_rows_per_rank)]
         for feature, kind in (('braess', 'braess_sarazin'), ('colored', 'vanka_colored'),
                               ('multiplicative', 'vanka_multiplicative')):
             if feature in selected:
@@ -257,7 +257,7 @@ def mesh_convergence_goal(cases, modes):
     return result
 
 
-def audit(log, trace, ranks, mode):
+def audit(log, trace, ranks, mode, coarse_rows_per_rank=64):
     selected = features(mode)
     reports = assembly.records(log, 'solver_report ')
     residuals = assembly.records(log, 'linear_residual ')
@@ -323,9 +323,9 @@ def audit(log, trace, ranks, mode):
         if 'coarse_auto' in selected:
             for row in hierarchy:
                 rows = int(row['coarsest_rows'])
-                block.require(rows > 0 and int(row['coarse_rows_per_rank']) == 64,
+                block.require(rows > 0 and int(row['coarse_rows_per_rank']) == coarse_rows_per_rank,
                               'Missing observed row-budget inputs')
-                minimum = 1 if rows == 1 else min(ranks, max(2, math.ceil(rows / 64)))
+                minimum = 1 if rows == 1 else min(ranks, max(2, math.ceil(rows / coarse_rows_per_rank)))
                 expected = next(count for count in range(minimum, ranks + 1) if ranks % count == 0)
                 block.require(int(row['coarse_processes']) == expected,
                               ('Incorrect row-budget coarse communicator', rows, expected))

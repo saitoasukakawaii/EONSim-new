@@ -130,7 +130,7 @@ def run(folder, command, receipt, limit, rss_limit=8*2**30):
             stream.flush(); receipt['log_sha256']=digest(folder/'solve.log'); save(folder/'run.json',receipt)
 
 
-def physical(folder, solver, meshes, steps, ranks=1):
+def physical(folder, solver, meshes, steps, ranks=1, *, write=True):
     log=(folder/'solve.log').read_text(errors='replace')
     if solver=='eon':
         rows=re.findall(r'^fsi_step=(\d+) .*? residual=([^ ]+) ',log,re.M)
@@ -175,14 +175,23 @@ def physical(folder, solver, meshes, steps, ranks=1):
         _,area=measured_ring_strains(meshes[1],states[1])
         trace.append(dict(step=step, outlet=flow[1], inlet_error=abs(-flow[0]-math.sin(2*math.pi*DT*step)),
                           mass_error=abs(sum(flow)), interface_gap=gap, dp=ports[1]['mean_pressure']-ports[2]['mean_pressure'], area=list(area)))
+    for phase in trace:
+        if not phase['area'] or not all(math.isfinite(x) for x in
+                (*phase['area'],phase['inlet_error'],phase['outlet'],phase['mass_error'],phase['interface_gap'],phase['dp'])):
+            raise ValueError(f"Nonfinite or missing physical observation at step {phase['step']}")
     result=dict(convergence=convergence, circuit_error=terminal, trace=trace)
-    save(folder/'physical.json',result)
+    if write:
+        save(folder/'physical.json',result)
     return result
 
 
 def compare(left,right):
     checks={'circuit':max(left['circuit_error'],right['circuit_error'])/2e-6}
+    if not left['trace'] or [r['step'] for r in left['trace']] != [r['step'] for r in right['trace']]:
+        raise ValueError('Physical output phases differ')
     for a,b in zip(left['trace'],right['trace']):
+        if not a['area'] or len(a['area'])!=len(b['area']):
+            raise ValueError('Cross-section coverage differs')
         pair=dict(inlet=max(a['inlet_error'],b['inlet_error'])/2e-6, mass=max(a['mass_error'],b['mass_error'])/.05,
                   interface=max(a['interface_gap'],b['interface_gap'])/1e-8, outlet=abs(a['outlet']-b['outlet'])/.05,
                   pressure=abs(a['dp']-b['dp'])/1.6, area=max(abs(x-y) for x,y in zip(a['area'],b['area']))/(.08*MATERIAL.lame_area_strain(20)))

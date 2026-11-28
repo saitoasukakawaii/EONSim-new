@@ -84,17 +84,17 @@ def recovered_state(directory, stem, mesh, solid, ranks):
     for rank in range(ranks):
         suffix='' if ranks==1 else f'_rank{rank}'
         piece=ET.parse(directory/(stem+suffix+'.vtu')).find('.//Piece')
-        values={v.get('Name'):list(map(float,v.text.split())) for v in piece.findall('PointData/DataArray')}
-        positions=list(map(float,piece.find('Points/DataArray').text.split()))
+        values={v.get('Name'):list(map(float,(v.text or '').split())) for v in piece.findall('PointData/DataArray')}
+        positions=list(map(float,(piece.find('Points/DataArray').text or '').split()))
         displacements=values['displacement' if solid else 'mesh_displacement']
         velocity=values['velocity']
         npoints=int(piece.get('NumberOfPoints'))
         if (any(len(v)!=3*npoints for v in (positions,displacements,velocity))
                 or (not solid and len(values['pressure'])!=npoints)):
             raise ValueError('Incomplete coupled point fields')
-        connectivity=list(map(int,piece.find('Cells/DataArray[@Name="connectivity"]').text.split()))
-        types=list(map(int,piece.find('Cells/DataArray[@Name="types"]').text.split()))
-        if (not all(t==10 for t in types) or len(connectivity)!=4*len(types)
+        connectivity=list(map(int,(piece.find('Cells/DataArray[@Name="connectivity"]').text or '').split()))
+        types=list(map(int,(piece.find('Cells/DataArray[@Name="types"]').text or '').split()))
+        if (len(types)!=int(piece.get('NumberOfCells')) or not all(t==10 for t in types) or len(connectivity)!=4*len(types)
                 or any(i<0 or i>=npoints for i in connectivity)):
             raise ValueError('Expected Tet4 cells in each coupled field')
         mapping={}

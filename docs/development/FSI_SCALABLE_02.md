@@ -13,7 +13,7 @@
 
 作业 403 通过修复后的 C 网格前处理，924,953 自由度、64 MPI 的 ASM 外层 FGMRES 达到迭代上限，20 步门槛失败。B 和 C 均没有合格的跨代码长窗口。A 的速度比仅适用于该网格；大血管通用配置、跨网格退化预算和七周期资格仍开放。以下章节保留首次测量的二进制与参数，最终采用判定以上述独立审计为准。
 
-2026-11-27。PR #69 已合入 `main@4974cb6`。本轮在 [Draft PR #70](https://github.com/saitoasukakawaii/EONSim-new/pull/70) 上开发。物理预算、时间步、输出和采用门槛见[先于测量提交的协议](FSI_SVFSI_BENCHMARK.md)。
+PR #69 已合入 `main@4974cb6`；本阶段的 [PR #70](https://github.com/saitoasukakawaii/EONSim-new/pull/70) 已合入 `main@14d36940e`。物理预算、时间步、输出和采用门槛见[先于测量提交的协议](FSI_SVFSI_BENCHMARK.md)。
 
 ## 同机、单核、从静止开始的脉动弹性管
 
