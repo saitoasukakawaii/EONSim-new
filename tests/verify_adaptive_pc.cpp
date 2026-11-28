@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <limits>
+#include <sstream>
 #include <stdexcept>
 
 using namespace eonsim;
@@ -194,6 +196,61 @@ void verify(MPI_Comm comm) {
     check(comm,next_budget.solver_reused&&next_budget.solver_generation==within_budget.solver_generation&&
           next_budget.pc_rebuild_retries==1&&next_budget.iterations==5&&late_retry(),
           "Retained adaptive session kept the retry's reduced Newton/function budgets");
+    // On the second correction the larger RHS drives eta to its upper bound.
+    // The same RHS is retried with a fresh PC. Its first eta must restart.
+    option("-nonlinear_inexact_newton","true"); option("-nonlinear_true_residual","true");
+    option("-nonlinear_forcing_initial","1e-4"); option("-nonlinear_forcing_max","1e-3");
+    const std::string protocol(64,'c');
+    option("-linear_protocol_hash",protocol.c_str()); option("-linear_report","true");
+    budget_phases.step=1;
+    const auto forcing_solve=[&]() {
+        NonlinearSystem fresh(comm,layout);
+        tangent_states.clear();
+        return fresh.solve(budget_config,initial,{}, {},nonlinear,budget_phases);
+    };
+    option("-snes_max_it","4"); iteration_limited=false;
+    try {forcing_solve();} catch(const StepRejected& error) {
+        iteration_limited=std::string(error.what()).find(
+            "reason="+std::to_string(static_cast<int>(SNES_DIVERGED_MAX_IT)))!=std::string::npos;
+    }
+    check(comm,iteration_limited&&late_retry(),"Inexact retry lost the original Newton budget");
+    option("-snes_max_it","5");
+    std::ostringstream receipt;
+    auto* output=std::cout.rdbuf(receipt.rdbuf());
+    NonlinearResult forced;
+    try {forced=forcing_solve();} catch(...) {std::cout.rdbuf(output); throw;}
+    std::cout.rdbuf(output);
+    check(comm,forced.pc_rebuild_retries==1&&forced.iterations==5&&late_retry(),
+          "Inexact fixture missed the bounded retry at the accepted state");
+    bool exhausted=false,restarted=false;
+    if(rank==0) {
+        std::istringstream events(receipt.str());
+        std::string line;
+        double failed_rhs=0;
+        while(std::getline(events,line)) {
+            if(line.find("linear_iteration_limit_residual solve=2 ")!=0&&
+               line.find("linear_residual solve=3 ")!=0) continue;
+            auto value=[&](const std::string& key) {
+                const auto pos=line.find(" "+key+"=");
+                return pos==std::string::npos?std::numeric_limits<double>::quiet_NaN():
+                    std::stod(line.substr(pos+key.size()+2));
+            };
+            const double eta=value("requested_rtol"),rhs=value("rhs_norm"),limit=value("limit");
+            const bool valid=line.find("protocol_hash="+protocol+" ")!=std::string::npos&&
+                value("step")==1&&value("attempt")==1&&value("forcing")==1&&value("base_rtol")==1e-12&&
+                value("requested_atol")==1e-14&&limit==std::max(1e-14,eta*rhs);
+            if(line.find("linear_iteration_limit_residual")==0) {
+                failed_rhs=rhs;
+                exhausted=valid&&value("pc_attempt")==1&&value("newton")==2&&eta==1e-3&&
+                    value("ksp_reason")==KSP_DIVERGED_ITS&&value("ksp_iterations")==2&&value("norm")>limit;
+            } else {
+                restarted=valid&&exhausted&&rhs==failed_rhs&&value("pc_attempt")==2&&value("newton")==1&&
+                    eta==1e-4&&value("ksp_reason")>0&&value("norm")<=limit;
+            }
+            std::cout<<line<<'\n';
+        }
+    }
+    check(comm,rank!=0||(exhausted&&restarted),"Failed KSP gate or first retry forcing disagrees with its receipt");
     if(rank==0) std::cout<<"adaptive_pc verified real setup counts, fresh operators, age/drift/time/iteration invalidation and rollback on "<<size<<" ranks\n";
 }
 }
