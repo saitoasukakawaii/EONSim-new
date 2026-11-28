@@ -1,5 +1,7 @@
 # EONSim Codex Development Progress
 
+独立合格的 C20 在 32/64/128 纯 MPI 上分别用时 928.545、630.015、460.145 s，每档一次。[C20 强扩展](FSI_SCALABLE_05.md#c20-的纯-mpi-强扩展)
+
 真实管 B20 在 32 MPI 上保持固定容差并缩减四个 GAMG 粗层，三对正式样本的 T_job 中位数从 53.264 s 降至 37.275 s。[样本与核验](FSI_SCALABLE_05.md#固定精度的真实管-gamg-粗层通信)
 
 A20 的两组通信正式时间均独立核过相同 LU。physics/Telescope 从 2.321 s 降至 1.806 s，整体 MG 的 owner 本地读写从 6.334 s 降至 2.974 s。[真实管通信比较](FSI_SCALABLE_05.md#a20-的两种通信比较)
