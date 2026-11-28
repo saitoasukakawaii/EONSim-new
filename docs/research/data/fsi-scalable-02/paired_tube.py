@@ -175,6 +175,10 @@ def physical(folder, solver, meshes, steps, ranks=1, *, write=True):
         _,area=measured_ring_strains(meshes[1],states[1])
         trace.append(dict(step=step, outlet=flow[1], inlet_error=abs(-flow[0]-math.sin(2*math.pi*DT*step)),
                           mass_error=abs(sum(flow)), interface_gap=gap, dp=ports[1]['mean_pressure']-ports[2]['mean_pressure'], area=list(area)))
+    for phase in trace:
+        if not phase['area'] or not all(math.isfinite(x) for x in
+                (*phase['area'],phase['inlet_error'],phase['outlet'],phase['mass_error'],phase['interface_gap'],phase['dp'])):
+            raise ValueError(f"Nonfinite or missing physical observation at step {phase['step']}")
     result=dict(convergence=convergence, circuit_error=terminal, trace=trace)
     if write:
         save(folder/'physical.json',result)
