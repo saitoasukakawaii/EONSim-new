@@ -4,9 +4,11 @@ import csv
 import gzip
 import hashlib
 import json
+import re
 from pathlib import Path
 import subprocess
 from physics_telescope import coarse_receipt
+from tube_protocol import records
 from resource_accounting import formal_resources, resource_hours
 
 
@@ -18,18 +20,54 @@ def digest(path):
     return value.hexdigest()
 
 
+def owner_smoother_stats(log, row):
+    """Require active RCR bulk Braess smoothers on every reported step and rank."""
+    options = row['linear']['effective_options']
+    owner = row['preconditioner']['owner']
+    prefix = '-rcr_bulk_monolithic_mg_'
+    if (owner not in ('on', 'off') or options.get('-pc_recipe') != 'monolithic_mg' or
+            options.get(prefix + 'smoother') != 'braess_sarazin' or
+            options.get(prefix + 'braess_local_fields') != ('true' if owner == 'on' else 'false')):
+        raise ValueError('RCR bulk Braess owner options differ from the declared configuration')
+    result = []
+    start = row.get('start_step', 0)
+    reports = ('\n' + log).split('\nsolver_report ')[1:]
+    if len(reports) != row['steps'] - start:
+        raise ValueError('Missing solver report in Braess owner window')
+    for step, report in enumerate(reports, start + 1):
+        header, _, body = report.partition('\n')
+        if int(records(['solver_report ' + header], 'solver_report ')[0]['step']) != step:
+            raise ValueError('Unexpected step in Braess owner report')
+        rows = [x for x in records(body.splitlines(), 'monolithic_mg_stats ') if x['path'] == 'root/rcr_bulk']
+        rows.sort(key=lambda x: int(x['rank']))
+        if [int(x['rank']) for x in rows] != list(range(row['ranks'])):
+            raise ValueError('Incomplete rank coverage in RCR bulk MG statistics')
+        names = ('levels', 'coarse_processes', 'coarse_solves', 'smoother_applications', 'schur_applications')
+        counters = [{name: int(x[name]) for name in names} for x in rows]
+        if any(x['levels'] < 2 or min(x.values()) <= 0 for x in counters):
+            raise ValueError('RCR bulk MG did not execute its Schur smoother or coarse solve')
+        result.append(dict(step=step, ranks=counters))
+    return dict(owner=owner, per_step=result)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('root',type=Path)
     parser.add_argument('out',type=Path)
+    parser.add_argument('--runs', nargs='+', type=Path,
+                        help='collect only the specified top-level run directories under root')
     args = parser.parse_args()
     root, out = args.root.resolve(), args.out.resolve()
+    groups = [root] if not args.runs else [(root/path).resolve(strict=True) for path in args.runs]
+    if args.runs and (len(set(groups)) != len(groups) or
+                      any(p.parent != root or not p.is_dir() or p == out for p in groups)):
+        parser.error('--runs requires distinct top-level run directories under root')
     out.mkdir(exist_ok=True,parents=True)
     summary, index, runs = [], {}, []
     legacy_allocations = {}
     for name in ('window.json','first.json','native-mesh.json','timings.json','review.json',
                  'supplement.json','restart-regression.json','continuation.json'):
-        for p in sorted(root.rglob(name)):
+        for p in sorted(p for group in groups for p in group.rglob(name)):
             if 'source' in p.relative_to(root).parts or out in p.parents:
                 continue
             work = p.parent
@@ -64,6 +102,9 @@ def main():
                         affinity=affinity,mpi_launcher=launcher,samples_checked=len(row['runs']),
                         detailed_monitors=False,componentwise_diagnostic=False)
             if name=='window.json':
+                if (row.get('preconditioner', {}).get('pc') == 'pressure-mg' and
+                        row['qualification'] in ('linear_window_only', 'independent_pair_passed')):
+                    saved['derived_owner_smoother'] = owner_smoother_stats((work/'solve.log').read_text(), row)
                 linear = row.get('linear',{})
                 allocation = row.get('allocation')
                 if not allocation:
@@ -92,7 +133,10 @@ def main():
                 key = str(f.relative_to(root))
                 if f.is_file() and key not in index:
                     index[key] = dict(bytes=f.stat().st_size,sha256=digest(f))
+    job_ids = {str(run['data'].get('job', '')) for run in runs}
     for f in sorted(root.glob('*.log')):
+        if args.runs and not any(part in job_ids for part in re.findall(r'\d+', f.stem)):
+            continue
         index[f.name] = dict(bytes=f.stat().st_size,sha256=digest(f))
     with (out/'calibration.csv').open('w',newline='') as stream:
         if summary:
