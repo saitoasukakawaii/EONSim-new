@@ -145,7 +145,7 @@ B 的作业 505 用 RCR 包装的整体 MG。已启用 owner 本地 Braess-Saraz
 | 32 rank | 53.185 / 53.538 / 53.264 | 53.264 | 40 / 2360 | 1.938 | 0.4735 | 1.8938 |
 | 1 rank | 36.843 / 37.291 / 37.275 | 37.275 | 40 / 2360 | 1.931 | 0.3313 | 1.3253 |
 
-B20 的同精度通信收益为 30.02%，达到该主要算例的 15% 目标。上文的 20.67% 来自单独改变线性相对容差的作业 502。配置以 `--gamg-telescope single-rank-v1` 显式选择。A 和 C 分别在原合格的 A20、C4 基线测得单 owner 布局，每个网格还须用自身的合格 20 步窗口进行通信比较。A 四个粗层行数为 8、5、8、18，C 为 11、3、14、50。B 的通信结果仅覆盖该 32 MPI 分区。运行源码为 `12e68f0cc`，后验逐步和有效容差复核为 `8fbc63546`，沿用作业 466 的生产二进制。[服务器原始文件索引及 SHA-256](../research/data/fsi-scalable-05/physics-telescope/log-index.json.gz)
+B20 的同精度通信收益为 30.02%，达到该主要算例的 15% 目标。上文的 20.67% 来自单独改变线性相对容差的作业 502。配置以 `--gamg-telescope single-rank-v1` 显式选择。A 和 C 分别在原合格的 A20、C4 基线测得单 owner 布局。各自 20 步窗口的通信性能须按该网格的合格轨迹核对。A 四个粗层行数为 8、5、8、18，C 为 11、3、14、50。B 的通信结果仅覆盖该 32 MPI 分区。运行源码为 `12e68f0cc`，后验逐步和有效容差复核为 `8fbc63546`，沿用作业 466 的生产二进制。[服务器原始文件索引及 SHA-256](../research/data/fsi-scalable-05/physics-telescope/log-index.json.gz)
 
 复跑需在独立 checkout 中保留合格基线的编译提交，以便入口核对二进制和实际 C++ 源树。以下以 B20 为例，先按同样的参数在 1 和 4 步完成筛选，4 步使用同期直接参考。正式计时输入须为已完成独立验收的两个 20 步窗口。
 
@@ -162,4 +162,36 @@ sbatch -n32 -t 00:35:00 "$data/run_case.sh" B --timing \
   "$root/B20-fixed-1e-6" "$candidate" "$root/B20-lu" "$exe" \
   "$FSI05_ROOT/recheck-B20-pairs" --change gamg_telescope
 python -B "$data/test_tube_protocol.py" -v
+```
+
+## A20 的两种通信比较
+
+A 管有 869 个自由度，使用 4 个单线程 MPI 进程。作业 529 在 physics 分裂预条件器的四个 GAMG 粗层上将 Krylov 子通信器从 4 rank 缩减到 1 rank。20 步、45 次 Newton 校正、1,434 次外层 KSP 迭代通过同期 LU、原残量和完整物理验收。速度、压力、结构、网格的粗层行数分别为 8、5、8、18，所有行均由 rank 0 持有。压力、流体速度、壁和网格位移的最大局部差分别为 2.328e-8 Pa、6.394e-12 m/s、1.533e-15 m 和 1.060e-14 m。[场与历史收据](../research/data/fsi-scalable-05/A-communication/run-receipts.json.gz)
+
+第二组使用 RCR 包装的整体 pressure-MG，比较 Braess-Sarazin 原有分量子向量读写和显式 owner 本地读写。先核对了阶段 02 的真实 A20。其 case.json、流体网格和固体网格与本轮完全相同，1 MPI 的 RCR bulk 层级为 868→305→46 行。40 个实际校正按原 RHS 重算均过旧严格门槛，20 个树快照中的首末累计 smoother 调用数为 2,148 和 35,996。该原始日志的 SHA-256 为 `5baa76e341031141d85e4ed4f43f7ed45eab43c1e31fcd4651f362178f66fb67`。[早期筛选收据](../research/data/fsi-scalable-02/final-validation.json)
+
+本轮 533/534/535 在 4 MPI 上依次验证 1、4、20 步。两个 owner 配置沿用相同的压力粗化、V 循环、未启用的内部场缩放和粗层行预算。每一侧的 4/20 步都完成独立 LU 与完整场、历史、质量、界面和 RCR 对照。实际层数为 5，粗求解器通信域含 2 rank。20 步诊断两侧各有 40 次校正，owner 关闭与开启时每个 rank 的末次累计平滑及 Schur 调用数分别为 49,936 和 50,120。作业 535 的 owner-on 压力、速度、壁和网格位移最大差分别为 8.050e-12 Pa、2.951e-14 m/s、2.327e-18 m 和 6.422e-16 m。归档器逐步检查实际 `root/rcr_bulk` 子树、每个 rank 的有效调用以及 PETSc 有效选项。[运行原件索引](../research/data/fsi-scalable-05/A-communication/log-index.json.gz)
+
+两组均固定 `CALIBRATED-v2/fixed-1e-6`、独占 128 核，分别预热一次并交错三对。在每组自己的对照中，只改变表内的通信选项。所有正式样本均通过与作业 529 相同的 A20 直接参考及物理验收。[逐次样本](../research/data/fsi-scalable-05/A-communication/calibration.csv)
+
+| 20 步正式配置 | 作业 | 三次 T_job（s，按对次） | 中位 T_job（s） | Newton / KSP 中位数 | 峰值 RSS 中位（MiB） | 活跃 rank-hours | 分配 core-hours |
+|---|---:|---|---:|---:|---:|---:|---:|
+| physics，4 rank 粗层 | 530 | 2.3213 / 2.3214 / 2.3212 | 2.3213 | 45 / 1432 | 111.65 | 0.00258 | 0.08254 |
+| physics，1 rank 粗层 | 530 | 1.8135 / 1.8059 / 1.8059 | 1.8059 | 45 / 1434 | 111.52 | 0.00201 | 0.06421 |
+| pressure-MG，owner off | 536 | 6.3350 / 6.3342 / 6.2366 | 6.3342 | 40 / 6187 | 125.23 | 0.00704 | 0.22522 |
+| pressure-MG，owner on | 536 | 2.9739 / 2.9237 / 2.9739 | 2.9739 | 40 / 6217 | 129.13 | 0.00330 | 0.10574 |
+
+physics 粗层缩核在主要 B20 上的中位降幅为 30.02%，在代表网格 A20 上为 22.20%，达到主要算例 15% 和代表算例退化不超过 5% 的门槛。pressure-MG 的 owner 本地读写在真实 A20 上取得 53.05% 的同精度降幅。四个 A 配置中，physics 单 rank 粗层的 1.8059 s 最快。B/C 的 Braess owner 性能仍需其合格整体 MG 解。作业 529–536 的脚本为 `8fbc63546`，沿用作业 466 的生产二进制。
+
+复跑沿用上节的 `root`、`FSI05_ROOT`、`data`、`exe`。A 的 physics 比较按上节命令使用 4 MPI 和相应 A20 基线。以下为 owner 比较的两个诊断窗口及正式组，1/4 步首筛分别使用同窗直接参考和 35/60 s 预算。正式作业须在两个独立诊断窗口就绪后执行。
+
+```bash
+for mode in off on; do
+  sbatch -n4 -t 00:08:00 "$data/run_case.sh" A 20 fixed-1e-6 "$exe" \
+    "$FSI05_ROOT/recheck-A20-owner-$mode" --limit 150 --pc pressure-mg --owner "$mode" \
+    --reference "$root/A20-lu"
+done
+sbatch -n4 -t 00:24:00 "$data/run_case.sh" A --timing \
+  "$FSI05_ROOT/recheck-A20-owner-off" "$FSI05_ROOT/recheck-A20-owner-on" \
+  "$root/A20-lu" "$exe" "$FSI05_ROOT/recheck-A20-owner-pairs" --change owner
 ```
