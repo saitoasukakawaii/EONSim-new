@@ -833,10 +833,13 @@ void refine_direct_correction(KSP ksp,Vec b,Vec x,PetscInt budget) {
         if(i==budget||unchanged||wide>=best)
             throw std::runtime_error("LU refinement failed the original equation on the returned FP64 vector");
         best=wide;
-        EONSIM_PETSC(PCApply(pc,residual.get(),delta.get()));
-        PCFailedReason failure;
-        EONSIM_PETSC(PCGetFailedReasonRank(pc,&failure));
-        if(failure!=PC_NOERROR) throw std::runtime_error("LU refinement factor application failed");
+        const auto apply_error=PCApply(pc,residual.get(),delta.get());
+        PCFailedReason failure=PC_NOERROR;
+        const auto reason_error=PCGetFailedReason(pc,&failure);
+        const int local_failure=apply_error||reason_error||failure!=PC_NOERROR;
+        int any_failure=0;
+        MPI_Allreduce(&local_failure,&any_failure,1,MPI_INT,MPI_MAX,comm);
+        if(any_failure) throw std::runtime_error("LU refinement factor application failed");
         EONSIM_PETSC(VecNorm(delta.get(),NORM_2,&correction_norm));
         if(!std::isfinite(correction_norm)) throw std::runtime_error("Nonfinite LU refinement correction");
         EONSIM_PETSC(VecCopy(x,previous.get()));
@@ -1616,6 +1619,7 @@ struct NonlinearSystem::Workspace {
         EONSIM_PETSC(KSPGetType(ksp,&method)); EONSIM_PETSC(KSPGetNormType(ksp,&norm_type));
         EONSIM_PETSC(PetscOptionsGetInt(nullptr,nullptr,"-linear_lu_refinement_steps",
                                         &diagnostics.lu_refinement_steps,nullptr));
+        int invalid_refinement=0;
         if(diagnostics.lu_refinement_steps) {
             PetscBool diagonal_scale;
             EONSIM_PETSC(KSPGetDiagonalScale(ksp,&diagonal_scale));
@@ -1624,14 +1628,18 @@ struct NonlinearSystem::Workspace {
                matrix_free||diagonal_scale||!method||std::strcmp(method,KSPPREONLY)!=0||
                !type||std::strcmp(type,PCLU)!=0||preconditioner_lag!=1||jacobian_lag!=1||
                reuse_preconditioner||eisenstat_walker)
-                throw std::runtime_error("LU refinement requires 1..5 steps, extended arithmetic and fresh unscaled PREONLY/LU");
+                invalid_refinement=1;
         }
         const int residual_policy[]={int(true_residual),int(!true_residual),
             (deflation_capacity>0&&!true_residual)||(true_residual&&(!method||(std::strcmp(method,KSPFGMRES)!=0&&std::strcmp(method,KSPPIPEFGMRES)!=0)||
                             norm_type!=KSP_NORM_UNPRECONDITIONED||converge_at_limit||
-                            (convergence_test_set&&std::strcmp(convergence_test,"default")!=0)))};
-        int global_residual_policy[3]{};
-        MPI_Allreduce(residual_policy,global_residual_policy,3,MPI_INT,MPI_MAX,comm);
+                            (convergence_test_set&&std::strcmp(convergence_test,"default")!=0))),
+            invalid_refinement,invalid_refinement?0:int(diagnostics.lu_refinement_steps),
+            invalid_refinement?0:-int(diagnostics.lu_refinement_steps)};
+        int global_residual_policy[6]{};
+        MPI_Allreduce(residual_policy,global_residual_policy,6,MPI_INT,MPI_MAX,comm);
+        if(global_residual_policy[3]||global_residual_policy[4]!=-global_residual_policy[5])
+            throw std::runtime_error("LU refinement requires collective 1..5 steps, extended arithmetic and fresh unscaled PREONLY/LU");
         if((global_residual_policy[0]&&global_residual_policy[1])||global_residual_policy[2])
             throw std::runtime_error("True residual verification requires the same option on all ranks, unpreconditioned flexible GMRES, and a residual-based convergence test without converged_maxits");
         verify_true_residual=true_residual;
